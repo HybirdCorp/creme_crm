@@ -1,43 +1,56 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta, date
-    from decimal import Decimal
-    from functools import partial
+from datetime import date, timedelta
+from decimal import Decimal
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query_utils import Q
-    from django.urls import reverse
-    from django.utils.encoding import force_text
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
+from django.urls import reverse
+from django.utils.encoding import force_text
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (
-        CremePropertyType, CremeProperty,
-        Relation, RelationType,
-        SetCredentials,
-        Currency,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    Currency,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
+from creme.persons.tests.base import (
+    skipIfCustomAddress,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
-    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
-
-    from ..models import (
-        AdditionalInformation, PaymentInformation, PaymentTerms,
-        InvoiceStatus, QuoteStatus, SalesOrderStatus,
-    )
-    from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from ..core import get_models_for_conversion
-    from .base import (
-        _BillingTestCase,
-        skipIfCustomQuote, skipIfCustomInvoice,
-        skipIfCustomSalesOrder, skipIfCustomProductLine, skipIfCustomServiceLine,
-        Organisation, Address,
-        Invoice, Quote, SalesOrder, ProductLine, ServiceLine,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..core import get_models_for_conversion
+from ..models import (
+    AdditionalInformation,
+    InvoiceStatus,
+    PaymentInformation,
+    PaymentTerms,
+    QuoteStatus,
+    SalesOrderStatus,
+)
+from .base import (
+    Address,
+    Invoice,
+    Organisation,
+    ProductLine,
+    Quote,
+    SalesOrder,
+    ServiceLine,
+    _BillingTestCase,
+    skipIfCustomInvoice,
+    skipIfCustomProductLine,
+    skipIfCustomQuote,
+    skipIfCustomSalesOrder,
+    skipIfCustomServiceLine,
+)
 
 
 @skipIfCustomOrganisation

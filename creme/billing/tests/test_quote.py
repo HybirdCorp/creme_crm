@@ -1,32 +1,35 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
+from datetime import date
+from decimal import Decimal
+from functools import partial
 
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth import EntityCredentials
-    from creme.creme_core.gui import actions
-    from creme.creme_core.models import SetCredentials, Currency
+from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.gui import actions
+from creme.creme_core.models import Currency, SetCredentials
+from creme.persons.constants import REL_SUB_PROSPECT
+from creme.persons.tests.base import (
+    skipIfCustomAddress,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import REL_SUB_PROSPECT
-    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
-
-    from ..actions import ExportQuoteAction
-    from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from ..models import QuoteStatus
-
-    from .base import (
-        _BillingTestCase,
-        skipIfCustomQuote, skipIfCustomServiceLine,
-        Organisation, Address,
-        Quote, Invoice, SalesOrder, ServiceLine,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..actions import ExportQuoteAction
+from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..models import QuoteStatus
+from .base import (
+    Address,
+    Invoice,
+    Organisation,
+    Quote,
+    SalesOrder,
+    ServiceLine,
+    _BillingTestCase,
+    skipIfCustomQuote,
+    skipIfCustomServiceLine,
+)
 
 
 @skipIfCustomOrganisation

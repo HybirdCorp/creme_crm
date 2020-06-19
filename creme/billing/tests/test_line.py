@@ -1,41 +1,42 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
-    from json import dumps as json_dump
+from decimal import Decimal
+from functools import partial
+from json import dumps as json_dump
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.core.exceptions import ValidationError
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (
-        Relation,
-        SetCredentials,
-        Vat,
-        FakeOrganisation,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import (
+    FakeOrganisation,
+    Relation,
+    SetCredentials,
+    Vat,
+)
+from creme.persons.models import Contact, Organisation
+from creme.persons.tests.base import skipIfCustomOrganisation
+from creme.products.models import Product, Service, SubCategory
+from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
-    from creme.persons.models import Contact, Organisation
-    from creme.persons.tests.base import skipIfCustomOrganisation
-
-    from creme.products.models import Product, Service, SubCategory
-    from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
-
-    from ..constants import (
-        REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM,
-        DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT,
-    )
-    from .base import (
-        _BillingTestCase,
-        skipIfCustomInvoice,
-        skipIfCustomProductLine, skipIfCustomServiceLine,
-        Invoice, ProductLine, ServiceLine,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import (
+    DISCOUNT_ITEM_AMOUNT,
+    DISCOUNT_LINE_AMOUNT,
+    DISCOUNT_PERCENT,
+    REL_SUB_HAS_LINE,
+    REL_SUB_LINE_RELATED_ITEM,
+)
+from .base import (
+    Invoice,
+    ProductLine,
+    ServiceLine,
+    _BillingTestCase,
+    skipIfCustomInvoice,
+    skipIfCustomProductLine,
+    skipIfCustomServiceLine,
+)
 
 
 @skipIfCustomOrganisation
