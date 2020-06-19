@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.core.paginator import Paginator
-    from django.utils.translation import gettext as _
+from django.core.paginator import Paginator
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.gui.pager import PagerContext, PagerLink
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.gui.pager import PagerContext, PagerLink
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class PagerContextTestCase(CremeTestCase):

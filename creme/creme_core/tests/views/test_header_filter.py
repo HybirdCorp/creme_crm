@@ -1,39 +1,37 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.test import override_settings
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
-    from creme.creme_core.tests.views.base import ViewsTestCase
-
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellCustomField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.core.entity_filter.operators import EQUALS
-    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.models import (
-        CustomField,
-        EntityFilter,
-        FieldsConfig,
-        HeaderFilter,
-        RelationType,
-        FakeContact,
-        FakeMailingList,
-        FakeOrganisation,
-        FakeProduct,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.core.entity_filter.condition_handler import (
+    RegularFieldConditionHandler,
+)
+from creme.creme_core.core.entity_filter.operators import EQUALS
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.models import (
+    CustomField,
+    EntityFilter,
+    FakeContact,
+    FakeMailingList,
+    FakeOrganisation,
+    FakeProduct,
+    FieldsConfig,
+    HeaderFilter,
+    RelationType,
+)
+from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
+from creme.creme_core.tests.views.base import ViewsTestCase
 
 
 class HeaderFilterViewsTestCase(ViewsTestCase):

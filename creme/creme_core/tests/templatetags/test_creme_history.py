@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
+from datetime import timedelta
 
-    from ..base import CremeTestCase
-    from ..fake_models import FakeContact
+from django.utils.timezone import now
 
-    from django.utils.timezone import now
+from creme.creme_core.models.history import (
+    TYPE_CREATION,
+    TYPE_EDITION,
+    HistoryLine,
+)
+from creme.creme_core.templatetags import creme_history
 
-    from creme.creme_core.models.history import HistoryLine, TYPE_CREATION, TYPE_EDITION
-    from creme.creme_core.templatetags import creme_history
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..fake_models import FakeContact
 
 
 class CremeHistoryTagsTestCase(CremeTestCase):

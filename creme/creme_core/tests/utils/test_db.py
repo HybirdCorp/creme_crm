@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.db import connections, DEFAULT_DB_ALIAS
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db import DEFAULT_DB_ALIAS, connections
 
-    from ..base import CremeTestCase
-    from ..fake_models import (
-        FakeContact, FakeOrganisation,
-        FakeSector, FakeCivility,
-        FakeFolder, FakeDocument,
-    )
-    from creme.creme_core.models import Relation, CremeEntity
-    from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.utils.db import (
-        get_indexes_columns,
-        get_indexed_ordering,
-        build_columns_key,
-        populate_related,
-    )  # reorder_instances
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.constants import REL_SUB_HAS
+from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.utils.db import (
+    build_columns_key,
+    get_indexed_ordering,
+    get_indexes_columns,
+    populate_related,
+)
+
+from ..base import CremeTestCase
+from ..fake_models import (
+    FakeCivility,
+    FakeContact,
+    FakeDocument,
+    FakeFolder,
+    FakeOrganisation,
+    FakeSector,
+)
 
 
 class DBTestCase(CremeTestCase):

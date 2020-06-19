@@ -1,24 +1,28 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.deletion import ProtectedError
-    from django.utils.translation import gettext as _, ngettext
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.deletion import ProtectedError
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from creme.creme_core.core.deletion import FixedValueReplacer, SETReplacer
-    from creme.creme_core.creme_jobs import deletor_type
-    from creme.creme_core.models import (
-        Job, DeletionCommand, JobResult,
-        FakeContact, FakeOrganisation, FakeCivility, FakeSector,
-        FakeTicket, FakeTicketPriority
-    )
-    from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.core.deletion import FixedValueReplacer, SETReplacer
+from creme.creme_core.creme_jobs import deletor_type
+from creme.creme_core.models import (
+    DeletionCommand,
+    FakeCivility,
+    FakeContact,
+    FakeOrganisation,
+    FakeSector,
+    FakeTicket,
+    FakeTicketPriority,
+    Job,
+    JobResult,
+)
+from creme.creme_core.utils.translation import get_model_verbose_name
 
-    from ..base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class DeletionCommandTestCase(CremeTestCase):

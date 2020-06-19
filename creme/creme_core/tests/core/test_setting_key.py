@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from ..base import CremeTestCase
+from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
 
-    from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class SettingKeyTestCase(CremeTestCase):

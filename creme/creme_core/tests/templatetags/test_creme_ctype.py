@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.template import Template, Context
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.template import Context, Template
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import Currency, FakeSector, FakePosition
-    from creme.creme_core.tests.base import skipIfNotInstalled
-    from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.models import Currency, FakePosition, FakeSector
+from creme.creme_core.tests.base import skipIfNotInstalled
+from creme.creme_core.utils.translation import get_model_verbose_name
 
-    from ..base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class CremeCTypeTagsTestCase(CremeTestCase):

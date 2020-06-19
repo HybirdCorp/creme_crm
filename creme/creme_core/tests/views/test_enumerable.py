@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
 
-    from .base import ViewsTestCase
-    from creme.creme_core import models
-    from creme.creme_core.core.entity_filter import operators
-    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
+
+from creme.creme_core import models
+from creme.creme_core.core.entity_filter import operators
+from creme.creme_core.core.entity_filter.condition_handler import (
+    RegularFieldConditionHandler,
+)
+
+from .base import ViewsTestCase
 
 
 class EnumerableViewsTestCase(ViewsTestCase):

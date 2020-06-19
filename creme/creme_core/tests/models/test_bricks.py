@@ -1,39 +1,42 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import loads as jsonloads
+from functools import partial
+from json import loads as jsonloads
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
+from creme.creme_core import setting_keys
+from creme.creme_core.bricks import (
+    CustomFieldsBrick,
+    HistoryBrick,
+    PropertiesBrick,
+    RelationsBrick,
+)
+from creme.creme_core.core.entity_cell import (
+    EntityCellFunctionField,
+    EntityCellRegularField,
+)
+from creme.creme_core.gui.bricks import Brick
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    BrickMypageLocation,
+    BrickState,
+    CremeEntity,
+    CustomBrickConfigItem,
+    FakeContact,
+    FakeImage,
+    FakeOrganisation,
+    InstanceBrickConfigItem,
+    RelationBrickItem,
+    RelationType,
+    SettingValue,
+    UserRole,
+)
 
-    from creme.creme_core import setting_keys
-    from creme.creme_core.bricks import (
-        RelationsBrick,
-        PropertiesBrick,
-        CustomFieldsBrick,
-        HistoryBrick,
-    )
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellFunctionField,
-    )
-    from creme.creme_core.gui.bricks import Brick
-    from creme.creme_core.models import (
-        CremeEntity,
-        UserRole,
-        RelationType,
-        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-        InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem,
-        BrickState,
-        SettingValue,
-        FakeContact, FakeOrganisation, FakeImage,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class BrickTestCase(CremeTestCase):

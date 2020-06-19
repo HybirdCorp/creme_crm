@@ -1,19 +1,13 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
+from datetime import timedelta
 
-    from django.utils.timezone import now
+from django.utils.timezone import now
 
-    from ..base import CremeTestCase
+from creme.creme_core.core.imprint import _ImprintManager
+from creme.creme_core.models import FakeContact, FakeDocument, Imprint
 
-    from creme.creme_core.core.imprint import _ImprintManager
-    from creme.creme_core.models import (
-        Imprint,
-        FakeContact, FakeDocument,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class ImprintManagerTestCase(CremeTestCase):

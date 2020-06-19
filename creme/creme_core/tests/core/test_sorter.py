@@ -1,32 +1,41 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.db.models import ForeignKey, CharField, IntegerField
+from django.db.models import CharField, ForeignKey, IntegerField
 
-    from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.core.function_field import FunctionField
-    from creme.creme_core.core.sorter import (
-        QuerySortInfo, QuerySorter,
-        AbstractCellSorter, CellSorterRegistry,
-        RegularFieldSorter, EntityForeignKeySorter, VoidSorter, Order,
-    )
-    from creme.creme_core.function_fields import PropertiesField
-    from creme.creme_core.models import (
-        CremeEntity, HistoryLine,
-        FakeOrganisation, FakeContact, FakeSector, FakeCivility,
-        FakeDocument, FakeInvoice, FakeActivity, FakeEmailCampaign,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.utils.db import get_indexed_ordering
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.constants import REL_SUB_HAS
+from creme.creme_core.core.entity_cell import (
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.core.function_field import FunctionField
+from creme.creme_core.core.sorter import (
+    AbstractCellSorter,
+    CellSorterRegistry,
+    EntityForeignKeySorter,
+    Order,
+    QuerySorter,
+    QuerySortInfo,
+    RegularFieldSorter,
+    VoidSorter,
+)
+from creme.creme_core.function_fields import PropertiesField
+from creme.creme_core.models import (
+    CremeEntity,
+    FakeActivity,
+    FakeCivility,
+    FakeContact,
+    FakeDocument,
+    FakeEmailCampaign,
+    FakeInvoice,
+    FakeOrganisation,
+    FakeSector,
+    HistoryLine,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.utils.db import get_indexed_ordering
 
 
 class QuerySorterTestCase(CremeTestCase):

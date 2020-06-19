@@ -1,34 +1,18 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from tempfile import NamedTemporaryFile
-    from unittest import skipIf
+from tempfile import NamedTemporaryFile
 
-    from bleach._vendor import html5lib  # Avoid a dependence only for test
+from bleach._vendor import html5lib
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.creme_jobs.mass_import import mass_import_type
+from creme.creme_core.models import MassImportJobResult, SetCredentials
+from creme.creme_core.utils.xlwt_utils import XlwtWriter
+from creme.documents.models import Document, Folder, FolderCategory
 
-    from ..base import CremeTestCase
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.creme_jobs.mass_import import mass_import_type
-    from creme.creme_core.models import SetCredentials, MassImportJobResult
-
-    from creme.documents.models import Document, Folder, FolderCategory
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
-try:
-    from creme.creme_core.utils.xlwt_utils import XlwtWriter
-    from creme.creme_core.backends import import_backend_registry
-except ImportError:
-    no_XLS_lib = True
-else:
-    no_XLS_lib = 'xls' not in import_backend_registry.extensions
-
-
-def skipIfNoXLSLib(test_func):
-    return skipIf(no_XLS_lib, "Skip tests, couldn't find xlwt or xlrd libs")(test_func)
+from ..base import CremeTestCase
 
 
 class ViewsTestCase(CremeTestCase):

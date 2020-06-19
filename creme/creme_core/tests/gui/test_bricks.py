@@ -1,32 +1,40 @@
-try:
-    from functools import partial
 
-    from django.contrib.sessions.backends.base import SessionBase
-    from django.template.context import make_context
-    from django.template.engine import Engine
-    from django.test import RequestFactory
-    from django.utils.translation import gettext as _
+from functools import partial
 
-    from ..base import CremeTestCase
+from django.contrib.sessions.backends.base import SessionBase
+from django.template.context import make_context
+from django.template.engine import Engine
+from django.test import RequestFactory
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.constants import MODELBRICK_ID
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.gui.bricks import (
-        _BrickRegistry, BricksManager,
-        Brick, SimpleBrick, QuerysetBrick,
-        EntityBrick, SpecificRelationsBrick, CustomBrick, InstanceBrick,
-    )
-    from creme.creme_core.models import (
-        Relation, RelationType,
-        InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem,
-        FakeContact, FakeOrganisation, FakeImage,
-    )
-    # from creme.creme_core.views.bricks import build_context
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.constants import MODELBRICK_ID
+from creme.creme_core.core.entity_cell import (
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.gui.bricks import (
+    Brick,
+    BricksManager,
+    CustomBrick,
+    EntityBrick,
+    InstanceBrick,
+    QuerysetBrick,
+    SimpleBrick,
+    SpecificRelationsBrick,
+    _BrickRegistry,
+)
+from creme.creme_core.models import (
+    CustomBrickConfigItem,
+    FakeContact,
+    FakeImage,
+    FakeOrganisation,
+    InstanceBrickConfigItem,
+    Relation,
+    RelationBrickItem,
+    RelationType,
+)
+
+from ..base import CremeTestCase
 
 
 class BrickRegistryTestCase(CremeTestCase):

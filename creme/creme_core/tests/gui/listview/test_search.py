@@ -1,31 +1,31 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models import CharField, IntegerField, ForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import CharField, ForeignKey, IntegerField
 
-    from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellCustomField,
-        EntityCellRelation, EntityCellFunctionField
-    )
-    from creme.creme_core.core.function_field import FunctionField
-    from creme.creme_core.forms import listview as lv_form
-    from creme.creme_core.gui.listview import search as lv_search
-    from creme.creme_core.models import (
-        CremeUser,
-        CustomField,
-        RelationType,
-        FakeContact, FakeOrganisation, FakeSector,
-        FakeInvoiceLine,
-        FakeEmailCampaign,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.constants import REL_SUB_HAS
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.core.function_field import FunctionField
+from creme.creme_core.forms import listview as lv_form
+from creme.creme_core.gui.listview import search as lv_search
+from creme.creme_core.models import (
+    CremeUser,
+    CustomField,
+    FakeContact,
+    FakeEmailCampaign,
+    FakeInvoiceLine,
+    FakeOrganisation,
+    FakeSector,
+    RelationType,
+)
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class ListViewSearchTestCase(CremeTestCase):

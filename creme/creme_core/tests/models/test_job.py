@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.utils.timezone import now
+from django.utils.timezone import now
 
-    from ..base import CremeTestCase
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.creme_jobs import reminder_type
+from creme.creme_core.models import Job
+from creme.creme_core.utils.date_period import MinutesPeriod
+from creme.creme_core.utils.dates import dt_to_ISO8601
 
-    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.creme_jobs import reminder_type
-    from creme.creme_core.models import Job
-    from creme.creme_core.utils.date_period import MinutesPeriod
-    from creme.creme_core.utils.dates import dt_to_ISO8601
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class JobViewsTestCase(CremeTestCase):

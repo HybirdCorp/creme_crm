@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.core.management import call_command
-    from django.core.management.base import CommandError
+from django.core.management import call_command
+from django.core.management.base import CommandError
 
-    from .. import base
+from creme.creme_core.management.commands.creme_createstaffuser import (
+    Command as StaffCommand,
+)
+from creme.creme_core.models import CremeUser
 
-    from creme.creme_core.management.commands.creme_createstaffuser import Command as StaffCommand
-    from creme.creme_core.models import CremeUser
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import base
 
 
 @base.skipIfCustomUser

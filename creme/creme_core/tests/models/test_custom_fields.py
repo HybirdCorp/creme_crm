@@ -1,33 +1,37 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from collections import defaultdict
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
+from collections import defaultdict
+from datetime import date
+from decimal import Decimal
+from functools import partial
 
-    from django import forms
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models import QuerySet
-    from django.utils.translation import gettext as _
+from django import forms
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import QuerySet
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
+from creme.creme_config.forms.fields import (
+    CustomEnumChoiceField,
+    CustomMultiEnumChoiceField,
+)
+from creme.creme_core.models import (
+    CustomField,
+    CustomFieldBoolean,
+    CustomFieldDate,
+    CustomFieldDateTime,
+    CustomFieldEnum,
+    CustomFieldEnumValue,
+    CustomFieldFloat,
+    CustomFieldInteger,
+    CustomFieldMultiEnum,
+    CustomFieldString,
+    CustomFieldText,
+    CustomFieldURL,
+    FakeContact,
+    FakeOrganisation,
+)
 
-    from creme.creme_core.models import (
-        CustomField,
-        CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean,
-        CustomFieldString, CustomFieldText, CustomFieldURL,
-        CustomFieldDateTime, CustomFieldDate,
-        CustomFieldEnumValue, CustomFieldEnum, CustomFieldMultiEnum,
-        FakeOrganisation, FakeContact,
-    )
-
-    from creme.creme_config.forms.fields import (
-        CustomEnumChoiceField,
-        CustomMultiEnumChoiceField,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class CustomFieldManagerTestCase(CremeTestCase):

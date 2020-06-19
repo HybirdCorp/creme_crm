@@ -1,24 +1,17 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.http import Http404
+from django.contrib.contenttypes.models import ContentType
+from django.http import Http404
 
-    from ..base import CremeTestCase
+from creme.creme_core.models import FakeContact, FakeOrganisation, FakeSector
+from creme.creme_core.utils.content_type import (
+    as_ctype,
+    ctype_choices,
+    entity_ctypes,
+    get_ctype_or_404,
+)
 
-    from creme.creme_core.utils.content_type import (
-        as_ctype,
-        entity_ctypes,
-        get_ctype_or_404,
-        ctype_choices,
-    )
-    from creme.creme_core.models import (
-        FakeOrganisation,
-        FakeContact,
-        FakeSector,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class ContentTypeTestCase(CremeTestCase):

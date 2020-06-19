@@ -1,48 +1,46 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.apps import apps
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.core.exceptions import PermissionDenied
-    from django.db.models import QuerySet
-    from django.db.models.deletion import ProtectedError
-    from django.test.utils import override_settings
-    from django.utils.translation import gettext as _
+from django.apps import apps
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
+from django.db.models import QuerySet
+from django.db.models.deletion import ProtectedError
+from django.test.utils import override_settings
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase, skipIfNotInstalled
+from creme.creme_config.models import FakeConfigEntity
+from creme.creme_core import constants
+from creme.creme_core.auth import STAFF_PERM, SUPERUSER_PERM, EntityCredentials
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+    entity_filter_registries,
+    operands,
+    operators,
+)
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    CremeUser,
+    EntityFilter,
+    FakeContact,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeOrganisation,
+    Relation,
+    Sandbox,
+    SetCredentials,
+    UserRole,
+)
+from creme.creme_core.sandboxes import OnlySuperusersType
+from creme.documents.models import Document, Folder
+from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 
-    from creme.creme_core import constants
-    from creme.creme_core.auth import (
-        EntityCredentials,
-        SUPERUSER_PERM, STAFF_PERM,
-    )
-    from creme.creme_core.core.entity_filter import (
-        entity_filter_registries, EF_CREDENTIALS,
-        condition_handler,
-        operators,
-        operands,
-    )
-    from creme.creme_core.models import (
-        CremeUser, Sandbox, CremeEntity,
-        CremePropertyType, CremeProperty,
-        Relation, UserRole, SetCredentials,
-        EntityFilter,
-        FakeContact, FakeOrganisation, FakeInvoice, FakeInvoiceLine,
-    )
-    from creme.creme_core.sandboxes import OnlySuperusersType
-
-    from creme.creme_config.models import FakeConfigEntity
-
-    from creme.documents.models import Document, Folder
-    from creme.documents.tests.base import (
-        skipIfCustomDocument,
-        skipIfCustomFolder,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase, skipIfNotInstalled
 
 
 class CredentialsTestCase(CremeTestCase):

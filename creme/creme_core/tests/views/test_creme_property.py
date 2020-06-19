@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from .base import ViewsTestCase, BrickTestCaseMixin
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.bricks import PropertiesBrick
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+)
 
-    from ..fake_models import FakeContact, FakeOrganisation
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.bricks import PropertiesBrick
-    from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..fake_models import FakeContact, FakeOrganisation
+from .base import BrickTestCaseMixin, ViewsTestCase
 
 
 class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):

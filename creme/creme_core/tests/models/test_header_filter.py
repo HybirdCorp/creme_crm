@@ -1,30 +1,32 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import loads as json_load, dumps as json_dump
+from functools import partial
+from json import dumps as json_dump
+from json import loads as json_load
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 
-    from ..base import CremeTestCase
+from creme.creme_core.constants import REL_SUB_HAS
+from creme.creme_core.core.entity_cell import (
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.models import (
+    CremeEntity,
+    FakeCivility,
+    FakeContact,
+    FakeOrganisation,
+    FakePosition,
+    FieldsConfig,
+    HeaderFilter,
+    Relation,
+    RelationType,
+)
+from creme.creme_core.models.header_filter import HeaderFilterList
 
-    from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.models import (
-        CremeEntity,
-        RelationType, Relation,
-        HeaderFilter,
-        FieldsConfig,
-        FakeContact, FakeOrganisation, FakeCivility, FakePosition,
-    )
-    from creme.creme_core.models.header_filter import HeaderFilterList
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class HeaderFiltersTestCase(CremeTestCase):

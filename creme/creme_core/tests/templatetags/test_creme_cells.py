@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.template import Template, Context
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.template import Context, Template
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.models import Currency, FakeContact
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.core.sorter import cell_sorter_registry
+from creme.creme_core.models import Currency, FakeContact
 
-    from creme.creme_core.core.sorter import cell_sorter_registry
-
-    from ..base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class CremeCellsTagsTestCase(CremeTestCase):

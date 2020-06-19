@@ -1,35 +1,44 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
+from decimal import Decimal
+from functools import partial
 
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models import Q
-    from django.utils.translation import gettext as _, pgettext
-    from django.utils.formats import get_format, number_format
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from django.utils.formats import get_format, number_format
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellCustomField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.core.enumerable import _EnumerableRegistry, QSEnumerator
-    from creme.creme_core.forms import listview as lv_form
-    from creme.creme_core.gui.listview import ListViewSearchFieldRegistry
-    from creme.creme_core.models import (
-        CremeUser,
-        RelationType, Relation,
-        CustomField, CustomFieldEnumValue,
-        FakeContact, FakeOrganisation, FakeSector, FakeInvoiceLine,
-        FakeActivity, FakeActivityType, FakeImage, FakeImageCategory,
-    )
-    from creme.creme_core.tests.fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.core.enumerable import QSEnumerator, _EnumerableRegistry
+from creme.creme_core.forms import listview as lv_form
+from creme.creme_core.gui.listview import ListViewSearchFieldRegistry
+from creme.creme_core.models import (
+    CremeUser,
+    CustomField,
+    CustomFieldEnumValue,
+    FakeActivity,
+    FakeActivityType,
+    FakeContact,
+    FakeImage,
+    FakeImageCategory,
+    FakeInvoiceLine,
+    FakeOrganisation,
+    FakeSector,
+    Relation,
+    RelationType,
+)
+from creme.creme_core.tests.fake_constants import (
+    FAKE_AMOUNT_UNIT,
+    FAKE_PERCENT_UNIT,
+)
 
-    from ..base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class SearchWidgetsTestCase(CremeTestCase):

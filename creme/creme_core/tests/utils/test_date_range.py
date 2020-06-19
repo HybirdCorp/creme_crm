@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import datetime, date
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from datetime import date, datetime
 
-    from creme.creme_core.utils import date_range
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
+
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.utils import date_range
 
 
 class DateRangeTestCase(CremeTestCase):

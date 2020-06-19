@@ -1,30 +1,24 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.sessions.backends.base import SessionBase
-    from django.template import Template, Context, RequestContext
-    from django.test.client import RequestFactory
-    from django.utils.translation import gettext as _
+from django.contrib.sessions.backends.base import SessionBase
+from django.template import Context, RequestContext, Template
+from django.test.client import RequestFactory
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.bricks import HistoryBrick
-    from creme.creme_core.constants import (
-        MODELBRICK_ID,
-        REL_SUB_HAS,
-    )
-    from creme.creme_core.models import (
-        RelationType,
-        RelationBrickItem,
-        FakeContact,
-    )
-    from creme.creme_core.gui.bricks import brick_registry, Brick, EntityBrick
-    from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
-    from creme.creme_core.utils.media import get_current_theme
-    from creme.creme_core.utils.serializers import json_encode
+from creme.creme_core.bricks import HistoryBrick
+from creme.creme_core.constants import MODELBRICK_ID, REL_SUB_HAS
+from creme.creme_core.gui.bricks import Brick, EntityBrick, brick_registry
+from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
+from creme.creme_core.models import (
+    FakeContact,
+    RelationBrickItem,
+    RelationType,
+)
+from creme.creme_core.utils.media import get_current_theme
+from creme.creme_core.utils.serializers import json_encode
 
-    from ..base import CremeTestCase
-    from ..views.base import BrickTestCaseMixin
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..views.base import BrickTestCaseMixin
 
 
 class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):

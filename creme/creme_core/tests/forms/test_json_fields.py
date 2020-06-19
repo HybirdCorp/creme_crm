@@ -1,39 +1,42 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import dumps as json_dump, loads as json_load
+from functools import partial
+from json import dumps as json_dump
+from json import loads as json_load
 
-    from django.core.exceptions import ValidationError
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query import Q, QuerySet
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.db.models.query import Q, QuerySet
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from .. import fake_forms
+from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.forms.fields import (
+    CreatorEntityField,
+    FilteredEntityTypeField,
+    GenericEntityField,
+    JSONField,
+    MultiCreatorEntityField,
+    MultiGenericEntityField,
+    MultiRelationEntityField,
+    RelationEntityField,
+)
+from creme.creme_core.gui.quick_forms import quickforms_registry
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    EntityFilter,
+    FakeContact,
+    FakeImage,
+    FakeOrganisation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.utils.content_type import entity_ctypes
 
-    from .base import FieldTestCase
-
-    from creme.creme_core.auth import EntityCredentials
-    # from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.forms.fields import (
-        JSONField,
-        GenericEntityField, MultiGenericEntityField,
-        RelationEntityField, MultiRelationEntityField,
-        CreatorEntityField, MultiCreatorEntityField,
-        FilteredEntityTypeField,
-    )
-    from creme.creme_core.gui.quick_forms import quickforms_registry
-    from creme.creme_core.models import (
-        CremeProperty, CremePropertyType,
-        RelationType, CremeEntity,
-        EntityFilter,
-        SetCredentials,
-        FakeContact, FakeOrganisation, FakeImage,
-    )
-    from creme.creme_core.utils.content_type import entity_ctypes
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import fake_forms
+from .base import FieldTestCase
 
 
 class _JSONFieldBaseTestCase(FieldTestCase):

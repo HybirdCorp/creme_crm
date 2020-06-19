@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from ..base import CremeTestCase
+from creme.creme_core.core.reminder import Reminder, ReminderRegistry
 
-    from creme.creme_core.core.reminder import Reminder, ReminderRegistry
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class ReminderTestCase(CremeTestCase):

@@ -1,46 +1,52 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from time import sleep
+from functools import partial
+from time import sleep
 
-    from django.apps import apps
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.contrib.sessions.models import Session
-    from django.db import models
-    from django.test import override_settings
-    from django.utils.formats import date_format, number_format
-    from django.utils.html import escape
-    from django.utils.timezone import localtime
-    from django.utils.translation import gettext as _, pgettext
+from django.apps import apps
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sessions.models import Session
+from django.db import models
+from django.test import override_settings
+from django.utils.formats import date_format, number_format
+from django.utils.html import escape
+from django.utils.timezone import localtime
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from ..base import CremeTestCase, skipIfNotInstalled
-    from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_DISCOUNT_UNIT
-    from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
-    from ..fake_models import (
-        FakeContact, FakeOrganisation, FakePosition,
-        FakeImage, FakeImageCategory,
-        FakeEmailCampaign, FakeMailingList,
-        FakeInvoice, FakeInvoiceLine,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.forms import (  # CremeModelWithUserForm
+    CremeEntityQuickForm,
+    CremeModelForm,
+)
+from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
+from creme.creme_core.gui.field_printers import (
+    FKPrinter,
+    _FieldPrintersRegistry,
+    simple_print_html,
+)
+from creme.creme_core.gui.fields_config import FieldsConfigRegistry
+from creme.creme_core.gui.icons import Icon, IconRegistry
+from creme.creme_core.gui.last_viewed import LastViewedItem
+from creme.creme_core.gui.quick_forms import QuickFormsRegistry
+from creme.creme_core.gui.statistics import _StatisticsRegistry
+from creme.creme_core.models import CremeEntity, Language, SetCredentials
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.forms import CremeModelForm, CremeEntityQuickForm  # CremeModelWithUserForm
-    from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
-    from creme.creme_core.gui.fields_config import FieldsConfigRegistry
-    from creme.creme_core.gui.field_printers import (
-        _FieldPrintersRegistry,
-        FKPrinter,
-        simple_print_html,
-    )
-    from creme.creme_core.gui.icons import Icon, IconRegistry
-    from creme.creme_core.gui.last_viewed import LastViewedItem
-    from creme.creme_core.gui.quick_forms import QuickFormsRegistry
-    from creme.creme_core.gui.statistics import _StatisticsRegistry
-    from creme.creme_core.models import CremeEntity, SetCredentials, Language
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase, skipIfNotInstalled
+from ..fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
+from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
+from ..fake_models import (
+    FakeContact,
+    FakeEmailCampaign,
+    FakeImage,
+    FakeImageCategory,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeMailingList,
+    FakeOrganisation,
+    FakePosition,
+)
 
 
 class GuiTestCase(CremeTestCase):

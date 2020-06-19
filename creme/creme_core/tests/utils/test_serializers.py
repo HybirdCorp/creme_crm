@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from pytz import timezone as get_timezone
-    from datetime import date, time, datetime, timezone
-    from decimal import Decimal
+from datetime import date, datetime, time, timezone
+from decimal import Decimal
 
-    from django.utils.translation import gettext, gettext_lazy
+from django.utils.translation import gettext, gettext_lazy
+from pytz import timezone as get_timezone
 
-    from creme.creme_core.utils.serializers import json_encode
+from creme.creme_core.utils.serializers import json_encode
 
-    from ..base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class SerializerTestCase(CremeTestCase):

@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from ..base import CremeTestCase
-    from ..fake_models import FakeContact
-    from creme.creme_core.models import ButtonMenuItem
-    from creme.creme_core.gui.button_menu import Button
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.models import ButtonMenuItem
+
+from ..base import CremeTestCase
+from ..fake_models import FakeContact
 
 
 class ButtonMenuItemTestCase(CremeTestCase):

@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from .base import CremeTestCase
+from creme.creme_core.backends import _BackendRegistry, base
+from creme.creme_core.backends.csv_import import CSVImportBackend
+from creme.creme_core.backends.xls_import import XLSImportBackend
 
-    from creme.creme_core.backends import _BackendRegistry, base
-    from creme.creme_core.backends.csv_import import CSVImportBackend
-    from creme.creme_core.backends.xls_import import XLSImportBackend
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import CremeTestCase
 
 
 class BackendsTestCase(CremeTestCase):

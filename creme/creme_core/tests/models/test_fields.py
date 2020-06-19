@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.models import ContentType
 
-    from ..base import CremeTestCase
+from creme.creme_core.models import (
+    CremeEntity,
+    EntityFilter,
+    FakeContact,
+    FakeOrganisation,
+    FakeTodo,
+    FieldsConfig,
+)
 
-    from creme.creme_core.models import (
-        CremeEntity,
-        EntityFilter, FieldsConfig,
-        FakeContact, FakeOrganisation, FakeTodo,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class ModelFieldsTestCase(CremeTestCase):

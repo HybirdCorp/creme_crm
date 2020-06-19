@@ -1,61 +1,52 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
-    from json import dumps as json_dump
-    from unittest import skipIf
+from decimal import Decimal
+from functools import partial
+from json import dumps as json_dump
+from unittest import skipIf
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.template.defaultfilters import slugify
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.encoding import smart_text
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _, ngettext
+from django.contrib.contenttypes.models import ContentType
+from django.template.defaultfilters import slugify
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.encoding import smart_text
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from .base import (
-        ViewsTestCase,
-        MassImportBaseTestCaseMixin,
-        BrickTestCaseMixin,
-        skipIfNoXLSLib,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.bricks import JobErrorsBrick, MassImportJobErrorsBrick
+from creme.creme_core.creme_jobs import batch_process_type, mass_import_type
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    FakeAddress,
+    FakeCivility,
+    FakeContact,
+    FakeEmailCampaign,
+    FakeOrganisation,
+    FakePosition,
+    FakeSector,
+    FieldsConfig,
+    Job,
+    MassImportJobResult,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.utils import update_model_instance
+from creme.creme_core.utils.xlrd_utils import XlrdReader
+from creme.documents.models import Document
+from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.bricks import (
-        MassImportJobErrorsBrick,
-        JobErrorsBrick,
-    )
-    from creme.creme_core.creme_jobs import (
-        mass_import_type,
-        batch_process_type,
-    )
-    from creme.creme_core.models import (
-        CremePropertyType, CremeProperty,
-        RelationType, Relation,
-        FieldsConfig,
-        CustomField, CustomFieldEnumValue,
-        Job, MassImportJobResult, SetCredentials,
-        FakeContact, FakeOrganisation, FakeAddress,
-        FakeCivility, FakePosition, FakeSector,
-        FakeEmailCampaign)
-    from creme.creme_core.utils import update_model_instance
-
-    from creme.documents.models import Document
-    from creme.documents.tests.base import (
-        skipIfCustomDocument,
-        skipIfCustomFolder,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
-try:
-    from creme.creme_core.utils.xlrd_utils import XlrdReader
-    from creme.creme_core.backends import export_backend_registry
-
-    XlsMissing = 'xls' not in export_backend_registry.extensions
-except Exception:
-    XlsMissing = True
+from .base import (
+    BrickTestCaseMixin,
+    MassImportBaseTestCaseMixin,
+    ViewsTestCase,
+    skipIfNoXLSLib,
+)
 
 
 @skipIfCustomDocument
@@ -1569,7 +1560,6 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                                  header=True,
                                 )
 
-    @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_dl_errors03(self):
         "XLS."
         def result_builder(response):

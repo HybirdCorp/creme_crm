@@ -1,27 +1,31 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from collections import OrderedDict
-    from datetime import date
-    from functools import partial
-    from random import shuffle
+from collections import OrderedDict
+from datetime import date
+from functools import partial
+from random import shuffle
 
-    from django.db.models import FieldDoesNotExist
+from django.db.models import FieldDoesNotExist
 
-    from creme.creme_core.core.paginator import (
-        FlowPaginator,
-        InvalidPage, FirstPage, LastPage,
-    )
-    from creme.creme_core.models import UserRole
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (
-        FakeContact, FakeOrganisation, FakeSector,
-        FakeInvoiceLine, FakeInvoice,
-        FakeDocument, FakeFolder, FakeFolderCategory,
-    )
-    from creme.creme_core.utils.profiling import CaptureQueriesContext
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.paginator import (
+    FirstPage,
+    FlowPaginator,
+    InvalidPage,
+    LastPage,
+)
+from creme.creme_core.models import UserRole
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_models import (
+    FakeContact,
+    FakeDocument,
+    FakeFolder,
+    FakeFolderCategory,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeOrganisation,
+    FakeSector,
+)
+from creme.creme_core.utils.profiling import CaptureQueriesContext
 
 
 class FlowPaginatorTestCase(CremeTestCase):

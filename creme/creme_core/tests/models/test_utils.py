@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.creme_core.models.utils import assign_2_charfield
-    from creme.creme_core.tests.fake_models import FakeAddress
-    from creme.creme_core.utils import truncate_str
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.models.utils import assign_2_charfield
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_models import FakeAddress
+from creme.creme_core.utils import truncate_str
 
 
 class ModelUtilsTestCase(CremeTestCase):

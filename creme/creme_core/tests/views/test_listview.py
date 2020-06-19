@@ -1,63 +1,72 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date, timedelta
-    from xml.etree.ElementTree import tostring as html_tostring
-    from functools import partial
-    from json import dumps as json_dump
-    from random import shuffle
-    import re
+import re
+from datetime import date, timedelta
+from functools import partial
+from json import dumps as json_dump
+from random import shuffle
+from xml.etree.ElementTree import tostring as html_tostring
 
-    from bleach._vendor import html5lib  # Avoid a dependence only for test
+from bleach._vendor import html5lib  # Avoid a dependence only for test
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.encoding import force_text
+from django.utils.http import urlquote
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models import Q
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.encoding import force_text
-    from django.utils.http import urlquote
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+    operators,
+)
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.gui.listview import ListViewState
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    EntityFilter,
+    FakeActivity,
+    FakeActivityType,
+    FakeAddress,
+    FakeCivility,
+    FakeContact,
+    FakeDocument,
+    FakeEmailCampaign,
+    FakeFolder,
+    FakeFolderCategory,
+    FakeImage,
+    FakeImageCategory,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeMailingList,
+    FakeOrganisation,
+    FakeSector,
+    FieldsConfig,
+    HeaderFilter,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.models.entity_filter import EntityFilterList
+from creme.creme_core.models.header_filter import HeaderFilterList
+from creme.creme_core.utils.profiling import CaptureQueriesContext
+from creme.creme_core.utils.queries import QSerializer
 
-    from .base import ViewsTestCase
-    from .. import fake_constants
-
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellCustomField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.core.entity_filter import (
-        EF_CREDENTIALS,
-        condition_handler,
-        operators,
-    )
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.gui.listview import ListViewState
-    from creme.creme_core.models import (
-        EntityFilter,
-        SetCredentials,
-        HeaderFilter,
-        RelationType, Relation,
-        FieldsConfig,
-        CremePropertyType, CremeProperty,
-        CustomField, CustomFieldEnumValue,
-        FakeContact, FakeOrganisation, FakeAddress, FakeCivility, FakeSector,
-        FakeImage, FakeImageCategory,
-        FakeActivity, FakeActivityType,
-        FakeEmailCampaign, FakeMailingList,
-        FakeInvoice, FakeInvoiceLine,
-        FakeDocument, FakeFolder, FakeFolderCategory,
-    )
-    from creme.creme_core.models.entity_filter import EntityFilterList
-    from creme.creme_core.models.header_filter import HeaderFilterList
-    from creme.creme_core.utils.profiling import CaptureQueriesContext
-    from creme.creme_core.utils.queries import QSerializer
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import fake_constants
+from .base import ViewsTestCase
 
 
 class ListViewTestCase(ViewsTestCase):

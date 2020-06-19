@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
+from django.http import Http404
 
-try:
-    from django.http import Http404
+from creme.creme_core.models import (
+    FakeFolderCategory,
+    FakePosition,
+    FakeSector,
+)
+from creme.creme_core.shortcuts import get_bulk_or_404
 
-    from .base import CremeTestCase
-
-    from creme.creme_core.models import FakeSector, FakePosition, FakeFolderCategory
-    from creme.creme_core.shortcuts import get_bulk_or_404
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import CremeTestCase
 
 
 class ShortcutsTestCase(CremeTestCase):

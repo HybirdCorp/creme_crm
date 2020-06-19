@@ -1,26 +1,20 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from unittest.mock import patch
+from unittest.mock import patch
 
-    from django.core.exceptions import ValidationError
-    from django.db.models.query_utils import Q
-    from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
+from django.db.models.query_utils import Q
+from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.core.entity_filter import (
-        operators,
-        operands,
-        _EntityFilterRegistry,
-        entity_filter_registries, EF_USER,
-    )
-    from creme.creme_core.models import (
-        Language,
-        FakeOrganisation,
-        FakeContact,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.entity_filter import (
+    EF_USER,
+    _EntityFilterRegistry,
+    entity_filter_registries,
+    operands,
+    operators,
+)
+from creme.creme_core.models import FakeContact, FakeOrganisation, Language
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class OperatorTestCase(CremeTestCase):

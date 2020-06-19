@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from json import loads as json_load, dumps as json_dump
+from json import dumps as json_dump
+from json import loads as json_load
 
-    from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.models import ContentType
 
-    from ..base import CremeTestCase
-    from ..fake_forms import FakeContactForm
+from creme.creme_core.global_info import set_global_info
+from creme.creme_core.models import (
+    FakeAddress,
+    FakeCivility,
+    FakeContact,
+    FakeDocument,
+    FakeFolder,
+    FakeImage,
+    FakeOrganisation,
+    FakeSector,
+    FieldsConfig,
+)
+from creme.creme_core.utils.meta import FieldInfo
 
-    from creme.creme_core.utils.meta import FieldInfo
-    from creme.creme_core.global_info import set_global_info
-    from creme.creme_core.models import (
-        FieldsConfig,
-        FakeContact, FakeOrganisation, FakeCivility, FakeSector, FakeAddress,
-        FakeImage, FakeFolder, FakeDocument,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..fake_forms import FakeContactForm
 
 
 class FieldsConfigTestCase(CremeTestCase):

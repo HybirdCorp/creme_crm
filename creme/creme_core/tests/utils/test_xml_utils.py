@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from xml.etree.ElementTree import XML
+from xml.etree.ElementTree import XML
 
-    from ..base import CremeTestCase
-    from creme.creme_core.utils.xml_utils import _element_iterator, xml_diff
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.utils.xml_utils import _element_iterator, xml_diff
+
+from ..base import CremeTestCase
 
 
 class XMLUtilsTestCase(CremeTestCase):

@@ -1,41 +1,45 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
-    from os.path import basename
+from datetime import date
+from decimal import Decimal
+from functools import partial
+from os.path import basename
 
-    from django.conf import settings
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.formats import date_format, number_format
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _, pgettext
+from django.conf import settings
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.formats import date_format, number_format
+from django.utils.html import escape
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.download import filefield_download_registry
-    from creme.creme_core.core.entity_filter import operators
-    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
-    from creme.creme_core.gui import field_printers
-    from creme.creme_core.models import (
-        CremeUser, SetCredentials,
-        CremeEntity, EntityFilter,
-        FakeFileComponent,
-        FakeDocument, FakeFolder,
-        FakeContact,
-        FakeOrganisation,
-        FakeActivity,
-        FakeInvoiceLine,
-        FakeSector,
-        FakeProduct,
-        FakeImage, FakeImageCategory,
-        FakeReport,
-    )
-    from creme.creme_core.tests import fake_constants
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.download import filefield_download_registry
+from creme.creme_core.core.entity_filter import operators
+from creme.creme_core.core.entity_filter.condition_handler import (
+    RegularFieldConditionHandler,
+)
+from creme.creme_core.gui import field_printers
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeUser,
+    EntityFilter,
+    FakeActivity,
+    FakeContact,
+    FakeDocument,
+    FakeFileComponent,
+    FakeFolder,
+    FakeImage,
+    FakeImageCategory,
+    FakeInvoiceLine,
+    FakeOrganisation,
+    FakeProduct,
+    FakeReport,
+    FakeSector,
+    SetCredentials,
+)
+from creme.creme_core.tests import fake_constants
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class FieldsPrintersTestCase(CremeTestCase):

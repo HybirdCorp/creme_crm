@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import datetime
+from datetime import datetime
 
-    from django.template import Template, Context
-    from django.utils.translation import ngettext
+from django.template import Context, Template
+from django.utils.translation import ngettext
 
-    from ..base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class CremeDateTagsTestCase(CremeTestCase):

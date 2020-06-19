@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from ..base import CremeTestCase
+from creme.creme_core.core.sandbox import (
+    SandboxType,
+    _SandboxTypeRegistry,
+    sandbox_type_registry,
+)
+from creme.creme_core.models import Sandbox
 
-    from creme.creme_core.core.sandbox import (
-        SandboxType,
-        _SandboxTypeRegistry,
-        sandbox_type_registry,
-    )
-    from creme.creme_core.models import Sandbox
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class SandboxTestCase(CremeTestCase):

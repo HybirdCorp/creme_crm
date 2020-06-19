@@ -1,24 +1,21 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.db.models.query_utils import Q
-    from django.template import Template, Context
+from django.db.models.query_utils import Q
+from django.template import Context, Template
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_filter import (
-        EF_CREDENTIALS,
-        condition_handler,
-        operators,
-    )
-    from creme.creme_core.models import (
-        EntityFilter,
-        SetCredentials,
-        FakeOrganisation,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+    operators,
+)
+from creme.creme_core.models import (
+    EntityFilter,
+    FakeOrganisation,
+    SetCredentials,
+)
 
-    from ..base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class CremeQueryTagsTestCase(CremeTestCase):
