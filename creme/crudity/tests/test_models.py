@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.utils.timezone import now
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import now
 
-    from creme.creme_core.models import CremeEntity
-    from creme.creme_core.tests.fake_models import FakeContact
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.tests.fake_models import FakeContact
 
-    from ..models import WaitingAction
-    from .base import CrudityTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import WaitingAction
+from .base import CrudityTestCase
 
 
 class WaitingActionTestCase(CrudityTestCase):

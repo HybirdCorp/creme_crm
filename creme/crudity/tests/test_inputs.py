@@ -1,40 +1,39 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from os.path import dirname, join, exists
-    from shutil import rmtree, copy
-    from tempfile import mkdtemp, NamedTemporaryFile
+from datetime import date
+from os.path import dirname, exists, join
+from shutil import copy, rmtree
+from tempfile import NamedTemporaryFile, mkdtemp
 
-    from django.contrib.auth import get_user_model
-    from django.core.files.uploadedfile import SimpleUploadedFile
-    from django.db.models.query_utils import Q
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db.models.query_utils import Q
 
-    from creme.creme_core.models import Language, FakeContact
+from creme.activities.constants import (
+    ACTIVITYSUBTYPE_MEETING_MEETING,
+    ACTIVITYTYPE_MEETING,
+)
+from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.models import FakeContact, Language
+from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
+from creme.persons.tests.base import skipIfCustomContact
 
-    from creme.documents.tests.base import skipIfCustomFolder, skipIfCustomDocument
-
-    from creme.persons.tests.base import skipIfCustomContact
-
-    from creme.activities.constants import (
-        ACTIVITYTYPE_MEETING,
-        ACTIVITYSUBTYPE_MEETING_MEETING,
-    )
-    from creme.activities.tests.base import skipIfCustomActivity
-
-    from ..backends.models import CrudityBackend
-    from ..fetchers.pop import PopEmail
-    from ..inputs.email import CreateEmailInput, CreateInfopathInput
-    from ..inputs.filesystem import IniFileInput
-    from ..models import WaitingAction, History
-    from ..utils import decode_b64binary
-    from .base import (
-        CrudityTestCase,
-        ContactFakeBackend, DocumentFakeBackend, ActivityFakeBackend,
-        Contact, Activity, Document, Folder,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..backends.models import CrudityBackend
+from ..fetchers.pop import PopEmail
+from ..inputs.email import CreateEmailInput, CreateInfopathInput
+from ..inputs.filesystem import IniFileInput
+from ..models import History, WaitingAction
+from ..utils import decode_b64binary
+from .base import (
+    Activity,
+    ActivityFakeBackend,
+    Contact,
+    ContactFakeBackend,
+    CrudityTestCase,
+    Document,
+    DocumentFakeBackend,
+    Folder,
+)
 
 
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
