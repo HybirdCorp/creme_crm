@@ -1,44 +1,43 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import dumps as json_dump
+from functools import partial
+from json import dumps as json_dump
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
-    from django.forms import CharField
+from django.contrib.contenttypes.models import ContentType
+from django.forms import CharField
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.creme_jobs.deletor import deletor_type
-    from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.core.entity_filter import (
-        EF_CREDENTIALS,
-        condition_handler,
-        operators,
-        operands,
-    )
-    from creme.creme_core.models import (
-        CremeUser as User,
-        EntityFilter, EntityFilterCondition,
-    )
-    from creme.creme_core.models import (
-        CremeEntity, RelationType, CremePropertyType,
-        UserRole, SetCredentials,
-        CustomField,
-        Job, DeletionCommand,
-        FakeContact, FakeOrganisation,
-    )
-    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.activities.models import Activity
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    condition_handler,
+    operands,
+    operators,
+)
+from creme.creme_core.creme_jobs.deletor import deletor_type
+from creme.creme_core.forms.widgets import Label
+from creme.creme_core.models import CremeEntity, CremePropertyType
+from creme.creme_core.models import CremeUser as User
+from creme.creme_core.models import (
+    CustomField,
+    DeletionCommand,
+    EntityFilter,
+    EntityFilterCondition,
+    FakeContact,
+    FakeOrganisation,
+    Job,
+    RelationType,
+    SetCredentials,
+    UserRole,
+)
+from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.documents.models import Document
+from creme.persons.models import Address, Contact, Organisation
 
-    from creme.documents.models import Document
-    from creme.persons.models import Contact, Organisation, Address
-    from creme.activities.models import Activity
-
-    from ..bricks import UserRolesBrick
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import UserRolesBrick
 
 
 class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):

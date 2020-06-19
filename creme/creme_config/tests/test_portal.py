@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
+from django.urls import reverse
 
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.creme_config.registry import _AppConfigRegistry
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_config.registry import _AppConfigRegistry
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class PortalTestCase(CremeTestCase):

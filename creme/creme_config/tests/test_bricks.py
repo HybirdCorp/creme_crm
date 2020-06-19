@@ -1,54 +1,56 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from copy import deepcopy
-    from functools import partial
+from copy import deepcopy
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (
-        FakeContact, FakeOrganisation, FakeAddress,
-        FakeImage,
-        FakeActivity,
-        FakeEmailCampaign,
-        FakeInvoiceLine,
-    )
-    from creme.creme_core.bricks import (
-        RelationsBrick,
-        PropertiesBrick,
-        HistoryBrick,
-        CustomFieldsBrick,
-    )
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellCustomField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.gui import bricks as gui_bricks
-    from creme.creme_core.gui.bricks import (
-        Brick,
-        InstanceBrick,
-        SpecificRelationsBrick,
-    )
-    from creme.creme_core.models import (
-        RelationType,
-        CustomField,
-        FieldsConfig,
-        UserRole,
-        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
-        InstanceBrickConfigItem, RelationBrickItem, CustomBrickConfigItem,
-        BrickState,
-    )
-    from creme.creme_core.registry import creme_registry
-
-    from creme.creme_config import bricks
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_config import bricks
+from creme.creme_core.bricks import (
+    CustomFieldsBrick,
+    HistoryBrick,
+    PropertiesBrick,
+    RelationsBrick,
+)
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.gui import bricks as gui_bricks
+from creme.creme_core.gui.bricks import (
+    Brick,
+    InstanceBrick,
+    SpecificRelationsBrick,
+)
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    BrickMypageLocation,
+    BrickState,
+    CustomBrickConfigItem,
+    CustomField,
+    FieldsConfig,
+    InstanceBrickConfigItem,
+    RelationBrickItem,
+    RelationType,
+    UserRole,
+)
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_models import (
+    FakeActivity,
+    FakeAddress,
+    FakeContact,
+    FakeEmailCampaign,
+    FakeImage,
+    FakeInvoiceLine,
+    FakeOrganisation,
+)
 
 
 # Test Bricks ------------------------------------------------------------------

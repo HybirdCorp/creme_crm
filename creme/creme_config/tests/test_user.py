@@ -1,39 +1,40 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from unittest import skipIf
+from functools import partial
+from unittest import skipIf
 
-    from django.conf import settings
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils import timezone as django_tz
-    from django.utils.translation import gettext as _, ngettext
+from django.conf import settings
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils import timezone as django_tz
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from creme.creme_core.core.setting_key import (
-        SettingKey,
-        UserSettingKey,
-        user_setting_key_registry,
-    )
-    from creme.creme_core.models import CremeUser as User
-    from creme.creme_core.models import (
-        CremeEntity,
-        RelationType,
-        EntityCredentials, UserRole, SetCredentials,
-        Mutex,
-        BrickState,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.core.setting_key import (
+    SettingKey,
+    UserSettingKey,
+    user_setting_key_registry,
+)
+from creme.creme_core.models import BrickState, CremeEntity
+from creme.creme_core.models import CremeUser as User
+from creme.creme_core.models import (
+    EntityCredentials,
+    Mutex,
+    RelationType,
+    SetCredentials,
+    UserRole,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+from creme.persons.models import Contact, Organisation
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
-    from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-    from creme.persons.models import Contact, Organisation
-
-    from .. import constants
-    from ..bricks import UsersBrick, TeamsBrick, BrickMypageLocationsBrick
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import constants
+from ..bricks import BrickMypageLocationsBrick, TeamsBrick, UsersBrick
 
 
 def skipIfNotCremeUser(test_func):

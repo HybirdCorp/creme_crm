@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.auth import get_user_model
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import (
-        UserRole,
-        CustomField, CustomFieldEnumValue,
-        FakeContact, FakePosition, FakeSector,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.models import (
+    CustomField,
+    CustomFieldEnumValue,
+    FakeContact,
+    FakePosition,
+    FakeSector,
+    UserRole,
+)
+from creme.creme_core.tests.base import CremeTestCase
 
-    from ..forms.fields import (
-        CreatorModelChoiceField,
-        CreatorModelMultipleChoiceField,
-        CustomEnumChoiceField,
-        CustomMultiEnumChoiceField,
-    )
-    from ..forms.widgets import CreatorModelChoiceWidget
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..forms.fields import (
+    CreatorModelChoiceField,
+    CreatorModelMultipleChoiceField,
+    CustomEnumChoiceField,
+    CustomMultiEnumChoiceField,
+)
+from ..forms.widgets import CreatorModelChoiceWidget
 
 
 def create_user(admin=True):
