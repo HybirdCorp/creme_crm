@@ -1,32 +1,34 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from io import StringIO
+from functools import partial
+from io import StringIO
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_filter import condition_handler, operators
-    from creme.creme_core.models import (
-        EntityFilter,
-        SetCredentials,
-        FieldsConfig,
-        FakeOrganisation,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.models import (
+    EntityFilter,
+    FakeOrganisation,
+    FieldsConfig,
+    SetCredentials,
+)
+from creme.emails.models import EmailRecipient
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from .base import (
-        _EmailsTestCase,
-        skipIfCustomMailingList,
-        Contact, Organisation, MailingList, EmailCampaign,
-    )
-    from creme.emails.models import EmailRecipient
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    Contact,
+    EmailCampaign,
+    MailingList,
+    Organisation,
+    _EmailsTestCase,
+    skipIfCustomMailingList,
+)
 
 
 @skipIfCustomMailingList

@@ -1,42 +1,52 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from datetime import timedelta
+from datetime import timedelta
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.core import mail as django_mail
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.timezone import now, make_naive, get_current_timezone
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.core import mail as django_mail
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.timezone import get_current_timezone, make_naive, now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.models import (
-        HistoryLine, SetCredentials, SettingValue, Job,
-        FakeOrganisation,
-    )
-    from creme.creme_core.models.history import TYPE_AUX_CREATION
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.models import (
+    FakeOrganisation,
+    HistoryLine,
+    Job,
+    SetCredentials,
+    SettingValue,
+)
+from creme.creme_core.models.history import TYPE_AUX_CREATION
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from .base import (
-        _EmailsTestCase,
-        skipIfCustomEmailCampaign, skipIfCustomEmailTemplate, skipIfCustomMailingList,
-        Contact, Organisation, EmailCampaign, EmailTemplate, MailingList,
-    )
-
-    from ..bricks import MailsBrick
-    from ..constants import SETTING_EMAILCAMPAIGN_SENDER, MAIL_STATUS_NOTSENT
-    from ..creme_jobs import campaign_emails_send_type
-    from ..models import EmailSending, EmailRecipient, LightWeightEmail
-    from ..models.sending import (
-        SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
-        SENDING_STATE_DONE, SENDING_STATE_PLANNED,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import MailsBrick
+from ..constants import MAIL_STATUS_NOTSENT, SETTING_EMAILCAMPAIGN_SENDER
+from ..creme_jobs import campaign_emails_send_type
+from ..models import EmailRecipient, EmailSending, LightWeightEmail
+from ..models.sending import (
+    SENDING_STATE_DONE,
+    SENDING_STATE_PLANNED,
+    SENDING_TYPE_DEFERRED,
+    SENDING_TYPE_IMMEDIATE,
+)
+from .base import (
+    Contact,
+    EmailCampaign,
+    EmailTemplate,
+    MailingList,
+    Organisation,
+    _EmailsTestCase,
+    skipIfCustomEmailCampaign,
+    skipIfCustomEmailTemplate,
+    skipIfCustomMailingList,
+)
 
 
 @skipIfCustomEmailCampaign

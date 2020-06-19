@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
+from django.urls import reverse
 
-    from .base import _EmailsTestCase, skipIfCustomEmailCampaign, EmailCampaign
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import EmailCampaign, _EmailsTestCase, skipIfCustomEmailCampaign
 
 
 @skipIfCustomEmailCampaign

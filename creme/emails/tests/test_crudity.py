@@ -1,31 +1,26 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
+from datetime import timedelta
 
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import SettingValue
-    from creme.creme_core.tests.base import skipIfNotInstalled
+from creme.creme_core.models import SettingValue
+from creme.creme_core.tests.base import skipIfNotInstalled
+from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from creme.crudity.fetchers.pop import PopEmail
+from creme.crudity.models import History
+from creme.crudity.utils import is_sandbox_by_user
+from creme.documents.models import FolderCategory
 
-    from creme.documents.models import FolderCategory
-
-    from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
-    from creme.crudity.fetchers.pop import PopEmail
-    from creme.crudity.models import History
-    from creme.crudity.utils import is_sandbox_by_user
-
-    from ..constants import (
-        MAIL_STATUS_SENT,
-        MAIL_STATUS_SYNCHRONIZED,
-        MAIL_STATUS_SYNCHRONIZED_SPAM,
-        MAIL_STATUS_SYNCHRONIZED_WAITING,
-    )
-    from .base import _EmailsTestCase, skipIfCustomEntityEmail, EntityEmail
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import (
+    MAIL_STATUS_SENT,
+    MAIL_STATUS_SYNCHRONIZED,
+    MAIL_STATUS_SYNCHRONIZED_SPAM,
+    MAIL_STATUS_SYNCHRONIZED_WAITING,
+)
+from .base import EntityEmail, _EmailsTestCase, skipIfCustomEntityEmail
 
 
 @skipIfNotInstalled('creme.crudity')

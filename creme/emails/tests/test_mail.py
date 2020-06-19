@@ -1,58 +1,61 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
-    from functools import partial
-    from os.path import basename
-    from tempfile import NamedTemporaryFile
+from datetime import timedelta
+from functools import partial
+from os.path import basename
+from tempfile import NamedTemporaryFile
 
-    from django.conf import settings
-    from django.core import mail
-    from django.core.mail.backends.locmem import EmailBackend
-    from django.forms import IntegerField
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.core import mail
+from django.core.mail.backends.locmem import EmailBackend
+from django.forms import IntegerField
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.gui import actions
-    from creme.creme_core.models import (
-        Relation,
-        SetCredentials,
-        FieldsConfig,
-        CustomField,
-        Job,
-        FakeInvoice,
-    )
-    from creme.creme_core.forms.widgets import Label
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.forms.widgets import Label
+from creme.creme_core.gui import actions
+from creme.creme_core.models import (
+    CustomField,
+    FakeInvoice,
+    FieldsConfig,
+    Job,
+    Relation,
+    SetCredentials,
+)
+from creme.documents.models import FolderCategory
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.tests.base import (
-        skipIfCustomContact,
-        skipIfCustomOrganisation,
-    )
-
-    from creme.documents.models import FolderCategory
-
-    from .base import (
-        _EmailsTestCase,
-        skipIfCustomEntityEmail, skipIfCustomEmailTemplate,
-        Contact, Organisation,
-        Document, Folder,
-        EntityEmail, EmailTemplate,
-    )
-
-    from ..actions import EntityEmailResendAction, BulkEntityEmailResendAction
-    from ..constants import (
-        MAIL_STATUS_NOTSENT, MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR,
-        REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
-        REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED,
-        REL_OBJ_RELATED_TO,
-    )
-    from ..creme_jobs import entity_emails_send_type
-    from ..models import EmailSignature
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..actions import BulkEntityEmailResendAction, EntityEmailResendAction
+from ..constants import (
+    MAIL_STATUS_NOTSENT,
+    MAIL_STATUS_SENDINGERROR,
+    MAIL_STATUS_SENT,
+    REL_OBJ_MAIL_RECEIVED,
+    REL_OBJ_MAIL_SENDED,
+    REL_OBJ_RELATED_TO,
+    REL_SUB_MAIL_RECEIVED,
+    REL_SUB_MAIL_SENDED,
+)
+from ..creme_jobs import entity_emails_send_type
+from ..models import EmailSignature
+from .base import (
+    Contact,
+    Document,
+    EmailTemplate,
+    EntityEmail,
+    Folder,
+    Organisation,
+    _EmailsTestCase,
+    skipIfCustomEmailTemplate,
+    skipIfCustomEntityEmail,
+)
 
 
 @skipIfCustomEntityEmail

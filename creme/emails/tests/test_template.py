@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials, FakeOrganisation
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import FakeOrganisation, SetCredentials
+from creme.documents.tests.base import (
+    Document,
+    _DocumentsTestCase,
+    skipIfCustomDocument,
+)
 
-    from creme.documents.tests.base import _DocumentsTestCase, skipIfCustomDocument, Document
-
-    from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import EmailTemplate, _EmailsTestCase, skipIfCustomEmailTemplate
 
 
 @skipIfCustomEmailTemplate

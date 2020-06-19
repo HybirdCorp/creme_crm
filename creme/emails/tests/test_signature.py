@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
-    from ..models import EmailSignature
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import EmailSignature
+from .base import EmailTemplate, _EmailsTestCase, skipIfCustomEmailTemplate
 
 
 class SignaturesTestCase(_EmailsTestCase):
