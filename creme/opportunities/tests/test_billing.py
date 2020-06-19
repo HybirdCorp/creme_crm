@@ -2,45 +2,48 @@
 
 skip_billing = False
 
-try:
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
-    from unittest import skipIf
+from datetime import date
+from decimal import Decimal
+from functools import partial
+from unittest import skipIf
 
-    from django.apps import apps
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (
-        Relation, RelationType,
-        SettingValue,
-        SetCredentials,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import (
+    Relation,
+    RelationType,
+    SetCredentials,
+    SettingValue,
+)
+from creme.opportunities import constants
+from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT
+from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
-    from creme.persons.tests.base import skipIfCustomOrganisation
+from .. import setting_keys
+from .base import (
+    Contact,
+    OpportunitiesBaseTestCase,
+    Opportunity,
+    skipIfCustomOpportunity,
+)
 
-    if apps.is_installed('creme.billing'):
-        from creme import billing
-        from creme.billing.models import QuoteStatus
-        from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+if apps.is_installed('creme.billing'):
+    from creme import billing
+    from creme.billing.models import QuoteStatus
+    from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-        Invoice     = billing.get_invoice_model()
-        Quote       = billing.get_quote_model()
-        SalesOrder  = billing.get_sales_order_model()
-        ServiceLine = billing.get_service_line_model()
-    else:
-        skip_billing = True
+    Invoice     = billing.get_invoice_model()
+    Quote       = billing.get_quote_model()
+    SalesOrder  = billing.get_sales_order_model()
+    ServiceLine = billing.get_service_line_model()
+else:
+    skip_billing = True
 
-    from creme.opportunities import constants
 
-    from .. import setting_keys
-    from .base import OpportunitiesBaseTestCase, skipIfCustomOpportunity, Opportunity, Contact
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
 
 
 @skipIf(skip_billing, '"Billing" app is not installed.')

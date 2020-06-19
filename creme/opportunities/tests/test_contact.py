@@ -1,29 +1,29 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.forms import IntegerField
-    from django.urls import reverse
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.forms import IntegerField
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials, CustomField
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import CustomField, SetCredentials
+from creme.opportunities.constants import REL_SUB_LINKED_CONTACT
+from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import REL_SUB_EMPLOYED_BY
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from creme.opportunities.constants import REL_SUB_LINKED_CONTACT
-
-    from .base import (
-        OpportunitiesBaseTestCase,
-        skipIfCustomOpportunity,
-        Contact, Organisation, Opportunity,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    Contact,
+    OpportunitiesBaseTestCase,
+    Opportunity,
+    Organisation,
+    skipIfCustomOpportunity,
+)
 
 
 @skipIfCustomOpportunity

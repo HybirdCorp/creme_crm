@@ -1,30 +1,29 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models import Max
-    from django.test.utils import override_settings
-    from django.utils.translation import gettext as _, ngettext
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Max
+from django.test.utils import override_settings
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core.models import SetCredentials
+from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from creme.documents import get_document_model
+from creme.opportunities.models import SalesPhase
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-    from creme.creme_core.models import SetCredentials
-
-    from creme.documents import get_document_model
-
-    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
-
-    from creme.opportunities.models import SalesPhase
-
-    from .base import (
-        OpportunitiesBaseTestCase,
-        skipIfCustomOpportunity,
-        Opportunity, Organisation, Contact,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    Contact,
+    OpportunitiesBaseTestCase,
+    Opportunity,
+    Organisation,
+    skipIfCustomOpportunity,
+)
 
 
 @skipIfCustomOpportunity
