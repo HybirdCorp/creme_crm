@@ -1,39 +1,43 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.models import (
-        RelationType,
-        Vat,
-        SettingValue,
-        BrickDetailviewLocation,
-    )
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    RelationType,
+    SettingValue,
+    Vat,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.persons.tests.base import skipIfCustomOrganisation
-
-    from .. import bricks, constants
-    from ..algos import SimpleAlgo
-    from ..models import (
-        InvoiceStatus, SalesOrderStatus, CreditNoteStatus,
-        ConfigBillingAlgo, SimpleBillingAlgo,
-    )
-    from .. import setting_keys
-    from ..registry import AlgoRegistry
-
-    from .base import (
-        _BillingTestCase,
-        Organisation, Contact,
-        Product, Service,
-        CreditNote, Invoice, Quote, SalesOrder, TemplateBase,
-        ProductLine, ServiceLine,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import bricks, constants, setting_keys
+from ..algos import SimpleAlgo
+from ..models import (
+    ConfigBillingAlgo,
+    CreditNoteStatus,
+    InvoiceStatus,
+    SalesOrderStatus,
+    SimpleBillingAlgo,
+)
+from ..registry import AlgoRegistry
+from .base import (
+    Contact,
+    CreditNote,
+    Invoice,
+    Organisation,
+    Product,
+    ProductLine,
+    Quote,
+    SalesOrder,
+    Service,
+    ServiceLine,
+    TemplateBase,
+    _BillingTestCase,
+)
 
 
 class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):

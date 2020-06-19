@@ -1,31 +1,37 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date, timedelta
-    from functools import partial
+from datetime import date, timedelta
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.models import Relation
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.models import Relation
+from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.persons.tests.base import skipIfCustomOrganisation
-
-    from ..models import (
-        InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
-        AdditionalInformation, PaymentTerms,
-    )
-    from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from .base import (
-        _BillingTestCase,
-        skipIfCustomTemplateBase, skipIfCustomInvoice,
-        skipIfCustomQuote, skipIfCustomSalesOrder,
-        Organisation,
-        TemplateBase, Invoice, Quote, SalesOrder, CreditNote,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..models import (
+    AdditionalInformation,
+    CreditNoteStatus,
+    InvoiceStatus,
+    PaymentTerms,
+    QuoteStatus,
+    SalesOrderStatus,
+)
+from .base import (
+    CreditNote,
+    Invoice,
+    Organisation,
+    Quote,
+    SalesOrder,
+    TemplateBase,
+    _BillingTestCase,
+    skipIfCustomInvoice,
+    skipIfCustomQuote,
+    skipIfCustomSalesOrder,
+    skipIfCustomTemplateBase,
+)
 
 
 @skipIfCustomOrganisation

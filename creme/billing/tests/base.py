@@ -1,54 +1,45 @@
 # -*- coding: utf-8 -*-
 
-skip_cnote_tests    = False
-skip_invoice_tests  = False
-skip_quote_tests    = False
-skip_order_tests    = False
-skip_template_tests = False
-skip_pline_tests    = False
-skip_sline_tests    = False
+from datetime import date
+from decimal import Decimal
+from functools import partial
+from unittest import skipIf
 
-try:
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
-    from unittest import skipIf
+from django.conf import settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from django.conf import settings
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from creme import billing
+from creme.creme_core.models import Currency, Relation
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from creme.persons import (
+    get_address_model,
+    get_contact_model,
+    get_organisation_model,
+)
+from creme.products import get_product_model, get_service_model
+from creme.products.models import Category, SubCategory
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
-    from creme.creme_core.models import Relation, Currency
+from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..models import CreditNoteStatus, QuoteStatus
 
-    from creme.persons import get_address_model, get_contact_model, get_organisation_model
+skip_cnote_tests    = billing.credit_note_model_is_custom()
+skip_invoice_tests  = billing.invoice_model_is_custom()
+skip_quote_tests    = billing.quote_model_is_custom()
+skip_order_tests    = billing.sales_order_model_is_custom()
+skip_template_tests = billing.template_base_model_is_custom()
+skip_pline_tests    = billing.product_line_model_is_custom()
+skip_sline_tests    = billing.service_line_model_is_custom()
 
-    from creme.products import get_product_model, get_service_model
-    from creme.products.models import Category, SubCategory
+CreditNote   = billing.get_credit_note_model()
+Invoice      = billing.get_invoice_model()
+Quote        = billing.get_quote_model()
+SalesOrder   = billing.get_sales_order_model()
+TemplateBase = billing.get_template_base_model()
 
-    from creme import billing
-    from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from ..models import CreditNoteStatus, QuoteStatus
-
-    skip_cnote_tests    = billing.credit_note_model_is_custom()
-    skip_invoice_tests  = billing.invoice_model_is_custom()
-    skip_quote_tests    = billing.quote_model_is_custom()
-    skip_order_tests    = billing.sales_order_model_is_custom()
-    skip_template_tests = billing.template_base_model_is_custom()
-    skip_pline_tests    = billing.product_line_model_is_custom()
-    skip_sline_tests    = billing.service_line_model_is_custom()
-
-    CreditNote   = billing.get_credit_note_model()
-    Invoice      = billing.get_invoice_model()
-    Quote        = billing.get_quote_model()
-    SalesOrder   = billing.get_sales_order_model()
-    TemplateBase = billing.get_template_base_model()
-
-    ProductLine = billing.get_product_line_model()
-    ServiceLine = billing.get_service_line_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+ProductLine = billing.get_product_line_model()
+ServiceLine = billing.get_service_line_model()
 
 Address = get_address_model()
 Contact = get_contact_model()

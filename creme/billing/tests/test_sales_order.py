@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from decimal import Decimal
+from datetime import date
+from decimal import Decimal
 
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Currency, SetCredentials
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import Currency, SetCredentials
+from creme.persons.tests.base import (
+    skipIfCustomAddress,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
-
-    from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from ..models import SalesOrderStatus
-
-    from .base import (
-        _BillingTestCase,
-        skipIfCustomSalesOrder,
-        SalesOrder, Organisation, Invoice,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..models import SalesOrderStatus
+from .base import (
+    Invoice,
+    Organisation,
+    SalesOrder,
+    _BillingTestCase,
+    skipIfCustomSalesOrder,
+)
 
 
 @skipIfCustomOrganisation

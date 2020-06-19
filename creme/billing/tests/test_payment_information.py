@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
+from decimal import Decimal
+from functools import partial
 
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import Currency, FieldsConfig
+from creme.creme_core.models import Currency, FieldsConfig
+from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.persons.tests.base import skipIfCustomOrganisation
-
-    from ..models import PaymentInformation
-    from .base import _BillingTestCase, skipIfCustomInvoice, Invoice, Organisation
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import PaymentInformation
+from .base import Invoice, Organisation, _BillingTestCase, skipIfCustomInvoice
 
 
 @skipIfCustomOrganisation

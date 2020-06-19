@@ -1,45 +1,53 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
+from datetime import date
+from decimal import Decimal
+from functools import partial
 
-    from django.conf import settings
-    from django.db.models.deletion import ProtectedError
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.db.models.deletion import ProtectedError
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui import actions
-    from creme.creme_core.models import (
-        CremeEntity,
-        RelationType, Relation,
-        SetCredentials,
-        Currency, Vat,
-    )
-    from creme.creme_core.tests.base import CremeTransactionTestCase
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui import actions
+from creme.creme_core.models import (
+    CremeEntity,
+    Currency,
+    Relation,
+    RelationType,
+    SetCredentials,
+    Vat,
+)
+from creme.creme_core.tests.base import CremeTransactionTestCase
+from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
+from creme.persons.tests.base import (
+    skipIfCustomAddress,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
-    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
-
-    from ..actions import ExportInvoiceAction, GenerateNumberAction
-    from ..constants import (
-        REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
-        REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED,
-        # AMOUNT_PK, PERCENT_PK,
-        DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT,
-    )
-    from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
-
-    from .base import (
-        _BillingTestCase, _BillingTestCaseMixin,
-        skipIfCustomInvoice, skipIfCustomProductLine, skipIfCustomServiceLine,
-        Organisation, Address,
-        Invoice, ProductLine, ServiceLine,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..actions import ExportInvoiceAction, GenerateNumberAction
+from ..constants import (
+    DISCOUNT_LINE_AMOUNT,
+    DISCOUNT_PERCENT,
+    REL_OBJ_BILL_ISSUED,
+    REL_OBJ_BILL_RECEIVED,
+    REL_SUB_BILL_ISSUED,
+    REL_SUB_BILL_RECEIVED,
+)
+from ..models import AdditionalInformation, InvoiceStatus, PaymentTerms
+from .base import (
+    Address,
+    Invoice,
+    Organisation,
+    ProductLine,
+    ServiceLine,
+    _BillingTestCase,
+    _BillingTestCaseMixin,
+    skipIfCustomInvoice,
+    skipIfCustomProductLine,
+    skipIfCustomServiceLine,
+)
 
 
 @skipIfCustomOrganisation
