@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-skip_billing = False
-
 from datetime import date
 from decimal import Decimal
 from functools import partial
@@ -32,6 +30,8 @@ from .base import (
 )
 
 if apps.is_installed('creme.billing'):
+    skip_billing = False
+
     from creme import billing
     from creme.billing.models import QuoteStatus
     from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
@@ -42,8 +42,6 @@ if apps.is_installed('creme.billing'):
     ServiceLine = billing.get_service_line_model()
 else:
     skip_billing = True
-
-
 
 
 @skipIf(skip_billing, '"Billing" app is not installed.')

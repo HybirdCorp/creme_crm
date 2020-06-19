@@ -507,7 +507,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                          replace_field.label
                         )
         self.assertEqual(
-            gettext('OK: no instance of «{model}» have to be deleted.').format(
+            _('OK: no instance of «{model}» have to be deleted.').format(
                 model=get_model_verbose_name(model=FakeProduct, count=0),
             ),
             replace_field.initial
@@ -577,12 +577,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertIsInstance(replace_field, CharField)
         self.assertIsInstance(replace_field.widget, Label)
-        self.assertEqual(
-            gettext('OK: there is no related instance of «{model}»,'
-                    ' the deletion can be done.'
-                   ).format(model=get_model_verbose_name(model=FakeActivity, count=0)),
-            replace_field.initial
-        )
+        message = _(
+            'OK: there is no related instance of «{model}», the deletion can be done.'
+        ).format(model=get_model_verbose_name(model=FakeActivity, count=0))
+        self.assertEqual(message, replace_field.initial)
 
         response = self.assertPOST200(url)
         self.assertNoFormError(response)
@@ -661,7 +659,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsInstance(replace_field, CharField)
         self.assertIsInstance(replace_field.widget, Label)
         self.assertEqual(
-            gettext('OK: no instance of «{model}» have to be updated.').format(
+            _('OK: no instance of «{model}» have to be updated.').format(
                 model=get_model_verbose_name(model=FakeTicket, count=0),
             ),
             replace_field.initial
@@ -727,7 +725,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertListEqual(
             [
-                gettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
+                _('Set field “{field}” from “{oldvalue}” to “{value}”').format(
                     field=_('Status'),
                     oldvalue=status2del.id,
                     value=default_status,
@@ -824,7 +822,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertListEqual(
             [
-                gettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
+                _('Set field “{field}” from “{oldvalue}” to “{value}”').format(
                     field=_('Priority'),
                     oldvalue=prio2del.id,
                     value=fallback_priority,
@@ -1444,7 +1442,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.assertPOST409(self._build_finish_deletor_url(job))
         self.assertIn(
-            escape(gettext('Error. Please contact your administrator.')),
+            escape(_('Error. Please contact your administrator.')),
             response.content.decode()
         )
 

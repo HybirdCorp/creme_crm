@@ -3,7 +3,6 @@
 import os
 from datetime import datetime
 from tempfile import NamedTemporaryFile
-from unittest import skipIf
 
 from xlrd import XLRDError
 
