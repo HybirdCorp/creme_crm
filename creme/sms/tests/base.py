@@ -1,21 +1,14 @@
 # -*- coding: utf-8 -*-
 
-skip_smscampaign_tests     = False
-skip_messaginglist_tests   = False
-skip_messagetemplate_tests = False
+from unittest import skipIf
 
-try:
-    from unittest import skipIf
+from creme import sms
 
-    from creme import sms
+skip_smscampaign_tests     = sms.smscampaign_model_is_custom()
+skip_messaginglist_tests   = sms.messaginglist_model_is_custom()
+skip_messagetemplate_tests = sms.messagetemplate_model_is_custom()
 
-    skip_smscampaign_tests     = sms.smscampaign_model_is_custom()
-    skip_messaginglist_tests   = sms.messaginglist_model_is_custom()
-    skip_messagetemplate_tests = sms.messagetemplate_model_is_custom()
-
-    SMSCampaign = sms.get_smscampaign_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+SMSCampaign = sms.get_smscampaign_model()
 
 
 def skipIfCustomSMSCampaign(test_func):
