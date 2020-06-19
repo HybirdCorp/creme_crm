@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from json import loads as json_load
+from json import loads as json_load
 
-    from django.apps import apps
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.models import (
-        CremeEntity,
-        FieldsConfig,
-        FakeContact, FakeOrganisation,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.models import (
+    CremeEntity,
+    FakeContact,
+    FakeOrganisation,
+    FieldsConfig,
+)
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class FieldsConfigTestCase(CremeTestCase):

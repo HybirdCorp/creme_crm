@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.core.setting_key import SettingKey, setting_key_registry
-    from creme.creme_core.models import SettingValue
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.setting_key import SettingKey, setting_key_registry
+from creme.creme_core.models import SettingValue
+from creme.creme_core.tests.base import CremeTestCase
 
 
 # TODO: clean registry in teardDown...

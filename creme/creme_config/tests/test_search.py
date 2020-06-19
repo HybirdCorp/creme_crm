@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import SearchConfigItem, UserRole, FieldsConfig
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeInvoice, FakeInvoiceLine
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.utils.content_type import entity_ctypes
-    from creme.creme_core.utils.unicode_collation import collator
+from creme.creme_core.models import FieldsConfig, SearchConfigItem, UserRole
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_models import (
+    FakeContact,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeOrganisation,
+)
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils.content_type import entity_ctypes
+from creme.creme_core.utils.unicode_collation import collator
 
-    from ..bricks import SearchConfigBrick
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import SearchConfigBrick
 
 
 class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):

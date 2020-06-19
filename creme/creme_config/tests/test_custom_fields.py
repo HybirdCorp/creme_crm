@@ -1,28 +1,30 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _, ngettext
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from creme.creme_core.creme_jobs import deletor_type
-    from creme.creme_core.models import (
-        CremeEntity,
-        BrickState,
-        CustomField, CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue,
-        Job, DeletionCommand,
-        FakeContact, FakeOrganisation,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-
-    from creme.creme_config import bricks
-    from creme.creme_config.constants import BRICK_STATE_HIDE_DELETED_CFIELDS
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_config import bricks
+from creme.creme_config.constants import BRICK_STATE_HIDE_DELETED_CFIELDS
+from creme.creme_core.creme_jobs import deletor_type
+from creme.creme_core.models import (
+    BrickState,
+    CremeEntity,
+    CustomField,
+    CustomFieldEnum,
+    CustomFieldEnumValue,
+    CustomFieldMultiEnum,
+    DeletionCommand,
+    FakeContact,
+    FakeOrganisation,
+    Job,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
 class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):

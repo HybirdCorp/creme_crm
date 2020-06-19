@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _, pgettext
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from creme.creme_core.models import (
-        RelationType, SemiFixedRelationType,
-        CremePropertyType,
-        FakeContact, FakeOrganisation,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.models import (
+    CremePropertyType,
+    FakeContact,
+    FakeOrganisation,
+    RelationType,
+    SemiFixedRelationType,
+)
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class RelationTypeTestCase(CremeTestCase):

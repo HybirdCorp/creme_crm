@@ -1,38 +1,50 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.apps import apps
-    from django.db.models import Max
-    from django.db.models.deletion import SET_NULL, PROTECT
-    from django.forms import CharField
-    from django.urls import reverse
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _, gettext, ngettext
+from django.apps import apps
+from django.db.models import Max
+from django.db.models.deletion import PROTECT, SET_NULL
+from django.forms import CharField
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from creme.creme_core.creme_jobs import deletor_type
-    from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.models import (
-        DeletionCommand, Job, JobResult,
-        FieldsConfig,
-        FakeCivility, FakeSector, FakePosition, FakeLegalForm,
-        FakeContact, FakeOrganisation,
-        FakeProductType, FakeProduct, FakeActivityType, FakeActivity,
-        FakeTicketStatus, FakeTicketPriority, FakeTicket,
-        FakeDocumentCategory, FakeDocument,
-        FakeFolder, FakeFolderCategory, FakeImageCategory,
-        FakeIngredient,
-    )
-    from creme.creme_core.models.history import HistoryLine, TYPE_EDITION
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_bricks import FakeAppPortalBrick
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.creme_jobs import deletor_type
+from creme.creme_core.forms.widgets import Label
+from creme.creme_core.models import (
+    DeletionCommand,
+    FakeActivity,
+    FakeActivityType,
+    FakeCivility,
+    FakeContact,
+    FakeDocument,
+    FakeDocumentCategory,
+    FakeFolder,
+    FakeFolderCategory,
+    FakeImageCategory,
+    FakeIngredient,
+    FakeLegalForm,
+    FakeOrganisation,
+    FakePosition,
+    FakeProduct,
+    FakeProductType,
+    FakeSector,
+    FakeTicket,
+    FakeTicketPriority,
+    FakeTicketStatus,
+    FieldsConfig,
+    Job,
+    JobResult,
+)
+from creme.creme_core.models.history import TYPE_EDITION, HistoryLine
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_bricks import FakeAppPortalBrick
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils.translation import get_model_verbose_name
 
-    from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
 
 
 class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
