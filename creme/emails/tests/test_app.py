@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import SettingValue, FieldsConfig
+from creme.creme_core.models import FieldsConfig, SettingValue
+from creme.persons.tests.base import skipIfCustomContact
 
-    from creme.persons.tests.base import skipIfCustomContact
-
-    from ..constants import (
-        REL_SUB_MAIL_RECEIVED,
-        REL_SUB_MAIL_SENDED,
-        REL_SUB_RELATED_TO,
-        SETTING_EMAILCAMPAIGN_SENDER,
-    )
-    from .base import _EmailsTestCase, Contact, Organisation, EntityEmail
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import (
+    REL_SUB_MAIL_RECEIVED,
+    REL_SUB_MAIL_SENDED,
+    REL_SUB_RELATED_TO,
+    SETTING_EMAILCAMPAIGN_SENDER,
+)
+from .base import Contact, EntityEmail, Organisation, _EmailsTestCase
 
 
 class EmailsTestCase(_EmailsTestCase):

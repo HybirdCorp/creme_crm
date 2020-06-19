@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from email.mime.image import MIMEImage
+from email.mime.image import MIMEImage
 
-    from django.core import mail as django_mail
+from django.core import mail as django_mail
 
-    from creme.documents.tests.base import _DocumentsTestCase
+from creme.documents.tests.base import _DocumentsTestCase
 
-    from .base import _EmailsTestCase, EntityEmail
-    from ..models import EmailSignature
-    from ..utils import get_mime_image, EMailSender
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..models import EmailSignature
+from ..utils import EMailSender, get_mime_image
+from .base import EntityEmail, _EmailsTestCase
 
 
 class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
