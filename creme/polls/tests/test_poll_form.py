@@ -1,26 +1,33 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import loads as json_load, dumps as json_dump
+from functools import partial
+from json import dumps as json_dump
+from json import loads as json_load
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.encoding import smart_text
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.encoding import smart_text
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth import EntityCredentials
-    from creme.creme_core.models import SetCredentials
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.models import SetCredentials
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from .base import _PollsTestCase, skipIfCustomPollForm, PollForm
-    from ..core import PollLineType
-    from ..bricks import PollFormLinesBrick, PollRepliesBrick
-    from ..models import PollType, PollFormSection, PollFormLine, PollFormLineCondition
-    from ..templatetags.polls_tags import poll_node_number, poll_node_css, poll_line_condition
-    from ..utils import SectionTree, NodeStyle
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import PollFormLinesBrick, PollRepliesBrick
+from ..core import PollLineType
+from ..models import (
+    PollFormLine,
+    PollFormLineCondition,
+    PollFormSection,
+    PollType,
+)
+from ..templatetags.polls_tags import (
+    poll_line_condition,
+    poll_node_css,
+    poll_node_number,
+)
+from ..utils import NodeStyle, SectionTree
+from .base import PollForm, _PollsTestCase, skipIfCustomPollForm
 
 get_ct = ContentType.objects.get_for_model
 

@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import dumps as json_dump
+from functools import partial
+from json import dumps as json_dump
 
-    from creme.creme_core.tests.forms.base import FieldTestCase
+from creme.creme_core.tests.forms.base import FieldTestCase
 
-    from .base import skipIfCustomPollForm, PollForm
-    from ..core import PollLineType
-    from ..forms.fields import PollFormLineConditionsField
-    from ..models import PollFormLine, PollFormLineCondition
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..core import PollLineType
+from ..forms.fields import PollFormLineConditionsField
+from ..models import PollFormLine, PollFormLineCondition
+from .base import PollForm, skipIfCustomPollForm
 
 
 class PollFormLineConditionsFieldTestCase(FieldTestCase):

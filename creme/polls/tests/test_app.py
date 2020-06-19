@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import HeaderFilter
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.models import HeaderFilter
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.persons.models import Contact, Organisation
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-    from creme.persons.models import Contact, Organisation
-
-    from .base import _PollsTestCase, PollCampaign, PollForm, PollReply
-    from ..bricks import PersonPollRepliesBrick
-    from ..models import PollType
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import PersonPollRepliesBrick
+from ..models import PollType
+from .base import PollCampaign, PollForm, PollReply, _PollsTestCase
 
 
 class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
