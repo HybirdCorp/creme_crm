@@ -1,42 +1,36 @@
 # -*- coding: utf-8 -*-
 
-skip_ticket_tests = False
-skip_tickettemplate_tests = False
+from datetime import timedelta
+from functools import partial
+from unittest import skipIf
 
-try:
-    from datetime import timedelta
-    from functools import partial
-    from unittest import skipIf
+from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.timezone import now
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.timezone import now
+from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.models import HeaderFilter, RelationType
+from creme.creme_core.templatetags.creme_date import timedelta_pprint
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from creme.persons import get_contact_model
 
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
-    from creme.creme_core.core.function_field import function_field_registry
-    from creme.creme_core.models import RelationType, HeaderFilter
-    from creme.creme_core.templatetags.creme_date import timedelta_pprint
+from . import (
+    get_ticket_model,
+    get_tickettemplate_model,
+    ticket_model_is_custom,
+    tickettemplate_model_is_custom,
+)
+from .models import Criticity, Priority, Status, TicketNumber
+from .models.status import BASE_STATUS, CLOSED_PK, INVALID_PK, OPEN_PK
 
-    from creme.persons import get_contact_model
+skip_ticket_tests = ticket_model_is_custom()
+skip_tickettemplate_tests = tickettemplate_model_is_custom()
 
-    from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
-
-    from . import (
-        ticket_model_is_custom, tickettemplate_model_is_custom,
-        get_ticket_model, get_tickettemplate_model,
-    )
-    from .models import Status, Priority, Criticity, TicketNumber
-    from .models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
-
-    skip_ticket_tests = ticket_model_is_custom()
-    skip_tickettemplate_tests = tickettemplate_model_is_custom()
-
-    Ticket = get_ticket_model()
-    TicketTemplate = get_tickettemplate_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+Ticket = get_ticket_model()
+TicketTemplate = get_tickettemplate_model()
 
 
 def skipIfCustomTicket(test_func):
