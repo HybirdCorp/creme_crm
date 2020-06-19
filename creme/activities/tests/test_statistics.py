@@ -1,26 +1,22 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta
+from django.utils.formats import number_format
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from django.utils.formats import number_format
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _, ngettext
+from creme.activities.statistics import AveragePerMonthStatistics
+from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.activities.statistics import AveragePerMonthStatistics
-
-    from .base import Activity, skipIfCustomActivity
-    from ..constants import (
-        ACTIVITYTYPE_MEETING,
-        ACTIVITYTYPE_PHONECALL,
-        ACTIVITYTYPE_TASK,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import (
+    ACTIVITYTYPE_MEETING,
+    ACTIVITYTYPE_PHONECALL,
+    ACTIVITYTYPE_TASK,
+)
+from .base import Activity, skipIfCustomActivity
 
 
 class StatisticsTestCase(CremeTestCase):
