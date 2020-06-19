@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from json import dumps as json_dump
+from json import dumps as json_dump
 
-    from django.db.models.query_utils import Q
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.db.models.query_utils import Q
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.tests.forms.base import FieldTestCaseMixin  # FieldTestCase
+from creme.creme_core.tests.forms.base import FieldTestCaseMixin
 
-    from .base import Document, _DocumentsTestCase
-    from ..forms.fields import ImageEntityField, MultiImageEntityField
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..forms.fields import ImageEntityField, MultiImageEntityField
+from .base import Document, _DocumentsTestCase
 
 
 # class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
