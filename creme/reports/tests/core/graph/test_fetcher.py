@@ -1,35 +1,34 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.utils.translation import gettext as _, pgettext
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from creme.creme_core.models import (
-        FieldsConfig,
-        InstanceBrickConfigItem,
-        FakeOrganisation, FakeContact, FakeImage,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_constants import (
-        FAKE_REL_SUB_EMPLOYED_BY,
-        FAKE_REL_SUB_BILL_ISSUED,
-    )
-
-    from creme.reports.bricks import ReportGraphBrick
-    from creme.reports.constants import (
-        RGT_YEAR,
-        RGA_COUNT,
-        RGF_NOLINK, RGF_FK, RGF_RELATION,
-    )
-    from creme.reports.core.graph.fetcher import (
-        SimpleGraphFetcher,
-        RegularFieldLinkedGraphFetcher,
-        RelationLinkedGraphFetcher,
-    )
-    from creme.reports.tests.base import (
-        Report, ReportGraph,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.models import (
+    FakeContact,
+    FakeImage,
+    FakeOrganisation,
+    FieldsConfig,
+    InstanceBrickConfigItem,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_constants import (
+    FAKE_REL_SUB_BILL_ISSUED,
+    FAKE_REL_SUB_EMPLOYED_BY,
+)
+from creme.reports.bricks import ReportGraphBrick
+from creme.reports.constants import (
+    RGA_COUNT,
+    RGF_FK,
+    RGF_NOLINK,
+    RGF_RELATION,
+    RGT_YEAR,
+)
+from creme.reports.core.graph.fetcher import (
+    RegularFieldLinkedGraphFetcher,
+    RelationLinkedGraphFetcher,
+    SimpleGraphFetcher,
+)
+from creme.reports.tests.base import Report, ReportGraph
 
 
 # TODO: test fetch() ??

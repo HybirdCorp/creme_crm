@@ -1,65 +1,60 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
+from datetime import date
+from decimal import Decimal
+from functools import partial
 
-    from parameterized import parameterized
+from django.contrib.contenttypes.models import ContentType
+from django.utils.formats import date_format, number_format
+from django.utils.timezone import localtime
+from django.utils.translation import gettext as _
+from parameterized import parameterized
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.utils.formats import date_format, number_format
-    from django.utils.timezone import localtime
-    from django.utils.translation import gettext as _
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    FakeContact,
+    FakeEmailCampaign,
+    FakeImage,
+    FakeMailingList,
+    FakeOrganisation,
+    FakeSector,
+    FieldsConfig,
+    Language,
+    Relation,
+    RelationType,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
+from creme.creme_core.utils.meta import FieldInfo
+from creme.reports.constants import (
+    RFT_AGG_CUSTOM,
+    RFT_AGG_FIELD,
+    RFT_CUSTOM,
+    RFT_FIELD,
+    RFT_FUNCTION,
+    RFT_RELATED,
+    RFT_RELATION,
+)
+from creme.reports.core.report import (
+    ExpandableLine,
+    ReportHand,
+    ReportHandRegistry,
+    RHAggregateCustomField,
+    RHAggregateRegularField,
+    RHCustomField,
+    RHForeignKey,
+    RHFunctionField,
+    RHManyToManyField,
+    RHRegularField,
+    RHRelated,
+    RHRelation,
+)
+from creme.reports.models import FakeReportsDocument, FakeReportsFolder, Field
 
-    from creme.creme_core.models import (
-        CremePropertyType, CremeProperty,
-        RelationType, Relation,
-        CustomField, CustomFieldEnumValue,
-        FieldsConfig,
-        Language,
-        FakeContact, FakeOrganisation, FakeSector,
-        FakeImage,
-        FakeEmailCampaign, FakeMailingList,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
-    from creme.creme_core.utils.meta import FieldInfo
-
-    from ..base import (
-        skipIfCustomReport,
-        Report,
-    )
-
-    from creme.reports.constants import (
-        RFT_FIELD,
-        RFT_CUSTOM,
-        RFT_RELATION,
-        RFT_FUNCTION,
-        RFT_AGG_FIELD,
-        RFT_AGG_CUSTOM,
-        RFT_RELATED,
-    )
-    from creme.reports.models import (
-        Field,
-        FakeReportsFolder, FakeReportsDocument,
-    )
-    from creme.reports.core.report import (
-        ReportHandRegistry,
-        ReportHand,
-        RHRegularField,
-        RHForeignKey,
-        RHManyToManyField,
-        RHCustomField,
-        RHRelation,
-        RHFunctionField,
-        RHAggregateRegularField,
-        RHAggregateCustomField,
-        RHRelated,
-        ExpandableLine,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import Report, skipIfCustomReport
 
 
 # TODO: complete:

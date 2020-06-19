@@ -1,78 +1,74 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import dumps as json_dump, loads as json_load
+from functools import partial
+from json import dumps as json_dump
+from json import loads as json_load
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.core.exceptions import ValidationError
-    from django.utils.translation import gettext as _, pgettext
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellRelation,
-        EntityCellCustomField,
-        EntityCellFunctionField,
-    )
-    from creme.creme_core.forms.header_filter import UniformEntityCellsField
-    from creme.creme_core.models import (
-        CremeEntity,
-        RelationType,
-        CustomField,
-        FieldsConfig,
-        InstanceBrickConfigItem,
-        FakeOrganisation, FakeContact, FakeInvoiceLine,
-    )
-    from creme.creme_core.tests.fake_constants import (
-        FAKE_REL_SUB_EMPLOYED_BY,
-        FAKE_REL_SUB_BILL_ISSUED,
-    )
-    from creme.creme_core.tests.forms.base import FieldTestCase
+from creme.creme_core.constants import REL_SUB_HAS
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.forms.header_filter import UniformEntityCellsField
+from creme.creme_core.models import (
+    CremeEntity,
+    CustomField,
+    FakeContact,
+    FakeInvoiceLine,
+    FakeOrganisation,
+    FieldsConfig,
+    InstanceBrickConfigItem,
+    RelationType,
+)
+from creme.creme_core.tests.fake_constants import (
+    FAKE_REL_SUB_BILL_ISSUED,
+    FAKE_REL_SUB_EMPLOYED_BY,
+)
+from creme.creme_core.tests.forms.base import FieldTestCase
+from creme.reports import constants
+from creme.reports.bricks import ReportGraphBrick
+from creme.reports.core.graph import AbscissaInfo, OrdinateInfo
+from creme.reports.core.graph.cell_constraint import (
+    ACCCount,
+    ACCFieldAggregation,
+    abscissa_constraints,
+    ordinate_constraints,
+)
+from creme.reports.core.graph.fetcher import (
+    RegularFieldLinkedGraphFetcher,
+    RelationLinkedGraphFetcher,
+    SimpleGraphFetcher,
+)
+from creme.reports.forms.bricks import (
+    FetcherChoiceIterator,
+    GraphFetcherField,
+    GraphInstanceBrickForm,
+)
+from creme.reports.forms.graph import AbscissaField, OrdinateField
+from creme.reports.forms.report import (  # _EntityCellAggregate, _EntityCellCustomAggregate, _EntityCellRelated,
+    ReportEntityCellCustomAggregate,
+    ReportEntityCellRegularAggregate,
+    ReportEntityCellRelated,
+    ReportFieldsForm,
+    ReportHandsField,
+)
+from creme.reports.models import FakeReportsDocument, FakeReportsFolder, Field
+from creme.reports.report_aggregation_registry import FieldAggregation
 
-    from creme.reports import constants
-    from creme.reports.bricks import ReportGraphBrick
-    from creme.reports.core.graph import AbscissaInfo, OrdinateInfo
-    from creme.reports.core.graph.cell_constraint import (
-        ACCCount, ACCFieldAggregation,
-        abscissa_constraints,
-        ordinate_constraints,
-    )
-    from creme.reports.core.graph.fetcher import (
-        SimpleGraphFetcher,
-        RegularFieldLinkedGraphFetcher,
-        RelationLinkedGraphFetcher,
-    )
-    from creme.reports.forms.bricks import (
-        GraphFetcherField,
-        FetcherChoiceIterator,
-        GraphInstanceBrickForm,
-    )
-    from creme.reports.forms.graph import (
-        AbscissaField,
-        OrdinateField,
-    )
-    from creme.reports.forms.report import (
-        # _EntityCellAggregate, _EntityCellCustomAggregate, _EntityCellRelated,
-        ReportEntityCellRegularAggregate,
-        ReportEntityCellCustomAggregate,
-        ReportEntityCellRelated,
-        ReportHandsField,
-        ReportFieldsForm,
-    )
-    from creme.reports.models import (
-        Field,
-        FakeReportsFolder,  FakeReportsDocument,
-    )
-    from creme.reports.report_aggregation_registry import FieldAggregation
-
-    from .base import (
-        AxisFieldsMixin, BaseReportsTestCase,
-        Report, ReportGraph,
-        skipIfCustomReport,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import (
+    AxisFieldsMixin,
+    BaseReportsTestCase,
+    Report,
+    ReportGraph,
+    skipIfCustomReport,
+)
 
 
 class ReportHandsFieldTestCase(FieldTestCase):

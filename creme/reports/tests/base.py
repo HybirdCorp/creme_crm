@@ -1,63 +1,60 @@
 # -*- coding: utf-8 -*-
 
-skip_report_tests = False
-skip_rgraph_tests = False
+from datetime import datetime
+from decimal import Decimal
+from functools import partial
+from json import dumps as json_dump
+from unittest import skipIf
 
-try:
-    from datetime import datetime
-    from decimal import Decimal
-    from functools import partial
-    from json import dumps as json_dump
-    from unittest import skipIf
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Field as ModelField
+from django.urls import reverse
+from django.utils.timezone import now
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models import Field as ModelField
-    from django.urls import reverse
-    from django.utils.timezone import now
+from creme.creme_core.constants import REL_SUB_HAS
+from creme.creme_core.core.entity_cell import (
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    HeaderFilter,
+    Relation,
+    RelationType,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_constants import (
+    FAKE_REL_SUB_BILL_ISSUED as REL_SUB_BILL_ISSUED,
+)
+from creme.creme_core.tests.fake_constants import (
+    FAKE_REL_SUB_BILL_RECEIVED as REL_SUB_BILL_RECEIVED,
+)
+from creme.creme_core.tests.fake_models import (
+    FakeContact,
+    FakeImage,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeOrganisation,
+)
 
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.models import (
-        Relation, RelationType,
-        CremePropertyType, CremeProperty,
-        HeaderFilter,
-        CustomField,
-    )
-    from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (
-        FakeContact, FakeOrganisation,
-        FakeImage,
-        FakeInvoice, FakeInvoiceLine,
-    )
-    from creme.creme_core.tests.fake_constants import (
-        FAKE_REL_SUB_BILL_ISSUED as REL_SUB_BILL_ISSUED,
-        FAKE_REL_SUB_BILL_RECEIVED as REL_SUB_BILL_RECEIVED,
-    )
+from .. import (
+    get_report_model,
+    get_rgraph_model,
+    report_model_is_custom,
+    rgraph_model_is_custom,
+)
+from ..constants import RFT_FIELD, RGA_COUNT, RGT_YEAR
+from ..models import Field
+from .fake_models import FakeReportsDocument, FakeReportsFolder
 
-    from .fake_models import FakeReportsFolder, FakeReportsDocument
+skip_report_tests = report_model_is_custom()
+skip_rgraph_tests = rgraph_model_is_custom()
 
-    from .. import (
-        report_model_is_custom, rgraph_model_is_custom,
-        get_report_model, get_rgraph_model,
-    )
-    from ..constants import (
-        RFT_FIELD,
-        RGT_YEAR,
-        RGA_COUNT,
-    )
-    from ..models import Field
-
-    skip_report_tests = report_model_is_custom()
-    skip_rgraph_tests = rgraph_model_is_custom()
-
-    Report = get_report_model()
-    ReportGraph = get_rgraph_model()
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+Report = get_report_model()
+ReportGraph = get_rgraph_model()
 
 
 def skipIfCustomReport(test_func):

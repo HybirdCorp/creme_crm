@@ -1,44 +1,47 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.models import (
-        FieldsConfig,
-        CustomField,
-        FakeOrganisation,
-        FakeContact,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_constants import FAKE_REL_OBJ_EMPLOYED_BY
-
-    from creme.reports.constants import (
-        RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE,
-        RGT_FK,
-        RGT_RELATION,
-        RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
-        RGT_CUSTOM_FK,
-        RGA_COUNT, RGA_SUM,
-    )
-    from creme.reports.core.graph.aggregator import (
-        RGACount,
-        RGASum,
-    )
-    from creme.reports.core.graph.hand import (
-        RGHDay, RGHMonth, RGHYear, RGHRange,
-        RGHForeignKey,
-        RGHRelation,
-        RGHCustomDay, RGHCustomMonth, RGHCustomYear, RGHCustomRange,
-        RGHCustomFK,
-        ReportGraphHandRegistry,
-    )
-    from creme.reports.tests.base import (
-        Report,
-        ReportGraph,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import (
+    CustomField,
+    FakeContact,
+    FakeOrganisation,
+    FieldsConfig,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_constants import FAKE_REL_OBJ_EMPLOYED_BY
+from creme.reports.constants import (
+    RGA_COUNT,
+    RGA_SUM,
+    RGT_CUSTOM_DAY,
+    RGT_CUSTOM_FK,
+    RGT_CUSTOM_MONTH,
+    RGT_CUSTOM_RANGE,
+    RGT_CUSTOM_YEAR,
+    RGT_DAY,
+    RGT_FK,
+    RGT_MONTH,
+    RGT_RANGE,
+    RGT_RELATION,
+    RGT_YEAR,
+)
+from creme.reports.core.graph.aggregator import RGACount, RGASum
+from creme.reports.core.graph.hand import (
+    ReportGraphHandRegistry,
+    RGHCustomDay,
+    RGHCustomFK,
+    RGHCustomMonth,
+    RGHCustomRange,
+    RGHCustomYear,
+    RGHDay,
+    RGHForeignKey,
+    RGHMonth,
+    RGHRange,
+    RGHRelation,
+    RGHYear,
+)
+from creme.reports.tests.base import Report, ReportGraph
 
 # TODO: complete
 #  - fetch

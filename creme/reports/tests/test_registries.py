@@ -1,29 +1,25 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.db.models import aggregates
-    from django.utils.translation import gettext as _
+from django.db.models import aggregates
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.models import CustomField, FakeContact, FakeOrganisation
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.reports.constants import RGF_FK
-    from creme.reports.core.graph.fetcher import (
-        GraphFetcher,
-        RegularFieldLinkedGraphFetcher,
-        RelationLinkedGraphFetcher,
-        SimpleGraphFetcher,
-    )
-    from creme.reports.graph_fetcher_registry import GraphFetcherRegistry
-    from creme.reports.report_aggregation_registry import (
-        FieldAggregation,
-        FieldAggregationRegistry,
-    )
-    from creme.reports.tests.base import Report, ReportGraph
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.models import CustomField, FakeContact, FakeOrganisation
+from creme.creme_core.tests.base import CremeTestCase
+from creme.reports.constants import RGF_FK
+from creme.reports.core.graph.fetcher import (
+    GraphFetcher,
+    RegularFieldLinkedGraphFetcher,
+    RelationLinkedGraphFetcher,
+    SimpleGraphFetcher,
+)
+from creme.reports.graph_fetcher_registry import GraphFetcherRegistry
+from creme.reports.report_aggregation_registry import (
+    FieldAggregation,
+    FieldAggregationRegistry,
+)
+from creme.reports.tests.base import Report, ReportGraph
 
 
 class FieldAggregationRegistryTestCase(CremeTestCase):

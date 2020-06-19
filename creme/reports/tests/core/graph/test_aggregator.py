@@ -1,41 +1,42 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellCustomField,
-        EntityCellFunctionField,
-    )
-    from creme.creme_core.models import (
-        CustomField,
-        FieldsConfig,
-        FakeOrganisation, FakeContact, FakeInvoice,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.reports.constants import (
-        RGA_COUNT, RGA_SUM,
-    )
-    from creme.reports.core.graph.aggregator import (
-        ReportGraphAggregatorRegistry,
-        ReportGraphAggregator,
-        RGACount, RGASum, RGAAverage,
-    )
-    from creme.reports.core.graph.cell_constraint import (
-        AggregatorCellConstraint,
-        ACCCount, ACCFieldAggregation,
-        AggregatorConstraintsRegistry,
-    )
-    from creme.reports.tests.base import (
-        skipIfCustomReport, skipIfCustomRGraph,
-        Report, ReportGraph,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRegularField,
+)
+from creme.creme_core.models import (
+    CustomField,
+    FakeContact,
+    FakeInvoice,
+    FakeOrganisation,
+    FieldsConfig,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.reports.constants import RGA_COUNT, RGA_SUM
+from creme.reports.core.graph.aggregator import (
+    ReportGraphAggregator,
+    ReportGraphAggregatorRegistry,
+    RGAAverage,
+    RGACount,
+    RGASum,
+)
+from creme.reports.core.graph.cell_constraint import (
+    ACCCount,
+    ACCFieldAggregation,
+    AggregatorCellConstraint,
+    AggregatorConstraintsRegistry,
+)
+from creme.reports.tests.base import (
+    Report,
+    ReportGraph,
+    skipIfCustomReport,
+    skipIfCustomRGraph,
+)
 
 
 # TODO: test annotate() + sum, max, min
