@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.gui.actions import actions_registry
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.vcfs.actions import GenerateVcfAction
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.gui.actions import actions_registry
+from creme.creme_core.tests.base import CremeTestCase
+from creme.vcfs.actions import GenerateVcfAction
 
 
 class VcfsTestCase(CremeTestCase):
