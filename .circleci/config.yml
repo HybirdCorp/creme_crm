@@ -51,6 +51,26 @@ commands:
           paths:
            - node_modules
 
+  setup-locale:
+    description: "Setup locale"
+    parameters:
+      language:
+        type: string
+      encoding:
+        type: string
+    steps:
+      - run:
+          name: "Locale gen"
+          command: |
+            echo "<< parameters.language >>.<< parameters.encoding >> << parameters.encoding >>" | sudo tee -a /etc/locale.gen
+            sudo locale-gen
+      - run:
+          name: "Setup Environment Variables"
+          command: |
+            echo "export LANG=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
+            echo "export LANGUAGE=<< parameters.language >>" >> $BASH_ENV
+            echo "export LC_ALL=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
+
 jobs:
   lint-isort:
     docker:
@@ -80,6 +100,10 @@ jobs:
     steps:
       - checkout
 
+      - setup-locale:
+          language: fr_FR
+          encoding: UTF-8
+
       - wait-database:
           port: 3306
 
@@ -107,6 +131,10 @@ jobs:
           POSTGRES_DB: cremecrm
     steps:
       - checkout
+
+      - setup-locale:
+          language: en_US
+          encoding: UTF-8
 
       - wait-database:
           port: 5432
