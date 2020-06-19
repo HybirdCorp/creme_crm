@@ -1,30 +1,23 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
-    from random import randint
+from datetime import timedelta
+from random import randint
 
-    from django.urls import reverse
-    from django.utils.timezone import now
+from django.urls import reverse
+from django.utils.timezone import now
 
-    from creme.creme_core.models import Relation
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.persons import (
-        get_contact_model,
-        get_organisation_model,
-    )
-
-    from creme.activities import get_activity_model
-    from creme.activities.constants import (
-        FLOATING,
-        REL_SUB_PART_2_ACTIVITY,
-        ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_NETWORK,
-        ACTIVITYTYPE_PHONECALL,
-        ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.activities import get_activity_model
+from creme.activities.constants import (
+    ACTIVITYSUBTYPE_MEETING_NETWORK,
+    ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+    ACTIVITYTYPE_MEETING,
+    ACTIVITYTYPE_PHONECALL,
+    FLOATING,
+    REL_SUB_PART_2_ACTIVITY,
+)
+from creme.creme_core.models import Relation
+from creme.creme_core.tests.base import CremeTestCase
+from creme.persons import get_contact_model, get_organisation_model
 
 Contact = get_contact_model()
 Organisation = get_organisation_model()

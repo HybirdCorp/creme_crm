@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import datetime, timedelta
+from datetime import datetime, timedelta
 
-    from django.conf import settings
-    from django.contrib.auth import get_user_model
-    from django.urls import reverse
-    from django.utils.timezone import now, localtime
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from django.utils.timezone import localtime, now
 
-    from creme.activities.constants import (
-        FLOATING_TIME,
-        STATUS_PLANNED, STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED,
-    )
-    from creme.activities.tests.base import skipIfCustomActivity
+from creme.activities.constants import (
+    FLOATING_TIME,
+    STATUS_CANCELLED,
+    STATUS_DONE,
+    STATUS_IN_PROGRESS,
+    STATUS_PLANNED,
+)
+from creme.activities.tests.base import skipIfCustomActivity
 
-    from .base import MobileBaseTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import MobileBaseTestCase
 
 
 class MobileAppTestCase(MobileBaseTestCase):
