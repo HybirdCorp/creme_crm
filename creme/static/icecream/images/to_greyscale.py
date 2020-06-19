@@ -7,7 +7,6 @@ from glob import glob
 
 from PIL import Image
 
-
 parser = ArgumentParser()
 parser.add_argument('-x', '--exclude', dest='excluded', action='append', default=[],
                     help='exclude this file.', metavar='FILE',
