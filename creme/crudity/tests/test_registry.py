@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured
 
-    from .. import registry
-    from .base import CrudityTestCase, FakeFetcher, FakeInput
-    from .fake_crudity_register import (
-        FakeContact, FakeOrganisation, FakeDocument,
-        FakeContactBackend, FakeOrganisationBackend, FakeDocumentBackend,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .. import registry
+from .base import CrudityTestCase, FakeFetcher, FakeInput
+from .fake_crudity_register import (
+    FakeContact,
+    FakeContactBackend,
+    FakeDocument,
+    FakeDocumentBackend,
+    FakeOrganisation,
+    FakeOrganisationBackend,
+)
 
 
 class CrudityRegistryTestCase(CrudityTestCase):

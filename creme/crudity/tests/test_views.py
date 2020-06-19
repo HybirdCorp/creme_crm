@@ -1,37 +1,31 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import configparser
-    import io
-    import poplib
-    from typing import List
+import configparser
+import io
+import poplib
+from typing import List
 
-    from django.conf import settings
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.translation import gettext as _, ngettext
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.models import (
-        Job, JobResult,
-        FakeContact, FakeImage,
-    )
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.models import FakeContact, FakeImage, Job, JobResult
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from .. import registry
-    from ..backends.models import CrudityBackend
-    from ..bricks import CrudityHistoryBrick
-    from ..creme_jobs import crudity_synchronize_type
-    from ..models import WaitingAction, History
-    from ..views.actions import RegistryMixin
-
-    from .base import CrudityTestCase, FakeFetcher, FakeInput
-    from .fake_crudity_register import Swallow
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
+from .. import registry
+from ..backends.models import CrudityBackend
+from ..bricks import CrudityHistoryBrick
+from ..creme_jobs import crudity_synchronize_type
+from ..models import History, WaitingAction
+from ..views.actions import RegistryMixin
+from .base import CrudityTestCase, FakeFetcher, FakeInput
+from .fake_crudity_register import Swallow
 
 FAKE_CRUDITY_BACKENDS = [
     {

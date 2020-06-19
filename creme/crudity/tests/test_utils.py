@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from creme.creme_core.models import SettingValue
-    from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.models import SettingValue
+from creme.creme_core.tests.base import CremeTestCase
 
-    from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
-    from ..utils import decode_b64binary, is_sandbox_by_user, strip_html
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from ..utils import decode_b64binary, is_sandbox_by_user, strip_html
 
 
 class UtilsTestCase(CremeTestCase):

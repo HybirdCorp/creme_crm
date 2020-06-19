@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from os.path import join
+from os.path import join
 
-    from django.conf import settings
-    from django.test.utils import override_settings
+from django.conf import settings
+from django.test.utils import override_settings
 
-    from ..fetchers.filesystem import FileSystemFetcher
-    from .base import CrudityTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..fetchers.filesystem import FileSystemFetcher
+from .base import CrudityTestCase
 
 
 class FetcherFileSystemTestCase(CrudityTestCase):
