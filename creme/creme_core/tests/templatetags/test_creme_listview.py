@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.core.paginator import Paginator
-    from django.template import Template, Context
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Paginator
+from django.template import Context, Template
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
+from creme.creme_core.core.paginator import FlowPaginator
+from creme.creme_core.models import (
+    FakeMailingList,
+    FakeOrganisation,
+    HeaderFilter,
+)
+from creme.creme_core.models.header_filter import HeaderFilterList
+from creme.creme_core.templatetags.creme_listview import (
+    listview_header_filters,
+)
 
-    from creme.creme_core.core.paginator import FlowPaginator
-    from creme.creme_core.models import (
-        HeaderFilter,
-        FakeOrganisation,
-        FakeMailingList,
-    )
-    from creme.creme_core.models.header_filter import HeaderFilterList
-    from creme.creme_core.templatetags.creme_listview import listview_header_filters
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 # TODO: write complete tests for EntityCells

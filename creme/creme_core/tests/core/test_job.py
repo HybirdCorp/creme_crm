@@ -1,22 +1,19 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
+from datetime import timedelta
 
-    from django.test.utils import override_settings
-    from django.utils.timezone import now
+from django.test.utils import override_settings
+from django.utils.timezone import now
 
-    from ..base import CremeTestCase
+from creme.creme_core.core.job import JobScheduler, _JobTypeRegistry
+from creme.creme_core.core.reminder import Reminder, reminder_registry
+from creme.creme_core.creme_jobs import reminder_type
+from creme.creme_core.creme_jobs.base import JobType
+from creme.creme_core.models import Job
+from creme.creme_core.utils.date_period import HoursPeriod
+from creme.creme_core.utils.dates import round_hour
 
-    from creme.creme_core.core.job import JobScheduler, _JobTypeRegistry
-    from creme.creme_core.core.reminder import Reminder, reminder_registry
-    from creme.creme_core.creme_jobs import reminder_type
-    from creme.creme_core.creme_jobs.base import JobType
-    from creme.creme_core.models import Job
-    from creme.creme_core.utils.date_period import HoursPeriod
-    from creme.creme_core.utils.dates import round_hour
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class JobTypeRegistryTestCase(CremeTestCase):

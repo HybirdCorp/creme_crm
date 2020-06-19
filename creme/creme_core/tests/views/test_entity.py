@@ -1,51 +1,69 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
-    from urllib.parse import urlparse, unquote
+from datetime import date
+from decimal import Decimal
+from functools import partial
+from urllib.parse import unquote, urlparse
 
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.contrib.auth import get_user_model
-    from django.core.exceptions import ValidationError
-    from django.db.models import Max
-    from django.forms import CharField
-    from django.urls import reverse
-    from django.utils.translation import gettext as _, ngettext
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.db.models import Max
+from django.forms import CharField
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from .base import ViewsTestCase, BrickTestCaseMixin
+from creme.creme_config.forms import fields as config_fields
+from creme.creme_config.models import FakeConfigEntity
+from creme.creme_core import constants
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.bricks import EntityJobErrorsBrick, TrashBrick
+from creme.creme_core.creme_jobs import reminder_type, trash_cleaner_type
+from creme.creme_core.forms.bulk import (
+    _CUSTOMFIELD_FORMAT,
+    BulkDefaultEditForm,
+)
+from creme.creme_core.gui import bulk_update
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldBoolean,
+    CustomFieldDateTime,
+    CustomFieldEnum,
+    CustomFieldEnumValue,
+    CustomFieldFloat,
+    CustomFieldInteger,
+    CustomFieldMultiEnum,
+    CustomFieldString,
+    EntityJobResult,
+    FakeAddress,
+    FakeContact,
+    FakeDocument,
+    FakeFileBag,
+    FakeFileComponent,
+    FakeFolder,
+    FakeImage,
+    FakeImageCategory,
+    FakeOrganisation,
+    FakePosition,
+    FakeSector,
+    FieldsConfig,
+    HistoryLine,
+    Job,
+    Relation,
+    RelationType,
+    Sandbox,
+    SetCredentials,
+    TrashCleaningCommand,
+    history,
+)
+from creme.creme_core.views.entity import BulkUpdate, InnerEdition
 
-    from creme.creme_core import constants
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.bricks import TrashBrick, EntityJobErrorsBrick
-    from creme.creme_core.creme_jobs import trash_cleaner_type, reminder_type
-    from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
-    from creme.creme_core.gui import bulk_update
-    from creme.creme_core.models import (
-        CremeEntity,
-        RelationType, Relation,
-        CremePropertyType, CremeProperty,
-        SetCredentials, Sandbox,
-        HistoryLine, history,
-        FieldsConfig,
-        Job, EntityJobResult,
-        TrashCleaningCommand,
-        CustomField, CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean,
-        CustomFieldString, CustomFieldDateTime,
-        CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue,
-        FakeContact, FakeOrganisation, FakePosition, FakeSector, FakeAddress,
-        FakeImage, FakeImageCategory,
-        FakeFolder, FakeDocument,
-        FakeFileBag, FakeFileComponent,
-    )
-    from creme.creme_core.views.entity import BulkUpdate, InnerEdition
-
-    from creme.creme_config.models import FakeConfigEntity
-    from creme.creme_config.forms import fields as config_fields
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import BrickTestCaseMixin, ViewsTestCase
 
 
 class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):

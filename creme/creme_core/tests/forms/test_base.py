@@ -1,35 +1,38 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django import forms
-    from django.contrib.contenttypes.models import ContentType
-    from django.forms.boundfield import BoundField
-    from django.test.utils import override_settings
-    from django.utils.translation import gettext as _
+from django import forms
+from django.contrib.contenttypes.models import ContentType
+from django.forms.boundfield import BoundField
+from django.test.utils import override_settings
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.forms import CremeForm, CremeModelForm
-    from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.models import (
-        RelationType, Relation, SemiFixedRelationType,
-        CremePropertyType,
-        FieldsConfig,
-        SetCredentials,
-        CustomField, CustomFieldInteger, CustomFieldEnumValue,
-        FakeContact, FakeOrganisation, FakeAddress, FakeSector,
-    )
+from creme.creme_config.forms.fields import (
+    CustomEnumChoiceField,
+    CustomMultiEnumChoiceField,
+)
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.forms.widgets import Label
+from creme.creme_core.models import (
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    CustomFieldInteger,
+    FakeAddress,
+    FakeContact,
+    FakeOrganisation,
+    FakeSector,
+    FieldsConfig,
+    Relation,
+    RelationType,
+    SemiFixedRelationType,
+    SetCredentials,
+)
 
-    from creme.creme_config.forms.fields import (
-        CustomEnumChoiceField,
-        CustomMultiEnumChoiceField,
-    )
-
-    from ..base import CremeTestCase
-    from ..fake_forms import FakeContactForm
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..fake_forms import FakeContactForm
 
 
 class CremeFormTestCase(CremeTestCase):

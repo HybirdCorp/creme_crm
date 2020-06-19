@@ -1,32 +1,29 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import difflib
-    from json import loads as json_load
-    from unittest.util import safe_repr
+import difflib
+from json import loads as json_load
+from unittest.util import safe_repr
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query import QuerySet, Q
-    from django.forms.widgets import Select
-    from django.urls import reverse
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _, pgettext
-    from django.test.testcases import assert_and_parse_html
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query import Q, QuerySet
+from django.forms.widgets import Select
+from django.test.testcases import assert_and_parse_html
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
-    from ..fake_models import FakeContact
-    from ..base import CremeTestCase
-    # from .base import FieldTestCase
+from creme.creme_core.forms.widgets import (
+    ActionButtonList,
+    DynamicSelect,
+    EntityCreatorWidget,
+    EntitySelector,
+    UnorderedMultipleChoiceWidget,
+)
+from creme.creme_core.utils.url import TemplateURLBuilder
 
-    from creme.creme_core.forms.widgets import (
-        ActionButtonList,
-        DynamicSelect,
-        EntityCreatorWidget,
-        EntitySelector,
-        UnorderedMultipleChoiceWidget,
-    )
-    from creme.creme_core.utils.url import TemplateURLBuilder
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..fake_models import FakeContact
 
 
 # class DynamicSelectTestCase(FieldTestCase):

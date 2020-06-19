@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from .base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import CremeTestCase
 
 
 class BaseTestCaseTestCase(CremeTestCase):

@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from decimal import Decimal
-    from functools import partial
+from decimal import Decimal
+from functools import partial
 
-    from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.creme_core.models import Vat
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.models import Vat
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class VatTestCase(CremeTestCase):

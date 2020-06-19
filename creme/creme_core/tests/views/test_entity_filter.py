@@ -1,41 +1,52 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from functools import partial
-    from json import dumps as json_dump
+from datetime import date
+from functools import partial
+from json import dumps as json_dump
 
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
-    from django.test import override_settings
-    from django.urls import reverse
-    from django.utils.translation import gettext as _, ngettext
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from .base import ViewsTestCase
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    EF_USER,
+    _EntityFilterRegistry,
+    entity_filter_registries,
+    operands,
+    operators,
+)
+from creme.creme_core.core.entity_filter.condition_handler import (
+    CustomFieldConditionHandler,
+    DateCustomFieldConditionHandler,
+    DateRegularFieldConditionHandler,
+    PropertyConditionHandler,
+    RegularFieldConditionHandler,
+    RelationConditionHandler,
+    RelationSubFilterConditionHandler,
+    SubFilterConditionHandler,
+)
+from creme.creme_core.models import (
+    CremePropertyType,
+    CremeUser,
+    CustomField,
+    EntityFilter,
+    FakeCivility,
+    FakeContact,
+    FakeDocument,
+    FakeFolder,
+    FakeImage,
+    FakeOrganisation,
+    FakeProduct,
+    HeaderFilter,
+    RelationType,
+)
 
-    from creme.creme_core.core.entity_filter import (
-        entity_filter_registries,
-        EF_CREDENTIALS, EF_USER,
-        _EntityFilterRegistry,
-        operators,
-        operands,
-    )
-    from creme.creme_core.core.entity_filter.condition_handler import (
-        SubFilterConditionHandler, RelationSubFilterConditionHandler,
-        RegularFieldConditionHandler, DateRegularFieldConditionHandler,
-        CustomFieldConditionHandler, DateCustomFieldConditionHandler,
-        PropertyConditionHandler, RelationConditionHandler,
-    )
-    from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.models import (
-        CremeUser,
-        EntityFilter,
-        HeaderFilter, CustomField, RelationType, CremePropertyType,
-        FakeContact, FakeOrganisation, FakeCivility, FakeImage,
-        FakeDocument, FakeFolder, FakeProduct,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import ViewsTestCase
 
 
 class EntityFilterViewsTestCase(ViewsTestCase):

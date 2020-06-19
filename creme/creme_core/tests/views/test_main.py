@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from io import BytesIO
+from io import BytesIO
 
-    from PIL import Image
+from django.conf import settings
+from django.http import Http404
+from django.test.client import RequestFactory
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from PIL import Image
 
-    from django.conf import settings
-    from django.http import Http404
-    from django.test.client import RequestFactory
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from creme.creme_core.bricks import HistoryBrick, StatisticsBrick
+from creme.creme_core.gui.bricks import Brick
+from creme.creme_core.models import (
+    BrickHomeLocation,
+    Currency,
+    FakeContact,
+    FakeImage,
+    FakeOrganisation,
+    Language,
+    UserRole,
+)
+from creme.creme_core.utils.media import get_creme_media_url
+from creme.creme_core.views.testjs import js_testview_or_404
 
-    from creme.creme_core.bricks import StatisticsBrick, HistoryBrick
-    from creme.creme_core.gui.bricks import Brick
-    from creme.creme_core.models import (
-        UserRole,
-        BrickHomeLocation,
-        Language,
-        Currency,
-        FakeContact, FakeImage, FakeOrganisation,
-    )
-    from creme.creme_core.views.testjs import js_testview_or_404
-    from creme.creme_core.utils.media import get_creme_media_url
-
-    from .base import ViewsTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import ViewsTestCase
 
 
 class MiscViewsTestCase(ViewsTestCase):

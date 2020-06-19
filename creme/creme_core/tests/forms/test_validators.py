@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.contrib.auth import get_user
-    from django.core.exceptions import ValidationError
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.forms import validators
+from creme.creme_core.models import CremeUser, FakeContact
+from creme.creme_core.models.auth import SetCredentials
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.forms import validators
-    from creme.creme_core.models import CremeUser, FakeContact
-    from creme.creme_core.models.auth import SetCredentials
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class CredsValidatorTestCase(CremeTestCase):

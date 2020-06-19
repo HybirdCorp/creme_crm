@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from json import dumps as json_dump
+from json import dumps as json_dump
 
-    from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _
 
-    from .base import FieldTestCase
-    from ..fake_models import FakeContact
-    from creme.creme_core.forms.batch_process import BatchActionsField
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.forms.batch_process import BatchActionsField
+
+from ..fake_models import FakeContact
+from .base import FieldTestCase
 
 
 class BatchActionsFieldTestCase(FieldTestCase):

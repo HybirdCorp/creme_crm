@@ -1,60 +1,71 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from functools import partial
-    from json import loads as json_load, dumps as json_dump
+from datetime import date
+from functools import partial
+from json import dumps as json_dump
+from json import loads as json_load
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.core.exceptions import ValidationError
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
-    from .base import FieldTestCase
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    EF_USER,
+    _EntityFilterRegistry,
+    operands,
+    operators,
+)
+from creme.creme_core.core.entity_filter.condition_handler import (
+    CustomFieldConditionHandler,
+    DateCustomFieldConditionHandler,
+    DateRegularFieldConditionHandler,
+    PropertyConditionHandler,
+    RegularFieldConditionHandler,
+    RelationConditionHandler,
+    RelationSubFilterConditionHandler,
+    SubFilterConditionHandler,
+)
+from creme.creme_core.forms.entity_filter.fields import (
+    CustomFieldsConditionsField,
+    DateCustomFieldsConditionsField,
+    DateFieldsConditionsField,
+    PropertiesConditionsField,
+    RegularFieldsConditionsField,
+    RelationsConditionsField,
+    RelationSubfiltersConditionsField,
+)
+from creme.creme_core.forms.entity_filter.forms import (
+    EntityFilterCreateForm,
+    EntityFilterEditForm,
+)
+from creme.creme_core.forms.entity_filter.widgets import (
+    CustomFieldConditionSelector,
+    CustomFieldsConditionsWidget,
+    DateCustomFieldsConditionsWidget,
+    FieldConditionSelector,
+    RelationsConditionsWidget,
+    RelationSubfiltersConditionsWidget,
+)
+from creme.creme_core.models import (
+    CremeEntity,
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    EntityFilter,
+    FakeCivility,
+    FakeContact,
+    FakeImage,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeOrganisation,
+    FakePosition,
+    FieldsConfig,
+    Language,
+    RelationType,
+)
 
-    from creme.creme_core.core.entity_filter import (
-        EF_CREDENTIALS, EF_USER,
-        _EntityFilterRegistry,
-        operators,
-        operands,
-    )
-    from creme.creme_core.core.entity_filter.condition_handler import (
-        RelationSubFilterConditionHandler,
-        RegularFieldConditionHandler, DateRegularFieldConditionHandler,
-        CustomFieldConditionHandler, DateCustomFieldConditionHandler,
-        PropertyConditionHandler, RelationConditionHandler,
-        SubFilterConditionHandler,
-    )
-    from creme.creme_core.models import (
-        RelationType, CremePropertyType,
-        EntityFilter, FieldsConfig,
-        CustomField, CustomFieldEnumValue, Language,
-        CremeEntity, FakeContact, FakeCivility, FakePosition,
-        FakeOrganisation, FakeImage, FakeInvoice, FakeInvoiceLine,
-    )
-    from creme.creme_core.forms.entity_filter.fields import (
-        RegularFieldsConditionsField, DateFieldsConditionsField,
-        CustomFieldsConditionsField,
-        DateCustomFieldsConditionsField,
-        PropertiesConditionsField,
-        RelationsConditionsField, RelationSubfiltersConditionsField,
-    )
-    from creme.creme_core.forms.entity_filter.widgets import (
-        CustomFieldsConditionsWidget,
-        DateCustomFieldsConditionsWidget,
-        RelationsConditionsWidget,
-        RelationSubfiltersConditionsWidget,
-    )
-    from creme.creme_core.forms.entity_filter.forms import (
-        EntityFilterCreateForm,
-        EntityFilterEditForm,
-    )
-    from creme.creme_core.forms.entity_filter.widgets import (
-        FieldConditionSelector,
-        CustomFieldConditionSelector,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
+from .base import FieldTestCase
 
 efilter_registry = _EntityFilterRegistry(
     id=0,

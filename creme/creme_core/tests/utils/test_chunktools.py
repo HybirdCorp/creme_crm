@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from creme.creme_core.utils import chunktools
-    from ..base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.utils import chunktools
+
+from ..base import CremeTestCase
 
 
 class ChunkToolsTestCase(CremeTestCase):

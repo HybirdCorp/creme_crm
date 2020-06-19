@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui.bricks import QuerysetBrick
-    from creme.creme_core.models import SearchConfigItem, FieldsConfig, SetCredentials
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui.bricks import QuerysetBrick
+from creme.creme_core.models import (
+    FieldsConfig,
+    SearchConfigItem,
+    SetCredentials,
+)
 
-    from ..fake_models import FakeContact, FakeOrganisation, FakeSector
-
-    from .base import ViewsTestCase, BrickTestCaseMixin
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..fake_models import FakeContact, FakeOrganisation, FakeSector
+from .base import BrickTestCaseMixin, ViewsTestCase
 
 
 class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):

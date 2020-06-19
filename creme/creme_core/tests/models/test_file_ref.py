@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import timedelta
-    from os.path import exists  # join basename
+from datetime import timedelta
+from os.path import exists
 
-    # from django.conf import settings
-    from django.db.transaction import atomic
+from django.db.transaction import atomic
 
-    from .. import base
-    from creme.creme_core.creme_jobs import temp_files_cleaner_type
-    from creme.creme_core.models import Job, FileRef, FakeFolder, FakeDocument, FakeFileComponent
-    from creme.creme_core.utils.date_period import date_period_registry
-    # from creme.creme_core.utils.file_handling import FileCreator
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.creme_jobs import temp_files_cleaner_type
+from creme.creme_core.models import (
+    FakeDocument,
+    FakeFileComponent,
+    FakeFolder,
+    FileRef,
+    Job,
+)
+from creme.creme_core.utils.date_period import date_period_registry
 
+from .. import base
 
 # def _create_file(name):
 #     rel_media_dir_path = join('upload', 'creme_core-tests', 'models')

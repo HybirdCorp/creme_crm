@@ -324,13 +324,13 @@ ALLOWED_EXTENSIONS = [
 
 IMPORT_BACKENDS = [
     'creme.creme_core.backends.csv_import.CSVImportBackend',
-    'creme.creme_core.backends.xls_import.XLSImportBackend',  # You need to install xlwt and xlrd
-    'creme.creme_core.backends.xls_import.XLSXImportBackend',  # You need to install xlwt and xlrd
+    'creme.creme_core.backends.xls_import.XLSImportBackend',
+    'creme.creme_core.backends.xls_import.XLSXImportBackend',
 ]
 EXPORT_BACKENDS = [
     'creme.creme_core.backends.csv_export.CSVExportBackend',
     'creme.creme_core.backends.csv_export.SemiCSVExportBackend',
-    'creme.creme_core.backends.xls_export.XLSExportBackend',  # You need to install xlwt and xlrd
+    'creme.creme_core.backends.xls_export.XLSExportBackend',
 ]
 
 # EMAILS [internal] ############################################################

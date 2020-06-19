@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from ..base import CremeTestCase
+from creme.creme_core.core.function_field import (
+    FunctionField,
+    _FunctionFieldRegistry,
+)
 
-    from creme.creme_core.core.function_field import FunctionField, _FunctionFieldRegistry  # FunctionFieldsManager
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class FunctionFieldsTestCase(CremeTestCase):

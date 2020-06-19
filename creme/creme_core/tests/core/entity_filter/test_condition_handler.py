@@ -1,53 +1,67 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
+from datetime import date
+from decimal import Decimal
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query_utils import Q
-    from django.utils.formats import date_format
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
+from django.utils.formats import date_format
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_filter import (
-        EF_CREDENTIALS, EF_USER,
-        _EntityFilterRegistry,
-        operators,
-        operands,
-    )
-    from creme.creme_core.core.entity_filter.condition_handler import (
-        FilterConditionHandler,
-        RegularFieldConditionHandler, DateRegularFieldConditionHandler,
-        CustomFieldConditionHandler, DateCustomFieldConditionHandler,
-        PropertyConditionHandler, RelationConditionHandler,
-        SubFilterConditionHandler, RelationSubFilterConditionHandler,
-    )
-    from creme.creme_core.forms.entity_filter import (
-        fields as ef_fields,
-        widgets as ef_widgets,
-    )
-    from creme.creme_core.models import (
-        CremeEntity,
-        CremeUser,
-        RelationType, Relation,
-        CremeProperty, CremePropertyType,
-        CustomField, CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue,
-        SetCredentials,
-        EntityFilter, EntityFilterCondition,
-        FakeContact, FakeOrganisation, FakePosition, FakeSector,
-        FakeFolderCategory, FakeFolder, FakeDocumentCategory, FakeDocument,
-        FakeImageCategory, FakeImage,
-        FakeReport,
-        FakeInvoice, FakeInvoiceLine,
-    )
-    from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.utils.date_range import date_range_registry
-    from creme.creme_core.utils.meta import FieldInfo
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    EF_USER,
+    _EntityFilterRegistry,
+    operands,
+    operators,
+)
+from creme.creme_core.core.entity_filter.condition_handler import (
+    CustomFieldConditionHandler,
+    DateCustomFieldConditionHandler,
+    DateRegularFieldConditionHandler,
+    FilterConditionHandler,
+    PropertyConditionHandler,
+    RegularFieldConditionHandler,
+    RelationConditionHandler,
+    RelationSubFilterConditionHandler,
+    SubFilterConditionHandler,
+)
+from creme.creme_core.forms.entity_filter import fields as ef_fields
+from creme.creme_core.forms.entity_filter import widgets as ef_widgets
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    CremeUser,
+    CustomField,
+    CustomFieldEnum,
+    CustomFieldEnumValue,
+    CustomFieldMultiEnum,
+    EntityFilter,
+    EntityFilterCondition,
+    FakeContact,
+    FakeDocument,
+    FakeDocumentCategory,
+    FakeFolder,
+    FakeFolderCategory,
+    FakeImage,
+    FakeImageCategory,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeOrganisation,
+    FakePosition,
+    FakeReport,
+    FakeSector,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.utils.date_range import date_range_registry
+from creme.creme_core.utils.meta import FieldInfo
 
 
 # TODO: query_for_related_conditions()

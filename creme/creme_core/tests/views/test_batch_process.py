@@ -1,32 +1,35 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import dumps as json_dump
+from functools import partial
+from json import dumps as json_dump
 
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.core.exceptions import ValidationError
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _, ngettext
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from .base import ViewsTestCase
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_filter import operands, operators
+from creme.creme_core.core.entity_filter.condition_handler import (
+    RegularFieldConditionHandler,
+)
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue, job_type_registry
+from creme.creme_core.creme_jobs.batch_process import batch_process_type
+from creme.creme_core.models import (
+    EntityFilter,
+    EntityJobResult,
+    FakeContact,
+    FakeOrganisation,
+    Job,
+    SetCredentials,
+)
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_filter import operators, operands
-    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
-    from creme.creme_core.core.job import job_type_registry, JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.creme_jobs.batch_process import batch_process_type
-    from creme.creme_core.models import (
-        EntityFilter,
-        SetCredentials,
-        Job, EntityJobResult,
-        FakeContact, FakeOrganisation,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import ViewsTestCase
 
 
 class BatchProcessViewsTestCase(ViewsTestCase):

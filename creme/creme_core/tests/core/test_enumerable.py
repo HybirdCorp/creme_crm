@@ -1,25 +1,31 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.db.models.fields import FieldDoesNotExist
-    from django.utils.translation import gettext as _
+from django.db.models.fields import FieldDoesNotExist
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
+from creme.creme_core import enumerators
+from creme.creme_core.core.entity_filter import EF_CREDENTIALS
+from creme.creme_core.core.enumerable import Enumerator, _EnumerableRegistry
+from creme.creme_core.models import (
+    CremeUser,
+    EntityFilter,
+    FakeAddress,
+    FakeCivility,
+    FakeContact,
+    FakeImage,
+    FakeImageCategory,
+    FakeOrganisation,
+    FakeReport,
+    Language,
+)
+from creme.creme_core.models.fields import (
+    CTypeForeignKey,
+    EntityCTypeForeignKey,
+)
 
-    from creme.creme_core import enumerators
-    from creme.creme_core.core.entity_filter import EF_CREDENTIALS
-    from creme.creme_core.core.enumerable import _EnumerableRegistry, Enumerator
-    from creme.creme_core.models import (
-        EntityFilter, CremeUser,
-        Language,
-        FakeContact, FakeOrganisation, FakeCivility, FakeAddress,
-        FakeImageCategory, FakeImage, FakeReport,
-    )
-    from creme.creme_core.models.fields import CTypeForeignKey, EntityCTypeForeignKey
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class EnumerableTestCase(CremeTestCase):

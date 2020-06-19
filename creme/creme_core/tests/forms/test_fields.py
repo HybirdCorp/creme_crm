@@ -1,43 +1,55 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.core.exceptions import ValidationError
-    from django.contrib.contenttypes.models import ContentType
-    from django.forms import IntegerField, ChoiceField
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.forms import ChoiceField, IntegerField
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from .base import FieldTestCase
+from creme.creme_core.forms.fields import (
+    ChoiceOrCharField,
+    ColorField,
+    CremeUserChoiceField,
+    CTypeChoiceField,
+    DatePeriodField,
+    DateRangeField,
+    DurationField,
+    EnhancedChoiceIterator,
+    EnhancedModelChoiceIterator,
+    EnhancedModelMultipleChoiceField,
+    EnhancedMultipleChoiceField,
+    EntityCTypeChoiceField,
+    MultiCTypeChoiceField,
+    MultiEntityCTypeChoiceField,
+    OptionalChoiceField,
+)
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.models import (
+    CremePropertyType,
+    CremeUser,
+    Currency,
+    FakeContact,
+    FakeOrganisation,
+    FakeSector,
+    RelationType,
+)
+from creme.creme_core.utils.date_period import (
+    DatePeriod,
+    DatePeriodRegistry,
+    DaysPeriod,
+    HoursPeriod,
+    MinutesPeriod,
+    date_period_registry,
+)
+from creme.creme_core.utils.date_range import (
+    CurrentYearRange,
+    CustomRange,
+    DateRange,
+)
 
-    from creme.creme_core.forms.fields import (
-        CremeUserChoiceField,
-        DatePeriodField, DateRangeField,
-        DurationField, ColorField, ChoiceOrCharField,
-        OptionalChoiceField,
-        CTypeChoiceField, EntityCTypeChoiceField,
-        MultiCTypeChoiceField, MultiEntityCTypeChoiceField,
-        EnhancedMultipleChoiceField, EnhancedChoiceIterator,
-        EnhancedModelMultipleChoiceField, EnhancedModelChoiceIterator,
-    )
-    from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-    from creme.creme_core.models import (
-        RelationType, CremePropertyType,
-        CremeUser, Currency,
-        FakeContact, FakeOrganisation, FakeSector,
-    )
-    from creme.creme_core.utils.date_period import (
-        DatePeriod, MinutesPeriod, HoursPeriod, DaysPeriod,
-        DatePeriodRegistry, date_period_registry
-    )
-    from creme.creme_core.utils.date_range import (
-        DateRange,
-        CustomRange,
-        CurrentYearRange,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import FieldTestCase
 
 
 class CremeUserChoiceFieldTestCase(FieldTestCase):

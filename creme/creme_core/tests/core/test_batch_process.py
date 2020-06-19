@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.db import models
-    from django.utils.translation import gettext as _
+from django.db import models
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
+from creme.creme_core.core.batch_process import (
+    BatchAction,
+    batch_operator_manager,
+)
+from creme.creme_core.models import FakeContact
 
-    from creme.creme_core.core.batch_process import batch_operator_manager, BatchAction
-    from creme.creme_core.models import FakeContact
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class BatchOperatorTestCase(CremeTestCase):

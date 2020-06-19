@@ -1,29 +1,15 @@
 # -*- coding: utf-8 -*-
 
-try:
-    import os
-    from datetime import datetime
-    from tempfile import NamedTemporaryFile
-    from unittest import skipIf
+import os
+from datetime import datetime
+from tempfile import NamedTemporaryFile
+from unittest import skipIf
 
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from xlrd import XLRDError
 
-try:
-    from creme.creme_core.utils.xlwt_utils import XlwtWriter
-except Exception:
-    XlwtMissing = True
-else:
-    XlwtMissing = False
-
-try:
-    from xlrd import XLRDError
-    from creme.creme_core.utils.xlrd_utils import XlrdReader
-except Exception:
-    XlrdMissing = True
-else:
-    XlrdMissing = False
+from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.utils.xlrd_utils import XlrdReader
+from creme.creme_core.utils.xlwt_utils import XlwtWriter
 
 
 class XLSUtilsTestCase(CremeTestCase):
@@ -44,12 +30,10 @@ class XLSUtilsTestCase(CremeTestCase):
     def get_file_path(self, filename):
         return os.path.join(self.current_path, filename)
 
-    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_unknown_filename(self):
         with self.assertRaises(IOError):
             XlrdReader(filedata=self.get_file_path('unknown.xls'))
 
-    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_invalid_file(self):
         with self.assertRaises(XLRDError) as error:
             XlrdReader(filedata=self.get_file_path('data-invalid.xls'))
@@ -58,27 +42,23 @@ class XLSUtilsTestCase(CremeTestCase):
                          "Unsupported format, or corrupt file: Expected BOF record; found b'this is '"
                         )
 
-    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_sheet(self):
         rd = XlrdReader(filedata=self.get_file_path(self.files[0]))
         self.assertIsNotNone(rd.book)
         self.assertIsNotNone(rd.sheet)
         self.assertEqual(rd.sheet.nrows, len(self.data))
 
-    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_read_next(self):
         for filename in self.files:
             rd = XlrdReader(filedata=self.get_file_path(filename))
             for element in self.data:
                 self.assertEqual(element, next(rd))
 
-    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_as_list(self):
         for filename in self.files:
             rd = XlrdReader(filedata=self.get_file_path(filename))
             self.assertListEqual(self.data, [*rd])
 
-    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_open_file(self):
         for filename in self.files:
             with open(self.get_file_path(filename), mode='rb') as file_obj:
@@ -86,7 +66,6 @@ class XLSUtilsTestCase(CremeTestCase):
                 rd = XlrdReader(file_contents=file_content)
                 self.assertEqual([*rd], self.data)
 
-    @skipIf(XlrdMissing or XlwtMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_write_and_read(self):
         file = NamedTemporaryFile(suffix=".xls")
 
@@ -104,7 +83,6 @@ class XLSUtilsTestCase(CremeTestCase):
             rd = XlrdReader(file_contents=file_content)
             self.assertEqual([*rd], self.data)
 
-    @skipIf(XlrdMissing or XlwtMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_truncate(self):
         content = """Lôrèm ipsum dolor sit amet, consectetur adipiscing elit. Proin ac odio libero.
 Praesent sollicitudin, mauris non sagittis tincidunt, magna libero malesuada lectus, sit amet dictum nulla mi ac justo.

@@ -1,30 +1,33 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from collections import defaultdict
-    from datetime import timedelta
-    from functools import partial
+from collections import defaultdict
+from datetime import timedelta
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
-    from django.utils.translation import gettext as _
+from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui.merge import merge_form_registry
-    from creme.creme_core.models import (
-        CremePropertyType, CremeProperty,
-        RelationType, Relation,
-        SetCredentials,
-        FieldsConfig,
-        HistoryLine, history,
-        CustomField, CustomFieldEnumValue,
-        Language,
-        FakeContact, FakeOrganisation, FakeImage,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui.merge import merge_form_registry
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    FakeContact,
+    FakeImage,
+    FakeOrganisation,
+    FieldsConfig,
+    HistoryLine,
+    Language,
+    Relation,
+    RelationType,
+    SetCredentials,
+    history,
+)
 
-    from .base import ViewsTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import ViewsTestCase
 
 
 class MergeViewsTestCase(ViewsTestCase):

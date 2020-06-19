@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.test import RequestFactory
+from django.test import RequestFactory
 
-    from creme.creme_core.gui.listview import ListViewState
-    from creme.creme_core.models import CremeUser, FakeContact
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.gui.listview import ListViewState
+from creme.creme_core.models import CremeUser, FakeContact
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class ListViewStateTestCase(CremeTestCase):

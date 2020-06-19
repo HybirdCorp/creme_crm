@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.forms import IntegerField
-    from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
+from django.forms import IntegerField
+from django.urls import reverse
 
-    from .base import CremeTestCase
+from creme.creme_core.models import (
+    CustomField,
+    FakeContact,
+    FakeInvoice,
+    FakeOrganisation,
+)
 
-    from creme.creme_core.models import (
-        CustomField,
-        FakeContact, FakeOrganisation, FakeInvoice,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import CremeTestCase
 
 
 class QuickFormTestCase(CremeTestCase):

@@ -1,58 +1,55 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from functools import partial
-    from os.path import dirname, exists, join
-    from unittest import skipIf
-    from urllib.parse import urlencode
+from datetime import date
+from functools import partial
+from os.path import dirname, exists, join
+from unittest import skipIf
+from urllib.parse import urlencode
 
-    from bleach._vendor import html5lib  # Avoid a dependence only for test
+from bleach._vendor import html5lib  # Avoid a dependence only for test
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.encoding import force_text
+from django.utils.formats import date_format
+from django.utils.timezone import localtime
+from django.utils.translation import gettext as _
 
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models import Q
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.encoding import force_text
-    from django.utils.formats import date_format
-    from django.utils.timezone import localtime
-    from django.utils.translation import gettext as _
+from creme.creme_core.core.entity_cell import (
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+)
+from creme.creme_core.core.entity_filter.condition_handler import (
+    RegularFieldConditionHandler,
+)
+from creme.creme_core.core.entity_filter.operators import ISTARTSWITH
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    EntityFilter,
+    FakeContact,
+    FakeEmailCampaign,
+    FakeImage,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeMailingList,
+    FakeOrganisation,
+    FieldsConfig,
+    FileRef,
+    HeaderFilter,
+    Relation,
+    RelationType,
+)
+from creme.creme_core.models.history import TYPE_EXPORT, HistoryLine
+from creme.creme_core.utils.content_type import as_ctype
+from creme.creme_core.utils.queries import QSerializer
+from creme.creme_core.utils.xlrd_utils import XlrdReader
 
-    from .base import ViewsTestCase
-    from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
-
-    from creme.creme_core.core.entity_cell import (
-        EntityCellRegularField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.core.entity_filter.operators import ISTARTSWITH
-    from creme.creme_core.core.entity_filter.condition_handler import RegularFieldConditionHandler
-    from creme.creme_core.models import (
-        RelationType, Relation,
-        FieldsConfig,
-        CremePropertyType, CremeProperty,
-        FileRef,
-        HeaderFilter,
-        EntityFilter,
-        FakeContact, FakeOrganisation, FakeImage,
-        FakeEmailCampaign, FakeMailingList,
-        FakeInvoice, FakeInvoiceLine,
-    )
-    from creme.creme_core.models.history import TYPE_EXPORT, HistoryLine
-    from creme.creme_core.utils.content_type import as_ctype
-    from creme.creme_core.utils.queries import QSerializer
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
-
-try:
-    from creme.creme_core.backends import export_backend_registry
-    from creme.creme_core.utils.xlrd_utils import XlrdReader
-
-    XlsMissing = 'xls' not in export_backend_registry.extensions
-except Exception:
-    XlsMissing = True
+from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
+from .base import ViewsTestCase
 
 
 class MassExportViewsTestCase(ViewsTestCase):
@@ -209,7 +206,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
 
-    @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export_header(self):
         self.login()
         cells = self._build_hf_n_contacts().cells
@@ -502,7 +498,6 @@ class MassExportViewsTestCase(ViewsTestCase):
             hline.get_verbose_modifications(user),
         )
 
-    @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export01(self):
         user = self.login()
         cells = self._build_hf_n_contacts().cells
@@ -543,7 +538,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'xls'), dirname(fullpath))
 
-    @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export02(self):
         "Other CT, other type of fields"
         user = self.login()

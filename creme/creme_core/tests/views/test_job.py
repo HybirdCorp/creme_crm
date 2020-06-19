@@ -1,29 +1,35 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from json import dumps as json_dump
+from json import dumps as json_dump
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models import Max
-    from django.test.utils import override_settings
-    from django.urls import reverse
-    from django.utils.encoding import smart_text
-    from django.utils.formats import date_format
-    from django.utils.timezone import localtime, now
-    from django.utils.translation import gettext as _, ngettext
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Max
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.encoding import smart_text
+from django.utils.formats import date_format
+from django.utils.timezone import localtime, now
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from ..fake_models import FakeOrganisation
+from creme.creme_core.bricks import (
+    EntityJobErrorsBrick,
+    JobBrick,
+    JobErrorsBrick,
+)
+# Should be a test queue
+from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.creme_jobs import (
+    batch_process_type,
+    reminder_type,
+    temp_files_cleaner_type,
+)
+from creme.creme_core.creme_jobs.base import JobType
+from creme.creme_core.models import EntityJobResult, Job
+from creme.creme_core.utils.dates import dt_to_ISO8601
 
-    from .base import ViewsTestCase, BrickTestCaseMixin
-
-    from creme.creme_core.bricks import JobBrick, JobErrorsBrick, EntityJobErrorsBrick
-    from creme.creme_core.core.job import JobSchedulerQueue  # Should be a test queue
-    from creme.creme_core.creme_jobs import batch_process_type, reminder_type, temp_files_cleaner_type
-    from creme.creme_core.creme_jobs.base import JobType
-    from creme.creme_core.models import Job, EntityJobResult
-    from creme.creme_core.utils.dates import dt_to_ISO8601
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..fake_models import FakeOrganisation
+from .base import BrickTestCaseMixin, ViewsTestCase
 
 
 class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):

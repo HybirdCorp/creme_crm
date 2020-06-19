@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.core.exceptions import ValidationError
-    from django.forms import CharField
-    from django.forms.widgets import TextInput
-    from django.utils.translation import gettext as _
+from django.core.exceptions import ValidationError
+from django.forms import CharField
+from django.forms.widgets import TextInput
+from django.utils.translation import gettext as _
 
-    # from .base import FieldTestCase
-    from ..base import CremeTestCase
+from creme.creme_core.forms.mass_import import (
+    CustomFieldExtractor,
+    CustomfieldExtractorField,
+    CustomFieldExtractorWidget,
+    Extractor,
+    ExtractorField,
+    ExtractorWidget,
+)
+from creme.creme_core.models import (
+    CustomField,
+    CustomFieldEnumValue,
+    FakeContact,
+    FakeSector,
+)
 
-    from creme.creme_core.models import (
-        CustomField, CustomFieldEnumValue,
-        FakeContact, FakeSector,
-    )
-    from creme.creme_core.forms.mass_import import (
-        Extractor, CustomFieldExtractor,
-        ExtractorWidget, CustomFieldExtractorWidget,
-        ExtractorField, CustomfieldExtractorField,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 # TODO: complete
 #    - complete existing test cases

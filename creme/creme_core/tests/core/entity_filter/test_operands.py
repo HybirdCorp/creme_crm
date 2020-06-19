@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 
-    from creme.creme_core.core.entity_filter import (
-        operands,
-        entity_filter_registries, EF_USER,
-    )
-    from creme.creme_core.models import CremeUser, FakeContact
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.entity_filter import (
+    EF_USER,
+    entity_filter_registries,
+    operands,
+)
+from creme.creme_core.models import CremeUser, FakeContact
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class OperandTestCase(CremeTestCase):

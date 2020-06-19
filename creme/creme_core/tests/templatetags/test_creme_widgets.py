@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.conf import settings
-    from django.template import Template, Context
-    from django.test import override_settings
+from django.conf import settings
+from django.template import Context, Template
+from django.test import override_settings
 
-    from ..base import CremeTestCase
-    from ..fake_models import FakeOrganisation, FakeSector
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..fake_models import FakeOrganisation, FakeSector
 
 
 class CremeWidgetsTagsTestCase(CremeTestCase):

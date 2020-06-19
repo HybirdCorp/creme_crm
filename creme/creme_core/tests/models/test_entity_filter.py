@@ -1,47 +1,60 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date, timedelta
-    from functools import partial
-    from logging import info
+from datetime import date, timedelta
+from functools import partial
+from logging import info
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.contrib.auth import get_user_model
-    from django.db.models.query import QuerySet
-    from django.utils.timezone import now
-    from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query import QuerySet
+from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
-    from creme import __version__
+from creme import __version__
+from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    EF_USER,
+    entity_filter_registries,
+    operands,
+    operators,
+)
+from creme.creme_core.core.entity_filter.condition_handler import (
+    CustomFieldConditionHandler,
+    DateCustomFieldConditionHandler,
+    DateRegularFieldConditionHandler,
+    PropertyConditionHandler,
+    RegularFieldConditionHandler,
+    RelationConditionHandler,
+    RelationSubFilterConditionHandler,
+    SubFilterConditionHandler,
+)
+from creme.creme_core.global_info import set_global_info
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    CremeUser,
+    CustomField,
+    CustomFieldBoolean,
+    CustomFieldDateTime,
+    CustomFieldEnum,
+    CustomFieldEnumValue,
+    CustomFieldFloat,
+    CustomFieldInteger,
+    CustomFieldString,
+    EntityFilter,
+    EntityFilterCondition,
+    FakeCivility,
+    FakeContact,
+    FakeImage,
+    FakeOrganisation,
+    Language,
+    Relation,
+    RelationType,
+)
+from creme.creme_core.models.entity_filter import EntityFilterList
 
-    from ..base import CremeTestCase
-
-    from creme.creme_core.core.entity_filter import (
-        entity_filter_registries,
-        EF_USER, EF_CREDENTIALS,
-        operators,
-        operands,
-    )
-    from creme.creme_core.core.entity_filter.condition_handler import (
-        SubFilterConditionHandler, RelationSubFilterConditionHandler,
-        RegularFieldConditionHandler, DateRegularFieldConditionHandler,
-        CustomFieldConditionHandler, DateCustomFieldConditionHandler,
-        PropertyConditionHandler, RelationConditionHandler,
-    )
-    from creme.creme_core.global_info import set_global_info
-    from creme.creme_core.models import (
-        CremeEntity,
-        CremeUser,
-        Relation, RelationType,
-        CremeProperty, CremePropertyType,
-        CustomField, CustomFieldInteger, CustomFieldString, CustomFieldFloat,
-        CustomFieldBoolean, CustomFieldDateTime, CustomFieldEnum, CustomFieldEnumValue,
-        EntityFilter, EntityFilterCondition,
-        Language,
-        FakeContact, FakeCivility, FakeOrganisation, FakeImage,
-    )
-    from creme.creme_core.models.entity_filter import EntityFilterList
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class EntityFiltersTestCase(CremeTestCase):

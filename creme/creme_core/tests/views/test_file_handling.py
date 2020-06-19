@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from django.urls import reverse
+from django.urls import reverse
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (
-        FileRef,
-        SetCredentials,
-        FakeFolder, FakeDocument,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import (
+    FakeDocument,
+    FakeFolder,
+    FileRef,
+    SetCredentials,
+)
 
-    from .base import ViewsTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from .base import ViewsTestCase
 
 
 class DownloadViewTestCase(ViewsTestCase):

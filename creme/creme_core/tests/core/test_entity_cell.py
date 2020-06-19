@@ -1,40 +1,41 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from copy import deepcopy
-    from datetime import date
-    from decimal import Decimal
-    from functools import partial
+from copy import deepcopy
+from datetime import date
+from decimal import Decimal
+from functools import partial
 
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.utils.formats import date_format, number_format
-    from django.utils.timezone import localtime
-    from django.utils.translation import gettext as _
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.utils.formats import date_format, number_format
+from django.utils.timezone import localtime
+from django.utils.translation import gettext as _
 
-    from ..base import CremeTestCase
+from creme.creme_core.core.entity_cell import (
+    CELLS_MAP,
+    EntityCell,
+    EntityCellCustomField,
+    EntityCellFunctionField,
+    EntityCellRegularField,
+    EntityCellRelation,
+    EntityCellsRegistry,
+)
+from creme.creme_core.core.function_field import (
+    FunctionField,
+    FunctionFieldResult,
+    function_field_registry,
+)
+from creme.creme_core.models import (
+    CustomField,
+    CustomFieldEnumValue,
+    FakeContact,
+    FakeDocument,
+    FakeFolder,
+    FieldsConfig,
+    RelationType,
+)
 
-    from creme.creme_core.core.entity_cell import (
-        EntityCell,
-        CELLS_MAP, EntityCellsRegistry,
-        EntityCellRegularField,
-        EntityCellCustomField,
-        EntityCellFunctionField,
-        EntityCellRelation,
-    )
-    from creme.creme_core.core.function_field import (
-        FunctionField,
-        FunctionFieldResult,
-        function_field_registry,
-    )
-    from creme.creme_core.models import (
-        RelationType,
-        FieldsConfig,
-        CustomField, CustomFieldEnumValue,
-        FakeContact, FakeDocument, FakeFolder,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class EntityCellTestCase(CremeTestCase):

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from ..base import CremeTestCase
-    from creme.creme_core.utils.collections import (
-        LimitedList,
-        FluentList,
-        ClassKeyedMap,
-        OrderedSet,
-        InheritedDataChain,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.utils.collections import (
+    ClassKeyedMap,
+    FluentList,
+    InheritedDataChain,
+    LimitedList,
+    OrderedSet,
+)
+
+from ..base import CremeTestCase
 
 
 class LimitedListTestCase(CremeTestCase):

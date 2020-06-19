@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from os.path import join, basename
+from os.path import basename, join
 
-    from django.conf import settings
-    from django.core.exceptions import PermissionDenied
-    from django.db.models import FieldDoesNotExist
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
+from django.db.models import FieldDoesNotExist
 
-    from ..base import CremeTestCase
+from creme.creme_core.core.download import FileFieldDownLoadRegistry
+from creme.creme_core.models import (
+    FakeDocument,
+    FakeFileComponent,
+    FakeFolder,
+    FakeImage,
+    FieldsConfig,
+    FileRef,
+)
+from creme.creme_core.utils.file_handling import FileCreator
 
-    from creme.creme_core.core.download import FileFieldDownLoadRegistry
-    from creme.creme_core.models import (
-        FieldsConfig,
-        FileRef,
-        FakeImage, FakeDocument, FakeFolder, FakeFileComponent,
-    )
-    from creme.creme_core.utils.file_handling import FileCreator
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
 
 
 class DownloadTestCase(CremeTestCase):

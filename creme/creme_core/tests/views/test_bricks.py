@@ -1,35 +1,38 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
-    from json import dumps as json_dump
+from functools import partial
+from json import dumps as json_dump
 
-    from django.urls import reverse
+from django.urls import reverse
 
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.bricks import RelationsBrick
-    from creme.creme_core.constants import MODELBRICK_ID
-    from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.gui.bricks import (
-        _BrickRegistry, brick_registry,
-        Brick, InstanceBrick,
-        BricksManager,
-    )
-    from creme.creme_core.models import (
-        SetCredentials,
-        RelationType, Relation,
-        FieldsConfig,
-        BrickState,
-        BrickDetailviewLocation, CustomBrickConfigItem, RelationBrickItem,
-        InstanceBrickConfigItem,
-        FakeContact, FakeOrganisation, FakeAddress,
-    )
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.bricks import RelationsBrick
+from creme.creme_core.constants import MODELBRICK_ID
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.bricks import (
+    Brick,
+    BricksManager,
+    InstanceBrick,
+    _BrickRegistry,
+    brick_registry,
+)
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickState,
+    CustomBrickConfigItem,
+    FakeAddress,
+    FakeContact,
+    FakeOrganisation,
+    FieldsConfig,
+    InstanceBrickConfigItem,
+    Relation,
+    RelationBrickItem,
+    RelationType,
+    SetCredentials,
+)
 
-    from ..base import CremeTestCase
-
-    from .base import BrickTestCaseMixin
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from .base import BrickTestCaseMixin
 
 
 class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):

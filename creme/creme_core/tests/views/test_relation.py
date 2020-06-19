@@ -1,24 +1,29 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from functools import partial
+from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
-    from django.http import Http404
-    from django.urls import reverse
-    from django.utils.html import escape
-    from django.utils.translation import gettext as _, ngettext
+from django.contrib.contenttypes.models import ContentType
+from django.http import Http404
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
-    from .base import ViewsTestCase
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (
-        RelationType, SemiFixedRelationType, Relation,
-        CremeEntity,
-        CremePropertyType, CremeProperty,
-        FakeContact, FakeOrganisation, FakeActivity, FakeImage,
-    )
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
+    FakeActivity,
+    FakeContact,
+    FakeImage,
+    FakeOrganisation,
+    Relation,
+    RelationType,
+    SemiFixedRelationType,
+)
+
+from .base import ViewsTestCase
 
 
 class RelationViewsTestCase(ViewsTestCase):

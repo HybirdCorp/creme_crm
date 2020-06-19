@@ -1,62 +1,61 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import datetime, date, timedelta
-    from functools import partial
-    from os.path import join
-    import string
+import string
+from datetime import date, datetime, timedelta
+from functools import partial
+from os.path import join
 
-    from pytz import timezone
+from django.conf import settings
+from django.http import Http404
+from django.urls import reverse
+from django.utils.timezone import is_aware, is_naive, make_aware
+from django.utils.timezone import override as override_tz
+from django.utils.translation import gettext, gettext_lazy
+from PIL.Image import open as open_img
+from pytz import timezone
 
-    from PIL.Image import open as open_img
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.global_info import clear_global_info
+from creme.creme_core.models import FakeOrganisation, SetCredentials
+from creme.creme_core.utils import (
+    create_if_needed,
+    ellipsis,
+    ellipsis_multi,
+    entities2unicode,
+    entities_to_str,
+    find_first,
+    get_from_GET_or_404,
+    get_from_POST_or_404,
+    int_2_roman,
+    prefixed_truncate,
+    safe_unicode,
+    split_filter,
+    truncate_str,
+    update_model_instance,
+)
+from creme.creme_core.utils.dates import (
+    date_2_dict,
+    date_from_ISO8601,
+    date_from_str,
+    date_to_ISO8601,
+    dt_from_ISO8601,
+    dt_from_str,
+    dt_to_ISO8601,
+    make_aware_dt,
+    round_hour,
+    to_utc,
+)
+from creme.creme_core.utils.dependence_sort import (
+    DependenciesLoopError,
+    dependence_sort,
+)
+from creme.creme_core.utils.html import escapejson
+from creme.creme_core.utils.log import log_exceptions
+from creme.creme_core.utils.secure_filename import secure_filename
+from creme.creme_core.utils.url import TemplateURLBuilder
 
-    from django.conf import settings
-    from django.http import Http404
-    from django.urls import reverse
-    from django.utils.timezone import (
-        is_naive,
-        is_aware,
-        override as override_tz,
-        make_aware,
-    )
-    from django.utils.translation import gettext_lazy, gettext
-
-    from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeCivility
-
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.global_info import clear_global_info
-    from creme.creme_core.models import SetCredentials, FakeOrganisation
-    from creme.creme_core.utils import (
-        find_first,
-        truncate_str,
-        split_filter,
-        create_if_needed,
-        update_model_instance,
-        get_from_GET_or_404, get_from_POST_or_404,
-        safe_unicode,
-        int_2_roman,
-        ellipsis, ellipsis_multi,
-        prefixed_truncate,
-        entities2unicode, entities_to_str,
-    )
-    from creme.creme_core.utils.dates import (
-        dt_from_str,
-        date_from_str,
-        date_from_ISO8601, date_to_ISO8601,
-        date_2_dict,
-        dt_from_ISO8601, dt_to_ISO8601,
-        round_hour,
-        to_utc,
-        make_aware_dt,
-    )
-    from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
-    from creme.creme_core.utils.html import escapejson
-    from creme.creme_core.utils.log import log_exceptions
-    from creme.creme_core.utils.secure_filename import secure_filename
-    from creme.creme_core.utils.url import TemplateURLBuilder
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..base import CremeTestCase
+from ..fake_models import FakeCivility, FakeContact
 
 
 class MiscTestCase(CremeTestCase):

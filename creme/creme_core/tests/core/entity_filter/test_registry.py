@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from creme.creme_core.core.entity_filter import (
-        _EntityFilterRegistry, _EntityFilterSuperRegistry,
-        operators,
-        operands,
-    )
-    from creme.creme_core.core.entity_filter.condition_handler import (
-        FilterConditionHandler,
-        RegularFieldConditionHandler,
-        DateRegularFieldConditionHandler,
-    )
-    from creme.creme_core.models import FakeContact
-    from creme.creme_core.tests.base import CremeTestCase
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from creme.creme_core.core.entity_filter import (
+    _EntityFilterRegistry,
+    _EntityFilterSuperRegistry,
+    operands,
+    operators,
+)
+from creme.creme_core.core.entity_filter.condition_handler import (
+    DateRegularFieldConditionHandler,
+    FilterConditionHandler,
+    RegularFieldConditionHandler,
+)
+from creme.creme_core.models import FakeContact
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class EntityFilterRegistryTestCase(CremeTestCase):
