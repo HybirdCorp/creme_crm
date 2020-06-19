@@ -1,41 +1,48 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from datetime import date
-    from functools import partial
-    from json import loads as load_json, dumps as dump_json
+from datetime import date
+from functools import partial
+from json import dumps as dump_json
+from json import loads as load_json
 
-    from django.urls import reverse
-    from django.forms.widgets import Select
-    from django.utils.translation import gettext as _
+from django.forms.widgets import Select
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
-    from creme.creme_core.auth import EntityCredentials
-    from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-    from creme.creme_core.models import SetCredentials
-    from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.activities import get_activity_model
+from creme.activities.models import ActivityType
+from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.models import SetCredentials
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.persons import get_contact_model, get_organisation_model
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
-    from creme.persons import get_contact_model, get_organisation_model
-    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
-
-    from creme.activities import get_activity_model
-    from creme.activities.models import ActivityType
-    from creme.activities.tests.base import skipIfCustomActivity
-
-    from .base import (
-        _PollsTestCase,
-        skipIfCustomPollForm, skipIfCustomPollReply, skipIfCustomPollCampaign,
-        PollCampaign, PollForm, PollReply,
-    )
-    from ..bricks import PollReplyLinesBrick
-    from ..core import PollLineType
-    from ..models import (
-        PollType,
-        PollFormSection,  PollFormLine,  PollFormLineCondition,
-        PollReplySection, PollReplyLine, PollReplyLineCondition,
-    )
-    from ..utils import SectionTree, StatsTree
-except Exception as e:
-    print(f'Error in <{__name__}>: {e}')
+from ..bricks import PollReplyLinesBrick
+from ..core import PollLineType
+from ..models import (
+    PollFormLine,
+    PollFormLineCondition,
+    PollFormSection,
+    PollReplyLine,
+    PollReplyLineCondition,
+    PollReplySection,
+    PollType,
+)
+from ..utils import SectionTree, StatsTree
+from .base import (
+    PollCampaign,
+    PollForm,
+    PollReply,
+    _PollsTestCase,
+    skipIfCustomPollCampaign,
+    skipIfCustomPollForm,
+    skipIfCustomPollReply,
+)
 
 Contact = get_contact_model()
 Organisation = get_organisation_model()
