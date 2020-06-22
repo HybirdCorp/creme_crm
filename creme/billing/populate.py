@@ -138,7 +138,7 @@ class Populator(BasePopulator):
             create_if_needed(SalesOrderStatus, {'pk': 4}, name=pgettext('billing-salesorder', 'Created'),  order=2)
 
         # ---------------------------
-        def create_invoice_status(pk, name, order, **kwargs):
+        def create_invoice_status(pk, name, **kwargs):
             create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
 
         create_invoice_status(1, pgettext('billing-invoice', 'Draft'),      order=1, is_custom=False)  # Default status
