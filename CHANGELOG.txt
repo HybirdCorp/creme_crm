@@ -175,6 +175,9 @@
         # Apps :
             * Reports :
                 - A property 'models.AbstractReportGraph.abscissa_info' has been added.
+            * CTI :
+                - Javascript :
+                    - Refactor 'creme.cti.phoneCall' and add 'creme.cti.PhoneCallAction'
 
     Breaking changes :
     ------------------
