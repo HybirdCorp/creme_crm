@@ -80,7 +80,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
         orga_name = 'Bebop'
         self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
-        existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name)  # Not viewable
+        # Not viewable
+        existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name)
 
         first_name = 'Faye'
         last_name  = 'Valentine'
@@ -239,9 +240,15 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=Organisation)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN, ctype=Contact)
+        create_sc(
+            value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
+        )
+        create_sc(
+            value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=Organisation,
+        )
+        create_sc(
+            value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN, ctype=Contact,
+        )
 
         url = self._build_quickform_url()
         response = self.assertGET200(url)

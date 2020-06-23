@@ -145,16 +145,18 @@ class ProjectsTestCase(CremeTestCase):
         status = status or ProjectStatus.objects.all()[0]
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
         currency = Currency.objects.all()[0]
-        response = self.client.post(self.ADD_PROJECT_URL, follow=True,
-                                    data={'user':         self.user.pk,
-                                          'name':         name,
-                                          'status':       status.id,
-                                          'currency':     currency.id,
-                                          'start_date':   start_date,
-                                          'end_date':     end_date,
-                                          'responsibles': self.formfield_value_multi_creator_entity(manager),
-                                         }
-                                   )
+        response = self.client.post(
+            self.ADD_PROJECT_URL, follow=True,
+            data={
+                'user':         self.user.pk,
+                'name':         name,
+                'status':       status.id,
+                'currency':     currency.id,
+                'start_date':   start_date,
+                'end_date':     end_date,
+                'responsibles': self.formfield_value_multi_creator_entity(manager),
+            },
+        )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Project, name=name), manager
@@ -225,15 +227,17 @@ class ProjectsTestCase(CremeTestCase):
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
         self.assertFalse(user.has_perm_to_link(manager))
 
-        response = self.assertPOST200(self.ADD_PROJECT_URL, follow=True,
-                                      data={'user':         user.pk,
-                                            'name':         'Eva00',
-                                            'status':       ProjectStatus.objects.all()[0].id,
-                                            'start_date':   '2011-10-11',
-                                            'end_date':     '2011-12-31',
-                                            'responsibles': self.formfield_value_multi_creator_entity(manager),
-                                           }
-                                     )
+        response = self.assertPOST200(
+            self.ADD_PROJECT_URL, follow=True,
+            data={
+                'user':         user.pk,
+                'name':         'Eva00',
+                'status':       ProjectStatus.objects.all()[0].id,
+                'start_date':   '2011-10-11',
+                'end_date':     '2011-12-31',
+                'responsibles': self.formfield_value_multi_creator_entity(manager),
+            },
+        )
         self.assertFormError(response, 'form', 'responsibles',
                              _('Some entities are not linkable: {}').format(
                                  _('Entity #{id} (not viewable)').format(id=manager.id)
@@ -245,15 +249,17 @@ class ProjectsTestCase(CremeTestCase):
         user = self.login()
 
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
-        response = self.assertPOST200(self.ADD_PROJECT_URL, follow=True,
-                                      data={'user':         user.pk,
-                                            'name':         'Eva00',
-                                            'status':       ProjectStatus.objects.all()[0].id,
-                                            'start_date':   '2012-2-16',
-                                            'end_date':     '2012-2-15',
-                                            'responsibles': self.formfield_value_multi_creator_entity(manager),
-                                           }
-                                     )
+        response = self.assertPOST200(
+            self.ADD_PROJECT_URL, follow=True,
+            data={
+                'user':         user.pk,
+                'name':         'Eva00',
+                'status':       ProjectStatus.objects.all()[0].id,
+                'start_date':   '2012-2-16',
+                'end_date':     '2012-2-15',
+                'responsibles': self.formfield_value_multi_creator_entity(manager),
+            },
+        )
 
         create_dt = self.create_datetime
         self.assertFormError(response, 'form', None,
@@ -394,16 +400,18 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(tstatus, task1.tstatus)
 
         duration_2 = 180
-        response = self.client.post(url, follow=True,
-                                    data={'user':         user.id,
-                                          'title':        'torso',
-                                          'start':        '2010-10-11 17:01',
-                                          'end':          '2010-10-11 17:30',
-                                          'duration':     duration_2,
-                                          'tstatus':      TaskStatus.objects.all()[0].id,
-                                          'parent_tasks': self.formfield_value_multi_creator_entity(task1),
-                                         },
-                                    )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':         user.id,
+                'title':        'torso',
+                'start':        '2010-10-11 17:01',
+                'end':          '2010-10-11 17:30',
+                'duration':     duration_2,
+                'tstatus':      TaskStatus.objects.all()[0].id,
+                'parent_tasks': self.formfield_value_multi_creator_entity(task1),
+            },
+        )
         self.assertNoFormError(response)
 
         tasks = ProjectTask.objects.filter(linked_project=project)
@@ -434,16 +442,18 @@ class ProjectsTestCase(CremeTestCase):
         project02 = self.create_project('Eva02')[0]
 
         task01 = self.create_task(project01, 'Title')
-        response = self.client.post(self._build_add_task_url(project02),  # follow=True,
-                                    data={'user':          user.id,
-                                          'title':         'head',
-                                          'start':         '2010-10-11',
-                                          'end':           '2010-10-30',
-                                          'duration':      50,
-                                          'tstatus':       TaskStatus.objects.all()[0].id,
-                                          'parent_tasks':  self.formfield_value_multi_creator_entity(task01),
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_task_url(project02),  # follow=True,
+            data={
+                'user':          user.id,
+                'title':         'head',
+                'start':         '2010-10-11',
+                'end':           '2010-10-30',
+                'duration':      50,
+                'tstatus':       TaskStatus.objects.all()[0].id,
+                'parent_tasks':  self.formfield_value_multi_creator_entity(task01),
+            },
+        )
         self.assertFormError(response, 'form', 'parent_tasks',
                              _('This entity does not exist.')
                             )
@@ -571,7 +581,10 @@ class ProjectsTestCase(CremeTestCase):
 
         # Error: already parent
         self.assertFormError(
-            self.client.post(url, data={'parents': self.formfield_value_multi_creator_entity(task02)}),
+            self.client.post(
+                url,
+                data={'parents': self.formfield_value_multi_creator_entity(task02)},
+            ),
             'form', 'parents',
             _('This entity does not exist.')
         )
@@ -587,9 +600,10 @@ class ProjectsTestCase(CremeTestCase):
         task01 = self.create_task(project01, 'Task01')
         task02 = self.create_task(project02, 'Task02')
 
-        response = self.client.post(self._build_add_parent_task_url(task02),
-                                    data={'parents': self.formfield_value_multi_creator_entity(task01)},
-                                   )
+        response = self.client.post(
+            self._build_add_parent_task_url(task02),
+            data={'parents': self.formfield_value_multi_creator_entity(task01)},
+        )
         self.assertFormError(response, 'form', 'parents',
                              _('This entity does not exist.')
                             )
@@ -811,14 +825,18 @@ class ProjectsTestCase(CremeTestCase):
                                         busy='on', errors=True,
                                        )
         self.assertEqual(1, len(self.refresh(task).related_activities))
-        self.assertFormError(response, 'form', None,
-                             _('{participant} already participates to the activity «{activity}» between {start} and {end}.').format(
-                                 participant=worker,
-                                 activity=act1,
-                                 start='16:59:00',
-                                 end='17:00:00',
-                             )
-                            )
+        self.assertFormError(
+            response, 'form', None,
+            _(
+                '{participant} already participates to the activity '
+                '«{activity}» between {start} and {end}.'
+            ).format(
+                participant=worker,
+                activity=act1,
+                start='16:59:00',
+                end='17:00:00',
+            ),
+        )
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -866,7 +884,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(0, worker1, REL_SUB_PART_2_ACTIVITY, activity)
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
 
-        self.assertFalse(activity.calendars.all())  # Alright the project Activities can be on no Calendar
+        # Alright the project Activities can be on no Calendar
+        self.assertFalse(activity.calendars.all())
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -1238,7 +1257,9 @@ class ProjectsTestCase(CremeTestCase):
 
         cloned_project = project.clone()
 
-        for attr in ['name', 'description', 'status', 'start_date', 'end_date', 'effective_end_date']:
+        for attr in [
+            'name', 'description', 'status', 'start_date', 'end_date', 'effective_end_date',
+        ]:
             self.assertEqual(getattr(project, attr), getattr(cloned_project, attr))
 
         get_task = cloned_project.get_tasks().get

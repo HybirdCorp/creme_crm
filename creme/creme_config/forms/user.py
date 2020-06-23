@@ -98,7 +98,8 @@ class UserAddForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         instance = self.instance
-        instance.is_superuser = (instance.role is None)  # TODO: remove field CremeUser.is_superuser ??
+        # TODO: remove field CremeUser.is_superuser ??
+        instance.is_superuser = (instance.role is None)
         instance.set_password(self.cleaned_data['password_1'])
 
         return super().save(*args, **kwargs)
@@ -120,7 +121,8 @@ class UserEditForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         instance = self.instance
-        # NB: needed with django 1.8 when we reset to 'None' (the value seems skipped) => is it a bug ??
+        # NB: needed with django 1.8 when we reset to 'None'
+        #     (the value seems skipped) => is it a bug ??
         instance.role = role = self.cleaned_data['role']
         instance.is_superuser = (role is None)
 
@@ -167,9 +169,10 @@ class UserChangePwForm(CremeForm):
 
 
 class TeamCreateForm(CremeModelForm):
-    teammates = ModelMultipleChoiceField(queryset=CremeUser.objects.filter(is_team=False, is_staff=False),
-                                         label=_('Teammates'), required=False,
-                                        )
+    teammates = ModelMultipleChoiceField(
+        queryset=CremeUser.objects.filter(is_team=False, is_staff=False),
+        label=_('Teammates'), required=False,
+    )
 
     class Meta:
         model = CremeUser

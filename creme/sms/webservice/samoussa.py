@@ -51,18 +51,22 @@ class SamoussaBackEnd(WSBackEnd):
         message.status_message = info.get('message', message.status_message)
         return message
 
-    # curl -u compte21:compte21 --basic --url "http://127.0.0.1:8001/sms/api/piston/message/json?state=accept"
+    # curl -u compte21:compte21 --basic --url "http://127.0.0.1:8001/sms/api/piston/message/json?state=accept"  # NOQA
     def list_messages(self, **kwargs):
         # TODO: reverse('...')
         return loads(self.get('/sms/api/message/json', **kwargs).read())
 
-    # curl -u compte21:compte21 --basic --url "http://127.0.0.1:8001/sms/api/piston/message" -F "content=test" -F "phone=0899653355;4577896652;4785556664" -F "user_data=41" -F "accept=True" -X POST
+    # curl -u compte21:compte21 --basic --url "http://127.0.0.1:8001/sms/api/piston/message" -F "content=test" -F "phone=0899653355;4577896652;4785556664" -F "user_data=41" -F "accept=True" -X POST  # NOQA
     def send_messages(self, content, numbers, user_data=None):
         if isinstance(numbers, list):
             numbers = ';'.join(numbers)
 
         # TODO: reverse('...')
-        return loads(self.post('/sms/api/message', content=content, phone=numbers, user_data=user_data).read())
+        return loads(
+            self.post(
+                '/sms/api/message', content=content, phone=numbers, user_data=user_data,
+            ).read()
+        )
 
     def get_account(self):
         # TODO: reverse('...')

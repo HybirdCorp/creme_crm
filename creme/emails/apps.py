@@ -88,12 +88,14 @@ class EmailsConfig(CremeAppConfig):
         register = bulk_update_registry.register
         register(self.MailingList, exclude=('children', 'contacts', 'organisations'))
         register(self.EmailCampaign, exclude=('mailing_lists',))
-        register(models.EmailSending, exclude=('sender', 'type', 'sending_date'))  # TODO: tags modifiable=False ??
+        # TODO: tags modifiable=False ??
+        register(models.EmailSending, exclude=('sender', 'type', 'sending_date'))
         register(self.EntityEmail, exclude=('sender', 'recipient', 'subject',
                                             'body', 'body_html', 'signature', 'attachments',
                                            )  # TODO: idem
                 )
-        register(models.LightWeightEmail, exclude=('sender', 'recipient', 'subject', 'body'))  # TODO: idem
+        # TODO: idem
+        register(models.LightWeightEmail, exclude=('sender', 'recipient', 'subject', 'body'))
 
     def register_buttons(self, button_registry):
         from . import buttons

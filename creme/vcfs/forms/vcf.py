@@ -136,12 +136,30 @@ class VcfImportForm(CremeModelForm):
                                )
 
     # TODO: Composite field
-    update_work_name     = BooleanField(label=_('Update name'),     required=False, initial=False, help_text=_('Update organisation selected name'))
-    update_work_phone    = BooleanField(label=_('Update phone'),    required=False, initial=False, help_text=_('Update organisation selected phone'))
-    update_work_fax      = BooleanField(label=_('Update fax'),      required=False, initial=False, help_text=_('Update organisation selected fax'))
-    update_work_email    = BooleanField(label=_('Update email'),    required=False, initial=False, help_text=_('Update organisation selected email'))
-    update_work_url_site = BooleanField(label=_('Update web site'), required=False, initial=False, help_text=_('Update organisation selected web site'))
-    update_work_address  = BooleanField(label=_('Update address'),  required=False, initial=False, help_text=_('Update organisation selected address'))
+    update_work_name = BooleanField(
+        label=_('Update name'), required=False, initial=False,
+        help_text=_('Update organisation selected name'),
+    )
+    update_work_phone = BooleanField(
+        label=_('Update phone'), required=False, initial=False,
+        help_text=_('Update organisation selected phone'),
+    )
+    update_work_fax = BooleanField(
+        label=_('Update fax'), required=False, initial=False,
+        help_text=_('Update organisation selected fax'),
+    )
+    update_work_email = BooleanField(
+        label=_('Update email'), required=False, initial=False,
+        help_text=_('Update organisation selected email'),
+    )
+    update_work_url_site = BooleanField(
+        label=_('Update web site'), required=False, initial=False,
+        help_text=_('Update organisation selected web site'),
+    )
+    update_work_address = BooleanField(
+        label=_('Update address'), required=False, initial=False,
+        help_text=_('Update organisation selected address'),
+    )
 
     # Organisation name & details
     work_name     = CharField(label=_('Name'),           required=False)
@@ -230,8 +248,9 @@ class VcfImportForm(CremeModelForm):
             if vcf_data.contents.get('photo'):
                 fields['image_encoded'].initial = vcf_data.photo.value.replace('\n', '')
 
-        # Beware: this queryset directly in the field declaration does not work on some systems in unit tests...
-        #         (it seems that the problem it caused by the M2M - other fields work, but why ???)
+        # Beware: this queryset directly in the field declaration does not work
+        #   on some systems in unit tests...
+        #   (it seems that the problem it caused by the M2M - other fields work, but why ???)
         fields['relation'].queryset = RelationType.objects.filter(
             subject_ctypes=_get_ct(Contact),
             # object_ctypes=_get_ct(Organisation),
@@ -358,7 +377,9 @@ class VcfImportForm(CremeModelForm):
                     continue
 
                 box = value.box
-                fields[prefix + 'address'].initial = (box + ' ' + value.street) if box else value.street
+                fields[prefix + 'address'].initial = (
+                    box + ' ' + value.street
+                ) if box else value.street
                 fields[prefix + 'city'].initial    = value.city
                 fields[prefix + 'country'].initial = value.country
                 fields[prefix + 'code'].initial    = value.code
@@ -435,9 +456,14 @@ class VcfImportForm(CremeModelForm):
         cleaned_data = self.cleaned_data
         value = cleaned_data[field_name]
 
-        if not value and \
-           all(cleaned_data[k] for k in ('create_or_attach_orga', 'organisation', 'update_' + field_name)):
-            raise ValidationError(self.error_messages['required2update'], code='required2update')
+        if not value and all(
+            cleaned_data[k]
+            for k in ('create_or_attach_orga', 'organisation', f'update_{field_name}')
+        ):
+            raise ValidationError(
+                self.error_messages['required2update'],
+                code='required2update',
+            )
 
         return value
 
@@ -501,10 +527,16 @@ class VcfImportForm(CremeModelForm):
                 tmp_img_path = None
 
                 try:
-                    if int(urlopen(image_encoded).info()['content-length']) <= settings.VCF_IMAGE_MAX_SIZE:
+                    if (
+                        int(urlopen(image_encoded).info()['content-length'])
+                        <= settings.VCF_IMAGE_MAX_SIZE
+                    ):
                         tmp_img_path = path.normpath(path.join(IMG_UPLOAD_PATH, img_name))
 
-                        urlretrieve(image_encoded, path.normpath(path.join(settings.MEDIA_ROOT, tmp_img_path)))
+                        urlretrieve(
+                            image_encoded,
+                            path.normpath(path.join(settings.MEDIA_ROOT, tmp_img_path)),
+                        )
                 except Exception:
                     logger.exception('Error with image')
                 else:
@@ -565,7 +597,8 @@ class VcfImportForm(CremeModelForm):
 
                 save_orga = True
             else:
-                # NB: we do not use cleaned_data.get() in order to not overload default fields values
+                # NB: we do not use cleaned_data.get() in order to not overload
+                #     default fields values
                 orga_kwargs = {}
                 for fname in self.orga_fields:
                     try:

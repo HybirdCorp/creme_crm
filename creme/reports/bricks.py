@@ -122,7 +122,8 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
     # def __init__(self, instance_brick_config):
     #     super().__init__()
     #     self.instance_brick_id = instance_brick_config.id
-    #     self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(instance_brick_config)
+    #     self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(
+    #           instance_brick_config)
     def __init__(self, instance_brick_config_item):
         super().__init__(instance_brick_config_item)
         # self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(
@@ -139,7 +140,11 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
 
         # self.verbose_name = fetcher.verbose_name
         fetcher_vname = fetcher.verbose_name
-        self.verbose_name = f'{fetcher.graph} - {fetcher_vname}' if fetcher_vname else str(fetcher.graph)
+        self.verbose_name = (
+            f'{fetcher.graph} - {fetcher_vname}'
+            if fetcher_vname else
+            str(fetcher.graph)
+        )
 
         error = fetcher.error
         self.errors = [error] if error else None

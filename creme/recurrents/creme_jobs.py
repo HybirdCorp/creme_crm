@@ -33,15 +33,16 @@ class _GenerateDocsType(JobType):
     verbose_name = _('Generate recurrent documents')
     periodic     = JobType.PSEUDO_PERIODIC
 
-    # TODO: we could add a field RecurrentGenerator.next_generation => queries would be more efficient
+    # TODO: we could add a field RecurrentGenerator.next_generation
+    #  => queries would be more efficient
     def _get_generators(self, now_value):
         return get_rgenerator_model().objects \
-                                     .filter(is_working=True) \
-                                     .filter(Q(last_generation__isnull=True,
-                                               first_generation__lte=now_value,
-                                              ) |
-                                             Q(last_generation__isnull=False)
-                                            )
+            .filter(is_working=True) \
+            .filter(Q(last_generation__isnull=True,
+                      first_generation__lte=now_value,
+                      ) |
+                    Q(last_generation__isnull=False)
+                    )
 
     def _execute(self, job):
         # TODO: test is_working VS delete it (see next_wakeup() && job refreshing too)
@@ -62,7 +63,8 @@ class _GenerateDocsType(JobType):
                     generator.last_generation = next_generation
                     generator.save()
 
-    # TODO: with docs generate the last time ?? (but stats will be cleaned at next run, even if nothing is generated...)
+    # TODO: with docs generate the last time ?? (but stats will be cleaned at
+    #       next run, even if nothing is generated...)
     # def get_stats(self, job):
     #     count = JobResult.objects.filter(job=job, raw_errors__isnull=True).count()
     #
@@ -72,7 +74,8 @@ class _GenerateDocsType(JobType):
     #                      ) % count,
     #            ]
 
-    def next_wakeup(self, job, now_value):  # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    def next_wakeup(self, job, now_value):
         wakeup = None
 
         for generator in self._get_generators(now_value):

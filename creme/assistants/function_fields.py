@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -79,17 +79,17 @@ class AlertsField(_CachedFunctionField):
                       .values_list('title', flat=True)
             ]
 
-        return FunctionFieldResultsList(FunctionFieldResult(title) for title in cached)
+        return FunctionFieldResultsList(
+            FunctionFieldResult(title) for title in cached
+        )
 
     def populate_entities(self, entities, user):
         cache = self._cache
 
-        for title, e_id in Alert.objects \
-                                .filter(entity_id__in=[e.id for e in entities if e.id not in cache],
-                                        is_validated=False,
-                                       ) \
-                                .order_by('trigger_date') \
-                                .values_list('title', 'entity_id'):
+        for title, e_id in Alert.objects.filter(
+            entity_id__in=[e.id for e in entities if e.id not in cache],
+            is_validated=False,
+        ).order_by('trigger_date').values_list('title', 'entity_id'):
             cache[e_id].append(title)
 
 
@@ -112,15 +112,16 @@ class MemosField(_CachedFunctionField):
                      .values_list('content', flat=True)
             ]
 
-        return FunctionFieldResultsList(FunctionFieldResult(content) for content in cached)
+        return FunctionFieldResultsList(
+            FunctionFieldResult(content) for content in cached
+        )
 
     def populate_entities(self, entities, user):
         cache = self._cache
 
-        for content, e_id in Memo.objects \
-                                 .filter(entity_id__in=[e.id for e in entities if e.id not in cache]) \
-                                 .order_by('-creation_date') \
-                                 .values_list('content', 'entity_id'):
+        for content, e_id in Memo.objects.filter(
+            entity_id__in=[e.id for e in entities if e.id not in cache],
+        ).order_by('-creation_date').values_list('content', 'entity_id'):
             cache[e_id].append(content)
 
 
@@ -143,15 +144,15 @@ class TodosField(_CachedFunctionField):
                      .values_list('title', flat=True)
             ]
 
-        return FunctionFieldResultsList(FunctionFieldResult(title) for title in cached)
+        return FunctionFieldResultsList(
+            FunctionFieldResult(title) for title in cached
+        )
 
     def populate_entities(self, entities, user):
         cache = self._cache
 
-        for title, e_id in ToDo.objects \
-                               .filter(entity_id__in=[e.id for e in entities if e.id not in cache],
-                                       is_ok=False,
-                                      ) \
-                               .order_by('-creation_date') \
-                               .values_list('title', 'entity_id'):
+        for title, e_id in ToDo.objects.filter(
+            entity_id__in=[e.id for e in entities if e.id not in cache],
+            is_ok=False,
+        ).order_by('-creation_date').values_list('title', 'entity_id'):
             cache[e_id].append(title)

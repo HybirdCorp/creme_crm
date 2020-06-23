@@ -169,7 +169,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
     #     cfield1 = create_cf(content_type=ct_contact, name='CF#1', field_type=CustomField.INT)
     #     cfield2 = create_cf(content_type=ct_contact, name='CF#2', field_type=CustomField.FLOAT)
     #     cfield3 = create_cf(content_type=ct_orga,    name='CF#3', field_type=CustomField.BOOL)
-    #     self.assertPOST200(reverse('creme_config__delete_ctype_custom_fields'), data={'id': ct_contact.id})
+    #     self.assertPOST200(
+    #       reverse('creme_config__delete_ctype_custom_fields'), data={'id': ct_contact.id})
     #     self.assertFalse(CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]))
     #     self.assertStillExists(cfield3)
     #
@@ -197,7 +198,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         name = 'Eva'
         create_cf = CustomField.objects.create
         create_cf(content_type=contact_ct, field_type=CustomField.BOOL, name='Operational?')
-        create_cf(content_type=orga_ct,    field_type=CustomField.INT,  name=name)  # <= same name but not same CT
+        # Same name but not same CT:
+        create_cf(content_type=orga_ct, field_type=CustomField.INT,  name=name)
 
         url = reverse('creme_config__create_custom_field', args=(contact_ct.id,))
         context = self.assertGET200(url).context

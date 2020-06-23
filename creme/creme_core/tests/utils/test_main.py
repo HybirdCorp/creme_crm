@@ -79,9 +79,12 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual([1, 3], ok)
         self.assertEqual([0, 2, 4], ko)
 
-        ok, ko = split_filter((lambda x: 'k' in x), ['Naruto', 'Sasuke', 'Sakura', 'Kakashi'])
-        self.assertEqual(['Sasuke', 'Sakura', 'Kakashi'], ok)
-        self.assertEqual(['Naruto'], ko)
+        ok, ko = split_filter(
+            (lambda x: 'k' in x),
+            ['Naruto', 'Sasuke', 'Sakura', 'Kakashi'],
+        )
+        self.assertListEqual(['Sasuke', 'Sakura', 'Kakashi'], ok)
+        self.assertListEqual(['Naruto'], ko)
 
     def test_truncate_str_01(self):
         s = string.ascii_letters
@@ -120,10 +123,12 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(title, civ.title)
 
     def test_update_model_instance01(self):
-        self.login()
+        user = self.login()
         first_name = 'punpun'
         last_name = 'punpunyama'
-        pupun = FakeContact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+        pupun = FakeContact.objects.create(
+            user=user, first_name=first_name, last_name=last_name,
+        )
 
         first_name = first_name.title()
 
@@ -142,7 +147,9 @@ class MiscTestCase(CremeTestCase):
 
         first_name = 'punpun'
         last_name = 'punpunyama'
-        pupun = FakeContact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+        pupun = FakeContact.objects.create(
+            user=self.user, first_name=first_name, last_name=last_name,
+        )
 
         first_name = first_name.title()
         last_name = last_name.title()
@@ -158,9 +165,14 @@ class MiscTestCase(CremeTestCase):
     def test_get_from_request_or_404(self):
         request = {'name': 'robert', 'age': '36'}
 
-        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_')  # Key error
-        self.assertRaises(Http404, get_from_GET_or_404, request, 'name', int)  # Cast error
-        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_', int, default='string')  # Cast error
+        # Key error
+        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_')
+
+        # Cast error
+        self.assertRaises(Http404, get_from_GET_or_404, request, 'name', int)
+
+        # Cast error
+        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_', int, default='string')
 
         self.assertEqual('36', get_from_POST_or_404(request, 'age'))
         self.assertEqual(36, get_from_POST_or_404(request, 'age', int))
@@ -183,10 +195,11 @@ class MiscTestCase(CremeTestCase):
             def __str__(self):
                 return 'aé‡ae15'
 
-        self.assertEqual("<class 'creme.creme_core.tests.utils."
-                         "test_main.MiscTestCase.test_safe_unicode_object.<locals>.no_unicode_object'>",
-                         safe_unicode(no_unicode_object)
-                        )
+        self.assertEqual(
+            "<class 'creme.creme_core.tests.utils."
+            "test_main.MiscTestCase.test_safe_unicode_object.<locals>.no_unicode_object'>",
+            safe_unicode(no_unicode_object)
+        )
         self.assertEqual('aé‡ae15', safe_unicode(unicode_object()))
 
     def test_date_2_dict(self):
@@ -226,14 +239,18 @@ class MiscTestCase(CremeTestCase):
     def test_prefixed_truncate(self):
         s = 'Supercalifragilis Ticexpialidocious'
         self.assertEqual(s, prefixed_truncate(s, '(My prefix)', 49))
-        self.assertEqual('(My prefix)Supercalifragilis Tic', prefixed_truncate(s, '(My prefix)', 32))
+        self.assertEqual(
+            '(My prefix)Supercalifragilis Tic',
+            prefixed_truncate(s, '(My prefix)', 32)
+        )
 
         with self.assertRaises(ValueError):
             prefixed_truncate(s, '(My prefix)', 10)  # Prefix is too short for this length
 
-        self.assertEqual('(My unlocated prefix)Supercalif',
-                         prefixed_truncate(s, gettext_lazy('(My unlocated prefix)'), 31)
-                        )
+        self.assertEqual(
+            '(My unlocated prefix)Supercalif',
+            prefixed_truncate(s, gettext_lazy('(My unlocated prefix)'), 31)
+        )
 
     def test_log_exception(self):
         class Logger:
@@ -262,7 +279,9 @@ class MiscTestCase(CremeTestCase):
             error_paluzza()
 
         self.assertEqual(1, len(my_logger.data))
-        self.assertTrue(my_logger.data[0].startswith('An exception occurred in <error_paluzza>.\n'))
+        self.assertTrue(
+            my_logger.data[0].startswith('An exception occurred in <error_paluzza>.\n')
+        )
 
     # TODO: add test for Windows
     def test_secure_filename(self):
@@ -515,14 +534,25 @@ class DatesTestCase(CremeTestCase):
 
     def test_round_datetime(self):
         create_dt = self.create_datetime
-        self.assertEqual(create_dt(year=2013, month=7, day=25, hour=12, minute=0, second=0, microsecond=0),
-                         round_hour(create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45, microsecond=516))
-                        )
+        self.assertEqual(
+            create_dt(
+                year=2013, month=7, day=25, hour=12, minute=0, second=0, microsecond=0,
+            ),
+            round_hour(create_dt(
+                year=2013, month=7, day=25, hour=12, minute=28, second=45, microsecond=516,
+            ))
+        )
 
     def test_to_utc(self):
         tz = timezone('Europe/Paris')  # +01:00
-        dt = tz.localize(datetime(year=2016, month=11, day=23, hour=18, minute=28), is_dst=True)
-        self.assertEqual(datetime(year=2016, month=11, day=23, hour=17, minute=28), to_utc(dt))
+        dt = tz.localize(
+            datetime(year=2016, month=11, day=23, hour=18, minute=28),
+            is_dst=True,
+        )
+        self.assertEqual(
+            datetime(year=2016, month=11, day=23, hour=17, minute=28),
+            to_utc(dt)
+        )
 
     def test_date_from_ISO8601(self):
         self.assertEqual(date(year=2016, month=11, day=23),
@@ -681,9 +711,10 @@ class TemplateURLBuilderTestCase(CremeTestCase):
 
         tub = TemplateURLBuilder(field=(TemplateURLBuilder.Word, final_value))
 
-        self.assertEqual(reverse(vname, args=(65, placeholder)).replace(placeholder, final_value),
-                         tub.resolve(vname, kwargs={'ct_id': 65})
-                        )
+        self.assertEqual(
+            reverse(vname, args=(65, placeholder)).replace(placeholder, final_value),
+            tub.resolve(vname, kwargs={'ct_id': 65})
+        )
 
     def test_one_place_holder02(self):
         "Int place holder"
@@ -693,9 +724,10 @@ class TemplateURLBuilderTestCase(CremeTestCase):
 
         tub = TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, final_value))
 
-        self.assertEqual(reverse(vname, args=(placeholder, 'name')).replace(placeholder, final_value),
-                         tub.resolve(vname, kwargs={'field': 'name'})
-                        )
+        self.assertEqual(
+            reverse(vname, args=(placeholder, 'name')).replace(placeholder, final_value),
+            tub.resolve(vname, kwargs={'field': 'name'})
+        )
 
     def test_two_place_holders01(self):
         "1 word & 1 int place holders"
@@ -703,14 +735,18 @@ class TemplateURLBuilderTestCase(CremeTestCase):
         placeholder1 = '123456'; final_value1 = '${ct}'
         placeholder2 = 'XXXXXX'; final_value2 = '${name}'
 
-        tub = TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int,  final_value1),
-                                 field=(TemplateURLBuilder.Word, final_value2),
-                                )
+        tub = TemplateURLBuilder(
+            ct_id=(TemplateURLBuilder.Int,  final_value1),
+            field=(TemplateURLBuilder.Word, final_value2),
+        )
 
-        self.assertEqual(reverse(vname, args=(placeholder1, placeholder2)).replace(placeholder1, final_value1)
-                                                                          .replace(placeholder2, final_value2),
-                         tub.resolve(vname)
-                        )
+        self.assertEqual(
+            reverse(
+                vname, args=(placeholder1, placeholder2),
+            ).replace(placeholder1, final_value1)
+             .replace(placeholder2, final_value2),
+            tub.resolve(vname)
+        )
 
     def test_two_place_holders02(self):
         "2 int & 1 word place holders"

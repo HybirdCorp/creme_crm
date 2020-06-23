@@ -204,7 +204,9 @@ class _ModelConfig:
         @param model_name: Short name for the model, used in URLs (String).
         """
         if not self._SHORT_NAME_RE.match(model_name):
-            raise ValueError('The argument "model_name" should only contain alphanumeric characters or _')
+            raise ValueError(
+                'The argument "model_name" should only contain alphanumeric characters or _'
+            )
 
         self.creator = _ModelConfigCreator(model=model, model_name=model_name)
         self.editor  = _ModelConfigEditor(model=model, model_name=model_name)
@@ -393,7 +395,8 @@ class _AppConfigRegistry:
         return not bool(
             self._models or
             self._brick_ids or
-            # TODO: factorise with SettingsBrick ; pass the _ConfigRegistry to SettingsBrick everywhere
+            # TODO: factorise with SettingsBrick ;
+            #       pass the _ConfigRegistry to SettingsBrick everywhere
             any(
                 skey.app_label == self.name and not skey.hidden
                 for skey in self._config_registry._skey_registry
@@ -548,12 +551,16 @@ class _ConfigRegistry:
 
     @property
     def portal_bricks(self) -> Iterator[Brick]:
-        """Get the instances of extra Bricks to display on "General configuration" page."""
+        """Get the instances of extra Bricks to display on
+        "General configuration" page.
+        """
         return self._brick_registry.get_bricks(self._portal_brick_ids)
 
     @property
     def user_bricks(self) -> Iterator[Brick]:
-        """Get the instances of extra Bricks to display on "My configuration" page."""
+        """Get the instances of extra Bricks to display on
+        "My configuration" page.
+        """
         return self._brick_registry.get_bricks(self._user_brick_ids)
 
     # TODO: find a better name ?

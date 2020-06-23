@@ -89,9 +89,10 @@ class ProductTestCase(_ProductsTestCase):
         "Images + credentials"
         user = self.login_as_basic_user(Product)
 
-        create_image = partial(self._create_image, user=user,
-                               folder=get_folder_model().objects.create(user=user, title=_('My Images')),
-                              )
+        create_image = partial(
+            self._create_image, user=user,
+            folder=get_folder_model().objects.create(user=user, title=_('My Images')),
+        )
         img_1 = create_image(ident=1)
         img_2 = create_image(ident=2)
         img_3 = create_image(ident=3, user=self.other_user)
@@ -103,17 +104,19 @@ class ProductTestCase(_ProductsTestCase):
         sub_cat = SubCategory.objects.all()[0]
 
         def post(*images):
-            return self.client.post(reverse('products__create_product'), follow=True,
-                                    data={'user':         user.pk,
-                                          'name':         name,
-                                          'code':         42,
-                                          'description':  'A fake god',
-                                          'unit_price':   '1.23',
-                                          'unit':         'anything',
-                                          'sub_category': self._cat_field(sub_cat.category, sub_cat),
-                                          'images':       self.formfield_value_multi_creator_entity(*images),
-                                        }
-                                    )
+            return self.client.post(
+                reverse('products__create_product'), follow=True,
+                data={
+                    'user':         user.pk,
+                    'name':         name,
+                    'code':         42,
+                    'description':  'A fake god',
+                    'unit_price':   '1.23',
+                    'unit':         'anything',
+                    'sub_category': self._cat_field(sub_cat.category, sub_cat),
+                    'images':       self.formfield_value_multi_creator_entity(*images),
+                },
+            )
 
         response = post(img_1, img_3)
         self.assertEqual(200, response.status_code)
@@ -461,9 +464,10 @@ class ProductTestCase(_ProductsTestCase):
     def test_add_images01(self):
         user = self.login_as_basic_user(Product)
 
-        create_image = partial(self._create_image, user=user,
-                               folder=get_folder_model().objects.create(user=user, title=_('My Images')),
-                              )
+        create_image = partial(
+            self._create_image, user=user,
+            folder=get_folder_model().objects.create(user=user, title=_('My Images')),
+        )
         img_1 = create_image(ident=1)
         img_2 = create_image(ident=2)
         img_3 = create_image(ident=3)
@@ -549,7 +553,10 @@ class ProductTestCase(_ProductsTestCase):
 
         # Not a Product/Service ---
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        self.assertPOST404(reverse('products__remove_image', args=(rei.id,)), data={'id': img_2.id})
+        self.assertPOST404(
+            reverse('products__remove_image', args=(rei.id,)),
+            data={'id': img_2.id},
+        )
 
         # No CHANGE permission
         creds.value = EntityCredentials.VIEW | EntityCredentials.LINK
@@ -653,17 +660,23 @@ class ProductTestCase(_ProductsTestCase):
 
         cat2 = Category.objects.create(name='(Test) DVD')
         sub_cat21 = SubCategory.objects.create(name='Thriller', category=cat2)
-        sub_cat22 = SubCategory.objects.create(name='Action',   category=cat2)  # NB: same name than sub_cat12
+        # NB: same name than sub_cat12
+        sub_cat22 = SubCategory.objects.create(name='Action',   category=cat2)
 
         names = ['Product %2i' % i for i in range(1, 7)]
 
-        lines = [(names[0], '',        ''),
-                 (names[1], cat2.name, sub_cat21.name),
-                 (names[2], cat2.name, sub_cat22.name),  # No problem with the duplicated name of SubCategory
-                 (names[3], cat2.name, ''),              # KO: default sub-category is not corresponding
-                 (names[4], 'invalid', sub_cat12.name),  # KO: even if the SubCategory corresponds to the default Category
-                 (names[5], cat1.name, 'invalid'),       # KO
-                ]
+        lines = [
+            (names[0], '',        ''),
+            (names[1], cat2.name, sub_cat21.name),
+            # No problem with the duplicated name of SubCategory
+            (names[2], cat2.name, sub_cat22.name),
+            # KO: default sub-category is not corresponding
+            (names[3], cat2.name, ''),
+            # KO: even if the SubCategory corresponds to the default Category
+            (names[4], 'invalid', sub_cat12.name),
+            # KO
+            (names[5], cat1.name, 'invalid'),
+        ]
 
         url = self._build_import_url(Product)
         doc = self._build_csv_doc(lines)
@@ -748,11 +761,14 @@ class ProductTestCase(_ProductsTestCase):
         jr_error1 = jr_errors[0]
         self.assertListEqual(
             [
-                _('The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
+                _(
+                    'The category «{cat}» and the sub-category «{sub_cat}» are not matching.'
+                ).format(
                     cat=cat2,
                     sub_cat=sub_cat11,
                 ),
-                _('This field cannot be null.'),  # TODO: the message should indicate the name of the field.
+                # TODO: the message should indicate the name of the field.
+                _('This field cannot be null.'),
                 _('This field cannot be null.'),
             ],
             jr_error1.messages
@@ -939,7 +955,9 @@ class ProductTestCase(_ProductsTestCase):
 
         # Validation error -----------
         response = self.assertPOST200(url, follow=True, data={**data, 'categories_create': 'on'})
-        self.assertFormError(response, 'form', 'categories', 'You cannot create Category or SubCategory')
+        self.assertFormError(
+            response, 'form', 'categories', 'You cannot create Category or SubCategory',
+        )
 
         # OK --------------------------
         response = self.client.post(url, follow=True, data=data)

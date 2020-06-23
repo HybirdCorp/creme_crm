@@ -110,14 +110,16 @@ class CTIOrganisationCreation(CTIPersonMixin, OrganisationCreation):
 #     return redirect(pcall)
 
 
-# def _build_related_phonecall(user, entity_id, calltype_id, title_format, pcall_creator=_create_phonecall):
+# def _build_related_phonecall(user, entity_id, calltype_id, title_format,
+#                              pcall_creator=_create_phonecall):
 #     entity = get_object_or_404(CremeEntity, pk=entity_id)
 #
 #     user.has_perm_to_link_or_die(entity)
 #     user.has_perm_to_create_or_die(Activity)
 #
 #     entity = entity.get_real_entity()
-#     pcall = pcall_creator(user, title=title_format.format(entity=entity), calltype_id=calltype_id)
+#     pcall = pcall_creator(user, title=title_format.format(entity=entity),
+#                           calltype_id=calltype_id)
 #
 #     pcall.calendars.add(Calendar.objects.get_default_calendar(user))
 #

@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# TODO: improve operators code and remove lots of hard-coded stuffs here (& in widgets)
+# TODO: improve operators code and remove lots of hard-coded stuffs here
+#       (& in widgets)
 
 from datetime import date
 from functools import partial
@@ -203,7 +204,9 @@ class RegularFieldsConditionsField(_ConditionsField):
                 values = ','.join(str(value) for value in search_info['values'])
 
             if field_entry['type'] in operators.FIELDTYPES_RELATED:
-                field_entry['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
+                field_entry['ctype'] = ContentType.objects.get_for_model(
+                    field.remote_field.model
+                ).id
 
             dicts.append({
                 'field': field_entry,
@@ -503,7 +506,8 @@ class CustomFieldsConditionsField(_ConditionsField):
 
     def _value_to_jsonifiable(self, value):
         dicts = []
-        customfield_rname_choicetype = widgets.CustomFieldConditionSelector.customfield_rname_choicetype
+        customfield_rname_choicetype = \
+            widgets.CustomFieldConditionSelector.customfield_rname_choicetype
         get_op = self.efilter_registry.get_operator
 
         for condition in value:

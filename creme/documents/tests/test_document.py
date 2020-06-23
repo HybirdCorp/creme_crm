@@ -568,8 +568,10 @@ class DocumentTestCase(_DocumentsTestCase):
             first_name='Casca', last_name='Mylove',
         )
         self.assertHTMLEqual(
-            # f'''<a onclick="creme.dialogs.image('{image.get_dl_url()}').open();">{summary}</a>''',
-            f'''<a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">{summary}</a>''',
+            # f'''<a onclick="creme.dialogs.image('{image.get_dl_url()}').open();">'''
+            f'''<a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">'''
+            f'''{summary}'''
+            f'''</a>''',
             field_printers_registry.get_html_field_value(casca, 'image', user)
         )
         self.assertEqual(
@@ -589,8 +591,11 @@ class DocumentTestCase(_DocumentsTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -607,9 +612,11 @@ class DocumentTestCase(_DocumentsTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
+        url = judo_face.get_download_absolute_url()
         self.assertHTMLEqual(
-            # f'''<a onclick="creme.dialogs.image('{judo_face.get_dl_url()}').open();">{judo_face.get_entity_summary(other_user)}</a>''',
-            f'''<a onclick="creme.dialogs.image('{judo_face.get_download_absolute_url()}').open();">
+            # f'''<a onclick="creme.dialogs.image('{judo_face.get_dl_url()}').open();">
+            # {judo_face.get_entity_summary(other_user)}</a>''',
+            f'''<a onclick="creme.dialogs.image('{url}').open();">
                 {judo_face.get_entity_summary(other_user)}
             </a>
             ''',
@@ -656,7 +663,10 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
 
-        url = reverse('creme_core__quick_form', args=(ContentType.objects.get_for_model(Document).id,))
+        url = reverse(
+            'creme_core__quick_form',
+            args=(ContentType.objects.get_for_model(Document).id,),
+        )
         self.assertGET200(url)
 
         content = 'Yes I am the content (DocumentQuickFormTestCase.test_create)'

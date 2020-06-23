@@ -101,7 +101,11 @@ class MemoTestCase(AssistantsTestCase):
     def test_delete01(self):
         memo = self._create_memo()
         ct = ContentType.objects.get_for_model(Memo)
-        self.assertPOST(302, reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': memo.id})
+        self.assertPOST(
+            302,
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': memo.id},
+        )
         self.assertEqual(0, Memo.objects.count())
 
     def test_function_field01(self):
@@ -201,7 +205,10 @@ class MemoTestCase(AssistantsTestCase):
         team2 = create_user(username='Team #2', is_team=True)
         team2.teammates = [self.other_user, teammate2]
 
-        create_memo = partial(Memo.objects.create, creme_entity=self.entity, user=user, on_homepage=True)
+        create_memo = partial(
+            Memo.objects.create,
+            creme_entity=self.entity, user=user, on_homepage=True,
+        )
         memo1 = create_memo(content='Memo#1')
         memo2 = create_memo(content='Memo#2', user=team1)
         create_memo(content='Memo#3', user=team2)  # No (other team)

@@ -253,15 +253,17 @@ class ActTestCase(CommercialBaseTestCase):
 
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post(url,
-                                    data={'user':        user.id,
-                                          'name':        name,
-                                          'sales_phase': phase.id,
-                                          'target':      self.formfield_value_generic_entity(target),
-                                          'emitter':     emitter.id,
-                                          'currency':    DEFAULT_CURRENCY_PK,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'user':        user.id,
+                'name':        name,
+                'sales_phase': phase.id,
+                'target':      self.formfield_value_generic_entity(target),
+                'emitter':     emitter.id,
+                'currency':    DEFAULT_CURRENCY_PK,
+            },
+        )
         self.assertNoFormError(response)
 
         opp = self.get_object_or_fail(Opportunity, name=name)
@@ -278,7 +280,10 @@ class ActTestCase(CommercialBaseTestCase):
                           creatable_models=[Opportunity],
                          )
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role, set_type=SetCredentials.ESET_ALL)
+        create_sc = partial(
+            SetCredentials.objects.create,
+            role=self.role, set_type=SetCredentials.ESET_ALL,
+        )
         create_sc(
             value=(
                 EntityCredentials.VIEW | EntityCredentials.CHANGE |
@@ -299,9 +304,10 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertTrue(user.has_perm_to_link(Opportunity))
 
         response = self.client.get(reverse('commercial__create_opportunity', args=(act.id,)))
-        self.assertContains(response, status_code=403,
-                            text=escape(_('You are not allowed to link this entity: {}').format(act))
-                           )
+        self.assertContains(
+            response, status_code=403,
+            text=escape(_('You are not allowed to link this entity: {}').format(act))
+        )
 
     def test_create_linked_opportunity03(self):
         "Cannot link with Opportunity"
@@ -325,9 +331,12 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertFalse(user.has_perm_to_link(Opportunity))
 
         response = self.client.get(reverse('commercial__create_opportunity', args=(act.id,)))
-        self.assertContains(response, status_code=403,
-                            text=escape(_('You are not allowed to link: {}').format(Opportunity._meta.verbose_name))
-                           )
+        self.assertContains(
+            response, status_code=403,
+            text=escape(
+                _('You are not allowed to link: {}').format(Opportunity._meta.verbose_name)
+            )
+        )
 
     def test_create_linked_opportunity04(self):
         "Must be related to an Act"
@@ -491,10 +500,11 @@ class ActTestCase(CommercialBaseTestCase):
         "No component"
         user = self.login()
         act = self.create_act(expected_sales=21000)
-        pattern = ActObjectivePattern.objects.create(user=user, name='Mr Pattern',
-                                                     average_sales=5000,  # NB: 21000 / 5000 => Ratio = 5
-                                                     segment=act.segment,
-                                                    )
+        pattern = ActObjectivePattern.objects.create(
+            user=user, name='Mr Pattern',
+            average_sales=5000,  # NB: 21000 / 5000 => Ratio = 5
+            segment=act.segment,
+        )
         url = self._build_addobjectivefrompattern_url(act)
 
         context = self.assertGET200(url).context
@@ -515,10 +525,11 @@ class ActTestCase(CommercialBaseTestCase):
         "With components."
         user = self.login()
         act = self.create_act(expected_sales=20000)
-        pattern = ActObjectivePattern.objects.create(user=user, name='Mr Pattern',
-                                                     average_sales=5000,  # NB: 20000 / 5000 => Ratio = 4
-                                                     segment=act.segment,
-                                                    )
+        pattern = ActObjectivePattern.objects.create(
+            user=user, name='Mr Pattern',
+            average_sales=5000,  # NB: 20000 / 5000 => Ratio = 4
+            segment=act.segment,
+        )
 
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(Contact)
@@ -699,9 +710,10 @@ class ActTestCase(CommercialBaseTestCase):
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         ct = ContentType.objects.get_for_model(ActObjective)
 
-        response = self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-                                    data={'id': objective.id}
-                                   )
+        response = self.client.post(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': objective.id}
+        )
         self.assertRedirects(response, act.get_absolute_url())
         self.assertDoesNotExist(objective)
 
@@ -769,7 +781,9 @@ class ActTestCase(CommercialBaseTestCase):
         "No quick for this entity type."
         self.login()
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Act counter', counter_goal=2, ctype=Act)
+        objective = ActObjective.objects.create(
+            act=act, name='Act counter', counter_goal=2, ctype=Act,
+        )
         self.assertGET409(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity04(self):
@@ -1016,7 +1030,9 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(1500, self.refresh(act).get_made_sales())
         self.assertEqual(2000, self.refresh(act).get_estimated_sales())
 
-        opp02 = create_opp(name='OPP02', closing_date=date.today(), made_sales=500, estimated_sales=3000)
+        opp02 = create_opp(
+            name='OPP02', closing_date=date.today(), made_sales=500, estimated_sales=3000,
+        )
         create_rel(subject_entity=opp02)
 
         act  = self.refresh(act)  # Refresh cache
@@ -1063,10 +1079,11 @@ class ActTestCase(CommercialBaseTestCase):
         create_rel(type_id=REL_SUB_COMPLETE_GOAL, object_entity=act2)
 
         create_dt = self.create_datetime
-        meeting = Activity.objects.create(user=user, title='Meeting #01', type_id=ACTIVITYTYPE_MEETING,
-                                          start=create_dt(year=2011, month=5, day=20, hour=14, minute=0),
-                                          end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
-                                         )
+        meeting = Activity.objects.create(
+            user=user, title='Meeting #01', type_id=ACTIVITYTYPE_MEETING,
+            start=create_dt(year=2011, month=5, day=20, hour=14, minute=0),
+            end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
+        )
 
         create_rel(type_id=REL_SUB_ACTIVITY_SUBJECT, object_entity=meeting)
         self.assertRelationCount(1, meeting, REL_SUB_COMPLETE_GOAL, act1)

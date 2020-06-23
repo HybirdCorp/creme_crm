@@ -96,7 +96,9 @@ class FilterConditionHandler:
         @param model: class inheriting <creme_core.models.CremeEntity>.
         """
         self._model = model
-        self._subfilter = None   # 'None' means not retrieved ; 'False' means invalid filter
+
+        # 'None' means not retrieved ; 'False' means invalid filter
+        self._subfilter = None
 
     def accept(self, *, entity: CremeEntity, user) -> bool:
         """Check if a CremeEntity instance is accepted or refused by the handler.
@@ -198,7 +200,10 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
     DESCRIPTION_FORMAT = _('Entities are accepted by the filter «{}»')
 
-    def __init__(self, *, model: Optional[Type[CremeEntity]] = None, subfilter: Union[EntityFilter, str]):
+    def __init__(
+            self, *,
+            model: Optional[Type[CremeEntity]] = None,
+            subfilter: Union[EntityFilter, str]):
         """Constructor.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>
@@ -977,7 +982,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                     values = [*CustomFieldEnumValue.objects.filter(pk__in=self._values)]
                 except ValueError:
                     logger.exception(
-                        'Error in %s.description() while retrieving CustomField enum-values with ID=%s',
+                        'Error in %s.description() while retrieving '
+                        'CustomField enum-values with ID=%s',
                         type(self).__name__, self._values,
                     )
                     values = ['???']
@@ -1305,7 +1311,11 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             ctype = self.content_type
 
             if ctype is not None:
-                fmt_kwargs['model'] = ctype.model_class()._meta.verbose_name_plural if ctype else '???'
+                fmt_kwargs['model'] = (
+                    ctype.model_class()._meta.verbose_name_plural
+                    if ctype else
+                    '???'
+                )
                 str_key = 'ctype'
             else:
                 str_key = 'rtype'
@@ -1578,7 +1588,9 @@ class PropertyConditionHandler(FilterConditionHandler):
     def property_type(self) -> Union[CremePropertyType, bool]:
         ptype = self._ptype
         if ptype is None:
-            self._ptype = ptype = CremePropertyType.objects.filter(id=self._ptype_id).first() or False
+            self._ptype = ptype = CremePropertyType.objects.filter(
+                id=self._ptype_id,
+            ).first() or False
 
         return ptype
 

@@ -32,7 +32,9 @@ from creme.creme_core.models import CremeEntity, FieldsConfig
 class FieldsConfigAddForm(CremeModelForm):
     ctype = CTypeChoiceField(
         label=_('Related resource'),
-        help_text=_('The proposed types of resource have at least a field which can be hidden.'),
+        help_text=_(
+            'The proposed types of resource have at least a field which can be hidden.'
+        ),
         widget=DynamicSelect(attrs={'autocomplete': True}),
     )
 
@@ -105,7 +107,9 @@ class FieldsConfigEditForm(CremeModelForm):
         super().__init__(*args, **kwargs)
         instance = self.instance
         hidden_f = self.fields['hidden']
-        hidden_f.choices = FieldsConfig.objects.field_enumerator(instance.content_type.model_class()).choices()
+        hidden_f.choices = FieldsConfig.objects.field_enumerator(
+            instance.content_type.model_class(),
+        ).choices()
 
         if instance.pk:
             hidden_f.initial = [f.name for f in instance.hidden_fields]

@@ -61,22 +61,33 @@ class Populator(BasePopulator):
         create_svalue(key_id=setting_keys.currency_symbol_key.id, defaults={'value': True})
 
         # ---------------------------
-        create_if_needed(Currency, {'pk': constants.DEFAULT_CURRENCY_PK}, name=_('Euro'), local_symbol=_('€'), international_symbol=_('EUR'), is_custom=False)
+        create_if_needed(
+            Currency,
+            {'pk': constants.DEFAULT_CURRENCY_PK},
+            name=_('Euro'), local_symbol=_('€'), international_symbol=_('EUR'),
+            is_custom=False,
+        )
 
         # ---------------------------
         create_job = Job.objects.get_or_create
-        create_job(type_id=creme_jobs.temp_files_cleaner_type.id,
-                   defaults={'language':    settings.LANGUAGE_CODE,
-                             'periodicity': date_period_registry.get_period('days', 1),
-                             'status':      Job.STATUS_OK,
-                             'data':        {'delay': date_period_registry.get_period('days', 1).as_dict()},
-                            },
-                  )
-        create_job(type_id=creme_jobs.reminder_type.id,
-                   defaults={'language': settings.LANGUAGE_CODE,
-                             'status':   Job.STATUS_OK,
-                            },
-                  )
+        create_job(
+            type_id=creme_jobs.temp_files_cleaner_type.id,
+            defaults={
+                'language': settings.LANGUAGE_CODE,
+                'periodicity': date_period_registry.get_period('days', 1),
+                'status': Job.STATUS_OK,
+                'data': {
+                    'delay': date_period_registry.get_period('days', 1).as_dict()
+                },
+            },
+        )
+        create_job(
+            type_id=creme_jobs.reminder_type.id,
+            defaults={
+                'language': settings.LANGUAGE_CODE,
+                'status': Job.STATUS_OK,
+            },
+        )
 
         # ---------------------------
 
@@ -92,10 +103,11 @@ class Populator(BasePopulator):
 
         if not already_populated:
             login = password = 'root'
-            root = get_user_model().objects.create_superuser(pk=1, username=login, password=password,
-                                                             first_name='Fulbert', last_name='Creme',
-                                                             email=_('replaceMe@byYourAddress.com'),
-                                                            )
+            root = get_user_model().objects.create_superuser(
+                pk=1, username=login, password=password,
+                first_name='Fulbert', last_name='Creme',
+                email=_('replaceMe@byYourAddress.com'),
+            )
 
             if self.verbosity:
                 self.stdout.write(f'\n A super-user has been created with '
@@ -104,38 +116,50 @@ class Populator(BasePopulator):
                                  )
 
             # ---------------------------
-            create_if_needed(Currency, {'pk': 2}, name=_('United States dollar'), local_symbol=_('$'), international_symbol=_('USD'))
+            create_if_needed(
+                Currency, {'pk': 2},
+                name=_('United States dollar'), local_symbol=_('$'), international_symbol=_('USD'),
+            )
 
             create_if_needed(Language, {'pk': 1}, name=_('French'),  code='FRA')
             create_if_needed(Language, {'pk': 2}, name=_('English'), code='EN')
 
             # ---------------------------
             LEFT = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
             create_bdl = BrickDetailviewLocation.objects.create_if_needed
             BrickDetailviewLocation.objects.create_for_model_brick(order=5, zone=LEFT)
             create_bdl(brick=bricks.CustomFieldsBrick, order=40,  zone=LEFT)
             create_bdl(brick=bricks.PropertiesBrick,   order=450, zone=LEFT)
             create_bdl(brick=bricks.RelationsBrick,    order=500, zone=LEFT)
-            create_bdl(brick=bricks.HistoryBrick,      order=8,   zone=BrickDetailviewLocation.RIGHT)
+            create_bdl(brick=bricks.HistoryBrick,      order=8,   zone=RIGHT)
 
-            BrickHomeLocation.objects.create(brick_id=bricks.StatisticsBrick.id_, order=8)
-            BrickHomeLocation.objects.create(brick_id=bricks.HistoryBrick.id_,    order=10)
+            create_bhl = BrickHomeLocation.objects.create
+            create_bhl(brick_id=bricks.StatisticsBrick.id_, order=8)
+            create_bhl(brick_id=bricks.HistoryBrick.id_,    order=10)
 
-            BrickMypageLocation.objects.create(brick_id=bricks.HistoryBrick.id_, order=8, user=None)
-            BrickMypageLocation.objects.create(brick_id=bricks.HistoryBrick.id_, order=8, user=root)
+            create_bml = BrickMypageLocation.objects.create
+            create_bml(brick_id=bricks.HistoryBrick.id_, order=8, user=None)
+            create_bml(brick_id=bricks.HistoryBrick.id_, order=8, user=root)
 
             # ---------------------------
             if not ButtonMenuItem.objects.filter(content_type=None).exists():
-                ButtonMenuItem.objects.create(pk='creme_core-void', content_type=None, button_id='', order=1)
+                ButtonMenuItem.objects.create(
+                    pk='creme_core-void', content_type=None, button_id='', order=1,
+                )
 
             # ---------------------------
-            values = {Decimal(value) for value in ['0.0', '5.50', '7.0', '19.60', '20.0', '21.20']}
-            values.add(constants.DEFAULT_VAT)
-
             create_vat = Vat.objects.get_or_create
-            for value in values:
-                create_vat(value=value, is_default=(value == constants.DEFAULT_VAT), is_custom=False)
+            DEFAULT_VAT = constants.DEFAULT_VAT
+            for value in {
+                *(
+                    Decimal(value)
+                    for value in ['0.0', '5.50', '7.0', '19.60', '20.0', '21.20']
+                ),
+                DEFAULT_VAT,
+            }:
+                create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
 
         if settings.TESTS_ON:
             from .tests import fake_populate

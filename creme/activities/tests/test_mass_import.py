@@ -69,15 +69,22 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         title1 = 'Task#1'; start1 = '';                 end1 = ''
         title2 = 'Task#2'; start2 = '2014-05-28 15:00'; end2 = '2014-05-28 17:00'
-        title3 = 'Task#3'; start3 = '2014-05-28 19:00'; end3 = '2014-05-28 18:00'  # Start > end !!
-        title4 = 'Task#4'; start4 = '2014-05-29 12:00'; end4 = ''  # No end
-        title5 = 'Task#5'; start5 = '2014-05-30';       end5 = ''  # FLOATING_TIME
-        title6 = 'Task#6'; start6 = '2014-06-01';       end6 = '2014-06-01'  # FLOATING_TIME too
-        title7 = 'Task#7'; start7 = '2014-06-02';       end7 = '2014-06-02 18:00'  # Not FLOATING_TIME
-        lines = [(title1, start1, end1), (title2, start2, end2), (title3, start3, end3),
-                 (title4, start4, end4), (title5, start5, end5), (title6, start6, end6),
-                 (title7, start7, end7),
-                ]
+        # Start > end !!
+        title3 = 'Task#3'; start3 = '2014-05-28 19:00'; end3 = '2014-05-28 18:00'
+        # No end
+        title4 = 'Task#4'; start4 = '2014-05-29 12:00'; end4 = ''
+        # FLOATING_TIME
+        title5 = 'Task#5'; start5 = '2014-05-30';       end5 = ''
+        # FLOATING_TIME too
+        title6 = 'Task#6'; start6 = '2014-06-01';       end6 = '2014-06-01'
+        # Not FLOATING_TIME
+        title7 = 'Task#7'; start7 = '2014-06-02';       end7 = '2014-06-02 18:00'
+
+        lines = [
+            (title1, start1, end1), (title2, start2, end2), (title3, start3, end3),
+            (title4, start4, end4), (title5, start5, end5), (title6, start6, end6),
+            (title7, start7, end7),
+        ]
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(url, data={'step':     0,
@@ -86,19 +93,21 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                                    )
         self.assertNoFormError(response)
 
-        response = self.client.post(url, follow=True,
-                                    data={**self.lv_import_data,
-                                          'document': doc.id,
-                                          'user': user.id,
-                                          'start_colselect': 2,
-                                          'end_colselect': 3,
-                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+        response = self.client.post(
+            url, follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'start_colselect': 2,
+                'end_colselect': 3,
+                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                                          # Should not be used
-                                          'busy_colselect': 0,
-                                          'busy_defval': True,
-                                         },
-                                   )
+                # Should not be used
+                'busy_colselect': 0,
+                'busy_defval': True,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -203,11 +212,14 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         title2 = 'Meeting#2'
         title3 = 'Meeting#3'
         title4 = 'Meeting#4'
-        lines = [(title1, participant1.first_name, participant1.last_name, subject.name),
-                 (title2, '',                      participant2.last_name, ''),
-                 (title3, '',                      unfoundable,            ''),  # Unfoundable Contact -> error
-                 (title4, user_contact.first_name, user_contact.last_name, ''),  # No duplicate
-                ]
+        lines = [
+            (title1, participant1.first_name, participant1.last_name, subject.name),
+            (title2, '',                      participant2.last_name, ''),
+            # Unfoundable Contact -> error
+            (title3, '',                      unfoundable,            ''),
+            # No duplicate
+            (title4, user_contact.first_name, user_contact.last_name, ''),
+        ]
 
         Calendar.objects.get_default_calendar(user)
         my_calendar = Calendar.objects.create(user=user, is_default=False,
@@ -219,9 +231,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             **self.lv_import_data,
             'document': doc.id,
             'user': user.id,
-            'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                       constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                      ),
+            'type_selector': self._acttype_field_value(
+                constants.ACTIVITYTYPE_MEETING,
+                constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            ),
 
             'my_participation_0': True,
             'participating_users': other_user.pk,
@@ -235,7 +248,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         # Validation errors ----------
         response = self.assertPOST200(self._build_import_url(Activity), data=data)
-        self.assertFormError(response, 'form', 'my_participation', _('Enter a value if you check the box.'))
+        self.assertFormError(
+            response, 'form', 'my_participation',
+            _('Enter a value if you check the box.')
+        )
 
         response = self.assertPOST200(
             self._build_import_url(Activity), follow=True,
@@ -293,7 +309,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         # ---------
         act4 = self.get_object_or_fail(Activity, title=title4)
-        self.assertRelationCount(1, act4, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)  # Not 2
+        # Not 2
+        self.assertRelationCount(1, act4, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)
 
     @skipIfCustomContact
     def test_import03(self):
@@ -312,7 +329,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         unfoundable  = 'Behemoth'
         unfoundable2 = "En'Ô"
-        self.assertFalse(Contact.objects.filter(last_name__in=(unfoundable, unfoundable2)).exists())
+        self.assertFalse(
+            Contact.objects.filter(last_name__in=(unfoundable, unfoundable2)).exists()
+        )
 
         title1 = 'Meeting#1'
         title2 = 'Meeting#2'
@@ -320,11 +339,24 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         title4 = 'Meeting#4'
         title5 = 'Meeting#5'
         lines = [
-            (title1, f'{participant1.last_name} {participant1.first_name}/{participant2.last_name} {participant2.first_name}'),
+            (
+                title1,
+                f'{participant1.last_name} {participant1.first_name}/'
+                f'{participant2.last_name} {participant2.first_name}',
+            ),
             (title2, f'{other_contact.last_name} {other_contact.first_name}'),
             (title3, f' {participant2.last_name} {participant2.first_name} '),  # Trailing spaces
-            (title4, f'{unfoundable} {unfoundable}/{participant2.last_name} {participant2.first_name}/{unfoundable2}/'),
-            (title5, f'{participant3.last_name} {participant3.first_name}/{participant2.last_name}'),
+            (
+                title4,
+                f'{unfoundable} {unfoundable}/'
+                f'{participant2.last_name} {participant2.first_name}/'
+                f'{unfoundable2}/',
+            ),
+            (
+                title5,
+                f'{participant3.last_name} {participant3.first_name}/'
+                f'{participant2.last_name}',
+            ),
         ]
 
         doc = self._build_csv_doc(lines)
@@ -334,9 +366,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                           constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                          ),
+                'type_selector': self._acttype_field_value(
+                    constants.ACTIVITYTYPE_MEETING,
+                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                ),
 
                 'participants_mode': '2',  # Search with pattern
                 'participants_separator': '/',
@@ -399,10 +432,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         user = self.login()
 
         miss = self.get_object_or_fail(Civility, pk=2)
-        aoi = Contact.objects.create(user=user, first_name='Aoi', last_name='Kunieda', civility=miss)
+        aoi = Contact.objects.create(
+            user=user, first_name='Aoi', last_name='Kunieda', civility=miss,
+        )
 
         title1 = 'Meeting#1'
-        lines = [(title1, f' {aoi.civility} {aoi.first_name} {aoi.last_name} ')]  # +trailing spaces
+        # Notice trailing spaces
+        lines = [(title1, f' {aoi.civility} {aoi.first_name} {aoi.last_name} ')]
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Activity)
@@ -420,7 +456,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             'participants_pattern_colselect': 2,
         }
 
-        response = self.client.post(url, data={**data, 'participants_pattern': 5})  # Invalid pattern
+        response = self.client.post(url, data={**data, 'participants_pattern': 5})
         self.assertFormError(response, 'form', 'participants', 'Invalid pattern')
 
         # ----------
@@ -441,7 +477,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         first_name = 'Aoi'
         last_name = 'Kunieda'
 
-        orga = Organisation.objects.create(user=self.user, name=last_name)  # Should not be used as subject
+        # Should not be used as subject
+        orga = Organisation.objects.create(user=self.user, name=last_name)
 
         doc = self._build_csv_doc([(title, first_name, last_name)])
         response = self.client.post(
@@ -793,13 +830,22 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         act2 = create_act(title='Fight against demons#2')
 
         create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=act1, type_id=constants.REL_OBJ_PART_2_ACTIVITY,  object_entity=participant1)
-        create_rel(subject_entity=act2, type_id=constants.REL_OBJ_ACTIVITY_SUBJECT, object_entity=subject)
+        create_rel(
+            subject_entity=act1,
+            type_id=constants.REL_OBJ_PART_2_ACTIVITY,
+            object_entity=participant1,
+        )
+        create_rel(
+            subject_entity=act2,
+            type_id=constants.REL_OBJ_ACTIVITY_SUBJECT,
+            object_entity=subject,
+        )
 
         place = 'Hell'
-        lines = [(act1.title, participant1.first_name, participant1.last_name, subject.name, place),
-                 (act2.title, '',                      participant2.last_name, subject.name, ''),
-                ]
+        lines = [
+            (act1.title, participant1.first_name, participant1.last_name, subject.name, place),
+            (act2.title, '',                      participant2.last_name, subject.name, ''),
+        ]
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(
@@ -810,9 +856,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'user': user.id,
                 'key_fields': ['title'],
 
-                'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                           constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                          ),
+                'type_selector': self._acttype_field_value(
+                    constants.ACTIVITYTYPE_MEETING,
+                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                ),
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
                 'participants_first_name_colselect': 2,
@@ -829,13 +876,17 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         act1 = self.refresh(act1)
         self.assertEqual(place, act1.place)
 
-        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)  # <- not 2
+        # Not 2:
+        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
+
         self.assertRelationCount(0, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
         self.assertRelationCount(1, act1, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
 
         act2 = self.refresh(act2)
         self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
-        self.assertRelationCount(1, act2, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)  # <- not 2
+
+        # Not 2
+        self.assertRelationCount(1, act2, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -847,7 +898,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         subject = Organisation.objects.create(user=user, name='Ishiyama')
 
         title = 'My Meeting'
-        doc = self._build_csv_doc([(title, participant.first_name, participant.last_name, subject.name)])
+        doc = self._build_csv_doc(
+            [(title, participant.first_name, participant.last_name, subject.name)]
+        )
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -875,7 +928,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         self._execute_job(response)
         activity = self.get_object_or_fail(Activity, title=title)
-        self.assertRelationCount(1, activity, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)  # Not 2
+
+        # Not 2
+        self.assertRelationCount(1, activity, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
 
     def test_pattern1(self):
         "Pattern #1: 'Civility FirstName LastName'"
@@ -981,9 +1036,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         create_contact(first_name='Tatsumi')
         contacts, err_msg = ext.extract_value([last_name], user)
         self.assertFalse(contacts)
-        self.assertEqual(tuple([_('Too many contacts were found for the search «{}»').format(last_name)]),
-                         err_msg
-                        )
+        self.assertEqual(
+            tuple([_('Too many contacts were found for the search «{}»').format(last_name)]),
+            err_msg
+        )
 
     @skipIfCustomContact
     def test_participants_multicol_extractor02(self):
@@ -1060,7 +1116,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertListEqual([aoi], [*contacts])
 
         extract()
-        self.assertEqual(1, Contact.objects.filter(first_name=first_name, last_name=last_name).count())
+        self.assertEqual(
+            1, Contact.objects.filter(first_name=first_name, last_name=last_name).count()
+        )
 
     @skipIfCustomContact
     def test_participants_singlecol_extractor01(self):
@@ -1073,9 +1131,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         searched = 'Aoi Kunieda'
         contacts, err_msg = ext.extract_value([searched], user)
         self.assertFalse(contacts)
-        self.assertEqual([_('The participant «{}» is unfoundable').format(searched)],
-                         err_msg
-                        )
+        self.assertEqual(
+            [_('The participant «{}» is unfoundable').format(searched)],
+            err_msg
+        )
 
         aoi = create_contact(first_name='Aoi')
         oga = create_contact(first_name='Tatsumi', last_name='Oga')

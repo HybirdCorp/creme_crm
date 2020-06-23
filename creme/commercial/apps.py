@@ -68,8 +68,10 @@ class CommercialConfig(CremeAppConfig):
         from .models import ActObjectivePatternComponent, MarketSegmentDescription
 
         register = bulk_update_registry.register
-        register(ActObjectivePatternComponent, exclude=['success_rate'])  # TODO: min_value/max_value constraint in the model... )
-        register(MarketSegmentDescription,     exclude=['segment'])  # TODO: special form for segment
+        # TODO: min_value/max_value constraint in the model... )
+        register(ActObjectivePatternComponent, exclude=['success_rate'])
+        # TODO: special form for segment
+        register(MarketSegmentDescription, exclude=['segment'])
 
     def register_buttons(self, button_registry):
         from . import buttons
@@ -99,32 +101,57 @@ class CommercialConfig(CremeAppConfig):
 
         URLItem = creme_menu.URLItem
         features = creme_menu.get('features')
-        features.get('persons-directory') \
-                .add(URLItem('commercial-salesmen', url=reverse('commercial__list_salesmen'),
-                             label=_('Salesmen'), perm='persons',
-                            ),
-                     priority=100
-                    )
-        features.get_or_create(creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
-                               defaults={'label': _('Commercial')},
-                              ) \
-                .add(URLItem.list_view('commercial-acts',       model=Act),           priority=50) \
-                .add(URLItem.list_view('commercial-strategies', model=Strategy),      priority=55) \
-                .add(URLItem.list_view('commercial-segments',   model=MarketSegment), priority=60) \
-                .add(URLItem.list_view('commercial-patterns',   model=Pattern),       priority=70)
+        features.get(
+            'persons-directory',
+        ).add(
+            URLItem(
+                'commercial-salesmen', url=reverse('commercial__list_salesmen'),
+                label=_('Salesmen'), perm='persons',
+            ),
+            priority=100
+        )
+        features.get_or_create(
+            creme_menu.ContainerItem, 'opportunities-commercial',
+            priority=30,
+            defaults={'label': _('Commercial')},
+        ).add(
+            URLItem.list_view('commercial-acts', model=Act),
+            priority=50,
+        ).add(
+            URLItem.list_view('commercial-strategies', model=Strategy),
+            priority=55,
+        ).add(
+            URLItem.list_view('commercial-segments', model=MarketSegment),
+            priority=60,
+        ).add(
+            URLItem.list_view('commercial-patterns', model=Pattern),
+            priority=70,
+        )
 
         creation = creme_menu.get('creation')
-        creation.get('main_entities').add(URLItem.creation_view('commercial-create_act', model=Act), priority=100)
+        creation.get(
+            'main_entities',
+        ).add(
+            URLItem.creation_view('commercial-create_act', model=Act),
+            priority=100,
+        )
 
         any_forms = creation.get('any_forms')
-        any_forms.get_or_create_group('persons-directory', _('Directory'), priority=10) \
-                 .add_link('create_salesman', model=get_contact_model(), label=_('Salesman'),
-                           url=reverse('commercial__create_salesman'), priority=10,
-                          )
-        any_forms.get_or_create_group('opportunities-commercial', _('Commercial'), priority=15) \
-                 .add_link('commercial-create_act',      Act,      priority=50) \
-                 .add_link('commercial-create_strategy', Strategy, priority=55) \
-                 .add_link('commercial-create_pattern',  Pattern,  priority=60)
+        any_forms.get_or_create_group(
+            'persons-directory', _('Directory'), priority=10,
+        ).add_link(
+            'create_salesman', model=get_contact_model(), label=_('Salesman'),
+            url=reverse('commercial__create_salesman'), priority=10,
+        )
+        any_forms.get_or_create_group(
+            'opportunities-commercial', _('Commercial'), priority=15,
+        ).add_link(
+            'commercial-create_act', Act, priority=50,
+        ).add_link(
+            'commercial-create_strategy', Strategy, priority=55,
+        ).add_link(
+            'commercial-create_pattern', Pattern,  priority=60,
+        )
 
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
@@ -143,9 +170,10 @@ class CommercialConfig(CremeAppConfig):
         def add_commapp_field(form):
             form.fields['is_comapp'] = BooleanField(
                 required=False, label=_('Is a commercial approach ?'),
-                help_text=_('All participants (excepted users), subjects and linked entities '
-                            'will be linked to a commercial approach.'
-                           ),
+                help_text=_(
+                    'All participants (excepted users), subjects and linked entities '
+                    'will be linked to a commercial approach.'
+                ),
                 initial=True
             )
 

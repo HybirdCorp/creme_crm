@@ -408,7 +408,10 @@ class _OtherAddressesBrick(QuerysetBrick):
         return super().get_template_context(
             context,
             context['object'].other_addresses,
-            cells=OrderedDict((fname, build_cell(name=fname)) for fname in _get_address_field_names()),
+            cells=OrderedDict(
+                (fname, build_cell(name=fname))
+                for fname in _get_address_field_names()
+            ),
         )
 
     def detailview_display(self, context):
@@ -416,7 +419,8 @@ class _OtherAddressesBrick(QuerysetBrick):
 
 
 class DetailedOtherAddressesBrick(_OtherAddressesBrick):
-    id_           = QuerysetBrick.generate_id('persons', 'other_address')  # TODO: rename 'other_addresses'
+    # TODO: rename 'other_addresses'
+    id_           = QuerysetBrick.generate_id('persons', 'other_address')
     dependencies  = (Address,)
     verbose_name  = _('Other addresses (detailed)')
     template_name = 'persons/bricks/other-addresses-detailed.html'
@@ -462,57 +466,75 @@ if apps.is_installed('creme.activities'):
         verbose_name  = _('Neglected organisations')
         template_name = 'persons/bricks/neglected-organisations.html'
 
-        _RTYPE_IDS_CUSTOMERS = (constants.REL_SUB_CUSTOMER_SUPPLIER, constants.REL_SUB_PROSPECT)
-        _RTYPE_IDS_ORGA_N_ACT = (activities_constants.REL_SUB_ACTIVITY_SUBJECT, activities_constants.REL_SUB_LINKED_2_ACTIVITY)
-        _RTYPE_IDS_EMPLOYEES = (constants.REL_SUB_MANAGES, constants.REL_SUB_EMPLOYED_BY)
-        _RTYPE_IDS_CONTACT_N_ACT = (activities_constants.REL_SUB_PART_2_ACTIVITY,
-                                    activities_constants.REL_SUB_ACTIVITY_SUBJECT,
-                                    activities_constants.REL_SUB_LINKED_2_ACTIVITY,
-                                   )
+        _RTYPE_IDS_CUSTOMERS = (
+            constants.REL_SUB_CUSTOMER_SUPPLIER,
+            constants.REL_SUB_PROSPECT,
+        )
+        _RTYPE_IDS_ORGA_N_ACT = (
+            activities_constants.REL_SUB_ACTIVITY_SUBJECT,
+            activities_constants.REL_SUB_LINKED_2_ACTIVITY,
+        )
+        _RTYPE_IDS_EMPLOYEES = (
+            constants.REL_SUB_MANAGES,
+            constants.REL_SUB_EMPLOYED_BY,
+        )
+        _RTYPE_IDS_CONTACT_N_ACT = (
+            activities_constants.REL_SUB_PART_2_ACTIVITY,
+            activities_constants.REL_SUB_ACTIVITY_SUBJECT,
+            activities_constants.REL_SUB_LINKED_2_ACTIVITY,
+        )
 
         def _get_neglected(self, now):
-            user_contacts = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)
+            user_contacts = Contact.objects.filter(
+                is_user__isnull=False,
+            ).values_list('id', flat=True)
             future_activities = [
-                *Activity.objects
-                         .filter(start__gte=now,
-                                 relations__type=activities_constants.REL_OBJ_PART_2_ACTIVITY,
-                                 relations__object_entity__in=user_contacts,
-                                )
-                         .values_list('id', flat=True)
+                *Activity.objects.filter(
+                    start__gte=now,
+                    relations__type=activities_constants.REL_OBJ_PART_2_ACTIVITY,
+                    relations__object_entity__in=user_contacts,
+                ).values_list('id', flat=True)
             ]
-            neglected_orgas_qs = Organisation.objects \
-                                             .filter(is_deleted=False,
-                                                     relations__type__in=self._RTYPE_IDS_CUSTOMERS,
-                                                     relations__object_entity__in=Organisation.objects.filter_managed_by_creme(),
-                                                    ) \
-                                             .exclude(relations__type=constants.REL_SUB_INACTIVE) \
-                                             .distinct()
+            neglected_orgas_qs = Organisation.objects.filter(
+                is_deleted=False,
+                relations__type__in=self._RTYPE_IDS_CUSTOMERS,
+                relations__object_entity__in=Organisation.objects.filter_managed_by_creme(),
+            ).exclude(relations__type=constants.REL_SUB_INACTIVE).distinct()
 
             if not future_activities:
-                return neglected_orgas_qs  # No need to retrieve it & transform into a list (good idea ??)
+                # No need to retrieve it & transform into a list (good idea ??)
+                return neglected_orgas_qs
 
             neglected_orgas = [
-                *neglected_orgas_qs.exclude(relations__object_entity__in=future_activities,
-                                            relations__type__in=self._RTYPE_IDS_ORGA_N_ACT,
-                                           )
+                *neglected_orgas_qs.exclude(
+                    relations__object_entity__in=future_activities,
+                    relations__type__in=self._RTYPE_IDS_ORGA_N_ACT,
+                )
             ]
 
             if neglected_orgas:
-                linked_people_map = dict(Relation.objects.filter(type__in=self._RTYPE_IDS_EMPLOYEES,
-                                                                 object_entity__in=[o.id for o in neglected_orgas],
-                                                                )
-                                                         .values_list('subject_entity_id', 'object_entity_id')
-                                        )
-                activity_links = Relation.objects.filter(type__in=self._RTYPE_IDS_CONTACT_N_ACT,
-                                                         subject_entity__in=linked_people_map.keys(),
-                                                         object_entity__in=future_activities,
-                                                        )
+                linked_people_map = dict(
+                    Relation.objects.filter(
+                        type__in=self._RTYPE_IDS_EMPLOYEES,
+                        object_entity__in=[o.id for o in neglected_orgas],
+                    ).values_list('subject_entity_id', 'object_entity_id')
+                )
+                activity_links = Relation.objects.filter(
+                    type__in=self._RTYPE_IDS_CONTACT_N_ACT,
+                    subject_entity__in=linked_people_map.keys(),
+                    object_entity__in=future_activities,
+                )
 
-                neglected_map = {orga.id: True for orga in neglected_orgas}  # 'True' means 'neglected'
+                # 'True' means 'neglected'
+                neglected_map = {orga.id: True for orga in neglected_orgas}
                 for rel in activity_links:
                     neglected_map[linked_people_map[rel.subject_entity_id]] = False
 
-                neglected_orgas = [orga for orga in neglected_orgas if neglected_map[orga.id]]
+                neglected_orgas = [
+                    orga
+                    for orga in neglected_orgas
+                    if neglected_map[orga.id]
+                ]
 
             return neglected_orgas
 

@@ -87,8 +87,12 @@ class AlertTestCase(AssistantsTestCase):
             self.assertFalse(form.is_valid(), f'Creation should fail with data={post_data}')
 
         user_pk = self.user.pk
-        _fail_creation(user=user_pk, title='',      description='description', trigger_date='2010-9-29')
-        _fail_creation(user=user_pk, title='title', description='description', trigger_date='')
+        _fail_creation(
+            user=user_pk, title='',      description='description', trigger_date='2010-9-29',
+        )
+        _fail_creation(
+            user=user_pk, title='title', description='description', trigger_date='',
+        )
 
     def test_edit(self):
         title       = 'Title'
@@ -199,7 +203,9 @@ class AlertTestCase(AssistantsTestCase):
 
         entity02 = CremeEntity.objects.create(user=user)
 
-        alert3 = self._create_alert('Alert03', 'Description03', trigger_date='2010-10-3', entity=entity02)
+        alert3 = self._create_alert(
+            'Alert03', 'Description03', trigger_date='2010-10-3', entity=entity02,
+        )
         alert3.is_validated = True
         alert3.save()
 
@@ -268,9 +274,12 @@ class AlertTestCase(AssistantsTestCase):
 
         message = messages[0]
         self.assertEqual([user.email], message.to)
-        self.assertEqual(_('Reminder concerning a Creme CRM alert related to {entity}').format(entity=self.entity),
-                         message.subject
-                        )
+        self.assertEqual(
+            _('Reminder concerning a Creme CRM alert related to {entity}').format(
+                entity=self.entity,
+            ),
+            message.subject
+        )
         self.assertIn(alert1.title, message.body)
 
         # Reminders are not recreated if they already exist
@@ -288,7 +297,8 @@ class AlertTestCase(AssistantsTestCase):
         create_alert(title='Alert#2', is_validated=True)
         create_alert(title='Alert#4', reminded=True)
         create_alert(title='Alert#6', trigger_date=now_value + timedelta(minutes=60))
-        create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))  # <== only this one should be used
+        # Only this one should be used:
+        create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))
         create_alert(title='Alert#7', trigger_date=now_value + timedelta(minutes=70))
         create_alert(title='Alert#3', is_validated=True)
         create_alert(title='Alert#5', reminded=True)

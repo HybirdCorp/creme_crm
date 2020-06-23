@@ -30,7 +30,9 @@ from .recipient import Recipient
 
 class AbstractSMSCampaign(CremeEntity):
     name  = CharField(_('Name of the campaign'), max_length=100)
-    lists = ManyToManyField(settings.SMS_MLIST_MODEL, verbose_name=_('Related messaging lists'), blank=True)
+    lists = ManyToManyField(
+        settings.SMS_MLIST_MODEL, verbose_name=_('Related messaging lists'), blank=True,
+    )
 
     # TODO: pgettext (BUT beware because PreferredMenuItem does not manage context currently...)
     creation_label = _('Create a campaign')
@@ -74,9 +76,11 @@ class AbstractSMSCampaign(CremeEntity):
 
         # TODO: remove duplicates
         # Manual recipients
-        recipients = [number for number in Recipient.objects.filter(messaging_list__in=mlists)
-                                                            .values_list('phone', flat=True)
-                     ]
+        recipients = [
+            number
+            for number in Recipient.objects.filter(messaging_list__in=mlists)
+                                           .values_list('phone', flat=True)
+        ]
 
         # Contacts recipients
         recipients.extend(

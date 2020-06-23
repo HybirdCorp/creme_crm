@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,8 @@ logger = logging.getLogger(__name__)
 
 class AbstractTemplateBase(Base):
     ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
-    status_id = PositiveIntegerField(editable=False).set_tags(viewable=False)  # TODO: avoid deletion of status
+    # TODO: avoid deletion of status
+    status_id = PositiveIntegerField(editable=False).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('billing', 'Create a template')
     save_label     = pgettext_lazy('billing', 'Save the template')
@@ -74,7 +75,8 @@ class AbstractTemplateBase(Base):
         # Common rules for the recurrent generation of a "base" object for billing app.
         # See base's child for specific rules
         instance.generate_number()
-        instance.expiration_date = instance.issuing_date + timedelta(days=30)  # TODO: user configurable rules ???
+        # TODO: user configurable rules ???
+        instance.expiration_date = instance.issuing_date + timedelta(days=30)
 
         instance.additional_info = self.additional_info
         instance.payment_terms   = self.payment_terms

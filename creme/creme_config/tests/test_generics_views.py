@@ -65,20 +65,34 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         return reverse('creme_config__finish_deletor', args=(job.id,))
 
     def test_portals(self):
-        response = self.assertGET200(reverse('creme_config__app_portal', args=('creme_core',)))
+        response = self.assertGET200(
+            reverse('creme_config__app_portal', args=('creme_core',))
+        )
         self.assertTemplateUsed(response, 'creme_config/generics/app-portal.html')
 
-        self.assertGET404(reverse('creme_config__app_portal', args=('unexistingapp',)))
+        self.assertGET404(
+            reverse('creme_config__app_portal', args=('unexistingapp',))
+        )
 
-        response = self.assertGET200(reverse('creme_config__model_portal', args=('creme_core', 'fake_civility')))
+        response = self.assertGET200(
+            reverse('creme_config__model_portal', args=('creme_core', 'fake_civility'))
+        )
         self.assertTemplateUsed(response, 'creme_config/generics/model-portal.html')
 
-        self.assertGET404(reverse('creme_config__model_portal', args=('creme_core', 'unexistingmodel')))
+        self.assertGET404(
+            reverse('creme_config__model_portal', args=('creme_core', 'unexistingmodel'))
+        )
 
         if apps.is_installed('creme.persons'):
-            self.assertGET200(reverse('creme_config__app_portal', args=('persons',)))
-            self.assertGET200(reverse('creme_config__model_portal', args=('persons', 'civility')))
-            self.assertGET404(reverse('creme_config__model_portal', args=('persons', 'unexistingmodel')))
+            self.assertGET200(
+                reverse('creme_config__app_portal', args=('persons',))
+            )
+            self.assertGET200(
+                reverse('creme_config__model_portal', args=('persons', 'civility'))
+            )
+            self.assertGET404(
+                reverse('creme_config__model_portal', args=('persons', 'unexistingmodel'))
+            )
 
     def test_add01(self):
         count = FakeCivility.objects.count()
@@ -216,7 +230,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         count = FakeSector.objects.count()
         sector = FakeSector.objects.create(title='music', order=count + 1)
 
-        url = reverse('creme_config__edit_instance', args=('creme_core', 'fake_sector', sector.id,))
+        url = reverse(
+            'creme_config__edit_instance',
+            args=('creme_core', 'fake_sector', sector.id,),
+        )
         self.assertGET200(url)
 
         title = sector.title.title()
@@ -611,8 +628,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsInstance(replace_field.widget, Label)
         self.assertEqual(
             ngettext(
-                'ERROR: {count} instance of «{model}» uses «{instance}» so the deletion is not possible.',
-                'ERROR: {count} instances of «{model}» use «{instance}» so the deletion is not possible.',
+                'ERROR: {count} instance of «{model}» uses «{instance}» '
+                'so the deletion is not possible.',
+                'ERROR: {count} instances of «{model}» use «{instance}» '
+                'so the deletion is not possible.',
                 1
             ).format(
                 count=1,
@@ -628,8 +647,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url)
         self.assertEqual(
             ngettext(
-                'ERROR: {count} instance of «{model}» uses «{instance}» so the deletion is not possible.',
-                'ERROR: {count} instances of «{model}» use «{instance}» so the deletion is not possible.',
+                'ERROR: {count} instance of «{model}» uses «{instance}» '
+                'so the deletion is not possible.',
+                'ERROR: {count} instances of «{model}» use «{instance}» '
+                'so the deletion is not possible.',
                 2
             ).format(
                 count=2,
@@ -898,7 +919,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         doc1.categories.set([cat2del, cat2])
 
         doc2 = create_doc(title='X-mas pix')
-        doc2.categories.set([cat2del, cat1])  # <= after replacement, "cat1" should not be duplicated
+        # After replacement, "cat1" should not be duplicated
+        doc2.categories.set([cat2del, cat1])
 
         response = self.client.post(
             reverse(
@@ -1174,8 +1196,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertEqual(
             ngettext(
-                'ERROR: {count} instance of «{model}» uses «{instance}» so the deletion is not possible.',
-                'ERROR: {count} instances of «{model}» use «{instance}» so the deletion is not possible.',
+                'ERROR: {count} instance of «{model}» uses «{instance}» so '
+                'the deletion is not possible.',
+                'ERROR: {count} instances of «{model}» use «{instance}» so '
+                'the deletion is not possible.',
                 1
             ).format(
                 count=1,

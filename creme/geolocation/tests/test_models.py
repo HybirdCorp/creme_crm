@@ -24,7 +24,9 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         create_town = partial(Town.objects.create, name='Marseille', country='FRANCE')
         self.marseille1 = create_town(zipcode='13001', latitude=43.299985, longitude=5.378865)
         self.marseille2 = create_town(zipcode='13002', latitude=43.298642, longitude=5.364956)
-        self.aubagne    = create_town(zipcode='13400', latitude=43.2833,   longitude=5.56667, name='Aubagne')
+        self.aubagne    = create_town(
+            zipcode='13400', latitude=43.2833, longitude=5.56667, name='Aubagne',
+        )
 
         self.orga = Organisation.objects.create(name='Orga 1', user=user)
 
@@ -88,7 +90,9 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         create_town = partial(Town.objects.create, zipcode=zipcode, country='FRANCE')
         create_town(name=town1.name, latitude=town1.latitude, longitude=town1.longitude)
         create_town(name=town2.name, latitude=town3.latitude, longitude=town3.longitude)
-        town6 = create_town(name=town2.name + ' Bis', latitude=town2.latitude, longitude=town2.longitude)
+        town6 = create_town(
+            name=town2.name + ' Bis', latitude=town2.latitude, longitude=town2.longitude,
+        )
 
         # duplicates zipcode, no names, no geoaddres
         create_address = partial(Address.objects.create, owner=self.orga, zipcode=zipcode)
@@ -312,7 +316,9 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
                     ]
 
         # 4th address
-        GeoAddress.objects.filter(latitude=self.marseille1.latitude).update(latitude=None, longitude=None)
+        GeoAddress.objects.filter(
+            latitude=self.marseille1.latitude,
+        ).update(latitude=None, longitude=None)
 
         addresses = [self.refresh(address) for address in addresses]
 
@@ -449,9 +455,18 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         town2 = self.aubagne
 
         create_address = self.create_address
-        ST_VICTOR   = create_address(self.orga, address='St Victor',     zipcode='13007',       town=town1.name, geoloc=(43.290347, 5.365572))
-        COMMANDERIE = create_address(contact,   address='Commanderie',   zipcode='13011',       town=town1.name, geoloc=(43.301963, 5.462410))
-        AUBAGNE     = create_address(orga2,     address='Maire Aubagne', zipcode=town2.zipcode, town=town2.name, geoloc=(43.295783, 5.565589))
+        ST_VICTOR   = create_address(
+            self.orga, address='St Victor', zipcode='13007', town=town1.name,
+            geoloc=(43.290347, 5.365572),
+        )
+        COMMANDERIE = create_address(
+            contact, address='Commanderie', zipcode='13011', town=town1.name,
+            geoloc=(43.301963, 5.462410),
+        )
+        AUBAGNE = create_address(
+            orga2, address='Maire Aubagne', zipcode=town2.zipcode, town=town2.name,
+            geoloc=(43.295783, 5.565589),
+        )
 
         self.assertFalse(ST_VICTOR.geoaddress.neighbours(distance=1000))
         self.assertListEqual(
@@ -473,9 +488,18 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         town2 = self.aubagne
 
         create_address = self.create_address
-        ST_VICTOR   = create_address(self.orga, address='St Victor',     zipcode='13007',       town=town1.name, geoloc=(43.290347, 5.365572))
-        COMMANDERIE = create_address(contact,   address='Commanderie',   zipcode='13011',       town=town1.name, geoloc=(43.301963, 5.462410))
-        __          = create_address(contact,   address='Maire Aubagne', zipcode=town2.zipcode, town=town2.name, geoloc=(43.295783, 5.565589))
+        ST_VICTOR   = create_address(
+            self.orga, address='St Victor', zipcode='13007', town=town1.name,
+            geoloc=(43.290347, 5.365572),
+        )
+        COMMANDERIE = create_address(
+            contact, address='Commanderie', zipcode='13011', town=town1.name,
+            geoloc=(43.301963, 5.462410),
+        )
+        create_address(
+            contact, address='Maire Aubagne', zipcode=town2.zipcode, town=town2.name,
+            geoloc=(43.295783, 5.565589),
+        )
 
         self.assertFalse(ST_VICTOR.geoaddress.neighbours(distance=1000))
         self.assertEqual([*ST_VICTOR.geoaddress.neighbours(distance=10000)],
@@ -493,8 +517,14 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         town = self.marseille1
 
         create_address = self.create_address
-        create_address(self.orga, address='St Victor',   zipcode='13007', town=town.name, geoloc=(43.290347, 5.365572))
-        create_address(contact,   address='Commanderie', zipcode='13011', town=town.name, geoloc=(43.301963, 5.462410))
+        create_address(
+            self.orga, address='St Victor', zipcode='13007', town=town.name,
+            geoloc=(43.290347, 5.365572),
+        )
+        create_address(
+            contact, address='Commanderie', zipcode='13011', town=town.name,
+            geoloc=(43.301963, 5.462410),
+        )
 
         address = create_address(contact, address='Maire Aubagne', zipcode='0', town='Unknown')
         GeoAddress.populate_geoaddress(address)
@@ -552,16 +582,18 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         town3 = self.aubagne
 
         create_address = partial(Address.objects.create, owner=self.orga, address='Mairie')
-        addresses = [create_address(address='La Major', zipcode=town2.zipcode, city=town2.name),
-                     create_address(zipcode=town1.zipcode, city=town1.name),
-                     create_address(zipcode=town3.zipcode),
-                     create_address(zipcode=town3.zipcode, city=town1.name),
-                     create_address(),
-                     create_address(zipcode='unknown'),
-                     create_address(city=town1.name),
-                     create_address(city='unknown'),
-                    ]
+        addresses = [
+            create_address(address='La Major', zipcode=town2.zipcode, city=town2.name),
+            create_address(zipcode=town1.zipcode, city=town1.name),
+            create_address(zipcode=town3.zipcode),
+            create_address(zipcode=town3.zipcode, city=town1.name),
+            create_address(),
+            create_address(zipcode='unknown'),
+            create_address(city=town1.name),
+            create_address(city='unknown'),
+        ]
 
-        self.assertEqual([town2, town1, town3, town3, None, None, town1, None],
-                         [*Town.search_all(addresses)]
-                        )
+        self.assertListEqual(
+            [town2, town1, town3, town3, None, None, town1, None],
+            [*Town.search_all(addresses)]
+        )

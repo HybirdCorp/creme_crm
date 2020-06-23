@@ -84,7 +84,8 @@ class RelatedExtractor:
         if first_name:
             query_dict['first_name__iexact'] = first_name
 
-        # TODO: filter with link credentials too (because here we limit _before_ filtering unlinkable...)
+        # TODO: filter with link credentials too (because here we limit
+        #       _before_ filtering not linkable...)
         contacts = EntityCredentials.filter(user,
                                             Contact.objects.filter(**query_dict),
                                            )[:MAX_RELATIONSHIPS + 1]
@@ -405,10 +406,12 @@ class SubjectsExtractor(RelatedExtractor):
         super().__init__(create_if_unfound)
         self._column_index = column_index - 1
         self._separator = separator
-        self._models = [ct.model_class() for ct in RelationType.objects
-                                                               .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
-                                                               .subject_ctypes.all()
-                       ]
+        self._models = [
+            ct.model_class()
+            for ct in RelationType.objects
+                                  .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
+                                  .subject_ctypes.all()
+        ]
 
     def extract_value(self, line, user):
         extracted = []
@@ -430,10 +433,12 @@ class SubjectsExtractor(RelatedExtractor):
             unlinkable_found = False
 
             for model in self._models:
-                # TODO: filter with link credentials too (because here we limit _before_ filtering unlinkable...)
-                instances = EntityCredentials.filter(user,
-                                                     model.objects.filter(header_filter_search_field__icontains=search),
-                                                    )[:MAX_RELATIONSHIPS + 1]
+                # TODO: filter with link credentials too
+                #       (because here we limit _before_ filtering not linkable...)
+                instances = EntityCredentials.filter(
+                    user,
+                    model.objects.filter(header_filter_search_field__icontains=search),
+                )[:MAX_RELATIONSHIPS + 1]
                 linkable_extracted = [e for e in instances if has_perm(e)]
 
                 if linkable_extracted:
@@ -469,7 +474,9 @@ class SubjectsExtractor(RelatedExtractor):
                 if self._create:
                     extracted.append(Organisation.objects.create(user=user, name=search))
                 elif unlinkable_found:
-                    err_msg.append(_('No linkable entity found for the search «{}»').format(search))
+                    err_msg.append(
+                        _('No linkable entity found for the search «{}»').format(search)
+                    )
                 else:
                     err_msg.append(_('The subject «{}» is unfoundable').format(search))
 
@@ -572,19 +579,27 @@ class SubjectsExtractorField(Field):
 # Main -------------------------------------------------------------------------
 def get_massimport_form_builder(header_dict, choices):
     class ActivityMassImportForm(ImportForm4CremeEntity):
-        type_selector = ActivityTypeField(label=_('Type'),
-                                          types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
-                                         )
+        type_selector = ActivityTypeField(
+            label=_('Type'),
+            types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
+        )
 
-        my_participation    = UserParticipationField(label=_('Do I participate to this activity?'), empty_label=None)
+        my_participation = UserParticipationField(
+            label=_('Do I participate to this activity?'), empty_label=None,
+        )
 
-        participating_users = ModelMultipleChoiceField(label=_('Other participating users'),
-                                                       queryset=get_user_model().objects.filter(is_staff=False),
-                                                       required=False,
-                                                      )
-        participants        = ParticipantsExtractorField(choices=choices, label=_('Participants'), required=False)
+        participating_users = ModelMultipleChoiceField(
+            label=_('Other participating users'),
+            queryset=get_user_model().objects.filter(is_staff=False),
+            required=False,
+        )
+        participants = ParticipantsExtractorField(
+            choices=choices, label=_('Participants'), required=False,
+        )
 
-        subjects = SubjectsExtractorField(choices=choices, label=_('Subjects (organisations only)'), required=False)
+        subjects = SubjectsExtractorField(
+            choices=choices, label=_('Subjects (organisations only)'), required=False,
+        )
 
         class Meta:
             exclude = ('type', 'sub_type', 'busy')
@@ -641,11 +656,12 @@ def get_massimport_form_builder(header_dict, choices):
 
             if updated:
                 # TODO: improve get_participant_relations() (not retrieve real entities)
-                participant_ids.update(Relation.objects.filter(type=constants.REL_SUB_PART_2_ACTIVITY,
-                                                               object_entity=instance.id,
-                                                              )
-                                                       .values_list('subject_entity', flat=True)
-                                      )
+                participant_ids.update(
+                    Relation.objects.filter(
+                        type=constants.REL_SUB_PART_2_ACTIVITY,
+                        object_entity=instance.id,
+                    ).values_list('subject_entity', flat=True)
+                )
 
             def add_participant(participant):
                 if participant.id not in participant_ids:
@@ -656,8 +672,10 @@ def get_massimport_form_builder(header_dict, choices):
                     )
                     participant_ids.add(participant.id)
 
-            # We could create a cache in self (or even put a cache-per-request in Calendar.get_user_default_calendar()
-            # but the import can take a long time, & the default Calendar could change => TODO: use a time based cache ?
+            # We could create a cache in self (or even put a cache-per-request
+            # in Calendar.get_user_default_calendar() but the import can take a
+            # long time, & the default Calendar could change
+            #  => TODO: use a time based cache ?
             default_calendars_cache = {}
 
             def add_to_default_calendar(part_user):

@@ -54,11 +54,12 @@ class CreatorCategorySelector(ActionButtonList):
             allowed = self.creation_allowed and bool(self.creation_url)
             url = self.creation_url + '?category=${_delegate_.category}'
 
-            self.add_action('create', SubCategory.creation_label, enabled=allowed, popupUrl=url,
-                            title=_('Create') if allowed else _("Can't create"),
-                            # TODO : Temporarily disable this title for UI consistency.
-                            # popupTitle=SubCategory.creation_label,
-                           )
+            self.add_action(
+                'create', SubCategory.creation_label, enabled=allowed, popupUrl=url,
+                title=_('Create') if allowed else _("Can't create"),
+                # TODO : Temporarily disable this title for UI consistency.
+                # popupTitle=SubCategory.creation_label,
+            )
 
     def get_context(self, name, value, attrs):
         selector = ChainedInput(self.attrs)
@@ -108,12 +109,16 @@ class CategoryField(JSONField):
         try:
             subcategory = SubCategory.objects.get(pk=subcategory_pk)
         except SubCategory.DoesNotExist as e:
-            raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist') from e
+            raise ValidationError(
+                self.error_messages['doesnotexist'],
+                code='doesnotexist',
+            ) from e
 
         if subcategory.category_id != category_pk:
-            raise ValidationError(self.error_messages['subcategorynotallowed'],
-                                  code='subcategorynotallowed',
-                                 )
+            raise ValidationError(
+                self.error_messages['subcategorynotallowed'],
+                code='subcategorynotallowed',
+            )
 
         return subcategory
 
@@ -122,9 +127,10 @@ class CategoryField(JSONField):
         try:
             category = self._categories.get(id=category_pk)
         except Category.DoesNotExist as e:
-            raise ValidationError(self.error_messages['categorynotallowed'],
-                                  code='categorynotallowed',
-                                 ) from e
+            raise ValidationError(
+                self.error_messages['categorynotallowed'],
+                code='categorynotallowed',
+            ) from e
 
         return category
 
@@ -151,7 +157,8 @@ class CategoryField(JSONField):
 
     def _update_creation_info(self):
         widget = self.widget
-        widget.creation_url, widget.creation_allowed = config_registry.get_model_creation_info(SubCategory, self.user)
+        widget.creation_url, widget.creation_allowed = \
+            config_registry.get_model_creation_info(SubCategory, self.user)
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, SubCategory):

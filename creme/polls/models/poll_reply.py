@@ -100,8 +100,12 @@ class PollReply(AbstractPollReply):
 
 # TODO: factorise (abstract class) ?
 class PollReplySection(CremeModel):
-    preply = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='sections', on_delete=CASCADE)
-    parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)  # related_name='children'
+    preply = ForeignKey(
+        settings.POLLS_REPLY_MODEL, editable=False, related_name='sections',
+        on_delete=CASCADE,
+    )
+    # TODO: related_name='children' ?
+    parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)
     order  = PositiveIntegerField(editable=False, default=1)
     name   = CharField(_('Name'), max_length=250)
     body   = TextField(_('Section body'), blank=True)
@@ -117,21 +121,27 @@ class PollReplySection(CremeModel):
 
 
 class PollReplyLine(CremeModel, _PollLine):
-    preply       = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='lines', on_delete=CASCADE)
-    section      = ForeignKey(PollReplySection, editable=False, null=True, on_delete=CASCADE)  # related_name='lines'
-    pform_line   = ForeignKey(PollFormLine, editable=False, on_delete=CASCADE)  # related_name='lines'
-    order        = PositiveIntegerField(editable=False, default=1)
-    type         = PositiveSmallIntegerField(editable=False)
-    type_args    = TextField(editable=False, null=True)
+    preply = ForeignKey(
+        settings.POLLS_REPLY_MODEL, editable=False, related_name='lines', on_delete=CASCADE,
+    )
+    # TODO: related_name='lines' ?
+    section = ForeignKey(PollReplySection, editable=False, null=True, on_delete=CASCADE)
+    # TODO: related_name='lines' ?
+    pform_line = ForeignKey(PollFormLine, editable=False, on_delete=CASCADE)
+    order = PositiveIntegerField(editable=False, default=1)
+    type = PositiveSmallIntegerField(editable=False)
+    type_args = TextField(editable=False, null=True)
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
-    applicable   = BooleanField(_('Applicable'), default=True, editable=False)
+    applicable = BooleanField(_('Applicable'), default=True, editable=False)
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
     conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
 
-    question     = TextField(_('Question'))
-    raw_answer   = TextField(_('Answer'), null=True)  # NULL == not answered  [tip: use the property 'answer']
+    question = TextField(_('Question'))
+
+    # NULL == not answered  [tip: use the property 'answer']
+    raw_answer = TextField(_('Answer'), null=True)
 
     class Meta:
         app_label = 'polls'
@@ -142,7 +152,13 @@ class PollReplyLine(CremeModel, _PollLine):
         # return smart_str('PollReplyLine(section={}, question="{}", answer="{}")'.format(
         #                     self.section_id, self.question, self.answer
         #                 ))
-        return f'PollReplyLine(section={self.section_id}, question="{self.question}", answer="{self.answer}")'
+        return (
+            f'PollReplyLine('
+            f'section={self.section_id}, '
+            f'question="{self.question}", '
+            f'answer="{self.answer}"'
+            f')'
+        )
 
     @classmethod
     def _get_condition_class(cls):  # See _PollLine
@@ -180,13 +196,16 @@ class PollReplyLine(CremeModel, _PollLine):
 
 
 class PollReplyLineCondition(CremeModel):
-    line       = ForeignKey(PollReplyLine, editable=False, related_name='conditions', on_delete=CASCADE)
-    source     = ForeignKey(PollReplyLine, on_delete=CASCADE)
-    operator   = PositiveSmallIntegerField()  # See EQUALS etc...
+    line = ForeignKey(
+        PollReplyLine, editable=False, related_name='conditions', on_delete=CASCADE,
+    )
+    source = ForeignKey(PollReplyLine, on_delete=CASCADE)
+    operator = PositiveSmallIntegerField()  # See EQUALS etc...
     raw_answer = TextField(null=True)
 
     class Meta:
         app_label = 'polls'
 
-    def is_met(self, source):  # We give the source to simplify the deletion of useless queries
+    # We give the source to simplify the deletion of useless queries
+    def is_met(self, source):
         return source.poll_line_type.is_condition_met(source.raw_answer, self.raw_answer)

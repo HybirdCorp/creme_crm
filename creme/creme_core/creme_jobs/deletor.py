@@ -60,7 +60,9 @@ class _DeletorType(JobType):
                                                replacing_instance=new_value,
                                               )
 
-            for pk in rel_mngr.filter(**{field_name: instance_2_del.pk}).values_list('pk', flat=True):
+            for pk in rel_mngr.filter(
+                **{field_name: instance_2_del.pk}
+            ).values_list('pk', flat=True):
                 # NB1: we perform a .save(), not an .update() in order to:
                 #       - let the model compute it's business logic (if there is one).
                 #       - get an HistoryLine for entities.

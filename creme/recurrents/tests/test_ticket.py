@@ -45,7 +45,9 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         recurrents_gendocs_type.execute(job or self._get_job())
 
     def test_populate(self):
-        self.assertTrue(HeaderFilter.objects.filter(entity_type=ContentType.objects.get_for_model(RecurrentGenerator)))
+        self.assertTrue(HeaderFilter.objects.filter(
+            entity_type=ContentType.objects.get_for_model(RecurrentGenerator)
+        ))
 
     def _create_ticket_template(self, title='Support ticket'):
         return TicketTemplate.objects.create(user=self.user,
@@ -146,13 +148,14 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         tpl1 = self._create_ticket_template(title='TicketTemplate #1')
         tpl2 = self._create_ticket_template(title='TicketTemplate #2')
 
-        gen = RecurrentGenerator.objects.create(name='Gen1',
-                                                user=user,
-                                                first_generation=now(),
-                                                last_generation=None,
-                                                periodicity=date_period_registry.get_period('weeks', 2),
-                                                ct=self.ct, template=tpl1,
-                                               )
+        gen = RecurrentGenerator.objects.create(
+            name='Gen1',
+            user=user,
+            first_generation=now(),
+            last_generation=None,
+            periodicity=date_period_registry.get_period('weeks', 2),
+            ct=self.ct, template=tpl1,
+        )
 
         url = gen.get_edit_absolute_url()
         self.assertGET200(url)
@@ -195,25 +198,30 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         user = self.user
 
         now_value = now().replace(microsecond=0)  # MySQL does not record microseconds...
-        gen = RecurrentGenerator.objects.create(name='Gen1',
-                                                user=user,
-                                                first_generation=now_value,
-                                                last_generation=now_value,
-                                                periodicity=date_period_registry.get_period('months', 1),
-                                                ct=self.ct,
-                                                template=self._create_ticket_template(title='TicketTemplate #1'),
-                                               )
+        gen = RecurrentGenerator.objects.create(
+            name='Gen1',
+            user=user,
+            first_generation=now_value,
+            last_generation=now_value,
+            periodicity=date_period_registry.get_period('months', 1),
+            ct=self.ct,
+            template=self._create_ticket_template(title='TicketTemplate #1'),
+        )
 
         name = gen.name.upper()
-        response = self.client.post(gen.get_edit_absolute_url(), follow=True,
-                                    data={'user':             user.id,
-                                          'name':             name,
-                                          'first_generation': '12-06-2014 10:00',  # Should not be used
+        response = self.client.post(
+            gen.get_edit_absolute_url(), follow=True,
+            data={
+                'user': user.id,
+                'name': name,
 
-                                          'periodicity_0':    'months',
-                                          'periodicity_1':    '3',
-                                         }
-                                   )
+                # Should not be used
+                'first_generation': '12-06-2014 10:00',
+
+                'periodicity_0': 'months',
+                'periodicity_1': '3',
+            },
+        )
         self.assertNoFormError(response)
 
         gen = self.refresh(gen)
@@ -271,14 +279,16 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(1, len(new_tickets))
 
         ticket = new_tickets[0]
-        self.assertEqual('{} {}'.format(tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
-                         ticket.title
-                        )
+        self.assertEqual(
+            '{} {}'.format(tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
+            ticket.title
+        )
 
         gen = self.refresh(gen)
         self.assertEqual(gen.first_generation, gen.last_generation)
 
-        self.assertEqual([], queue.refreshed_jobs)  # Job which edits generator should not cause REFRESH signal
+        # Job which edits generator should not cause REFRESH signal
+        self.assertEqual([], queue.refreshed_jobs)
 
     @skipIfNotInstalled('creme.tickets')
     @skipIfCustomTicket
@@ -357,13 +367,14 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         job = self._get_job()
         tpl = self._create_ticket_template()
         now_value = now()
-        gen = RecurrentGenerator.objects.create(name='Generator',
-                                                user=self.user,
-                                                first_generation=now_value + timedelta(days=2),
-                                                last_generation=None,
-                                                periodicity=date_period_registry.get_period('weeks', 2),
-                                                ct=self.ct, template=tpl,
-                                               )
+        gen = RecurrentGenerator.objects.create(
+            name='Generator',
+            user=self.user,
+            first_generation=now_value + timedelta(days=2),
+            last_generation=None,
+            periodicity=date_period_registry.get_period('weeks', 2),
+            ct=self.ct, template=tpl,
+        )
 
         queue.clear()
         gen.name = 'My Generator'
@@ -379,7 +390,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         queue.clear()
         gen.name = 'My Generator again'
         gen.save()
-        self.assertFalse(queue.refreshed_jobs)  # The new value of 'first_generation' is cached -> no new refreshing
+        # The new value of 'first_generation' is cached -> no new refreshing
+        self.assertFalse(queue.refreshed_jobs)
 
         gen.periodicity = date_period_registry.get_period('weeks', 1)
         gen.save()
@@ -388,4 +400,5 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         queue.clear()
         gen.name = 'My Generator again & again'
         gen.save()
-        self.assertFalse(queue.refreshed_jobs)  # The new value of 'periodicity' is cached -> no new refreshing
+        # The new value of 'periodicity' is cached -> no new refreshing
+        self.assertFalse(queue.refreshed_jobs)

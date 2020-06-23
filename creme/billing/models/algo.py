@@ -33,9 +33,11 @@ from creme.creme_core.models.fields import CTypeForeignKey
 
 
 class ConfigBillingAlgo(CremeModel):
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_('Organisation'), on_delete=CASCADE)
-    name_algo    = CharField(_('Algo name'), max_length=400)
-    ct           = CTypeForeignKey()
+    organisation = ForeignKey(
+        settings.PERSONS_ORGANISATION_MODEL, verbose_name=_('Organisation'), on_delete=CASCADE,
+    )
+    name_algo = CharField(_('Algo name'), max_length=400)
+    ct = CTypeForeignKey()
 
     class Meta:
         app_label = 'billing'
@@ -52,10 +54,12 @@ class ConfigBillingAlgo(CremeModel):
 
 
 class SimpleBillingAlgo(Model):
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_('Organisation'), on_delete=CASCADE)
-    last_number  = IntegerField()
-    prefix       = CharField(_('Invoice prefix'), max_length=400)
-    ct           = CTypeForeignKey()
+    organisation = ForeignKey(
+        settings.PERSONS_ORGANISATION_MODEL, verbose_name=_('Organisation'), on_delete=CASCADE,
+    )
+    last_number = IntegerField()
+    prefix = CharField(_('Invoice prefix'), max_length=400)
+    ct = CTypeForeignKey()
 
     ALGO_NAME = 'SIMPLE_ALGO'  # TODO: prefix with app name
 

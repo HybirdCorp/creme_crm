@@ -78,38 +78,42 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
         if target_has_addresses:
             create_address = Address.objects.create
-            target.billing_address = create_address(name="Billing address 01",
-                                                    address="BA1 - Address", po_box="BA1 - PO box",
-                                                    zipcode="BA1 - Zip code", city="BA1 - City",
-                                                    department="BA1 - Department",
-                                                    state="BA1 - State", country="BA1 - Country",
-                                                    owner=target,
-                                                   )
-            target.shipping_address = create_address(name="Shipping address 01",
-                                                     address="SA1 - Address", po_box="SA1 - PO box",
-                                                     zipcode="SA1 - Zip code", city="SA1 - City",
-                                                     department="SA1 - Department",
-                                                     state="SA1 - State", country="SA1 - Country",
-                                                     owner=target,
-                                                    )
+            target.billing_address = create_address(
+                name='Billing address 01',
+                address='BA1 - Address', po_box='BA1 - PO box',
+                zipcode='BA1 - Zip code', city='BA1 - City',
+                department='BA1 - Department',
+                state='BA1 - State', country='BA1 - Country',
+                owner=target,
+            )
+            target.shipping_address = create_address(
+                name='Shipping address 01',
+                address='SA1 - Address', po_box='SA1 - PO box',
+                zipcode='SA1 - Zip code', city='SA1 - City',
+                department='SA1 - Department',
+                state='SA1 - State', country='SA1 - Country',
+                owner=target,
+            )
             target.save()
 
         tpl_name = 'Subscription invoice'
-        status    = status_model.objects.all()[0]
+        status = status_model.objects.all()[0]
         currency = Currency.objects.all()[0]
         discount = 0
-        response = self.client.post(url, follow=True,
-                                    data={'recurrent_generator_wizard-current_step': 1,
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'recurrent_generator_wizard-current_step': 1,
 
-                                          '1-user':     user.id,
-                                          '1-name':     tpl_name,
-                                          '1-currency': currency.id,
-                                          '1-discount': discount,
-                                          '1-status':   status.id,
-                                          '1-source':   source.id,
-                                          '1-target':   self.formfield_value_generic_entity(target),
-                                         },
-                                   )
+                '1-user':     user.id,
+                '1-name':     tpl_name,
+                '1-currency': currency.id,
+                '1-discount': discount,
+                '1-status':   status.id,
+                '1-source':   source.id,
+                '1-target':   self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoWizardFormError(response)
 
         gen = self.get_object_or_fail(RecurrentGenerator, name=gen_name)

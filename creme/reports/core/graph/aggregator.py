@@ -125,7 +125,8 @@ class RGACount(ReportGraphAggregator):
 
     def annotate(self):
         # TMP: meh, we could model count as an aggregation
-        #     (caveat: count is technically *not* aggregating a field here, whereas our aggregation operators do)
+        #     (caveat: count is technically *not* aggregating a field here,
+        #     whereas our aggregation operators do)
         return aggregates.Count('pk')  # Is there a way to count(*) ?
 
     def aggregrate(self, entities):

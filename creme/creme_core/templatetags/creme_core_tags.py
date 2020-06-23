@@ -350,7 +350,9 @@ def url_join(*args, **params):
 
     # NB: we take the base URL with *args in order to allow all values for GET keys.
     if len(args) > 1:
-        raise TemplateSyntaxError('url_join takes one & only one positional argument (the base URL)')
+        raise TemplateSyntaxError(
+            'url_join takes one & only one positional argument (the base URL)'
+        )
 
     base = args[0]
 
@@ -456,13 +458,21 @@ _haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
 
 
 def _can_create(model_or_ct, user):
-    ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
+    ct = (
+        model_or_ct
+        if isinstance(model_or_ct, ContentType) else
+        ContentType.objects.get_for_model(model_or_ct)
+    )
     return user.has_perm(f'{ct.app_label}.add_{ct.model}')
     # return user.has_perm_to_create(ct) #TODO + had the possibility to pass CT directly
 
 
 def _can_export(model_or_ct, user):
-    ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
+    ct = (
+        model_or_ct
+        if isinstance(model_or_ct, ContentType) else
+        ContentType.objects.get_for_model(model_or_ct)
+    )
     return user.has_perm(f'{ct.app_label}.export_{ct.model}')
     # return user.has_perm_to_export(ct) #TODO ?
 
@@ -473,7 +483,8 @@ _PERMS_FUNCS = {
     'view':   lambda entity, user: user.has_perm_to_view(entity),
     'change': lambda entity, user: user.has_perm_to_change(entity),
     'delete': lambda entity, user: user.has_perm_to_delete(entity),
-    'link':   lambda entity_or_model, user: user.has_perm_to_link(entity_or_model),  # TODO: or ctype
+    # TODO: or ctype
+    'link':   lambda entity_or_model, user: user.has_perm_to_link(entity_or_model),
     'unlink': lambda entity, user: user.has_perm_to_unlink(entity),
     'access': lambda app_name, user: user.has_perm_to_access(app_name),
     'admin':  lambda app_name, user: user.has_perm_to_admin(app_name),
@@ -485,10 +496,12 @@ def do_has_perm_to(parser, token):
     """{% has_perm_to TYPE OBJECT as VAR %}
     eg: {% has_perm_to change action.creme_entity as has_perm %}
 
-    TYPE: must be in ('create', 'view','change', 'delete', 'link', 'unlink', 'create', 'export', 'admin')
+    TYPE: must be in ('create', 'view','change', 'delete', 'link', 'unlink',
+          'create', 'export', 'admin')
     OBJECT: * TYPE in ('view','change', 'delete', 'unlink') => must be a CremeEntity.
-            * TYPE='link' => can be a CremeEntity instance or a class inheriting from CremeEntity.
-            * TYPE in ('create', 'export') and a class inheriting from CremeEntity OR a ContentType instance.
+            * TYPE='link' => can be a CremeEntity instance or a class inheriting CremeEntity.
+            * TYPE in ('create', 'export') and a class inheriting from
+              CremeEntity OR a ContentType instance.
             * TYPE='admin' => an app name, like 'creme_core'.
     """
     try:
@@ -625,7 +638,10 @@ class JsonScriptNode(TemplateNode):
         if kwargs.pop("type", None) is not None:
             logger.warning('jsondatablock tag do not accept custom "type" attribute')
 
-        attrs = ''.join(f' {k}="{escape(force_text(v.resolve(context)))}"' for k, v in kwargs.items())
+        attrs = ''.join(
+            f' {k}="{escape(force_text(v.resolve(context)))}"'
+            for k, v in kwargs.items()
+        )
 
         return mark_safe(
             f'<script type="application/json"{attrs}><!-- {escapejson(output)} --></script>'

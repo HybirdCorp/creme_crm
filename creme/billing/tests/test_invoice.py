@@ -370,7 +370,10 @@ class InvoiceTestCase(_BillingTestCase):
         number_action = number_actions[0]
         self.assertEqual('billing-generate_number', number_action.id)
         self.assertEqual('billing-invoice-number', number_action.type)
-        self.assertEqual(reverse('billing__generate_invoice_number', args=(invoice.id,)), number_action.url)
+        self.assertEqual(
+            reverse('billing__generate_invoice_number', args=(invoice.id,)),
+            number_action.url
+        )
         self.assertTrue(number_action.is_enabled)
         self.assertTrue(number_action.is_visible)
         self.assertEqual(_('Generate the number of the Invoice'), number_action.help_text)
@@ -613,7 +616,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
         invoice = self.refresh(invoice)
         self.assertTrue(invoice.issuing_date)
-        self.assertEqual(date.today(), invoice.issuing_date)  # NB: this test can fail if run at midnight...
+        # NB: this test can fail if run at midnight...
+        self.assertEqual(date.today(), invoice.issuing_date)
 
     def test_generate_number03(self):
         "Managed organisation."
@@ -637,8 +641,14 @@ class InvoiceTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
         service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
 
-        self.assertListEqual([product_line.pk], [*invoice.get_lines(ProductLine).values_list('pk', flat=True)])
-        self.assertListEqual([service_line.pk], [*invoice.get_lines(ServiceLine).values_list('pk', flat=True)])
+        self.assertListEqual(
+            [product_line.pk],
+            [*invoice.get_lines(ProductLine).values_list('pk', flat=True)]
+        )
+        self.assertListEqual(
+            [service_line.pk],
+            [*invoice.get_lines(ServiceLine).values_list('pk', flat=True)]
+        )
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
@@ -882,7 +892,9 @@ class InvoiceTestCase(_BillingTestCase):
     def test_delete_currency(self):
         self.login()
 
-        currency = Currency.objects.create(name='Berry', local_symbol='B', international_symbol='BRY')
+        currency = Currency.objects.create(
+            name='Berry', local_symbol='B', international_symbol='BRY',
+        )
         invoice = self.create_invoice_n_orgas('Nerv', currency=currency)[0]
 
         response = self.assertPOST200(reverse('creme_config__delete_instance',
@@ -1009,7 +1021,9 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
                                     ('test-object_linked',  'is linked to'),
                                     is_internal=True,
                                    )[0]
-        rel2 = Relation.objects.create(subject_entity=invoice, object_entity=ce, type=rtype, user=user)
+        rel2 = Relation.objects.create(
+            subject_entity=invoice, object_entity=ce, type=rtype, user=user,
+        )
 
         self.assertRaises(ProtectedError, invoice.delete)
 

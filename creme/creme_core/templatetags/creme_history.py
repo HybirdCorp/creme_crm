@@ -36,20 +36,23 @@ def history_summary(*, entity, user):
     if creation is not None:
         stored_hlines.append(creation)
     else:
-        creation = HistoryLine(entity=entity, entity_ctype=entity.entity_type, type=TYPE_CREATION,
-                               date=entity.created,
-                               username='',
-                              )
+        creation = HistoryLine(
+            entity=entity, entity_ctype=entity.entity_type, type=TYPE_CREATION,
+            date=entity.created,
+            username='',
+        )
 
     last_edition = lines.filter(type=TYPE_EDITION).order_by('-date').first()
-    # NB: even at creation, entity.created & entity.modified are never exactly equal (is it a problem ?).
+    # NB: even at creation, entity.created & entity.modified are never exactly
+    #     equal (is it a problem ?).
     if last_edition is not None:
         stored_hlines.append(last_edition)
     elif (entity.modified - entity.created) > timedelta(seconds=3):
-        last_edition = HistoryLine(entity=entity, entity_ctype=entity.entity_type, type=TYPE_EDITION,
-                                   date=entity.modified,
-                                   username='',
-                                  )
+        last_edition = HistoryLine(
+            entity=entity, entity_ctype=entity.entity_type, type=TYPE_EDITION,
+            date=entity.modified,
+            username='',
+        )
 
     HistoryLine.populate_users(stored_hlines, user)
 

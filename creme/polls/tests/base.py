@@ -56,7 +56,10 @@ class _PollsTestCase(CremeTestCase):
     def _get_formline_creator(self, pform):
         get_order = AutoIncr()
 
-        def create_line(question, section=None, qtype=PollLineType.STRING, disabled=False, conds_use_or=None, **type_kwargs):
+        def create_line(
+                question,
+                section=None, qtype=PollLineType.STRING, disabled=False, conds_use_or=None,
+                **type_kwargs):
             return PollFormLine.objects.create(
                 pform=pform, section=section,
                 question=question, type=qtype, order=get_order(),

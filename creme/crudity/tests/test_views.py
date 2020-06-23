@@ -118,7 +118,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         crudity_registry.autodiscover()
 
         # TODO: remove <registry.crudity_registry = ...> when
-        #       download_ini_template() is class-based (& set its "crudity_registry" attr of course)
+        #       download_ini_template() is class-based
+        #       (& set its "crudity_registry" attr of course)
         self.registry = \
             registry.crudity_registry = \
             RegistryMixin.crudity_registry = \
@@ -319,8 +320,12 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         "Error."
         self.login()
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
-        self.assertGET404(reverse('crudity__dl_fs_ini_template', args=('INVALID',)))  # No backend
-        self.assertGET404(reverse('crudity__dl_fs_ini_template', args=('CREATECONTACT',)))  # Backend with bad type
+
+        # No backend
+        self.assertGET404(reverse('crudity__dl_fs_ini_template', args=('INVALID',)))
+
+        # Backend with bad type
+        self.assertGET404(reverse('crudity__dl_fs_ini_template', args=('CREATECONTACT',)))
 
     def test_download_ini_template02(self):
         self.login()
@@ -589,7 +594,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self.assertPOST200(reverse('crudity__refresh_actions'))
 
-        self.assertFalse(FakePOP3.instances)  # Pop is not fetched because the fetcher has no configured backend.
+        # Pop is not fetched because the fetcher has no configured backend.
+        self.assertFalse(FakePOP3.instances)
 
         self.get_object_or_fail(FakeContact, last_name=last_name)
 

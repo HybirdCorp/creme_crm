@@ -76,8 +76,10 @@ class _TrashCleanerType(JobType):
                     defaults={'messages': [msg]},
                 )
 
-            # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and nullable ids will fail with postgresql (both 9.6 & 10.x).
-            # TODO: This bug may be fixed in django > 2.2 (see https://code.djangoproject.com/ticket/28010)
+            # NB: 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN'
+            #       and nullable ids will fail with postgresql (both 9.6 & 10.x).
+            # TODO: This bug may be fixed in django > 2.2
+            #  (see https://code.djangoproject.com/ticket/28010)
 
             # for entity_class in entity_classes:
             #     paginator = FlowPaginator(
@@ -108,14 +110,22 @@ class _TrashCleanerType(JobType):
                 for entities_page in paginator.pages():
                     with atomic():
                         # NB (#60): Move 'SELECT FOR UPDATE' here for now (see above).
-                        for entity in entity_class.objects.filter(pk__in=entities_page.object_list).select_for_update():
+                        for entity in entity_class.objects.filter(
+                            pk__in=entities_page.object_list
+                        ).select_for_update():
                             try:
                                 entity.delete()
                             except ProtectedError:
-                                create_error(entity, _('Can not be deleted because of its dependencies.'))
+                                create_error(
+                                    entity,
+                                    _('Can not be deleted because of its dependencies.'),
+                                )
                             except Exception as e:
                                 logger.exception('Error when trying to empty the trash')
-                                create_error(entity, _('Deletion caused an unexpected error [{}].').format(e))
+                                create_error(
+                                    entity,
+                                    _('Deletion caused an unexpected error [{}].').format(e),
+                                )
                             else:
                                 progress = True
                                 cmd_qs.update(deleted_count=F('deleted_count') + 1)

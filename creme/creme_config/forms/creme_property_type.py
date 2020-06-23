@@ -26,14 +26,18 @@ from creme.creme_core.models import CremePropertyType
 
 
 class _CremePropertyTypeBaseForm(CremeForm):
-    text           = CharField(label=_('Text'), help_text=_("For example: 'is pretty'"))
-    is_copiable    = BooleanField(label=_('Is copiable'), initial=True, required=False,
-                                  help_text=_('Are the properties with this type copied when an entity is cloned?'),
-                                 )
-    subject_ctypes = MultiEntityCTypeChoiceField(label=_('Related to types of entities'),
-                                                 help_text=_('No selected type means that all types are accepted'),
-                                                 required=False,
-                                                )
+    text = CharField(label=_('Text'), help_text=_("For example: 'is pretty'"))
+    is_copiable = BooleanField(
+        label=_('Is copiable'), initial=True, required=False,
+        help_text=_(
+            'Are the properties with this type copied when an entity is cloned?'
+        ),
+    )
+    subject_ctypes = MultiEntityCTypeChoiceField(
+        label=_('Related to types of entities'),
+        help_text=_('No selected type means that all types are accepted'),
+        required=False,
+    )
 
     def __init__(self, instance=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,20 +52,23 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
     def clean_text(self):
         text = self.cleaned_data['text']
 
-        if CremePropertyType.objects.filter(text=text).exists():  # TODO: unique constraint in model too ??
-            raise ValidationError(self.error_messages['duplicated_name'],
-                                  code='duplicated_name',
-                                 )
+        # TODO: unique constraint in model too ??
+        if CremePropertyType.objects.filter(text=text).exists():
+            raise ValidationError(
+                self.error_messages['duplicated_name'],
+                code='duplicated_name',
+            )
 
         return text
 
     def save(self):
         get_data = self.cleaned_data.get
-        ptype = CremePropertyType.create('creme_config-userproperty',
-                                         get_data('text'), get_data('subject_ctypes'),
-                                         is_custom=True, generate_pk=True,
-                                         is_copiable=get_data('is_copiable'),
-                                        )
+        ptype = CremePropertyType.create(
+            'creme_config-userproperty',
+            get_data('text'), get_data('subject_ctypes'),
+            is_custom=True, generate_pk=True,
+            is_copiable=get_data('is_copiable'),
+        )
         super().save()
 
         return ptype
@@ -72,17 +79,20 @@ class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
         super().__init__(instance=instance, *args, **kwargs)
         fields = self.fields
 
-        fields['text'].initial           = instance.text
-        fields['is_copiable'].initial    = instance.is_copiable
-        fields['subject_ctypes'].initial = [ct.id for ct in instance.subject_ctypes.all()]
+        fields['text'].initial = instance.text
+        fields['is_copiable'].initial = instance.is_copiable
+        fields['subject_ctypes'].initial = [
+            ct.id for ct in instance.subject_ctypes.all()
+        ]
 
     def save(self):
         get_data = self.cleaned_data.get
-        ptype = CremePropertyType.create(self.instance.id, get_data('text'),
-                                         get_data('subject_ctypes'),
-                                         is_custom=True,
-                                         is_copiable=get_data('is_copiable'),
-                                        )
+        ptype = CremePropertyType.create(
+            self.instance.id, get_data('text'),
+            get_data('subject_ctypes'),
+            is_custom=True,
+            is_copiable=get_data('is_copiable'),
+        )
         super().save()
 
         return ptype

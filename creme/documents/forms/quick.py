@@ -99,7 +99,10 @@ class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
 # TODO: factorise
 # class ImageQuickForm(CremeModelForm):
 class ImageQuickForm(CremeEntityQuickForm):
-    image = ImageField(label=_('Image file'), max_length=Document._meta.get_field('filedata').max_length)
+    image = ImageField(
+        label=_('Image file'),
+        max_length=Document._meta.get_field('filedata').max_length,
+    )
 
     class Meta:
         model = Document
@@ -108,9 +111,16 @@ class ImageQuickForm(CremeEntityQuickForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fields = self.fields
-        fields['linked_folder'].initial = get_folder_model().objects.filter(uuid=constants.UUID_FOLDER_IMAGES).first()
+        fields['linked_folder'].initial = get_folder_model().objects.filter(
+            uuid=constants.UUID_FOLDER_IMAGES,
+        ).first()
         # TODO: hook django (create or own widget and set it on ImageField ?)
-        fields['image'].widget.attrs = {'accept': ','.join('.' + ext for ext in settings.ALLOWED_IMAGES_EXTENSIONS)}
+        fields['image'].widget.attrs = {
+            'accept': ','.join(
+                f'.{ext}'
+                for ext in settings.ALLOWED_IMAGES_EXTENSIONS
+            ),
+        }
 
     def save(self, *args, **kwargs):
         instance = self.instance

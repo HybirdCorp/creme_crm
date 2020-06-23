@@ -55,7 +55,8 @@ def json_update_from_widget_response(instance):
 
     Returns a dict that represents the changes to apply in a javascript widget
     which supports collection "patch" :
-       {"value": id, "added": [[id, label]]} is returned (the JS will add the choice and select it).
+       {"value": id, "added": [[id, label]]} is returned
+       (the JS will add the choice and select it).
     """
     return CremeJsonResponse(
         data={

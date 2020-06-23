@@ -64,7 +64,8 @@ from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
 
 
-def filtered_entity_ctypes(app_labels):  # TODO: move to creme_core.utils ?? (improve iter_entity_models() ?)
+# TODO: move to creme_core.utils ?? (improve iter_entity_models() ?)
+def filtered_entity_ctypes(app_labels):
     ext_app_labels = {app_config.label for app_config in extended_app_configs(app_labels)}
     get_ct = ContentType.objects.get_for_model
 
@@ -113,7 +114,8 @@ class CredentialsGeneralStep(CremeModelForm):
         exclude = ('value', )  # fields ??
         widgets = {
             'set_type':  creme_widgets.CremeRadioSelect,
-            'ctype':     creme_widgets.DynamicSelect(attrs={'autocomplete': True}),  # TODO: always this widget for CTypeForeignKey ??
+            # TODO: always this widget for CTypeForeignKey ??
+            'ctype':     creme_widgets.DynamicSelect(attrs={'autocomplete': True}),
             'forbidden': creme_widgets.CremeRadioSelect,
         }
 
@@ -152,8 +154,10 @@ class CredentialsGeneralStep(CremeModelForm):
 
 
 class CredentialsFilterStep(CremeModelForm):
-    name   = EntityFilter._meta.get_field('name').formfield(label=_('Name of the filter'))
-    use_or = EntityFilter._meta.get_field('use_or').formfield(widget=creme_widgets.CremeRadioSelect)
+    name = EntityFilter._meta.get_field('name').formfield(label=_('Name of the filter'))
+    use_or = EntityFilter._meta.get_field('use_or').formfield(
+        widget=creme_widgets.CremeRadioSelect,
+    )
 
     class Meta:
         model = SetCredentials
@@ -168,7 +172,9 @@ class CredentialsFilterStep(CremeModelForm):
         ('conditions', _('Conditions'), '*'),
     )
 
-    step_help_message = _('Beware to performances with conditions on custom fields or relationships.')
+    step_help_message = _(
+        'Beware to performances with conditions on custom fields or relationships.'
+    )
 
     # TODO: API for this in handlers ??
     no_entity_base_handlers = (
@@ -355,16 +361,18 @@ class UserRoleDeletionForm(CremeModelForm):
         if CremeUser.objects.filter(role=role_to_delete).exists():
             self.fields['to_role'] = forms.ModelChoiceField(
                 label=_('Choose a role to transfer to'),
-                help_text=_('The chosen role will replace the deleted one in users which use it.'),
+                help_text=_(
+                    'The chosen role will replace the deleted one in users which use it.'
+                ),
                 queryset=UserRole.objects.exclude(id=role_to_delete.id),
             )
         else:
             self.fields['info'] = forms.CharField(
                 label=gettext('Information'), required=False,
                 widget=creme_widgets.Label,
-                initial=gettext('This role is not used by any user, '
-                                'you can delete it safely.'
-                               ),
+                initial=gettext(
+                    'This role is not used by any user, you can delete it safely.'
+                ),
             )
 
     def save(self, *args, **kwargs):
@@ -480,7 +488,9 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['creatable_ctypes'].ctypes = filtered_entity_ctypes(self.instance.allowed_apps)
+        self.fields['creatable_ctypes'].ctypes = filtered_entity_ctypes(
+            self.instance.allowed_apps,
+        )
 
     def save(self, commit=True, *args, **kwargs):
         instance = self.instance
@@ -505,7 +515,9 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['exportable_ctypes'].ctypes = filtered_entity_ctypes(self.instance.allowed_apps)
+        self.fields['exportable_ctypes'].ctypes = filtered_entity_ctypes(
+            self.instance.allowed_apps,
+        )
 
     def save(self, commit=True, *args, **kwargs):
         instance = self.instance

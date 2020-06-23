@@ -17,14 +17,16 @@ class XLSUtilsTestCase(CremeTestCase):
              'data-xlsx.xlsx'
              )
     current_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-    data = [['Prénom', 'Nom', 'Taille1', 'Taille2', 'Send_Date'],
-            ['Gérard', 'Bouchard', 0.5, 0.5, datetime(2014, 8, 6, 20, 57, 32)],
-            ['Hugo', 'Smett', 122, 122, ''],
-            ['Rémy', 'Rakic', 12, 12, datetime(2014, 8, 6, 19, 48, 32)],
-            ['Florian', 'Fabre', 0.004, 0.004, '51/08/2014 00:00:00'],
-            ['Jean-Michel', 'Armand', 42, 42, datetime(2014, 8, 6, 19, 48, 32)],
-            ['Guillaume', 'Englert', 50, 50, datetime(2014, 8, 6, 19, 48, 32)],
-            ['Jonathan', 'Caruana', -50, -50, datetime(2014, 8, 6, 20, 57, 32)]]
+    data = [
+        ['Prénom', 'Nom', 'Taille1', 'Taille2', 'Send_Date'],
+        ['Gérard', 'Bouchard', 0.5, 0.5, datetime(2014, 8, 6, 20, 57, 32)],
+        ['Hugo', 'Smett', 122, 122, ''],
+        ['Rémy', 'Rakic', 12, 12, datetime(2014, 8, 6, 19, 48, 32)],
+        ['Florian', 'Fabre', 0.004, 0.004, '51/08/2014 00:00:00'],
+        ['Jean-Michel', 'Armand', 42, 42, datetime(2014, 8, 6, 19, 48, 32)],
+        ['Guillaume', 'Englert', 50, 50, datetime(2014, 8, 6, 19, 48, 32)],
+        ['Jonathan', 'Caruana', -50, -50, datetime(2014, 8, 6, 20, 57, 32)],
+    ]
 
     def get_file_path(self, filename):
         return os.path.join(self.current_path, filename)
@@ -37,9 +39,10 @@ class XLSUtilsTestCase(CremeTestCase):
         with self.assertRaises(XLRDError) as error:
             XlrdReader(filedata=self.get_file_path('data-invalid.xls'))
 
-        self.assertEqual(str(error.exception),
-                         "Unsupported format, or corrupt file: Expected BOF record; found b'this is '"
-                        )
+        self.assertEqual(
+            str(error.exception),
+            "Unsupported format, or corrupt file: Expected BOF record; found b'this is '"
+        )
 
     def test_sheet(self):
         rd = XlrdReader(filedata=self.get_file_path(self.files[0]))
@@ -84,7 +87,8 @@ class XLSUtilsTestCase(CremeTestCase):
 
     def test_truncate(self):
         content = """Lôrèm ipsum dolor sit amet, consectetur adipiscing elit. Proin ac odio libero.
-Praesent sollicitudin, mauris non sagittis tincidunt, magna libero malesuada lectus, sit amet dictum nulla mi ac justo.
+Praesent sollicitudin, mauris non sagittis tincidunt, magna libero malesuada lectus,
+sit amet dictum nulla mi ac justo.
 Vivamus laoreet metus eu purus tincidunt, et consectetur justo mattis.
 Phasellus egestas a lacus nec pulvinar.
 Sed a lectus eleifend, hendrerit ligula nec, aliquet sem.

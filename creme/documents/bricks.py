@@ -65,7 +65,8 @@ class FolderDocsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             Document.objects.filter(**q_dict),
-            # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
+            # TODO: problem deleted docs avoid folder deletion...
+            # Document.objects.filter(is_deleted=False, **q_dict),
             q_filter=QSerializer().dumps(Q(**q_dict)),
         ))
 

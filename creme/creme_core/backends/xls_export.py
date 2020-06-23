@@ -57,7 +57,8 @@ class XLSExportBackend(ExportBackend):
                 basename(path),
             ),
         )
-        # self.response = HttpResponseRedirect(reverse('creme_core__dl_file', args=(fileref.filedata,)))
+        # self.response = HttpResponseRedirect(
+        #     reverse('creme_core__dl_file', args=(fileref.filedata,)))
         self.response = HttpResponseRedirect(fileref.get_download_absolute_url())
         self.writer.save(path)
         # super().save(path)

@@ -26,7 +26,7 @@ class UtilsTestCase(CremeTestCase):
 \x00\x8a\x12\x02\x18\xc1\x10\xab\x18T\x06\xb4\xd7\x02AN.N\x1e\xec\xdb\xfe%\xd7\x92\x05\x99\x96y5\xa95Z\x0b\
 \xefm\xcf/Y\xb1_(\x8c$\xcb\x18b\xaf\x8f\xfe'\xbd\xa3%\xc7\x7f#\x17is\xe4\x07\xa2\x8dNKu\xe2\xa4\x89\x08\x8e\
 \xdf\x1c\x19{\xf9V\xbeQ\x01T$.\xd2\xe7\xc8\xa7\x14j~\x06,hJS\xec\xbc\xd8\xe9|\x03\x8fa\xdf\\\xf3\xf4\rH\x00\
-\x00\x00\x00IEND\xaeB`\x82"
+\x00\x00\x00IEND\xaeB`\x82"  # NOQA
 
         encoded = b"x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgI\
 fAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH5SURBVDiNpZM9a1RBFIbf\
@@ -36,7 +36,7 @@ RO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGc
 AAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3\
 efbElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4u\
 Th7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLtLnyKcUan4GLGhKU+y8\
-2Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
+2Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"  # NOQA
         filename, blob = decode_b64binary(encoded)
         self.assertEqual(img_blob, blob)
 
@@ -48,7 +48,7 @@ PaAKEoIGgCFE7vM6FEUCnuhNfflLtaqivlQ/f2hh+iFq2jIzZo4ky1CgCAWGX4erRRGL0C3Ijh5LPTyP
 Qngor26EMABbEyg6Ib140hfN1DbGUx8LUMxgjYBPA7ABxylzlkma82e496rQYjdAjfSxWAKl/1VwbvBp2wBgXww4ERA+ctrLFIhTrtYxPbeLMX\
 wL0vkbd59sSVuaeo6UQxCEhRtfPs80cGZdzSx2kD9/SurlQt7GZdVY0AIE5gEoLupOPRqU+buDHevA9Ako5uQodJQUCsAIoSAhjBEKsYVAa01w\
 JBTi5OHuzb/iXXkgWZlnk1qTVaC+9tzy9ZsV8ojCTLGGKvj/4nvaMlx38jF2lz5AeijU5LdeKkiQiO3xwZe/lWvlEBVCQu0ufIpxRqfgYsaEpT\
-7LzY6XwDj2HfXPP0DUgAAAAASUVORK5CYII="
+7LzY6XwDj2HfXPP0DUgAAAAASUVORK5CYII="  # NOQA
         filename, blob = decode_b64binary(encoded_utf8_name)
         self.assertEqual(img_blob, blob)
 

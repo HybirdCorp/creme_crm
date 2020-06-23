@@ -120,8 +120,10 @@ class CustomFieldDeletion(base.ConfigDeletion):
             if times_used:
                 raise ConflictError(
                     ngettext(
-                        'This custom field is still used by {count} entity, so it cannot be deleted.',
-                        'This custom field is still used by {count} entities, so it cannot be deleted.',
+                        'This custom field is still used by {count} entity, '
+                        'so it cannot be deleted.',
+                        'This custom field is still used by {count} entities, '
+                        'so it cannot be deleted.',
                         times_used
                     ).format(count=times_used)
                 )
@@ -268,8 +270,9 @@ class HideDeletedCustomFields(generic.CheckedView):
             cast=utils.bool_from_str_extended,
         )
 
-        # NB: we can still have a race condition because we do not use select_for_update ;
-        #     but it's a state related one user & one brick, so it would not be a real world problem.
+        # NB: we can still have a race condition because we do not use
+        #     select_for_update ; but it's a state related one user & one brick,
+        #     so it would not be a real world problem.
         for _i in range(10):
             state = BrickState.objects.get_for_brick_id(
                 brick_id=self.brick_cls.id_,

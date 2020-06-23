@@ -86,19 +86,23 @@ class FilterMixin:
     def get_case_sensitivity_message():
         if not db_utils.is_db_equal_case_sensitive():
             if not db_utils.is_db_like_case_sensitive():
-                return _('Notice: your database is not case sensitive, so the string operators '
-                         'which are case sensitive and the ones which are not will accept the same entities.'
-                        )
+                return _(
+                    'Notice: your database is not case sensitive, so the string '
+                    'operators which are case sensitive and the ones which are '
+                    'not will accept the same entities.'
+                )
 
-            return _('Notice: your database is not case sensitive for the "equals" operator, '
-                     'so the string equality operators which are case sensitive and the ones '
-                     'which are not will accept the same entities.'
-                    )
+            return _(
+                'Notice: your database is not case sensitive for the "equals" '
+                'operator, so the string equality operators which are case '
+                'sensitive and the ones which are not will accept the same entities.'
+            )
         elif not db_utils.is_db_like_case_sensitive():
-            return _('Notice: your database is not case sensitive, so the string operators '
-                     'which are case sensitive and the ones which are not will accept the same entities '
-                     '(excepted equality ones, which are case sensitive).'
-                    )
+            return _(
+                'Notice: your database is not case sensitive, so the string operators '
+                'which are case sensitive and the ones which are not will accept '
+                'the same entities (excepted equality ones, which are case sensitive).'
+            )
 
         return None
 

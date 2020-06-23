@@ -47,8 +47,10 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                                    blank=True, null=True,
                                    on_delete=CREME_REPLACE_NULL,
                                   )
-    last_name  = models.CharField(_('Last name'), max_length=100)  # NB: same max_length than CremeUser.last_name
-    first_name = models.CharField(_('First name'), max_length=100, blank=True)  # NB: same max_length than CremeUser.first_name
+    # NB: same max_length than CremeUser.last_name
+    last_name  = models.CharField(_('Last name'), max_length=100)
+    # NB: same max_length than CremeUser.first_name
+    first_name = models.CharField(_('First name'), max_length=100, blank=True)
 
     skype    = models.CharField('Skype', max_length=100, blank=True).set_tags(optional=True)
     phone    = PhoneField(_('Phone number'), max_length=100, blank=True).set_tags(optional=True)

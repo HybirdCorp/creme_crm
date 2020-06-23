@@ -46,7 +46,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_PROJECT_MANAGER).exists()
+        already_populated = RelationType.objects.filter(
+            pk=constants.REL_SUB_PROJECT_MANAGER,
+        ).exists()
         Contact = get_contact_model()
         Activity = get_activity_model()
 
@@ -55,12 +57,28 @@ class Populator(BasePopulator):
 
         create_rtype = RelationType.create
         create_rtype(
-            (constants.REL_SUB_PROJECT_MANAGER, _('is one of the leaders of this project'), [Contact]),
-            (constants.REL_OBJ_PROJECT_MANAGER, _('has as leader'),                         [Project]),
+            (
+                constants.REL_SUB_PROJECT_MANAGER,
+                _('is one of the leaders of this project'),
+                [Contact],
+            ),
+            (
+                constants.REL_OBJ_PROJECT_MANAGER,
+                _('has as leader'),
+                [Project],
+            ),
         )
         create_rtype(
-            (constants.REL_SUB_LINKED_2_PTASK, _('is related to the task of project'), [Activity]),
-            (constants.REL_OBJ_LINKED_2_PTASK, _('includes the activity'),             [ProjectTask]),
+            (
+                constants.REL_SUB_LINKED_2_PTASK,
+                _('is related to the task of project'),
+                [Activity],
+            ),
+            (
+                constants.REL_OBJ_LINKED_2_PTASK,
+                _('includes the activity'),
+                [ProjectTask],
+            ),
             is_internal=True,
             minimal_display=(False, True),
         )
@@ -105,19 +123,55 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_searchconf = SearchConfigItem.objects.create_if_needed
-        create_searchconf(Project,     ['name', 'description', 'status__name'])
-        create_searchconf(Resource,    ['linked_contact__last_name', 'linked_contact__first_name', 'hourly_cost'])
-        create_searchconf(ProjectTask, ['linked_project__name', 'duration', 'tstatus__name'])
+        create_searchconf(
+            Project,
+            ['name', 'description', 'status__name'],
+        )
+        create_searchconf(
+            Resource,
+            ['linked_contact__last_name', 'linked_contact__first_name', 'hourly_cost'],
+        )
+        create_searchconf(
+            ProjectTask,
+            ['linked_project__name', 'duration', 'tstatus__name'],
+        )
 
         # ---------------------------
         if not already_populated:
-            create_if_needed(ProjectStatus, {'pk': 1}, name=_('Invitation to tender'),  order=1, description=_('Response to an invitation to tender'))
-            create_if_needed(ProjectStatus, {'pk': 2}, name=_('Initialization'),        order=2, description=_('The project is starting'))
-            create_if_needed(ProjectStatus, {'pk': 3}, name=_('Preliminary phase'),     order=3, description=_('The project is in the process of analysis and design'))
-            create_if_needed(ProjectStatus, {'pk': 4}, name=_('Achievement'),           order=4, description=_('The project is being implemented'))
-            create_if_needed(ProjectStatus, {'pk': 5}, name=_('Tests'),                 order=5, description=_('The project is in the testing process (unit / integration / functional)'))
-            create_if_needed(ProjectStatus, {'pk': 6}, name=_('User acceptance tests'), order=6, description=_('The project is in the user acceptance testing process'))
-            create_if_needed(ProjectStatus, {'pk': 7}, name=_('Finished'),              order=7, description=_('The project is finished'))
+            for pk, (name, description) in enumerate([
+                (
+                    _('Invitation to tender'),
+                    _('Response to an invitation to tender'),
+                ),
+                (
+                    _('Initialization'),
+                    _('The project is starting'),
+                ),
+                (
+                    _('Preliminary phase'),
+                    _('The project is in the process of analysis and design'),
+                ),
+                (
+                    _('Achievement'),
+                    _('The project is being implemented'),
+                ),
+                (
+                    _('Tests'),
+                    _('The project is in the testing process (unit / integration / functional)'),
+                ),
+                (
+                    _('User acceptance tests'),
+                    _('The project is in the user acceptance testing process'),
+                ),
+                (
+                    _('Finished'),
+                    _('The project is finished')
+                ),
+            ], start=1):
+                create_if_needed(
+                    ProjectStatus, {'pk': pk},
+                    name=name, order=pk, description=description,
+                )
 
             # ---------------------------
             create_bdl         = BrickDetailviewLocation.objects.create_if_needed
@@ -127,37 +181,66 @@ class Populator(BasePopulator):
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            create_bdl(brick=bricks.ProjectTasksBrick,      order=2,   zone=TOP,   model=Project)
-            create_bdl_4_model(                             order=5,   zone=LEFT,  model=Project)
-            create_bdl(brick=bricks.ProjectExtraInfoBrick,  order=30,  zone=LEFT,  model=Project)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=Project)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=Project)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=Project)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=Project)
+            def create_multi_bdl(model, info):
+                for brick, order, zone in info:
+                    if brick == 'model':
+                        create_bdl_4_model(order=order, zone=zone, model=model)
+                    else:
+                        create_bdl(brick=brick, order=order, zone=zone, model=model)
 
-            create_bdl(brick=bricks.TaskResourcesBrick,     order=2,   zone=TOP,   model=ProjectTask)
-            create_bdl(brick=bricks.TaskActivitiesBrick,    order=4,   zone=TOP,   model=ProjectTask)
-            create_bdl_4_model(                             order=5,   zone=LEFT,  model=ProjectTask)
-            create_bdl(brick=bricks.TaskExtraInfoBrick,     order=30,  zone=LEFT,  model=ProjectTask)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=ProjectTask)
-            create_bdl(brick=bricks.ParentTasksBrick,       order=50,  zone=LEFT,  model=ProjectTask)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=ProjectTask)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=ProjectTask)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=ProjectTask)
+            create_multi_bdl(
+                Project,
+                [
+                    (bricks.ProjectTasksBrick,      2,   TOP),
+
+                    ('model',                       5,   LEFT),
+                    (bricks.ProjectExtraInfoBrick,  30,  LEFT),
+                    (core_bricks.CustomFieldsBrick, 40,  LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+
+                    (core_bricks.HistoryBrick,      20,  RIGHT),
+                ],
+            )
+            create_multi_bdl(
+                ProjectTask,
+                [
+                    (bricks.TaskResourcesBrick,     2,   TOP),
+                    (bricks.TaskActivitiesBrick,    4,   TOP),
+
+                    ('model',                       5,   LEFT),
+                    (bricks.TaskExtraInfoBrick,     30,  LEFT),
+                    (core_bricks.CustomFieldsBrick, 40,  LEFT),
+                    (bricks.ParentTasksBrick,       50,  LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+
+                    (core_bricks.HistoryBrick,      20,  RIGHT),
+                ],
+            )
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail views')
+                logger.info(
+                    'Assistants app is installed'
+                    ' => we use the assistants blocks on detail views'
+                )
 
                 from creme.assistants import bricks as a_bricks
 
                 for model in (Project, ProjectTask):
-                    create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT, model=model)
+                    create_multi_bdl(
+                        model,
+                        [
+                            (a_bricks.TodosBrick,        100, RIGHT),
+                            (a_bricks.MemosBrick,        200, RIGHT),
+                            (a_bricks.AlertsBrick,       300, RIGHT),
+                            (a_bricks.UserMessagesBrick, 400, RIGHT),
+                        ],
+                    )
 
             if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed => we use the documents block on detail views')
+                # logger.info('Documents app is installed
+                # => we use the documents block on detail views')
 
                 from creme.documents.bricks import LinkedDocsBrick
 

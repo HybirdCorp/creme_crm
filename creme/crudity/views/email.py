@@ -47,7 +47,8 @@ def download_email_template(request, subject):
 
     response = HttpResponse(
         render_to_string(
-            'crudity/create_email_template.html',  # TODO: rename crudity/create_email_template.eml ??
+            # TODO: rename crudity/create_email_template.eml ??
+            'crudity/create_email_template.html',
             {
                 'backend': backend,
                 'contact': request.user.linked_contact,

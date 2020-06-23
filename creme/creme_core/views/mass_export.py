@@ -174,7 +174,8 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         # writer = backend()
         writer = backend_cls()
         writerow = writer.writerow
-        writerow([smart_str(cell.title) for cell in cells])  # Doesn't accept generator expression... ;(
+        # Doesn't accept generator expression... ;(
+        writerow([smart_str(cell.title) for cell in cells])
 
         if not header_only:
             ordering = self.get_ordering(model=model, cells=cells)
@@ -200,7 +201,10 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
                 try:
                     entities_qs = entities_qs.filter(search_q)
                 except Exception as e:
-                    logger.exception('Error when building the search queryset with Q=%s (%s).', search_q, e)
+                    logger.exception(
+                        'Error when building the search queryset with Q=%s (%s).',
+                        search_q, e,
+                    )
                 else:
                     use_distinct = True  # TODO: test + only if needed
 

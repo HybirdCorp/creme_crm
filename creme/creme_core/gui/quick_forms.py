@@ -61,7 +61,8 @@ class QuickFormsRegistry:
 
         if not issubclass(form, CremeEntityQuickForm):
             raise self.RegistrationError(
-                f'A Quick Form class must inherit <creme_core.forms.base.CremeEntityQuickForm> : {form}'
+                f'A Quick Form class must inherit '
+                f'<creme_core.forms.base.CremeEntityQuickForm> : {form}'
             )
 
         forms[model] = form
@@ -86,14 +87,18 @@ class QuickFormsRegistry:
                      )
         return self._forms.keys()
 
-    def get_form(self, model: Type[CremeEntity]) -> Optional[Type['CremeEntityQuickForm']]:
+    def get_form(
+            self,
+            model: Type[CremeEntity]) -> Optional[Type['CremeEntityQuickForm']]:
         warnings.warn('QuickFormsRegistry.get_form() is deprecated ;'
                       'use get_form_class() instead.',
                       DeprecationWarning
                      )
         return self._forms.get(model)
 
-    def get_form_class(self, model: Type[CremeEntity]) -> Optional[Type['CremeEntityQuickForm']]:
+    def get_form_class(
+            self,
+            model: Type[CremeEntity]) -> Optional[Type['CremeEntityQuickForm']]:
         return self._forms.get(model)
 
     @property

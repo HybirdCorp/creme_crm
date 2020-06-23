@@ -62,7 +62,8 @@ class _LineMultipleAddForm(core_forms.CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.billing_document = entity
-        self.fields['vat'].initial = Vat.get_default_vat()  # Not in field declaration because default value can change
+        # Not in field declaration because default value can change
+        self.fields['vat'].initial = Vat.get_default_vat()
 
     def save(self):
         cdata = self.cleaned_data
@@ -84,8 +85,12 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
     items = MultiCreatorEntityField(label=_('Products'), model=products.get_product_model())
 
     blocks = core_forms.FieldBlockManager(
-        ('general',    _('Products choice'), ['items']),
-        ('additional', _('Optional global information applied to your selected products'), ['quantity', 'vat', 'discount_value'])
+        ('general', _('Products choice'), ['items']),
+        (
+            'additional',
+            _('Optional global information applied to your selected products'),
+            ['quantity', 'vat', 'discount_value'],
+        )
     )
 
     def _get_line_class(self):
@@ -96,8 +101,12 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
     items = MultiCreatorEntityField(label=_('Services'), model=products.get_service_model())
 
     blocks = core_forms.FieldBlockManager(
-        ('general',    _('Services choice'), ['items']),
-        ('additional', _('Optional global information applied to your selected services'), ['quantity', 'vat', 'discount_value'])
+        ('general', _('Services choice'), ['items']),
+        (
+            'additional',
+            _('Optional global information applied to your selected services'),
+            ['quantity', 'vat', 'discount_value'],
+        )
     )
 
     def _get_line_class(self):
@@ -106,7 +115,8 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 
 # NB: model (ie: _meta.model) is set later, because this class is only used as base class
 class LineEditForm(core_forms.CremeModelForm):
-    # TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
+    # TODO: we want to disabled CreatorChoiceField ;
+    #       should we disabled globally this feature with Vat model ??
     vat_value = forms.ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
                                        required=True,  # TODO: remove when null=False in the model
                                        empty_label=None,
@@ -115,12 +125,18 @@ class LineEditForm(core_forms.CremeModelForm):
     class Meta:
         exclude = ()
         widgets = {
-            'on_the_fly_item': forms.TextInput(attrs={'class': 'line-on_the_fly', 'validator': 'Value'}),
-            'unit_price':      forms.TextInput(attrs={'class': 'line-unit_price bound', 'validator': 'Decimal'}),
-            'quantity':        forms.TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'}),
-            'unit':            forms.TextInput(attrs={'class': 'line-unit'}),
-            'discount':        forms.TextInput(attrs={'class': 'line-quantity_discount bound'}),
-            'comment':         forms.Textarea(attrs={'class': 'line-comment', 'rows': 2}),
+            'on_the_fly_item': forms.TextInput(
+                attrs={'class': 'line-on_the_fly', 'validator': 'Value'},
+            ),
+            'unit_price': forms.TextInput(
+                attrs={'class': 'line-unit_price bound', 'validator': 'Decimal'},
+            ),
+            'quantity': forms.TextInput(
+                attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'},
+            ),
+            'unit': forms.TextInput(attrs={'class': 'line-unit'}),
+            'discount': forms.TextInput(attrs={'class': 'line-quantity_discount bound'}),
+            'comment': forms.Textarea(attrs={'class': 'line-comment', 'rows': 2}),
         }
 
     # TODO: related_document=None ??
@@ -134,15 +150,25 @@ class LineEditForm(core_forms.CremeModelForm):
 
         currency_str = related_document.currency.local_symbol
         discount_units = [
-            (constants.DISCOUNT_PERCENT,     '%'),
-            (constants.DISCOUNT_LINE_AMOUNT, gettext('{currency} per line').format(currency=currency_str)),
-            (constants.DISCOUNT_ITEM_AMOUNT, gettext('{currency} per unit').format(currency=currency_str)),
+            (constants.DISCOUNT_PERCENT, '%'),
+            (
+                constants.DISCOUNT_LINE_AMOUNT,
+                gettext('{currency} per line').format(currency=currency_str),
+            ),
+            (
+                constants.DISCOUNT_ITEM_AMOUNT,
+                gettext('{currency} per unit').format(currency=currency_str),
+            ),
         ]
 
         # line = self.instance
-        # fields['discount_unit'] = discount_unit_f = fields.TypedChoiceField(choices=discount_units, coerce=int)
-        # discount_unit_f.initial = constants.DISCOUNT_PERCENT if line.discount_unit == constants.DISCOUNT_PERCENT else \
-        #                           (constants.DISCOUNT_LINE_AMOUNT if line.total_discount else constants.DISCOUNT_ITEM_AMOUNT) #HACK: see below
+        # fields['discount_unit'] = discount_unit_f = \
+        #     fields.TypedChoiceField(choices=discount_units, coerce=int)
+        # discount_unit_f.initial = \
+        #     constants.DISCOUNT_PERCENT \
+        #     if line.discount_unit == constants.DISCOUNT_PERCENT else \
+        #     (constants.DISCOUNT_LINE_AMOUNT
+        #      if line.total_discount else constants.DISCOUNT_ITEM_AMOUNT) #HACK: see below
         # discount_unit_f.widget.attrs = {'class': 'bound'}
         discount_unit_f = fields['discount_unit']
         discount_unit_f.choices = discount_units
@@ -212,20 +238,23 @@ class AddToCatalogForm(core_forms.CremeForm):
         line = self.line
 
         # First create the related item...
-        item = self.related_item_class.objects.create(name=line.on_the_fly_item,
-                                                      user=self.user,
-                                                      unit_price=line.unit_price,
-                                                      unit=line.unit,
-                                                      category=sub_category.category,
-                                                      sub_category=sub_category,
-                                                     )
+        item = self.related_item_class.objects.create(
+            name=line.on_the_fly_item,
+            user=self.user,
+            unit_price=line.unit_price,
+            unit=line.unit,
+            category=sub_category.category,
+            sub_category=sub_category,
+        )
 
-        # ..then update the line that is now related to the new created item and not on the fly anymore.
+        # ...then update the line that is now related to the new created item
+        # and not on the fly anymore.
         line.on_the_fly_item = None
         line.save()
 
-        Relation.objects.create(subject_entity=line,
-                                type_id=constants.REL_SUB_LINE_RELATED_ITEM,
-                                object_entity=item,
-                                user=self.user,
-                               )
+        Relation.objects.create(
+            subject_entity=line,
+            type_id=constants.REL_SUB_LINE_RELATED_ITEM,
+            object_entity=item,
+            user=self.user,
+        )

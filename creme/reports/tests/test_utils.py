@@ -6,12 +6,25 @@ from ..utils import expand_sparse_iterator, sparsezip
 
 
 class SparsezipTestCase(CremeTestCase):
-    def assertExpandsTo(self, sparse_collection, expected_result, default_value=-1):
-        expanded_collection = [*expand_sparse_iterator(iter(sparse_collection), default_value)]
+    def assertExpandsTo(
+            self,
+            sparse_collection,
+            expected_result,
+            default_value=-1):
+        expanded_collection = [
+            *expand_sparse_iterator(iter(sparse_collection), default_value),
+        ]
         self.assertListEqual(expanded_collection, expected_result)
 
-    def assertSparsezipsTo(self, full_collection, sparse_collection, expected_result, default_value=-1):
-        zipped_sequence = [*sparsezip(full_collection, sparse_collection, default_value)]
+    def assertSparsezipsTo(
+            self,
+            full_collection,
+            sparse_collection,
+            expected_result,
+            default_value=-1):
+        zipped_sequence = [
+            *sparsezip(full_collection, sparse_collection, default_value),
+        ]
         self.assertListEqual(zipped_sequence, expected_result)
 
     def test_expand_empty_collection(self):

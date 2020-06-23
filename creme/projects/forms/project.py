@@ -32,12 +32,15 @@ from ..constants import REL_OBJ_PROJECT_MANAGER
 
 
 class ProjectEditForm(CremeEntityForm):
-    start_date = DateTimeField(label=_('Start date'), required=True)  # TODO: not required in the model !
-    end_date   = DateTimeField(label=_('End date'), required=True)
+    # TODO: not required in the model !
+    start_date = DateTimeField(label=_('Start date'), required=True)
+
+    end_date = DateTimeField(label=_('End date'), required=True)
 
     class Meta(CremeEntityForm.Meta):
         model = get_project_model()
-        exclude = (*CremeEntityForm.Meta.exclude, 'effective_end_date')  # TODO: field not editable ??
+        # TODO: field not editable ??
+        exclude = (*CremeEntityForm.Meta.exclude, 'effective_end_date')
 
 
 class ProjectCreateForm(ProjectEditForm):

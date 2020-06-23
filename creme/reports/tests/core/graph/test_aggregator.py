@@ -134,7 +134,9 @@ class AggregatorTestCase(CremeTestCase):
 
         # ---
         with self.assertRaises(ValueError) as cm2:
-            __ = RGAAverage(cell=EntityCellFunctionField.build(FakeOrganisation, 'get_pretty_properties'))
+            __ = RGAAverage(
+                cell=EntityCellFunctionField.build(FakeOrganisation, 'get_pretty_properties'),
+            )
 
         self.assertIn('invalid type of cell', str(cm2.exception))
 

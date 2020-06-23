@@ -59,7 +59,10 @@ def validate_viewable_entities(entities, user, code='viewnotallowed'):
     unviewable = entities_to_str((e for e in entities if not has_perm(e)), user)
 
     if unviewable:
-        raise ValidationError(_('Some entities are not viewable: {}').format(unviewable), code=code)
+        raise ValidationError(
+            _('Some entities are not viewable: {}').format(unviewable),
+            code=code,
+        )
 
     return entities
 
@@ -91,7 +94,10 @@ def validate_editable_entities(entities, user, code='changenotallowed'):
     uneditable = entities_to_str((e for e in entities if not has_perm(e)), user)
 
     if uneditable:
-        raise ValidationError(_('Some entities are not editable: {}').format(uneditable), code=code)
+        raise ValidationError(
+            _('Some entities are not editable: {}').format(uneditable),
+            code=code,
+        )
 
     return entities
 
@@ -123,7 +129,10 @@ def validate_linkable_entities(entities, user, code='linknotallowed'):
     unlinkable = entities_to_str((e for e in entities if not has_perm(e)), user)
 
     if unlinkable:
-        raise ValidationError(_('Some entities are not linkable: {}').format(unlinkable), code=code)
+        raise ValidationError(
+            _('Some entities are not linkable: {}').format(unlinkable),
+            code=code,
+        )
 
     return entities
 

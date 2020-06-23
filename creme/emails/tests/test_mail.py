@@ -143,8 +143,14 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(body_html,        email.body_html)
         self.assertEqual(MAIL_STATUS_SENT, email.status)
 
-        self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=user.linked_contact)
-        self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_RECEIVED, object_entity=contact)
+        self.get_object_or_fail(
+            Relation,
+            subject_entity=email, type=REL_SUB_MAIL_SENDED, object_entity=user.linked_contact,
+        )
+        self.get_object_or_fail(
+            Relation,
+            subject_entity=email, type=REL_SUB_MAIL_RECEIVED, object_entity=contact,
+        )
 
         response = self.assertGET200(reverse('emails__view_email', args=(email.id,)))
         self.assertTemplateUsed(response, 'emails/view_entity_mail.html')
@@ -404,13 +410,18 @@ class EntityEmailTestCase(_EmailsTestCase):
             return self.client.post(
                 self._build_create_entitymail_url(contact),
                 data={
-                    'user':         user.id,
-                    'sender':       user.linked_contact.email,
-                    'c_recipients': self.formfield_value_multi_creator_entity(contact01, contact02),
-                    'o_recipients': self.formfield_value_multi_creator_entity(orga01, orga02),
-                    'subject':      'Under arrest',
-                    'body':         'Freeze !',
-                    'body_html':    '<p>Freeze !</p>',
+                    'user': user.id,
+                    'sender': user.linked_contact.email,
+
+                    'c_recipients': self.formfield_value_multi_creator_entity(
+                        contact01, contact02,
+                    ),
+                    'o_recipients': self.formfield_value_multi_creator_entity(
+                        orga01, orga02,
+                    ),
+                    'subject': 'Under arrest',
+                    'body': 'Freeze !',
+                    'body_html': '<p>Freeze !</p>',
                 },
             )
 
@@ -515,7 +526,8 @@ class EntityEmailTestCase(_EmailsTestCase):
             data={
                 'user':         user.id,
                 'sender':       user.linked_contact.email,
-                'o_recipients': self.formfield_value_multi_creator_entity(orga),  # Should not be used
+                # Should not be used
+                'o_recipients': self.formfield_value_multi_creator_entity(orga),
                 'subject':      'Under arrest',
                 'body':         'Freeze !',
                 'body_html':    '<p>Freeze !</p>',
@@ -594,7 +606,9 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Vincent', last_name='Law', email='')
-        contact02 = create_contact(first_name='Pino', last_name='AutoReiv', email='pino@autoreivs.rmd')
+        contact02 = create_contact(
+            first_name='Pino', last_name='AutoReiv', email='pino@autoreivs.rmd',
+        )
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='Venus gate', email='')
@@ -687,8 +701,14 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         ini_get = form.initial.get
         self.assertEqual(subject, ini_get('subject'))
-        self.assertEqual(body_format(contact.first_name, contact.last_name),      ini_get('body'))
-        self.assertEqual(body_html_format(contact.first_name, contact.last_name), ini_get('body_html'))
+        self.assertEqual(
+            body_format(contact.first_name, contact.last_name),
+            ini_get('body'),
+        )
+        self.assertEqual(
+            body_html_format(contact.first_name, contact.last_name),
+            ini_get('body_html'),
+        )
         self.assertEqual(signature.id, ini_get('signature'))
         # self.assertEqual(attachments,  ini_get('attachments')) #TODO
 
@@ -868,9 +888,12 @@ class EntityEmailTestCase(_EmailsTestCase):
         "Empty body."
         self.login()
         email = self._create_email()
-        self.assertGET409(reverse('creme_core__sanitized_html_field', args=(email.id, 'sender')))  # Not an UnsafeHTMLField
+        # Not an UnsafeHTMLField
+        self.assertGET409(reverse('creme_core__sanitized_html_field', args=(email.id, 'sender')))
 
-        response = self.assertGET200(reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')))
+        response = self.assertGET200(
+            reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html'))
+        )
         self.assertEqual(b'', response.content)
 
     def test_get_sanitized_html_field02(self):

@@ -56,7 +56,9 @@ class _EntityFilterRegistry:
         self._operator_classes: Dict[int, Type['ConditionOperator']] = {}
         self._operand_classes: Dict[str, Type['ConditionDynamicOperand']] = {}
 
-    def register_condition_handlers(self, *classes: Type['FilterConditionHandler']) -> '_EntityFilterRegistry':
+    def register_condition_handlers(
+            self,
+            *classes: Type['FilterConditionHandler']) -> '_EntityFilterRegistry':
         """Register classes of handlers.
 
         @param classes: Classes inheriting
@@ -74,7 +76,9 @@ class _EntityFilterRegistry:
 
         return self
 
-    def register_operands(self, *classes: Type['ConditionDynamicOperand']) -> '_EntityFilterRegistry':
+    def register_operands(
+            self,
+            *classes: Type['ConditionDynamicOperand']) -> '_EntityFilterRegistry':
         """Register classes of operand.
 
         @param classes: Classes inheriting
@@ -92,7 +96,9 @@ class _EntityFilterRegistry:
 
         return self
 
-    def register_operators(self, *classes: Type['ConditionOperator']) -> '_EntityFilterRegistry':
+    def register_operators(
+            self,
+            *classes: Type['ConditionOperator']) -> '_EntityFilterRegistry':
         """Register classes of operator.
 
         @param classes: Classes inheriting
@@ -105,16 +111,18 @@ class _EntityFilterRegistry:
         for cls in classes:
             if setdefault(cls.type_id, cls) is not cls:
                 raise self.RegistrationError(
-                    f"Duplicated operator's ID (or operator registered twice): {cls.type_id}"
+                    f"Duplicated operator's ID (or operator registered twice):"
+                    f" {cls.type_id}"
                 )
 
         return self
 
-    def get_handler(self, *,
-                    type_id: int,
-                    model: Type['CremeEntity'],
-                    name: str,
-                    data: Optional[dict]) -> Optional['FilterConditionHandler']:
+    def get_handler(
+            self, *,
+            type_id: int,
+            model: Type['CremeEntity'],
+            name: str,
+            data: Optional[dict]) -> Optional['FilterConditionHandler']:
         """Get an instance of handler from its ID.
 
         @param type_id: Id of the handler's class

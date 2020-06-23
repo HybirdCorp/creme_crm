@@ -50,7 +50,10 @@ class _TempFilesCleanerType(JobType):
                 ],
             )
         else:
-            for temp_file in FileRef.objects.filter(temporary=True, created__lt=now() - delay.as_timedelta()):
+            for temp_file in FileRef.objects.filter(
+                    temporary=True,
+                    created__lt=now() - delay.as_timedelta(),
+            ):
                 full_path = temp_file.filedata.path
 
                 if exists(full_path):
@@ -60,15 +63,18 @@ class _TempFilesCleanerType(JobType):
                         JobResult.objects.create(
                             job=job,
                             messages=[
-                                _('An error occurred while deleting the temporary file «{}»').format(
-                                    full_path
-                                ),
+                                _(
+                                    'An error occurred while deleting the temporary file «{}»'
+                                ).format(full_path),
                                 _('Original error: {}').format(e),
                             ],
                         )
                         continue
                 else:
-                    logger.warning('_TempFilesCleanerType: the file %s has already been deleted.', full_path)
+                    logger.warning(
+                        '_TempFilesCleanerType: the file %s has already been deleted.',
+                        full_path,
+                    )
 
                 try:
                     temp_file.delete()
@@ -79,19 +85,24 @@ class _TempFilesCleanerType(JobType):
                     )
                     JobResult.objects.create(
                         job=job,
-                        messages=[_('The temporary file with id={} cannot be '
-                                    'deleted because of its dependencies.'
-                                   ).format(temp_file.id),
-                                 ],
+                        messages=[
+                            _(
+                                'The temporary file with id={} cannot be '
+                                'deleted because of its dependencies.'
+                            ).format(temp_file.id),
+                        ],
                     )
                 except Exception as e:
-                    logger.exception('Error when trying to delete the FileRef(id=%s)', temp_file.id)
+                    logger.exception(
+                        'Error when trying to delete the FileRef(id=%s)', temp_file.id,
+                    )
                     JobResult.objects.create(
                         job=job,
                         messages=[
-                            _('The temporary file with id={} cannot be '
-                              'deleted because of an unexpected error.'
-                             ).format(temp_file.id),
+                            _(
+                                'The temporary file with id={} cannot be '
+                                'deleted because of an unexpected error.'
+                            ).format(temp_file.id),
                             _('Original error: {}').format(e),
                         ],
                     )

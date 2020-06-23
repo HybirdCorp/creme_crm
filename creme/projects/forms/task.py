@@ -76,7 +76,9 @@ class TaskEditForm(_TaskForm):
 
 
 class TaskCreateForm(_TaskForm):
-    parent_tasks = MultiCreatorEntityField(label=_('Parent tasks'), required=False, model=ProjectTask)
+    parent_tasks = MultiCreatorEntityField(
+        label=_('Parent tasks'), required=False, model=ProjectTask,
+    )
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -131,9 +133,9 @@ class RelatedActivityEditForm(CremeEntityForm):
 
     def _get_task(self):
         try:
-            return Relation.objects.get(subject_entity=self.instance.pk, type=REL_SUB_LINKED_2_PTASK) \
-                           .object_entity \
-                           .get_real_entity()
+            return Relation.objects.get(
+                subject_entity=self.instance.pk, type=REL_SUB_LINKED_2_PTASK,
+            ).object_entity.get_real_entity()
         except Relation.DoesNotExist as e:
             raise ConflictError('This Activity is not related to a project task.') from e
 
@@ -154,12 +156,12 @@ class RelatedActivityEditForm(CremeEntityForm):
         resource_f.q_filter = {'task_id': task.id}
 
         if pk:  # Edition
-            fields['keep_participating'] = \
-                BooleanField(label=_('If the contact changes, the old one '
-                                     'keeps participating to the activities.'
-                                    ),
-                             required=False,
-                            )
+            fields['keep_participating'] = BooleanField(
+                label=_(
+                    'If the contact changes, the old one keeps participating to the activities.'
+                ),
+                required=False,
+            )
 
             get_relation = Relation.objects.get
 
@@ -239,10 +241,11 @@ class RelatedActivityCreateForm(RelatedActivityEditForm):
 
     def save(self, *args, **kwargs):
         task = self._task
-        p_name, t_name = ellipsis_multi((task.linked_project.name, task.title),
-                                        # 9 is the length of ' -  - XYZ' (ie: the 'empty' format string)
-                                        Activity._meta.get_field('title').max_length - 9
-                                       )
+        p_name, t_name = ellipsis_multi(
+            (task.linked_project.name, task.title),
+            # 9 is the length of ' -  - XYZ' (ie: the 'empty' format string)
+            Activity._meta.get_field('title').max_length - 9
+        )
         self.instance.title = '{project} - {task} - {count:03}'.format(
             project=p_name,
             task=t_name,

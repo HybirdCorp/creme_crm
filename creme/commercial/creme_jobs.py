@@ -73,9 +73,9 @@ class _ComApproachesEmailsSendType(JobType):
         EMAIL_SENDER = settings.EMAIL_SENDER
 
         for rtype, delay in self.list_target_orga:
-            com_apps_filter = CommercialApproach.objects \
-                                                .filter(creation_date__gt=now_value - timedelta(days=delay)) \
-                                                .filter
+            com_apps_filter = CommercialApproach.objects.filter(
+                creation_date__gt=now_value - timedelta(days=delay),
+            ).filter
 
             # TODO: are 'values_list' real optimizations here ??
             #       ==> remove them when CommercialApproach use real ForeignKey
@@ -132,9 +132,9 @@ class _ComApproachesEmailsSendType(JobType):
     def get_description(self, job):
         return [
             gettext(
-                "For each customer organisation, an email is sent to its owner (ie: a Creme user), "
-                "if there is no commercial approach since {} days linked to: "
-                "the organisation, one of its managers/employees, "
+                "For each customer organisation, an email is sent to its owner "
+                "(ie: a Creme user), if there is no commercial approach since "
+                "{} days linked to: the organisation, one of its managers/employees, "
                 "or an Opportunity which targets this organisation."
             ).format(self.list_target_orga[0][1]),
         ]

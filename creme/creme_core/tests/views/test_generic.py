@@ -84,7 +84,9 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Object does not exist"
         self.login()
 
-        response = self.assertGET404(reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,)))
+        response = self.assertGET404(
+            reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,))
+        )
         self.assertTemplateUsed(response, '404.html')
 
     def test_detail03(self):
@@ -106,7 +108,9 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_detail05(self):
         "Viewing is not allowed (model credentials)"
         self.login(is_superuser=False)
-        fox = FakeContact.objects.create(user=self.other_user, first_name='Fox', last_name='McCloud')
+        fox = FakeContact.objects.create(
+            user=self.other_user, first_name='Fox', last_name='McCloud',
+        )
 
         response = self.assertGET403(fox.get_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
@@ -121,14 +125,18 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_detail06(self):
         "Viewing is not allowed (app credentials)"
-        # NB: not need to create an instance, the "app" permission must be checked before the SQL query.
+        # NB: not need to create an instance, the "app" permission must be
+        #     checked before the SQL query.
         self.login(is_superuser=False, allowed_apps=('creme_config',))  # Not "creme_core"
 
-        response = self.assertGET403(reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,)))
+        response = self.assertGET403(
+            reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,))
+        )
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-        self.assertIn(escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
-                      response.content.decode()
-                     )
+        self.assertIn(
+            escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
+            response.content.decode()
+        )
 
 
 class CreationTestCase(ViewsTestCase):
@@ -447,7 +455,9 @@ class EditionTestCase(ViewsTestCase):
         "Not app credentials"
         self.login(is_superuser=False, allowed_apps=['creme_config'])
 
-        response = self.assertGET403(reverse('creme_core__edit_fake_contact', args=(self.UNUSED_PK,)))
+        response = self.assertGET403(
+            reverse('creme_core__edit_fake_contact', args=(self.UNUSED_PK,)),
+        )
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertIn(
             escape(_('You are not allowed to access to the app: {}').format(_('Core'))),

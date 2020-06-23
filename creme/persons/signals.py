@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2018  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,8 @@ def sync_with_user(sender, instance, created, **kwargs):
     try:
         if created:
             kwargs = {'uuid': UUID_FIRST_CONTACT} if instance.id == 1 else {}
-            instance._linked_contact_cache = get_contact_model()._create_linked_contact(instance, **kwargs)
+            instance._linked_contact_cache = \
+                get_contact_model()._create_linked_contact(instance, **kwargs)
         else:
             update_model_instance(instance.linked_contact,
                                   last_name=instance.last_name,
@@ -52,6 +53,7 @@ def sync_with_user(sender, instance, created, **kwargs):
                                   email=instance.email,
                                  )
     except DatabaseError as e:
-        logger.warning('Can not create linked contact for this user: %s (if it is the first user,'
-                       ' do not worry because it is normal) (%s)', instance, e
-                      )
+        logger.warning(
+            'Can not create linked contact for this user: %s (if it is the first user,'
+            ' do not worry because it is normal) (%s)', instance, e
+        )

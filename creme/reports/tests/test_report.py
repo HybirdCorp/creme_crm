@@ -471,7 +471,8 @@ class ReportTestCase(BaseReportsTestCase):
         url = self.build_inneredit_url(report, 'filter')
         response = self.assertGET200(url)
         self.assertContains(response, contact_filter.name)
-        self.assertNotContains(response, orga_filter.name)  # Excluded from filter choices because report targets a Contact.
+        # Excluded from filter choices because report targets a Contact:
+        self.assertNotContains(response, orga_filter.name)
         self.assertNotContains(response, private_filter.name)
 
         response = self.assertPOST200(url, data={'field_value': orga_filter.pk})
@@ -715,9 +716,13 @@ class ReportTestCase(BaseReportsTestCase):
     def test_preview01(self):
         user = self.login()
 
-        create_c = partial(FakeContact.objects.create, user=user)
-        chiyo = create_c(first_name='Chiyo', last_name='Mihana', birthday=date(year=1995, month=3, day=26))
-        osaka = create_c(first_name='Ayumu', last_name='Kasuga', birthday=date(year=1990, month=4, day=1))
+        create_contact = partial(FakeContact.objects.create, user=user)
+        chiyo = create_contact(
+            first_name='Chiyo', last_name='Mihana', birthday=date(year=1995, month=3, day=26),
+        )
+        osaka = create_contact(
+            first_name='Ayumu', last_name='Kasuga', birthday=date(year=1990, month=4, day=1),
+        )
 
         report = self._create_report('My report')
         url = self._build_preview_url(report)
@@ -1033,7 +1038,9 @@ class ReportTestCase(BaseReportsTestCase):
                 EntityCellRegularField.build(model=FakeInvoice, name='name'),
                 EntityCellRegularField.build(model=FakeInvoice, name='user'),
                 EntityCellRelation(model=FakeInvoice, rtype=rt),
-                EntityCellFunctionField.build(model=FakeInvoice, func_field_name='get_pretty_properties'),
+                EntityCellFunctionField.build(
+                    model=FakeInvoice, func_field_name='get_pretty_properties',
+                ),
             ],
         )
 
@@ -1069,7 +1076,8 @@ class ReportTestCase(BaseReportsTestCase):
         )
 
         user_str = str(self.user)
-        self.assertEqual('"Ayanami","{}","","Kawaii"'.format(user_str),  next(content))  # Alphabetical ordering ??
+        # Alphabetical ordering ??
+        self.assertEqual('"Ayanami","{}","","Kawaii"'.format(user_str),  next(content))
         self.assertEqual('"Katsuragi","{}","Nerv",""'.format(user_str),  next(content))
         self.assertEqual('"Langley","{}","",""'.format(user_str),        next(content))
         with self.assertRaises(StopIteration):
@@ -1444,9 +1452,12 @@ class ReportTestCase(BaseReportsTestCase):
 
         # TODO: we need helpers: Field.create_4_field(), Field.create_4_relation() etc...
         create_field = partial(Field.objects.create, report=report_orga)
-        create_field(name=FAKE_REL_OBJ_EMPLOYED_BY, type=RFT_RELATION, order=1, selected=True, sub_report=report_contact)
-        create_field(name='name',                   type=RFT_FIELD,    order=2)
-        create_field(name='image',                  type=RFT_FIELD,    order=3, selected=False, sub_report=report_img)
+        create_field(
+            name=FAKE_REL_OBJ_EMPLOYED_BY, type=RFT_RELATION, order=1,
+            selected=True, sub_report=report_contact,
+        )
+        create_field(name='name', type=RFT_FIELD, order=2)
+        create_field(name='image', type=RFT_FIELD, order=3, selected=False, sub_report=report_img)
 
         response = self.client.post(
             self._build_editfields_url(report_orga),
@@ -1508,7 +1519,7 @@ class ReportTestCase(BaseReportsTestCase):
         #
         # self.assertIn('regular_field-' + valid_fname,     choices_keys)
         # self.assertNotIn('regular_field-' + hidden_fname1, choices_keys)
-        # self.assertIn('regular_field-' + hidden_fname2, choices_keys)  # <== already in report: still proposed
+        # self.assertIn('regular_field-' + hidden_fname2, choices_keys)
         response1 = self.assertPOST200(
             url,
             data={
@@ -1982,7 +1993,11 @@ class ReportTestCase(BaseReportsTestCase):
             },
         )
 
-    def _aux_test_fetch_persons(self, create_contacts=True, create_relations=True, report_4_contact=True):
+    def _aux_test_fetch_persons(
+            self,
+            create_contacts=True,
+            create_relations=True,
+            report_4_contact=True):
         user = self.user
 
         if create_contacts:
@@ -1996,7 +2011,10 @@ class ReportTestCase(BaseReportsTestCase):
         self.lannisters = create_orga(name='House Lannister')
 
         if create_contacts and create_relations:
-            create_rel = partial(Relation.objects.create, type_id=FAKE_REL_OBJ_EMPLOYED_BY, user=user)
+            create_rel = partial(
+                Relation.objects.create,
+                type_id=FAKE_REL_OBJ_EMPLOYED_BY, user=user,
+            )
             create_rel(subject_entity=self.starks, object_entity=self.ned)
             create_rel(subject_entity=self.starks, object_entity=self.robb)
             create_rel(subject_entity=self.lannisters, object_entity=self.tyrion)
@@ -2052,7 +2070,9 @@ class ReportTestCase(BaseReportsTestCase):
         "FK, date, filter, invalid one"
         self.login()
 
-        self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
+        self._aux_test_fetch_persons(
+            report_4_contact=False, create_contacts=False, create_relations=False,
+        )
 
         report = self.report_orga
         create_field = partial(
@@ -2075,8 +2095,19 @@ class ReportTestCase(BaseReportsTestCase):
 
         username = self.user.username
         self.assertListEqual(
-            [[self.lannisters.name, username, '',          ''],
-             [starks.name,          username, lform.title, date_format(starks.creation_date, 'DATE_FORMAT')],
+            [
+                [
+                    self.lannisters.name,
+                    username,
+                    '',
+                    '',
+                ],
+                [
+                    starks.name,
+                    username,
+                    lform.title,
+                    date_format(starks.creation_date, 'DATE_FORMAT'),
+                ],
             ],
             report.fetch_all_lines()
         )
@@ -2123,7 +2154,9 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(lines, fetch_all_lines(user=user))
 
     def _aux_test_fetch_documents(self, efilter=None, selected=True):
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
+        create_field = partial(
+            Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD,
+        )
 
         self.folder_report = Report.objects.create(
             name='Folders report', user=self.user,
@@ -2205,7 +2238,9 @@ class ReportTestCase(BaseReportsTestCase):
         "Not Entity, no (sub) attribute"
         user = self.login()
 
-        self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
+        self._aux_test_fetch_persons(
+            report_4_contact=False, create_contacts=False, create_relations=False,
+        )
         starks = self.starks
 
         starks.legal_form = lform = FakeLegalForm.objects.get_or_create(title='Hord')[0]
@@ -2350,7 +2385,8 @@ class ReportTestCase(BaseReportsTestCase):
         create_field = partial(Field.objects.create, report=report)
         create_field(name='first_name',   type=RFT_FIELD,  order=1)
         create_field(name=cf.id,          type=RFT_CUSTOM, order=2)
-        create_field(name=self.UNUSED_PK, type=RFT_CUSTOM, order=3)  # Simulates deleted CustomField
+        # Simulates deleted CustomField
+        create_field(name=self.UNUSED_PK, type=RFT_CUSTOM, order=3)
 
         report = self.refresh(report)
         self.assertEqual(2, len(report.columns))
@@ -2383,7 +2419,9 @@ class ReportTestCase(BaseReportsTestCase):
         create_report = partial(Report.objects.create, user=user, filter=None)
         report_img = create_report(name='Report on Images', ct=self.ct_image)
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
+        create_field = partial(
+            Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD,
+        )
         create_field(report=report_img, name='name', order=1)
         create_field(report=report_img, name=cf.id,  order=2, type=RFT_CUSTOM)
 
@@ -2637,7 +2675,11 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.user
 
         create_report = partial(Report.objects.create, user=user, filter=None)
-        self.doc_report = self._create_simple_documents_report() if select_doc_report is not None else None
+        self.doc_report = (
+            self._create_simple_documents_report()
+            if select_doc_report is not None else
+            None
+        )
         self.folder_report = create_report(name='Report on folders', ct=self.ct_folder)
 
         create_field = partial(
@@ -2660,8 +2702,12 @@ class ReportTestCase(BaseReportsTestCase):
         self.folder2 = create_folder(title='Internal')
 
         create_doc = partial(FakeReportsDocument.objects.create, user=user)
-        self.doc11 = create_doc(title='Doc#1-1', linked_folder=self.folder1, description='Boring !')
-        self.doc12 = create_doc(title='Doc#1-2', linked_folder=self.folder1, user=self.other_user)
+        self.doc11 = create_doc(
+            title='Doc#1-1', linked_folder=self.folder1, description='Boring !',
+        )
+        self.doc12 = create_doc(
+            title='Doc#1-2', linked_folder=self.folder1, user=self.other_user,
+        )
         self.doc21 = create_doc(title='Doc#2-1', linked_folder=self.folder2)
 
     def test_fetch_related_01(self):
@@ -2773,7 +2819,9 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(report=report_img, name='name',                  order=1)
         create_field(report=report_img, name='get_pretty_properties', order=2, type=RFT_FUNCTION)
 
-        report_contact = create_report(name='Report on Contacts', ct=self.ct_contact, filter=self.efilter)
+        report_contact = create_report(
+            name='Report on Contacts', ct=self.ct_contact, filter=self.efilter,
+        )
         create_field(report=report_contact, name='first_name',  order=1)
         create_field(
             report=report_contact, name='image__name', order=2,
@@ -2902,8 +2950,14 @@ class ReportTestCase(BaseReportsTestCase):
             f"{_('Name')}: {img.name}/{_('Description')}: {img.description}",
         )
         lines = [
-            [self.lannisters.name, fmt % (tyrion.last_name, tyrion.first_name, ptype.text, '')],
-            [self.starks.name,     ned_str + ', ' + fmt % (robb.last_name, robb.first_name, '', '')],
+            [
+                self.lannisters.name,
+                fmt % (tyrion.last_name, tyrion.first_name, ptype.text, ''),
+            ],
+            [
+                self.starks.name,
+                ned_str + ', ' + fmt % (robb.last_name, robb.first_name, '', ''),
+            ],
         ]
         self.assertEqual(lines, report_orga.fetch_all_lines())
 
@@ -2996,13 +3050,13 @@ class ReportTestCase(BaseReportsTestCase):
         )
         self.assertListEqual(
             [
-                [self.lannisters.name, tyrion.last_name, tyrion.first_name, '',         ''],
+                [self.lannisters.name, tyrion.last_name, tyrion.first_name, '', ''],
 
                 # Beware Documents are ordered by title
-                [starks.name,          ned.last_name,    ned.first_name,    doc2.title, ''],
-                [starks.name,          ned.last_name,    ned.first_name,    doc1.title, doc1.description],
+                [starks.name, ned.last_name, ned.first_name, doc2.title, ''],
+                [starks.name, ned.last_name, ned.first_name, doc1.title, doc1.description],
 
-                [starks.name,          robb.last_name,   robb.first_name,   '',         '']
+                [starks.name, robb.last_name, robb.first_name, '', '']
             ],
             report_orga.fetch_all_lines()
         )
@@ -3026,14 +3080,18 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(name=fmt(cf.id),     order=3, type=RFT_AGG_CUSTOM)
 
         if invalid_ones:
-            create_field(name=fmt(1000),          order=4, type=RFT_AGG_CUSTOM)  # Invalid CustomField id
-            create_field(name='capital__invalid', order=5, type=RFT_AGG_FIELD)   # Invalid aggregation
-            create_field(name='invalid__sum',     order=6, type=RFT_AGG_FIELD)   # Invalid field (unknown)
-            create_field(name='name__sum',        order=7, type=RFT_AGG_FIELD)   # Invalid field (bad type)
-            create_field(name=fmt(str_cf.id),     order=8, type=RFT_AGG_CUSTOM)  # Invalid CustomField (bad type)
-            create_field(name=f'{cf.id}__additionalarg__max',
-                         order=9, type=RFT_AGG_CUSTOM,
-                        )  # Invalid string
+            # Invalid CustomField id
+            create_field(name=fmt(1000), order=4, type=RFT_AGG_CUSTOM)
+            # Invalid aggregation
+            create_field(name='capital__invalid', order=5, type=RFT_AGG_FIELD)
+            # Invalid field (unknown)
+            create_field(name='invalid__sum', order=6, type=RFT_AGG_FIELD)
+            # Invalid field (bad type)
+            create_field(name='name__sum', order=7, type=RFT_AGG_FIELD)
+            # Invalid CustomField (bad type)
+            create_field(name=fmt(str_cf.id), order=8, type=RFT_AGG_CUSTOM)
+            # Invalid string
+            create_field(name=f'{cf.id}__additionalarg__max', order=9, type=RFT_AGG_CUSTOM)
 
     def test_fetch_aggregate_01(self):
         "Regular field, Custom field (valid & invalid ones)."

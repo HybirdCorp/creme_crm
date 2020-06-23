@@ -48,7 +48,8 @@ class ActivityType(CremeModel):
         _('Default hour duration'), max_length=15,
     ).set_tags(viewable=False)
 
-    is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
+    # Used by creme_config
+    is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a type')
 
@@ -79,7 +80,8 @@ class ActivitySubType(CremeModel):
         ActivityType, verbose_name=_('Type of activity'), on_delete=CASCADE,
     ).set_tags(viewable=False)
 
-    is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
+    # Used by creme_config
+    is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a sub-type')
 
@@ -96,7 +98,8 @@ class ActivitySubType(CremeModel):
 class Status(CremeModel):
     name        = CharField(_('Name'), max_length=100)
     description = TextField(_('Description'))
-    is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    # Used by creme_config
+    is_custom   = BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-status', 'Create a status')
 

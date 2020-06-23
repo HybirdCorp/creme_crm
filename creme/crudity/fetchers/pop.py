@@ -131,11 +131,12 @@ class PopFetcher(CrudityFetcher):
                     filename = part.get_filename()
 
                     if mct != 'text' or (mct == 'text' and filename is not None):
-                        attachments.append((filename, SimpleUploadedFile(filename, payload,
-                                                                         content_type=part.get_content_type(),
-                                                                        )
-                                           )
-                                          )
+                        attachments.append((
+                            filename,
+                            SimpleUploadedFile(
+                                filename, payload, content_type=part.get_content_type(),
+                            ),
+                        ))
 
                     else:
                         content = payload

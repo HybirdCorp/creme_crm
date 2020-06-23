@@ -44,13 +44,18 @@ def set_simple_conf_billing(sender, instance, **kwargs):
 
     get_ct = ContentType.objects.get_for_model
 
-    for model, prefix in [(billing.get_quote_model(),       settings.QUOTE_NUMBER_PREFIX),
-                          (billing.get_invoice_model(),     settings.INVOICE_NUMBER_PREFIX),
-                          (billing.get_sales_order_model(), settings.SALESORDER_NUMBER_PREFIX),
-                         ]:
+    for model, prefix in [
+        (billing.get_quote_model(),       settings.QUOTE_NUMBER_PREFIX),
+        (billing.get_invoice_model(),     settings.INVOICE_NUMBER_PREFIX),
+        (billing.get_sales_order_model(), settings.SALESORDER_NUMBER_PREFIX),
+    ]:
         ct = get_ct(model)
-        ConfigBillingAlgo.objects.create(organisation=instance, ct=ct, name_algo=SimpleBillingAlgo.ALGO_NAME)
-        SimpleBillingAlgo.objects.create(organisation=instance, last_number=0, prefix=prefix, ct=ct)
+        ConfigBillingAlgo.objects.create(
+            organisation=instance, ct=ct, name_algo=SimpleBillingAlgo.ALGO_NAME,
+        )
+        SimpleBillingAlgo.objects.create(
+            organisation=instance, last_number=0, prefix=prefix, ct=ct,
+        )
 
 
 @receiver(core_signals.pre_merge_related)

@@ -63,9 +63,10 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         CremePropertyType.create('commercial-marketsegmenttestcase01', pname)
 
         response = self.assertPOST200(self.ADD_SEGMENT_URL, data={'name': name})
-        self.assertFormError(response, 'form', 'name',
-                             _('A property with the name «%(name)s» already exists') % {'name': pname}
-                            )
+        self.assertFormError(
+            response, 'form', 'name',
+            _('A property with the name «%(name)s» already exists') % {'name': pname}
+        )
 
     def test_create04(self):
         "Not allowed"
@@ -123,9 +124,10 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         segment = self._create_segment('in-dus-try')
         response = self.assertPOST200(segment.get_edit_absolute_url(), data={'name': name})
-        self.assertFormError(response, 'form', 'name',
-                             _('A segment with this name already exists')
-                            )
+        self.assertFormError(
+            response, 'form', 'name',
+            _('A segment with this name already exists')
+        )
 
     def test_edit03(self):
         "A property with the same name already exists"
@@ -138,9 +140,10 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         CremePropertyType.create('commercial-marketsegmenttestcase01', pname)
 
         response = self.assertPOST200(segment.get_edit_absolute_url(), data={'name': name})
-        self.assertFormError(response, 'form', 'name',
-                             _('A property with the name «%(name)s» already exists') % {'name': pname}
-                            )
+        self.assertFormError(
+            response, 'form', 'name',
+            _('A property with the name «%(name)s» already exists') % {'name': pname}
+        )
 
     def test_edit04(self):
         "No name change => no collision"
@@ -210,9 +213,19 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         orga = Organisation.objects.create(user=user, name='NHK')
         prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
 
-        rtype = RelationType.create(('commercial-subject_test_segment_delete', 'has produced',         [Organisation], [old_ptype]),
-                                    ('commercial-object_test_segment_delete',  'has been produced by', [Organisation]),
-                                   )[0]
+        rtype = RelationType.create(
+            (
+                'commercial-subject_test_segment_delete',
+                'has produced',
+                [Organisation],
+                [old_ptype],
+            ),
+            (
+                'commercial-object_test_segment_delete',
+                'has been produced by',
+                [Organisation],
+            ),
+        )[0]
 
         segment2 = self._create_segment('Industry')
 
@@ -259,9 +272,10 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         response = self.assertPOST200(self._build_delete_url(segment),
                                       data={'to_segment': segment.id},
                                      )
-        self.assertFormError(response, 'form', 'to_segment',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        self.assertFormError(
+            response, 'form', 'to_segment',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
 
     @skipIfCustomOrganisation
     def test_delete05(self):
@@ -295,7 +309,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         def ptypes(orga):
             return [p.type for p in orga.properties.all()]
 
-        self.assertListEqual(expected, ptypes(orga1))  # Only one property, not 2 (with the same type)
+        # Only one property, not 2 (with the same type)
+        self.assertListEqual(expected, ptypes(orga1))
+
         self.assertListEqual(expected, ptypes(orga2))
         self.assertListEqual(expected, ptypes(orga3))
 
@@ -304,7 +320,8 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.login()
 
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
-        self._create_segment('Industry')  # We add this segment to not try to delete the last one.
+        # We add this segment to not try to delete the last one.
+        self._create_segment('Industry')
 
         self.assertGET404(self._build_delete_url(segment))
 
@@ -322,8 +339,17 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
 
         rtype = RelationType.create(
-            ('commercial-subject_test_segment_delete7', 'has produced',         [Organisation], [old_ptype]),
-            ('commercial-object_test_segment_delete7',  'has been produced by', [Organisation]),
+            (
+                'commercial-subject_test_segment_delete7',
+                'has produced',
+                [Organisation],
+                [old_ptype],
+            ),
+            (
+                'commercial-object_test_segment_delete7',
+                'has been produced by',
+                [Organisation],
+            ),
         )[0]
 
         segment2 = self.get_object_or_fail(MarketSegment, property_type=None)

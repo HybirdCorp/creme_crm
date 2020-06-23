@@ -110,7 +110,9 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         country = 'wtf'
         department = 'rucrazy'
 
-        self._create_address(orga, name, address_value, po_box, city, state, zipcode, country, department)
+        self._create_address(
+            orga, name, address_value, po_box, city, state, zipcode, country, department,
+        )
 
         addresses = Address.objects.filter(object_id=orga.id)
         self.assertEqual(1, len(addresses))
@@ -126,8 +128,14 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(department, address.department)
 
         response = self.client.get(orga.get_absolute_url())
-        brick_node = self.get_brick_node(self.get_html_tree(response.content), PrettyOtherAddressesBrick.id_)
-        fields = {elt.text for elt in brick_node.findall(".//span[@class='address-option-value']")}
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            PrettyOtherAddressesBrick.id_,
+        )
+        fields = {
+            elt.text
+            for elt in brick_node.findall(".//span[@class='address-option-value']")
+        }
         self.assertIn(department, fields)
         self.assertIn(state,      fields)
         self.assertIn(country,    fields)
@@ -224,7 +232,9 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         country = 'wtf'
         department = 'rucrazy'
 
-        self._create_address(orga, name, address_value, po_box, city, state, zipcode, country, department)
+        self._create_address(
+            orga, name, address_value, po_box, city, state, zipcode, country, department,
+        )
         address = Address.objects.filter(object_id=orga.id)[0]
 
         url = address.get_edit_absolute_url()
@@ -323,11 +333,16 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_deleteview(self):
         orga = self.login()
 
-        self._create_address(orga, 'name', 'address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department')
+        self._create_address(
+            orga, 'name', 'address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department'
+        )
         address = Address.objects.filter(object_id=orga.id)[0]
         ct = ContentType.objects.get_for_model(Address)
 
-        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': address.id})
+        self.client.post(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': address.id},
+        )
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
     def test_bool(self):
@@ -481,7 +496,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(country, address.country)
 
         hlines = [*HistoryLine.objects.order_by('id')]
-        self.assertEqual(old_count + 2, len(hlines))  # 1 creation + 1 auxiliary (NB: not edition with double save)
+        # 1 creation + 1 auxiliary (NB: not edition with double save)
+        self.assertEqual(old_count + 2, len(hlines))
 
         hline = hlines[-2]
         self.assertEqual(gainax.id,          hline.entity.id)

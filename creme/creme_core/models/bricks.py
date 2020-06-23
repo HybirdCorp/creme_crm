@@ -72,12 +72,13 @@ logger = logging.getLogger(__name__)
 
 class BrickDetailviewLocationManager(models.Manager):
     # TODO: Enum for zone
-    def create_if_needed(self,
-                         brick: Union[Type['Brick'], str],
-                         order: int,
-                         zone: int,
-                         model: Union[Type[CremeEntity], ContentType, None] = None,
-                         role: Union[None, UserRole, str] = None) -> 'BrickDetailviewLocation':
+    def create_if_needed(
+            self,
+            brick: Union[Type['Brick'], str],
+            order: int,
+            zone: int,
+            model: Union[Type[CremeEntity], ContentType, None] = None,
+            role: Union[None, UserRole, str] = None) -> 'BrickDetailviewLocation':
         """Create an instance of BrickDetailviewLocation, but if only if the
         related brick is not already on the configuration.
         @param brick: Brick ID (string) or Brick class.
@@ -113,11 +114,12 @@ class BrickDetailviewLocationManager(models.Manager):
             **kwargs
         )[0]
 
-    def create_for_model_brick(self,
-                               order: int,
-                               zone: int,
-                               model: Union[Type[CremeEntity], ContentType, None] = None,
-                               role: Union[None, UserRole, str] = None) -> 'BrickDetailviewLocation':
+    def create_for_model_brick(
+            self,
+            order: int,
+            zone: int,
+            model: Union[Type[CremeEntity], ContentType, None] = None,
+            role: Union[None, UserRole, str] = None) -> 'BrickDetailviewLocation':
         return self.create_if_needed(brick=MODELBRICK_ID, order=order,
                                      zone=zone, model=model, role=role,
                                     )
@@ -249,9 +251,13 @@ class BrickHomeLocation(CremeModel):
         ordering = ('order',)
 
     def __repr__(self):
-        return 'BrickHomeLocation(id={id}, role={role}, brick_id={brick_id}, order={order})'.format(
-            id=self.id, brick_id=self.brick_id, order=self.order,
-            role='superuser' if self.superuser else self.role,
+        return (
+            'BrickHomeLocation('
+            'id={id}, role={role}, brick_id={brick_id}, order={order}'
+            ')'.format(
+                id=self.id, brick_id=self.brick_id, order=self.order,
+                role='superuser' if self.superuser else self.role,
+            )
         )
 
     def __str__(self):
@@ -291,10 +297,11 @@ class BrickMypageLocation(CremeModel):
                 for loc in cls.objects.filter(user=None):
                     create(user=instance, brick_id=loc.brick_id, order=loc.order)
                 # except Exception:
-                #     logger.warning('Can not create brick config for this user: %s'
-                #                    ' (if it is the first user, do not worry because it is normal)',
-                #                    instance
-                #                   )
+                #     logger.warning(
+                #         'Can not create brick config for this user: %s'
+                #         ' (if it is the first user, do not worry because it is normal)',
+                #         instance
+                #     )
 
     @property
     def brick_verbose_name(self):
@@ -354,7 +361,9 @@ class RelationBrickItemManager(models.Manager):
 
 class RelationBrickItem(CremeModel):
     # TODO: 'brick_id' not really useful (can be dynamically generated with the RelationType)
-    #        + in the 'brick_id': 1)remove the app_name  2)"specificblock_" => "rtypebrick_" (need data migration)
+    #        + in the 'brick_id':
+    #           1) remove the app_name
+    #           2) "specificblock_" => "rtypebrick_" (need data migration)
     brick_id       = models.CharField(_('Block ID'), max_length=100, editable=False)
     relation_type  = models.OneToOneField(RelationType, on_delete=models.CASCADE,
                                           verbose_name=_('Related type of relationship'),
@@ -433,7 +442,8 @@ class RelationBrickItem(CremeModel):
 
             for ct_id, cells_as_dicts in json_load(self.json_cells_map).items():
                 ct = get_ct(ct_id)
-                cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts)  # TODO: do it lazily ??
+                # TODO: do it lazily ??
+                cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts)
 
                 if errors:
                     total_errors = True
@@ -682,7 +692,10 @@ class CustomBrickConfigItem(CremeModel):
             )
 
             if errors:
-                logger.warning('CustomBrickConfigItem (id="%s") is saved with valid cells.', self.id)
+                logger.warning(
+                    'CustomBrickConfigItem (id="%s") is saved with valid cells.',
+                    self.id,
+                )
                 self._dump_cells(cells)
                 self.save()
 
@@ -755,13 +768,18 @@ class BrickStateManager(models.Manager):
 
 
 class BrickState(CremeModel):
-    user              = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    brick_id          = models.CharField(_('Block ID'), max_length=100)
-    is_open           = models.BooleanField(default=True)  # Is brick has to appear as opened or closed
-    show_empty_fields = models.BooleanField(default=True)  # Are empty fields in brick have to be shown or not
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    brick_id = models.CharField(_('Block ID'), max_length=100)
+
+    # Is brick has to appear as opened or closed
+    is_open = models.BooleanField(default=True)
+
+    # Are empty fields in brick have to be shown or not
+    show_empty_fields = models.BooleanField(default=True)
 
     # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
-    json_extra_data = models.TextField(editable=False, default='{}').set_tags(viewable=False)  # TODO: JSONField ?
+    # TODO: JSONField ?
+    json_extra_data = models.TextField(editable=False, default='{}').set_tags(viewable=False)
 
     objects = BrickStateManager()
 
@@ -797,10 +815,12 @@ class BrickState(CremeModel):
     #     except BrickState.DoesNotExist:
     #         states = {
     #             sv.key_id: sv.value
-    #                 for sv in SettingValue.objects.filter(key_id__in=[SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
-    #                                                                   SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-    #                                                                  ],
-    #                                                      )
+    #                 for sv in SettingValue.objects.filter(
+    #                   key_id__in=[
+    #                       SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
+    #                       SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
+#                       ],
+    #                )
     #         }
     #
     #         return BrickState(
@@ -825,7 +845,9 @@ class BrickState(CremeModel):
     #
     #     get_sv = SettingValue.objects.get
     #     is_default_open             = get_sv(key_id=SETTING_BRICK_DEFAULT_STATE_IS_OPEN).value
-    #     is_default_fields_displayed = get_sv(key_id=SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
+    #     is_default_fields_displayed = get_sv(
+    #         key_id=SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS
+    #     ).value
     #
     #     for state in BrickState.objects.filter(brick_id__in=brick_ids, user=user):
     #         states[state.brick_id] = state

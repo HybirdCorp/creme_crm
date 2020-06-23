@@ -52,7 +52,8 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertEqual('baz', get_value(data={name: value}))
 
         self.assertHTMLEqual(
-            f'<input class="lv-state-field" name="{name}" type="text" data-lv-search-widget="text" value="{value}" />',
+            f'<input class="lv-state-field" name="{name}" '
+            f'type="text" data-lv-search-widget="text" value="{value}" />',
             widget.render(name=name, value=value)
         )
 
@@ -123,7 +124,8 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertEqual((), widget.choices)
 
         self.assertHTMLEqual(
-            f'<select class="lv-state-field" data-lv-search-widget="select" name="{name}"></select>',
+            f'<select class="lv-state-field" data-lv-search-widget="select" '
+            f'name="{name}"></select>',
             widget.render(name=name, value=value)
         )
 
@@ -198,24 +200,27 @@ class SearchWidgetsTestCase(CremeTestCase):
         name = 'search-birthday'
         self.assertHTMLEqual(
             '<div class="lv-state-field lv-search-daterange" data-lv-search-widget="daterange">'
-            '   <div class="date-start">'
-            '       <label for="id_birth-start">{start_label}</label>'
-            '       <input data-format="{format}" id="id_birth-start" name="{name}-start" value="12-02-2019" />'
-            '   </div>'
-            '   <div class="date-end">'
-            '       <label for="id_birth-end">{end_label}</label>'
-            '       <input data-format="{format}" id="id_birth-end" name="{name}-end" value="14-02-2019" />'
-            '   </div>'
+            ' <div class="date-start">'
+            '    <label for="id_birth-start">{start_label}</label>'
+            '    <input data-format="{format}" id="id_birth-start" name="{name}-start" '
+            '           value="12-02-2019" />'
+            ' </div>'
+            ' <div class="date-end">'
+            '   <label for="id_birth-end">{end_label}</label>'
+            '   <input data-format="{format}" id="id_birth-end" name="{name}-end" '
+            '          value="14-02-2019" />'
+            ' </div>'
             '</div>'.format(
                 name=name,
                 start_label=_('Start'),
                 end_label=_('End'),
                 format=settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT),
             ),
-            widget.render(name=name,
-                          value=['12-02-2019', '14-02-2019'],
-                          attrs={'id': 'id_birth'},
-                         ),
+            widget.render(
+                name=name,
+                value=['12-02-2019', '14-02-2019'],
+                attrs={'id': 'id_birth'},
+            ),
         )
 
 
@@ -1180,13 +1185,14 @@ class SearchFormTestCase(CremeTestCase):
         self.assertEqual(Q(), form.search_q)
 
         self.assertHTMLEqual(  # NB: not "required"
-            '<input class="lv-state-field" data-lv-search-widget="text" id="id_search-{key}" name="search-{key}" type="text" />'.format(
+            '<input class="lv-state-field" data-lv-search-widget="text" '
+            '       id="id_search-{key}" name="search-{key}" type="text" />'.format(
                 key=fname_cell.key,
             ),
             str(form[fname_cell.key])
         )
 
-        self.assertEqual({}, form.filtered_data)
+        self.assertDictEqual({}, form.filtered_data)
 
     def test_search_form02(self):
         "Some data."
@@ -1204,9 +1210,10 @@ class SearchFormTestCase(CremeTestCase):
         form = lv_form.ListViewSearchForm(
             field_registry=ListViewSearchFieldRegistry(),
             cells=[fname_cell, lname_cell, nerd_cell, birth_cell],
-            data={**data,
-                  'i_m_not_used': 'neither_do_i',  # <= not in filtered_data
-                 },
+            data={
+                **data,
+                'i_m_not_used': 'neither_do_i',  # <= not in filtered_data
+            },
             user=self.user,
         )
         form.full_clean()

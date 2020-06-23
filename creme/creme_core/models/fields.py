@@ -97,7 +97,9 @@ class DatePeriodField(models.TextField):  # TODO: inherit from a JSONField
 
         # BEWARE: we do not call TextField.formfield because it overload 'widget'
         # (we could define the 'widget' key in 'defaults'...)
-        return super(models.TextField, self).formfield(**{'form_class': DatePeriodFormField, **kwargs})
+        return super(
+            models.TextField, self,
+        ).formfield(**{'form_class': DatePeriodFormField, **kwargs})
 
 
 class MoneyField(models.DecimalField):
@@ -138,7 +140,8 @@ class CremeUserForeignKey(models.ForeignKey):
 class CTypeForeignKey(models.ForeignKey):
     def __init__(self, **kwargs):
         kwargs['to'] = 'contenttypes.ContentType'
-        # In a normal use, ContentType instances are never deleted ; so CASCADE by default should be OK
+        # In a normal use, ContentType instances are never deleted ;
+        # so CASCADE by default should be OK
         kwargs.setdefault('on_delete', CASCADE)
         super().__init__(**kwargs)
 
@@ -198,7 +201,8 @@ class CTypeOneToOneField(models.OneToOneField):
     def __init__(self, **kwargs):
         kwargs['to'] = 'contenttypes.ContentType'
 
-        # In a normal use, ContentType instances are never deleted ; so CASCADE by default should be OK
+        # In a normal use, ContentType instances are never deleted ;
+        # so CASCADE by default should be OK
         kwargs.setdefault('on_delete', CASCADE)
 
         super().__init__(**kwargs)
@@ -428,7 +432,8 @@ class BasicAutoField(models.PositiveIntegerField):
     value when no value is given.
 
     Notice that that the method is really simple, so the limits are :
-        - The value is the maximum value plus one, so it does not remember the deleted maximum values.
+        - The value is the maximum value plus one, so it does not remember the
+          deleted maximum values.
         - There could be a race condition on the maximum computing.
 
     This field is OK for 'order' in ordered model as creme_config wants them because:

@@ -352,7 +352,9 @@ class CremeModelEditionWizard(SingleObjectMixin, CremeWizardView):
     def get_context_data(self, form, **kwargs):
         context = CremeWizardView.get_context_data(self, form=form, **kwargs)
 
-        # context.update(SingleObjectMixin.get_context_data(self))  # NB: Does not work (diamond calls...)
+        # NB: Does not work (diamond calls...)
+        # context.update(SingleObjectMixin.get_context_data(self))
+
         instance = self.object
         if instance:
             context['object'] = instance
@@ -366,7 +368,8 @@ class CremeModelEditionWizard(SingleObjectMixin, CremeWizardView):
     def get_form_instance(self, step):
         instance = super().get_form_instance(step=step) or self.object
 
-        # We fill the instance with the previous step (so recursively all previous should be used)
+        # We fill the instance with the previous step
+        # (so recursively all previous should be used)
         self.validate_previous_steps(step)
 
         return instance

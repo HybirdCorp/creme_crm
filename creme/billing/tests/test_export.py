@@ -95,10 +95,11 @@ class ExportTestCase(_BillingTestCase):
                           creatable_models=[Invoice, Organisation],
                          )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         invoice, source, target = self.create_invoice_n_orgas('My Invoice', discount=0)
         invoice.user = self.other_user
@@ -117,10 +118,11 @@ class ExportTestCase(_BillingTestCase):
                           creatable_models=[Invoice, Organisation],
                          )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         invoice, source, target = self.create_invoice_n_orgas('My Invoice', discount=0)
         source.user = self.other_user
@@ -139,10 +141,11 @@ class ExportTestCase(_BillingTestCase):
                           creatable_models=[Invoice, Organisation],
                          )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         invoice, source, target = self.create_invoice_n_orgas('My Invoice', discount=0)
         target.user = self.other_user

@@ -35,7 +35,7 @@ _BILL_PREFIX = 'billaddr_'
 _SHIP_PREFIX = 'shipaddr_'
 
 
-class _PersonMassImportForm(ImportForm4CremeEntity):  # TODO: rename 'PersonCSVImportForm' (useful in custom code)
+class _PersonMassImportForm(ImportForm4CremeEntity):
     class Meta:
         exclude = ('image',)
 
@@ -77,9 +77,13 @@ class _PersonMassImportForm(ImportForm4CremeEntity):  # TODO: rename 'PersonCSVI
     def _post_instance_creation(self, instance, line, updated):
         super()._post_instance_creation(instance, line, updated)
         data = self.cleaned_data
-        save_address    = self._save_address
-        change4billing  = save_address('billing_address',  _BILL_PREFIX, instance, data, line, _('Billing address'))
-        change4shipping = save_address('shipping_address', _SHIP_PREFIX, instance, data, line, _('Shipping address'))
+        save_address = self._save_address
+        change4billing = save_address(
+            'billing_address',  _BILL_PREFIX, instance, data, line, _('Billing address'),
+        )
+        change4shipping = save_address(
+            'shipping_address', _SHIP_PREFIX, instance, data, line, _('Shipping address'),
+        )
 
         if change4billing or change4shipping:
             instance.save()

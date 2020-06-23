@@ -66,7 +66,8 @@ class CreateEmailInput(EmailInput):
     brickheader_action_templates = ('crudity/bricks/header-actions/email-creation-template.html',)
 
     def create(self, email: PopEmail):
-        backend = self.get_backend(CrudityBackend.normalize_subject(email.subject))  # or self.get_backend("*")
+        backend = self.get_backend(CrudityBackend.normalize_subject(email.subject))
+        # or self.get_backend("*")
 
         if backend is not None and self.authorize_senders(backend, email.senders):
             data = backend.body_map.copy()
@@ -77,26 +78,33 @@ class CreateEmailInput(EmailInput):
             while left_idx > -1:
                 right_idx = body.find(RIGHT_MULTILINE_SEP)
 
-                if right_idx < left_idx:  # A RIGHT_MULTILINE_SEP is specified before LEFT_MULTILINE_SEP
+                if right_idx < left_idx:
+                    # A RIGHT_MULTILINE_SEP is specified before LEFT_MULTILINE_SEP
                     body = body[:right_idx] + body[right_idx + MULTILINE_SEP_LEN:]
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                     continue
 
                 # The body excepted current LEFT_MULTILINE_SEP
-                malformed_idx = (body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:right_idx]).find(LEFT_MULTILINE_SEP)
+                malformed_idx = (
+                    body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:right_idx]
+                ).find(LEFT_MULTILINE_SEP)
 
                 if malformed_idx > -1:
-                    # This means that a next occurrence of multiline is opened before closing current one
+                    # This means that a next occurrence of multiline is opened
+                    # before closing current one
                     body = body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:]
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                     continue
 
                 if right_idx > -1:
                     body = (
-                        body[:left_idx] +
-                        body[left_idx:right_idx + MULTILINE_SEP_LEN].replace(
-                            '\n', '\\n').replace(LEFT_MULTILINE_SEP, '').replace(RIGHT_MULTILINE_SEP, '') +
-                        body[right_idx + MULTILINE_SEP_LEN:]
+                        body[:left_idx]
+                        + body[
+                            left_idx:right_idx + MULTILINE_SEP_LEN
+                        ].replace('\n', '\\n')
+                         .replace(LEFT_MULTILINE_SEP, '')
+                         .replace(RIGHT_MULTILINE_SEP, '')
+                        + body[right_idx + MULTILINE_SEP_LEN:]
                     )
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                 else:
@@ -108,7 +116,11 @@ class CreateEmailInput(EmailInput):
             if self.is_allowed_password(backend.password, split_body):
                 for key in data.keys():
                     for i, line in enumerate(split_body):
-                        r = re.search(r"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!-\\\w&]+)""" % (key, key), line, flags=re.UNICODE)
+                        r = re.search(
+                            r"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!-\\\w&]+)""" % (key, key),
+                            line,
+                            flags=re.UNICODE,
+                        )
 
                         if r:
                             # TODO: Check if the target field is a simple-line field ?
@@ -201,13 +213,19 @@ class CreateInfopathInput(CreateEmailInput):
             except FieldDoesNotExist:
                 continue
 
-            if field_value is not None \
-               and (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, Document)) \
-               or isinstance(field, FileField):
+            if (
+                field_value is not None
+                and (
+                    isinstance(field, ForeignKey)
+                    and issubclass(field.remote_field.model, Document)
+                ) or isinstance(field, FileField)
+            ):
                 data[field_name] = decode_b64binary(field_value.encode())  # (filename, image_blob)
 
     def create(self, email):
-        backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) or self.get_backend("*")
+        backend = self.get_backend(
+            CrudityBackend.normalize_subject(email.subject)
+        ) or self.get_backend("*")
 
         if backend is None:
             return None

@@ -125,40 +125,64 @@ class PagerContext:
         if page_count < 1:
             return []
 
-        links = [PagerLink(page_previous, label=_('Previous page'), group=PagerLink.PREVIOUS, enabled=page_previous is not None)]
+        links = [
+            PagerLink(
+                page_previous, label=_('Previous page'),
+                group=PagerLink.PREVIOUS,
+                enabled=page_previous is not None,
+            ),
+        ]
 
         if page_count < self.SHOW_ALL_PAGES_LIMIT:
             links.extend(
-                PagerLink(index, is_current=is_current(index)) for index in range(1, page_count + 1)
+                PagerLink(index, is_current=is_current(index))
+                for index in range(1, page_count + 1)
             )
         elif page_current <= self.SHOW_LAST_PAGE_LIMIT:
             assert page_next is not None
 
             links.extend(
-                PagerLink(index, is_current=is_current(index)) for index in range(1, page_next + 1)
+                PagerLink(index, is_current=is_current(index))
+                for index in range(1, page_next + 1)
             )
-            links.append(PagerLink(page_next + 1, help=_('To another page'), group=PagerLink.CHOOSE))
+            links.append(
+                PagerLink(page_next + 1, help=_('To another page'), group=PagerLink.CHOOSE)
+            )
             links.append(PagerLink(page_count, help=_('To last page')))
         elif page_current >= page_count - self.SHOW_FIRST_PAGE_LIMIT:
             assert page_previous is not None
 
             links.append(PagerLink(1, help=_('To first page')))
-            links.append(PagerLink(page_previous - 1, help=_('To another page'), group=PagerLink.CHOOSE))
+            links.append(
+                PagerLink(page_previous - 1, help=_('To another page'), group=PagerLink.CHOOSE)
+            )
             links.extend(
-                PagerLink(index, is_current=is_current(index)) for index in range(page_previous, page_count + 1)
+                PagerLink(index, is_current=is_current(index))
+                for index in range(page_previous, page_count + 1)
             )
         else:
             assert page_previous is not None
             assert page_next is not None
 
             links.append(PagerLink(1, help=_('To first page')))
-            links.append(PagerLink(page_previous - 1, help=_('To another page'), group=PagerLink.CHOOSE))
-            links.extend(
-                PagerLink(index, is_current=is_current(index)) for index in range(page_previous, page_next + 1)
+            links.append(
+                PagerLink(page_previous - 1, help=_('To another page'), group=PagerLink.CHOOSE)
             )
-            links.append(PagerLink(page_next + 1, help=_('To another page'), group=PagerLink.CHOOSE))
+            links.extend(
+                PagerLink(index, is_current=is_current(index))
+                for index in range(page_previous, page_next + 1)
+            )
+            links.append(
+                PagerLink(page_next + 1, help=_('To another page'), group=PagerLink.CHOOSE)
+            )
             links.append(PagerLink(page_count, help=_('To last page')))
 
-        links.append(PagerLink(page_next, label=_('Next page'), group=PagerLink.NEXT, enabled=page_next is not None))
+        links.append(
+            PagerLink(
+                page_next, label=_('Next page'),
+                group=PagerLink.NEXT,
+                enabled=page_next is not None,
+            )
+        )
 
         return links

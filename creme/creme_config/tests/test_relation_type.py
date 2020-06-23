@@ -294,9 +294,10 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                   'semi_relation': self.formfield_value_relation_entity(self.loves.id, self.iori),
                  },
         )
-        self.assertFormError(response, 'form', None,
-                             _('A semi-fixed type of relationship with this type and this object already exists.')
-                            )
+        self.assertFormError(
+            response, 'form', None,
+            _('A semi-fixed type of relationship with this type and this object already exists.')
+        )
 
     def test_delete(self):
         sfrt = SemiFixedRelationType.objects.create(predicate='Is loving Iori',

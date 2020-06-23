@@ -104,7 +104,9 @@ class MassExportViewsTestCase(ViewsTestCase):
             EntityCellRegularField.build(model=FakeContact, name='first_name'),
             EntityCellRelation(model=FakeContact, rtype=rtype_pilots),
             # TODO: EntityCellCustomField
-            EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
+            EntityCellFunctionField.build(
+                model=FakeContact, func_field_name='get_pretty_properties',
+            ),
         ]
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact', name='Contact view',
@@ -357,8 +359,12 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.role.exportable_ctypes.set([self.ct])
 
         create_img = FakeImage.objects.create
-        spike_face = create_img(name='Spike face', user=self.other_user, description="Spike's selfie")
-        jet_face   = create_img(name='Jet face',   user=user,            description="Jet's selfie")
+        spike_face = create_img(
+            name='Spike face', user=self.other_user, description="Spike's selfie",
+        )
+        jet_face = create_img(
+            name='Jet face', user=user, description="Jet's selfie",
+        )
         self.assertTrue(user.has_perm_to_view(jet_face))
         self.assertFalse(user.has_perm_to_view(spike_face))
 
@@ -469,9 +475,10 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         existing_hline_ids = [*HistoryLine.objects.values_list('id', flat=True)]
 
-        response = self.assertGET200(
-            self._build_contact_dl_url(list_url=FakeContact.get_lv_absolute_url(), efilter_id=efilter.id),
-        )
+        response = self.assertGET200(self._build_contact_dl_url(
+            list_url=FakeContact.get_lv_absolute_url(),
+            efilter_id=efilter.id
+        ))
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
 
@@ -543,7 +550,10 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='Bebop')
-        orga02 = create_orga(name='Swordfish', subject_to_vat=False, creation_date=date(year=2016, month=7, day=5))
+        orga02 = create_orga(
+            name='Swordfish', subject_to_vat=False,
+            creation_date=date(year=2016, month=7, day=5),
+        )
 
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
         cells = [build_cell(name='name'),
@@ -569,7 +579,10 @@ class MassExportViewsTestCase(ViewsTestCase):
         it = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
         self.assertEqual(next(it), [hfi.title for hfi in cells])
         self.assertEqual(next(it), [orga01.name, _('Yes'), ''])
-        self.assertEqual(next(it), [orga02.name, _('No'),  date_format(orga02.creation_date, 'DATE_FORMAT')])
+        self.assertEqual(
+            next(it),
+            [orga02.name, _('No'),  date_format(orga02.creation_date, 'DATE_FORMAT')]
+        )
         with self.assertRaises(StopIteration):
             next(it)
 
@@ -636,7 +649,9 @@ class MassExportViewsTestCase(ViewsTestCase):
     def _get_lv_content(self, response):
         page_tree = html5lib.parse(response.content, namespaceHTMLElements=False)
 
-        content_node = page_tree.find(".//form[@widget='ui-creme-listview']//table[@data-total-count]")
+        content_node = page_tree.find(
+            ".//form[@widget='ui-creme-listview']//table[@data-total-count]"
+        )
         self.assertIsNotNone(content_node, 'The table listviews is not found.')
 
         tbody = content_node.find(".//tbody")

@@ -82,9 +82,10 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             tpl = Template(r'{% load creme_widgets %}{{text|widget_urlize}}')
             render = tpl.render(Context({'text': 'Do not forget to visit www.cremecrm.com'}))
 
-        self.assertEqual(render,
-                         'Do not forget to visit <a href="http://www.cremecrm.com">www.cremecrm.com</a>'
-                        )
+        self.assertEqual(
+            render,
+            'Do not forget to visit <a href="http://www.cremecrm.com">www.cremecrm.com</a>'
+        )
 
     @override_settings(URLIZE_TARGET_BLANK=True)
     def test_widget_urlize02(self):
@@ -95,7 +96,8 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
         self.assertEqual(
             render,
-            'Do not forget to visit <a target="_blank" rel="noopener noreferrer" href="http://www.cremecrm.com">www.cremecrm.com</a>'
+            'Do not forget to visit <a target="_blank" rel="noopener noreferrer" '
+            'href="http://www.cremecrm.com">www.cremecrm.com</a>'
         )
 
     # TODO: complete

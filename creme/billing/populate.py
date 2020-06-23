@@ -82,7 +82,7 @@ class Populator(BasePopulator):
         Product = products.get_product_model()
         Service = products.get_service_model()
 
-        # ---------------------------
+        # Realtionships ---------------------------
         line_entities = [*lines_registry]
         create_rtype = RelationType.create
         create_rtype(
@@ -109,54 +109,91 @@ class Populator(BasePopulator):
             is_internal=True,
         )
         create_rtype(
-            (constants.REL_SUB_CREDIT_NOTE_APPLIED, _('is used in the billing document'), [CreditNote]),
-            (constants.REL_OBJ_CREDIT_NOTE_APPLIED, _('used the credit note'),            [Quote, SalesOrder, Invoice]),
+            (
+                constants.REL_SUB_CREDIT_NOTE_APPLIED,
+                _('is used in the billing document'),
+                [CreditNote],
+            ),
+            (
+                constants.REL_OBJ_CREDIT_NOTE_APPLIED,
+                _('used the credit note'),
+                [Quote, SalesOrder, Invoice],
+            ),
             is_internal=True,
             minimal_display=(True, True),
         )
 
         if apps.is_installed('creme.activities'):
-            logger.info('Activities app is installed => an Invoice/Quote/SalesOrder can be the subject of an Activity')
+            logger.info(
+                'Activities app is installed '
+                '=> an Invoice/Quote/SalesOrder can be the subject of an Activity'
+            )
 
             from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
             RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT) \
                                 .add_subject_ctypes(Invoice, Quote, SalesOrder)
 
-        # ---------------------------
+        # Payment Terms ---------------------------
         create_if_needed(PaymentTerms, {'pk': 1}, name=_('Deposit'),
                          description=_(r'20% deposit will be required'),
                          is_custom=False,
                         )
 
-        # ---------------------------
-        # NB: pk=1 + is_custom=False --> default status (used when a quote is converted in invoice for example)
-        create_if_needed(SalesOrderStatus, {'pk': 1}, name=pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False)
-        if not already_populated:
-            create_if_needed(SalesOrderStatus, {'pk': 2}, name=pgettext('billing-salesorder', 'Accepted'), order=3)
-            create_if_needed(SalesOrderStatus, {'pk': 3}, name=pgettext('billing-salesorder', 'Rejected'), order=4)
-            create_if_needed(SalesOrderStatus, {'pk': 4}, name=pgettext('billing-salesorder', 'Created'),  order=2)
+        # SalesOrder Status ---------------------------
+        def create_order_status(pk, name, **kwargs):
+            create_if_needed(SalesOrderStatus, {'pk': pk}, name=name, **kwargs)
 
-        # ---------------------------
+        # NB: pk=1 + is_custom=False --> default status
+        #     (used when a quote is converted in invoice for example)
+        create_order_status(1, pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False)
+
+        if not already_populated:
+            create_order_status(2, pgettext('billing-salesorder', 'Accepted'), order=3)
+            create_order_status(3, pgettext('billing-salesorder', 'Rejected'), order=4)
+            create_order_status(4, pgettext('billing-salesorder', 'Created'),  order=2)
+
+        # Invoice Status ---------------------------
         def create_invoice_status(pk, name, **kwargs):
             create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
 
-        create_invoice_status(1, pgettext('billing-invoice', 'Draft'),      order=1, is_custom=False)  # Default status
-        create_invoice_status(2, pgettext('billing-invoice', 'To be sent'), order=2, is_custom=False)
-        if not already_populated:
-            create_invoice_status(3, pgettext('billing-invoice', 'Sent'),            order=3, pending_payment=True)
-            create_invoice_status(4, pgettext('billing-invoice', 'Resulted'),        order=5)
-            create_invoice_status(5, pgettext('billing-invoice', 'Partly resulted'), order=4, pending_payment=True)
-            create_invoice_status(6, _('Collection'),                                order=7)
-            create_invoice_status(7, _('Resulted collection'),                       order=6)
-            create_invoice_status(8, pgettext('billing-invoice', 'Canceled'),        order=8)
+        create_invoice_status(
+            1, pgettext('billing-invoice', 'Draft'),      order=1, is_custom=False,
+        )  # Default status
+        create_invoice_status(
+            2, pgettext('billing-invoice', 'To be sent'), order=2, is_custom=False,
+        )
 
-        # ---------------------------
-        create_if_needed(CreditNoteStatus, {'pk': 1}, name=pgettext('billing-creditnote', 'Draft'), order=1, is_custom=False)
         if not already_populated:
-            create_if_needed(CreditNoteStatus, {'pk': 2}, name=pgettext('billing-creditnote', 'Issued'),      order=2)
-            create_if_needed(CreditNoteStatus, {'pk': 3}, name=pgettext('billing-creditnote', 'Consumed'),    order=3)
-            create_if_needed(CreditNoteStatus, {'pk': 4}, name=pgettext('billing-creditnote', 'Out of date'), order=4)
+            create_invoice_status(
+                3, pgettext('billing-invoice', 'Sent'),            order=3, pending_payment=True,
+            )
+            create_invoice_status(
+                4, pgettext('billing-invoice', 'Resulted'),        order=5,
+            )
+            create_invoice_status(
+                5, pgettext('billing-invoice', 'Partly resulted'), order=4, pending_payment=True,
+            )
+            create_invoice_status(
+                6, _('Collection'),                                order=7,
+            )
+            create_invoice_status(
+                7, _('Resulted collection'),                       order=6,
+            )
+            create_invoice_status(
+                8, pgettext('billing-invoice', 'Canceled'),        order=8,
+            )
+
+        # CreditNote Status ---------------------------
+        def create_cnote_status(pk, name, **kwargs):
+            create_if_needed(CreditNoteStatus, {'pk': pk}, name=name, **kwargs)
+
+        create_cnote_status(1, pgettext('billing-creditnote', 'Draft'), order=1, is_custom=False)
+
+        if not already_populated:
+            create_cnote_status(2, pgettext('billing-creditnote', 'Issued'),      order=2)
+            create_cnote_status(3, pgettext('billing-creditnote', 'Consumed'),    order=3)
+            create_cnote_status(4, pgettext('billing-creditnote', 'Out of date'), order=4)
 
         # ---------------------------
         EntityFilter.objects.smart_update_or_create(
@@ -237,7 +274,9 @@ class Populator(BasePopulator):
         create_hf(constants.DEFAULT_HFILTER_QUOTE,    _('Quote view'),       Quote)
         create_hf(constants.DEFAULT_HFILTER_ORDER,    _('Sales order view'), SalesOrder)
         create_hf(constants.DEFAULT_HFILTER_CNOTE,    _('Credit note view'), CreditNote)
-        create_hf(constants.DEFAULT_HFILTER_TEMPLATE, _('Template view'),    TemplateBase, status=False)
+        create_hf(
+            constants.DEFAULT_HFILTER_TEMPLATE, _('Template view'),    TemplateBase, status=False,
+        )
 
         def create_hf_lines(hf_pk, name, model):
             build_cell = EntityCellRegularField.build
@@ -267,10 +306,15 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', 'Pending'),  order=2)  # Default status
-            create_if_needed(QuoteStatus, {'pk': 2}, name=pgettext('billing-quote', 'Accepted'), order=3, won=True)
-            create_if_needed(QuoteStatus, {'pk': 3}, name=pgettext('billing-quote', 'Rejected'), order=4)
-            create_if_needed(QuoteStatus, {'pk': 4}, name=pgettext('billing-quote', 'Created'),  order=1)
+            def create_quote_status(pk, name, **kwargs):
+                create_if_needed(QuoteStatus, {'pk': pk}, name=name, **kwargs)
+
+            # Default status
+            create_quote_status(1, pgettext('billing-quote', 'Pending'),  order=2)
+
+            create_quote_status(2, pgettext('billing-quote', 'Accepted'), order=3, won=True)
+            create_quote_status(3, pgettext('billing-quote', 'Rejected'), order=4)
+            create_quote_status(4, pgettext('billing-quote', 'Created'),  order=1)
 
             # ---------------------------
             create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
@@ -280,26 +324,76 @@ class Populator(BasePopulator):
             create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
 
             # ---------------------------
-            create_if_needed(AdditionalInformation, {'pk': 1}, name=_('Trainer accreditation'),
-                             description=_('being certified trainer courses could be supported by your OPCA')
-                            )
+            create_if_needed(
+                AdditionalInformation,
+                {'pk': 1}, name=_('Trainer accreditation'),
+                description=_('being certified trainer courses could be supported by your OPCA')
+            )
 
             # ---------------------------
             create_bmi = ButtonMenuItem.objects.create_if_needed
-            create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=buttons.GenerateInvoiceNumberButton, order=0)
+            create_bmi(
+                pk='billing-generate_invoice_number', model=Invoice,
+                button=buttons.GenerateInvoiceNumberButton, order=0,
+            )
 
-            create_bmi(pk='billing-convert_quote_to_invoice',    model=Quote, button=buttons.ConvertToInvoiceButton,    order=0)
-            create_bmi(pk='billing-convert_quote_to_salesorder', model=Quote, button=buttons.ConvertToSalesOrderButton, order=1)
+            create_bmi(
+                pk='billing-convert_quote_to_invoice',
+                model=Quote,
+                button=buttons.ConvertToInvoiceButton,
+                order=0,
+            )
+            create_bmi(
+                pk='billing-convert_quote_to_salesorder',
+                model=Quote,
+                button=buttons.ConvertToSalesOrderButton,
+                order=1,
+            )
 
-            create_bmi(pk='billing-convert_salesorder_to_invoice', model=SalesOrder, button=buttons.ConvertToInvoiceButton, order=0)
+            create_bmi(
+                pk='billing-convert_salesorder_to_invoice',
+                model=SalesOrder,
+                button=buttons.ConvertToInvoiceButton,
+                order=0,
+            )
 
-            create_bmi(pk='billing-quote_orga_button',      model=Organisation, button=buttons.AddQuoteButton,      order=100)
-            create_bmi(pk='billing-salesorder_orga_button', model=Organisation, button=buttons.AddSalesOrderButton, order=101)
-            create_bmi(pk='billing-invoice_orga_button',    model=Organisation, button=buttons.AddInvoiceButton,    order=102)
+            create_bmi(
+                pk='billing-quote_orga_button',
+                model=Organisation,
+                button=buttons.AddQuoteButton,
+                order=100,
+            )
+            create_bmi(
+                pk='billing-salesorder_orga_button',
+                model=Organisation,
+                button=buttons.AddSalesOrderButton,
+                order=101,
+            )
+            create_bmi(
+                pk='billing-invoice_orga_button',
+                model=Organisation,
+                button=buttons.AddInvoiceButton,
+                order=102,
+            )
 
-            create_bmi(pk='billing-quote_contact_button',      model=Contact, button=buttons.AddQuoteButton,      order=100)
-            create_bmi(pk='billing-salesorder_contact_button', model=Contact, button=buttons.AddSalesOrderButton, order=101)
-            create_bmi(pk='billing-invoice_contact_button',    model=Contact, button=buttons.AddInvoiceButton,    order=102)
+            create_bmi(
+                pk='billing-quote_contact_button',
+                model=Contact,
+                button=buttons.AddQuoteButton,
+                order=100,
+            )
+            create_bmi(
+                pk='billing-salesorder_contact_button',
+                model=Contact,
+                button=buttons.AddSalesOrderButton,
+                order=101,
+            )
+            create_bmi(
+                pk='billing-invoice_contact_button',
+                model=Contact,
+                button=buttons.AddInvoiceButton,
+                order=102,
+            )
 
             # ---------------------------
             create_cbci = CustomBrickConfigItem.objects.create
@@ -324,46 +418,54 @@ class Populator(BasePopulator):
                     build_cell(model, 'user'),
                 ]
 
-            cbci_invoice = create_cbci(id='billing-invoice_info',
-                                       name=_('Invoice information'),
-                                       content_type=Invoice,
-                                       cells=build_cells(
-                                           Invoice,
-                                           build_cell(Invoice, 'status'),
-                                           build_cell(Invoice, 'payment_type'),
-                                           build_cell(Invoice, 'buyers_order_number'),
-                                       ),
-                                      )
-            cbci_c_note  = create_cbci(id='billing-creditnote_info',
-                                       name=_('Credit note information'),
-                                       content_type=CreditNote,
-                                       cells=build_cells(CreditNote, build_cell(CreditNote, 'status')),
-                                      )
-            cbci_quote   = create_cbci(id='billing-quote_info',
-                                       name=_('Quote information'),
-                                       content_type=Quote,
-                                       cells=build_cells(
-                                           Quote,
-                                           build_cell(Quote, 'status'),
-                                           build_cell(Quote, 'acceptation_date'),
-                                       ),
-                                      )
-            cbci_s_order = create_cbci(id='billing-salesorder_info',
-                                       name=_('Salesorder information'),
-                                       content_type=SalesOrder,
-                                       cells=build_cells(
-                                           SalesOrder,
-                                           build_cell(SalesOrder, 'status'),
-                                       ),
-                                      )
-            cbci_tbase   = create_cbci(id='billing-templatebase_info',
-                                       name=pgettext('billing', 'Template information'),
-                                       content_type=TemplateBase,
-                                       cells=build_cells(
-                                           TemplateBase,
-                                           EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
-                                       ),
-                                      )
+            cbci_invoice = create_cbci(
+                id='billing-invoice_info',
+                name=_('Invoice information'),
+                content_type=Invoice,
+                cells=build_cells(
+                    Invoice,
+                    build_cell(Invoice, 'status'),
+                    build_cell(Invoice, 'payment_type'),
+                    build_cell(Invoice, 'buyers_order_number'),
+                ),
+            )
+            cbci_c_note = create_cbci(
+                id='billing-creditnote_info',
+                name=_('Credit note information'),
+                content_type=CreditNote,
+                cells=build_cells(
+                    CreditNote,
+                    build_cell(CreditNote, 'status'),
+                ),
+            )
+            cbci_quote = create_cbci(
+                id='billing-quote_info',
+                name=_('Quote information'),
+                content_type=Quote,
+                cells=build_cells(
+                    Quote,
+                    build_cell(Quote, 'status'),
+                    build_cell(Quote, 'acceptation_date'),
+                ),
+            )
+            cbci_s_order = create_cbci(
+                id='billing-salesorder_info',
+                name=_('Salesorder information'),
+                content_type=SalesOrder,
+                cells=build_cells(
+                    SalesOrder,
+                    build_cell(SalesOrder, 'status'),
+                ),
+            )
+            cbci_tbase = create_cbci(
+                id='billing-templatebase_info',
+                name=pgettext('billing', 'Template information'),
+                content_type=TemplateBase,
+                cells=build_cells(
+                    TemplateBase,
+                    EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
+                ),
+            )
 
             models_4_blocks = [
                 (Invoice,      cbci_invoice, True),  # Boolean -> insert CreditNote block
@@ -380,25 +482,37 @@ class Populator(BasePopulator):
             for model, cbci, has_credit_notes in models_4_blocks:
                 create_bdl(brick=bricks.ProductLinesBrick, order=10, zone=TOP, model=model)
                 create_bdl(brick=bricks.ServiceLinesBrick, order=20, zone=TOP, model=model)
-
                 if has_credit_notes:
                     create_bdl(brick=bricks.CreditNotesBrick, order=30, zone=TOP, model=model)
 
-                create_bdl(brick=cbci.generate_id(),                    order=5,   zone=LEFT, model=model)
-                create_bdl(brick=core_bricks.CustomFieldsBrick,         order=40,  zone=LEFT, model=model)
-                create_bdl(brick=bricks.BillingPaymentInformationBrick, order=60,  zone=LEFT, model=model)
-                create_bdl(brick=bricks.BillingPrettyAddressBrick,      order=70,  zone=LEFT, model=model)
-                create_bdl(brick=core_bricks.PropertiesBrick,           order=450, zone=LEFT, model=model)
-                create_bdl(brick=core_bricks.RelationsBrick,            order=500, zone=LEFT, model=model)
+                for brick, order in [
+                    (cbci.generate_id(),                    5),
+                    (core_bricks.CustomFieldsBrick,         40),
+                    (bricks.BillingPaymentInformationBrick, 60),
+                    (bricks.BillingPrettyAddressBrick,      70),
+                    (core_bricks.PropertiesBrick,           450),
+                    (core_bricks.RelationsBrick,            500),
+                ]:
+                    create_bdl(brick=brick, order=order, zone=LEFT, model=model)
 
-                create_bdl(brick=bricks.TargetBrick,       order=2,  zone=RIGHT, model=model)
-                create_bdl(brick=bricks.TotalBrick,        order=3,  zone=RIGHT, model=model)
-                create_bdl(brick=core_bricks.HistoryBrick, order=20, zone=RIGHT, model=model)
+                for brick, order in [
+                    (bricks.TargetBrick,        2),
+                    (bricks.TotalBrick,         3),
+                    (core_bricks.HistoryBrick, 20),
+                ]:
+                    create_bdl(brick=brick, order=order, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail views')
+                logger.info(
+                    'Assistants app is installed => we use the assistants blocks on detail views'
+                )
 
-                from creme.assistants.bricks import AlertsBrick, MemosBrick, TodosBrick, UserMessagesBrick
+                from creme.assistants.bricks import (
+                    AlertsBrick,
+                    MemosBrick,
+                    TodosBrick,
+                    UserMessagesBrick,
+                )
 
                 for t in models_4_blocks:
                     model = t[0]
@@ -408,26 +522,47 @@ class Populator(BasePopulator):
                     create_bdl(brick=UserMessagesBrick, order=400, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed => we use the documents block on detail views')
+                # logger.info(
+                #   'Documents app is installed
+                #   => we use the documents block on detail views'
+                # )
 
                 from creme.documents.bricks import LinkedDocsBrick
 
                 for t in models_4_blocks:
                     create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=t[0])
 
-            create_bdl(brick=bricks.PaymentInformationBrick, order=300, zone=LEFT,  model=Organisation)
-            create_bdl(brick=bricks.ReceivedInvoicesBrick,   order=14,  zone=RIGHT, model=Organisation)
-            create_bdl(brick=bricks.ReceivedQuotesBrick,     order=18,  zone=RIGHT, model=Organisation)
+            create_bdl(
+                brick=bricks.PaymentInformationBrick,
+                order=300, zone=LEFT,
+                model=Organisation,
+            )
+            create_bdl(
+                brick=bricks.ReceivedInvoicesBrick,
+                order=14, zone=RIGHT,
+                model=Organisation,
+            )
+            create_bdl(
+                brick=bricks.ReceivedQuotesBrick,
+                order=18, zone=RIGHT,
+                model=Organisation,
+            )
 
             # ---------------------------
             if apps.is_installed('creme.reports'):
-                logger.info('Reports app is installed => we create 2 billing reports, with 3 graphs, and related blocks in home')
-                self.create_reports(rt_sub_bill_received,
-                                    current_year_invoice_filter,
-                                    current_year_unpaid_invoice_filter,
-                                   )
+                logger.info(
+                    'Reports app is installed '
+                    '=> we create 2 billing reports, with 3 graphs, and related blocks in home'
+                )
+                self.create_reports(
+                    rt_sub_bill_received,
+                    current_year_invoice_filter,
+                    current_year_unpaid_invoice_filter,
+                )
 
-    def create_reports(self, rt_sub_bill_received, current_year_invoice_filter, current_year_unpaid_invoice_filter):
+    def create_reports(self,
+                       rt_sub_bill_received, current_year_invoice_filter,
+                       current_year_unpaid_invoice_filter):
         from functools import partial
 
         from django.contrib.auth import get_user_model
@@ -445,7 +580,10 @@ class Populator(BasePopulator):
 
         total_no_vat_cell = EntityCellRegularField.build(Invoice, 'total_no_vat')
         if total_no_vat_cell is None:
-            logger.warning('Invoice seems not having a field "total_no_vat" => no Report/ReportGraph created.')
+            logger.warning(
+                'Invoice seems not having a field "total_no_vat" '
+                '=> no Report/ReportGraph created.'
+            )
             return
 
         def create_report_columns(report):

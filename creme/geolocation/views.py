@@ -82,7 +82,8 @@ class AddressInfoSetting(CheckedView):
         data = {
             'latitude': get_arg('latitude'),
             'longitude': get_arg('longitude'),
-            'geocoded': get_arg('geocoded').lower() == 'true',  # TODO: utils.bool_from_str_extended()
+            # TODO: utils.bool_from_str_extended()
+            'geocoded': get_arg('geocoded').lower() == 'true',
             'status': get_arg('status'),
         }
 
@@ -108,7 +109,8 @@ class AddressInfoSetting(CheckedView):
 #         model = entity_filter.entity_type.model_class()
 #         owner_groups = (entity_filter.filter(model.objects, user),)
 #
-#     addresses = list(chain(*(iter(addresses_from_persons(owners, user)) for owners in owner_groups)))
+#     addresses = list(chain(*(iter(addresses_from_persons(owners, user))
+#         for owners in owner_groups)))
 #
 #     GeoAddress.populate_geoaddresses(addresses)
 #
@@ -144,7 +146,8 @@ class AddressesInformation(BaseAddressesInformation):
 
         def owner_groups():
             if entity_filter:
-                model = entity_filter.entity_type.model_class()  # TODO: assert in self.entity_classes
+                # TODO: assert in self.entity_classes
+                model = entity_filter.entity_type.model_class()
                 yield entity_filter.filter(model.objects.all(), user=user)
             else:
                 for model in self.entity_classes:

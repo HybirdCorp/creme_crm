@@ -169,7 +169,9 @@ class SettingValue(models.Model):
     def value(self, value):
         if value is None:
             if not self.key.blank:
-                raise ValueError('SettingValue.value: a value is required (key is not <blank=True>.')
+                raise ValueError(
+                    'SettingValue.value: a value is required (key is not <blank=True>.'
+                )
 
             self.value_str = ''
         else:

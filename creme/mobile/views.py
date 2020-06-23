@@ -564,7 +564,8 @@ def _improve_minutes(pcall, minutes):
 @atomic
 def _phonecall_workflow_set_end(request, end_function):
     POST = request.POST
-    start = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))  # TODO: assert in the past
+    # TODO: assert in the past
+    start = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
     end = end_function(start)
     minutes = POST.get('minutes', '')
 
@@ -674,7 +675,8 @@ def phonecall_workflow_postponed(request):
     pcall = _get_pcall(request)
 
     if pcall is not None:
-        # NB: we avoid a double save here (clone() + save()) by modifying our live copy before cloning
+        # NB: we avoid a double save here (clone() + save())
+        #     by modifying our live copy before cloning
         postponed = deepcopy(pcall)  # NB: deepcopy to copy cache too (_state)
 
         _set_pcall_as_failed(pcall, request)

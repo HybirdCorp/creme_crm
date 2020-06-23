@@ -69,18 +69,21 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         add_argument = parser.add_argument
-        add_argument('-n', '--number',
-                     action='store', dest='number', type=int, default=10,
-                     help='How many actions are created per configured backend. [default: %(default)s]',
-                    )
-        add_argument('-l', '--list',
-                     action='store_true', dest='list_types', default=False,
-                     help='List the available type of entities',
-                    )
-        add_argument('-c', '--language',
-                     action='store', dest='language_code', default='',
-                     help='Locale used for random data. [default: see settings.LANGUAGE_CODE]',
-                    )
+        add_argument(
+            '-n', '--number',
+            action='store', dest='number', type=int, default=10,
+            help='How many actions are created per configured backend. [default: %(default)s]',
+        )
+        add_argument(
+            '-l', '--list',
+            action='store_true', dest='list_types', default=False,
+            help='List the available type of entities',
+        )
+        add_argument(
+            '-c', '--language',
+            action='store', dest='language_code', default='',
+            help='Locale used for random data. [default: see settings.LANGUAGE_CODE]',
+        )
 
     def handle(self, **options):
         types_map = {
@@ -111,7 +114,8 @@ class Command(BaseCommand):
 
                         if _get_model_n_factory is None:
                             self.stderr.write(
-                                f'"{backend.model}" is not managed ; use the -l option to get the managed types.'
+                                f'"{backend.model}" is not managed ; '
+                                f'use the -l option to get the managed types.'
                             )
                             continue
 

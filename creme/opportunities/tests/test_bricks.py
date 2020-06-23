@@ -44,7 +44,9 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         contact04 = create_contact(first_name='Dutch', last_name='??')
         contact05 = create_contact(first_name='Balalaika', last_name='??', is_deleted=True)
 
-        create_rel = partial(Relation.objects.create, user=user, type_id=constants.REL_OBJ_LINKED_CONTACT)
+        create_rel = partial(
+            Relation.objects.create, user=user, type_id=constants.REL_OBJ_LINKED_CONTACT,
+        )
         create_rel(subject_entity=opp01, object_entity=contact01)
         create_rel(subject_entity=opp01, object_entity=contact02)
         create_rel(subject_entity=opp02, object_entity=contact04)
@@ -108,7 +110,9 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         product04 = create_product(name='Eva03')
         product05 = create_product(name='Eva04', is_deleted=True)
 
-        create_rel = partial(Relation.objects.create, user=user, type_id=constants.REL_OBJ_LINKED_PRODUCT)
+        create_rel = partial(
+            Relation.objects.create, user=user, type_id=constants.REL_OBJ_LINKED_PRODUCT,
+        )
         create_rel(subject_entity=opp01, object_entity=product01)
         create_rel(subject_entity=opp01, object_entity=product02)
         create_rel(subject_entity=opp02, object_entity=product04)
@@ -146,7 +150,9 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         service04 = create_service(name='Eva03 support')
         service05 = create_service(name='Eva04 support', is_deleted=True)
 
-        create_rel = partial(Relation.objects.create, user=user, type_id=constants.REL_OBJ_LINKED_SERVICE)
+        create_rel = partial(
+            Relation.objects.create, user=user, type_id=constants.REL_OBJ_LINKED_SERVICE,
+        )
         create_rel(subject_entity=opp01, object_entity=service01)
         create_rel(subject_entity=opp01, object_entity=service02)
         create_rel(subject_entity=opp02, object_entity=service04)

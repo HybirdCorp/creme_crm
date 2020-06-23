@@ -70,17 +70,19 @@ logger = logging.getLogger(__name__)
 
 
 class UserRole(models.Model):
-    name              = models.CharField(_('Name'), max_length=100, unique=True)
-    # superior         = ForeignKey('self', verbose_name=_('Superior'), null=True) #related_name='subordinates'
+    name = models.CharField(_('Name'), max_length=100, unique=True)
+    # superior = ForeignKey('self', verbose_name=_('Superior'), null=True)
     # TODO: CTypeManyToManyField ?
-    creatable_ctypes  = models.ManyToManyField(ContentType, verbose_name=_('Creatable resources'),
-                                               related_name='roles_allowing_creation',  # TODO: '+' ?
-                                              )
-    exportable_ctypes = models.ManyToManyField(ContentType, verbose_name=_('Exportable resources'),
-                                               related_name='roles_allowing_export',  # TODO: '+' ?
-                                              )
-    raw_allowed_apps  = models.TextField(default='')  # Use 'allowed_apps' property
-    raw_admin_4_apps  = models.TextField(default='')  # Use 'admin_4_apps' property
+    creatable_ctypes = models.ManyToManyField(
+        ContentType, verbose_name=_('Creatable resources'),
+        related_name='roles_allowing_creation',  # TODO: '+' ?
+    )
+    exportable_ctypes = models.ManyToManyField(
+        ContentType, verbose_name=_('Exportable resources'),
+        related_name='roles_allowing_export',  # TODO: '+' ?
+    )
+    raw_allowed_apps = models.TextField(default='')  # Use 'allowed_apps' property
+    raw_admin_4_apps = models.TextField(default='')  # Use 'admin_4_apps' property
 
     creation_label = _('Create a role')
     save_label     = _('Save the role')
@@ -159,10 +161,12 @@ class UserRole(models.Model):
     def is_app_administrable(self, app_name: str) -> bool:  # TODO: rename "app_label"
         return app_name in self.extended_admin_4_apps
 
-    def is_app_allowed_or_administrable(self, app_name: str) -> bool:  # TODO: rename "app_label"
+    # TODO: rename "app_label"
+    def is_app_allowed_or_administrable(self, app_name: str) -> bool:
         return (app_name in self.extended_allowed_apps) or self.is_app_administrable(app_name)
 
-    def _build_apps_verbose(self, app_names: Iterable[str]) -> List[str]:   # TODO: rename app_labels
+    # TODO: rename app_labels
+    def _build_apps_verbose(self, app_names: Iterable[str]) -> List[str]:
         verbose_names = []
         get_app = apps.get_app_config
 
@@ -170,7 +174,10 @@ class UserRole(models.Model):
             try:
                 app = get_app(app_label)
             except LookupError:
-                logger.warning('The app "%s" seems not registered (from UserRole "%s").', app_label, self)
+                logger.warning(
+                    'The app "%s" seems not registered (from UserRole "%s").',
+                    app_label, self,
+                )
             else:
                 verbose_names.append(app.verbose_name)  # TODO: str() ??
 
@@ -189,16 +196,21 @@ class UserRole(models.Model):
         ct = ContentType.objects.get_by_natural_key(app_name, model_name)
 
         if self._creatable_ctypes_set is None:
-            self._creatable_ctypes_set = frozenset(self.creatable_ctypes.values_list('id', flat=True))
+            self._creatable_ctypes_set = frozenset(
+                self.creatable_ctypes.values_list('id', flat=True)
+            )
 
         return ct.id in self._creatable_ctypes_set
 
-    def can_export(self, app_name: str, model_name: str) -> bool:  # TODO: factorise with can_create() ??
+    # TODO: factorise with can_create() ??
+    def can_export(self, app_name: str, model_name: str) -> bool:
         """@return True if a model with ContentType(app_name, model_name) can be exported."""
         ct = ContentType.objects.get_by_natural_key(app_name, model_name)
 
         if self._exportable_ctypes_set is None:
-            self._exportable_ctypes_set = frozenset(self.exportable_ctypes.values_list('id', flat=True))
+            self._exportable_ctypes_set = frozenset(
+                self.exportable_ctypes.values_list('id', flat=True)
+            )
 
         return ct.id in self._exportable_ctypes_set
 
@@ -240,7 +252,8 @@ class UserRole(models.Model):
                queryset: QuerySet,
                perm: int) -> QuerySet:
         """Filter a QuerySet of CremeEntities by the credentials related to this role.
-        Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
+        Beware, the model class must be a child class of CremeEntity,
+        but cannot be CremeEntity itself.
 
         @param user: A <django.contrib.auth.get_user_model()> instance (eg: CremeUser) ;
                      should be related to the UserRole instance.
@@ -265,17 +278,19 @@ class UserRole(models.Model):
                         perm: int,
                         as_model: Optional[Type['CremeEntity']] = None) -> QuerySet:
         """Filter a QuerySet of CremeEntities by the credentials related to this role.
-        Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
+        Beware, model class must be CremeEntity ; it cannot be a child class
+        of CremeEntity.
 
         @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser) ;
                      should be related to the UserRole instance.
         @param queryset: A Queryset with model=CremeEntity.
         @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
-        @param as_model: A model inheriting CremeEntity, or None. If a model is given, all the
-               entities in the queryset are filtered with the credentials for this model.
-               BEWARE: you should probably use this feature only if the queryset if already filtered
-               by its field 'entity_type' (to keep only entities of the right model, & so do not
-               make mistakes with credentials).
+        @param as_model: A model inheriting CremeEntity, or None.
+               If a model is given, all the entities in the queryset are
+               filtered with the credentials for this model.
+               BEWARE: you should probably use this feature only if the queryset
+               if already filtered by its field 'entity_type' (to keep only
+               entities of the right model, & so do not make mistakes with credentials).
         @return: A new (filtered) queryset on the same model.
         @raise: EntityCredentials.FilteringError if there is an EntityFilter,
                 which cannot be used on CremeEntity, in the SetCredentials
@@ -312,8 +327,11 @@ class SetCredentials(models.Model):
         (ESET_FILTER, _('Filtered entities')),
     ])  # TODO: inline ?
 
-    role     = models.ForeignKey(UserRole, related_name='credentials', on_delete=models.CASCADE, editable=False)
-    value    = models.PositiveSmallIntegerField()  # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
+    role = models.ForeignKey(
+        UserRole, related_name='credentials', on_delete=models.CASCADE, editable=False,
+    )
+    # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
+    value = models.PositiveSmallIntegerField()
     set_type = models.PositiveIntegerField(
         verbose_name=_('Type of entities set'),
         choices=ESETS_MAP.items(),
@@ -341,7 +359,9 @@ class SetCredentials(models.Model):
                     'permissions are computed.'
                    ),
     )
-    efilter = models.ForeignKey('EntityFilter', editable=False, null=True, on_delete=models.PROTECT)
+    efilter = models.ForeignKey(
+        'EntityFilter', editable=False, null=True, on_delete=models.PROTECT,
+    )
 
     class Meta:
         app_label = 'creme_core'
@@ -534,7 +554,8 @@ class SetCredentials(models.Model):
                queryset: QuerySet,
                perm: int) -> QuerySet:
         """Filter a queryset of entities with the given credentials.
-        Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
+        Beware, the model class must be a child class of CremeEntity,
+        but cannot be CremeEntity itself.
 
         @param sc_sequence: A sequence of SetCredentials instances.
         @param user: A <django.contrib.auth.get_user_model()> instance (eg: CremeUser).
@@ -560,18 +581,21 @@ class SetCredentials(models.Model):
                         models: Iterable[Type['CremeEntity']],
                         as_model=None) -> QuerySet:
         """Filter a queryset of entities with the given credentials.
-        Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
+        Beware, model class must be CremeEntity ; it cannot be a child class
+        of CremeEntity.
 
         @param sc_sequence: A sequence of SetCredentials instances.
         @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser).e.
         @param queryset: Queryset with model=CremeEntity.
         @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
-        @param models: An iterable of CremeEntity-child-classes, corresponding to allowed models.
-        @param as_model: A model inheriting CremeEntity, or None. If a model is given, all the
-               entities in the queryset are filtered with the credentials for this model.
-               BEWARE: you should probably use this feature only if the queryset if already filtered
-               by its field 'entity_type' (to keep only entities of the right model, & so do not
-               make mistakes with credentials).
+        @param models: An iterable of CremeEntity-child-classes, corresponding
+               to allowed models.
+        @param as_model: A model inheriting CremeEntity, or None. If a model is
+               given, all the entities in the queryset are filtered with the
+               credentials for this model.
+               BEWARE: you should probably use this feature only if the queryset
+               if already filtered by its field 'entity_type' (to keep only
+               entities of the right model, & so do not make mistakes with credentials).
         @return: A new queryset on CremeEntity.
         @raise: EntityCredentials.FilteringError if an EntityFilter which cannot
                 be used on CremeEntity is found in <sc_sequence>.
@@ -696,7 +720,11 @@ class SetCredentials(models.Model):
             q = Q()
             for (forbidden_filter_ids, allowed_filter_ids), ct_ids in ctypes_filtering.items():
                 q |= (
-                    (Q(entity_type_id=ct_ids[0]) if len(ct_ids) == 1 else Q(entity_type_id__in=ct_ids))
+                    (
+                        Q(entity_type_id=ct_ids[0])
+                        if len(ct_ids) == 1 else
+                        Q(entity_type_id__in=ct_ids)
+                    )
                     & _efilter_ids_to_Q(allowed_filter_ids)
                     & ~_efilter_ids_to_Q(forbidden_filter_ids)
                 )
@@ -726,11 +754,13 @@ class SetCredentials(models.Model):
 
             if filter_model != model:
                 raise ValueError(
-                    f'{type(self).__name__} must have a filter related to the same type: {model} != {filter_model}'
+                    f'{type(self).__name__} must have a filter related to the '
+                    f'same type: {model} != {filter_model}'
                 )
         elif self.efilter_id:
             raise ValueError(
-                f'Only {type(self).__name__} with <set_type == ESET_FILTER> can have a filter.'
+                f'Only {type(self).__name__} with <set_type == ESET_FILTER> '
+                f'can have a filter.'
             )
 
         super().save(*args, **kwargs)
@@ -780,7 +810,14 @@ class CremeUserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, username, first_name, last_name, email, password=None, **extra_fields):
+    def create_superuser(
+            self,
+            username,
+            first_name,
+            last_name,
+            email,
+            password=None,
+            **extra_fields):
         "Creates and saves a superuser."
         extra_fields['is_superuser'] = True
 
@@ -812,15 +849,15 @@ class CremeUser(AbstractBaseUser):
         _('Username'), max_length=30, unique=True,
         help_text=_('Required. 30 characters or fewer. '
                     'Letters, digits and @/./+/-/_ only.'
-                   ),
+                    ),
         validators=[
             RegexValidator(re_compile(r'^[\w.@+-]+$'),
                            _('Enter a valid username. '
                              'This value may contain only letters, numbers, '
                              'and @/./+/-/_ characters.'
-                            ),
+                             ),
                            'invalid',
-                          ),
+                           ),
         ],
         error_messages={
             'unique': _('A user with that username already exists.'),
@@ -834,37 +871,37 @@ class CremeUser(AbstractBaseUser):
     email = models.EmailField(_('Email address'), blank=True)
 
     date_joined = models.DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
-    is_active   = models.BooleanField(_('Active?'), default=True,
-                                      # help_text=_('Designates whether this user should be treated as '
-                                      #             'active. Deselect this instead of deleting accounts.'
-                                      #            ), TODO
-                                     ).set_tags(viewable=False)
 
-    is_staff     = models.BooleanField(_('Is staff?'), default=False,
-                                       # help_text=_('Designates whether the user can log into this admin site.'), TODO
-                                      ).set_tags(viewable=False)
-    is_superuser = models.BooleanField(_('Is a superuser?'), default=False,
-                                       # help_text=_('If True, can create groups & events.') TODO
-                                      ).set_tags(viewable=False)
-    role         = models.ForeignKey(UserRole, verbose_name=_('Role'), null=True,
-                                     on_delete=models.PROTECT,
-                                    ).set_tags(viewable=False)
+    is_active = models.BooleanField(_('Active?'), default=True).set_tags(viewable=False)
 
-    is_team       = models.BooleanField(verbose_name=_('Is a team?'), default=False).set_tags(viewable=False)
-    teammates_set = models.ManyToManyField('self', verbose_name=_('Teammates'),
-                                           symmetrical=False, related_name='teams_set',
-                                          ).set_tags(viewable=False)
+    is_staff = models.BooleanField(
+        _('Is staff?'), default=False
+    ).set_tags(viewable=False)
+    is_superuser = models.BooleanField(
+        _('Is a superuser?'), default=False,
+    ).set_tags(viewable=False)
+    role = models.ForeignKey(
+        UserRole, verbose_name=_('Role'), null=True, on_delete=models.PROTECT,
+    ).set_tags(viewable=False)
 
-    time_zone = models.CharField(_('Time zone'), max_length=50, default=settings.TIME_ZONE,
-                                 choices=[(tz, tz) for tz in pytz.common_timezones],
-                                ).set_tags(viewable=False)
-    theme     = models.CharField(_('Theme'), max_length=50,
-                                 default=settings.THEMES[0][0],
-                                 choices=settings.THEMES,
-                                ).set_tags(viewable=False)
+    is_team = models.BooleanField(
+        verbose_name=_('Is a team?'), default=False,
+    ).set_tags(viewable=False)
+    teammates_set = models.ManyToManyField(
+        'self', verbose_name=_('Teammates'), symmetrical=False, related_name='teams_set',
+    ).set_tags(viewable=False)
+
+    time_zone = models.CharField(
+        _('Time zone'), max_length=50, default=settings.TIME_ZONE,
+        choices=[(tz, tz) for tz in pytz.common_timezones],
+    ).set_tags(viewable=False)
+    theme = models.CharField(
+        _('Theme'), max_length=50, default=settings.THEMES[0][0], choices=settings.THEMES,
+    ).set_tags(viewable=False)
 
     # NB: do not use directly ; use the property 'settings'
-    json_settings = models.TextField(editable=False, default='{}').set_tags(viewable=False)  # TODO: JSONField ?
+    # TODO: JSONField ?
+    json_settings = models.TextField(editable=False, default='{}').set_tags(viewable=False)
 
     objects = CremeUserManager()
 
@@ -991,10 +1028,16 @@ class CremeUser(AbstractBaseUser):
             creds = creds_map.get(self.id)
 
         if creds is None:
-            logger.debug('CremeUser._get_credentials(): Cache MISS for id=%s user=%s', entity.id, self)
+            logger.debug(
+                'CremeUser._get_credentials(): Cache MISS for id=%s user=%s',
+                entity.id, self,
+            )
             creds_map[self.id] = creds = EntityCredentials(self, entity)
         else:
-            logger.debug('CremeUser._get_credentials(): Cache HIT for id=%s user=%s', entity.id, self)
+            logger.debug(
+                'CremeUser._get_credentials(): Cache HIT for id=%s user=%s',
+                entity.id, self,
+            )
 
         return creds
 
@@ -1036,10 +1079,12 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_admin(self, app_name: str) -> bool:  # TODO: rename "app_label"
+    # TODO: rename "app_label"
+    def has_perm_to_admin(self, app_name: str) -> bool:
         return self.is_superuser or self.role.is_app_administrable(app_name)
 
-    def has_perm_to_admin_or_die(self, app_name: str) -> None:  # TODO: rename 'app_label'
+    # TODO: rename 'app_label'
+    def has_perm_to_admin_or_die(self, app_name: str) -> None:
         if not self.has_perm_to_admin(app_name):
             raise PermissionDenied(
                 gettext('You are not allowed to configure this app: {}').format(
@@ -1084,7 +1129,9 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_delete(self, entity: 'CremeEntity') -> bool:
         if hasattr(entity.entity_type.model_class(), 'get_related_entity'):  # TODO: factorise
-            return self._get_credentials(entity.get_real_entity().get_related_entity()).can_change()
+            return self._get_credentials(
+                entity.get_real_entity().get_related_entity(),
+            ).can_change()
 
         return self._get_credentials(entity).can_delete()
 
@@ -1096,14 +1143,17 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_export(self, model_or_entity: _EntityInstanceOrClass) -> bool:  # TODO: factorise with has_perm_to_create() ??
+    # TODO: factorise with has_perm_to_create() ??
+    def has_perm_to_export(self, model_or_entity: _EntityInstanceOrClass) -> bool:
         """Helper for has_perm() method.
         eg: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)
         """
         meta = model_or_entity._meta
         return self.has_perm(f'{meta.app_label}.export_{meta.object_name.lower()}')
 
-    def has_perm_to_export_or_die(self, model_or_entity: Union[Type['CremeEntity'], 'CremeEntity']) -> None:
+    def has_perm_to_export_or_die(
+            self,
+            model_or_entity: Union[Type['CremeEntity'], 'CremeEntity']) -> None:
         if not self.has_perm_to_export(model_or_entity):
             raise PermissionDenied(
                 gettext('You are not allowed to export: {}').format(
@@ -1136,9 +1186,10 @@ class CremeUser(AbstractBaseUser):
             self.role.can_do_on_model(self, entity_or_model, owner, EntityCredentials.LINK)
         )
 
+    # TODO: factorise ??
     def has_perm_to_link_or_die(self,
                                 entity_or_model: _EntityInstanceOrClass,
-                                owner: Optional['CremeUser'] = None) -> None:  # TODO: factorise ??
+                                owner: Optional['CremeUser'] = None) -> None:
         if not self.has_perm_to_link(entity_or_model, owner):
             if isinstance(entity_or_model, CremeEntity):
                 msg = gettext('You are not allowed to link this entity: {}').format(
@@ -1186,10 +1237,12 @@ del get_user_field
 class Sandbox(models.Model):
     """When a CremeEntity is associated to a sandbox, only the user related to this sandbox
     can have its regular permission on this entity.
-    A Sandbox can be related to a UserRole ; in these case all users with this role can access to this entity.
+    A Sandbox can be related to a UserRole ; in these case all users with this
+    role can access to this entity.
 
-    Notice that superusers ignore the Sandboxes ; so if a SandBox has no related user/role, the entities in
-    this sandbox are only accessible to the superusers (like the Sandbox built in creme_core.populate.py)
+    Notice that superusers ignore the Sandboxes ; so if a SandBox has no related
+    user/role, the entities in this sandbox are only accessible to the superusers
+    (like the Sandbox built in creme_core.populate.py)
     """
     uuid      = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
     type_id   = models.CharField('Type of sandbox', max_length=48, editable=False)

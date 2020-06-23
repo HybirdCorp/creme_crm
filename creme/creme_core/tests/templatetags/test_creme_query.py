@@ -41,7 +41,9 @@ class CremeQueryTagsTestCase(CremeTestCase):
     def test_entities_count02(self):
         "Regular user."
         user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN)
+        SetCredentials.objects.create(
+            role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
+        )
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='O-1')

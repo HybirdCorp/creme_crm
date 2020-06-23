@@ -73,9 +73,10 @@ class VcfExportTestCase(CremeTestCase):
     def test_get_empty_vcf(self):
         user = self.login()
         response = self._generate_vcf(Contact.objects.create(user=user, last_name='Abitbol'))
-        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nEND:VCARD\r\n',
-                         response.content
-                        )
+        self.assertEqual(
+            b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nEND:VCARD\r\n',
+            response.content
+        )
 
     def test_get_vcf_basic_role(self):
         user = self.login(is_superuser=False,
@@ -105,9 +106,10 @@ class VcfExportTestCase(CremeTestCase):
                                         )
 
         response = self._generate_vcf(contact)
-        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;Monsieur;\r\nEND:VCARD\r\n',
-                         response.content
-                        )
+        self.assertEqual(
+            b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;Monsieur;\r\nEND:VCARD\r\n',
+            response.content
+        )
 
     @skipIfCustomOrganisation
     def test_get_vcf_org(self):
@@ -119,9 +121,11 @@ class VcfExportTestCase(CremeTestCase):
         Relation.objects.create(type=rtype, subject_entity=orga, object_entity=contact, user=user)
 
         response = self._generate_vcf(contact)
-        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nORG:ORGNAME\r\nEND:VCARD\r\n',
-                         response.content
-                        )
+        self.assertEqual(
+            b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\n'
+            b'ORG:ORGNAME\r\nEND:VCARD\r\n',
+            response.content
+        )
 
     @skipIfCustomAddress
     def test_get_vcf_billing_addr(self):
@@ -131,12 +135,14 @@ class VcfExportTestCase(CremeTestCase):
         contact.save()
 
         response = self._generate_vcf(contact)
-        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;'
-                         b'Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
-                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-                         response.content
-                        )
+        self.assertEqual(
+            b'BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;'
+            b'Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\n'
+            b'EMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+            b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
+            b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+            response.content
+        )
 
     @skipIfCustomAddress
     def test_get_vcf_shipping_addr(self):
@@ -146,13 +152,14 @@ class VcfExportTestCase(CremeTestCase):
         contact.save()
 
         response = self._generate_vcf(contact)
-        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;'
-                         b'Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
-                         b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;'
-                         b'\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-                         response.content
-                        )
+        self.assertEqual(
+            b'BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;'
+            b'Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
+            b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+            b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;'
+            b'\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+            response.content
+        )
 
     @skipIfCustomAddress
     def test_get_vcf_both_addr(self):
@@ -163,14 +170,17 @@ class VcfExportTestCase(CremeTestCase):
         contact.save()
 
         response = self._generate_vcf(contact)
-        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
-                         b'ADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\n'
-                         b'ADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\n'
-                         b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
-                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-                         response.content
-                        )
+        self.assertEqual(
+            b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
+            b'ADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;'
+            b'sh\r\n ipping_zipcode;shipping_country\r\n'
+            b'ADR:billing_po_box;;billing_address;billing_city;billing_department;'
+            b'billin\r\n g_zipcode;billing_country\r\n'
+            b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+            b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
+            b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+            response.content
+        )
 
     @skipIfCustomAddress
     def test_get_vcf_addr_eq(self):
@@ -182,13 +192,14 @@ class VcfExportTestCase(CremeTestCase):
         self.create_address(contact, 'Org')  # Other_address
 
         response = self._generate_vcf(contact)
-        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
-                         b'ADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
-                         b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
-                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-                         response.content
-                        )
+        self.assertEqual(
+            b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
+            b'ADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
+            b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+            b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
+            b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+            response.content
+        )
 
     @skipIfCustomAddress
     def test_person(self):
@@ -200,15 +211,18 @@ class VcfExportTestCase(CremeTestCase):
         self.create_address(contact, 'Org')  # Other_address
 
         response = self._generate_vcf(contact)
-        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
-                         b'ADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\n'
-                         b'ADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\n'
-                         b'ADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
-                         b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
-                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-                         response.content
-                        )
+        self.assertEqual(
+            b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
+            b'ADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;'
+            b'sh\r\n ipping_zipcode;shipping_country\r\n'
+            b'ADR:billing_po_box;;billing_address;billing_city;billing_department;'
+            b'billin\r\n g_zipcode;billing_country\r\n'
+            b'ADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
+            b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+            b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
+            b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+            response.content
+        )
 
     @skipIfCustomAddress
     def test_fields_config(self):
@@ -226,10 +240,12 @@ class VcfExportTestCase(CremeTestCase):
                  )
 
         response = self._generate_vcf(contact)
-        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
-                         b'ADR:billing_po_box;;billing_address;billing_city;billing_department;;billi\r\n ng_country\r\n'
-                         b'TEL;TYPE=CELL:0606060606\r\n'
-                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;;\r\n'
-                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-                         response.content
-                        )
+        self.assertEqual(
+            b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
+            b'ADR:billing_po_box;;billing_address;billing_city;billing_department;;'
+            b'billi\r\n ng_country\r\n'
+            b'TEL;TYPE=CELL:0606060606\r\n'
+            b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;;\r\n'
+            b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+            response.content
+        )

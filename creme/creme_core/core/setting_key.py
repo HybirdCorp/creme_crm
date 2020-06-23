@@ -70,7 +70,8 @@ class _SettingKey:
                  blank: bool = False):
         """Constructor.
         @param id: Unique String. Use something like 'my_app-key_name'
-        @param description: Used in the configuration GUI ; use a ugettext_lazy() instance ('' is OK if hidden==True)
+        @param description: Used in the configuration GUI ;
+               use a gettext_lazy() instance ('' is OK if hidden==True).
         @param app_label: Eg: 'creme_core'
         @param type: Integer ; see: _SettingKey.STRING, _SettingKey.INT ...
         @param hidden: Boolean. If True, it can not be seen in the configuration GUI.
@@ -190,12 +191,16 @@ class UserSettingValueManager:
 
         if exc_value:
             # TODO: do we need a non-atomic mode which saves anyway ?
-            logger.warning('UserSettingValueManager: an exception has been raised, changes will not be saved !')
+            logger.warning(
+                'UserSettingValueManager: an exception has been raised, '
+                'changes will not be saved !'
+            )
             raise exc_value
 
         # TODO: do not hard code the name of the field "json_settings"
-        self._user_class.objects.filter(pk=self._user_id)\
-                                .update(json_settings=json_encode(self._values))
+        self._user_class.objects.filter(
+            pk=self._user_id,
+        ).update(json_settings=json_encode(self._values))
 
         return True
 

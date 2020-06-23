@@ -23,7 +23,12 @@ import logging
 from django.apps import apps
 from django.utils.translation import gettext as _
 
-from creme.creme_core import bricks as core_bricks
+from creme.creme_core.bricks import (
+    CustomFieldsBrick,
+    HistoryBrick,
+    PropertiesBrick,
+    RelationsBrick,
+)
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -72,7 +77,8 @@ class Populator(BasePopulator):
         create_searchconf(Service, ['name', 'description', 'category__name', 'sub_category__name'])
 
         # ---------------------------
-        if not Category.objects.exists():  # NB: no straightforward way to test that this populate script has not been already run
+        # NB: no straightforward way to test that this populate script has not been already run
+        if not Category.objects.exists():
             create_cat = Category.objects.create
             create_subcat = SubCategory.objects.create
 
@@ -122,31 +128,41 @@ class Populator(BasePopulator):
         # NB: no straightforward way to test that this populate script has not been already run
         if not BrickDetailviewLocation.objects.filter_for_model(Product).exists():
             create_bdl = BrickDetailviewLocation.objects.create_if_needed
+            create_bdl_4_model = BrickDetailviewLocation.objects.create_for_model_brick
             TOP   = BrickDetailviewLocation.TOP
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
             for model in (Product, Service):
-                create_bdl(brick=bricks.ImagesBrick,                   order=10,  zone=TOP,   model=model)
-                BrickDetailviewLocation.objects.create_for_model_brick(order=5,   zone=LEFT,  model=model)
-                create_bdl(brick=core_bricks.CustomFieldsBrick,        order=40,  zone=LEFT,  model=model)
-                create_bdl(brick=core_bricks.PropertiesBrick,          order=450, zone=LEFT,  model=model)
-                create_bdl(brick=core_bricks.RelationsBrick,           order=500, zone=LEFT,  model=model)
-                create_bdl(brick=core_bricks.HistoryBrick,             order=30,  zone=RIGHT, model=model)
+                create_bdl(brick=bricks.ImagesBrick, order=10, zone=TOP, model=model)
+                create_bdl_4_model(order=5, zone=LEFT, model=model)
+                create_bdl(brick=CustomFieldsBrick, order=40,  zone=LEFT,  model=model)
+                create_bdl(brick=PropertiesBrick,   order=450, zone=LEFT,  model=model)
+                create_bdl(brick=RelationsBrick,    order=500, zone=LEFT,  model=model)
+                create_bdl(brick=HistoryBrick,      order=30,  zone=RIGHT, model=model)
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
+                logger.info(
+                    'Assistants app is installed'
+                    ' => we use the assistants blocks on detail views and portal'
+                )
 
-                from creme.assistants import bricks as a_bricks
+                from creme.assistants.bricks import (
+                    AlertsBrick,
+                    MemosBrick,
+                    TodosBrick,
+                    UserMessagesBrick,
+                )
 
                 for model in (Product, Service):
-                    create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.UserMessagesBrick, order=500, zone=RIGHT, model=model)
+                    create_bdl(brick=TodosBrick,        order=100, zone=RIGHT, model=model)
+                    create_bdl(brick=MemosBrick,        order=200, zone=RIGHT, model=model)
+                    create_bdl(brick=AlertsBrick,       order=300, zone=RIGHT, model=model)
+                    create_bdl(brick=UserMessagesBrick, order=500, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed => we use the documents block on detail views')
+                # logger.info('Documents app is installed
+                # => we use the documents block on detail views')
 
                 from creme.documents.bricks import LinkedDocsBrick
 

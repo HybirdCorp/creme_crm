@@ -226,7 +226,10 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         )
 
         self.assertListEqual(
-            sorted([*addresses_from_persons(Organisation.objects.all(), user)], key=lambda a: a.pk),
+            sorted(
+                [*addresses_from_persons(Organisation.objects.all(), user)],
+                key=lambda a: a.pk
+            ),
             sorted([orga_address, orga2_address], key=lambda a: a.pk)
         )
 

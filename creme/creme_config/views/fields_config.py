@@ -58,7 +58,9 @@ class FieldsConfigWizard(base.ConfigModelCreationWizard):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             if not self.ctypes:
-                raise ConflictError(_('All configurable types of resource are already configured.'))
+                raise ConflictError(
+                    _('All configurable types of resource are already configured.')
+                )
 
     form_list = [
         _ModelStep,
@@ -71,7 +73,8 @@ class FieldsConfigWizard(base.ConfigModelCreationWizard):
         self.cbci = FieldsConfig()
 
     def get_form_instance(self, step):
-        # We fill the instance with the previous step (so recursively all previous should be used)
+        # We fill the instance with the previous step
+        # (so recursively all previous should be used)
         self.validate_previous_steps(step)
 
         return self.cbci

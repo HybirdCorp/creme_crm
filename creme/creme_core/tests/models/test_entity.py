@@ -109,7 +109,9 @@ class EntityTestCase(CremeTestCase):
         self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
     def test_fieldtags_clonable(self):
-        naruto = FakeContact.objects.create(user=self.user, first_name='Naruto', last_name='Uzumaki')
+        naruto = FakeContact.objects.create(
+            user=self.user, first_name='Naruto', last_name='Uzumaki',
+        )
         get_field = naruto._meta.get_field
 
         self.assertFalse(get_field('created').get_tag('clonable'))
@@ -125,7 +127,9 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(InvalidFieldTag, field.set_tags, stuff=True)
 
     def test_fieldtags_viewable(self):
-        naruto = FakeContact.objects.create(user=self.user, first_name='Naruto', last_name='Uzumaki')
+        naruto = FakeContact.objects.create(
+            user=self.user, first_name='Naruto', last_name='Uzumaki',
+        )
         get_field = naruto._meta.get_field
 
         self.assertTrue(get_field('modified').get_tag('viewable'))
@@ -135,7 +139,9 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('cremeentity_ptr').get_tag('viewable'))
 
     def test_fieldtags_optional(self):
-        naruto = FakeContact.objects.create(user=self.user, first_name='Naruto', last_name='Uzumaki')
+        naruto = FakeContact.objects.create(
+            user=self.user, first_name='Naruto', last_name='Uzumaki',
+        )
         get_field = naruto._meta.get_field
 
         self.assertFalse(get_field('modified').get_tag('optional'))
@@ -160,13 +166,14 @@ class EntityTestCase(CremeTestCase):
 
         created = modified = now()
         entity1 = CremeEntity.objects.create(user=user)
-        original_ce = CremeEntity.objects.create(created=created, modified=modified,
-                                                 is_deleted=False, user=user,
-                                                )
+        original_ce = CremeEntity.objects.create(
+            created=created, modified=modified, is_deleted=False, user=user,
+        )
 
-        create_rel = partial(Relation.objects.create, user=user,
-                             subject_entity=original_ce, object_entity=entity1,
-                            )
+        create_rel = partial(
+            Relation.objects.create, user=user,
+            subject_entity=original_ce, object_entity=entity1,
+        )
         create_rel(type=self.rtype1)
         create_rel(type=self.rtype3)  # Internal
 
@@ -184,7 +191,10 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(original_ce.is_deleted,  clone_ce.is_deleted)
         self.assertEqual(original_ce.entity_type, clone_ce.entity_type)
         self.assertEqual(original_ce.user,        clone_ce.user)
-        self.assertEqual(original_ce.header_filter_search_field, clone_ce.header_filter_search_field)
+        self.assertEqual(
+            original_ce.header_filter_search_field,
+            clone_ce.header_filter_search_field,
+        )
 
         self.assertSameRelationsNProperties(original_ce, clone_ce)
         self.assertFalse(clone_ce.relations.filter(type__is_internal=True))
@@ -254,7 +264,9 @@ class EntityTestCase(CremeTestCase):
         CustomFieldString.objects.create(custom_field=cf_str, entity=orga, value='kunai')
         CustomFieldDateTime.objects.create(custom_field=cf_date, entity=orga, value=now())
         CustomFieldEnum.objects.create(custom_field=cf_enum, entity=orga, value=enum1)
-        CustomFieldMultiEnum(custom_field=cf_multi_enum, entity=orga).set_value_n_save([m_enum1, m_enum2])
+        CustomFieldMultiEnum(
+            custom_field=cf_multi_enum, entity=orga,
+        ).set_value_n_save([m_enum1, m_enum2])
 
         clone = orga.clone()
 
@@ -377,20 +389,23 @@ class EntityTestCase(CremeTestCase):
             result1 = pp_ff(entity1, user)
             result2 = pp_ff(entity2, user)
 
-        self.assertEqual(f'<ul>'
-                         f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
-                         f'<li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
-                         f'</ul>',
-                         result1.for_html()
-                        )
-        self.assertEqual(f'<ul><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li></ul>',
-                         result2.for_html()
-                        )
+        self.assertHTMLEqual(
+            f'<ul>'
+            f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
+            f'<li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
+            f'</ul>',
+            result1.for_html()
+        )
+        self.assertHTMLEqual(
+            f'<ul><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li></ul>',
+            result2.for_html()
+        )
 
     def test_customfield_value(self):
-        create_field = partial(CustomField.objects.create,
-                               content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                              )
+        create_field = partial(
+            CustomField.objects.create,
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+        )
         field_A = create_field(name='A', field_type=CustomField.INT)
         field_B = create_field(name='B', field_type=CustomField.INT)
         field_C = create_field(name='C', field_type=CustomField.INT)

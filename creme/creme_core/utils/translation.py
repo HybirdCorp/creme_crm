@@ -38,6 +38,7 @@ else:
         return number != 1
 
 
-# TODO: automatise the creation of plural form for models verbose names (& so use ngettext() instead) ?
+# TODO: automatise the creation of plural form for models verbose names
+#       (& so use ngettext() instead) ?
 def get_model_verbose_name(model: Type[Model], count: int):
     return model._meta.verbose_name_plural if plural(count) else model._meta.verbose_name

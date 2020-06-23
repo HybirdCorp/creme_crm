@@ -102,7 +102,8 @@ class EntityFilterManager(models.Manager):
             raise self.model.DoesNotExist(f'No EntityFilter with pk="{base_pk}"')
 
         VERSION_RE = compile_re(
-            r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$'
+            r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)'
+            r'( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$'
         )
 
         def key(efilter):
@@ -160,16 +161,16 @@ class EntityFilterManager(models.Manager):
             )
         )
 
-    def smart_update_or_create(self,
-                               pk: str,
-                               name: str,
-                               model: Type[CremeEntity],
-                               is_custom: bool = False,
-                               user=None,
-                               use_or: bool = False,
-                               is_private: bool = False,
-                               conditions=(),
-                              ) -> 'EntityFilter':
+    def smart_update_or_create(
+            self,
+            pk: str,
+            name: str,
+            model: Type[CremeEntity],
+            is_custom: bool = False,
+            user=None,
+            use_or: bool = False,
+            is_private: bool = False,
+            conditions=()) -> 'EntityFilter':
         """Creation helper ; useful for populate.py scripts.
         @param user: Can be None (ie: 'All users'), a User instance, or the string
                      'admin', which means 'the first admin user'.
@@ -305,7 +306,9 @@ class EntityFilter(models.Model):  # CremeModel ???
      - The existence (or the not existence) of a kind of Relationship.
      - The holding (or the not holding) of a kind of CremeProperty
     """
-    id   = models.CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
+    id = models.CharField(
+        primary_key=True, max_length=100, editable=False,
+    ).set_tags(viewable=False)
     name = models.CharField(max_length=100, verbose_name=_('Name'))
 
     filter_type = models.PositiveSmallIntegerField(
@@ -321,7 +324,10 @@ class EntityFilter(models.Model):  # CremeModel ???
     is_private = models.BooleanField(
         pgettext_lazy('creme_core-entity_filter', 'Is private?'),
         default=False,
-        help_text=_('A private filter can only be used by its owner (or the teammates if the owner is a team)'),
+        help_text=_(
+            'A private filter can only be used by its owner '
+            '(or the teammates if the owner is a team)'
+        ),
     )
 
     entity_type = core_fields.CTypeForeignKey(editable=False).set_tags(viewable=False)
@@ -431,13 +437,22 @@ class EntityFilter(models.Model):  # CremeModel ???
         assert self.id
 
         # Ids of EntityFilters that are referenced by these conditions
-        ref_filter_ids = {sf_id for sf_id in (cond._get_subfilter_id() for cond in conditions) if sf_id}
+        ref_filter_ids = {
+            sf_id
+            for sf_id in (cond._get_subfilter_id() for cond in conditions)
+            if sf_id
+        }
 
         if self.id in ref_filter_ids:
-            raise EntityFilter.CycleError(gettext('A condition can not reference its own filter.'))
+            raise EntityFilter.CycleError(
+                gettext('A condition can not reference its own filter.')
+            )
 
-        if self.get_connected_filter_ids() & ref_filter_ids:  # TODO: method intersection not null
-            raise EntityFilter.CycleError(gettext('There is a cycle with a sub-filter.'))
+        # TODO: method intersection not null
+        if self.get_connected_filter_ids() & ref_filter_ids:
+            raise EntityFilter.CycleError(
+                gettext('There is a cycle with a sub-filter.')
+            )
 
     def _check_privacy_parent_filters(self, is_private: bool, owner) -> None:
         if not self.id:
@@ -460,106 +475,128 @@ class EntityFilter(models.Model):  # CremeModel ???
                 if parent_filter.user.is_team:
                     if parent_filter.user != owner:
                         raise EntityFilter.PrivacyError(
-                            gettext('This filter cannot be private and belong to this team '
-                                    'because it is a sub-filter for the filter "{filter}" '
-                                    'which belongs to the team "{team}".'
-                                   ).format(filter=parent_filter.name,
-                                            team=parent_filter.user,
-                                           )
+                            gettext(
+                                'This filter cannot be private and belong to this team '
+                                'because it is a sub-filter for the filter "{filter}" '
+                                'which belongs to the team "{team}".'
+                            ).format(
+                                filter=parent_filter.name,
+                                team=parent_filter.user,
+                            )
                         )
                 elif parent_filter.user.id not in owner.teammates:
                     raise EntityFilter.PrivacyError(
-                        gettext('This filter cannot be private and belong to this team '
-                                'because it is a sub-filter for the filter "{filter}" '
-                                'which belongs to the user "{user}" (who is not a member of this team).'
-                               ).format(filter=parent_filter.name,
-                                        user=parent_filter.user,
-                                       )
+                        gettext(
+                            'This filter cannot be private and belong to this team '
+                            'because it is a sub-filter for the filter "{filter}" '
+                            'which belongs to the user "{user}" '
+                            '(who is not a member of this team).'
+                        ).format(
+                            filter=parent_filter.name,
+                            user=parent_filter.user,
+                        )
                     )
             else:
                 if not parent_filter.can_view(owner)[0]:
                     raise EntityFilter.PrivacyError(
-                        gettext('This filter cannot be private because '
-                                'it is a sub-filter for a private filter of another user.'
-                               )
+                        gettext(
+                            'This filter cannot be private because '
+                            'it is a sub-filter for a private filter of another user.'
+                        )
                     )
 
                 if parent_filter.user.is_team:
                     raise EntityFilter.PrivacyError(
-                        gettext('This filter cannot be private and belong to a user '
-                                'because it is a sub-filter for the filter "{}" which belongs to a team.'
-                               ).format(parent_filter.name)
+                        gettext(
+                            'This filter cannot be private and belong to a user '
+                            'because it is a sub-filter for the filter "{}" '
+                            'which belongs to a team.'
+                        ).format(parent_filter.name)
                     )
 
-    def _check_privacy_sub_filters(self,
-                                   conditions: Iterable['EntityFilterCondition'],
-                                   is_private: bool,
-                                   owner) -> None:
+    def _check_privacy_sub_filters(
+            self,
+            conditions: Iterable['EntityFilterCondition'],
+            is_private: bool,
+            owner) -> None:
         # TODO: factorise
-        ref_filter_ids = {sf_id for sf_id in (cond._get_subfilter_id() for cond in conditions) if sf_id}
+        ref_filter_ids = {
+            sf_id
+            for sf_id in (cond._get_subfilter_id() for cond in conditions)
+            if sf_id
+        }
 
         if is_private:
             if not owner:
-                raise EntityFilter.PrivacyError(gettext('A private filter must be assigned to a user/team.'))
+                raise EntityFilter.PrivacyError(
+                    gettext('A private filter must be assigned to a user/team.')
+                )
 
             if owner.is_team:
                 # All the teammate should have the permission to see the sub-filters,
                 # so they have to be public or belong to the team.
-                invalid_filter_names = EntityFilter.objects \
-                                                   .filter(pk__in=ref_filter_ids, is_private=True) \
-                                                   .exclude(user=owner) \
-                                                   .values_list('name', flat=True)
+                invalid_filter_names = EntityFilter.objects.filter(
+                    pk__in=ref_filter_ids, is_private=True,
+                ).exclude(user=owner).values_list('name', flat=True)
 
                 if invalid_filter_names:
                     raise EntityFilter.PrivacyError(
                         ngettext(
-                            'A private filter which belongs to a team can only use public sub-filters & '
-                            'private sub-filters which belong to this team.'
+                            'A private filter which belongs to a team can only '
+                            'use public sub-filters & private sub-filters which '
+                            'belong to this team.'
                             ' So this private sub-filter cannot be chosen: {}',
-                            'A private filter which belongs to a team can only use public sub-filters & '
-                            'private sub-filters which belong to this team.'
+                            'A private filter which belongs to a team can only '
+                            'use public sub-filters & private sub-filters which '
+                            'belong to this team.'
                             ' So these private sub-filters cannot be chosen: {}',
                             len(invalid_filter_names)
                         ).format(', '.join(invalid_filter_names))
                     )
             else:
-                invalid_filter_names = EntityFilter.objects \
-                                                   .filter(pk__in=ref_filter_ids, is_private=True) \
-                                                   .exclude(user__in=[owner, *owner.teams]) \
-                                                   .values_list('name', flat=True)
+                invalid_filter_names = EntityFilter.objects.filter(
+                    pk__in=ref_filter_ids, is_private=True,
+                ).exclude(
+                    user__in=[owner, *owner.teams],
+                ).values_list('name', flat=True)
 
                 if invalid_filter_names:
                     raise EntityFilter.PrivacyError(
                         ngettext(
-                            'A private filter can only use public sub-filters, & private sub-filters '
-                            'which belong to the same user and his teams.'
+                            'A private filter can only use public sub-filters, '
+                            '& private sub-filters which belong to the same '
+                            'user and his teams.'
                             ' So this private sub-filter cannot be chosen: {}',
-                            'A private filter can only use public sub-filters, & private sub-filters '
-                            'which belong to the same user and his teams.'
+                            'A private filter can only use public sub-filters, '
+                            '& private sub-filters which belong to the same '
+                            'user and his teams.'
                             ' So these private sub-filters cannot be chosen: {}',
                             len(invalid_filter_names)
                         ).format(', '.join(invalid_filter_names))
                     )
         else:
-            invalid_filter_names = EntityFilter.objects \
-                                               .filter(pk__in=ref_filter_ids, is_private=True) \
-                                               .values_list('name', flat=True)
+            invalid_filter_names = EntityFilter.objects.filter(
+                pk__in=ref_filter_ids, is_private=True,
+            ).values_list('name', flat=True)
 
             if invalid_filter_names:
                 # All user can see this filter, so all user should have the permission
                 # to see the sub-filters too ; so they have to be public (is_private=False)
                 raise EntityFilter.PrivacyError(
                     ngettext(
-                        'Your filter must be private in order to use this private sub-filter: {}',
-                        'Your filter must be private in order to use these private sub-filters: {}',
+                        'Your filter must be private in order to use this '
+                        'private sub-filter: {}',
+                        'Your filter must be private in order to use these '
+                        'private sub-filters: {}',
                         len(invalid_filter_names)
                     ).format(', '.join(invalid_filter_names))
                 )
 
-    def check_privacy(self,
-                      conditions: Iterable['EntityFilterCondition'],
-                      is_private: bool,
-                      owner) -> None:
+    def check_privacy(
+            self,
+            conditions: Iterable['EntityFilterCondition'],
+            is_private: bool,
+            owner) -> None:
         "@raises EntityFilter.PrivacyError"
         self._check_privacy_sub_filters(conditions, is_private, owner)
         self._check_privacy_parent_filters(is_private, owner)
@@ -642,7 +679,8 @@ class EntityFilter(models.Model):  # CremeModel ???
         # NB: 'level' means a level of filters connected to this filter :
         #  - 1rst level is 'self'.
         #  - 2rst level is filters with a sub-filter conditions relative to 'self'.
-        #  - 3rd level  is filters with a sub-filter conditions relative to a filter of the 2nd level.
+        #  - 3rd level  is filters with a sub-filter conditions relative to a
+        #    filter of the 2nd level.
         # etc....
         if self._connected_filter_cache:
             return self._connected_filter_cache
@@ -732,7 +770,9 @@ class EntityFilter(models.Model):  # CremeModel ???
                 #     registers handler/operator)
                 logger.warning('%s => EntityFilterCondition instance is ignored', error)
             elif model != condition.handler.model:
-                logger.warning('EntityFilterCondition related to a different model => we removed it')
+                logger.warning(
+                    'EntityFilterCondition related to a different model => we removed it'
+                )
                 condition.delete()
             else:
                 append(condition)
@@ -761,7 +801,8 @@ class EntityFilter(models.Model):  # CremeModel ???
         conds2del = []
 
         for old_condition, condition in zip_longest(old_conditions, conditions):
-            if not condition:  # Less new conditions that old conditions => delete conditions in excess
+            if not condition:
+                # Less new conditions than old conditions => delete conditions in excess
                 conds2del.append(old_condition.id)
             elif not old_condition:
                 condition.filter = self
@@ -810,8 +851,11 @@ class EntityFilterCondition(models.Model):
     'FilterConditionHandler' instead of calling directly the constructor.
     """
     filter = models.ForeignKey(EntityFilter, related_name='conditions', on_delete=models.CASCADE)
-    type   = models.PositiveSmallIntegerField()  # NB: see core.entity_filter.condition_handler.FilterConditionHandler.type_id
-    name   = models.CharField(max_length=100)
+
+    # NB: see core.entity_filter.condition_handler.FilterConditionHandler.type_id
+    type = models.PositiveSmallIntegerField()
+
+    name = models.CharField(max_length=100)
     # value  = models.TextField()
     raw_value = models.TextField()  # TODO: use a JSONField ?
 
@@ -899,7 +943,11 @@ class EntityFilterCondition(models.Model):
         _handler = self._handler
 
         if _handler is None:
-            registry = self.filter.registry if self.filter_id else entity_filter_registries[self.filter_type]
+            registry = (
+                self.filter.registry
+                if self.filter_id else
+                entity_filter_registries[self.filter_type]
+            )
             self._handler = _handler = registry.get_handler(
                 type_id=self.type,
                 model=self.model,
@@ -940,7 +988,8 @@ class EntityFilterCondition(models.Model):
         return self._model or self.filter.entity_type.model_class()
 
     def update(self, other_condition: 'EntityFilterCondition') -> bool:
-        """Fill a condition with the content a another one (in order to reuse the old instance if possible).
+        """Fill a condition with the content a another one
+        (in order to reuse the old instance if possible).
         @return True if there is at least one change, else False.
         """
         changed = False

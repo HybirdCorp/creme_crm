@@ -47,17 +47,23 @@ from ..setting_keys import emailcampaign_sender
 
 
 class SendingCreateForm(CremeModelForm):
-    sender       = EmailField(label=_('Sender address'))
-    template     = CreatorEntityField(label=_('Email template'), model=get_emailtemplate_model(),
-                                      credentials=EntityCredentials.VIEW,
-                                     )
-    sending_date = DateTimeField(label=_('Sending date'), required=False, widget=CalendarWidget,
-                                 help_text=_('Required only of the sending is deferred.'))
-    hour         = IntegerField(label=_('Sending hour'), required=False, min_value=0, max_value=23)
-    minute       = IntegerField(label=_('Sending minute'), required=False, min_value=0, max_value=59)
+    sender = EmailField(label=_('Sender address'))
+    template = CreatorEntityField(
+        label=_('Email template'), model=get_emailtemplate_model(),
+        credentials=EntityCredentials.VIEW,
+    )
+
+    sending_date = DateTimeField(
+        label=_('Sending date'), required=False, widget=CalendarWidget,
+        help_text=_('Required only of the sending is deferred.'),
+    )
+    hour = IntegerField(label=_('Sending hour'), required=False, min_value=0, max_value=23)
+    minute = IntegerField(label=_('Sending minute'), required=False, min_value=0, max_value=59)
 
     error_messages = {
-        'forbidden': _('You are not allowed to modify the sender address, please contact your administrator.'),
+        'forbidden': _(
+            'You are not allowed to modify the sender address, please contact your administrator.'
+        ),
     }
 
     blocks = CremeModelForm.blocks.new(
@@ -76,7 +82,9 @@ class SendingCreateForm(CremeModelForm):
         sender_setting = SettingValue.objects.get_4_key(emailcampaign_sender)
 
         sender_field = self.fields['sender']
-        self.can_edit_sender_value = can_edit_sender_value = not sender_setting.value and can_admin_emails
+        self.can_edit_sender_value = can_edit_sender_value = (
+            not sender_setting.value and can_admin_emails
+        )
         if not can_edit_sender_value:
             sender_field.widget.attrs['readonly'] = True
 

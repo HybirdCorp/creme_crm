@@ -457,7 +457,10 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertIn(folder1, folders)
         self.assertIn(folder2, folders)
 
-        self.assertEqual(_('List of {models}').format(models=Folder._meta.verbose_name_plural), title)
+        self.assertEqual(
+            _('List of {models}').format(models=Folder._meta.verbose_name_plural),
+            title,
+        )
 
         with self.assertRaises(KeyError):
             context['list_sub_title']

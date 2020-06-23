@@ -66,7 +66,10 @@ def _get_available_report_graph_types(ct, name):
             try:
                 cf = CustomField.objects.get(pk=name, content_type=ct)
             except CustomField.DoesNotExist:
-                logger.debug('get_available_report_graph_types(): "%s" is not a field or a CustomField id', name)
+                logger.debug(
+                    'get_available_report_graph_types(): "%s" is not a field or a CustomField id',
+                    name
+                )
             else:
                 field_type = cf.field_type
 
@@ -81,12 +84,18 @@ def _get_available_report_graph_types(ct, name):
                 if field_type == CustomField.ENUM:
                     return (constants.RGT_CUSTOM_FK,)
 
-                logger.debug('get_available_report_graph_types(): only ENUM & DATETIME CustomField are allowed.')
+                logger.debug(
+                    'get_available_report_graph_types(): '
+                    'only ENUM & DATETIME CustomField are allowed.'
+                )
         else:
             try:
                 RelationType.objects.get(pk=name)
             except RelationType.DoesNotExist:
-                logger.debug('get_available_report_graph_types(): "%s" is not a field or a RelationType id', name)
+                logger.debug(
+                    'get_available_report_graph_types(): '
+                    '"%s" is not a field or a RelationType id', name
+                )
             else:
                 return (constants.RGT_RELATION,)
     else:
@@ -101,7 +110,9 @@ def _get_available_report_graph_types(ct, name):
         if isinstance(field, ForeignKey):
             return (constants.RGT_FK,)
 
-        logger.debug('get_available_report_graph_types(): "%s" is not a valid field for abscissa', name)
+        logger.debug(
+            'get_available_report_graph_types(): "%s" is not a valid field for abscissa', name
+        )
 
 
 @login_required

@@ -333,9 +333,19 @@ class JSONField(fields.CharField):
 class EntityCredsJSONField(JSONField):
     "Base field which checks the permission for the retrieved entities"
     CREDS_VALIDATORS = [
-        (EntityCredentials.VIEW,   f_validators.validate_viewable_entity, f_validators.validate_viewable_entities),
-        (EntityCredentials.CHANGE, f_validators.validate_editable_entity, f_validators.validate_editable_entities),
-        (EntityCredentials.LINK,   f_validators.validate_linkable_entity, f_validators.validate_linkable_entities),
+        (
+            EntityCredentials.VIEW,
+            f_validators.validate_viewable_entity,
+            f_validators.validate_viewable_entities,
+        ), (
+            EntityCredentials.CHANGE,
+            f_validators.validate_editable_entity,
+            f_validators.validate_editable_entities,
+        ), (
+            EntityCredentials.LINK,
+            f_validators.validate_linkable_entity,
+            f_validators.validate_linkable_entities,
+        ),
     ]
 
     def __init__(self, *, credentials=EntityCredentials.LINK, quickforms_registry=None, **kwargs):
@@ -550,9 +560,10 @@ class MultiGenericEntityField(GenericEntityField):
                 ctype_choice = clean_value(entry, 'ctype', dict, required=False)
                 ctype_pk = clean_value(ctype_choice, 'id', int, required=False)
             else:
-                warnings.warn('MultiGenericEntityField: old format "ctype": id entry is deprecated.',
-                              DeprecationWarning
-                             )
+                warnings.warn(
+                    'MultiGenericEntityField: old format "ctype": id entry is deprecated.',
+                    DeprecationWarning
+                )
                 ctype_pk = clean_value(entry, 'ctype', int, required=False)
 
             if not ctype_pk:
@@ -606,14 +617,22 @@ class RelationEntityField(EntityCredsJSONField):
     widget = core_widgets.RelationSelector
     default_error_messages = {
         'rtypedoesnotexist': _('This type of relationship does not exist.'),
-        'rtypenotallowed':   _('This type of relationship causes a constraint error.'),
-        'ctypenotallowed':   _('This content type cause constraint error with the type of relationship.'),
-        'nopropertymatch':   _('This entity has no property that matches the constraints of the type of relationship.'),
+        'rtypenotallowed': _('This type of relationship causes a constraint error.'),
+        'ctypenotallowed': _(
+            'This content type cause constraint error with the type of relationship.'
+        ),
+        'nopropertymatch': _(
+            'This entity has no property that matches the constraints of the type of relationship.'
+        ),
     }
     value_type: Type = dict
 
     # def __init__(self, *, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, **kwargs):
-    def __init__(self, *, allowed_rtypes=RelationType.objects.none(), autocomplete=False, **kwargs):
+    def __init__(
+            self, *,
+            allowed_rtypes=RelationType.objects.none(),
+            autocomplete=False,
+            **kwargs):
         super().__init__(**kwargs)
         self.autocomplete = autocomplete
         self.allowed_rtypes = allowed_rtypes
@@ -645,8 +664,11 @@ class RelationEntityField(EntityCredsJSONField):
     def _value_to_jsonifiable(self, value):
         rtype, entity = value
 
-        return {'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk} if entity else \
-               {'rtype': rtype.pk, 'ctype': None,                  'entity': None}
+        return {
+            'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk,
+        } if entity else {
+            'rtype': rtype.pk, 'ctype': None,                  'entity': None,
+        }
 
     def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
@@ -686,7 +708,10 @@ class RelationEntityField(EntityCredsJSONField):
         if needed_ptype_ids:
             ptype_ids = {p.type_id for p in entity.get_properties()}
 
-            if any(needed_ptype_id not in ptype_ids for needed_ptype_id in needed_ptype_ids):
+            if any(
+                needed_ptype_id not in ptype_ids
+                for needed_ptype_id in needed_ptype_ids
+            ):
                 raise ValidationError(
                     self.error_messages['nopropertymatch'],
                     code='nopropertymatch',
@@ -695,9 +720,10 @@ class RelationEntityField(EntityCredsJSONField):
     def _clean_rtype(self, rtype_pk):
         # Is relation type allowed
         if rtype_pk not in self._get_allowed_rtypes_ids():
-            raise ValidationError(self.error_messages['rtypenotallowed'],
-                                  params={'rtype': rtype_pk}, code='rtypenotallowed',
-                                 )
+            raise ValidationError(
+                self.error_messages['rtypenotallowed'],
+                params={'rtype': rtype_pk}, code='rtypenotallowed',
+            )
 
         try:
             return RelationType.objects.get(pk=rtype_pk)
@@ -796,8 +822,9 @@ class MultiRelationEntityField(RelationEntityField):
                     code='rtypenotallowed',
                 )
 
-            rtype, allowed_ctype_ids, needed_ptype_ids = \
-                self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
+            rtype, allowed_ctype_ids, needed_ptype_ids = self._get_cache(
+                rtypes_cache, rtype_pk, self._build_rtype_cache,
+            )
 
             if needed_ptype_ids:
                 need_property_validation = True
@@ -911,7 +938,8 @@ class CreatorEntityField(EntityCredsJSONField):
     def q_filter(self, q_filter):
         """
         @param q_filter: Allows to filter the selection. Same meaning than Model.limit_choices_to ;
-               so it can be dictionary (eg: {'user__is_staff': False}), a django.db.models.query.Q instance,
+               so it can be dictionary (eg: {'user__is_staff': False}),
+               a <django.db.models.query.Q instance>,
                or a callable which returns dictionary/Q.
                <None> means not filtering.
         """
@@ -990,7 +1018,9 @@ class CreatorEntityField(EntityCredsJSONField):
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, int):
-            if not self._entity_queryset(self.model, self.q_filter_query).filter(pk=value).exists():
+            if not self._entity_queryset(
+                self.model, self.q_filter_query,
+            ).filter(pk=value).exists():
                 raise ValueError(f'No such entity with id={value}.')
 
             return value
@@ -1021,7 +1051,9 @@ class MultiCreatorEntityField(CreatorEntityField):
             return []
 
         if value and isinstance(value[0], int):
-            if self._entity_queryset(self.model, self.q_filter_query).filter(pk__in=value).count() < len(value):
+            if self._entity_queryset(
+                self.model, self.q_filter_query,
+            ).filter(pk__in=value).count() < len(value):
                 raise ValueError(
                     "The entities with ids [{}] don't exist.".format(
                         ', '.join(str(v) for v in value),
@@ -1172,7 +1204,15 @@ class OptionalField(fields.MultiValueField):
         'subfield_required': _('Enter a value if you check the box.'),
     }
 
-    def __init__(self, *, widget=None, label=None, initial=None, help_text='', sub_label='', **kwargs):
+    def __init__(
+            self,
+            *,
+            widget=None,
+            label=None,
+            initial=None,
+            help_text='',
+            sub_label='',
+            **kwargs):
         super().__init__(
             fields=(
                 fields.BooleanField(required=False),
@@ -1338,7 +1378,8 @@ class AjaxModelChoiceField(mforms.ModelChoiceField):
 
 
 class MultiEmailField(fields.Field):
-    # Original code at http://docs.djangoproject.com/en/1.3/ref/forms/validation/#form-field-default-cleaning
+    # Original code at
+    #   http://docs.djangoproject.com/en/1.3/ref/forms/validation/#form-field-default-cleaning
     widget = widgets.Textarea
 
     def __init__(self, *, sep='\n', **kwargs):
@@ -1351,7 +1392,9 @@ class MultiEmailField(fields.Field):
         # Return an empty list if no input was given.
         if not value:
             return []
-        return [v for v in value.split(self.sep) if v]  # Remove empty values but the validation is more flexible
+
+        # Remove empty values but the validation is more flexible
+        return [v for v in value.split(self.sep) if v]
 
     def validate(self, value):
         "Check if value consists only of valid emails."
@@ -1429,15 +1472,17 @@ class DateRangeField(fields.MultiValueField):
         # Use DateRangeWidget with defaults params
         DateRangeField(label=_('Date range'))
 
-        #Render DateRangeWidget as ul/li
+        # Render DateRangeWidget as ul/li
         DateRangeField(label=_('Date range'), widget=DateRangeWidget(attrs={'render_as': 'ul'}))
 
-        #Render DateRangeWidget as a table
+        # Render DateRangeWidget as a table
         DateRangeField(label=_('Date range'), widget=DateRangeWidget(attrs={'render_as': 'table'}))
     """
     widget = core_widgets.DateRangeWidget
     default_error_messages = {
-        'customized_empty': _('If you select «customized» you have to specify a start date and/or an end date.'),
+        'customized_empty': _(
+            'If you select «customized» you have to specify a start date and/or an end date.'
+        ),
         'customized_invalid': _('Start date has to be before end date.'),
     }
 

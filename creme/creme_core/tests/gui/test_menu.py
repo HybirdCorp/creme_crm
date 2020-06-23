@@ -374,168 +374,240 @@ class MenuTestCase(CremeTestCase):
         user = self.create_user()
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        cfi.get_or_create_group('persons', 'Directory') \
-           .add_link('add_contact', label='Contact', url='/tests/contact/add', perm='creme_core.add_fakecontact')
-        self.assertEqual(
-            [[{'label': 'Directory', 'links': [{'label': 'Contact', 'url': '/tests/contact/add'}]}]],
-            cfi.as_grid(user)
+        cfi.get_or_create_group(
+            'persons', 'Directory',
+        ).add_link(
+            'add_contact', label='Contact', url='/tests/contact/add',
+            perm='creme_core.add_fakecontact',
         )
-
-        cfi.get_or_create_group('persons', 'Directory') \
-           .add_link('add_orga', label='Organisation', url='/tests/organisation/add', perm='creme_core.add_fakeorganisation')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
-                         {'label': 'Organisation', 'url': '/tests/organisation/add'},
-                        ],
-              },
-             ]
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [{'label': 'Contact', 'url': '/tests/contact/add'}],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('activities', 'Activities') \
-           .add_link('add_pcall',   label='Phone call', url='/tests/phone_call/add', perm='creme_core.add_fakeactivity') \
-           .add_link('add_meeting', label='Meeting',    url='/tests/meeting/add',    perm='creme_core.add_fakeactivity')
-        cfi.get_or_create_group('tools', 'Tools')\
-           .add_link('add_doc', label='Document', url='/tests/document/add', perm='creme_core.add_fakedocument')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
-                         {'label': 'Organisation', 'url': '/tests/organisation/add'},
+        cfi.get_or_create_group(
+            'persons', 'Directory',
+        ).add_link(
+            'add_orga', label='Organisation', url='/tests/organisation/add',
+            perm='creme_core.add_fakeorganisation')
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Contact',      'url': '/tests/contact/add'},
+                            {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
-              },
-             ],
-             [{'label': 'Activities',
-               'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
-                         {'label': 'Meeting',    'url': '/tests/meeting/add'},
-                        ],
-              },
-              {'label': 'Tools',
-               'links': [{'label': 'Document', 'url': '/tests/document/add'}],
-              },
-             ],
+                    },
+                ]
             ],
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('analysis', 'Analysis')\
-           .add_link('add_report', label='Report', url='/tests/report/add', perm='creme_core.add_fakereport')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
-                         {'label': 'Organisation', 'url': '/tests/organisation/add'},
+        cfi.get_or_create_group(
+            'activities', 'Activities',
+        ).add_link(
+            'add_pcall', label='Phone call', url='/tests/phone_call/add',
+            perm='creme_core.add_fakeactivity',
+        ).add_link(
+            'add_meeting', label='Meeting', url='/tests/meeting/add',
+            perm='creme_core.add_fakeactivity',
+        )
+        cfi.get_or_create_group(
+            'tools', 'Tools',
+        ).add_link(
+            'add_doc', label='Document', url='/tests/document/add',
+            perm='creme_core.add_fakedocument',
+        )
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Contact',      'url': '/tests/contact/add'},
+                            {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
-              },
-              {'label': 'Activities',
-               'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
-                         {'label': 'Meeting',    'url': '/tests/meeting/add'},
+                    },
+                ], [
+                    {
+                        'label': 'Activities',
+                        'links': [
+                            {'label': 'Phone call', 'url': '/tests/phone_call/add'},
+                            {'label': 'Meeting',    'url': '/tests/meeting/add'},
                         ],
-              },
-             ],
-             [{'label': 'Tools',
-               'links': [{'label': 'Document', 'url': '/tests/document/add'}],
-              },
-              {'label': 'Analysis',
-               'links': [{'label': 'Report', 'url': '/tests/report/add'}],
-              },
-             ],
+                    }, {
+                        'label': 'Tools',
+                        'links': [{'label': 'Document', 'url': '/tests/document/add'}],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('management', 'Management') \
-           .add_link('add_invoice', label='Invoice', url='/tests/invoice/add', perm='creme_core.add_fakeinvoice')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
-                         {'label': 'Organisation', 'url': '/tests/organisation/add'},
+        cfi.get_or_create_group(
+            'analysis', 'Analysis',
+        ).add_link(
+            'add_report', label='Report', url='/tests/report/add',
+            perm='creme_core.add_fakereport',
+        )
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Contact',      'url': '/tests/contact/add'},
+                            {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
-              },
-             ],
-             [{'label': 'Activities',
-               'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
-                         {'label': 'Meeting',    'url': '/tests/meeting/add'},
+                    }, {
+                        'label': 'Activities',
+                        'links': [
+                            {'label': 'Phone call', 'url': '/tests/phone_call/add'},
+                            {'label': 'Meeting',    'url': '/tests/meeting/add'},
                         ],
-              },
-              {'label': 'Tools',
-               'links': [{'label': 'Document', 'url': '/tests/document/add'}],
-              },
-             ],
-             [{'label': 'Analysis',
-               'links': [{'label': 'Report', 'url': '/tests/report/add'}],
-              },
-              {'label': 'Management',
-               'links': [{'label': 'Invoice', 'url': '/tests/invoice/add'}],
-              },
-             ]
+                    },
+                ], [
+                    {
+                        'label': 'Tools',
+                        'links': [{'label': 'Document', 'url': '/tests/document/add'}],
+                    }, {
+                        'label': 'Analysis',
+                        'links': [{'label': 'Report', 'url': '/tests/report/add'}],
+                    },
+                ],
+            ],
+            cfi.as_grid(user)
+        )
+
+        cfi.get_or_create_group(
+            'management', 'Management',
+        ).add_link(
+            'add_invoice', label='Invoice', url='/tests/invoice/add',
+            perm='creme_core.add_fakeinvoice',
+        )
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Contact',      'url': '/tests/contact/add'},
+                            {'label': 'Organisation', 'url': '/tests/organisation/add'},
+                        ],
+                    },
+                ], [
+                    {
+                        'label': 'Activities',
+                        'links': [
+                            {'label': 'Phone call', 'url': '/tests/phone_call/add'},
+                            {'label': 'Meeting',    'url': '/tests/meeting/add'},
+                        ],
+                    }, {
+                        'label': 'Tools',
+                        'links': [{'label': 'Document', 'url': '/tests/document/add'}],
+                    },
+                ], [
+                    {
+                        'label': 'Analysis',
+                        'links': [{'label': 'Report', 'url': '/tests/report/add'}],
+                    }, {
+                        'label': 'Management',
+                        'links': [{'label': 'Invoice', 'url': '/tests/invoice/add'}],
+                    },
+                ]
             ],
             cfi.as_grid(user)
         )
 
         cfi.get_or_create_group('commercial', 'Commercial') \
            .add_link('add_act', label='Act', url='/tests/act/add', perm='creme_core')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
-                         {'label': 'Organisation', 'url': '/tests/organisation/add'},
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Contact',      'url': '/tests/contact/add'},
+                            {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
-              },
-              {'label': 'Activities',
-               'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
-                         {'label': 'Meeting',    'url': '/tests/meeting/add'},
+                    }, {
+                        'label': 'Activities',
+                        'links': [
+                            {'label': 'Phone call', 'url': '/tests/phone_call/add'},
+                            {'label': 'Meeting',    'url': '/tests/meeting/add'},
                         ],
-              },
-             ],
-             [{'label': 'Tools',
-               'links': [{'label': 'Document', 'url': '/tests/document/add'}],
-              },
-              {'label': 'Analysis',
-               'links': [{'label': 'Report', 'url': '/tests/report/add'}],
-              },
-             ],
-             [{'label': 'Management',
-               'links': [{'label': 'Invoice', 'url': '/tests/invoice/add'}],
-              },
-              {'label': 'Commercial',
-               'links': [{'label': 'Act', 'url': '/tests/act/add'}],
-              },
-             ]
+                    },
+                ], [
+                    {
+                        'label': 'Tools',
+                        'links': [{'label': 'Document', 'url': '/tests/document/add'}],
+                    }, {
+                        'label': 'Analysis',
+                        'links': [{'label': 'Report', 'url': '/tests/report/add'}],
+                    },
+                ], [
+                    {
+                        'label': 'Management',
+                        'links': [{'label': 'Invoice', 'url': '/tests/invoice/add'}],
+                    }, {
+                        'label': 'Commercial',
+                        'links': [{'label': 'Act', 'url': '/tests/act/add'}],
+                    },
+                ]
             ],
             cfi.as_grid(user)
         )
 
-        cfi.get_or_create_group('marketing', 'Marketing') \
-           .add_link('add_campaign', label='Campaign', url='/tests/campaign/add', perm='creme_core')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Contact',      'url': '/tests/contact/add'},
-                         {'label': 'Organisation', 'url': '/tests/organisation/add'},
+        cfi.get_or_create_group(
+            'marketing', 'Marketing',
+        ).add_link(
+            'add_campaign', label='Campaign', url='/tests/campaign/add', perm='creme_core',
+        )
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Contact',      'url': '/tests/contact/add'},
+                            {'label': 'Organisation', 'url': '/tests/organisation/add'},
                         ],
-              },
-              {'label': 'Activities',
-               'links': [{'label': 'Phone call', 'url': '/tests/phone_call/add'},
-                         {'label': 'Meeting',    'url': '/tests/meeting/add'},
+                    }, {
+                        'label': 'Activities',
+                        'links': [
+                            {'label': 'Phone call', 'url': '/tests/phone_call/add'},
+                            {'label': 'Meeting',    'url': '/tests/meeting/add'},
                         ],
-              },
-             ],
-             [{'label': 'Tools',
-               'links': [{'label': 'Document', 'url': '/tests/document/add'}],
-              },
-              {'label': 'Analysis',
-               'links': [{'label': 'Report', 'url': '/tests/report/add'}],
-              },
-             ],
-             [{'label': 'Management',
-               'links': [{'label': 'Invoice', 'url': '/tests/invoice/add'}],
-              },
-              {'label': 'Commercial',
-               'links': [{'label': 'Act', 'url': '/tests/act/add'}],
-              },
-              {'label': 'Marketing',
-               'links': [{'label': 'Campaign', 'url': '/tests/campaign/add'}],
-              },
-             ]
+                    },
+                ], [
+                    {
+                        'label': 'Tools',
+                        'links': [{'label': 'Document', 'url': '/tests/document/add'}],
+                    }, {
+                        'label': 'Analysis',
+                        'links': [{'label': 'Report', 'url': '/tests/report/add'}],
+                    },
+                ], [
+                    {
+                        'label': 'Management',
+                        'links': [{'label': 'Invoice', 'url': '/tests/invoice/add'}],
+                    }, {
+                        'label': 'Commercial',
+                        'links': [{'label': 'Act', 'url': '/tests/act/add'}],
+                    }, {
+                        'label': 'Marketing',
+                        'links': [{'label': 'Campaign', 'url': '/tests/campaign/add'}],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
@@ -546,11 +618,14 @@ class MenuTestCase(CremeTestCase):
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
         cfi.get_or_create_group('persons', 'Directory').add_link('add_contact', FakeContact)
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
-              },
-             ],
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
@@ -562,17 +637,22 @@ class MenuTestCase(CremeTestCase):
         url = '/tests/customer/add'
         cfi.get_or_create_group('persons', 'Directory')\
            .add_link('add_contact', FakeContact, label=label, url=url)
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': label, 'url': url}],
-              },
-             ],
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [{'label': label, 'url': url}],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
 
         # ----
-        group = CreationFormsItem('any_forms', label='Other types').get_or_create_group('persons', 'Directory')
+        group = CreationFormsItem(
+            'any_forms', label='Other types',
+        ).get_or_create_group('persons', 'Directory')
 
         with self.assertRaises(TypeError):
             group.add_link('add_contact', label=label, url=url)  # No model + missing perm
@@ -585,56 +665,76 @@ class MenuTestCase(CremeTestCase):
 
         group.add_link('add_contact', FakeContact,      priority=10) \
              .add_link('add_orga',    FakeOrganisation, priority=5)
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Test Organisation', 'url': '/tests/organisation/add'},
-                         {'label': 'Test Contact',      'url': '/tests/contact/add'},
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Test Organisation', 'url': '/tests/organisation/add'},
+                            {'label': 'Test Contact',      'url': '/tests/contact/add'},
                         ],
-              },
-             ],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
 
-        group.add_link('add_customer', label='Customer', url='/tests/customer/add', perm='creme_core.add_fakecontact')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Test Organisation', 'url': '/tests/organisation/add'},
-                         {'label': 'Test Contact',      'url': '/tests/contact/add'},
-                         {'label': 'Customer',          'url': '/tests/customer/add'},
+        group.add_link(
+            'add_customer', label='Customer', url='/tests/customer/add',
+            perm='creme_core.add_fakecontact',
+        )
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Test Organisation', 'url': '/tests/organisation/add'},
+                            {'label': 'Test Contact',      'url': '/tests/contact/add'},
+                            {'label': 'Customer',          'url': '/tests/customer/add'},
                         ],
-              },
-             ],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
 
-        group.add_link('add_propect', label='Prospect', url='/tests/prospect/add',
-                       perm='creme_core.add_fakecontact', priority=15,
-                      )
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Test Organisation', 'url': '/tests/organisation/add'},
-                         {'label': 'Test Contact',      'url': '/tests/contact/add'},
-                         {'label': 'Customer',          'url': '/tests/customer/add'},
-                         {'label': 'Prospect',          'url': '/tests/prospect/add'},
+        group.add_link(
+            'add_propect', label='Prospect', url='/tests/prospect/add',
+            perm='creme_core.add_fakecontact', priority=15,
+        )
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Test Organisation', 'url': '/tests/organisation/add'},
+                            {'label': 'Test Contact',      'url': '/tests/contact/add'},
+                            {'label': 'Customer',          'url': '/tests/customer/add'},
+                            {'label': 'Prospect',          'url': '/tests/prospect/add'},
                         ],
-              },
-             ],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
 
         group.change_priority(1, 'add_propect', 'add_customer')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Prospect',          'url': '/tests/prospect/add'},
-                         {'label': 'Customer',          'url': '/tests/customer/add'},
-                         {'label': 'Test Organisation', 'url': '/tests/organisation/add'},
-                         {'label': 'Test Contact',      'url': '/tests/contact/add'},
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Prospect',          'url': '/tests/prospect/add'},
+                            {'label': 'Customer',          'url': '/tests/customer/add'},
+                            {'label': 'Test Organisation', 'url': '/tests/organisation/add'},
+                            {'label': 'Test Contact',      'url': '/tests/contact/add'},
                         ],
-              },
-             ],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
@@ -648,16 +748,26 @@ class MenuTestCase(CremeTestCase):
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
         group = cfi.get_or_create_group('persons', 'Directory')
 
-        group.add_link('add_contact', FakeContact) \
-             .add_link('add_orga',    FakeOrganisation) \
-             .add_link('add_propect', label='Propect', url='/tests/propect/add', perm='creme_core.add_fakecontact')
+        group.add_link(
+            'add_contact', FakeContact,
+        ).add_link(
+            'add_orga', FakeOrganisation,
+        ).add_link(
+            'add_prospect', label='Prospect', url='/tests/propect/add',
+            perm='creme_core.add_fakecontact',
+        )
 
-        group.remove('add_contact', 'add_propect', 'invalid')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Test Organisation', 'url': '/tests/organisation/add'}],
-              },
-             ],
+        group.remove('add_contact', 'add_prospect', 'invalid')
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Test Organisation', 'url': '/tests/organisation/add'},
+                        ],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
@@ -667,32 +777,44 @@ class MenuTestCase(CremeTestCase):
         user = self.create_user()
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        cfi.get_or_create_group('persons', 'Directory', priority=10).add_link('add_contact', FakeContact)
-        cfi.get_or_create_group('tools', 'Tools', priority=2).add_link('add_doc', FakeDocument)
+        cfi.get_or_create_group(
+            'persons', 'Directory', priority=10,
+        ).add_link('add_contact', FakeContact)
+        cfi.get_or_create_group(
+            'tools', 'Tools', priority=2,
+        ).add_link('add_doc', FakeDocument)
 
-        self.assertEqual(
-            [[{'label': 'Tools',
-               'links': [{'label': 'Test Document', 'url': ''}],
-              },
-             ],
-             [{'label': 'Directory',
-               'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
-              },
-             ],
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Tools',
+                        'links': [{'label': 'Test Document', 'url': ''}],
+                    },
+                ], [
+                    {
+                        'label': 'Directory',
+                        'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
 
         cfi.change_priority(1, 'persons')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
-              },
-             ],
-             [{'label': 'Tools',
-               'links': [{'label': 'Test Document', 'url': ''}],
-              },
-             ],
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
+                    },
+                ], [
+                    {
+                        'label': 'Tools',
+                        'links': [{'label': 'Test Document', 'url': ''}],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
@@ -707,11 +829,14 @@ class MenuTestCase(CremeTestCase):
         cfi.get_or_create_group('activities', 'Activities').add_link('add_act', FakeActivity)
 
         cfi.remove('tools', 'activities', 'unknown')
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
-              },
-             ],
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'}],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
@@ -724,13 +849,17 @@ class MenuTestCase(CremeTestCase):
         cfi.get_or_create_group('persons', 'Directory') \
            .add_link('add_contact', FakeContact) \
            .add_link('add_orga',    FakeOrganisation)
-        self.assertEqual(
-            [[{'label': 'Directory',
-               'links': [{'label': 'Test Contact', 'url': '/tests/contact/add'},
-                         {'label': 'Test Organisation'},
+        self.assertListEqual(
+            [
+                [
+                    {
+                        'label': 'Directory',
+                        'links': [
+                            {'label': 'Test Contact', 'url': '/tests/contact/add'},
+                            {'label': 'Test Organisation'},
                         ],
-              },
-             ],
+                    },
+                ],
             ],
             cfi.as_grid(user)
         )
@@ -833,14 +962,16 @@ class MenuTestCase(CremeTestCase):
 #     def test_render_onclick_item01(self):
 #         "No icon"
 #         item = OnClickItem('add_contact', label='Add a contact',
-#                            onclick='creme.persons.contact_popup("Create a contact")',  # Should be escaped
+#                            # Should be escaped
+#                            onclick='creme.persons.contact_popup("Create a contact")',
 #                           )
 #
-#         self.assertXMLEqual('<a onclick="creme.persons.contact_popup(\u0022Create a contact\u0022)">'
-#                                 'Add a contact'
-#                             '</a>',
-#                             item.render(self.build_context())
-#                            )
+#         self.assertXMLEqual(
+#             '<a onclick="creme.persons.contact_popup(\u0022Create a contact\u0022)">'
+#             'Add a contact'
+#             '</a>',
+#             item.render(self.build_context())
+#         )
 #
 #     def test_render_onclick_item02(self):
 #         "Icon & label"
@@ -919,10 +1050,12 @@ class MenuTestCase(CremeTestCase):
         # ElementTree.dump(elt) >>>
         # <html><head /><body>
         #         <img alt="Contact" class="header-menu-icon"
-        #              src="/static_media/icecream/images/contact_16-....png" title="Contact" width="16px" />
+        #              src="/static_media/icecream/images/contact_16-....png"
+        #              title="Contact" width="16px" />
         #         Contacts
         #         <ul>
-        #             <li class="ui-creme-navigation-item-level2 ui-creme-navigation-item-id_home">
+        #             <li class="ui-creme-navigation-item-level2
+        #                 ui-creme-navigation-item-id_home">
         #                  <a href="/persons/contacts">List of contacts</a>
         #             </li>
         #         </ul>
@@ -947,9 +1080,10 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_render_menu(self):
-        menu = Menu().add(URLItem('contacts', url='/persons/contacts',      label='List of contacts'),
-                          URLItem('orgas',    url='/persons/organisations', label='List of organisations'),
-                         )
+        menu = Menu().add(
+            URLItem('contacts', url='/persons/contacts',      label='List of contacts'),
+            URLItem('orgas',    url='/persons/organisations', label='List of organisations'),
+        )
         self.assertHTMLEqual(
             '<ul class="ui-creme-navigation">'
             '  <li class="ui-creme-navigation-item-level0 ui-creme-navigation-item-id_contacts">'

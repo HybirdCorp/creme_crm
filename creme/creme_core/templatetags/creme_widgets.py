@@ -138,12 +138,16 @@ def do_icon(parser, token):
            {% widget_render_icon add_icon class='my-icon-class' %}
 
     B. The first argument can have 3 types:
-       name='foobar' => An icon with 'foobar' as base name is searched in the images/ directory of the current theme.
-       ctype=content_type_instance  => The icon associated to this ContentType is used (see icon_registry.register()).
-       instance=my_instance => The icon associated to this instance is used (see icon_registry.register_4_instance()).
+       name='foobar' => An icon with 'foobar' as base name is searched in the
+           images/ directory of the current theme.
+       ctype=content_type_instance  => The icon associated to this ContentType
+           is used (see icon_registry.register()).
+       instance=my_instance => The icon associated to this instance is used
+           (see icon_registry.register_4_instance()).
 
     C. The other arguments are:
-       - size: a String in big/medium/small/brick-header/global-button/...  (creme.creme_core.gui.icons._ICON_SIZES_MAP)
+       - size: a String in big/medium/small/brick-header/global-button/...
+         (creme.creme_core.gui.icons._ICON_SIZES_MAP)
        - label
        - class: the CSS classes in the <img> node.
     """
@@ -245,7 +249,11 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False):
         return format_html(
             '<a href="{url}"{deleted}>{label}</a>',
             url=entity.get_absolute_url(),
-            deleted=mark_safe(' class="is_deleted"') if entity.is_deleted and not ignore_deleted else '',
+            deleted=(
+                mark_safe(' class="is_deleted"')
+                if entity.is_deleted and not ignore_deleted else
+                ''
+            ),
             label=entity,
         )
 
@@ -273,7 +281,10 @@ def do_join(parser, token):
     Must be used inside a for loop.
 
     Example:
-    {% for item in items %}{% widget_join %}<strong>{{item}}</strong>{% end_widget_join %}{% empty %}No item{% endfor %}
+    {% for item in items %}
+        {% widget_join %}<strong>{{item}}</strong>{% end_widget_join %}
+        {% empty %}No item
+    {% endfor %}
     """
     tokens = token.contents.split(None, 2)
 
@@ -311,7 +322,9 @@ class JoinNode(TemplateNode):
         try:
             forloop = context['forloop']
         except KeyError as e:
-            raise ValueError('The tag {% widget_join %} must be used inside a {% for %} loop.') from e
+            raise ValueError(
+                'The tag {% widget_join %} must be used inside a {% for %} loop.'
+            ) from e
 
         try:
             behaviour = self.behaviours[context['LANGUAGE_CODE']]

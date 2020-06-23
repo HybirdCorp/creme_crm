@@ -550,7 +550,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             ).format(subfilter.name)
         )
 
-        response = self.client.post(self._build_add_url(ct=self.ct_contact), follow=True, data=data)
+        response = self.client.post(
+            self._build_add_url(ct=self.ct_contact), follow=True, data=data,
+        )
         self.assertNoFormError(response)
         self.get_object_or_fail(EntityFilter, name=name)
 
@@ -1556,7 +1558,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_delete01(self):
         self.login()
 
-        efilter = EntityFilter.objects.smart_update_or_create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Filter 01', FakeContact, is_custom=True,
+        )
         response = self._delete(efilter, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertRedirects(response, FakeContact.get_lv_absolute_url())

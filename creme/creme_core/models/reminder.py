@@ -25,12 +25,17 @@ from django.utils.translation import gettext_lazy as _
 
 
 class DateReminder(models.Model):  # CremeModel ?
-    date_of_remind     = models.DateTimeField(blank=True, null=True)
-    ident              = models.PositiveIntegerField()
-    model_content_type = models.ForeignKey(ContentType, related_name='reminders_set', on_delete=models.CASCADE)
-    model_id           = models.PositiveIntegerField()
+    date_of_remind = models.DateTimeField(blank=True, null=True)
+    ident = models.PositiveIntegerField()
 
-    object_of_reminder = GenericForeignKey(ct_field='model_content_type', fk_field='model_id')
+    model_content_type = models.ForeignKey(
+        ContentType, related_name='reminders_set', on_delete=models.CASCADE
+    )
+    model_id = models.PositiveIntegerField()
+
+    object_of_reminder = GenericForeignKey(
+        ct_field='model_content_type', fk_field='model_id',
+    )
 
     class Meta:
         app_label = 'creme_core'

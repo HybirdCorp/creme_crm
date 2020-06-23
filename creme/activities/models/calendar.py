@@ -34,16 +34,22 @@ class CalendarManager(models.Manager):
     def new_color(self):
         return COLOR_POOL[self.count() % len(COLOR_POOL)]
 
-    def create_default_calendar(self, user, *, name=None, color=None, is_public=False, check_for_default=False):
+    def create_default_calendar(
+            self,
+            user, *,
+            name=None, color=None, is_public=False, check_for_default=False):
         """Creates a default Calendar for a given user.
 
         @param user: 'django.contrib.auth.get_user_model()' instance.
-        @param name: Name of the new calendar ; <None> means a default one will be generated.
+        @param name: Name of the new calendar ; <None> means a default one will
+               be generated.
         @param color: HTML color string ; <None> means a default one will be picked.
         @param is_public: Boolean.
-        @param check_for_default: Boolean ; <True> means than a query is performed to search
-               if another default Calendar exists (it is set to is_default=false if needed).
-               <False> by default ; so you SHOULD check if there is already another default Calendar.
+        @param check_for_default: Boolean ;
+               <True> means than a query is performed to search if another
+               default Calendar exists (it is set to is_default=false if needed).
+               <False> by default ; so you SHOULD check if there is already
+               another default Calendar.
         @return: A Calendar instance.
         """
         cal = self.model(
@@ -86,7 +92,8 @@ class CalendarManager(models.Manager):
 class Calendar(CremeModel):
     name       = models.CharField(_('Name'), max_length=100)
     is_default = models.BooleanField(_('Is default?'), default=False)
-    is_custom  = models.BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
+    # Used by creme_config
+    is_custom  = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
     is_public  = models.BooleanField(default=False, verbose_name=_('Is public?'))
     user       = core_fields.CremeUserForeignKey(verbose_name=_('Calendar owner'))
     color      = core_fields.ColorField(_('Color'))

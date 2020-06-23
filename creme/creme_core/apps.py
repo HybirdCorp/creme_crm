@@ -173,7 +173,8 @@ class CremeAppConfig(AppConfig):
 
     def ready(self):
         # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
-        # because we get an error from django [AttributeError: 'instancemethod' object has no attribute 'tags']
+        # because we get an error from django:
+        # [AttributeError: 'instancemethod' object has no attribute 'tags']
         @checks.register(Tags.settings)
         def check_deps(**kwargs):
             return [
@@ -233,8 +234,12 @@ class CremeAppConfig(AppConfig):
             self.register_bulk_update(bulk_update.bulk_update_registry)
             self.register_buttons(button_menu.button_registry)
             self.register_cell_sorters(sorter.cell_sorter_registry)
-            self.register_credentials(entity_filter.entity_filter_registries[entity_filter.EF_CREDENTIALS])
-            self.register_entity_filter(entity_filter.entity_filter_registries[entity_filter.EF_USER])
+            self.register_credentials(
+                entity_filter.entity_filter_registries[entity_filter.EF_CREDENTIALS]
+            )
+            self.register_entity_filter(
+                entity_filter.entity_filter_registries[entity_filter.EF_USER]
+            )
             self.register_enumerable(enumerable.enumerable_registry)
             self.register_fields_config(fields_config.fields_config_registry)
             self.register_field_printers(field_printers.field_printers_registry)
@@ -287,7 +292,9 @@ class CremeAppConfig(AppConfig):
     def register_field_printers(self, field_printers_registry: '_FieldPrintersRegistry') -> None:
         pass
 
-    def register_filefields_download(self, filefield_download_registry: 'FileFieldDownLoadRegistry') -> None:
+    def register_filefields_download(
+            self,
+            filefield_download_registry: 'FileFieldDownLoadRegistry') -> None:
         pass
 
     def register_function_fields(self, function_field_registry: '_FunctionFieldRegistry') -> None:
@@ -469,7 +476,8 @@ class CremeCoreConfig(CremeAppConfig):
     def register_bulk_update(self, bulk_update_registry):
         from .models import CremeProperty
 
-        bulk_update_registry.register(CremeProperty, exclude=('type', 'creme_entity'))  # TODO: tags modifiable=False ??
+        # TODO: tags modifiable=False ??
+        bulk_update_registry.register(CremeProperty, exclude=('type', 'creme_entity'))
 
     def register_buttons(self, button_registry):
         from . import buttons
@@ -479,7 +487,8 @@ class CremeCoreConfig(CremeAppConfig):
     def register_credentials(self, entity_filter_registry):
         from .core.entity_filter import condition_handler, operands, operators
 
-        # BEWARE: other handler classes are not complete for credentials (accept() methods to be done)
+        # BEWARE: other handler classes are not complete for credentials
+        # (accept() methods to be done)
         entity_filter_registry.register_condition_handlers(
             condition_handler.RegularFieldConditionHandler,
             condition_handler.CustomFieldConditionHandler,
@@ -554,7 +563,8 @@ class CremeCoreConfig(CremeAppConfig):
             register_model(fake_models.FakeTicketPriority,   'fake_ticket_priority')
             register_model(fake_models.FakeIngredient,       'fake_ingredient')
 
-            # NB: we just need another URLs for creation/edition/deletion (even if these ones are stupid)
+            # NB: we just need another URLs for creation/edition/deletion
+            # (even if these ones are stupid)
             register_model(
                 fake_models.FakePosition, 'fake_position',
             ).creation(

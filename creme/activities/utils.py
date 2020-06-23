@@ -41,7 +41,12 @@ def get_last_day_of_a_month(date):
     return last_day
 
 
-def check_activity_collisions(activity_start, activity_end, participants, busy=True, exclude_activity_id=None):
+def check_activity_collisions(
+        activity_start,
+        activity_end,
+        participants,
+        busy=True,
+        exclude_activity_id=None):
     if not activity_start:
         return
 
@@ -50,7 +55,9 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
 
     for participant in participants:
         # Find activities of participant
-        activity_req = Relation.objects.filter(subject_entity=participant.id, type=REL_SUB_PART_2_ACTIVITY)
+        activity_req = Relation.objects.filter(
+            subject_entity=participant.id, type=REL_SUB_PART_2_ACTIVITY,
+        )
 
         # Exclude current activity if asked
         if exclude_activity_id is not None:
@@ -61,21 +68,27 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
 
         # Do collision request
         # TODO: can be done with less queries ?
-        #       eg:  Activity.objects.filter(relations__object_entity=participant.id,
-        #                                    relations__object_entity__type=REL_OBJ_PART_2_ACTIVITY)
-        #                            .filter(collision_test)
+        #       eg:  Activity.objects.filter(
+        #                relations__object_entity=participant.id,
+        #                relations__object_entity__type=REL_OBJ_PART_2_ACTIVITY,
+        #            ).filter(collision_test)
         busy_args = {} if busy else {'busy': True}
         # TODO: test is_deleted=True
-        colliding_activity = get_activity_model().objects.filter(collision_test,
-                                                                 is_deleted=False,
-                                                                 pk__in=activity_ids,
-                                                                 floating_type__in=(NARROW, FLOATING_TIME),
-                                                                 **busy_args
-                                                                ).first()
+        colliding_activity = get_activity_model().objects.filter(
+            collision_test,
+            is_deleted=False,
+            pk__in=activity_ids,
+            floating_type__in=(NARROW, FLOATING_TIME),
+            **busy_args
+        ).first()
 
         if colliding_activity is not None:
-            collision_start = max(activity_start.time(), localtime(colliding_activity.start).time())
-            collision_end   = min(activity_end.time(),   localtime(colliding_activity.end).time())
+            collision_start = max(
+                activity_start.time(), localtime(colliding_activity.start).time(),
+            )
+            collision_end = min(
+                activity_end.time(), localtime(colliding_activity.end).time(),
+            )
 
             collisions.append(
                 _(

@@ -136,7 +136,9 @@ class AbstractProject(CremeEntity):
         return sum(max(0, task.get_delay()) for task in self.get_tasks())
 
     def close(self):
-        """@return Boolean -> False means the project has not been closed (because it is already closed)."""
+        """@return Boolean -> False means the project has not been closed
+        (because it is already closed).
+        """
         if self.effective_end_date:
             already_closed = False
         else:

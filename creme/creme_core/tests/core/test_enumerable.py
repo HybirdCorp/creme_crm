@@ -191,9 +191,10 @@ class EnumerableTestCase(CremeTestCase):
                                      enumerator_class=EntityCTypeForeignKeyEnumerator,
                                     )
 
-        self.assertIsInstance(registry.enumerator_by_fieldname(model=FakeReport, field_name='ctype'),
-                              EntityCTypeForeignKeyEnumerator
-                             )
+        self.assertIsInstance(
+            registry.enumerator_by_fieldname(model=FakeReport, field_name='ctype'),
+            EntityCTypeForeignKeyEnumerator
+        )
 
     def test_register_field_type02(self):
         "Inheritance."
@@ -205,9 +206,10 @@ class EnumerableTestCase(CremeTestCase):
                                      enumerator_class=CTypeForeignKeyEnumerator,
                                     )
 
-        self.assertIsInstance(registry.enumerator_by_fieldname(model=FakeReport, field_name='ctype'),
-                              CTypeForeignKeyEnumerator
-                             )
+        self.assertIsInstance(
+            registry.enumerator_by_fieldname(model=FakeReport, field_name='ctype'),
+            CTypeForeignKeyEnumerator
+        )
 
     def test_convert_choices(self):
         self.assertEqual(

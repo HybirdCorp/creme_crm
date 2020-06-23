@@ -72,7 +72,14 @@ _HAS_RELATION_OPTIONS = OrderedDict([
 
 
 class FieldConditionSelector(ChainedInput):
-    def __init__(self, model=CremeEntity, fields=(), operators=(), filter_type=EF_USER, attrs=None, autocomplete=False):
+    def __init__(
+            self,
+            model=CremeEntity,
+            fields=(),
+            operators=(),
+            filter_type=EF_USER,
+            attrs=None,
+            autocomplete=False):
         super().__init__(attrs)
         self.model = model
         self.fields = fields
@@ -85,15 +92,18 @@ class FieldConditionSelector(ChainedInput):
 
         EQUALS_OPS = '{}|{}'.format(operators.EQUALS, operators.EQUALS_NOT)
         add_input = pinput.add_input
-        add_input('^enum(__null)?.({})$'.format(EQUALS_OPS),
-                  widget=DynamicSelectMultiple, attrs=field_attrs,
-                  # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-                  # TODO: remove "field.ctype" ?
-                  url=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${field.name}'))
-                                        .resolve('creme_core__enumerable_choices',
-                                                 kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id},
-                                                ),
-                 )
+        add_input(
+            '^enum(__null)?.({})$'.format(EQUALS_OPS),
+            widget=DynamicSelectMultiple, attrs=field_attrs,
+            # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+            # TODO: remove "field.ctype" ?
+            url=TemplateURLBuilder(
+                field=(TemplateURLBuilder.Word, '${field.name}'),
+            ).resolve(
+                'creme_core__enumerable_choices',
+                kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id},
+            ),
+        )
 
         pinput.add_dselect(
             '^user(__null)?.({})$'.format(EQUALS_OPS),
@@ -147,14 +157,18 @@ class FieldConditionSelector(ChainedInput):
             choice_value = {'name': name, 'type': choice_type}
 
             if choice_type in operators.FIELDTYPES_RELATED:
-                choice_value['ctype'] = ContentType.objects.get_for_model(subfield.remote_field.model).id
+                choice_value['ctype'] = ContentType.objects.get_for_model(
+                    subfield.remote_field.model
+                ).id
         else:
             choice_type = self.field_choicetype(field)
             choice_label = field.verbose_name
             choice_value = {'name': name, 'type': choice_type}
 
             if choice_type in operators.FIELDTYPES_RELATED:
-                choice_value['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
+                choice_value['ctype'] = ContentType.objects.get_for_model(
+                    field.remote_field.model
+                ).id
 
         return category, (json_dump(choice_value), choice_label)
 
@@ -180,7 +194,10 @@ class FieldConditionSelector(ChainedInput):
             if issubclass(field.remote_field.model, get_user_model()):
                 return 'user' + isnull
 
-            if not issubclass(field.remote_field.model, CremeEntity) and field.get_tag('enumerable'):
+            if (
+                not issubclass(field.remote_field.model, CremeEntity)
+                and field.get_tag('enumerable')
+            ):
                 return 'enum' + isnull
 
             return 'fk' + isnull
@@ -311,7 +328,9 @@ class DateFieldsConditionsWidget(ConditionListWidget):
         chained_input = ChainedInput()
         sub_attrs = {'auto': False, 'datatype': 'json'}
 
-        chained_input.add_dselect('field', options=self._build_fieldchoices(fields), attrs=sub_attrs)
+        chained_input.add_dselect(
+            'field', options=self._build_fieldchoices(fields), attrs=sub_attrs,
+        )
 
         pinput = PolymorphicInput(key='${field.type}', attrs=sub_attrs)
         pinput.add_input('daterange__null', NullableDateRangeSelect, attrs=sub_attrs)
@@ -334,9 +353,10 @@ class CustomFieldConditionSelector(FieldConditionSelector):
 
     def _build_fieldchoice(self, name, customfield):
         choice_label = customfield.name
-        choice_value = {'id':   customfield.id,
-                        'type': CustomFieldConditionSelector.customfield_choicetype(customfield),
-                       }
+        choice_value = {
+            'id':   customfield.id,
+            'type': CustomFieldConditionSelector.customfield_choicetype(customfield),
+        }
 
         return '', (json_dump(choice_value), choice_label)
 
@@ -437,8 +457,13 @@ class DateCustomFieldsConditionsWidget(ConditionListWidget):
 class RelationTargetInput(PolymorphicInput):
     def __init__(self, key='', multiple=False, attrs=None):
         super().__init__(key=key, attrs=attrs)
-        self.add_input('^0$', widget=DynamicInput, type='hidden', attrs={'auto': False, 'value': '[]'})
-        self.set_default_input(widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
+        self.add_input(
+            '^0$', widget=DynamicInput, type='hidden',
+            attrs={'auto': False, 'value': '[]'},
+        )
+        self.set_default_input(
+            widget=EntitySelector, attrs={'auto': False, 'multiple': multiple},
+        )
 
 
 class RelationsConditionsWidget(ConditionListWidget):

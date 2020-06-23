@@ -99,7 +99,9 @@ class ObjectivesFromPatternForm(CremeForm):
         super().__init__(*args, **kwargs)
         self.act = entity
 
-        self.fields['pattern'].queryset = ActObjectivePattern.objects.filter(segment=entity.segment_id)
+        self.fields['pattern'].queryset = ActObjectivePattern.objects.filter(
+            segment=entity.segment_id,
+        )
 
     def save(self, *args, **kwargs):
         act = self.act
@@ -107,7 +109,9 @@ class ObjectivesFromPatternForm(CremeForm):
         create_objective = ActObjective.objects.create
         won_opps = int(ceil(float(act.expected_sales) / float(pattern.average_sales)))
 
-        create_objective(act=act, name=gettext('Number of won opportunities'), counter_goal=won_opps)
+        create_objective(
+            act=act, name=gettext('Number of won opportunities'), counter_goal=won_opps,
+        )
 
         def create_objectives_from_components(comps, parent_goal):
             for comp in comps:

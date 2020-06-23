@@ -84,7 +84,10 @@ class XlrdReader:
         cell_parser = XlCTypeHandler(book)
         parse = cell_parser.handle_cell
 
-        self._calc = ([parse(cell) for cell in sheet.row(row_number)] for row_number in range(sheet.nrows))
+        self._calc = (
+            [parse(cell) for cell in sheet.row(row_number)]
+            for row_number in range(sheet.nrows)
+        )
 
     def __iter__(self):
         return self

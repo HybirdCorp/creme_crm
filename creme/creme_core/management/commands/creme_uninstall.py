@@ -55,7 +55,8 @@ from creme.creme_core.utils import split_filter
 from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.utils.serializers import json_encode
 
-MAX_ERRORS = 15  # Number of errors which are displayed when flushing instances #TODO: as argument ?
+# TODO: as argument ?
+MAX_ERRORS = 15  # Number of errors which are displayed when flushing instances
 
 
 def uninstall_handler(msg):
@@ -226,12 +227,15 @@ def _uninstall_user_setting_values(sender, **kwargs):
 class Command(AppCommand):
     # TODO ??
     #    option_list = AppCommand.option_list + (
-    #        make_option('--database', action='store', dest='database',
-    #                    default=DEFAULT_DB_ALIAS,
-    #                    help='Nominates a database to reset. Defaults to the "default" database.',
-    #                   ),
+    #        make_option(
+    #            '--database', action='store', dest='database',
+    #            default=DEFAULT_DB_ALIAS,
+    #            help='Nominates a database to reset. Defaults to the "default" database.',
+    #       ),
     #    )
-    help = 'Uninstall Creme apps correctly, by removing remaining data in DB.'  # TODO: and tables ????
+
+    # TODO: and tables ??
+    help = 'Uninstall Creme apps correctly, by removing remaining data in DB.'
     args = '[appname ...]'
     requires_migrations_checks = True
 
@@ -436,7 +440,8 @@ class Command(AppCommand):
                     if verbosity:
                         meta = model._meta
                         self.stdout.write(
-                            f' Drop the model "{meta.app_label}.{model.__name__}" (table: "{meta.db_table}").'
+                            f' Drop the model "{meta.app_label}.{model.__name__}" '
+                            f'(table: "{meta.db_table}").'
                         )
 
                     schema_editor.delete_model(model)
@@ -561,13 +566,13 @@ def ordered_models_to_delete(app_config, connection):
 
     try:
         table_names = {*connection.introspection.table_names(cursor)}
-        app_models = OrderedSet(router.get_migratable_models(app_config,
-                                                             connection.alias,
-                                                             # NB: the auto created tables are automatically
-                                                             #     deleted by schema_editor.delete_model(model)
-                                                             include_auto_created=False,
-                                                            )
-                               )
+        app_models = OrderedSet(router.get_migratable_models(
+            app_config,
+            connection.alias,
+            # NB: the auto created tables are automatically
+            #     deleted by schema_editor.delete_model(model)
+            include_auto_created=False,
+        ))
 
         for model in app_models:
             meta = model._meta

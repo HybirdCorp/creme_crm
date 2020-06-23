@@ -171,8 +171,18 @@ class ActionTestCase(AssistantsTestCase):
     def test_merge(self):
         def creator(contact01, contact02):
             create = self._create_action
-            create('2011-2-9',  'Fight',      'I have trained', 'I expect a fight',    entity=contact01)
-            create('2011-2-10', 'Rendezvous', 'I have flower',  'I want a rendezvous', entity=contact02)
+            create(
+                deadline='2011-2-9',
+                title='Fight', descr='I have trained',
+                reaction='I expect a fight',
+                entity=contact01,
+            )
+            create(
+                deadline='2011-2-10',
+                title='Rendezvous', descr='I have flower',
+                reaction='I want a rendezvous',
+                entity=contact02,
+            )
             self.assertEqual(2, Action.objects.count())
 
         def assertor(contact01):

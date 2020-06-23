@@ -119,12 +119,14 @@ class ManagedOrganisationsAdding(generic.CremeFormPopup):
 # @login_required
 # @permission_required('creme_core.can_admin')
 # def unset_managed(request):
-#     orga = get_object_or_404(Organisation, id=get_from_POST_or_404(request.POST, 'id'), is_managed=True)
+#     orga = get_object_or_404(Organisation,
+#     id=get_from_POST_or_404(request.POST, 'id'), is_managed=True)
 #
 #     request.user.has_perm_to_change_or_die(orga)
 #
 #     with atomic():
-#         ids = Organisation.objects.select_for_update().filter(is_managed=True).values_list('id', flat=True)
+#         ids = Organisation.objects.select_for_update().filter(is_managed=True)
+#                                   .values_list('id', flat=True)
 #
 #         if orga.id in ids:  # In case a concurrent call to this view has been done
 #             if len(ids) >= 2:
@@ -154,7 +156,12 @@ class OrganisationUnmanage(generic.base.EntityRelatedMixin, generic.CheckedView)
         return HttpResponse()
 
     def update(self, orga) -> None:
-        ids = type(orga).objects.select_for_update().filter(is_managed=True).values_list('id', flat=True)
+        ids = (
+            type(orga).objects
+                      .select_for_update()
+                      .filter(is_managed=True)
+                      .values_list('id', flat=True)
+        )
 
         if orga.id in ids:  # In case a concurrent call to this view has been done
             if len(ids) >= 2:

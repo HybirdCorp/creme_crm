@@ -36,6 +36,7 @@ class CrudityFetcher:
 
     def fetch(self, *args, **kwargs) -> Iterable:
         """Make the fetcher do his job.
-        @returns: iterable of fetcher managed type (i.e: emails objects for email fetcher for example).
+        @returns: iterable of fetcher managed type
+                  (i.e: emails objects for email fetcher for example).
         """
         raise NotImplementedError

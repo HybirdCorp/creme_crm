@@ -89,13 +89,13 @@ class FileFieldDownLoadRegistry:
             self.permission_checker = permission_checker
             self.basename_builder = basename_builder
 
-    def __init__(self, *,
-                 default_permission_checker: PermissionChecker = check_app_permission,
-                 permission_checkers: Iterable[Tuple[Model, PermissionChecker]] = (
-                     (CremeEntity, check_entity_permission),
-                     (FileRef,     check_fileref_permission),
-                 ),
-                ):
+    def __init__(
+            self, *,
+            default_permission_checker: PermissionChecker = check_app_permission,
+            permission_checkers: Iterable[Tuple[Model, PermissionChecker]] = (
+                (CremeEntity, check_entity_permission),
+                (FileRef,     check_fileref_permission),
+            )):
         self._models_fields: \
             DefaultDict[Type[Model], Dict[str, FileFieldDownLoadRegistry._Info]] \
             = defaultdict(dict)
@@ -139,11 +139,13 @@ class FileFieldDownLoadRegistry:
                                   file_obj: FieldFile) -> str:
         return basename(file_obj.path) if file_obj else '??'
 
-    def register(self, *,
-                 model: Type[Model],
-                 field_name: str,
-                 permission_checker: Optional[PermissionChecker] = None,
-                 basename_builder: Optional[BasenameBuilder] = None) -> 'FileFieldDownLoadRegistry':
+    def register(
+            self, *,
+            model: Type[Model],
+            field_name: str,
+            permission_checker: Optional[PermissionChecker] = None,
+            basename_builder: Optional[BasenameBuilder] = None,
+    ) -> 'FileFieldDownLoadRegistry':
         """Register FileField which can be downloaded.
         @param model: Class inheriting django.db.models.
         @param field_name: Name of one FileField of the 'model'.
@@ -182,9 +184,10 @@ class FileFieldDownLoadRegistry:
 
         return self
 
-    def unregister(self,
-                   model: Type[Model],
-                   *field_names: str) -> 'FileFieldDownLoadRegistry':
+    def unregister(
+            self,
+            model: Type[Model],
+            *field_names: str) -> 'FileFieldDownLoadRegistry':
         registered_fnames = self._models_fields.get(model)
 
         if registered_fnames:

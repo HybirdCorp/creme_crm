@@ -117,14 +117,19 @@ class MergeViewsTestCase(ViewsTestCase):
         ptype02 = create_ptype(str_pk='test-prop_anime', text='Anime related')
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        orga01 = create_orga(name='Genshiken',   description='Otaku band.',   phone='8787878')
-        orga02 = create_orga(name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp')
+        orga01 = create_orga(
+            name='Genshiken',   description='Otaku band.',   phone='8787878',
+        )
+        orga02 = create_orga(
+            name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp',
+        )
 
         create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Chika',      last_name='Ogiue')
         contact02 = create_contact(first_name='Souichirou', last_name='Tanaka')
 
-        # contact01 linked with the 2 organisations -> after merge, we expect only one relation, not 2
+        # contact01 linked with the 2 organisations
+        #   -> after merge, we expect only one relation, not 2
         # contact02 should be linked to the merged entity
         create_rel = partial(Relation.objects.create, user=user)
         rel1_1 = create_rel(type=rtype01, subject_entity=contact01, object_entity=orga01)
@@ -135,7 +140,8 @@ class MergeViewsTestCase(ViewsTestCase):
         rel2_2 = create_rel(type=rtype02, subject_entity=orga02, object_entity=contact01)
         rel2_3 = create_rel(type=rtype02, subject_entity=orga02, object_entity=contact02)
 
-        # contact01 is linked with orga01, too, but not with the same relation-type => Relation must not be deleted
+        # contact01 is linked with orga01, too, but not with the same relation-type
+        # => Relation must not be deleted
         rel3_1 = create_rel(type=rtype03, subject_entity=contact01, object_entity=orga02)
 
         # 'prop3 'should be deleted, because orga01 has already a property with the same type
@@ -162,7 +168,8 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertTrue(f_name.required)
         self.assertEqual([orga01.name,  orga02.name,  orga01.name],  f_name.initial)
-        self.assertEqual([orga01.email, orga02.email, orga02.email], f_email.initial)  # orga01.email is empty
+        # orga01.email is empty
+        self.assertEqual([orga01.email, orga02.email, orga02.email], f_email.initial)
 
         self.assertFalse(fields['capital'].required)
 
@@ -265,15 +272,21 @@ class MergeViewsTestCase(ViewsTestCase):
         rel_lines = new_hlines[history.TYPE_RELATION]
         self.assertEqual(3, len(rel_lines))
 
-        rel_line1 = next(filter(lambda hl: contact02 == hl.entity.get_real_entity(), rel_lines), None)
+        rel_line1 = next(
+            filter(lambda hl: contact02 == hl.entity.get_real_entity(), rel_lines), None
+        )
         self.assertIsNotNone(rel_line1)
         self.assertEqual([rtype01.id], rel_line1.modifications)
 
-        rel_line2 = next(filter(lambda hl: orga01 == hl.entity.get_real_entity(), rel_lines), None)
+        rel_line2 = next(
+            filter(lambda hl: orga01 == hl.entity.get_real_entity(), rel_lines), None
+        )
         self.assertIsNotNone(rel_line2)
         self.assertEqual([rtype02.id], rel_line2.modifications)
 
-        rel_line3 = next(filter(lambda hl: contact01 == hl.entity.get_real_entity(), rel_lines), None)
+        rel_line3 = next(
+            filter(lambda hl: contact01 == hl.entity.get_real_entity(), rel_lines), None
+        )
         self.assertIsNotNone(rel_line3)
         self.assertEqual([rtype03.id], rel_line3.modifications)
 
@@ -435,8 +448,12 @@ class MergeViewsTestCase(ViewsTestCase):
         )[0]
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        orga01 = create_orga(name='Genshiken',   description='Otaku band.',   phone='8787878')
-        orga02 = create_orga(name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp')
+        orga01 = create_orga(
+            name='Genshiken',   description='Otaku band.',   phone='8787878',
+        )
+        orga02 = create_orga(
+            name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp',
+        )
 
         create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Chika',      last_name='Ogiue')
@@ -506,7 +523,9 @@ class MergeViewsTestCase(ViewsTestCase):
         cf_01_value01 = create_cfval_01(entity=contact01, value=500)
         cf_01_value02 = create_cfval_01(entity=contact02, value=510)
 
-        cf_02_value01 = cf_02.value_class.objects.create(custom_field=cf_02, entity=contact01, value=100)
+        cf_02_value01 = cf_02.value_class.objects.create(
+            custom_field=cf_02, entity=contact01, value=100,
+        )
 
         cf_03_value02 = cf_03.value_class(custom_field=cf_03, entity=contact02)
         cf_03_value02.set_value_n_save(enum_val1_1.id)
@@ -570,7 +589,9 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(contact01.first_name, new_contact01.first_name)
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
 
-        cf_01_values = cf_01.value_class.objects.filter(id__in=(cf_01_value01.id, cf_01_value02.id))
+        cf_01_values = cf_01.value_class.objects.filter(
+            id__in=(cf_01_value01.id, cf_01_value02.id),
+        )
         self.assertEqual(1, len(cf_01_values))
 
         cf_01_value = cf_01_values[0]

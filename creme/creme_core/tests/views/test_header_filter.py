@@ -592,7 +592,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         #
         # rf_prefix = 'regular_field-'
         # self.assertIn(rf_prefix + valid_fname,   choices_keys)
-        # self.assertIn(rf_prefix + hidden_fname1, choices_keys)  # Was already in the HeaderFilter => still proposed
+        # self.assertIn(rf_prefix + hidden_fname1, choices_keys)
         # self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
         url = hf.get_edit_absolute_url()
         response1 = self.assertPOST200(
@@ -695,7 +695,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_hfilters_for_ctype01(self):
         self.login()
 
-        response = self.assertGET200(self._build_get4ctype_url(ContentType.objects.get_for_model(FakeMailingList)))
+        response = self.assertGET200(
+            self._build_get4ctype_url(ContentType.objects.get_for_model(FakeMailingList))
+        )
         self.assertEqual([], response.json())
 
     def test_hfilters_for_ctype02(self):
@@ -706,16 +708,31 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         name02 = 'ML view02'
         name03 = 'ML view03'
         pk_fmt = 'tests-hf_ml{}'.format
-        hf01 = create_hf(pk=pk_fmt(1),  name=name01,      model=FakeMailingList,  is_custom=False)
-        hf02 = create_hf(pk=pk_fmt(2),  name=name02,      model=FakeMailingList,  is_custom=True)
-        create_hf(pk='tests-hf_orga01', name='Orga view', model=FakeOrganisation, is_custom=True)
-        hf03 = create_hf(pk=pk_fmt(3),  name=name03,      model=FakeMailingList,  is_custom=True, is_private=True, user=user)
-        create_hf(pk=pk_fmt(4),         name='Private',   model=FakeMailingList,  is_custom=True, is_private=True, user=self.other_user)
+        hf01 = create_hf(
+            pk=pk_fmt(1), name=name01, model=FakeMailingList,  is_custom=False,
+        )
+        hf02 = create_hf(
+            pk=pk_fmt(2), name=name02, model=FakeMailingList,  is_custom=True,
+        )
+        create_hf(
+            pk='tests-hf_orga01', name='Orga view', model=FakeOrganisation, is_custom=True,
+        )
+        hf03 = create_hf(
+            pk=pk_fmt(3),  name=name03, model=FakeMailingList,  is_custom=True,
+            is_private=True, user=user,
+        )
+        create_hf(
+            pk=pk_fmt(4), name='Private', model=FakeMailingList, is_custom=True,
+            is_private=True, user=self.other_user,
+        )
 
-        expected = [[hf01.id, name01], [hf02.id, name02], [hf03.id, name03]]
-        ct = ContentType.objects.get_for_model(FakeMailingList)
-        response = self.assertGET200(self._build_get4ctype_url(ct))
-        self.assertEqual(expected, response.json())
+        response = self.assertGET200(
+            self._build_get4ctype_url(ContentType.objects.get_for_model(FakeMailingList))
+        )
+        self.assertListEqual(
+            [[hf01.id, name01], [hf02.id, name02], [hf03.id, name03]],
+            response.json()
+        )
 
     def test_hfilters_for_ctype03(self):
         "No app credentials."

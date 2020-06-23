@@ -50,7 +50,8 @@ def dependence_sort(iterable, get_key, get_dependencies):
         changed = False
 
         for e in iterable:
-            if all(dep in resolved for dep in get_dependencies(e)):  # TODO: cache the dependencies ?
+            # TODO: cache the dependencies ?
+            if all(dep in resolved for dep in get_dependencies(e)):
                 ordered_list.append(e)
                 resolved.add(get_key(e))
                 changed = True

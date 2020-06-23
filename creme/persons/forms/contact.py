@@ -42,7 +42,11 @@ class ContactNamesForm(CremeModelForm):
 
 class ContactForm(_BasePersonForm):
     blocks = _BasePersonForm.blocks.new(
-        ('details', _('Contact details'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']),
+        (
+            'details',
+            _('Contact details'),
+            ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site'],
+        ),
     )
 
     class Meta(_BasePersonForm.Meta):

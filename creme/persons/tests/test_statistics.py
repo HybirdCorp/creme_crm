@@ -20,7 +20,8 @@ class PersonsStatisticsTestCase(CremeTestCase):
 
         create_orga = partial(Organisation.objects.create, user=user)
         managed2 = create_orga(name='Managed#2', is_managed=True)
-        managed1 = create_orga(name='Managed#1', is_managed=True)  # Created after to test order by name
+        # Created after to test order by name
+        managed1 = create_orga(name='Managed#1', is_managed=True)
 
         customer1 = create_orga(name='Customer#1')
         customer2 = create_orga(name='Customer#2')

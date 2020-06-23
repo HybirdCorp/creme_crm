@@ -58,22 +58,27 @@ def _copy_or_update_address(source, dest, attr_name, addr_name):
 
 def get_import_form_builder(header_dict, choices):
     class InvoiceMassImportForm(ImportForm4CremeEntity):
-        source = EntityExtractorField(models_info=[(Organisation, 'name')],
-                                      choices=choices,
-                                      label=pgettext_lazy('billing', 'Source organisation'),
-                                     )
-        target = EntityExtractorField(models_info=[(Organisation, 'name'),
-                                                   (Contact, 'last_name')
-                                                  ],
-                                      choices=choices, label=pgettext_lazy('billing', 'Target'),
-                                     )
+        source = EntityExtractorField(
+            models_info=[(Organisation, 'name')],
+            choices=choices,
+            label=pgettext_lazy('billing', 'Source organisation'),
+        )
+        target = EntityExtractorField(
+            models_info=[
+                (Organisation, 'name'),
+                (Contact, 'last_name'),
+            ],
+            choices=choices, label=pgettext_lazy('billing', 'Target'),
+        )
 
-        override_billing_addr  = BooleanField(label=_('Update the billing address'), required=False,
-                                              help_text=_('In update mode, update the billing address from the target.')
-                                             )
-        override_shipping_addr = BooleanField(label=_('Update the shipping address'), required=False,
-                                              help_text=_('In update mode, update the shipping address from the target.')
-                                             )
+        override_billing_addr = BooleanField(
+            label=_('Update the billing address'), required=False,
+            help_text=_('In update mode, update the billing address from the target.'),
+        )
+        override_shipping_addr = BooleanField(
+            label=_('Update the shipping address'), required=False,
+            help_text=_('In update mode, update the shipping address from the target.'),
+        )
 
         def _post_instance_creation(self, instance, line, updated):
             super()._post_instance_creation(instance, line, updated)
@@ -96,16 +101,29 @@ def get_import_form_builder(header_dict, choices):
                 create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
                 create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
 
-                instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _('Billing address'))
-                instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _('Shipping address'))
+                instance.billing_address = copy_or_create_address(
+                    target.billing_address, owner=instance, name=_('Billing address'),
+                )
+                instance.shipping_address = copy_or_create_address(
+                    target.shipping_address, owner=instance, name=_('Shipping address'),
+                )
                 instance.save()
             else:  # Update mode
-                relations = Relation.objects.filter(subject_entity=instance.pk,
-                                                    type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED)
-                                                   )
+                relations = Relation.objects.filter(
+                    subject_entity=instance.pk,
+                    type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED)
+                )
 
-                issued_relation   = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_ISSUED), None)
-                received_relation = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_RECEIVED), None)
+                issued_relation = find_first(
+                    relations,
+                    (lambda r: r.type_id == REL_SUB_BILL_ISSUED),
+                    None
+                )
+                received_relation = find_first(
+                    relations,
+                    (lambda r: r.type_id == REL_SUB_BILL_RECEIVED),
+                    None
+                )
 
                 assert issued_relation is not None
                 assert received_relation is not None

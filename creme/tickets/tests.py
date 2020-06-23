@@ -523,11 +523,11 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         descriptions = 'Description #1', 'Description #2'
         status_l     = Status.objects.all()[:2]
         priorities   = Priority.objects.all()[:2]
-        criticities  = Criticity.objects.all()[:2]
+        crits  = Criticity.objects.all()[:2]
 
         lines = [
-            (titles[0], status_l[0].name, priorities[0].name, criticities[0].name, descriptions[0]),
-            (titles[1], status_l[1].name, priorities[1].name, criticities[1].name, descriptions[1]),
+            (titles[0], status_l[0].name, priorities[0].name, crits[0].name, descriptions[0]),
+            (titles[1], status_l[1].name, priorities[1].name, crits[1].name, descriptions[1]),
         ]
 
         doc = self._build_csv_doc(lines)
@@ -581,7 +581,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
             self.assertEqual(user,            ticket.user)
             self.assertEqual(status_l[i],     ticket.status)
             self.assertEqual(priorities[i],   ticket.priority)
-            self.assertEqual(criticities[i],  ticket.criticity)
+            self.assertEqual(crits[i],  ticket.criticity)
             self.assertEqual(descriptions[i], ticket.description)
             self.assertEqual('',              ticket.solution)
 
@@ -752,4 +752,7 @@ class TicketTemplateTestCase(CremeTestCase):
         self.assertPOST409(reverse('creme_core__delete_entities'),
                            data={'ids': f'{template01.id},{template02.id},'}
                           )
-        self.assertEqual(2, TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count())
+        self.assertEqual(
+            2,
+            TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count()
+        )

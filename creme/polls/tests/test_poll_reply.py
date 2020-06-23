@@ -57,7 +57,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             question_f = response.context['form'].fields['question']
         except KeyError as e:
             self.fail(
-                f'It seems that the form is already complete (<{e.__class__.__name__}> occurred: {e})'
+                f'It seems that the form is already complete'
+                f' (<{e.__class__.__name__}> occurred: {e})'
             )
 
         self.assertEqual(f'{line_number or fline.order} - {fline.question}',
@@ -163,7 +164,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.fline2 = create_line('How do you like parrots?',  qtype=ENUM, choices=choices)
         self.fline3 = create_line('Do you love all birds?', conds_use_or=conds_use_or)
 
-        create_cond = partial(PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS)
+        create_cond = partial(
+            PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS,
+        )
         create_cond(line=self.fline3, source=fline1,      raw_answer='2')
         create_cond(line=self.fline3, source=self.fline2, raw_answer='2')
 
@@ -212,9 +215,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform  = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
-        fline1 = create_line('What nuts do you like?', qtype=PollLineType.MULTI_ENUM,
-                             choices=[[1, 'Coco nuts'], [2, 'Peanuts'], [3, 'Pistachio'], [4, 'Almonds']]
-                            )
+        fline1 = create_line(
+            'What nuts do you like?', qtype=PollLineType.MULTI_ENUM,
+            choices=[[1, 'Coco nuts'], [2, 'Peanuts'], [3, 'Pistachio'], [4, 'Almonds']]
+        )
         self.fline2 = create_line('Talk about them')
 
         PollFormLineCondition.objects.create(line=self.fline2, source=fline1,
@@ -310,11 +314,15 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         section11 = create_section(name='11', order=2, parent=section1)
 
         create_l = self._get_formline_creator(pform)
-        fline1 = create_l('What is the difference between a swallow?', qtype=PollLineType.INT)
-        fline2 = create_l('What type of swallow?',                     section1)
-        fline3 = create_l('How do you like swallows?',                 section11, qtype=PollLineType.ENUM,
-                          choices=[[1, 'A little'], [2, 'A lot'], [3, 'Passionately']],
-                         )
+        fline1 = create_l(
+            'What is the difference between a swallow?', qtype=PollLineType.INT,
+        )
+        fline2 = create_l('What type of swallow?', section1)
+        fline3 = create_l(
+            'How do you like swallows?', section11,
+            qtype=PollLineType.ENUM,
+            choices=[[1, 'A little'], [2, 'A lot'], [3, 'Passionately']],
+        )
         fline4 = create_l('Do you eat swallows?', section11, conds_use_or=True)
 
         PollFormLineCondition.objects.create(line=fline4, source=fline3, raw_answer='1',
@@ -388,7 +396,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         # ----------------------------------------------------------------------
         response = self.assertGET200(preply.get_absolute_url())
-        brick_node = self.get_brick_node(self.get_html_tree(response.content), PollReplyLinesBrick.id_)
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), PollReplyLinesBrick.id_,
+        )
 
         questions = set()
         for question_node in brick_node.findall(".//div[@class='poll-title-label']"):
@@ -450,7 +460,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1', type=PollType.objects.all()[0])
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.STRING)
-        create_line(question='What is the name of your swallow?', order=2)  # The 1rst line is not 1 !
+        # The 1rst line is not 1 !
+        create_line(question='What is the name of your swallow?', order=2)
         create_line(question='What type of swallow is it?',       order=5)
         create_line(question='What is its favorite nut?',         order=7)
 
@@ -728,10 +739,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Link to the replies'), context.get('submit_label'))
 
         # ---
-        self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'replies': self.formfield_value_multi_creator_entity(preply1, preply2)}
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url, follow=True,
+            data={'replies': self.formfield_value_multi_creator_entity(preply1, preply2)}
+        ))
 
         person_id = person.id
         self.assertEqual(person_id, self.refresh(preply1).person_id)
@@ -741,7 +752,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_link_to_contact(self):
         user = self.login()
-        self._aux_test_link_to(Contact.objects.create(user=user, first_name='Leina', last_name='Vance'))
+        self._aux_test_link_to(
+            Contact.objects.create(user=user, first_name='Leina', last_name='Vance'),
+        )
 
     @skipIfCustomOrganisation
     def test_link_to_orga(self):
@@ -852,13 +865,17 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_create_from_person01(self):
         "From a Contact"
         user = self.login()
-        self._aux_test_create_from_person(Contact.objects.create(user=user, first_name='Leina', last_name='Vance'))
+        self._aux_test_create_from_person(
+            Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
+        )
 
     @skipIfCustomOrganisation
     def test_create_from_person02(self):
         "From an Organisation"
         user = self.login()
-        self._aux_test_create_from_person(Organisation.objects.create(user=user, name='Gaimos'))
+        self._aux_test_create_from_person(
+            Organisation.objects.create(user=user, name='Gaimos')
+        )
 
     @skipIfCustomActivity
     def test_create_from_person03(self):
@@ -963,13 +980,15 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         camp = PollCampaign.objects.create(user=user, name='Camp#1')
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
-        response = self.client.post(preply.get_edit_absolute_url(), follow=True,
-                                    data={'user':     user.id,
-                                          'name':     preply.name,
-                                          'campaign': camp.id,
-                                          'related_person': self.formfield_value_generic_entity(leina),
-                                         }
-                                   )
+        response = self.client.post(
+            preply.get_edit_absolute_url(), follow=True,
+            data={
+                'user': user.id,
+                'name': preply.name,
+                'campaign': camp.id,
+                'related_person': self.formfield_value_generic_entity(leina),
+            },
+        )
         self.assertNoFormError(response)
 
         preply = self.refresh(preply)
@@ -1000,12 +1019,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply = PollReply.objects.create(user=user, name='Reply#1', pform=pform, person=leina)
 
         def post(contact):
-            return self.client.post(preply.get_edit_absolute_url(), follow=True,
-                                    data={'user':           user.id,
-                                          'name':           preply.name,
-                                          'related_person': self.formfield_value_generic_entity(contact),
-                                         }
-                                   )
+            return self.client.post(
+                preply.get_edit_absolute_url(), follow=True,
+                data={
+                    'user':           user.id,
+                    'name':           preply.name,
+                    'related_person': self.formfield_value_generic_entity(contact),
+                },
+            )
         response = post(claudette)
         self.assertEqual(200, response.status_code)
         self.assertFormError(
@@ -1039,12 +1060,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply = PollReply.objects.create(user=user, name='Reply#1', pform=pform, person=leina)
 
         name = preply.name.upper()
-        response = self.client.post(preply.get_edit_absolute_url(), follow=True,
-                                    data={'user':           user.id,
-                                          'name':           name,
-                                          'related_person': self.formfield_value_generic_entity(leina),
-                                         }
-                                   )
+        response = self.client.post(
+            preply.get_edit_absolute_url(), follow=True,
+            data={
+                'user':           user.id,
+                'name':           name,
+                'related_person': self.formfield_value_generic_entity(leina),
+            },
+        )
         self.assertNoFormError(response)
 
         preply = self.refresh(preply)
@@ -1096,10 +1119,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
-        response = self.client.post(url, data={'entities_lbl': [str(preply)],
-                                               'field_value':  self.formfield_value_generic_entity(leina),
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'entities_lbl': [str(preply)],
+                'field_value':  self.formfield_value_generic_entity(leina),
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(leina, self.refresh(preply).person.get_real_entity())
 
@@ -1125,20 +1151,27 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         create_contact = Contact.objects.create
         leina = create_contact(user=self.other_user, first_name='Leina', last_name='Vance')
-        response = self.client.post(url, data={'entities_lbl': [str(preply)],
-                                               'field_value':  self.formfield_value_generic_entity(leina),
-                                              },
-                                   )
-        self.assertFormError(response, 'form', 'field_value',
-                             _('You are not allowed to link this entity: {}').format(leina)
-                            )
+        response = self.client.post(
+            url,
+            data={
+                'entities_lbl': [str(preply)],
+                'field_value':  self.formfield_value_generic_entity(leina),
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'field_value',
+            _('You are not allowed to link this entity: {}').format(leina)
+        )
 
         # ----
         claudette = create_contact(user=user, first_name='Claudette', last_name='Vance')
-        response = self.client.post(url, data={'entities_lbl': [str(preply)],
-                                               'field_value':  self.formfield_value_generic_entity(claudette),
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'entities_lbl': [str(preply)],
+                'field_value':  self.formfield_value_generic_entity(claudette),
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(claudette, self.refresh(preply).person.get_real_entity())
 
@@ -1223,9 +1256,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             rline11_2  = get_rline(pform_line=fline11_2)
             rsection2  = preply.sections.get(name=fsection2)
 
-        self.assertEqual([rline0, rsection1, rline1_1, rsection11, rline11_1, rline11_2, rsection2],
-                         nodes
-                        )
+        self.assertListEqual(
+            [rline0, rsection1, rline1_1, rsection11, rline11_1, rline11_2, rsection2],
+            nodes
+        )
         self.assertFalse(nodes[0].is_section)
         self.assertTrue(nodes[1].is_section)
         self.assertEqual([0, 0, 1, 1, 2, 2, 0], [node.deep for node in nodes])
@@ -1486,9 +1520,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Fill one COMMENT question"
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        fline = PollFormLine.objects.create(pform=pform, type=PollLineType.COMMENT,
-                                            question='Beware, the next questions talk about weird things !'
-                                           )
+        fline = PollFormLine.objects.create(
+            pform=pform, type=PollLineType.COMMENT,
+            question='Beware, the next questions talk about weird things !'
+        )
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = self.get_object_or_fail(PollReplyLine, pform_line=fline)
 
@@ -1649,9 +1684,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Wizard: condition (that is True) on 'Other' choice (MULTI_ENUM question)"
         self.login()
         self._build_rlines_with_conditions_on_enumorstring(0)
-        self.assertCurrentQuestion(self._fill(self.preply, {'answer_0': 0, 'answer_1': 'Pistachio'}),
-                                   self.fline2
-                                  )
+        self.assertCurrentQuestion(
+            self._fill(self.preply, {'answer_0': 0, 'answer_1': 'Pistachio'}),
+            self.fline2
+        )
 
     def test_fillview_wizard_enumorstring04(self):
         "Wizard: condition (that is False) on 'Other' choice (MULTI_ENUM question)"
@@ -2174,14 +2210,20 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         answer_1_1 = 'They are cool'
         answer_2_1 = 5
-        self._fill(preply1, answer_1_1, answer_2_1, 1, [1, 2], {'answer_0': 1, 'answer_1': ''})
+        self._fill(
+            preply1, answer_1_1, answer_2_1, 1, [1, 2], {'answer_0': 1, 'answer_1': ''},
+        )
 
         answer_1_2 = 'They are very cool'
-        self._fill(preply2, answer_1_2, answer_2_1, 2, [1], {'answer_0': 0, 'answer_1': 'Blue'})
+        self._fill(
+            preply2, answer_1_2, answer_2_1, 2, [1], {'answer_0': 0, 'answer_1': 'Blue'},
+        )
 
         answer_1_4 = 'They are very very cool'
         answer_2_4 = 10
-        self._fill(preply4, answer_1_4, answer_2_4, 2, [1, 2, 4], {'answer_0': 0, 'answer_1': 'Red'})
+        self._fill(
+            preply4, answer_1_4, answer_2_4, 2, [1, 2, 4], {'answer_0': 0, 'answer_1': 'Red'},
+        )
 
         with self.assertNumQueries(3):  # 1 for sections, 1 for lines, 1 for replies
             stree = StatsTree(pform)

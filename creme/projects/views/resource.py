@@ -31,7 +31,8 @@ from ..forms import resource as resource_forms
 from ..models import Resource
 
 
-class ResourceCreation(generic.AddingInstanceToEntityPopup):  # NB: Resource not registered as CremeEntity
+# NB: Resource not registered as CremeEntity
+class ResourceCreation(generic.AddingInstanceToEntityPopup):
     model = Resource
     form_class = resource_forms.ResourceCreateForm
     title = _('Allocation of a new resource')
@@ -63,7 +64,8 @@ class ResourceDeletion(generic.CremeModelDeletion):
 
     def check_instance_permissions(self, instance, user):
         user.has_perm_to_change_or_die(instance.task)
-        # request.user.has_perm_to_delete_or_die(resource) #beware to change template if uncommented
+        # NB: beware to change template if uncommented
+        # request.user.has_perm_to_delete_or_die(resource)
 
         if Relation.objects.filter(
             subject_entity=instance.linked_contact_id,

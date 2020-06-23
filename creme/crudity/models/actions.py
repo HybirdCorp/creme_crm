@@ -30,15 +30,25 @@ from creme.creme_core.models import fields as creme_fields
 
 
 class WaitingAction(CremeModel):
-    action  = CharField(_('Action'), max_length=100)  # Action (i.e: create, update...) # TODO: int instead ??
+    # Action (i.e: create, update...) # TODO: int instead ??
+    action  = CharField(_('Action'), max_length=100)
+
     # TODO: split into 2 CharFields 'fetcher' & 'input' ?
     # NB: - If default backend (subject="*"): fetcher_name.
-    #     - If not  'fetcher_name - input_name'  (i.e: email - raw, email - infopath, sms - raw...).
+    #     - If not  'fetcher_name - input_name'  (eg: email - raw, email - infopath, sms - raw...).
     source  = CharField(_('Source'), max_length=100)
+
     raw_data = BinaryField(blank=True, null=True)  # Pickled data
-    ct      = creme_fields.CTypeForeignKey(verbose_name=_('Type of resource'))  # Redundant, but faster bd recovery
+
+    # Redundant, but faster bd recovery
+    ct = creme_fields.CTypeForeignKey(verbose_name=_('Type of resource'))
+
     subject = CharField(_('Subject'), max_length=100)
-    user    = creme_fields.CremeUserForeignKey(verbose_name=_('Owner'), blank=True, null=True, default=None)  # If sandbox per user
+
+    # If sandbox per user
+    user = creme_fields.CremeUserForeignKey(
+        verbose_name=_('Owner'), blank=True, null=True, default=None,
+    )
 
     class Meta:
         app_label = 'crudity'
@@ -56,6 +66,11 @@ class WaitingAction(CremeModel):
     def can_validate_or_delete(self, user) -> Tuple[bool, str]:
         """self.user not None means that sandbox is by user"""
         if self.user is not None and self.user != user and not user.is_superuser:
-            return False, gettext('You are not allowed to validate/delete the waiting action <{}>').format(self.id)
+            return (
+                False,
+                gettext(
+                    'You are not allowed to validate/delete the waiting action <{}>'
+                ).format(self.id)
+            )
 
         return True, gettext('OK')

@@ -72,15 +72,16 @@ def check_uninstalled_apps(**kwargs):
             try:
                 apps.get_app_config(app_label)
             except LookupError:
-                warnings.append(
-                    Warning(
-                        'The app seems not been correctly uninstalled.',
-                        hint="""If it's a Creme app, uninstall it with the command "creme_uninstall" """
-                             """(you must enable this app in your settings before).""",
-                        obj=app_label,
-                        id='creme.E003',
-                    )
-                )
+                warnings.append(Warning(
+                    'The app seems not been correctly uninstalled.',
+                    hint=(
+                        "If it's a Creme app, uninstall it with the "
+                        'command "creme_uninstall" '
+                        '(you must enable this app in your settings before).'
+                    ),
+                    obj=app_label,
+                    id='creme.E003',
+                ))
 
     return warnings
 
@@ -139,15 +140,13 @@ def check_swapped_urls(**kwargs):
             try:
                 reverse(viewname=name, args=swapped.check_args)
             except NoReverseMatch:
-                errors.append(
-                    Error(
-                        f'The URL "{name}" (args={swapped.verbose_args}) has been swapped '
-                        f'from the app "{group.app_name}" but never defined.',
-                        hint='Define this URL in the file "urls.py" of the module '
-                             'which defines the concrete model.',
-                        obj='creme.creme_core',
-                        id='creme.E008',
-                    )
-                )
+                errors.append(Error(
+                    f'The URL "{name}" (args={swapped.verbose_args}) has been swapped '
+                    f'from the app "{group.app_name}" but never defined.',
+                    hint='Define this URL in the file "urls.py" of the module '
+                         'which defines the concrete model.',
+                    obj='creme.creme_core',
+                    id='creme.E008',
+                ))
 
     return errors

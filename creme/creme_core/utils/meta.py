@@ -63,7 +63,8 @@ class FieldInfo:
         FieldInfo(Software, 'core_dev__company__name')
 
     The string notation (like 'core_dev__company__name') is taken from django QuerySet ;
-    so naturally the fields which can have "sub-fields" are fields like ForeignKeys or ManyToManyFields.
+    so naturally the fields which can have "sub-fields" are fields like
+    ForeignKeys or ManyToManyFields.
     """
     __slots__ = ('_model', '__fields')
 

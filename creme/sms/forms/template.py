@@ -27,8 +27,10 @@ from .. import get_messagetemplate_model
 from ..encoding import SMS_MAX_LENGTH, gsm_encoded_content
 
 _FORBIDDEN = "^ { } \\ [ ~ ] | €"  # TODO: given by the backend ??
-_HELP = _("""Message with a maximum of 160 characters.
- Beware, the header matters (+ 3 characters) and the following characters count double: {}""").format(_FORBIDDEN)
+_HELP = _(
+    """Message with a maximum of 160 characters.
+ Beware, the header matters (+ 3 characters) and the following characters count double: {}"""
+).format(_FORBIDDEN)
 MessageTemplate = get_messagetemplate_model()
 
 

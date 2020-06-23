@@ -94,7 +94,11 @@ class PollLineType:
         return json_encode(args) if args else None
 
     def decode_answer(self, raw_answer):
-        return self._cast_answer_4_decoding(json_load(raw_answer)) if raw_answer is not None else None
+        return (
+            self._cast_answer_4_decoding(json_load(raw_answer))
+            if raw_answer is not None else
+            None
+        )
 
     def decode_condition(self, raw_cond_answer):
         return self._cast_answer_4_decoding(json_load(raw_cond_answer))
@@ -104,7 +108,11 @@ class PollLineType:
         return self.verbose_name
 
     def encode_answer(self, raw_answer):
-        return json_encode(self._cast_answer_4_encoding(raw_answer)) if raw_answer is not None else None
+        return (
+            json_encode(self._cast_answer_4_encoding(raw_answer))
+            if raw_answer is not None else
+            None
+        )
 
     def encode_condition(self, cond_answer):
         """@param cond_answer Value of answer in condition."""
@@ -117,9 +125,11 @@ class PollLineType:
         return Field()
 
     def formfield(self, initial_raw_answer):
-        return self._formfield(json_load(initial_raw_answer) if initial_raw_answer is not None
-                               else None
-                               )
+        return self._formfield(
+            None
+            if initial_raw_answer is None else
+            json_load(initial_raw_answer)
+        )
 
     def get_choices(self):
         """Get the choices that are proposed to the user for this question type.
@@ -169,9 +179,10 @@ class IntPollLineType(PollLineType):
 
         if lower_bound is not None and upper_bound is not None:
             if lower_bound >= upper_bound:
-                raise ValidationError(gettext('The upper bound must be greater than the lower bound.'),
-                                      code='invalid_bounds',
-                                     )
+                raise ValidationError(
+                    gettext('The upper bound must be greater than the lower bound.'),
+                    code='invalid_bounds',
+                )
 
     @property
     def description(self):

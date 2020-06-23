@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
+from functools import partial
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -72,20 +73,47 @@ class MobileAppTestCase(MobileBaseTestCase):
         def today_in_the_future(near):
             return now_val + (today(23, 59, 59) - now_val) / near
 
-        create_m = self._create_meeting
-        m1 = create_m('Meeting: Manga',      start=today_in_the_past(3),   participant=contact)
-        m2 = create_m('Meeting: Anime',      start=today_in_the_past(2),   participant=contact, status_id=STATUS_PLANNED)
-        m3 = create_m('Meeting: Manga #2',   start=past_midnight,          participant=contact, floating_type=FLOATING_TIME)
-        m4 = create_m('Meeting: Figures',    start=today_in_the_future(3), participant=contact, status_id=STATUS_IN_PROGRESS)
-        m5 = create_m('Meeting: Figures #3', start=today_in_the_future(2), participant=contact)  # Should be after m6
-        m6 = create_m('Meeting: Figures #2', start=today_in_the_future(3), participant=contact)
+        create_m = partial(self._create_meeting, participant=contact)
+        m1 = create_m('Meeting: Manga', start=today_in_the_past(3))
+        m2 = create_m(
+            'Meeting: Anime',
+            start=today_in_the_past(2),
+            status_id=STATUS_PLANNED,
+        )
+        m3 = create_m(
+            'Meeting: Manga #2',
+            start=past_midnight,
+            floating_type=FLOATING_TIME,
+        )
+        m4 = create_m(
+            'Meeting: Figures',
+            start=today_in_the_future(3),
+            status_id=STATUS_IN_PROGRESS,
+        )
+        m5 = create_m(
+            'Meeting: Figures #3',
+            start=today_in_the_future(2),
+        )  # Should be after m6
+        m6 = create_m('Meeting: Figures #2', start=today_in_the_future(3))
 
         oneday = timedelta(days=1)
-        create_m('Meeting: Tezuka manga', start=today(9),         participant=self.other_user.linked_contact)  # I do not participate
-        create_m('Meeting: Comics',       start=today(7),         participant=contact, status_id=STATUS_DONE)  # Done are excluded
-        create_m('Meeting: Manhua',       start=today(10),        participant=contact, status_id=STATUS_CANCELLED)  # Cancelled are excluded
-        create_m('Meeting: Manga again',  start=now_val - oneday, participant=contact)  # Yesterday
-        create_m('Meeting: Manga ter.',   start=now_val + oneday, participant=contact)  # Tomorrow
+        create_m(
+            'Meeting: Tezuka manga',
+            start=today(9),
+            participant=self.other_user.linked_contact,
+        )  # I do not participate
+        create_m(
+            'Meeting: Comics',
+            start=today(7),
+            status_id=STATUS_DONE,
+        )  # Done are excluded
+        create_m(
+            'Meeting: Manhua',
+            start=today(10),
+            status_id=STATUS_CANCELLED,
+        )  # Cancelled are excluded
+        create_m('Meeting: Manga again',  start=now_val - oneday)  # Yesterday
+        create_m('Meeting: Manga ter.',   start=now_val + oneday)  # Tomorrow
 
         response = self.assertGET200(self.PORTAL_URL)
         self.assertTemplateUsed(response, 'mobile/index.html')

@@ -47,11 +47,12 @@
 #         else:
 #             ordinate = graph.ordinate
 #             ordinate_col, sep, aggregation_name = ordinate.rpartition('__')
-#             aggregation = field_aggregation_registry.get(aggregation_name)  # TODO: manage invalid aggregation ??
+#             aggregation = field_aggregation_registry.get(aggregation_name)
 #
 #             if ordinate_col.isdigit():  # CustomField
 #                 try:
-#                     calculator = RGYCCustomField(CustomField.objects.get(pk=ordinate_col), aggregation)
+#                     calculator = RGYCCustomField(CustomField.objects.get(
+#                     pk=ordinate_col), aggregation)
 #                 except CustomField.DoesNotExist:
 #                     calculator = ReportGraphYCalculator()
 #                     calculator.error = _('the custom field does not exist any more.')

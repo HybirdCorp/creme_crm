@@ -51,40 +51,60 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
-        already_populated = core_models.RelationType.objects.filter(pk=constants.REL_SUB_EMPLOYED_BY).exists()
+        already_populated = core_models.RelationType.objects.filter(
+            pk=constants.REL_SUB_EMPLOYED_BY,
+        ).exists()
 
         Contact      = persons.get_contact_model()
         Organisation = persons.get_organisation_model()
 
         rt_map = {}
-        for rt_info in [((constants.REL_SUB_EMPLOYED_BY,       _('is an employee of'),          [Contact]),
-                         (constants.REL_OBJ_EMPLOYED_BY,       _('employs'),                    [Organisation]),
-                        ),
-                        ((constants.REL_SUB_CUSTOMER_SUPPLIER, _('is a customer of'),           [Contact, Organisation]),
-                         (constants.REL_OBJ_CUSTOMER_SUPPLIER, _('is a supplier of'),           [Contact, Organisation]),
-                        ),
-                        ((constants.REL_SUB_MANAGES,           _('manages'),                    [Contact]),
-                         (constants.REL_OBJ_MANAGES,           _('managed by'),                 [Organisation]),
-                        ),
-                        ((constants.REL_SUB_PROSPECT,          _('is a prospect of'),           [Contact, Organisation]),
-                         (constants.REL_OBJ_PROSPECT,          _('has as prospect'),            [Contact, Organisation]),
-                        ),
-                        ((constants.REL_SUB_SUSPECT,           _('is a suspect of'),            [Contact, Organisation]),
-                         (constants.REL_OBJ_SUSPECT,           _('has as suspect'),             [Contact, Organisation]),
-                        ),
-                        ((constants.REL_SUB_PARTNER,           _('is a partner of'),            [Contact, Organisation]),
-                         (constants.REL_OBJ_PARTNER,           _('has as partner'),             [Contact, Organisation]),
-                        ),
-                        ((constants.REL_SUB_INACTIVE,          _('is an inactive customer of'), [Contact, Organisation]),
-                         (constants.REL_OBJ_INACTIVE,          _('has as inactive customer'),   [Contact, Organisation]),
-                        ),
-                        ((constants.REL_SUB_SUBSIDIARY,        _('has as subsidiary'),          [Organisation]),
-                         (constants.REL_OBJ_SUBSIDIARY,        _('is a subsidiary of'),         [Organisation]),
-                        ),
-                        ((constants.REL_SUB_COMPETITOR,        _('is a competitor of'),         [Contact, Organisation]),
-                         (constants.REL_OBJ_COMPETITOR,        _('has as competitor'),          [Contact, Organisation]),
-                        ),
-                       ]:
+        for rt_info in [
+            (
+                (constants.REL_SUB_EMPLOYED_BY, _('is an employee of'), [Contact]),
+                (constants.REL_OBJ_EMPLOYED_BY, _('employs'),           [Organisation]),
+            ), (
+                (
+                    constants.REL_SUB_CUSTOMER_SUPPLIER,
+                    _('is a customer of'),
+                    [Contact, Organisation],
+                ),
+                (
+                    constants.REL_OBJ_CUSTOMER_SUPPLIER,
+                    _('is a supplier of'),
+                    [Contact, Organisation],
+                ),
+            ), (
+                (constants.REL_SUB_MANAGES, _('manages'),    [Contact]),
+                (constants.REL_OBJ_MANAGES, _('managed by'), [Organisation]),
+            ), (
+                (constants.REL_SUB_PROSPECT, _('is a prospect of'), [Contact, Organisation]),
+                (constants.REL_OBJ_PROSPECT, _('has as prospect'),  [Contact, Organisation]),
+            ), (
+                (constants.REL_SUB_SUSPECT, _('is a suspect of'), [Contact, Organisation]),
+                (constants.REL_OBJ_SUSPECT, _('has as suspect'),  [Contact, Organisation]),
+            ), (
+                (constants.REL_SUB_PARTNER, _('is a partner of'), [Contact, Organisation]),
+                (constants.REL_OBJ_PARTNER, _('has as partner'),  [Contact, Organisation]),
+            ), (
+                (
+                    constants.REL_SUB_INACTIVE,
+                    _('is an inactive customer of'),
+                    [Contact, Organisation],
+                ),
+                (
+                    constants.REL_OBJ_INACTIVE,
+                    _('has as inactive customer'),
+                    [Contact, Organisation],
+                ),
+            ), (
+                (constants.REL_SUB_SUBSIDIARY, _('has as subsidiary'),  [Organisation]),
+                (constants.REL_OBJ_SUBSIDIARY, _('is a subsidiary of'), [Organisation]),
+            ), (
+                (constants.REL_SUB_COMPETITOR, _('is a competitor of'), [Contact, Organisation]),
+                (constants.REL_OBJ_COMPETITOR, _('has as competitor'),  [Contact, Organisation]),
+            ),
+        ]:
             rt, sym_rt = core_models.RelationType.create(*rt_info)
             rt_map[rt.id] = rt
             rt_map[sym_rt.id] = sym_rt
@@ -152,9 +172,15 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'phone'}),
                 (EntityCellRegularField, {'name': 'email'}),
                 (EntityCellRegularField, {'name': 'user'}),
-                EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_CUSTOMER_SUPPLIER]),
-                EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_PROSPECT]),
-                EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_SUSPECT]),
+                EntityCellRelation(
+                    model=Organisation, rtype=rt_map[constants.REL_SUB_CUSTOMER_SUPPLIER],
+                ),
+                EntityCellRelation(
+                    model=Organisation, rtype=rt_map[constants.REL_SUB_PROSPECT],
+                ),
+                EntityCellRelation(
+                    model=Organisation, rtype=rt_map[constants.REL_SUB_SUSPECT],
+                ),
             ],
         )
 
@@ -208,17 +234,47 @@ class Populator(BasePopulator):
 
             # ---------------------------
             create_bmi = core_models.ButtonMenuItem.objects.create_if_needed
-            create_bmi(pk='persons-customer_contact_button', model=Contact, button=buttons.BecomeCustomerButton, order=20)
-            create_bmi(pk='persons-prospect_contact_button', model=Contact, button=buttons.BecomeProspectButton, order=21)
-            create_bmi(pk='persons-suspect_contact_button',  model=Contact, button=buttons.BecomeSuspectButton,  order=22)
-            create_bmi(pk='persons-inactive_contact_button', model=Contact, button=buttons.BecomeInactiveButton, order=24)
+            create_bmi(
+                pk='persons-customer_contact_button',
+                model=Contact, button=buttons.BecomeCustomerButton, order=20,
+            )
+            create_bmi(
+                pk='persons-prospect_contact_button',
+                model=Contact, button=buttons.BecomeProspectButton, order=21,
+            )
+            create_bmi(
+                pk='persons-suspect_contact_button',
+                model=Contact, button=buttons.BecomeSuspectButton,  order=22,
+            )
+            create_bmi(
+                pk='persons-inactive_contact_button',
+                model=Contact, button=buttons.BecomeInactiveButton, order=24,
+            )
 
-            create_bmi(pk='persons-customer_orga_button',  model=Organisation, button=buttons.BecomeCustomerButton,   order=20)
-            create_bmi(pk='persons-prospect_orga_button',  model=Organisation, button=buttons.BecomeProspectButton,   order=21)
-            create_bmi(pk='persons-suspect_orga_button',   model=Organisation, button=buttons.BecomeSuspectButton,    order=22)
-            create_bmi(pk='persons-inactive_orga_button',  model=Organisation, button=buttons.BecomeInactiveButton,   order=23)
-            create_bmi(pk='persons-supplier_button',       model=Organisation, button=buttons.BecomeSupplierButton,   order=24)
-            create_bmi(pk='persons-linked_contact_button', model=Organisation, button=buttons.AddLinkedContactButton, order=25)
+            create_bmi(
+                pk='persons-customer_orga_button',
+                model=Organisation, button=buttons.BecomeCustomerButton,   order=20,
+            )
+            create_bmi(
+                pk='persons-prospect_orga_button',
+                model=Organisation, button=buttons.BecomeProspectButton,   order=21,
+            )
+            create_bmi(
+                pk='persons-suspect_orga_button',
+                model=Organisation, button=buttons.BecomeSuspectButton,    order=22,
+            )
+            create_bmi(
+                pk='persons-inactive_orga_button',
+                model=Organisation, button=buttons.BecomeInactiveButton,   order=23,
+            )
+            create_bmi(
+                pk='persons-supplier_button',
+                model=Organisation, button=buttons.BecomeSupplierButton,   order=24,
+            )
+            create_bmi(
+                pk='persons-linked_contact_button',
+                model=Organisation, button=buttons.AddLinkedContactButton, order=25,
+            )
 
             # Populate bricks ------------------
             create_rbi = core_models.RelationBrickItem.objects.create_if_needed
@@ -300,18 +356,28 @@ class Populator(BasePopulator):
             RIGHT = core_models.BrickDetailviewLocation.RIGHT
 
             create_bdl = core_models.BrickDetailviewLocation.objects.create_if_needed
-            create_bdl(brick=bricks.OrganisationCardHatBrick,  order=1,   zone=HAT,   model=Organisation)
-            create_bdl(brick=cbci_orga_extra.generate_id(),    order=5,   zone=LEFT,  model=Organisation)
-            create_bdl(brick=core_bricks.CustomFieldsBrick,    order=40,  zone=LEFT,  model=Organisation)
-            create_bdl(brick=bricks.PrettyAddressesBrick,      order=50,  zone=LEFT,  model=Organisation)
-            create_bdl(brick=bricks.PrettyOtherAddressesBrick, order=60,  zone=LEFT,  model=Organisation)
-            create_bdl(brick=bricks.ManagersBrick,             order=100, zone=LEFT,  model=Organisation)
-            create_bdl(brick=bricks.EmployeesBrick,            order=120, zone=LEFT,  model=Organisation)
-            create_bdl(brick=core_bricks.PropertiesBrick,      order=450, zone=LEFT,  model=Organisation)
-            create_bdl(brick=core_bricks.RelationsBrick,       order=500, zone=LEFT,  model=Organisation)
-            create_bdl(brick=rbi_1.brick_id,                   order=5,   zone=RIGHT, model=Organisation)
-            create_bdl(brick=rbi_2.brick_id,                   order=10,  zone=RIGHT, model=Organisation)
-            create_bdl(brick=core_bricks.HistoryBrick,         order=30,  zone=RIGHT, model=Organisation)
+
+            def create_multi_bdl(model, info):
+                for brick, order, zone in info:
+                    create_bdl(brick=brick, order=order, zone=zone, model=model)
+
+            create_multi_bdl(
+                Organisation,
+                [
+                    (bricks.OrganisationCardHatBrick,    1, HAT),
+                    (cbci_orga_extra.generate_id(),      5, LEFT),
+                    (core_bricks.CustomFieldsBrick,     40, LEFT),
+                    (bricks.PrettyAddressesBrick,       50, LEFT),
+                    (bricks.PrettyOtherAddressesBrick,  60, LEFT),
+                    (bricks.ManagersBrick,             100, LEFT),
+                    (bricks.EmployeesBrick,            120, LEFT),
+                    (core_bricks.PropertiesBrick,      450, LEFT),
+                    (core_bricks.RelationsBrick,       500, LEFT),
+                    (rbi_1.brick_id,                     5, RIGHT),
+                    (rbi_2.brick_id,                    10, RIGHT),
+                    (core_bricks.HistoryBrick,          30, RIGHT),
+                ],
+            )
 
             create_cbci(
                 id='persons-contact_main_info',
@@ -366,32 +432,47 @@ class Populator(BasePopulator):
                 ],
             )
 
-            create_bdl(brick=bricks.ContactCardHatBrick,       order=1,   zone=HAT,   model=Contact)
-            create_bdl(brick=cbci_contact_extra.generate_id(), order=30,  zone=LEFT,  model=Contact)
-            create_bdl(brick=core_bricks.CustomFieldsBrick,    order=40,  zone=LEFT,  model=Contact)
-            create_bdl(brick=bricks.PrettyAddressesBrick,      order=50,  zone=LEFT,  model=Contact)
-            create_bdl(brick=bricks.PrettyOtherAddressesBrick, order=60,  zone=LEFT,  model=Contact)
-            create_bdl(brick=core_bricks.PropertiesBrick,      order=450, zone=LEFT,  model=Contact)
-            create_bdl(brick=core_bricks.RelationsBrick,       order=500, zone=LEFT,  model=Contact)
-            create_bdl(brick=core_bricks.HistoryBrick,         order=20,  zone=RIGHT, model=Contact)
+            create_multi_bdl(
+                Contact,
+                [
+                    (bricks.ContactCardHatBrick,       1,   HAT),
+                    (cbci_contact_extra.generate_id(), 30,  LEFT),
+                    (core_bricks.CustomFieldsBrick,    40,  LEFT),
+                    (bricks.PrettyAddressesBrick,      50,  LEFT),
+                    (bricks.PrettyOtherAddressesBrick, 60,  LEFT),
+                    (core_bricks.PropertiesBrick,      450, LEFT),
+                    (core_bricks.RelationsBrick,       500, LEFT),
+                    (core_bricks.HistoryBrick,         20,  RIGHT),
+                ]
+            )
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
+                logger.info(
+                    'Assistants app is installed'
+                    ' => we use the assistants blocks on detail views and portal'
+                )
 
-                from creme.assistants import bricks as a_bricks
+                from creme.assistants.bricks import (
+                    AlertsBrick,
+                    MemosBrick,
+                    TodosBrick,
+                    UserMessagesBrick,
+                )
 
-                create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=Contact)
-                create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=Contact)
-                create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=Contact)
-                create_bdl(brick=a_bricks.UserMessagesBrick, order=500, zone=RIGHT, model=Contact)
-
-                create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=Organisation)
-                create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=Organisation)
-                create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=Organisation)
-                create_bdl(brick=a_bricks.UserMessagesBrick, order=500, zone=RIGHT, model=Organisation)
+                for model in (Contact, Organisation):
+                    create_multi_bdl(
+                        model,
+                        [
+                            (TodosBrick,        100, RIGHT),
+                            (MemosBrick,        200, RIGHT),
+                            (AlertsBrick,       300, RIGHT),
+                            (UserMessagesBrick, 500, RIGHT),
+                        ]
+                    )
 
             if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed => we use the documents block on detail views')
+                # logger.info('Documents app is installed
+                # => we use the documents block on detail views')
 
                 from creme.documents.bricks import LinkedDocsBrick
 
@@ -399,4 +480,6 @@ class Populator(BasePopulator):
                 create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Organisation)
 
             if apps.is_installed('creme.activities'):
-                core_models.BrickHomeLocation.objects.create(brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15)
+                core_models.BrickHomeLocation.objects.create(
+                    brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15,
+                )

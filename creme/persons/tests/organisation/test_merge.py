@@ -77,7 +77,10 @@ class OrganisationMergeTestCase(_BaseTestCase):
             b_city_f = response.context['form'].fields['billaddr_city']
 
         self.assertFalse(b_city_f.required)
-        self.assertEqual([bill_addr01.city,  bill_addr02.city,  bill_addr01.city], b_city_f.initial)
+        self.assertListEqual(
+            [bill_addr01.city,  bill_addr02.city,  bill_addr01.city],
+            b_city_f.initial
+        )
 
         response = self.client.post(
             url, follow=True,

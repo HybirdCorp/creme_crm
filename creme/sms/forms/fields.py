@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,9 @@
 from django.forms import RegexField, ValidationError
 
 PHONE_REGEX = r'^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*$'
-PHONE_LIST_REGEX = r'^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*([%s]{0,1}[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*)*$'
+PHONE_LIST_REGEX = (
+    r'^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*([%s]{0,1}[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*)*$'
+)
 
 
 class PhoneField(RegexField):
@@ -48,7 +50,10 @@ class PhoneField(RegexField):
 
 class PhoneListField(RegexField):
     # TODO: rename 'error_message' as 'error_messageS' ?
-    def __init__(self, *, max_length=None, min_length=None, error_message=None, separator='\n', **kwargs):
+    def __init__(
+            self, *,
+            max_length=None, min_length=None, error_message=None, separator='\n',
+            **kwargs):
         regex = PHONE_LIST_REGEX % separator
         self.separator = separator
 

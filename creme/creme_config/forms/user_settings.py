@@ -30,7 +30,11 @@ User = get_user_model()
 def _build_select():
     return Select(
         attrs={
-            'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form), function() {creme.utils.reload(window);});'
+            'onchange': (
+                'creme.ajax.json.ajaxFormSubmit('
+                '$(this.form), function() {creme.utils.reload(window);}'
+                ');'
+            )
         },
     )
 

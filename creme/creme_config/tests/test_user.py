@@ -53,14 +53,16 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         return reverse('creme_config__delete_user', args=(user.id,))
 
     def _build_edit_url(self, user_id, password=False):
-        return reverse('creme_config__change_user_password' if password else 'creme_config__edit_user',
-                       args=(user_id,)
-                      )
+        return reverse(
+            'creme_config__change_user_password' if password else 'creme_config__edit_user',
+            args=(user_id,)
+        )
 
     def _build_activation_url(self, user_id, activation=True):
-        return reverse('creme_config__activate_user' if activation else 'creme_config__deactivate_user',
-                       args=(user_id,)
-                      )
+        return reverse(
+            'creme_config__activate_user' if activation else 'creme_config__deactivate_user',
+            args=(user_id,)
+        )
 
     def login_not_as_superuser(self):
         apps = ('creme_config',)
@@ -237,13 +239,20 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'relation':     REL_SUB_MANAGES,
                                          }
                                    )
-        self.assertFormError(response, 'form', 'username',
-                             _('Enter a valid username. This value may contain only letters, numbers, '
-                               'and @/./+/-/_ characters.')
-                            )
+        self.assertFormError(
+            response, 'form', 'username',
+            _(
+                'Enter a valid username. This value may contain only letters, numbers, '
+                'and @/./+/-/_ characters.'
+            )
+        )
 
     @skipIfNotCremeUser
-    @override_settings(AUTH_PASSWORD_VALIDATORS=[{'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'}])
+    @override_settings(
+        AUTH_PASSWORD_VALIDATORS=[{
+            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        }]
+    )
     # def test_create07(self):
     def test_create06(self):
         "Password errors"
@@ -323,10 +332,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Internal relationships are forbidden."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
-        rtype = RelationType.create(('creme_config-subject_test_badrtype', 'Bad RType',     [Contact]),
-                                    ('creme_config-object_test_badrtype',  'Bad RType sym', [Organisation]),
-                                    is_internal=True,  # <==
-                                   )[0]
+        rtype = RelationType.create(
+            ('creme_config-subject_test_badrtype', 'Bad RType',     [Contact]),
+            ('creme_config-object_test_badrtype',  'Bad RType sym', [Organisation]),
+            is_internal=True,  # <==
+        )[0]
 
         password = 'password'
         response = self.assertPOST200(self.ADD_URL, follow=True,
@@ -340,9 +350,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                             'relation':     rtype.id,
                                            }
                                      )
-        self.assertFormError(response, 'form', 'relation',
-                             _('Select a valid choice. That choice is not one of the available choices.'),
-                            )
+        self.assertFormError(
+            response, 'form', 'relation',
+            _('Select a valid choice. That choice is not one of the available choices.'),
+        )
 
     @skipIfNotCremeUser
     @skipIfCustomContact
@@ -360,7 +371,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                         )
         deunan = other_user.linked_contact
 
-        briareos = Contact.objects.create(user=user, first_name='Briareos', last_name='Hecatonchires')
+        briareos = Contact.objects.create(
+            user=user, first_name='Briareos', last_name='Hecatonchires',
+        )
         self.assertTrue(other_user.has_perm_to_view(briareos))
 
         url = self._build_edit_url(other_user.id)
@@ -431,7 +444,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                      )
         other_user = User.objects.create(username='deunan', role=role1)
 
-        briareos = Contact.objects.create(user=user, first_name='Briareos', last_name='Hecatonchires')
+        briareos = Contact.objects.create(
+            user=user, first_name='Briareos', last_name='Hecatonchires',
+        )
         self.assertTrue(other_user.has_perm_to_view(briareos))
 
         url = self._build_edit_url(other_user.id)
@@ -541,10 +556,14 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'password_2': password + '42',
                                          }
                                    )
-        self.assertFormError(response, 'form', 'password_2', _("The two password fields didn't match."))
+        self.assertFormError(
+            response, 'form', 'password_2', _("The two password fields didn't match.")
+        )
 
     @skipIfNotCremeUser
-    @override_settings(AUTH_PASSWORD_VALIDATORS=[{'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'}])
+    @override_settings(AUTH_PASSWORD_VALIDATORS=[{
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    }])
     def test_change_password04(self):
         self.login()
 
@@ -831,9 +850,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
 
         context = response.context
-        self.assertEqual(_('Delete «{object}» and assign his entities to user').format(object=root),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Delete «{object}» and assign his entities to user').format(object=root),
+            context.get('title')
+        )
         self.assertEqual(_('Delete the user'), context.get('submit_label'))
 
         # ---
@@ -923,10 +943,12 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFormError(response, 'form', 'to_user', _('This field is required.'))
         self.assertEqual(count, User.objects.count())
 
-        response = self.assertPOST200(url, {'to_user': root.id})  # Cannot move entities to deleted user
-        self.assertFormError(response, 'form', 'to_user',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        # Cannot move entities to deleted user
+        response = self.assertPOST200(url, {'to_user': root.id})
+        self.assertFormError(
+            response, 'form', 'to_user',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
         self.assertStillExists(user)
 
     @skipIfNotCremeUser

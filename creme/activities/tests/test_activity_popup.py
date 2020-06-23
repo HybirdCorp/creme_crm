@@ -68,7 +68,8 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertEqual(Activity.save_label,     context.get('submit_label'))
 
         self.assertTemplateUsed(response, 'activities/frags/activity_form_content.html')
-        self.assertContains(response, 'name="title"')  # It seems TemplateDoesNotExists is not raised in unit tests
+        # It seems TemplateDoesNotExists is not raised in unit tests
+        self.assertContains(response, 'name="title"')
 
         fields = context['form'].fields
 
@@ -78,7 +79,8 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
 
     @parameterized.expand([
         ('2010-01-01T16:35:00', datetime(2010, 1, 1, 16, 35), time(16, 35)),
-        ('2010-01-01T23:16:00', datetime(2010, 1, 1, 23, 16), time(23, 16)),  # Beware when it's 23 o clock (bugfix)
+        # Beware when it's 23 o clock (bugfix)
+        ('2010-01-01T23:16:00', datetime(2010, 1, 1, 23, 16), time(23, 16)),
         ('2010-01-01T00:00:00', datetime(2010, 1, 1, 0, 0), None),
     ])
     def test_render_start_only(self, start_iso, start_datetime, start_time):
@@ -236,7 +238,10 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertNoFormError(response)
 
         activity = self.get_object_or_fail(Activity, title='meeting activity')
-        create_today_dt = partial(self.create_datetime, year=today.year, month=today.month, day=today.day)
+        create_today_dt = partial(
+            self.create_datetime,
+            year=today.year, month=today.month, day=today.day,
+        )
         self.assertEqual(create_today_dt(hour=0,  minute=0), activity.start)
         self.assertEqual(create_today_dt(hour=23, minute=59), activity.end)
 
@@ -249,7 +254,9 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         sv.value = False
         sv.save()
 
-        response = self.assertGET200(reverse('activities__create_activity_popup'),
-                                     data={'start': '2010-01-01T16:30:00'})
+        response = self.assertGET200(
+            reverse('activities__create_activity_popup'),
+            data={'start': '2010-01-01T16:30:00'},
+        )
 
         self.assertNotIn('informed_users', response.context['form'].fields)

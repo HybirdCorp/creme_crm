@@ -37,14 +37,20 @@ class DBTestCase(CremeTestCase):
         vendor = connection.vendor
 
         if vendor == 'mysql':
-            sql = "ALTER TABLE `creme_core_fakecontact` " \
-                  "ADD INDEX `DBTestCase_index` (`birthday` ASC, `cremeentity_ptr_id` ASC);"
+            sql = (
+                "ALTER TABLE `creme_core_fakecontact` "
+                "ADD INDEX `DBTestCase_index` (`birthday` ASC, `cremeentity_ptr_id` ASC);"
+            )
         elif vendor == 'postgresql':
-            sql = "CREATE INDEX DBTestCase_index " \
-                  "ON creme_core_fakecontact (birthday ASC NULLS FIRST, cremeentity_ptr_id ASC);"
+            sql = (
+                "CREATE INDEX DBTestCase_index "
+                "ON creme_core_fakecontact (birthday ASC NULLS FIRST, cremeentity_ptr_id ASC);"
+            )
         elif vendor == 'sqlite':
-            sql = 'CREATE INDEX "DBTestCase_index" ' \
-                  'ON creme_core_fakecontact (birthday ASC, cremeentity_ptr_id ASC);'
+            sql = (
+                'CREATE INDEX "DBTestCase_index" '
+                'ON creme_core_fakecontact (birthday ASC, cremeentity_ptr_id ASC);'
+            )
         else:
             raise Exception(f'This DBMS is not managed: {vendor}')
 
@@ -76,37 +82,41 @@ class DBTestCase(CremeTestCase):
         is_my_sql = (settings.DATABASES['default']['ENGINE'] == 'django.db.backends.mysql')
 
         # FakeOrganisation --------------------
-        expected = {('address_id',),
-                    ('sector_id',),
-                    ('legal_form_id',),
-                    ('image_id',),
-                    ('name', 'cremeentity_ptr_id'),
-                   }
+        expected = {
+            ('address_id',),
+            ('sector_id',),
+            ('legal_form_id',),
+            ('image_id',),
+            ('name', 'cremeentity_ptr_id'),
+        }
 
         if is_my_sql:
             expected.add(('cremeentity_ptr_id',))
 
-        self.assertEqual(expected,
-                         {tuple(cols) for cols in get_indexes_columns(FakeOrganisation)}
-                        )
+        self.assertSetEqual(
+            expected,
+            {tuple(cols) for cols in get_indexes_columns(FakeOrganisation)}
+        )
 
         # FakeContact -------------------------
-        expected = {('position_id',),
-                    ('civility_id',),
-                    ('is_user_id',),
-                    ('sector_id',),
-                    ('address_id',),
-                    ('image_id',),
-                    ('last_name', 'first_name', 'cremeentity_ptr_id'),
-                    ('birthday', 'cremeentity_ptr_id'),  # Added by setUpClass()
-                   }
+        expected = {
+            ('position_id',),
+            ('civility_id',),
+            ('is_user_id',),
+            ('sector_id',),
+            ('address_id',),
+            ('image_id',),
+            ('last_name', 'first_name', 'cremeentity_ptr_id'),
+            ('birthday', 'cremeentity_ptr_id'),  # Added by setUpClass()
+        }
 
         if is_my_sql:
             expected.add(('cremeentity_ptr_id',))
 
-        self.assertEqual(expected,
-                         {tuple(cols) for cols in get_indexes_columns(FakeContact)}
-                        )
+        self.assertSetEqual(
+            expected,
+            {tuple(cols) for cols in get_indexes_columns(FakeContact)}
+        )
 
     def test_buildcolumns_key(self):
         self.assertEqual('#civility_id#',
@@ -138,64 +148,113 @@ class DBTestCase(CremeTestCase):
                         )
 
         # Order is important
-        self.assertEqual(('name', 'cremeentity_ptr_id'),
-                         get_indexed_ordering(FakeOrganisation, ['name', 'cremeentity_ptr_id'])
-                        )
+        self.assertEqual(
+            ('name', 'cremeentity_ptr_id'),
+            get_indexed_ordering(FakeOrganisation, ['name', 'cremeentity_ptr_id'])
+        )
 
-        self.assertIsNone(get_indexed_ordering(FakeOrganisation, ['cremeentity_ptr_id', 'name']))
+        self.assertIsNone(
+            get_indexed_ordering(FakeOrganisation, ['cremeentity_ptr_id', 'name'])
+        )
         # TODO: M2M ?
 
     def test_indexed_ordering02(self):
         "FakeContact"
-        self.assertEqual((('last_name', 'first_name', 'cremeentity_ptr'),),
-                         FakeContact._meta.index_together
-                        )
+        self.assertEqual(
+            (('last_name', 'first_name', 'cremeentity_ptr'),),
+            FakeContact._meta.index_together
+        )
 
         self.assertIsNone(get_indexed_ordering(FakeContact, ['phone']))
         self.assertIsNone(get_indexed_ordering(FakeContact, ['phone', 'email']))
 
         expected = ('last_name', 'first_name', 'cremeentity_ptr_id')
-        self.assertEqual(expected, get_indexed_ordering(FakeContact, ['last_name']))
-        self.assertEqual(expected, get_indexed_ordering(FakeContact, ['last_name', 'first_name']))
-        self.assertEqual(expected, get_indexed_ordering(FakeContact, ['last_name', 'first_name', 'cremeentity_ptr_id']))
+        self.assertEqual(
+            expected, get_indexed_ordering(FakeContact, ['last_name'])
+        )
+        self.assertEqual(
+            expected, get_indexed_ordering(FakeContact, ['last_name', 'first_name'])
+        )
+        self.assertEqual(
+            expected,
+            get_indexed_ordering(FakeContact, ['last_name', 'first_name', 'cremeentity_ptr_id'])
+        )
 
         self.assertIsNone(get_indexed_ordering(FakeContact, ['first_name', 'last_name']))
 
     def test_indexed_ordering03(self):
         "DESC order => inverted index"
         expected = ('-name', '-cremeentity_ptr_id')
-        self.assertEqual(expected,
-                         get_indexed_ordering(FakeOrganisation, ['-name'])
-                        )
-        self.assertEqual(expected,
-                         get_indexed_ordering(FakeOrganisation, ['-name', '-cremeentity_ptr_id'])
-                        )
+        self.assertEqual(
+            expected,
+            get_indexed_ordering(FakeOrganisation, ['-name'])
+        )
+        self.assertEqual(
+            expected,
+            get_indexed_ordering(
+                FakeOrganisation, ['-name', '-cremeentity_ptr_id'],
+            )
+        )
 
     def test_indexed_ordering04(self):
         "Blurred query"
         expected = ('last_name', 'first_name', 'cremeentity_ptr_id')
-        self.assertEqual(expected, get_indexed_ordering(FakeContact, ['last_name', '*', 'cremeentity_ptr_id']))
-        self.assertEqual(expected, get_indexed_ordering(FakeContact, ['*', 'first_name', 'cremeentity_ptr_id']))
-        self.assertEqual(expected, get_indexed_ordering(FakeContact, ['last_name', 'first_name', '*']))
+        self.assertEqual(
+            expected,
+            get_indexed_ordering(
+                FakeContact, ['last_name', '*', 'cremeentity_ptr_id'],
+            )
+        )
+        self.assertEqual(
+            expected,
+            get_indexed_ordering(
+                FakeContact, ['*', 'first_name', 'cremeentity_ptr_id']
+            )
+        )
+        self.assertEqual(
+            expected,
+            get_indexed_ordering(FakeContact, ['last_name', 'first_name', '*'])
+        )
 
-        self.assertEqual(expected, get_indexed_ordering(FakeContact, ['last_name', 'first_name', '*', 'cremeentity_ptr_id']))
-        self.assertEqual(expected, get_indexed_ordering(FakeContact, ['*', 'first_name', '*']))
-        self.assertEqual(expected, get_indexed_ordering(FakeContact, ['*', 'first_name', '*', 'cremeentity_ptr_id']))
+        self.assertEqual(
+            expected,
+            get_indexed_ordering(
+                FakeContact, ['last_name', 'first_name', '*', 'cremeentity_ptr_id'],
+            )
+        )
+        self.assertEqual(
+            expected,
+            get_indexed_ordering(FakeContact, ['*', 'first_name', '*'])
+        )
+        self.assertEqual(
+            expected,
+            get_indexed_ordering(
+                FakeContact, ['*', 'first_name', '*', 'cremeentity_ptr_id'],
+            )
+        )
 
-        self.assertIsNone(get_indexed_ordering(FakeContact, ['last_name', '*', 'phone']))
+        self.assertIsNone(
+            get_indexed_ordering(FakeContact, ['last_name', '*', 'phone'])
+        )
 
     def test_indexed_ordering05(self):
         "Blurred query + other model + DESC"
-        self.assertEqual(('name', 'cremeentity_ptr_id'),
-                         get_indexed_ordering(FakeOrganisation, ['name', '*'])
-                        )
-        self.assertEqual(('-name', '-cremeentity_ptr_id'),
-                         get_indexed_ordering(FakeOrganisation, ['-name', '*'])
-                        )
+        self.assertEqual(
+            ('name', 'cremeentity_ptr_id'),
+            get_indexed_ordering(FakeOrganisation, ['name', '*'])
+        )
+        self.assertEqual(
+            ('-name', '-cremeentity_ptr_id'),
+            get_indexed_ordering(FakeOrganisation, ['-name', '*'])
+        )
 
-        self.assertEqual(('-last_name', '-first_name', '-cremeentity_ptr_id'),
-                         get_indexed_ordering(FakeContact, ['-last_name', '-first_name', '*', '-cremeentity_ptr_id'])
-                        )
+        self.assertEqual(
+            ('-last_name', '-first_name', '-cremeentity_ptr_id'),
+            get_indexed_ordering(
+                FakeContact,
+                ['-last_name', '-first_name', '*', '-cremeentity_ptr_id'],
+            )
+        )
 
     def test_indexed_ordering06(self):
         "Avoid successive wildcards"
@@ -203,18 +262,23 @@ class DBTestCase(CremeTestCase):
             get_indexed_ordering(FakeContact, ['*', '*', 'cremeentity_ptr_id'])
 
         with self.assertRaises(ValueError):
-            get_indexed_ordering(FakeContact, ['last_name', '*', '*', 'cremeentity_ptr_id'])
+            get_indexed_ordering(
+                FakeContact, ['last_name', '*', '*', 'cremeentity_ptr_id'],
+            )
 
     def _create_contacts(self):
         self.sector1, self.sector2 = FakeSector.objects.all()[:2]
         self.civ1, self.civ2 = FakeCivility.objects.all()[:2]
 
-        create_contact = partial(FakeContact.objects.create, user=self.user, last_name='Simpson')
-        contacts = [create_contact(first_name='Homer', sector=self.sector1),
-                    create_contact(first_name='Marge', sector=self.sector2, civility=self.civ1),
-                    create_contact(first_name='Bart'),
-                    create_contact(first_name='Lisa', civility=self.civ2),
-                   ]
+        create_contact = partial(
+            FakeContact.objects.create, user=self.user, last_name='Simpson',
+        )
+        contacts = [
+            create_contact(first_name='Homer', sector=self.sector1),
+            create_contact(first_name='Marge', sector=self.sector2, civility=self.civ1),
+            create_contact(first_name='Bart'),
+            create_contact(first_name='Lisa', civility=self.civ2),
+        ]
 
         return [self.refresh(c) for c in contacts]
 
@@ -284,7 +348,9 @@ class DBTestCase(CremeTestCase):
         "Two fields related to the same model"
         user = self.create_user()
 
-        create_contact = partial(FakeContact.objects.create, user=user, last_name='Simpson')
+        create_contact = partial(
+            FakeContact.objects.create, user=user, last_name='Simpson',
+        )
         marge = create_contact(first_name='Marge')
         homer = create_contact(first_name='Homer')
 
@@ -329,11 +395,12 @@ class DBTestCase(CremeTestCase):
         folder2  = create_folder(title='Blue prints')
 
         create_doc = partial(FakeDocument.objects.create, user=user)
-        docs = [create_doc(title='Japan map part#1',   linked_folder=folder11),
-                create_doc(title='Japan map part#2',   linked_folder=folder11),
-                create_doc(title='Mars city 1',        linked_folder=folder12),
-                create_doc(title='Swordfish',          linked_folder=folder2),
-               ]
+        docs = [
+            create_doc(title='Japan map part#1',   linked_folder=folder11),
+            create_doc(title='Japan map part#2',   linked_folder=folder11),
+            create_doc(title='Mars city 1',        linked_folder=folder12),
+            create_doc(title='Swordfish',          linked_folder=folder2),
+        ]
         docs = [self.refresh(c) for c in docs]
 
         with self.assertNumQueries(2):

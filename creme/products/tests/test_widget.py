@@ -32,7 +32,9 @@ class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
 
         categories = ChoiceModelIterator(Category.objects.all())
         creation_url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
-        widget = CreatorCategorySelector(categories=categories, creation_url=creation_url, creation_allowed=True)
+        widget = CreatorCategorySelector(
+            categories=categories, creation_url=creation_url, creation_allowed=True,
+        )
         widget._build_actions({})
 
         self.assertListEqual(
@@ -51,7 +53,9 @@ class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
 
         categories = ChoiceModelIterator(Category.objects.all())
         creation_url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
-        widget = CreatorCategorySelector(categories=categories, creation_url=creation_url, creation_allowed=False)
+        widget = CreatorCategorySelector(
+            categories=categories, creation_url=creation_url, creation_allowed=False,
+        )
         widget._build_actions({})
 
         self.assertListEqual(
@@ -98,10 +102,12 @@ class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
 
         categories = ChoiceModelIterator(Category.objects.all())
         creation_url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
-        widget = CreatorCategorySelector(categories=categories, creation_url=creation_url, creation_allowed=True)
+        widget = CreatorCategorySelector(
+            categories=categories, creation_url=creation_url, creation_allowed=True,
+        )
         value = json_dump({'category': 1, 'subcategory': 1})
 
-        html = '''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
+        html_fmt = '''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
         <div class="ui-creme-widget widget-auto ui-creme-chainedselect" widget="ui-creme-chainedselect">
             <input class="ui-creme-input ui-creme-chainedselect" name="sub_category" type="hidden" value="{value}" />
@@ -125,12 +131,20 @@ class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
             {create_label}
         </button>
     </li>
-</ul>'''.format(
+</ul>'''  # NOQA
+        html = html_fmt.format(
             value=escape(value),
-            categories=format_html_join('', '<option value="{}">{}</option>', Category.objects.values_list('id', 'name')),
+            categories=format_html_join(
+                '',
+                '<option value="{}">{}</option>',
+                Category.objects.values_list('id', 'name'),
+            ),
             categories_label=_('Category'),
             sub_categories_label=_('Sub-category'),
-            choices_url=reverse('products__subcategories', args=('1234',)).replace('1234', '${category}'),
+            choices_url=reverse(
+                'products__subcategories',
+                args=('1234',),
+            ).replace('1234', '${category}'),
             create_title=_('Create'),
             create_label=SubCategory.creation_label,
             create_url=creation_url + '?category=${_delegate_.category}',

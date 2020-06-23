@@ -27,69 +27,98 @@ class BatchActionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = BatchActionsField().clean
-        self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '"this is a string"')
-        self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '"{}"')
-        self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '{"foobar":{"operator": "3", "name": "first_name"}}')
-        self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '1')  # Not iterable
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidtype', clean, '"this is a string"',
+        )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidtype', clean, '"{}"',
+        )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidtype', clean,
+            '{"foobar":{"operator": "3", "name": "first_name"}}',
+        )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidtype', clean, '1',
+        )  # Not iterable
 
     def test_clean_incomplete_data_required(self):
         clean = BatchActionsField(model=FakeContact).clean
 
         # No name
-        self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper"}]')
+        self.assertFieldValidationError(
+            BatchActionsField, 'required', clean, '[{"operator": "upper"}]',
+        )
 
         # No operator
-        self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"name": "first_name"}]')
+        self.assertFieldValidationError(
+            BatchActionsField, 'required', clean, '[{"name": "first_name"}]',
+        )
 
         # Value has no 'value' key
-        self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper", "name": "first_name"}]')
+        self.assertFieldValidationError(
+            BatchActionsField, 'required', clean, '[{"operator": "upper", "name": "first_name"}]'
+        )
 
     def test_clean_invalid_field(self):
         clean = BatchActionsField(model=FakeContact).clean
 
-        self.assertFieldValidationError(BatchActionsField, 'invalidfield', clean,
-                                        self.build_data(name='boobies_size',  # <---
-                                                        operator='upper',
-                                                        value='',
-                                                       )
-                                        )
-        self.assertFieldValidationError(BatchActionsField, 'invalidfield', clean,
-                                        self.build_data(name='header_filter_search_field',  # Not editable
-                                                        operator='upper',
-                                                        value='',
-                                                       )
-                                       )
-        self.assertFieldValidationError(BatchActionsField, 'invalidfield', clean,
-                                        self.build_data(name='civility',  # Type not managed
-                                                        operator='upper',
-                                                        value='',
-                                                       )
-                                        )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidfield', clean,
+            self.build_data(
+                name='boobies_size',  # <---
+                operator='upper',
+                value='',
+            ),
+        )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidfield', clean,
+            self.build_data(
+                name='header_filter_search_field',  # Not editable
+                operator='upper',
+                value='',
+            ),
+        )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidfield', clean,
+            self.build_data(
+                name='civility',  # Type not managed
+                operator='upper',
+                value='',
+            ),
+        )
 
     def test_clean_invalid_operator01(self):
         clean = BatchActionsField(model=FakeContact).clean
-        self.assertFieldValidationError(BatchActionsField, 'invalidoperator', clean,
-                                        self.build_data(name='first_name',
-                                                        operator='unknown_op',  # <--
-                                                        value='',
-                                                       )
-                                       )
-        self.assertFieldValidationError(BatchActionsField, 'invalidoperator', clean,
-                                        self.build_data(name='first_name',
-                                                        operator='add_int',  # Apply to int, not str
-                                                        value='5',
-                                                       )
-                                       )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidoperator', clean,
+            self.build_data(
+                name='first_name',
+                operator='unknown_op',  # <--
+                value='',
+            ),
+        )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidoperator', clean,
+            self.build_data(
+                name='first_name',
+                operator='add_int',  # Apply to int, not str
+                value='5',
+            ),
+        )
 
     def test_value_required(self):
         clean = BatchActionsField(model=FakeContact).clean
-        self.assertFieldValidationError(BatchActionsField, 'invalidvalue', clean,
-                                        self.build_data(name='first_name',
-                                                        operator='suffix',
-                                                        value='',
-                                                       ),
-                                        message_args={'error': _("The operator '{}' needs a value.").format(_('Suffix'))},
-                                       )
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidvalue', clean,
+            self.build_data(
+                name='first_name',
+                operator='suffix',
+                value='',
+            ),
+            message_args={
+                'error': _("The operator '{}' needs a value.").format(_('Suffix')),
+            },
+        )
 
     def test_value_typeerror(self):
         clean = BatchActionsField(model=FakeContact).clean
@@ -119,7 +148,9 @@ class BatchActionsFieldTestCase(FieldTestCase):
                              )
         self.assertEqual(1, len(actions))
 
-        contact = FakeContact(first_name='faye', last_name='Valentine', description='yarglaaaaaaaaaaa')
+        contact = FakeContact(
+            first_name='faye', last_name='Valentine', description='yarglaaaaaaaaaaa',
+        )
         actions[0](contact)
         self.assertEqual('YARGLAAAAAAAAAAA', contact.description)
 

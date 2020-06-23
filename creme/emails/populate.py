@@ -50,7 +50,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_MAIL_RECEIVED).exists()
+        already_populated = RelationType.objects.filter(
+            pk=constants.REL_SUB_MAIL_RECEIVED,
+        ).exists()
 
         EmailCampaign = emails.get_emailcampaign_model()
         EmailTemplate = emails.get_emailtemplate_model()
@@ -61,15 +63,23 @@ class Populator(BasePopulator):
         Organisation = persons.get_organisation_model()
 
         # ---------------------------
-        SettingValue.objects.get_or_create(key_id=emailcampaign_sender.id, defaults={'value': ''})
+        SettingValue.objects.get_or_create(
+            key_id=emailcampaign_sender.id, defaults={'value': ''},
+        )
 
         # ---------------------------
-        RelationType.create((constants.REL_SUB_MAIL_RECEIVED, _('(email) received by'),  [EntityEmail]),
-                            (constants.REL_OBJ_MAIL_RECEIVED, _('received the email'),   [Organisation, Contact]))
-        RelationType.create((constants.REL_SUB_MAIL_SENDED,   _('(email) sent by'),      [EntityEmail]),
-                            (constants.REL_OBJ_MAIL_SENDED,   _('sent the email'),       [Organisation, Contact]))
-        RelationType.create((constants.REL_SUB_RELATED_TO,    _('(email) related to'),   [EntityEmail]),
-                            (constants.REL_OBJ_RELATED_TO,    _('related to the email'), []))
+        RelationType.create(
+            (constants.REL_SUB_MAIL_RECEIVED, _('(email) received by'),  [EntityEmail]),
+            (constants.REL_OBJ_MAIL_RECEIVED, _('received the email'),   [Organisation, Contact]),
+        )
+        RelationType.create(
+            (constants.REL_SUB_MAIL_SENDED,   _('(email) sent by'),      [EntityEmail]),
+            (constants.REL_OBJ_MAIL_SENDED,   _('sent the email'),       [Organisation, Contact]),
+        )
+        RelationType.create(
+            (constants.REL_SUB_RELATED_TO,    _('(email) related to'),   [EntityEmail]),
+            (constants.REL_OBJ_RELATED_TO,    _('related to the email'), []),
+        )
 
         # ---------------------------
         create_hf = HeaderFilter.objects.create_if_needed
@@ -101,22 +111,36 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_searchconf = SearchConfigItem.objects.create_if_needed
-        create_searchconf(EmailCampaign, ['name', 'mailing_lists__name'])
-        create_searchconf(MailingList,   ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name'])
-        create_searchconf(EmailTemplate, ['name', 'subject', 'body', 'attachments__title'])
-        create_searchconf(EntityEmail,   ['sender', 'recipient', 'subject'])
+        create_searchconf(
+            EmailCampaign, ['name', 'mailing_lists__name'],
+        )
+        create_searchconf(
+            MailingList,
+            [
+                'name', 'children__name',
+                'contacts__first_name', 'contacts__last_name',
+                'organisations__name',
+            ],
+        )
+        create_searchconf(
+            EmailTemplate,
+            ['name', 'subject', 'body', 'attachments__title'],
+        )
+        create_searchconf(
+            EntityEmail, ['sender', 'recipient', 'subject'],
+        )
 
         # ---------------------------
         create_job = Job.objects.get_or_create
         create_job(type_id=entity_emails_send_type.id,
                    defaults={'language': settings.LANGUAGE_CODE,
                              'status':   Job.STATUS_OK,
-                            }
+                            },
                   )
         create_job(type_id=campaign_emails_send_type.id,
                    defaults={'language': settings.LANGUAGE_CODE,
                              'status':   Job.STATUS_OK,
-                            }
+                            },
                   )
 
         # ---------------------------
@@ -161,57 +185,89 @@ class Populator(BasePopulator):
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            create_bdl(brick=cbci_email.generate_id(),      order=5,   zone=LEFT,  model=EntityEmail)
-            create_bdl(brick=bricks.EmailHTMLBodyBrick,     order=20,  zone=LEFT,  model=EntityEmail)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=EntityEmail)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=EntityEmail)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=EntityEmail)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=EntityEmail)
+            def create_multi_bdl(model, info):
+                for brick, order, zone in info:
+                    if brick == 'model':
+                        create_bdl_4_model(order=order, zone=zone, model=model)
+                    else:
+                        create_bdl(brick=brick, order=order, zone=zone, model=model)
 
-            create_bdl_4_model(                             order=5,   zone=LEFT,  model=MailingList)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=MailingList)
-            create_bdl(brick=bricks.EmailRecipientsBrick,   order=80,  zone=LEFT,  model=MailingList)
-            create_bdl(brick=bricks.ContactsBrick,          order=90,  zone=LEFT,  model=MailingList)
-            create_bdl(brick=bricks.OrganisationsBrick,     order=95,  zone=LEFT,  model=MailingList)
-            create_bdl(brick=bricks.ChildListsBrick,        order=100, zone=LEFT,  model=MailingList)
-            create_bdl(brick=bricks.ParentListsBrick,       order=105, zone=LEFT,  model=MailingList)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=MailingList)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=MailingList)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=MailingList)
-
-            create_bdl(brick=bricks.SendingsBrick,          order=2,   zone=TOP,   model=EmailCampaign)
-            create_bdl_4_model(                             order=5,   zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick=bricks.MailingListsBrick,      order=120, zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=EmailCampaign)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=EmailCampaign)
-
-            create_bdl(brick=cbci_template.generate_id(),   order=5,   zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick=bricks.AttachmentsBrick,       order=60,  zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick=bricks.TemplateHTMLBodyBrick,  order=70,  zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=EmailTemplate)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=EmailTemplate)
+            create_multi_bdl(
+                EntityEmail,
+                [
+                    (cbci_email.generate_id(),       5,  LEFT),
+                    (bricks.EmailHTMLBodyBrick,      20, LEFT),
+                    (core_bricks.CustomFieldsBrick,  40, LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+                    (core_bricks.HistoryBrick,       20, RIGHT),
+                ]
+            )
+            create_multi_bdl(
+                MailingList,
+                [
+                    ('model',                         5, LEFT),
+                    (core_bricks.CustomFieldsBrick,  40, LEFT),
+                    (bricks.EmailRecipientsBrick,    80, LEFT),
+                    (bricks.ContactsBrick,           90, LEFT),
+                    (bricks.OrganisationsBrick,      95, LEFT),
+                    (bricks.ChildListsBrick,        100, LEFT),
+                    (bricks.ParentListsBrick,       105, LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+                    (core_bricks.HistoryBrick,       20, RIGHT),
+                ]
+            )
+            create_multi_bdl(
+                EmailCampaign,
+                [
+                    (bricks.SendingsBrick,            2,  TOP),
+                    ('model',                         5, LEFT),
+                    (core_bricks.CustomFieldsBrick,  40, LEFT),
+                    (bricks.MailingListsBrick,      120, LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+                    (core_bricks.HistoryBrick,       20, RIGHT),
+                ]
+            )
+            create_multi_bdl(
+                EmailTemplate,
+                [
+                    (cbci_template.generate_id(),     5, LEFT),
+                    (core_bricks.CustomFieldsBrick,  40, LEFT),
+                    (bricks.AttachmentsBrick,        60, LEFT),
+                    (bricks.TemplateHTMLBodyBrick,   70, LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+                    (core_bricks.HistoryBrick,       20, RIGHT),
+                ]
+            )
 
             # 'persons' app
             create_bdl(brick=bricks.MailsHistoryBrick, order=600, zone=RIGHT, model=Contact)
             create_bdl(brick=bricks.MailsHistoryBrick, order=600, zone=RIGHT, model=Organisation)
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail views')
+                logger.info(
+                    'Assistants app is installed => we use the assistants blocks on detail views'
+                )
 
                 from creme.assistants import bricks as a_bricks
 
                 for model in (MailingList, EmailCampaign, EmailTemplate):
-                    create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT, model=model)
+                    create_multi_bdl(
+                        model,
+                        [
+                            (a_bricks.TodosBrick,        100, RIGHT),
+                            (a_bricks.MemosBrick,        200, RIGHT),
+                            (a_bricks.AlertsBrick,       300, RIGHT),
+                            (a_bricks.UserMessagesBrick, 400, RIGHT),
+                        ]
+                    )
 
             if apps.is_installed('creme.documents'):
-                # logger.info("Documents app is installed => we use the documents block on EmailCampaign's detail view")
+                # logger.info("Documents app is installed
+                # => we use the documents block on EmailCampaign's detail view")
 
                 from creme.documents.bricks import LinkedDocsBrick
 

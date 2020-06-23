@@ -60,11 +60,12 @@ def get_hg_info() -> dict:
     # ...
 
     # NB: it seems the date format does not work on very old HG (ok with 3.7+ at least)
-    hg_log = subprocess.Popen("""hg log -r tip --template '{date(date, "%Y-%m-%dT%H:%M%z")}#{node}'""",
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              shell=True, cwd=repo_dir,
-                              universal_newlines=True,
-                             )
+    hg_log = subprocess.Popen(
+        """hg log -r tip --template '{date(date, "%Y-%m-%dT%H:%M%z")}#{node}'""",
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        shell=True, cwd=repo_dir,
+        universal_newlines=True,
+    )
 
     raw_result, error = hg_log.communicate()
 
@@ -74,17 +75,26 @@ def get_hg_info() -> dict:
         try:
             date_str, changeset_id = raw_result.split('#', 1)
         except ValueError:
-            logger.warning('Error in creme_core.utils.version.get_hg_info() ; received: %s', raw_result)
+            logger.warning(
+                'Error in creme_core.utils.version.get_hg_info(): '
+                'received: %s', raw_result,
+            )
         else:
             info['id'] = changeset_id
 
             try:
                 date_obj = parse_datetime(date_str)
             except ValueError as e:
-                logger.warning('Error in creme_core.utils.version.get_hg_info(): invalid date info (%s)', e)
+                logger.warning(
+                    'Error in creme_core.utils.version.get_hg_info(): '
+                    'invalid date info (%s)', e
+                )
             else:
                 if date_obj is None:
-                    logger.warning('Error in creme_core.utils.version.get_hg_info(): date info is not well formatted (%s)', date_str)
+                    logger.warning(
+                        'Error in creme_core.utils.version.get_hg_info(): '
+                        'date info is not well formatted (%s)', date_str,
+                    )
                 else:
                     info['date'] = localtime(date_obj)
 

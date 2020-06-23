@@ -60,9 +60,10 @@ Activity = get_activity_model()
 
 
 class _ActivityForm(CremeEntityForm):
-    type_selector = ActivityTypeField(label=_('Type'),
-                                      types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
-                                     )
+    type_selector = ActivityTypeField(
+        label=_('Type'),
+        types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
+    )
 
     start_time = TimeField(label=_('Start time'), required=False)
     end_time   = TimeField(label=_('End time'), required=False)
@@ -122,7 +123,8 @@ class _ActivityForm(CremeEntityForm):
         start_time = get('start_time')
         end_time   = get('end_time')
 
-        # TODO: not start, not end, start time, end time => floating activity with time set but lost in the process
+        # TODO: not start, not end, start time, end time =>
+        #       floating activity with time set but lost in the process
 
         if start_time is None and end_time is None:
             if not is_all_day:
@@ -150,7 +152,8 @@ class _ActivityForm(CremeEntityForm):
 
                 if (is_all_day or floating_type == constants.FLOATING_TIME) and tdelta.days:
                     # In 'all day' mode, we round the number of day
-                    days = tdelta.days - 1  # Activity already takes 1 day (we do not want it takes 2)
+                    # Activity already takes 1 day (we do not want it takes 2)
+                    days = tdelta.days - 1
 
                     if tdelta.seconds:
                         days += 1
@@ -231,10 +234,11 @@ class ActivityEditForm(_ActivityForm):
 
 
 class _ActivityCreateForm(_ActivityForm):
-    participating_users = ModelMultipleChoiceField(label=_('Other participating users'),
-                                                   queryset=get_user_model().objects.filter(is_staff=False),
-                                                   required=False,
-                                                  )
+    participating_users = ModelMultipleChoiceField(
+        label=_('Other participating users'),
+        queryset=get_user_model().objects.filter(is_staff=False),
+        required=False,
+    )
 
     # TODO: factorise with ParticipantCreateForm
     def clean_participating_users(self):
@@ -246,10 +250,12 @@ class _ActivityCreateForm(_ActivityForm):
             else:
                 users.update(user.teammates.values())
 
-        self.participants.update(validators.validate_linkable_entities(Contact.objects.filter(is_user__in=users),
-                                                                       self.user,
-                                                                      )
-                                )
+        self.participants.update(
+            validators.validate_linkable_entities(
+                Contact.objects.filter(is_user__in=users),
+                self.user,
+            )
+        )
 
         return users
 
@@ -264,11 +270,19 @@ class _ActivityCreateForm(_ActivityForm):
 
 
 class ActivityCreateForm(_ActivityCreateForm):
-    my_participation = UserParticipationField(label=_('Do I participate to this activity?'), empty_label=None)
+    my_participation = UserParticipationField(
+        label=_('Do I participate to this activity?'), empty_label=None,
+    )
 
-    other_participants  = MultiCreatorEntityField(label=_('Other participants'), model=Contact, required=False)
-    subjects            = MultiGenericEntityField(label=_('Subjects'), required=False)
-    linked_entities     = MultiGenericEntityField(label=_('Entities linked to this activity'), required=False)
+    other_participants = MultiCreatorEntityField(
+        label=_('Other participants'), model=Contact, required=False,
+    )
+    subjects = MultiGenericEntityField(
+        label=_('Subjects'), required=False,
+    )
+    linked_entities = MultiGenericEntityField(
+        label=_('Entities linked to this activity'), required=False,
+    )
 
     error_messages = {
         **_ActivityCreateForm.error_messages,
@@ -277,11 +291,15 @@ class ActivityCreateForm(_ActivityCreateForm):
     }
 
     blocks = _ActivityForm.blocks.new(
-        ('datetime', _('When'),
-         ['start', 'start_time', 'end', 'end_time', 'is_all_day']
+        (
+            'datetime', _('When'),
+            ['start', 'start_time', 'end', 'end_time', 'is_all_day'],
         ),
-        ('participants', _('Participants & subjects'),
-         ['my_participation', 'participating_users', 'other_participants', 'subjects', 'linked_entities']
+        (
+            'participants', _('Participants & subjects'),
+            ['my_participation', 'participating_users', 'other_participants',
+             'subjects', 'linked_entities',
+            ],
         ),
         ('alert_datetime', _('Generate an alert on a specific date'), ['alert_start']),
         ('alert_period',   _('Generate an alert in a while'),         ['alert_period']),
@@ -297,7 +315,10 @@ class ActivityCreateForm(_ActivityCreateForm):
             # TODO: improve help_text of end (we know the type default duration)
             fields['type_selector'].types = ActivityType.objects.filter(pk=activity_type_id)
 
-        fields['my_participation'].initial = (True, Calendar.objects.get_default_calendar(user).id)
+        fields['my_participation'].initial = (
+            True,
+            Calendar.objects.get_default_calendar(user).id,
+        )
 
         subjects_field = fields['subjects']
         subjects_field.allowed_models = [
@@ -307,7 +328,9 @@ class ActivityCreateForm(_ActivityCreateForm):
                                   .subject_ctypes.all()
         ]
         if is_auto_orga_subject_enabled():
-            subjects_field.help_text = _('The organisations of the participants will be automatically added as subjects')
+            subjects_field.help_text = _(
+                'The organisations of the participants will be automatically added as subjects'
+            )
 
         fields['participating_users'].queryset = get_user_model().objects.filter(is_staff=False) \
                                                                          .exclude(pk=user.id)
@@ -324,17 +347,18 @@ class ActivityCreateForm(_ActivityCreateForm):
 
     @staticmethod
     def _add_specified_alert_fields(fields):
-        fields['alert_start'] = DateTimeField(label=_('Generate an alert on a specific date'), required=False)
+        fields['alert_start'] = DateTimeField(
+            label=_('Generate an alert on a specific date'), required=False,
+        )
 
     @staticmethod
     def _add_duration_alert_fields(fields):
-        fields['alert_period'] = DatePeriodField(label=_('Generate an alert in a while'),
-                                                 required=False,
-                                                 help_text=_("How long before the activity's"
-                                                             " start the alert is raised?"
-                                                            ),
-                                                 period_names=('minutes', 'hours', 'days', 'weeks'),
-                                                )
+        fields['alert_period'] = DatePeriodField(
+            label=_('Generate an alert in a while'),
+            required=False,
+            help_text=_("How long before the activity's start the alert is raised?"),
+            period_names=('minutes', 'hours', 'days', 'weeks'),
+        )
 
     @staticmethod
     def _add_informed_users_fields(fields):
@@ -503,9 +527,10 @@ class CalendarActivityCreateForm(ActivityCreateForm):
 
 
 class IndisponibilityCreateForm(_ActivityCreateForm):
-    type_selector = ModelChoiceField(label=_('Unavailability type'), required=False,
-                                     queryset=ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_INDISPO),
-                                    )
+    type_selector = ModelChoiceField(
+        label=_('Unavailability type'), required=False,
+        queryset=ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_INDISPO),
+    )
 
     class Meta(_ActivityCreateForm.Meta):
         exclude = (
@@ -515,7 +540,11 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
         )  # TODO: test
 
     blocks = _ActivityCreateForm.blocks.new(
-        ('datetime',     _('When'),         ['is_all_day', 'start', 'start_time', 'end', 'end_time']),
+        (
+            'datetime',
+            _('When'),
+            ['is_all_day', 'start', 'start_time', 'end', 'end_time'],
+        ),
         ('participants', _('Participants'), ['participating_users']),
     )
 
@@ -539,6 +568,7 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
         return super().clean()
 
     def _get_activity_type_n_subtype(self):
-        return (ActivityType.objects.get(pk=constants.ACTIVITYTYPE_INDISPO),
-                self.cleaned_data['type_selector'],
-               )
+        return (
+            ActivityType.objects.get(pk=constants.ACTIVITYTYPE_INDISPO),
+            self.cleaned_data['type_selector'],
+        )

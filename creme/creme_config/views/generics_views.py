@@ -248,7 +248,9 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
             else:
                 # TODO: if STATUS_ERROR, show a popup with the errors ?
                 raise ConflictError(
-                    gettext('A deletion process for an instance of «{model}» already exists.').format(
+                    gettext(
+                        'A deletion process for an instance of «{model}» already exists.'
+                    ).format(
                         model=type(instance)._meta.verbose_name,
                     )
                 )

@@ -270,18 +270,27 @@ class ImportingTestCase(CremeTestCase):
                 'exportable_ctypes': ['creme_core.fakecontact'],
 
                 'credentials': [
-                    {'value': EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-                     'type':  SetCredentials.ESET_OWN,
-                    },
-                    {'value': EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                     'type':  SetCredentials.ESET_ALL,
-                     'ctype': 'creme_core.fakecontact',
-                     'forbidden': False,
-                    },
-                    {'value': EntityCredentials.CHANGE,
-                     'type': SetCredentials.ESET_OWN,
-                     'ctype': 'creme_core.fakeorganisation',
-                     'forbidden': True,
+                    {
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.LINK
+                        ),
+                        'type':  SetCredentials.ESET_OWN,
+                    }, {
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.DELETE
+                        ),
+                        'type':  SetCredentials.ESET_ALL,
+                        'ctype': 'creme_core.fakecontact',
+                        'forbidden': False,
+                    }, {
+                        'value': EntityCredentials.CHANGE,
+                        'type': SetCredentials.ESET_OWN,
+                        'ctype': 'creme_core.fakeorganisation',
+                        'forbidden': True,
                     },
                 ]
             }],
@@ -371,8 +380,13 @@ class ImportingTestCase(CremeTestCase):
                 'exportable_ctypes': ['creme_core.fakeorganisation'],
 
                 'credentials': [
-                    {'value': EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                     'type':  SetCredentials.ESET_ALL,
+                    {
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.DELETE
+                        ),
+                        'type':  SetCredentials.ESET_ALL,
                     },
                 ]
             }],
@@ -564,16 +578,34 @@ class ImportingTestCase(CremeTestCase):
             {'id': bricks.PropertiesBrick.id_, 'order': 5, 'zone': BOTTOM, 'ctype': ct_str},
 
             # FakeContact for existing role
-            {'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,    'ctype': ct_str, 'role': role.name},
-            {'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,   'ctype': ct_str, 'role': role.name},
-            {'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,  'ctype': ct_str, 'role': role.name},
-            {'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM, 'ctype': ct_str, 'role': role.name},
+            {
+                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                'ctype': ct_str, 'role': role.name,
+            }, {
+                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                'ctype': ct_str, 'role': role.name,
+            }, {
+                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
+                'ctype': ct_str, 'role': role.name,
+            }, {
+                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                'ctype': ct_str, 'role': role.name,
+            },
 
             # FakeContact for superuser
-            {'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,    'ctype': ct_str, 'superuser': True},
-            {'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,   'ctype': ct_str, 'superuser': True},
-            {'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,  'ctype': ct_str, 'superuser': True},
-            {'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM, 'ctype': ct_str, 'superuser': True},
+            {
+                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                'ctype': ct_str, 'superuser': True,
+            }, {
+                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                'ctype': ct_str, 'superuser': True,
+            }, {
+                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
+                'ctype': ct_str, 'superuser': True,
+            }, {
+                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                'ctype': ct_str, 'superuser': True,
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'detail_bricks': bricks_data}))
@@ -677,10 +709,19 @@ class ImportingTestCase(CremeTestCase):
             {'id': bricks.PropertiesBrick.id_,   'order': 15, 'zone': BOTTOM},
 
             # FakeContact for our role
-            {'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,    'ctype': ct_str, 'role': role_name},
-            {'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,   'ctype': ct_str, 'role': role_name},
-            {'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,  'ctype': ct_str, 'role': role_name},
-            {'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM, 'ctype': ct_str, 'role': role_name},
+            {
+                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                'ctype': ct_str, 'role': role_name,
+            }, {
+                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                'ctype': ct_str, 'role': role_name,
+            }, {
+                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
+                'ctype': ct_str, 'role': role_name,
+            }, {
+                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                'ctype': ct_str, 'role': role_name,
+            },
         ]
         data = {
             'version': '1.0',
@@ -694,8 +735,13 @@ class ImportingTestCase(CremeTestCase):
                 'exportable_ctypes': [],
 
                 'credentials': [
-                    {'value': EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                     'type':  SetCredentials.ESET_ALL,
+                    {
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.DELETE
+                        ),
+                        'type':  SetCredentials.ESET_ALL,
                     },
                 ],
             }],
@@ -792,8 +838,13 @@ class ImportingTestCase(CremeTestCase):
                 'exportable_ctypes': [],
 
                 'credentials': [
-                    {'value': EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                     'type':  SetCredentials.ESET_ALL,
+                    {
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.DELETE
+                        ),
+                        'type':  SetCredentials.ESET_ALL,
                     },
                 ],
             }],
@@ -873,8 +924,11 @@ class ImportingTestCase(CremeTestCase):
         create_button(id=id_fmt(1), order=1, button_id=gen_bid(1))
         create_button(id=id_fmt(2), order=2, button_id=gen_bid(2))
 
-        # orga_bmi = create_button(id=id_fmt(10), order=1, button_id=gen_bid(3), content_type=get_ct(FakeOrganisation))
-        orga_bmi = create_button(id=id_fmt(10), order=1, button_id=gen_bid(3), content_type=FakeOrganisation)
+        # orga_bmi = create_button(id=id_fmt(10), order=1, button_id=gen_bid(3),
+        #                          content_type=get_ct(FakeOrganisation))
+        orga_bmi = create_button(
+            id=id_fmt(10), order=1, button_id=gen_bid(3), content_type=FakeOrganisation,
+        )
 
         ct_str = 'creme_core.fakecontact'
         buttons_data = [
@@ -924,14 +978,22 @@ class ImportingTestCase(CremeTestCase):
 
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
-        sci1 = self.get_object_or_fail(SearchConfigItem, content_type=contact_ct, role=None, superuser=False)
+        sci1 = self.get_object_or_fail(
+            SearchConfigItem, content_type=contact_ct, role=None, superuser=False,
+        )
         fields1 = sci1.searchfields
         self.assertEqual(2, len(fields1))
         self.assertEqual('first_name', fields1[0].name)
 
-        self.get_object_or_fail(SearchConfigItem, content_type=get_ct(FakeOrganisation), role=role)
-        self.get_object_or_fail(SearchConfigItem, content_type=get_ct(FakeDocument),     superuser=True)
-        self.get_object_or_fail(SearchConfigItem, content_type=get_ct(FakeActivity),     disabled=True)
+        self.get_object_or_fail(
+            SearchConfigItem, content_type=get_ct(FakeOrganisation), role=role,
+        )
+        self.get_object_or_fail(
+            SearchConfigItem, content_type=get_ct(FakeDocument), superuser=True,
+        )
+        self.get_object_or_fail(
+            SearchConfigItem, content_type=get_ct(FakeActivity), disabled=True,
+        )
 
     def test_search02(self):
         "Related role is imported"
@@ -939,8 +1001,11 @@ class ImportingTestCase(CremeTestCase):
 
         role_name = 'Super-hero'
         search_data = [
-            {'ctype': 'creme_core.fakecontact', 'fields': 'last_name,description', 'role': role_name},
-
+            {
+                'ctype': 'creme_core.fakecontact',
+                'fields': 'last_name,description',
+                'role': role_name,
+            },
         ]
         data = {
             'version': '1.0',
@@ -954,8 +1019,13 @@ class ImportingTestCase(CremeTestCase):
                 'exportable_ctypes': [],
 
                 'credentials': [
-                    {'value': EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-                     'type':  SetCredentials.ESET_ALL,
+                    {
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.DELETE
+                        ),
+                        'type':  SetCredentials.ESET_ALL,
                     },
                 ],
             }],
@@ -989,8 +1059,10 @@ class ImportingTestCase(CremeTestCase):
         ptypes_data = [
             {'id': pk1, 'text': 'Is important', 'is_copiable': True},
             {'id': pk2, 'text': 'Is funny',     'is_copiable': False},
-            # dict(ptype3_data, subject_ctypes=['creme_core.fakecontact', 'creme_core.fakeorganisation']),
-            {**ptype3_data, 'subject_ctypes': ['creme_core.fakecontact', 'creme_core.fakeorganisation']},
+            {
+                **ptype3_data,
+                'subject_ctypes': ['creme_core.fakecontact', 'creme_core.fakeorganisation'],
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'property_types': ptypes_data}))
@@ -1034,7 +1106,9 @@ class ImportingTestCase(CremeTestCase):
 
         # ptype = CremePropertyType.objects.filter(is_custom=False).first()
         # self.assertIsNotNone(ptype)
-        ptype = CremePropertyType.objects.create(pk='creme_config-test_import_property_types03', text='Sugoi !')
+        ptype = CremePropertyType.objects.create(
+            pk='creme_config-test_import_property_types03', text='Sugoi !',
+        )
 
         ptypes_data = [{'id': ptype.id, 'text': 'Is important', 'is_copiable': True}]
         json_file = StringIO(json_dump({'version': '1.0', 'property_types': ptypes_data}))
@@ -1050,9 +1124,15 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         # ptype1 = CremePropertyType.objects.first(); self.assertIsNotNone(ptype1)
-        ptype1 = CremePropertyType.create('creme_config-test_import_relation_types01_1', 'Is very important')
-        ptype2 = CremePropertyType.create('creme_config-test_import_relation_types01_2', 'Is important', is_custom=True)
-        ptype3 = CremePropertyType.create('creme_config-test_import_relation_types01_3', 'Is hot',       is_custom=True)
+        ptype1 = CremePropertyType.create(
+            'creme_config-test_import_relation_types01_1', 'Is very important',
+        )
+        ptype2 = CremePropertyType.create(
+            'creme_config-test_import_relation_types01_2', 'Is important', is_custom=True,
+        )
+        ptype3 = CremePropertyType.create(
+            'creme_config-test_import_relation_types01_3', 'Is hot', is_custom=True,
+        )
 
         pk_fmt = 'creme_config-subject_test_import_relations_types01_{}'.format
         pk1a = pk_fmt(1)
@@ -1217,7 +1297,9 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         # ptype1 = CremePropertyType.objects.first(); self.assertIsNotNone(ptype1)
-        ptype1 = CremePropertyType.create('creme_config-test_import_relation_types05_1', 'Is very important')
+        ptype1 = CremePropertyType.create(
+            'creme_config-test_import_relation_types05_1', 'Is very important',
+        )
         ptype2_id = 'creme_config-test_import_relations_types05_2'
 
         rtypes_data = [
@@ -1266,13 +1348,18 @@ class ImportingTestCase(CremeTestCase):
         ct_str_o = 'creme_core.fakeorganisation'
 
         cfields_data = [
-            {'uuid': str(uuid_01), 'ctype': ct_str_c, 'name': 'Rating',    'type': CustomField.INT},
-            {'uuid': str(uuid_02), 'ctype': ct_str_o, 'name': 'Use OS ?',  'type': CustomField.BOOL},
-            {'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Languages', 'type': CustomField.ENUM,
-             'choices': ['C', 'Python'],
-            },
-            {'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Hobbies', 'type': CustomField.MULTI_ENUM,
-             'choices': ['Programming', 'Reading'],
+            {
+                'uuid': str(uuid_01), 'ctype': ct_str_c, 'name': 'Rating',
+                'type': CustomField.INT,
+            }, {
+                'uuid': str(uuid_02), 'ctype': ct_str_o, 'name': 'Use OS ?',
+                'type': CustomField.BOOL
+            }, {
+                'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Languages',
+                'type': CustomField.ENUM, 'choices': ['C', 'Python'],
+            }, {
+                'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Hobbies',
+                'type': CustomField.MULTI_ENUM, 'choices': ['Programming', 'Reading'],
             },
         ]
 
@@ -1314,7 +1401,10 @@ class ImportingTestCase(CremeTestCase):
 
         unknown_cfield_type = 1024
         cfields_data = [
-            {'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact', 'name': 'Rating', 'type': unknown_cfield_type},
+            {
+                'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact',
+                'name': 'Rating', 'type': unknown_cfield_type,
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'custom_fields': cfields_data}))
@@ -1337,7 +1427,10 @@ class ImportingTestCase(CremeTestCase):
                                   )
 
         cfields_data = [
-            {'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact', 'name': name, 'type': CustomField.INT},
+            {
+                'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact',
+                'name': name, 'type': CustomField.INT,
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'custom_fields': cfields_data}))
@@ -1353,13 +1446,17 @@ class ImportingTestCase(CremeTestCase):
         "UUID uniqueness."
         self.login(is_staff=True)
 
-        # cfield = CustomField.objects.create(content_type=ContentType.objects.get_for_model(FakeContact),
-        cfield = CustomField.objects.create(content_type=FakeContact,
-                                            name='Rating', field_type=CustomField.FLOAT,
-                                           )
+        # cfield = CustomField.objects.create(
+        #               content_type=ContentType.objects.get_for_model(FakeContact),
+        cfield = CustomField.objects.create(
+            content_type=FakeContact, name='Rating', field_type=CustomField.FLOAT,
+        )
 
         cfields_data = [
-            {'uuid': str(cfield.uuid), 'ctype': 'creme_core.fakecontact', 'name': 'Rank', 'type': CustomField.INT},
+            {
+                'uuid': str(cfield.uuid), 'ctype': 'creme_core.fakecontact',
+                'name': 'Rank', 'type': CustomField.INT,
+            },
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'custom_fields': cfields_data}))
@@ -1769,8 +1866,12 @@ class ImportingTestCase(CremeTestCase):
         rtype_id1 = 'creme_config-subject_test_import_entityfilter01'
         ptype_id1 = 'creme_config-test_import_entityfilter01'
 
-        ptype2 = CremePropertyType.create('creme_config-test_import_entityfilter01_1', 'Is very important')
-        rtype2 = RelationType.objects.filter(is_internal=False).first(); self.assertIsNotNone(rtype2)
+        ptype2 = CremePropertyType.create(
+            'creme_config-test_import_entityfilter01_1', 'Is very important',
+        )
+
+        rtype2 = RelationType.objects.filter(is_internal=False).first()
+        self.assertIsNotNone(rtype2)
 
         contact = other_user.linked_contact
 
@@ -1880,8 +1981,14 @@ class ImportingTestCase(CremeTestCase):
             'version': '1.0',
             'entity_filters': efilters_data,
             'custom_fields':  [
-                {'uuid': cf_uuid1, 'ctype': ct_str_c, 'name': 'Rating', 'type': CustomField.INT},
-                {'uuid': cf_uuid2, 'ctype': ct_str_c, 'name': 'Party',  'type': CustomField.DATETIME},
+                {
+                    'uuid': cf_uuid1, 'ctype': ct_str_c, 'name': 'Rating',
+                    'type': CustomField.INT,
+                },
+                {
+                    'uuid': cf_uuid2, 'ctype': ct_str_c, 'name': 'Party',
+                    'type': CustomField.DATETIME,
+                },
             ],
             'relation_types': [
                 {
@@ -1926,7 +2033,7 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id,
                          condition1_1.type
                         )
-        self.assertEqual('first_name',                    condition1_1.name)
+        self.assertEqual('first_name', condition1_1.name)
         self.assertDictEqual(
             {'operator': operators.EQUALS, 'values': ['Spike']},
             condition1_1.value
@@ -2385,7 +2492,9 @@ class ImportingTestCase(CremeTestCase):
         "Invalid condition: relation (invalid rtype)."
         self.login(is_staff=True)
 
-        rtype_id = 'creme_config-subject_test_import_entityfilter_error04_a'  # does not exist/not imported
+        # Does not exist/not imported
+        rtype_id = 'creme_config-subject_test_import_entityfilter_error04_a'
+
         ef_id = 'creme_config-test_import_entityfilters_error04'
         efilters_data = [
             {

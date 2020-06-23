@@ -57,9 +57,10 @@ class ButtonMenuAddForm(CremeForm):
 
 class ButtonMenuEditForm(CremeForm):
     # TODO: use EnhancedMultipleChoiceField + description of the button as help text ?
-    button_ids = MultipleChoiceField(label=_('Buttons to display'), required=False,
-                                     choices=(), widget=OrderedMultipleChoiceWidget,
-                                    )
+    button_ids = MultipleChoiceField(
+        label=_('Buttons to display'), required=False,
+        choices=(), widget=OrderedMultipleChoiceWidget,
+    )
 
     def __init__(self, button_menu_items, ct_id, button_registry=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,9 +80,11 @@ class ButtonMenuEditForm(CremeForm):
         else:
             model_class = self.ct.model_class()
 
-            default_conf_ids = frozenset(ButtonMenuItem.objects.filter(content_type=None)
-                                                               .values_list('button_id', flat=True)
-                                        )
+            default_conf_ids = frozenset(
+                ButtonMenuItem.objects
+                              .filter(content_type=None)
+                              .values_list('button_id', flat=True)
+            )
 
             for id_, button in button_registry:
                 ctypes = button.get_ctypes()
@@ -124,7 +127,9 @@ class ButtonMenuEditForm(CremeForm):
 
             for i, button_id in enumerate(button_ids):
                 if button_id in buttons_2_add:
-                    items_2_save.append(ButtonMenuItem(content_type=ct, button_id=button_id, order=i + offset))
+                    items_2_save.append(
+                        ButtonMenuItem(content_type=ct, button_id=button_id, order=i + offset)
+                    )
                 else:
                     bmi = BMI_get(content_type=ct, button_id=button_id)
 

@@ -186,8 +186,8 @@ class HTMLFieldSanitizing(generic.base.EntityRelatedMixin,
 #     if len(required_fields) == 1:
 #         required_field = required_fields[0]
 #         kwargs['printer'] = lambda field: str(field.verbose_name) \
-#                                           if field.name != required_field else \
-#                                           gettext('{field} [CREATION]').format(field=field.verbose_name)
+#             if field.name != required_field else \
+#             gettext('{field} [CREATION]').format(field=field.verbose_name)
 #
 #     is_hidden = FieldsConfig.get_4_model(model).is_field_hidden
 #
@@ -325,7 +325,10 @@ class SearchAndView(base.CheckedView):
         user = request.user
 
         for model in models:
-            query = self.build_q(model=model, value=value, field_names=field_names, fields_configs=fconfigs)
+            query = self.build_q(
+                model=model, value=value,
+                field_names=field_names, fields_configs=fconfigs,
+            )
 
             if query:  # Avoid useless query
                 found = EntityCredentials.filter(user, model.objects.filter(query)).first()
@@ -339,9 +342,12 @@ class SearchAndView(base.CheckedView):
         return issubclass(model, self.allowed_classes)
 
 
-# TODO: remove when bulk_update_registry has been rework to manage different type of cells (eg: RelationType => LINK)
+# TODO: remove when bulk_update_registry has been rework to manage different
+#       types of cells (eg: RelationType => LINK)
 def _bulk_has_perm(entity, user):  # NB: indeed 'entity' can be a simple model...
-    owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity  # TODO: factorise
+    # TODO: factorise
+    owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
+
     return user.has_perm_to_change(owner) if isinstance(owner, CremeEntity) else False
 
 
@@ -405,7 +411,8 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         meta = self.get_ctype().model_class()._meta
         # TODO: select_label in model instead (fr: masculin/féminin)
         context['help_message'] = format_html(
-            '<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}"></span>',
+            '<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}">'
+            '</span>',
             msg=gettext('{count} «{model}» has been selected.').format(
                 count='%s', model=meta.verbose_name,
             ),
@@ -498,8 +505,10 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
     def get_entities(self):
         if self.request.method == 'POST':
             entity_ids = self.get_entity_ids()
-            # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and nullable ids will fail with postgresql (both 9.6 & 10.x).
-            # TODO: This bug may be fixed in django>=2.0 (see https://code.djangoproject.com/ticket/28010)
+            # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and
+            #    nullable ids will fail with postgresql (both 9.6 & 10.x).
+            # TODO: This bug may be fixed in django>=2.0
+            #       (see https://code.djangoproject.com/ticket/28010)
             # entities = self.get_queryset().select_for_update().filter(pk__in=entity_ids)
             qs = self.get_queryset()
             entities = qs.filter(pk__in=entity_ids)
@@ -512,8 +521,9 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
             if not filtered:
                 raise PermissionDenied(_('You are not allowed to edit these entities'))
 
-            # NB (#60): Move 'SELECT FOR UPDATE' here for now. It could cause performance issues
-            # with a large amount of selected entities, but this never happens with common use cases.
+            # NB: Move 'SELECT FOR UPDATE' here for now.
+            #     It could cause performance issues with a large amount of
+            #     selected entities, but this never happens with common use cases.
             # return filtered
             return qs.select_for_update().filter(pk__in=filtered)
         else:
@@ -701,9 +711,6 @@ class Trash(generic.BricksView):
 #         progress = False
 #         errors = LimitedList(max_size=50)
 #
-#         # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and nullable ids will fail with postgresql (both 9.6 & 10.x).
-#         # todo: This bug may be fixed in django > 2.2 (see https://code.djangoproject.com/ticket/28010)
-#
 #         # for entity_class in entity_classes:
 #         #     paginator = FlowPaginator(
 #         #         queryset=EntityCredentials.filter(
@@ -733,19 +740,25 @@ class Trash(generic.BricksView):
 #             for entities_page in paginator.pages():
 #                 with atomic():
 #                     # NB (#60): Move 'SELECT FOR UPDATE' here for now (see above).
-#                     for entity in entity_class.objects.filter(pk__in=entities_page.object_list).select_for_update():
+#                     for entity in entity_class.objects.filter(
+#                         pk__in=entities_page.object_list
+#                     ).select_for_update():
 #                         try:
 #                             entity.delete()
 #                         except ProtectedError:
 #                             errors.append(
-#                                 gettext('«{entity}» can not be deleted because of its dependencies.').format(
+#                                 gettext(
+#                                     '«{entity}» can not be deleted because of its dependencies.'
+#                                 ).format(
 #                                     entity=entity.allowed_str(user)
 #                                 )
 #                             )
 #                         except Exception as e:
 #                             logger.exception('Error when trying to empty the trash')
 #                             errors.append(
-#                                 gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
+#                                 gettext(
+#                                     '«{entity}» deletion caused an unexpected error [{error}].'
+#                                 ).format(
 #                                     entity=entity.allowed_str(user),
 #                                     error=e,
 #                                 )
@@ -918,16 +931,24 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 #         related = entity.get_related_entity()
 #
 #         if related is None:
-#             logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id)
-#             return 403, gettext('You are not allowed to delete this entity: {}').format(entity.allowed_str(user))
+#             logger.critical(
+#                 'delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id
+#                 )
+#             return 403, gettext('You are not allowed to delete this entity: {}').format(
+#                 entity.allowed_str(user)
+#             )
 #
 #         if not user.has_perm_to_change(related):
-#             return 403, gettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
+#             return 403, gettext('{entity} : <b>Permission denied</b>').format(
+#                 entity=entity.allowed_str(user)
+#             )
 #
 #         trash = False
 #     else:
 #         if not user.has_perm_to_delete(entity):
-#             return 403, gettext('{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
+#             return 403, gettext('{entity} : <b>Permission denied</b>').format(
+#                 entity=entity.allowed_str(user)
+#             )
 #
 #         trash = not entity.is_deleted
 #
@@ -939,7 +960,9 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 #     except SpecificProtectedError as e:
 #         return (400,
 #                 '{} {}'.format(
-#                     gettext('«{entity}» can not be deleted.').format(entity=entity.allowed_str(user)),
+#                     gettext('«{entity}» can not be deleted.').format(
+#                         entity=entity.allowed_str(user)
+#                     ),
 #                     e.args[0],
 #                   ),
 #                )
@@ -1086,7 +1109,9 @@ class EntityDeletionMixin:
 # def delete_entities(request):
 #     "Delete several CremeEntities, with a Ajax call (POST method)."
 #     try:
-#         entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
+#         entity_ids = [
+#             int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id
+#         ]
 #     except ValueError:
 #         return HttpResponse('Bad POST argument', status=400)
 #
@@ -1132,7 +1157,11 @@ class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
 
     def get_entity_ids(self):
         try:
-            entity_ids = [int(e_id) for e_id in get_from_POST_or_404(self.request.POST, 'ids').split(',') if e_id]
+            entity_ids = [
+                int(e_id)
+                for e_id in get_from_POST_or_404(self.request.POST, 'ids').split(',')
+                if e_id
+            ]
         except ValueError as e:
             raise BadRequestError(f'Bad POST argument ({e})') from e
 
@@ -1154,10 +1183,11 @@ class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
             len_diff = len(entity_ids) - len(entities)
             if len_diff:
                 errors[404].append(
-                    ngettext("{count} entity doesn't exist or has been removed.",
-                             "{count} entities don't exist or have been removed.",
-                             len_diff
-                            ).format(count=len_diff)
+                    ngettext(
+                        "{count} entity doesn't exist or has been removed.",
+                        "{count} entities don't exist or have been removed.",
+                        len_diff
+                    ).format(count=len_diff)
                 )
 
             CremeEntity.populate_real_entities(entities)
@@ -1204,9 +1234,12 @@ class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
 #
 #         raise PermissionDenied(msg, args)
 #
-#     url = (entity.get_lv_absolute_url()                   if hasattr(entity, 'get_lv_absolute_url') else
-#            entity.get_related_entity().get_absolute_url() if hasattr(entity, 'get_related_entity') else
-#            reverse('creme_core__home'))
+#     url = (entity.get_lv_absolute_url()
+#            if hasattr(entity, 'get_lv_absolute_url') else
+#            entity.get_related_entity().get_absolute_url()
+#            if hasattr(entity, 'get_related_entity') else
+#            reverse('creme_core__home')
+#     )
 #
 #     if request.is_ajax():
 #         # NB: we redirect because this view can be used from the detail-view
@@ -1345,7 +1378,9 @@ class SuperusersRestriction(base.CheckedView):
             sandbox = entity.sandbox
 
             if not sandbox or str(sandbox.uuid) != self.sandbox_uuid:
-                raise ConflictError('This entity is not in the "Restricted to superusers" sandbox.')
+                raise ConflictError(
+                    'This entity is not in the "Restricted to superusers" sandbox.'
+                )
 
             entity.sandbox = None
             entity.save()

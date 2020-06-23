@@ -190,9 +190,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         response = self.assertPOST200(self._build_add_segmentdesc_url(strategy),
                                       data={'name': name},
                                      )
-        self.assertFormError(response, 'form', 'name',
-                             _('A property with the name «%(name)s» already exists') % {'name': pname}
-                            )
+        self.assertFormError(
+            response, 'form', 'name',
+            _('A property with the name «%(name)s» already exists') % {'name': pname}
+        )
 
     def test_segment_link(self):
         user = self.login()
@@ -439,23 +440,29 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Link the organisation(s)'), context.get('submit_label'))
 
         # ---
-        self.assertPOST200(url, data={'organisations': self.formfield_value_multi_creator_entity(orga)})
+        self.assertPOST200(
+            url, data={'organisations': self.formfield_value_multi_creator_entity(orga)},
+        )
         self.assertListEqual([orga], [*strategy.evaluated_orgas.all()])
 
-        response = self.assertGET200(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))
+        response = self.assertGET200(
+            reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)),
+        )
         self.assertTemplateUsed(response, 'commercial/orga_evaluation.html')
         self.assertTemplateUsed(response, 'commercial/templatetags/widget-score.html')
 
         get = response.context.get
         self.assertEqual(orga,     get('orga'))
         self.assertEqual(strategy, get('strategy'))
-        self.assertEqual(reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-                         get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+            get('bricks_reload_url')
+        )
 
         self.assertContains(
             response,
-            """<select onchange="creme.commercial.setScore(this, '{url}', {asset_id}, {segment_id}, {orga_id});">""".format(
+            """<select onchange="creme.commercial.setScore(this, '{url}', """
+            """{asset_id}, {segment_id}, {orga_id});">""".format(
                 url=reverse('commercial__set_asset_score', args=(strategy.id,)),
                 asset_id=asset.id,
                 segment_id=segment_desc.id,
@@ -464,7 +471,8 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         )
         self.assertContains(
             response,
-            """<select onchange="creme.commercial.setScore(this, '{url}', {asset_id}, {segment_id}, {orga_id});">""".format(
+            """<select onchange="creme.commercial.setScore(this, '{url}', """
+            """{asset_id}, {segment_id}, {orga_id});">""".format(
                 url=reverse('commercial__set_charm_score', args=(strategy.id,)),
                 asset_id=charm.id,
                 segment_id=segment_desc.id,
@@ -473,16 +481,19 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         )
 
         # ---
-        response = self.assertGET200(reverse('commercial__orga_synthesis', args=(strategy.id, orga.id)))
+        response = self.assertGET200(
+            reverse('commercial__orga_synthesis', args=(strategy.id, orga.id))
+        )
         self.assertTemplateUsed(response, 'commercial/orga_synthesis.html')
         self.assertContains(response, f'<li data-segment="{segment_desc.id}"')
 
         get = response.context.get
         self.assertEqual(orga,     get('orga'))
         self.assertEqual(strategy, get('strategy'))
-        self.assertEqual(reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-                         get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+            get('bricks_reload_url')
+        )
 
     @skipIfCustomOrganisation
     def test_view_evaluated_orga01(self):
@@ -570,14 +581,22 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         # Scores = strategy1/orga1
         self._set_asset_score(strategy1, orga1, asset1, segment_desc1, 3)
         self._set_charm_score(strategy1, orga1, charm1, segment_desc1, 3)
-        asset_score1 = self.get_object_or_fail(CommercialAssetScore,    organisation=orga1, segment_desc=segment_desc1)
-        charm_score1 = self.get_object_or_fail(MarketSegmentCharmScore, organisation=orga1, segment_desc=segment_desc1)
+        asset_score1 = self.get_object_or_fail(
+            CommercialAssetScore, organisation=orga1, segment_desc=segment_desc1,
+        )
+        charm_score1 = self.get_object_or_fail(
+            MarketSegmentCharmScore, organisation=orga1, segment_desc=segment_desc1,
+        )
 
         # Scores = strategy1/orga2
         self._set_asset_score(strategy1, orga2, asset1, segment_desc1, 3)
         self._set_charm_score(strategy1, orga2, charm1, segment_desc1, 3)
-        asset_score2 = self.get_object_or_fail(CommercialAssetScore,    organisation=orga2, segment_desc=segment_desc1)
-        charm_score2 = self.get_object_or_fail(MarketSegmentCharmScore, organisation=orga2, segment_desc=segment_desc1)
+        asset_score2 = self.get_object_or_fail(
+            CommercialAssetScore, organisation=orga2, segment_desc=segment_desc1,
+        )
+        charm_score2 = self.get_object_or_fail(
+            MarketSegmentCharmScore, organisation=orga2, segment_desc=segment_desc1,
+        )
 
         # Scores = strategy2
         segment_desc2 = self._create_segment_desc(strategy2, 'Consumers')
@@ -585,21 +604,34 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         charm2 = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy2)
         self._set_asset_score(strategy2, orga1, asset2, segment_desc2, 3)
         self._set_charm_score(strategy2, orga1, charm2, segment_desc2, 3)
-        asset_score3 = self.get_object_or_fail(CommercialAssetScore,    organisation=orga1, segment_desc=segment_desc2)
-        charm_score3 = self.get_object_or_fail(MarketSegmentCharmScore, organisation=orga1, segment_desc=segment_desc2)
+        asset_score3 = self.get_object_or_fail(
+            CommercialAssetScore, organisation=orga1, segment_desc=segment_desc2,
+        )
+        charm_score3 = self.get_object_or_fail(
+            MarketSegmentCharmScore, organisation=orga1, segment_desc=segment_desc2,
+        )
 
-        self.assertPOST200(reverse('commercial__remove_evaluated_orga', args=(strategy1.id,)),
-                           data={'id': orga1.id}, follow=True,
-                          )
+        self.assertPOST200(
+            reverse('commercial__remove_evaluated_orga', args=(strategy1.id,)),
+            data={'id': orga1.id}, follow=True,
+        )
         self.assertListEqual([orga2], [*strategy1.evaluated_orgas.all()])
 
         self.assertDoesNotExist(asset_score1)
-        self.get_object_or_fail(CommercialAssetScore, pk=asset_score2.pk)  # Not deleted (other orga)
-        self.get_object_or_fail(CommercialAssetScore, pk=asset_score3.pk)  # Not deleted (other strategy)
+
+        # Not deleted (other orga)
+        self.get_object_or_fail(CommercialAssetScore, pk=asset_score2.pk)
+
+        # Not deleted (other strategy)
+        self.get_object_or_fail(CommercialAssetScore, pk=asset_score3.pk)
 
         self.assertDoesNotExist(charm_score1)
-        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score2.pk)  # Not deleted (other orga)
-        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score3.pk)  # Not deleted (other strategy)
+
+        # Not deleted (other orga)
+        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score2.pk)
+
+        # Not deleted (other strategy)
+        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score3.pk)
 
     @skipIfCustomOrganisation
     def test_set_asset_score01(self):
@@ -943,9 +975,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self._set_asset_score(strategy, orga, asset, segment_desc, 1)
 
         brick_id = AssetsMatrixBrick.id_
-        response = self.assertGET200(reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-                                     data={'brick_id': brick_id},
-                                    )
+        response = self.assertGET200(
+            reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+            data={'brick_id': brick_id},
+        )
 
         result = response.json()
         self.assertIsInstance(result, list)
@@ -969,9 +1002,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self._set_charm_score(strategy, orga, charm, segment_desc, 1)
 
         brick_id = CharmsMatrixBrick.id_
-        response = self.assertGET200(reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-                                     data={'brick_id': brick_id},
-                                    )
+        response = self.assertGET200(
+            reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+            data={'brick_id': brick_id},
+        )
 
         result = response.json()[0]
         self.assertEqual(brick_id, result[0])
@@ -992,9 +1026,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self._set_charm_score(strategy, orga, charm, segment_desc, 1)
 
         brick_id = AssetsCharmsMatrixBrick.id_
-        response = self.assertGET200(reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-                                     data={'brick_id': brick_id},
-                                    )
+        response = self.assertGET200(
+            reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
+            data={'brick_id': brick_id},
+        )
 
         result = response.json()[0]
         self.assertEqual(brick_id, result[0])

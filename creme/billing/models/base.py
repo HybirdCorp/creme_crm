@@ -160,16 +160,23 @@ class Base(CremeEntity):
 
     # TODO: property + cache
     # TODO: factorise with get_target()
-    # TODO: return an Organisation instead of a CremeEntity ?? <- If doing this check calls to .get_source().get_real_entity()
+    # TODO: return an Organisation instead of a CremeEntity ??
+    #       (if "yes" doing this check calls to .get_source().get_real_entity())
     def get_source(self):
         try:
-            return Relation.objects.get(subject_entity=self.id, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None
+            return Relation.objects.get(
+                subject_entity=self.id,
+                type=REL_SUB_BILL_ISSUED,
+            ).object_entity if self.id else None
         except Relation.DoesNotExist:
             return None
 
     def get_target(self):
         try:
-            return Relation.objects.get(subject_entity=self.id, type=REL_SUB_BILL_RECEIVED).object_entity if self.id else None
+            return Relation.objects.get(
+                subject_entity=self.id,
+                type=REL_SUB_BILL_RECEIVED,
+            ).object_entity if self.id else None
         except Relation.DoesNotExist:
             return None
 
@@ -204,14 +211,17 @@ class Base(CremeEntity):
             real_content_type = self.entity_type
 
             try:
-                name_algo = ConfigBillingAlgo.objects.get(organisation=source, ct=real_content_type).name_algo
+                name_algo = ConfigBillingAlgo.objects.get(
+                    organisation=source, ct=real_content_type
+                ).name_algo
                 algo = algo_registry.get_algo(name_algo)
                 self.number = algo().generate_number(source, real_content_type)
             except Exception as e:
                 logger.debug('Exception during billing.generate_number(): %s', e)
 
     def get_lines(self, klass):
-        assert not klass._meta.abstract, '"klass" cannot be an abstract model (use ProductLine or ServiceLine)'
+        assert not klass._meta.abstract, \
+            '"klass" cannot be an abstract model (use ProductLine or ServiceLine)'
 
         cache = self._lines_cache
         lines = cache.get(klass)
@@ -255,7 +265,8 @@ class Base(CremeEntity):
         return max(DEFAULT_DECIMAL, lines_total - creditnotes_total)
 
     def _get_total_with_tax(self):
-        lines_total_with_tax, creditnotes_total = self._get_lines_total_n_creditnotes_total_with_tax()
+        lines_total_with_tax, creditnotes_total = \
+            self._get_lines_total_n_creditnotes_total_with_tax()
 
         return max(DEFAULT_DECIMAL, lines_total_with_tax - creditnotes_total)
 
@@ -270,7 +281,10 @@ class Base(CremeEntity):
         # Not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
         relation_create = Relation.objects.create
         class_map = relationtype_converter.get_class_map(source, self)
-        super()._copy_relations(source, allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED])
+        super()._copy_relations(
+            source,
+            allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED],
+        )
 
         for relation in source.relations.filter(type__is_internal=False,
                                                 type__is_copiable=True,

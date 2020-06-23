@@ -55,7 +55,9 @@ class CallersBrick(PaginatedBrick):
     def detailview_display(self, context):
         # from .views import RESPOND_TO_A_CALL_MODELS, Contact, Organisation, Activity
 
-        number = context['number']  # Ensure that it will crash if we try to load it from a classic load view
+        # Ensure that it will crash if we try to load it from a classic load view
+        number = context['number']
+
         user = context['user']
         filter_viewable = EntityCredentials.filter
         # fconfigs = FieldsConfig.objects.get_for_models(RESPOND_TO_A_CALL_MODELS)
@@ -74,10 +76,15 @@ class CallersBrick(PaginatedBrick):
 
             if queries:
                 all_fields_hidden = False
-                callers.extend(filter_viewable(user, model.objects.exclude(is_deleted=True).filter(reduce(or_, queries))))
+                callers.extend(filter_viewable(
+                    user,
+                    model.objects.exclude(is_deleted=True).filter(reduce(or_, queries)),
+                ))
 
         if all_fields_hidden:
-            raise ConflictError(_('All phone fields are hidden ; please contact your administrator.'))
+            raise ConflictError(
+                _('All phone fields are hidden ; please contact your administrator.')
+            )
 
         can_create = user.has_perm_to_create
 

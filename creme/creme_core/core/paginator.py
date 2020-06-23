@@ -68,17 +68,20 @@ class FlowPaginator:
 
     def __init__(self, queryset: QuerySet, key: str, per_page: int, count: int = sys.maxsize):
         """Constructor.
-        @param queryset: QuerySet instance. Beware: lines must have always the same order when
-                         sub-set queries are performed, or the paginated content won't be consistent.
-                         Tip: use the 'PK' as the (last) ordering field.
-        @param key: Name of the field used as key (ie: first ordering field). It can be a composed
-                    field name like 'user__username'. ManyToManyFields are not managed ; ForeignKeys
-                    must reference models with a Meta option 'ordering'.
+        @param queryset: QuerySet instance. Beware: lines must have always the
+               same order when sub-set queries are performed, or the paginated
+               content won't be consistent.
+               Tip: use the 'PK' as the (last) ordering field.
+        @param key: Name of the field used as key (ie: first ordering field).
+               It can be a composed field name like 'user__username'.
+               ManyToManyFields are not managed ; ForeignKeys must reference
+               models with a Meta option 'ordering'.
         @param per_page: Number of entities.
         @param count: Total number of entities (ie should be equal to object_list.count())
-                      (so no additional query is performed to get it).
-                      The default value _should_ be overridden with the correct value ; it is only useful
-                      when a whole queryset is iterated with pages() (because count is not used).
+               (so no additional query is performed to get it).
+               The default value _should_ be overridden with the correct value ;
+               it is only useful when a whole queryset is iterated with pages()
+               (because count is not used).
         @raise ValueError: If key is invalid.
         """
         assert per_page > 1
@@ -138,7 +141,8 @@ class FlowPaginator:
 
             if not subfield_ordering:
                 raise ValueError(
-                    f'Invalid key: related field model "{subfield_model}" should have Meta.ordering'
+                    f'Invalid key: related field model "{subfield_model}" '
+                    f'should have Meta.ordering'
                 )
 
             attr_name += '__' + subfield_ordering[0]
@@ -230,8 +234,10 @@ class FlowPaginator:
                           or None (which means 'first page').
         @return An instance of FlowPage.
 
-        @raise FirstPage: the first page has been reached when going backward (the page could be not complete).
-        @raise LastPage: it seems that the last page has been exceeded (this page is empty).
+        @raise FirstPage: the first page has been reached when going backward
+               (the page could be not complete).
+        @raise LastPage: it seems that the last page has been exceeded
+               (this page is empty).
         @raise InvalidPage: page_info is invalid.
 
         @see FlowPage.info()
@@ -245,7 +251,8 @@ class FlowPaginator:
         first_page = False
         move_type = page_info.get('type')
 
-        # PyCharm does not understand that it's not a problem to use list methods in local contexts...
+        # PyCharm does not understand that it's not a problem to use list
+        # methods in local contexts...
         # entities: Iterable[Model]
 
         if move_type == 'first' or self.count <= per_page:
@@ -275,8 +282,8 @@ class FlowPaginator:
 
                 # NB: we get 2 additional items:
                 #  - 1 will be the next_item of the page.
-                #  - if the second one exists, it indicates that there is at least one item before the page.
-                #    (so it is not the first one).
+                #  - if the second one exists, it indicates that there is at
+                #    least one item before the page (so it is not the first one).
                 size = per_page + 2
                 entities = [*qs.reverse()[offset:offset + size]]
 
@@ -294,11 +301,13 @@ class FlowPaginator:
             else:
                 raise InvalidPage('Invalid or missing "type".')
 
-        return FlowPage(object_list=entities, paginator=self, forward=forward,
-                        key=self._key, key_field_info=self._key_field_info, attr_name=self._attr_name,
-                        offset=offset, max_size=per_page,
-                        next_item=next_item, first_page=first_page,
-                       )
+        return FlowPage(
+            object_list=entities, paginator=self, forward=forward,
+            key=self._key, key_field_info=self._key_field_info,
+            attr_name=self._attr_name,
+            offset=offset, max_size=per_page,
+            next_item=next_item, first_page=first_page,
+        )
 
     def pages(self) -> Iterator['FlowPage']:
         page = self.page()
@@ -332,8 +341,10 @@ class FlowPage(Sequence):
         @param forward: Boolean ; True=>forward ; False=>backward.
         @param key: See FlowPaginator.
         @param key_field_info: Instance of FieldInfo corresponding to the key.
-        @param attr_name: (Composite) attribute name corresponding to the key (ie: key without the '-' prefix).
-        @param offset: Positive integer indicating the offset used with the key to get the object_list.
+        @param attr_name: (Composite) attribute name corresponding to the key
+               (ie: key without the '-' prefix).
+        @param offset: Positive integer indicating the offset used with the key
+               to get the object_list.
         @param max_size: Maximum size of pages with the paginator.
         @param next_item: First item of the next page ; 'None' if it's the last page.
         @param first_page: Indicates if its the first page (so there is no previous page).
@@ -387,7 +398,8 @@ class FlowPage(Sequence):
         return value
 
     def info(self) -> dict:
-        """Returns a dictionary which can be given to FlowPaginator.page() to get this page again.
+        """Returns a dictionary which can be given to FlowPaginator.page() to
+        get this page again.
         This dictionary can be natively serialized to JSON.
 
         You do not have to understand the content on this dictionary ;
@@ -398,20 +410,23 @@ class FlowPage(Sequence):
             'type': string in {'first', 'last', 'forward', 'backward'}.
             'key':  [not with 'first' type] field name used as key.
             'value': [not with 'first'/'last' types] value of the key.
-            'offset': [optional & only with 'forward'/'backward' types] a positive integer.
+            'offset': [optional & only with 'forward'/'backward' types] a
+                      positive integer.
                       When this item is missing, it is considered to be 0.
 
         Behavior of 'type' (X == max_size)
         (notice that objects order is the paginator.queryset's order):
             - 'first': first page, the content is the X first objects.
             - 'last': last page, the content is the X last objects.
-            - 'forward': forward mode, the content is the X first objects where object.key >= value.
-                         Offset behaviour: if offset==1, the first object will be the 2nd object with
-                         object.key >= value ; if offset==2, it will be the 3rd. etc...
-            - 'backward': backward mode, the content is the X last objects where object.key <= value.
-                          Offset behaviour: with offset==0, the last item is ignored (because it is
-                          the first item of the next page) ;
-                          so with offset==1, we ignore the _2_ last items, etc...
+            - 'forward': forward mode, the content is the X first objects
+               where object.key >= value.
+               Offset behaviour: if offset==1, the first object will be the 2nd object with
+               object.key >= value ; if offset==2, it will be the 3rd. etc...
+            - 'backward': backward mode, the content is the X last objects
+               where object.key <= value.
+               Offset behaviour: with offset==0, the last item is ignored (because it is
+               the first item of the next page) ;
+               so with offset==1, we ignore the _2_ last items, etc...
         """
         if not self.has_previous():
             return {'type': 'first'}
@@ -469,9 +484,10 @@ class FlowPage(Sequence):
             offset = self._compute_offset(value, reversed(self.object_list))
 
             if offset == self._max_size:
-                # The duplicates fill this page & there can be some duplicates on the previous page(s)
+                # The duplicates fill this page & there can be some duplicates
+                # on the previous page(s)
                 if self._forward:
-                    # Offsets are in the same direction (forward) => we cumulate them
+                    # Offsets are in the same direction (forward) => we accumulate them
                     offset += self._offset
                 else:
                     # NB: it's easy to see (with a sketch) that
@@ -484,7 +500,8 @@ class FlowPage(Sequence):
         return None
 
     def previous_page_info(self) -> Optional[dict]:
-        """Returns a dictionary which can be given to FlowPaginator.page() to get the previous page.
+        """Returns a dictionary which can be given to FlowPaginator.page()
+        to get the previous page.
 
         @see info()
         Internal information ; notice that 'type' will always be 'backward'.

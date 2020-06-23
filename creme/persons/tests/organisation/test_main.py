@@ -164,19 +164,21 @@ class OrganisationTestCase(_BaseTestCase):
         b_state = 'State#3'
         b_country = 'Terran federation'
 
-        response = self.client.post(reverse('persons__create_organisation'), follow=True,
-                                    data={'user': user.pk,
-                                          'name': name,
+        response = self.client.post(
+            reverse('persons__create_organisation'), follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
 
-                                          'billing_address-address':    b_address,
-                                          'billing_address-po_box':     b_po_box,  # <== should not be used
-                                          'billing_address-zipcode':    b_zipcode,
-                                          'billing_address-city':       b_city,
-                                          'billing_address-department': b_department,
-                                          'billing_address-state':      b_state,
-                                          'billing_address-country':    b_country,
-                                         }
-                                   )
+                'billing_address-address':    b_address,
+                'billing_address-po_box':     b_po_box,  # <== should not be used
+                'billing_address-zipcode':    b_zipcode,
+                'billing_address-city':       b_city,
+                'billing_address-department': b_department,
+                'billing_address-state':      b_state,
+                'billing_address-country':    b_country,
+            },
+        )
         self.assertNoFormError(response)
 
         orga = self.get_object_or_fail(Organisation, name=name)
@@ -353,11 +355,16 @@ class OrganisationTestCase(_BaseTestCase):
         url = reverse(url_name, args=(customer.id,))
         data = {'id': mng_orga.id}
         self.assertPOST200(url, data=data, follow=True)
-        self.get_object_or_fail(Relation, subject_entity=customer, object_entity=mng_orga, type=relation_type_id)
+        self.get_object_or_fail(
+            Relation,
+            subject_entity=customer, object_entity=mng_orga, type=relation_type_id,
+        )
 
         # POST twice
         self.assertPOST200(url, data=data, follow=True)
-        self.assertRelationCount(1, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id)
+        self.assertRelationCount(
+            1, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id,
+        )
 
     def test_get_employees(self):
         user = self.login()
@@ -403,7 +410,9 @@ class OrganisationTestCase(_BaseTestCase):
                                  )
         create_relation(subject_entity=c1, object_entity=orga1)
         create_relation(subject_entity=c2, object_entity=orga1)
-        create_relation(subject_entity=c3, object_entity=orga1, type_id=constants.REL_SUB_EMPLOYED_BY)
+        create_relation(
+            subject_entity=c3, object_entity=orga1, type_id=constants.REL_SUB_EMPLOYED_BY,
+        )
         create_relation(subject_entity=c4, object_entity=orga2)
         create_relation(subject_entity=c5, object_entity=orga1)
 
@@ -434,7 +443,12 @@ class OrganisationTestCase(_BaseTestCase):
         )
 
         mng_orga01 = self._build_managed_orga()
-        customer01 = Contact.objects.create(user=self.other_user, first_name='Jet', last_name='Black')  # Can not link it
+
+        # Can not link it
+        customer01 = Contact.objects.create(
+            user=self.other_user, first_name='Jet', last_name='Black',
+        )
+
         self.assertPOST403(reverse('persons__become_customer', args=(customer01.id,)),
                            data={'id': mng_orga01.id}, follow=True
                           )
@@ -504,7 +518,10 @@ class OrganisationTestCase(_BaseTestCase):
         create_orga = partial(Organisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
-        self.client.post(reverse('persons__become_customer', args=(nerv.id,)), data={'id': acme.id})
+        self.client.post(
+            reverse('persons__become_customer', args=(nerv.id,)),
+            data={'id': acme.id},
+        )
 
         response = self.client.get(reverse('persons__leads_customers'))
         self.assertEqual(0, response.context['page_obj'].paginator.count)
@@ -816,7 +833,10 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(_('Save the modifications'),         context.get('submit_label'))
 
         # ---
-        response = self.client.post(url, data={'organisations': self.formfield_value_multi_creator_entity(orga1, orga2)})
+        response = self.client.post(
+            url,
+            data={'organisations': self.formfield_value_multi_creator_entity(orga1, orga2)},
+        )
         self.assertNoFormError(response)
 
         self.assertTrue(self.refresh(orga1).is_managed)

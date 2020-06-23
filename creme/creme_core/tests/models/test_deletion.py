@@ -220,9 +220,9 @@ class DeletionCommandTestCase(CremeTestCase):
         civ = FakeCivility.objects.first()
         civ2del = FakeCivility.objects.create(title='Kun')
 
-        contact = FakeContact.objects.create(user=user, civility=civ2del,
-                                             last_name='Hattori', first_name='Genzo',
-                                            )
+        contact = FakeContact.objects.create(
+            user=user, civility=civ2del, last_name='Hattori', first_name='Genzo',
+        )
 
         job = Job.objects.create(
             type_id=deletor_type.id,
@@ -345,7 +345,10 @@ class DeletionCommandTestCase(CremeTestCase):
         jresult = self.get_object_or_fail(JobResult, job=job)
         self.assertListEqual(
             [
-                _('«{instance}» can not be deleted because of its dependencies: {dependencies}').format(
+                _(
+                    '«{instance}» can not be deleted because of its '
+                    'dependencies: {dependencies}'
+                ).format(
                     instance=sector,
                     dependencies=_('{count} {model}').format(
                         count=1,

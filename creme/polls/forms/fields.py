@@ -108,10 +108,10 @@ class PollFormLineConditionsField(JSONField):
         for entry in data:
             source = clean_source(entry)
             choice = clean_choice(entry, source)
-            conditions.append(PollFormLineCondition(source=source,
-                                                    operator=PollFormLineCondition.EQUALS,
-                                                    raw_answer=source.poll_line_type.encode_condition(choice),
-                                                   )
-                             )
+            conditions.append(PollFormLineCondition(
+                source=source,
+                operator=PollFormLineCondition.EQUALS,
+                raw_answer=source.poll_line_type.encode_condition(choice),
+            ))
 
         return conditions

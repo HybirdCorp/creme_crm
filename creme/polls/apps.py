@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -77,13 +77,34 @@ class PollsConfig(CremeAppConfig):
         PForm     = self.PollForm
         PReply    = self.PollReply
         LvURLItem = creme_menu.URLItem.list_view
-        creme_menu.get('features', 'tools') \
-                  .get_or_create(creme_menu.ItemGroup, 'polls', priority=300, defaults={'label': _('Polls')}) \
-                  .add(LvURLItem('polls-pforms',    model=PForm),     priority=10) \
-                  .add(LvURLItem('polls-preplies',  model=PReply),    priority=20) \
-                  .add(LvURLItem('polls-campaigns', model=PCampaign), priority=30)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('tools', _('Tools'), priority=100) \
-                  .add_link('polls-create_pform',    PForm,     priority=300) \
-                  .add_link('polls-create_preply',   PReply,    priority=302) \
-                  .add_link('polls-create_campaign', PCampaign, priority=304)
+        creme_menu.get(
+            'features', 'tools',
+        ).get_or_create(
+            creme_menu.ItemGroup, 'polls',
+            priority=300,
+            defaults={'label': _('Polls')},
+        ).add(
+            LvURLItem('polls-pforms', model=PForm),
+            priority=10,
+        ).add(
+            LvURLItem('polls-preplies', model=PReply),
+            priority=20,
+        ).add(
+            LvURLItem('polls-campaigns', model=PCampaign),
+            priority=30,
+        )
+        creme_menu.get(
+            'creation', 'any_forms',
+        ).get_or_create_group(
+            'tools', _('Tools'),
+            priority=100,
+        ).add_link(
+            'polls-create_pform', PForm,
+            priority=300,
+        ).add_link(
+            'polls-create_preply', PReply,
+            priority=302,
+        ).add_link(
+            'polls-create_campaign', PCampaign,
+            priority=304,
+        )

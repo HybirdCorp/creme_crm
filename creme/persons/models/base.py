@@ -26,16 +26,18 @@ from .. import get_address_model
 
 
 class PersonWithAddressesMixin(Model):
-    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-                                  verbose_name=_('Billing address'),
-                                  null=True, on_delete=SET_NULL,
-                                  editable=False, related_name='+',
-                                 ).set_tags(enumerable=False, optional=True)  # NB: "clonable=False" is useless
-    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
-                                  verbose_name=_('Shipping address'),
-                                  null=True, on_delete=SET_NULL,
-                                  editable=False, related_name='+',
-                                 ).set_tags(enumerable=False, optional=True)
+    billing_address = ForeignKey(
+        settings.PERSONS_ADDRESS_MODEL,
+        verbose_name=_('Billing address'),
+        null=True, on_delete=SET_NULL,
+        editable=False, related_name='+',
+    ).set_tags(enumerable=False, optional=True)  # NB: "clonable=False" is useless
+    shipping_address = ForeignKey(
+        settings.PERSONS_ADDRESS_MODEL,
+        verbose_name=_('Shipping address'),
+        null=True, on_delete=SET_NULL,
+        editable=False, related_name='+',
+    ).set_tags(enumerable=False, optional=True)
 
     class Meta:
         abstract = True

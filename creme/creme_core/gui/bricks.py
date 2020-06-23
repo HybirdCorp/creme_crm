@@ -109,42 +109,53 @@ class Brick:
     def home_display(self, context):
         return f'VOID BLOCK FOR HOME: {self.verbose_name}'
     """
-    # The ID of a brick (string) is used to retrieve the class of a Brick, and build the corresponding instance when:
+    # The ID of a brick (string) is used to retrieve the class of a Brick,
+    # and build the corresponding instance when:
     #   - the configuration (detail-view/home/portal) is loaded (page creation).
     #   - some bricks are reloaded.
-    # For regular brick classes, you just have to override this attribute by using the method generate_id().
+    # For regular brick classes, you just have to override this attribute by using
+    # the method generate_id().
     # id_ = None
     id_: str = ''
 
-    # List of the models on which the brick depends (ie: generally the brick displays instances of these models) ;
-    # it also can be the '*' string, which is a wildcard meaning 'All models used in the page'.
+    # List of the models on which the brick depends (ie: generally the brick
+    # displays instances of these models) ; it also can be the '*' string,
+    # which is a wildcard meaning 'All models used in the page'.
     dependencies: BrickDependencies = ()
 
     # List of IDs of RelationType objects on which the brick depends ;
     # only used for Bricks which have the model 'Relation' in their dependencies.
     relation_type_deps: Sequence[str] = ()
 
-    # 'True' means that the brick will never be used to change the instances of its dependencies models.
-    # (ie: the brick is only used to display these instances ; there is no inner-popup to create/edit/delete/...)
-    #   ---> so when this brick is reloaded (eg: to change the pagination), it does not causes the dependant bricks
-    #  to be reloaded (but it is still reloaded when the dependant bricks are reloaded of course).
+    # 'True' means that the brick will never be used to change the instances
+    # of its dependencies models.
+    # (ie: the brick is only used to display these instances ;
+    # there is no inner-popup to create/edit/delete/...)
+    #   ---> so when this brick is reloaded (eg: to change the pagination),
+    #   it does not causes the dependant bricks to be reloaded
+    #   (but it is still reloaded when the dependant bricks are reloaded of course).
     read_only: bool = False
 
     template_name: str = 'OVERLOAD_ME.html'  # Used to render the brick of course
     context_class = _BrickContext  # Class of the instance which stores the context in the session.
 
-    # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS (ie: in creme_config) ------------------------------------
-    # True means that the Brick appears in the configuration IHM (ie: it appears on classical detail-views/portals)
+    # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS (ie: in creme_config) ---------------
+    # True means that the Brick appears in the configuration IHM
+    # (ie: it appears on classical detail-views/portals)
     configurable: bool = True
 
-    # Name used in the configuration GUI (so you should override it, excepted if <configurable = False>).
+    # Name used in the configuration GUI (so you should override it,
+    # excepted if <configurable = False>).
     verbose_name: str = 'BLOCK'
 
-    # Sequence of classes inheriting CremeEntity which can have this type of brick on their detail-views.
+    # Sequence of classes inheriting CremeEntity which can have this
+    # type of brick on their detail-views.
     # An empty sequence means that all types are OK.
-    # Example of value: target_ctypes = (Contact, Organisation)  # Available for detail-views of Contact & Organisation
+    # Example of value:
+    #    # Available for detail-views of Contact & Organisation
+    #    target_ctypes = (Contact, Organisation)
     target_ctypes: Sequence[Type[CremeEntity]] = ()
-    # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS [END] ----------------------------------------------------
+    # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS [END] -------------------------------
 
     GENERIC_HAT_BRICK_ID: str = 'hatbrick'
 
@@ -174,7 +185,9 @@ class Brick:
         return get_template(self.template_name).render(template_context)
 
     def _simple_detailview_display(self, context: dict) -> str:
-        """Helper method to build a basic detailview_display() method for classes that inherit Brick."""
+        """Helper method to build a basic detailview_display() method for
+        classes that inherit Brick.
+        """
         return self._render(self.get_template_context(context))
 
     def _iter_dependencies_info(self):
@@ -361,10 +374,11 @@ class QuerysetBrick(PaginatedBrick):
     context_class = _QuerysetBrickContext
 
     # Default order_by value (eg: 'name', '-creation_date').
-    # '' means that no order_by() command will be added by the brick (but the natural ordering of the model
-    # is kept of course).
-    # BEWARE: if you want to use columns with the 'sort' feature (see the templatetags lib 'creme_bricks':
-    #  {% brick_table_column_for_field %} & {% brick_table_column_for_cell %}), you have to set this attribute.
+    # '' means that no order_by() command will be added by the brick (but the
+    # natural ordering of the model is kept of course).
+    # BEWARE: if you want to use columns with the 'sort' feature
+    # (see the templatetags lib 'creme_bricks': {% brick_table_column_for_field %} &
+    # {% brick_table_column_for_cell %}), you have to set this attribute.
     order_by: str = ''
     cell_sorter_registry = cell_sorter_registry
 
@@ -390,7 +404,9 @@ class QuerysetBrick(PaginatedBrick):
 
         if self.order_by:
             req_order_by = request.GET.get(f'{brick_id}_order')
-            raw_order_by = brick_context.get_order_by(self.order_by) if req_order_by is None else req_order_by
+            raw_order_by = brick_context.get_order_by(
+                self.order_by,
+            ) if req_order_by is None else req_order_by
 
             if self._is_order_valid(model=objects.model, order=raw_order_by):
                 order_by = raw_order_by
@@ -538,7 +554,8 @@ class InstanceBrick(Brick):
 
 class CustomBrick(Brick):
     """Brick that can be customised by the user to display information of an entity.
-    It can display regular, custom & function fields, relationships... (see HeaderFilter & EntityCells)
+    It can display regular, custom & function fields, relationships...
+    (see HeaderFilter & EntityCells)
     """
     template_name = 'creme_core/bricks/custom.html'
 
@@ -687,7 +704,8 @@ class _BrickRegistry:
 
     def __init__(self):
         self._brick_classes: Dict[str, Type[Brick]] = {}
-        self._hat_brick_classes: DefaultDict[Type[CremeEntity], Dict[str, Type[Brick]]] = defaultdict(dict)
+        self._hat_brick_classes: \
+            DefaultDict[Type[CremeEntity], Dict[str, Type[Brick]]] = defaultdict(dict)
         self._object_brick_classes: Dict[Type[CremeEntity], Type[Brick]] = {}
         self._instance_brick_classes: Dict[str, Type[InstanceBrick]] = {}
         self._invalid_models: Set[Type[CremeEntity]] = set()
@@ -706,7 +724,8 @@ class _BrickRegistry:
 
         return self
 
-    def register_4_instance(self, *brick_classes: Type[InstanceBrick]) -> '_BrickRegistry':  # TODO: factorise
+    # TODO: factorise
+    def register_4_instance(self, *brick_classes: Type[InstanceBrick]) -> '_BrickRegistry':
         setdefault = self._instance_brick_classes.setdefault
 
         for brick_cls in brick_classes:
@@ -738,9 +757,10 @@ class _BrickRegistry:
 
         return self
 
+    # TODO: had a boolean argument "override" ??
     def register_4_model(self,
                          model: Type[CremeEntity],
-                         brick_cls: Type[Brick]) -> '_BrickRegistry':  # TODO: had an 'overload' arg ??
+                         brick_cls: Type[Brick]) -> '_BrickRegistry':
         assert brick_cls.id_ == MODELBRICK_ID
 
         # NB: the key is the class, not the ContentType.id because it can cause
@@ -800,7 +820,8 @@ class _BrickRegistry:
         @return Brick instance.
         """
         # brick_id = ibi.brick_id
-        # brick_class = self._instance_brick_classes.get(InstanceBrickConfigItem.get_base_id(brick_id))
+        # brick_class = self._instance_brick_classes.get(
+        #   InstanceBrickConfigItem.get_base_id(brick_id))
         brick_class_id = ibi.brick_class_id
         brick_class = self._instance_brick_classes.get(brick_class_id)
 
@@ -913,7 +934,9 @@ class _BrickRegistry:
                 yield brick_cls()
 
     # TODO: python 3.8 => '/' argument ?
-    def get_brick_4_object(self, obj_or_ct: Union[Type[CremeEntity], ContentType, CremeEntity]) -> Brick:
+    def get_brick_4_object(
+            self,
+            obj_or_ct: Union[Type[CremeEntity], ContentType, CremeEntity]) -> Brick:
         """Return the Brick that displays fields for a CremeEntity instance.
         @param obj_or_ct: Model (class inheriting CremeEntity), or ContentType instance
                           representing this model, or instance of this model.
@@ -961,8 +984,11 @@ class _BrickRegistry:
 
         return brick
 
-    def get_compatible_bricks(self, model: Optional[Type[CremeEntity]] = None) -> Iterator[Brick]:
-        """Returns the registered bricks that are configurable and compatible with the given ContentType.
+    def get_compatible_bricks(
+            self,
+            model: Optional[Type[CremeEntity]] = None) -> Iterator[Brick]:
+        """Returns the registered bricks that are configurable and
+        compatible with the given ContentType.
         @param model: Constraint on a CremeEntity class ;
                       None means bricks must be compatible with all kind of CremeEntity.
         """

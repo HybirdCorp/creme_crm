@@ -126,8 +126,12 @@ class BaseReportsTestCase(CremeTestCase):
         cells = [
             EntityCellRegularField.build(model=FakeContact, name='last_name'),
             EntityCellRegularField.build(model=FakeContact, name='user'),
-            EntityCellRelation(model=FakeContact, rtype=RelationType.objects.get(pk=REL_SUB_HAS)),
-            EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
+            EntityCellRelation(
+                model=FakeContact, rtype=RelationType.objects.get(pk=REL_SUB_HAS),
+            ),
+            EntityCellFunctionField.build(
+                model=FakeContact, func_field_name='get_pretty_properties',
+            ),
             *extra_cells,
         ]
 
@@ -191,9 +195,18 @@ class BaseReportsTestCase(CremeTestCase):
         user = self.user
 
         create = partial(FakeContact.objects.create, user=user)
-        create(last_name='Langley', first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
-        rei    = create(last_name='Ayanami',   first_name='Rei',    birthday=datetime(year=1981, month=3, day=26))
-        misato = create(last_name='Katsuragi', first_name='Misato', birthday=datetime(year=1976, month=8, day=12))
+        create(
+            last_name='Langley', first_name='Asuka',
+            birthday=datetime(year=1981, month=7, day=25),
+        )
+        rei = create(
+            last_name='Ayanami', first_name='Rei',
+            birthday=datetime(year=1981, month=3, day=26),
+        )
+        misato = create(
+            last_name='Katsuragi', first_name='Misato',
+            birthday=datetime(year=1976, month=8, day=12),
+        )
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 

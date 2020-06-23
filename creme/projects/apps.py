@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -65,14 +65,24 @@ class ProjectsConfig(CremeAppConfig):
     def register_icons(self, icon_registry):
         from .models import Resource
 
-        icon_registry.register(self.Project,     'images/project_%(size)s.png') \
-                     .register(self.ProjectTask, 'images/task_%(size)s.png') \
-                     .register(Resource,         'images/task_%(size)s.png')
+        icon_registry.register(
+            self.Project, 'images/project_%(size)s.png'
+        ).register(
+            self.ProjectTask, 'images/task_%(size)s.png',
+        ).register(
+            Resource, 'images/task_%(size)s.png',
+        )
 
     def register_menu(self, creme_menu):
         Project = self.Project
-        creme_menu.get('features', 'tools') \
-                  .add(creme_menu.URLItem.list_view('projects-projects', model=Project), priority=50)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('tools', label=_('Tools'), priority=100) \
-                  .add_link('projects-create_project', Project, priority=50)
+        creme_menu.get(
+            'features', 'tools',
+        ).add(
+            creme_menu.URLItem.list_view('projects-projects', model=Project),
+            priority=50,
+        )
+        creme_menu.get(
+            'creation', 'any_forms',
+        ).get_or_create_group(
+            'tools', label=_('Tools'), priority=100,
+        ).add_link('projects-create_project', Project, priority=50)

@@ -150,7 +150,8 @@ class CremeModelEditionPopup(CremeModelEdition):
     """
     # model = models.CremeModel  # TO BE OVERRIDDEN
     # form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
-    # template_name = 'creme_core/generics/blockform/edit_popup.html'  # DO NOT USE OLD TEMPLATES !!!
+    # DO NOT USE OLD TEMPLATES !!!
+    # template_name = 'creme_core/generics/blockform/edit_popup.html'
     template_name = 'creme_core/generics/blockform/edit-popup.html'
 
     def get_success_url(self):

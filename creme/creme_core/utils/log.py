@@ -54,7 +54,11 @@ def log_exceptions(printer: Callable[[str], None], limit: int = 10):
                 printer(
                     'An exception occurred in <{}>.\n{}'.format(
                         function.__name__,
-                        '\n'.join(traceback.format_exception(exc_type, exc_value, exc_traceback, limit=limit)),
+                        '\n'.join(
+                            traceback.format_exception(
+                                exc_type, exc_value, exc_traceback, limit=limit,
+                            )
+                        ),
                     )
                 )
                 raise

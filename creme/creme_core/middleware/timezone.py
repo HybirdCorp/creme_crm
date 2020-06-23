@@ -4,7 +4,8 @@
 # https://docs.djangoproject.com/en/1.4/topics/i18n/timezones/#selecting-the-current-time-zone
 
 from django.conf import settings
-# NB: do not 'from django.utils.timezone import activate as activate_tz' because it is harder to unit test
+# NB: do not 'from django.utils.timezone import activate as activate_tz'
+#     because it is harder to unit test
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 

@@ -27,7 +27,9 @@ class DownloadViewTestCase(ViewsTestCase):
 
         ct_id = doc.entity_type_id
         self.assertGET404(reverse('creme_core__download', args=(ct_id, doc.id, 'unknown')))
-        self.assertGET404(reverse('creme_core__download', args=(ct_id, doc.id, 'filedata')))  # Empty file
+
+        # Empty file
+        self.assertGET404(reverse('creme_core__download', args=(ct_id, doc.id, 'filedata')))
 
     def test_download_filefield02(self):
         "OK."
@@ -52,7 +54,9 @@ class DownloadViewTestCase(ViewsTestCase):
         self.assertEqual('text/plain', response['Content-Type'])
 
         cdisp = response['Content-Disposition']
-        self.assertTrue(cdisp.startswith('attachment; filename="DownloadViewTestCase_test_download_filefield'))
+        self.assertTrue(
+            cdisp.startswith('attachment; filename="DownloadViewTestCase_test_download_filefield')
+        )
         self.assertTrue(cdisp.endswith('.txt"'))
         self.assertEqual(
             file_content.encode(),
@@ -77,7 +81,8 @@ class DownloadViewTestCase(ViewsTestCase):
         self.assertEqual(f'attachment; filename="{temp_file.basename}"',
                          response['Content-Disposition']
                         )
-        _ = [*response.streaming_content]  # Consume stream to avoid error message "ResourceWarning: unclosed file..."
+        # Consume stream to avoid error message "ResourceWarning: unclosed file..."
+        _ = [*response.streaming_content]
 
     def test_download_filefield04(self):
         "Not super-user."
@@ -106,7 +111,8 @@ class DownloadViewTestCase(ViewsTestCase):
             reverse('creme_core__download', args=(doc.entity_type_id, doc.id, 'filedata')),
             follow=True,
         )
-        _ = [*response.streaming_content]  # Consume stream to avoid error message "ResourceWarning: unclosed file..."
+        # Consume stream to avoid error message "ResourceWarning: unclosed file..."
+        _ = [*response.streaming_content]
 
     def test_download_filefield05(self):
         "Not super-user."

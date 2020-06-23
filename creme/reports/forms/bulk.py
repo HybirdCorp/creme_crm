@@ -69,8 +69,10 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                         label=_('Beware !'),
                         required=False, widget=Label,
                         initial=ngettext(
-                            'The filter of {count} report cannot be changed because it is private.',
-                            'The filters of {count} reports cannot be changed because they are private.',
+                            'The filter of {count} report cannot be changed '
+                            'because it is private.',
+                            'The filters of {count} reports cannot be changed '
+                            'because they are private.',
                             length
                         ).format(count=length),
                     )

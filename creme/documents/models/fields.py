@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2019  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,9 @@ def _build_limit_choices_to(extra_limit_choices_to):
 
     if extra_limit_choices_to is not None:
         if callable(extra_limit_choices_to):
-            raise NotImplementedError('documents.models.fields: callable "limit_choices_to" is not managed yet.')
+            raise NotImplementedError(
+                'documents.models.fields: callable "limit_choices_to" is not managed yet.'
+            )
 
         if isinstance(extra_limit_choices_to, dict):
             # XXX: transform to Q VS let a dictionary like the user wanted

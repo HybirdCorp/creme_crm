@@ -179,7 +179,8 @@ class Extractor:
         self._m2m = multiple
 
         if create_if_unfound:
-            self._fk_form = modelform_factory(subfield_model, fields='__all__')  # TODO: creme_config form ??
+            # TODO: creme_config form ??
+            self._fk_form = modelform_factory(subfield_model, fields='__all__')
 
     def extract_value(self, line: Line) -> ExtractedTuple:
         value = self._default_value
@@ -326,7 +327,9 @@ class ExtractorField(Field):
     widget = ExtractorWidget
     default_error_messages = {
         'invalid': _('Enter a valid value.'),
-        'invalid_subfield': _('Select a valid choice. "{value}" is not one of the available sub-field.'),
+        'invalid_subfield': _(
+            'Select a valid choice. "{value}" is not one of the available sub-field.'
+        ),
     }
 
     # TODO: default values + properties which update widget
@@ -337,7 +340,10 @@ class ExtractorField(Field):
 
         self._modelfield = modelfield
         self._user = None
-        self._can_create = False  # If True and field is a FK/M2M -> the referenced model can be created
+
+        # If True and field is a FK/M2M -> the referenced model can be created
+        self._can_create = False
+
         self._subfield_choices = None
 
         widget = self.widget
@@ -663,12 +669,20 @@ class EntityExtractorField(Field):
 # Extractors (and related field/widget) for relations---------------------------
 
 class RelationExtractor:
-    def __init__(self, column_index: int, rtype, subfield_search, related_model, create_if_unfound):
+    def __init__(
+            self,
+            column_index: int,
+            rtype,
+            subfield_search,
+            related_model,
+            create_if_unfound):
         self._column_index    = column_index
         self._rtype           = rtype
         self._subfield_search = str(subfield_search)
         self._related_model   = related_model
-        self._related_form    = modelform_factory(related_model, fields='__all__') if create_if_unfound else None
+        self._related_form    = modelform_factory(
+            related_model, fields='__all__',
+        ) if create_if_unfound else None
 
     related_model = property(lambda self: self._related_model)
 
@@ -687,7 +701,9 @@ class RelationExtractor:
             model = self._related_model
 
             try:
-                object_entity = EntityCredentials.filter(user, model.objects.filter(**data)).first()
+                object_entity = EntityCredentials.filter(
+                    user, model.objects.filter(**data),
+                ).first()
             except Exception as e:
                 err_msg = gettext(
                     'Error while extracting value to build a Relation: '
@@ -1055,7 +1071,8 @@ class CustomfieldExtractorField(Field):
 
         if def_value:
             self._original_field.clean(def_value)  # To raise ValidationError if needed
-        elif self.required and not col_index:  # Should be useless while CustomFields can not be marked as required
+        # Should be useless while CustomFields can not be marked as required
+        elif self.required and not col_index:
             raise ValidationError(self.error_messages['required'], code='required')
 
         # create_if_unfound = value['can_create']
@@ -1075,7 +1092,8 @@ class CustomfieldExtractorField(Field):
 # ------------------------------------------------------------------------------
 
 
-# TODO: merge with ImportForm4CremeEntity ? (no model that is not an entity is imported with csv...)
+# TODO: merge with ImportForm4CremeEntity ?
+#  (no model that is not an entity is imported with csv...)
 class ImportForm(CremeModelForm):
     step       = IntegerField(widget=HiddenInput)
     document   = IntegerField(widget=HiddenInput)
@@ -1088,7 +1106,8 @@ class ImportForm(CremeModelForm):
             'Select at least one field if you want to use the "update" mode. '
             'If an entity already exists with the same field values, it will be simply updated '
             '(ie: a new entity will not be created).\n'
-            'But if several entities are found, a new entity is created (in order to avoid errors).'
+            'But if several entities are found, a new entity is created '
+            '(in order to avoid errors).'
         ),
     )
 
@@ -1176,8 +1195,12 @@ class ImportForm(CremeModelForm):
         get_cleaned = self.cleaned_data.get
 
         exclude = frozenset(self._meta.exclude or ())
-        regular_fields: List[Tuple[str, Any]] = []  # Contains tuples (field_name, cleaned_field_value)
-        extractor_fields: List[Tuple[str, Extractor]] = []  # Contains tuples (field_name, extractor)
+
+        # Contains tuples (field_name, cleaned_field_value)
+        regular_fields: List[Tuple[str, Any]] = []
+
+        # Contains tuples (field_name, extractor)
+        extractor_fields: List[Tuple[str, Extractor]] = []
 
         for field in model_class._meta.fields:
             fname = field.name
@@ -1222,15 +1245,20 @@ class ImportForm(CremeModelForm):
                 try:
                     with atomic():
                         instance = model_class()
-                        updated = False  # 'True' means: object has been updated, not created from scratch
+
+                        # 'True' means: object has been updated, not created from scratch
+                        updated = False
 
                         extr_values = []
                         for fname, extractor in extractor_fields:
                             extr_value, err_msg = extractor.extract_value(line)
 
                             # TODO: Extractor.extract_value() should return a ExtractedTuple
-                            #       instead of a tuple (an so we could remove the ugly following line...)
-                            is_empty = not extractor._column_index or is_empty_value(line[extractor._column_index - 1])
+                            #       instead of a tuple
+                            #       (an so we could remove the ugly following line...)
+                            is_empty = not extractor._column_index or is_empty_value(
+                                line[extractor._column_index - 1]
+                            )
                             extr_values.append((fname, extr_value, is_empty))
 
                             append_error(err_msg)
@@ -1246,14 +1274,17 @@ class ImportForm(CremeModelForm):
                             if found:
                                 if len(found) == 1:
                                     try:
-                                        instance = model_class.objects.select_for_update().get(pk=found[0].pk)
+                                        instance = model_class.objects.select_for_update().get(
+                                            pk=found[0].pk,
+                                        )
                                     except model_class.DoesNotExist:
                                         pass
                                     else:
                                         job_result.updated = updated = True
                                 else:
                                     append_error(gettext(
-                                        'Several entities corresponding to the search have been found. '
+                                        'Several entities corresponding to the '
+                                        'search have been found. '
                                         'So a new entity have been created to avoid errors.'
                                     ))
 
@@ -1318,7 +1349,11 @@ class ImportForm4CremeEntity(ImportForm):
     )
 
     blocks = FieldBlockManager(
-        ('general',    _('General'),                  ('step', 'document', 'has_header', 'user', 'key_fields')),
+        (
+            'general',
+            _('General'),
+            ('step', 'document', 'has_header', 'user', 'key_fields')
+        ),
         ('fields',     _('Field values'),             '*'),
         ('properties', _('Related properties'),       ('property_types',)),
         ('relations',  _('Associated relationships'), ('fixed_relations', 'dyn_relations')),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,20 +32,29 @@ class ActionManager(models.Manager):
 
 
 class Action(creme_models.CremeModel):
-    title             = models.CharField(_('Title'), max_length=200)
-    is_ok             = models.BooleanField(_('Expected reaction has been done'), editable=False, default=False)
-    description       = models.TextField(_('Source action'), blank=True)
-    creation_date     = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
+    title = models.CharField(_('Title'), max_length=200)
+    is_ok = models.BooleanField(
+        _('Expected reaction has been done'), editable=False, default=False,
+    )
+    description = models.TextField(_('Source action'), blank=True)
+
+    creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
     expected_reaction = models.TextField(_('Target action'), blank=True)
-    deadline          = models.DateTimeField(_('Deadline'))
-    validation_date   = models.DateTimeField(_('Validation date'), blank=True, null=True, editable=False)
-    user              = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+    deadline = models.DateTimeField(_('Deadline'))
+    validation_date = models.DateTimeField(
+        _('Validation date'), blank=True, null=True, editable=False,
+    )
+
+    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
-    entity              = models.ForeignKey(creme_models.CremeEntity, related_name='assistants_actions',
-                                            editable=False, on_delete=models.CASCADE,
-                                           ).set_tags(viewable=False)
-    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
+    entity = models.ForeignKey(
+        creme_models.CremeEntity, related_name='assistants_actions',
+        editable=False, on_delete=models.CASCADE,
+    ).set_tags(viewable=False)
+    creme_entity = creme_fields.RealEntityForeignKey(
+        ct_field='entity_content_type', fk_field='entity',
+    )
 
     objects = ActionManager()
 

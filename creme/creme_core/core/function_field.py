@@ -97,7 +97,8 @@ class FunctionField:
     # Builder for the search-field (used to quick-search in list-views) ; in can be :
     #  - None (no quick-search for this FunctionField) (default value).
     #  - A class of field (should inherit <creme_core.forms.listview.ListViewSearchField>).
-    #  - A class of field-registry (should inherit <creme_core.gui.listview.search.AbstractListViewSearchFieldRegistry>).
+    #  - A class of field-registry
+    #    (should inherit <creme_core.gui.listview.search.AbstractListViewSearchFieldRegistry>).
     search_field_builder: Union[
         None,
         Type['ListViewSearchField'],
@@ -222,7 +223,8 @@ class _FunctionFieldRegistry:
         for ff_cls in function_field_classes:
             if model_ffields.pop(ff_cls.name, None) is None:
                 raise self.RegistrationError(
-                    f'This FunctionField is not registered (already un-registered ?): {ff_cls.name}'
+                    f'This FunctionField is not registered '
+                    f'(already un-registered ?): {ff_cls.name}'
                 )
 
 

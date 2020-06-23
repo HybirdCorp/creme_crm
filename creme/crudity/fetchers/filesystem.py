@@ -58,13 +58,19 @@ class FileSystemFetcher(CrudityFetcher):
         dir_path = getattr(settings, setting_name, None)
 
         if not dir_path:
-            raise self.FileSystemFetcherError(f'setting.{setting_name} has not been set.')
+            raise self.FileSystemFetcherError(
+                f'setting.{setting_name} has not been set.'
+            )
 
         if not os.path.exists(dir_path):
-            raise self.FileSystemFetcherError(f'settings.{setting_name} = "{dir_path}" does not exist.')
+            raise self.FileSystemFetcherError(
+                f'settings.{setting_name} = "{dir_path}" does not exist.'
+            )
 
         if not os.path.isdir(dir_path):
-            raise self.FileSystemFetcherError(f'settings.{setting_name} = "{dir_path}" is not a directory.')
+            raise self.FileSystemFetcherError(
+                f'settings.{setting_name} = "{dir_path}" is not a directory.'
+            )
 
         # TODO: credentials ??
 

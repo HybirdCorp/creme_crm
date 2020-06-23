@@ -51,7 +51,8 @@ from creme.creme_core.models import CremeEntity  # SettingValue
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.utils.dates import date_from_str, dt_from_str
 from creme.creme_core.views.file_handling import handle_uploaded_file
-# TODO: improve the crudity_registry in order to manage FK to other entity types => use test-models
+# TODO: improve the crudity_registry in order to manage FK to other entity types
+#      => use test-models
 from creme.documents import get_document_model, get_folder_model
 
 from ..bricks import BaseWaitingActionsBrick, WaitingActionsBrick
@@ -75,18 +76,21 @@ class CrudityBackend:
 
     # These ones are set by the registry.dispatch()
     fetcher_name: str = ''  # Name of the fetcher (eg: 'emails')
-    input_name: str   = ''  # Name of the CrudityInput (eg: 'raw')  # TODO: useless with 'crud_input' attribute ?
+    # TODO: useless with 'crud_input' attribute ?
+    input_name: str = ''  # Name of the CrudityInput (eg: 'raw')
 
-    password: str  = ''   # Password to check permission
-    in_sandbox: bool = True  # Show in sandbox (if False can be shown only in history & the creation will be automatic)
+    password: str = ''   # Password to check permission
 
-    # body_map    = {}
-    body_map: Dict[str, Any] = {}  # Mapping email/sms/... body's key <==> model's key, value in the dict is the default value
+    # Show in sandbox (if False can be shown only in history & the creation will be automatic)
+    in_sandbox: bool = True
+
+    # Mapping email/sms/... body's key <==> model's key, value in the dict is the default value
+    body_map: Dict[str, Any] = {}
 
     limit_froms: Collection[str] = ()  # If not empty, it lists the allowed senders.
-    subject: str = ''   # Matched subject
+    subject: str = ''  # Matched subject
 
-    brick_classes: Sequence[Type[BaseWaitingActionsBrick]] = (WaitingActionsBrick,)   # Bricks classes
+    brick_classes: Sequence[Type[BaseWaitingActionsBrick]] = (WaitingActionsBrick,)
 
     def __init__(self,
                  config: Dict[str, Any],
@@ -104,7 +108,7 @@ class CrudityBackend:
             self.in_sandbox = in_sandbox
 
         self.body_map = config_get('body_map') or self.body_map
-        self.subject  = CrudityBackend.normalize_subject(config_get('subject') or self.subject)
+        self.subject = CrudityBackend.normalize_subject(config_get('subject') or self.subject)
 
         self.source         = config_get('source')
         self.verbose_source = config_get('verbose_source')
@@ -136,7 +140,8 @@ class CrudityBackend:
     # @property
     # def is_sandbox_by_user(self) -> bool:
     #     if self._sandbox_by_user is None:
-    #         self._sandbox_by_user = SettingValue.objects.get_4_key(sandbox_key, default=False).value
+    #         self._sandbox_by_user = SettingValue.objects.get_4_key(
+    #         sandbox_key, default=False).value
     #
     #     return self._sandbox_by_user
     #
@@ -150,9 +155,14 @@ class CrudityBackend:
         return re.sub(r'\s', '', subject or '').upper()
 
     def create(self, action: WaitingAction) -> Tuple[bool, CremeEntity]:
-        return self._create_instance_n_history(action.data, action.user, action.source, action.action)
+        return self._create_instance_n_history(
+            action.data, action.user, action.source, action.action,
+        )
 
-    def _create_instance_before_save(self, instance: CremeEntity, data: Dict[str, Any]) -> CremeEntity:
+    def _create_instance_before_save(
+            self,
+            instance: CremeEntity,
+            data: Dict[str, Any]) -> CremeEntity:
         """Called before the instance is saved"""
         return instance
 
@@ -169,7 +179,8 @@ class CrudityBackend:
             except FieldDoesNotExist:
                 continue
 
-            if issubclass(field.__class__, ManyToManyField):  # TODO: isinstance(field, ManyToManyField) ...
+            # TODO: isinstance(field, ManyToManyField) ...
+            if issubclass(field.__class__, ManyToManyField):
                 getattr(instance, field_name).set(
                     field.remote_field.model._default_manager.filter(pk__in=field_value.split())
                 )
@@ -188,12 +199,14 @@ class CrudityBackend:
         try:
             with atomic():
                 field_value: Any
-                for field_name, field_value in [*data.items()]:  # NB: we build a list to modify "data"
+                # NB: we build a list to modify "data"
+                for field_name, field_value in [*data.items()]:
                     try:
                         field = model_get_field(field_name)
                     except FieldDoesNotExist:
                         # TODO: data.pop(field_name) when virtual fields are added in crudity,
-                        #       because for example user_id is not a "real field" (model._meta.get_field)
+                        #       because for example user_id is not a "real field"
+                        #       (model._meta.get_field)
                         continue
 
                     # TODO: exclude not editable fields ??
@@ -201,9 +214,6 @@ class CrudityBackend:
                     if field_value is None:
                         data[field_name] = field.to_python(None)
                         continue
-
-                    # if isinstance(field_value, basestring) and not isinstance(field_value, unicode):
-                    #     field_value = field_value.decode('utf8')
 
                     if not isinstance(field, TextField) and isinstance(field_value, str):
                         data[field_name] = field_value = field_value.replace('\n', ' ')
@@ -215,9 +225,14 @@ class CrudityBackend:
 
                     elif isinstance(field, BooleanField) and isinstance(field_value, str):
                         # NB: trick to obtain 't'/'f' or '1'/'0'
-                        data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower())
+                        data[field_name] = field_value = field.to_python(
+                            field_value.strip()[0:1].lower()
+                        )
 
-                    elif isinstance(field, ForeignKey) and issubclass(field.remote_field.model, Document):
+                    elif (
+                        isinstance(field, ForeignKey)
+                        and issubclass(field.remote_field.model, Document)
+                    ):
                         filename, blob = field_value  # Should be pre-processed by the input
                         upload_path = Document._meta.get_field('filedata').upload_to.split('/')
 
@@ -236,7 +251,9 @@ class CrudityBackend:
 
                         doc_entity = Document(
                             user_id=shift_user_id,
-                            filedata=handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename),
+                            filedata=handle_uploaded_file(
+                                ContentFile(blob), path=upload_path, name=filename,
+                            ),
                             linked_folder=Folder.objects.get_or_create(
                                 title=_('External data'),
                                 parent_folder=None,
@@ -251,15 +268,23 @@ class CrudityBackend:
                         data.pop(field_name)
                         continue
 
-                    elif issubclass(field.__class__, FileField):  # TODO: why not isinstance(field, FileField) ??
+                    # TODO: why not isinstance(field, FileField) ??
+                    elif issubclass(field.__class__, FileField):
                         filename, blob = field_value  # Should be pre-processed by the input
                         upload_path = field.upload_to.split('/')
-                        setattr(instance, field_name, handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename))
+                        setattr(
+                            instance,
+                            field_name,
+                            handle_uploaded_file(
+                                ContentFile(blob), path=upload_path, name=filename,
+                            ),
+                        )
                         data.pop(field_name)
                         continue
 
                     data[field_name] = field.to_python(field_value)
-                    # setattr(instance, field_name, field.to_python(field_value)) TODO (instead of for ..: setattr()... ??
+                    # TODO (instead of for ..: setattr()... ??
+                    # setattr(instance, field_name, field.to_python(field_value))
 
                 instance.__dict__.update(data)
                 # TODO: (but fix bug with ManyToManyField)
@@ -280,7 +305,10 @@ class CrudityBackend:
                 history.description = _('Creation of {entity}').format(entity=instance)
                 history.save()
         except IntegrityError as e:
-            logger.error('_create_instance_n_history() : error when try to create instance [%s]', e)
+            logger.error(
+                '_create_instance_n_history() : error when try to create instance [%s]',
+                e,
+            )
             is_created = False
 
         return is_created, instance

@@ -52,7 +52,12 @@ from creme.reports.forms.bricks import (
     GraphInstanceBrickForm,
 )
 from creme.reports.forms.graph import AbscissaField, OrdinateField
-from creme.reports.forms.report import (  # _EntityCellAggregate, _EntityCellCustomAggregate, _EntityCellRelated,
+# from creme.reports.forms.report import (
+#     _EntityCellAggregate,
+#     _EntityCellCustomAggregate,
+#     _EntityCellRelated,
+# )
+from creme.reports.forms.report import (
     ReportEntityCellCustomAggregate,
     ReportEntityCellRegularAggregate,
     ReportEntityCellRelated,
@@ -1599,7 +1604,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
 
         graph_type2 = constants.RGT_RANGE
         parameter = '5'
-        self.assertEqual(
+        self.assertDictEqual(
             {
                 'entity_cell': {
                     'cell_key': cell.key,
@@ -1611,7 +1616,9 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
                 },
                 'parameter': parameter,
             },
-            json_load(from_python(AbscissaInfo(cell=cell, graph_type=graph_type2, parameter=parameter)))
+            json_load(from_python(AbscissaInfo(
+                cell=cell, graph_type=graph_type2, parameter=parameter,
+            )))
         )
 
     def test_from_python_relation(self):
@@ -1869,7 +1876,8 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
             OrdinateField, 'ecellnotallowed', field.clean,
             self.formfield_value_ordinate(
                 aggr_id=constants.RGA_SUM,
-                cell=EntityCellRegularField.build(model, 'item'),  # < === forbidden field
+                # forbidden field:
+                cell=EntityCellRegularField.build(model, 'item'),
             ),
         )
 
@@ -1877,7 +1885,8 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
             OrdinateField, 'ecellnotallowed', field.clean,
             self.formfield_value_ordinate(
                 aggr_id=constants.RGA_SUM,
-                cell=EntityCellRegularField.build(model, 'linked_invoice__total_vat'),  # < === field too deep
+                # field too deep:
+                cell=EntityCellRegularField.build(model, 'linked_invoice__total_vat'),
             ),
         )
 

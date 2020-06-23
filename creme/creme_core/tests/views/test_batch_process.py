@@ -69,7 +69,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         batch_process_type.execute(self._get_job(response))
 
     def test_no_app_perm(self):
-        self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
+        # Not 'creme_core'
+        self.login(is_superuser=False, allowed_apps=['documents'])
         self.assertGET403(self._build_add_url(FakeOrganisation))
 
     def test_app_perm(self):
@@ -250,7 +251,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                              _('This field is invalid with this model.'),
                             )
 
-# TODO: uncomment when a model has a field with batchable type and not inner editable (maybe a test model)
+# TODO: uncomment when a model has a field with batchable type and not inner
+#       editable (maybe a test model)
 #    def test_validation_error02(self):
 #        "Field is not inner editable -> invalid"
 #        self.login()
@@ -295,9 +297,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_several_actions(self):
         "'upper' + 'title' operators."
-        self.login()
+        user = self.login()
 
-        contact = FakeContact.objects.create(user=self.user, first_name='kanji', last_name='sasahara')
+        contact = FakeContact.objects.create(user=user, first_name='kanji', last_name='sasahara')
         response = self.client.post(
             self._build_add_url(FakeContact), follow=True,
             data={
@@ -563,7 +565,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         batch_process_type.execute(job)
         contact01 = self.refresh(contact01)
         self.assertEqual(last_name,  contact01.last_name)  # No change !!
-        self.assertEqual(first_name, contact01.first_name)  # TODO: make the changes that are possible ('KANAKO') ??
+        # TODO: make the changes that are possible ('KANAKO') ??
+        self.assertEqual(first_name, contact01.first_name)
 
         jresult = self.get_object_or_fail(EntityJobResult, job=job, entity=contact01)
         self.assertEqual(['{} => {}'.format(_('Last name'), _('This field cannot be blank.'))],

@@ -41,8 +41,16 @@ def _get_address_field_names(addr_fieldname):
 
 class _BasePersonForm(CremeEntityForm):
     blocks = CremeEntityForm.blocks.new(
-        ('billing_address',  _('Billing address'),  _get_address_field_names(_BILLING_ADDRESS_FIELD)),
-        ('shipping_address', _('Shipping address'), _get_address_field_names(_SHIPPING_ADDRESS_FIELD)),
+        (
+            'billing_address',
+            _('Billing address'),
+            _get_address_field_names(_BILLING_ADDRESS_FIELD),
+        ),
+        (
+            'shipping_address',
+            _('Shipping address'),
+            _get_address_field_names(_SHIPPING_ADDRESS_FIELD),
+        ),
     )
 
     class Meta(CremeEntityForm.Meta):

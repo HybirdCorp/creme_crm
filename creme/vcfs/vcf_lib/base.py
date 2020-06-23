@@ -612,8 +612,10 @@ def parseLine(line, lineNumber=None):
     ('BLAH', [], '', None)
     >>> parseLine("RDATE:VALUE=DATE:19970304,19970504,19970704,19970904")
     ('RDATE', [], 'VALUE=DATE:19970304,19970504,19970704,19970904', None)
-    >>> parseLine('DESCRIPTION;ALTREP="http://www.wiz.org":The Fall 98 Wild Wizards Conference - - Las Vegas, NV, USA')
-    ('DESCRIPTION', [['ALTREP', 'http://www.wiz.org']], 'The Fall 98 Wild Wizards Conference - - Las Vegas, NV, USA', None)
+    >>> parseLine('DESCRIPTION;ALTREP="http://www.wiz.org":The Fall 98 Wild Wizards Conference
+    - - Las Vegas, NV, USA')
+    ('DESCRIPTION', [['ALTREP', 'http://www.wiz.org']], 'The Fall 98 Wild Wizards Conference
+    - - Las Vegas, NV, USA', None)
     >>> parseLine("EMAIL;PREF;INTERNET:john@nowhere.com")
     ('EMAIL', [['PREF'], ['INTERNET']], 'john@nowhere.com', None)
     >>> parseLine('EMAIL;TYPE="blah",hah;INTERNET="DIGI",DERIDOO:john@nowhere.com')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,14 +37,13 @@ class _EntityEmailsSendType(JobType):
     periodic     = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):
-        for email in EntityEmail.objects.exclude(is_deleted=True) \
-                                        .filter(status__in=[MAIL_STATUS_NOTSENT,
-                                                            MAIL_STATUS_SENDINGERROR,
-                                                           ]
-                                               ):
+        for email in EntityEmail.objects.exclude(is_deleted=True).filter(
+            status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR],
+        ):
             email.send()
 
-    def next_wakeup(self, job, now_value):  # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    def next_wakeup(self, job, now_value):
         filter_mail = EntityEmail.objects.exclude(is_deleted=True).filter
 
         if filter_mail(status=MAIL_STATUS_NOTSENT).exists():

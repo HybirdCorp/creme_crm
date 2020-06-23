@@ -113,7 +113,11 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
         (CremeEntity, EntityForeignKeySorter),
     )
 
-    def __init__(self, models_to_register: Iterable[Tuple[Type[Model], Type[AbstractCellSorter]]] = DEFAULT_MODELS):
+    def __init__(
+            self,
+            models_to_register: Iterable[
+                Tuple[Type[Model], Type[AbstractCellSorter]]
+            ] = DEFAULT_MODELS):
         self._sorters: ClassKeyedMap = ClassKeyedMap(default=None)
 
         for model, sorter_cls in models_to_register:
@@ -162,9 +166,10 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
 
         return res
 
-    def register(self, *,
-                 model: Type[Model],
-                 sorter_cls: Type[AbstractCellSorter]) -> 'ForeignKeySorterRegistry':
+    def register(
+            self, *,
+            model: Type[Model],
+            sorter_cls: Type[AbstractCellSorter]) -> 'ForeignKeySorterRegistry':
         self._sorters[model] = sorter_cls()
 
         return self
@@ -214,7 +219,11 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
         # (models.URLField, ...)
     )
 
-    def __init__(self, to_register: Iterable[Tuple[Type[Field], Type[AbstractCellSorter]]] = DEFAULT_SORTERS):
+    def __init__(
+            self,
+            to_register: Iterable[
+                Tuple[Type[Field], Type[AbstractCellSorter]]
+            ] = DEFAULT_SORTERS):
         # self._sorters_4_modelfields = {}  # TODO: when order is kept (py3.7)
         self._sorters_4_modelfields: Dict[Field, AbstractCellSorter] = OrderedDict()
         self._sorters_4_modelfieldtypes: ClassKeyedMap = ClassKeyedMap(default=None)
@@ -529,7 +538,9 @@ class QuerySorter:
                     first_order = ordering[0]
                     ind_ordering = get_indexed_ordering(model, [first_order, '*', last_field])
 
-                    sort_info.field_names = (first_order, last_field) if ind_ordering is None else ind_ordering
+                    sort_info.field_names = (
+                        (first_order, last_field) if ind_ordering is None else ind_ordering
+                    )
                 else:
                     sort_info.field_names = (*ordering, last_field)
             else:

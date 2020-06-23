@@ -35,16 +35,22 @@ def print_phone(entity, fval, user, field) -> str:  # TODO: rename  print_phone_
     if not fval:
         return simple_print_html(entity, fval, user, field)
 
-    theme = get_current_theme()  # TODO: need the context to use faster get_current_theme_from_context()
+    # TODO: need the context to use faster get_current_theme_from_context()
+    theme = get_current_theme()
 
     return format_html(
-        """{number}&nbsp;<a class="cti-phonecall" onclick="creme.cti.phoneCall('{external_url}', '{creme_url}', '{number}', {id});">{icon}</a>""",
+        """{number}&nbsp;"""
+        """<a class="cti-phonecall" """
+        """onclick="creme.cti.phoneCall('{external_url}', '{creme_url}', '{number}', {id});">"""
+        """{icon}"""
+        """</a>""",
         external_url=settings.ABCTI_URL,
         creme_url=reverse('cti__create_phonecall_as_caller'),
         number=fval,
         id=entity.id,
-        icon=get_icon_by_name(name='phone', theme=theme, label=_('Call'),
-                              size_px=get_icon_size_px(theme, size='brick-header'),
-                              css_class='text_icon',
-                             ).render(),
+        icon=get_icon_by_name(
+            name='phone', theme=theme, label=_('Call'),
+            size_px=get_icon_size_px(theme, size='brick-header'),
+            css_class='text_icon',
+        ).render(),
     )

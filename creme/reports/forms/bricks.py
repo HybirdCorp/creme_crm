@@ -93,7 +93,9 @@ class FetcherChoiceIterator:
 class GraphFetcherField(Field):
     widget = DynamicSelect(attrs={'autocomplete': True})
     default_error_messages = {
-        'invalid_choice': _('Select a valid choice. %(value)s is not one of the available choices.'),
+        'invalid_choice': _(
+            'Select a valid choice. %(value)s is not one of the available choices.'
+        ),
     }
 
     _graph: 'AbstractReportGraph'
@@ -156,13 +158,14 @@ class GraphFetcherField(Field):
 
 # class GraphInstanceBrickForm(CremeForm):
 class GraphInstanceBrickForm(CremeModelForm):
-    # volatile_column = ChoiceField(label=_('Volatile column'), choices=(), required=False,
-    #                               widget=DynamicSelect(attrs={'autocomplete': True}),
-    #                               help_text=_('When the graph is displayed on the detail-view of an entity, '
-    #                                           'only the entities linked to this entity by the following link '
-    #                                           'are used to compute the graph.'
-    #                                          ),
-    #                              )
+    # volatile_column = ChoiceField(
+    #     label=_('Volatile column'), choices=(), required=False,
+    #     widget=DynamicSelect(attrs={'autocomplete': True}),
+    #     help_text=_('When the graph is displayed on the detail-view of an entity, '
+    #                 'only the entities linked to this entity by the following link '
+    #                 'are used to compute the graph.'
+    #                ),
+    #     )
     fetcher = GraphFetcherField(
         label=_('Volatile column'),
         help_text=_(
@@ -188,20 +191,23 @@ class GraphInstanceBrickForm(CremeModelForm):
     def __init__(self, graph, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graph = graph
-        # self.fields['volatile_column'].choices = self._get_volatile_choices(graph.linked_report.ct)
+        # self.fields['volatile_column'].choices = self._get_volatile_choices(
+        #       graph.linked_report.ct)
         self.fields['fetcher'].graph = graph
 
     # def _get_volatile_choices(self, ct):
     #     choices = []
-    #     fk_choices = [('fk-' + name, vname)
-    #                     for name, vname in ModelFieldEnumerator(ct.model_class(), deep=0, only_leafs=False)
-    #                                         .filter((lambda f, deep: isinstance(f, ForeignKey) and
-    #                                                                  issubclass(f.remote_field.model, CremeEntity)
-    #                                                 ),
-    #                                                 viewable=True,
-    #                                                )
-    #                                         .choices()
-    #                  ]
+    #     fk_choices = [
+    #         ('fk-' + name, vname)
+    #         for name, vname in ModelFieldEnumerator(
+    #             ct.model_class(), deep=0, only_leafs=False
+    #         ).filter(
+    #             (lambda f, deep: isinstance(f, ForeignKey) and
+    #                 issubclass(f.remote_field.model, CremeEntity)
+    #             ),
+    #             viewable=True,
+    #         ).choices()
+    #     ]
     #
     #     self._rtypes = {}
     #     rtype_choices = []

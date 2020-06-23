@@ -138,7 +138,9 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         bulk_update_registry = self.bulk_update_registry
 
         bulk_update_registry.register(FakeContact, exclude=['address'])
-        self.assertFalse(bulk_update_registry.is_expandable(model=FakeContact, field_name='address'))
+        self.assertFalse(
+            bulk_update_registry.is_expandable(model=FakeContact, field_name='address')
+        )
 
     def test_is_updatable_ignore(self):
         bulk_update_registry = self.bulk_update_registry
@@ -174,8 +176,10 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
             if field.editable
         ]
-        self.assertListEqual(self.sortFields(expected),
-                             bulk_update_registry.regular_fields(FakeContact, exclude_unique=False))
+        self.assertListEqual(
+            self.sortFields(expected),
+            bulk_update_registry.regular_fields(FakeContact, exclude_unique=False)
+        )
 
     def test_get_regular_field_not_editable(self):
         bulk_update_registry = self.bulk_update_registry
@@ -194,10 +198,12 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         with self.assertRaises(FieldNotAllowed):
             bulk_update_registry.get_field(FakeContact, 'address')
 
-        self.assertIsNotNone(bulk_update_registry.status(FakeContact)
-                                                 .get_expandable_field('address')
-                            )
-        self.assertIsNotNone(bulk_update_registry.get_field(FakeContact, 'address__zipcode'))
+        self.assertIsNotNone(
+            bulk_update_registry.status(FakeContact).get_expandable_field('address')
+        )
+        self.assertIsNotNone(
+            bulk_update_registry.get_field(FakeContact, 'address__zipcode')
+        )
 
     def test_regular_fields_expanded(self):
         bulk_update_registry = self.bulk_update_registry
@@ -239,8 +245,14 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         bulk_update_registry.register(FakeContact)
 
         zipcode_field = FakeAddress._meta.get_field('zipcode')
-        self.assertEqual(zipcode_field, bulk_update_registry.get_field(FakeContact, 'address__zipcode'))
-        self.assertEqual(zipcode_field, bulk_update_registry.get_field(FakeAddress, 'zipcode'))
+        self.assertEqual(
+            zipcode_field,
+            bulk_update_registry.get_field(FakeContact, 'address__zipcode')
+        )
+        self.assertEqual(
+            zipcode_field,
+            bulk_update_registry.get_field(FakeAddress, 'zipcode')
+        )
 
     def test_default_field(self):
         bulk_update_registry = self.bulk_update_registry
@@ -262,7 +274,8 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
 
-        CustomField.objects.create(name='A', content_type=contact_ct, field_type=CustomField.STR)
+        create_cf = CustomField.objects.create
+        create_cf(name='A', content_type=contact_ct, field_type=CustomField.STR)
 
         regular_names = [
             field.name
@@ -274,19 +287,31 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         regular_fields = bulk_update_registry.regular_fields(FakeContact)
         custom_fields  = bulk_update_registry.custom_fields(FakeContact)
 
-        self.assertListEqual(sorted(regular_names), sorted([field.name for field in regular_fields]))
-        self.assertListEqual(sorted(custom_names), [field.name for field in custom_fields])
+        self.assertListEqual(
+            sorted(regular_names),
+            sorted([field.name for field in regular_fields])
+        )
+        self.assertListEqual(
+            sorted(custom_names),
+            [field.name for field in custom_fields]
+        )
 
-        CustomField.objects.create(name='C', content_type=contact_ct, field_type=CustomField.BOOL)
-        CustomField.objects.create(name='0', content_type=contact_ct, field_type=CustomField.INT)
+        create_cf(name='C', content_type=contact_ct, field_type=CustomField.BOOL)
+        create_cf(name='0', content_type=contact_ct, field_type=CustomField.INT)
 
         custom_names  = ['0', 'A', 'C']
 
         regular_fields = bulk_update_registry.regular_fields(FakeContact)
         custom_fields  = bulk_update_registry.custom_fields(FakeContact)
 
-        self.assertListEqual(sorted(regular_names), sorted([field.name for field in regular_fields]))
-        self.assertListEqual(sorted(custom_names), [field.name for field in custom_fields])
+        self.assertListEqual(
+            sorted(regular_names),
+            sorted([field.name for field in regular_fields])
+        )
+        self.assertListEqual(
+            sorted(custom_names),
+            [field.name for field in custom_fields]
+        )
 
     def test_custom_fields_ignore(self):
         bulk_update_registry = self.bulk_update_registry
@@ -314,7 +339,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
                         )
 
 # NB: these 2 tests make some other test cases crash.
-#  eg: Problem with entity deletion: (1146, "Table 'test_creme_1_6.creme_core_subcontact' doesn't exist")
+#  eg: Problem with entity deletion: (1146, "Table '....creme_core_subcontact' doesn't exist")
 # We comment them because entity inheritance is not recommended anyway
 # TODO: uncomment them with a true SubContact model ??
 #    def test_innerforms_inherit01(self):
@@ -527,9 +552,11 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         # with self.assertRaises(ValueError) as err:
         #     BulkDefaultEditForm(Contact, image_field, user, [contact])
         #
-        # self.assertEqual(str(err.exception),
-        #                  'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.'
-        #                 )
+        # self.assertEqual(
+        #     str(err.exception),
+        #     'Q filter is not (yet) supported for bulk edition of a field
+        #     related to a CremeEntity.'
+        # )
 
     def test_manytomany_innerform01(self):
         user = self.create_user()
@@ -595,9 +622,11 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         # with self.assertRaises(ValueError) as err:
         #     BulkDefaultEditForm(EmailCampaign, mailing_lists_field, user, [campaign])
         #
-        # self.assertEqual(str(err.exception),
-        #                  'Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.'
-        #                 )
+        # self.assertEqual(
+        #     str(err.exception),
+        #     'Q filter is not (yet) supported for bulk edition of a field '
+        #     'related to a CremeEntity.'
+        # )
 
     def test_inner_uri01(self):
         "Regular field."

@@ -84,14 +84,17 @@ class RelationsBrick(QuerysetBrick):
         if isinstance(info, dict):
             def is_a_list_of_strings(key):
                 rtype_ids = info.get(key, ())
-                return isinstance(rtype_ids, (list, tuple)) and all(isinstance(x, str) for x in rtype_ids)
+                return isinstance(rtype_ids, (list, tuple)) and all(
+                    isinstance(x, str) for x in rtype_ids
+                )
 
             info_are_ok = is_a_list_of_strings('include') and is_a_list_of_strings('exclude')
 
         if info_are_ok:
             self._reloading_info = info
         else:
-            self._reloading_info = {}  # We do not let leave 'None' (because it means 'first render').
+            # We do not let leave 'None' (because it means 'first render').
+            self._reloading_info = {}
             logger.warning('Invalid reloading extra_data for RelationsBrick: %s', info)
 
     def _iter_dependencies_info(self):
@@ -103,13 +106,16 @@ class RelationsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
-        relations = entity.relations.select_related('type', 'type__symmetric_type', 'object_entity')
+        relations = entity.relations.select_related(
+            'type', 'type__symmetric_type', 'object_entity',
+        )
         included_rtype_ids = self._included_rtype_ids
         excluded_rtype_ids = self._excluded_rtype_ids
         reloading_info = self._reloading_info
 
         if reloading_info is None:  # NB: it's not a reload, it's the initial render()
-            # TODO: when it's the only use of 'used_relationtypes_ids()', inline the call (+ deprecate method) ?
+            # TODO: when it's the only use of 'used_relationtypes_ids()',
+            #       inline the call (+ deprecate method) ?
             used_rtype_ids = BricksManager.get(context).used_relationtypes_ids
             excluded_rtype_ids_set = {
                 *RelationType.objects.filter(
@@ -117,7 +123,11 @@ class RelationsBrick(QuerysetBrick):
                     minimal_display=True,
                 ).values_list('id', flat=True),
             }
-            included_rtype_ids.extend(rtype_id for rtype_id in used_rtype_ids if rtype_id not in excluded_rtype_ids_set)
+            included_rtype_ids.extend(
+                rtype_id
+                for rtype_id in used_rtype_ids
+                if rtype_id not in excluded_rtype_ids_set
+            )
             excluded_rtype_ids.extend(excluded_rtype_ids_set)
 
             self._reloading_info = reloading_info = {}
@@ -242,7 +252,9 @@ class ImprintsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         can_view = context['user'].is_superuser
-        qs = Imprint.objects.filter(entity=context['object'].pk) if can_view else Imprint.objects.none()
+        qs = Imprint.objects.filter(
+            entity=context['object'].pk,
+        ) if can_view else Imprint.objects.none()
 
         return self._render(self.get_template_context(context, qs))
 
@@ -318,7 +330,8 @@ class JobBrick(Brick):
         if info_are_ok:
             self._reloading_info = info
         else:
-            self._reloading_info = {}  # We do not let leave 'None' (because it means 'first render').
+            # We do not let leave 'None' (because it means 'first render').
+            self._reloading_info = {}
             logger.warning('Invalid reloading extra_data for JobBrick: %s', info)
 
     def detailview_display(self, context):

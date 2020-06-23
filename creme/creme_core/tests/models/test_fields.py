@@ -126,7 +126,9 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         self.assertEqual(self.entity, creme_entity)
 
     def test_fk_cache(self):
-        "Do not retrieve real entity if already stored/retrieved in 'entity' attribute."
+        """Do not retrieve real entity if already stored/retrieved in 'entity'
+         attribute.
+         """
         entity = self.entity
         todo = FakeTodo(
             title='My todo',
@@ -184,7 +186,9 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         self.assertEqual(entity, creme_entity)
 
     def test_cache_for_set02(self):
-        "After a '__set__' with a real entity, '__get__' uses no query (base entity version)."
+        """After a '__set__' with a real entity, '__get__' uses no query
+        (base entity version).
+        """
         entity = CremeEntity.objects.get(id=self.entity.id)
         real_entity = entity.get_real_entity()
 
@@ -199,7 +203,9 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         self.assertEqual(real_entity, creme_entity)
 
     def test_get_real_entity(self):
-        "Set a base entity, so '__get__' uses a query to retrieve the real entity."
+        """Set a base entity, so '__get__' uses a query to retrieve the real
+        entity.
+        """
         entity = self.entity
         todo = FakeTodo(title='My todo')
 
@@ -289,7 +295,8 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         todo = FakeTodo(
             title='My todo',
             entity_id=self.entity.id,
-            entity_content_type=self.get_ct(FakeOrganisation),  # Does not correspond to 'self.entity'
+            # Does not correspond to 'self.entity'
+            entity_content_type=self.get_ct(FakeOrganisation),
         )
 
         with self.assertRaises(FakeOrganisation.DoesNotExist):
@@ -299,8 +306,10 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         "Bad CT + base entity."
         todo = FakeTodo(
             title='My todo',
-            entity=CremeEntity.objects.get(id=self.entity.id),  # Not real entity...
-            entity_content_type=self.get_ct(FakeOrganisation),  # Does not correspond to 'self.entity'
+            # Not real entity...
+            entity=CremeEntity.objects.get(id=self.entity.id),
+            # Does not correspond to 'self.entity'
+            entity_content_type=self.get_ct(FakeOrganisation),
         )
 
         with self.assertRaises(ValueError) as error_context:

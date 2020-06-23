@@ -84,13 +84,16 @@ class ViewableItem(Item):
                  icon_label: str = '',
                  perm=None):
         """
-        @param id: Identifier (string). Must be unique in a container. A good way is to prefix with app label + '-'.
-        @param label: Text displayed for this entry (should be a ugettext_lazy or something like that).
-        @param icon: Icon identifier (string -- see icon system). Size used is 'brick-header'.
+        @param id: Identifier (string). Must be unique in a container.
+               A good way is to prefix with app label + '-'.
+        @param label: Text displayed for this entry
+               (should be a gettext_lazy or something like that).
+        @param icon: Icon identifier (string -- see icon system).
+               Size used is 'brick-header'.
         @param icon_label: Label of the related icon (not used if 'icon' is None).
-        @param perm: Permission (a not allowed entry will be disabled). Can be a classical permission string
-               (eg: 'persons', 'persons.add_contact') or a callable which takes one argument (user) & returns
-               a boolean.
+        @param perm: Permission (a not allowed entry will be disabled) ;
+               can be a classical permission string (eg: 'persons', 'persons.add_contact')
+               or a callable which takes one argument (user) & returns a boolean.
         """
         super().__init__(id)
         # TODO: assert there is at least an icon or a label ????
@@ -103,7 +106,11 @@ class ViewableItem(Item):
     #     return '<Item: id=%s>' % self.id
 
     def __str__(self):
-        return f'<{self.__class__.__name__}: id="{self.id}" priority={self._priority} label="{self.label}">'
+        return (
+            f'<{self.__class__.__name__}: '
+            f'id="{self.id}" priority={self._priority} label="{self.label}"'
+            f'>'
+        )
 
     def render(self, context, level=0):
         img = self.render_icon(context)
@@ -245,9 +252,10 @@ class ItemList:
 
         @param cls: The class of the wanted Item.
         @param item_id: The ID of the Item, which is used to find it.
-        @param priority: The priority used when the Item is added, if it is created (None means 'at the end').
-        @param defaults: Dictionary used as arguments to create the Item if it is not found (notice that
-                        'item_id' is automatically used as 'id' argument).
+        @param priority: The priority used when the Item is added,
+               if it is created (None means 'at the end').
+        @param defaults: Dictionary used as arguments to create the Item if it
+               is not found (notice that 'item_id' is automatically used as 'id' argument).
         @return The 'cls' instance.
         @raise ValueError: If the Item exists but has not the given class 'cls'.
         """
@@ -287,7 +295,8 @@ class ItemList:
 
         @param item_ids: Item IDs.
 
-        Notice that if some Items are not found, some messages ate logged, but no exception is raised.
+        Notice that if some Items are not found, some messages ate logged,
+        but no exception is raised.
         """
         pop = self.pop
 
@@ -299,7 +308,9 @@ class ItemList:
 
 
 class ItemGroup(Item, ItemList):
-    """A container for Items which should be flattened at render (ie: its content is displayed at the same level)"""
+    """A container for Items which should be flattened at render
+    (ie: its content is displayed at the same level).
+    """
 
     def __init__(self, id, label=''):
         Item.__init__(self, id)
@@ -398,7 +409,10 @@ class ContainerItem(ViewableItem, ItemList):
                     item.render(context, level)
                     if isinstance(item, ItemSeparator) else
                     format_html(
-                        '<li class="ui-creme-navigation-item-level{level} ui-creme-navigation-item-id_{id}">{item}</li>',
+                        '<li class="ui-creme-navigation-item-level{level} '
+                        'ui-creme-navigation-item-id_{id}">'
+                        '{item}'
+                        '</li>',
                         level=level,
                         id=item.id,
                         item=item.render(context, level),
@@ -449,7 +463,9 @@ class URLItem(ViewableItem):
 
     @url.setter
     def url(self, url: _URL):
-        "@param url: String or callable returning a string (the string should be a valid URL of course)."
+        """@param url: String or callable returning a string
+                  (the string should be a valid URL of course).
+        """
         self._url = url
 
     @classmethod
@@ -504,7 +520,8 @@ class URLItem(ViewableItem):
 
         @param id: ID of the created Item.
         @param model: Model inheriting CremeEntity.
-        @param url: URL (see 'url' property). The method 'get_create_absolute_url' is used as default.
+        @param url: URL (see 'url' property).
+                    The method 'get_create_absolute_url' is used as default.
         @param label: Label of the link. The meta.verbose_name is used as default.
         @param perm: permission string (eg: 'persons.add_contact').
                      Classical creation perm for the given model is used as default
@@ -614,7 +631,10 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
             )
 
     def __init__(self, id: str, registry, label=gettext_lazy('Quick creation')):
-        """@param registry: QuickFormsRegistry instance (indeed, we only need a iter_models() method)."""
+        """Constructor.
+        @param registry: QuickFormsRegistry instance
+               (indeed, we only need a iter_models() method).
+        """
         super().__init__(id=id, label=label)
         self._registry = registry
 
@@ -653,7 +673,8 @@ class CreationFormsItem(ViewableItem):
         """Link to a creation view."""
         def __init__(self, id, model: Optional[Type[CremeEntity]] = None, **kwargs):
             """Constructor.
-            @param id: unique (in this group) string, which allows to do queries (change property, remove...).
+            @param id: unique (in this group) string, which allows to do queries
+                   (change property, remove...).
             @param model: Class inheriting CremeEntity, or None.
             @param kwargs: Optional arguments: 'label', 'url' & 'perm' (strings).
             If 'model' is None, kwargs arguments are mandatory.
@@ -665,8 +686,9 @@ class CreationFormsItem(ViewableItem):
             if model is not None:
                 get = kwargs.get
                 self.label = get('label') or model._meta.verbose_name
-                # NB: we cannot call model.get_create_absolute_url() immediately because the url resolver
-                #     will be used too soon (the apps could be not totally initialized).
+                # NB: we cannot call model.get_create_absolute_url() immediately
+                #     because the url resolver will be used too soon
+                #     (the apps could be not totally initialized).
                 self._url = get('url')
                 self.perm = get('perm') or cperm(model)
             else:
@@ -701,7 +723,8 @@ class CreationFormsItem(ViewableItem):
 
             return url
 
-        def render(self, context, level=0):  # Useless (only to_dict() is used, render is done by JavaScript).
+        # Useless (only to_dict() is used, render is done by JavaScript).
+        def render(self, context, level=0):
             return format_html('<a href="{}">{}</a>', self.url, self.label)
 
         def to_dict(self, user) -> Dict[str, str]:
@@ -716,7 +739,7 @@ class CreationFormsItem(ViewableItem):
         """Group of _Link instances."""
         def __init__(self, id, label):
             ViewableItem.__init__(self, id=id, label=label)
-            self._links = ItemList()  # We do not inherit to avoid exposing soem ambiguous methods
+            self._links = ItemList()  # We do not inherit to avoid exposing some ambiguous methods
 
         def __iter__(self):
             return iter(self._links)
@@ -727,11 +750,18 @@ class CreationFormsItem(ViewableItem):
         def change_priority(self, priority, *link_ids):
             self._links.change_priority(priority, *link_ids)
 
-        def add_link(self, id: str, model=None, priority=None, **kwargs) -> 'CreationFormsItem._LinksGroup':
+        def add_link(
+                self,
+                id: str,
+                model=None,
+                priority=None,
+                **kwargs) -> 'CreationFormsItem._LinksGroup':
             """Add a link to a creation view.
-            @param id: unique (in this group) string, which allows to do queries (change property, remove...).
-            @param priority: Integer indicating priority of the link in this group ('smaller' means 'before').
-                             None means the link is added at the (current) end of the group.
+            @param id: unique (in this group) string, which allows to do queries
+                   (change property, remove...).
+            @param priority: Integer indicating priority of the link in this group
+                   ('smaller' means 'before').
+                   <None> means the link is added at the (current) end of the group.
             @param model: Class inheriting CremeEntity, or None.
             @param kwargs: Optional arguments: 'label', 'url' & 'perm' (strings).
             If 'model' is None, kwargs arguments are mandatory.
@@ -770,7 +800,8 @@ class CreationFormsItem(ViewableItem):
             if not holes:
                 col_max_idx = grid_size
             else:
-                # We compute the number of holes which remain if we create a hole per (remaining) row
+                # We compute the number of holes which remain if we create a
+                # hole per (remaining) row
                 if holes - row_weigth > 0:
                     holes -= 2
                     col_max_idx = grid_size - 2
@@ -795,7 +826,11 @@ class CreationFormsItem(ViewableItem):
         """
         self._groups.change_priority(priority, *group_ids)
 
-    def get_or_create_group(self, group_id: str, label, priority=None) -> 'CreationFormsItem._LinksGroup':
+    def get_or_create_group(
+            self,
+            group_id: str,
+            label,
+            priority=None) -> 'CreationFormsItem._LinksGroup':
         return self._groups.get_or_create(CreationFormsItem._LinksGroup, group_id,
                                           priority=priority, defaults={'label': label},
                                          )
@@ -808,7 +843,9 @@ class CreationFormsItem(ViewableItem):
 
     def render(self, context, level=0):
         return format_html(
-            '<a href="" class="anyform-menu-link" title="{title}" data-grouped-links="{links}">{icon}{label}</a>',
+            '<a href="" class="anyform-menu-link" title="{title}" data-grouped-links="{links}">'
+            '{icon}{label}'
+            '</a>',
             title=_('Create an entity of any type'),
             # links=json_dump(self.as_grid(context['user'])),
             links=json_encode(self.as_grid(context['user'])),
@@ -894,7 +931,9 @@ class Menu(ItemList):
             '<ul class="ui-creme-navigation">{}</ul>',
             format_html_join(
                 '',
-                '<li class="ui-creme-navigation-item-level{} ui-creme-navigation-item-id_{}">{}</li>',
+                '<li class="ui-creme-navigation-item-level{} ui-creme-navigation-item-id_{}">'
+                '{}'
+                '</li>',
                 ((level, item.id, item.render(context, level)) for item in self)
             ),
         )

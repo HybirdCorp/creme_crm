@@ -170,7 +170,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         contacts = []
         for first_name, last_name in lines:
-            contact = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+            contact = self.get_object_or_fail(
+                FakeContact, first_name=first_name, last_name=last_name,
+            )
             self.assertEqual(user, contact.user)
             self.assertIsNone(contact.address)
 
@@ -230,7 +232,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertGET404(reload_url, data={'brick_id': JobErrorsBrick.id_})
 
     def _test_import02(self, builder):
-        "Use header, default value, model search and create, properties, fixed and dynamic relations"
+        """Use header, default value, model search and create, properties,
+        fixed and dynamic relations.
+        """
         user = self.login()
 
         pos_title  = 'Pilot'
@@ -327,7 +331,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         created_contacts = {}
         for first_name, last_name, pos_title, sector_title, city_name, __orga_name in lines[1:]:
-            contact = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+            contact = self.get_object_or_fail(
+                FakeContact, first_name=first_name, last_name=last_name,
+            )
             created_contacts[first_name] = contact
 
             self.assertEqual(default_descr, contact.description)
@@ -338,7 +344,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertRelationCount(1, created_contacts['Rei'],   employed.id, nerv)
         self.assertRelationCount(0, created_contacts['Asuka'], employed.id, nerv)
 
-        self.assertFalse(FakeContact.objects.filter(last_name=lines[0][1]))  # Header must not be used
+        # Header must not be used
+        self.assertFalse(FakeContact.objects.filter(last_name=lines[0][1]))
 
         rei = FakeContact.objects.get(first_name=lines[1][0])
         address = rei.address
@@ -1075,8 +1082,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         ptype1 = create_ptype(str_pk='test-prop_cute',   text='Really cute in her suit')
         ptype2 = create_ptype(str_pk='test-blue_haired', text='Has blue hairs')
 
-        rei_info   = {'first_name': 'Rei',   'last_name': 'Ayanami', 'phone': '111111', 'email': '\t '}
-        asuka_info = {'first_name': 'Asuka', 'last_name': 'Langley', 'phone': '222222', 'email': ''}
+        rei_info = {
+            'first_name': 'Rei',   'last_name': 'Ayanami', 'phone': '111111', 'email': '\t ',
+        }
+        asuka_info = {
+            'first_name': 'Asuka', 'last_name': 'Langley', 'phone': '222222', 'email': '',
+        }
 
         rei_mobile = '54554'
         rei_email  = 'rei.ayanami@nerv.jp'
@@ -1140,7 +1151,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         self.assertIsNone(self.refresh(rei2).phone)
 
-        # asuka = self.get_object_or_fail(FakeContact, **asuka_info)  # TODO: if FakeContact.email.null == False
+        # TODO: if FakeContact.email.null == False
+        # asuka = self.get_object_or_fail(FakeContact, **asuka_info)
         asuka = self.get_object_or_fail(FakeContact,
                                         first_name=asuka_info['first_name'],
                                         last_name=asuka_info['last_name'],

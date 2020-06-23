@@ -105,8 +105,16 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         #           Set the Relationship 'Current doc' ?,
         #           Workflow function,
         #         )
-        Quote:      (constants.REL_SUB_LINKED_QUOTE,      True,  workflow.transform_target_into_prospect),
-        Invoice:    (constants.REL_SUB_LINKED_INVOICE,    False, workflow.transform_target_into_customer),
+        Quote: (
+            constants.REL_SUB_LINKED_QUOTE,
+            True,
+            workflow.transform_target_into_prospect,
+        ),
+        Invoice: (
+            constants.REL_SUB_LINKED_INVOICE,
+            False,
+            workflow.transform_target_into_customer,
+        ),
         SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False, None),
     }
     generated_name = '{document.number} — {opportunity}'

@@ -48,7 +48,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'activities']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_LINKED_2_TICKET).exists()
+        already_populated = RelationType.objects.filter(
+            pk=constants.REL_SUB_LINKED_2_TICKET,
+        ).exists()
 
         Ticket = get_ticket_model()
         TicketTemplate = get_tickettemplate_model()
@@ -59,7 +61,9 @@ class Populator(BasePopulator):
         )
 
         if apps.is_installed('creme.activities'):
-            logger.info('Activities app is installed => a Ticket can be the subject of an Activity')
+            logger.info(
+                'Activities app is installed => a Ticket can be the subject of an Activity'
+            )
 
             from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
@@ -117,10 +121,20 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            for i, name in enumerate([_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')], start=1):
+            for i, name in enumerate(
+                [_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')],
+                start=1,
+            ):
                 create_if_needed(Priority, {'pk': i}, name=name, order=i)
 
-            for i, name in enumerate([_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error')], start=1):
+            for i, name in enumerate(
+                [
+                    _('Minor'), _('Major'),
+                    _('Feature'), _('Critical'), _('Enhancement'),
+                    _('Error')
+                ],
+                start=1,
+            ):
                 create_if_needed(Criticity, {'pk': i}, name=name, order=i)
 
             # ---------------------------
@@ -130,15 +144,19 @@ class Populator(BasePopulator):
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            BrickDetailviewLocation.objects.create_for_model_brick(order=5,   zone=LEFT,  model=Ticket)
-            create_bdl(brick=core_bricks.CustomFieldsBrick,        order=40,  zone=LEFT)
-            create_bdl(brick=core_bricks.PropertiesBrick,          order=450, zone=LEFT)
-            create_bdl(brick=core_bricks.RelationsBrick,           order=500, zone=LEFT)
-            create_bdl(brick=rbi.brick_id,                         order=1,   zone=RIGHT)
-            create_bdl(brick=core_bricks.HistoryBrick,             order=20,  zone=RIGHT)
+            BrickDetailviewLocation.objects.create_for_model_brick(
+                order=5, zone=LEFT, model=Ticket,
+            )
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT)
+            create_bdl(brick=rbi.brick_id,                  order=1,   zone=RIGHT)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT)
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+                logger.info(
+                    'Assistants app is installed => we use the assistants blocks on detail view'
+                )
 
                 from creme.assistants import bricks as a_bricks
 
@@ -148,7 +166,8 @@ class Populator(BasePopulator):
                 create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT)
 
             if apps.is_installed('creme.documents'):
-                # logger.info("Documents app is installed => we use the documents block on Ticket's detail views")
+                # logger.info("Documents app is installed
+                # => we use the documents block on Ticket's detail views")
 
                 from creme.documents.bricks import LinkedDocsBrick
 
@@ -163,8 +182,21 @@ class Populator(BasePopulator):
                 else:
                     from creme.tickets.buttons import Linked2TicketButton
 
-                    create_bmi = ButtonMenuItem.objects.create_if_needed
-                    create_bmi(pk='tickets-linked_contact_button', model=get_contact_model(),      button=Linked2TicketButton, order=50)
-                    create_bmi(pk='tickets-linked_orga_button',    model=get_organisation_model(), button=Linked2TicketButton, order=50)
+                    logger.info(
+                        "'Persons' app is installed "
+                        "=> add button 'Linked to a ticket' to Contact & Organisation"
+                    )
 
-                    logger.info("'Persons' app is installed => add button 'Linked to a ticket' to Contact & Organisation")
+                    create_bmi = ButtonMenuItem.objects.create_if_needed
+                    create_bmi(
+                        pk='tickets-linked_contact_button',
+                        model=get_contact_model(),
+                        button=Linked2TicketButton,
+                        order=50,
+                    )
+                    create_bmi(
+                        pk='tickets-linked_orga_button',
+                        model=get_organisation_model(),
+                        button=Linked2TicketButton,
+                        order=50,
+                    )

@@ -109,8 +109,12 @@ class UserMessageTestCase(AssistantsTestCase):
         priority = UserMessagePriority.objects.create(title='Important')
 
         create_user = User.objects.create_user
-        user01 = create_user('User01', first_name='User01', last_name='Foo', email='user01@foobar.com')
-        user02 = create_user('User02', first_name='User02', last_name='Bar', email='user02@foobar.com')
+        user01 = create_user(
+            'User01', first_name='User01', last_name='Foo', email='user01@foobar.com',
+        )
+        user02 = create_user(
+            'User02', first_name='User02', last_name='Bar', email='user02@foobar.com',
+        )
 
         job = self._get_usermessages_job()
         self.assertIsNone(job.user)
@@ -251,8 +255,16 @@ class UserMessageTestCase(AssistantsTestCase):
             user01 = User.objects.create_user('User01', email='user01@foobar.com',
                                               first_name='User01', last_name='Foo',
                                              )
-            self._create_usermessage('Beware', 'This guy wants to fight against you', priority, [user01], contact01)
-            self._create_usermessage('Oh',     'This guy wants to meet you',          priority, [user01], contact02)
+            self._create_usermessage(
+                'Beware',
+                'This guy wants to fight against you',
+                priority, [user01], contact01,
+            )
+            self._create_usermessage(
+                'Oh',
+                'This guy wants to meet you',
+                priority, [user01], contact02,
+            )
             self.assertEqual(2, UserMessage.objects.count())
 
         def assertor(contact01):
@@ -266,10 +278,10 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_delete_priority01(self):
         priority = UserMessagePriority.objects.create(title='Important')
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('assistants', 'message_priority', priority.id)
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('assistants', 'message_priority', priority.id),
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(UserMessagePriority).job
@@ -283,10 +295,10 @@ class UserMessageTestCase(AssistantsTestCase):
         messages = UserMessage.objects.all()
         self.assertEqual(1, len(messages))
 
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('assistants', 'message_priority', priority.id)
-                                             ),
-                                     )
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance',
+            args=('assistants', 'message_priority', priority.id),
+        ))
         self.assertFormError(
             response, 'form',
             'replace_assistants__usermessage_priority',
@@ -324,8 +336,10 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(1, len(jresults))
 
         jresult = jresults[0]
-        self.assertEqual([_('An error occurred while sending emails'),
-                          _('Original error: {}').format(err_msg),
-                         ],
-                         jresult.messages
-                        )
+        self.assertListEqual(
+            [
+                _('An error occurred while sending emails'),
+                _('Original error: {}').format(err_msg),
+            ],
+            jresult.messages
+        )

@@ -140,8 +140,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             #     self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'  # Useless :)
-                return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'  # Useless :)
+                # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}'
+                #        f'</tr></thead></table>'
+                return f'<table id="{self.id_}"><thead><tr>' \
+                       f'{self.config_item.entity}</tr></thead></table>'  # Useless :)
 
         # self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
 
@@ -200,7 +202,9 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick1)
 
-        self.assertGET403(reverse('creme_core__reload_bricks'), data={'brick_id': FoobarBrick1.id_})
+        self.assertGET403(
+            reverse('creme_core__reload_bricks'), data={'brick_id': FoobarBrick1.id_},
+        )
 
     def test_reload_basic03(self):
         "Not superuser"
@@ -246,9 +250,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                 'extra_data': json_dump({FoobarBrick.id_: extra_data}),
             },
         )
-        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
-                         response.json()
-                        )
+        self.assertListEqual(
+            [
+                [FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)],
+            ],
+            response.json()
+        )
 
         self.assertEqual(extra_data, received_extra_data)
 
@@ -339,9 +346,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
 
-        response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-                                     data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, FoobarBrick3.id_]},
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+            data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, FoobarBrick3.id_]},
+        )
 
         fmt = self.TestBrick.string_format_detail
         self.assertEqual([[FoobarBrick1.id_, fmt(FoobarBrick1.id_)],
@@ -358,7 +366,9 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         "Do not have the credentials"
         self.login(is_superuser=False)
 
-        atom = FakeContact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
+        atom = FakeContact.objects.create(
+            user=self.other_user, first_name='Atom', last_name='Tenma',
+        )
 
         class FoobarBrick(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_detailview03')
@@ -372,9 +382,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_reload_detailview04(self):
         "Not superuser"
         self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        SetCredentials.objects.create(
+            role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
+        )
 
-        atom = FakeContact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
+        atom = FakeContact.objects.create(
+            user=self.other_user, first_name='Atom', last_name='Tenma',
+        )
         self.assertTrue(self.user.has_perm_to_view(atom))
 
         class FoobarBrick(self.TestBrick):
@@ -382,12 +396,16 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick)
 
-        response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-                                     data={'brick_id': FoobarBrick.id_},
-                                    )
-        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
-                         response.json()
-                        )
+        response = self.assertGET200(
+            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+            data={'brick_id': FoobarBrick.id_},
+        )
+        self.assertListEqual(
+            [
+                [FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)],
+            ],
+            response.json()
+        )
 
     def test_reload_detailview05(self):
         "Invalid block_id"
@@ -418,14 +436,19 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick)
 
-        response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-                                     data={'brick_id': FoobarBrick.id_,
-                                           'extra_data': json_dump({FoobarBrick.id_: extra_data}),
-                                          },
-                                    )
-        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
-                         response.json()
-                        )
+        response = self.assertGET200(
+            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+            data={
+                'brick_id': FoobarBrick.id_,
+                'extra_data': json_dump({FoobarBrick.id_: extra_data}),
+            },
+        )
+        self.assertListEqual(
+            [
+                [FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)],
+            ],
+            response.json()
+        )
 
         self.assertTrue(received_extra_data)
         self.assertEqual(extra_data, received_extra_data[0])
@@ -441,15 +464,18 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick1, FoobarBrick2)
 
-        response = self.assertGET200(reverse('creme_core__reload_home_bricks'),
-                                     data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_home_bricks'),
+            data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
+        )
         self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_home(FoobarBrick1.id_)],
-                          [FoobarBrick2.id_, self.TestBrick.string_format_home(FoobarBrick2.id_)],
-                         ],
-                         response.json()
-                        )
+        self.assertListEqual(
+            [
+                [FoobarBrick1.id_, self.TestBrick.string_format_home(FoobarBrick1.id_)],
+                [FoobarBrick2.id_, self.TestBrick.string_format_home(FoobarBrick2.id_)],
+            ],
+            response.json()
+        )
 
     def test_relations_brick01(self):
         user = self.login()
@@ -532,11 +558,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoInstanceLink(rbi_brick_node, uran)
 
         # Reloading
-        response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-                                     data={'brick_id': rbrick_id,
-                                           'extra_data': json_dump({rbrick_id: reloading_info}),
-                                          },
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+            data={
+                'brick_id': rbrick_id,
+                'extra_data': json_dump({rbrick_id: reloading_info}),
+            },
+        )
 
         load_data = response.json()
         self.assertEqual(load_data[0][0], rbrick_id)
@@ -597,11 +625,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                         )
 
         # Reloading
-        response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-                                     data={'brick_id': rbrick_id,
-                                           'extra_data': json_dump({rbrick_id: reloading_info}),
-                                          },
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+            data={
+                'brick_id': rbrick_id,
+                'extra_data': json_dump({rbrick_id: reloading_info}),
+            },
+        )
 
         load_data = response.json()
         self.assertEqual(load_data[0][0], rbrick_id)
@@ -613,11 +643,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # Reloading + bad data
         def assertBadData(data):
-            self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-                              data={'brick_id': rbrick_id,
-                                    'extra_data': json_dump({rbrick_id: data}),
-                                   },
-                             )
+            self.assertGET200(
+                reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+                data={
+                    'brick_id': rbrick_id,
+                    'extra_data': json_dump({rbrick_id: data}),
+                },
+            )
 
         assertBadData(1)
         assertBadData({'include': 1})
@@ -644,10 +676,17 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           first_name='Naru', phone='1122334455',
                                          )
 
-        # content_node = self._get_contact_brick_content(naru, brick_id='modelblock_creme_core-fakecontact')
+        # content_node = self._get_contact_brick_content(
+        #     naru, brick_id='modelblock_creme_core-fakecontact')
         content_node = self._get_contact_brick_content(naru, brick_id=MODELBRICK_ID)
-        self.assertEqual(naru.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
-        self.assertIn(naru.phone, self.get_brick_tile(content_node, 'regular_field-phone').text)
+        self.assertEqual(
+            naru.last_name,
+            self.get_brick_tile(content_node, 'regular_field-last_name').text,
+        )
+        self.assertIn(
+            naru.phone,
+            self.get_brick_tile(content_node, 'regular_field-phone').text
+        )
 
     def test_display_objectbrick02(self):
         "With FieldsConfig"
@@ -657,12 +696,16 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             content_type=FakeContact,
             descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
         )
-        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
-                                          first_name='Naru', phone='1122334455',
-                                         )
+        naru = FakeContact.objects.create(
+            user=user, last_name='Narusegawa',
+            first_name='Naru', phone='1122334455',
+        )
 
         content_node = self._get_contact_brick_content(naru, brick_id=MODELBRICK_ID)
-        self.assertEqual(naru.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
+        self.assertEqual(
+            naru.last_name,
+            self.get_brick_tile(content_node, 'regular_field-last_name').text
+        )
         self._assertNoBrickTile(content_node, 'regular_field-phone')
 
     def test_display_custombrick01(self):
@@ -689,8 +732,14 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         content_node = self._get_contact_brick_content(naru, brick_id=bdl.brick_id)
-        self.assertEqual(naru.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
-        self.assertIn(naru.phone, self.get_brick_tile(content_node, 'regular_field-phone').text)
+        self.assertEqual(
+            naru.last_name,
+            self.get_brick_tile(content_node, 'regular_field-last_name').text
+        )
+        self.assertIn(
+            naru.phone,
+            self.get_brick_tile(content_node, 'regular_field-phone').text
+        )
 
     def test_display_custombrick02(self):
         "With FieldsConfig."
@@ -720,7 +769,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         content_node = self._get_contact_brick_content(naru, brick_id=bdl.brick_id)
-        self.assertEqual(naru.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
+        self.assertEqual(
+            naru.last_name,
+            self.get_brick_tile(content_node, 'regular_field-last_name').text,
+        )
         self._assertNoBrickTile(content_node, 'regular_field-phone')
 
     def test_display_custombrick03(self):
@@ -736,10 +788,11 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         cbc_item = CustomBrickConfigItem.objects.create(
             id='tests-contacts1', name='Contact info',
             content_type=FakeContact,
-            cells=[build_cell(FakeContact, 'last_name'),
-                   build_cell(FakeContact, 'address__' + hidden_fname),
-                   build_cell(FakeContact, 'address__city'),
-                  ],
+            cells=[
+                build_cell(FakeContact, 'last_name'),
+                build_cell(FakeContact, 'address__' + hidden_fname),
+                build_cell(FakeContact, 'address__city'),
+            ],
         )
         bdl = BrickDetailviewLocation.objects.create_if_needed(
             brick=cbc_item.generate_id(),
@@ -756,6 +809,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         naru.save()
 
         content_node = self._get_contact_brick_content(naru, brick_id=bdl.brick_id)
-        self.assertEqual(naru.last_name,    self.get_brick_tile(content_node, 'regular_field-last_name').text)
-        self.assertEqual(naru.address.city, self.get_brick_tile(content_node, 'regular_field-address__city').text)
+        self.assertEqual(
+            naru.last_name,
+            self.get_brick_tile(content_node, 'regular_field-last_name').text,
+        )
+        self.assertEqual(
+            naru.address.city,
+            self.get_brick_tile(content_node, 'regular_field-address__city').text,
+        )
         self._assertNoBrickTile(content_node, 'regular_field-address__zipcode')

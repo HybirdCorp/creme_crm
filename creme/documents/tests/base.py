@@ -63,7 +63,9 @@ class _DocumentsTestCase(CremeTestCase):
 
         name = IMAGE_PATHS[ident]
 
-        with open(join(settings.CREME_ROOT, 'static', 'chantilly', 'images', name), 'rb') as image_file:
+        with open(
+            join(settings.CREME_ROOT, 'static', 'chantilly', 'images', name), 'rb',
+        ) as image_file:
             return self._create_doc(
                 title=title or name,
                 file_obj=image_file,

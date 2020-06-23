@@ -260,7 +260,9 @@ class _HistoryLineType:
             backup['_state'] = ModelState()
             old_instance = instance.__class__()
             old_instance.__dict__ = backup
-            excluded_fields: Container = _EXCLUDED_FIELDS if isinstance(instance, CremeEntity) else ()
+            excluded_fields: Container = (
+                _EXCLUDED_FIELDS if isinstance(instance, CremeEntity) else ()
+            )
 
             for field in instance._meta.fields:
                 fname = field.name
@@ -276,15 +278,21 @@ class _HistoryLineType:
                     new_value = new_value and new_value.pk
                 else:
                     try:
-                        # Sometimes a form sets a unicode representing an int in an IntegerField (for example)
-                        # => the type difference leads to a useless log like: Set field “My field” from “X” to “X”
+                        # Sometimes a form sets a string representing an int in
+                        # an IntegerField (for example)
+                        #   => the type difference leads to a useless log like:
+                        #      Set field “My field” from “X” to “X”
                         new_value = field.clean(new_value, instance)
                     except ValidationError as e:
-                        logger.debug('Error in _HistoryLineType._build_fields_modifs() [%s]: %s', __name__, e)
+                        logger.debug(
+                            'Error in _HistoryLineType._build_fields_modifs() [%s]: %s',
+                            __name__, e,
+                        )
                         continue
 
                 if old_value != new_value:
-                    if not new_value and not old_value:  # Ignore useless changes like : None -> ""
+                    if not new_value and not old_value:
+                        # Ignore useless changes like : None -> ""
                         continue
 
                     modif: tuple
@@ -537,7 +545,8 @@ class _HLTAuxCreation(_HistoryLineType):
                                            )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
-        ct_id, aux_id, str_obj = modifications  # TODO: use aux_id to display an up-to-date value ??
+        # TODO: use aux_id to display an up-to-date value ??
+        ct_id, aux_id, str_obj = modifications
 
         yield gettext('Add <{type}>: “{value}”').format(
             type=self._model_info(ct_id)[1],
@@ -723,19 +732,22 @@ class HistoryLine(Model):
     @staticmethod
     def disable(instance) -> None:
         """Disable history for this instance.
-        @type instance: Can be an instance of CremeEntity, Relation, CremeProperty, an auxiliary model.
+        @type instance: Can be an instance of CremeEntity, Relation,
+              CremeProperty, an auxiliary model.
         """
         instance._hline_disabled = True
 
     @staticmethod
     def mark_as_reassigned(instance, old_reference, new_reference, field_name: str):
-        """ Indicate to the history system that an instance has been modified by replacing a FK value.
+        """ Indicate to the history system that an instance has been modified
+        by replacing a FK value.
 
-        It is useful when merging 2 entities with auxiliary instances, in order to detect a change
-        in these auxiliary instances (because if these FK are internal & so not considered as 'information'
-        fields the modifications will not caused a TYPE_AUX_EDITION line to be created) ;
-        so HistoryLines corresponding to the move of the auxiliary instances from the
-        deleted entity to the remaining one will be created.
+        It is useful when merging 2 entities with auxiliary instances, in order
+        to detect a change in these auxiliary instances (because if these FK are
+        internal & so not considered as 'information' fields the modifications
+        will not caused a TYPE_AUX_EDITION line to be created) ; so HistoryLines
+        corresponding to the move of the auxiliary instances from the deleted
+        entity to the remaining one will be created.
 
         @param instance: modified instance.
         @param old_reference: object which was referenced by the FK.
@@ -814,17 +826,23 @@ class HistoryLine(Model):
         """Set the internal cache for 'user' in some HistoryLines, to optimize queries.
 
         @param hlines: Sequence of HistoryLine instances (need to be iterated twice)
-        @param user: current user (instance of get_user_model()) ; no query is need to retrieve it again.
+        @param user: current user (instance of get_user_model()) ;
+              no query is need to retrieve it again.
         """
-        # We retrieve the User instances corresponding to the line usernames, in order to have a verbose display.
-        # We avoid a useless query to User if the only used User is the current User (which is already retrieved).
+        # We retrieve the User instances corresponding to the line usernames,
+        # in order to have a verbose display.
+        # We avoid a useless query to User if the only used User is the
+        # current User (which is already retrieved).
         usernames = {hline.username for hline in hlines}
         usernames.discard(user.username)
 
         users = {user.username: user}
 
         if usernames:
-            users.update((u.username, u) for u in get_user_model().objects.filter(username__in=usernames))
+            users.update(
+                (u.username, u)
+                for u in get_user_model().objects.filter(username__in=usernames)
+            )
 
         for hline in hlines:
             hline.user = users.get(hline.username)
@@ -844,7 +862,13 @@ class HistoryLine(Model):
         return self._related_line
 
     @classmethod
-    def _create_line_4_instance(cls, instance, ltype: int, date=None, modifs=(), related_line_id=None):
+    def _create_line_4_instance(
+            cls,
+            instance,
+            ltype: int,
+            date=None,
+            modifs=(),
+            related_line_id=None):
         """Builder.
         @param ltype: See TYPE_*
         @param date: If not given, will be 'now'.
@@ -882,7 +906,9 @@ class HistoryLine(Model):
             user = getattr(self, '_user_cache')
         except AttributeError:
             username = self.username
-            self._user_cache = user = get_user_model().objects.filter(username=username).first() if username else None
+            self._user_cache = user = get_user_model().objects.filter(
+                username=username,
+            ).first() if username else None
 
         return user
 
@@ -909,7 +935,8 @@ def _prepare_log(sender, instance, **kwargs):
     # TODO: replace with this code
     #      problem with billing lines : the update view does not retrieve
     #      final class, so 'instance.entity_type_id == _get_ct(instance).id'
-    #      test avoid the creation of a line --> find a better way to test if a final object is alive ?
+    #      test avoid the creation of a line
+    #      --> find a better way to test if a final object is alive ?
     # if isinstance(instance, CremeEntity):
     #     if not instance.id or instance.entity_type_id != _get_ct(instance).id:
     #         return
@@ -940,7 +967,9 @@ def _log_creation_edition(sender, instance, created, **kwargs):
             else:
                 _HLTEntityEdition.create_lines(instance)
     except Exception:
-        logger.exception('Error in _log_creation_edition() ; HistoryLine may not be created.')
+        logger.exception(
+            'Error in _log_creation_edition() ; HistoryLine may not be created.'
+        )
 
 
 def _get_deleted_entity_ids() -> set:

@@ -29,21 +29,35 @@ from creme.creme_core.models import fields as creme_fields
 
 
 class AbstractAddress(CremeModel):
-    name       = models.CharField(_('Name'),       max_length=100, blank=True)
-    address    = models.TextField(_('Address'),    blank=True)
-    po_box     = models.CharField(_('PO box'),     max_length=50,  blank=True).set_tags(optional=True)
-    zipcode    = models.CharField(_('Zip code'),   max_length=100, blank=True).set_tags(optional=True)
-    city       = models.CharField(_('City'),       max_length=100, blank=True).set_tags(optional=True)
-    department = models.CharField(_('Department'), max_length=100, blank=True).set_tags(optional=True)
-    state      = models.CharField(_('State'),      max_length=100, blank=True).set_tags(optional=True)
-    country    = models.CharField(_('Country'),    max_length=40,  blank=True).set_tags(optional=True)
+    name = models.CharField(_('Name'), max_length=100, blank=True)
+    address = models.TextField(_('Address'), blank=True)
+    po_box = models.CharField(
+        _('PO box'), max_length=50, blank=True,
+    ).set_tags(optional=True)
+    zipcode = models.CharField(
+        _('Zip code'), max_length=100, blank=True,
+    ).set_tags(optional=True)
+    city = models.CharField(
+        _('City'), max_length=100, blank=True,
+    ).set_tags(optional=True)
+    department = models.CharField(
+        _('Department'), max_length=100, blank=True,
+    ).set_tags(optional=True)
+    state = models.CharField(
+        _('State'), max_length=100, blank=True,
+    ).set_tags(optional=True)
+    country = models.CharField(
+        _('Country'), max_length=40, blank=True,
+    ).set_tags(optional=True)
 
-    content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False) \
-                               .set_tags(viewable=False)
-    object       = models.ForeignKey(CremeEntity, related_name='persons_addresses',
-                                     editable=False, on_delete=models.CASCADE,
-                                    ).set_tags(viewable=False)
-    owner        = creme_fields.RealEntityForeignKey(ct_field='content_type', fk_field='object')
+    content_type = creme_fields.EntityCTypeForeignKey(
+        related_name='+', editable=False,
+    ).set_tags(viewable=False)
+    object = models.ForeignKey(
+        CremeEntity, related_name='persons_addresses',
+        editable=False, on_delete=models.CASCADE,
+    ).set_tags(viewable=False)
+    owner = creme_fields.RealEntityForeignKey(ct_field='content_type', fk_field='object')
 
     creation_label = _('Create an address')
     save_label     = _('Save the address')

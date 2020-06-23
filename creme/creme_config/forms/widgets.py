@@ -30,7 +30,12 @@ from creme.creme_core.forms.widgets import ActionButtonList, DynamicSelect
 class CreatorModelChoiceWidget(Select):
     template_name = 'creme_config/forms/widgets/creator-select.html'
 
-    def __init__(self, creation_url='', creation_allowed=False, creation_label=_('Create'), *args, **kwargs):
+    def __init__(
+            self,
+            creation_url='',
+            creation_allowed=False,
+            creation_label=_('Create'),
+            *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.creation_url = creation_url
         self.creation_allowed = creation_allowed

@@ -273,12 +273,12 @@ class ConvertTestCase(_BillingTestCase):
         user = self.user
 
         create_pline = partial(ProductLine.objects.create, user=user, related_document=quote)
-        product_line_otf = create_pline(on_the_fly_item='otf1',             unit_price=Decimal('1'))
-        product_line     = create_pline(related_item=self.create_product(), unit_price=Decimal('2'))
+        product_line_otf = create_pline(on_the_fly_item='otf1', unit_price=Decimal('1'))
+        product_line = create_pline(related_item=self.create_product(), unit_price=Decimal('2'))
 
         create_sline = partial(ServiceLine.objects.create, user=user, related_document=quote)
-        service_line_otf = create_sline(on_the_fly_item='otf2',             unit_price=Decimal('4'))
-        service_line     = create_sline(related_item=self.create_service(), unit_price=Decimal('5'))
+        service_line_otf = create_sline(on_the_fly_item='otf2', unit_price=Decimal('4'))
+        service_line = create_sline(related_item=self.create_service(), unit_price=Decimal('5'))
 
         # quote.save() # To set total_vat...
         quote = self.refresh(quote)
@@ -301,13 +301,15 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(2, invoice.get_lines(ProductLine).count())
 
         q_otf_item = Q(on_the_fly_item=None)
-        invoice_service_line     = invoice.get_lines(ServiceLine).get(q_otf_item)  # Should be with the related_item
+        # Should be with the related_item
+        invoice_service_line     = invoice.get_lines(ServiceLine).get(q_otf_item)
         invoice_service_line_otf = invoice.get_lines(ServiceLine).get(~q_otf_item)
 
         self.assertEqual(service_line.related_item,     invoice_service_line.related_item)
         self.assertEqual(service_line_otf.related_item, invoice_service_line_otf.related_item)
 
-        invoice_product_line     = invoice.get_lines(ProductLine).get(q_otf_item)  # Should be with the related_item
+        # Should be with the related_item
+        invoice_product_line     = invoice.get_lines(ProductLine).get(q_otf_item)
         invoice_product_line_otf = invoice.get_lines(ProductLine).get(~q_otf_item)
 
         self.assertEqual(product_line.related_item,     invoice_product_line.related_item)

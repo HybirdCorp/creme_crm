@@ -33,7 +33,10 @@ class FieldTestCaseMixin(CremeTestCase):
             self.fail(f'unexpected empty message instead of "{message}"\nerror : {stack}')
 
         if message != err.messages[0]:
-            self.fail(f'unexpected message "{err.messages[0]}" instead of "{message}"\nerror : {stack}')
+            self.fail(
+                f'unexpected message "{err.messages[0]}" instead '
+                f'of "{message}"\nerror : {stack}'
+            )
 
 
 class FieldTestCase(FieldTestCaseMixin, CremeTestCase):

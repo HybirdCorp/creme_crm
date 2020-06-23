@@ -132,23 +132,24 @@ class PaymentTerms(CremeModel):
 
 
 class PaymentInformation(CremeModel):
-    name                  = CharField(_('Name'), max_length=200)
+    name = CharField(_('Name'), max_length=200)
 
-    bank_code             = CharField(_('Bank code'), max_length=12, blank=True)
-    counter_code          = CharField(_('Counter code'), max_length=12, blank=True)
-    account_number        = CharField(_('Account number'), max_length=12, blank=True)
-    rib_key               = CharField(_('RIB key'), max_length=12, blank=True)
+    bank_code = CharField(_('Bank code'), max_length=12, blank=True)
+    counter_code = CharField(_('Counter code'), max_length=12, blank=True)
+    account_number = CharField(_('Account number'), max_length=12, blank=True)
+    rib_key = CharField(_('RIB key'), max_length=12, blank=True)
     banking_domiciliation = CharField(_('Banking domiciliation'), max_length=200, blank=True)
 
-    iban                  = CharField(_('IBAN'), max_length=100, blank=True)
-    bic                   = CharField(_('BIC'), max_length=100, blank=True)
+    iban = CharField(_('IBAN'), max_length=100, blank=True)
+    bic = CharField(_('BIC'), max_length=100, blank=True)
 
-    is_default            = BooleanField(_('Is default?'), default=False)
-    organisation          = ForeignKey(settings.PERSONS_ORGANISATION_MODEL,
-                                       verbose_name=pgettext_lazy('billing', 'Target organisation'),
-                                       related_name='PaymentInformationOrganisation_set',
-                                       on_delete=CASCADE,
-                                      )
+    is_default = BooleanField(_('Is default?'), default=False)
+    organisation = ForeignKey(
+        settings.PERSONS_ORGANISATION_MODEL,
+        verbose_name=pgettext_lazy('billing', 'Target organisation'),
+        related_name='PaymentInformationOrganisation_set',
+        on_delete=CASCADE,
+    )
 
     creation_label = _('Create a payment information')
     save_label     = _('Save the payment information')
@@ -162,11 +163,14 @@ class PaymentInformation(CremeModel):
         verbose_name_plural = pgettext_lazy('billing-plural',   'Payment information')
         ordering = ('name',)
 
-    # TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too) ??
+    # TODO: create a function/ an abstract model for saving model with
+    #       is_default attribute (and use it for Vat too) ??
     @atomic
     def save(self, *args, **kwargs):
         if self.is_default:
-            PaymentInformation.objects.filter(organisation=self.organisation, is_default=True).update(is_default=False)
+            PaymentInformation.objects.filter(
+                organisation=self.organisation, is_default=True,
+            ).update(is_default=False)
         elif not PaymentInformation.objects.filter(is_default=True).exclude(pk=self.id).exists():
             self.is_default = True
 

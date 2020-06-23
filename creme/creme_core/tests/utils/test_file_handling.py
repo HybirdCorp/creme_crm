@@ -174,7 +174,9 @@ class FileHandlingTestCase(CremeTestCase):
         dir_path = self.dir_path
 
         name1 = 'foobar.txt'
-        fcreator = FileCreator(dir_path, name1, generators=[IncrFileNameSuffixGenerator], max_trials=2)
+        fcreator = FileCreator(
+            dir_path, name1, generators=[IncrFileNameSuffixGenerator], max_trials=2,
+        )
         fcreator.create()
         fcreator.create()
 
@@ -186,7 +188,9 @@ class FileHandlingTestCase(CremeTestCase):
         dir_path = self.dir_path
 
         name = 'foobar.txt'  # len == 10
-        fcreator = FileCreator(dir_path, name, generators=[DateFileNameSuffixGenerator], max_length=15)
+        fcreator = FileCreator(
+            dir_path, name, generators=[DateFileNameSuffixGenerator], max_length=15,
+        )
         fcreator.create()
 
         fcreator.create()
@@ -201,7 +205,9 @@ class FileHandlingTestCase(CremeTestCase):
         dir_path = self.dir_path
 
         name = 'foobar.txt'  # len == 10
-        fcreator = FileCreator(dir_path, name, generators=[DateFileNameSuffixGenerator], max_length=12)
+        fcreator = FileCreator(
+            dir_path, name, generators=[DateFileNameSuffixGenerator], max_length=12,
+        )
         fcreator.create()
 
         with self.assertRaises(FileCreator.Error):
@@ -211,7 +217,9 @@ class FileHandlingTestCase(CremeTestCase):
         "Max length (length too short for extension...)"
         dir_path = self.dir_path
 
-        fcreator = FileCreator(dir_path, 'foobar.txt', generators=[DateFileNameSuffixGenerator], max_length=3)
+        fcreator = FileCreator(
+            dir_path, 'foobar.txt', generators=[DateFileNameSuffixGenerator], max_length=3,
+        )
 
         with self.assertRaises(FileCreator.Error):
             fcreator.create()
@@ -220,7 +228,9 @@ class FileHandlingTestCase(CremeTestCase):
         "Secure filename"
         dir_path = self.dir_path
 
-        fcreator = FileCreator(dir_path, 'foo bar.txt', generators=[IncrFileNameSuffixGenerator])
+        fcreator = FileCreator(
+            dir_path, 'foo bar.txt', generators=[IncrFileNameSuffixGenerator],
+        )
         path1 = fcreator.create()
         self.assertEqual(join(dir_path, 'foo_bar.txt'), path1)
 

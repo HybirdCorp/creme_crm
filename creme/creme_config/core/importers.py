@@ -88,7 +88,8 @@ def load_model(model_str: str) -> Model:
 
 
 class Importer:
-    """A base class for object which import model-instances from another deployment of Creme.
+    """A base class for object which import model-instances from another
+    deployment of Creme.
 
     These importers are fed with deserialized-JSON data (ie: data is list of
     dictionaries with string/int...).
@@ -100,7 +101,8 @@ class Importer:
     which correspond to the key in the dictionary (section).
 
     An importer can have dependencies to indicate that some other importers should
-    be used ie: their method validate() is called) before (see ImportersRegistry.build_importers()).
+    be used ie: their method validate() is called) before
+    (see ImportersRegistry.build_importers()).
     """
     dependencies: Iterable[str] = ()  # Sequence of data IDs
 
@@ -111,18 +113,22 @@ class Importer:
     def validate(self,
                  deserialized_data: DeserializedData,
                  validated_data: ValidatedData) -> None:
-        """Validate some deserialized data before saving them (ie: call save() _after_)).
+        """Validate some deserialized data before saving them
+        (ie: call save() _after_)).
 
-        Internal data are built using deserialized_data ; it can raise various exception types
-        during this process (ValueError, KeyError) which indicates data error to the caller.
-        If an error is due to the user (eg: some imported data are colliding with existing
-        data, & it can lead to tricky errors), a ValidationError with an human-readable
-        message is raised.
+        Internal data are built using deserialized_data ; it can raise various
+        exception types during this process (ValueError, KeyError) which
+        indicates data error to the caller.
+        If an error is due to the user (eg: some imported data are colliding
+        with existing data, & it can lead to tricky errors), a ValidationError
+        with an human-readable message is raised.
 
         @param deserialized_data: dictionary.
-        @param validated_data: dictionary <model_class: set of strings>, containing information about
-               instances which will be created by the Importer instances used before.
-        @raise: Various type of exception, but ValidationErrors indicate a user error.
+        @param validated_data: dictionary <model_class: set of strings>,
+               containing information about instances which will be created by
+               the Importer instances used before.
+        @raise: Various type of exception, but ValidationErrors indicate a user
+                error.
         """
         section = deserialized_data.get(self.data_id) or []
 
@@ -155,7 +161,8 @@ class ImportersRegistry:
     Registry for classes inheriting <Importer>.
 
     The import view/form use a global instance of importersRegistry: IMPORTERS.
-    The importers which have to be used by this view must be registered (see register()).
+    The importers which have to be used by this view must be registered
+    (see register()).
     """
     class Collision(Exception):
         pass
@@ -187,11 +194,12 @@ class ImportersRegistry:
             class MyImporter(Importer):
                 [...]
 
-        @param data_id: this ID is used to build the importer instance (see Importer.__init__())
-               when the method build_importers() is called.
-        @param priority: If you want to override an importer class from your own app with your own
-               importer class, register it with a higher priority (the vanilla importers use the
-               default priority, 1).
+        @param data_id: this ID is used to build the importer instance
+               (see Importer.__init__()) when the method build_importers() is
+               called.
+        @param priority: If you want to override an importer class from your own
+               app with your own importer class, register it with a higher
+               priority (the vanilla importers use the default priority, 1).
         @return: a function which takes the importer class as only parameter
                  (yep, it's better to use the decorator syntax).
         @raises: ImportersRegistry.Collision if an importer class with the same
@@ -214,14 +222,15 @@ class ImportersRegistry:
 
                     if existing_priority > priority:
                         logger.warning(
-                            'ImportersRegistry.register(): importer for data_id=%s with priority=%s '
-                            'is ignored (there is already an importer with priority=%s).',
+                            'ImportersRegistry.register(): importer for '
+                            'data_id=%s with priority=%s is ignored (there is '
+                            'already an importer with priority=%s).',
                             data_id, priority, existing_priority,
                         )
                     else:
                         logger.warning(
-                            'ImportersRegistry.register(): the importer for data_id=%s '
-                            'with priority=%s overrides another importer.',
+                            'ImportersRegistry.register(): the importer for '
+                            'data_id=%s with priority=%s overrides another importer.',
                             data_id, priority,
                         )
 
@@ -585,8 +594,18 @@ class RelationTypesImporter(Importer):
         for data in self._data:
             sym_data = data['symmetric']
             RelationType.create(
-                (data['id'],     data['predicate'],     data.get('subject_models'), data.get('subject_ptypes')),
-                (sym_data['id'], sym_data['predicate'], data.get('object_models'),  data.get('object_ptypes')),
+                (
+                    data['id'],
+                    data['predicate'],
+                    data.get('subject_models'),
+                    data.get('subject_ptypes'),
+                ),
+                (
+                    sym_data['id'],
+                    sym_data['predicate'],
+                    data.get('object_models'),
+                    data.get('object_ptypes'),
+                ),
                 is_custom=True,
                 is_copiable=(data['is_copiable'], sym_data['is_copiable']),
                 minimal_display=(data['minimal_display'], sym_data['minimal_display']),
@@ -661,13 +680,15 @@ class CellProxy:
     can be validated before being stored in DB (there are described in the
     importation data).
     """
-    cell_cls: Type[entity_cell.EntityCell] = entity_cell.EntityCell  # Override this in child classes
+    # Override this in child classes
+    cell_cls: Type[entity_cell.EntityCell] = entity_cell.EntityCell
 
-    def __init__(self,
-                 hfilter_id: str,
-                 model: Type[CremeEntity],
-                 value: str,
-                 validated_data: ValidatedData):
+    def __init__(
+            self,
+            hfilter_id: str,
+            model: Type[CremeEntity],
+            value: str,
+            validated_data: ValidatedData):
         """Constructor.
 
         @param hfilter_id: ID of related HeaderFilter instance (used by error messages)
@@ -845,7 +866,8 @@ class HeaderFiltersImporter(Importer):
                     data['user'] = User.objects.get(username=username)
                 except User.DoesNotExist:
                     logger.warning(
-                        'HeaderFiltersImporter: this user does not exist (filter is dropped): %s',
+                        'HeaderFiltersImporter: this user does not exist '
+                        '(filter is dropped): %s',
                         username,
                     )
                     return None
@@ -896,7 +918,8 @@ class ConditionProxy:
                  validated_data: ValidatedData):
         """Constructor.
 
-        @param efilter_id: ID of related EntityFilter instance (used by error messages)
+        @param efilter_id: ID of related EntityFilter instance
+               (used by error messages)
         @param model: model related to the EntityFilter.
         @param name: deserialized name.
         @param value: deserialized value.
@@ -1292,7 +1315,9 @@ class EntityFiltersImporter(Importer):
             #      -  error() do not check all error
             #      VS a map of builders right here
             # if any(cond.error for cond in conditions):
-            #     raise ValidationError(gettext('A column is invalid in the view of list with id="{}".').format(name))
+            #     raise ValidationError(
+            #       gettext('A column is invalid in the view of list with id="{}".').format(name)
+            #     )
 
             data = {
                 'id':         efilter_id,
@@ -1313,7 +1338,8 @@ class EntityFiltersImporter(Importer):
                     data['user'] = User.objects.get(username=username)
                 except User.DoesNotExist:
                     logger.warning(
-                        'EntityFiltersImporter: this user does not exist (filter is dropped): %s',
+                        'EntityFiltersImporter: this user does not exist '
+                        '(filter is dropped): %s',
                         username,
                     )
                     return None

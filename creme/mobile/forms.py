@@ -77,7 +77,9 @@ class MobilePersonCreationFormMixin:
 # class MobileContactCreateForm(quick.ContactQuickForm):
 class MobileContactCreateForm(MobilePersonCreationFormMixin,
                               quick.ContactQuickForm):
-    is_favorite = BooleanField(label=pgettext_lazy('mobile-contact', 'Is favorite'), required=False)
+    is_favorite = BooleanField(
+        label=pgettext_lazy('mobile-contact', 'Is favorite'), required=False,
+    )
 
     class Meta(quick.ContactQuickForm.Meta):
         fields = ('last_name', 'first_name', 'phone', 'mobile', 'email')

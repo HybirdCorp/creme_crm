@@ -34,15 +34,18 @@ _SVG_ICONS = {
     'chantilly': {
         'goto': {
             'view_box': "0 0 18 18",
-            'path': "M9 3L7.94 4.06l4.19 4.19H3v1.5h9.13l-4.19 4.19L9 15l6-6z"
+            'path': "M9 3L7.94 4.06l4.19 4.19H3v1.5h9.13l-4.19 4.19L9 15l6-6z",
         },
         'reorder': {
             'view_box': "0 0 24 24",
-            'path': "M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"
+            'path': "M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 "
+                    "4h14v-2H7v2zM7 7v2h14V7H7z",
         },
         'reload': {
             'view_box': "0 0 18 18",
-            'path': "M9 13.5c-2.49 0-4.5-2.01-4.5-4.5S6.51 4.5 9 4.5c1.24 0 2.36.52 3.17 1.33L10 8h5V3l-1.76 1.76C12.15 3.68 10.66 3 9 3 5.69 3 3.01 5.69 3.01 9S5.69 15 9 15c2.97 0 5.43-2.16 5.9-5h-1.52c-.46 2-2.24 3.5-4.38 3.5z"
+            'path': "M9 13.5c-2.49 0-4.5-2.01-4.5-4.5S6.51 4.5 9 4.5c1.24 0 2.36.52 3.17 1.33L10 "
+                    "8h5V3l-1.76 1.76C12.15 3.68 10.66 3 9 3 5.69 3 3.01 5.69 3.01 9S5.69 15 9 "
+                    "15c2.97 0 5.43-2.16 5.9-5h-1.52c-.46 2-2.24 3.5-4.38 3.5z",
         },
     },
     'icecream': {
@@ -52,11 +55,14 @@ _SVG_ICONS = {
         },
         'reorder': {
             'view_box': '0 0 24 24',
-            'path': 'M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z',
+            'path': 'M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 '
+                    '4h14v-2H7v2zM7 7v2h14V7H7z',
         },
         'reload': {
             'view_box': '0 0 18 18',
-            'path': 'M9 13.5c-2.49 0-4.5-2.01-4.5-4.5S6.51 4.5 9 4.5c1.24 0 2.36.52 3.17 1.33L10 8h5V3l-1.76 1.76C12.15 3.68 10.66 3 9 3 5.69 3 3.01 5.69 3.01 9S5.69 15 9 15c2.97 0 5.43-2.16 5.9-5h-1.52c-.46 2-2.24 3.5-4.38 3.5z',
+            'path': 'M9 13.5c-2.49 0-4.5-2.01-4.5-4.5S6.51 4.5 9 4.5c1.24 0 2.36.52 3.17 1.33L10 '
+                    '8h5V3l-1.76 1.76C12.15 3.68 10.66 3 9 3 5.69 3 3.01 5.69 3.01 9S5.69 15 9 '
+                    '15c2.97 0 5.43-2.16 5.9-5h-1.52c-.46 2-2.24 3.5-4.38 3.5z',
         },
     },
 }
@@ -275,9 +281,10 @@ class IconRegistry:
 
         return self
 
-    def register_4_instance(self,
-                            model: Type[Model],
-                            info_function: _IconInfoFunc) -> 'IconRegistry':
+    def register_4_instance(
+            self,
+            model: Type[Model],
+            info_function: _IconInfoFunc) -> 'IconRegistry':
         """Setup the registry in order to retrieve an Icon corresponding to an instance of a model.
         Ie: instances of a same type can have different Icons.
 
@@ -286,8 +293,9 @@ class IconRegistry:
                                 - takes 1 argument 'instance'.
                                 - returns a tuple (icon_base_name, label).
 
-        Note: If yours icons names have the pattern 'images/foobar_%(size)s.png', so icon_base_name == 'foobar'.
-              Notice that it means there is currently a limitation on the image name/format.
+        Note: If yours icons names have the pattern 'images/foobar_%(size)s.png',
+        so icon_base_name == 'foobar'.
+        Notice that it means there is currently a limitation on the image name/format.
         """
         self._icons_4_objects[model] = info_function
 
@@ -310,10 +318,11 @@ class IconRegistry:
 
         return Icon(url=url, size=size_px, label=model._meta.verbose_name)
 
-    def get_4_instance(self,
-                       instance: Model,
-                       theme: str,
-                       size_px: int) -> Icon:
+    def get_4_instance(
+            self,
+            instance: Model,
+            theme: str,
+            size_px: int) -> Icon:
         url = ''
         label = ''
         path_fmt: Optional[str] = ''

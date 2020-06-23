@@ -269,11 +269,16 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
 
         # Get the time that this sequence started at and make it a TimeTuple
         rollover_timestamp = self.rolloverAt - self.interval
-        rollover_timetuple = time.gmtime(rollover_timestamp) if self.utc else time.localtime(rollover_timestamp)
+        rollover_timetuple = (
+            time.gmtime(rollover_timestamp)
+            if self.utc else
+            time.localtime(rollover_timestamp)
+        )
 
-        rollover_filename = '{}-{}.log'.format(splitext(self.baseFilename)[0],
-                                               time.strftime(self.suffix, rollover_timetuple),
-                                              )
+        rollover_filename = '{}-{}.log'.format(
+            splitext(self.baseFilename)[0],
+            time.strftime(self.suffix, rollover_timetuple),
+        )
 
         if exists(self.baseFilename):
             # Backup current log file

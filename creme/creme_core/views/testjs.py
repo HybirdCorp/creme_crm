@@ -95,10 +95,18 @@ class Dummy:
         self.url = mark_safe(print_url_html(self, image_url, self.user, None))
         self.datetime = mark_safe(print_datetime(self, now(), user, None))
         self.date = mark_safe(print_date(self, date.today(), user, None))
-        self.duration = mark_safe(print_duration(self, '{}:{}:{}'.format(randint(0, 23), randint(0, 59), randint(0, 59)), user, None))
+        self.duration = mark_safe(print_duration(
+            self, '{}:{}:{}'.format(randint(0, 23), randint(0, 59), randint(0, 59)), user, None
+        ))
         property = CremeProperty.objects.first()
-        self.foreignkey = mark_safe(print_foreignkey_html(self, property, user, None)) if property is not None else None
-        self.manytomany = mark_safe(print_many2many_html(self, MockManyToMany(CremeProperty), user, None))
+        self.foreignkey = (
+            None
+            if property is None else
+            mark_safe(print_foreignkey_html(self, property, user, None))
+        )
+        self.manytomany = mark_safe(
+            print_many2many_html(self, MockManyToMany(CremeProperty), user, None)
+        )
 
     def __str__(self):
         return self.name
@@ -128,7 +136,11 @@ class DummyListBrick(PaginatedBrick):
 
         for item_id in range(item_count):
             image_name, image_url = images[random_choice(image_ids)]
-            data.append(Dummy('Dummy ({}) - {}'.format(item_id + 1, image_name), user, media_url(image_url)))
+            data.append(Dummy(
+                'Dummy ({}) - {}'.format(item_id + 1, image_name),
+                user,
+                media_url(image_url),
+            ))
 
         return self._render(self.get_template_context(
             context, data,
@@ -163,7 +175,9 @@ def js_testview_context(request, viewname):
     get = request.GET.get
 
     return {
-        'THEME_LIST':      [(theme_id, str(theme_vname)) for theme_id, theme_vname in settings.THEMES],
+        'THEME_LIST': [
+            (theme_id, str(theme_vname)) for theme_id, theme_vname in settings.THEMES
+        ],
         'THEME_NAME':      get('theme') or request.user.theme_info[0],
         'TEST_VIEW_LIST':  test_views,
         'TEST_VIEW':       viewname,
@@ -218,10 +232,11 @@ def test_js(request):
 
 @login_required
 def test_widget(request, widget):
-    js_testview_or_404("Beware: if you are not in testing javascript widgets this view shouldn't be reachable. "
-                       "Check your server configuration.",
-                       "This is view is only reachable during javascript debug."
-                      )
+    js_testview_or_404(
+        "Beware: if you are not in testing javascript widgets this view shouldn't be reachable. "
+        "Check your server configuration.",
+        "This is view is only reachable during javascript debug."
+    )
 
     context = js_testview_context(request, widget)
     request.user.theme = context['THEME_NAME']

@@ -70,7 +70,8 @@ class BatchActionsWidget(SelectorList):
 
         for op_id, operator in batch_operator_manager.operators():
             if not operator.need_arg:
-                pinput.add_input(op_id, widget=DynamicInput, attrs=sub_attrs, type='hidden')  # TODO: DynamicHiddenInput
+                # TODO: DynamicHiddenInput
+                pinput.add_input(op_id, widget=DynamicInput, attrs=sub_attrs, type='hidden')
 
         chained_input.add_input('value', pinput, attrs=sub_attrs)
 

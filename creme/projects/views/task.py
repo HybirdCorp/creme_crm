@@ -131,7 +131,9 @@ class ActivityDeletion(generic.CremeModelDeletion):
             raise ConflictError('This activity is not related to a project task.')
 
         # TODO: unit test
-        self.request.user.has_perm_to_change_or_die(ptask_rel.object_entity.get_real_entity())  # Project task
+        self.request.user.has_perm_to_change_or_die(
+            ptask_rel.object_entity.get_real_entity()  # Project task
+        )
 
         return relations
 

@@ -156,9 +156,10 @@ class ServiceTestCase(_ProductsTestCase):
     def test_add_images(self):
         user = self.login_as_basic_user(Service)
 
-        create_image = partial(self._create_image, user=user,
-                               folder=get_folder_model().objects.create(user=user, title=_('My Images')),
-                              )
+        create_image = partial(
+            self._create_image, user=user,
+            folder=get_folder_model().objects.create(user=user, title=_('My Images')),
+        )
         img_1 = create_image(ident=1)
         img_2 = create_image(ident=2)
         img_3 = create_image(ident=3)
@@ -185,13 +186,16 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertEqual(_('Link the images'), context.get('submit_label'))
 
         def post(*images):
-            return self.client.post(url, follow=True,
-                                    data={'images': self.formfield_value_multi_creator_entity(*images)}
-                                   )
+            return self.client.post(
+                url, follow=True,
+                data={'images': self.formfield_value_multi_creator_entity(*images)}
+            )
 
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images', _('Some entities are not linkable: {}').format(img_4))
+        self.assertFormError(
+            response, 'form', 'images', _('Some entities are not linkable: {}').format(img_4)
+        )
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)

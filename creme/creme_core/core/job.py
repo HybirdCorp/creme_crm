@@ -292,8 +292,11 @@ else:
         @_redis_errors_2_bool
         def refresh_job(self, job, data):  # TODO: factorise
             logger.info('Job scheduler queue: request REFRESH "%s" (data=%s)', job, data)
-            # self._redis.lpush(self.JOBS_COMMANDS_KEY, '{}-{}-{}'.format(CMD_REFRESH, job.id, json_dump(data)))
-            self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_REFRESH}-{job.id}-{json_encode(data)}')
+            self._redis.lpush(
+                self.JOBS_COMMANDS_KEY,
+                # '{}-{}-{}'.format(CMD_REFRESH, job.id, json_dump(data))
+                f'{CMD_REFRESH}-{job.id}-{json_encode(data)}'
+            )
 
         def get_command(self, timeout):
             # NB: can raise RedisError (ConnectionError, TimeoutError, other ?!)
@@ -342,7 +345,8 @@ else:
 
         def pong(self, ping_value):
             # NB: '1' has no special meaning, because only the existence of the key is used.
-            self._redis.setex(self._build_pong_key(ping_value), value=1, time=10)  # TODO: '10' in settings ?
+            # TODO: '10' in settings ?
+            self._redis.setex(self._build_pong_key(ping_value), value=1, time=10)
 
 
 # class JobManager:
@@ -371,18 +375,23 @@ class JobScheduler:
         self._queue = JobSchedulerQueue.get_main_queue()
         self._procs = {}  # key: job.id; value: subprocess.Popen instance
 
-        self._system_jobs = []  # Heap, which elements are (wakeup_date, job_instance) => closer wakeup in the first element.
+        # Heap, which elements are (wakeup_date, job_instance)
+        #   => closer wakeup in the first element.
+        self._system_jobs = []
+
         self._system_jobs_starts = {}
         self._users_jobs = deque()
         self._running_userjob_ids: Set[int] = set()
 
     class _DeferredJob:
         """
-        When Creme tries to start a newly created Job, the START command can arrive before the Job instance
-        can be retrieved (because of transaction). So we create an instance of DeferredJob, which is inserted
-        in the system jobs collections, in order to use the timeout/wakeup code. At wakeup, we try to retrieve
-        the related Job ; if it fails again, we use the DeferredJob again, excepted if the numbers of trials
-        reaches its limit.
+        When Creme tries to start a newly created Job, the START command can
+        arrive before the Job instance can be retrieved (because of transaction).
+        So we create an instance of DeferredJob, which is inserted in the system
+        jobs collections, in order to use the timeout/wakeup code.
+        At wakeup, we try to retrieve the related Job ; if it fails again,
+        we use the DeferredJob again, excepted if the numbers of trials reaches
+        its limit.
         """
         job_id: int
         trials: int
@@ -407,7 +416,8 @@ class JobScheduler:
         users_jobs = self._users_jobs
         system_jobs = self._system_jobs
 
-        # NB: order_by() => execute users' jobs in the right order (Meta.ordering is already OK, but it could change)
+        # NB: order_by() => execute users' jobs in the right order
+        #     (Meta.ordering is already OK, but it could change)
         for job in Job.objects.filter(Q(user__isnull=True) |
                                       Q(user__isnull=False, status=Job.STATUS_WAIT)
                                      ) \
@@ -512,12 +522,16 @@ class JobScheduler:
                     try:
                         reference_run = self._system_jobs_starts.pop(job.id)
                     except KeyError:
-                        logger.warning('JobScheduler.handle_command_end() ->  try to end '
-                                       'the job "%s" which was not started -> command is ignored', repr(job),
-                                      )
+                        logger.warning(
+                            'JobScheduler.handle_command_end() ->  try to end '
+                            'the job "%s" which was not started -> command is ignored', repr(job),
+                        )
                     else:
                         if job.enabled:  # Job may have been disabled during its execution
-                            heappush(self._system_jobs, (self._next_wakeup(job, reference_run), job.id, job))
+                            heappush(
+                                self._system_jobs,
+                                (self._next_wakeup(job, reference_run), job.id, job),
+                            )
 
             self._end_job(job)
 
@@ -530,11 +544,13 @@ class JobScheduler:
         job_id = cmd.data_id
 
         if job_id in self._system_jobs_starts:
-            # If the job is running -> the new wake up is computed at the end of its execution ; so we ignore it.
-            logger.info('JobScheduler.handle_command_refresh() -> try to REFRESH the job "%s",'
-                        ' which is already running: command is useless.',
-                        job_id,
-                       )
+            # If the job is running -> the new wake up is computed at the end
+            # of its execution ; so we ignore it.
+            logger.info(
+                'JobScheduler.handle_command_refresh() -> try to REFRESH the job "%s",'
+                ' which is already running: command is useless.',
+                job_id,
+            )
             return
 
         system_jobs = self._system_jobs
@@ -548,7 +564,10 @@ class JobScheduler:
                 heapify(system_jobs)
                 break
         else:
-            logger.warning('JobScheduler.handle_command_refresh() -> invalid (system) jod ID: %s', job_id)
+            logger.warning(
+                'JobScheduler.handle_command_refresh() -> invalid (system) jod ID: %s',
+                job_id
+            )
             return
 
         try:
@@ -556,11 +575,17 @@ class JobScheduler:
             #     could need a new wakeup date without change in the job instance.
             job.update(cmd.data)
         except Exception as e:
-            logger.warning('JobScheduler.handle_command_refresh() -> invalid refresh data: %s (%s)', cmd.data, e)
+            logger.warning(
+                'JobScheduler.handle_command_refresh() -> invalid refresh data: %s (%s)',
+                cmd.data, e,
+            )
             return
 
         if not job.enabled:
-            logger.warning('JobScheduler.handle_command_refresh() -> REFRESH job "%s": disabled', repr(job))
+            logger.warning(
+                'JobScheduler.handle_command_refresh() -> REFRESH job "%s": disabled',
+                repr(job)
+            )
             return
 
         next_wakeup = self._next_wakeup(job)
@@ -579,9 +604,10 @@ class JobScheduler:
             next_wakeup = min(next_wakeup, secure_wakeup)
 
         heappush(system_jobs, (next_wakeup, job.id, job))
-        logger.warning('JobScheduler.handle_command_refresh() -> REFRESH job "%s": next wake up at %s',
-                       repr(job), date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
-                      )
+        logger.warning(
+            'JobScheduler.handle_command_refresh() -> REFRESH job "%s": next wake up at %s',
+            repr(job), date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
+        )
 
     def _handle_command_start(self, cmd: Command) -> None:
         job_id = cmd.data_id
@@ -589,7 +615,10 @@ class JobScheduler:
         try:
             job = Job.objects.get(id=job_id)
         except Job.DoesNotExist:
-            logger.warning('JobScheduler.handle_command_start() -> not yet existing jod ID: %s', job_id)
+            logger.warning(
+                'JobScheduler.handle_command_start() -> not yet existing jod ID: %s',
+                job_id,
+            )
             def_job = self._DeferredJob(job_id=job_id)
             heappush(self._system_jobs, (def_job.next_wakeup(now()), job_id, def_job))
         else:
@@ -598,8 +627,10 @@ class JobScheduler:
     def start(self, verbose: bool = True) -> None:
         logger.info('Job scheduler starts')
 
-        # TODO: all of this in a function wrapped by a try..except and a loop (+ sleep) which prevents network crashes ?
-        # TODO: regularly use Popen.poll() to check if a child has crashed (with a problem which is not a catchable) ?
+        # TODO: all of this in a function wrapped by a try..except and a loop (+ sleep)
+        #       which prevents network crashes ?
+        # TODO: regularly use Popen.poll() to check if a child has crashed
+        #       (with a problem which is not a catchable) ?
         self._queue.clear()
         self._retrieve_jobs()
 
@@ -662,22 +693,34 @@ class JobScheduler:
                             real_job = Job.objects.get(id=job.job_id)
                         except Job.DoesNotExist:
                             if job.reaches_trials_limit:
-                                logger.warning('JobScheduler: deferred job does not exist after all'
-                                               ' its trials (we forget it): %s', job.job_id,
-                                              )
+                                logger.warning(
+                                    'JobScheduler: deferred job does not exist '
+                                    'after all its trials (we forget it): %s',
+                                    job.job_id,
+                                )
                             else:
-                                heappush(system_jobs, (job.next_wakeup(now_value), job.job_id, job))
-                                logger.warning('JobScheduler: deferred job still does not exist: %s', job.job_id)
+                                heappush(
+                                    system_jobs,
+                                    (job.next_wakeup(now_value), job.job_id, job)
+                                )
+                                logger.warning(
+                                    'JobScheduler: deferred job still does not exist: %s',
+                                    job.job_id,
+                                )
                         else:
                             self._push_user_job(real_job)
-                            logger.warning('JobScheduler: deferred job exists now: %s', real_job.id)
+                            logger.warning(
+                                'JobScheduler: deferred job exists now: %s',
+                                real_job.id,
+                            )
                     else:
                         system_jobs_starts[job.id] = wakeup
                         self._start_job(job)
 
                     continue  # In order to handle all system jobs which have to be run _now_
             else:
-                # No timeout (because we do not need to be woken up by a time-out -- user-jobs are not periodic)
+                # No timeout (because we do not need to be woken up by a time-out
+                # -- user-jobs are not periodic)
                 timeout = 0
 
             while len(running_userjob_ids) <= MAX_USER_JOBS and users_jobs:

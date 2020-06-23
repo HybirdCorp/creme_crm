@@ -388,14 +388,21 @@ class ActionsTestCase(CremeTestCase):
         entity = CremeEntity(user=user)
         contact = FakeContact(user=user)
 
-        self.assertSortedActions([MockAction],        registry.instance_actions(user=user, instance=entity))
-        self.assertSortedActions([MockContactAction], registry.instance_actions(user=user, instance=contact))
+        self.assertSortedActions(
+            [MockAction],  registry.instance_actions(user=user, instance=entity)
+        )
+        self.assertSortedActions(
+            [MockContactAction], registry.instance_actions(user=user, instance=contact)
+        )
 
         # Same action, no problem
         registry.register_instance_actions(MockContactAction)
 
-        self.assertSortedActions([MockAction],        registry.instance_actions(user=user, instance=entity))
-        self.assertSortedActions([MockContactAction], registry.instance_actions(user=user, instance=contact))
+        self.assertSortedActions(
+            [MockAction], registry.instance_actions(user=user, instance=entity))
+        self.assertSortedActions(
+            [MockContactAction], registry.instance_actions(user=user, instance=contact)
+        )
 
         # Other action, raise error ---
         class MockA(MockContactAction):
@@ -503,9 +510,15 @@ class ActionsTestCase(CremeTestCase):
         user = self.user
         registry = self.registry
 
-        self.assertFalse([*registry.instance_actions(user=user, instance=CremeEntity(user=user))])
-        self.assertFalse([*registry.instance_actions(user=user, instance=FakeContact(user=user))])
-        self.assertFalse([*registry.instance_actions(user=user, instance=FakeOrganisation(user=user))])
+        self.assertFalse(
+            [*registry.instance_actions(user=user, instance=CremeEntity(user=user))]
+        )
+        self.assertFalse(
+            [*registry.instance_actions(user=user, instance=FakeContact(user=user))]
+        )
+        self.assertFalse(
+            [*registry.instance_actions(user=user, instance=FakeOrganisation(user=user))]
+        )
 
         self.assertFalse([*registry.bulk_actions(user=user, model=CremeEntity)])
         self.assertFalse([*registry.bulk_actions(user=user, model=FakeContact)])
@@ -544,9 +557,15 @@ class ActionsTestCase(CremeTestCase):
         registry.register_bulk_actions(MockBulkAction) \
                 .register_bulk_actions(MockContactBulkAction)
 
-        self.assertFalse([*registry.instance_actions(user=user, instance=CremeEntity(user=user))])
-        self.assertFalse([*registry.instance_actions(user=user, instance=FakeContact(user=user))])
-        self.assertFalse([*registry.instance_actions(user=user, instance=FakeOrganisation(user=user))])
+        self.assertFalse(
+            [*registry.instance_actions(user=user, instance=CremeEntity(user=user))]
+        )
+        self.assertFalse(
+            [*registry.instance_actions(user=user, instance=FakeContact(user=user))]
+        )
+        self.assertFalse(
+            [*registry.instance_actions(user=user, instance=FakeOrganisation(user=user))]
+        )
 
         self.assertSortedActions(
             [MockBulkAction],
@@ -579,13 +598,19 @@ class ActionsTestCase(CremeTestCase):
 
         self.assertSortedActions(
             [MockB],
-            registry.instance_actions(user=user, instance=FakeContact(user=user, last_name='Kawa'))
+            registry.instance_actions(
+                user=user, instance=FakeContact(user=user, last_name='Kawa')
+            )
         )
         self.assertSortedActions(
             [MockA, MockC],
-            registry.instance_actions(user=user, instance=FakeOrganisation(user=user, name='Kimengumi'))
+            registry.instance_actions(
+                user=user, instance=FakeOrganisation(user=user, name='Kimengumi')
+            )
         )
-        self.assertCountEqual([MockA, MockC], registry.instance_action_classes(model=FakeOrganisation))
+        self.assertCountEqual(
+            [MockA, MockC], registry.instance_action_classes(model=FakeOrganisation)
+        )
 
     def test_actions02(self):
         "Bulk actions"
@@ -607,9 +632,15 @@ class ActionsTestCase(CremeTestCase):
         self.assertCountEqual([MockA, MockC], registry.bulk_action_classes(FakeContact))
         self.assertCountEqual([MockB],        registry.bulk_action_classes(FakeOrganisation))
 
-        self.assertSortedActions([],             registry.bulk_actions(user=user, model=CremeEntity))
-        self.assertSortedActions([MockA, MockC], registry.bulk_actions(user=user, model=FakeContact))
-        self.assertSortedActions([MockB],        registry.bulk_actions(user=user, model=FakeOrganisation))
+        self.assertSortedActions(
+            [], registry.bulk_actions(user=user, model=CremeEntity)
+        )
+        self.assertSortedActions(
+            [MockA, MockC], registry.bulk_actions(user=user, model=FakeContact)
+        )
+        self.assertSortedActions(
+            [MockB], registry.bulk_actions(user=user, model=FakeOrganisation)
+        )
 
     def test_actions_override01(self):
         "Instance actions"
@@ -635,9 +666,15 @@ class ActionsTestCase(CremeTestCase):
         contact = FakeContact(user=user, last_name='Kawa')
         orga    = FakeOrganisation(user=user, name='Kimengumi')
 
-        self.assertSortedActions([MockA],                registry.instance_actions(user=user, instance=entity))
-        self.assertSortedActions([MockA, MockB],         registry.instance_actions(user=user, instance=contact))
-        self.assertSortedActions([MockAOverride, MockC], registry.instance_actions(user=user, instance=orga))
+        self.assertSortedActions(
+            [MockA], registry.instance_actions(user=user, instance=entity)
+        )
+        self.assertSortedActions(
+            [MockA, MockB], registry.instance_actions(user=user, instance=contact)
+        )
+        self.assertSortedActions(
+            [MockAOverride, MockC], registry.instance_actions(user=user, instance=orga)
+        )
 
         # TODO ?
         # self.assertEqual(MockA,         registry.instance_action(CremeEntity, 'test-a'))
@@ -663,9 +700,15 @@ class ActionsTestCase(CremeTestCase):
         registry.register_bulk_actions(MockA, MockB)
         registry.register_bulk_actions(MockAOverride)
 
-        self.assertSortedActions([MockA],         registry.bulk_actions(user=user, model=CremeEntity))
-        self.assertSortedActions([MockA, MockB],  registry.bulk_actions(user=user, model=FakeContact))
-        self.assertSortedActions([MockAOverride], registry.bulk_actions(user=user, model=FakeOrganisation))
+        self.assertSortedActions(
+            [MockA], registry.bulk_actions(user=user, model=CremeEntity)
+        )
+        self.assertSortedActions(
+            [MockA, MockB], registry.bulk_actions(user=user, model=FakeContact)
+        )
+        self.assertSortedActions(
+            [MockAOverride], registry.bulk_actions(user=user, model=FakeOrganisation)
+        )
 
         # TODO ?
         # self.assertEqual(MockA,         registry.bulk_action(CremeEntity, 'test-a'))
@@ -693,9 +736,15 @@ class ActionsTestCase(CremeTestCase):
         contact = FakeContact(user=user, last_name='Kawa')
         orga    = FakeOrganisation(user=user, name='Kimengumi')
 
-        self.assertSortedActions([MockA, MockC],        registry.instance_actions(user=user, instance=entity))
-        self.assertSortedActions([MockA, MockB, MockC], registry.instance_actions(user=user, instance=contact))
-        self.assertSortedActions([MockA],               registry.instance_actions(user=user, instance=orga))
+        self.assertSortedActions(
+            [MockA, MockC], registry.instance_actions(user=user, instance=entity)
+        )
+        self.assertSortedActions(
+            [MockA, MockB, MockC], registry.instance_actions(user=user, instance=contact)
+        )
+        self.assertSortedActions(
+            [MockA], registry.instance_actions(user=user, instance=orga)
+        )
 
         # TODO ?
         # self.assertEqual(MockC, registry.instance_action(CremeEntity, 'test-c'))
@@ -721,9 +770,15 @@ class ActionsTestCase(CremeTestCase):
                       .void_bulk_actions(FakeOrganisation, MockA)
         self.assertIs(res, registry)
 
-        self.assertSortedActions([MockA, MockC],        registry.bulk_actions(user=user, model=CremeEntity))
-        self.assertSortedActions([MockA, MockB, MockC], registry.bulk_actions(user=user, model=FakeContact))
-        self.assertSortedActions([MockC],               registry.bulk_actions(user=user, model=FakeOrganisation))
+        self.assertSortedActions(
+            [MockA, MockC], registry.bulk_actions(user=user, model=CremeEntity)
+        )
+        self.assertSortedActions(
+            [MockA, MockB, MockC], registry.bulk_actions(user=user, model=FakeContact)
+        )
+        self.assertSortedActions(
+            [MockC], registry.bulk_actions(user=user, model=FakeOrganisation)
+        )
 
         # TODO ?
         # self.assertEqual(MockA, registry.bulk_action(CremeEntity, 'test-a'))
@@ -760,7 +815,13 @@ class ActionsTestCase(CremeTestCase):
 
 class BuiltinActionsTestCase(CremeTestCase):
     @classmethod
-    def _create_role(cls, name, allowed_apps=(), admin_4_apps=(), set_creds=(), creates=(), users=()):
+    def _create_role(
+            cls, name,
+            allowed_apps=(),
+            admin_4_apps=(),
+            set_creds=(),
+            creates=(),
+            users=()):
         get_ct = ContentType.objects.get_for_model
 
         role = UserRole(name=name)

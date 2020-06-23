@@ -688,9 +688,18 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(has_perm('creme_core.delete_entity', contact2))
 
         efilter = partial(EntityCredentials.filter, user, self._build_contact_qs())
-        self.assertListEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.VIEW)))
-        self.assertListEqual([contact1.id],              self._ids_list(efilter(perm=EntityCredentials.CHANGE)))
-        self.assertListEqual([contact1.id],              self._ids_list(efilter(perm=EntityCredentials.DELETE)))
+        self.assertListEqual(
+            [contact1.id, contact2.id],
+            self._ids_list(efilter(perm=EntityCredentials.VIEW))
+        )
+        self.assertListEqual(
+            [contact1.id],
+            self._ids_list(efilter(perm=EntityCredentials.CHANGE))
+        )
+        self.assertListEqual(
+            [contact1.id],
+            self._ids_list(efilter(perm=EntityCredentials.DELETE))
+        )
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
@@ -2468,7 +2477,9 @@ class CredentialsTestCase(CremeTestCase):
             ],
         )
 
-        contact3 = FakeContact.objects.create(user=team, first_name='Sekishusai', last_name='Yagyu')
+        contact3 = FakeContact.objects.create(
+            user=team, first_name='Sekishusai', last_name='Yagyu',
+        )
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='Yoshioka')
@@ -2536,7 +2547,8 @@ class CredentialsTestCase(CremeTestCase):
         orga1 = create_orga(user=user, name='Yoshioka')
         orga2 = create_orga(user=self.other_user, name='Miyamoto')
 
-        # Beware: filter_entities() should not be used like this ; 'qs' should not contain not Contact entities.
+        # Beware: filter_entities() should not be used like this ;
+        # 'qs' should not contain not Contact entities.
         qs = CremeEntity.objects.filter(
             pk__in=[self.contact1.id, self.contact2.id, orga1.id, orga2.id],
         )

@@ -51,7 +51,10 @@ class QuoteTestCase(_BillingTestCase):
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
 
-        self.assertContains(response, '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"')
+        self.assertContains(
+            response,
+            '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"'
+        )
 
         self.assertContains(response, _('Convert to Salesorder'))
         self.assertContains(response, '"type": "sales_order"')
@@ -72,7 +75,11 @@ class QuoteTestCase(_BillingTestCase):
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
 
-        self.assertContains(response, '<a class="menu_button menu-button-icon is-disabled" data-action="billing-hatmenubar-convert"')
+        self.assertContains(
+            response,
+            '<a class="menu_button menu-button-icon is-disabled" '
+            'data-action="billing-hatmenubar-convert"'
+        )
 
         self.assertContains(response, _('Convert to Invoice'))
         self.assertContains(response, '"type": "invoice"')
@@ -119,18 +126,20 @@ class QuoteTestCase(_BillingTestCase):
         name = 'Quote#1'
         currency = Currency.objects.all()[0]
         status   = QuoteStatus.objects.all()[1]
-        response = self.client.post(url, follow=True,
-                                    data={'user':            user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2013-12-14',
-                                          'expiration_date': '2014-1-21',
-                                          'status':          status.id,
-                                          'currency':        currency.id,
-                                          'discount':        Decimal(),
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':            user.pk,
+                'name':            name,
+                'issuing_date':    '2013-12-14',
+                'expiration_date': '2014-1-21',
+                'status':          status.id,
+                'currency':        currency.id,
+                'discount':        Decimal(),
+                'source':          source.id,
+                'target':          self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoFormError(response)
 
         quote = self.get_object_or_fail(Quote, name=name)
@@ -219,19 +228,25 @@ class QuoteTestCase(_BillingTestCase):
                                            international_symbol='MUSD', is_custom=True,
                                           )
         status = QuoteStatus.objects.all()[1]
-        response = self.client.post(url, follow=True,
-                                    data={'user':            user.pk,
-                                          'name':            name,
-                                          'issuing_date':     '2012-2-12',
-                                          'expiration_date':  '2012-3-14',
-                                          'acceptation_date': '2012-3-13',
-                                          'status':          status.id,
-                                          'currency':        currency.id,
-                                          'discount':        Decimal(),
-                                          'source':          source.id,
-                                          'target':          self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
+
+                'issuing_date':     '2012-2-12',
+                'expiration_date':  '2012-3-14',
+                'acceptation_date': '2012-3-13',
+
+                'status': status.id,
+
+                'currency': currency.id,
+                'discount': Decimal(),
+
+                'source': source.id,
+                'target': self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoFormError(response)
 
         quote = self.refresh(quote)
@@ -270,16 +285,18 @@ class QuoteTestCase(_BillingTestCase):
         self.assertFalse(user.has_perm_to_link(unlinkable_target))
 
         def post(source, target):
-            return self.client.post(quote.get_edit_absolute_url(), follow=True,
-                                    data={'user':       user.pk,
-                                          'name':       quote.name,
-                                          'status':     quote.status_id,
-                                          'currency':   quote.currency_id,
-                                          'discount':   quote.discount,
-                                          'source':     source.id,
-                                          'target':     self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+            return self.client.post(
+                quote.get_edit_absolute_url(), follow=True,
+                data={
+                    'user':       user.pk,
+                    'name':       quote.name,
+                    'status':     quote.status_id,
+                    'currency':   quote.currency_id,
+                    'discount':   quote.discount,
+                    'source':     source.id,
+                    'target':     self.formfield_value_generic_entity(target),
+                },
+            )
 
         response = post(unlinkable_source, unlinkable_target)
         self.assertEqual(200, response.status_code)
@@ -323,16 +340,18 @@ class QuoteTestCase(_BillingTestCase):
         self.assertFalse(user.has_perm_to_link(target))
 
         status = QuoteStatus.objects.exclude(id=quote.status_id).first()
-        response = self.client.post(quote.get_edit_absolute_url(), follow=True,
-                                    data={'user':     user.pk,
-                                          'name':     quote.name,
-                                          'status':   status.id,
-                                          'currency': quote.currency_id,
-                                          'discount': quote.discount,
-                                          'source':   source.id,
-                                          'target':   self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        response = self.client.post(
+            quote.get_edit_absolute_url(), follow=True,
+            data={
+                'user':     user.pk,
+                'name':     quote.name,
+                'status':   status.id,
+                'currency': quote.currency_id,
+                'discount': quote.discount,
+                'source':   source.id,
+                'target':   self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(status, self.refresh(quote).status)
         self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   source)
@@ -442,13 +461,16 @@ class QuoteTestCase(_BillingTestCase):
         self.assertEqual(b_addr.city, billing_address.city)
 
     def test_num_queries(self):
-        "Avoid the queries about line sa creation (because these queries can be really slow with a lot of entities)"
+        """Avoid the queries about line sa creation
+        (because these queries can be really slow with a lot of entities)
+        """
         from django.db import DEFAULT_DB_ALIAS, connections
         from django.test.utils import CaptureQueriesContext
 
         user = self.login()
 
-        # NB: we do not use assertNumQueries, because external signal handlers can add their owns queries
+        # NB: we do not use assertNumQueries, because external
+        #     signal handlers can add their owns queries
         context = CaptureQueriesContext(connections[DEFAULT_DB_ALIAS])
 
         status = QuoteStatus.objects.all()[0]

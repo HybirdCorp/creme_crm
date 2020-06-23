@@ -63,7 +63,9 @@ class SegmentLinkForm(_AuxForm):
         super().__init__(entity=entity, *args, **kwargs)
 
         segment_field = self.fields['segment']
-        segment_field.queryset = MarketSegment.objects.exclude(marketsegmentdescription__strategy=entity)
+        segment_field.queryset = MarketSegment.objects.exclude(
+            marketsegmentdescription__strategy=entity,
+        )
         segment_field.empty_label = None
 
 
@@ -163,7 +165,9 @@ class SegmentCreateForm(_SegmentForm):
 
 # TODO: rename AddOrganisation_s_Form
 class AddOrganisationForm(CremeForm):
-    organisations = MultiCreatorEntityField(label=_('Organisations'), model=get_organisation_model())
+    organisations = MultiCreatorEntityField(
+        label=_('Organisations'), model=get_organisation_model(),
+    )
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)

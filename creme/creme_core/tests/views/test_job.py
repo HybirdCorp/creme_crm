@@ -199,8 +199,12 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Edit the job «{object}»').format(object=job.type), context.get('title'))
-        self.assertEqual(_('Save the modifications'),                          context.get('submit_label'))
+        self.assertEqual(
+            _('Edit the job «{object}»').format(object=job.type), context.get('title')
+        )
+        self.assertEqual(
+            _('Save the modifications'), context.get('submit_label')
+        )
 
         # ---
         response = self.client.post(
@@ -279,17 +283,20 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         pdict = {'type': 'days', 'value': 1}
         self.assertEqual(pdict, job.periodicity.as_dict())
 
-        response = self.client.post(job.get_edit_absolute_url(),
-                                    data={'reference_run': date_format(localtime(job.reference_run),
-                                                                       'DATETIME_FORMAT',
-                                                                      ),
-                                          'periodicity_0': pdict['type'],
-                                          'periodicity_1': str(pdict['value']),
+        response = self.client.post(
+            job.get_edit_absolute_url(),
+            data={
+                'reference_run': date_format(
+                    localtime(job.reference_run),
+                    'DATETIME_FORMAT',
+                ),
+                'periodicity_0': pdict['type'],
+                'periodicity_1': str(pdict['value']),
 
-                                          'delay_0': 'weeks',
-                                          'delay_1': 1,
-                                         },
-                                   )
+                'delay_0': 'weeks',
+                'delay_1': 1,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self.refresh(job)
@@ -356,9 +363,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             self._create_batchprocess_job(status=Job.STATUS_WAIT)
 
         response = self.assertGET200(self.LIST_URL)
-        self.assertContains(response,
-                            _('You must wait that one of your jobs is finished in order to create a new one.')
-                           )
+        self.assertContains(
+            response,
+            _('You must wait that one of your jobs is finished in order to create a new one.')
+        )
 
     def test_jobs_all05(self):
         "Invalid type."
@@ -422,9 +430,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             self._create_batchprocess_job(status=Job.STATUS_WAIT)
 
         response = self.assertGET200(self.MINE_URL)
-        self.assertContains(response,
-                            _('You must wait that one of your jobs is finished in order to create a new one.')
-                           )
+        self.assertContains(
+            response,
+            _('You must wait that one of your jobs is finished in order to create a new one.')
+        )
 
     def test_my_jobs05(self):
         "Invalid type."
@@ -492,7 +501,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Can not clear a system job."
         self.login()
 
-        job = Job.objects.create(type_id=batch_process_type.id, status=Job.STATUS_OK)  # No user -> system job
+        # No user -> system job
+        job = Job.objects.create(type_id=batch_process_type.id, status=Job.STATUS_OK)
         self.assertPOST409(self._build_delete_url(job), follow=True)
 
     def test_disable01(self):

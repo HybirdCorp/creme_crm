@@ -51,20 +51,31 @@ MESSAGE_STATUS_ERROR = SAMOUSSA_STATUS_ERROR
 
 # TODO: can we manage plural in a better way ?
 MESSAGE_STATUS = {
-    MESSAGE_STATUS_NOTSENT: (pgettext_lazy('sms', 'Not sent'), pgettext_lazy('sms-plural', 'Not sent')),
-    MESSAGE_STATUS_WAITING: (pgettext_lazy('sms', 'Waiting'),  pgettext_lazy('sms-plural', 'Waiting')),
-    MESSAGE_STATUS_ACCEPT:  (pgettext_lazy('sms', 'Accepted'), pgettext_lazy('sms-plural', 'Accepted')),
-    MESSAGE_STATUS_SENT:    (pgettext_lazy('sms', 'Sent'),     pgettext_lazy('sms-plural', 'Sent')),
-    MESSAGE_STATUS_ERROR:   (_('Error'),                       _('Errors')),
+    MESSAGE_STATUS_NOTSENT: (
+        pgettext_lazy('sms', 'Not sent'), pgettext_lazy('sms-plural', 'Not sent'),
+    ),
+    MESSAGE_STATUS_WAITING: (
+        pgettext_lazy('sms', 'Waiting'),  pgettext_lazy('sms-plural', 'Waiting'),
+    ),
+    MESSAGE_STATUS_ACCEPT: (
+        pgettext_lazy('sms', 'Accepted'), pgettext_lazy('sms-plural', 'Accepted'),
+    ),
+    MESSAGE_STATUS_SENT: (
+        pgettext_lazy('sms', 'Sent'), pgettext_lazy('sms-plural', 'Sent'),
+    ),
+    MESSAGE_STATUS_ERROR: (_('Error'), _('Errors')),
 }
 
 
 class Sending(CremeModel):
     date     = DateField(_('Date'))
-    campaign = ForeignKey(settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE,
-                          verbose_name=_('Related campaign'), related_name='sendings',
-                         )
-    template = ForeignKey(settings.SMS_TEMPLATE_MODEL, verbose_name=_('Message template'), on_delete=CASCADE)  # TODO: PROTECT ? copy data like in 'emails' ?
+    campaign = ForeignKey(
+        settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE,
+        verbose_name=_('Related campaign'), related_name='sendings',
+    )
+    template = ForeignKey(
+        settings.SMS_TEMPLATE_MODEL, verbose_name=_('Message template'), on_delete=CASCADE,
+    )  # TODO: PROTECT ? copy data like in 'emails' ?
     content  = TextField(_('Generated message'), max_length=160)
 
     creation_label = pgettext_lazy('sms', 'Create a sending')
@@ -103,8 +114,10 @@ class Sending(CremeModel):
 
 # TODO: keep the related entity (to hide the number when the entity is not viewable)
 class Message(CremeModel):
-    sending = ForeignKey(Sending, verbose_name=_('Sending'), related_name='messages', on_delete=CASCADE)
-    phone  = CharField(_('Number'), max_length=100)
+    sending = ForeignKey(
+        Sending, verbose_name=_('Sending'), related_name='messages', on_delete=CASCADE,
+    )
+    phone = CharField(_('Number'), max_length=100)
     status = CharField(_('State'), max_length=10)
     status_message = CharField(_('Full state'), max_length=100, blank=True)
 
@@ -160,7 +173,9 @@ class Message(CremeModel):
     def send(cls, sending):
         content = sending.content
         sending_id = sending.id
-        messages = sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).values_list('pk', 'phone')
+        messages = sending.messages.filter(
+            status=MESSAGE_STATUS_NOTSENT,
+        ).values_list('pk', 'phone')
 
         msg_mngr = cls._default_manager
 
@@ -176,11 +191,13 @@ class Message(CremeModel):
                 msg_mngr.filter(pk__in=pks).update(status_message=str(err))
 
             for phone, status, status_message in not_accepted:
-                msg_mngr.filter(phone=phone, sending__id=sending_id) \
-                        .update(status=status, status_message=status_message)
+                msg_mngr.filter(
+                    phone=phone, sending__id=sending_id,
+                ).update(status=status, status_message=status_message)
 
-            msg_mngr.filter(status=MESSAGE_STATUS_NOTSENT) \
-                    .update(status=MESSAGE_STATUS_ACCEPT, status_message='')
+            msg_mngr.filter(
+                status=MESSAGE_STATUS_NOTSENT
+            ).update(status=MESSAGE_STATUS_ACCEPT, status_message='')
 
         cls._do_action(sending, messages, action, 256)
 
@@ -203,8 +220,9 @@ class Message(CremeModel):
                 pass
 
             for phone, status, status_message in res:
-                cls._default_manager.filter(phone=phone, sending__id=sending_id) \
-                                    .update(status=status, status_message=status_message)
+                cls._default_manager.filter(
+                    phone=phone, sending__id=sending_id,
+                ).update(status=status, status_message=status_message)
 
         cls._do_action(sending, messages, action, 256)
 

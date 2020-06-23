@@ -40,18 +40,28 @@ class RecurrentsConfig(CremeAppConfig):
 
     def register_bulk_update(self, bulk_update_registry):
         # TODO: use a custom form that allows the edition when last_generation is None
-        bulk_update_registry.register(self.RecurrentGenerator, exclude=['first_generation'])
+        bulk_update_registry.register(
+            self.RecurrentGenerator, exclude=['first_generation'],
+        )
 
     def register_icons(self, icon_registry):
-        icon_registry.register(self.RecurrentGenerator, 'images/recurrent_doc_%(size)s.png')
+        icon_registry.register(
+            self.RecurrentGenerator, 'images/recurrent_doc_%(size)s.png',
+        )
 
     def register_menu(self, creme_menu):
         RGenerator = self.RecurrentGenerator
-        creme_menu.get('features') \
-                  .get_or_create(creme_menu.ContainerItem, 'management', priority=50,
-                                 defaults={'label': _('Management')},
-                                ) \
-                  .add(creme_menu.URLItem.list_view('recurrents-generators', model=RGenerator), priority=100)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('management', _('Management'), priority=50) \
-                  .add_link('recurrents-create_rgenerator', RGenerator, priority=100)
+        creme_menu.get(
+            'features'
+        ).get_or_create(
+            creme_menu.ContainerItem, 'management', priority=50,
+            defaults={'label': _('Management')},
+        ).add(
+            creme_menu.URLItem.list_view('recurrents-generators', model=RGenerator),
+            priority=100,
+        )
+        creme_menu.get(
+            'creation', 'any_forms'
+        ).get_or_create_group(
+            'management', _('Management'), priority=50,
+        ).add_link('recurrents-create_rgenerator', RGenerator, priority=100)

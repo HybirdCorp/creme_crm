@@ -116,11 +116,14 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         # ---
         name = 'Signed opportunities'
-        response = self.client.post(url, data={'name':            name,
-                                               'success_rate':    10,
-                                               'entity_counting': self.formfield_value_filtered_entity_type(),
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name':            name,
+                'success_rate':    10,
+                'entity_counting': self.formfield_value_filtered_entity_type(),
+            },
+        )
         self.assertNoFormError(response)
 
         components = pattern.components.all()
@@ -136,12 +139,14 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         pattern = self._create_pattern()
         name = 'Called contacts'
         ct = ContentType.objects.get_for_model(FakeContact)
-        response = self.client.post(self._build_addcomp_url(pattern),
-                                    data={'name':            name,
-                                          'entity_counting': self.formfield_value_filtered_entity_type(ct),
-                                          'success_rate':    15,
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_addcomp_url(pattern),
+            data={
+                'name':            name,
+                'entity_counting': self.formfield_value_filtered_entity_type(ct),
+                'success_rate':    15,
+            },
+        )
         self.assertNoFormError(response)
 
         components = pattern.components.all()
@@ -162,10 +167,11 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         )
         response = self.client.post(
             self._build_addcomp_url(pattern),
-            data={'name':            name,
-                  'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
-                  'success_rate':    15,
-                 },
+            data={
+                'name':            name,
+                'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
+                'success_rate':    15,
+            },
         )
         self.assertNoFormError(response)
 
@@ -195,12 +201,14 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         # ---
         name = 'Spread Vcards'
-        self.assertNoFormError(self.client.post(url, data={'name':            name,
-                                                           'success_rate':    20,
-                                                           'entity_counting': self.formfield_value_filtered_entity_type(),
-                                                          }
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'name':            name,
+                'success_rate':    20,
+                'entity_counting': self.formfield_value_filtered_entity_type(),
+            },
+        ))
 
         children = comp01.children.all()
         self.assertEqual(1, len(children))
@@ -212,11 +220,14 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         name = 'Called contacts'
         ct   = ContentType.objects.get_for_model(FakeContact)
-        response = self.client.post(url, data={'name':            name,
-                                               'entity_counting': self.formfield_value_filtered_entity_type(ct),
-                                               'success_rate':    60,
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name':            name,
+                'entity_counting': self.formfield_value_filtered_entity_type(ct),
+                'success_rate':    60,
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(2, comp01.children.count())
 
@@ -237,9 +248,10 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        self.assertEqual(_('New parent objective for «{component}»').format(component=comp01),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New parent objective for «{component}»').format(component=comp01),
+            context.get('title')
+        )
         self.assertEqual(_('Save the objective'), context.get('submit_label'))
 
         # ---
@@ -247,10 +259,11 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         success_rate = 50
         self.assertNoFormError(self.client.post(
             url,
-            data={'name':            name,
-                  'success_rate':    success_rate,
-                  'entity_counting': self.formfield_value_filtered_entity_type(),
-                 }
+            data={
+                'name':            name,
+                'success_rate':    success_rate,
+                'entity_counting': self.formfield_value_filtered_entity_type(),
+            },
         ))
 
         pattern = self.refresh(pattern)
@@ -275,12 +288,14 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         name = 'Called contacts'
         ct   = ContentType.objects.get_for_model(FakeContact)
-        response = self.client.post(self._build_parent_url(comp02),
-                                    data={'name':            name,
-                                          'entity_counting': self.formfield_value_filtered_entity_type(ct),
-                                          'success_rate':    20,
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_parent_url(comp02),
+            data={
+                'name':            name,
+                'entity_counting': self.formfield_value_filtered_entity_type(ct),
+                'success_rate':    20,
+            },
+        )
         self.assertNoFormError(response)
 
         pattern = self.get_object_or_fail(ActObjectivePattern, pk=pattern.id)
@@ -344,7 +359,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         child02 = create_comp(name='Child 02', parent=root01)
         __      = create_comp(name='Child 21', parent=child02)
 
-        comptree = pattern.get_components_tree()  # TODO: test that no additional queries are done ???
+        # TODO: test that no additional queries are done ???
+        comptree = pattern.get_components_tree()
         self.assertIsInstance(comptree, list)
         self.assertEqual(2, len(comptree))
 
@@ -381,14 +397,18 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_delete_pattern_component02(self):
         pattern = self._create_pattern()
-        create_comp = partial(ActObjectivePatternComponent.objects.create, pattern=pattern, success_rate=1)
+        create_comp = partial(
+            ActObjectivePatternComponent.objects.create,
+            pattern=pattern, success_rate=1,
+        )
         comp00 = create_comp(name='Signed opportunities')  # NB: should not be removed
         comp01 = create_comp(name='DELETE ME')
         comp02 = create_comp(name='Will be orphaned01',  parent=comp01)
         __     = create_comp(name='Will be orphaned02',  parent=comp01)
         __     = create_comp(name='Will be orphaned03',  parent=comp02)
         comp05 = create_comp(name='Smiles done')  # NB: should not be removed
-        comp06 = create_comp(name='Stand by me',         parent=comp05)  # NB: should not be removed
+        # NB: should not be removed
+        comp06 = create_comp(name='Stand by me',         parent=comp05)
 
         self.assertNoFormError(self._delete_comp(comp01), status=302)
 

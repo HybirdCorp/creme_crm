@@ -150,7 +150,6 @@ class SelectLVSWidget(ListViewSearchWidget):
         # for choice in choices:
         #     value = str(choice['value'])
         #     groups[choice.get('group')].append(
-        #         # todo: use "help" ? (need to display entirely our widget, not a regular <select>)
         #         {'value': value,
         #          'text': choice['label'],
         #          'selected': selected_value == value,
@@ -753,7 +752,8 @@ class ListViewSearchForm(CremeForm):
         a sequence of EntityCells (generally these sequence corresponds to
         a HeaderFilter).
 
-        @param field_registry: Instance of <creme_core.gui.listview.search.AbstractListViewSearchFieldRegistry>.
+        @param field_registry: Instance of
+               <creme_core.gui.listview.search.AbstractListViewSearchFieldRegistry>.
         @param cells: Sequence of <creme_core.core.entity_cell.EntityCell>.
         """
         super().__init__(**kwargs)

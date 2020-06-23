@@ -73,7 +73,10 @@ class DeletionCommand(CremeModel):
     content_type   = CTypeOneToOneField(editable=False, primary_key=True)
     job            = models.ForeignKey(Job, on_delete=models.CASCADE, editable=False)
     pk_to_delete   = models.TextField(editable=False)
-    deleted_repr   = models.TextField(editable=False)  # NB: representation of the deleted instance (for UI)
+
+    # NB: representation of the deleted instance (for UI)
+    deleted_repr   = models.TextField(editable=False)
+
     json_replacers = models.TextField(editable=False, default='[]')  # TODO: JSONField ?
     total_count    = models.PositiveIntegerField(default=0, editable=False)  # NB: for statistics
     updated_count  = models.PositiveIntegerField(default=0, editable=False)  # NB: for statistics

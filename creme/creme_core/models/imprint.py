@@ -26,9 +26,13 @@ from . import CremeEntity
 
 # TODO: + ForeignKey to ContentType ? (takes more space but less queries)
 class Imprint(models.Model):  # CremeModel ?
-    date   = models.DateTimeField(auto_now_add=True)
-    entity = models.ForeignKey(CremeEntity, related_name='imprints', on_delete=models.CASCADE)
-    user   = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='imprints', on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    entity = models.ForeignKey(
+        CremeEntity, related_name='imprints', on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name='imprints', on_delete=models.CASCADE,
+    )
 
     class Meta:
         app_label = 'creme_core'

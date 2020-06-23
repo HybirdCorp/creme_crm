@@ -223,10 +223,13 @@ class GraphHandConstraintsRegistry:
         set_constraint_by_rgtype = self._constraints_by_rgtype.setdefault
 
         for rgtype in rgraph_types:
-            if set_constraint_by_type_id(constraint_class.type_id, constraint_class) is not constraint_class:
+            if set_constraint_by_type_id(
+                    constraint_class.type_id, constraint_class,
+            ) is not constraint_class:
                 raise self.RegistrationError(
                     f'{type(self).__name__}.register_cell_constraint(): '
-                    f'a constraint with type_id="{constraint_class.type_id}" is already registered.'
+                    f'a constraint with type_id="{constraint_class.type_id}" '
+                    f'is already registered.'
                 )
 
             if set_constraint_by_rgtype(rgtype, constraint_class) is not constraint_class:
@@ -327,7 +330,10 @@ class AggregatorCellConstraint:
 
                     return (
                         cell
-                        if cell and self.check_cell(cell, not_hiddable_cell_keys=not_hiddable_cell_keys) else
+                        if cell and self.check_cell(
+                            cell,
+                            not_hiddable_cell_keys=not_hiddable_cell_keys,
+                        ) else
                         None
                     )
 
@@ -452,9 +458,14 @@ class AggregatorConstraintsRegistry:
 
         return None
 
-    def register_cell_constraints(self, *constraint_classes: Type[AggregatorCellConstraint]) -> 'AggregatorConstraintsRegistry':
+    def register_cell_constraints(
+            self,
+            *constraint_classes: Type[AggregatorCellConstraint],
+    ) -> 'AggregatorConstraintsRegistry':
         for constraint_cls in constraint_classes:
-            if self._constraints_by_type_id.setdefault(constraint_cls.type_id, constraint_cls) is not constraint_cls:
+            if self._constraints_by_type_id.setdefault(
+                    constraint_cls.type_id, constraint_cls,
+            ) is not constraint_cls:
                 raise self.RegistrationError(
                     f'{type(self).__name__}.register_cell_constraints(): '
                     f'a constraint with type_id="{constraint_cls.type_id}" is already registered.'

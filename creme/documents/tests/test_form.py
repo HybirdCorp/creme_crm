@@ -75,7 +75,9 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1', ident=1)
-        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, str(img1.id))
+        self.assertFieldValidationError(
+            ImageEntityField, 'doesnotexist', field.clean, str(img1.id),
+        )
 
         img2 = self._create_image(title='Python Show 2018', ident=2)
         self.assertEqual(img2, field.clean(str(img2.id)))
@@ -95,7 +97,9 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1', ident=1)
-        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, str(img1.id))
+        self.assertFieldValidationError(
+            ImageEntityField, 'doesnotexist', field.clean, str(img1.id),
+        )
 
         img2 = self._create_image(title='Python Show 2018', ident=2)
         self.assertEqual(img2, field.clean(str(img2.id)))
@@ -116,7 +120,9 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, str(img1.id))
+        self.assertFieldValidationError(
+            ImageEntityField, 'doesnotexist', field.clean, str(img1.id),
+        )
 
         img2 = self._create_image(title='Python show 2018')
         self.assertEqual(img2, field.clean(str(img2.id)))
@@ -137,7 +143,9 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, str(img1.id))
+        self.assertFieldValidationError(
+            ImageEntityField, 'doesnotexist', field.clean, str(img1.id),
+        )
 
         img2 = self._create_image(title='Python show 2018')
         self.assertEqual(img2, field.clean(str(img2.id)))
@@ -223,7 +231,9 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         doc = self._create_doc('foobar.txt')
         # self.assertEqual([], field.clean(json_dump([doc.id]))) TODO ?
-        self.assertFieldValidationError(MultiImageEntityField, 'doesnotexist', field.clean, self._build_value(doc))
+        self.assertFieldValidationError(
+            MultiImageEntityField, 'doesnotexist', field.clean, self._build_value(doc),
+        )
 
     def test_clean02(self):
         "Required."
@@ -233,7 +243,9 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         self.assertFieldValidationError(ImageEntityField, 'required', field.clean, '[]')
 
         doc = self._create_doc('foobar.txt')
-        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, self._build_value(doc))
+        self.assertFieldValidationError(
+            ImageEntityField, 'doesnotexist', field.clean, self._build_value(doc),
+        )
 
     def test_qfilter_init(self):
         field = MultiImageEntityField(user=self.user, q_filter={'title__contains': 'show'})
@@ -249,7 +261,9 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1))
+        self.assertFieldValidationError(
+            ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1),
+        )
 
         img2 = self._create_image(title='Python show 2018')
         img3 = self._create_image(title='Python show 2019')
@@ -271,7 +285,9 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1))
+        self.assertFieldValidationError(
+            ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1),
+        )
 
         img2 = self._create_image(title='Python Show 2018')
         self.assertEqual([img2], field.clean(self._build_value(img2)))
@@ -292,7 +308,9 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1))
+        self.assertFieldValidationError(
+            ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1),
+        )
 
         img2 = self._create_image(title='Python Show 2018')
         self.assertEqual([img2], field.clean(self._build_value(img2)))

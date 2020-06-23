@@ -189,7 +189,9 @@ class GuiTestCase(CremeTestCase):
         cat1 = create_cat(name='Photo of contact')
         cat2 = create_cat(name='Photo of product')
 
-        img = FakeImage.objects.create(name="Casca's face", user=user, description="Casca's selfie")
+        img = FakeImage.objects.create(
+            name="Casca's face", user=user, description="Casca's selfie",
+        )
         img.categories.set([cat1, cat2])
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -217,7 +219,8 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
                          get_html_val(casca, 'is_user', user)
                         )
-        self.assertEqual('', get_csv_val(casca, 'is_user', user))  # Null_label not used in CSV backend
+        # Null_label not used in CSV backend
+        self.assertEqual('', get_csv_val(casca, 'is_user', user))
 
         self.assertEqual(f'<a href="{img.get_absolute_url()}">{escape(img)}</a>',
                          get_html_val(casca, 'image', user)
@@ -248,8 +251,11 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('', get_html_val(judo, 'image__description', user))
         self.assertEqual('', get_html_val(judo, 'image__categories',  user))
 
-        self.assertEqual(str(user), get_html_val(casca, 'image__user', user))                # depth = 2
-        self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user))  # depth = 3
+        # depth = 2
+        self.assertEqual(str(user), get_html_val(casca, 'image__user', user))
+
+        # depth = 3
+        self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user))
 
     def test_field_printers03(self):
         "ManyToMany (simple model)."
@@ -352,8 +358,12 @@ class GuiTestCase(CremeTestCase):
         field_printers_registry = _FieldPrintersRegistry()
 
         create_img = FakeImage.objects.create
-        casca_face = create_img(name='Casca face', user=self.other_user, description="Casca's selfie")
-        judo_face  = create_img(name='Judo face',  user=user,            description="Judo's selfie")
+        casca_face = create_img(
+            name='Casca face', user=self.other_user, description="Casca's selfie",
+        )
+        judo_face = create_img(
+            name='Judo face',  user=user, description="Judo's selfie"
+        )
         self.assertTrue(user.has_perm_to_view(judo_face))
         self.assertFalse(user.has_perm_to_view(casca_face))
 
@@ -419,9 +429,18 @@ class GuiTestCase(CremeTestCase):
         # Decimal & integer with choices
         invoice = FakeInvoice.objects.create(user=user, name='Swords & shields')
 
-        create_line = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
-        line1 = create_line(item='Swords',  quantity='3.00', unit_price='125.6', discount_unit=FAKE_PERCENT_UNIT)
-        line2 = create_line(item='Shields', quantity='2.00', unit_price='53.4',  discount_unit=None)
+        create_line = partial(
+            FakeInvoiceLine.objects.create,
+            user=user, linked_invoice=invoice,
+        )
+        line1 = create_line(
+            item='Swords',  quantity='3.00', unit_price='125.6',
+            discount_unit=FAKE_PERCENT_UNIT,
+        )
+        line2 = create_line(
+            item='Shields', quantity='2.00', unit_price='53.4',
+            discount_unit=None,
+        )
 
         dec_format = partial(number_format, use_l10n=True)
         self.assertEqual(dec_format('3.00'),  get_csv_val(line1, 'quantity',   user))
@@ -443,8 +462,12 @@ class GuiTestCase(CremeTestCase):
         )
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(
-            '<p>A powerful army.<br>Official site: <a href="http://www.hawk-troop.org">www.hawk-troop.org</a></p>',
+        self.assertHTMLEqual(
+            '<p>'
+            'A powerful army.<br>'
+            'Official site: '
+            '<a href="http://www.hawk-troop.org">www.hawk-troop.org</a>'
+            '</p>',
             get_html_val(hawk, 'description', user)
         )
 
@@ -454,15 +477,18 @@ class GuiTestCase(CremeTestCase):
         user = self.create_user()
         field_printers_registry = _FieldPrintersRegistry()
 
-        hawk = FakeOrganisation.objects.create(user=user, name='Hawk',
-                                               description='A powerful army.\nOfficial site: www.hawk-troop.org'
-                                              )
+        hawk = FakeOrganisation.objects.create(
+            user=user, name='Hawk',
+            description='A powerful army.\nOfficial site: www.hawk-troop.org'
+        )
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(
+        self.assertHTMLEqual(
             '<p>A powerful army.<br>'
             'Official site: '
-            '<a target="_blank" rel="noopener noreferrer" href="http://www.hawk-troop.org">www.hawk-troop.org</a>'
+            '<a target="_blank" rel="noopener noreferrer" href="http://www.hawk-troop.org">'
+            'www.hawk-troop.org'
+            '</a>'
             '</p>',
             get_html_val(hawk, 'description', user)
         )

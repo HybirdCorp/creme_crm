@@ -19,24 +19,30 @@ s556"""
     DATA_WINDOWS = DATA_UNIX.replace('\n', '\r\n')
     DATA_MAC = DATA_UNIX.replace('\n', '\r')
 
-    DATA_RANDOM_LINESEP = '04 05 99 66 54\r\n055 6 5322 1 2\r\r\n98\n\n    456456 455 12\r        45 156\rdfdsfds\r\ns556'
+    DATA_RANDOM_LINESEP = (
+        '04 05 99 66 54\r\n055 6 5322 1 2\r\r\n98\n\n    '
+        '456456 455 12\r        45 156\rdfdsfds\r\ns556'
+    )
 
     def assertFilteredEntries(self, entries):
-        self.assertListEqual(['0405996654',
-                              '0556532212',
-                              '98',
-                              '45645645512',
-                              '45156',
-                              '556'], entries)
+        self.assertListEqual(
+            ['0405996654', '0556532212', '98', '45645645512', '45156', '556'],
+            entries
+        )
 
     def assertSplitEntries(self, entries):
-        self.assertListEqual(['04 05 99 66 54',
-                              '055 6 5322 1 2',
-                              '98',
-                              '    456456 455 12',
-                              '        45 156',
-                              'dfdsfds',
-                              's556'], entries)
+        self.assertListEqual(
+            [
+                '04 05 99 66 54',
+                '055 6 5322 1 2',
+                '98',
+                '    456456 455 12',
+                '        45 156',
+                'dfdsfds',
+                's556'
+            ],
+            entries
+        )
 
     def chunks(self, chunk_size, source=None):
         source = source if source is not None else self.DATA_UNIX
@@ -110,7 +116,11 @@ s556"""
     def test_iter_splitchunks_size_under_linesize(self):
         "Tests small_chunks"
         chunk_size = 5
-        entries = [*chunktools.iter_splitchunks(self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter)]
+        entries = [
+            *chunktools.iter_splitchunks(
+                self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter
+            ),
+        ]
         self.assertFilteredEntries(entries)
 
     def test_iter_splitchunks_linesize_over_limit(self):
@@ -130,40 +140,60 @@ s556"""
 
     def test_iter_splitchunks_size_1(self):
         "Tests small_chunks."
-        chunk_size = 1
-        entries = [*chunktools.iter_splitchunks(self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter)]
-
-        self.assertFilteredEntries(entries)
+        self.assertFilteredEntries([
+            *chunktools.iter_splitchunks(
+                self.chunks(chunk_size=1), '\n', ChunkToolsTestCase.filter,
+            )
+        ])
 
     def test_iter_splitchunks_size_over_linesize(self):
         "Test big_chunks."
         chunk_size = len(self.DATA_UNIX) / 2
-        entries = [*chunktools.iter_splitchunks(self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter)]
-        self.assertFilteredEntries(entries)
+        self.assertFilteredEntries([
+            *chunktools.iter_splitchunks(
+                self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter,
+            )
+        ])
 
     def test_iter_splitchunks_one_chunk(self):
         "Test with one chunk."
         chunk_size = len(self.DATA_UNIX) * 2
-        entries = [*chunktools.iter_splitchunks(self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter)]
-        self.assertFilteredEntries(entries)
+        self.assertFilteredEntries([
+            *chunktools.iter_splitchunks(
+                self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter,
+            ),
+        ])
 
     def test_iter_splitchunks_no_filter(self):
-        entries = [*chunktools.iter_splitchunks(self.chunks(5), '\n', None)]
-        self.assertSplitEntries(entries)
+        self.assertSplitEntries([
+            *chunktools.iter_splitchunks(self.chunks(5), '\n', None),
+        ])
 
     def test_iter_splitchunks_nbytes_key(self):
         data = self.DATA_WINDOWS
-
-        entries = [*chunktools.iter_splitchunks(self.chunks(5, data), '\r\n', ChunkToolsTestCase.filter)]
-        self.assertFilteredEntries(entries)
-
-        entries = [*chunktools.iter_splitchunks(self.chunks(len(data) / 2, data), '\r\n', ChunkToolsTestCase.filter)]
-        self.assertFilteredEntries(entries)
-
-        entries = [*chunktools.iter_splitchunks(self.chunks(len(data) * 2, data), '\r\n', ChunkToolsTestCase.filter)]
-        self.assertFilteredEntries(entries)
+        self.assertFilteredEntries([
+            *chunktools.iter_splitchunks(
+                self.chunks(5, data), '\r\n', ChunkToolsTestCase.filter,
+            )
+        ])
+        self.assertFilteredEntries([
+            *chunktools.iter_splitchunks(
+                self.chunks(len(data) / 2, data), '\r\n', ChunkToolsTestCase.filter,
+            )
+        ])
+        self.assertFilteredEntries([
+            *chunktools.iter_splitchunks(
+                self.chunks(len(data) * 2, data), '\r\n', ChunkToolsTestCase.filter,
+            ),
+        ])
 
     def test_iter_splitchunks_nbytes_key_chunk_limits(self):
-        chunks = ['1234\r', '\n5678', '9012\r\n', '345\r\n', '12']
-        entries = [*chunktools.iter_splitchunks(chunks, '\r\n', ChunkToolsTestCase.filter)]
-        self.assertListEqual(['1234', '56789012', '345', '12'], entries)
+        self.assertListEqual(
+            ['1234', '56789012', '345', '12'],
+            [
+                *chunktools.iter_splitchunks(
+                    ['1234\r', '\n5678', '9012\r\n', '345\r\n', '12'],
+                    '\r\n', ChunkToolsTestCase.filter,
+                ),
+            ]
+        )

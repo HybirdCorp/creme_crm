@@ -36,7 +36,11 @@ class Swappable:
      model is the vanilla one.
 
      Eg: we want to wrap
-        url(r'^my_stuff/(?P<id>\d+)/edit[/]?$', my_app.views.my_stuff.StuffEdition.as_view(), name='my_app__create_my_stuff')
+        re_path(
+        r'^my_stuff/(?P<id>\d+)/edit[/]?$',
+        my_app.views.my_stuff.StuffEdition.as_view(),
+        name='my_app__create_my_stuff',
+        )
 
      It could give (notice the integer argument which corresponds to our URL):
         Swappable(url(...), check_args=(1,)
@@ -77,8 +81,21 @@ class _PatternSwapManager:
 
     urlpatterns += swap_manager.add_group(
         my_app.my_stuff_model_is_custom,
-        Swappable(url(r'^my_stuff/add[/]?$',               views.my_stuff.StuffCreation.as_view(), name='my_app__create_suff')),
-        Swappable(url(r'^my_stuff/(?P<stuff_id>\d+)[/]?$', views.my_stuff.StuffDetail.as_view(),   name='my_app__view_suff'), check_args=Swappable.INT_ID),
+        Swappable(
+            re_path(
+                r'^my_stuff/add[/]?$',
+               views.my_stuff.StuffCreation.as_view(),
+               name='my_app__create_stuff'
+            ),
+        ),
+        Swappable(
+            re_path(
+                r'^my_stuff/(?P<stuff_id>\d+)[/]?$',
+                views.my_stuff.StuffDetail.as_view(),
+                name='my_app__view_stuff',
+            ),
+            check_args=Swappable.INT_ID,
+        ),
         app_name='my_app',
     ).kept_patterns()
     """

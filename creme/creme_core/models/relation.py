@@ -171,7 +171,8 @@ class RelationType(CremeModel):
     When you want to link (see Relation) to 2 kinds of CremeEntities
     (eg: Contact & Organisation) you define a type of relation with the
     following information :
-      - The <predicate>, a string which describes the relation between the "subject" & the "object".
+      - The <predicate>, a string which describes the relation between the
+        "subject" & the "object".
          Eg: "employs", "is a customer of"
       - List of ContentTypes which are allowed for the subjects & for the objects
         (attributes <subject_ctypes> & <object_ctypes>).
@@ -187,10 +188,18 @@ class RelationType(CremeModel):
     # TODO: validator ?
     id = models.CharField(primary_key=True, max_length=100)
 
-    subject_ctypes     = models.ManyToManyField(ContentType,       blank=True, related_name='relationtype_subjects_set')
-    # object_ctypes      = models.ManyToManyField(ContentType,       blank=True, related_name='relationtype_objects_set')
-    subject_properties = models.ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_subjects_set')
-    # object_properties  = models.ManyToManyField(CremePropertyType, blank=True, related_name='relationtype_objects_set')
+    subject_ctypes = models.ManyToManyField(
+        ContentType, blank=True, related_name='relationtype_subjects_set',
+    )
+    # object_ctypes = models.ManyToManyField(
+    #     ContentType, blank=True, related_name='relationtype_objects_set',
+    # )
+    subject_properties = models.ManyToManyField(
+        CremePropertyType, blank=True, related_name='relationtype_subjects_set',
+    )
+    # object_properties = models.ManyToManyField(
+    #    CremePropertyType, blank=True, related_name='relationtype_objects_set'
+    # )
 
     # If True, the relations with this type cannot be created/deleted directly by the users.
     is_internal = models.BooleanField(default=False)
@@ -203,7 +212,8 @@ class RelationType(CremeModel):
     is_copiable = models.BooleanField(default=True)
 
     # Try to display the relationships of this type only once in the detail-views ?
-    # ie: does not display them in the general relationships bricks when another bricks manage this type.
+    # ie: does not display them in the general relationships bricks when another
+    #     brick manages this type.
     minimal_display = models.BooleanField(default=False)
 
     predicate      = models.CharField(_('Predicate'), max_length=100)
@@ -243,7 +253,9 @@ class RelationType(CremeModel):
     #                   'use RelationType.objects.compatible() instead.',
     #                   DeprecationWarning
     #                  )
-    #     types = RelationType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+    #     types = RelationType.objects.filter(
+    #           Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True)
+    #     )
     #     if not include_internals:
     #         types = types.filter(Q(is_internal=False))
     #
@@ -251,19 +263,26 @@ class RelationType(CremeModel):
 
     @staticmethod
     @atomic
-    def create(subject_desc: tuple,
-               object_desc: tuple,
-               is_custom: bool = False,
-               generate_pk: bool = False,
-               is_internal: bool = False,
-               is_copiable: Union[bool, Tuple[bool, bool]] = (True, True),
-               minimal_display: Tuple[bool, bool] = (False, False)) -> Tuple['RelationType', 'RelationType']:
+    def create(
+            subject_desc: tuple,
+            object_desc: tuple,
+            is_custom: bool = False,
+            generate_pk: bool = False,
+            is_internal: bool = False,
+            is_copiable: Union[bool, Tuple[bool, bool]] = (True, True),
+            minimal_display: Tuple[bool, bool] = (False, False),
+    ) -> Tuple['RelationType', 'RelationType']:
         """
-        @param subject_desc: Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
+        @param subject_desc: Tuple
+               (string_pk, predicate_string
+                [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]]
+               )
         @param object_desc: See subject_desc.
         @param generate_pk: If True, 'string_pk' args are used as prefix to generate pks.
         """
-        padding       = ((), ())  # In case sequence_of_cremeEntityClasses or sequence_of_propertyType not given.
+        # In case sequence_of_cremeEntityClasses or sequence_of_propertyType not given.
+        padding = ((), ())
+
         subject_desc += padding
         object_desc  += padding
 
@@ -346,7 +365,8 @@ class RelationType(CremeModel):
 
         return sub_relation_type, obj_relation_type
 
-    def is_compatible(self, *args) -> bool:  # TODO: use the '/' (positional-only argument) in Python 3.8
+    # TODO: use the '/' (positional-only argument) in Python 3.8
+    def is_compatible(self, *args) -> bool:
         """Can an instance of a given model be the subject of a Relation with this type.
 
         @param args: A single argument, the model, which can be:
@@ -406,12 +426,18 @@ class Relation(CremeModel):
          <predicate="employs">
     """
     created = creme_fields.CreationDateTimeField(_('Creation date')).set_tags(clonable=False)
-    user    = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
-    type               = models.ForeignKey(RelationType, on_delete=models.CASCADE)
+    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+
+    type = models.ForeignKey(RelationType, on_delete=models.CASCADE)
     symmetric_relation = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
-    subject_entity     = models.ForeignKey(CremeEntity, related_name='relations', on_delete=models.PROTECT)
-    object_entity      = models.ForeignKey(CremeEntity, related_name='relations_where_is_object', on_delete=models.PROTECT)
+
+    subject_entity = models.ForeignKey(
+        CremeEntity, related_name='relations', on_delete=models.PROTECT,
+    )
+    object_entity = models.ForeignKey(
+        CremeEntity, related_name='relations_where_is_object', on_delete=models.PROTECT,
+    )
 
     objects = RelationManager()
 
@@ -506,9 +532,10 @@ class Relation(CremeModel):
     # @staticmethod
     # def filter_in(model, filter_predicate, value_for_filter):
     #     warnings.warn('Relation.filter_in() is deprecated.', DeprecationWarning)
-    #     return Q(relations__type=filter_predicate,
-    #              relations__object_entity__header_filter_search_field__icontains=value_for_filter,
-    #             )
+    #     return Q(
+    #        relations__type=filter_predicate,
+    #        relations__object_entity__header_filter_search_field__icontains=value_for_filter,
+    #     )
 
 
 class SemiFixedRelationType(CremeModel):
@@ -554,9 +581,11 @@ def _handle_merge(sender, other_entity, **kwargs):
     # Value => set of merged entities IDs (so 1 or 2 IDs between [sender.id, other_entity.id])
     entities_per_rtype_ids = defaultdict(lambda: defaultdict(set))
 
-    for merged_id, rtype_id, object_id in \
-            RelationType.objects.filter(relation__subject_entity__in=(sender.id, other_entity.id)) \
-                                .values_list('relation__subject_entity_id', 'id', 'relation__object_entity_id'):
+    for merged_id, rtype_id, object_id in RelationType.objects.filter(
+        relation__subject_entity__in=(sender.id, other_entity.id)
+    ).values_list(
+        'relation__subject_entity_id', 'id', 'relation__object_entity_id',
+    ):
         entities_per_rtype_ids[rtype_id][object_id].add(merged_id)
 
     duplicates_q = Q()

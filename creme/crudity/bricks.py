@@ -69,7 +69,10 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
         self.id_ = self.generate_id()
 
     def generate_id(self):
-        return CrudityQuerysetBrick.generate_id('crudity', 'waiting_actions-' + self.backend.get_id())
+        return CrudityQuerysetBrick.generate_id(
+            'crudity',
+            f'waiting_actions-{self.backend.get_id()}',
+        )
 
     def _iter_dependencies_info(self):
         yield 'crudity.waitingaction.' + self.backend.get_id()

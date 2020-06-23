@@ -41,7 +41,10 @@ class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCas
         super().setUp()
         self.login()
 
-    def _get_pop_email(self, body='', body_html='', senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
+    def _get_pop_email(
+            self,
+            body='', body_html='',
+            senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
         return PopEmail(
             body=body, body_html=body_html,
             senders=senders,
@@ -156,7 +159,8 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
         c_count = Contact.objects.count()
 
         self.assertFalse(WaitingAction.objects.all())
-        email_input.create(self._get_pop_email(body_html="""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+        email_input.create(self._get_pop_email(
+            body_html="""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html;
@@ -168,7 +172,10 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
       created=01-02-2003<br>
     </font>
   </body>
-</html>""", senders=('creme@crm.org',), subject='create_ce'))
+</html>""",
+            senders=('creme@crm.org',),
+            subject='create_ce',
+        ))
         self.assertEqual(1, WaitingAction.objects.count())
         self.assertEqual(c_count, Contact.objects.count())
         self.assertDictEqual(
@@ -233,7 +240,10 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
 
         self.assertFalse(WaitingAction.objects.all())
         email_input.create(self._get_pop_email(
-            body=f'password=creme\nuser_id={user.id}\ncreated=01/02/2003\ndescription=[[I\n want to\n create a    \ncreme entity\n]]\n',
+            body=(
+                f'password=creme\nuser_id={user.id}\ncreated=01/02/2003\n'
+                f'description=[[I\n want to\n create a    \ncreme entity\n]]\n'
+            ),
             senders=('creme@crm.org',),
             subject='create_ce',
         ))
@@ -302,7 +312,10 @@ entity
             {
                 'user_id':     str(user.id),
                 'created':     '01/02/2003',
-                'description': 'I\n\n        want\n\n        to\n                    create\n                a\ncreme\nentity\n\n        ',
+                'description': (
+                    'I\n\n        want\n\n        to\n                    create\n'
+                    '                a\ncreme\nentity\n\n        '
+                ),
             },
             wactions[0].data
         )
@@ -442,7 +455,9 @@ description3=[[<br>]]
 </html>"""
 
         self.assertEqual(0, WaitingAction.objects.count())
-        email_input.create(PopEmail(body_html=body_html, senders=('creme@crm.org',), subject='create_ce'))
+        email_input.create(PopEmail(
+            body_html=body_html, senders=('creme@crm.org',), subject='create_ce',
+        ))
 
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
@@ -825,7 +840,11 @@ description3=[[<br>]]
 
 @skipIfCustomContact
 class InfopathInputEmailTestCase(InputsBaseTestCase):
-    def _build_attachment(self, filename='', content_type='application/x-microsoft-infopathform', content=b''):
+    def _build_attachment(
+            self,
+            filename='',
+            content_type='application/x-microsoft-infopathform',
+            content=b''):
         return filename, SimpleUploadedFile(filename, content, content_type=content_type)
 
     def _get_infopath_input(self, backend, **backend_cfg):
@@ -833,9 +852,9 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
     def test_create01(self):
         "Unauthorized user."
-        infopath_input = self._get_infopath_input(ContactFakeBackend,
-                                                  limit_froms=('creme@cremecrm.com',)
-                                                 )
+        infopath_input = self._get_infopath_input(
+            ContactFakeBackend, limit_froms=('creme@cremecrm.com',)
+        )
 
         self.assertFalse(WaitingAction.objects.all())
         infopath_input.create(self._get_pop_email(
@@ -938,7 +957,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                 <div xmlns="http://www.w3.org/1999/xhtml"> </div>
                 <div xmlns="http://www.w3.org/1999/xhtml">description</div>
             </my:description>
-        </my:CremeCRMCrudity>""".format(other_user.id)
+        </my:CremeCRMCrudity>""".format(other_user.id)  # NOQA
 
         infopath_input = self._get_infopath_input(
             ContactFakeBackend,
@@ -992,7 +1011,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
 
 
-            </my:description> </my:CremeCRMCrudity>""".format(other_user.id)
+            </my:description> </my:CremeCRMCrudity>""".format(other_user.id)  # NOQA
 
         infopath_input = self._get_infopath_input(
             ContactFakeBackend,
@@ -1032,12 +1051,15 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         xml_content = r"""<?xml version="1.0" encoding="UTF-8"?>
 <?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0"
-                       href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn"
-                       name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?>
+  href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn"
+  name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?>
 <?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?>
-<my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
+<my:CremeCRMCrudity
+ xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13"
+ xml:lang="fr">
     <my:user_id>{}</my:user_id>
-    <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
+    <my:created xsi:nil="true"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">My creme entity</div>
         <div xmlns="http://www.w3.org/1999/xhtml"> </div>
@@ -1091,7 +1113,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         <div xmlns="http://www.w3.org/1999/xhtml"> </div>
         <div xmlns="http://www.w3.org/1999/xhtml">description</div>
     </my:description>
-</my:CremeCRMCrudity>""".format(other_user.id)
+</my:CremeCRMCrudity>""".format(other_user.id)  # NOQA
 
         infopath_input = self._get_infopath_input(
             ContactFakeBackend,
@@ -1132,7 +1154,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         xml_content = r"""
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
-</my:CremeCRMCrudity>"""
+</my:CremeCRMCrudity>"""  # NOQA
 
         infopath_input = self._get_infopath_input(
             ContactFakeBackend,
@@ -1178,7 +1200,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         <div xmlns="http://www.w3.org/1999/xhtml"> </div>
         <div xmlns="http://www.w3.org/1999/xhtml">description</div>
     </my:description>
-</my:CremeCRMCrudity>""".format(other_user.id)
+</my:CremeCRMCrudity>""".format(other_user.id)  # NOQA
 
         infopath_input = self._get_infopath_input(
             ContactFakeBackend, password='creme',
@@ -1223,7 +1245,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
     </my:description>
-</my:CremeCRMCrudity>""".format(user.id)
+</my:CremeCRMCrudity>""".format(user.id)  # NOQA
 
         infopath_input = self._get_infopath_input(
             ContactFakeBackend,
@@ -1254,16 +1276,22 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual(1, WaitingAction.objects.count())
 
         wa = WaitingAction.objects.all()[0]
-        img_content = b'x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hA' \
-                      b'AAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5' \
-                      b'vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kI' \
-                      b'S3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVL' \
-                      b'A5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfoha' \
-                      b'toyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2' \
-                      b'xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efb' \
-                      b'ElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCr' \
-                      b'GFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5V' \
-                      b'r5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC'
+        img_content = (
+            b'x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANS'
+            b'UhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuw'
+            b'AAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH'
+            b'5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKF'
+            b'Yhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQe'
+            b'JQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCs'
+            b'y+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5'
+            b'UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GA'
+            b's4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvN'
+            b'nuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3ef'
+            b'bElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7g'
+            b'x3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvv'
+            b'bc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkL'
+            b'tLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC'
+        )
         filename, blob = decode_b64binary(img_content)
         expected_data = {
             'user_id': str(user.id),
@@ -1277,7 +1305,9 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         # self.assertEqual(expected_data, wa.get_data())
         self.assertEqual(expected_data, wa.data)
 
-        infopath_input.get_backend(CrudityBackend.normalize_subject('create_ce_infopath')).create(wa)
+        infopath_input.get_backend(
+            CrudityBackend.normalize_subject('create_ce_infopath'),
+        ).create(wa)
         contact = Contact.objects.filter(q_contact_existing_ids)[0]
 
         self.assertEqual(user, contact.user)
@@ -1327,7 +1357,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
     </my:description>
-</my:CremeCRMCrudity>""".format(user.id, languages[0].id, languages[1].id)
+</my:CremeCRMCrudity>""".format(user.id, languages[0].id, languages[1].id)  # NOQA
 
         infopath_input = self._get_infopath_input(
             ContactFakeBackend,
@@ -1370,7 +1400,9 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         }
         self.assertEqual(expected_data, wa.data)
 
-        infopath_input.get_backend(CrudityBackend.normalize_subject('create_ce_infopath')).create(wa)
+        infopath_input.get_backend(
+            CrudityBackend.normalize_subject('create_ce_infopath'),
+        ).create(wa)
         contact = Contact.objects.filter(q_contact_existing_ids)[0]
 
         self.assertEqual(user, contact.user)
@@ -1405,7 +1437,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
             <my:description>
                 <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
             </my:description>
-        </my:CremeCRMCrudity>""".format(user.id, languages[0].id, languages[1].id)
+        </my:CremeCRMCrudity>""".format(user.id, languages[0].id, languages[1].id)  # NOQA
 
         infopath_input = self._get_infopath_input(
             ContactFakeBackend,
@@ -1455,16 +1487,22 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.maxDiff = None
         folder = Folder.objects.create(user=user, title='test_create_document01')
 
-        img_content = b"x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAA" \
-                      b"AABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vu" \
-                      b"PBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3K" \
-                      b"jZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD" \
-                      b"1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2" \
-                      b"aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1" \
-                      b"DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqO" \
-                      b"lEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcC" \
-                      b"QU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLt" \
-                      b"LnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
+        img_content = (
+            b"x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANS"
+            b"UhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuw"
+            b"AAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH"
+            b"5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKF"
+            b"Yhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQe"
+            b"JQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCs"
+            b"y+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5"
+            b"UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GA"
+            b"s4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvN"
+            b"nuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3ef"
+            b"bElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7g"
+            b"x3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvv"
+            b"bc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkL"
+            b"tLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
+        )
         xml_content = r"""
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_document.xsn" name="urn:schemas-microsoft-com:office:infopath:create-document:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
     <my:user_id>{}</my:user_id>
@@ -1474,7 +1512,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">A document</div>
     </my:description>
-</my:CremeCRMCrudity>""".format(user.id, folder.id, img_content.decode())
+</my:CremeCRMCrudity>""".format(user.id, folder.id, img_content.decode())  # NOQA
 
         infopath_input = self._get_infopath_input(
             DocumentFakeBackend,
@@ -1514,7 +1552,9 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
             wa.data
         )
 
-        infopath_input.get_backend(CrudityBackend.normalize_subject('create_ce_infopath')).create(wa)
+        infopath_input.get_backend(
+            CrudityBackend.normalize_subject('create_ce_infopath')
+        ).create(wa)
 
         document = Document.objects.filter(q_document_existing_ids)[0]
         self.assertEqual(user, document.user)

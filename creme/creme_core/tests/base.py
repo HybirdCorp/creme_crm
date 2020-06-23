@@ -512,7 +512,8 @@ class _CremeTestCase:
 
     def assertXMLEqualv2(self, expected, actual):
         """Compare 2 strings representing XML document, with the XML semantic.
-        @param expected XML string ; tip: better if it is well indented to have better error message.
+        @param expected XML string ;
+               tip: better if it is well indented to have better error message.
         @param actual XML string.
         """
         try:
@@ -599,7 +600,13 @@ class _CremeTestCase:
             content_type=ContentType.objects.get_for_model(model),
         )
 
-    def get_relationtype_or_fail(self, pk, sub_models=(), obj_models=(), sub_props=(), obj_props=()):
+    def get_relationtype_or_fail(
+            self,
+            pk,
+            sub_models=(),
+            obj_models=(),
+            sub_props=(),
+            obj_props=()):
         try:
             rt = RelationType.objects.get(pk=pk)
         except RelationType.DoesNotExist:

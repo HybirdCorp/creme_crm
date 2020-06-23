@@ -47,12 +47,17 @@ Contact = get_contact_model()
 
 
 class ParticipantCreateForm(CremeForm):
-    my_participation    = UserParticipationField(label=_('Do I participate to this activity?'), empty_label=None)
-    participating_users = ModelMultipleChoiceField(label=_('Other participating users'),
-                                                   queryset=get_user_model().objects.filter(is_staff=False),
-                                                   required=False,
-                                                  )
-    participants        = MultiCreatorEntityField(label=_('Participants'), model=Contact, required=False)
+    my_participation = UserParticipationField(
+        label=_('Do I participate to this activity?'), empty_label=None,
+    )
+    participating_users = ModelMultipleChoiceField(
+        label=_('Other participating users'),
+        queryset=get_user_model().objects.filter(is_staff=False),
+        required=False,
+    )
+    participants = MultiCreatorEntityField(
+        label=_('Participants'), model=Contact, required=False,
+    )
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)

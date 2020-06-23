@@ -175,8 +175,10 @@ class FieldBlockManager:
 
     def __init__(self, *blocks: Tuple[str, str, Union[Sequence[str], str]]):
         """Constructor.
-        @param blocks: tuples with 3 elements : category(string), verbose_name(i18n string), sequence of field names
-               3rd element can be instead a wildcard (the string '*') which mean 'all remaining fields'.
+        @param blocks: tuples with 3 elements
+               (category(string), verbose_name(i18n string), sequence of field names)
+               3rd element can be instead a wildcard (the string '*') which
+               means 'all remaining fields'.
                Only zero or one wildcard is allowed.
         """
         # Beware: use a list comprehension instead of a generator expression with this constructor
@@ -213,7 +215,8 @@ class FieldBlockManager:
 
                         # TODO: idem
                         raise ValueError(
-                            f'You cannot extend with a wildcard (see the form-block with category "{cat}")'
+                            f'You cannot extend with a wildcard '
+                            f'(see the form-block with category "{cat}")'
                         )
                     else:
                         field_block.field_names.extend(field_names)
@@ -428,19 +431,27 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
     )
 
     error_messages = {
-        'missing_property_single': _('The property «%(property)s» is mandatory '
-                                     'in order to use the relationship «%(predicate)s»'
-                                    ),
-        'missing_property_multi': _('These properties are mandatory in order to use '
-                                    'the relationship «%(predicate)s»: %(properties)s'
-                                   ),
-        'subject_not_linkable': _('You are not allowed to link the created entity (wrong owner?).'),
+        'missing_property_single': _(
+            'The property «%(property)s» is mandatory '
+            'in order to use the relationship «%(predicate)s»'
+        ),
+        'missing_property_multi': _(
+            'These properties are mandatory in order to use '
+            'the relationship «%(predicate)s»: %(properties)s'
+        ),
+        'subject_not_linkable': _(
+            'You are not allowed to link the created entity (wrong owner?).'
+        ),
     }
 
     blocks = CremeModelForm.blocks.new(
-        ('description',   _('Description'),   ('description',)),
-        ('properties',    _('Properties'),    ('property_types',)),
-        ('relationships', _('Relationships'), ('rtypes_info', 'relation_types', 'semifixed_rtypes')),
+        ('description', _('Description'), ('description',)),
+        ('properties',  _('Properties'),  ('property_types',)),
+        (
+            'relationships',
+            _('Relationships'),
+            ('rtypes_info', 'relation_types', 'semifixed_rtypes'),
+        ),
     )
 
     class Meta:
@@ -500,7 +511,9 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         else:
             del self.fields['property_types']
 
-    def _build_relations_fields(self, forced_relations_info: List[Tuple[RelationType, CremeEntity]]) -> None:
+    def _build_relations_fields(
+            self,
+            forced_relations_info: List[Tuple[RelationType, CremeEntity]]) -> None:
         fields = self.fields
         instance = self.instance
         info: Optional[str] = None
@@ -520,7 +533,11 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                             '<ul>{}</ul>',  # TODO:  class="form-help-label" ??
                             format_html_join(
                                 '', '<li>{} «{}»</li>',
-                                ((rtype.predicate, entity) for rtype, entity in forced_relations_info))
+                                (
+                                    (rtype.predicate, entity)
+                                    for rtype, entity in forced_relations_info
+                                )
+                            )
                         )
                     )
 

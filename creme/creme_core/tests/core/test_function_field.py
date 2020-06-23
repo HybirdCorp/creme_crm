@@ -60,9 +60,10 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertEqual({TestFunctionField11, TestFunctionField12, TestFunctionField13},
                          {ff.__class__ for ff in registry.fields(Klass1)}
                         )
-        self.assertEqual({TestFunctionField11, TestFunctionField12, TestFunctionField13, TestFunctionField2},
-                         {ff.__class__ for ff in registry.fields(Klass2)}
-                        )
+        self.assertSetEqual(
+            {TestFunctionField11, TestFunctionField12, TestFunctionField13, TestFunctionField2},
+            {ff.__class__ for ff in registry.fields(Klass2)}
+        )
 
         # Unregister -----
         registry.unregister(Klass1, TestFunctionField11, TestFunctionField12)
@@ -120,7 +121,9 @@ class FunctionFieldsTestCase(CremeTestCase):
         registry.register(Klass1, TestFunctionField1, TestFunctionField2)
         registry.register(Klass2, TestFunctionField22)
         self.assertIsInstance(registry.get(Klass2, fname1), TestFunctionField1)
-        self.assertIsInstance(registry.get(Klass2, fname2), TestFunctionField22)  # Not TestFunctionField2
+
+        # Not TestFunctionField2
+        self.assertIsInstance(registry.get(Klass2, fname2), TestFunctionField22)
 
         # Function fields
         self.assertEqual({TestFunctionField1, TestFunctionField2},

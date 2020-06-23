@@ -41,7 +41,9 @@ class _PollLine:
 
     def get_reversed_conditions(self):
         if self._rev_conditions_cache is None:
-            self._rev_conditions_cache = [*self._get_condition_class().objects.filter(source=self)]
+            self._rev_conditions_cache = [
+                *self._get_condition_class().objects.filter(source=self)
+            ]
 
         return self._rev_conditions_cache
 
@@ -52,7 +54,8 @@ class _PollLine:
         line_type = self._line_type_cache
 
         if line_type is None:
-            line_type = self._line_type_cache = PollLineType.build_from_serialized_args(self.type, self.type_args)
+            line_type = self._line_type_cache = \
+                PollLineType.build_from_serialized_args(self.type, self.type_args)
 
         return line_type
 

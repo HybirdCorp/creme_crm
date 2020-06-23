@@ -59,11 +59,14 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertEqual(_('Add the participants'), context.get('submit_label'))
 
         # ---
-        self.assertNoFormError(
-            self.client.post(url, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
-        )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
+        ))
 
-        relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
+        relations = Relation.objects.filter(
+            subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
+        )
         self.assertEqual(2, len(relations))
         self.assertSetEqual({c1.id, c2.id}, {r.object_entity_id for r in relations})
 
@@ -93,7 +96,9 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         activity = self._create_meeting()
         self.assertTrue(user.has_perm_to_link(activity))
 
-        contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
+        contact = Contact.objects.create(
+            user=self.other_user, first_name='Musashi', last_name='Miyamoto',
+        )
         self.assertTrue(user.has_perm_to_change(contact))
         self.assertFalse(user.has_perm_to_link(contact))
 
@@ -132,11 +137,14 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertNotIn('my_participation', fields)
         self.assertNotIn('my_calendar',      fields)
 
-        self.assertNoFormError(
-            self.client.post(uri, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
-        )
+        self.assertNoFormError(self.client.post(
+            uri,
+            data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
+        ))
 
-        relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
+        relations = Relation.objects.filter(
+            subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
+        )
         self.assertEqual(3, len(relations))
         self.assertSetEqual({c1.id, c2.id, self.user.linked_contact.id},
                             {r.object_entity_id for r in relations}
@@ -161,7 +169,9 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
             data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
         ))
 
-        relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
+        relations = Relation.objects.filter(
+            subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
+        )
         self.assertEqual(3, len(relations))
         self.assertSetEqual({c1.id, c2.id, self.user.linked_contact.id},
                             {r.object_entity_id for r in relations},
@@ -192,7 +202,9 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         )
         self.assertNoFormError(response)
 
-        relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
+        relations = Relation.objects.filter(
+            subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
+        )
         self.assertEqual(3, len(relations))
         self.assertSetEqual(
             {musashi.linked_contact, kojiro.linked_contact, user.linked_contact},
@@ -213,11 +225,10 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
                                 type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo,
                                )
 
-        self.assertNoFormError(
-            self.client.post(self._buid_add_participants_url(activity),
-                             data={'participants': self.formfield_value_multi_creator_entity(akane)},
-                            )
-        )
+        self.assertNoFormError(self.client.post(
+            self._buid_add_participants_url(activity),
+            data={'participants': self.formfield_value_multi_creator_entity(akane)},
+        ))
 
         self.assertRelationCount(1, dojo, constants.REL_SUB_ACTIVITY_SUBJECT, activity)
 
@@ -249,11 +260,12 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
 
         self.assertPOST200(
             self._buid_add_participants_url(phone_call), follow=True,
-            data={'my_participation_0':  True,
-                  'my_participation_1':  Calendar.objects.get_default_calendar(logged.is_user).pk,
-                  'participating_users': [other.is_user_id],
-                  'participants':        self.formfield_value_multi_creator_entity(contact3),
-                 },
+            data={
+                'my_participation_0':  True,
+                'my_participation_1':  Calendar.objects.get_default_calendar(logged.is_user).pk,
+                'participating_users': [other.is_user_id],
+                'participants':        self.formfield_value_multi_creator_entity(contact3),
+            },
         )
 
         # Logged user, set in his calendar
@@ -264,7 +276,11 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, contact3)
         self.assertEqual(2, phone_call.calendars.count())
 
-        sym_rel = Relation.objects.get(subject_entity=logged, type=constants.REL_SUB_PART_2_ACTIVITY, object_entity=phone_call)
+        sym_rel = Relation.objects.get(
+            subject_entity=logged,
+            type=constants.REL_SUB_PART_2_ACTIVITY,
+            object_entity=phone_call,
+        )
 
         del_url = self.RM_PARTICIPANT_URL
         # self.assertGET404(del_url)
@@ -272,7 +288,9 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertPOST404(del_url, data={'id': sym_rel.pk})
         self.get_object_or_fail(Relation, pk=sym_rel.pk)
 
-        qs = Relation.objects.filter(type=constants.REL_OBJ_PART_2_ACTIVITY, subject_entity=phone_call)
+        qs = Relation.objects.filter(
+            type=constants.REL_OBJ_PART_2_ACTIVITY, subject_entity=phone_call,
+        )
 
         for participant_rel in qs.all():
             # self.assertGET404(del_url)
@@ -519,24 +537,33 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         create_creds = partial(SetCredentials.objects.create, role=self.role)
         create_creds(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
         create_creds(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.LINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
 
         activity = self._create_meeting()
-        contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
-        relation = Relation.objects.create(subject_entity=contact, type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                                           object_entity=activity, user=user,
-                                          )
+        contact = Contact.objects.create(
+            user=self.other_user, first_name='Musashi', last_name='Miyamoto',
+        )
+        relation = Relation.objects.create(
+            subject_entity=contact,
+            type_id=constants.REL_SUB_PART_2_ACTIVITY,
+            object_entity=activity, user=user,
+        )
 
         self.assertPOST403(reverse('activities__unlink_activity'),
                            data={'id': activity.id, 'object_id': contact.id},

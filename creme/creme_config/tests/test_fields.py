@@ -44,7 +44,9 @@ def create_user(admin=True):
 
 
 class CreatorModelChoiceFieldTestCase(CremeTestCase):
-    ADD_URL = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'))
+    ADD_URL = reverse(
+        'creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'),
+    )
 
     # def _create_superuser(self):
     #     return get_user_model().objects.create_superuser(username='averagejoe',
@@ -233,25 +235,23 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
                                           creation_allowed=True,
                                          )
         name = 'test'
-        expected = '''
-<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
-        widget="ui-creme-actionbuttonlist">
+        expected_fmt = '''
+<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
-        <select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" name="{name}" url=""
-                widget="ui-creme-dselect">
+        <select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" name="{name}" url="" widget="ui-creme-dselect">
             <option value="1" selected>A</option>
             <option value="2">B</option>
         </select>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" name="create" title="{create_label}"
-                type="button" popupurl="{create_url}">{create_label}</button>
+        <button class="ui-creme-actionbutton" name="create" title="{create_label}" type="button" popupurl="{create_url}">{create_label}</button>
     </li>
-</ul>'''.format(create_url=self.ADD_URL,
-                create_label=_('Create'),
-                name=name,
-               )
-
+</ul>'''  # NOQA
+        expected = expected_fmt.format(
+            create_url=self.ADD_URL,
+            create_label=_('Create'),
+            name=name,
+        )
         self.assertHTMLEqual(expected, widget.render(name, 1))
         self.assertHTMLEqual(expected, widget.render(name, 1, attrs={}))
 
@@ -280,7 +280,10 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
 
 class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
-    ADD_URL = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'))
+    ADD_URL = reverse(
+        'creme_config__create_instance_from_widget',
+        args=('creme_core', 'fake_sector'),
+    )
 
     def test_actions_not_admin(self):
         # user = self.login(is_superuser=False, allowed_apps=('persons',))
@@ -364,7 +367,9 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
     def test_filtered_queryset_no_action(self):
         "No action."
         first_sector = FakeSector.objects.first()
-        field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.filter(pk=first_sector.pk))
+        field = CreatorModelMultipleChoiceField(
+            queryset=FakeSector.objects.filter(pk=first_sector.pk),
+        )
 
         positions = [(first_sector.pk, first_sector.title)]
         self.assertListEqual(positions, [*field.choices])
@@ -377,7 +382,9 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         user = self.login()
         first_sector = FakeSector.objects.first()
 
-        field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.filter(pk=first_sector.pk))
+        field = CreatorModelMultipleChoiceField(
+            queryset=FakeSector.objects.filter(pk=first_sector.pk),
+        )
         field.user = user
 
         positions = [(first_sector.pk, first_sector.title)]

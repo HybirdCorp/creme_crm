@@ -83,7 +83,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertSetEqual({ptype01, ptype02}, {p.type for p in properties})
 
         # ----------------------------------------------------------------------
-        response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]})  # One new and one old property
+        # One new and one old property
+        response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]})
         self.assertFormError(
             response, 'form', 'types',
             _('Select a valid choice. %(value)s is not one of the available choices.') % {
@@ -364,7 +365,12 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertFalse(has_perm(entity02))
         self.assertTrue(has_perm(entity03))
 
-        response = self.assertGET200(self._build_bulk_url(self.centity_ct, entity01, entity02, entity03, entity04, GET=True))
+        response = self.assertGET200(
+            self._build_bulk_url(
+                self.centity_ct, entity01, entity02, entity03, entity04,
+                GET=True,
+            )
+        )
 
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
@@ -448,8 +454,12 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         create_ptype = CremePropertyType.create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats', is_copiable=False)
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
+        ptype01 = create_ptype(
+            str_pk='test-prop_foobar01', text='wears strange hats', is_copiable=False,
+        )
+        ptype02 = create_ptype(
+            str_pk='test-prop_foobar02', text='wears strange pants',
+        )
 
         entity = CremeEntity.objects.create(user=self.user)
 
@@ -495,13 +505,17 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         doc = self.get_html_tree(response.content)
         self.get_brick_node(doc, 'block_creme_core-property_type_info')
 
-        contacts_brick_node = self.get_brick_node(doc, 'block_creme_core-tagged-creme_core-fakecontact')
+        contacts_brick_node = self.get_brick_node(
+            doc, 'block_creme_core-tagged-creme_core-fakecontact',
+        )
         self.assertBrickHasNotClass(contacts_brick_node, 'is-empty')
         self.assertInstanceLink(contacts_brick_node, tagged_contact)
         self.assertNoInstanceLink(contacts_brick_node, untagged_contact)
         self.assertNoInstanceLink(contacts_brick_node, tagged_orga)
 
-        orgas_brick_node = self.get_brick_node(doc, 'block_creme_core-tagged-creme_core-fakeorganisation')
+        orgas_brick_node = self.get_brick_node(
+            doc, 'block_creme_core-tagged-creme_core-fakeorganisation',
+        )
         self.assertInstanceLink(orgas_brick_node, tagged_orga)
         self.assertNoInstanceLink(orgas_brick_node, tagged_contact)
 
@@ -525,7 +539,9 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(ptype.get_absolute_url())
         doc = self.get_html_tree(response.content)
 
-        contacts_brick_node = self.get_brick_node(doc, 'block_creme_core-tagged-creme_core-fakecontact')
+        contacts_brick_node = self.get_brick_node(
+            doc, 'block_creme_core-tagged-creme_core-fakecontact',
+        )
         self.assertInstanceLink(contacts_brick_node, rita)
         self.assertNoInstanceLink(contacts_brick_node, udf)
 
