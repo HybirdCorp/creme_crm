@@ -71,7 +71,8 @@ class SalesOrderTestCase(_BillingTestCase):
 
         self.assertContains(
             response,
-            '<a class="menu_button menu-button-icon is-disabled" data-action="billing-hatmenubar-convert"'
+            '<a class="menu_button menu-button-icon is-disabled" '
+            'data-action="billing-hatmenubar-convert"'
         )
 
         self.assertContains(response, _('Convert to Invoice').encode())

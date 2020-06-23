@@ -680,8 +680,14 @@ class LineTestCase(_BillingTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        self.assertEqual(_('Add this on the fly item to your catalog'), context.get('title'))
-        self.assertEqual(_('Add to the catalog'),                       context.get('submit_label'))
+        self.assertEqual(
+            _('Add this on the fly item to your catalog'),
+            context.get('title')
+        )
+        self.assertEqual(
+            _('Add to the catalog'),
+            context.get('submit_label')
+        )
 
         # ---
         response = self.client.post(url, data=self._build_dict_cat_subcat(cat, subcat))

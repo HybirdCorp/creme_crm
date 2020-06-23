@@ -66,7 +66,8 @@ class PollFormSectionCreateForm(PollFormSectionEditForm):
         instance.parent = parent
 
         # Order management -----------------------------------------------------
-        next_sections = []  # The section after the one we create : their order have to be incremented
+        # The section after the one we create : their order have to be incremented
+        next_sections = []
         parent_id = parent.id if parent else None
 
         for section in PollFormSection.objects.order_by('-order'):
@@ -155,7 +156,8 @@ class PollFormLineCreateForm(_PollFormLineForm):
         if section_lines:
             section_lines.reverse()
 
-            msg_fmt = gettext('Before: «{question}» (#{number})').format  # TODO: cached_gettext ??
+            # TODO: cached_gettext ??
+            msg_fmt = gettext('Before: «{question}» (#{number})').format
             choices = [
                 (0, gettext('Start of section')),
                 *(
@@ -180,11 +182,13 @@ class PollFormLineCreateForm(_PollFormLineForm):
                 lower_bound=get_data('lower_bound'),
                 upper_bound=get_data('upper_bound'),
                 choices=[
-                    *enumerate(filter(None,
-                                      (choice.strip() for choice in get_data('choices', '').split('\n'))
-                                     ),
-                               start=1,
-                              )
+                    *enumerate(
+                        filter(
+                            None,
+                            (choice.strip() for choice in get_data('choices', '').split('\n'))
+                        ),
+                        start=1,
+                    )
                 ],
             )  # Can raise Validation errors
 
@@ -268,23 +272,25 @@ class PollFormLineEditForm(_PollFormLineForm):
                 choices_2_keep.append((existing_choice[0], choice))
 
         if choices_2_del:
-            condition = PollFormLineCondition.objects \
-                                             .filter(source=self.instance,
-                                                     raw_answer__in=[str(c[0]) for c in choices_2_del],
-                                                    ) \
-                                             .first()
+            condition = PollFormLineCondition.objects.filter(
+                source=self.instance,
+                raw_answer__in=[str(c[0]) for c in choices_2_del],
+            ).first()
 
             if condition is not None:
                 choice_id = int(condition.raw_answer)
 
-                raise ValidationError(self.error_messages['used_choice'],
-                                      params={'choice':   find_first(choices_2_del,
-                                                                     (lambda c: c[0] == choice_id)
-                                                                    )[1],
-                                              'question': condition.line.question,
-                                             },
-                                      code='used_choice',
-                                     )
+                raise ValidationError(
+                    self.error_messages['used_choice'],
+                    params={
+                        'choice': find_first(
+                            choices_2_del,
+                            (lambda c: c[0] == choice_id)
+                        )[1],
+                        'question': condition.line.question,
+                    },
+                    code='used_choice',
+                )
 
         return old_choices
 
@@ -294,17 +300,24 @@ class PollFormLineEditForm(_PollFormLineForm):
 
         if not self._errors and self.initial_choices:
             choices_2_del = [
-                *self.instance.poll_line_type.get_deleted_choices(),  # TODO cache poll_line_type (in line ?)
+                # TODO cache poll_line_type (in line ?)
+                *self.instance.poll_line_type.get_deleted_choices(),
                 *self.choices_2_del,
             ]
 
             choices_2_keep = self.choices_2_keep
+            # TODO: factorise ---> in a new field 'MultipleCharField'
             choices_2_keep.extend(
-                enumerate(filter(None,  # TODO: factorise ---> in a new field 'MultipleCharField'
-                                 (choice.strip() for choice in cleaned_data.get('new_choices', '').split('\n'))
-                                ),
-                          start=len(choices_2_keep) + len(choices_2_del) + 1,
-                         )
+                enumerate(
+                    filter(
+                        None,
+                        (
+                            choice.strip()
+                            for choice in cleaned_data.get('new_choices', '').split('\n')
+                        )
+                    ),
+                    start=len(choices_2_keep) + len(choices_2_del) + 1,
+                )
             )
 
             self.type_args = PollLineType.build_serialized_args(ptype=self.instance.type,
@@ -335,7 +348,8 @@ class PollFormLineConditionsForm(CremeForm):
         self.old_conditions = conditions = line.get_conditions()
 
         fields = self.fields
-        fields['use_or'].initial = int(bool(line.conds_use_or))  # TODO: remove 'bool' if no more nullable
+        # TODO: remove 'bool' if no more nullable
+        fields['use_or'].initial = int(bool(line.conds_use_or))
 
         conditions_f = fields['conditions']
         conditions_f.sources = entity.lines.filter(order__lt=line.order)
@@ -351,7 +365,8 @@ class PollFormLineConditionsForm(CremeForm):
 
         # TODO: select for update ??
         for old_condition, condition in zip_longest(self.old_conditions, cdata['conditions']):
-            if not condition:  # Less new conditions that old conditions => delete conditions in excess
+            if not condition:
+                # Less new conditions that old conditions => delete conditions in excess
                 conds2del.append(old_condition.id)
             elif not old_condition:
                 condition.line = line

@@ -71,8 +71,14 @@ class RelationsTestCase(CremeTestCase):
         relation.subject_entity = create_entity()
         relation.object_entity  = create_entity()
 
-        self.assertNotEqual(relation.subject_entity_id, relation.symmetric_relation.object_entity_id)
-        self.assertNotEqual(relation.object_entity_id,  relation.symmetric_relation.subject_entity_id)
+        self.assertNotEqual(
+            relation.subject_entity_id,
+            relation.symmetric_relation.object_entity_id,
+        )
+        self.assertNotEqual(
+            relation.object_entity_id,
+            relation.symmetric_relation.subject_entity_id,
+        )
 
         # --
         with self.assertLogs(level='WARNING') as logs_manager:
@@ -124,7 +130,9 @@ class RelationsTestCase(CremeTestCase):
     #     self.assertIn(internal_rtype.id, compatibles_ids)
     #
     #     self.assertTrue(rtype.is_compatible(self.contact_ct.id))
-    #     self.assertFalse(rtype.is_compatible(ContentType.objects.get_for_model(FakeOrganisation).id))
+    #     self.assertFalse(
+    #         rtype.is_compatible(ContentType.objects.get_for_model(FakeOrganisation).id)
+    #     )
     #
     # def test_get_compatible_ones02(self):
     #     orig_compat_ids = self.build_compatible_set_legacy()
@@ -136,10 +144,11 @@ class RelationsTestCase(CremeTestCase):
     #                          is_internal=True,
     #                         )[0]
     #
-    #     internal_rtype = create_rtype(('test-subject_foobar_2', 'manages internal',       [FakeContact]),
-    #                                   ('test-object_foobar_2',  'is managed by internal', [FakeOrganisation]),
-    #                                   is_internal=True,
-    #                                  )[0]
+    #     internal_rtype = create_rtype(
+    #         ('test-subject_foobar_2', 'manages internal',       [FakeContact]),
+    #         ('test-object_foobar_2',  'is managed by internal', [FakeOrganisation]),
+    #         is_internal=True,
+    #     )[0]
     #     self.assertEqual(orig_compat_ids, self.build_compatible_set_legacy())
     #
     #     compatibles_ids = self.build_compatible_set_legacy(include_internals=True)

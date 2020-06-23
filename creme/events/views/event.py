@@ -205,7 +205,10 @@ class RelatedContactsList(EntityRelatedMixin, ContactsList):
 
         # NB: add relations items to use the pre-cache system of HeaderFilter
         #     (TODO: problem: retrieve other related events too)
-        cells.extend(EntityCellRelation(model=Contact, rtype=rtype, is_hidden=True) for rtype in rtypes)
+        cells.extend(
+            EntityCellRelation(model=Contact, rtype=rtype, is_hidden=True)
+            for rtype in rtypes
+        )
 
         event = self.get_related_entity()
         cells.append(gui.EntityCellVolatileInvitation(event=event))

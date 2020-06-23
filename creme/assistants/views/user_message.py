@@ -48,7 +48,8 @@ class RelatedUserMessageCreation(generic.AddingInstanceToEntityPopup):
 #     msg = get_object_or_404(UserMessage, pk=get_from_POST_or_404(request.POST, 'id'))
 #
 #     if request.user.id != msg.recipient_id:
-#         raise PermissionDenied(gettext('You are not allowed to delete this message: {}').format(msg))
+#         raise PermissionDenied(
+#         gettext('You are not allowed to delete this message: {}').format(msg))
 #
 #     msg.delete()
 #

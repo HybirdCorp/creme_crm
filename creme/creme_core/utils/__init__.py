@@ -115,7 +115,12 @@ def replace_related_object(old_instance, new_instance):
         field_name = rel_objects.field.name
 
         for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():
-            mark(rel_object, old_reference=old_instance, new_reference=new_instance, field_name=field_name)
+            mark(
+                rel_object,
+                old_reference=old_instance,
+                new_reference=new_instance,
+                field_name=field_name,
+            )
             setattr(rel_object, field_name, new_instance)
             rel_object.save()
 
@@ -327,7 +332,8 @@ def ellipsis(s: str, length: int) -> str:
 
 
 def ellipsis_multi(strings: Iterable[str], length: int) -> List[str]:
-    """Return (potentially) shorter strings in order to the global length does not exceed a given value.
+    """Return (potentially) shorter strings in order to the global length
+    does not exceed a given value.
     Strings are shorten in a way which tends to make them of the same length.
 
     @param strings: Iterable of str instances.

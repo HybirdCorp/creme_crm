@@ -168,7 +168,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
     #         ordinate='', is_count=True,
     #     )
 
-    # def _create_invoice_report_n_graph(self, abscissa='issuing_date', ordinate='total_no_vat__sum'):
+    # def _create_invoice_report_n_graph(self, abscissa='issuing_date',
+    #                                    ordinate='total_no_vat__sum'):
     def _create_invoice_report_n_graph(self, abscissa='issuing_date',
                                        ordinate_type=RGA_SUM, ordinate_field='total_no_vat'):
         self.report = report = Report.objects.create(
@@ -214,7 +215,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         builder = ListViewURLBuilder(FakeContact, efilter)
         self.assertURL(builder(None), FakeContact, expected_efilter_id='test-filter')
-        self.assertURL(builder({'id': 1}), FakeContact, expected_q=Q(id=1), expected_efilter_id='test-filter')
+        self.assertURL(
+            builder({'id': 1}), FakeContact,
+            expected_q=Q(id=1), expected_efilter_id='test-filter',
+        )
 
     def test_listview_URL_builder02(self):
         "Model without list-view."
@@ -343,8 +347,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         y_asc = data.get('y')
         self.assertIsInstance(y_asc, list)
         self.assertEqual(len(x_asc), len(y_asc))
-        self.assertEqual(
-            [0, '/tests/organisations?q_filter={}'.format(self._serialize_qfilter(sector=sectors[0].id))],
+        self.assertListEqual(
+            [
+                0,
+                '/tests/organisations?q_filter={}'.format(
+                    self._serialize_qfilter(sector=sectors[0].id),
+                ),
+            ],
             y_asc[0]
         )
 
@@ -398,7 +407,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(200, response.status_code)
         # self.assertFormError(
         #     response, 'form', 'abscissa_field',
-        #     '"{}" groups are only compatible with [DateField, DateTimeField]'.format(_('By days'))
+        #     '"{}" groups are only compatible with
+        #     [DateField, DateTimeField]'.format(_('By days'))
         # )
         self.assertFormError(
             response, 'form', 'abscissa',
@@ -667,7 +677,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(200, response.status_code)
         # self.assertFormError(
         #     response, 'form', 'abscissa_field',
-        #     '"{}" groups are only compatible with [DateField, DateTimeField]'.format(_('By X days'))
+        #     '"{}" groups are only compatible with [DateField, DateTimeField]'.format(
+        #     _('By X days'))
         # )
         self.assertFormError(
             response, 'form', 'abscissa',
@@ -704,10 +715,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         user = self.login()
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_contact)
-        cf_enum    = create_cf(name='Hair',        field_type=CustomField.ENUM)      # OK for abscissa (group by), not for ordinate (aggregate)
-        # cf_dt      = create_cf(name='First fight', field_type=CustomField.DATETIME)  # idem
-        # cf_int     = create_cf(name='Size (cm)',   field_type=CustomField.INT)       # INT -> not usable for abscissa , but OK for ordinate
-        # cf_decimal = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)     # FLOAT -> not usable for abscissa , but OK for ordinate
+        # OK for abscissa (group by), not for ordinate (aggregate)
+        cf_enum    = create_cf(name='Hair',        field_type=CustomField.ENUM)
+        # cf_dt      = create_cf(name='First fight', field_type=CustomField.DATETIME)
+        # cf_int     = create_cf(name='Size (cm)',   field_type=CustomField.INT)
+        # cf_decimal = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)
 
         # # Bad CT
         # ct_orga = self.ct_orga
@@ -1652,8 +1664,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         sectors = FakeSector.objects.all()
         self.assertEqual([s.title for s in sectors], x_asc)
-        self.assertEqual(
-            [0, '/tests/organisations?q_filter={}'.format(self._serialize_qfilter(sector=sectors[0].id))],
+        self.assertListEqual(
+            [
+                0,
+                '/tests/organisations?q_filter={}'.format(
+                    self._serialize_qfilter(sector=sectors[0].id),
+                ),
+            ],
             y_asc[0]
         )
         self.assertEqual(_('the field does not exist any more.'),
@@ -1677,8 +1694,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         sectors = FakeSector.objects.all()
         self.assertEqual([s.title for s in sectors], x_asc)
-        self.assertEqual(
-            [0, '/tests/organisations?q_filter={}'.format(self._serialize_qfilter(sector=sectors[0].id))],
+        self.assertListEqual(
+            [
+                0,
+                '/tests/organisations?q_filter={}'.format(
+                    self._serialize_qfilter(sector=sectors[0].id),
+                ),
+            ],
             y_asc[0]
         )
         self.assertEqual(_('the aggregation function is invalid.'),
@@ -1705,8 +1727,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         sectors = FakeSector.objects.all()
         self.assertEqual([s.title for s in sectors], x_asc)
-        self.assertEqual(
-            [0, '/tests/organisations?q_filter={}'.format(self._serialize_qfilter(sector=sectors[0].id))],
+        self.assertListEqual(
+            [
+                0,
+                '/tests/organisations?q_filter={}'.format(
+                    self._serialize_qfilter(sector=sectors[0].id),
+                ),
+            ],
             y_asc[0]
         )
         # self.assertEqual(_('the custom field does not exist any more.'),
@@ -1976,9 +2003,17 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(y_one_day[17][0], 1)
 
         valid_days_indices = [0, 5, 10, 13, 15, 17]
-        invalid_days_indices = [index for index in range(len(y_one_day)) if index not in valid_days_indices]
-        self.assertEqual([index for index, value in enumerate(y_one_day) if value[0] == 1], valid_days_indices)
-        self.assertEqual([index for index, value in enumerate(y_one_day) if value[0] == 0], invalid_days_indices)
+        invalid_days_indices = [
+            index for index in range(len(y_one_day)) if index not in valid_days_indices
+        ]
+        self.assertListEqual(
+            [index for index, value in enumerate(y_one_day) if value[0] == 1],
+            valid_days_indices,
+        )
+        self.assertListEqual(
+            [index for index, value in enumerate(y_one_day) if value[0] == 0],
+            invalid_days_indices,
+        )
 
     def test_fetch_with_custom_date_range01(self):
         "Count."
@@ -2012,8 +2047,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value(entity=tullies,    value=create_dt(year=2014, month=1,  day=5))
         create_cf_value(entity=arryns,     value=create_dt(year=2014, month=1,  day=7))
 
-        create_cf_value(custom_field=cf2, entity=lannisters, value=create_dt(year=2013, month=11, day=6))
-        create_cf_value(custom_field=cf2, entity=starks,     value=create_dt(year=2014, month=1,  day=6))
+        create_cf_value(
+            custom_field=cf2, entity=lannisters, value=create_dt(year=2013, month=11, day=6),
+        )
+        create_cf_value(
+            custom_field=cf2, entity=starks, value=create_dt(year=2014, month=1, day=6),
+        )
 
         days = 15
         rgraph = ReportGraph.objects.create(
@@ -2454,7 +2493,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ]
         )
 
-        create_rel = partial(Relation.objects.create, user=user, type_id=fake_constants.FAKE_REL_OBJ_EMPLOYED_BY)
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, type_id=fake_constants.FAKE_REL_OBJ_EMPLOYED_BY,
+        )
         create_rel(subject_entity=lannisters, object_entity=tyrion)
         create_rel(subject_entity=starks,     object_entity=ned)
         create_rel(subject_entity=starks,     object_entity=aria)
@@ -3218,8 +3260,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         year = doc1.created.year
         self.assertEqual([str(year)], x)
-        self.assertEqual(
-            [[2, reverse('reports__list_fake_documents') + '?q_filter={}'.format(self._serialize_qfilter(created__year=year))]],
+        self.assertListEqual(
+            [[
+                2,
+                reverse('reports__list_fake_documents')
+                + f'?q_filter={self._serialize_qfilter(created__year=year)}',
+            ]],
             y
         )
 
@@ -3401,8 +3447,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         year = sonsaku.created.year
         self.assertEqual([str(year)], x)
-        self.assertEqual(
-            [[2, '/tests/contacts?q_filter={}'.format(self._serialize_qfilter(created__year=year))]],
+        self.assertListEqual(
+            [[
+                2,
+                f'/tests/contacts?q_filter={self._serialize_qfilter(created__year=year)}',
+            ]],
             y
         )
 
@@ -3559,8 +3608,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def bench_big_fetch_using_count(self):
         """
-        Little benchmark to see how the 'group by' report queries behave with bigger datasets
-        where there is a visible difference between the old "manual group by's" and the new real sql ones
+        Little benchmark to see how the 'group by' report queries behave with
+        bigger data-sets where there is a visible difference between the old
+         "manual group by's" and the new real sql ones.
         """
         from datetime import datetime
         import time
@@ -3599,8 +3649,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def bench_big_fetch_using_sum(self):
         """
-        Little benchmark to see how the 'group by' report queries behave with bigger datasets
-        where there is a visible difference between the old "manual group by's" and the new real sql ones
+        Little benchmark to see how the 'group by' report queries behave with
+        bigger data-sets where there is a visible difference between the old
+        "manual group by's" and the new real sql ones.
         """
         from datetime import datetime
         import time
@@ -3730,7 +3781,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_orga(name='O#1', user=user)
         create_orga(name='O#2', user=user, capital=100)
         create_orga(name='O#3', user=user, capital=200)
-        create_orga(name='O#4', user=other_user, capital=300)  # Cannot be seen => should not be used to compute aggregate
+        # Cannot be seen => should not be used to compute aggregate
+        create_orga(name='O#4', user=other_user, capital=300)
 
         name = 'Max capital per user'
         self.assertNoFormError(self.client.post(
@@ -3786,7 +3838,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_doc = partial(FakeReportsDocument.objects.create, linked_folder=folder)
         doc1 = create_doc(title='Doc#1', user=user)
         __   = create_doc(title='Doc#2', user=user)
-        doc3 = create_doc(title='Doc#3', user=self.other_user)  # Cannot be seen => should not be used to compute aggregate
+        # Cannot be seen => should not be used to compute aggregate
+        doc3 = create_doc(title='Doc#3', user=self.other_user)
         self.assertEqual(doc1.created.year, doc3.created.year)
 
         rgraph = self._create_documents_rgraph()

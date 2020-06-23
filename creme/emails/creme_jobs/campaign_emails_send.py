@@ -40,10 +40,10 @@ class _CampaignEmailsSendType(JobType):
 
     def _execute(self, job):
         for sending in EmailSending.objects.exclude(campaign__is_deleted=True) \
-                                           .exclude(state=SENDING_STATE_DONE) \
-                                           .filter(Q(type=SENDING_TYPE_IMMEDIATE) |
-                                                   Q(sending_date__lte=now())
-                                                  ):
+                .exclude(state=SENDING_STATE_DONE) \
+                .filter(Q(type=SENDING_TYPE_IMMEDIATE) |
+                        Q(sending_date__lte=now())
+                        ):
             sending.state = SENDING_STATE_INPROGRESS
             sending.save()
 
@@ -57,9 +57,10 @@ class _CampaignEmailsSendType(JobType):
             sending.state = status or SENDING_STATE_DONE
             sending.save()
 
-    def next_wakeup(self, job, now_value):  # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    def next_wakeup(self, job, now_value):
         qs = EmailSending.objects.exclude(campaign__is_deleted=True) \
-                                 .exclude(state=SENDING_STATE_DONE)
+            .exclude(state=SENDING_STATE_DONE)
 
         if qs.filter(type=SENDING_TYPE_IMMEDIATE).exists():
             return now_value

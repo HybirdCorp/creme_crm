@@ -88,7 +88,8 @@ class AbstractGraph(CremeEntity):
 
         graph = pgv.AGraph(directed=True)
 
-        # NB: "self.roots.all()" causes a strange additional query (retrieving of the base CremeEntity !)....
+        # NB: "self.roots.all()" causes a strange additional query
+        #     (retrieving of the base CremeEntity !)....
         has_perm_to_view = user.has_perm_to_view
         roots = [
             root
@@ -107,7 +108,10 @@ class AbstractGraph(CremeEntity):
         for root in roots:
             add_node(str(root.entity), shape='box')
             # add_node('filled box',    shape='box', style='filled', color='#FF00FF')
-            # add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
+            # add_node(
+            #     'filled box v2', shape='box', style='filled',
+            #     fillcolor='#FF0000', color='#0000FF', penwidth='2.0'
+            # )  # default pensize=="1.0"
 
         orbital_nodes = {}  # Cache
 
@@ -134,19 +138,27 @@ class AbstractGraph(CremeEntity):
 
                 add_edge(str_subject, str_object,
                          label=str(relation.type.predicate))
-                # add_edge('b', 'd', color='#FF0000', fontcolor='#00FF00', label='foobar', style='dashed')
+                # add_edge(
+                #     'b', 'd', color='#FF0000', fontcolor='#00FF00',
+                #     label='foobar', style='dashed'
+                # )
 
         orbital_rtypes = self.orbital_relation_types.all()
 
         if orbital_rtypes:
             orbital_ids = orbital_nodes.keys()
 
-            for relation in Relation.objects.filter(subject_entity__in=orbital_ids,
-                                                    object_entity__in=orbital_ids,
-                                                    type__in=orbital_rtypes).select_related('type'):
-                add_edge(orbital_nodes[relation.subject_entity_id], orbital_nodes[relation.object_entity_id],
-                         label=str(relation.type.predicate),
-                         style='dashed')
+            for relation in Relation.objects.filter(
+                subject_entity__in=orbital_ids,
+                object_entity__in=orbital_ids,
+                type__in=orbital_rtypes,
+            ).select_related('type'):
+                add_edge(
+                    orbital_nodes[relation.subject_entity_id],
+                    orbital_nodes[relation.object_entity_id],
+                    label=str(relation.type.predicate),
+                    style='dashed',
+                )
 
         # print graph.string()
 
@@ -156,7 +168,9 @@ class AbstractGraph(CremeEntity):
         img_basename = f'graph_{self.id}.{img_format}'
 
         try:
-            path = FileCreator(join(settings.MEDIA_ROOT, 'upload', 'graphs'), img_basename).create()
+            path = FileCreator(
+                join(settings.MEDIA_ROOT, 'upload', 'graphs'), img_basename,
+            ).create()
         except FileCreator.Error as e:
             raise self.GraphException(e) from e
 

@@ -56,9 +56,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
     def _build_gendoc_url(self, opportunity, model=None):
         model = model or Quote
-        return reverse('opportunities__generate_billing_doc',
-                       args=(opportunity.id, ContentType.objects.get_for_model(model).id),
-                      )
+        return reverse(
+            'opportunities__generate_billing_doc',
+            args=(opportunity.id, ContentType.objects.get_for_model(model).id),
+        )
 
     def _set_quote_config(self, use_current_quote):
         sv = SettingValue.objects.get_4_key(setting_keys.quote_key)
@@ -70,17 +71,25 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         self.assertIn(constants.REL_OBJ_LINKED_SALESORDER, relation_types)
         self.assertNotIn(constants.REL_SUB_LINKED_SALESORDER, relation_types)
-        self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
+        self.get_relationtype_or_fail(
+            constants.REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder],
+        )
 
         self.assertIn(constants.REL_OBJ_LINKED_INVOICE, relation_types)
         self.assertNotIn(constants.REL_SUB_LINKED_INVOICE, relation_types)
-        self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
+        self.get_relationtype_or_fail(
+            constants.REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice],
+        )
 
         self.assertIn(constants.REL_OBJ_LINKED_QUOTE, relation_types)
         self.assertNotIn(constants.REL_SUB_LINKED_QUOTE, relation_types)
-        self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
+        self.get_relationtype_or_fail(
+            constants.REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote],
+        )
 
-        self.get_relationtype_or_fail(constants.REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
+        self.get_relationtype_or_fail(
+            constants.REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder],
+        )
 
     @skipIfCustomOrganisation
     def test_generate_new_doc01(self):
@@ -196,7 +205,13 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         create_sc = partial(SetCredentials.objects.create, role=role,
                             set_type=SetCredentials.ESET_ALL,
                            )
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE)
+        create_sc(
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+            ),
+        )
         self.assertPOST403(url)
 
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(Opportunity))
@@ -260,8 +275,14 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         quote2.save()
 
         create_sline(related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal('500'))
-        self.assertPOST200(self._build_currentquote_url(opportunity, quote1, action='unset_current'), follow=True)
-        self.assertPOST200(self._build_currentquote_url(opportunity, quote2, action='unset_current'), follow=True)
+        self.assertPOST200(
+            self._build_currentquote_url(opportunity, quote1, action='unset_current'),
+            follow=True,
+        )
+        self.assertPOST200(
+            self._build_currentquote_url(opportunity, quote2, action='unset_current'),
+            follow=True,
+        )
 
         self._set_quote_config(True)
         self.assertPOST200(self._build_currentquote_url(opportunity, quote1), follow=True)
@@ -269,15 +290,23 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(opportunity.estimated_sales, quote1.total_no_vat)  # 300
         self.assertEqual(opportunity.made_sales, Decimal('0'))  # 300
 
-        self.assertPOST200(self._build_currentquote_url(opportunity, quote1, action='unset_current'), follow=True)
-        self.assertPOST200(self._build_currentquote_url(opportunity, quote2), follow=True)
+        self.assertPOST200(
+            self._build_currentquote_url(opportunity, quote1, action='unset_current'),
+            follow=True,
+        )
+        self.assertPOST200(
+            self._build_currentquote_url(opportunity, quote2), follow=True,
+        )
         opportunity = self.refresh(opportunity)
         self.assertEqual(opportunity.estimated_sales, quote2.total_no_vat)  # 500
         self.assertEqual(opportunity.made_sales, quote2.total_no_vat)  # 300
 
         self.assertPOST200(self._build_currentquote_url(opportunity, quote1), follow=True)
         opportunity = self.refresh(opportunity)
-        self.assertEqual(opportunity.estimated_sales, quote1.total_no_vat + quote2.total_no_vat)  # 800
+        self.assertEqual(
+            opportunity.estimated_sales,
+            quote1.total_no_vat + quote2.total_no_vat,
+        )  # 800
         self.assertEqual(opportunity.made_sales, quote2.total_no_vat)  # 300
 
     @skipIfCustomOrganisation
@@ -451,7 +480,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         quote4 = create_quote('Quote#4', emitter=emitter2)
 
         # 'quote2' should not be proposed
-        create_rel(subject_entity=quote2, type_id=constants.REL_SUB_LINKED_QUOTE, object_entity=opp)
+        create_rel(
+            subject_entity=quote2, type_id=constants.REL_SUB_LINKED_QUOTE, object_entity=opp,
+        )
 
         url = self.SELECTION_URL
         get_ct = ContentType.objects.get_for_model
@@ -525,7 +556,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         quote4 = create_quote('Quote#4', emitter=emitter2)
 
         # 'quote2' should not be proposed
-        create_rel(subject_entity=quote2, type_id=constants.REL_SUB_LINKED_QUOTE, object_entity=opp)
+        create_rel(
+            subject_entity=quote2, type_id=constants.REL_SUB_LINKED_QUOTE, object_entity=opp,
+        )
 
         url = self.SELECTION_URL
         get_ct = ContentType.objects.get_for_model
@@ -596,7 +629,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         __     = create_quote('Quote#4', emitter=emitter2)
 
         # 'quote2' should not be proposed
-        create_rel(subject_entity=quote2, type_id=constants.REL_SUB_LINKED_QUOTE, object_entity=opp)
+        create_rel(
+            subject_entity=quote2, type_id=constants.REL_SUB_LINKED_QUOTE, object_entity=opp,
+        )
 
         url = self.SELECTION_URL
         get_ct = ContentType.objects.get_for_model

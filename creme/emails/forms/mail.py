@@ -64,8 +64,12 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
     """
     sender = EmailField(label=_('Sender'))
 
-    c_recipients = MultiCreatorEntityField(label=_('Contacts'),      required=False, model=Contact,      q_filter={'email__gt': ''})
-    o_recipients = MultiCreatorEntityField(label=_('Organisations'), required=False, model=Organisation, q_filter={'email__gt': ''})
+    c_recipients = MultiCreatorEntityField(
+        label=_('Contacts'), required=False, model=Contact, q_filter={'email__gt': ''},
+    )
+    o_recipients = MultiCreatorEntityField(
+        label=_('Organisations'), required=False, model=Organisation, q_filter={'email__gt': ''},
+    )
 
     send_me = BooleanField(label=_('Send me a copy of this mail'), required=False)
 
@@ -194,8 +198,12 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
             for recipient in chain(cdata['c_recipients'], cdata['o_recipients']):
                 email = create_n_send_mail(recipient.email)
 
-                create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=user_contact)
-                create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient)
+                create_relation(
+                    subject_entity=email, type_id=REL_SUB_MAIL_SENDED, object_entity=user_contact
+                )
+                create_relation(
+                    subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient,
+                )
 
         if sending_error:
             entity_emails_send_type.refresh_job()

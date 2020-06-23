@@ -18,8 +18,12 @@ class VcfsTestCase(CremeTestCase):
         with self.assertNoException():
             app_labels = response.context['form'].fields['allowed_apps'].choices
 
-        self.assertInChoices(value='creme_core', label=_('Core'),                  choices=app_labels)
-        self.assertInChoices(value='persons',    label=_('Accounts and Contacts'), choices=app_labels)
+        self.assertInChoices(
+            value='creme_core', label=_('Core'), choices=app_labels
+        )
+        self.assertInChoices(
+            value='persons', label=_('Accounts and Contacts'), choices=app_labels
+        )
         self.assertNotInChoices(value='vcfs', choices=app_labels)  # <==
 
     def test_actions(self):

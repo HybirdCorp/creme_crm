@@ -29,7 +29,8 @@ from .models import Action, Alert, Memo, ToDo, UserMessage
 
 
 class _AssistantsBrick(QuerysetBrick):
-    # TODO: move to a method in RealEntityForeignKey ? (like GenericForeignKey.get_prefetch_queryset() ?)
+    # TODO: move to a method in RealEntityForeignKey ?
+    #       (like GenericForeignKey.get_prefetch_queryset() ?)
     @staticmethod
     def _populate_related_real_entities(assistants):
         assistants = [assistant for assistant in assistants if assistant.entity_id]
@@ -87,9 +88,9 @@ class TodosBrick(_AssistantsBrick):
         return ToDo.objects.filter(entity_id=entity.id).select_related('user')
 
     def _get_queryset_for_home(self, context):
-        return ToDo.objects.filter_by_user(context['user'])\
-                           .filter(entity__is_deleted=False) \
-                           .select_related('user')
+        return ToDo.objects.filter_by_user(
+            context['user']
+        ).filter(entity__is_deleted=False).select_related('user')
 
 
 class MemosBrick(_AssistantsBrick):
@@ -103,10 +104,11 @@ class MemosBrick(_AssistantsBrick):
         return Memo.objects.filter(entity_id=entity.id).select_related('user')
 
     def _get_queryset_for_home(self, context):
-        return Memo.objects \
-                   .filter_by_user(context['user'])\
-                   .filter(on_homepage=True, entity__is_deleted=False) \
-                   .select_related('user')
+        return Memo.objects.filter_by_user(
+            context['user']
+        ).filter(
+            on_homepage=True, entity__is_deleted=False,
+        ).select_related('user')
 
 
 class AlertsBrick(_AssistantsBrick):
@@ -117,15 +119,17 @@ class AlertsBrick(_AssistantsBrick):
     template_name = 'assistants/bricks/alerts.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        return Alert.objects.filter(is_validated=False, entity_id=entity.id)\
-                            .select_related('user')
+        return Alert.objects.filter(
+            is_validated=False, entity_id=entity.id,
+        ).select_related('user')
 
     def _get_queryset_for_home(self, context):
-        return Alert.objects.filter_by_user(context['user']) \
-                            .filter(is_validated=False,
-                                    entity__is_deleted=False,
-                                   ) \
-                            .select_related('user')
+        return Alert.objects.filter_by_user(
+            context['user'],
+        ).filter(
+            is_validated=False,
+            entity__is_deleted=False,
+        ).select_related('user')
 
 
 class _ActionsBrick(_AssistantsBrick):
@@ -133,15 +137,14 @@ class _ActionsBrick(_AssistantsBrick):
     order_by     = 'deadline'
 
     def _get_queryset_for_detailview(self, entity, context):
-        return Action.objects \
-                     .filter(entity_id=entity.id, is_ok=False) \
-                     .select_related('user')
+        return Action.objects.filter(
+            entity_id=entity.id, is_ok=False,
+        ).select_related('user')
 
     def _get_queryset_for_home(self, context):
-        return Action.objects \
-                     .filter_by_user(context['user']) \
-                     .filter(is_ok=False, entity__is_deleted=False) \
-                     .select_related('user')
+        return Action.objects.filter_by_user(
+            context['user'],
+        ).filter(is_ok=False, entity__is_deleted=False).select_related('user')
 
 
 class ActionsOnTimeBrick(_ActionsBrick):
@@ -150,12 +153,14 @@ class ActionsOnTimeBrick(_ActionsBrick):
     template_name = 'assistants/bricks/actions-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        return super()._get_queryset_for_detailview(entity, context) \
-                      .filter(deadline__gt=context['today'])
+        return super()._get_queryset_for_detailview(
+            entity, context,
+        ).filter(deadline__gt=context['today'])
 
     def _get_queryset_for_home(self, context):
-        return super()._get_queryset_for_home(context) \
-                      .filter(deadline__gt=context['today'])
+        return super()._get_queryset_for_home(
+            context,
+        ).filter(deadline__gt=context['today'])
 
 
 class ActionsNotOnTimeBrick(_ActionsBrick):
@@ -164,12 +169,14 @@ class ActionsNotOnTimeBrick(_ActionsBrick):
     template_name = 'assistants/bricks/actions-not-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        return super()._get_queryset_for_detailview(entity, context) \
-                      .filter(deadline__lte=context['today'])
+        return super()._get_queryset_for_detailview(
+            entity, context,
+        ).filter(deadline__lte=context['today'])
 
     def _get_queryset_for_home(self, context):
-        return super()._get_queryset_for_home(context) \
-                      .filter(deadline__lte=context['today'])
+        return super()._get_queryset_for_home(
+            context,
+        ).filter(deadline__lte=context['today'])
 
 
 class UserMessagesBrick(_AssistantsBrick):
@@ -180,10 +187,11 @@ class UserMessagesBrick(_AssistantsBrick):
     template_name = 'assistants/bricks/messages.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        return UserMessage.objects.filter(entity_id=entity.id, recipient=context['user']) \
-                          .select_related('sender')
+        return UserMessage.objects.filter(
+            entity_id=entity.id, recipient=context['user'],
+        ).select_related('sender')
 
     def _get_queryset_for_home(self, context):
-        return UserMessage.objects \
-                          .filter(recipient=context['user'], entity__is_deleted=False) \
-                          .select_related('sender')
+        return UserMessage.objects.filter(
+            recipient=context['user'], entity__is_deleted=False,
+        ).select_related('sender')

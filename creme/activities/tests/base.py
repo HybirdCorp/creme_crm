@@ -68,11 +68,17 @@ class _ActivitiesTestCase(CremeTestCase):
         }
         data.update(kwargs)
 
-        self.assertNoFormError(self.client.post(self.ACTIVITY_CREATION_URL, follow=True, data=data))
+        self.assertNoFormError(
+            self.client.post(self.ACTIVITY_CREATION_URL, follow=True, data=data),
+        )
 
         return self.get_object_or_fail(Activity, title=title)
 
-    def _create_meeting(self, title='Meeting01', subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK, hour=14):
+    def _create_meeting(
+            self,
+            title='Meeting01',
+            subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            hour=14):
         create_dt = self.create_datetime
         return Activity.objects.create(
             user=self.user, title=title,

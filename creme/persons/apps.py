@@ -122,8 +122,11 @@ class PersonsConfig(CremeAppConfig):
 
         Contact = self.Contact
         Organisation = self.Organisation
-        import_form_registry.register(Contact,      partial(form_builder, model=Contact)) \
-                            .register(Organisation, partial(form_builder, model=Organisation))
+        import_form_registry.register(
+            Contact, partial(form_builder, model=Contact),
+        ).register(
+            Organisation, partial(form_builder, model=Organisation),
+        )
 
     def register_menu(self, creme_menu):
         from django.urls import reverse_lazy as reverse
@@ -133,44 +136,70 @@ class PersonsConfig(CremeAppConfig):
         Contact = self.Contact
         Organisation = self.Organisation
         URLItem = creme_menu.URLItem
-        creme_menu.get('creme', 'user').add(UserContactURLItem('persons-user_contact'), priority=2)
-        directory = \
-            creme_menu.get('features') \
-                      .get_or_create(creme_menu.ContainerItem, 'persons-directory', priority=20,
-                                     defaults={'label': _('Directory')},
-                                    ) \
-                      .add(URLItem.list_view('persons-organisations', model=Organisation), priority=10) \
-                      .add(URLItem.list_view('persons-contacts',      model=Contact),      priority=20)
+        creme_menu.get(
+            'creme', 'user',
+        ).add(UserContactURLItem('persons-user_contact'), priority=2)
+        directory = creme_menu.get(
+            'features',
+        ).get_or_create(
+            creme_menu.ContainerItem, 'persons-directory', priority=20,
+            defaults={'label': _('Directory')},
+        ).add(
+            URLItem.list_view('persons-organisations', model=Organisation),
+            priority=10
+        ).add(
+            URLItem.list_view('persons-contacts', model=Contact),
+            priority=20
+        )
 
         if settings.PERSONS_MENU_CUSTOMERS_ENABLED:
-            directory.add(URLItem('persons-lead_customers',
-                                  url=reverse('persons__leads_customers'),
-                                  label=_('My customers / prospects / suspects'), perm='persons',
-                                 ),
-                          priority=30,
-                         )
+            directory.add(
+                URLItem(
+                    'persons-lead_customers',
+                    url=reverse('persons__leads_customers'),
+                    label=_('My customers / prospects / suspects'), perm='persons',
+                ),
+                priority=30,
+            )
 
-        creme_menu.get('creation', 'main_entities') \
-                  .add(URLItem.creation_view('persons-create_organisation', model=Organisation), priority=10) \
-                  .add(URLItem.creation_view('persons-create_contact',      model=Contact),      priority=20)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('persons-directory', _('Directory'), priority=10) \
-                  .add_link('create_contact',      Contact,      priority=3) \
-                  .add_link('create_organisation', Organisation, priority=5)
+        creme_menu.get(
+            'creation', 'main_entities'
+        ).add(
+            URLItem.creation_view('persons-create_organisation', model=Organisation),
+            priority=10,
+        ).add(
+            URLItem.creation_view('persons-create_contact', model=Contact),
+            priority=20,
+        )
+        creme_menu.get(
+            'creation', 'any_forms'
+        ).get_or_create_group(
+            'persons-directory', _('Directory'), priority=10
+        ).add_link(
+            'create_contact', Contact, priority=3,
+        ).add_link(
+            'create_organisation', Organisation, priority=5,
+        )
 
     def register_merge_forms(self, merge_form_registry):
         from .forms.merge import get_merge_form_builder as form_builder
 
         Contact = self.Contact
         Organisation = self.Organisation
-        merge_form_registry.register(Contact,      partial(form_builder, model=Contact)) \
-                           .register(Organisation, partial(form_builder, model=Organisation))
+        merge_form_registry.register(
+            Contact, partial(form_builder, model=Contact),
+        ).register(
+            Organisation, partial(form_builder, model=Organisation),
+        )
 
     def register_quickforms(self, quickforms_registry):
         from .forms import quick
 
-        quickforms_registry.register(self.Contact,      quick.ContactQuickForm) \
-                           .register(self.Organisation, quick.OrganisationQuickForm)
+        quickforms_registry.register(
+            self.Contact, quick.ContactQuickForm,
+        ).register(
+            self.Organisation, quick.OrganisationQuickForm,
+        )
 
     def register_search_fields(self, search_field_registry):
         from django.db.models import ForeignKey
@@ -200,28 +229,29 @@ class PersonsConfig(CremeAppConfig):
 
         Contact = self.Contact
         Organisation = self.Organisation
-        statistics_registry.register(id='persons-contacts',
-                                     label=Contact._meta.verbose_name_plural,
-                                     func=lambda: [Contact.objects.count()],
-                                     perm='persons', priority=3,
-                                    ) \
-                           .register(id='persons-organisations',
-                                     label=Organisation._meta.verbose_name_plural,
-                                     func=lambda: [Organisation.objects.count()],
-                                     perm='persons', priority=5,
-                                    ) \
-                           .register(id='persons-customers', label=_('Customers'),
-                                     func=statistics.CustomersStatistics(Organisation),
-                                     perm='persons', priority=7,
-                                    ) \
-                           .register(id='persons-prospects', label=_('Prospects'),
-                                     func=statistics.ProspectsStatistics(Organisation),
-                                     perm='persons', priority=9,
-                                    ) \
-                           .register(id='persons-suspects', label=_('Suspects'),
-                                     func=statistics.SuspectsStatistics(Organisation),
-                                     perm='persons', priority=11,
-                                    )
+        statistics_registry.register(
+            id='persons-contacts',
+            label=Contact._meta.verbose_name_plural,
+            func=lambda: [Contact.objects.count()],
+            perm='persons', priority=3,
+        ).register(
+            id='persons-organisations',
+            label=Organisation._meta.verbose_name_plural,
+            func=lambda: [Organisation.objects.count()],
+            perm='persons', priority=5,
+        ).register(
+            id='persons-customers', label=_('Customers'),
+            func=statistics.CustomersStatistics(Organisation),
+            perm='persons', priority=7,
+        ).register(
+            id='persons-prospects', label=_('Prospects'),
+            func=statistics.ProspectsStatistics(Organisation),
+            perm='persons', priority=9,
+        ).register(
+            id='persons-suspects', label=_('Suspects'),
+            func=statistics.SuspectsStatistics(Organisation),
+            perm='persons', priority=11,
+        )
 
     def hook_user(self):
         from django.contrib.auth import get_user_model

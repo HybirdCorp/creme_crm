@@ -91,8 +91,10 @@ class Job(models.Model):
     periodicity   = DatePeriodField(_('Periodicity'), null=True)
     last_run      = models.DateTimeField(_('Last run'), null=True, editable=False)
 
-    ack_errors = models.PositiveIntegerField(default=0, editable=False)  # Number of errors of communication with the queue.
-    status     = models.PositiveSmallIntegerField(
+    # Number of errors of communication with the queue.
+    ack_errors = models.PositiveIntegerField(default=0, editable=False)
+
+    status = models.PositiveSmallIntegerField(
         _('Status'), editable=False,
         default=STATUS_WAIT,
         choices=(
@@ -101,9 +103,11 @@ class Job(models.Model):
             (STATUS_OK,    _('Completed successfully')),
         ),
     )
+    error = models.TextField(_('Error'), null=True, editable=False)
 
-    error    = models.TextField(_('Error'), null=True, editable=False)
-    raw_data = models.TextField(editable=False)  # It stores the Job's parameters  # TODO: use a JSONField ?
+    # It stores the Job's parameters
+    # TODO: use a JSONField ?
+    raw_data = models.TextField(editable=False)
 
     class Meta:
         app_label = 'creme_core'
@@ -151,7 +155,9 @@ class Job(models.Model):
         try:
             return self.type.get_description(self)
         except Exception:
-            logger.exception('Error when building the description of the job id="%s"', self.id)
+            logger.exception(
+                'Error when building the description of the job id="%s"', self.id,
+            )
 
         return ()
 

@@ -142,7 +142,11 @@ class CSVPopulator:
 
                 with self._get_source_file(url_info) as bytes_input:
                     if url_info.path.endswith('.zip'):
-                        archive = ZipFile(bytes_input if bytes_input.seekable() else io.BytesIO(bytes_input.read()))
+                        archive = ZipFile(
+                            bytes_input
+                            if bytes_input.seekable() else
+                            io.BytesIO(bytes_input.read())
+                        )
 
                         with archive.open(archive.namelist()[0]) as zipped_bytes_input:
                             self._populate_from_bytes(zipped_bytes_input)
@@ -257,11 +261,18 @@ class CSVTownPopulator(CSVPopulator):
 class Command(BaseCommand):
     def add_arguments(self, parser):
         add_argument = parser.add_argument
-        add_argument('-p', '--populate', action='store_true', dest='populate', help='Populate addresses', default=False)
-        add_argument('-s', '--stat', action='store_true', dest='stats', help='Display geolocation database stats', default=False)
-        add_argument('-i', '--import', action='store_true', dest='import', default=False,
-                     help='Import towns configured in GEOLOCATION_TOWNS setting',
-                    )
+        add_argument(
+            '-p', '--populate', action='store_true', dest='populate',
+            help='Populate addresses', default=False,
+        )
+        add_argument(
+            '-s', '--stat', action='store_true', dest='stats',
+            help='Display geolocation database stats', default=False,
+        )
+        add_argument(
+            '-i', '--import', action='store_true', dest='import', default=False,
+            help='Import towns configured in GEOLOCATION_TOWNS setting',
+        )
 
     def sysout(self, message, visible):
         if visible:

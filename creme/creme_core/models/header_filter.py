@@ -104,14 +104,16 @@ class HeaderFilterManager(models.Manager):
             )
         )
 
-    def create_if_needed(self,
-                         pk: str,
-                         name: str,
-                         model: Type[CremeEntity],
-                         is_custom: bool = False,
-                         user=None,
-                         is_private: bool = False,
-                         cells_desc: Iterable[Union['EntityCell', Tuple[Type['EntityCell'], dict]]] = ()) -> 'HeaderFilter':
+    def create_if_needed(
+            self,
+            pk: str,
+            name: str,
+            model: Type[CremeEntity],
+            is_custom: bool = False,
+            user=None,
+            is_private: bool = False,
+            cells_desc: Iterable[Union['EntityCell', Tuple[Type['EntityCell'], dict]]] = (),
+    ) -> 'HeaderFilter':
         """Creation helper ; useful for populate.py scripts.
         @param cells_desc: List of objects where each one can other:
             - an instance of EntityCell (one of its child class of course).
@@ -165,9 +167,10 @@ class HeaderFilter(models.Model):  # CremeModel ???
     """View of list : sets of columns (see EntityCell) stored for a specific
     ContentType of CremeEntity.
     """
-    id          = models.CharField(primary_key=True, max_length=100, editable=False)
-    name        = models.CharField(_('Name of the view'), max_length=100)
-    user        = core_fields.CremeUserForeignKey(verbose_name=_('Owner user'), blank=True, null=True)
+    id = models.CharField(primary_key=True, max_length=100, editable=False)
+    name = models.CharField(_('Name of the view'), max_length=100)
+    user = core_fields.CremeUserForeignKey(verbose_name=_('Owner user'), blank=True, null=True)
+
     entity_type = core_fields.CTypeForeignKey(editable=False)
 
     # 'False' means: cannot be deleted (to be sure that a ContentType
@@ -175,7 +178,9 @@ class HeaderFilter(models.Model):  # CremeModel ???
     is_custom = models.BooleanField(blank=False, default=True, editable=False)
 
     # 'True' means: can only be viewed (and so edited/deleted) by its owner.
-    is_private = models.BooleanField(pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False)
+    is_private = models.BooleanField(
+        pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False,
+    )
 
     json_cells = models.TextField(editable=False, null=True)  # TODO: JSONField ? CellsField ?
 
@@ -294,10 +299,11 @@ class HeaderFilter(models.Model):  # CremeModel ???
 
     @staticmethod
     def get_for_user(user, content_type=None):
-        warnings.warn('HeaderFilter.get_for_user() is deprecated ; '
-                      'use HeaderFilter.objects.filter_by_user(...).filter(entity_type=...) instead.',
-                      DeprecationWarning
-                     )
+        warnings.warn(
+            'HeaderFilter.get_for_user() is deprecated ; '
+            'use HeaderFilter.objects.filter_by_user(...).filter(entity_type=...) instead.',
+            DeprecationWarning
+        )
 
         assert not user.is_team
 

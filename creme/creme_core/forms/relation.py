@@ -33,22 +33,27 @@ from .widgets import Label
 
 
 class _RelationsCreateForm(CremeForm):
-    relations        = MultiRelationEntityField(label=_('Relationships'), required=False, autocomplete=True)
-    semifixed_rtypes = ModelMultipleChoiceField(label=_('Semi-fixed types of relationship'),
-                                                queryset=SemiFixedRelationType.objects.none(),
-                                                required=False,
-                                               )
+    relations = MultiRelationEntityField(
+        label=_('Relationships'), required=False, autocomplete=True,
+    )
+    semifixed_rtypes = ModelMultipleChoiceField(
+        label=_('Semi-fixed types of relationship'),
+        queryset=SemiFixedRelationType.objects.none(),
+        required=False,
+    )
 
     error_messages = {
         'duplicates': _('There are duplicates: %(duplicates)s'),
         'link_themselves': _('An entity can not be linked to itself : %(entities)s'),
         'empty': _('You must give one relationship at least.'),
-        'missing_property_single': _('«%(subject)s» must have the property «%(property)s» '
-                                     'in order to use the relationship «%(predicate)s»'
-                                    ),
-        'missing_property_multi': _('«%(subject)s» must have a property in «%(properties)s» '
-                                    'in order to use the relationship «%(predicate)s»'
-                                   ),
+        'missing_property_single': _(
+            '«%(subject)s» must have the property «%(property)s» '
+            'in order to use the relationship «%(predicate)s»'
+        ),
+        'missing_property_multi': _(
+            '«%(subject)s» must have a property in «%(properties)s» '
+            'in order to use the relationship «%(predicate)s»'
+        ),
     }
 
     def __init__(self, subjects, content_type, relations_types=None, *args, **kwargs):
@@ -77,9 +82,10 @@ class _RelationsCreateForm(CremeForm):
 
         if not relations_types:
             relations_types = RelationType.objects.compatible(content_type)
-            sfrt_queryset = sfrt_queryset.filter(Q(relation_type__subject_ctypes=content_type) |
-                                                 Q(relation_type__subject_ctypes__isnull=True)
-                                                )
+            sfrt_queryset = sfrt_queryset.filter(
+                Q(relation_type__subject_ctypes=content_type)
+                | Q(relation_type__subject_ctypes__isnull=True)
+            )
         else:
             sfrt_queryset = sfrt_queryset.filter(relation_type__in=relations_types)
 
@@ -140,35 +146,47 @@ class _RelationsCreateForm(CremeForm):
 
                 subject_prop_ids = {p.type_id for p in subject.get_properties()}
 
-                if any(ptype_id not in subject_prop_ids for ptype_id in needed_properties.keys()):
+                if any(
+                    ptype_id not in subject_prop_ids
+                    for ptype_id in needed_properties.keys()
+                ):
                     if len(needed_properties) == 1:
                         raise ValidationError(
                             self.error_messages['missing_property_single'],
-                            params={'subject':    subject,
-                                    'property':   next(iter(needed_properties.values())),
-                                    'predicate':  rtype.predicate,
-                                   },
+                            params={
+                                'subject':    subject,
+                                'property':   next(iter(needed_properties.values())),
+                                'predicate':  rtype.predicate,
+                            },
                             code='missing_property_single',
                         )
                     else:
                         raise ValidationError(
                             self.error_messages['missing_property_multi'],
-                            params={'subject':    subject,
-                                    'properties': '/'.join(sorted(map(str, needed_properties.values()))),
-                                    'predicate':  rtype.predicate,
-                                   },
+                            params={
+                                'subject': subject,
+                                'properties': '/'.join(
+                                    sorted(map(str, needed_properties.values()))
+                                ),
+                                'predicate': rtype.predicate,
+                            },
                             code='missing_property_multi',
                         )
 
     def _check_loops(self, relations):
         subjects_ids = self.subjects_ids
-        bad_objects = [str(entity) for rtype, entity in relations if entity.id in subjects_ids]
+        bad_objects = [
+            str(entity)
+            for rtype, entity in relations
+            if entity.id in subjects_ids
+        ]
 
         if bad_objects:
-            raise ValidationError(self.error_messages['link_themselves'],
-                                  params={'entities': ', '.join(bad_objects)},
-                                  code='link_themselves',
-                                 )
+            raise ValidationError(
+                self.error_messages['link_themselves'],
+                params={'entities': ', '.join(bad_objects)},
+                code='link_themselves',
+            )
 
     def clean_relations(self):
         relations = self.cleaned_data['relations']
@@ -240,7 +258,13 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
     entities_lbl = CharField(label=_('Related entities'), widget=Label())
 
     # TODO: use Meta.fields ?? (beware to bad_entities_lbl)
-    blocks = FieldBlockManager(('general', _('General information'), ['entities_lbl', 'relations', 'semifixed_rtypes']),)
+    blocks = FieldBlockManager(
+        (
+            'general',
+            _('General information'),
+            ['entities_lbl', 'relations', 'semifixed_rtypes'],
+        ),
+    )
 
     def __init__(self, subjects, forbidden_subjects, relations_types=None, *args, **kwargs):
         first_subject = subjects[0] if subjects else forbidden_subjects[0]
@@ -251,7 +275,9 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
 
         user = self.user
         fields = self.fields
-        fields['entities_lbl'].initial = entities_to_str(subjects, user) if subjects else gettext('NONE !')
+        fields['entities_lbl'].initial = entities_to_str(
+            subjects, user,
+        ) if subjects else gettext('NONE !')
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = CharField(

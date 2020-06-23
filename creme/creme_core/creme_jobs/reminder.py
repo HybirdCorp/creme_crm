@@ -39,7 +39,8 @@ class _ReminderType(JobType):
     def get_description(self, job):
         return [gettext('Execute all reminders')]
 
-    def next_wakeup(self, job, now_value):  # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    # We have to implement it because it is a PSEUDO_PERIODIC JobType
+    def next_wakeup(self, job, now_value):
         total_wakeup = None
 
         for reminder in reminder_registry:

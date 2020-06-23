@@ -63,7 +63,8 @@ class AbstractReportGraph(CremeEntity):
         settings.REPORTS_REPORT_MODEL, editable=False, on_delete=models.CASCADE,
     )
 
-    # type     = models.PositiveIntegerField(_('Grouping'), editable=False, choices=GROUP_TYPES.items())
+    # type     = models.PositiveIntegerField(_('Grouping'),
+    #     editable=False, choices=GROUP_TYPES.items())
     # abscissa = models.CharField(_('X axis'), max_length=100, editable=False)
     # days     = models.PositiveIntegerField(_('Days'), blank=True, null=True, editable=False)
     # TODO: string IDs instead of integer ?
@@ -136,7 +137,8 @@ class AbstractReportGraph(CremeEntity):
         )
         if not abscissa_constraint:
             logger.warning(
-                'AbstractReportGraph.abscissa_info: invalid abscissa info (model=<%s> rgraph_type=%s)',
+                'AbstractReportGraph.abscissa_info: '
+                'invalid abscissa info (model=<%s> rgraph_type=%s)',
                 model, self.abscissa_type,
             )
             return None
@@ -234,7 +236,8 @@ class AbstractReportGraph(CremeEntity):
     #
     #     return fetcher
     @staticmethod
-    def get_fetcher_from_instance_brick(instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
+    def get_fetcher_from_instance_brick(
+            instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
         """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
         @param instance_brick_config: An instance of InstanceBrickConfigItem.
         @return A GraphFetcher instance.

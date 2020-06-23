@@ -166,8 +166,9 @@ class EntityFilterEditForm(_EntityFilterForm):
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
-        instance.set_conditions(self.cleaned_data['all_conditions'],
-                                check_cycles=False, check_privacy=False,  # Already checked in clean()
-                               )
+        instance.set_conditions(
+            self.cleaned_data['all_conditions'],
+            check_cycles=False, check_privacy=False,  # Already checked in clean()
+        )
 
         return instance

@@ -255,14 +255,16 @@ class Field(CremeModel):
     ).set_tags(viewable=False)
 
     # TODO: choices ?
-    type = models.PositiveSmallIntegerField().set_tags(viewable=False)  # ==> see RFT_* in constants #Add in choices ?
+    # See RFT_* in constants
+    type = models.PositiveSmallIntegerField().set_tags(viewable=False)
     # TODO: rename "value" ??
     # name = models.CharField(_('Name of the column'), max_length=100).set_tags(viewable=False)
     name = models.CharField(max_length=100).set_tags(viewable=False)
 
     order = models.PositiveIntegerField().set_tags(viewable=False)
 
-    selected   = models.BooleanField(default=False).set_tags(viewable=False)  # Use this field to expand
+    # Use this field to expand
+    selected = models.BooleanField(default=False).set_tags(viewable=False)
     sub_report = models.ForeignKey(
         settings.REPORTS_REPORT_MODEL,
         blank=True, null=True,

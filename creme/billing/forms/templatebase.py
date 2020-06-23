@@ -71,8 +71,12 @@ class TemplateBaseCreateForm(_TemplateBaseForm):
         instance = super().save(*args, **kwargs)
 
         target = self.cleaned_data['target']
-        instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _('Billing address'))
-        instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _('Shipping address'))
+        instance.billing_address = copy_or_create_address(
+            target.billing_address,  owner=instance, name=_('Billing address'),
+        )
+        instance.shipping_address = copy_or_create_address(
+            target.shipping_address, owner=instance, name=_('Shipping address'),
+        )
 
         instance.save()
 

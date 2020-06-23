@@ -82,13 +82,15 @@ class _BillingTestCaseMixin:
         return super().login(is_superuser,
                              allowed_apps=allowed_apps or ['billing'],
                              *args, **kwargs
-                            )
+                             )
 
     def assertAddressContentEqual(self, address1, address2):  # TODO: move in persons ??
         self.assertIsInstance(address1, Address)
         self.assertIsInstance(address2, Address)
 
-        for f in ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country'):
+        for f in (
+                'name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country',
+        ):
             self.assertEqual(getattr(address1, f), getattr(address2, f))
 
     def create_credit_note(self, name, source, target, currency=None,
@@ -126,7 +128,10 @@ class _BillingTestCaseMixin:
         source = create_orga(name='Source Orga')
         target = create_orga(name='Target Orga')
 
-        credit_note = self.create_credit_note(name, source, target, user=user, status=status, **kwargs)
+        credit_note = self.create_credit_note(
+            name, source, target, user=user, status=status,
+            **kwargs
+        )
 
         return credit_note, source, target
 
@@ -168,7 +173,7 @@ class _BillingTestCaseMixin:
         source, target = self.create_orgas()
         invoice = self.create_invoice(name, source, target, user=user,
                                       discount=discount, currency=currency,
-                                     )
+                                      )
 
         return invoice, source, target
 
@@ -206,27 +211,34 @@ class _BillingTestCaseMixin:
         return quote, source, target
 
     def create_cat_n_subcat(self):
-        cat    = Category.objects.create(name='Cat', description='DESCRIPTION1')
-        subcat = SubCategory.objects.create(name='SubCat', description='DESCRIPTION2', category=cat)
+        cat = Category.objects.create(name='Cat', description='DESCRIPTION1')
+        subcat = SubCategory.objects.create(
+            name='SubCat', description='DESCRIPTION2', category=cat,
+        )
 
         return cat, subcat
 
     def create_product(self, name='Red eye', unit_price=None):
         cat, subcat = self.create_cat_n_subcat()
-        return Product.objects.create(user=self.user, name=name, code='465',
-                                      unit_price=unit_price or Decimal('1.0'),
-                                      description='Drug',
-                                      category=cat, sub_category=subcat
-                                     )
+
+        return Product.objects.create(
+            user=self.user, name=name, code='465',
+            unit_price=unit_price or Decimal('1.0'),
+            description='Drug',
+            category=cat, sub_category=subcat
+        )
 
     def create_service(self):
         cat, subcat = self.create_cat_n_subcat()
-        return Service.objects.create(user=self.user, name='Mushroom hunting',
-                                      unit_price=Decimal('6'),
-                                      category=cat, sub_category=subcat
-                                     )
 
-    def create_salesorder(self, name, source, target, currency=None, status=None):  # TODO inline (used once)
+        return Service.objects.create(
+            user=self.user, name='Mushroom hunting',
+            unit_price=Decimal('6'),
+            category=cat, sub_category=subcat
+        )
+
+    # TODO inline (used once)
+    def create_salesorder(self, name, source, target, currency=None, status=None):
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
             reverse('billing__create_order'), follow=True,
@@ -259,7 +271,7 @@ class _BillingTestCaseMixin:
         response = self.client.post(
             reverse('creme_config__delete_instance',
                     args=('billing', short_name, status2del.id)
-                   ),
+                    ),
             data={'replace_billing__{}_status'.format(type(doc).__name__.lower()): new_status.id},
         )
         self.assertNoFormError(response)
@@ -324,10 +336,26 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
 
         date_fmt = settings.DATE_INPUT_FORMATS[0]
         lines = [
-            (names[0], numbers[0], issuing_dates[0].strftime(date_fmt), source1.name, target1.name, ''),
-            (names[1], numbers[1], issuing_dates[1].strftime(date_fmt), source2_name, target2_name, ''),
-            (names[2], numbers[2], issuing_dates[2].strftime(date_fmt), source2_name, '',           target3.last_name),
-            (names[3], numbers[3], issuing_dates[3].strftime(date_fmt), source2_name, '',           target4_last_name),
+            (
+                names[0], numbers[0],
+                issuing_dates[0].strftime(date_fmt),
+                source1.name, target1.name, '',
+            ),
+            (
+                names[1], numbers[1],
+                issuing_dates[1].strftime(date_fmt),
+                source2_name, target2_name, '',
+            ),
+            (
+                names[2], numbers[2],
+                issuing_dates[2].strftime(date_fmt),
+                source2_name, '', target3.last_name,
+            ),
+            (
+                names[3], numbers[3],
+                issuing_dates[3].strftime(date_fmt),
+                source2_name, '', target4_last_name,
+            ),
         ]
 
         doc = self._build_csv_doc(lines)

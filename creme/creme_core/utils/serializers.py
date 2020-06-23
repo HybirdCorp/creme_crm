@@ -65,7 +65,8 @@ class CremeJSONEncoder(DjangoJSONEncoder):
             if is_aware(dt_value):
                 dt_value = make_aware(to_utc(dt_value), timezone.utc)
 
-            # r = dt_value.isoformat(timespec='milliseconds')[11:] # TODO: uncomment when Py3.6 is required
+            # TODO: uncomment when Py3.6 is required
+            #   r = dt_value.isoformat(timespec='milliseconds')[11:]
             r = dt_value.isoformat()
             if value.microsecond:
                 r = r[:23] + r[26:]
@@ -73,14 +74,17 @@ class CremeJSONEncoder(DjangoJSONEncoder):
         else:
             # HACK : utcoffset is None for an AWARE datetime.time
             if value.tzinfo is not None:
-                # r = datetime.combine(datetime.today(), value).isoformat(timespec='milliseconds')[11:] # TODO: uncomment when Py3.6 is required
+                # TODO: uncomment when Py3.6 is required
+                #    r = datetime.combine(datetime.today(), value)
+                #                .isoformat(timespec='milliseconds')[11:]
                 r = datetime.combine(datetime.today(), value).isoformat()
                 if value.microsecond:
                     r = r[:23] + r[26:]
 
                 r = r[11:]
             else:
-                # r = value.isoformat(timespec='milliseconds') # TODO: uncomment when Py3.6 is required
+                # TODO: uncomment when Py3.6 is required
+                #   r = value.isoformat(timespec='milliseconds')
                 r = value.isoformat()
                 if value.microsecond:
                     r = r[:12]

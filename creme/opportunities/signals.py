@@ -47,7 +47,8 @@ if apps.is_installed('creme.billing'):
     def use_current_quote():
         return SettingValue.objects.get_4_key(quote_key, default=False).value
 
-    # Adding "current" feature to other billing document (sales order, invoice) does not really make sense.
+    # Adding "current" feature to other billing document (sales order, invoice)
+    # does not really make sense.
     # If one day it does we will only have to add senders to the signal
     @receiver(post_save, sender=Quote)
     def _handle_current_quote_change(sender, instance, created, **kwargs):

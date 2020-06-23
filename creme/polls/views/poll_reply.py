@@ -63,7 +63,8 @@ _CREATION_PERM = cperm(PollReply)
 def _format_previous_answered_question(preply_id, line, style):
     if not line.applicable:
         answer = pgettext('polls', 'N/A')
-    elif isinstance(line.poll_line_type, MultiEnumPollLineType):  # TODO: isinstance(answer, list) ??
+    # TODO: isinstance(answer, list) ??
+    elif isinstance(line.poll_line_type, MultiEnumPollLineType):
         answer = mark_safe(', '.join(escape(choice) for choice in line.answer))
     else:
         answer = line.answer
@@ -333,10 +334,14 @@ class LineEdition(generic.EntityEditionPopup):
             try:
                 line_node = tree.find_line(int(self.kwargs[self.line_id_url_kwarg]))
             except KeyError as e:
-                raise Http404('This PollReplyLine id does not correspond to the PollReply instance') from e
+                raise Http404(
+                    'This PollReplyLine id does not correspond to the PollReply instance'
+                ) from e
 
             if not tree.conditions_are_met(line_node):
-                raise Http404('This answered can not be edited (conditions are not met)')
+                raise Http404(
+                    'This answered can not be edited (conditions are not met)'
+                )
 
             self.line_node = line_node
 
@@ -353,7 +358,10 @@ class LineEdition(generic.EntityEditionPopup):
 
         tree = self.get_tree()
         _clear_dependant_answers(tree, self.get_line_node(tree))
-        update_model_instance(self.object, is_complete=not bool(tree.next_question_to_answer))
+        update_model_instance(
+            self.object,
+            is_complete=not bool(tree.next_question_to_answer),
+        )
 
         return response
 

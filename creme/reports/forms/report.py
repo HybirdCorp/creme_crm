@@ -625,7 +625,8 @@ class ReportHandsField(hf_form.EntityCellsField):
     #             ).choices():
     #                 agg_name = pattern.format(f_name)
     #
-    #                 if fconf.is_fieldname_hidden(f_name) and agg_name not in non_hiddable_aggnames:
+    #                 if fconf.is_fieldname_hidden(f_name) and agg_name not
+    #                   in non_hiddable_aggnames:
     #                     continue
     #
     #                 agg_id = _REGULAR_AGG_PREFIX + agg_name

@@ -38,7 +38,9 @@ class IniFileInput(CrudityInput):
     method = 'create'
     verbose_name = _('File - INI')
     verbose_method = _('Create')  # TODO: factorise + retrieve with 'method'
-    brickheader_action_templates = ('crudity/bricks/header-actions/inifile-creation-template.html',)
+    brickheader_action_templates = (
+        'crudity/bricks/header-actions/inifile-creation-template.html',
+    )
 
     def create(self, file_path):
         backend = None
@@ -55,7 +57,10 @@ class IniFileInput(CrudityInput):
                 try:
                     subject = config.get('head', 'action')
                 except (configparser.NoSectionError, configparser.NoOptionError) as e:
-                    logger.warning('IniFileInput.create(): invalid file content for %s (%s)', file_path, e)
+                    logger.warning(
+                        'IniFileInput.create(): invalid file content for %s (%s)',
+                        file_path, e,
+                    )
                 else:
                     backend = self.get_backend(CrudityBackend.normalize_subject(subject))
 
@@ -67,7 +72,10 @@ class IniFileInput(CrudityInput):
                             try:
                                 data[field_name] = config.get('body', field_name)
                             except (configparser.NoSectionError, configparser.NoOptionError) as e:
-                                logger.warning('IniFileInput.create(): invalid data in .ini file (%s): %s', file_path, e)
+                                logger.warning(
+                                    'IniFileInput.create(): invalid data in .ini file (%s): %s',
+                                    file_path, e,
+                                )
 
                         # Get owner
                         owner = None
@@ -88,7 +96,8 @@ class IniFileInput(CrudityInput):
                                     owner = CremeUser.objects.get(**query_data)
                                 except CremeUser.DoesNotExist:
                                     logger.warning(
-                                        'IniFileInput.create(): no user ([head] section) corresponds to %s (%s)',
+                                        'IniFileInput.create(): no user ([head] section) '
+                                        'corresponds to %s (%s)',
                                         query_data, file_path,
                                     )
 

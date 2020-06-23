@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,9 +48,10 @@ class AlertForm(CremeModelForm):
 
         if trigger_date:
             local_trigger_date = localtime(trigger_date)
-            self.fields['trigger_time'].initial = time(hour=local_trigger_date.hour,
-                                                       minute=local_trigger_date.minute,
-                                                      )
+            self.fields['trigger_time'].initial = time(
+                hour=local_trigger_date.hour,
+                minute=local_trigger_date.minute,
+            )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -59,6 +60,8 @@ class AlertForm(CremeModelForm):
             trigger_time = cleaned_data.get('trigger_time')
 
             if trigger_time:
-                cleaned_data['trigger_date'] = make_aware_dt(datetime.combine(cleaned_data['trigger_date'], trigger_time))
+                cleaned_data['trigger_date'] = make_aware_dt(
+                    datetime.combine(cleaned_data['trigger_date'], trigger_time),
+                )
 
         return cleaned_data

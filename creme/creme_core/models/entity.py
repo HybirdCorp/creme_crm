@@ -84,7 +84,8 @@ class CremeEntity(CremeModel):
 
     _real_entity = None  # TODO: Union[None, 'CremeEntity', Literal[True]]
 
-    # Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
+    # Currently used in reports (can be used elsewhere ?) to allow reporting
+    # on those related fields
     # TODO: use tag instead.
     allowed_related: set = set()
 
@@ -280,13 +281,15 @@ class CremeEntity(CremeModel):
         Relation.populate_real_object_entities(relations)
 
         # { Subject_Entity -> { RelationType ->[Relation list] } }
-        relations_map: DefaultDict[int, DefaultDict[str, list]] = defaultdict(lambda: defaultdict(list))
+        relations_map: DefaultDict[int, DefaultDict[str, list]] = \
+            defaultdict(lambda: defaultdict(list))
         for relation in relations:
             relations_map[relation.subject_entity_id][relation.type_id].append(relation)
 
         for entity in entities:
             for relation_type_id in relation_type_ids:
-                entity._relations_map[relation_type_id] = relations_map[entity.id][relation_type_id]
+                entity._relations_map[relation_type_id] = \
+                    relations_map[entity.id][relation_type_id]
                 logger.debug('Fill relations cache id=%s type=%s', entity.id, relation_type_id)
 
     def get_custom_value(self, custom_field: 'CustomField'):
@@ -294,9 +297,7 @@ class CremeEntity(CremeModel):
 
         try:
             cvalue = self._cvalues_map[custom_field.id]
-            # logger.debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
         except KeyError:
-            # logger.debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
             self.populate_custom_values([self], [custom_field])
             cvalue = self._cvalues_map.get(custom_field.id)
 
@@ -314,12 +315,13 @@ class CremeEntity(CremeModel):
             for custom_field in custom_fields:
                 cf_id = custom_field.id
                 entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id)
-                # logger.debug('Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
     def get_entity_summary(self, user) -> str:
         return escape(self.allowed_str(user))
 
-    def get_custom_fields_n_values(self, only_required: bool = False) -> List[Tuple['CustomField', Any]]:
+    def get_custom_fields_n_values(
+            self,
+            only_required: bool = False) -> List[Tuple['CustomField', Any]]:
         from . import CustomField
 
         # NB: we do not use <CustomField.objects.get_for_model()> because this method
@@ -351,11 +353,15 @@ class CremeEntity(CremeModel):
 
         properties_map: DefaultDict[int, list] = defaultdict(list)
 
-        # NB1: listify entities in order to avoid subquery (that is not supported by some DB backends)
-        # NB2: list of id in order to avoid strange queries that retrieve base CremeEntities (ORM problem ?)
+        # NB1: listify entities in order to avoid subquery
+        #      (that is not supported by some DB backends)
+        # NB2: list of id in order to avoid strange queries that retrieve
+        #      base CremeEntities (ORM problem ?)
         entities_ids = [entity.id for entity in entities]
 
-        for prop in CremeProperty.objects.filter(creme_entity__in=entities_ids).select_related('type'):
+        for prop in CremeProperty.objects.filter(
+            creme_entity__in=entities_ids,
+        ).select_related('type'):
             properties_map[prop.creme_entity_id].append(prop)
 
         for entity in entities:
@@ -370,7 +376,9 @@ class CremeEntity(CremeModel):
         logger.debug('CremeEntity.save(%s, %s)', args, kwargs)
 
     def _search_field_value(self):
-        """Overload this method if you want to customise the value to search on your CremeEntity type."""
+        """Overload this method if you want to customise the value to search
+        on your CremeEntity type.
+        """
         return str(self)
 
     def _clone_custom_values(self, source):
@@ -444,19 +452,26 @@ class CremeEntity(CremeModel):
 
         creme_property_create = CremeProperty.objects.safe_create
 
-        for type_id in source.properties.filter(type__is_copiable=True).values_list('type', flat=True):
+        for type_id in source.properties.filter(
+                type__is_copiable=True,
+        ).values_list('type', flat=True):
             creme_property_create(type_id=type_id, creme_entity=self)
 
-    def _copy_relations(self,
-                        source: 'CremeEntity',
-                        allowed_internal: Sequence[str] = ()) -> None:
+    def _copy_relations(
+            self,
+            source: 'CremeEntity',
+            allowed_internal: Sequence[str] = ()) -> None:
         """@param allowed_internal: Sequence of RelationTypes PK with <is_internal=True>.
                   Relationships with these types will be cloned anyway.
         """
         from . import Relation, RelationType
 
         relation_create = Relation.objects.safe_create
-        query = Q(type__in=RelationType.objects.compatible(self.entity_type).filter(Q(is_copiable=True)))
+        query = Q(
+            type__in=RelationType.objects.compatible(
+                self.entity_type,
+            ).filter(Q(is_copiable=True)),
+        )
 
         if allowed_internal:
             query |= Q(type__in=allowed_internal)

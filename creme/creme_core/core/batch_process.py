@@ -87,20 +87,64 @@ class BatchOperatorManager:
     _OPERATOR_MAP = {
         # TODO: loop & factorise
         _CAT_STR: OrderedDict([
-            ('upper',     BatchOperator('upper',     _('To upper case'),                   lambda x: x.upper())),
-            ('lower',     BatchOperator('lower',     _('To lower case'),                   lambda x: x.lower())),
-            ('title',     BatchOperator('title',     _('Initial to upper case'),           lambda x: x.title())),
-            ('prefix',    BatchOperator('prefix',    _('Prefix'),                          (lambda x, prefix: prefix + x))),
-            ('suffix',    BatchOperator('suffix',    _('Suffix'),                          (lambda x, suffix: x + suffix))),
-            ('rm_substr', BatchOperator('rm_substr', _('Remove a sub-string'),             (lambda x, substr: x.replace(substr, '')))),
-            ('rm_start',  BatchOperator('rm_start',  _('Remove the start (N characters)'), (lambda x, size: x[size:]),  cast_function=cast_2_positive_int)),
-            ('rm_end',    BatchOperator('rm_end',    _('Remove the end (N characters)'),   (lambda x, size: x[:-size]), cast_function=cast_2_positive_int)),
+            ('upper',  BatchOperator('upper',  _('To upper case'), lambda x: x.upper())),
+            ('lower',  BatchOperator('lower',  _('To lower case'), lambda x: x.lower())),
+            ('title',  BatchOperator('title',  _('Initial to upper case'), lambda x: x.title())),
+            ('prefix', BatchOperator('prefix', _('Prefix'), (lambda x, prefix: prefix + x))),
+            ('suffix', BatchOperator('suffix', _('Suffix'), (lambda x, suffix: x + suffix))),
+            (
+                'rm_substr',
+                BatchOperator(
+                    'rm_substr', _('Remove a sub-string'),
+                    (lambda x, substr: x.replace(substr, '')),
+                ),
+            ),
+            (
+                'rm_start',
+                BatchOperator(
+                    'rm_start', _('Remove the start (N characters)'),
+                    (lambda x, size: x[size:]),
+                    cast_function=cast_2_positive_int,
+                ),
+            ),
+            (
+                'rm_end',
+                BatchOperator(
+                    'rm_end', _('Remove the end (N characters)'),
+                    (lambda x, size: x[:-size]),
+                    cast_function=cast_2_positive_int,
+                )
+            ),
         ]),
         _CAT_INT: OrderedDict([
-            ('add_int',   BatchOperator('add_int', _('Add'),      (lambda x, y: x + y),  cast_function=cast_2_positive_int)),
-            ('sub_int',   BatchOperator('sub_int', _('Subtract'), (lambda x, y: x - y),  cast_function=cast_2_positive_int)),
-            ('mul_int',   BatchOperator('mul_int', _('Multiply'), (lambda x, y: x * y),  cast_function=cast_2_positive_int)),
-            ('div_int',   BatchOperator('div_int', _('Divide'),   (lambda x, y: x // y), cast_function=cast_2_positive_int)),
+            (
+                'add_int',
+                BatchOperator(
+                    'add_int', _('Add'), (lambda x, y: x + y),
+                    cast_function=cast_2_positive_int,
+                ),
+            ),
+            (
+                'sub_int',
+                BatchOperator(
+                    'sub_int', _('Subtract'), (lambda x, y: x - y),
+                    cast_function=cast_2_positive_int,
+                ),
+            ),
+            (
+                'mul_int',
+                BatchOperator(
+                    'mul_int', _('Multiply'), (lambda x, y: x * y),
+                    cast_function=cast_2_positive_int,
+                ),
+            ),
+            (
+                'div_int',
+                BatchOperator(
+                    'div_int', _('Divide'),   (lambda x, y: x // y),
+                    cast_function=cast_2_positive_int
+                ),
+            ),
         ]),
     }
 
@@ -119,7 +163,7 @@ class BatchOperatorManager:
 
     def get(self, model_field_type, operator_name: str) -> Optional[BatchOperator]:
         """Get the wanted BatchOperator object.
-        @param model_field_type: Class inheriting django.db.model.Field.
+        @param model_field_type: Class inheriting <django.db.model.Field>.
         """
         category = self._get_category(model_field_type)
         if category:
@@ -168,7 +212,9 @@ class BatchAction:
             raise BatchAction.InvalidOperator()
 
         if operator.need_arg and not value:
-            raise BatchAction.ValueError(gettext("The operator '{}' needs a value.").format(operator))
+            raise BatchAction.ValueError(
+                gettext("The operator '{}' needs a value.").format(operator)
+            )
 
         self._operator: BatchOperator = operator
 
@@ -183,8 +229,9 @@ class BatchAction:
             ) from e
 
     def __call__(self, entity: CremeEntity) -> bool:
-        """The action's operator is computed with the given entity (on the field indicated by action-field
-        and using the action-value), and the entity field's value is updated.
+        """The action's operator is computed with the given entity
+        (on the field indicated by action-field and using the action-value),
+        and the entity field's value is updated.
         Something like: entity.foo = function(entity.foo)
         @return True if the entity has changed.
         """

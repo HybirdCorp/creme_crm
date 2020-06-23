@@ -148,7 +148,10 @@ class QueriesTestCase(CremeTestCase):
         user = self.create_user()
 
         create_dt = partial(self.create_datetime, year=2015, month=2, minute=0)
-        create_act = partial(FakeActivity.objects.create, user=user, type=self._create_activity_type())
+        create_act = partial(
+            FakeActivity.objects.create,
+            user=user, type=self._create_activity_type()
+        )
         acts = [
             create_act(title='T#1', start=create_dt(day=19, hour=8)),
             create_act(title='T#2', start=create_dt(day=19, hour=12)),
@@ -180,17 +183,22 @@ class QueriesTestCase(CremeTestCase):
         user = self.create_user()
 
         create_dt = partial(self.create_datetime, year=2015, month=2, minute=0)
-        create_act = partial(FakeActivity.objects.create, user=user, type=self._create_activity_type())
+        create_act = partial(
+            FakeActivity.objects.create,
+            user=user, type=self._create_activity_type()
+        )
         acts = [
             create_act(title='T#1', start=create_dt(day=18, hour=8)),
             create_act(title='T#2', start=create_dt(day=19, hour=8)),
             create_act(title='T#3', start=create_dt(day=20, hour=8)),
         ]
 
-        q = Q(start__range=(create_dt(day=18, hour=9),
-                            create_dt(day=19, hour=9),
-                           )
-             )
+        q = Q(
+            start__range=(
+                create_dt(day=18, hour=9),
+                create_dt(day=19, hour=9),
+            ),
+        )
         self._assertQIsOK(q, [acts[1]])
 
         str_q = QSerializer().dumps(q)

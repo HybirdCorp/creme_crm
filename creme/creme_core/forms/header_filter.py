@@ -215,7 +215,9 @@ class EntityCellsWidget(Widget):
         cells = [*chain.from_iterable(sub_w.choices for sub_w in self._sub_widgets)]
 
         # TODO: populate entities
-        for entity in EntityCredentials.filter(user, self.model.objects.order_by('-modified'))[:2]:
+        for entity in EntityCredentials.filter(
+            user, self.model.objects.order_by('-modified'),
+        )[:2]:
             dump = {}
 
             for choice_id, cell in cells:
@@ -481,7 +483,8 @@ class EntityCellsField(Field):
 
     # def __init__(self, *, content_type=None, function_field_registry=None, **kwargs):
     #     super().__init__(**kwargs)
-    #     self.function_field_registry = function_field_registry or function_field.function_field_registry
+    #     self.function_field_registry = function_field_registry or \
+    #          function_field.function_field_registry
     #     self._non_hiddable_cells = []
     #     self.content_type = content_type
     #     self.user = None
@@ -533,7 +536,7 @@ class EntityCellsField(Field):
     #         ffields_choices.append((field_id, f.verbose_name))
     #         builders[field_id] = EntityCellsField._build_4_functionfield
 
-    # def _regular_fields_enum(self, model):  # This separated method makes overloading easier (see reports)
+    # def _regular_fields_enum(self, model):
     #
     #     # NB: we enumerate all the fields of the model, with a deep=1 (ie: we
     #     # get also the sub-fields of ForeignKeys for example). We take care of

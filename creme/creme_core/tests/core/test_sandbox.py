@@ -61,9 +61,12 @@ class SandboxTestCase(CremeTestCase):
             sb_type = registry.get(sandbox2)
 
         self.assertIsNone(sb_type)
-        self.assertEqual(
+        self.assertListEqual(
             logs_manager.output,
-            [f'CRITICAL:creme.creme_core.core.sandbox:Unknown SandboxType: {TestSandboxType2_4.id}'],
+            [
+                f'CRITICAL:creme.creme_core.core.sandbox:Unknown SandboxType: '
+                f'{TestSandboxType2_4.id}'
+            ],
         )
 
     def test_registry03(self):

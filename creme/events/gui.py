@@ -54,7 +54,11 @@ class RelatedContactsActionsRegistry(ActionsRegistry):
 
 
 class _BaseEventEntityCellVolatile(EntityCellVolatile):
-    html = """<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>"""
+    html = (
+        """<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>"""
+        """{options}"""
+        """</select>"""
+    )
 
     def __init__(self, event, **kwargs):
         # super().__init__(model=Contact, render_func=None, **kwargs)
@@ -63,7 +67,10 @@ class _BaseEventEntityCellVolatile(EntityCellVolatile):
 
     def has_relation(self, entity, rtype_id):
         id_ = self.event.id
-        return any(id_ == relation.object_entity_id for relation in entity.get_relations(rtype_id))
+        return any(
+            id_ == relation.object_entity_id
+            for relation in entity.get_relations(rtype_id)
+        )
 
     def _render_select(self, entity, user, change_url, status_map, current_status):
         has_perm = user.has_perm_to_link
@@ -71,12 +78,19 @@ class _BaseEventEntityCellVolatile(EntityCellVolatile):
         return format_html(
             self.html,
             url=change_url,
-            attrs='' if has_perm(self.event) and has_perm(entity) else mark_safe(' disabled="True"'),
+            attrs=(
+                ''
+                if has_perm(self.event) and has_perm(entity) else
+                mark_safe(' disabled="True"')
+            ),
             options=format_html_join(
                 '', '<option value="{}"{}>{}</option>',
                 (
-                    (status, ' selected' if status == current_status else '', status_name)
-                    for status, status_name in status_map.items()
+                    (
+                        status,
+                        ' selected' if status == current_status else '',
+                        status_name,
+                    ) for status, status_name in status_map.items()
                 )
             ),
         )

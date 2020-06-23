@@ -126,10 +126,12 @@ class EntityCredentials:
                queryset: QuerySet,
                perm: int = VIEW) -> QuerySet:
         """Filter a Queryset of CremeEntities by the credentials of a given user.
-        Beware, the model class must be a child class of CremeEntity, but cannot be CremeEntity itself.
+        Beware, the model class must be a child class of CremeEntity,
+        but cannot be CremeEntity itself.
 
         @param user: A <django.contrib.auth.get_user_model()> instance.
-        @param queryset: A Queryset on a CremeEntity inheriting model (better if not yet retrieved).
+        @param queryset: A Queryset on a CremeEntity inheriting model
+               (better if not yet retrieved).
         @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
         @return: A new Queryset on the same model, more selective (not retrieved).
         """
@@ -159,15 +161,19 @@ class EntityCredentials:
                         perm: int = VIEW,
                         as_model: Optional[Type['CremeEntity']] = None) -> QuerySet:
         """Filter a Queryset of CremeEntities by the credentials of a given user.
-        Beware, model class must be CremeEntity ; it cannot be a child class of CremeEntity.
+        Beware, model class must be CremeEntity ; it cannot be a child class of
+        CremeEntity.
 
         @param user: A <django.contrib.auth.get_user_model()> instance.
-        @param queryset: A <Queryset> with model=CremeEntity (better if not yet retrieved).
+        @param queryset: A <Queryset> with model=CremeEntity
+               (better if not yet retrieved).
         @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
-        @param as_model: A model inheriting CremeEntity, or None. If a model is given, all the
-               entities in the queryset are filtered with the credentials for this model.
-               BEWARE: you should probably use this feature only if the queryset if already filtered
-               by its field 'entity_type' (to keep only entities of the right model, & so do not
+        @param as_model: A model inheriting CremeEntity, or None.
+               If a model is given, all the entities in the queryset are
+               filtered with the credentials for this model.
+               BEWARE: you should probably use this feature only if the queryset
+               if already filtered by its field 'entity_type'
+               (to keep only entities of the right model, & so do not
                make mistakes with credentials).
         @return: A new Queryset on CremeEntity, more selective (not retrieved).
         @raise: ValueError if the "queryset" does not concern 'CremeEntity'.
@@ -178,9 +184,10 @@ class EntityCredentials:
         from ..models import CremeEntity
 
         if queryset.model is not CremeEntity:
-            raise ValueError('EntityCredentials.filter_entities() takes '
-                             'a queryset on CremeEntity, not an inheriting model.'
-                            )
+            raise ValueError(
+                'EntityCredentials.filter_entities() takes '
+                'a queryset on CremeEntity, not an inheriting model.'
+            )
 
         if not user.is_superuser:
             role = user.role

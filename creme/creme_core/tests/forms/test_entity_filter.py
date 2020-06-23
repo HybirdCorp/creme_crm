@@ -116,10 +116,19 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = RegularFieldsConditionsField().clean
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidtype', clean, '"this is a string"')
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidtype', clean, '"{}"')
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidtype', clean, '{"foobar":{"operator":"3","name":"first_name","value":"Rei"}}')
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidtype', clean, '1')
+        self.assertFieldValidationError(
+            RegularFieldsConditionsField, 'invalidtype', clean, '"this is a string"'
+        )
+        self.assertFieldValidationError(
+            RegularFieldsConditionsField, 'invalidtype', clean, '"{}"'
+        )
+        self.assertFieldValidationError(
+            RegularFieldsConditionsField, 'invalidtype', clean,
+            '{"foobar":{"operator":"3","name":"first_name","value":"Rei"}}'
+        )
+        self.assertFieldValidationError(
+            RegularFieldsConditionsField, 'invalidtype', clean, '1'
+        )
 
     def test_clean_invalid_data(self):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
@@ -133,9 +142,18 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                              efilter_registry=efilter_registry,
                                             ).clean
         EQUALS = operators.EQUALS
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidvalue',    clean, '[{"operator": {"id": "%s"}, "field": {"name": "first_name"}}]' % EQUALS)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield',    clean, '[{"operator": {"id": "%s"}, "value": "Rei"}]' % EQUALS)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidoperator', clean, '[{"field": {"name": "first_name"}, "value": "Rei"}]')
+        self.assertFieldValidationError(
+            RegularFieldsConditionsField, 'invalidvalue', clean,
+            '[{"operator": {"id": "%s"}, "field": {"name": "first_name"}}]' % EQUALS
+        )
+        self.assertFieldValidationError(
+            RegularFieldsConditionsField, 'invalidfield', clean,
+            '[{"operator": {"id": "%s"}, "value": "Rei"}]' % EQUALS
+        )
+        self.assertFieldValidationError(
+            RegularFieldsConditionsField, 'invalidoperator', clean,
+            '[{"field": {"name": "first_name"}, "value": "Rei"}]'
+        )
 
     def test_clean_invalid_field(self):
         clean = RegularFieldsConditionsField(model=FakeContact,
@@ -1022,8 +1040,14 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         name01 = 'created'
         name02 = 'birthday'
         conditions = field.clean(json_dump([
-            {'field': {'name': name01, 'type': 'date'},       'range': {'type': '', 'start': '2011-5-12'}},
-            {'field': {'name': name02, 'type': 'date__null'}, 'range': {'type': '', 'end': '2012-6-13'}},
+            {
+                'field': {'name': name01, 'type': 'date'},
+                'range': {'type': '', 'start': '2011-5-12'},
+            },
+            {
+                'field': {'name': name02, 'type': 'date__null'},
+                'range': {'type': '', 'end': '2012-6-13'},
+            },
         ]))
         self.assertEqual(2, len(conditions))
 
@@ -1073,8 +1097,14 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
     def test_empty(self):
         clean = DateFieldsConditionsField(model=FakeContact).clean
         conditions = clean(json_dump([
-            {'field': {'name': 'birthday', 'type': 'date__null'}, 'range': {'type': 'empty',     'start': '', 'end': ''}},
-            {'field': {'name': 'modified', 'type': 'date__null'}, 'range': {'type': 'not_empty', 'start': '', 'end': ''}},
+            {
+                'field': {'name': 'birthday', 'type': 'date__null'},
+                'range': {'type': 'empty',     'start': '', 'end': ''},
+            },
+            {
+                'field': {'name': 'modified', 'type': 'date__null'},
+                'range': {'type': 'not_empty', 'start': '', 'end': ''},
+            },
         ]))
         self.assertEqual(2, len(conditions))
 
@@ -1896,7 +1926,10 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
             {'field': str(cfield01.id), 'range': {'type': range_type}},
             {'field': str(cfield02.id), 'range': {'type': '', 'start': '2011-5-12'}},
             {'field': str(cfield01.id), 'range': {'type': '', 'end': '2012-6-13'}},
-            {'field': str(cfield02.id), 'range': {'type': '', 'start': '2011-5-12', 'end': '2012-6-13'}},
+            {
+                'field': str(cfield02.id),
+                'range': {'type': '', 'start': '2011-5-12', 'end': '2012-6-13'},
+            },
         ]))
         self.assertEqual(4, len(conditions))
 
@@ -2058,20 +2091,33 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = PropertiesConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '"this is a string"')
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '"{}"')
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '{"foobar":{"ptype": "test-foobar", "has": true}}')
+        self.assertFieldValidationError(
+            PropertiesConditionsField, 'invalidtype', clean, '"this is a string"'
+        )
+        self.assertFieldValidationError(
+            PropertiesConditionsField, 'invalidtype', clean, '"{}"'
+        )
+        self.assertFieldValidationError(
+            PropertiesConditionsField, 'invalidtype', clean,
+            '{"foobar":{"ptype": "test-foobar", "has": true}}'
+        )
 
     def test_clean_incomplete_data_required(self):
         clean = PropertiesConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, json_dump([{'ptype': self.ptype01.id}]))
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[{"has": true}]')
+        self.assertFieldValidationError(
+            PropertiesConditionsField, 'required', clean,
+            json_dump([{'ptype': self.ptype01.id}]),
+        )
+        self.assertFieldValidationError(
+            PropertiesConditionsField, 'required', clean, '[{"has": true}]'
+        )
 
     def test_unknown_ptype(self):
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidptype',
-                                        PropertiesConditionsField(model=FakeContact).clean,
-                                        json_dump([{'ptype': self.ptype03.id, 'has': True}])
-                                       )
+        self.assertFieldValidationError(
+            PropertiesConditionsField, 'invalidptype',
+            PropertiesConditionsField(model=FakeContact).clean,
+            json_dump([{'ptype': self.ptype03.id, 'has': True}]),
+        )
 
     def test_ok01(self):
         with self.assertNumQueries(0):
@@ -2139,13 +2185,16 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = RelationsConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean,
-                                        '"this is a string"'
-                                       )
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '"{}"')
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean,
-                                        '{"foobar": {"rtype": "test-foobar", "has": true}}'
-                                       )
+        self.assertFieldValidationError(
+            RelationsConditionsField, 'invalidtype', clean, '"this is a string"'
+        )
+        self.assertFieldValidationError(
+            RelationsConditionsField, 'invalidtype', clean, '"{}"'
+        )
+        self.assertFieldValidationError(
+            RelationsConditionsField, 'invalidtype', clean,
+            '{"foobar": {"rtype": "test-foobar", "has": true}}'
+        )
 
     def test_clean_invalid_data(self):
         clean = RelationsConditionsField(model=FakeContact).clean
@@ -2153,11 +2202,13 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         rt_id = self.rtype01.id
         self.assertFieldValidationError(
             RelationsConditionsField, 'invalidformat', clean,
-            json_dump([{'rtype': rt_id, 'has': True, 'ctype': 'not an int'}])
+            json_dump([{'rtype': rt_id, 'has': True, 'ctype': 'not an int'}]),
         )
         self.assertFieldValidationError(
             RelationsConditionsField, 'invalidformat', clean,
-            json_dump([{'rtype': rt_id, 'has': True, 'ctype': ct.id, 'entity': 'not an int'}])
+            json_dump([
+                {'rtype': rt_id, 'has': True, 'ctype': ct.id, 'entity': 'not an int'},
+            ]),
         )
 
     def test_clean_incomplete_data_required(self):
@@ -2188,7 +2239,9 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         clean = RelationsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(
             RelationsConditionsField, 'invalidentity', clean,
-            json_dump([{'rtype': self.rtype01.id, 'has': True, 'ctype': ct.id, 'entity': 2121545}])
+            json_dump([
+                {'rtype': self.rtype01.id, 'has': True, 'ctype': ct.id, 'entity': 2121545},
+            ])
         )
 
     def test_ok01(self):
@@ -2370,20 +2423,39 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
             ('test-object_belong',  '(orga) has (orga)',        (FakeOrganisation,))
         )
 
-        create_efilter = EntityFilter.objects.smart_update_or_create
-        self.sub_efilter01 = create_efilter(pk='test-filter01', name='Filter 01', model=FakeContact,      is_custom=True)
-        self.sub_efilter02 = create_efilter(pk='test-filter02', name='Filter 02', model=FakeOrganisation, is_custom=True)
+        create_efilter = partial(
+            EntityFilter.objects.smart_update_or_create,
+            is_custom=True,
+        )
+        self.sub_efilter01 = create_efilter(
+            pk='test-filter01', name='Filter 01', model=FakeContact,
+        )
+        self.sub_efilter02 = create_efilter(
+            pk='test-filter02', name='Filter 02', model=FakeOrganisation,
+        )
 
     def test_clean_empty_required(self):
         clean = RelationSubfiltersConditionsField(required=True).clean
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, None)
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '')
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[]')
+        self.assertFieldValidationError(
+            RelationSubfiltersConditionsField, 'required', clean, None,
+        )
+        self.assertFieldValidationError(
+            RelationSubfiltersConditionsField, 'required', clean, '',
+        )
+        self.assertFieldValidationError(
+            RelationSubfiltersConditionsField, 'required', clean, '[]',
+        )
 
     def test_clean_incomplete_data_required(self):
         clean = RelationSubfiltersConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, json_dump([{'rtype': self.rtype01.id}]))
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, json_dump([{'has': True}]))
+        self.assertFieldValidationError(
+            RelationSubfiltersConditionsField, 'required', clean,
+            json_dump([{'rtype': self.rtype01.id}]),
+        )
+        self.assertFieldValidationError(
+            RelationSubfiltersConditionsField, 'required', clean,
+            json_dump([{'has': True}]),
+        )
 
     def test_unknown_filter(self):
         user = self.create_user()
@@ -2395,7 +2467,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
                 'rtype': self.rtype01.id, 'has': False,
                 'ctype': ContentType.objects.get_for_model(FakeContact).id,
                 'filter': '3213213543',  # <==
-            }])
+            }]),
         )
 
     def test_ok(self):
@@ -2409,8 +2481,18 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         filter_id1 = self.sub_efilter01.id
         filter_id2 = self.sub_efilter02.id
         conditions = field.clean(json_dump([
-            {'rtype': self.rtype01.id, 'has': True,  'ctype': get_ct(FakeContact).id,      'filter': filter_id1},
-            {'rtype': self.rtype02.id, 'has': False, 'ctype': get_ct(FakeOrganisation).id, 'filter': filter_id2},
+            {
+                'rtype': self.rtype01.id,
+                'has': True,
+                'ctype': get_ct(FakeContact).id,
+                'filter': filter_id1,
+            },
+            {
+                'rtype': self.rtype02.id,
+                'has': False,
+                'ctype': get_ct(FakeOrganisation).id,
+                'filter': filter_id2,
+            },
         ]))
         self.assertEqual(2, len(conditions))
 

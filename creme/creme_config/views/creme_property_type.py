@@ -60,7 +60,8 @@ class PropertyTypeEdition(base.ConfigModelEdition):
 #                   DeprecationWarning
 #                  )
 #
-#     property_type = get_object_or_404(CremePropertyType, pk=get_from_POST_or_404(request.POST, 'id'))
+#     property_type = get_object_or_404(CremePropertyType,
+#                                       pk=get_from_POST_or_404(request.POST, 'id'))
 #
 #     if not property_type.is_custom:
 #         raise Http404("Can't delete a standard PropertyType")

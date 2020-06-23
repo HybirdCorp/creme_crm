@@ -1190,7 +1190,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertRaises(
             ValueError, build_cond,
-            model=FakeContact, field_name='first_name', start=date(year=2001, month=1, day=1)  # Not a date
+            # Not a date field
+            model=FakeContact, field_name='first_name', start=date(year=2001, month=1, day=1)
         )
         self.assertRaises(
             ValueError, build_cond,
@@ -3392,7 +3393,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         class MyField(ef_fields.RelationSubfiltersConditionsField):
             pass
 
-        formfield2 = RelationSubFilterConditionHandler.formfield(form_class=MyField, required=False)
+        formfield2 = RelationSubFilterConditionHandler.formfield(
+            form_class=MyField, required=False,
+        )
         self.assertIsInstance(formfield2, MyField)
         self.assertIs(formfield2.required, False)
         self.assertIsNone(formfield2.user)

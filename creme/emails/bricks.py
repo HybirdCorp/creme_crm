@@ -210,7 +210,8 @@ class SendingsBrick(QuerysetBrick):
         campaign = context['object']
         return self._render(self.get_template_context(
             context,
-            EmailSending.objects.filter(campaign=campaign.id),  # TODO: use related_name i.e:campaign.sendings_set.all()
+            # TODO: use related_name i.e:campaign.sendings_set.all()
+            EmailSending.objects.filter(campaign=campaign.id),
         ))
 
 
@@ -320,8 +321,10 @@ class MySignaturesBrick(QuerysetBrick):
     verbose_name  = 'My Email signatures'
     template_name = 'emails/bricks/signatures.html'
     configurable  = False
-    # NB: used by the view creme_core.views.bricks.reload_basic ; None means "No special permission required".
-    #     The brick must be visible by all users ; we check permissions in the render to disabled only forbidden things.
+    # NB: used by the view creme_core.views.bricks.reload_basic ;
+    #     None means "No special permission required".
+    #     The brick must be visible by all users ; we check permissions in the
+    #     render to disabled only forbidden things.
     permission    = None
 
     def detailview_display(self, context):

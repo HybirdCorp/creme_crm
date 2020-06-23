@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,18 +32,24 @@ class AlertManager(models.Manager):
 
 
 class Alert(creme_models.CremeModel):
-    title        = models.CharField(_('Title'), max_length=200)
-    description  = models.TextField(_('Description'), blank=True)
+    title = models.CharField(_('Title'), max_length=200)
+    description = models.TextField(_('Description'), blank=True)
     is_validated = models.BooleanField(_('Validated'), editable=False, default=False)
-    reminded     = models.BooleanField(_('Notification sent'), editable=False, default=False)  # Need by creme_core.core.reminder
+
+    # Needed by creme_core.core.reminder
+    reminded = models.BooleanField(_('Notification sent'), editable=False, default=False)
+
     trigger_date = models.DateTimeField(_('Trigger date'))
-    user         = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
-    entity              = models.ForeignKey(creme_models.CremeEntity, related_name='assistants_alerts',
-                                            editable=False, on_delete=models.CASCADE,
-                                           ).set_tags(viewable=False)
-    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
+    entity = models.ForeignKey(
+        creme_models.CremeEntity, related_name='assistants_alerts',
+        editable=False, on_delete=models.CASCADE,
+    ).set_tags(viewable=False)
+    creme_entity = creme_fields.RealEntityForeignKey(
+        ct_field='entity_content_type', fk_field='entity',
+    )
 
     objects = AlertManager()
 

@@ -81,21 +81,28 @@ class SettingValueTestCase(CremeTestCase):
 
         sv = self.refresh(sv)
         self.assertIs(sv.value, True)
-        self.assertEqual('<input type="checkbox" checked disabled/>{}'.format(_('Yes')), sv.as_html)
+        self.assertHTMLEqual(
+            '<input type="checkbox" checked disabled/>{}'.format(_('Yes')),
+            sv.as_html
+        )
 
         sv.value = False
         sv.save()
 
         sv = self.refresh(sv)
         self.assertIs(sv.value, False)
-        self.assertEqual('<input type="checkbox" disabled/>{}'.format(_('No')), sv.as_html)
+        self.assertHTMLEqual(
+            '<input type="checkbox" disabled/>{}'.format(_('No')),
+            sv.as_html
+        )
 
     def test_type_hour(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_model_hour', description='Reminder hour',
-                        app_label='persons', type=SettingKey.HOUR,
-                       )
+        sk = SettingKey(
+            id='persons-test_model_hour', description='Reminder hour',
+            app_label='persons', type=SettingKey.HOUR,
+        )
         self._register_key(sk)
 
         hour = 9
@@ -110,9 +117,10 @@ class SettingValueTestCase(CremeTestCase):
     def test_type_email(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_model_email', description='Campaign Sender',
-                        app_label='emails', type=SettingKey.EMAIL,
-                       )
+        sk = SettingKey(
+            id='persons-test_model_email', description='Campaign Sender',
+            app_label='emails', type=SettingKey.EMAIL,
+        )
         self._register_key(sk)
 
         email = 'd.knut@eswat.ol'
@@ -432,7 +440,8 @@ class UserSettingValueTestCase(CremeTestCase):
         with user.settings as settings:
             settings[sk] = size
 
-        user = self.refresh(user)  # Oblige UserSettingValue to be stored in DB (we clean the cache)
+        # Oblige UserSettingValue to be stored in DB (we clean the cache)
+        user = self.refresh(user)
 
         with self.assertNoException():
             value = user.settings.get(key=sk)

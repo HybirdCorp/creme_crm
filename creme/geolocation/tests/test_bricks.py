@@ -72,8 +72,12 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         managed_orgas = get_efilter(pk=FILTER_MANAGED_ORGA)
 
         EQUALS = operators.EQUALS
-        efilter1 = self.create_filter('filter-1', 'Contact filter', user, Contact,      'first_name', EQUALS, 'John')
-        efilter2 = self.create_filter('filter-2', 'Orga filter',    user, Organisation, 'name',       EQUALS, 'Le spectre')
+        efilter1 = self.create_filter(
+            'filter-1', 'Contact filter', user, Contact, 'first_name', EQUALS, 'John',
+        )
+        efilter2 = self.create_filter(
+            'filter-2', 'Orga filter', user, Organisation, 'name', EQUALS, 'Le spectre',
+        )
 
         self.assertEqual([], self.brick.get_filter_choices(user))
 
@@ -82,8 +86,16 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.assertEqual(contacts_title, contact_group[0])
 
         contact_opt = contact_group[1]
-        self.assertInChoices(value=contact_me.pk, label=f'{contacts_title} - {contact_me.name}', choices=contact_opt)
-        self.assertInChoices(value=efilter1.pk,   label=f'{contacts_title} - {efilter1.name}',   choices=contact_opt)
+        self.assertInChoices(
+            value=contact_me.pk,
+            label=f'{contacts_title} - {contact_me.name}',
+            choices=contact_opt,
+        )
+        self.assertInChoices(
+            value=efilter1.pk,
+            label=f'{contacts_title} - {efilter1.name}',
+            choices=contact_opt,
+        )
 
         # -----
         orga_group = self.brick.get_filter_choices(user, Organisation)[0]
@@ -91,22 +103,32 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.assertEqual(orgas_title, orga_group[0])
 
         orga_opt = orga_group[1]
-        self.assertInChoices(value=managed_orgas.pk, label=f'{orgas_title} - {managed_orgas.name}', choices=orga_opt)
-        self.assertInChoices(value=efilter2.pk,      label=f'{orgas_title} - {efilter2.name}',      choices=orga_opt)
+        self.assertInChoices(
+            value=managed_orgas.pk,
+            label=f'{orgas_title} - {managed_orgas.name}',
+            choices=orga_opt,
+        )
+        self.assertInChoices(
+            value=efilter2.pk,
+            label=f'{orgas_title} - {efilter2.name}',
+            choices=orga_opt,
+        )
 
         # -----
-        self.assertEqual([contact_group, orga_group],
-                         self.brick.get_filter_choices(user, Contact, Organisation)
-                        )
+        self.assertListEqual(
+            [contact_group, orga_group],
+            self.brick.get_filter_choices(user, Contact, Organisation)
+        )
 
     def test_filter_choices_private(self):
         user = self.user
         other_user = self.other_user
 
         managed_orgas = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
-        efilter = self.create_filter('filter-2', 'Orga filter', other_user, Organisation, 'name',
-                                     operators.EQUALS, 'Le spectre',
-                                    )
+        efilter = self.create_filter(
+            'filter-2', 'Orga filter', other_user, Organisation, 'name',
+            operators.EQUALS, 'Le spectre',
+        )
 
         title = self.organisations_title
         self.assertListEqual(
@@ -121,5 +143,13 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.assertEqual(title, orga_group[0])
 
         orga_opt = orga_group[1]
-        self.assertInChoices(value=managed_orgas.pk, label=f'{title} - {managed_orgas.name}', choices=orga_opt)
-        self.assertInChoices(value=efilter.pk,       label=f'{title} - {efilter.name}',       choices=orga_opt)
+        self.assertInChoices(
+            value=managed_orgas.pk,
+            label=f'{title} - {managed_orgas.name}',
+            choices=orga_opt,
+        )
+        self.assertInChoices(
+            value=efilter.pk,
+            label=f'{title} - {efilter.name}',
+            choices=orga_opt,
+        )

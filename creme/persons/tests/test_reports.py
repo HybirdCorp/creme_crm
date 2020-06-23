@@ -75,7 +75,9 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         create_orga = partial(Organisation.objects.create, user=user)
         create_orga(name='Orga#1', creation_date=date(year=2015, month=1, day=1))
         create_orga(name='Orga#2', creation_date=date(year=2015, month=2, day=2))
-        create_orga(name='Orga#3', creation_date=date(year=2015, month=3, day=3), user=self.other_user)
+        create_orga(
+            name='Orga#3', creation_date=date(year=2015, month=3, day=3), user=self.other_user,
+        )
         create_orga(name='Orga#4', creation_date=date(year=2016, month=4, day=4))
 
         fetcher = brick.fetcher
@@ -145,7 +147,8 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             __ = fetcher.fetch_4_entity(entity=contact, user=user)
 
         self.assertEqual(
-            'OwnedGraphFetcher is only useful for Contacts representing users (see field "is_user")',
+            'OwnedGraphFetcher is only useful for Contacts representing users '
+            '(see field "is_user")',
             str(cm.exception)
         )
 

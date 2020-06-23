@@ -138,7 +138,9 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_manager_create_if_needed04(self):
         "Invalid fields."
-        sc_item = SearchConfigItem.objects.create_if_needed(FakeContact, ['invalid_field', 'first_name'])
+        sc_item = SearchConfigItem.objects.create_if_needed(
+            FakeContact, ['invalid_field', 'first_name'],
+        )
 
         sfields = sc_item.searchfields
         self.assertEqual(1, len(sfields))

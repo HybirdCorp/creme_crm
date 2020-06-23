@@ -177,9 +177,12 @@ def multi_save_lines(request, document_id):
                     item = None
 
                     if instance.pk:
-                        # We retrieve the line again because the field 'on_the_fly_item' may have been cleaned
+                        # We retrieve the line again because the field
+                        # "on_the_fly_item" may have been cleaned
                         # TODO: avoid this query (API for field modifications -- see HistoryLine)
-                        item = line_model.objects.get(pk=instance.pk).on_the_fly_item or instance.related_item
+                        item = line_model.objects.get(
+                            pk=instance.pk,
+                        ).on_the_fly_item or instance.related_item
 
                     errors.append({
                         'item':     item,

@@ -160,8 +160,9 @@ class CustomField(CremeModel):
         return str(cf_values[0]) if cf_values else ''
 
     @staticmethod
-    def get_custom_values_map(entities: Iterable[CremeEntity],
-                              custom_fields: Iterable['CustomField']) -> DefaultDict[int, Dict[int, Any]]:
+    def get_custom_values_map(
+            entities: Iterable[CremeEntity],
+            custom_fields: Iterable['CustomField']) -> DefaultDict[int, Dict[int, Any]]:
         """
         @return { Entity's id -> { CustomField's id -> CustomValue } }
         """
@@ -171,7 +172,8 @@ class CustomField(CremeModel):
 
         # cvalues_map = defaultdict(lambda: defaultdict(list))
         cvalues_map = defaultdict(dict)
-        entities = [e.id for e in entities]  # NB: 'list(entities)' ==> made strangely a query for every entity ;(
+        # NB: 'list(entities)' ==> made strangely a query for every entity ;(
+        entities = [e.id for e in entities]
 
         for field_type, cfields_list in cfield_map.items():
             for cvalue in _TABLES[field_type]._get_4_entities(entities, cfields_list):
@@ -437,8 +439,10 @@ class CustomFieldBoolean(CustomFieldValue):
 
 
 class CustomFieldEnumValue(CremeModel):
-    custom_field = models.ForeignKey(CustomField, related_name='customfieldenumvalue_set', on_delete=models.CASCADE)
-    value        = models.CharField(max_length=100)
+    custom_field = models.ForeignKey(
+        CustomField, related_name='customfieldenumvalue_set', on_delete=models.CASCADE,
+    )
+    value = models.CharField(max_length=100)
 
     class Meta:
         app_label = 'creme_core'
@@ -447,7 +451,9 @@ class CustomFieldEnumValue(CremeModel):
         return self.value
 
     def delete(self, *args, **kwargs):
-        CustomFieldEnum.objects.filter(custom_field=self.custom_field_id, value=str(self.id)).delete()
+        CustomFieldEnum.objects.filter(
+            custom_field=self.custom_field_id, value=str(self.id),
+        ).delete()
         super().delete(*args, **kwargs)
 
 

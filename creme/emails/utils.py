@@ -40,7 +40,9 @@ def generate_id():
     return ''.join(choice(ALLOWED_CHARS) for i in range(ID_LENGTH))
 
 
-_IMG_PATTERN = re_compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?\=.]*)["\']{1,1}')
+_IMG_PATTERN = re_compile(
+    r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?\=.]*)["\']{1,1}'
+)
 
 
 class ImageFromHTMLError(Exception):
@@ -63,8 +65,12 @@ def get_mime_image(image_entity):
         try:
             with image_entity.filedata.open() as image_file:
                 mime_image = MIMEImage(image_file.read())
-                mime_image.add_header('Content-ID', f'<img_{image_entity.id}>')
-                mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))
+                mime_image.add_header(
+                    'Content-ID', f'<img_{image_entity.id}>',
+                )
+                mime_image.add_header(
+                    'Content-Disposition', 'inline', filename=basename(image_file.name),
+                )
         except IOError as e:
             logger.error('Exception when reading image : %s', e)
             mime_image = None
@@ -89,7 +95,10 @@ class EMailSender:
                 mime_image = get_mime_image(image_entity)
 
                 if mime_image is None:
-                    logger.error('Error during reading attached image in signature: %s', image_entity)
+                    logger.error(
+                        'Error during reading attached image in signature: %s',
+                        image_entity,
+                    )
                 else:
                     mime_images.append(mime_image)
                     body_html += f'<img src="cid:img_{image_entity.id}" /><br/>'

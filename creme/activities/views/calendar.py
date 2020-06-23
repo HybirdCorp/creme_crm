@@ -55,7 +55,8 @@ Activity = get_activity_model()
 
 def _js_timestamp_to_datetime(timestamp):
     "@raise ValueError"
-    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))  # JS gives us milliseconds
+    # JS gives us milliseconds
+    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))
 
 
 class CalendarView(generic.CheckedTemplateView):
@@ -445,9 +446,9 @@ class CalendarDeletion(generic.CremeModelEditionPopup):
             else:
                 # TODO: if STATUS_ERROR, show a popup with the errors ?
                 raise ConflictError(
-                    gettext('A deletion process for an instance of «{model}» already exists.').format(
-                        model=ctype,
-                    )
+                    gettext(
+                        'A deletion process for an instance of «{model}» already exists.'
+                    ).format(model=ctype)
                 )
 
     def form_valid(self, form):

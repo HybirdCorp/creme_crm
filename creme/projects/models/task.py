@@ -37,14 +37,16 @@ from .taskstatus import TaskStatus
 
 
 class AbstractProjectTask(CremeEntity):
-    title        = models.CharField(_('Title'), max_length=100)
+    title = models.CharField(_('Title'), max_length=100)
     linked_project = models.ForeignKey(settings.PROJECTS_PROJECT_MODEL,
                                        on_delete=models.CASCADE,
                                        verbose_name=_('Project'),
                                        related_name='tasks_set',
                                        editable=False,
                                       )
-    order        = models.PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)  # TODO: null = False ? remove blank
+    # TODO: null = False ? remove blank
+    order = models.PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)
+
     parent_tasks = models.ManyToManyField('self', symmetrical=False,
                                           related_name='children_set',  # TODO: rename children ?
                                           editable=False,
@@ -52,7 +54,8 @@ class AbstractProjectTask(CremeEntity):
 
     start    = models.DateTimeField(_('Start'), blank=True, null=True)
     end      = models.DateTimeField(_('End'), blank=True, null=True)
-    duration = models.PositiveIntegerField(_('Duration (in hours)'), blank=True, null=True)  # TODO: null=False (required in form) (idem with start/end)
+    # TODO: null=False (required in form) (idem with start/end)
+    duration = models.PositiveIntegerField(_('Duration (in hours)'), blank=True, null=True)
 
     tstatus = models.ForeignKey(TaskStatus, verbose_name=_('Task situation'),
                                 on_delete=CREME_REPLACE,
@@ -181,7 +184,8 @@ class AbstractProjectTask(CremeEntity):
     @classmethod
     # def clone_scope(tasks, project):
     def clone_scope(cls, tasks, project):
-        """Clone each task in 'tasks', assign them to 'project', and restore links between each task.
+        """Clone each task in 'tasks', assign them to 'project',
+        and restore links between each task.
         @params tasks: an iterable of ProjectTask.
         @params project: a Project instance.
         """

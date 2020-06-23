@@ -53,7 +53,8 @@ class History(BricksView):
 # def reload_bricks(request):
 #     brick_ids = get_brick_ids_or_404(request)
 #     bricks = []
-#     models = {backend.model for backend in registry.crudity_registry.get_backends() if backend.model}
+#     models = {backend.model
+#     for backend in registry.crudity_registry.get_backends() if backend.model}
 #     prefix = 'block_crudity-'
 #
 #     for brick_id in brick_ids:

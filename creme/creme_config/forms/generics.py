@@ -405,7 +405,8 @@ class DeletionForm(CremeModelForm):
             # TODO: better way ? (problem with custom 'through' table ?)
             return None
 
-        # NB: we use the django's migration tool to get a string pattern of the attribute "on_delete".
+        # NB: we use the django's migration tool to get a string pattern
+        #     of the attribute "on_delete".
         delete_signature = serializer_factory(
             related_field.remote_field.on_delete
         ).serialize()[0]

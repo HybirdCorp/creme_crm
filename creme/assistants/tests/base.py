@@ -17,7 +17,9 @@ class AssistantsTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
         self.login()
-        self.entity = FakeContact.objects.create(user=self.user, first_name='Ranma', last_name='Saotome')
+        self.entity = FakeContact.objects.create(
+            user=self.user, first_name='Ranma', last_name='Saotome',
+        )
 
     def aux_test_merge(self, creator, assertor, moved_count=1):
         user = self.user
@@ -28,21 +30,23 @@ class AssistantsTestCase(CremeTestCase):
         creator(contact01, contact02)
         old_count = HistoryLine.objects.count()
 
-        response = self.client.post(self.build_merge_url(contact01, contact02),
-                                    follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            self.build_merge_url(contact01, contact02),
+            follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'first_name_1':      contact01.first_name,
-                                          'first_name_2':      contact02.first_name,
-                                          'first_name_merged': contact01.first_name,
+                'first_name_1':      contact01.first_name,
+                'first_name_2':      contact02.first_name,
+                'first_name_merged': contact01.first_name,
 
-                                          'last_name_1':      contact01.last_name,
-                                          'last_name_2':      contact02.last_name,
-                                          'last_name_merged': contact01.last_name,
-                                         }
-                                   )
+                'last_name_1':      contact01.last_name,
+                'last_name_2':      contact02.last_name,
+                'last_name_merged': contact01.last_name,
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertDoesNotExist(contact02)
@@ -53,7 +57,8 @@ class AssistantsTestCase(CremeTestCase):
         assertor(contact01)
 
         hlines = [*HistoryLine.objects.order_by('id')]
-        self.assertEqual(old_count + 1 + moved_count, len(hlines))  # 1 deletion line + N * TYPE_AUX_CREATION lines
+        # 1 deletion line + N * TYPE_AUX_CREATION lines
+        self.assertEqual(old_count + 1 + moved_count, len(hlines))
 
         if moved_count:
             hline = hlines[-2]

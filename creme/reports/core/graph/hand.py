@@ -145,8 +145,6 @@ class ReportGraphHand:
         # if isinstance(y_value_func, RGYCAggregation):
         #     y_value_aggregator = y_value_func._aggregate_value
         # else:
-        #     # TMP: meh, we could model count as an aggregation
-        #     #     (caveat: count is technically *not* aggregating a field here, whereas our aggregation operators do)
         #     y_value_aggregator = Count('pk')  # Is there a way to count(*) ?
         #
         # aggregates = entities.extra({'key': key}) \
@@ -218,7 +216,8 @@ class _RGHRegularField(ReportGraphHand):
 
         self._field = field
 
-#    Commented on Nov 21, 2014 when refactoring this method doing a manual 'group by' to the _get_dates_values() below using a real sql 'group by'
+# Commented on Nov 21, 2014 when refactoring this method doing a manual 'group by'
+# to the _get_dates_values() below using a real sql 'group by'
 #    def _get_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
 #        """
 #        @param kind 'day', 'month' or 'year'
@@ -231,7 +230,8 @@ class _RGHRegularField(ReportGraphHand):
 #
 #        for date in entities.dates(self._field.name, kind, order):
 #            qdict = qdict_builder(date)
-#            yield date.strftime(date_format), [y_value_func(entities_filter(**qdict)), build_url(qdict)]
+#            yield (date.strftime(date_format),
+#                  [y_value_func(entities_filter(**qdict)), build_url(qdict)])
 
     def _aggregate_dates_by_key(self, entities, abscissa, key, order):
         x_value_filter = {f'{abscissa}__isnull': True}
@@ -252,10 +252,13 @@ class _RGHRegularField(ReportGraphHand):
         for key, value in self._aggregate_dates_by_key(entities, abscissa, x_value_key, order):
             date = key
 
-            # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
-            # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
+            # TODO: When using extras/sql functions on dates and sqlite,
+            #       the ORM returns strings instead of datetimes
+            # This can probably be fixed/improved when we migrate to Django 1.8,
+            # using custom annotation operators.
             if connection.vendor == 'sqlite' and isinstance(key, str):
-                date = datetime.strptime(key, '%Y-%m-%d')  # NB: it seems the string format has changed in django1.6
+                # NB: it seems the string format has changed in django1.6
+                date = datetime.strptime(key, '%Y-%m-%d')
 
             qdict = qdict_builder(date)
             yield date.strftime(date_format), [value or 0, build_url(qdict)]
@@ -390,12 +393,14 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
         # abscissa = graph.abscissa
         abscissa = self._field.name
 
-        # TODO: When migrating to Django 1.8 (with its support of expressions and sql functions) these queries can be refactored and get improved performance
-        # by pushing part of the group key computation in the min/max aggregates query (converting the min/max date to a pivot key).
-        # Right now, the value key is a difference with effectively a constant pivot key, and we could help the DB by giving it the constant value instead of the computation.
-        # It is doable now but is too much of a hack until using Django 1.8.
-        # Reusing the key alias in the 'group by' clause instead of repeating the complete value as the ORM currently generates could be a possibility as well.
-
+        # TODO: When migrating to Django 1.8 (with its support of expressions and sql functions)
+        #       these queries can be refactored and get improved performance by pushing part of
+        #       the group key computation in the min/max aggregates query (converting the min/max
+        #       date to a pivot key). Right now, the value key is a difference with effectively a
+        #       constant pivot key, and we could help the DB by giving it the constant value
+        #       instead of the computation. It is doable now but is too much of a hack until using
+        #       Django 1.8. Reusing the key alias in the 'group by' clause instead of repeating
+        #       the complete value as the ORM currently generates could be a possibility as well.
         date_aggregates = entities.aggregate(min_date=Min(abscissa), max_date=Max(abscissa))
         min_date = date_aggregates['min_date']
         max_date = date_aggregates['max_date']
@@ -408,8 +413,9 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
 
             field_name = _physical_field_name(self._field.model._meta.db_table, abscissa)
 
-            # The aggregate keys are computed by grouping the difference, in days, between the date and the pivot,
-            #  into buckets of X days & the pivot key is the first value in the ordered set of data.
+            # The aggregate keys are computed by grouping the difference, in
+            # days, between the date and the pivot, into buckets of X days & the
+            # pivot key is the first value in the ordered set of data.
             x_value_format = _db_grouping_format()
             x_value_key = (
                 x_value_format % (field_name, min_date.strftime("'%Y-%m-%d'"), days)
@@ -453,7 +459,9 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
             # y_value_func = self._y_calculator
             y_value_func = self._y_calculator.aggregrate
 
-            for interval in DateInterval.generate((graph.days or 1) - 1, min_date, max_date, order):
+            for interval in DateInterval.generate(
+                    (graph.days or 1) - 1, min_date, max_date, order,
+            ):
                 before = interval.before
                 after  = interval.after
                 sub_entities = entities_filter(**{query_cmd: (before, after)})
@@ -543,7 +551,9 @@ class RGHRelation(ReportGraphHand):
         #       Queryset is not paginated so we can sort the "list") ?
         # TODO: make listview url for this case
         build_url = self._listview_url_builder()
-        relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.linked_report.ct)
+        relations = Relation.objects.filter(
+            type=self._rtype, subject_entity__entity_type=self._graph.linked_report.ct,
+        )
         rel_filter = relations.filter
         ce_objects_get = CremeEntity.objects.get
         entities_filter = entities.filter
@@ -590,8 +600,9 @@ class _RGHCustomField(ReportGraphHand):
 
         self._cfield = cfield
 
-#    Commented on Nov 21, 2014 when refactoring this method doing a manual 'group by' to the _get_custom_dates_values() below using a real sql 'group by'
-#    def _get_custom_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
+# Commented on Nov 21, 2014 when refactoring this method doing a manual 'group by' to the
+# _get_custom_dates_values() below using a real sql 'group by'
+# def _get_custom_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
 #        """
 #        @param kind 'day', 'month' or 'year'
 #        @param order 'ASC' or 'DESC'
@@ -607,13 +618,15 @@ class _RGHCustomField(ReportGraphHand):
 #            qdict = qdict_builder(date)
 #            qdict['customfielddatetime__custom_field'] = cfield.id
 #
-#            yield date.strftime(date_format), [y_value_func(entities_filter(**qdict)), build_url(qdict)]
+#            yield (date.strftime(date_format),
+#                 [y_value_func(entities_filter(**qdict)), build_url(qdict)])
 
     # TODO: This is almost identical to _RGHRegularField._get_dates_values
     #       (differences here - 1: there is no need to exclude null values
     #       2: the entities have an additional filter,
     #       3: the qdicts have an additional value) and could be factored together
-    # def _get_custom_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
+    # def _get_custom_dates_values(self, entities, abscissa, kind, qdict_builder,
+    #                              date_format, order):
     def _get_custom_dates_values(self, *, entities, kind, qdict_builder, date_format, order):
         """
         @param kind 'day', 'month' or 'year'
@@ -631,8 +644,10 @@ class _RGHCustomField(ReportGraphHand):
         for key, value in self._aggregate_by_key(entities, x_value_key, order):
             date = key
 
-            # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
-            # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
+            # TODO: When using extras/sql functions on dates and sqlite,
+            #       the ORM returns strings instead of datetimes
+            #       This can probably be fixed/improved when we migrate to Django 1.8,
+            #       using custom annotation operators.
             if connection.vendor == 'sqlite' and isinstance(key, str):
                 date = datetime.strptime(key, '%Y-%m-%d')
 
@@ -757,7 +772,10 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                     interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
                     interval.end.strftime('%d/%m/%Y'),
                 )
-                value_range = [interval.before.strftime('%Y-%m-%d'), interval.after.strftime('%Y-%m-%d')]
+                value_range = [
+                    interval.before.strftime('%Y-%m-%d'),
+                    interval.after.strftime('%Y-%m-%d'),
+                ]
                 url = build_url({
                     'customfielddatetime__custom_field': cfield.id,
                     'customfielddatetime__value__range': value_range,
@@ -782,7 +800,9 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
             y_value_func = self._y_calculator.aggregrate
             build_url = self._listview_url_builder()
 
-            for interval in DateInterval.generate((self._graph.days or 1) - 1, min_date, max_date, order):
+            for interval in DateInterval.generate(
+                (self._graph.days or 1) - 1, min_date, max_date, order,
+            ):
                 before = interval.before
                 after  = interval.after
                 sub_entities = entities_filter(

@@ -26,10 +26,12 @@ from creme.activities.models import Calendar
 
 
 class Command(BaseCommand):
-    help = ('Create the default Calendars for users which do not have one. '
-            'settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC is used to determinate the wanted behaviour. '
-            '(True/False => public/private ; None => no calendar created).'
-           )
+    help = (
+        'Create the default Calendars for users which do not have one. '
+        'settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC is used to determinate '
+        'the wanted behaviour. '
+        '(True/False => public/private ; None => no calendar created).'
+    )
 
     def handle(self, **options):
         verbosity = options.get('verbosity')
@@ -37,7 +39,9 @@ class Command(BaseCommand):
 
         if is_public is None:
             if verbosity >= 1:
-                self.stderr.write('ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC is None => no calendar created.')
+                self.stderr.write(
+                    'ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC is None => no calendar created.'
+                )
         elif isinstance(is_public, bool):
             users = get_user_model().objects.filter(is_staff=False, is_active=True,
                                                     calendar__is_default__isnull=True,

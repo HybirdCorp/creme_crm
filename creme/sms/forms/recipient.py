@@ -56,10 +56,11 @@ class MessagingListAddRecipientsForm(CremeForm):
                 create(messaging_list=messaging_list, phone=number)
 
 
-_HELP = _("A text file where each line contains digits (which can be separated by space characters).\n"
-          "Only digits are used and empty lines are ignored.\n"
-          "Examples: '00 56 87 56 45' => '0056875645'; 'abc56def' => '56'"
-         )
+_HELP = _(
+    "A text file where each line contains digits (which can be separated by space characters).\n"
+    "Only digits are used and empty lines are ignored.\n"
+    "Examples: '00 56 87 56 45' => '0056875645'; 'abc56def' => '56'"
+)
 
 
 class MessagingListAddCSVForm(CremeForm):

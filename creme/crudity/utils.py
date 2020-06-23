@@ -85,19 +85,30 @@ def generate_guid_for_field(urn: str,
 
 
 def decode_b64binary(blob_b64: bytes) -> Tuple[str, bytes]:
-    """Decode base64binary encoded files (Usually found in xsd:base64Binary http://www.w3.org/TR/xmlschema-2/#base64Binary)
+    """Decode base64binary encoded files
+    (Usually found in xsd:base64Binary http://www.w3.org/TR/xmlschema-2/#base64Binary)
     @param blob_b64: <bytes> data encoded in base64.
     @return: A tuple (file_name, decoded_data) ; "file_name" is a str, "decoded_data" bytes.
     """
     blob_str = base64.decodebytes(blob_b64)
     blob_str_len = len(blob_str)
 
-    header, filesize, filename_len, rest = struct.unpack('16sII{}s'.format(blob_str_len - 16 - 2 * 4), blob_str)
+    header, filesize, filename_len, rest = struct.unpack(
+        '16sII{}s'.format(blob_str_len - 16 - 2 * 4),
+        blob_str,
+    )
     filename_len *= 2
 
-    header, filesize, filename_len, filename, blob = struct.unpack('16sII{}s{}s'.format(filename_len, (blob_str_len - 16 - 2 * 4 - filename_len)), blob_str)
+    header, filesize, filename_len, filename, blob = struct.unpack(
+        '16sII{}s{}s'.format(filename_len, (blob_str_len - 16 - 2 * 4 - filename_len)),
+        blob_str,
+    )
 
-    filename = ''.join(chr(i) for i in struct.unpack('{}h'.format(len(filename) // 2), filename) if i > 0)
+    filename = ''.join(
+        chr(i)
+        for i in struct.unpack('{}h'.format(len(filename) // 2), filename)
+        if i > 0
+    )
     filename = str(filename.encode('utf8'))
 
     return filename, blob

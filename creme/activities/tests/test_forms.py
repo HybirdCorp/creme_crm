@@ -63,8 +63,12 @@ class ActivityTypeFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = ActivityTypeField(required=False).clean
-        self.assertFieldValidationError(ActivityTypeField, 'invalidtype', clean, '"this is a string"')
-        self.assertFieldValidationError(ActivityTypeField, 'invalidtype', clean, "12")
+        self.assertFieldValidationError(
+            ActivityTypeField, 'invalidtype', clean, '"this is a string"',
+        )
+        self.assertFieldValidationError(
+            ActivityTypeField, 'invalidtype', clean, '12',
+        )
 
     def test_clean_unknown_type(self):
         "Data injections"
@@ -126,7 +130,9 @@ class ActivityTypeFieldTestCase(FieldTestCase):
                                              default_day_duration=0,
                                              default_hour_duration=1,
                                             )
-        field = ActivityTypeField(types=ActivityType.objects.filter(pk__in=[self.atype.id, atype2.id]))
+        field = ActivityTypeField(
+            types=ActivityType.objects.filter(pk__in=[self.atype.id, atype2.id]),
+        )
         self.assertEqual((atype2, None),
                          field.clean(self._build_value(atype2.id))
                         )

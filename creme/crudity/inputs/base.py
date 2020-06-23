@@ -43,7 +43,8 @@ class CrudityInput:
     def add_backend(self, backend: CrudityBackend) -> None:
         self._backends[backend.subject] = backend
 
-    def get_backends(self) -> List[CrudityBackend]:  # TODO: rename 'backends' + property + generator ?
+    # TODO: rename 'backends' + property + generator ?
+    def get_backends(self) -> List[CrudityBackend]:
         return [*self._backends.values()]
 
     def get_backend(self, subject: str) -> Optional[CrudityBackend]:

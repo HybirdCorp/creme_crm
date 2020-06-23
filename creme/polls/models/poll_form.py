@@ -103,7 +103,10 @@ class AbstractPollForm(CremeEntity):
         # children, then the children of children etc...), and we create for each
         # PollFormSection the corresponding PollFormSection or PollReplySection.
         while fsections:
-            children, fsections = split_filter((lambda section: section.parent in parents), fsections)
+            children, fsections = split_filter(
+                (lambda section: section.parent in parents),
+                fsections,
+            )
 
             matches.update((child.id, create_section(name=child.name,
                                                      body=child.body,
@@ -135,14 +138,15 @@ class AbstractPollForm(CremeEntity):
 
         for i, line in enumerate(pform_lines, start=1):
             extra_args = {'pform_line': line} if reply_tree else {}
-            line_matches[line.id] = create_line(section=section_matches.get(line.section_id),
-                                                order=i,
-                                                type=line.type,
-                                                type_args=line.poll_line_type.cleaned_serialized_args(),
-                                                conds_use_or=line.conds_use_or,
-                                                question=line.question,
-                                                **extra_args
-                                               )
+            line_matches[line.id] = create_line(
+                section=section_matches.get(line.section_id),
+                order=i,
+                type=line.type,
+                type_args=line.poll_line_type.cleaned_serialized_args(),
+                conds_use_or=line.conds_use_or,
+                question=line.question,
+                **extra_args
+            )
 
         for fcond in PollFormLineCondition.objects.filter(
             line__in=[line.id for line in pform_lines],
@@ -161,11 +165,14 @@ class PollForm(AbstractPollForm):
 
 
 class PollFormSection(CremeModel):
-    pform  = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='sections', on_delete=CASCADE)
-    parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)  # related_name='children'
-    order  = PositiveIntegerField(editable=False, default=1)
-    name   = CharField(_('Name'), max_length=250)
-    body   = TextField(_('Section body'), blank=True)
+    pform = ForeignKey(
+        settings.POLLS_FORM_MODEL, editable=False, related_name='sections', on_delete=CASCADE,
+    )
+    # TODO: related_name='children' ?
+    parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)
+    order = PositiveIntegerField(editable=False, default=1)
+    name = CharField(_('Name'), max_length=250)
+    body = TextField(_('Section body'), blank=True)
 
     creation_label = _('Create a section')
     save_label     = _('Save the section')
@@ -212,20 +219,23 @@ class PollFormSection(CremeModel):
 
 
 class PollFormLine(CremeModel, _PollLine):
-    pform        = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='lines', on_delete=CASCADE)
+    pform = ForeignKey(
+        settings.POLLS_FORM_MODEL, editable=False, related_name='lines', on_delete=CASCADE,
+    )
     # TODO: related_name='lines' ?
-    section      = ForeignKey(PollFormSection, editable=False, null=True, on_delete=CASCADE)
-    order        = PositiveIntegerField(editable=False, default=1)
-    disabled     = BooleanField(default=False, editable=False)
+    section = ForeignKey(PollFormSection, editable=False, null=True, on_delete=CASCADE)
+    order = PositiveIntegerField(editable=False, default=1)
+    disabled = BooleanField(default=False, editable=False)
 
-    # See PollLineType ['choices' is not set here, in order to allow the contribution by other apps]
-    type         = PositiveSmallIntegerField(_('Type'))
-    type_args    = TextField(editable=False, null=True)  # TODO: use a JSONField ?
+    # See PollLineType
+    #   ['choices' is not set here, in order to allow the contribution by other apps]
+    type = PositiveSmallIntegerField(_('Type'))
+    type_args = TextField(editable=False, null=True)  # TODO: use a JSONField ?
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
     conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
 
-    question     = TextField(_('Question'))
+    question = TextField(_('Question'))
 
     creation_label = _('Create a question')
     save_label     = _('Save the question')
@@ -312,9 +322,9 @@ class PollFormLineCondition(CremeModel):
     # ISEMPTY         = 21
     # RANGE           = 22
 
-    line       = ForeignKey(PollFormLine, editable=False, related_name='conditions', on_delete=CASCADE)
-    source     = ForeignKey(PollFormLine, on_delete=CASCADE)
-    operator   = PositiveSmallIntegerField()  # See EQUALS etc...
+    line = ForeignKey(PollFormLine, editable=False, related_name='conditions', on_delete=CASCADE)
+    source = ForeignKey(PollFormLine, on_delete=CASCADE)
+    operator = PositiveSmallIntegerField()  # See EQUALS etc...
     raw_answer = TextField(null=True)
 
     save_label = _('Save the condition')
@@ -327,7 +337,8 @@ class PollFormLineCondition(CremeModel):
 
     # TODO: factorise with EntityFilterCondition.condition
     def update(self, other_condition):
-        """Fill a condition with the content a another one (in order to reuse the old instance if possible).
+        """Fill a condition with the content a another one
+        (in order to reuse the old instance if possible).
         @return True if there is at least one change, else False.
         """
         changed = False

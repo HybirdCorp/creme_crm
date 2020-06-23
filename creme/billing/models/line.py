@@ -35,8 +35,8 @@ from ..utils import round_to_2
 logger = logging.getLogger(__name__)
 
 
-# TODO: use a smart workflow engine to update the BillingModel only once when several lines are edited
-#       for the moment when have to re-save the model manually.
+# TODO: use a smart workflow engine to update the BillingModel only once when
+#  several lines are edited for the moment when have to re-save the model manually.
 
 class Line(CremeEntity):
     # NB: not blank (no related item => name is filled)
@@ -168,7 +168,8 @@ class Line(CremeEntity):
 
         # if self.discount_unit == constants.DISCOUNT_PERCENT:
         if discount_unit == constants.DISCOUNT_PERCENT:
-            total_after_first_discount = self.quantity * (unit_price_line - (unit_price_line * line_discount / 100))
+            total_after_first_discount = \
+                self.quantity * (unit_price_line - (unit_price_line * line_discount / 100))
         # elif global_discount_line:  # DISCOUNT_LINE_AMOUNT
         elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:
             total_after_first_discount = self.quantity * unit_price_line - line_discount
@@ -230,7 +231,9 @@ class Line(CremeEntity):
 
     @staticmethod
     def related_item_class():
-        """Returns the model-class of the related item (eg: Product, Service) for this class of line."""
+        """Returns the model-class of the related item (eg: Product, Service)
+        for this class of line.
+        """
         raise NotImplementedError
 
     @atomic
@@ -244,13 +247,22 @@ class Line(CremeEntity):
 
             super().save(*args, **kwargs)
 
-            create_relation = partial(Relation.objects.create, subject_entity=self, user=self.user)
-            create_relation(type_id=constants.REL_OBJ_HAS_LINE, object_entity=self._related_document)
+            create_relation = partial(
+                Relation.objects.create, subject_entity=self, user=self.user,
+            )
+            create_relation(
+                type_id=constants.REL_OBJ_HAS_LINE,
+                object_entity=self._related_document,
+            )
 
             if self._related_item:
-                create_relation(type_id=constants.REL_SUB_LINE_RELATED_ITEM, object_entity=self._related_item)
+                create_relation(
+                    type_id=constants.REL_SUB_LINE_RELATED_ITEM,
+                    object_entity=self._related_item,
+                )
         else:
             super().save(*args, **kwargs)
 
-        # TODO: problem, if several lines are added/edited at once, lots of useless queries (workflow engine ??)
+        # TODO: problem, if several lines are added/edited at once, lots of
+        #  useless queries (workflow engine ??)
         self.related_document.save()  # Update totals

@@ -12,7 +12,10 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
     def test_create_type(self):
         self.login()
         self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
-        self.assertGET200(reverse('creme_config__model_portal', args=('activities', 'activity_type')))
+        self.assertGET200(reverse(
+            'creme_config__model_portal',
+            args=('activities', 'activity_type')
+        ))
 
         url = reverse('creme_config__create_instance', args=('activities', 'activity_type'))
         self.assertGET200(url)
@@ -42,7 +45,10 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
                                             is_custom=True,
                                            )
 
-        url = reverse('creme_config__edit_instance', args=('activities', 'activity_type', atype.id))
+        url = reverse(
+            'creme_config__edit_instance',
+            args=('activities', 'activity_type', atype.id),
+        )
         self.assertGET200(url)
 
         name = atype.name.title()
@@ -63,7 +69,10 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
 
     def test_create_subtype(self):
         self.login()
-        self.assertGET200(reverse('creme_config__model_portal', args=('activities', 'activity_sub_type')))
+        self.assertGET200(reverse(
+            'creme_config__model_portal',
+            args=('activities', 'activity_sub_type')
+        ))
 
         atype = ActivityType.objects.create(pk='test-activity_karate',
                                             name='Karate session',
@@ -93,9 +102,14 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
                                             default_hour_duration='00:15:00',
                                             is_custom=True,
                                            )
-        satype = ActivitySubType.objects.create(pk='test-activity_fight', type=atype, name='Figtho')
+        satype = ActivitySubType.objects.create(
+            pk='test-activity_fight', type=atype, name='Figtho',
+        )
 
-        url = reverse('creme_config__edit_instance', args=('activities', 'activity_sub_type', satype.id))
+        url = reverse(
+            'creme_config__edit_instance',
+            args=('activities', 'activity_sub_type', satype.id),
+        )
         self.assertGET200(url)
 
         name = 'Figtho'

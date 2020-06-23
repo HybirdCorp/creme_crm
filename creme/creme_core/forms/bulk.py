@@ -48,7 +48,8 @@ class BulkFieldSelectWidget(Select):
 
 class BulkForm(CremeForm):
     excluded_bulk_fields = (
-        # NB1: bulk update of file field is broken on JS side any way(IDs are not posted ?)  TODO: fix that ?
+        # TODO: fix that ?
+        # NB1: bulk update of file field is broken on JS side any way(IDs are not posted ?)
         # NB2: it's probably a bad idea to set the same file to several entities
         #      (when one entity is deleted the file is attached to a FileRef then by a Job).
         FileField,
@@ -136,12 +137,13 @@ class BulkForm(CremeForm):
                     sub_choices.append((str(field.verbose_name), field_sub_choices))
 
         if custom_fields:
-            choices.append((gettext('Custom fields'),
-                            [(build_url(fieldname=_CUSTOMFIELD_FORMAT.format(field.id)), field.name)
-                                for field in custom_fields
-                            ]
-                           )
-                          )
+            choices.append((
+                gettext('Custom fields'),
+                [
+                    (build_url(fieldname=_CUSTOMFIELD_FORMAT.format(field.id)), field.name)
+                    for field in custom_fields
+                ]
+            ))
 
         return choices + sub_choices
 
@@ -175,7 +177,8 @@ class BulkForm(CremeForm):
         if instance:
             initial = getattr(instance, model_field.name)
 
-            # HACK : special use case for manytomany fields to circumvent a strange django behaviour.
+            # HACK: special use case for manytomany fields to circumvent a
+            #       strange django behaviour.
             if initial is not None and isinstance(model_field, ManyToManyField):
                 initial = initial.get_queryset()
 
@@ -266,7 +269,8 @@ class BulkForm(CremeForm):
             return
 
         # Update attribute <field_name> of each instance of entity and filter valid ones.
-        self.bulk_cleaned_entities, self.bulk_invalid_entities = self._bulk_clean_entities(entities, values)
+        self.bulk_cleaned_entities, self.bulk_invalid_entities = \
+            self._bulk_clean_entities(entities, values)
 
         if not self.is_bulk and self.bulk_invalid_entities:
             entity, error = self.bulk_invalid_entities[0]
@@ -298,7 +302,9 @@ class BulkDefaultEditForm(BulkForm):
 
         if entities:
             if self.is_custom:
-                custom_field.CustomFieldValue.save_values_for_entities(self.model_field, entities, field_value)
+                custom_field.CustomFieldValue.save_values_for_entities(
+                    self.model_field, entities, field_value,
+                )
             elif getattr(self.model_field, 'many_to_many', False):
                 name = self.model_field.name
 

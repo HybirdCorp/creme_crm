@@ -79,7 +79,8 @@ class Populator(BasePopulator):
         create_searchconf(PollCampaign, ['name'])
 
         # ---------------------------
-        if not PollType.objects.exists():  # NB: no straightforward way to test that this populate script has not been already run
+        # NB: no straightforward way to test that this populate script has not been already run
+        if not PollType.objects.exists():
             create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
             create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
             create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
@@ -94,45 +95,77 @@ class Populator(BasePopulator):
             create_bdl         = BrickDetailviewLocation.objects.create_if_needed
             create_bdl_4_model = BrickDetailviewLocation.objects.create_for_model_brick
 
-            create_bdl(brick=bricks.PollFormLinesBrick,     order=5,   zone=TOP,   model=PollForm)
-            create_bdl_4_model(                             order=5,   zone=LEFT,  model=PollForm)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=PollForm)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=PollForm)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=PollForm)
-            create_bdl(brick=bricks.PollRepliesBrick,       order=5,   zone=RIGHT, model=PollForm)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=PollForm)
+            def create_multi_bdl(model, info):
+                for brick, order, zone in info:
+                    if brick == 'model':
+                        create_bdl_4_model(order=order, zone=zone, model=model)
+                    else:
+                        create_bdl(brick=brick, order=order, zone=zone, model=model)
 
-            # TODO: factorise
-            create_bdl(brick=bricks.PollReplyLinesBrick,    order=5,   zone=TOP,   model=PollReply)
-            create_bdl_4_model(                             order=5,   zone=LEFT,  model=PollReply)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=PollReply)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=PollReply)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=PollReply)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=PollReply)
+            create_multi_bdl(
+                PollForm,
+                [
+                    (bricks.PollFormLinesBrick,       5, TOP),
+                    ('model',                         5, LEFT),
+                    (core_bricks.CustomFieldsBrick,  40, LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+                    (bricks.PollRepliesBrick,         5, RIGHT),
+                    (core_bricks.HistoryBrick,       20, RIGHT),
+                ]
+            )
+            create_multi_bdl(
+                PollReply,
+                [
+                    (bricks.PollReplyLinesBrick,    5,   TOP),
+                    ('model',                       5,   LEFT),
+                    (core_bricks.CustomFieldsBrick, 40,  LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+                    (core_bricks.HistoryBrick,      20,  RIGHT),
+                ]
+            )
+            create_multi_bdl(
+                PollCampaign,
+                [
+                    ('model',                         5,   LEFT),
+                    (core_bricks.CustomFieldsBrick,   40,  LEFT),
+                    (core_bricks.PropertiesBrick,     450, LEFT),
+                    (core_bricks.RelationsBrick,      500, LEFT),
+                    (bricks.PollCampaignRepliesBrick, 5,   RIGHT),
+                    (core_bricks.HistoryBrick,        20,  RIGHT),
+                ]
+            )
 
-            create_bdl_4_model(                               order=5,   zone=LEFT,  model=PollCampaign)
-            create_bdl(brick=core_bricks.CustomFieldsBrick,   order=40,  zone=LEFT,  model=PollCampaign)
-            create_bdl(brick=core_bricks.PropertiesBrick,     order=450, zone=LEFT,  model=PollCampaign)
-            create_bdl(brick=core_bricks.RelationsBrick,      order=500, zone=LEFT,  model=PollCampaign)
-            create_bdl(brick=bricks.PollCampaignRepliesBrick, order=5,   zone=RIGHT, model=PollCampaign)
-            create_bdl(brick=core_bricks.HistoryBrick,        order=20,  zone=RIGHT, model=PollCampaign)
-
-            create_bdl(brick=bricks.PersonPollRepliesBrick, order=500, zone=RIGHT, model=Contact)
-            create_bdl(brick=bricks.PersonPollRepliesBrick, order=500, zone=RIGHT, model=Organisation)
+            create_bdl(
+                brick=bricks.PersonPollRepliesBrick, order=500, zone=RIGHT, model=Contact,
+            )
+            create_bdl(
+                brick=bricks.PersonPollRepliesBrick, order=500, zone=RIGHT, model=Organisation,
+            )
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+                logger.info(
+                    'Assistants app is installed'
+                    ' => we use the assistants blocks on detail view'
+                )
 
-                from creme.assistants import bricks as a_bricks
+                from creme.assistants.bricks import (
+                    AlertsBrick,
+                    MemosBrick,
+                    TodosBrick,
+                    UserMessagesBrick,
+                )
 
                 for model in (PollForm, PollReply, PollCampaign):
-                    create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT, model=model)
+                    create_bdl(brick=TodosBrick,        order=100, zone=RIGHT, model=model)
+                    create_bdl(brick=MemosBrick,        order=200, zone=RIGHT, model=model)
+                    create_bdl(brick=AlertsBrick,       order=300, zone=RIGHT, model=model)
+                    create_bdl(brick=UserMessagesBrick, order=400, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed => we use the documents block on detail views')
+                # logger.info('Documents app is installed
+                # => we use the documents block on detail views')
 
                 from creme.documents.bricks import LinkedDocsBrick
 

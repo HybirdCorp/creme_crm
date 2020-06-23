@@ -64,7 +64,9 @@ class _FieldAddressForm(UnnamedAddressForm):
 
         # TODO: should be in the view ?
         field_name = self.field_name
-        if FieldsConfig.objects.get_for_model(self._entity.__class__).is_fieldname_hidden(field_name):
+        if FieldsConfig.objects.get_for_model(
+            self._entity.__class__
+        ).is_fieldname_hidden(field_name):
             raise ConflictError(f'"{field_name}" is hidden & so it cannot be edited')
 
     def save(self, *args, **kwargs):

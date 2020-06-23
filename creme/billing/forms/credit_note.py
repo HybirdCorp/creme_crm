@@ -56,15 +56,19 @@ class CreditNoteRelatedForm(base.CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.billing_document = entity
-        existing = Relation.objects.filter(subject_entity=entity.id, type=constants.REL_OBJ_CREDIT_NOTE_APPLIED)
+        existing = Relation.objects.filter(
+            subject_entity=entity.id, type=constants.REL_OBJ_CREDIT_NOTE_APPLIED,
+        )
 
-        # TODO waiting for automated change of status when a credit note is out of date by looking to expiration date
+        # TODO: waiting for automated change of status when a credit note is out
+        #       of date by looking to expiration date
         # TODO Add another filter today <= expiration_date ??
         q_filter = (
             ~Q(pk__in=[rel.object_entity_id for rel in existing]) &
             Q(
                 currency=entity.currency.id,
-                # status=CreditNoteStatus.objects.get(pk=ISSUED_CREDIT_NOTE).id, # TODO workflow status
+                # TODO: workflow status
+                # status=CreditNoteStatus.objects.get(pk=ISSUED_CREDIT_NOTE).id,
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
                 relations__object_entity=entity.get_real_entity().get_target().id,
             )

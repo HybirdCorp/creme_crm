@@ -223,7 +223,8 @@ class MailingListsTestCase(_EmailsTestCase):
         )
 
         # --------------------
-        response = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'})  # Invalid address
+        # Invalid address
+        response = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'})
         self.assertFormError(response, 'form', 'recipients', _('Enter a valid email address.'))
 
         # --------------------
@@ -256,7 +257,10 @@ class MailingListsTestCase(_EmailsTestCase):
         csvfile.name = 'recipients.csv'  # Django uses this
 
         self.assertNoFormError(self.client.post(url, data={'recipients': csvfile}))
-        self.assertEqual({recipient1, recipient2}, {r.address for r in mlist.emailrecipient_set.all()})
+        self.assertSetEqual(
+            {recipient1, recipient2},
+            {r.address for r in mlist.emailrecipient_set.all()}
+        )
 
         csvfile.close()
 
@@ -359,8 +363,8 @@ class MailingListsTestCase(_EmailsTestCase):
 
         create = partial(Contact.objects.create, user=user)
         create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
-        create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
-        create(first_name='Ed',    last_name='Wong',    email='ed.wong@bebop.com', is_deleted=True),
+        create(first_name='Jet', last_name='Black', email='jet.black@bebop.com'),
+        create(first_name='Ed', last_name='Wong', email='ed.wong@bebop.com', is_deleted=True),
         self.assertNoFormError(self.client.post(url, data={}))
 
         contacts = {*Contact.objects.filter(is_deleted=False)}
@@ -654,7 +658,9 @@ class MailingListsTestCase(_EmailsTestCase):
         parents_error = _('List already in the parents')
         self.assertFormError(post(mlist02, mlist01), 'form', 'child', parents_error)
         self.assertFormError(post(mlist03, mlist01), 'form', 'child', parents_error)
-        self.assertFormError(post(mlist01, mlist01), 'form', 'child', _("A list can't be its own child"))
+        self.assertFormError(
+            post(mlist01, mlist01), 'form', 'child', _("A list can't be its own child")
+        )
 
     def test_ml_tree03(self):
         "Not a MailingList."

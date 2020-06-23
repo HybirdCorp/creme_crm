@@ -74,7 +74,8 @@ def mass_import(request, ct_id):
         if step == 0:
             if form.is_valid():
                 cleaned_data = form.cleaned_data
-                # TODO: import_form_registry as attribute is the future CBV + pass it as argument here
+                # TODO: import_form_registry as attribute is the future CBV
+                #       + pass it as argument here
                 ImportForm = form_factory(ct, form.header)
                 form = ImportForm(
                     user=user,
@@ -170,8 +171,9 @@ def download_errors(request, job_id):
     for job_result in MassImportJobResult.objects.filter(job=job) \
                                                  .exclude(raw_messages=None):  # TODO: '' too ?
         writerow(
-            [*(smart_str(i) for i in job_result.line),
-             smart_str('/'.join(job_result.messages)),
+            [
+                *(smart_str(i) for i in job_result.line),
+                smart_str('/'.join(job_result.messages)),
             ]
         )
 

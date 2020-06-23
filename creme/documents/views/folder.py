@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -122,7 +122,10 @@ class FoldersList(generic.EntitiesList):
                 try:
                     parent_id = int(parent_id)
                 except (ValueError, TypeError):
-                    logger.warning('Folder.listview(): invalid "parent_id" parameter: %s', parent_id)
+                    logger.warning(
+                        'Folder.listview(): invalid "parent_id" parameter: %s',
+                        parent_id,
+                    )
                 else:
                     parent = get_object_or_404(Folder, pk=parent_id)
                     request.user.has_perm_to_view_or_die(parent)

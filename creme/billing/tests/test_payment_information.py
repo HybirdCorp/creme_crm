@@ -53,7 +53,9 @@ class PaymentInformationTestCase(_BillingTestCase):
 
     def test_createview02(self):
         organisation = Organisation.objects.create(user=self.user, name='Nintendo')
-        first_pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1', is_default=True)
+        first_pi = PaymentInformation.objects.create(
+            organisation=organisation, name='RIB 1', is_default=True,
+        )
 
         url = self._build_add_url(organisation)
         self.assertGET200(url)
@@ -112,7 +114,9 @@ class PaymentInformationTestCase(_BillingTestCase):
         orga2 = create_orga(name='Sega')
 
         create_pi = PaymentInformation.objects.create
-        __    = create_pi(organisation=orga2, name='RIB 1', is_default=True)  # First if no filter by organisation
+        # First if no filter by organisation
+        create_pi(organisation=orga2, name='RIB 1', is_default=True)
+
         pi_11 = create_pi(organisation=orga1, name='RIB 1', is_default=True)
         pi_12 = create_pi(organisation=orga1, name='RIB 2', is_default=False)
 
@@ -208,18 +212,20 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertPOST200(self._build_setdefault_url(pi_sony, invoice))
 
         currency = Currency.objects.all()[0]
-        response = self.client.post(invoice.get_edit_absolute_url(), follow=True,
-                                    data={'user':            self.user.pk,
-                                          'name':            'Dreamcast',
-                                          'issuing_date':    '2010-9-7',
-                                          'expiration_date': '2010-10-13',
-                                          'status':          1,
-                                          'currency':        currency.pk,
-                                          'discount':        Decimal(),
-                                          'source':          sega.id,
-                                          'target':          self.formfield_value_generic_entity(nintendo_target),
-                                         }
-                                   )
+        response = self.client.post(
+            invoice.get_edit_absolute_url(), follow=True,
+            data={
+                'user':            self.user.pk,
+                'name':            'Dreamcast',
+                'issuing_date':    '2010-9-7',
+                'expiration_date': '2010-10-13',
+                'status':          1,
+                'currency':        currency.pk,
+                'discount':        Decimal(),
+                'source':          sega.id,
+                'target':          self.formfield_value_generic_entity(nintendo_target),
+            },
+        )
         self.assertNoFormError(response)
         self.assertIsNone(self.refresh(invoice).payment_info)
 

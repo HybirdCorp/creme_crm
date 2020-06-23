@@ -55,8 +55,14 @@ class RelationViewsTestCase(ViewsTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertIsInstance(json_data, list)
         self.assertEqual(2, len(json_data))
-        self.assertIn([get_ct(FakeContact).id, str(FakeContact._meta.verbose_name)], json_data)
-        self.assertIn([get_ct(FakeOrganisation).id, str(FakeOrganisation._meta.verbose_name)], json_data)
+        self.assertIn(
+            [get_ct(FakeContact).id, str(FakeContact._meta.verbose_name)],
+            json_data
+        )
+        self.assertIn(
+            [get_ct(FakeOrganisation).id, str(FakeOrganisation._meta.verbose_name)],
+            json_data
+        )
 
     def test_get_ctypes_of_relation02(self):
         self.login()
@@ -335,7 +341,9 @@ class RelationViewsTestCase(ViewsTestCase):
         self._aux_test_add_relations()
 
         rtype01 = self.rtype01
-        response = self.client.get(self._build_add_url(self.subject01), data={'exclude': [rtype01.id]})
+        response = self.client.get(
+            self._build_add_url(self.subject01), data={'exclude': [rtype01.id]},
+        )
 
         with self.assertNoException():
             rtypes = response.context['form'].fields['relations'].allowed_rtypes
@@ -351,12 +359,15 @@ class RelationViewsTestCase(ViewsTestCase):
 
         # Constraint OK & KO
         create_rtype = RelationType.create
-        rtype03 = create_rtype(('test-subject_foobar3', 'is hating orga',     [FakeContact]),
-                               ('test-object_foobar3',  '(orga) is hated by', [FakeOrganisation]),
-                              )[0]
-        rtype04 = create_rtype(('test-subject_foobar4', 'has fired', [FakeOrganisation]),  # The subject cannot be a Contact
-                               ('test-object_foobar4',  'has been fired by')
-                              )[0]
+        rtype03 = create_rtype(
+            ('test-subject_foobar3', 'is hating orga',     [FakeContact]),
+            ('test-object_foobar3',  '(orga) is hated by', [FakeOrganisation]),
+        )[0]
+        rtype04 = create_rtype(
+            # The subject cannot be a Contact
+            ('test-subject_foobar4', 'has fired', [FakeOrganisation]),
+            ('test-object_foobar4',  'has been fired by')
+        )[0]
 
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(predicate='Related to "object01"',
@@ -384,7 +395,9 @@ class RelationViewsTestCase(ViewsTestCase):
                              [*semifixed_rtypes.choices]
                             )
 
-        self.assertNoFormError(self.client.post(url, data={'semifixed_rtypes': [sfrt1.id, sfrt2.id]}))
+        self.assertNoFormError(
+            self.client.post(url, data={'semifixed_rtypes': [sfrt1.id, sfrt2.id]})
+        )
         self.assertEqual(2, subject.relations.count())
         self.assertEntiTyHasRelation(subject, self.rtype01, self.object01)
         self.assertEntiTyHasRelation(subject, self.rtype02, self.object02)
@@ -718,7 +731,9 @@ class RelationViewsTestCase(ViewsTestCase):
             object_entity=self.object02,
         )
         ct_id = self.ct_id
-        response = self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True))
+        response = self.assertGET200(
+            self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True)
+        )
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
@@ -754,7 +769,9 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertFalse(self.user.has_perm_to_view(unviewable))
 
         ct_id = self.ct_id
-        response = self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, unviewable, GET=True))
+        response = self.assertGET200(
+            self._build_bulk_add_url(ct_id, self.subject01, unviewable, GET=True)
+        )
 
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
@@ -997,7 +1014,9 @@ class RelationViewsTestCase(ViewsTestCase):
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is lovable')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is a girl')
 
-        contact04 = FakeContact.objects.create(user=self.user, first_name='Flonne', last_name='Angel')
+        contact04 = FakeContact.objects.create(
+            user=self.user, first_name='Flonne', last_name='Angel',
+        )
 
         # 'contact02' will not be proposed by the list-view
         create_property = CremeProperty.objects.create
@@ -1077,15 +1096,18 @@ class RelationViewsTestCase(ViewsTestCase):
         self.login()
         self._aux_add_relations_with_same_type()
 
-        self.assertPOST404(self.ADD_FROM_PRED_URL,
-                           data={'subject_id':   self.subject.id,
-                                 'predicate_id': self.rtype.id,
-                                 'entities':     [self.object01.id,
-                                                  self.object02.id,
-                                                  self.object02.id + 1,
-                                                 ],
-                                }
-                          )
+        self.assertPOST404(
+            self.ADD_FROM_PRED_URL,
+            data={
+                'subject_id':   self.subject.id,
+                'predicate_id': self.rtype.id,
+                'entities':     [
+                    self.object01.id,
+                    self.object02.id,
+                    self.object02.id + 1,
+                ],
+            },
+        )
         self.assertEqual(2, Relation.objects.filter(type=self.rtype).count())
 
     def test_add_relations_with_same_type03(self):
@@ -1384,12 +1406,21 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertEqual(8, Relation.objects.count())
 
-        self.assertDeleteSimilar(status=404, subject=self.UNUSED_PK,   rtype=rtype01, object=object_entity01)
-        self.assertDeleteSimilar(status=404, subject=subject_entity01, rtype=rtype01, object=self.UNUSED_PK)
+        self.assertDeleteSimilar(
+            status=404, subject=self.UNUSED_PK,   rtype=rtype01, object=object_entity01,
+        )
+        self.assertDeleteSimilar(
+            status=404, subject=subject_entity01, rtype=rtype01, object=self.UNUSED_PK,
+        )
 
-        self.assertDeleteSimilar(status=200, subject=subject_entity01, rtype=rtype01, object=object_entity01)
+        self.assertDeleteSimilar(
+            status=200, subject=subject_entity01, rtype=rtype01, object=object_entity01,
+        )
         self.assertDoesNotExist(relation01)
-        self.assertEqual(3, Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
+        self.assertEqual(
+            3,
+            Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count(),
+        )
 
     def test_delete_similar02(self):
         user = self.login(is_superuser=False)
@@ -1430,7 +1461,9 @@ class RelationViewsTestCase(ViewsTestCase):
                                            object_entity=object_entity,
                                           )
 
-        self.assertDeleteSimilar(status=404, subject=subject_entity, rtype=rtype, object=object_entity)
+        self.assertDeleteSimilar(
+            status=404, subject=subject_entity, rtype=rtype, object=object_entity,
+        )
         self.assertStillExists(relation)
 
     # def _aux_test_delete_all(self):
@@ -1561,9 +1594,10 @@ class RelationViewsTestCase(ViewsTestCase):
     #                                   ('test-object_JSP01_2',  'Predicate#2'),
     #                                   is_internal=True,
     #                                  )
-    #     rtype3, rtype4 = create_rtype(('test-subject__JSP01_3', 'Predicate#3', [FakeContact, FakeOrganisation]),
-    #                                   ('test-object__JSP01_4',  'Predicate#4', [FakeActivity]),
-    #                                  )
+    #     rtype3, rtype4 = create_rtype(
+    #          ('test-subject__JSP01_3', 'Predicate#3', [FakeContact, FakeOrganisation]),
+    #          ('test-object__JSP01_4',  'Predicate#4', [FakeActivity]),
+    #     )
     #     rtype5, rtype6 = create_rtype(('test-subject__JSP01_5', 'Predicate#5'),
     #                                   ('test-object__JSP01_6',  'Predicate#6', [FakeContact]),
     #                                  )

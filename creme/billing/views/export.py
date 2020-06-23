@@ -104,7 +104,9 @@ def export_as_pdf(request, base_id):
                         'so you can inspect the *.log file in "%s"', tmp_dir_path
                        )
         # TODO: use a better exception class ?
-        raise ConflictError(_('The generation of the PDF file has failed ; please contact your administrator.'))
+        raise ConflictError(
+            _('The generation of the PDF file has failed ; please contact your administrator.')
+        )
 
     final_path = FileCreator(dir_path=path.join(settings.MEDIA_ROOT, 'upload', 'billing'),
                              name=pdf_basename,

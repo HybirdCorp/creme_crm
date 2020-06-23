@@ -67,26 +67,38 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         Service = products.get_service_model()
 
         self.assertNotIn(constants.REL_SUB_TARGETS, relation_types)
-        self.get_relationtype_or_fail(constants.REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_TARGETS, [Opportunity], [Contact, Organisation],
+        )
 
         self.assertNotIn(constants.REL_SUB_EMIT_ORGA, relation_types)
-        self.get_relationtype_or_fail(constants.REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
+        self.get_relationtype_or_fail(
+            constants.REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation],
+        )
 
         self.assertIn(constants.REL_OBJ_LINKED_PRODUCT, relation_types)
         self.assertNotIn(constants.REL_SUB_LINKED_PRODUCT, relation_types)
-        self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product])
+        self.get_relationtype_or_fail(
+            constants.REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product],
+        )
 
         self.assertIn(constants.REL_OBJ_LINKED_SERVICE, relation_types)
         self.assertNotIn(constants.REL_SUB_LINKED_SERVICE, relation_types)
-        self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_SERVICE, [Opportunity], [Service])
+        self.get_relationtype_or_fail(
+            constants.REL_OBJ_LINKED_SERVICE, [Opportunity], [Service],
+        )
 
         self.assertIn(constants.REL_OBJ_LINKED_CONTACT, relation_types)
         self.assertNotIn(constants.REL_SUB_LINKED_CONTACT, relation_types)
-        self.get_relationtype_or_fail(constants.REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact])
+        self.get_relationtype_or_fail(
+            constants.REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact],
+        )
 
         self.assertIn(constants.REL_OBJ_RESPONSIBLE, relation_types)
         self.assertNotIn(constants.REL_SUB_RESPONSIBLE, relation_types)
-        self.get_relationtype_or_fail(constants.REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
+        self.get_relationtype_or_fail(
+            constants.REL_OBJ_RESPONSIBLE, [Opportunity], [Contact],
+        )
 
         self.assertTrue(SalesPhase.objects.exists())
         self.assertTrue(Origin.objects.exists())
@@ -117,18 +129,20 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         target, emitter = self._create_target_n_emitter()
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post(url, follow=True,
-                                    data={'user':                  user.pk,
-                                          'name':                  name,
-                                          'sales_phase':           phase.id,
-                                          'expected_closing_date': '2010-9-20',
-                                          'closing_date':          '2010-10-11',
-                                          'target':                self.formfield_value_generic_entity(target),
-                                          'emitter':               emitter.id,
-                                          'first_action_date':     '2010-7-13',
-                                          'currency':              DEFAULT_CURRENCY_PK,
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':                  user.pk,
+                'name':                  name,
+                'sales_phase':           phase.id,
+                'expected_closing_date': '2010-9-20',
+                'closing_date':          '2010-10-11',
+                'target':                self.formfield_value_generic_entity(target),
+                'emitter':               emitter.id,
+                'first_action_date':     '2010-7-13',
+                'currency':              DEFAULT_CURRENCY_PK,
+            },
+        )
         self.assertNoFormError(response)
 
         opportunity =  self.get_object_or_fail(Opportunity, name=name)
@@ -156,18 +170,20 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         target, emitter = self._create_target_n_emitter()
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user':                  user.pk,
-                                          'name':                  name,
-                                          'sales_phase':           phase.id,
-                                          'expected_closing_date': '2010-9-20',
-                                          'closing_date':          '2010-10-11',
-                                          'target':                self.formfield_value_generic_entity(target),
-                                          'emitter':               emitter.id,
-                                          'first_action_date':     '2010-7-13',
-                                          'currency':              DEFAULT_CURRENCY_PK,
-                                         }
-                                   )
+        response = self.client.post(
+            self.ADD_URL, follow=True,
+            data={
+                'user':                  user.pk,
+                'name':                  name,
+                'sales_phase':           phase.id,
+                'expected_closing_date': '2010-9-20',
+                'closing_date':          '2010-10-11',
+                'target':                self.formfield_value_generic_entity(target),
+                'emitter':               emitter.id,
+                'first_action_date':     '2010-7-13',
+                'currency':              DEFAULT_CURRENCY_PK,
+            }
+        )
         self.assertNoFormError(response)
 
         opportunity =  self.get_object_or_fail(Opportunity, name=name)
@@ -198,49 +214,62 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user':                  user.pk,
-                                          'name':                  name,
-                                          'sales_phase':           phase.id,
-                                          'expected_closing_date': '2010-9-20',
-                                          'closing_date':          '2010-10-11',
-                                          'target':                self.formfield_value_generic_entity(target),
-                                          'emitter':               emitter.id,
-                                          'first_action_date':     '2010-7-13',
-                                          'currency':              DEFAULT_CURRENCY_PK,
-                                         }
-                                   )
-        self.assertFormError(response, 'form', 'target', _('This content type is not allowed.'))
-        self.assertFormError(response, 'form', 'emitter',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        response = self.client.post(
+            self.ADD_URL, follow=True,
+            data={
+                'user':                  user.pk,
+                'name':                  name,
+                'sales_phase':           phase.id,
+                'expected_closing_date': '2010-9-20',
+                'closing_date':          '2010-10-11',
+                'target':                self.formfield_value_generic_entity(target),
+                'emitter':               emitter.id,
+                'first_action_date':     '2010-7-13',
+                'currency':              DEFAULT_CURRENCY_PK,
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'target', _('This content type is not allowed.')
+        )
+        self.assertFormError(
+            response, 'form', 'emitter',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
         self.assertRaises(Opportunity.DoesNotExist, Opportunity.objects.get, name=name)
 
     @skipIfCustomOrganisation
     def test_createview04(self):
-        "LINK credentials error"
-        self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
+        "LINK credentials error."
+        self.login(
+            is_superuser=False,
+            allowed_apps=['opportunities'],
+            creatable_models=[Opportunity],
+        )
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # Not LINK
             set_type=SetCredentials.ESET_OWN
         )
 
         target, emitter = self._create_target_n_emitter()
-        response = self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'user':         self.user.pk,
-                                            'name':         'My opportunity',
-                                            'sales_phase':  SalesPhase.objects.all()[0].id,
-                                            'closing_date': '2011-03-14',
-                                            'target':       self.formfield_value_generic_entity(target),
-                                            'emitter':      emitter.id,
-                                            'currency':     DEFAULT_CURRENCY_PK,
-                                           }
-                                     )
+        response = self.assertPOST200(
+            self.ADD_URL, follow=True,
+            data={
+                'user':         self.user.pk,
+                'name':         'My opportunity',
+                'sales_phase':  SalesPhase.objects.all()[0].id,
+                'closing_date': '2011-03-14',
+                'target':       self.formfield_value_generic_entity(target),
+                'emitter':      emitter.id,
+                'currency':     DEFAULT_CURRENCY_PK,
+            },
+        )
 
         fmt1 = _('You are not allowed to link this entity: {}').format
         fmt2 = _('Entity #{id} (not viewable)').format
@@ -253,18 +282,21 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.login()
 
         target, emitter = self._create_target_n_emitter(managed=False)
-        response = self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'user':         self.user.pk,
-                                            'name':         'My opportunity',
-                                            'sales_phase':  SalesPhase.objects.all()[0].id,
-                                            'closing_date': '2011-03-14',
-                                            'target':       self.formfield_value_generic_entity(target),
-                                            'emitter':      emitter.id,
-                                            }
-                                     )
-        self.assertFormError(response, 'form', 'emitter',
-                             _('Select a valid choice. That choice is not one of the available choices.')
-                            )
+        response = self.assertPOST200(
+            self.ADD_URL, follow=True,
+            data={
+                'user':         self.user.pk,
+                'name':         'My opportunity',
+                'sales_phase':  SalesPhase.objects.all()[0].id,
+                'closing_date': '2011-03-14',
+                'target':       self.formfield_value_generic_entity(target),
+                'emitter':      emitter.id,
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'emitter',
+            _('Select a valid choice. That choice is not one of the available choices.')
+        )
 
     @skipIfCustomOrganisation
     def test_add_to_orga01(self):
@@ -333,9 +365,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        self.assertEqual(_('New opportunity targeting «{entity}»').format(entity=target),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New opportunity targeting «{entity}»').format(entity=target),
+            context.get('title')
+        )
         self.assertEqual(Opportunity.save_label, context.get('submit_label'))
 
         get_initial = context['form'].initial.get
@@ -366,13 +399,19 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_add_to_orga03(self):
         "Try to add with wrong credentials (no link credentials)."
-        self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
+        self.login(
+            is_superuser=False,
+            allowed_apps=['opportunities'],
+            creatable_models=[Opportunity],
+        )
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # Not LINK
             set_type=SetCredentials.ESET_OWN
         )
@@ -388,7 +427,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                          )
         SetCredentials.objects.create(
             role=self.role,
-            value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL
         )
 
@@ -528,20 +567,26 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         name = name.title()
         reference = '1256'
         phase = SalesPhase.objects.all()[1]
-        currency = Currency.objects.create(name='Oolong', local_symbol='0', international_symbol='OOL')
-        target_rel = self.get_object_or_fail(Relation, subject_entity=opp.id, object_entity=target.id)
-        response = self.client.post(url, follow=True,
-                                    data={'user':                  user.pk,
-                                          'name':                  name,
-                                          'reference':             reference,
-                                          'sales_phase':           phase.id,
-                                          'expected_closing_date': '2011-4-26',
-                                          'closing_date':          '2011-5-15',
-                                          'first_action_date':     '2011-5-1',
-                                          'currency':              currency.id,
-                                          'target':                self.formfield_value_generic_entity(target),
-                                         }
-                                   )
+        currency = Currency.objects.create(
+            name='Oolong', local_symbol='0', international_symbol='OOL',
+        )
+        target_rel = self.get_object_or_fail(
+            Relation, subject_entity=opp.id, object_entity=target.id,
+        )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':                  user.pk,
+                'name':                  name,
+                'reference':             reference,
+                'sales_phase':           phase.id,
+                'expected_closing_date': '2011-4-26',
+                'closing_date':          '2011-5-15',
+                'first_action_date':     '2011-5-1',
+                'currency':              currency.id,
+                'target':                self.formfield_value_generic_entity(target),
+            },
+        )
         self.assertNoFormError(response)
 
         opp = self.refresh(opp)
@@ -569,18 +614,20 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         target_rel = self.get_object_or_fail(Relation, subject_entity=opp.id,
                                              object_entity=target1.id,
                                             )
-        response = self.client.post(opp.get_edit_absolute_url(), follow=True,
-                                    data={'user':                  user.pk,
-                                          'name':                  name,
-                                          'reference':             '1256',
-                                          'sales_phase':           opp.sales_phase_id,
-                                          'expected_closing_date': '2013-4-26',
-                                          'closing_date':          '2013-5-15',
-                                          'first_action_date':     '2013-5-1',
-                                          'currency':              opp.currency_id,
-                                          'target':                self.formfield_value_generic_entity(target2),
-                                         }
-                                   )
+        response = self.client.post(
+            opp.get_edit_absolute_url(), follow=True,
+            data={
+                'user':                  user.pk,
+                'name':                  name,
+                'reference':             '1256',
+                'sales_phase':           opp.sales_phase_id,
+                'expected_closing_date': '2013-4-26',
+                'closing_date':          '2013-5-15',
+                'first_action_date':     '2013-5-1',
+                'currency':              opp.currency_id,
+                'target':                self.formfield_value_generic_entity(target2),
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(target2, self.refresh(opp).target)
         self.assertDoesNotExist(target_rel)
@@ -695,7 +742,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     def test_delete_currency(self):
         user = self.login()
 
-        currency = Currency.objects.create(name='Berry', local_symbol='B', international_symbol='BRY')
+        currency = Currency.objects.create(
+            name='Berry', local_symbol='B', international_symbol='BRY',
+        )
 
         create_orga = partial(Organisation.objects.create, user=user)
         Opportunity.objects.create(user=user, name='Opp', currency=currency,

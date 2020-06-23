@@ -109,7 +109,8 @@ class BrickTestCaseMixin:
         button_node = buttons_node.find(f'.//a[@href="{url}"]')
         if button_node is None:
             self.fail(
-                'The <a> markup with href="{url}" has not been found (URLs found: {found}).'.format(
+                'The <a> markup with href="{url}" has not been found '
+                '(URLs found: {found}).'.format(
                     url=url,
                     found=', '.join(
                         '"{}"'.format(a.attrib.get('href'))

@@ -142,8 +142,9 @@ class EmailStatusSetting(generic.CheckedView):
         has_perm_or_die = user.has_perm_to_change_or_die
 
         with atomic():
-            for email in self.model.objects.filter(id__in=request.POST.getlist(self.email_ids_arg)) \
-                                           .select_for_update():
+            for email in self.model.objects.filter(
+                id__in=request.POST.getlist(self.email_ids_arg),
+            ).select_for_update():
                 try:
                     has_perm_or_die(email)
                 except PermissionDenied as e:

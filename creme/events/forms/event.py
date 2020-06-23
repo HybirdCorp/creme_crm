@@ -88,7 +88,8 @@ class AddContactsToEventForm(CremeForm):
         relations_field.initial = [(relations_field.allowed_rtypes.all()[0], None)]
 
     def clean_related_contacts(self):
-        # Because of the optimisations, the save() algo will be wrong with a contact that is present twice.
+        # Because of the optimisations, the save() algo will be wrong with a
+        # contact that is present twice.
         related_contacts = self.cleaned_data['related_contacts']
         contacts_set = set()
 
@@ -106,8 +107,8 @@ class AddContactsToEventForm(CremeForm):
 
     def save(self):
         # BEWARE: chosen contacts can have already relations with the event ;
-        #         we avoid several 'REL_OBJ_IS_INVITED_TO' relations,
-        #         'REL_OBJ_CAME_EVENT' override existing 'REL_OBJ_NOT_CAME_EVENT' relations etc...
+        #   we avoid several 'REL_OBJ_IS_INVITED_TO' relations,
+        #   'REL_OBJ_CAME_EVENT' override existing 'REL_OBJ_NOT_CAME_EVENT' relations etc...
         event = self.event
         user  = self.user
         relations = Relation.objects
@@ -129,7 +130,8 @@ class AddContactsToEventForm(CremeForm):
             relationtype_id = relationtype.id
             contact_relations = relations_map.get(contact.id, ())
 
-            if relationtype_id != constants.REL_OBJ_IS_INVITED_TO:  # => REL_OBJ_CAME_EVENT or REL_OBJ_NOT_CAME_EVENT
+            # REL_OBJ_CAME_EVENT or REL_OBJ_NOT_CAME_EVENT
+            if relationtype_id != constants.REL_OBJ_IS_INVITED_TO:
                 symmetric = _SYMMETRICS[relationtype_id]
                 rel2del = find_first(
                     contact_relations,
@@ -141,9 +143,9 @@ class AddContactsToEventForm(CremeForm):
                     relations2del.append(rel2del.id)
 
             if find_first(
-                contact_relations,
-                lambda relation: relation.type_id == relationtype_id,
-                None
+                    contact_relations,
+                    lambda relation: relation.type_id == relationtype_id,
+                    None
             ) is None:
                 create_relation(
                     subject_entity=event,

@@ -63,16 +63,21 @@ class Populator(BasePopulator):
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            BrickDetailviewLocation.objects.create_for_model_brick(order=5,   zone=LEFT, model=Report)
-            create_bdl(brick=core_bricks.CustomFieldsBrick,        order=40,  zone=LEFT)
-            create_bdl(brick=bricks.ReportFieldsBrick,             order=50,  zone=LEFT)
-            create_bdl(brick=bricks.ReportGraphsBrick,             order=60,  zone=LEFT)
-            create_bdl(brick=core_bricks.PropertiesBrick,          order=450, zone=LEFT)
-            create_bdl(brick=core_bricks.RelationsBrick,           order=500, zone=LEFT)
-            create_bdl(brick=core_bricks.HistoryBrick,             order=20,  zone=RIGHT)
+            BrickDetailviewLocation.objects.create_for_model_brick(
+                order=5, zone=LEFT, model=Report,
+            )
+            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT)
+            create_bdl(brick=bricks.ReportFieldsBrick,      order=50,  zone=LEFT)
+            create_bdl(brick=bricks.ReportGraphsBrick,      order=60,  zone=LEFT)
+            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT)
+            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT)
+            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT)
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+                logger.info(
+                    'Assistants app is installed'
+                    ' => we use the assistants blocks on detail view'
+                )
 
                 from creme.assistants import bricks as a_bricks
 
@@ -82,7 +87,8 @@ class Populator(BasePopulator):
                 create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT)
 
             if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed => we use the documents block on detail views')
+                # logger.info('Documents app is installed
+                # => we use the documents block on detail views')
 
                 from creme.documents.bricks import LinkedDocsBrick
 

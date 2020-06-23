@@ -218,7 +218,8 @@ class GraphsTestCase(CremeTestCase):
                          response['Content-Disposition']
                         )
 
-        _ = [*response.streaming_content]  # Consume stream to avoid error message "ResourceWarning: unclosed file..."
+        # Consume stream to avoid error message "ResourceWarning: unclosed file..."
+        _ = [*response.streaming_content]
 
     def test_add_rootnode(self):
         user = self.login()

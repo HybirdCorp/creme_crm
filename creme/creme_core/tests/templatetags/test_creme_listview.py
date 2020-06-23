@@ -39,7 +39,8 @@ class CremeListViewTagsTestCase(CremeTestCase):
             rendered = template.render(Context({'page': paginator.page(1)}))
 
         self.assertInHTML(
-            '<a class="pager-link is-disabled pager-link-previous" href="" title="" >{label}</a>'.format(
+            '<a class="pager-link is-disabled pager-link-previous" href="" '
+            'title="" >{label}</a>'.format(
                 label=_('Previous page'),
             ),
             rendered
@@ -51,7 +52,8 @@ class CremeListViewTagsTestCase(CremeTestCase):
         )
 
         self.assertInHTML(
-            '<a class="pager-link pager-link-next" href="" title="{help}" data-page="2">{label}</a>'.format(
+            '<a class="pager-link pager-link-next" href="" title="{help}" '
+            'data-page="2">{label}</a>'.format(
                 help=_('To page {}').format(2),
                 label=_('Next page'),
             ),
@@ -79,14 +81,16 @@ class CremeListViewTagsTestCase(CremeTestCase):
             }))
 
         self.assertInHTML(
-            '<a class="pager-link is-disabled pager-link-first" href="" title="{label}" >{label}</a>'.format(
+            '<a class="pager-link is-disabled pager-link-first" href="" '
+            'title="{label}" >{label}</a>'.format(
                 label=_('First page'),
             ),
             rendered
         )
 
         self.assertInHTML(
-            '<a class="pager-link is-disabled pager-link-previous" href="" title="{label}" >{label}</a>'.format(
+            '<a class="pager-link is-disabled pager-link-previous" href="" '
+            'title="{label}" >{label}</a>'.format(
                 label=_('Previous page')
             ),
             rendered

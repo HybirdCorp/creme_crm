@@ -46,13 +46,21 @@ class _ImprintManager:
         return self._granularities.get(model)
 
     def create_imprint(self, entity: CremeEntity, user) -> Optional[Imprint]:
-        # NB: there can be some data race, & so create 2 lines when only 1 should be better,
-        #     but it's not a real issue (we could fix the data it in the brick, to avoid additional query here).
+        # NB: there can be some data race, & so create 2 lines when only 1
+        #     should be better, but it's not a real issue (we could fix the data
+        #     it in the brick, to avoid additional query here).
         granularity = self.get_granularity(entity.__class__)
 
-        # Imprint.objects.filter(entity=entity, user=user, date__gt=Now() - granularity).exists() => does not work on MySQL ? (PG not tested)
-        if granularity is not None and \
-           not Imprint.objects.filter(entity=entity, user=user, date__gt=now() - granularity).exists():
+        if (
+            granularity is not None
+            and not Imprint.objects.filter(
+                entity=entity,
+                user=user,
+                # NB: date__gt=Now() - granularity
+                #   => does not work on MySQL ? (PG not tested)
+                date__gt=now() - granularity,
+            ).exists()
+        ):
             return Imprint.objects.create(entity=entity, user=user)
 
         return None

@@ -46,8 +46,6 @@ from creme.documents.models import fields as doc_fields
 from ..backends.models import CrudityBackend
 from ..utils import generate_guid_for_field
 
-# Don't forget to include xml templates when generating locales !! (django-admin.py makemessages -l fr -e html,xml)
-
 logger = logging.getLogger(__name__)
 Document = get_document_model()
 
@@ -66,48 +64,58 @@ def get_element_template(element_type, template_name):
     return f'crudity/infopath/create_template/frags/{element_type}/element/{template_name}'
 
 
-# TODO: use functools.partial
 # TODO: use ClassKeyedMap
 _ELEMENT_TEMPLATE = {
-    models.AutoField:                  get_none,
-    models.BooleanField:               lambda element_type: get_element_template(element_type, 'boolean_field.xml'),
-    models.CharField:                  lambda element_type: get_element_template(element_type, 'string_field.xml'),
+    models.AutoField: get_none,
+    models.BooleanField: partial(get_element_template, template_name='boolean_field.xml'),
+    models.CharField: partial(get_element_template, template_name='string_field.xml'),
     models.CommaSeparatedIntegerField: get_none,
-    models.DateField:                  lambda element_type: get_element_template(element_type, 'date_field.xml'),
-    models.DateTimeField:              lambda element_type: get_element_template(element_type, 'datetime_field.xml'),
-    models.DecimalField:               lambda element_type: get_element_template(element_type, 'decimal_field.xml'),
-    models.EmailField:                 lambda element_type: get_element_template(element_type, 'string_field.xml'),
-    models.FileField:                  lambda element_type: get_element_template(element_type, 'foreignkey_field.xml'),
-    models.FilePathField:              get_none,
-    models.FloatField:                 lambda element_type: get_element_template(element_type, 'decimal_field.xml'),
-    models.ImageField:                 lambda element_type: get_element_template(element_type, 'foreignkey_field.xml'),
-    models.IntegerField:               lambda element_type: get_element_template(element_type, 'integer_field.xml'),
-    models.IPAddressField:             get_none,
-    models.NullBooleanField:           lambda element_type: get_element_template(element_type, 'boolean_field.xml'),
-    models.PositiveIntegerField:       lambda element_type: get_element_template(element_type, 'integer_field.xml'),
-    models.PositiveSmallIntegerField:  lambda element_type: get_element_template(element_type, 'integer_field.xml'),
-    models.SlugField:                  lambda element_type: get_element_template(element_type, 'string_field.xml'),
-    models.SmallIntegerField:          lambda element_type: get_element_template(element_type, 'integer_field.xml'),
-    models.TextField:                  lambda element_type: get_element_template(element_type, 'text_field.xml'),
-    models.TimeField:                  lambda element_type: get_element_template(element_type, 'time_field.xml'),
-    models.URLField:                   lambda element_type: get_element_template(element_type, 'url_field.xml'),
-    models.ForeignKey:                 lambda element_type: get_element_template(element_type, 'foreignkey_field.xml'),
-    models.ManyToManyField:            lambda element_type: get_element_template(element_type, 'm2m_field.xml'),
-    models.OneToOneField:              get_none,
+    models.DateField: partial(get_element_template, template_name='date_field.xml'),
+    models.DateTimeField: partial(get_element_template, template_name='datetime_field.xml'),
+    models.DecimalField: partial(get_element_template, template_name='decimal_field.xml'),
+    models.EmailField: partial(get_element_template, template_name='string_field.xml'),
+    models.FileField: partial(get_element_template, template_name='foreignkey_field.xml'),
+    models.FilePathField: get_none,
+    models.FloatField: partial(get_element_template, template_name='decimal_field.xml'),
+    models.ImageField: partial(get_element_template, template_name='foreignkey_field.xml'),
+    models.IntegerField: partial(get_element_template, template_name='integer_field.xml'),
+    models.IPAddressField: get_none,
+    models.NullBooleanField: partial(get_element_template, template_name='boolean_field.xml'),
+    models.PositiveIntegerField: partial(get_element_template, template_name='integer_field.xml'),
+    models.PositiveSmallIntegerField: partial(
+        get_element_template, template_name='integer_field.xml',
+    ),
+    models.SlugField: partial(get_element_template, template_name='string_field.xml'),
+    models.SmallIntegerField: partial(get_element_template, template_name='integer_field.xml'),
+    models.TextField: partial(get_element_template, template_name='text_field.xml'),
+    models.TimeField: partial(get_element_template, template_name='time_field.xml'),
+    models.URLField: partial(get_element_template, template_name='url_field.xml'),
+    models.ForeignKey: partial(get_element_template, template_name='foreignkey_field.xml'),
+    models.ManyToManyField: partial(get_element_template, template_name='m2m_field.xml'),
+    models.OneToOneField: get_none,
 
-    fields.PhoneField:                 lambda element_type: get_element_template(element_type, 'string_field.xml'),
-    fields.DurationField:              get_none,
-    fields.ModificationDateTimeField:  lambda element_type: get_element_template(element_type, 'datetime_field.xml'),
-    fields.CreationDateTimeField:      lambda element_type: get_element_template(element_type, 'datetime_field.xml'),
-    fields.CremeUserForeignKey:        lambda element_type: get_element_template(element_type, 'integer_field.xml'),
+    fields.PhoneField: partial(get_element_template, template_name='string_field.xml'),
+    fields.DurationField: get_none,
+    fields.ModificationDateTimeField: partial(
+        get_element_template, template_name='datetime_field.xml'
+    ),
+    fields.CreationDateTimeField: partial(
+        get_element_template, template_name='datetime_field.xml',
+    ),
+    fields.CremeUserForeignKey: partial(get_element_template, template_name='integer_field.xml'),
 
     # TODO: remove when ClassKeyedMap is used
-    doc_fields.ImageEntityForeignKey:      lambda element_type: get_element_template(element_type, 'foreignkey_field.xml'),
-    doc_fields.ImageEntityManyToManyField: lambda element_type: get_element_template(element_type, 'm2m_field.xml'),
+    doc_fields.ImageEntityForeignKey: partial(
+        get_element_template, template_name='foreignkey_field.xml',
+    ),
+    doc_fields.ImageEntityManyToManyField: partial(
+        get_element_template, template_name='m2m_field.xml',
+    ),
 }
 
 XSL_VIEW_FIELDS_TEMPLATES_PATH = 'crudity/infopath/create_template/frags/xsl/view/{}.xml'
-_TEMPLATE_NILLABLE_TYPES: Tuple[Type[Field], ...] = (  # Types which could be nil="true" in template.xml
+# Types which could be nil="true" in template.xml
+_TEMPLATE_NILLABLE_TYPES: Tuple[Type[Field], ...] = (
     models.DecimalField,
     models.IntegerField,
     models.TimeField,
@@ -151,7 +159,10 @@ class InfopathFormField:
 
         element_builder = _ELEMENT_TEMPLATE.get(field_type)
         if element_builder is None:
-            logger.warning('The field "%s" has a type which is not managed (%s)', model_field, field_type)
+            logger.warning(
+                'The field "%s" has a type which is not managed (%s)',
+                model_field, field_type,
+            )
             return None
 
         template_name = element_builder(element_type)
@@ -171,10 +182,10 @@ class InfopathFormField:
     def _get_validation(self) -> List[str]:  # TODO: Could be cool to match django validators
         validation = []
         if isinstance(self.model_field, EmailField):
-            validation.append(render_to_string('crudity/infopath/create_template/frags/validation/email_field.xml',
-                                               {'field': self}, request=self.request,
-                                              )
-                             )
+            validation.append(render_to_string(
+                'crudity/infopath/create_template/frags/validation/email_field.xml',
+                {'field': self}, request=self.request,
+            ))
 
         return validation
 
@@ -203,10 +214,14 @@ class InfopathFormField:
         elif isinstance(model_field, models.ManyToManyField):
             template_name = 'crudity/infopath/create_template/frags/editing/m2m_field.xml'
 
-        return render_to_string(template_name, tpl_dict, request=self.request) if template_name is not None else None
+        return render_to_string(
+            template_name, tpl_dict, request=self.request,
+        ) if template_name is not None else None
 
     def get_view_element(self) -> str:
-        template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH.format(self.model_field.get_internal_type())
+        template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH.format(
+            self.model_field.get_internal_type()
+        )
         try:
             return render_to_string(template_name,
                                     {'field': self,
@@ -286,8 +301,10 @@ class InfopathFormBuilder:
     @property
     def fields(self) -> List[InfopathFormField]:
         if self._fields is None:
-            backend      = self.backend
-            build_field  = partial(InfopathFormField, self.urn, backend.model, request=self.request)
+            backend = self.backend
+            build_field = partial(
+                InfopathFormField, self.urn, backend.model, request=self.request,
+            )
             self._fields = [
                 build_field(field_name)
                 for field_name in backend.body_map
@@ -323,7 +340,8 @@ class InfopathFormBuilder:
             copy2 = shutil.copy2
 
             crudity_media_path = path_join(
-                settings.CREME_ROOT, 'crudity', 'templates', 'crudity', 'infopath', 'create_template',
+                settings.CREME_ROOT,
+                'crudity', 'templates', 'crudity', 'infopath', 'create_template',
             )
 
             for name in media_files:
@@ -341,21 +359,24 @@ class InfopathFormBuilder:
             infopath_form_filepath = path_join(backend_path, file_name)
 
             if sys.platform.startswith('win'):
-                ddf_file_content = render_to_string('crudity/infopath/create_template/create_cab.ddf',
-                                                    {'file_name':    file_name,
-                                                     'backend_path': backend_path,
-                                                    },
-                                                    request=request,
-                                                   )
+                ddf_file_content = render_to_string(
+                    'crudity/infopath/create_template/create_cab.ddf',
+                    {
+                        'file_name':    file_name,
+                        'backend_path': backend_path,
+                    },
+                    request=request,
+                )
 
                 ddf_path = path_join(backend_path, 'create_cab.ddf')
                 with open(ddf_path, 'wb') as f:
                     f.write(ddf_file_content)
 
-                cabify_content = render_to_string('crudity/infopath/create_template/cabify.bat',
-                                                  {'ddf_path': ddf_path},
-                                                  request=request,
-                                                 )
+                cabify_content = render_to_string(
+                    'crudity/infopath/create_template/cabify.bat',
+                    {'ddf_path': ddf_path},
+                    request=request,
+                )
 
                 cabify_path = path_join(backend_path, 'cabify.bat')
                 with open(cabify_path, 'wb') as f:
@@ -375,8 +396,12 @@ class InfopathFormBuilder:
                 shutil.rmtree(backend_path)
 
     def render(self) -> HttpResponse:
-        file_name = '{}.xsn'.format(secure_filename(CrudityBackend.normalize_subject(self.backend.subject)))
-        response = HttpResponse(self._render(file_name), content_type='application/vnd.ms-infopath')
+        file_name = '{}.xsn'.format(
+            secure_filename(CrudityBackend.normalize_subject(self.backend.subject))
+        )
+        response = HttpResponse(
+            self._render(file_name), content_type='application/vnd.ms-infopath',
+        )
         response['Content-Disposition'] = f'attachment; filename={file_name}'
 
         return response

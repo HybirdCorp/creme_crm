@@ -172,9 +172,10 @@ def bricks_render_info(request, bricks, context=None,
             brick.reloading_info = reloading_info
 
         # brick_render = brick_render_function(brick, context=context)
-        # NB: the context is copied is order to a 'fresh' one for each brick, & so avoid annoying side-effects
-        # Notice that build_context() creates a shared dictionary with the "shared" key in order to explicitly
-        # share data between 2+ bricks.
+        # NB: the context is copied is order to a 'fresh' one for each brick,
+        # & so avoid annoying side-effects
+        # Notice that build_context() creates a shared dictionary with the
+        # "shared" key in order to explicitly share data between 2+ bricks.
         brick_render = brick_render_function(brick, context={**context})
 
         if brick_render is not None:
@@ -277,9 +278,10 @@ class BricksReloading(generic.CheckedView):
                                render_method, brick.__class__, brick.id_,
                               )
             else:
-                # NB: the context is copied is order to a 'fresh' one for each brick, & so avoid annoying side-effects
-                # Notice that build_context() creates a shared dictionary with the "shared" key in order to explicitly
-                # share data between 2+ bricks.
+                # NB: the context is copied is order to a 'fresh' one for each
+                # brick, & so avoid annoying side-effects
+                # Notice that build_context() creates a shared dictionary with
+                # the "shared" key in order to explicitly share data between 2+ bricks.
                 brick_renders.append((brick.id_, render_func({**context})))
 
         return brick_renders
@@ -370,8 +372,9 @@ class BrickStateSetting(generic.CheckedView):
         fields_2_update = self.get_fields_to_update(request)
 
         if fields_2_update:
-            # NB: we can still have a race condition because we do not use select_for_update ;
-            #     but it's a state related one user & one brick, so it would not be a real world problem.
+            # NB: we can still have a race condition because we do not use
+            #     select_for_update() ; but it's a state related one user & one
+            #     brick, so it would not be a real world problem.
             for _i in range(10):
                 state = BrickState.objects.get_for_brick_id(brick_id=brick_id, user=request.user)
 

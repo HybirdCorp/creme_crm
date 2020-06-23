@@ -53,15 +53,18 @@ class Exporter:
 
 class ExportersRegistry:
     """
-    Exporters are function which read data in the RDBMS, and return "JSONifiable' data.
-    These data can be imported (ie: writen in the RDBMS) by a related Importer (see importers.py).
+    Exporters are function which read data in the RDBMS, and return
+    "JSONifiable" data.
+    These data can be imported (ie: writen in the RDBMS) by a related Importer
+    (see importers.py).
     Generally each exporter is related to a model.
 
     The export view use a global instance of ExportersRegistry: EXPORTERS.
-    The exporters which have to be used by this view must be registered (see register()).
+    The exporters which have to be used by this view must be registered
+     (see register()).
 
-    When an exporter is registered, an ID is given ; this ID will be used to name the "section"
-    in the JSON data (indeed, the key in a dictionary).
+    When an exporter is registered, an ID is given ; this ID will be used to
+    name the "section" in the JSON data (indeed, the key in a dictionary).
     """
     class Collision(Exception):
         pass
@@ -87,11 +90,13 @@ class ExportersRegistry:
 
         @param data_id: ID (string) for the section in the big JSON dictionary.
                Generally a name related to the model.
-        @param priority: If you want to override an exporter from your own app with your own exporter,
-               register it with a higher priority (the vanilla exporters use the default priority, 1).
+        @param priority: If you want to override an exporter from your own app
+               with your own exporter, register it with a higher priority
+               (the vanilla exporters use the default priority, 1).
         @return: a function which takes the exporter function as only parameter
                 (yep, it's better to use the decorator syntax).
-        @raises: ExportersRegistry.Collision if an exporter with the same data_id & priority is already registered.
+        @raises: ExportersRegistry.Collision if an exporter with the same
+                 data_id & priority is already registered.
         """
         def _aux(exporter: Type[Exporter]) -> Type[Exporter]:
             if data_id not in self._unregistered:
@@ -110,13 +115,15 @@ class ExportersRegistry:
 
                     if existing_priority > priority:
                         logger.warning(
-                            'ExportersRegistry.register(): exporter for data_id=%s with priority=%s '
+                            'ExportersRegistry.register(): '
+                            'exporter for data_id=%s with priority=%s '
                             'is ignored (there is already an exporter with priority=%s).',
                             data_id, priority, existing_priority,
                         )
                     else:
                         logger.warning(
-                            'ExportersRegistry.register(): the exporter for data_id=%s '
+                            'ExportersRegistry.register(): '
+                            'the exporter for data_id=%s '
                             'with priority=%s overrides another exporter.',
                             data_id, priority,
                         )
@@ -457,7 +464,8 @@ def _export_efc_customfield(cond: models.EntityFilterCondition) -> dict:
 
     return {
         # TODO: 'uuid' key instead of 'name' to avoid confusion ??
-        'name': str(models.CustomField.objects.get(id=cond.name).uuid),  # TODO: better error message
+        # TODO: better error message tah the get()'s one...
+        'name': str(models.CustomField.objects.get(id=cond.name).uuid),
         'value': value,
     }
 
@@ -468,7 +476,8 @@ def _export_efc_datecustomfield(cond: models.EntityFilterCondition) -> dict:
 
     return {
         # TODO: 'uuid' key instead of 'name' to avoid confusion ??
-        'name': str(models.CustomField.objects.get(id=cond.name).uuid),  # TODO: better error message
+        # TODO: better error message tah the get()'s one...
+        'name': str(models.CustomField.objects.get(id=cond.name).uuid),
         'value': value,
     }
 

@@ -96,6 +96,7 @@ class ListViewState:
 
         return cls(**kwargs)
 
+    # TODO: rename "url" => "id" ?
     @classmethod
     def get_or_create_state(cls, request, url: str, **kwargs) -> 'ListViewState':
         state = cls.get_state(request, url)

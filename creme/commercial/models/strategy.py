@@ -79,10 +79,12 @@ class AbstractStrategy(CremeEntity):
         self._segments_list = None
 
         self._assets_list = None
-        self._assets_scores_map = {}  # Dict of dict of dict for hierarchy: organisation/segment_description/asset
+        # Dict of dict of dict for hierarchy: organisation/segment_description/asset
+        self._assets_scores_map = {}
 
         self._charms_list = None
-        self._charms_scores_map = {}  # Dict of dict of dict for hierarchy: organisation/segment_description/charm
+        # Dict of dict of dict for hierarchy: organisation/segment_description/charm
+        self._charms_scores_map = {}
 
         self._segments_categories = {}
 
@@ -237,12 +239,12 @@ class AbstractStrategy(CremeEntity):
                 asset_threshold = (max(assets_totals) + min(assets_totals)) / 2.0
                 charm_threshold = (max(charms_totals) + min(charms_totals)) / 2.0
 
-                stored_categories = dict(MarketSegmentCategory.objects
-                                                              .filter(segment_desc__in=segment_info,
-                                                                      organisation=orga,
-                                                                     )
-                                                              .values_list('segment_desc_id', 'category')
-                                        )
+                stored_categories = dict(
+                    MarketSegmentCategory.objects.filter(
+                        segment_desc__in=segment_info,
+                        organisation=orga,
+                    ).values_list('segment_desc_id', 'category')
+                )
 
                 def _get_category(segment, asset_score, charm_score):
                     cat = stored_categories.get(segment.id)
@@ -260,7 +262,9 @@ class AbstractStrategy(CremeEntity):
 
                     return _CATEGORY_MAP[cat_key]
 
-                for segment, asset_total, charm_total in zip(segment_info, assets_totals, charms_totals):
+                for segment, asset_total, charm_total in zip(
+                    segment_info, assets_totals, charms_totals,
+                ):
                     categories[_get_category(segment, asset_total, charm_total)].append(segment)
 
             self._segments_categories[orga] = categories
@@ -301,7 +305,9 @@ class AbstractStrategy(CremeEntity):
         orga    = self.evaluated_orgas.get(pk=orga_id)  # Raise exception if invalid orga
         seg_desc = self.segment_info.get(pk=segment_desc_id)  # Raise exception if invalid segment
 
-        cat_obj = MarketSegmentCategory.objects.filter(segment_desc=seg_desc, organisation=orga).first()
+        cat_obj = MarketSegmentCategory.objects.filter(
+            segment_desc=seg_desc, organisation=orga,
+        ).first()
 
         if cat_obj:
             if cat_obj.category == category:
@@ -363,8 +369,11 @@ class MarketSegmentDescription(CremeModel):
 
 
 class CommercialAsset(CremeModel):
-    name     = CharField(_('Name'), max_length=100)
-    strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets', editable=False, on_delete=CASCADE)
+    name = CharField(_('Name'), max_length=100)
+    strategy = ForeignKey(
+        settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets',
+        editable=False, on_delete=CASCADE,
+    )
 
     creation_label = _('Create a commercial asset')
     save_label     = _('Save the commercial asset')
@@ -406,9 +415,10 @@ class CommercialAssetScore(CremeModel):
 
 class MarketSegmentCharm(CremeModel):
     name     = CharField(_('Name'), max_length=100)
-    strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms',
-                          editable=False, on_delete=CASCADE,
-                         )
+    strategy = ForeignKey(
+        settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms',
+        editable=False, on_delete=CASCADE,
+    )
 
     creation_label = _('Create a segment charm')
     save_label     = _('Save the segment charm')

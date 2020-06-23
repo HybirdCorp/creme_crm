@@ -142,15 +142,19 @@ class CremePropertyManager(models.Manager):
 
 
 class CremePropertyType(CremeModel):
-    id             = models.CharField(primary_key=True, max_length=100)
-    text           = models.CharField(_('Text'), max_length=200, unique=True)
-    subject_ctypes = models.ManyToManyField(ContentType, blank=True,
-                                            verbose_name=_('Applies on entities with following types'),
-                                            related_name='subject_ctypes_creme_property_set',  # TODO: '+'
-                                           )
-    is_custom      = models.BooleanField(default=False, editable=False)
-    # If True, the properties with this type can be copied (ie: when cloning or converting an entity).
-    is_copiable    = models.BooleanField(_('Is copiable'), default=True)
+    id = models.CharField(primary_key=True, max_length=100)
+    text = models.CharField(_('Text'), max_length=200, unique=True)
+
+    subject_ctypes = models.ManyToManyField(
+        ContentType, blank=True,
+        verbose_name=_('Applies on entities with following types'),
+        related_name='subject_ctypes_creme_property_set',  # TODO: '+'
+    )
+    is_custom = models.BooleanField(default=False, editable=False)
+
+    # If True, the properties with this type can be copied
+    # (ie: when cloning or converting an entity).
+    is_copiable = models.BooleanField(_('Is copiable'), default=True)
 
     objects = CremePropertyTypeManager()
 
@@ -187,7 +191,13 @@ class CremePropertyType(CremeModel):
     #       avoid retrieving the instance again in CremePropertyTypeEditForm.save()
     #       (use a True model-form + improve CremePropertyType.save() ?) ?
     @staticmethod
-    def create(str_pk, text, subject_ctypes=(), is_custom=False, generate_pk=False, is_copiable=True):
+    def create(
+            str_pk,
+            text,
+            subject_ctypes=(),
+            is_custom=False,
+            generate_pk=False,
+            is_copiable=True):
         """Helps the creation of new CremePropertyType.
         @param subject_ctypes: Sequence of CremeEntity classes/ContentType objects.
         @param generate_pk: If True, str_pk is used as prefix to generate pk.
@@ -203,7 +213,10 @@ class CremePropertyType(CremeModel):
             )[0]
         else:
             from creme.creme_core.utils.id_generator import generate_string_id_and_save
-            property_type = CremePropertyType(text=text, is_custom=is_custom, is_copiable=is_copiable)
+
+            property_type = CremePropertyType(
+                text=text, is_custom=is_custom, is_copiable=is_copiable,
+            )
             generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
 
         get_ct = ContentType.objects.get_for_model
@@ -220,12 +233,16 @@ class CremePropertyType(CremeModel):
     #                   'use CremePropertyType.objects.compatible() instead.',
     #                   DeprecationWarning
     #                  )
-    #     return CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+    #     return CremePropertyType.objects.filter(
+    #         Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True)
+    #     )
 
 
 class CremeProperty(CremeModel):
-    type         = models.ForeignKey(CremePropertyType, on_delete=models.CASCADE)
-    creme_entity = models.ForeignKey(CremeEntity, related_name='properties', on_delete=models.CASCADE)
+    type = models.ForeignKey(CremePropertyType, on_delete=models.CASCADE)
+    creme_entity = models.ForeignKey(
+        CremeEntity, related_name='properties', on_delete=models.CASCADE,
+    )
 
     objects = CremePropertyManager()
 
@@ -269,10 +286,13 @@ def _handle_replacement(sender, old_instance, new_instance, **kwargs):
     from .history import HistoryLine
 
     # IDs of entities with duplicates
-    e_ids = CremeEntity.objects.filter(properties__type__in=[old_instance, new_instance]) \
-                               .annotate(prop_count=Count('properties')) \
-                               .filter(prop_count__gte=2) \
-                               .values_list('id', flat=True)
+    e_ids = CremeEntity.objects.filter(
+        properties__type__in=[old_instance, new_instance]
+    ).annotate(
+        prop_count=Count('properties')
+    ).filter(
+        prop_count__gte=2,
+    ).values_list('id', flat=True)
 
     for prop in CremeProperty.objects.filter(creme_entity__in=e_ids, type=old_instance):
         HistoryLine.disable(prop)  # See _handle_merge()

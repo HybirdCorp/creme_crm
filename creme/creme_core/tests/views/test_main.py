@@ -152,7 +152,9 @@ class MiscViewsTestCase(ViewsTestCase):
         response = self.assertGET(400, '/test_http_response?status=400')
         self.assertEqual(response.content, b'<p>Http Response 400</p>')
 
-        response = self.assertGET(400, '/test_http_response?status=400', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertGET(
+            400, '/test_http_response?status=400', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
         self.assertEqual(response.content, b'XML Http Response 400')
 
     def test_403_middleware(self):
@@ -160,15 +162,23 @@ class MiscViewsTestCase(ViewsTestCase):
         response = self.assertGET403('/test_http_response?status=403')
         self.assertContains(response, 'Tests: operation is not allowed', status_code=403)
 
-        response = self.assertGET403('/test_http_response?status=403', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertGET403(
+            '/test_http_response?status=403', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
         self.assertContains(response, 'Tests: operation is not allowed', status_code=403)
 
     def test_404_middleware(self):
         self.login()
         response = self.assertGET404('/test_http_response?status=404')
-        self.assertContains(response, _('The page you have requested is not found.'), status_code=404)
+        self.assertContains(
+            response,
+            _('The page you have requested is not found.'),
+            status_code=404,
+        )
 
-        response = self.assertGET404('/test_http_response?status=404', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertGET404(
+            '/test_http_response?status=404', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
         self.assertContains(response, 'Tests: no such result or unknown url', status_code=404)
 
     def test_409_middleware(self):
@@ -176,7 +186,9 @@ class MiscViewsTestCase(ViewsTestCase):
         response = self.assertGET409('/test_http_response?status=409')
         self.assertContains(response, 'Tests: conflicting operation', status_code=409)
 
-        response = self.assertGET(409, '/test_http_response?status=409', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertGET(
+            409, '/test_http_response?status=409', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
         self.assertEqual(response.content, b'Tests: conflicting operation')
 
     def test_500_middleware(self):
@@ -185,7 +197,9 @@ class MiscViewsTestCase(ViewsTestCase):
         with self.assertRaises(Exception):
             self.client.get('/test_http_response?status=500')
 
-        response = self.assertGET(500, '/test_http_response?status=500', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertGET(
+            500, '/test_http_response?status=500', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
         self.assertEqual(response.content, b'Tests: server internal error')
 
     def test_auth_decorators01(self):

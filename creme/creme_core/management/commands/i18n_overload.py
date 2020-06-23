@@ -212,7 +212,8 @@ class Command(BaseCommand):
         if not catalog.fpath and all_plural_forms:  # Creation of the file
             if len(all_plural_forms) > 1:
                 self.stderr.write(
-                    'Different information about plural forms were found (first one used):{}'.format(
+                    'Different information about plural forms were found '
+                    '(first one used):{}'.format(
                         ''.join(f'\n - {i}' for i in all_plural_forms)
                     )
                 )

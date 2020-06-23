@@ -56,8 +56,12 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             app_labels = response.context['form'].fields['allowed_apps'].choices
 
-        self.assertInChoices(value='creme_core', label=_('Core'),                  choices=app_labels)
-        self.assertInChoices(value='persons',    label=_('Accounts and Contacts'), choices=app_labels)
+        self.assertInChoices(
+            value='creme_core', label=_('Core'), choices=app_labels,
+        )
+        self.assertInChoices(
+            value='persons', label=_('Accounts and Contacts'), choices=app_labels,
+        )
         self.assertNotInChoices(value='cti', choices=app_labels)  # <==
 
     def test_print_phone(self):
@@ -135,7 +139,9 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
 
         phone = '558899'
-        contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)
+        contact = Contact.objects.create(
+            user=user, first_name='Bean', last_name='Bandit', phone=phone,
+        )
 
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertTemplateUsed(response, 'cti/respond_to_a_call.html')
@@ -172,7 +178,9 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
 
         phone = '558899'
-        contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', mobile=phone)
+        contact = Contact.objects.create(
+            user=user, first_name='Bean', last_name='Bandit', mobile=phone,
+        )
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertContains(response, str(contact))
         self.assertNotContains(response, str(user.linked_contact))
@@ -221,7 +229,9 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         phone = '558899'
-        contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)
+        contact = Contact.objects.create(
+            user=user, first_name='Bean', last_name='Bandit', phone=phone,
+        )
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertNotContains(response, str(contact))
 
@@ -241,14 +251,15 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
         first_name = 'Minnie'
         last_name = 'May'
-        self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'user':       user.id,
-                                                      'first_name': first_name,
-                                                      'last_name':  last_name,
-                                                      'phone':      phone,
-                                                     },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url, follow=True,
+            data={
+                'user':       user.id,
+                'first_name': first_name,
+                'last_name':  last_name,
+                'phone':      phone,
+            },
+        ))
         contact = self.get_object_or_fail(Contact, phone=phone)
         self.assertEqual(last_name,  contact.last_name)
         self.assertEqual(first_name, contact.first_name)
@@ -328,8 +339,12 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, Activity.objects.count())
 
         phone_call = Activity.objects.all()[0]
-        self.assertRelationCount(1, self.contact,            a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
-        self.assertRelationCount(1, self.contact_other_user, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
+        self.assertRelationCount(
+            1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call,
+        )
+        self.assertRelationCount(
+            1, self.contact_other_user, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call,
+        )
 
         get_cal = Calendar.objects.get_default_calendar
         filter_calendars = phone_call.calendars.filter

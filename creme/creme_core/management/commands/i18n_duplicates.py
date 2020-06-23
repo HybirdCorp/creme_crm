@@ -38,21 +38,24 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         add_argument = parser.add_argument
-        add_argument('-l', '--language',
-                     action='store', dest='language', default='en',
-                     help='Search duplicates for LANGUAGE files. [default: %(default)s]',
-                    )
-        add_argument('-d', '--not_diverging',
-                     action='store_true', dest='not_diverging', default=False,
-                     help='Display the not diverging duplicates in translations too '
-                          '(useful to see translation message that are duplicated between apps). '
-                          '[default: %(default)s]'
-                    )
-        add_argument('-n', '--no_context',
-                     action='store_true', dest='no_context', default=False,
-                     help='Display the diverging duplicates without problem (context are distinct), '
-                          'but with some translations without context. [default: %(default)s]'
-                    )
+        add_argument(
+            '-l', '--language',
+            action='store', dest='language', default='en',
+            help='Search duplicates for LANGUAGE files. [default: %(default)s]',
+        )
+        add_argument(
+            '-d', '--not_diverging',
+            action='store_true', dest='not_diverging', default=False,
+            help='Display the not diverging duplicates in translations too '
+                 '(useful to see translation message that are duplicated between apps). '
+                 '[default: %(default)s]'
+        )
+        add_argument(
+            '-n', '--no_context',
+            action='store_true', dest='no_context', default=False,
+            help='Display the diverging duplicates without problem (context are distinct), '
+                 'but with some translations without context. [default: %(default)s]'
+        )
 
     def handle(self, **options):
         try:

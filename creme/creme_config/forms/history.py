@@ -25,22 +25,27 @@ from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import HistoryConfigItem, RelationType
 
-_HELP_TEXT = _("""If an entity is linked to other entities by a relationship of this type,
- the history lines that are about the edition of this entity will appear in the history of the others entities.""")
+_HELP_TEXT = _(
+    'If an entity is linked to other entities by a relationship of this type, '
+    'the history lines that are about the edition of this entity will appear in '
+    'the history of the others entities.'
+)
 
 
 class HistoryConfigForm(CremeForm):
-    relation_types = ModelMultipleChoiceField(label=_('Relation types'),
-                                              queryset=RelationType.objects.all(),
-                                              help_text=_HELP_TEXT,
-                                              widget=UnorderedMultipleChoiceWidget(columntype='wide'),
-                                             )
+    relation_types = ModelMultipleChoiceField(
+        label=_('Relation types'),
+        queryset=RelationType.objects.all(),
+        help_text=_HELP_TEXT,
+        widget=UnorderedMultipleChoiceWidget(columntype='wide'),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['relation_types'].queryset = \
-            RelationType.objects.exclude(pk__in=HistoryConfigItem.objects.values_list('relation_type', flat=True))
+        self.fields['relation_types'].queryset = RelationType.objects.exclude(
+            pk__in=HistoryConfigItem.objects.values_list('relation_type', flat=True),
+        )
 
     def save(self, *args, **kwargs):
         create_hci = HistoryConfigItem.objects.create

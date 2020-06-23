@@ -183,7 +183,8 @@ def populate_related(instances: Sequence[Model],
 
     @param instances: Sequence of instances with the _same_ ContentType.
                       NB: iterated several times -> not an iterator.
-    @param field_names: Sequence of strings representing field names ala django (eg: 'user__username').
+    @param field_names: Sequence of strings representing field names ala django
+           (eg: 'user__username').
     """
     if not instances:
         return

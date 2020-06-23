@@ -82,7 +82,8 @@ class SectionTree:
         kwargs = {attr_name: pobj.id}
 
         sections_map = defaultdict(list)
-        # for section in pform.sections.all(): #TODO: sadly this cause an extra query to get the related CremeEntity...
+        # TODO: sadly this cause an extra query to get the related CremeEntity (check again)...
+        #   for section in pform.sections.all():
         for section in section_model.objects.filter(**kwargs):
             section.is_section = True
             section.deep = 0
@@ -91,7 +92,7 @@ class SectionTree:
 
         lines_map = defaultdict(list)
         gen_number = count(1).__next__
-        # for line in pform.lines.all(): #TODO: idem
+        # for line in pform.lines.all(): # TODO: idem
         for line in line_model.objects.filter(**kwargs):
             line.is_section = False
             line.deep = 0

@@ -90,7 +90,10 @@ class _BulkUpdateRegistry:
             if not isinstance(field, ForeignKey) or field.get_tag('enumerable'):
                 return False
 
-            return issubclass(field.remote_field.model, CremeModel) or field.name in self.expandables
+            return (
+                issubclass(field.remote_field.model, CremeModel)
+                or field.name in self.expandables
+            )
 
         def is_updatable(self, field: Union[Field, CustomField]) -> bool:
             return (
@@ -336,10 +339,11 @@ class _BulkUpdateRegistry:
 
         return not (exclude_unique and field.unique)
 
-    def regular_fields(self,
-                       model: Type[Model],
-                       expand: bool = False,
-                       exclude_unique: bool = True) -> Union[List[Field], List[Tuple[Field, List[Field]]]]:
+    def regular_fields(
+            self,
+            model: Type[Model],
+            expand: bool = False,
+            exclude_unique: bool = True) -> Union[List[Field], List[Tuple[Field, List[Field]]]]:
         sort_key = collator.sort_key
 
         status = self.status(model)
@@ -395,13 +399,17 @@ class _BulkUpdateRegistry:
 
             if self.is_updatable(instance.__class__, field_name, exclude_unique=False):
                 ct = ContentType.objects.get_for_model(instance.__class__)
-                uri = reverse('creme_core__inner_edition', args=(ct.id, instance.id, field_name))
+                uri = reverse(
+                    'creme_core__inner_edition',
+                    args=(ct.id, instance.id, field_name),
+                )
         elif isinstance(cell, EntityCellCustomField):
             assert isinstance(instance, CremeEntity)
 
-            uri = reverse('creme_core__inner_edition',
-                          args=(instance.entity_type_id, instance.id, f'customfield-{cell.value}'),
-                         )
+            uri = reverse(
+                'creme_core__inner_edition',
+                args=(instance.entity_type_id, instance.id, f'customfield-{cell.value}'),
+            )
 
         return uri
 

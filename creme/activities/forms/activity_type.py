@@ -139,7 +139,10 @@ class ActivityTypeField(JSONField):
         try:
             atype = self.types.get(pk=type_pk)
         except ActivityType.DoesNotExist as e:
-            raise ValidationError(self.error_messages['typenotallowed'], code='typenotallowed') from e
+            raise ValidationError(
+                self.error_messages['typenotallowed'],
+                code='typenotallowed',
+            ) from e
 
         related_types = ActivitySubType.objects.filter(type=atype)
         subtype = None
@@ -202,8 +205,10 @@ class BulkEditTypeForm(BulkDefaultEditForm):
                     label=_('Beware !'),
                     required=False, widget=Label,
                     initial=ngettext(
-                        'The type of {count} activity cannot be changed because it is an indisponibility.',
-                        'The type of {count} activities cannot be changed because they are indisponibilities.',
+                        'The type of {count} activity cannot be changed because'
+                        ' it is an indisponibility.',
+                        'The type of {count} activities cannot be changed because'
+                        ' they are indisponibilities.',
                         indispo_count
                     ).format(count=indispo_count),
                 )

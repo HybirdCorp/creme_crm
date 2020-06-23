@@ -195,7 +195,9 @@ class ListViewSearchTestCase(CremeTestCase):
         # self.assertFalse(str_field.widget.type)
 
         self.assertIsNone(registry.builder_4_model_field_type(CharField))
-        self.assertIsNone(registry.builder_4_model_field(model=FakeOrganisation, field_name='name'))
+        self.assertIsNone(
+            registry.builder_4_model_field(model=FakeOrganisation, field_name='name')
+        )
 
         # ---
         class MyField(lv_form.RegularCharField):
@@ -205,7 +207,9 @@ class ListViewSearchTestCase(CremeTestCase):
         str_field = registry.get_field(cell=str_cell, user=self.user)
         self.assertIsInstance(str_field, MyField)
         self.assertEqual(MyField, registry.builder_4_model_field_type(CharField))
-        self.assertIsNone(registry.builder_4_model_field(model=FakeOrganisation, field_name='name'))
+        self.assertIsNone(
+            registry.builder_4_model_field(model=FakeOrganisation, field_name='name')
+        )
 
         int_cell = build_cell(name='capital')
         int_field = registry.get_field(cell=int_cell, user=self.user)
@@ -696,8 +700,12 @@ class ListViewSearchTestCase(CremeTestCase):
         cell2 = EntityCellRelation(model=FakeContact, rtype=rtype2)
 
         registry.register(rtype_id=rtype2.id, sfield_builder=MyRelationField)
-        self.assertIsInstance(registry.get_field(cell=cell2, user=self.user), MyRelationField)
-        self.assertIsInstance(registry.get_field(cell=cell1, user=self.user), lv_form.RelationField)
+        self.assertIsInstance(
+            registry.get_field(cell=cell2, user=self.user), MyRelationField
+        )
+        self.assertIsInstance(
+            registry.get_field(cell=cell1, user=self.user), lv_form.RelationField
+        )
 
         self.assertIsNone(registry.builder(REL_SUB_HAS))
         self.assertEqual(MyRelationField, registry.builder(rtype2.id))

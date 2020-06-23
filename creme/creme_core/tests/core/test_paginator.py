@@ -101,7 +101,9 @@ class FlowPaginatorTestCase(CremeTestCase):
         per_page = 3
 
         with self.assertNumQueries(0):
-            paginator = FlowPaginator(contacts, key='last_name', per_page=per_page, count=count)
+            paginator = FlowPaginator(
+                contacts, key='last_name', per_page=per_page, count=count,
+            )
 
         self.assertEqual(count, paginator.count)
         self.assertEqual(per_page, paginator.per_page)
@@ -131,7 +133,9 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         per_page = 4
 
-        paginator = FlowPaginator(contacts, key='last_name', per_page=per_page, count=count)
+        paginator = FlowPaginator(
+            contacts, key='last_name', per_page=per_page, count=count,
+        )
 
         with self.assertNumQueries(0):
             num_pages = paginator.num_pages
@@ -142,7 +146,9 @@ class FlowPaginatorTestCase(CremeTestCase):
         self._build_contacts()
 
         contacts = FakeContact.objects.all()
-        paginator = FlowPaginator(contacts.all(), key='last_name', per_page=3, count=len(contacts))
+        paginator = FlowPaginator(
+            contacts.all(), key='last_name', per_page=3, count=len(contacts),
+        )
         page = paginator.page()
 
         self.assertEqual(contacts[0], page[0])
@@ -290,7 +296,9 @@ class FlowPaginatorTestCase(CremeTestCase):
         self._build_contacts()
 
         contacts = FakeContact.objects.all()
-        paginator = FlowPaginator(contacts.all(), key='last_name', per_page=2, count=len(contacts))
+        paginator = FlowPaginator(
+            contacts.all(), key='last_name', per_page=2, count=len(contacts),
+        )
         page = paginator.page()
         self.assertListEqual([contacts[0], contacts[1]], [*page.object_list])
         self.assertTrue(page.has_next())
@@ -732,7 +740,10 @@ class FlowPaginatorTestCase(CremeTestCase):
         page1 = paginator.page()
         page2 = paginator.page(page1.next_page_info())
         page3 = paginator.page(page2.next_page_info())
-        self.assertListEqual(contacts[2:4], [*paginator.page(page3.previous_page_info()).object_list])
+        self.assertListEqual(
+            contacts[2:4],
+            [*paginator.page(page3.previous_page_info()).object_list]
+        )
 
         # Going from the last page
         last_page = paginator.last_page()
@@ -790,7 +801,9 @@ class FlowPaginatorTestCase(CremeTestCase):
         self._build_contacts()
 
         contacts = FakeContact.objects.order_by('-last_name')
-        paginator = FlowPaginator(contacts.all(), key='-last_name', per_page=2, count=len(contacts))
+        paginator = FlowPaginator(
+            contacts.all(), key='-last_name', per_page=2, count=len(contacts),
+        )
         page1 = paginator.page()
         self.assertEqual([contacts[0], contacts[1]], [*page1.object_list])
         self.assertTrue(page1.has_next())
@@ -1086,7 +1099,9 @@ class FlowPaginatorTestCase(CremeTestCase):
     def test_serialize_datetime_field(self):
         self._build_contacts()
 
-        for minute, contact in enumerate(self._qs_2_shuffled_list(FakeContact.objects.all()), start=1):
+        for minute, contact in enumerate(
+            self._qs_2_shuffled_list(FakeContact.objects.all()), start=1,
+        ):
             contact.created = self.create_datetime(year=2016, month=3, day=24, hour=15,
                                                    minute=minute, utc=True,
                                                   )
@@ -1240,7 +1255,8 @@ class FlowPaginatorTestCase(CremeTestCase):
     def test_none_value04(self):
         "None values + DESC (previous better tested: return to a a page without None)."
         self._build_contacts()
-        self._add_birthdays(count=4)  # 3 last Contacts have birthday==None (if RDBMS order None as "very small")
+        # 3 last Contacts have birthday==None (if RDBMS order None as "very small")
+        self._add_birthdays(count=4)
 
         key = '-birthday'
         qs = FakeContact.objects.order_by(key, 'id')
@@ -1260,8 +1276,14 @@ class FlowPaginatorTestCase(CremeTestCase):
                         )
 
         before_last_page = paginator.page(info)
-        self.assertListEqual(contacts[-4:-2], [*before_last_page.object_list])
-        self.assertListEqual(contacts[-6:-4], [*paginator.page(before_last_page.previous_page_info()).object_list])
+        self.assertListEqual(
+            contacts[-4:-2],
+            [*before_last_page.object_list]
+        )
+        self.assertListEqual(
+            contacts[-6:-4],
+            [*paginator.page(before_last_page.previous_page_info()).object_list]
+        )
 
     def _add_sectors(self):
         create_sector = FakeSector.objects.create
@@ -1469,8 +1491,14 @@ class FlowPaginatorTestCase(CremeTestCase):
         key = 'linked_folder__category'
         qs = FakeDocument.objects.order_by(key, 'id')
         docs = [*qs]
-        self.assertListEqual(docs, [*FakeDocument.objects.order_by('linked_folder__category__name', 'id')])
-        self.assertNotEqual(docs, [*FakeDocument.objects.order_by('linked_folder__category__pk', 'id')])
+        self.assertListEqual(
+            docs,
+            [*FakeDocument.objects.order_by('linked_folder__category__name', 'id')]
+        )
+        self.assertNotEqual(
+            docs,
+            [*FakeDocument.objects.order_by('linked_folder__category__pk', 'id')]
+        )
 
         paginator = FlowPaginator(qs, key=key, per_page=2, count=len(docs))
         page1 = paginator.page()

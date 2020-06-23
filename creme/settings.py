@@ -13,14 +13,16 @@ JAVASCRIPT_DEBUG = DEBUG
 TESTS_ON = len(argv) > 1 and argv[1] == 'test'
 FORCE_JS_TESTVIEW = False
 
-# Commands which do not need to perform SQL queries (so the apps do not need to be totally initialized)
-NO_SQL_COMMANDS = ('help', 'version', '--help', '--version', '-h',
-                   'compilemessages', 'makemessages',
-                   'startapp', 'startproject',
-                   'migrate',
-                   'generatemedia',
-                   'build_secret_key',
-                  )
+# Commands which do not need to perform SQL queries
+# (so the apps do not need to be totally initialized)
+NO_SQL_COMMANDS = (
+    'help', 'version', '--help', '--version', '-h',
+    'compilemessages', 'makemessages',
+    'startapp', 'startproject',
+    'migrate',
+    'generatemedia',
+    'build_secret_key',
+)
 
 # ADMINS = [
 #     ('Your Name', 'your_email@domain.com'),
@@ -33,7 +35,8 @@ CREME_ROOT = dirname(abspath(__file__))  # BASE_DIR + '/creme'
 # MANAGERS = ADMINS
 
 # NB: it's recommended to :
-#   - use a database engine that supports transactions (ie: not MyISAM for MySQL, which uses now INNODB by default).
+#   - use a database engine that supports transactions
+#     (ie: not MyISAM for MySQL, which uses now INNODB by default).
 #   - configure your database to use utf8 (eg: with MySQL, 'utf8_general_ci' is OK).
 DATABASES = {
     'default': {
@@ -154,7 +157,9 @@ DATE_INPUT_FORMATS = [
 ]
 
 DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
-DATETIME_FORMAT_VERBOSE = _('Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)')
+DATETIME_FORMAT_VERBOSE = _(
+    'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)'
+)
 DATETIME_INPUT_FORMATS  = [
     '%d-%m-%Y', '%d/%m/%Y',
     '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
@@ -162,7 +167,9 @@ DATETIME_INPUT_FORMATS  = [
     '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%y',
     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
-    '%Y-%m-%dT%H:%M:%S.%fZ',  # DO NOT REMOVE ! Needed by the core (eg: to store queries in session) (+for some activesync servers)
+    # DO NOT REMOVE ! Needed by the core (eg: to store queries in session)
+    # (+for some activesync servers)
+    '%Y-%m-%dT%H:%M:%S.%fZ',
     '%Y-%m-%dT%H:%M:%S',  # Needed for infopath
 ]
 
@@ -245,7 +252,9 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE = [
-    'creme.creme_core.middleware.exceptions.Ajax500Middleware',  # It must be last middleware that catches all exceptions
+    # It must be last middleware that catches all exceptions
+    'creme.creme_core.middleware.exceptions.Ajax500Middleware',
+
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
     'creme.creme_core.middleware.exceptions.Ajax403Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
@@ -255,12 +264,14 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Must be after SessionMiddleware.
+    # Must be after SessionMiddleware:
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
-    'creme.creme_core.middleware.global_info.GlobalInfoMiddleware',  # After AuthenticationMiddleware
+    # After AuthenticationMiddleware:
+    'creme.creme_core.middleware.global_info.GlobalInfoMiddleware',
     'creme.creme_core.middleware.timezone.TimezoneMiddleware',
 ]
 
@@ -335,8 +346,10 @@ EXPORT_BACKENDS = [
 
 # EMAILS [internal] ############################################################
 
-# Emails sent to the users of Creme (reminders, assistants.user_message, commercial.commercial_approach...)
-EMAIL_SENDER        = 'sender@domain.org'  # This is a Creme parameter which specifies from_email (sender) when sending email.
+# Emails sent to the users of Creme
+# (reminders, assistants.user_message, commercial.commercial_approach...)
+# This is a Creme parameter which specifies from_email (sender) when sending email.
+EMAIL_SENDER        = 'sender@domain.org'
 EMAIL_HOST          = 'localhost'
 EMAIL_HOST_USER     = ''
 EMAIL_HOST_PASSWORD = ''
@@ -356,7 +369,9 @@ DEFAULT_USER_EMAIL = ''  # Email address used in case the user doesn't have fill
 LOGGING_FORMATTERS = {
     'verbose': {
         '()': 'creme.utils.loggers.CremeFormatter',
-        'format': '[%(asctime)s] %(levelname)-7s (%(modulepath)s:%(lineno)d) %(name)s : %(message)s',
+        'format': (
+            '[%(asctime)s] %(levelname)-7s (%(modulepath)s:%(lineno)d) %(name)s : %(message)s'
+        ),
         'datefmt': '%Y-%m-%d %H:%M:%S',
     },
     'simple': {
@@ -435,8 +450,11 @@ LOGGING = {
         },
     },
     'loggers': {
-        '': LOGGING_DEFAULT_LOGGER,  # The empty key '' means that all logs are redirected to this logger.
-        # 'django.db.backends': {  # To display the DB queries (beware works only with <settings.DEBUG==True>.
+        # The empty key '' means that all logs are redirected to this logger.
+        '': LOGGING_DEFAULT_LOGGER,
+
+        # To display the DB queries (beware works only with <settings.DEBUG==True>.
+        # 'django.db.backends': {
         #     'level':    'DEBUG',
         #     'handlers': ['django.db.backends'],
         #     'propagate': False,
@@ -492,7 +510,8 @@ FILTERS_INITIAL_PRIVATE = False
 # Add some fields to create Relationships & Properties in all common entities creation forms.
 FORMS_RELATION_FIELDS = True
 
-# When <a> tags are generated in TextFields, add an attribute <target="_blank"> if the value is 'True'.
+# When <a> tags are generated in TextFields,
+# add an attribute <target="_blank"> if the value is 'True'.
 URLIZE_TARGET_BLANK = False
 
 # URL used in the GUI to indicate the repository address
@@ -897,8 +916,12 @@ ROOT_MEDIA_FILTERS = {
     'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
 }
 
-YUICOMPRESSOR_PATH = join(dirname(__file__), 'static', 'utils', 'yui', 'yuicompressor-2.4.2.jar')
-CLOSURE_COMPILER_PATH = join(dirname(__file__), 'static', 'utils', 'closure', 'closure-compiler-v20200112.jar')
+YUICOMPRESSOR_PATH = join(
+    dirname(__file__), 'static', 'utils', 'yui', 'yuicompressor-2.4.2.jar',
+)
+CLOSURE_COMPILER_PATH = join(
+    dirname(__file__), 'static', 'utils', 'closure', 'closure-compiler-v20200112.jar',
+)
 
 COPY_MEDIA_FILETYPES = {
     'gif', 'jpg', 'jpeg', 'png', 'ico', 'cur',  # Images
@@ -1065,46 +1088,70 @@ CREME_SAMOUSSA_PASSWORD = ''
 
 # CRUDITY -----------------------------------------------------------------------
 # EMail parameters to sync external emails in Creme
-CREME_GET_EMAIL              = ''  # Creme gets email. e.g : creme@cremecrm.org
-CREME_GET_EMAIL_SERVER       = ''  # Creme gets server. e.g : pop.cremecrm.org (only pop supported for now)
+# email address where to send the emails to sync (used in email templates)
+#  eg: creme@cremecrm.org
+CREME_GET_EMAIL              = ''
+# server URL (eg: pop.cremecrm.org)  -- only pop supported for now.
+CREME_GET_EMAIL_SERVER       = ''
 CREME_GET_EMAIL_USERNAME     = ''
 CREME_GET_EMAIL_PASSWORD     = ''
 CREME_GET_EMAIL_PORT         = 110
 CREME_GET_EMAIL_SSL          = False  # True or False
-CREME_GET_EMAIL_SSL_KEYFILE  = ''  # PEM formatted file that contains your private key (only used if CREME_GET_EMAIL_SSL is True).
-CREME_GET_EMAIL_SSL_CERTFILE = ''  # PEM formatted certificate chain file (only used if CREME_GET_EMAIL_SSL is True).
+# PEM formatted file that contains your private key (only used if CREME_GET_EMAIL_SSL is True).
+CREME_GET_EMAIL_SSL_KEYFILE  = ''
+# PEM formatted certificate chain file (only used if CREME_GET_EMAIL_SSL is True).
+CREME_GET_EMAIL_SSL_CERTFILE = ''
 
 # Path to a readable directory. Used by the fetcher 'filesystem'.
-# The contained files are used to create entity (ex: the input 'ini' used .ini files) ; used files are deleted.
+# The contained files are used to create entity
+# (eg: the input 'ini' used .ini files) ; used files are deleted.
 CRUDITY_FILESYS_FETCHER_DIR = ''
 
 # CRUDITY_BACKENDS configures the backends (it's a list of dict)
 # Here a template of a crudity backend configuration:
 # CRUDITY_BACKENDS = [
 #     {
-#         "fetcher": "email",                # The name of the fetcher (which is registered with).
-#                                            #  Available choices:
-#                                            #   - 'email' (need the settings CREME_GET_EMAIL* to be filled).
-#                                            #   - 'filesystem' (see CRUDITY_FILESYS_FETCHER_DIR).
-#         "input": "infopath",               # The name of the input (which is registered with).
-#                                            #  Available choices:
-#                                            #   - for the fetcher 'email': 'raw', 'infopath' (that needs "lcab" program).
-#                                            #   - for the fetcher 'filesystem': 'ini'.
-#                                            # Can be omitted if 'subject' is '*' (see below).
-#         "method": "create",                # The method of the input to call. Available choices: 'create'
-#                                            #  Can be omitted if 'subject' is '*' (see below).
-#         "model": "activities.activity",    # The targeted model
-#         "password": "meeting",             # Password to be authorized in the input
-#         "limit_froms": (),                 # A white list of sender (Example with an email:
-#                                            #  If a recipient email's address not in this drop email, let empty to allow all email addresses)
-#         "in_sandbox": True,                # True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
-#         "body_map"   : {                   # Allowed keys format : "key": "default value".
-#             "title": "",                   #  Keys have to be real field names of the model
-#             "user_id": 1,
+#         # The name of the fetcher (which is registered with).
+#         #  Available choices:
+#         #   - 'email' (need the settings CREME_GET_EMAIL* to be filled).
+#         #   - 'filesystem' (see CRUDITY_FILESYS_FETCHER_DIR).
+#         'fetcher': 'email',
+#
+#         # The name of the input (which is registered with).
+#         #  Available choices:
+#         #   - for the fetcher 'email': 'raw', 'infopath' (that needs "lcab" program).
+#         #   - for the fetcher 'filesystem': 'ini'.
+#         # Can be omitted if 'subject' is '*' (see below).
+#         'input': 'infopath',
+#
+#         # The method of the input to call. Available choices: 'create'
+#         #  Can be omitted if 'subject' is '*' (see below).
+#         'method': 'create',
+#
+#         'model': 'activities.activity',    # The targeted model
+#         'password': 'meeting',             # Password to be authorized in the input
+#
+#         # A white list of sender
+#         # (Example with an email: if a recipient email's address not in this
+#         # drop email, let empty to allow all email addresses).
+#         'limit_froms': (),
+#
+#         # True : Show in sandbox & history, False show only in history
+#         #  (/!\ creation will be automatic if False)
+#         'in_sandbox': True,
+#
+#         # Allowed keys format : "key": "default value".
+#         'body_map': {
+#             'title': '',   #  Keys have to be real field names of the model
+#             'user_id': 1,
 #         },
-#         "subject": u"CREATEACTIVITYIP"     # Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase.
-#                                            #  You can specify * as a fallback (no previous backend handle the data returned by the fetcher,
-#                                            #  but be careful your backend has to have the method: 'fetcher_fallback').
+#
+#         # Target subject
+#         # NB: in the subject all spaces will be deleted, and it'll be converted to uppercase.
+#         # You can specify * as a fallback (no previous backend handle the data
+#         # returned by the fetcher, but be careful your backend must have the
+#         # method: 'fetcher_fallback').
+#         'subject': 'CREATEACTIVITYIP',
 #     },
 # ]
 CRUDITY_BACKENDS = [
@@ -1124,7 +1171,8 @@ CRUDITY_BACKENDS = [
 ]
 
 # # ACTIVESYNC -------------------------------------------------------------------
-# # todo: Rename and transform this into an AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
+# # todo: Rename and transform this into an AS-Version verification
+# #       => A2:Body doesn't seems to work with AS version > 2.5
 # IS_ZPUSH = True
 #
 # # 0 = Client object replaces server object.

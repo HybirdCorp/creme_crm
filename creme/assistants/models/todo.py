@@ -32,19 +32,25 @@ class ToDoManager(models.Manager):
 
 
 class ToDo(CremeModel):
-    title         = models.CharField(_('Title'), max_length=200)
-    is_ok         = models.BooleanField(_('Done ?'), editable=False, default=False)
-    reminded      = models.BooleanField(_('Notification sent'), editable=False, default=False)  # Needed by creme_core.core.reminder
-    description   = models.TextField(_('Description'), blank=True)
+    title = models.CharField(_('Title'), max_length=200)
+    is_ok = models.BooleanField(_('Done ?'), editable=False, default=False)
+
+    # Needed by creme_core.core.reminder
+    reminded = models.BooleanField(_('Notification sent'), editable=False, default=False)
+
+    description = models.TextField(_('Description'), blank=True)
     creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
-    deadline      = models.DateTimeField(_('Deadline'), blank=True, null=True)
-    user          = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+    deadline = models.DateTimeField(_('Deadline'), blank=True, null=True)
+    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
-    entity              = models.ForeignKey(CremeEntity,  related_name='assistants_todos',
-                                            editable=False, on_delete=models.CASCADE,
-                                           ).set_tags(viewable=False)
-    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
+    entity = models.ForeignKey(
+        CremeEntity, related_name='assistants_todos',
+        editable=False, on_delete=models.CASCADE,
+    ).set_tags(viewable=False)
+    creme_entity = creme_fields.RealEntityForeignKey(
+        ct_field='entity_content_type', fk_field='entity',
+    )
 
     objects = ToDoManager()
 

@@ -39,7 +39,8 @@ class LowNullsSQLCompiler(SQLCompiler):
         result = super().get_order_by()
 
         if result and self.connection.vendor == 'postgresql':
-            # NB: PostgreSQL accepts NULLS LAST/FIRST even on columns which cannot be NULL, so we do not check it.
+            # NB: PostgreSQL accepts NULLS LAST/FIRST even on columns which
+            #     cannot be NULL, so we do not check it.
             return [
                 (
                     expr,

@@ -100,18 +100,24 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         cleaned_data = super().clean()
 
         if not self._errors:
-            self.folder_category = cat = FolderCategory.objects.filter(pk=constants.DOCUMENTS_FROM_ENTITIES).first()
+            self.folder_category = cat = FolderCategory.objects.filter(
+                pk=constants.DOCUMENTS_FROM_ENTITIES,
+            ).first()
             if cat is None:
                 raise ValidationError(
-                    'Populate script has not been run (unknown folder category pk={}) ; '
-                    'please contact your administrator'.format(constants.DOCUMENTS_FROM_ENTITIES)
+                    f'Populate script has not been run '
+                    f'(unknown folder category pk={constants.DOCUMENTS_FROM_ENTITIES}) ; '
+                    f'please contact your administrator'
                 )
 
-            self.root_folder = folder = Folder.objects.filter(uuid=constants.UUID_FOLDER_RELATED2ENTITIES).first()
+            self.root_folder = folder = Folder.objects.filter(
+                uuid=constants.UUID_FOLDER_RELATED2ENTITIES,
+            ).first()
             if folder is None:
                 raise ValidationError(
-                    'Populate script has not been run (unknown folder uuid={}) ; '
-                    'please contact your administrator'.format(constants.UUID_FOLDER_RELATED2ENTITIES)
+                    f'Populate script has not been run '
+                    f'(unknown folder uuid={constants.UUID_FOLDER_RELATED2ENTITIES}) ; '
+                    f'please contact your administrator'
                 )
 
         return cleaned_data
@@ -120,11 +126,12 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         instance = self.instance
 
         return super()._get_relations_to_create().append(
-            Relation(subject_entity=self.related_entity.get_real_entity(),
-                     type_id=constants.REL_SUB_RELATED_2_DOC,
-                     object_entity=instance,
-                     user=instance.user,
-                    ),
+            Relation(
+                subject_entity=self.related_entity.get_real_entity(),
+                type_id=constants.REL_SUB_RELATED_2_DOC,
+                object_entity=instance,
+                user=instance.user,
+            ),
         )
 
     def _get_folder(self):

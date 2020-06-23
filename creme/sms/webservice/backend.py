@@ -122,7 +122,12 @@ class WSBackEnd:
         return urlencode({key: value for key, value in data.items() if value is not None}, True)
 
     def _new_request(self, url, get=None, post=None, method=None):
-        url = self.url.rstrip('/') + '/' + url.lstrip('/') + (('?' + self._encode(get)) if get else '')
+        url = (
+            self.url.rstrip('/')
+            + '/'
+            + url.lstrip('/')
+            + (('?' + self._encode(get)) if get else '')
+        )
         request = WSRequest(url, method=method)
         request.data = self._encode(post) if post else None
         return request

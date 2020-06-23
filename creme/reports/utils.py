@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2018  Hybird
+#    Copyright (C) 2013-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,11 +34,15 @@ def decode_datetime(date_str):
 
 def expand_sparse_iterator(sparse_iterator, default_value):
     """
-    Expands a 'sparse' collection with a default value where the collection misses existing indices.
-    An example 'full' collection [1,0,0,0,3,5] could be compressed as a 'sparse' collection like
-    [{'index': 0, 'value': 1}, {'index': 4, 'value': 3}, {'index': 5, 'value': 5}] represented as [(0, 1), (4, 3), (5, 5)].
-    This method takes an iterator on such a sparse collection and yields a default value
-    for the missing indices, resulting in the original full collection.
+    Expands a 'sparse' collection with a default value where the collection
+    misses existing indices.
+    An example 'full' collection [1,0,0,0,3,5] could be compressed as a 'sparse'
+    collection like :
+       [{'index': 0, 'value': 1}, {'index': 4, 'value': 3}, {'index': 5, 'value': 5}]
+       represented as
+       [(0, 1), (4, 3), (5, 5)].
+    This method takes an iterator on such a sparse collection and yields a
+    default value for the missing indices, resulting in the original full collection.
     """
     try:
         current_index, current_value = next(sparse_iterator)
@@ -56,7 +60,9 @@ def expand_sparse_iterator(sparse_iterator, default_value):
 
 # TODO: this could be interesting in creme_core.utils
 def sparsezip(full_collection, sparse_collection, default_value):
-    "Zips a 'full' collection with a 'sparse' collection by expanding the latter using expand_sparse_iterator()"
+    """Zips a 'full' collection with a 'sparse' collection by expanding the
+    latter using expand_sparse_iterator()
+    """
     for value in zip_longest(full_collection,
                              expand_sparse_iterator(iter(sparse_collection), default_value),
                              fillvalue=default_value):

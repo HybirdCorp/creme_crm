@@ -183,7 +183,9 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         )
 
         folder = FakeFolder.objects.create(user=user, title='X-files')
-        doc = FakeDocument.objects.create(user=user, title='Roswell.txt', linked_folder=folder, filedata=path)
+        doc = FakeDocument.objects.create(
+            user=user, title='Roswell.txt', linked_folder=folder, filedata=path,
+        )
 
         full_path = doc.filedata.path
 
@@ -212,7 +214,9 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         )
 
         folder = FakeFolder.objects.create(user=user, title='X-files')
-        doc = FakeDocument.objects.create(user=user, title='Roswell.txt', linked_folder=folder, filedata=path)
+        doc = FakeDocument.objects.create(
+            user=user, title='Roswell.txt', linked_folder=folder, filedata=path,
+        )
 
         full_path = doc.filedata.path
 

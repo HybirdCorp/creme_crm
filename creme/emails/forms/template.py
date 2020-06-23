@@ -41,12 +41,17 @@ Document = get_document_model()
 
 TEMPLATES_VARS = {'last_name', 'first_name', 'civility', 'name'}
 _TEMPLATES_VARS_4_HELP = ' '.join('{{%s}}' % var for var in TEMPLATES_VARS)
-_help_text = lazy((lambda: gettext('You can use variables: {}').format(_TEMPLATES_VARS_4_HELP)), str)
+_help_text = lazy(
+    (lambda: gettext('You can use variables: {}').format(_TEMPLATES_VARS_4_HELP)),
+    str
+)
 
 
 class EmailTemplateForm(CremeEntityForm):
-    body        = CharField(label=_('Body'), widget=Textarea, help_text=_help_text())
-    body_html   = CharField(label=_('Body (HTML)'), required=False, widget=TinyMCEEditor(), help_text=_help_text())
+    body = CharField(label=_('Body'), widget=Textarea, help_text=_help_text())
+    body_html = CharField(
+        label=_('Body (HTML)'), required=False, widget=TinyMCEEditor(), help_text=_help_text(),
+    )
     attachments = MultiCreatorEntityField(label=_('Attachments'), required=False, model=Document)
 
     error_messages = {

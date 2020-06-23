@@ -78,7 +78,9 @@ class HistoryTestCase(CremeTestCase):
         if extra_args:
             data.update(extra_args)
 
-        self.assertNoFormError(self.client.post('/tests/organisation/add', follow=True, data=data))
+        self.assertNoFormError(
+            self.client.post('/tests/organisation/add', follow=True, data=data)
+        )
 
         return self.get_object_or_fail(FakeOrganisation, name=name)
 
@@ -86,17 +88,22 @@ class HistoryTestCase(CremeTestCase):
         data = {'first_name': first_name, 'last_name': last_name}
         data.update(kwargs)
 
-        self.assertNoFormError(self.client.post('/tests/contact/add', follow=True, data=data))
+        self.assertNoFormError(
+            self.client.post('/tests/contact/add', follow=True, data=data)
+        )
 
-        return self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        return self.get_object_or_fail(
+            FakeContact, first_name=first_name, last_name=last_name,
+        )
 
     def assertBetweenDates(self, hline):
         now_value = now()
         hdate = hline.date
         old_time = self.old_time
-        self.assertTrue(old_time <= hdate <= now_value,
-                        f'old_time={old_time} ; hline.date={hdate} ; now={now_value}'
-                       )
+        self.assertTrue(
+            old_time <= hdate <= now_value,
+            f'old_time={old_time} ; hline.date={hdate} ; now={now_value}'
+        )
 
     def _get_hlines(self):
         return [*HistoryLine.objects.order_by('id')]
@@ -124,7 +131,8 @@ class HistoryTestCase(CremeTestCase):
         gainax.save()
 
         hlines = self._get_hlines()
-        self.assertEqual(old_count + 2, len(hlines))  # 1 creation + 1 auxiliary (NB: not edition with double save)
+        # 1 creation + 1 auxiliary (NB: not edition with double save)
+        self.assertEqual(old_count + 2, len(hlines))
 
         hline = hlines[-2]
         self.assertEqual(gainax.id,          hline.entity.id)
@@ -140,9 +148,10 @@ class HistoryTestCase(CremeTestCase):
         self.assertEqual(self.other_user,    hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION,  hline.type)
         self.assertBetweenDates(hline)
-        self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, str(address)],
-                         hline.modifications
-                        )
+        self.assertListEqual(
+            [ContentType.objects.get_for_model(address).id, address.id, str(address)],
+            hline.modifications
+        )
         self.assertListEqual(
             [_('Add <{type}>: “{value}”').format(type='Test address', value=address)],
             hline.get_verbose_modifications(self.user),
@@ -311,7 +320,10 @@ about this fantastic animation studio."""
         gainax = self.refresh(gainax)
         gainax.capital = str(capital)
         gainax.save()
-        self.assertEqual(capital, self.refresh(gainax).capital)  # 'capital' attribute is now an integer
+
+        # 'capital' attribute is now an integer
+        self.assertEqual(capital, self.refresh(gainax).capital)
+
         self.assertEqual(old_count, HistoryLine.objects.count())
 
     def test_edition06(self):
@@ -329,11 +341,10 @@ about this fantastic animation studio."""
 
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
-        self.assertIn(self.FMT_2_VALUES(field=_('Photograph'),
-                                        value=img,
-                                       ),
-                      vmodifs[0]
-                     )
+        self.assertIn(
+            self.FMT_2_VALUES(field=_('Photograph'), value=img),
+            vmodifs[0]
+        )
 
     def test_edition07(self):
         "New value is None: verbose prints ''"
@@ -408,12 +419,14 @@ about this fantastic animation studio."""
 
         vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(2, len(vmodifs))
-        self.assertEqual(self.FMT_3_VALUES(field=_('Start'),
-                                           oldvalue=date_format(old_start, 'DATETIME_FORMAT'),
-                                           value=date_format(start, 'DATETIME_FORMAT'),
-                                          ),
-                         vmodifs[0]
-                        )
+        self.assertEqual(
+            self.FMT_3_VALUES(
+                field=_('Start'),
+                oldvalue=date_format(old_start, 'DATETIME_FORMAT'),
+                value=date_format(start, 'DATETIME_FORMAT'),
+            ),
+            vmodifs[0]
+        )
 
         # Set None -------------------------
         meeting.end = None
@@ -421,12 +434,14 @@ about this fantastic animation studio."""
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 2, len(hlines))
-        self.assertEqual(self.FMT_3_VALUES(field=_('End'),
-                                           oldvalue=date_format(end, 'DATETIME_FORMAT'),
-                                           value='',
-                                          ),
-                         hlines[-1].get_verbose_modifications(self.user)[0]
-                        )
+        self.assertEqual(
+            self.FMT_3_VALUES(
+                field=_('End'),
+                oldvalue=date_format(end, 'DATETIME_FORMAT'),
+                value='',
+            ),
+            hlines[-1].get_verbose_modifications(self.user)[0]
+        )
 
     def test_edition09(self):
         "Other fields: TimeField, SlugField, FloatField, NullBooleanField"
@@ -509,10 +524,13 @@ about this fantastic animation studio."""
         last_name  = 'Miyazaki'
         hayao = self._build_contact(user=user.id, first_name=first_name, last_name=last_name)
 
-        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'),
-                                            ('test-object_employed', 'employs')
-                                           )
-        Relation.objects.create(user=user, subject_entity=hayao, object_entity=ghibli, type=rtype)
+        rtype = RelationType.create(
+            ('test-subject_employed', 'is employed'),
+            ('test-object_employed', 'employs')
+        )[0]
+        Relation.objects.create(
+            user=user, subject_entity=hayao, object_entity=ghibli, type=rtype,
+        )
 
         old_count = HistoryLine.objects.count()
         description = 'A great animation movie maker'
@@ -540,13 +558,18 @@ about this fantastic animation studio."""
 
         first_name = 'Hayao'
         last_name  = 'Miyazaki'
-        hayao = self._build_contact(user=user.id, first_name=first_name, last_name=last_name)
+        hayao = self._build_contact(
+            user=user.id, first_name=first_name, last_name=last_name,
+        )
         self.assertNotEqual(hayao.modified, ghibli.modified)
 
-        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'),
-                                            ('test-object_employed', 'employs')
-                                           )
-        Relation.objects.create(user=user, subject_entity=hayao, object_entity=ghibli, type=rtype)
+        rtype = RelationType.create(
+            ('test-subject_employed', 'is employed'),
+            ('test-object_employed', 'employs')
+        )[0]
+        Relation.objects.create(
+            user=user, subject_entity=hayao, object_entity=ghibli, type=rtype,
+        )
 
         HistoryConfigItem.objects.create(relation_type=rtype)
 
@@ -644,10 +667,13 @@ about this fantastic animation studio."""
 
         sleep(1)  # Ensure than relation is younger than entities
 
-        rtype, srtype = RelationType.create(('test-subject_works4', 'is employed'),
-                                            ('test-object_works4',  'employs')
-                                           )
-        relation = Relation.objects.create(user=user, subject_entity=rei, object_entity=nerv, type=rtype)
+        rtype, srtype = RelationType.create(
+            ('test-subject_works4', 'is employed'),
+            ('test-object_works4',  'employs')
+        )
+        relation = Relation.objects.create(
+            user=user, subject_entity=rei, object_entity=nerv, type=rtype,
+        )
         relation = self.refresh(relation)  # Refresh to get the right modified value
 
         hlines = self._get_hlines()
@@ -716,10 +742,13 @@ about this fantastic animation studio."""
         rei  = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         old_count = HistoryLine.objects.count()
 
-        rtype, srtype = RelationType.create(('test-subject_works4', 'is employed'),
-                                            ('test-object_works4',  'employs')
-                                           )
-        relation = Relation.objects.create(user=user, subject_entity=rei, object_entity=nerv, type=rtype)
+        rtype, srtype = RelationType.create(
+            ('test-subject_works4', 'is employed'),
+            ('test-object_works4',  'employs')
+        )
+        relation = Relation.objects.create(
+            user=user, subject_entity=rei, object_entity=nerv, type=rtype,
+        )
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 2, len(hlines))
@@ -904,7 +933,9 @@ about this fantastic animation studio."""
         old_last_name = 'Ayami'
         new_last_name = 'Ayanami'
 
-        rei = FakeContact.objects.create(user=self.user, first_name='Rei', last_name=old_last_name)
+        rei = FakeContact.objects.create(
+            user=self.user, first_name='Rei', last_name=old_last_name,
+        )
         self.assertEqual(1, HistoryLine.objects.filter(entity=rei.id).count())
 
         rei.last_name = new_last_name
@@ -919,7 +950,9 @@ about this fantastic animation studio."""
         old_last_name  = 'Ayami'; new_last_name  = 'Ayanami'
         old_first_name = 'Rey';   new_first_name = 'Rei'
 
-        rei = FakeContact.objects.create(user=self.user, first_name=old_first_name, last_name=old_last_name)
+        rei = FakeContact.objects.create(
+            user=self.user, first_name=old_first_name, last_name=old_last_name,
+        )
         self.assertEqual(1, HistoryLine.objects.filter(entity=rei.id).count())
 
         rei = self.refresh(rei)  # Force internal backup, we can begin our edition stuffs
@@ -1011,9 +1044,10 @@ about this fantastic animation studio."""
         user = self.user
         hayao = FakeContact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
         ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
-        rtype = RelationType.create(('test-subject_employed', 'is employed'),
-                                    ('test-object_employed', 'employs')
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_employed', 'is employed'),
+            ('test-object_employed', 'employs')
+        )[0]
 
         old_count = HistoryLine.objects.count()
         rel = Relation(user=user, subject_entity=hayao, object_entity=ghibli, type=rtype)
@@ -1095,9 +1129,10 @@ about this fantastic animation studio."""
         hayao = FakeContact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
         ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
 
-        rtype = RelationType.create(('test-subject_delline_works', 'is employed'),
-                                    ('test-object_delline_works',  'employs')
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_delline_works', 'is employed'),
+            ('test-object_delline_works',  'employs')
+        )[0]
         Relation.objects.create(user=user, subject_entity=hayao, object_entity=ghibli, type=rtype)
 
         HistoryConfigItem.objects.create(relation_type=rtype)

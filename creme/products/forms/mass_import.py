@@ -67,7 +67,9 @@ class CategoriesExtractor:
                             category = Category.objects.create(name=cat_name)
                             cat_created = True
                         else:
-                            raise self._FatalError(gettext('The category «{}» does not exist').format(cat_name))
+                            raise self._FatalError(
+                                gettext('The category «{}» does not exist').format(cat_name)
+                            )
 
             # Sub-category
             subcat_index = self._subcat_index
@@ -79,17 +81,27 @@ class CategoriesExtractor:
                     if cat_created:  # Small optimisation (do not search if just created)
                         sub_category = None
                     else:
-                        sub_category = SubCategory.objects.filter(name=subcat_name, category=category).first()
+                        sub_category = SubCategory.objects.filter(
+                            name=subcat_name, category=category,
+                        ).first()
 
                     if sub_category is None:
                         if self._create:
-                            sub_category = SubCategory.objects.create(name=subcat_name, category=category)
+                            sub_category = SubCategory.objects.create(
+                                name=subcat_name, category=category,
+                            )
                         else:
-                            raise self._FatalError(gettext('The sub-category «{}» does not exist').format(subcat_name))
+                            raise self._FatalError(
+                                gettext('The sub-category «{}» does not exist').format(
+                                    subcat_name,
+                                )
+                            )
 
             # Error checking
             if sub_category.category_id != category.id:
-                error_msg = gettext('The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
+                error_msg = gettext(
+                    'The category «{cat}» and the sub-category «{sub_cat}» are not matching.'
+                ).format(
                     cat=category,
                     sub_cat=sub_category,
                 )
@@ -109,13 +121,14 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
         self.propose_creation = False
 
     def get_context(self, name, value, attrs):
-        # NB: when a column is selected for the category but not for the sub-category, we do not disable
-        #     the 0 option in sub-category <select>, because we must force the selection of
-        #     another option & it causes problems:
-        #        - not very visible.
-        #        - which option must we choose ? (it's arbitrary/stupid).
-        #     Displaying a warning/error message causes problems too (eg: the message can be displayed
-        #     twice -- python + js sides).
+        # NB: when a column is selected for the category but not for the
+        # sub-category, we do not disable the 0 option in sub-category <select>,
+        # because we must force the selection of another option & it causes
+        # problems:
+        #     - not very visible.
+        #     - which option must we choose ? (it's arbitrary/stupid).
+        # Displaying a warning/error message causes problems too
+        # (eg: the message can be displayed twice -- python + js sides).
 
         value = value or {}
         context = super().get_context(name=name, value=value, attrs=attrs)
@@ -132,24 +145,29 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
             except TypeError:
                 selected_column = 0
 
-            return self.column_select.get_context(name=name_fmt.format(name),
-                                                  value=selected_column,
-                                                  attrs={'id':    name_fmt.format(id_attr),
-                                                         'class': 'csv_col_select',
-                                                        },
-                                                  )['widget']
+            return self.column_select.get_context(
+                name=name_fmt.format(name),
+                value=selected_column,
+                attrs={
+                    'id':    name_fmt.format(id_attr),
+                    'class': 'csv_col_select',
+                },
+            )['widget']
 
-        widget_cxt['category_colselect'] = column_select_context(name_fmt='{}_cat_colselect',
-                                                                 selected_key='cat_column_index',
-                                                                )
-        widget_cxt['subcategory_colselect'] = column_select_context(name_fmt='{}_subcat_colselect',
-                                                                    selected_key='subcat_column_index',
-                                                                   )
+        widget_cxt['category_colselect'] = column_select_context(
+            name_fmt='{}_cat_colselect',
+            selected_key='cat_column_index',
+        )
+        widget_cxt['subcategory_colselect'] = column_select_context(
+            name_fmt='{}_subcat_colselect',
+            selected_key='subcat_column_index',
+        )
 
         # Default values content -------
         cat_choices = [*self.categories]
 
-        # A mapping between categories & their sub-categories (in order to avoid HTTP requests later)
+        # A mapping between categories & their sub-categories
+        # (in order to avoid HTTP requests later)
         sub_cat_map = defaultdict(list)
         if cat_choices:
             for sub_cat in SubCategory.objects.filter(category__in=[c[0] for c in cat_choices]):
@@ -164,7 +182,8 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
         try:
             selected_subcat_id = int(value['default_subcat'])
         except (KeyError, ValueError, TypeError):
-            selected_subcat_choice = sub_cat_map.get(selected_cat_id)  # Notice that get() cannot create a new key
+            # Notice that get() cannot create a new key
+            selected_subcat_choice = sub_cat_map.get(selected_cat_id)
             selected_subcat_id = selected_subcat_choice[0] if selected_subcat_choice else None
 
         widget_cxt['subcat_js_map'] = sub_cat_map
@@ -206,7 +225,9 @@ class CategoriesExtractorField(Field):
     widget = CategoriesExtractorWidget
     default_error_messages = {
         'invalid_sub_cat': _('Select a valid sub-category.'),
-        'empty_sub_cat':   _('Select a column for the sub-category if you select a column for the category.'),
+        'empty_sub_cat': _(
+            'Select a column for the sub-category if you select a column for the category.'
+        ),
     }
 
     def __init__(self, *, choices, categories, **kwargs):
@@ -251,13 +272,19 @@ class CategoriesExtractorField(Field):
         try:
             default_subcat = SubCategory.objects.get(id=value['default_subcat'])
         except (ValueError, SubCategory.DoesNotExist) as e:
-            raise ValidationError(self.error_messages['invalid_sub_cat'], code='invalid_sub_cat') from e
+            raise ValidationError(
+                self.error_messages['invalid_sub_cat'],
+                code='invalid_sub_cat',
+            ) from e
 
         cat_index    = self._clean_index(value, 'cat_column_index')
         subcat_index = self._clean_index(value, 'subcat_column_index')
 
         if cat_index and not subcat_index:
-            raise ValidationError(self.error_messages['empty_sub_cat'], code='empty_sub_cat')
+            raise ValidationError(
+                self.error_messages['empty_sub_cat'],
+                code='empty_sub_cat',
+            )
 
         create = value['create']
         if create and not self._can_create:

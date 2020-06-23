@@ -52,7 +52,8 @@ class CremeConfigConfig(CremeAppConfig):
             #     app_name = app_config.name
             #
             #     try:
-            #         config_registry_mod = import_module('{}.{}'.format(app_name, 'creme_config_register'))
+            #         config_registry_mod = import_module('{}.{}'.format(app_name, '
+            #         creme_config_register'))
             #     except ImportError:
             #         continue
             #
@@ -74,7 +75,8 @@ class CremeConfigConfig(CremeAppConfig):
             #             model_conf.creation(form_class=form).edition(form_class=form)
             #
             #     for model in getattr(config_registry_mod, 'to_unregister', ()):
-            #         app_reg = config_registry.get_app_registry(model._meta.app_label, create=True)
+            #         app_reg = config_registry.get_app_registry(
+            #         model._meta.app_label, create=True)
             #
             #         try:
             #             app_reg.get_model_conf(model)
@@ -86,11 +88,13 @@ class CremeConfigConfig(CremeAppConfig):
             #                         'The app "{}" uses the out-of-order capability when '
             #                         'un-registering the model {} ; this capability has '
             #                         'been removed.'.format(app_name, model),
-            #                         hint='Fix the order of apps in the setting INSTALLED_CREME_APPS '
-            #                              'in your local_settings.py/project_settings.py (ie: the '
-            #                              'un-registered model must be registered _before_). '
-            #                              'Then, you should use the new registration system & call '
-            #                              'the method unregister_models() on the registry.',
+            #                         hint='Fix the order of apps in the setting
+            #                               'INSTALLED_CREME_APPS '
+            #                              'in your local_settings.py/project_settings.py '
+            #                              (ie: the un-registered model must be registered
+            #                              _before_). '
+            #                              'Then, you should use the new registration system &
+            #                              'call the method unregister_models() on the registry.',
             #                         obj=app_name,
             #                         id='creme_config.E001',
             #                     ),
@@ -98,11 +102,14 @@ class CremeConfigConfig(CremeAppConfig):
             #         else:
             #             app_reg._unregister_model(model)
             #
-            #     for app_label, brick_cls in getattr(config_registry_mod, 'blocks_to_register', ()):
+            #     for app_label, brick_cls in getattr(config_registry_mod,
+            #     'blocks_to_register', ()):
             #         config_registry.register_app_bricks(app_label, brick_cls)
             #
-            #     config_registry.register_user_bricks(*getattr(config_registry_mod, 'userblocks_to_register', ()))
-            #     config_registry.register_portal_bricks(*getattr(config_registry_mod, 'portalbricks_to_register', ()))
+            #     config_registry.register_user_bricks(*getattr(config_registry_mod,
+            #     'userblocks_to_register', ()))
+            #     config_registry.register_portal_bricks(*getattr(config_registry_mod,
+            #     'portalbricks_to_register', ()))
 
     def register_creme_config(self, config_registry):
         from . import bricks
@@ -152,7 +159,10 @@ class CremeConfigConfig(CremeAppConfig):
             TimezoneItem('creme_config-timezone'),
             priority=5,
         ).add(
-            URLItem('my_settings', url=reverse('creme_config__user_settings'), label=_('My settings')),
+            URLItem(
+                'my_settings', label=_('My settings'),
+                url=reverse('creme_config__user_settings'),
+            ),
             priority=30,
         )
         creme_menu.get(

@@ -191,7 +191,8 @@ class AssetsMatrixBrick(Brick):
     configurable  = False
 
     def detailview_display(self, context):
-        # NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
+        # NB: credentials are OK : we are sure to use the custom reload view
+        #     if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_template_context(
@@ -210,7 +211,8 @@ class CharmsMatrixBrick(Brick):
     configurable  = False
 
     def detailview_display(self, context):
-        # NB: credentials are OK : we are sure to use the custom reload view if 'strategy' & 'orga' are in the context
+        # NB: credentials are OK : we are sure to use the custom reload view
+        #     if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_template_context(
@@ -229,7 +231,8 @@ class AssetsCharmsMatrixBrick(Brick):
     configurable  = False
 
     def detailview_display(self, context):
-        # NB: credentials are OK : we are sure to use the custom reload view if 'strategy' & 'orga' are in the context
+        # NB: credentials are OK : we are sure to use the custom reload view
+        #     if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         return self._render(self.get_template_context(
             context,
@@ -238,9 +241,10 @@ class AssetsCharmsMatrixBrick(Brick):
 
 
 class ActObjectivesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('commercial', 'objectives')
-    # NB: would be cool to add the Relation dependency only if needed (ie one of the listed objectives
-    #     uses relationships), but modifying self.dependencies during the render is ugly.
+    id_ = QuerysetBrick.generate_id('commercial', 'objectives')
+    # NB: would be cool to add the Relation dependency only if needed
+    #     (ie: one of the listed objectives uses relationships), but
+    #     modifying self.dependencies during the render is ugly.
     dependencies  = (ActObjective, Relation)
     relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
     order_by      = 'name'

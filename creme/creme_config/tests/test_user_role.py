@@ -92,9 +92,15 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             app_labels = context1['form'].fields['allowed_apps'].choices
 
-        self.assertInChoices(value=apps[0],      label=_('Accounts and Contacts'), choices=app_labels)
-        self.assertInChoices(value=apps[1],      label=_('Documents'),             choices=app_labels)
-        self.assertInChoices(value='activities', label=_('Activities'),            choices=app_labels)
+        self.assertInChoices(
+            value=apps[0], label=_('Accounts and Contacts'), choices=app_labels,
+        )
+        self.assertInChoices(
+            value=apps[1], label=_('Documents'), choices=app_labels,
+        )
+        self.assertInChoices(
+            value='activities', label=_('Activities'), choices=app_labels,
+        )
 
         step_key = 'role_creation_wizard-current_step'
         response = self.client.post(url,
@@ -109,8 +115,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             adm_app_labels = response.context['form'].fields['admin_4_apps'].choices
 
-        self.assertInChoices(value=apps[0], label=_('Accounts and Contacts'), choices=adm_app_labels)
-        self.assertInChoices(value=apps[1], label=_('Documents'),             choices=adm_app_labels)
+        self.assertInChoices(
+            value=apps[0], label=_('Accounts and Contacts'), choices=adm_app_labels,
+        )
+        self.assertInChoices(
+            value=apps[1], label=_('Documents'), choices=adm_app_labels,
+        )
         self.assertNotInChoices(value='activities', choices=adm_app_labels)
 
         response = self.client.post(
@@ -1891,7 +1901,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # Step 1 ---
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-wizard-popup.html')
+        self.assertTemplateUsed(
+            response, 'creme_core/generics/blockform/edit-wizard-popup.html',
+        )
 
         context1 = response.context
         self.assertEqual(_('Next step'), context1.get('submit_label'))
@@ -1899,9 +1911,15 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             app_labels = context1['form'].fields['allowed_apps'].choices
 
-        self.assertInChoices(value=apps[0],      label=_('Accounts and Contacts'), choices=app_labels)
-        self.assertInChoices(value=apps[1],      label=_('Documents'),             choices=app_labels)
-        self.assertInChoices(value='activities', label=_('Activities'),            choices=app_labels)
+        self.assertInChoices(
+            value=apps[0], label=_('Accounts and Contacts'), choices=app_labels,
+        )
+        self.assertInChoices(
+            value=apps[1], label=_('Documents'), choices=app_labels,
+        )
+        self.assertInChoices(
+            value='activities', label=_('Activities'), choices=app_labels,
+        )
 
         step_key = 'role_edition_wizard-current_step'
         response = self.client.post(
@@ -1918,8 +1936,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             adm_app_labels = response.context['form'].fields['admin_4_apps'].choices
 
-        self.assertInChoices(value=apps[0],      label=_('Accounts and Contacts'), choices=adm_app_labels)
-        self.assertInChoices(value=apps[1],      label=_('Documents'),             choices=adm_app_labels)
+        self.assertInChoices(
+            value=apps[0], label=_('Accounts and Contacts'), choices=adm_app_labels,
+        )
+        self.assertInChoices(
+            value=apps[1], label=_('Documents'), choices=adm_app_labels,
+        )
         self.assertNotInChoices(value='activities', choices=adm_app_labels)
 
         response = self.client.post(
@@ -2015,8 +2037,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
 
         context = response.context
-        self.assertEqual(_('Delete role «{object}»').format(object=role), context.get('title'))
-        self.assertEqual(_('Delete the role'),                            context.get('submit_label'))
+        self.assertEqual(
+            _('Delete role «{object}»').format(object=role), context.get('title')
+        )
+        self.assertEqual(_('Delete the role'), context.get('submit_label'))
 
         with self.assertNoException():
             fields = context['form'].fields

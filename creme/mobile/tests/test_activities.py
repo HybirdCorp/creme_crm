@@ -273,27 +273,35 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         # Phone calls ----------------------------------------------------------
         i = count(1)
 
-        def create_pc(**kwargs):
-            return self._create_pcall(title='Pcall#{}'.format(next(i)), **kwargs)
+        def create_pc(participant=contact, **kwargs):
+            return self._create_pcall(
+                title='Pcall#{}'.format(next(i)), participant=participant, **kwargs
+            )
 
-        pc1 = create_pc(start=yesterday,             status_id=STATUS_PLANNED,   participant=contact)
-        pc2 = create_pc(start=now_val - timedelta(hours=25),                     participant=contact)  # Older than pc1 -> before
-        create_pc(start=yesterday,                   status_id=STATUS_DONE,      participant=contact)  # Done -> excluded
-        create_pc(start=yesterday,                   status_id=STATUS_CANCELLED, participant=contact)  # Cancelled -> excluded
-        create_pc(start=yesterday,                   status_id=STATUS_PLANNED,   participant=other_contact)  # I do not participate
-        tom1 = create_pc(start=now_val + timedelta(days=1, hours=0 if now_val.hour >= 1 else 1),
-                         status_id=STATUS_PLANNED, participant=contact,
-                        )  # Tomorrow
+        pc1 = create_pc(start=yesterday, status_id=STATUS_PLANNED)
+        pc2 = create_pc(start=now_val - timedelta(hours=25))  # Older than pc1 -> before
+        create_pc(start=yesterday, status_id=STATUS_DONE)  # Done -> excluded
+        create_pc(start=yesterday, status_id=STATUS_CANCELLED)  # Cancelled -> excluded
+        create_pc(
+            start=yesterday, status_id=STATUS_PLANNED,
+            participant=other_contact,
+        )  # I do not participate
+        tom1 = create_pc(
+            start=now_val + timedelta(days=1, hours=0 if now_val.hour >= 1 else 1),
+            status_id=STATUS_PLANNED,
+        )  # Tomorrow
 
         expected_pcalls = [
             pc2, pc1,
-            *(create_pc(start=now_val - timedelta(hours=23, minutes=60 - minute),
-                        participant=contact,
-                       ) for minute in range(8)
+            *(
+                create_pc(
+                    start=now_val - timedelta(hours=23, minutes=60 - minute),
+                    participant=contact,
+                ) for minute in range(8)
             ),
         ]
 
-        create_pc(start=now_val - timedelta(hours=23, minutes=7), participant=contact)  # Already 10 PhoneCalls
+        create_pc(start=now_val - timedelta(hours=23, minutes=7))  # Already 10 PhoneCalls
 
         # Floating activities --------------------------------------------------
         create_floating = self._create_floating
@@ -345,7 +353,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         for i in range(1, 32):
             activity = create_floating('Floating %i' % i)
             # TODO: improve self._create_floating for several participants
-            # several participants, because the template does not display 'me' (user.linked_contact)
+            # several participants, because the template does not display 'me'
+            # (user.linked_contact)
             Relation.objects.create(subject_entity=contact2, user=user,
                                     type_id=REL_SUB_PART_2_ACTIVITY,
                                     object_entity=activity,
@@ -933,7 +942,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         pcall = self.refresh(pcall)
         self.assertEqual(STATUS_DONE, pcall.status_id)
-        self.assertDatetimesAlmostEqual(start, pcall.start)  # NB: MySQL does not record milliseconds...
+        # NB: MySQL does not record milliseconds...
+        self.assertDatetimesAlmostEqual(start, pcall.start)
         self.assertDatetimesAlmostEqual(now(), pcall.end)
 
     @skipIfCustomActivity

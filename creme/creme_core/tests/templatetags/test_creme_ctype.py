@@ -35,8 +35,8 @@ class CremeCTypeTagsTestCase(CremeTestCase):
         with self.assertNoException():
             template = Template(
                 r"{% load creme_ctype %}"
-                r"{% ctype_for_naturalkey app_label='creme_core' model='currency' as currency_ctype %}"
-                r"<h1>{{currency_ctype}} ({{currency_ctype.id}})</h1>"
+                r"{% ctype_for_naturalkey app_label='creme_core' model='currency' as cur_ctype %}"
+                r"<h1>{{cur_ctype}} ({{cur_ctype.id}})</h1>"
             )
             render = template.render(Context())
 

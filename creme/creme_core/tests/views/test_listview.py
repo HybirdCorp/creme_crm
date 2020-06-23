@@ -89,11 +89,20 @@ class ListViewTestCase(ViewsTestCase):
     def _assertFastCount(self, captured_sql):
         db_engine = settings.DATABASES['default']['ENGINE']
         if db_engine == 'django.db.backends.mysql':
-            trash_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE `creme_core_cremeentity`.`is_deleted` = 1'
+            trash_sql = (
+                'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` '
+                'WHERE `creme_core_cremeentity`.`is_deleted` = 1'
+            )
         elif db_engine == 'django.db.backends.sqlite3':
-            trash_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE "creme_core_cremeentity"."is_deleted" = 1'
+            trash_sql = (
+                'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" '
+                'WHERE "creme_core_cremeentity"."is_deleted" = 1'
+            )
         elif db_engine.startswith('django.db.backends.postgresql'):
-            trash_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE "creme_core_cremeentity"."is_deleted" = true'
+            trash_sql = (
+                'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" '
+                'WHERE "creme_core_cremeentity"."is_deleted" = true'
+            )
         else:
             self.fail('This RDBMS is not managed by this test case.')
 
@@ -112,7 +121,9 @@ class ListViewTestCase(ViewsTestCase):
             ))
 
     def _assertNoDistinct(self, captured_sql):
-        entities_q_re = re.compile(r'^SELECT (?P<distinct>DISTINCT )?(.)creme_core_cremeentity(.)\.(.)id(.)')
+        entities_q_re = re.compile(
+            r'^SELECT (?P<distinct>DISTINCT )?(.)creme_core_cremeentity(.)\.(.)id(.)'
+        )
 
         count_q_found = False
         entities_q_found = False
@@ -375,7 +386,9 @@ class ListViewTestCase(ViewsTestCase):
         response = self.assertPOST200(url, data={'content': 1})
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
-        response = self.assertPOST200(url, data={'content': 1}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertPOST200(
+            url, data={'content': 1}, HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
     def test_content_popup_template(self):
@@ -418,7 +431,8 @@ class ListViewTestCase(ViewsTestCase):
         def post(selection):
             response = self.assertPOST200(self.url, data={'selection': selection})
             self.assertInHTML(
-                f'<input class="lv-state-field" value="{selection}" name="selection" type="hidden" />',
+                f'<input class="lv-state-field" value="{selection}" '
+                f'name="selection" type="hidden" />',
                 force_text(response.content)
             )
 
@@ -438,7 +452,8 @@ class ListViewTestCase(ViewsTestCase):
         def get(selection):
             response = self.assertGET200(self.url, data={'selection': selection})
             self.assertInHTML(
-                f'<input class="lv-state-field" value="{selection}" name="selection" type="hidden" />',
+                f'<input class="lv-state-field" value="{selection}" '
+                f'name="selection" type="hidden" />',
                 force_text(response.content)
             )
 
@@ -691,7 +706,8 @@ class ListViewTestCase(ViewsTestCase):
         act1 = create_act(title='Act#1', start=now())
         act2 = create_act(title='Act#2', start=act1.start + timedelta(hours=1))
 
-        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakeactivity')  # See fake populate
+        # See fake populate
+        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakeactivity')
 
         response = self.assertPOST200(FakeActivity.get_lv_absolute_url(), {'hfilter': hf.pk})
         content = self._get_lv_content(self._get_lv_node(response))
@@ -725,8 +741,9 @@ class ListViewTestCase(ViewsTestCase):
         create_contact(first_name='Edward', last_name='Wong')
 
         url = FakeContact.get_lv_absolute_url()
-        # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
-        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakecontact')  # See fake populate
+        # For the filter to prevent an issue when HeaderFiltersTestCase is run before this test
+        # See fake populate
+        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakecontact')
         response = self.assertPOST200(url, {'hfilter': hf.pk})
 
         entries = FakeContact.objects.all()
@@ -838,7 +855,9 @@ class ListViewTestCase(ViewsTestCase):
         self.assertFalse(bool(FakeAddress._meta.ordering))
 
         def create_contact(first_name, last_name, address):
-            contact = FakeContact.objects.create(user=user, first_name=first_name, last_name=last_name)
+            contact = FakeContact.objects.create(
+                user=user, first_name=first_name, last_name=last_name,
+            )
             contact.address = FakeAddress.objects.create(entity=contact, value=address)
             contact.save()
             return contact
@@ -859,7 +878,7 @@ class ListViewTestCase(ViewsTestCase):
         )
 
         url = FakeContact.get_lv_absolute_url()
-        # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
+        # For the filter to prevent an issue when HeaderFiltersTestCase is run before this test
         response = self.assertPOST200(url, {'hfilter':    hf.id,
                                             'sort_key': cell.key,
                                             # 'sort_order': '',
@@ -1108,7 +1127,9 @@ class ListViewTestCase(ViewsTestCase):
     #     self._build_hf()
     #
     #     # Invalid field : ignore filter
-    #     response = self.assertGET200(self.url, data={'q_filter': '{"unknown_model_field":"Bebop"}'})
+    #     response = self.assertGET200(
+    #          self.url, data={'q_filter': '{"unknown_model_field":"Bebop"}'}
+    #     )
     #
     #     content = self._get_lv_content(self._get_lv_node(response))
     #     self.assertIn(bebop.name, content)
@@ -1161,7 +1182,11 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(reverse('creme_core__mass_import',   args=(ct_id,)), hrefs[3])
         self.assertEqual(reverse('creme_core__batch_process', args=(ct_id,)), hrefs[4])
 
-    @override_settings(FAST_QUERY_MODE_THRESHOLD=1000000, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=1)
+    @override_settings(
+        FAST_QUERY_MODE_THRESHOLD=1000000,
+        PAGE_SIZES=[10, 25],
+        DEFAULT_PAGE_SIZE_IDX=1,
+    )
     def test_search_regularfields01(self):
         user = self.login()
 
@@ -1185,7 +1210,9 @@ class ListViewTestCase(ViewsTestCase):
 
         response = self.assertPOST200(url, data=build_data('Red'))
         lv_node = self._get_lv_node(response)
-        widget_node = self._get_lv_header_widget_nodes(lv_node, phone_cell.key, input_type='input')[0]
+        widget_node = self._get_lv_header_widget_nodes(
+            lv_node, phone_cell.key, input_type='input',
+        )[0]
         # self.assertEqual(_('Phone number'), widget_node.attrib.get('title')) TODO ?
 
         content = self._get_lv_content(lv_node)
@@ -1408,7 +1435,8 @@ class ListViewTestCase(ViewsTestCase):
         set_created(bebop,      create_dt(year=2075, month=3, day=26))
         set_created(swordfish,  create_dt(year=2074, month=6, day=5, hour=12))
         set_created(swordfish2, create_dt(year=2074, month=6, day=6, hour=0))  # Next day
-        set_created(sf_alpha,   create_dt(year=2074, month=6, day=4, hour=23, minute=59))  # Previous day
+        # Previous day
+        set_created(sf_alpha,   create_dt(year=2074, month=6, day=4, hour=23, minute=59))
         set_created(redtail,    create_dt(year=2076, month=7, day=25))
 
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='created')
@@ -1503,9 +1531,15 @@ class ListViewTestCase(ViewsTestCase):
         img_ed   = create_img(name='Ed selfie')
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
-        faye  = create_contact(first_name='Faye',   last_name='Valentine', civility=miss, image=img_faye)
-        ed    = create_contact(first_name='Edward', last_name='Wong',                     image=img_ed)
+        spike = create_contact(
+            first_name='Spike', last_name='Spiegel', civility=mister,
+        )
+        faye = create_contact(
+            first_name='Faye', last_name='Valentine', civility=miss, image=img_faye,
+        )
+        ed = create_contact(
+            first_name='Edward', last_name='Wong', image=img_ed,
+        )
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact', name='Order02 view', model=FakeContact,
@@ -2407,13 +2441,37 @@ class ListViewTestCase(ViewsTestCase):
 
         create_cf_value = partial(cfield_flight.value_class.objects.create)
         create_dt = partial(self.create_datetime, utc=True)
-        create_cf_value(entity=bebop,      custom_field=cfield_flight, value=create_dt(year=2075, month=3, day=26))
-        create_cf_value(entity=swordfish,  custom_field=cfield_flight, value=create_dt(year=2074, month=6, day=5))
-        create_cf_value(entity=redtail,    custom_field=cfield_flight, value=create_dt(year=2076, month=7, day=25))
-        create_cf_value(entity=hammerhead, custom_field=cfield_flight, value=create_dt(year=2074, month=7, day=6))
+        create_cf_value(
+            entity=bebop,
+            custom_field=cfield_flight,
+            value=create_dt(year=2075, month=3, day=26),
+        )
+        create_cf_value(
+            entity=swordfish,
+            custom_field=cfield_flight,
+            value=create_dt(year=2074, month=6, day=5),
+        )
+        create_cf_value(
+            entity=redtail,
+            custom_field=cfield_flight,
+            value=create_dt(year=2076, month=7, day=25),
+        )
+        create_cf_value(
+            entity=hammerhead,
+            custom_field=cfield_flight,
+            value=create_dt(year=2074, month=7, day=6),
+        )
 
-        create_cf_value(entity=swordfish,  custom_field=cfield_blood, value=create_dt(year=2074, month=6, day=8))
-        create_cf_value(entity=hammerhead, custom_field=cfield_blood, value=create_dt(year=2075, month=7, day=6))
+        create_cf_value(
+            entity=swordfish,
+            custom_field=cfield_blood,
+            value=create_dt(year=2074, month=6, day=8),
+        )
+        create_cf_value(
+            entity=hammerhead,
+            custom_field=cfield_blood,
+            value=create_dt(year=2075, month=7, day=6),
+        )
 
         cell_flight = EntityCellCustomField(cfield_flight)
         cell_blood  = EntityCellCustomField(cfield_blood)
@@ -2574,7 +2632,11 @@ class ListViewTestCase(ViewsTestCase):
 
         return organisations
 
-    @override_settings(FAST_QUERY_MODE_THRESHOLD=100000, PAGE_SIZES=[10, 25, 200], DEFAULT_PAGE_SIZE_IDX=0)
+    @override_settings(
+        FAST_QUERY_MODE_THRESHOLD=100000,
+        PAGE_SIZES=[10, 25, 200],
+        DEFAULT_PAGE_SIZE_IDX=0,
+    )
     def test_pagination_slow01(self):
         "Paginator with only OFFSET (small number of lines)"
         self.login()
@@ -2631,7 +2693,11 @@ class ListViewTestCase(ViewsTestCase):
         response = post(page=1, rows=1000)
         self.assertEqual(10, response.context['page_obj'].paginator.per_page)
 
-    @override_settings(FAST_QUERY_MODE_THRESHOLD=100000, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    @override_settings(
+        FAST_QUERY_MODE_THRESHOLD=100000,
+        PAGE_SIZES=[10],
+        DEFAULT_PAGE_SIZE_IDX=0,
+    )
     def test_pagination_slow02(self):
         "Page is saved"
         self.login()
@@ -2662,7 +2728,11 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(2, entities_page.number)
         self.assertIndex(organisations[10], [*entities_page.object_list])
 
-    @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=0)
+    @override_settings(
+        FAST_QUERY_MODE_THRESHOLD=5,
+        PAGE_SIZES=[10, 25],
+        DEFAULT_PAGE_SIZE_IDX=0,
+    )
     def test_pagination_fast01(self):
         "Paginator with 'keyset' (big number of lines)."
         self.login()
@@ -2713,7 +2783,11 @@ class ListViewTestCase(ViewsTestCase):
         idx11 = self.assertIndex(organisations[10], entities)
         self.assertEqual(0, idx11)
 
-    @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10, 50], DEFAULT_PAGE_SIZE_IDX=0)
+    @override_settings(
+        FAST_QUERY_MODE_THRESHOLD=5,
+        PAGE_SIZES=[10, 50],
+        DEFAULT_PAGE_SIZE_IDX=0,
+    )
     def test_pagination_fast02(self):
         "ContentType = Contact."
         user = self.login()
@@ -2779,7 +2853,11 @@ class ListViewTestCase(ViewsTestCase):
         idx11 = self.assertIndex(contacts[10], entities)
         self.assertEqual(0, idx11)
 
-    @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=1)
+    @override_settings(
+        FAST_QUERY_MODE_THRESHOLD=5,
+        PAGE_SIZES=[10, 25],
+        DEFAULT_PAGE_SIZE_IDX=1,
+    )
     def test_pagination_fast03(self):
         "Set an ORDER."
         user = self.login()
@@ -2842,7 +2920,11 @@ class ListViewTestCase(ViewsTestCase):
         idx11 = self.assertIndex(contacts[10], entities)
         self.assertEqual(0, idx11)
 
-    @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    @override_settings(
+        FAST_QUERY_MODE_THRESHOLD=5,
+        PAGE_SIZES=[10],
+        DEFAULT_PAGE_SIZE_IDX=0,
+    )
     def test_pagination_fast04(self):
         "Field key duplicates => use OFFSET too."
         user = self.login()
@@ -2857,7 +2939,9 @@ class ListViewTestCase(ViewsTestCase):
             # NB: same last_name
             create_contact(first_name='Gally', last_name='Tuned', phone='11 22 33 #%02i' % i)
 
-        contacts = [*FakeContact.objects.order_by('last_name', 'first_name', 'cremeentity_ptr_id')]
+        contacts = [
+            *FakeContact.objects.order_by('last_name', 'first_name', 'cremeentity_ptr_id'),
+        ]
         self.assertEqual(expected_count, len(contacts))
 
         hf = HeaderFilter.objects.create_if_needed(

@@ -45,7 +45,9 @@ class CampaignEditForm(CremeEntityForm):
 
 
 class CampaignAddListForm(CremeForm):
-    messaging_lists = MultiCreatorEntityField(label=_('Lists'), required=False, model=MessagingList)
+    messaging_lists = MultiCreatorEntityField(
+        label=_('Lists'), required=False, model=MessagingList,
+    )
 
     error_messages = {
         'already_linked': _('Following lists are already related to this campaign: %(lists)s'),

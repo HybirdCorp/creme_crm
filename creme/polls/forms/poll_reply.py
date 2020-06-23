@@ -56,18 +56,18 @@ PollReply    = polls.get_pollreply_model()
 class PollRepliesCreateForm(CremeForm):
     user     = ModelChoiceField(label=_('User'), required=True,
                                 queryset=get_user_model().objects.filter(is_staff=False),
-                               )
+                                )
     name     = CharField(label=_('Name'), required=True)
     campaign = CreatorEntityField(label=pgettext_lazy('polls', 'Related campaign'),
                                   model=PollCampaign, required=False,
-                                 )
+                                  )
     number   = IntegerField(label=_('Number of replies'), initial=1, min_value=1, required=False)
     persons  = MultiGenericEntityField(label=_('Persons who filled'), required=False,
                                        models=[Organisation, Contact],
                                        help_text=_('Each reply will be linked to a person '
                                                    '(and "Number of replies" will be ignored)'
-                                                  ),
-                                      )
+                                                   ),
+                                       )
     pform    = CreatorEntityField(label=_('Related form'), model=polls.get_pollform_model())
 
     def __init__(self, entity=None, *args, **kwargs):
@@ -116,7 +116,8 @@ class PollRepliesCreateForm(CremeForm):
         self.pform = pform
         self.pform_lines = lines
 
-    def create_preply(self, index, person, total_number):  # Easy to hook it in another app -> do not save
+    # Easy to hook it in another app -> do not save
+    def create_preply(self, index, person, total_number):
         cleaned_data = self.cleaned_data
         name = cleaned_data['name']
 
@@ -126,7 +127,7 @@ class PollRepliesCreateForm(CremeForm):
         return PollReply(user=cleaned_data['user'], pform=self.pform,
                          type=self.pform.type, name=name,
                          campaign=self.campaign, person=person,
-                        )
+                         )
 
     def save(self, *args, **kwargs):
         linked_persons = self.persons

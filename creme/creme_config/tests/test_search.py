@@ -59,7 +59,10 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                          response.context.get('bricks_reload_url')
                         )
 
-        brick_node = self.get_brick_node(self.get_html_tree(response.content), SearchConfigBrick.id_)
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            SearchConfigBrick.id_,
+        )
         title_node = brick_node.find(".//div[@class='search-config-group-title']")
         self.assertIsNotNone(title_node)
         self.assertEqual([str(ctype)], [text.strip() for text in title_node.itertext()])
@@ -85,13 +88,16 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_add01(self):
         role = self.role
         ct = self.ct_contact
-        self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, role=None, superuser=True))
+        self.assertFalse(
+            SearchConfigItem.objects.filter(content_type=ct, role=None, superuser=True)
+        )
 
         url = self._build_add_url(ct)
         context = self.assertGET200(url).context
-        self.assertEqual(_('New search configuration for «{model}»').format(model='Test Contact'),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New search configuration for «{model}»').format(model='Test Contact'),
+            context.get('title')
+        )
 
         with self.assertNoException():
             fields = context['form'].fields['fields']
@@ -280,7 +286,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_edit05(self):
         "Exclude DatePeriodField."
-        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(FakeInvoice))
+        sci = SearchConfigItem.objects.create(content_type=FakeInvoice)
         response = self.assertGET200(self._build_edit_url(sci))
 
         with self.assertNoException():

@@ -69,7 +69,8 @@ class SearchAddForm(_SearchForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = '*{}*'.format(gettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
+            # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(gettext('Superuser'))
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
@@ -91,8 +92,12 @@ class SearchEditForm(_SearchForm):
         instance = self.instance
         selected_fnames = [sf.name for sf in instance.searchfields]
         # TODO: work with Fields instead of Field names + split()...
-        not_hiddable_fnames = OrderedSet(fname.split('__', 1)[0] for fname in selected_fnames)
-        is_hidden = FieldsConfig.objects.get_for_model(instance.content_type.model_class()).is_fieldname_hidden
+        not_hiddable_fnames = OrderedSet(
+            fname.split('__', 1)[0] for fname in selected_fnames
+        )
+        is_hidden = FieldsConfig.objects.get_for_model(
+            instance.content_type.model_class(),
+        ).is_fieldname_hidden
 
         def keep_field(name):
             root_name = name.split('__', 1)[0]

@@ -253,9 +253,15 @@ class DatePeriodFieldTestCase(FieldTestCase):
 
     def test_choices(self):
         choices = [*DatePeriodField().choices]
-        self.assertInChoices(value=MinutesPeriod.name, label=MinutesPeriod.verbose_name, choices=choices)
-        self.assertInChoices(value=HoursPeriod.name,   label=HoursPeriod.verbose_name,   choices=choices)
-        self.assertInChoices(value=DaysPeriod.name,    label=DaysPeriod.verbose_name,    choices=choices)
+        self.assertInChoices(
+            value=MinutesPeriod.name, label=MinutesPeriod.verbose_name, choices=choices,
+        )
+        self.assertInChoices(
+            value=HoursPeriod.name, label=HoursPeriod.verbose_name, choices=choices,
+        )
+        self.assertInChoices(
+            value=DaysPeriod.name, label=DaysPeriod.verbose_name, choices=choices,
+        )
 
     def test_period_names(self):
         clean = DatePeriodField(period_names=('months',)).clean
@@ -320,30 +326,35 @@ class DateRangeFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(DateRangeField, 'required', clean, None)
 
     def test_start_before_end(self):
-        self.assertFieldValidationError(DateRangeField, 'customized_invalid',
-                                        DateRangeField().clean, ['', '2011-05-16', '2011-05-15']
-                                       )
+        self.assertFieldValidationError(
+            DateRangeField, 'customized_invalid',
+            DateRangeField().clean, ['', '2011-05-16', '2011-05-15']
+        )
 
     def test_ok01(self):
         drange = DateRangeField().clean(['', '2013-05-29', '2013-06-16'])
         dt = self.create_datetime
         self.assertIsInstance(drange, DateRange)
         self.assertIsInstance(drange, CustomRange)
-        self.assertEqual((dt(year=2013, month=5, day=29, hour=0,  minute=0,  second=0),
-                          dt(year=2013, month=6, day=16, hour=23, minute=59, second=59),
-                         ),
-                         drange.get_dates(now())
-                        )
+        self.assertTupleEqual(
+            (
+                dt(year=2013, month=5, day=29, hour=0,  minute=0,  second=0),
+                dt(year=2013, month=6, day=16, hour=23, minute=59, second=59),
+            ),
+            drange.get_dates(now())
+        )
 
     def test_ok02(self):
         drange = DateRangeField().clean([CurrentYearRange.name, '', ''])
         dt = self.create_datetime
         self.assertIsInstance(drange, CurrentYearRange)
-        self.assertEqual((dt(year=2013, month=1, day=1,   hour=0,  minute=0,  second=0),
-                          dt(year=2013, month=12, day=31, hour=23, minute=59, second=59),
-                         ),
-                         drange.get_dates(dt(year=2013, month=5, day=29, hour=11))
-                        )
+        self.assertTupleEqual(
+            (
+                dt(year=2013, month=1, day=1,   hour=0,  minute=0,  second=0),
+                dt(year=2013, month=12, day=31, hour=23, minute=59, second=59),
+            ),
+            drange.get_dates(dt(year=2013, month=5, day=29, hour=11))
+        )
 
     def test_ok03(self):
         drange = DateRangeField(required=False).clean(['', '', ''])
@@ -387,12 +398,15 @@ class DurationFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(DurationField, 'required', clean, [])
 
     def test_invalid01(self):
-        self.assertFieldValidationError(DurationField, 'invalid', DurationField().clean, ['a', 'b', 'c'])
+        self.assertFieldValidationError(
+            DurationField, 'invalid', DurationField().clean, ['a', 'b', 'c'],
+        )
 
     def test_positive01(self):
-        self.assertFieldValidationError(DurationField, 'min_value', DurationField().clean,
-                                        ['-1', '-1', '-1'], message_args={'limit_value': 0}
-                                       )
+        self.assertFieldValidationError(
+            DurationField, 'min_value', DurationField().clean,
+            ['-1', '-1', '-1'], message_args={'limit_value': 0},
+        )
 
     def test_ok01(self):
         clean = DurationField().clean
@@ -417,15 +431,21 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(expected, field.clean([]))
 
     def test_required(self):
-        clean = OptionalChoiceField(choices=enumerate(self._team, start=1), required=True).clean
+        clean = OptionalChoiceField(
+            choices=enumerate(self._team, start=1), required=True,
+        ).clean
 
         expected = (False, None)
         self.assertEqual(expected, clean([False, None]))
         self.assertEqual(expected, clean([False]))
         self.assertEqual(expected, clean([]))
 
-        self.assertFieldValidationError(OptionalChoiceField, 'subfield_required', clean, [True, None])
-        self.assertFieldValidationError(OptionalChoiceField, 'subfield_required', clean, [True])
+        self.assertFieldValidationError(
+            OptionalChoiceField, 'subfield_required', clean, [True, None],
+        )
+        self.assertFieldValidationError(
+            OptionalChoiceField, 'subfield_required', clean, [True],
+        )
 
     def test_invalid(self):
         field = OptionalChoiceField(choices=enumerate(self._team, start=1))
@@ -645,10 +665,13 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         field = MultiCTypeChoiceField(ctypes=[ct1, ct2], required=False)
         clean = field.clean
 
-        self.assertEqual(sorted([(ct1.pk, str(ct1)),
-                                 (ct2.pk, str(ct2)),
-                                ], key=lambda ct: ct[1]),
-                         [(choice.value, label) for choice, label in field.widget.choices])
+        self.assertListEqual(
+            sorted(
+                [(ct1.pk, str(ct1)), (ct2.pk, str(ct2))],
+                key=lambda ct: ct[1]
+            ),
+            [(choice.value, label) for choice, label in field.widget.choices]
+        )
 
         self.assertEqual([ct1], clean([ct1.id]))
         self.assertEqual([ct2], clean([ct2.id]))
@@ -658,12 +681,14 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
     def test_invalid(self):
         ct1 = self.ct1
         clean = MultiCTypeChoiceField(ctypes=[ct1, self.ct2]).clean
-        self.assertFieldValidationError(MultiCTypeChoiceField, 'invalid_choice',
-                                        clean, [ct1.id, self.ct3.id],
-                                       )
-        self.assertFieldValidationError(MultiCTypeChoiceField, 'invalid_choice',
-                                        clean, ['not an int'],
-                                       )
+        self.assertFieldValidationError(
+            MultiCTypeChoiceField, 'invalid_choice',
+            clean, [ct1.id, self.ct3.id],
+        )
+        self.assertFieldValidationError(
+            MultiCTypeChoiceField, 'invalid_choice',
+            clean, ['not an int'],
+        )
 
     def test_prepare_value(self):
         ct1 = self.ct1
@@ -1038,13 +1063,17 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertSetEqual({sector1, sector3}, {*clean([str(sector1.id), str(sector3.id)])})
 
         # NB: we need a 0-argument constructor
-        field_builder = partial(EnhancedModelMultipleChoiceField, queryset=FakeSector.objects.all())
+        field_builder = partial(
+            EnhancedModelMultipleChoiceField, queryset=FakeSector.objects.all(),
+        )
         self.assertFieldValidationError(field_builder, 'required', clean, '')
         self.assertFieldValidationError(field_builder, 'required', clean, [])
         self.assertFieldValidationError(field_builder, 'required', clean, None)
 
     def test_not_required(self):
-        field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all(), required=False)
+        field = EnhancedModelMultipleChoiceField(
+            queryset=FakeSector.objects.all(), required=False,
+        )
 
         sector = FakeSector.objects.first()
         self.assertIsNotNone(sector)
@@ -1055,7 +1084,9 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertFalse([], clean([]))
 
     def test_invalid(self):
-        field_builder = partial(EnhancedModelMultipleChoiceField, queryset=FakeSector.objects.all())
+        field_builder = partial(
+            EnhancedModelMultipleChoiceField, queryset=FakeSector.objects.all(),
+        )
         field = field_builder()
 
         invalid_pk = self.UNUSED_PK

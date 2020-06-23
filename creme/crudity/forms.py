@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2019  Hybird
+#    Copyright (C) 2016-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,9 @@ class CruditySynchronizeJobForm(JobForm):
         try:
             user_f.initial = self.instance.data['user']
         except Exception:
-            logger.exception('Error in CruditySynchronizeJobForm.__init__() with user initialisation.')
+            logger.exception(
+                'Error in CruditySynchronizeJobForm.__init__() with user initialisation.'
+            )
 
     def save(self, *args, **kwargs):
         self.instance.data = {'user': self.cleaned_data['user'].id}

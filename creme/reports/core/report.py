@@ -223,7 +223,8 @@ class ReportHand:
         value = None
 
         if entity is None:  # eg: a FK column was NULL, or the instance did not pass a filter
-            if self._report_field.selected:  # selected=True => self._report_field.sub_report is not None
+            if self._report_field.selected:
+                # selected=True => self._report_field.sub_report is not None
                 value = [self._handle_report_values(None, user, scope)]
         else:
             value = self._get_value(entity, user, scope)
@@ -379,7 +380,8 @@ class RHForeignKey(RHRegularField):
             title=str(fk_field.verbose_name) if sub_report else None,
         )
 
-    # NB: cannot rename to _get_related_instances() because forbidden entities are filtered instead of outputting '??'
+    # NB: cannot rename to _get_related_instances() because forbidden entities
+    #     are filtered instead of outputting '??'
     def _get_fk_instance(self, entity: CremeEntity) -> Optional[CremeEntity]:
         try:
             rel_entity = self._qs.get(pk=getattr(entity, self._fk_attr_name))
@@ -495,7 +497,8 @@ class RHRelation(ReportHand):
         )
 
     # TODO: add a feature in base class to retrieved efficiently real entities ??
-    # TODO: extract algorithm that retrieve efficiently real entity from CremeEntity.get_related_entities()
+    # TODO: extract algorithm that retrieve efficiently real entity from
+    #       CremeEntity.get_related_entities()
     def _get_value_no_subreport(self, entity, user, scope):
         has_perm = user.has_perm_to_view
         return ', '.join(

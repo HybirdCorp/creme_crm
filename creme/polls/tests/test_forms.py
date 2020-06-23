@@ -28,10 +28,19 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = PollFormLineConditionsField().clean
-        self.assertFieldValidationError(PollFormLineConditionsField, 'invalidformat', clean, '[')
-        self.assertFieldValidationError(PollFormLineConditionsField, 'invalidtype', clean, '"this is a string"')
-        self.assertFieldValidationError(PollFormLineConditionsField, 'invalidtype', clean, '"{}"')
-        self.assertFieldValidationError(PollFormLineConditionsField, 'invalidtype', clean, '{"foobar":{"operator": "3", "name": "first_name"}}')
+        self.assertFieldValidationError(
+            PollFormLineConditionsField, 'invalidformat', clean, '[',
+        )
+        self.assertFieldValidationError(
+            PollFormLineConditionsField, 'invalidtype', clean, '"this is a string"',
+        )
+        self.assertFieldValidationError(
+            PollFormLineConditionsField, 'invalidtype', clean, '"{}"',
+        )
+        self.assertFieldValidationError(
+            PollFormLineConditionsField, 'invalidtype', clean,
+            '{"foobar":{"operator": "3", "name": "first_name"}}',
+        )
 
     def _create_lines(self):
         self.login()
@@ -66,14 +75,16 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
     def test_clean_invalid_source02(self):
         "Only ENUM & MULTI_ENUM for now"
         line1, line2 = self._create_lines()
-        line3 = PollFormLine.objects.create(pform=self.pform,
-                                            question='What is your favorite meal ?',
-                                            type=PollLineType.STRING, order=3
-                                           )
-        self.assertFieldValidationError(PollFormLineConditionsField, 'invalidsource',
-                                        PollFormLineConditionsField(sources=[line1, line2, line3]).clean,
-                                        self.build_data({'source': line3.id, 'choice': 1}),
-                                       )
+        line3 = PollFormLine.objects.create(
+            pform=self.pform,
+            question='What is your favorite meal ?',
+            type=PollLineType.STRING, order=3
+        )
+        self.assertFieldValidationError(
+            PollFormLineConditionsField, 'invalidsource',
+            PollFormLineConditionsField(sources=[line1, line2, line3]).clean,
+            self.build_data({'source': line3.id, 'choice': 1}),
+        )
 
     @skipIfCustomPollForm
     def test_clean_invalid_choice(self):

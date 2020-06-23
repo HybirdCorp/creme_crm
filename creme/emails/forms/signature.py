@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,8 @@ from ..models import EmailSignature
 
 
 class SignatureForm(CremeModelForm):
-    # body = CharField(label=_(u'Body'))  # TODO: Use a rich text editor which works with innerpopup
+    # TODO: Use a rich text editor which works with inner-popup
+    # body = CharField(label=_(u'Body'))
 
     class Meta:
         model = EmailSignature

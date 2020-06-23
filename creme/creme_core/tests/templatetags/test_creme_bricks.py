@@ -79,7 +79,10 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 
         content_node = brick_node.find('.//div[@class="brick-content "]')
         self.assertIsNotNone(content_node)
-        self.assertEqual(motoko.last_name, self.get_brick_tile(content_node, 'regular_field-last_name').text)
+        self.assertEqual(
+            motoko.last_name,
+            self.get_brick_tile(content_node, 'regular_field-last_name').text
+        )
         self.assertIn(motoko.phone, self.get_brick_tile(content_node, 'regular_field-phone').text)
 
     def test_brick_declare_n_display01(self):
@@ -125,7 +128,9 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             render = Template(
                 '{% load creme_bricks %}'
                 '{% brick_declare my_brick1 my_bricks %}'
-                '{% brick_display my_brick1 %}{% brick_display my_bricks.0 %}{% brick_display my_bricks.1 %}'
+                '{% brick_display my_brick1 %}'
+                '{% brick_display my_bricks.0 %}'
+                '{% brick_display my_bricks.1 %}'
             ).render(context)
 
         self.assertEqual(
@@ -290,8 +295,10 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick_action(self):
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" class="brick-action action-type-add  "
+                  data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
                 icon_url=self._get_icon('add', 'brick-action').url,
@@ -303,8 +310,10 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         # No action_type placeholder
         self.assertBrickActionHTML(
             "{% brick_action 'add' %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" class="brick-action action-type-add  "
+                  data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label=_('Information'),
                 icon_url=self._get_icon('add', 'brick-action').url,
@@ -315,8 +324,10 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         # action_type placeholder
         self.assertBrickActionHTML(
             "{% brick_action 'edit' %}",
-            '''<a href="" title="{label}" class="brick-action action-type-edit  " data-action="edit">
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" class="brick-action action-type-edit  "
+                  data-action="edit">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label=_('Edit'),
                 icon_url=self._get_icon('edit', 'brick-action').url,
@@ -327,8 +338,10 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         # force to empty string
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='' %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" class="brick-action action-type-add  "
+                  data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='',
                 icon_url=self._get_icon('add', 'brick-action').url,
@@ -339,8 +352,10 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick_action_icon(self):
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' icon='delete' icon_size='small' %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" class="brick-action action-type-add  "
+                  data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
                 icon_url=self._get_icon('delete', 'small').url,
@@ -349,9 +364,12 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         self.assertBrickActionHTML(
-            "{% brick_action 'add' label='Add something' icon='delete' help_text='This action adds something' icon_size='small' %}",
-            '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
-                <img src="{icon_url}" class="brick-action-icon" title="{help_text}" alt="{help_text}" width="{icon_size}px"/>
+            "{% brick_action 'add' label='Add something' icon='delete' "
+            "help_text='This action adds something' icon_size='small' %}",
+            '''<a href="" title="{help_text}" class="brick-action action-type-add  "
+                  data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{help_text}"
+                     alt="{help_text}" width="{icon_size}px"/>
             </a>'''.format(
                 # label='Add something',
                 help_text='This action adds something',
@@ -363,14 +381,17 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick_action_text(self):
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' display='text' %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
+            '''<a href="" title="{label}" class="brick-action action-type-add  "
+                  data-action="add">
                 <span class="brick-action-title">{label}</span>
             </a>'''.format(label='Add something')
         )
 
         self.assertBrickActionHTML(
-            "{% brick_action 'add' label='Add something' display='text' help_text='This action adds something' %}",
-            '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
+            "{% brick_action 'add' label='Add something' display='text' "
+            "help_text='This action adds something' %}",
+            '''<a href="" title="{help_text}" class="brick-action action-type-add  "
+                  data-action="add">
                 <span class="brick-action-title">{label}</span>
             </a>'''.format(
                 label='Add something',
@@ -381,8 +402,10 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick_action_both(self):
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' display='both' %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" class="brick-action action-type-add  "
+                  data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
                 <span class="brick-action-title">{label}</span>
             </a>'''.format(
                 label='Add something',
@@ -392,9 +415,12 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         self.assertBrickActionHTML(
-            "{% brick_action 'add' label='Add something' display='both' help_text='This action adds something' %}",
-            '''<a href="" title="{help_text}" class="brick-action action-type-add  " data-action="add">
-                <img src="{icon_url}" class="brick-action-icon" title="{help_text}" alt="{help_text}" width="{icon_size}px"/>
+            "{% brick_action 'add' label='Add something' display='both' "
+            "help_text='This action adds something' %}",
+            '''<a href="" title="{help_text}" class="brick-action action-type-add  "
+                  data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{help_text}"
+                     alt="{help_text}" width="{icon_size}px"/>
                 <span class="brick-action-title">{label}</span>
             </a>'''.format(
                 label='Add something',
@@ -407,8 +433,10 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick_action_disabled(self):
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' enabled=False %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add is-disabled " data-action="add">
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" data-action="add"
+                  class="brick-action action-type-add is-disabled ">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
                 icon_url=self._get_icon('add', 'brick-action').url,
@@ -419,8 +447,10 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick_action_loading(self):
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' loading=True %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add is-async-action " data-action="add">
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" class="brick-action action-type-add is-async-action "
+                  data-action="add">
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
                 icon_url=self._get_icon('add', 'brick-action').url,
@@ -431,9 +461,13 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick_action_confirm(self):
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' confirm=True %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
-                <script class="brick-action-data" type="application/json"><!-- {json_data} --></script>
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" class="brick-action action-type-add  "
+                  data-action="add">
+                <script class="brick-action-data" type="application/json">
+                <!-- {json_data} -->
+                </script>
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
                 icon_url=self._get_icon('add', 'brick-action').url,
@@ -447,9 +481,13 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertBrickActionHTML(
             "{% brick_action 'add' label='Add something' confirm='Are you sure ?' %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
-                <script class="brick-action-data" type="application/json"><!-- {json_data} --></script>
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            '''<a href="" title="{label}" class="brick-action action-type-add  "
+                  data-action="add">
+                <script class="brick-action-data" type="application/json">
+                <!-- {json_data} -->
+                </script>
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
                 icon_url=self._get_icon('add', 'brick-action').url,
@@ -463,10 +501,15 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_brick_action_extra_data(self):
         self.assertBrickActionHTML(
-            "{% brick_action 'add' label='Add something' confirm=True __name1='value1' __name2=2 %}",
-            '''<a href="" title="{label}" class="brick-action action-type-add  " data-action="add">
-                <script class="brick-action-data" type="application/json"><!-- {json_data} --></script>
-                <img src="{icon_url}" class="brick-action-icon" title="{label}" alt="{label}" width="{icon_size}px"/>
+            "{% brick_action 'add' label='Add something' confirm=True "
+            "__name1='value1' __name2=2 %}",
+            '''<a href="" title="{label}" class="brick-action action-type-add  "
+                  data-action="add">
+                <script class="brick-action-data" type="application/json">
+                <!-- {json_data} -->
+                </script>
+                <img src="{icon_url}" class="brick-action-icon" title="{label}"
+                     alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
                 icon_url=self._get_icon('add', 'brick-action').url,

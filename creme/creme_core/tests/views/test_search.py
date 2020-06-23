@@ -48,10 +48,18 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         sector = FakeSector.objects.create(title='Linux dev')
 
         create_contact = partial(FakeContact.objects.create, user=user or self.user)
-        self.linus  = create_contact(first_name='Linus',  last_name='Torvalds')
-        self.alan   = create_contact(first_name='Alan',   last_name='Cox',      description='Cool beard')
-        self.linus2 = create_contact(first_name='Linus',  last_name='Impostor', is_deleted=True)
-        self.andrew = create_contact(first_name='Andrew', last_name='Morton',   sector=sector)
+        self.linus = create_contact(
+            first_name='Linus',  last_name='Torvalds',
+        )
+        self.alan = create_contact(
+            first_name='Alan', last_name='Cox', description='Cool beard',
+        )
+        self.linus2 = create_contact(
+            first_name='Linus',  last_name='Impostor', is_deleted=True,
+        )
+        self.andrew = create_contact(
+            first_name='Andrew', last_name='Morton', sector=sector,
+        )
 
     def _setup_contacts(self, disabled=False, user=None):
         SearchConfigItem.objects.create_if_needed(
@@ -251,9 +259,15 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         sector = FakeSector.objects.create(title='Linux dev')
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        linus  = create_contact(first_name='Linus',  last_name='Torvalds', description="Alan's friend")
-        alan   = create_contact(first_name='Alan',   last_name='Cox',      description="Linus' friend")
-        andrew = create_contact(first_name='Andrew', last_name='Morton',   sector=sector)
+        linus = create_contact(
+            first_name='Linus', last_name='Torvalds', description="Alan's friend",
+        )
+        alan = create_contact(
+            first_name='Alan', last_name='Cox', description="Linus' friend",
+        )
+        andrew = create_contact(
+            first_name='Andrew', last_name='Morton', sector=sector,
+        )
 
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -293,9 +307,13 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, self.alan.get_absolute_url())
         self.assertNotContains(response, self.andrew.get_absolute_url())
 
-        self.assertContains(response,
-                            _('It seems that all fields are hidden. Ask your administrator to fix the configuration.')
-                           )
+        self.assertContains(
+            response,
+            _(
+                'It seems that all fields are hidden. '
+                'Ask your administrator to fix the configuration.'
+            )
+        )
 
     def test_search12(self):
         "Model is not a CremeEntity."

@@ -56,11 +56,17 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     @staticmethod
     def build_deleteline_url():
-        return reverse('creme_core__delete_related_to_entity', args=(get_ct(PollFormLine).id,))
+        return reverse(
+            'creme_core__delete_related_to_entity',
+            args=(get_ct(PollFormLine).id,),
+        )
 
     @staticmethod
     def build_deletesection_url():
-        return reverse('creme_core__delete_related_to_entity', args=(get_ct(PollFormSection).id,))
+        return reverse(
+            'creme_core__delete_related_to_entity',
+            args=(get_ct(PollFormSection).id,),
+        )
 
     @staticmethod
     def build_disableline_url(line):
@@ -72,18 +78,25 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def create_enum_line(self, choices, qtype=PollLineType.ENUM, del_choices=None):
         kwargs = {} if not del_choices else {'del_choices': del_choices}
-        create_l = self._get_formline_creator(PollForm.objects.create(user=self.user, name='Form#1'))
+        create_l = self._get_formline_creator(
+            PollForm.objects.create(user=self.user, name='Form#1'),
+        )
 
-        return create_l('What are your favorite colors ?', qtype=qtype, choices=choices, **kwargs)
+        return create_l(
+            'What are your favorite colors ?', qtype=qtype, choices=choices,
+            **kwargs
+        )
 
     def create_enum_line_from_view(self, choices, qtype=PollLineType.ENUM):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
-        response = self.client.post(self.build_addline_url(pform),
-                                    data={'question': 'What are the main colors of a swallow ?',
-                                          'type':     qtype,
-                                          'choices':  '\r\n'.join(choices),
-                                         }
-                                    )
+        response = self.client.post(
+            self.build_addline_url(pform),
+            data={
+                'question': 'What are the main colors of a swallow ?',
+                'type':     qtype,
+                'choices':  '\r\n'.join(choices),
+            },
+        )
         self.assertNoFormError(response)
 
         line = pform.lines.all()[0]
@@ -97,10 +110,11 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         create_l = self._get_formline_creator(pform=pform)
         choices = [[1, 'A little bit'], [2, 'A lot']]
 
-        return (create_l('How do you like swallows ?', qtype=ENUM, choices=choices),
-                create_l('How do you like parrots ?',  qtype=ENUM, choices=choices),
-                create_l('Do you love all birds ?',    qtype=PollLineType.STRING, conds_use_or=False),
-               )
+        return (
+            create_l('How do you like swallows ?', qtype=ENUM, choices=choices),
+            create_l('How do you like parrots ?',  qtype=ENUM, choices=choices),
+            create_l('Do you love all birds ?',    qtype=PollLineType.STRING, conds_use_or=False),
+        )
 
     def delete_related(self, related, url, ajax=False):
         kwargs = {} if not ajax else {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
@@ -329,7 +343,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             set_type=SetCredentials.ESET_ALL,
         )
         pform = PollForm.objects.create(user=user, name='Form#1')
-        section = PollFormSection.objects.create(pform=pform, name='Name of the Chapter 1', order=1)
+        section = PollFormSection.objects.create(
+            pform=pform, name='Name of the Chapter 1', order=1,
+        )
         self.assertGET403(reverse('polls__create_child_form_section', args=(section.id,)))
 
     def test_edit_section(self):
@@ -396,7 +412,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         section     = create_section(name='Chapter I',   order=1)
         sub_section = create_section(name='Chapter I.1', order=2, parent=section)
 
-        self.assertEqual([False, False], [node.has_line for node in SectionTree(pform) if node.is_section])
+        self.assertListEqual(
+            [False, False],
+            [node.has_line for node in SectionTree(pform) if node.is_section]
+        )
 
         self.assertRedirects(self.delete_section(section), pform.get_absolute_url())
         self.assertFalse(PollFormSection.objects.filter(pk__in=[section.pk, sub_section.pk]))
@@ -713,12 +732,14 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         def post(*choices):
-            response = self.assertPOST200(self.build_addline_url(pform),
-                                          data={'question': 'What is the main color of a swallow ?',
-                                                'type':     PollLineType.ENUM,
-                                                'choices':  '\n'.join(choices),
-                                               }
-                                          )
+            response = self.assertPOST200(
+                self.build_addline_url(pform),
+                data={
+                    'question': 'What is the main color of a swallow ?',
+                    'type':     PollLineType.ENUM,
+                    'choices':  '\n'.join(choices),
+                },
+            )
             self.assertFormError(response, 'form', None, _('Give 2 choices at least.'))
 
         post()
@@ -727,29 +748,32 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_add_line_multichoices01(self):
         self.login()
-        line = self.create_enum_line_from_view(['White', 'Black', 'Green', 'Purple'],
-                                               qtype=PollLineType.MULTI_ENUM
-                                               )
+        line = self.create_enum_line_from_view(
+            ['White', 'Black', 'Green', 'Purple'], qtype=PollLineType.MULTI_ENUM,
+        )
         plt = line.poll_line_type
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
         self.assertEqual(choices, plt.get_choices())
         self.assertEqual(choices, plt.get_editable_choices())
         self.assertEqual(_('Multiple choice list'), plt.verbose_name)
-        self.assertEqual(_('Multiple choice list ({})').format('White / Black / Green / Purple'),
-                         plt.description
-                        )
+        self.assertEqual(
+            _('Multiple choice list ({})').format('White / Black / Green / Purple'),
+            plt.description
+        )
 
     def test_add_line_multichoices02(self):
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         def post(*choices):
-            response = self.assertPOST200(self.build_addline_url(pform),
-                                          data={'question': 'What are the main colors of a swallow ?',
-                                                'type':     PollLineType.MULTI_ENUM,
-                                                'choices':  '\n'.join(choices),
-                                               }
-                                          )
+            response = self.assertPOST200(
+                self.build_addline_url(pform),
+                data={
+                    'question': 'What are the main colors of a swallow ?',
+                    'type':     PollLineType.MULTI_ENUM,
+                    'choices':  '\n'.join(choices),
+                },
+            )
             self.assertFormError(response, 'form', None, _('Give 2 choices at least.'))
 
         post()
@@ -1178,16 +1202,18 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Assert choices are not empty"
         self.login()
         line = self.create_enum_line([[1, 'White'], [2, 'Black'], [3, 'Red']])
-        response = self.assertPOST200(line.get_edit_absolute_url(),
-                                      data={'question': line.question,
+        response = self.assertPOST200(
+            line.get_edit_absolute_url(),
+            data={
+                'question': line.question,
 
-                                            'old_choices_check_0': 'on',
-                                            'old_choices_value_0': 'White',
+                'old_choices_check_0': 'on',
+                'old_choices_value_0': 'White',
 
-                                            'old_choices_check_1': 'on',
-                                            'old_choices_value_1': ' ',  # Empty  (after stripping) !!
-                                           }
-                                     )
+                'old_choices_check_1': 'on',
+                'old_choices_value_1': ' ',  # Empty  (after stripping) !!
+            },
+        )
         self.assertFormError(response, 'form', 'old_choices',
                              _('Choices can not be empty.')
                             )
@@ -1257,9 +1283,11 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         line1, line2, line3 = self.create_3_lines_4_conditions()
 
-        PollFormLineCondition.objects.create(line=line3, source=line1, raw_answer='1',  # We use choice 'A little bit' for condition
-                                             operator=PollFormLineCondition.EQUALS,
-                                            )
+        # We use choice 'A little bit' for condition
+        PollFormLineCondition.objects.create(
+            line=line3, source=line1, raw_answer='1',
+            operator=PollFormLineCondition.EQUALS,
+        )
 
         response = self.client.post(line1.get_edit_absolute_url(),
                                     data={'question':    line1.question,
@@ -1290,7 +1318,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         line1, line2, line3 = self.create_3_lines_4_conditions()
 
-        PollFormLineCondition.objects.create(line=line3, source=line1, raw_answer='1',  # We use choice 'A little bit' for condition
+        # We use choice 'A little bit' for condition
+        PollFormLineCondition.objects.create(line=line3, source=line1, raw_answer='1',
                                              operator=PollFormLineCondition.EQUALS,
                                             )
 
@@ -1370,9 +1399,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         with self.assertNumQueries(0):
             nodes = [*stree]
 
-        self.assertEqual([line0, line1, section1, line1_1, section11, line11_1, line11_2, section2],
-                         nodes
-                        )
+        self.assertListEqual(
+            [line0, line1, section1, line1_1, section11, line11_1, line11_2, section2],
+            nodes
+        )
         self.assertFalse(nodes[0].is_section)
         self.assertTrue(nodes[2].is_section)
         self.assertEqual([0, 0, 0, 1, 1, 2, 2, 0], [node.deep for node in nodes])
@@ -1399,7 +1429,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.STRING)
         line0    = create_line(question='What is the difference between a swallow ?', order=1)
         line1_1  = create_line(question='What type of swallow ?', section=section1,   order=2)
-        line11_2 = create_line(question='Do you eat swallows ?',  section=section11,  order=4)  # <= order inverted
+        # order inverted:
+        line11_2 = create_line(question='Do you eat swallows ?',  section=section11,  order=4)
         line11_1 = create_line(question='Do you like swallows ?', section=section11,  order=3)
 
         with self.assertNumQueries(2):  # 1 for sections, 1 for lines
@@ -1494,7 +1525,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
-        enum_kwargs = {'qtype': PollLineType.ENUM, 'choices': [[1, 'Spam'], [2, 'Grilled swallow']]}
+        enum_kwargs = {
+            'qtype': PollLineType.ENUM,
+            'choices': [[1, 'Spam'], [2, 'Grilled swallow']],
+        }
         create_l = self._get_formline_creator(pform)
         line1 = create_l('What is your favorite meal ?',      **enum_kwargs)
         line2 = create_l('What is your real favorite meal ?', **enum_kwargs)
@@ -1704,9 +1738,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         line3 = self.refresh(line3)
         self.assertIs(line3.conds_use_or, True)
-        self.assertEqual([(line1, '2'), (line2, '1')],
-                         [(cond.source, cond.raw_answer) for cond in line3.conditions.order_by('id')]
-                        )
+        self.assertListEqual(
+            [(line1, '2'), (line2, '1')],
+            [(cond.source, cond.raw_answer) for cond in line3.conditions.order_by('id')]
+        )
 
     def test_edit_line_conditions02(self):
         "Change an existing condition & remove one"
@@ -1818,7 +1853,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         self.assertEqual(302, self.disable_line(line3).status_code)
         self.assertTrue(self.assertStillExists(line3).disabled)
-        self.assertFalse(PollFormLineCondition.objects.filter(id__in=[cond1.id, cond2.id]).exists())
+        self.assertFalse(
+            PollFormLineCondition.objects.filter(id__in=[cond1.id, cond2.id]).exists()
+        )
 
     def test_disable_line03(self):
         "Disabled line has a line that depends on it"
@@ -1833,7 +1870,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertStillExists(cond)
 
         # TODO: when 404 rendering is improved
-        # self.assertIn(_('There is at least one other question which depends on this question.'), response.content)
+        # self.assertIn(
+        #     _('There is at least one other question which depends on this question.'),
+        #     response.content
+        # )
 
     def test_disable_line04(self):
         "Already disabled"
@@ -1873,9 +1913,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(403, response.status_code)
         self.assertFalse(self.assertStillExists(line2).disabled)
         self.assertStillExists(cond)
-        self.assertEqual(_('There is at least one other question which depends on this question.'),
-                         smart_text(response.content)
-                        )
+        self.assertEqual(
+            _('There is at least one other question which depends on this question.'),
+            smart_text(response.content)
+        )
 
     def test_delete_line01(self):
         user = self.login()
@@ -1919,7 +1960,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertStillExists(cond)
 
         # TODO: when 404 rendering is improved
-        # self.assertIn(_('There is at least one other question which depends on this question.'), response.content)
+        # self.assertIn(
+        #     _('There is at least one other question which depends on this question.'),
+        #     response.content
+        # )
 
     # def test_delete_line04(self): #TODO ??
     #     pform = PollForm.objects.create(user=self.user, name='Form#1')
@@ -1957,9 +2001,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(403, response.status_code)
         self.assertStillExists(line2)
         self.assertStillExists(cond)
-        self.assertEqual(_('There is at least one other question which depends on this question.'),
-                         smart_text(response.content)
-                        )
+        self.assertEqual(
+            _('There is at least one other question which depends on this question.'),
+            smart_text(response.content)
+        )
 
     def test_get_choices01(self):
         "ENUM"
@@ -2085,7 +2130,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                             question='Do you love green swallows ?',
                                            )
 
-        create_cond = partial(PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS)
+        create_cond = partial(
+            PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS,
+        )
         cond1 = create_cond(line=line3, source=line1, raw_answer='2')
         cond2 = create_cond(line=line3, source=line2, raw_answer='2')
         cond3 = create_cond(line=line4, source=line1, raw_answer='2')
@@ -2128,7 +2175,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                       conds_use_or=False, type=PollLineType.STRING
                                      )
 
-        create_cond = partial(PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS)
+        create_cond = partial(
+            PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS,
+        )
         dumps = json_dump
         cond1 = create_cond(line=line_with_conds, source=line1, raw_answer='2')
         cond2 = create_cond(line=line_with_conds, source=line2, raw_answer=dumps([1]))
@@ -2176,7 +2225,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         line_with_conds = create_line(question='Do you love all birds ?', order=6,
                                       conds_use_or=False, type=PollLineType.STRING
                                      )
-        create_cond = partial(PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS)
+        create_cond = partial(
+            PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS,
+        )
         dumps = json_dump
         create_cond(line=line_with_conds, source=line1, raw_answer='2')
         create_cond(line=line_with_conds, source=line2, raw_answer=dumps([1]))

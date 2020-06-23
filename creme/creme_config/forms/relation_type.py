@@ -49,43 +49,57 @@ _PropertyTypesField = partial(ModelMultipleChoiceField, required=False,
 
 
 class RelationTypeCreateForm(CremeForm):
-    subject_ctypes     = _CTypesField()
-    subject_properties = _PropertyTypesField(help_text=_('The subject must have all the selected properties.'))
+    subject_ctypes = _CTypesField()
+    subject_properties = _PropertyTypesField(
+        help_text=_('The subject must have all the selected properties.'),
+    )
 
-    subject_predicate   = CharField(label=_('Subject => object'))
-    subject_is_copiable = BooleanField(label=_('Direct relationship is copiable'), initial=True, required=False,
-                                       help_text=_('Are the relationships with this type copied '
-                                                   'when the subject entity is cloned?'
-                                                  ),
-                                      )
-    subject_min_display = BooleanField(label=_("Display once on the subject's page"), required=False,
-                                       help_text=_('Do not display in the «Relationships» block (detail-view of '
-                                                   'subject) when it is already displayed by another block.'
-                                                  ),
-                                      )
+    subject_predicate = CharField(label=_('Subject => object'))
+    subject_is_copiable = BooleanField(
+        label=_('Direct relationship is copiable'), initial=True, required=False,
+        help_text=_(
+            'Are the relationships with this type copied when the subject entity is cloned?'
+        ),
+    )
+    subject_min_display = BooleanField(
+        label=_("Display once on the subject's page"), required=False,
+        help_text=_(
+            'Do not display in the «Relationships» block (detail-view of '
+            'subject) when it is already displayed by another block.'
+        ),
+    )
 
-    object_predicate   = CharField(label=_('Object => subject'))
-    object_is_copiable = BooleanField(label=_('Symmetrical relationship is copiable'), initial=True, required=False,
-                                      help_text=_('Are the relationships with this type copied '
-                                                  'when the object entity is cloned?'
-                                                 ),
-                                     )
-    object_min_display = BooleanField(label=_("Display once on the subject's page"), required=False,
-                                      help_text=_('Do not display in the «Relationships» block (detail-view of '
-                                                  'object) when it is already displayed by another block.'
-                                                 ),
-                                     )
+    object_predicate = CharField(label=_('Object => subject'))
+    object_is_copiable = BooleanField(
+        label=_('Symmetrical relationship is copiable'), initial=True, required=False,
+        help_text=_(
+            'Are the relationships with this type copied when the object entity is cloned?'
+        ),
+    )
+    object_min_display = BooleanField(
+        label=_("Display once on the subject's page"), required=False,
+        help_text=_(
+            'Do not display in the «Relationships» block (detail-view of '
+            'object) when it is already displayed by another block.'
+        ),
+    )
 
-    object_ctypes      = _CTypesField()
-    object_properties  = _PropertyTypesField(help_text=_('The object must have all the selected properties.'))
+    object_ctypes = _CTypesField()
+    object_properties = _PropertyTypesField(
+        help_text=_('The object must have all the selected properties.'),
+    )
 
     blocks = FieldBlockManager(
-        ('subject',   _('Subject'),        ('subject_ctypes', 'subject_properties')),
-        ('predicate', _('Verb/Predicate'), ('subject_predicate', 'subject_is_copiable', 'subject_min_display',
-                                            'object_predicate',  'object_is_copiable',  'object_min_display',
-                                           )
+        ('subject', _('Subject'), ['subject_ctypes', 'subject_properties']),
+        (
+            'predicate',
+            _('Verb/Predicate'),
+            [
+                'subject_predicate', 'subject_is_copiable', 'subject_min_display',
+                'object_predicate',  'object_is_copiable',  'object_min_display',
+            ],
         ),
-        ('object',    _('Object'),         ('object_ctypes', 'object_properties')),
+        ('object', _('Object'), ['object_ctypes', 'object_properties']),
     )
 
     def __init__(self, instance=None, *args, **kwargs):
@@ -101,11 +115,25 @@ class RelationTypeCreateForm(CremeForm):
         object_ctypes  = [ct.model_class() for ct in get_data('object_ctypes')]
 
         return RelationType.create(
-            (pk_subject, get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
-            (pk_object,  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
+            (
+                pk_subject,
+                get_data('subject_predicate'),
+                subject_ctypes,
+                get_data('subject_properties'),
+            ),
+            (
+                pk_object,
+                get_data('object_predicate'),
+                object_ctypes,
+                get_data('object_properties'),
+            ),
             is_custom=True, generate_pk=generate_pk,
-            is_copiable=(get_data('subject_is_copiable'), get_data('object_is_copiable')),
-            minimal_display=(get_data('subject_min_display'), get_data('object_min_display')),
+            is_copiable=(
+                get_data('subject_is_copiable'), get_data('object_is_copiable')
+            ),
+            minimal_display=(
+                get_data('subject_min_display'), get_data('object_min_display')
+            ),
         )
 
 
@@ -116,35 +144,39 @@ class RelationTypeEditForm(RelationTypeCreateForm):
         sym_instance = instance.symmetric_type
         fields = self.fields
 
-        fields['subject_ctypes'].initial     = instance.subject_ctypes.values_list('id', flat=True)
-        fields['subject_properties'].initial = instance.subject_properties.values_list('id', flat=True)
+        fields['subject_ctypes'].initial = instance.subject_ctypes.values_list('id', flat=True)
+        fields['subject_properties'].initial = \
+            instance.subject_properties.values_list('id', flat=True)
 
         fields['subject_predicate'].initial = instance.predicate
-        fields['object_predicate'].initial  = sym_instance.predicate
+        fields['object_predicate'].initial = sym_instance.predicate
 
-        fields['object_ctypes'].initial     = instance.object_ctypes.values_list('id', flat=True)
-        fields['object_properties'].initial = instance.object_properties.values_list('id', flat=True)
+        fields['object_ctypes'].initial = instance.object_ctypes.values_list('id', flat=True)
+        fields['object_properties'].initial = \
+            instance.object_properties.values_list('id', flat=True)
 
         fields['subject_is_copiable'].initial = instance.is_copiable
-        fields['object_is_copiable'].initial  = sym_instance.is_copiable
+        fields['object_is_copiable'].initial = sym_instance.is_copiable
 
         fields['subject_min_display'].initial = instance.minimal_display
-        fields['object_min_display'].initial  = sym_instance.minimal_display
+        fields['object_min_display'].initial = sym_instance.minimal_display
 
     def save(self, *args, **kwargs):
         instance = self.instance
 
-        return super().save(pk_subject=instance.id,
-                            pk_object=instance.symmetric_type_id,
-                            generate_pk=False,
-                           )
+        return super().save(
+            pk_subject=instance.id,
+            pk_object=instance.symmetric_type_id,
+            generate_pk=False,
+        )
 
 
 class SemiFixedRelationTypeCreateForm(CremeModelForm):
-    semi_relation = RelationEntityField(label=_('Type and object'), autocomplete=True,
-                                        allowed_rtypes=RelationType.objects.filter(is_internal=False),
-                                        credentials=EntityCredentials.VIEW,
-                                       )
+    semi_relation = RelationEntityField(
+        label=_('Type and object'), autocomplete=True,
+        allowed_rtypes=RelationType.objects.filter(is_internal=False),
+        credentials=EntityCredentials.VIEW,
+    )
 
     class Meta:
         model = SemiFixedRelationType
@@ -156,12 +188,16 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
         if not self._errors:
             rtype, entity = cdata['semi_relation']
 
-            if SemiFixedRelationType.objects.filter(relation_type=rtype, object_entity=entity).exists():
-                raise ValidationError(_('A semi-fixed type of relationship with '
-                                        'this type and this object already exists.'
-                                       ),
-                                      code='not_unique',
-                                     )
+            if SemiFixedRelationType.objects.filter(
+                    relation_type=rtype, object_entity=entity,
+            ).exists():
+                raise ValidationError(
+                    _(
+                        'A semi-fixed type of relationship with '
+                        'this type and this object already exists.'
+                    ),
+                    code='not_unique',
+                )
 
         return cdata
 

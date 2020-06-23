@@ -10,49 +10,66 @@ from ..base import CremeTestCase
 class XMLUtilsTestCase(CremeTestCase):
     def test_iter(self):
         def make_tuples(xml):
-            return [(deep_change, elt.tag) for (deep_change, elt) in _element_iterator(XML(xml))]
+            return [
+                (deep_change, elt.tag)
+                for (deep_change, elt) in _element_iterator(XML(xml))
+            ]
 
-        self.assertEqual([(0, 'commands')],
-                         make_tuples('<?xml version="1.0" encoding="UTF-8"?>'
-                                     '<commands></commands>'
-                                    )
-                        )
-        self.assertEqual([(0, 'commands'), (1, 'create')],
-                         make_tuples('<commands><create /></commands>')
-                        )
-        self.assertEqual([(0, 'commands'), (1, 'create'), (1, 'entity')],
-                         make_tuples('<commands><create><entity /></create></commands>')
-                        )
-        self.assertEqual([(0, 'commands'), (1, 'create'), (1, 'entity'), (0, 'entity'), (-1, 'update')],
-                         make_tuples('<commands>'
-                                     '  <create><entity /><entity />'
-                                     '  </create>'
-                                     '  <update />'
-                                     '</commands>'
-                                    )
-                        )
-        self.assertEqual([(0, 'commands'), (1, 'create'), (1, 'entity'),
-                          (0, 'entity'), (1, 'field'), (-2, 'update'),
-                         ],
-                         make_tuples('<commands>'
-                                     '  <create><entity /><entity><field id="5" /></entity></create>'
-                                     '  <update />'
-                                     '</commands>'
-                                    )
-                        )
-        self.assertEqual([(0, 'commands'), (1, 'create'), (1, 'entity'), (0, 'entity'),
-                          (1, 'field'), (-1, 'entity'), (-1, 'update'), (1, 'entity'),
-                         ],
-                         make_tuples('<commands>'
-                                     '  <create>'
-                                     '      <entity />'
-                                     '      <entity><field id="5" /></entity>'
-                                     '      <entity />'
-                                     '  </create>'
-                                     '  <update><entity /></update>'
-                                     '</commands>'
-                                    )
-                        )
+        self.assertListEqual(
+            [(0, 'commands')],
+            make_tuples(
+                '<?xml version="1.0" encoding="UTF-8"?><commands></commands>'
+            )
+        )
+        self.assertListEqual(
+            [(0, 'commands'), (1, 'create')],
+            make_tuples('<commands><create /></commands>')
+        )
+        self.assertListEqual(
+            [(0, 'commands'), (1, 'create'), (1, 'entity')],
+            make_tuples('<commands><create><entity /></create></commands>')
+        )
+        self.assertListEqual(
+            [
+                (0, 'commands'), (1, 'create'), (1, 'entity'), (0, 'entity'),
+                (-1, 'update'),
+            ],
+            make_tuples(
+                '<commands>'
+                '  <create><entity /><entity />'
+                '  </create>'
+                '  <update />'
+                '</commands>'
+            )
+        )
+        self.assertEqual(
+            [
+                (0, 'commands'), (1, 'create'), (1, 'entity'),
+                (0, 'entity'), (1, 'field'), (-2, 'update'),
+            ],
+            make_tuples(
+                '<commands>'
+                '  <create><entity /><entity><field id="5" /></entity></create>'
+                '  <update />'
+                '</commands>'
+            )
+        )
+        self.assertListEqual(
+            [
+                (0, 'commands'), (1, 'create'), (1, 'entity'), (0, 'entity'),
+                (1, 'field'), (-1, 'entity'), (-1, 'update'), (1, 'entity'),
+            ],
+            make_tuples(
+                '<commands>'
+                '  <create>'
+                '      <entity />'
+                '      <entity><field id="5" /></entity>'
+                '      <entity />'
+                '  </create>'
+                '  <update><entity /></update>'
+                '</commands>'
+            )
+        )
 
     def test_xml_diff01(self):
         xml01 = '<?xml version="1.0" encoding="UTF-8"?><commands></commands>'
@@ -77,10 +94,11 @@ class XMLUtilsTestCase(CremeTestCase):
                        )
         self.assertIsNotNone(diff)
         self.assertEqual('<commands> ===> Attribute "attr1": "foo" != "stuff"', diff.short_msg)
-        self.assertEqual('<commands attr1="foo" attr2="bar">'
-                         ' -================= HERE : Attribute "attr1": "foo" != "stuff" ==========</commands>',
-                         diff.long_msg
-                        )
+        self.assertEqual(
+            '<commands attr1="foo" attr2="bar">'
+            ' -================= HERE : Attribute "attr1": "foo" != "stuff" ==========</commands>',
+            diff.long_msg
+        )
 
     def test_xml_diff04(self):
         "Additional attribute"
@@ -111,10 +129,11 @@ class XMLUtilsTestCase(CremeTestCase):
         self.assertEqual('<commands> ===> Attribute "attr1" is missing in the second document',
                          diff.short_msg
                         )
-        self.assertEqual('<commands attr1="bar" attr2="stuff"> -================= HERE : '
-                         'Attribute "attr1" is missing in the second document ==========</commands>',
-                         diff.long_msg
-                        )
+        self.assertEqual(
+            '<commands attr1="bar" attr2="stuff"> -================= HERE : '
+            'Attribute "attr1" is missing in the second document ==========</commands>',
+            diff.long_msg
+        )
 
     def test_xml_diff06(self):
         xml01 = (
@@ -144,12 +163,14 @@ class XMLUtilsTestCase(CremeTestCase):
         diff = xml_diff(xml01, xml02)
         self.assertIsNotNone(diff)
         self.assertEqual('<create> ===> Tag "create" != "update"', diff.short_msg)
-        self.assertEqual('<commands attr1="foo" attr2="bar">\n'
-                         '   <create attr3="xxx"> -================= HERE : Tag "create" != "update" ==========\n'
-                         '   </create>\n'
-                         '</commands>',
-                         diff.long_msg
-                        )
+        self.assertEqual(
+            '<commands attr1="foo" attr2="bar">\n'
+            '   <create attr3="xxx"> '
+            '-================= HERE : Tag "create" != "update" ==========\n'
+            '   </create>\n'
+            '</commands>',
+            diff.long_msg
+        )
 
     def test_xml_diff08(self):
         "Missing child"
@@ -203,9 +224,11 @@ class XMLUtilsTestCase(CremeTestCase):
                 )
         diff = xml_diff(xml01, xml02)
         self.assertIsNotNone(diff)
-        self.assertEqual('<create> ===> Additional sibling or child element in the second document',
-                         diff.short_msg
-                        )
+        self.assertEqual(
+            '<create> ===> '
+            'Additional sibling or child element in the second document',
+            diff.short_msg
+        )
 
     def test_xml_diff11(self):
         "Text difference"
@@ -232,7 +255,9 @@ class XMLUtilsTestCase(CremeTestCase):
                 )
         diff = xml_diff(xml01, '<commands attr2="bar" attr1="foo" />')
         self.assertIsNotNone(diff)
-        self.assertEqual('<create> ===> Does not exist in second document', diff.short_msg)
+        self.assertEqual(
+            '<create> ===> Does not exist in second document', diff.short_msg
+        )
 
     def test_xml_diff13(self):
         "Additional tags"
@@ -243,9 +268,11 @@ class XMLUtilsTestCase(CremeTestCase):
                 )
         diff = xml_diff('<commands attr2="bar" attr1="foo" />', xml02)
         self.assertIsNotNone(diff)
-        self.assertEqual('<commands> ===> Additional sibling or child element in the second document',
-                         diff.short_msg
-                        )
+        self.assertEqual(
+            '<commands> ===> '
+            'Additional sibling or child element in the second document',
+            diff.short_msg
+        )
 
     def test_xml_diff14(self):
         "Tail difference"

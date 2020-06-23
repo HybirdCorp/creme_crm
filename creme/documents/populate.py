@@ -54,7 +54,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_RELATED_2_DOC).exists()
+        already_populated = RelationType.objects.filter(
+            pk=constants.REL_SUB_RELATED_2_DOC,
+        ).exists()
 
         Document = get_document_model()
         Folder   = get_folder_model()
@@ -66,26 +68,40 @@ class Populator(BasePopulator):
 
         # ---------------------------
         # TODO: pk string (or UUID) (+ move DOCUMENTS_FROM_EMAILS in 'emails' app) ??
-        entities_cat = create_if_needed(FolderCategory, {'pk': constants.DOCUMENTS_FROM_ENTITIES}, name=str(constants.DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False)
-        create_if_needed(FolderCategory,                {'pk': constants.DOCUMENTS_FROM_EMAILS},   name=str(constants.DOCUMENTS_FROM_EMAILS_NAME),   is_custom=False)
+        entities_cat = create_if_needed(
+            FolderCategory,
+            {'pk': constants.DOCUMENTS_FROM_ENTITIES},
+            name=str(constants.DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False,
+        )
+        create_if_needed(
+            FolderCategory,
+            {'pk': constants.DOCUMENTS_FROM_EMAILS},
+            name=str(constants.DOCUMENTS_FROM_EMAILS_NAME), is_custom=False,
+        )
 
         # TODO: created by 'products' & 'persons' app ?
         create_doc_cat = DocumentCategory.objects.get_or_create
-        create_doc_cat(uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
-                       defaults={'name': _('Product image'),
-                                 'is_custom': False,
-                                }
-                      )
-        create_doc_cat(uuid=constants.UUID_DOC_CAT_IMG_ORGA,
-                       defaults={'name': _('Organisation logo'),
-                                 'is_custom': False,
-                                }
-                      )
-        create_doc_cat(uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
-                       defaults={'name': _('Contact photograph'),
-                                 'is_custom': False,
-                                }
-                      )
+        create_doc_cat(
+            uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
+            defaults={
+                'name': _('Product image'),
+                'is_custom': False,
+            },
+        )
+        create_doc_cat(
+            uuid=constants.UUID_DOC_CAT_IMG_ORGA,
+            defaults={
+                'name': _('Organisation logo'),
+                'is_custom': False,
+            },
+        )
+        create_doc_cat(
+            uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
+            defaults={
+                'name': _('Contact photograph'),
+                'is_custom': False,
+            },
+        )
 
         # ---------------------------
         user_qs = get_user_model().objects.order_by('id')
@@ -97,20 +113,22 @@ class Populator(BasePopulator):
 
         if not folder_model_is_custom():
             get_create_folder = Folder.objects.get_or_create
-            get_create_folder(uuid=constants.UUID_FOLDER_RELATED2ENTITIES,
-                              defaults={
-                                  'user':        user,
-                                  'title':       'Creme',
-                                  'category':    entities_cat,
-                                  'description': _('Folder containing all the documents related to entities'),
-                              }
-                             )
-            get_create_folder(uuid=constants.UUID_FOLDER_IMAGES,
-                              defaults={
-                                  'user':  user,
-                                  'title': _('Images'),
-                              }
-                             )
+            get_create_folder(
+                uuid=constants.UUID_FOLDER_RELATED2ENTITIES,
+                defaults={
+                    'user':        user,
+                    'title':       'Creme',
+                    'category':    entities_cat,
+                    'description': _('Folder containing all the documents related to entities'),
+                },
+            )
+            get_create_folder(
+                uuid=constants.UUID_FOLDER_IMAGES,
+                defaults={
+                    'user':  user,
+                    'title': _('Images'),
+                }
+            )
 
         # ---------------------------
         create_hf = HeaderFilter.objects.create_if_needed
@@ -158,7 +176,9 @@ class Populator(BasePopulator):
             RIGHT = BrickDetailviewLocation.RIGHT
             create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed, model=Folder)
 
-            BrickDetailviewLocation.objects.create_for_model_brick(order=5, zone=LEFT, model=Folder)
+            BrickDetailviewLocation.objects.create_for_model_brick(
+                order=5, zone=LEFT, model=Folder,
+            )
             create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT)
             create_bdl(brick=bricks.ChildFoldersBrick,      order=50,  zone=LEFT)
             create_bdl(brick=bricks.FolderDocsBrick,        order=60,  zone=LEFT)
@@ -167,7 +187,10 @@ class Populator(BasePopulator):
             create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT)
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+                logger.info(
+                    'Assistants app is installed'
+                    ' => we use the assistants blocks on detail view'
+                )
 
                 from creme.assistants import bricks as a_bricks
 

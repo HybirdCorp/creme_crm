@@ -778,16 +778,33 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @skipIfCustomActivity
     @parameterized.expand([
-        (CremeTestCase.create_datetime(2013, 3, 1), CremeTestCase.create_datetime(2013, 3, 1), False,
-         '2013-03-01T00:00:00', '2013-03-01T00:00:00'),
-        (CremeTestCase.create_datetime(2013, 3, 1), CremeTestCase.create_datetime(2013, 3, 5, 11), False,
-         '2013-03-01T00:00:00', '2013-03-05T11:00:00'),
-        # All day => ends on 00:00 of the next day
-        (CremeTestCase.create_datetime(2013, 3, 1), CremeTestCase.create_datetime(2013, 3, 1), True,
-         '2013-03-01T00:00:00', '2013-03-02T00:00:00'),
-        # All day => ends on 00:00 of the next day
-        (CremeTestCase.create_datetime(2013, 3, 1), CremeTestCase.create_datetime(2013, 3, 5, 11), True,
-         '2013-03-01T00:00:00', '2013-03-06T00:00:00'),
+        (
+            CremeTestCase.create_datetime(2013, 3, 1),
+            CremeTestCase.create_datetime(2013, 3, 1),
+            False,
+            '2013-03-01T00:00:00',
+            '2013-03-01T00:00:00',
+        ), (
+            CremeTestCase.create_datetime(2013, 3, 1),
+            CremeTestCase.create_datetime(2013, 3, 5, 11),
+            False,
+            '2013-03-01T00:00:00',
+            '2013-03-05T11:00:00',
+        ), (
+            # All day => ends on 00:00 of the next day
+            CremeTestCase.create_datetime(2013, 3, 1),
+            CremeTestCase.create_datetime(2013, 3, 1),
+            True,
+            '2013-03-01T00:00:00',
+            '2013-03-02T00:00:00',
+        ), (
+            # All day => ends on 00:00 of the next day
+            CremeTestCase.create_datetime(2013, 3, 1),
+            CremeTestCase.create_datetime(2013, 3, 5, 11),
+            True,
+            '2013-03-01T00:00:00',
+            '2013-03-06T00:00:00',
+        ),
     ])
     def test_activities_data_one_user_one_event(
             self, start, end, is_all_day, data_start, data_end):
@@ -838,16 +855,32 @@ class CalendarTestCase(_ActivitiesTestCase):
             user=user, type_id=constants.ACTIVITYTYPE_TASK,
         )
         act0 = create(title='Act#0', start=start, end=start)
-        act1 = create(title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2))
-        __   = create(title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2))  # Not in calendar
-        act3 = create(title='Act#3', start=start + timedelta(days=2), end=end   + timedelta(days=1),  # Start OK
-                      is_all_day=True, type_id=constants.ACTIVITYTYPE_MEETING,
-                      sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                     )
-        act4 = create(title='Act#4', start=start - timedelta(days=1), end=start + timedelta(days=3))  # End OK
-        act5 = create(title='Act#5', start=start + timedelta(days=5), end=start + timedelta(days=5, hours=3),
-                      is_deleted=True,
-                     )
+        act1 = create(
+            title='Act#1',
+            start=start + timedelta(days=1), end=start + timedelta(days=2),
+        )
+        # Not in calendar
+        create(
+            title='Act#2',
+            start=start + timedelta(days=1), end=start + timedelta(days=2),
+        )
+        # Start OK
+        act3 = create(
+            title='Act#3',
+            start=start + timedelta(days=2), end=end + timedelta(days=1),
+            is_all_day=True, type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+        )
+        # End OK
+        act4 = create(
+            title='Act#4',
+            start=start - timedelta(days=1), end=start + timedelta(days=3),
+        )
+        act5 = create(
+            title='Act#5',
+            start=start + timedelta(days=5), end=start + timedelta(days=5, hours=3),
+            is_deleted=True,
+        )
 
         for act in (act0, act1, act3, act4, act5):
             act.calendars.set([cal])
@@ -936,10 +969,20 @@ class CalendarTestCase(_ActivitiesTestCase):
             Activity.objects.create,
             user=user, type_id=constants.ACTIVITYTYPE_TASK,
         )
-        act1 = create(title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2))
-        act2 = create(title='Act#2', start=start + timedelta(days=1),  end=start + timedelta(days=2))  # Not in [cal1, cal3]
-        act3 = create(title='Act#3', start=start + timedelta(days=32), end=start + timedelta(days=33))  # Start KO
-        act4 = create(title='Act#4', start=start + timedelta(days=29), end=start + timedelta(days=30))
+        act1 = create(
+            title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2),
+        )
+        # Not in [cal1, cal3]
+        act2 = create(
+            title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2),
+        )
+        # Start KO
+        act3 = create(
+            title='Act#3', start=start + timedelta(days=32), end=start + timedelta(days=33),
+        )
+        act4 = create(
+            title='Act#4', start=start + timedelta(days=29), end=start + timedelta(days=30),
+        )
 
         act1.calendars.set([cal1])
         act2.calendars.set([cal2])
@@ -950,9 +993,16 @@ class CalendarTestCase(_ActivitiesTestCase):
             Activity.objects.create,
             user=user, type_id=constants.ACTIVITYTYPE_INDISPO,
         )
-        act6 = create_ind(title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6))
-        __   = create_ind(title='Ind#2', start=start + timedelta(days=7), end=start + timedelta(days=8))  # Not linked
-        act8 = create_ind(title='Ind#3', start=start + timedelta(days=9), end=start + timedelta(days=10))
+        act6 = create_ind(
+            title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6),
+        )
+        # Not linked
+        create_ind(
+            title='Ind#2', start=start + timedelta(days=7), end=start + timedelta(days=8),
+        )
+        act8 = create_ind(
+            title='Ind#3', start=start + timedelta(days=9), end=start + timedelta(days=10),
+        )
 
         create_rel = partial(
             Relation.objects.create,
@@ -995,8 +1045,12 @@ class CalendarTestCase(_ActivitiesTestCase):
             Activity.objects.create,
             user=user, type_id=constants.ACTIVITYTYPE_TASK,
         )
-        act1 = create(title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2))
-        act2 = create(title='Act#2', start=start + timedelta(days=2),  end=start + timedelta(days=3))
+        act1 = create(
+            title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2),
+        )
+        act2 = create(
+            title='Act#2', start=start + timedelta(days=2),  end=start + timedelta(days=3),
+        )
 
         act1.calendars.set([cal1, cal2])  # <== Act1 must be returned twice
         act2.calendars.set([cal2])
@@ -1042,11 +1096,19 @@ class CalendarTestCase(_ActivitiesTestCase):
         response = self.assertGET200(self.CALENDAR_URL)
         self.assertSetEqual(
             {cal1},
-            {*Calendar.objects.filter(id__in=response.context.get('my_selected_calendar_ids'))},
+            {
+                *Calendar.objects.filter(
+                    id__in=response.context.get('my_selected_calendar_ids'),
+                ),
+            },
         )
         self.assertSetEqual(
             {cal3},
-            {*Calendar.objects.filter(id__in=response.context.get('others_selected_calendar_ids'))},
+            {
+                *Calendar.objects.filter(
+                    id__in=response.context.get('others_selected_calendar_ids'),
+                ),
+            },
         )
 
         sessions_after = self._get_user_sessions(user)

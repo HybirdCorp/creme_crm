@@ -85,7 +85,8 @@ if apps.is_installed('creme.billing'):
             name='opportunities__generate_billing_doc',
         ),
         re_path(
-            r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/(?P<action>set_current|unset_current)[/]?$',
+            r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/'
+            r'(?P<action>set_current|unset_current)[/]?$',
             billing.CurrentQuoteSetting.as_view(),
             name='opportunities__linked_quote_is_current',
         ),

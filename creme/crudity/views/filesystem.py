@@ -63,6 +63,8 @@ def download_ini_template(request, subject):
     ini.write(buffer)
 
     response = HttpResponse(buffer.getvalue(), content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename={}.ini'.format(secure_filename(subject))
+    response['Content-Disposition'] = 'attachment; filename={}.ini'.format(
+        secure_filename(subject),
+    )
 
     return response

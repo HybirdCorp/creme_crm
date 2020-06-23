@@ -16,11 +16,18 @@ from .base import Contact, EntityEmail, Organisation, _EmailsTestCase
 
 class EmailsTestCase(_EmailsTestCase):
     def test_populate(self):
-        self.get_relationtype_or_fail(REL_SUB_MAIL_RECEIVED, [EntityEmail], [Organisation, Contact])
-        self.get_relationtype_or_fail(REL_SUB_MAIL_SENDED,   [EntityEmail], [Organisation, Contact])
-        self.get_relationtype_or_fail(REL_SUB_RELATED_TO,    [EntityEmail])
+        self.get_relationtype_or_fail(
+            REL_SUB_MAIL_RECEIVED, [EntityEmail], [Organisation, Contact],
+        )
+        self.get_relationtype_or_fail(
+            REL_SUB_MAIL_SENDED, [EntityEmail], [Organisation, Contact],
+        )
+        self.get_relationtype_or_fail(REL_SUB_RELATED_TO, [EntityEmail])
 
-        self.assertEqual(1, SettingValue.objects.filter(key_id=SETTING_EMAILCAMPAIGN_SENDER).count())
+        self.assertEqual(
+            1,
+            SettingValue.objects.filter(key_id=SETTING_EMAILCAMPAIGN_SENDER).count()
+        )
 
     @skipIfCustomContact
     def test_fieldconfigs_warning(self):

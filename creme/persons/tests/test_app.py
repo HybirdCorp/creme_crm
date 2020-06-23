@@ -15,15 +15,33 @@ from .base import Contact, Organisation
 
 class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_populate(self):
-        self.get_relationtype_or_fail(constants.REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])
-        self.get_relationtype_or_fail(constants.REL_SUB_CUSTOMER_SUPPLIER, [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(constants.REL_SUB_MANAGES,           [Contact],               [Organisation])
-        self.get_relationtype_or_fail(constants.REL_SUB_PROSPECT,          [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(constants.REL_SUB_SUSPECT,           [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(constants.REL_SUB_PARTNER,           [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(constants.REL_SUB_INACTIVE,          [Contact, Organisation], [Contact, Organisation])
-        self.get_relationtype_or_fail(constants.REL_SUB_SUBSIDIARY,        [Organisation],          [Organisation])
-        self.get_relationtype_or_fail(constants.REL_SUB_COMPETITOR,        [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_EMPLOYED_BY, [Contact], [Organisation],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_CUSTOMER_SUPPLIER, [Contact, Organisation], [Contact, Organisation],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_MANAGES, [Contact], [Organisation],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_PROSPECT, [Contact, Organisation], [Contact, Organisation],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_SUSPECT, [Contact, Organisation], [Contact, Organisation],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_PARTNER, [Contact, Organisation], [Contact, Organisation],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_INACTIVE, [Contact, Organisation], [Contact, Organisation],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_SUBSIDIARY, [Organisation], [Organisation],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_COMPETITOR, [Contact, Organisation], [Contact, Organisation],
+        )
 
         get_ct = ContentType.objects.get_for_model
         hf_filter = HeaderFilter.objects.filter
@@ -40,7 +58,10 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_config_portal(self):
         self.login()
         response = self.assertGET200(reverse('creme_config__portal'))
-        self.get_brick_node(self.get_html_tree(response.content), bricks.ManagedOrganisationsBrick.id_)
+        self.get_brick_node(
+            self.get_html_tree(response.content),
+            bricks.ManagedOrganisationsBrick.id_,
+        )
 
     def test_transform_target_into_prospect01(self):
         user = self.login()

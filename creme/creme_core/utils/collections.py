@@ -259,7 +259,8 @@ class InheritedDataChain(Generic[T]):
         """A generator which yields the data related to the key-class (if they exist)
         and the data of the parent classes (if they exist), then data of the grand parent etc...
 
-        @param key_class: A class ; data related to it & related to its parents classes are yielded.
+        @param key_class: A class ; data related to it & related to its parents
+               classes are yielded.
         @param parent_first: If True (default value), the value related to a parent key-class
                is returned before the value related to its child key-class.
         @return: Instances of 'default_factory' (see __init__).

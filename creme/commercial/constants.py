@@ -15,4 +15,5 @@ DEFAULT_HFILTER_ACT      = 'commercial-hf_act'
 DEFAULT_HFILTER_STRATEGY = 'commercial-hf_strategy'
 DEFAULT_HFILTER_PATTERN  = 'commercial-hf_objpattern'
 
-DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW = 'commercial-display_only_orga_demco_on_orga_detailview'
+DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW = \
+    'commercial-display_only_orga_demco_on_orga_detailview'

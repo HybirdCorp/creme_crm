@@ -640,13 +640,18 @@ class ContactTestCase(_BaseTestCase):
         user = self.login()
         naruto = self.get_object_or_fail(Contact, is_user=user)
 
-        create_address = partial(Address.objects.create,
-                                 city='Konoha', state='Konoha', zipcode='111',
-                                 country='The land of fire', department="Ninjas' homes",
-                                 owner=naruto,
-                                )
-        naruto.billing_address  = create_address(name="Naruto's", address='Home', po_box='000')
-        naruto.shipping_address = create_address(name="Naruto's", address='Home (second entry)', po_box='001')
+        create_address = partial(
+            Address.objects.create,
+            city='Konoha', state='Konoha', zipcode='111',
+            country='The land of fire', department="Ninjas' homes",
+            owner=naruto,
+        )
+        naruto.billing_address = create_address(
+            name="Naruto's", address='Home', po_box='000',
+        )
+        naruto.shipping_address = create_address(
+            name="Naruto's", address='Home (second entry)', po_box='001',
+        )
         naruto.save()
 
         for i in range(5):
@@ -857,7 +862,9 @@ class ContactTestCase(_BaseTestCase):
     def test_user_linked_contact01(self):
         first_name = 'Deunan'
         last_name = 'Knut'
-        user = CremeUser.objects.create(username='dknut', last_name=last_name, first_name=first_name)
+        user = CremeUser.objects.create(
+            username='dknut', last_name=last_name, first_name=first_name,
+        )
 
         with self.assertNoException():
             contact = user.linked_contact
@@ -885,13 +892,17 @@ class ContactTestCase(_BaseTestCase):
         other_contact = other_user.linked_contact
 
         create_contact = Contact.objects.create
-        deunan   = create_contact(user=user,       first_name='Deunan',   last_name='Knut')
-        briareos = create_contact(user=other_user, first_name='Briareos', last_name='Hecatonchires')
+        deunan = create_contact(
+            user=user, first_name='Deunan', last_name='Knut',
+        )
+        briareos = create_contact(
+            user=other_user, first_name='Briareos', last_name='Hecatonchires',
+        )
 
-        self.assertNoFormError(self.client.post(reverse('creme_config__delete_user', args=(other_user.id,)),
-                                                {'to_user': user.id}
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            reverse('creme_config__delete_user', args=(other_user.id,)),
+            data={'to_user': user.id}
+        ))
         self.assertDoesNotExist(other_user)
         self.assertStillExists(contact)
 
@@ -961,7 +972,9 @@ class ContactTestCase(_BaseTestCase):
     @skipIfCustomUser
     def test_command_create_staffuser(self):
         from django.core.management import call_command
-        from creme.creme_core.management.commands.creme_createstaffuser import Command as StaffCommand
+        from creme.creme_core.management.commands.creme_createstaffuser import (
+            Command as StaffCommand,
+        )
 
         super_users = CremeUser.objects.filter(is_superuser=True, is_staff=False)
         self.assertEqual(1, len(super_users))

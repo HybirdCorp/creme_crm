@@ -51,7 +51,10 @@ def _fields_values(instances, getters, range, sort_getter=None, user=None):
         return [getter(i, user) for getter in getters]
 
     if sort_getter:
-        sorted_result = [(sort_getter(instance, user), values(instance)) for instance in instances]
+        sorted_result = [
+            (sort_getter(instance, user), values(instance))
+            for instance in instances
+        ]
         sorted_result.sort(key=lambda x: x[0])
         result.extend(e[1] for e in sorted_result[start:end])
     else:
@@ -121,7 +124,10 @@ def json_entity_get(request, entity_id):
 # @login_required
 # @jsonify
 # def json_entity_rtypes(request, entity_id):
-#     warnings.warn('creme_core.views.relation.json_entity_rtypes() is deprecated.', DeprecationWarning)
+#     warnings.warn(
+#         'creme_core.views.relation.json_entity_rtypes() is deprecated.',
+#          DeprecationWarning
+#     )
 #
 #     entity = get_object_or_404(CremeEntity, pk=entity_id)
 #     request.user.has_perm_to_view_or_die(entity)
@@ -202,10 +208,14 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
                 if missing_ptypes:
                     raise ConflictError(
                         ngettext(
-                            'This type of relationship needs an entity with this property: {properties}.',
-                            'This type of relationship needs an entity with these properties: {properties}.',
+                            'This type of relationship needs an entity with '
+                            'this property: {properties}.',
+                            'This type of relationship needs an entity with '
+                            'these properties: {properties}.',
                             number=len(missing_ptypes)
-                        ).format(properties=', '.join(str(ptype) for ptype in missing_ptypes))
+                        ).format(
+                            properties=', '.join(str(ptype) for ptype in missing_ptypes),
+                        )
                     )
 
             rtypes = [rtype_id]
@@ -216,8 +226,9 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
             excluded_rtype_ids = request.GET.getlist('exclude')
 
             if excluded_rtype_ids:
-                # Theses type are excluded to provide a better GUI, but they cannot cause business conflict
-                # (internal rtypes are always excluded), so it's not a problem to only excluded them only in GET part.
+                # Theses type are excluded to provide a better GUI, but they
+                # cannot cause business conflict (internal rtypes are always excluded),
+                # so it's not a problem to only excluded them only in GET part.
                 rtypes = RelationType.objects\
                                      .compatible(subject_ctype) \
                                      .exclude(id__in=excluded_rtype_ids)
@@ -372,7 +383,8 @@ class RelationFromFieldsDeletion(CremeModelDeletion):
 class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
                                      base.EntityCTypeRelatedMixin,
                                      BaseEntitiesListPopup):
-    """Display an inner popup to select entities to link as relations' objects for a given subject entity.
+    """Display an inner popup to select entities to link as relations' objects
+    for a given subject entity.
 
     New GET parameters:
      - 'rtype_id':     RelationType ID of the future relations. Required.
@@ -422,15 +434,14 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
         # )
         extra_q = ~Q(
             pk__in=[
-                *CremeEntity.objects
-                            .annotate(
-                                relations_w_entity=FilteredRelation(
-                                    'relations',
-                                    condition=Q(relations__object_entity=self.get_related_entity().id),
-                                )
-                            ).filter(
-                                relations_w_entity__type=rtype.symmetric_type_id,
-                            ).values_list('id', flat=True)
+                *CremeEntity.objects.annotate(
+                    relations_w_entity=FilteredRelation(
+                        'relations',
+                        condition=Q(relations__object_entity=self.get_related_entity().id),
+                    )
+                ).filter(
+                    relations_w_entity__type=rtype.symmetric_type_id,
+                ).values_list('id', flat=True)
             ],
         )
 
@@ -483,24 +494,33 @@ def add_relations_with_same_type(request):
     errors = defaultdict(list)
     len_diff = len(entity_ids) - len(entities)
 
-    if len_diff != 1:  # 'subject' has been pop from entities, but not subject_id from entity_ids, so 1 and not 0
+    # 'subject' has been pop from entities, but not subject_id from entity_ids, so 1 and not 0
+    if len_diff != 1:
         errors[404].append(
-            ngettext("{count} entity doesn't exist or has been removed.",
-                     "{count} entities don't exist or have been removed.",
-                     len_diff
-                    ).format(count=len_diff),
+            ngettext(
+                "{count} entity doesn't exist or has been removed.",
+                "{count} entities don't exist or have been removed.",
+                len_diff
+            ).format(count=len_diff),
         )
 
     # TODO: improve RelationType.is_compatible()
-    subject_ctypes = frozenset(int(ct_id) for ct_id in rtype.subject_ctypes.values_list('id', flat=True))
+    subject_ctypes = frozenset(
+        int(ct_id)
+        for ct_id in rtype.subject_ctypes.values_list('id', flat=True)
+    )
     if subject_ctypes and subject.entity_type_id not in subject_ctypes:
         raise ConflictError('Incompatible type for subject')
 
-    if subject_properties and not any(p.type_id in subject_properties for p in subject.get_properties()):
+    if subject_properties and not any(
+        p.type_id in subject_properties for p in subject.get_properties()
+    ):
         raise ConflictError('Missing compatible property for subject')
 
     # TODO: idem
-    object_ctypes = frozenset(int(ct_id) for ct_id in rtype.object_ctypes.values_list('id', flat=True))
+    object_ctypes = frozenset(
+        int(ct_id) for ct_id in rtype.object_ctypes.values_list('id', flat=True)
+    )
     check_ctype = (
         (lambda e: e.entity_type_id in object_ctypes)
         if object_ctypes else
@@ -516,11 +536,22 @@ def add_relations_with_same_type(request):
     create_relation = Relation.objects.safe_create
     for entity in entities:
         if not check_ctype(entity):
-            errors[409].append(gettext('Incompatible type for object entity with id={}').format(entity.id))
+            errors[409].append(
+                gettext(
+                    'Incompatible type for object entity with id={}'
+                ).format(entity.id)
+            )
         elif not check_properties(entity):
-            errors[409].append(gettext('Missing compatible property for object entity with id={}').format(entity.id))
+            errors[409].append(
+                gettext(
+                    'Missing compatible property for object entity with id={}'
+                ).format(entity.id)
+            )
         elif not user.has_perm_to_link(entity):
-            errors[403].append(gettext('Permission denied to entity with id={}').format(entity.id))
+            errors[403].append(
+                gettext(
+                    'Permission denied to entity with id={}'
+                ).format(entity.id))
         else:
             create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)
 

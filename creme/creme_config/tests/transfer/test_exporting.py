@@ -322,7 +322,9 @@ class ExportingTestCase(CremeTestCase):
 
         existing_default_bricks_data = defaultdict(list)
 
-        for bdl in BrickDetailviewLocation.objects.filter(content_type=None, role=None, superuser=False):
+        for bdl in BrickDetailviewLocation.objects.filter(
+            content_type=None, role=None, superuser=False
+        ):
             existing_default_bricks_data[bdl.zone].append({'id': bdl.brick_id, 'order': bdl.order})
 
         self.assertFalse(existing_default_bricks_data.get(BrickDetailviewLocation.HAT))
@@ -344,9 +346,21 @@ class ExportingTestCase(CremeTestCase):
                 if 'ctype' not in dumped_bdl and 'role' not in dumped_bdl
             ]
 
-        self.assertFalse([binfo for binfo in default_bricks_info if binfo['zone'] == BrickDetailviewLocation.HAT])
-        self.assertFalse([binfo for binfo in default_bricks_info if binfo['zone'] == BrickDetailviewLocation.TOP])
-        self.assertFalse([binfo for binfo in default_bricks_info if binfo['zone'] == BrickDetailviewLocation.BOTTOM])
+        self.assertFalse([
+            binfo
+            for binfo in default_bricks_info
+            if binfo['zone'] == BrickDetailviewLocation.HAT
+        ])
+        self.assertFalse([
+            binfo
+            for binfo in default_bricks_info
+            if binfo['zone'] == BrickDetailviewLocation.TOP
+        ])
+        self.assertFalse([
+            binfo
+            for binfo in default_bricks_info
+            if binfo['zone'] == BrickDetailviewLocation.BOTTOM
+        ])
 
         self.assertListEqual(
             existing_default_bricks_data.get(BrickDetailviewLocation.LEFT),
@@ -382,7 +396,9 @@ class ExportingTestCase(CremeTestCase):
         create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
                              model=FakeContact, zone=LEFT,
                             )
-        BrickDetailviewLocation.objects.create_for_model_brick(model=FakeContact, order=5, zone=LEFT)
+        BrickDetailviewLocation.objects.create_for_model_brick(
+            model=FakeContact, order=5, zone=LEFT,
+        )
         create_bdl(brick=bricks.PropertiesBrick, order=10)
         create_bdl(brick=bricks.RelationsBrick,  order=20)
         create_bdl(brick=bricks.HistoryBrick,    order=10, zone=RIGHT)
@@ -396,18 +412,43 @@ class ExportingTestCase(CremeTestCase):
             if dumped_bdl.get('ctype') == 'creme_core.fakecontact'
         ]
 
-        self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] == BrickDetailviewLocation.HAT])
-        self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] == BrickDetailviewLocation.TOP])
-        self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] == BrickDetailviewLocation.BOTTOM])
+        self.assertFalse([
+            binfo
+            for binfo in contact_bricks_info
+            if binfo['zone'] == BrickDetailviewLocation.HAT
+        ])
+        self.assertFalse([
+            binfo
+            for binfo in contact_bricks_info
+            if binfo['zone'] == BrickDetailviewLocation.TOP
+        ])
+        self.assertFalse([
+            binfo
+            for binfo in contact_bricks_info
+            if binfo['zone'] == BrickDetailviewLocation.BOTTOM
+        ])
 
         self.assertListEqual(
-            [{'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT, 'ctype': 'creme_core.fakecontact'}],
+            [
+                {
+                    'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT,
+                    'ctype': 'creme_core.fakecontact',
+                }
+            ],
             [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT]
         )
         self.assertListEqual(
-            [{'id': constants.MODELBRICK_ID,    'order': 5,  'zone': LEFT, 'ctype': 'creme_core.fakecontact'},
-             {'id': bricks.PropertiesBrick.id_, 'order': 10, 'zone': LEFT, 'ctype': 'creme_core.fakecontact'},
-             {'id': bricks.RelationsBrick.id_,  'order': 20, 'zone': LEFT, 'ctype': 'creme_core.fakecontact'},
+            [
+                {
+                    'id': constants.MODELBRICK_ID,    'order': 5,  'zone': LEFT,
+                    'ctype': 'creme_core.fakecontact',
+                }, {
+                    'id': bricks.PropertiesBrick.id_, 'order': 10, 'zone': LEFT,
+                    'ctype': 'creme_core.fakecontact',
+                }, {
+                    'id': bricks.RelationsBrick.id_,  'order': 20, 'zone': LEFT,
+                    'ctype': 'creme_core.fakecontact',
+                },
             ],
             [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT]
         )
@@ -420,8 +461,12 @@ class ExportingTestCase(CremeTestCase):
         LEFT  = BrickDetailviewLocation.LEFT
         RIGHT = BrickDetailviewLocation.RIGHT
 
-        BrickDetailviewLocation.objects.create_for_model_brick(model=FakeContact,                      order=5,  zone=LEFT,  role=role)
-        BrickDetailviewLocation.objects.create_if_needed(model=FakeContact, brick=bricks.HistoryBrick, order=10, zone=RIGHT, role=role)
+        BrickDetailviewLocation.objects.create_for_model_brick(
+            model=FakeContact, order=5,  zone=LEFT,  role=role
+        )
+        BrickDetailviewLocation.objects.create_if_needed(
+            model=FakeContact, brick=bricks.HistoryBrick, order=10, zone=RIGHT, role=role,
+        )
 
         response = self.assertGET200(self.URL)
         content = response.json()
@@ -435,16 +480,38 @@ class ExportingTestCase(CremeTestCase):
             )
         ]
 
-        self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] == BrickDetailviewLocation.HAT])
-        self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] == BrickDetailviewLocation.TOP])
-        self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] == BrickDetailviewLocation.BOTTOM])
+        self.assertFalse([
+            binfo
+            for binfo in contact_bricks_info
+            if binfo['zone'] == BrickDetailviewLocation.HAT
+        ])
+        self.assertFalse([
+            binfo
+            for binfo in contact_bricks_info
+            if binfo['zone'] == BrickDetailviewLocation.TOP
+        ])
+        self.assertFalse([
+            binfo
+            for binfo in contact_bricks_info
+            if binfo['zone'] == BrickDetailviewLocation.BOTTOM
+        ])
 
         self.assertListEqual(
-            [{'id': constants.MODELBRICK_ID, 'order': 5, 'zone': LEFT, 'ctype': 'creme_core.fakecontact', 'role': role.name}],
+            [
+                {
+                    'id': constants.MODELBRICK_ID, 'order': 5, 'zone': LEFT,
+                    'ctype': 'creme_core.fakecontact', 'role': role.name
+                },
+            ],
             [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT]
         )
         self.assertListEqual(
-            [{'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT, 'ctype': 'creme_core.fakecontact', 'role': role.name}],
+            [
+                {
+                    'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT,
+                    'ctype': 'creme_core.fakecontact', 'role': role.name,
+                },
+            ],
             [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT]
         )
 
@@ -453,7 +520,9 @@ class ExportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         LEFT = BrickDetailviewLocation.LEFT
-        BrickDetailviewLocation.objects.create_for_model_brick(model=FakeContact, order=5, zone=LEFT, role='superuser')
+        BrickDetailviewLocation.objects.create_for_model_brick(
+            model=FakeContact, order=5, zone=LEFT, role='superuser',
+        )
 
         response = self.assertGET200(self.URL)
         content = response.json()
@@ -469,7 +538,12 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertFalse([binfo for binfo in contact_bricks_info if binfo['zone'] != LEFT])
         self.assertListEqual(
-            [{'id': constants.MODELBRICK_ID, 'order': 5, 'zone': LEFT, 'ctype': 'creme_core.fakecontact', 'superuser': True}],
+            [
+                {
+                    'id': constants.MODELBRICK_ID, 'order': 5, 'zone': LEFT,
+                    'ctype': 'creme_core.fakecontact', 'superuser': True,
+                },
+            ],
             [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT]
         )
 
@@ -575,23 +649,36 @@ class ExportingTestCase(CremeTestCase):
         contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=contact_ct))
 
-        create_button = partial(ButtonMenuItem.objects.create, content_type=contact_ct)
-        bmi1 = create_button(id='creme_config_export-test_export_buttons-01', order=1, button_id=Button.generate_id('creme_config_export', 'test_export_buttons01'))
-        bmi2 = create_button(id='creme_config_export-test_export_buttons-02', order=2, button_id=Button.generate_id('creme_config_export', 'test_export_buttons02'))
+        def create_button(i):
+            return ButtonMenuItem.objects.create(
+                content_type=contact_ct,
+                id=f'creme_config_export-test_export_buttons-{i}', order=i,
+                button_id=Button.generate_id('creme_config_export', f'test_export_buttons{i}'),
+            )
+
+        bmi1 = create_button(1)
+        bmi2 = create_button(2)
 
         response = self.assertGET200(self.URL)
         content = response.json()
 
         loaded_buttons = content.get('buttons')
         self.assertListEqual(
-            [{'id': bconf.id, 'order': bconf.order, 'button_id': bconf.button_id}
+            [
+                {'id': bconf.id, 'order': bconf.order, 'button_id': bconf.button_id}
                 for bconf in default_buttons
             ],
             [d for d in loaded_buttons if 'ctype' not in d]
         )
         self.assertListEqual(
-            [{'id': bmi1.id, 'order': bmi1.order, 'button_id': bmi1.button_id, 'ctype': 'creme_core.fakecontact'},
-             {'id': bmi2.id, 'order': bmi2.order, 'button_id': bmi2.button_id, 'ctype': 'creme_core.fakecontact'},
+            [
+                {
+                    'id': bmi1.id, 'order': bmi1.order, 'button_id': bmi1.button_id,
+                    'ctype': 'creme_core.fakecontact',
+                }, {
+                    'id': bmi2.id, 'order': bmi2.order, 'button_id': bmi2.button_id,
+                    'ctype': 'creme_core.fakecontact',
+                },
             ],
             [d for d in loaded_buttons if d.get('ctype') == 'creme_core.fakecontact']
         )
@@ -612,13 +699,15 @@ class ExportingTestCase(CremeTestCase):
         loaded_search = content.get('search')
         self.assertListEqual(
             [{'ctype': 'creme_core.fakecontact', 'fields': 'first_name,last_name'}],
-            [d for d in loaded_search
+            [
+                d for d in loaded_search
                 if d.get('ctype') == 'creme_core.fakecontact' and 'role' not in d
             ]
         )
         self.assertListEqual(
             [{'ctype': 'creme_core.fakecontact', 'fields': 'last_name', 'role': role.name}],
-            [d for d in loaded_search
+            [
+                d for d in loaded_search
                 if d.get('ctype') == 'creme_core.fakecontact' and 'role' in d
             ]
         )
@@ -634,7 +723,9 @@ class ExportingTestCase(CremeTestCase):
     def test_property_types(self):
         self.login(is_staff=True)
 
-        CremePropertyType.objects.create(pk='creme_config_export-test_export_entityfilters', text='Sugoi !')
+        CremePropertyType.objects.create(
+            pk='creme_config_export-test_export_entityfilters', text='Sugoi !',
+        )
 
         self.assertTrue(CremePropertyType.objects.filter(is_custom=False))
 
@@ -642,7 +733,10 @@ class ExportingTestCase(CremeTestCase):
         create_ptype = CremePropertyType.create
         ptype1 = create_ptype(pk_fmt(1), 'Is important', is_custom=True)
         ptype2 = create_ptype(pk_fmt(2), 'Is funny',     is_custom=True, is_copiable=False)
-        ptype3 = create_ptype(pk_fmt(3), 'Is cool',      is_custom=True, subject_ctypes=[FakeContact, FakeOrganisation])
+        ptype3 = create_ptype(
+            pk_fmt(3), 'Is cool', is_custom=True,
+            subject_ctypes=[FakeContact, FakeOrganisation]
+        )
 
         response = self.assertGET200(self.URL)
         content = response.json()
@@ -673,8 +767,12 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertTrue(RelationType.objects.filter(is_custom=False))
 
-        ptype1 = CremePropertyType.objects.create(pk='creme_config_export-test_export_relation_types', text='Sugoi !')
-        ptype2 = CremePropertyType.create('creme_config_export-test_export_relation_types_1', 'Is important', is_custom=True)
+        ptype1 = CremePropertyType.objects.create(
+            pk='creme_config_export-test_export_relation_types', text='Sugoi !',
+        )
+        ptype2 = CremePropertyType.create(
+            'creme_config_export-test_export_relation_types_1', 'Is important', is_custom=True,
+        )
 
         s_pk_fmt = 'creme_config_export-subject_test_export_relations_types_{}'.format
         o_pk_fmt = 'creme_config_export-object_test_export_relations_types_{}'.format
@@ -709,7 +807,7 @@ class ExportingTestCase(CremeTestCase):
             subject_ptypes1a = rtype1_data.pop('subject_properties')
             object_ptypes1a  = rtype1_data.pop('object_properties')
 
-        self.assertEqual(
+        self.assertDictEqual(
             {
                 'id':          rtype1a.id, 'predicate':       rtype1a.predicate,
                 'is_copiable': True,       'minimal_display': False,
@@ -741,7 +839,9 @@ class ExportingTestCase(CremeTestCase):
             },
             rtype2_data
         )
-        self.assertEqual({'creme_core.fakecontact', 'creme_core.fakeorganisation'}, subject_ctypes2a)
+        self.assertSetEqual(
+            {'creme_core.fakecontact', 'creme_core.fakeorganisation'}, subject_ctypes2a
+        )
         self.assertEqual(['creme_core.fakedocument'], object_ctypes2a)
 
     def test_customfields(self):
@@ -772,14 +872,22 @@ class ExportingTestCase(CremeTestCase):
         ct_str1 = 'creme_core.fakecontact'
         ct_str2 = 'creme_core.fakeorganisation'
         self.assertListEqual(
-            [{'uuid': str(cfield1.uuid), 'ctype': ct_str1, 'name': cfield1.name, 'type': cfield1.field_type},
-             {'uuid': str(cfield2.uuid), 'ctype': ct_str2, 'name': cfield2.name, 'type': cfield2.field_type},
-             {'uuid': str(cfield3.uuid), 'ctype': ct_str1, 'name': cfield3.name, 'type': cfield3.field_type,
-              'choices': [eval1.value, eval2.value],
-             },
-             {'uuid': str(cfield4.uuid), 'ctype': ct_str1, 'name': cfield4.name, 'type': cfield4.field_type,
-              'choices': [eval3.value, eval4.value],
-             },
+            [
+                {
+                    'uuid': str(cfield1.uuid), 'ctype': ct_str1,
+                    'name': cfield1.name, 'type': cfield1.field_type,
+                }, {
+                    'uuid': str(cfield2.uuid), 'ctype': ct_str2,
+                    'name': cfield2.name, 'type': cfield2.field_type,
+                }, {
+                    'uuid': str(cfield3.uuid), 'ctype': ct_str1,
+                    'name': cfield3.name, 'type': cfield3.field_type,
+                    'choices': [eval1.value, eval2.value],
+                }, {
+                    'uuid': str(cfield4.uuid), 'ctype': ct_str1,
+                    'name': cfield4.name, 'type': cfield4.field_type,
+                    'choices': [eval3.value, eval4.value],
+                },
             ],
             loaded_cfields
         )
@@ -792,10 +900,9 @@ class ExportingTestCase(CremeTestCase):
         self.assertTrue(HeaderFilter.objects.filter(is_custom=False))
         self.assertFalse(HeaderFilter.objects.filter(is_custom=True))
 
-        cfield = CustomField.objects.create(name='Rating', field_type=CustomField.INT,
-                                            # content_type=ContentType.objects.get_for_model(FakeContact),
-                                            content_type=FakeContact,
-                                           )
+        cfield = CustomField.objects.create(
+            name='Rating', field_type=CustomField.INT, content_type=FakeContact,
+        )
 
         create_hf = HeaderFilter.objects.create_if_needed
         hf1 = create_hf(
@@ -888,7 +995,9 @@ class ExportingTestCase(CremeTestCase):
         cfield1 = create_cfield(name='Rating', field_type=CustomField.INT)
         cfield2 = create_cfield(name='Party',  field_type=CustomField.DATETIME)
 
-        ptype = CremePropertyType.objects.create(pk='creme_config_export-test_export_entityfilters', text='Sugoi !')
+        ptype = CremePropertyType.objects.create(
+            pk='creme_config_export-test_export_entityfilters', text='Sugoi !',
+        )
         rtype = RelationType.objects.filter(is_internal=False).first()
 
         create_efilter = EntityFilter.objects.smart_update_or_create
@@ -922,10 +1031,18 @@ class ExportingTestCase(CremeTestCase):
             is_custom=True,
             use_or=True,
             conditions=[
-                PropertyConditionHandler.build_condition(model=FakeOrganisation, ptype=ptype, has=True),
-                RelationConditionHandler.build_condition(model=FakeOrganisation, rtype=rtype, has=True),
-                RelationConditionHandler.build_condition(model=FakeOrganisation, rtype=rtype, has=False, ct=ct_contact),
-                RelationConditionHandler.build_condition(model=FakeOrganisation, rtype=rtype, has=True, entity=contact),
+                PropertyConditionHandler.build_condition(
+                    model=FakeOrganisation, ptype=ptype, has=True,
+                ),
+                RelationConditionHandler.build_condition(
+                    model=FakeOrganisation, rtype=rtype, has=True,
+                ),
+                RelationConditionHandler.build_condition(
+                    model=FakeOrganisation, rtype=rtype, has=False, ct=ct_contact,
+                ),
+                RelationConditionHandler.build_condition(
+                    model=FakeOrganisation, rtype=rtype, has=True, entity=contact,
+                ),
             ],
         )
         ef3 = create_efilter(

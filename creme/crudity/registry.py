@@ -92,9 +92,10 @@ class FetcherInterface:
 
     def get_default_backend(self) -> Optional[CrudityBackend]:
         """Special case, for retrieving the backend defined as the default one.
-            The backend should be aware in his fetcher_fallback method that the input is not a dict of data but the raw data
-            (i.e: An email object for the backend defined as the fallback of the email fetcher)
-            To set a backend as the fallback the subject has to be fetcher_name/*
+        The backend should be aware in his fetcher_fallback method that the input
+        is not a dict of data but the raw data
+        (i.e: An email object for the backend defined as the fallback of the email fetcher)
+        To set a backend as the fallback the subject has to be fetcher_name/*
         """
         return self._default_backend
 
@@ -148,7 +149,8 @@ class CRUDityRegistry:
             for source_type, fetchers_classes in fetchers.items():
                 if any(c not in ALLOWED_ID_CHARS for c in source_type):
                     raise ValueError(
-                        'The fetchers ID "{}" (in {}) use forbidden characters [allowed ones: {}].'.format(
+                        'The fetchers ID "{}" (in {}) use forbidden characters '
+                        '[allowed ones: {}].'.format(
                             source_type, crud_import, ''.join(ALLOWED_ID_CHARS),
                         )
                     )
@@ -162,7 +164,8 @@ class CRUDityRegistry:
                 for crud_input in input_classes:
                     if any(c not in ALLOWED_ID_CHARS for c in crud_input.name):
                         raise ValueError(
-                            'The input ID "{}" ({}) use forbidden characters [allowed ones: {}].'.format(
+                            'The input ID "{}" ({}) use forbidden characters '
+                            '[allowed ones: {}].'.format(
                                 crud_input.name, crud_input.__class__, ''.join(ALLOWED_ID_CHARS),
                             )
                         )
@@ -202,7 +205,8 @@ class CRUDityRegistry:
 
     def register_backends(self, backends: Iterable[Type[CrudityBackend]]) -> None:
         for backend in backends:
-            # TODO: error if model is already associated with the model ? (or a log in order to override cleanly)
+            # TODO: error if model is already associated with the model ?
+            #       (or a log in order to override cleanly)
             self._backends[backend.model] = backend
 
     def get_backends(self) -> Iterator[Type[CrudityBackend]]:  # TODO: rename ?
@@ -216,7 +220,9 @@ class CRUDityRegistry:
         try:
             return self._backends[model]
         except KeyError as e:
-            raise self.RegistrationError(f'No backend is registered for the model "{model}"') from e
+            raise self.RegistrationError(
+                f'No backend is registered for the model "{model}"'
+            ) from e
 
     def get_configured_backends(self) -> List[CrudityBackend]:
         """Get backends instances which are configured and associated to an input
@@ -308,7 +314,8 @@ class CRUDityRegistry:
                     if fetcher.get_default_backend() is not None:
                         raise ImproperlyConfigured(
                             f'settings.CRUDITY_BACKENDS: '
-                            f'only one fallback backend is allowed for "{fetcher_source}/{input_name}".'
+                            f'only one fallback backend is allowed for '
+                            f'"{fetcher_source}/{input_name}".'
                         )
 
                     backend_cfg['source'] = fetcher_source
@@ -317,7 +324,8 @@ class CRUDityRegistry:
                     if not hasattr(backend_instance, 'fetcher_fallback'):
                         raise ImproperlyConfigured(
                             f'settings.CRUDITY_BACKENDS: '
-                            f'the backend for "{model}" cannot be used as fallback (ie: subject="*").'
+                            f'the backend for "{model}" cannot be used as fallback '
+                            f'(ie: subject="*").'
                         )
 
                     backend_instance.fetcher_name = fetcher_source
@@ -356,8 +364,8 @@ class CRUDityRegistry:
                     if crud_input.get_backend(backend_instance.subject):
                         raise ImproperlyConfigured(
                             f'settings.CRUDITY_BACKENDS: '
-                            f'this (normalised) subject must be unique for "{fetcher_source}/{input_name}": '
-                            f'{backend_instance.subject}'
+                            f'this (normalised) subject must be unique for '
+                            f'"{fetcher_source}/{input_name}": {backend_instance.subject}'
                         )
 
                     crud_input.add_backend(backend_instance)

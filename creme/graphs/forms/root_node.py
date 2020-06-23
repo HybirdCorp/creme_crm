@@ -61,12 +61,13 @@ class AddRootNodesForm(CremeForm):
 class EditRootNodeForm(CremeModelForm):
     relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
                                                      queryset=RelationType.objects.all(),
-                                                    )
+                                                     )
 
     class Meta:
         model = RootNode
         exclude = ()
 
-    def __init__(self, entity, *args, **kwargs):  # NB only useful for the generic view edit_related_to_entity()
+    # NB only useful for the generic view edit_related_to_entity()
+    def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graph = entity

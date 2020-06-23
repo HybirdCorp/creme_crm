@@ -180,7 +180,8 @@ class ActionsDeletion(ActionsMixin, generic.CheckedView):
 #             if len(source_parts) == 1:
 #                 backend = registry.crudity_registry.get_default_backend(source_parts[0])
 #             elif len(source_parts) == 2:
-#                 backend = registry.crudity_registry.get_configured_backend(*source_parts, norm_subject=action.subject)
+#                 backend = registry.crudity_registry.get_configured_backend(
+#                 *source_parts, norm_subject=action.subject)
 #             else:
 #                 raise ValueError('Malformed source')
 #         except (KeyError, ValueError) as e:

@@ -28,16 +28,23 @@ from creme.creme_core.models import fields as core_fields
 
 
 class History(CremeModel):
-    entity      = models.ForeignKey(CremeEntity, verbose_name=_('Entity'),
-                                    blank=False, null=False, on_delete=models.CASCADE,
-                                   )
-    created     = core_fields.CreationDateTimeField(_('Creation date'))
-    action      = models.CharField(_('Action'), max_length=100)  # Action (i.e: create, update...)
-    source      = models.CharField(_('Source'), max_length=100)  # Source (i.e: email raw, email from infopath, sms raw...)
+    entity = models.ForeignKey(
+        CremeEntity, verbose_name=_('Entity'),
+        blank=False, null=False, on_delete=models.CASCADE,
+    )
+    created = core_fields.CreationDateTimeField(_('Creation date'))
+
+    # Action (i.e: create, update...)
+    action = models.CharField(_('Action'), max_length=100)
+
+    # Source (i.e: email raw, email from infopath, sms raw...)
+    source = models.CharField(_('Source'), max_length=100)
+
     description = models.TextField(_('Description'), blank=True, null=True)
-    user        = core_fields.CremeUserForeignKey(verbose_name=_('Owner'),
-                                                  blank=True, null=True, default=None,
-                                                 )  # Case of sandboxes are by user
+
+    user = core_fields.CremeUserForeignKey(
+        verbose_name=_('Owner'), blank=True, null=True, default=None,
+    )  # Case of sandboxes are by user
 
     class Meta:
         app_label = 'crudity'

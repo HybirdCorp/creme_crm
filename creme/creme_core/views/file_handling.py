@@ -66,7 +66,9 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
     else:
         relative_dir_path = join(*path)
         dir_path = join(settings.MEDIA_ROOT, *path)
-        dir_path_length += len('/'.join(relative_dir_path))  # The storage uses '/' even on Windows.
+
+        # The storage uses '/' even on Windows.
+        dir_path_length += len('/'.join(relative_dir_path))
 
     if not name:
         name = get_name(f)

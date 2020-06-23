@@ -46,7 +46,8 @@ class AbstractListViewSearchFieldRegistry:
     Nomenclature:
      - A "builder" is an object which can instantiate a ListViewSearchField ; so it can be:
         - A class of search-field (ie: inheriting <creme_core.forms.listview.ListViewSearchField>).
-        - An instance of a search-field registry class (ie: inheriting <AbstractListViewSearchFieldRegistry>).
+        - An instance of a search-field registry class
+          (ie: inheriting <AbstractListViewSearchFieldRegistry>).
     """
     def get_field(self, *, cell: entity_cell.EntityCell, user, **kwargs):
         """Get an instance of (a class inheriting) <creme_core.forms.listview.ListViewSearchField>.
@@ -68,10 +69,12 @@ class AbstractListViewSearchFieldRegistry:
 
     @staticmethod
     def _instantiate_builder(sfield_builder):
-        """Helper method which instantiates a builder if it's needed (because it's a registry class).
+        """Helper method which instantiates a builder if it's needed (
+        because it's a registry class).
         Useful to implement methods which accept either field class or registry class as argument.
 
-        @param sfield_builder: A class inheriting <ListViewSearchField> or <AbstractListViewSearchFieldRegistry>.
+        @param sfield_builder: A class inheriting <ListViewSearchField> or
+               <AbstractListViewSearchFieldRegistry>.
         @return: A builder.
         """
         return sfield_builder() if hasattr(sfield_builder, 'get_field') else sfield_builder
@@ -235,7 +238,10 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         # (models.ImageField, ),
     )
 
-    def __init__(self, to_register=DEFAULT_REGISTRATIONS, choice_sfield_builder=lv_form.RegularChoiceField):
+    def __init__(
+            self,
+            to_register=DEFAULT_REGISTRATIONS,
+            choice_sfield_builder=lv_form.RegularChoiceField):
         self._builders_4_modelfields = {}
         self._builders_4_modelfieldtypes = ClassKeyedMap(default=None)
         self.register_choice_builder(choice_sfield_builder)

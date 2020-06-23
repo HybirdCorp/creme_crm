@@ -364,13 +364,28 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         orga4 = create_orga(name='D', user=user)
 
         create_baddr = self.create_billing_address
-        self.MARSEILLE_LA_MAJOR    = create_baddr(orga,  address='La Major',         zipcode='13002', town='Marseille', geoloc=(43.299991, 5.364832))
-        self.MARSEILLE_MAIRIE      = create_baddr(orga2, address='Mairie Marseille', zipcode='13002', town='Marseille', geoloc=(43.296524, 5.369821))
-        self.MARSEILLE_ST_VICTOR   = create_baddr(orga3, address='St Victor',        zipcode='13007', town='Marseille', geoloc=(43.290347, 5.365572))
-        self.MARSEILLE_COMMANDERIE = create_baddr(orga4, address='Commanderie',      zipcode='13011', town='Marseille', geoloc=(43.301963, 5.462410))
+        self.MARSEILLE_LA_MAJOR = create_baddr(
+            orga,  address='La Major', zipcode='13002', town='Marseille',
+            geoloc=(43.299991, 5.364832),
+        )
+        self.MARSEILLE_MAIRIE = create_baddr(
+            orga2, address='Mairie Marseille', zipcode='13002', town='Marseille',
+            geoloc=(43.296524, 5.369821),
+        )
+        self.MARSEILLE_ST_VICTOR = create_baddr(
+            orga3, address='St Victor', zipcode='13007', town='Marseille',
+            geoloc=(43.290347, 5.365572),
+        )
+        self.MARSEILLE_COMMANDERIE = create_baddr(
+            orga4, address='Commanderie', zipcode='13011', town='Marseille',
+            geoloc=(43.301963, 5.462410),
+        )
 
         orga5 = create_orga(name='E', user=user)
-        self.AUBAGNE_MAIRIE = create_baddr(orga5, address='Maire Aubagne', zipcode='13400', town='Aubagne', geoloc=(43.295783, 5.565589))
+        self.AUBAGNE_MAIRIE = create_baddr(
+            orga5, address='Maire Aubagne', zipcode='13400', town='Aubagne',
+            geoloc=(43.295783, 5.565589),
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -396,7 +411,10 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                              }
                             )
 
-        response = self.assertGET200(url, data={'address_id': self.MARSEILLE_COMMANDERIE.id, 'filter_id': ''})
+        response = self.assertGET200(
+            url,
+            data={'address_id': self.MARSEILLE_COMMANDERIE.id, 'filter_id': ''},
+        )
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE))
         self.assertListAddressAsDict(data['addresses'],
@@ -464,7 +482,10 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
 
         url = self.GET_NEIGHBOURS_URL
         GET_data = {'filter_id': efilter.id}
-        response = self.assertGET200(url, data={**GET_data, 'address_id': self.MARSEILLE_MAIRIE.id})
+        response = self.assertGET200(
+            url,
+            data={**GET_data, 'address_id': self.MARSEILLE_MAIRIE.id},
+        )
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(data['addresses'],
@@ -480,7 +501,10 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                              }
                             )
 
-        response = self.assertGET200(url, data={**GET_data, 'address_id': self.MARSEILLE_COMMANDERIE.id})
+        response = self.assertGET200(
+            url,
+            data={**GET_data, 'address_id': self.MARSEILLE_COMMANDERIE.id},
+        )
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE))
         self.assertListAddressAsDict(data['addresses'],
@@ -496,7 +520,10 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
     def test_get_neighbours_credentials(self):
         self.maxDiff = None
 
-        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('creme_core', 'geolocation', 'persons'),
+        )
 
         SetCredentials.objects.create(role=self.role,
                                       ctype=Organisation,
@@ -507,7 +534,10 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         self.populate_addresses(user)
 
         # Updating an address resets the position, so create a correct town.
-        create_town(name='Marseille', zipcode='13002', country='FRANCE', latitude=43.296524, longitude=5.369821)
+        create_town(
+            name='Marseille', zipcode='13002', country='FRANCE',
+            latitude=43.296524, longitude=5.369821,
+        )
 
         self.MARSEILLE_LA_MAJOR.owner = self.other_user.linked_contact
         self.MARSEILLE_LA_MAJOR.save()

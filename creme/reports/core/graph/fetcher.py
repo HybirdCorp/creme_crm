@@ -47,10 +47,10 @@ logger = logging.getLogger(__name__)
 
 
 class GraphFetcher:
-    """A graph fetcher can fetch the result of a given ReportGraph, with or without
-    a volatile link.
-    It stores the verbose name of this link (for UI), and an error if the link data
-    were invalid.
+    """A graph fetcher can fetch the result of a given ReportGraph, with or
+     without a volatile link.
+    It stores the verbose name of this link (for UI), and an error if the link
+    data were invalid.
     """
     type_id = ''
     verbose_name = ''
@@ -83,10 +83,14 @@ class GraphFetcher:
             yield self.DICT_KEY_VALUE, self.value
 
     @classmethod
-    def choices(cls, model: Type[CremeEntity]) -> Iterator[Tuple[str, Union[str, List[Tuple[str, str]]]]]:
+    def choices(
+            cls,
+            model: Type[CremeEntity]) -> Iterator[Tuple[str, Union[str, List[Tuple[str, str]]]]]:
         raise NotImplementedError()
 
-    def create_brick_config_item(self, brick_class: Optional[Type['InstanceBrick']] = None) -> InstanceBrickConfigItem:
+    def create_brick_config_item(
+            self,
+            brick_class: Optional[Type['InstanceBrick']] = None) -> InstanceBrickConfigItem:
         if brick_class is None:
             from creme.reports.bricks import ReportGraphBrick
             brick_class = ReportGraphBrick
@@ -184,7 +188,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
     #         self.error = _('The field is invalid.')
     #     else:
     #         if isinstance(field, ForeignKey):
-    #             self.verbose_volatile_column = gettext('{field} (Field)').format(field=field.verbose_name)
+    #             self.verbose_volatile_column = gettext('{field} (Field)').format(
+    #                 field=field.verbose_name)
     #             self._field_name = field_name
     #             self._volatile_model = field.remote_field.model
     #         else:
@@ -314,7 +319,8 @@ class RelationLinkedGraphFetcher(GraphFetcher):
     #             self.error = _('The relationship type is invalid.')
     #             self.verbose_volatile_column = '??'
     #         else:
-    #             self.verbose_volatile_column = gettext('{rtype} (Relationship)').format(rtype=rtype)
+    #             self.verbose_volatile_column = gettext(
+    #                  '{rtype} (Relationship)').format(rtype=rtype)
     #             self._rtype = rtype
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

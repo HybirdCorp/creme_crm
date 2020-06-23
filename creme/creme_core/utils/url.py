@@ -41,19 +41,28 @@ class TemplateURLBuilder:
         You want something like '/my_app/list_elements/65/$count'.
 
         In your file my_app.urls.py your URL is declared as:
-            url(r'^list_elements/(?P<ctype_id>\d+)/(?P<count>\d+)$', my_views.list_elements, name='list_my_app_elements'),
+            re_path(
+                r'^list_elements/(?P<ctype_id>\d+)/(?P<count>\d+)$',
+                my_views.list_elements,
+                name='list_my_app_elements',
+            ),
 
-        So you want to create a template-like URL for the parameter 'count' of the view (the 'ctype_id' is fixed).
+        So you want to create a template-like URL for the parameter 'count' of
+        the view (the 'ctype_id' is fixed):
             builder = TemplateURLBuilder(count=(TemplateURLBuilder.Int, '$count'))
             url = builder.resolve('list_my_app_elements', kwargs={'ctype_id': 65})
 
     BEWARE:
-        The way the template is built uses string replacement with place holders. In order to avoid ambiguous
-        replacement, these place holders must be unique and should not appear several times in the URL.
-        The resolve() method tries several place-holder to avoids unlucky collision before failing.
-        So, the regex groups name should accept long & various string, like long integer or words, & it would
-        regularly fail if the group name is a simple letter/numeric for example.
-        It's why no PlaceHolder class for simple alphanumeric is provided, because it would be a bad idea.
+        The way the template is built uses string replacement with place holders.
+        In order to avoid ambiguous replacement, these place holders must be unique
+        and should not appear several times in the URL.
+        The resolve() method tries several place-holder to avoids unlucky
+        collision before failing.
+        So, the regex groups name should accept long & various string,
+        like long integer or words, & it would regularly fail if the group name
+         is a simple letter/numeric for example.
+        It's why no PlaceHolder class for simple alphanumeric is provided,
+        because it would be a bad idea.
     """
 
     class PlaceHolder:
@@ -96,7 +105,8 @@ class TemplateURLBuilder:
     def resolve(self, viewname, urlconf=None, kwargs=None, current_app=None):
         """This method works like django.urls.reverse(), excepted that:
         - It has no 'args' parameter ; you have to use the 'kwargs' one.
-        - The returned URL is not a valid URL (if you have passed some place_holders to the constructor, of course).
+        - The returned URL is not a valid URL
+          (if you have passed some place_holders to the constructor, of course).
         """
         kwargs = kwargs or {}
         reverse_kwargs = {}
@@ -113,7 +123,9 @@ class TemplateURLBuilder:
 
                 reverse_kwargs.update(kwargs)
 
-                url = reverse(viewname, kwargs=reverse_kwargs, urlconf=urlconf, current_app=current_app)
+                url = reverse(
+                    viewname, kwargs=reverse_kwargs, urlconf=urlconf, current_app=current_app,
+                )
                 tried_urls.append(url)
 
                 for tmp_name, place_holder in zip(tmp_names, self._place_holders):

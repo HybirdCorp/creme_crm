@@ -87,7 +87,8 @@ class GenericModelBrick(QuerysetBrick):
     template_name = 'creme_config/bricks/configurable-model.html'
     configurable  = False
 
-    # NB: credentials are OK : we are sure to use the custom reloading view because of the specific constructor.
+    # NB: credentials are OK : we are sure to use the custom reloading view
+    #     because of the specific constructor.
     def __init__(self, app_name, model_config):
         super().__init__()
         self.app_name = app_name
@@ -161,7 +162,8 @@ class SettingsBrick(QuerysetBrick):
 
 class _ConfigAdminBrick(QuerysetBrick):
     page_size    = _PAGE_SIZE
-    permission   = None  # The portals can be viewed by all users => reloading can be done by all users too.
+    # The portals can be viewed by all users => reloading can be done by all users too.
+    permission = None
     configurable = False
 
 
@@ -241,7 +243,8 @@ class FieldsConfigsBrick(PaginatedBrick):
     configurable  = False
 
     def detailview_display(self, context):
-        # TODO: exclude CTs that user cannot see ? (should probably done everywhere in creme_config...)
+        # TODO: exclude CTs that user cannot see ?
+        #       (should probably done everywhere in creme_config...)
         fconfigs = [*FieldsConfig.objects.all()]
         sort_key = collator.sort_key
         fconfigs.sort(key=lambda fconf: sort_key(str(fconf.content_type)))
@@ -395,7 +398,8 @@ class TeamsBrick(_ConfigAdminBrick):
 class BrickDetailviewLocationsBrick(PaginatedBrick):
     id_           = PaginatedBrick.generate_id('creme_config', 'blocks_dv_locations')
     dependencies  = (BrickDetailviewLocation,)
-    page_size     = _PAGE_SIZE - 1  # '-1' because there is always the line for default config on each page
+    # '-1' because there is always the line for default config on each page
+    page_size     = _PAGE_SIZE - 1
     verbose_name  = 'Blocks locations on detailviews'
     template_name = 'creme_config/bricks/bricklocations-detailviews.html'
     permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic
@@ -437,13 +441,16 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
 
         ctypes_wrappers = btc['page'].object_list
 
-        brick_counts = defaultdict(lambda: defaultdict(int))  # brick_counts[content_type.id][(role_id, superuser)] -> count
+        # brick_counts[content_type.id][(role_id, superuser)] -> count
+        brick_counts = defaultdict(lambda: defaultdict(int))
         role_ids = set()
 
-        for bdl in BrickDetailviewLocation.objects \
-                                          .filter(content_type__in=[ctw.ctype for ctw in ctypes_wrappers])\
-                                          .exclude(zone=BrickDetailviewLocation.HAT):
-            if bdl.brick_id:  # Do not count the 'place-holder' (empty block IDs which mean "no-block for this zone")
+        for bdl in BrickDetailviewLocation.objects.filter(
+            content_type__in=[ctw.ctype for ctw in ctypes_wrappers],
+        ).exclude(zone=BrickDetailviewLocation.HAT):
+            # Do not count the 'place-holder'
+            # (empty block IDs which mean "no-block for this zone")
+            if bdl.brick_id:
                 role_id = bdl.role_id
                 brick_counts[bdl.content_type_id][(role_id, bdl.superuser)] += 1
                 role_ids.add(role_id)
@@ -517,9 +524,9 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
 
 
 class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'blocks_default_mypage_locations')
-    dependencies  = (BrickMypageLocation,)
-    verbose_name  = 'Default blocks locations on "My page"'
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'blocks_default_mypage_locations')
+    dependencies = (BrickMypageLocation,)
+    verbose_name = 'Default blocks locations on "My page"'
     template_name = 'creme_config/bricks/bricklocations-mypage-default.html'
 
     def detailview_display(self, context):
@@ -530,9 +537,9 @@ class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
 
 
 class BrickMypageLocationsBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'blocks_mypage_locations')
-    dependencies  = (BrickMypageLocation,)
-    verbose_name  = 'Blocks locations on "My page"'
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'blocks_mypage_locations')
+    dependencies = (BrickMypageLocation,)
+    verbose_name = 'Blocks locations on "My page"'
     template_name = 'creme_config/bricks/bricklocations-mypage-user.html'
 
     def detailview_display(self, context):
@@ -543,9 +550,9 @@ class BrickMypageLocationsBrick(_ConfigAdminBrick):
 
 
 class RelationBricksConfigBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'relation_blocks_config')
-    dependencies  = (RelationBrickItem, BrickDetailviewLocation)
-    verbose_name  = 'Relation blocks configuration'
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'relation_blocks_config')
+    dependencies = (RelationBrickItem, BrickDetailviewLocation)
+    verbose_name = 'Relation blocks configuration'
     template_name = 'creme_config/bricks/relationbricks-configs.html'
     order_by = 'relation_type__predicate'
 
@@ -557,12 +564,13 @@ class RelationBricksConfigBrick(_ConfigAdminBrick):
 
 
 class InstanceBricksConfigBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
     # BrickDetailviewLocation/BrickHomeLocation/BrickMypageLocation because
     # they can be deleted if we delete a InstanceBrickConfigItem
-    dependencies  = (InstanceBrickConfigItem, BrickDetailviewLocation,
-                     BrickHomeLocation, BrickMypageLocation,
-                    )
+    dependencies = (
+        InstanceBrickConfigItem, BrickDetailviewLocation,
+        BrickHomeLocation, BrickMypageLocation,
+    )
     verbose_name  = 'Instance blocks configuration'
     template_name = 'creme_config/bricks/instancebricks-configs.html'
 
@@ -580,12 +588,13 @@ class InstanceBricksConfigBrick(_ConfigAdminBrick):
 
 
 class CustomBricksConfigBrick(PaginatedBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'custom_blocks_config')
-    dependencies  = (CustomBrickConfigItem,)
-    verbose_name  = 'Custom blocks configuration'
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'custom_blocks_config')
+    dependencies = (CustomBrickConfigItem,)
+    verbose_name = 'Custom blocks configuration'
     template_name = 'creme_config/bricks/custombricks-configs.html'
-    page_size    = _PAGE_SIZE
-    permission   = None  # The portals can be viewed by all users => reloading can be done by all users too.
+    page_size = _PAGE_SIZE
+    # The portals can be viewed by all users => reloading can be done by all users too.
+    permission = None
     configurable = False
 
     def detailview_display(self, context):
@@ -624,12 +633,12 @@ class CustomBricksConfigBrick(PaginatedBrick):
 
 
 class ButtonMenuBrick(Brick):
-    id_           = Brick.generate_id('creme_config', 'button_menu')
-    dependencies  = (ButtonMenuItem,)
-    verbose_name  = 'Button menu configuration'
+    id_ = Brick.generate_id('creme_config', 'button_menu')
+    dependencies = (ButtonMenuItem,)
+    verbose_name = 'Button menu configuration'
     template_name = 'creme_config/bricks/button-menu.html'
-    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
-    configurable  = False
+    permission = None  # NB: used by the view creme_core.views.blocks.reload_basic()
+    configurable = False
 
     def detailview_display(self, context):
         buttons_map = defaultdict(list)
@@ -658,13 +667,13 @@ class ButtonMenuBrick(Brick):
 
 
 class SearchConfigBrick(PaginatedBrick):
-    id_           = PaginatedBrick.generate_id('creme_config', 'searchconfig')
-    dependencies  = (SearchConfigItem,)
-    verbose_name  = 'Search configuration'
+    id_ = PaginatedBrick.generate_id('creme_config', 'searchconfig')
+    dependencies = (SearchConfigItem,)
+    verbose_name = 'Search configuration'
     template_name = 'creme_config/bricks/search-config.html'
-    order_by      = 'content_type'
-    page_size    = _PAGE_SIZE * 2  # Only one brick
-    permission   = None  # NB: used by the view creme_core.views.blocks.reload_basic()
+    order_by = 'content_type'
+    page_size = _PAGE_SIZE * 2  # Only one brick
+    permission = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable = False
 
     def detailview_display(self, context):
@@ -716,11 +725,11 @@ class SearchConfigBrick(PaginatedBrick):
 
 
 class HistoryConfigBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'historyconfig')
-    dependencies  = (HistoryConfigItem,)
-    verbose_name  = 'History configuration'
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'historyconfig')
+    dependencies = (HistoryConfigItem,)
+    verbose_name = 'History configuration'
     template_name = 'creme_config/bricks/history-config.html'
-    order_by      = 'relation_type__predicate'
+    order_by = 'relation_type__predicate'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(context, HistoryConfigItem.objects.all()))
@@ -738,11 +747,11 @@ class UserRolesBrick(_ConfigAdminBrick):
 
 
 class UserSettingValuesBrick(Brick):
-    id_           = QuerysetBrick.generate_id('creme_config', 'user_setting_values')
+    id_ = QuerysetBrick.generate_id('creme_config', 'user_setting_values')
     # dependencies  = (User,) ??
-    verbose_name  = 'My setting values'
+    verbose_name = 'My setting values'
     template_name = 'creme_config/bricks/user-setting-values.html'
-    configurable  = False
+    configurable = False
 
     # NB: used by the view creme_core.views.bricks.BricksReloading ;
     # <None> means 'No special permission required'.

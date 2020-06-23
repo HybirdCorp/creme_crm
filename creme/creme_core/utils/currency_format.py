@@ -40,7 +40,9 @@ else:
 
 
 def _locale_args(locale_code):
-    yield (locale_code, settings.DEFAULT_ENCODING)  # Will certainly fail on Windows (because of utf-8)
+    # Will certainly fail on Windows (because of utf-8)
+    yield (locale_code, settings.DEFAULT_ENCODING)
+
     yield locale_code
     yield ''
 
@@ -60,7 +62,8 @@ def _get_locale_conv(category, locale_code):
     return None
 
 
-# TODO: use an object Formatter in order to avoid multiple queries of SettingValue VS cache (in global_info)
+# TODO: use an object Formatter in order to avoid multiple queries of
+#       SettingValue VS cache (in global_info)
 def currency(val, currency_or_id=None):
     """Replace a formatted string for an amount.
     @param val: Amount as a numeric value.

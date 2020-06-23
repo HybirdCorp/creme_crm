@@ -69,14 +69,14 @@ class ActType(CremeModel):
 
 
 class AbstractAct(CremeEntity):
-    name           = CharField(_('Name of the commercial action'), max_length=100)
+    name = CharField(_('Name of the commercial action'), max_length=100)
     expected_sales = PositiveIntegerField(_('Expected sales'))
-    cost           = PositiveIntegerField(_('Cost of the commercial action'), blank=True, null=True)
-    goal           = TextField(_('Goal of the action'), blank=True)
-    start          = DateField(_('Start'))
-    due_date       = DateField(_('Due date'))
-    act_type       = ForeignKey(ActType, verbose_name=_('Type'), on_delete=PROTECT)
-    segment        = ForeignKey(MarketSegment, verbose_name=_('Related segment'), on_delete=PROTECT)
+    cost = PositiveIntegerField(_('Cost of the commercial action'), blank=True, null=True)
+    goal = TextField(_('Goal of the action'), blank=True)
+    start = DateField(_('Start'))
+    due_date = DateField(_('Due date'))
+    act_type = ForeignKey(ActType, verbose_name=_('Type'), on_delete=PROTECT)
+    segment = ForeignKey(MarketSegment, verbose_name=_('Related segment'), on_delete=PROTECT)
 
     creation_label = _('Create a commercial action')
     save_label     = _('Save the commercial action')
@@ -119,10 +119,18 @@ class AbstractAct(CremeEntity):
         return reverse('commercial__list_acts')
 
     def get_made_sales(self):
-        return sum(o.made_sales for o in self.get_related_opportunities() if o.made_sales)
+        return sum(
+            o.made_sales
+            for o in self.get_related_opportunities()
+            if o.made_sales
+        )
 
     def get_estimated_sales(self):
-        return sum(o.estimated_sales for o in self.get_related_opportunities() if o.estimated_sales)
+        return sum(
+            o.estimated_sales
+            for o in self.get_related_opportunities()
+            if o.estimated_sales
+        )
 
     def get_related_opportunities(self):
         relopps = self._related_opportunities
@@ -157,16 +165,20 @@ class Act(AbstractAct):
 
 
 class ActObjective(CremeModel):
-    name         = CharField(_('Name'), max_length=_NAME_LENGTH)
-    act          = ForeignKey(settings.COMMERCIAL_ACT_MODEL, related_name='objectives',
-                              editable=False, on_delete=CASCADE,
-                             )
-    counter      = PositiveIntegerField(_('Counter'), default=0, editable=False)
+    name = CharField(_('Name'), max_length=_NAME_LENGTH)
+    act = ForeignKey(
+        settings.COMMERCIAL_ACT_MODEL, related_name='objectives',
+        editable=False, on_delete=CASCADE,
+    )
+    counter = PositiveIntegerField(_('Counter'), default=0, editable=False)
     counter_goal = PositiveIntegerField(_('Value to reach'), default=1)
-    ctype        = CTypeForeignKey(verbose_name=_('Counted type'), null=True, blank=True, editable=False)
-    filter       = ForeignKey(EntityFilter, verbose_name=_('Filter on counted entities'),
-                              null=True, blank=True, on_delete=PROTECT, editable=False,
-                             )
+    ctype = CTypeForeignKey(
+        verbose_name=_('Counted type'), null=True, blank=True, editable=False,
+    )
+    filter = ForeignKey(
+        EntityFilter, verbose_name=_('Filter on counted entities'),
+        null=True, blank=True, on_delete=PROTECT, editable=False,
+    )
 
     creation_label = _('Create an objective')
     save_label     = _('Save the objective')
@@ -196,18 +208,19 @@ class ActObjective(CremeModel):
 
             if ctype:
                 if self.filter:
-                    qs = ctype.model_class().objects.filter(is_deleted=False,  # TODO: test deleted=False
-                                                            relations__type=REL_SUB_COMPLETE_GOAL,
-                                                            relations__object_entity=self.act_id,
-                                                           )
+                    qs = ctype.model_class().objects.filter(
+                        is_deleted=False,  # TODO: test deleted=False
+                        relations__type=REL_SUB_COMPLETE_GOAL,
+                        relations__object_entity=self.act_id,
+                    )
                     count = self.filter.filter(qs).count()
                 else:
-                    count = Relation.objects.filter(type=REL_SUB_COMPLETE_GOAL,
-                                                    object_entity=self.act_id,
-                                                    subject_entity__is_deleted=False,
-                                                    subject_entity__entity_type=ctype,
-                                                   ) \
-                                            .count()
+                    count = Relation.objects.filter(
+                        type=REL_SUB_COMPLETE_GOAL,
+                        object_entity=self.act_id,
+                        subject_entity__is_deleted=False,
+                        subject_entity__entity_type=ctype,
+                    ).count()
             else:
                 count = self.counter
 
@@ -221,9 +234,9 @@ class ActObjective(CremeModel):
 
 
 class AbstractActObjectivePattern(CremeEntity):
-    name          = CharField(_('Name'), max_length=100)
+    name = CharField(_('Name'), max_length=100)
     average_sales = PositiveIntegerField(_('Average sales'))
-    segment       = ForeignKey(MarketSegment, verbose_name=_('Related segment'), on_delete=CASCADE)
+    segment = ForeignKey(MarketSegment, verbose_name=_('Related segment'), on_delete=CASCADE)
 
     creation_label = _('Create an objective pattern')
     save_label     = _('Save the objective pattern')
@@ -270,7 +283,11 @@ class AbstractActObjectivePattern(CremeEntity):
                 comp._children_cache = []
 
             for comp in components.values():
-                children = components[comp.parent_id]._children_cache if comp.parent_id else root_components
+                children = (
+                    components[comp.parent_id]._children_cache
+                    if comp.parent_id else
+                    root_components
+                )
                 children.append(comp)
 
             self._components_cache = root_components
@@ -288,13 +305,18 @@ class ActObjectivePattern(AbstractActObjectivePattern):
 
 
 class ActObjectivePatternComponent(CremeModel):
-    pattern      = ForeignKey(ActObjectivePattern, related_name='components', editable=False, on_delete=CASCADE)
-    parent       = ForeignKey('self', null=True, related_name='children', editable=False, on_delete=CASCADE)
-    name         = CharField(_('Name'), max_length=_NAME_LENGTH)
-    ctype        = CTypeForeignKey(verbose_name=_('Counted type'), null=True, blank=True, editable=False)
-    filter       = ForeignKey(EntityFilter, verbose_name=_('Filter on counted entities'),
-                              null=True, blank=True, on_delete=PROTECT, editable=False,
-                             )
+    pattern = ForeignKey(
+        ActObjectivePattern, related_name='components', editable=False, on_delete=CASCADE
+    )
+    parent = ForeignKey(
+        'self', null=True, related_name='children', editable=False, on_delete=CASCADE,
+    )
+    name = CharField(_('Name'), max_length=_NAME_LENGTH)
+    ctype = CTypeForeignKey(verbose_name=_('Counted type'), null=True, blank=True, editable=False)
+    filter = ForeignKey(
+        EntityFilter, verbose_name=_('Filter on counted entities'),
+        null=True, blank=True, on_delete=PROTECT, editable=False,
+    )
     success_rate = PositiveIntegerField(_('Success rate'))  # TODO: smallinteger ??
 
     _children_cache = None
@@ -325,7 +347,8 @@ class ActObjectivePatternComponent(CremeModel):
 
         children2del = []
 
-        # TODO: tree may inherit from a smart tree structure with right method like found()/flatten() etc...
+        # TODO: tree may inherit from a smart tree structure with right method
+        #       like found()/flatten() etc...
         flatten_node_ids(find_node(self.pattern.get_components_tree(), self.id), children2del)
         ActObjectivePatternComponent.objects.filter(pk__in=children2del).delete()
         # NB super(ActObjectivePatternComponent, self).delete() is not called

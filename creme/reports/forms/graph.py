@@ -205,9 +205,12 @@ class AbscissaWidget(ChainedInput):
             options=self.build_graph_type_choices(),
             attrs={
                 **field_attrs,
-                'filter': f'context.{cell_data_name} && item.value ? '
-                          f'item.value.{constraint_dname} === context.{cell_data_name}.{constraint_dname} : '
-                          f'true',
+                'filter': (
+                    f'context.{cell_data_name} && item.value ? '
+                    f'item.value.{constraint_dname} ==='
+                    f' context.{cell_data_name}.{constraint_dname} : '
+                    f'true'
+                ),
                 'dependencies': cell_data_name,
             },
         )
@@ -502,9 +505,12 @@ class OrdinateWidget(ChainedInput):
             options=self.build_cell_choices(cells_per_aggr_category),
             attrs={
                 **field_attrs,
-                'filter': f'context.{aggr_data_name} && item.value ? '
-                          f'item.value.{constraint_dname} === context.{aggr_data_name}.{constraint_dname} : '
-                          f'true',
+                'filter': (
+                    f'context.{aggr_data_name} && item.value ? '
+                    f'item.value.{constraint_dname} ==='
+                    f' context.{aggr_data_name}.{constraint_dname} : '
+                    f'true'
+                ),
                 'dependencies': aggr_data_name,
             },
         )
@@ -669,7 +675,8 @@ class OrdinateField(JSONField):
 
 
 # ------------------------------------------------------------------------------
-class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Relationships & CremeProperties
+# NB: not <CremeEntityForm> to avoid Relationships & CremeProperties
+class ReportGraphForm(CremeModelForm):
     chart = forms.ChoiceField(label=_('Chart type'), choices=report_chart_registry.choices())
 
     # abscissa_field = forms.ChoiceField(
@@ -693,7 +700,8 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
     #     label=_('Entities count'), required=False,
     #     help_text=_('Make a count instead of aggregate?'),
     #     widget=forms.CheckboxInput(
-    #          attrs={'onchange': "creme.reports.toggleDisableOthers(this, ['#id_aggregate', '#id_aggregate_field']);"},
+    #          attrs={'onchange': "creme.reports.toggleDisableOthers(this,
+    #          ['#id_aggregate', '#id_aggregate_field']);"},
     #     ),
     # )
     ordinate = OrdinateField(label=_('Y axis'))
@@ -768,7 +776,8 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         #     )
         #
         # abscissa_field_f.choices = abscissa_choices
-        # abscissa_field_f.widget.target_url = reverse('reports__graph_types', args=(report_ct.id,))
+        # abscissa_field_f.widget.target_url = reverse('reports__graph_types',
+        #     args=(report_ct.id,))
 
         abscissa_f = fields['abscissa']
         abscissa_f.model = model
@@ -782,7 +791,8 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         # aggfields = [
         #     field_info[0]
         #         for field_info in ModelFieldEnumerator(model, deep=0)
-        #                             .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
+        #                             .filter(
+        #    (lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
         #                                     viewable=True
         #                                    )
         #                             .exclude(agg_field_excluder)
@@ -820,7 +830,8 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         #     aggregate_field_f.widget.attrs = disabled_attrs
         #     fields['aggregate'].widget.attrs = disabled_attrs
         #
-        #     is_count_f.help_text = _('You must make a count because no field is usable for aggregation')
+        #     is_count_f.help_text = _(
+        #         'You must make a count because no field is usable for aggregation')
         #     is_count_f.initial = True
         #     is_count_f.widget.attrs = disabled_attrs
         #
@@ -855,7 +866,8 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
         #     widget.source_val = get_data('abscissa_field')
         #     widget.target_val = get_data('abscissa_group_by')
         #
-        #     fields['abscissa_group_by'].widget.attrs['data-initial-value'] = get_data('abscissa_group_by')
+        #     fields['abscissa_group_by'].widget.attrs[
+        #         'data-initial-value'] = get_data('abscissa_group_by')
         # elif instance.pk is not None:
         if instance.pk:
             # fields['aggregate'].initial = aggregate
@@ -931,7 +943,8 @@ class ReportGraphForm(CremeModelForm):  # NB: not <CremeEntityForm> to avoid Rel
     #     except FieldDoesNotExist:
     #         self.add_error(
     #             formfield_name,
-    #             f'If you choose to group "{self.verbose_graph_type}" you have to choose a field.'
+    #             f'If you choose to group "{self.verbose_graph_type}" '
+    #             f'you have to choose a field.'
     #         )
     #     else:
     #         if not isinstance(field, field_types):

@@ -72,10 +72,13 @@ class BaseTestCaseTestCase(CremeTestCase):
         with self.assertRaises(self.failureException) as cm:
             self.assertIsSubclass(B, A)
         self.assertEqual(
-            "<class 'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase.test_assertIsSubclass.<locals>.B'> "
-            "is not a subclass of <class 'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase.test_assertIsSubclass.<locals>.A'> "
+            "<class 'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase."
+            "test_assertIsSubclass.<locals>.B'> is not a subclass of <class "
+            "'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase."
+            "test_assertIsSubclass.<locals>.A'> "
             "[list of parent classes "
-            "(<class 'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase.test_assertIsSubclass.<locals>.B'>, "
+            "(<class 'creme.creme_core.tests.test_base_test_case.BaseTestCaseTestCase."
+            "test_assertIsSubclass.<locals>.B'>, "
             "<class 'object'>)]",
             str(cm.exception)
         )

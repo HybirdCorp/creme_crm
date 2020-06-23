@@ -79,35 +79,59 @@ class Populator(BasePopulator):
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            create_bdl_4_model(                             order=5,   zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick=bricks.SendingsBrick,          order=2,   zone=TOP,   model=SMSCampaign)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick=bricks.MessagingListsBlock,    order=50,  zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=SMSCampaign)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=SMSCampaign)
+            def create_multi_bdl(model, info):
+                for brick, order, zone in info:
+                    if brick == 'model':
+                        create_bdl_4_model(order=order, zone=zone, model=model)
+                    else:
+                        create_bdl(brick=brick, order=order, zone=zone, model=model)
 
-            create_bdl_4_model(                             order=5,   zone=LEFT,  model=MessagingList)
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=MessagingList)
-            create_bdl(brick=bricks.RecipientsBrick,        order=50,  zone=LEFT,  model=MessagingList)
-            create_bdl(brick=bricks.ContactsBrick,          order=55,  zone=LEFT,  model=MessagingList)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=MessagingList)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=MessagingList)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=MessagingList)
+            create_multi_bdl(
+                SMSCampaign,
+                [
+                    (bricks.SendingsBrick,           2,  TOP),
+                    ('model',                        5,  LEFT),
+                    (core_bricks.CustomFieldsBrick, 40,  LEFT),
+                    (bricks.MessagingListsBlock,    50,  LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+                    (core_bricks.HistoryBrick,      20,  RIGHT),
+                ],
+            )
+            create_multi_bdl(
+                MessagingList,
+                [
+                    ('model',                         5, LEFT),
+                    (core_bricks.CustomFieldsBrick,  40, LEFT),
+                    (bricks.RecipientsBrick,         50, LEFT),
+                    (bricks.ContactsBrick,           55, LEFT),
+                    (core_bricks.PropertiesBrick,   450, LEFT),
+                    (core_bricks.RelationsBrick,    500, LEFT),
+                    (core_bricks.HistoryBrick,       20, RIGHT),
+                ],
+            )
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail views')
+                logger.info(
+                    'Assistants app is installed => we use the assistants blocks on detail views'
+                )
 
                 from creme.assistants import bricks as a_bricks
 
                 for model in (SMSCampaign, MessagingList):
-                    create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT, model=model)
+                    create_multi_bdl(
+                        model,
+                        [
+                            (a_bricks.TodosBrick,        100, RIGHT),
+                            (a_bricks.MemosBrick,        200, RIGHT),
+                            (a_bricks.AlertsBrick,       300, RIGHT),
+                            (a_bricks.UserMessagesBrick, 400, RIGHT),
+                        ]
+                    )
 
             if apps.is_installed('creme.documents'):
-                # logger.info("Documents app is installed => we use the documents block on SMSCampaign's detail views")
+                # logger.info("Documents app is installed =>
+                # we use the documents block on SMSCampaign's detail views")
 
                 from creme.documents.bricks import LinkedDocsBrick
 

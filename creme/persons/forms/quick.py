@@ -72,7 +72,9 @@ class ContactQuickForm(CremeEntityQuickForm):
                 gettext('You are not allowed to link with an Organisation')
             )
         elif not self.can_create():
-            self.fields['organisation'].help_text = _('Enter the name of an existing Organisation.')
+            self.fields['organisation'].help_text = _(
+                'Enter the name of an existing Organisation.'
+            )
 
     def can_create(self):
         return self.user.has_perm_to_create(Organisation)
@@ -138,17 +140,19 @@ class ContactQuickForm(CremeEntityQuickForm):
                 orga = self.retrieved_orga
 
                 if orga is None:
-                    # NB: we retry to get, because in an Formset, another Form can create the orga in its save()
-                    orga = self._get_organisations(orga_name) \
-                               .get_or_create(name=orga_name,
-                                              defaults={'user': contact.user},
-                                             )[0]
+                    # NB: we retry to get, because in an Formset,
+                    #     another Form can create the orga in its save()
+                    orga = self._get_organisations(orga_name).get_or_create(
+                        name=orga_name,
+                        defaults={'user': contact.user},
+                    )[0]
 
-                Relation.objects.create(subject_entity=contact,
-                                        type_id=REL_SUB_EMPLOYED_BY,
-                                        object_entity=orga,
-                                        user=contact.user,
-                                       )
+                Relation.objects.create(
+                    subject_entity=contact,
+                    type_id=REL_SUB_EMPLOYED_BY,
+                    object_entity=orga,
+                    user=contact.user,
+                )
 
         return contact
 

@@ -94,7 +94,9 @@ class AbstractMailingList(CremeEntity):
         return False
 
     def get_family(self):
-        """Return a dictionary<pk: MailingList> with self and all children, small children etc..."""
+        """Return a dictionary<pk: MailingList> with self and all children,
+         small children etc...
+         """
         family = {}
         self.get_family_aux(family)
 

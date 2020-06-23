@@ -58,7 +58,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_LINKED_2_ACTIVITY).exists()
+        already_populated = RelationType.objects.filter(
+            pk=constants.REL_SUB_LINKED_2_ACTIVITY,
+        ).exists()
 
         Contact      = persons.get_contact_model()
         Organisation = persons.get_organisation_model()
@@ -73,8 +75,15 @@ class Populator(BasePopulator):
             minimal_display=(True, False),
         )
         rt_obj_activity_subject = create_rtype(
-            (constants.REL_SUB_ACTIVITY_SUBJECT, _('is subject of the activity'), [Contact, Organisation]),
-            (constants.REL_OBJ_ACTIVITY_SUBJECT, _('(activity) has for subject'), [Activity]),
+            (
+                constants.REL_SUB_ACTIVITY_SUBJECT,
+                _('is subject of the activity'),
+                [Contact, Organisation],
+            ), (
+                constants.REL_OBJ_ACTIVITY_SUBJECT,
+                _('(activity) has for subject'),
+                [Activity],
+            ),
             minimal_display=(True, False),
         )[1]
         rt_obj_part_2_activity = create_rtype(
@@ -85,21 +94,42 @@ class Populator(BasePopulator):
         )[1]
 
         # ---------------------------
-        create_if_needed(Status, {'pk': constants.STATUS_PLANNED},     name=pgettext('activities-status', 'Planned'),     description=pgettext('activities-status', 'Planned'),     is_custom=False)
-        create_if_needed(Status, {'pk': constants.STATUS_IN_PROGRESS}, name=pgettext('activities-status', 'In progress'), description=pgettext('activities-status', 'In progress'), is_custom=False)
-        create_if_needed(Status, {'pk': constants.STATUS_DONE},        name=pgettext('activities-status', 'Done'),        description=pgettext('activities-status', 'Done'),        is_custom=False)
-        create_if_needed(Status, {'pk': constants.STATUS_DELAYED},     name=pgettext('activities-status', 'Delayed'),     description=pgettext('activities-status', 'Delayed'),     is_custom=False)
-        create_if_needed(Status, {'pk': constants.STATUS_CANCELLED},   name=pgettext('activities-status', 'Cancelled'),   description=pgettext('activities-status', 'Cancelled'),   is_custom=False)
+        def create_status(pk, name):
+            create_if_needed(
+                Status,
+                {'pk': pk},
+                name=name, description=name, is_custom=False,
+            )
+
+        create_status(constants.STATUS_PLANNED,     pgettext('activities-status', 'Planned')),
+        create_status(constants.STATUS_IN_PROGRESS, pgettext('activities-status', 'In progress')),
+        create_status(constants.STATUS_DONE,        pgettext('activities-status', 'Done')),
+        create_status(constants.STATUS_DELAYED,     pgettext('activities-status', 'Delayed')),
+        create_status(constants.STATUS_CANCELLED,   pgettext('activities-status', 'Cancelled')),
 
         # ---------------------------
         act_types_info = {
-            constants.ACTIVITYTYPE_TASK:      {'name': _('Task'),           'day': 0, 'hour': '00:15:00'},
-            constants.ACTIVITYTYPE_MEETING:   {'name': _('Meeting'),        'day': 0, 'hour': '00:15:00'},
-            constants.ACTIVITYTYPE_PHONECALL: {'name': _('Phone call'),     'day': 0, 'hour': '00:15:00'},
-            constants.ACTIVITYTYPE_GATHERING: {'name': _('Gathering'),      'day': 0, 'hour': '00:15:00'},
-            constants.ACTIVITYTYPE_SHOW:      {'name': _('Show'),           'day': 1, 'hour': '00:00:00'},
-            constants.ACTIVITYTYPE_DEMO:      {'name': _('Demonstration'),  'day': 0, 'hour': '01:00:00'},
-            constants.ACTIVITYTYPE_INDISPO:   {'name': _('Unavailability'), 'day': 1, 'hour': '00:00:00'},
+            constants.ACTIVITYTYPE_TASK: {
+                'name': _('Task'),           'day': 0, 'hour': '00:15:00',
+            },
+            constants.ACTIVITYTYPE_MEETING: {
+                'name': _('Meeting'),        'day': 0, 'hour': '00:15:00',
+            },
+            constants.ACTIVITYTYPE_PHONECALL: {
+                'name': _('Phone call'),     'day': 0, 'hour': '00:15:00',
+            },
+            constants.ACTIVITYTYPE_GATHERING: {
+                'name': _('Gathering'),      'day': 0, 'hour': '00:15:00',
+            },
+            constants.ACTIVITYTYPE_SHOW: {
+                'name': _('Show'),           'day': 1, 'hour': '00:00:00',
+            },
+            constants.ACTIVITYTYPE_DEMO: {
+                'name': _('Demonstration'),  'day': 0, 'hour': '01:00:00',
+            },
+            constants.ACTIVITYTYPE_INDISPO: {
+                'name': _('Unavailability'), 'day': 1, 'hour': '00:00:00',
+            },
         }
         act_types = {
             pk: create_if_needed(
@@ -111,18 +141,31 @@ class Populator(BasePopulator):
             ) for pk, info in act_types_info.items()
         }
 
-        meeting_type = act_types[constants.ACTIVITYTYPE_MEETING]
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_MEETING},       name=_('Meeting'),                            type=meeting_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION}, name=_('Qualification'),                      type=meeting_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_REVIVAL},       name=_('Revival'),                            type=meeting_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_NETWORK},       name=_('Network'),                            type=meeting_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_MEETING_OTHER},         name=pgettext('activities-meeting', 'Other'), type=meeting_type, is_custom=False)
+        def create_subtype(atype, pk, name):
+            create_if_needed(
+                ActivitySubType,
+                {'pk': pk},
+                name=name, type=atype, is_custom=False,
+            )
 
-        phone_call_type = act_types[constants.ACTIVITYTYPE_PHONECALL]
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING},   name=_('Incoming'),          type=phone_call_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING},   name=_('Outgoing'),          type=phone_call_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE}, name=_('Conference'),        type=phone_call_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': constants.ACTIVITYSUBTYPE_PHONECALL_FAILED},     name=_('Outgoing - Failed'), type=phone_call_type, is_custom=False)
+        meeting_t = act_types[constants.ACTIVITYTYPE_MEETING]
+        for pk, name in [
+            (constants.ACTIVITYSUBTYPE_MEETING_MEETING,       _('Meeting')),
+            (constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION, _('Qualification')),
+            (constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,       _('Revival')),
+            (constants.ACTIVITYSUBTYPE_MEETING_NETWORK,       _('Network')),
+            (constants.ACTIVITYSUBTYPE_MEETING_OTHER,     pgettext('activities-meeting', 'Other')),
+        ]:
+            create_subtype(meeting_t, pk, name)
+
+        pcall_t = act_types[constants.ACTIVITYTYPE_PHONECALL]
+        for pk, name in [
+            (constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,   _('Incoming')),
+            (constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,   _('Outgoing')),
+            (constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE, _('Conference')),
+            (constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,     _('Outgoing - Failed')),
+        ]:
+            create_subtype(pcall_t, pk, name)
 
         # ---------------------------
         HeaderFilter.objects.create_if_needed(
@@ -143,10 +186,11 @@ class Populator(BasePopulator):
         # ---------------------------
         create_efilter = EntityFilter.objects.smart_update_or_create
 
-        for pk, name, atype_id in ((constants.EFILTER_MEETINGS,   _('Meetings'),    constants.ACTIVITYTYPE_MEETING),
-                                   (constants.EFILTER_PHONECALLS, _('Phone calls'), constants.ACTIVITYTYPE_PHONECALL),
-                                   (constants.EFILTER_TASKS,      _('Tasks'),       constants.ACTIVITYTYPE_TASK),
-                                  ):
+        for pk, name, atype_id in [
+            (constants.EFILTER_MEETINGS,   _('Meetings'),    constants.ACTIVITYTYPE_MEETING),
+            (constants.EFILTER_PHONECALLS, _('Phone calls'), constants.ACTIVITYTYPE_PHONECALL),
+            (constants.EFILTER_TASKS,      _('Tasks'),       constants.ACTIVITYTYPE_TASK),
+        ]:
             create_efilter(
                 pk, name=name, model=Activity, is_custom=False, user='admin',
                 conditions=[
@@ -172,7 +216,9 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        SearchConfigItem.objects.create_if_needed(Activity, ['title', 'description', 'type__name'])
+        SearchConfigItem.objects.create_if_needed(
+            Activity, ['title', 'description', 'type__name'],
+        )
 
         # ---------------------------
         # cal_is_public = settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC
@@ -201,7 +247,9 @@ class Populator(BasePopulator):
             LEFT = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            BrickDetailviewLocation.objects.create_for_model_brick(order=5, zone=LEFT, model=Activity)
+            BrickDetailviewLocation.objects.create_for_model_brick(
+                order=5, zone=LEFT, model=Activity,
+            )
 
             create_bdl = BrickDetailviewLocation.objects.create_if_needed
             create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=Activity)
@@ -213,7 +261,10 @@ class Populator(BasePopulator):
             create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=Activity)
 
             if apps.is_installed('creme.assistants'):
-                logger.info('Assistants app is installed => we use the assistants blocks on detail views')
+                logger.info(
+                    'Assistants app is installed'
+                    ' => we use the assistants blocks on detail views'
+                )
 
                 from creme.assistants import bricks as a_bricks
 
@@ -223,7 +274,8 @@ class Populator(BasePopulator):
                 create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT, model=Activity)
 
             if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed => we use the documents block on detail views')
+                # logger.info('Documents app is installed
+                # => we use the documents block on detail views')
 
                 from creme.documents.bricks import LinkedDocsBrick
 
@@ -237,10 +289,22 @@ class Populator(BasePopulator):
             create_bdl(brick=past_id,   order=21, zone=RIGHT, model=Organisation)
 
             BrickHomeLocation.objects.create(brick_id=future_id, order=20)
-            BrickHomeLocation.objects.create(brick_id=past_id, order=21)
+            BrickHomeLocation.objects.create(brick_id=past_id,   order=21)
 
             # ---------------------------
             create_button = ButtonMenuItem.objects.create_if_needed
-            create_button('activities-add_activity_button',  button=buttons.AddRelatedActivityButton, order=10)
-            create_button('activities-add_meeting_button',   button=buttons.AddMeetingButton,         order=11)
-            create_button('activities-add_phonecall_button', button=buttons.AddPhoneCallButton,       order=12)
+            create_button(
+                'activities-add_activity_button',
+                button=buttons.AddRelatedActivityButton,
+                order=10,
+            )
+            create_button(
+                'activities-add_meeting_button',
+                button=buttons.AddMeetingButton,
+                order=11,
+            )
+            create_button(
+                'activities-add_phonecall_button',
+                button=buttons.AddPhoneCallButton,
+                order=12,
+            )

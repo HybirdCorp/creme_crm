@@ -41,7 +41,8 @@ class CremeTestSuite(unittest.TestSuite):
     """This test suite populates the DB in the Creme way."""
     def run(self, *args, **kwargs):
         call_command(PopulateCommand(), verbosity=0)
-        ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
+        # The cache seems corrupted when we switch to the test DB
+        ContentType.objects.clear_cache()
 
         return super().run(*args, **kwargs)
 
@@ -49,7 +50,8 @@ class CremeTestSuite(unittest.TestSuite):
 def creme_init_worker(counter):
     _init_worker(counter)
     call_command(PopulateCommand(), verbosity=0)
-    ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
+    # The cache seems corrupted when we switch to the test DB
+    ContentType.objects.clear_cache()
 
 
 class CremeParallelTestSuite(ParallelTestSuite):
@@ -84,8 +86,10 @@ class CremeTestLoader(unittest.TestLoader):
 
 class CremeDiscoverRunner(DiscoverRunner):
     """This test runner
-    - overrides settings.MEDIA_ROOT with a temporary directory ; so files created by the tests can be easily removed.
-    - launches an HTTP server which serves static files, in order to test code which retrieve HTTP resources.
+    - overrides settings.MEDIA_ROOT with a temporary directory ;
+      so files created by the tests can be easily removed.
+    - launches an HTTP server which serves static files, in order to test code
+      which retrieve HTTP resources.
     """
     test_suite = CremeTestSuite
     parallel_test_suite = CremeParallelTestSuite
@@ -108,7 +112,7 @@ class CremeDiscoverRunner(DiscoverRunner):
             'from socketserver import TCPServer;'
             'TCPServer.allow_reuse_address = True;'
             'httpd = TCPServer(("localhost", {port}), http.server.SimpleHTTPRequestHandler);'
-            'print("Test HTTP server: serving localhost at port {port} with process ID:", os.getpid());'
+            'print("Test HTTP server: serving localhost at port {port} with process ID:", os.getpid());'  # NOQA
             'httpd.serve_forever()'.format(port=http_port())
         )
 

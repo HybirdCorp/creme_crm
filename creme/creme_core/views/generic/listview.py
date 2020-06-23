@@ -239,7 +239,9 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         class EmergencyHeaderFilterCreation(HeaderFilterCreation):
             def get_context_data(self, **kwargs):
                 context = super().get_context_data(**kwargs)
-                context['help_message'] = _('The desired list does not have any view, please create one.')
+                context['help_message'] = _(
+                    'The desired list does not have any view, please create one.'
+                )
 
                 return context
 
@@ -295,7 +297,8 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         context['buttons'] = self.get_buttons()
         context['page_sizes'] = settings.PAGE_SIZES
 
-        # TODO: pass the bulk_update_registry in a list-view context (see listview_td_action_for_cell)
+        # TODO: pass the bulk_update_registry in a list-view context
+        #  (see listview_td_action_for_cell)
         # TODO: regroup registries ??
         context['cell_sorter_registry'] = self.get_cell_sorter_registry()
 
@@ -313,7 +316,8 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     def get_entity_filters(self) -> EntityFilterList:
         return EntityFilterList(
-            content_type=ContentType.objects.get_for_model(self.model),  # TODO: cache ? argument ? method ? both ?
+            # TODO: cache ? argument ? method ? both ?
+            content_type=ContentType.objects.get_for_model(self.model),
             user=self.request.user,
         )
 
@@ -350,12 +354,15 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     def get_header_filters(self) -> HeaderFilterList:
         return HeaderFilterList(
-            content_type=ContentType.objects.get_for_model(self.model),  # TODO: cache ? argument ? method ? both ?
+            # TODO: cache ? argument ? method ? both ?
+            content_type=ContentType.objects.get_for_model(self.model),
             user=self.request.user,
         )
 
     def get_mode(self) -> SelectionMode:
-        """ @return: Value in (SelectionMode.NONE, SelectionMode.SINGLE, SelectionMode.MULTIPLE)."""
+        """Get the selection mode.
+        @return: Value in (SelectionMode.NONE, SelectionMode.SINGLE, SelectionMode.MULTIPLE).
+        """
         func = get_from_POST_or_404 if self.request.method == 'POST' else get_from_GET_or_404
         return func(self.arguments, key=self.selection_arg,
                     cast=SelectionMode, default=self.default_selection_mode,
@@ -452,7 +459,10 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             try:
                 qs = qs.filter(extra_q)
             except Exception as e:
-                logger.exception('Error when building the search queryset: invalid q_filter (%s).', e)
+                logger.exception(
+                    'Error when building the search queryset: invalid q_filter (%s).',
+                    e,
+                )
             else:
                 filtered = True
                 use_distinct = True
@@ -465,7 +475,10 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             try:
                 qs = qs.filter(search_q)
             except Exception as e:
-                logger.exception('Error when building the search queryset with Q=%s (%s).', search_q, e)
+                logger.exception(
+                    'Error when building the search queryset with Q=%s (%s).',
+                    search_q, e,
+                )
             else:
                 filtered = True
                 use_distinct = True
@@ -494,9 +507,10 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
                     as_model=model,
                 ).count()
             except EntityCredentials.FilteringError as e:
-                logger.debug('%s.get_unordered_queryset_n_count() : fast count is not possible (%s)',
-                             type(self).__name__, e,
-                            )
+                logger.debug(
+                    '%s.get_unordered_queryset_n_count() : fast count is not possible (%s)',
+                    type(self).__name__, e,
+                )
                 count = qs.count()
 
         return qs, count
@@ -547,7 +561,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     def get_state(self) -> lv_gui.ListViewState:
         return self.get_state_class()\
-                   .get_or_create_state(self.request, url=self.get_state_id())  # TODO: rename "url" => "id" ?
+                   .get_or_create_state(self.request, url=self.get_state_id())
 
     def get_sub_title(self):
         return ''

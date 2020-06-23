@@ -111,9 +111,12 @@ class _BrickLocationsForm(base.CremeForm):
                 location = next(store_it)
                 location.brick_id = brick_id
                 location.order = order
-                location.zone  = zone  # NB: BrickHomeLocation has not 'zone' attr, but we do not care ! :)
-                location.role  = role  # NB: idem with 'role'
-                location.superuser = superuser  # NB: idem with 'superuser'
+                # NB: BrickHomeLocation has not 'zone' attr, but we do not care ! :)
+                location.zone = zone
+                # NB: idem with 'role'
+                location.role = role
+                # NB: idem with 'superuser'
+                location.superuser = superuser
 
                 location.save()
 
@@ -242,7 +245,8 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = '*{}*'.format(gettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
+            # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(gettext('Superuser'))
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
@@ -302,7 +306,8 @@ class BrickHomeLocationsAddingForm(_BrickLocationsForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = '*{}*'.format(gettext('Superuser'))  # NB: browser can ignore <em> tag in <option>...
+            # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(gettext('Superuser'))
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
@@ -406,7 +411,8 @@ class RTypeBrickItemAddCtypeForm(base.CremeModelForm):
         if compatible_ctypes:
             ct_field.ctypes = compatible_ctypes
 
-        used_ct_ids = frozenset(ct.id for ct, cells in instance.iter_cells())  # TODO: iter_ctypes() ??
+        # TODO: iter_ctypes() ??
+        used_ct_ids = frozenset(ct.id for ct, cells in instance.iter_cells())
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
     def save(self, *args, **kwargs):

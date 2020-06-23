@@ -92,8 +92,12 @@ class FoundEntitiesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
             context, qs,
-            cells=[EntityCellRegularField.build(model, field.name) for field in searcher.get_fields(model)],
-            # If the model is inserted in the context, the template call it and create an instance...
+            cells=[
+                EntityCellRegularField.build(model, field.name)
+                for field in searcher.get_fields(model)
+            ],
+            # If the model is inserted in the context, the template calls it
+            # and creates an instance...
             ctype=self.ctype,
         ))
 
@@ -182,7 +186,9 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
 
         if error is None:
             self.search_error = error = (
-                gettext('Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
+                gettext(
+                    'Please enter at least {count} characters'
+                ).format(count=MIN_RESEARCH_LENGTH)
                 if len(self.get_search_terms()) < MIN_RESEARCH_LENGTH else
                 ''
             )
@@ -211,7 +217,9 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
 #     search = GET.get('search', '')
 #
 #     if len(search) < MIN_RESEARCH_LENGTH:
-#         raise Http404('Please enter at least {count} characters'.format(count=MIN_RESEARCH_LENGTH))
+#         raise Http404('Please enter at least {count} characters'.format(
+#               count=MIN_RESEARCH_LENGTH),
+#         )
 #
 #     user = request.user
 #     model = ctype.model_class()
@@ -239,7 +247,9 @@ class SearchBricksReloading(BricksReloading):
                 raise Http404(f'Please enter at least {MIN_RESEARCH_LENGTH} characters')
 
             model = ctype.model_class()
-            bricks.append(FoundEntitiesBrick(Searcher([model], user), model, search, user, id=brick_id))
+            bricks.append(
+                FoundEntitiesBrick(Searcher([model], user), model, search, user, id=brick_id)
+            )
 
         return bricks
 

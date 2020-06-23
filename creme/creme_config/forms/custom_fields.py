@@ -375,23 +375,28 @@ class CustomEnumDeletionForm(CremeModelForm):
         super().__init__(*args, **kwargs)
         self.choice_to_delete = choice_to_delete
 
-        if choice_to_delete.custom_field.value_class.objects.filter(value=choice_to_delete).exists():
+        if choice_to_delete.custom_field.value_class.objects.filter(
+            value=choice_to_delete
+        ).exists():
             self.fields['to_choice'] = forms.ModelChoiceField(
                 label=_('Choose a choice to transfer to'),
-                help_text=_('The selected choice will replace the deleted one in entities which use it.'),
+                help_text=_(
+                    'The selected choice will replace the deleted one '
+                    'in entities which use it.'
+                ),
                 required=False,
-                queryset=CustomFieldEnumValue.objects
-                                             .filter(custom_field=choice_to_delete.custom_field)
-                                             .exclude(id=choice_to_delete.id),
+                queryset=CustomFieldEnumValue.objects.filter(
+                    custom_field=choice_to_delete.custom_field,
+                ).exclude(id=choice_to_delete.id),
             )
         else:
             self.fields['info'] = forms.CharField(
                 label=gettext('Information'),
                 required=False,
                 widget=Label,
-                initial=gettext('This choice is not used by any entity, '
-                                'you can delete it safely.'
-                               ),
+                initial=gettext(
+                    'This choice is not used by any entity, you can delete it safely.'
+                ),
             )
 
     def save(self, *args, **kwargs):
@@ -407,9 +412,9 @@ class CustomEnumDeletionForm(CremeModelForm):
                     value=replacement,
                 )
             ]
-        instance.total_count = cf_value_model.objects\
-                                             .filter(value=choice_to_delete)\
-                                             .count()
+        instance.total_count = cf_value_model.objects.filter(
+            value=choice_to_delete,
+        ).count()
         instance.job = Job.objects.create(
             type_id=deletor_type.id,
             user=self.user,

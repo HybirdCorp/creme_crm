@@ -258,7 +258,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         comapp = CommercialApproach.objects.create(
             title=title,
             description=description,
-            related_activity_id=meeting.id,  # TODO: related_activity=instance after activities refactoring ?
+            # TODO: related_activity=instance after activities refactoring ?
+            related_activity_id=meeting.id,
             creme_entity=contact,
         )
 
@@ -312,7 +313,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                              [*CommercialApproach.get_approaches().order_by('id')]
                             )
 
-    # @override_settings(BLOCK_SIZE=5) useless, because the setting value is already read when we override this
+    # @override_settings(BLOCK_SIZE=5)
+    #  => useless, because the setting value is already read when we override this
     @skipIfCustomOrganisation
     @skipIfCustomContact
     @skipIfCustomOpportunity

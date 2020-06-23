@@ -16,19 +16,38 @@ logger = logging.getLogger(__name__)
 handler403 = permission_denied
 
 urlpatterns = [
-    re_path(r'^creme_login[/]?$',  auth_views.LoginView.as_view(template_name='authent/creme_login.html'), name='creme_login'),
-    re_path(r'^creme_logout[/]?$', auth_views.logout_then_login, name='creme_logout'),
-    re_path(r'^creme_about[/]?$',  render, {'template_name': 'about/about.html'}, name='creme_about'),
+    re_path(
+        r'^creme_login[/]?$',
+        auth_views.LoginView.as_view(template_name='authent/creme_login.html'),
+        name='creme_login',
+    ),
+    re_path(
+        r'^creme_logout[/]?$',
+        auth_views.logout_then_login,
+        name='creme_logout',
+    ),
+    re_path(
+        r'^creme_about[/]?$',
+        render,
+        {'template_name': 'about/about.html'},
+        name='creme_about',
+    ),
 
     # re_path(r'^site_media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 
     # TODO: remove this line when the Rich Text Editor is generated like other static media
-    re_path(r'^tiny_mce/(?P<path>.*)$', serve, {'document_root': join(settings.MEDIA_ROOT, 'tiny_mce')}),
+    re_path(
+        r'^tiny_mce/(?P<path>.*)$', serve, {'document_root': join(settings.MEDIA_ROOT, 'tiny_mce')}
+    ),
 
     # NB: in production, you can configure your web server to statically serve
     #     the files in the directory 'media/static/' (and so the following line is never used).
     # TODO: use settings PRODUCTION_MEDIA_URL in URL regex ??
-    re_path(r'^static_media/(?P<path>.*)$', serve, {'document_root': settings.GENERATED_MEDIA_DIR}),
+    re_path(
+        r'^static_media/(?P<path>.*)$',
+        serve,
+        {'document_root': settings.GENERATED_MEDIA_DIR},
+    ),
 ]
 
 for app_config in creme_app_configs():

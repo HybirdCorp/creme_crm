@@ -47,10 +47,18 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
                           ]
         lines_classes = [ProductLine, ServiceLine]
 
-        self.get_relationtype_or_fail(constants.REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
-        self.get_relationtype_or_fail(constants.REL_SUB_BILL_RECEIVED,     billing_classes, [Organisation, Contact])
-        self.get_relationtype_or_fail(constants.REL_SUB_HAS_LINE,          billing_classes, lines_classes)
-        self.get_relationtype_or_fail(constants.REL_SUB_LINE_RELATED_ITEM, lines_classes,   [Product, Service])
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_BILL_ISSUED, billing_classes, [Organisation],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_BILL_RECEIVED, billing_classes, [Organisation, Contact],
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_HAS_LINE, billing_classes, lines_classes,
+        )
+        self.get_relationtype_or_fail(
+            constants.REL_SUB_LINE_RELATED_ITEM, lines_classes, [Product, Service],
+        )
 
         self.assertEqual(1, SalesOrderStatus.objects.filter(pk=1).count())
         self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
@@ -69,7 +77,9 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         ct_ids = [get_ct(m).id for m in (Invoice, Quote, SalesOrder)]
         self.assertEqual(len(ct_ids), rtype.subject_ctypes.filter(id__in=ct_ids).count())
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
-        # self.assertEqual(len(ct_ids), rtype.symmetric_type.object_ctypes.filter(id__in=ct_ids).count())
+        # self.assertEqual(
+        #     len(ct_ids), rtype.symmetric_type.object_ctypes.filter(id__in=ct_ids).count()
+        # )
 
     def test_registry(self):
         registry = AlgoRegistry()

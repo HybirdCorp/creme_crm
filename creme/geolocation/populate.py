@@ -40,11 +40,19 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = SettingValue.objects.filter(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id).exists()
+        already_populated = SettingValue.objects.filter(
+            key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id,
+        ).exists()
 
         create_skey = SettingValue.objects.get_or_create
-        create_skey(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id, defaults={'value': constants.DEFAULT_SEPARATING_NEIGHBOURS})
-        create_skey(key_id=setting_keys.GOOGLE_API_KEY.id,         defaults={'value': ''})
+        create_skey(
+            key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id,
+            defaults={'value': constants.DEFAULT_SEPARATING_NEIGHBOURS},
+        )
+        create_skey(
+            key_id=setting_keys.GOOGLE_API_KEY.id,
+            defaults={'value': ''},
+        )
 
         if not already_populated:
             if self.verbosity:
@@ -56,17 +64,33 @@ class Populator(BasePopulator):
         if not already_populated:
             Contact      = persons.get_contact_model()
             Organisation = persons.get_organisation_model()
+            LEFT = BrickDetailviewLocation.LEFT
+            BOTTOM = BrickDetailviewLocation.BOTTOM
 
             create_bdl = BrickDetailviewLocation.objects.create_if_needed
-            create_bdl(brick=bricks.GoogleDetailMapBrick, order=70, zone=BrickDetailviewLocation.LEFT, model=Organisation)
-            create_bdl(brick=bricks.GoogleDetailMapBrick, order=70, zone=BrickDetailviewLocation.LEFT, model=Contact)
-            create_bdl(brick=bricks.GoogleNeighboursMapBrick, order=600, zone=BrickDetailviewLocation.BOTTOM, model=Organisation)
-            create_bdl(brick=bricks.GoogleNeighboursMapBrick, order=600, zone=BrickDetailviewLocation.BOTTOM, model=Contact)
+            create_bdl(
+                brick=bricks.GoogleDetailMapBrick, order=70, zone=LEFT, model=Organisation,
+            )
+            create_bdl(
+                brick=bricks.GoogleDetailMapBrick, order=70, zone=LEFT, model=Contact,
+            )
+            create_bdl(
+                brick=bricks.GoogleNeighboursMapBrick, order=600, zone=BOTTOM, model=Organisation,
+            )
+            create_bdl(
+                brick=bricks.GoogleNeighboursMapBrick, order=600, zone=BOTTOM, model=Contact,
+            )
 
-            BrickMypageLocation.objects.create(brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=None)
+            BrickMypageLocation.objects.create(
+                brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=None,
+            )
 
             # Add this bloc only if the root user exists (creme_core populated)
             root = get_user_model().objects.filter(pk=1).first()
             if root:
-                logger.info('Creme core is installed => the block PersonsFilterMap can be activated')
-                BrickMypageLocation.objects.create(brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=root)
+                logger.info(
+                    'Creme core is installed => the block GoogleFilteredMapBrick can be activated'
+                )
+                BrickMypageLocation.objects.create(
+                    brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=root,
+                )

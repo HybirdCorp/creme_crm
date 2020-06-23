@@ -59,8 +59,10 @@ class GeoAddress(Model):
     address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Address'),
                               primary_key=True, on_delete=CASCADE,
                              )
-    latitude  = FloatField(verbose_name=_('Latitude'), null=True, blank=True)  # min_value=-90, max_value=90
-    longitude = FloatField(verbose_name=_('Longitude'), null=True, blank=True)  # min_value=-180, max_value=180
+    # min_value=-90, max_value=90
+    latitude  = FloatField(verbose_name=_('Latitude'), null=True, blank=True)
+    # min_value=-180, max_value=180
+    longitude = FloatField(verbose_name=_('Longitude'), null=True, blank=True)
     draggable = BooleanField(verbose_name=_('Is this marker draggable in maps ?'), default=True)
     geocoded  = BooleanField(verbose_name=_('Geocoded from address ?'), default=False)
     status    = SmallIntegerField(verbose_name=pgettext_lazy('geolocation', 'Status'),

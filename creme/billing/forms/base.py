@@ -52,16 +52,22 @@ def copy_or_create_address(address, owner, name):
 
 def first_managed_orga_id():
     try:
-        return get_organisation_model().objects.filter_managed_by_creme().values_list('id', flat=True)[0]
+        return get_organisation_model().objects.filter_managed_by_creme().values_list(
+            'id', flat=True,
+        )[0]
     except IndexError:
         logger.warning('No managed organisation ?!')
 
 
 class BaseEditForm(CremeEntityForm):
-    source = CreatorEntityField(label=pgettext_lazy('billing', 'Source organisation'), model=get_organisation_model())
-    target = GenericEntityField(label=pgettext_lazy('billing', 'Target'),
-                                models=[get_organisation_model(), get_contact_model()],
-                               )
+    source = CreatorEntityField(
+        label=pgettext_lazy('billing', 'Source organisation'),
+        model=get_organisation_model(),
+    )
+    target = GenericEntityField(
+        label=pgettext_lazy('billing', 'Target'),
+        models=[get_organisation_model(), get_contact_model()],
+    )
 
     class Meta(CremeEntityForm.Meta):
         labels = {
@@ -69,7 +75,8 @@ class BaseEditForm(CremeEntityForm):
         }
 
     blocks = CremeEntityForm.blocks.new(
-        ('orga_n_address', _('Organisations'), ['source', 'target']),  # TODO: rename (beware to template)
+        # TODO: rename (beware to template)
+        ('orga_n_address', _('Organisations'), ['source', 'target']),
     )
 
     def __init__(self, *args, **kwargs):
@@ -81,10 +88,20 @@ class BaseEditForm(CremeEntityForm):
         pk = self.instance.pk
 
         if pk is not None:  # Edit mode
-            relations = Relation.objects.filter(subject_entity=pk, type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED))
+            relations = Relation.objects.filter(
+                subject_entity=pk, type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED),
+            )
 
-            issued_relation   = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_ISSUED), None)
-            received_relation = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_RECEIVED), None)
+            issued_relation = find_first(
+                relations,
+                (lambda r: r.type_id == REL_SUB_BILL_ISSUED),
+                None
+            )
+            received_relation = find_first(
+                relations,
+                (lambda r: r.type_id == REL_SUB_BILL_RECEIVED),
+                None
+            )
 
             if issued_relation:
                 self.issued_relation = issued_relation
@@ -125,12 +142,14 @@ class BaseEditForm(CremeEntityForm):
 
         instance = super().save(*args, **kwargs)
 
-        self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source)  # TODO: move this intelligence in models.Base.save()
+        # TODO: move this intelligence in models.Base.save()
+        self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source)
         self._manage_relation(self.received_relation, REL_SUB_BILL_RECEIVED, target)
 
         # TODO: do this in model/with signal to avoid errors ???
         if self.old_user_id and self.old_user_id != user.id:
-            # Do not use queryset.update() to call the CremeEntity.save() method TODO: change with future Credentials system ??
+            # Do not use queryset.update() to call the CremeEntity.save() method
+            #  TODO: change with future Credentials system ??
             for line in instance.iter_all_lines():
                 line.user = instance.user
                 line.save()
@@ -154,8 +173,12 @@ class BaseCreateForm(BaseEditForm):
 
         super().save(*args, **kwargs)
 
-        instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _('Billing address'))
-        instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _('Shipping address'))
+        instance.billing_address = copy_or_create_address(
+            target.billing_address,  owner=instance, name=_('Billing address'),
+        )
+        instance.shipping_address = copy_or_create_address(
+            target.shipping_address, owner=instance, name=_('Shipping address'),
+        )
 
         instance.save()
 

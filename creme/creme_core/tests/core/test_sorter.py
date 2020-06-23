@@ -49,15 +49,18 @@ class QuerySorterTestCase(CremeTestCase):
                          r'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
                         )
 
-        # Check that order by 'id' does not use cremeentity.id, but fakeorganisation.cremeentity_ptr_id
-        self.assertRegex(get_sql(FakeOrganisation.objects.order_by('id')),
-                         r'ORDER BY .creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
-                        )
-        self.assertRegex(get_sql(FakeOrganisation.objects.order_by('name', 'id')),
-                         r'ORDER BY '
-                         r'.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?\, '
-                         r'.creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
-                        )
+        # Check that order by 'id' does not use cremeentity.id,
+        # but fakeorganisation.cremeentity_ptr_id
+        self.assertRegex(
+            get_sql(FakeOrganisation.objects.order_by('id')),
+            r'ORDER BY .creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+        )
+        self.assertRegex(
+            get_sql(FakeOrganisation.objects.order_by('name', 'id')),
+            r'ORDER BY '
+            r'.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?\, '
+            r'.creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+        )
 
     def test_pretty(self):
         registry = CellSorterRegistry()
@@ -130,7 +133,9 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo2.field_names)
 
         # DESC -------------------
-        sortinfo3 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key, order=Order(False))
+        sortinfo3 = sorter.get(
+            model=FakeOrganisation, cells=cells, cell_key=key, order=Order(False),
+        )
         self.assertEqual(('-' + field_name1, '-cremeentity_ptr_id'), sortinfo3.field_names)
         self.assertEqual(key, sortinfo3.main_cell_key)
         self.assertTrue(sortinfo3.main_order.desc)
@@ -206,7 +211,8 @@ class QuerySorterTestCase(CremeTestCase):
                  ]
 
         sortinfo2 = sorter.get(model=FakeOrganisation, cells=cells2, cell_key=unused_cell.key)
-        # self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo2.field_names)  # TODO ? Use index
+        # TODO ? Use index
+        # self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo2.field_names)
         self.assertEqual(('cremeentity_ptr_id',), sortinfo2.field_names)
         self.assertIsNone(sortinfo2.main_cell_key)  # TODO: Fallback on first column ?
         self.assertTrue(sortinfo2.main_order.asc)
@@ -346,7 +352,8 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual((field_name2, field_name1, 'cremeentity_ptr_id'),
                          sortinfo.field_names
                         )
-        self.assertEqual(cells[1].key, sortinfo.main_cell_key)  # Fallback to (first) natural ordering field
+        # Fallback to (first) natural ordering field
+        self.assertEqual(cells[1].key, sortinfo.main_cell_key)
         self.assertTrue(sortinfo.main_order.asc)
 
     def test_regularfield_default_twoorders_04(self):
@@ -676,7 +683,9 @@ class QuerySorterTestCase(CremeTestCase):
         field_name = 'name'
         cells = [
             EntityCellRegularField.build(model=FakeOrganisation, name=field_name),
-            EntityCellFunctionField.build(model=FakeContact, func_field_name='get_pretty_properties'),
+            EntityCellFunctionField.build(
+                model=FakeContact, func_field_name='get_pretty_properties',
+            ),
         ]
 
         sortinfo = sorter.get(model=FakeInvoice, cells=cells,

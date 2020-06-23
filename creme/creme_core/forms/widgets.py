@@ -53,8 +53,11 @@ class DynamicInput(widgets.TextInput):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
-        css_class = 'ui-creme-input ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else \
-                    'ui-creme-input ui-creme-widget '
+        css_class = (
+            'ui-creme-input ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-input ui-creme-widget '
+        )
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type  # TODO: 'data-creme-widget'
 
@@ -120,8 +123,11 @@ class DynamicSelect(EnhancedSelectOptions, widgets.Select):
         widget_cxt['label'] = self.label
 
         final_attrs = widget_cxt['attrs']
-        css_class = 'ui-creme-input ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else \
-                    'ui-creme-input ui-creme-widget '
+        css_class = (
+            'ui-creme-input ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-input ui-creme-widget '
+        )
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type  # TODO: 'data-creme-widget'
         final_attrs['url'] = self.url  # TODO 'data-url'  # TODO: only if set ?
@@ -149,8 +155,11 @@ class DynamicSelectMultiple(EnhancedSelectOptions, widgets.SelectMultiple):
         widget_cxt['label'] = self.label
 
         final_attrs = widget_cxt['attrs']
-        css_class = 'ui-creme-input ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else \
-                    'ui-creme-input ui-creme-widget '
+        css_class = (
+            'ui-creme-input ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-input ui-creme-widget '
+        )
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type  # TODO: 'data-creme-widget'
         final_attrs['url'] = self.url  # TODO 'data-url'  # TODO: only if set ?
@@ -210,7 +219,9 @@ class ActionButtonList(widgets.Widget):
             )
             for a_name, a_label, a_enabled, a_attrs in self.actions
         ]
-        widget_cxt['delegate'] = self.delegate.get_context(name=name, value=value, attrs=attrs)['widget']
+        widget_cxt['delegate'] = self.delegate.get_context(
+            name=name, value=value, attrs=attrs,
+        )['widget']
 
         return context
 
@@ -237,7 +248,12 @@ class PolymorphicInput(widgets.TextInput):
             self.add_input(name, widget=DynamicSelect, attrs=attrs, options=options, **kwargs)
 
     def add_input(self, name, widget, attrs=None, **kwargs):
-        self.inputs.append((name, widget(attrs=attrs, **kwargs) if isinstance(widget, type) else widget))
+        self.inputs.append(
+            (
+                name,
+                widget(attrs=attrs, **kwargs) if isinstance(widget, type) else widget
+            )
+        )
 
     def set_default_input(self, widget, attrs=None, **kwargs):
         self.default_input = widget(attrs=attrs, **kwargs) if isinstance(widget, type) else widget
@@ -251,13 +267,19 @@ class PolymorphicInput(widgets.TextInput):
         widget_cxt['key'] = self.key
 
         final_attrs = widget_cxt.pop('attrs')
-        css_class = 'ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else 'ui-creme-widget '
+        css_class = (
+            'ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-widget '
+        )
         widget_cxt['class'] = css_class + widget_type
         widget_cxt['widget_type'] = widget_type
 
         final_attrs['class'] = 'ui-creme-input ' + widget_type
 
-        widget_cxt['input'] = widgets.HiddenInput().get_context(name=name, value=value, attrs=final_attrs)['widget']
+        widget_cxt['input'] = widgets.HiddenInput().get_context(
+            name=name, value=value, attrs=final_attrs,
+        )['widget']
 
         widget_cxt['selectors'] = selectors = [
             (w_name, w_input.get_context(name='', value='', attrs=None)['widget'])
@@ -291,7 +313,11 @@ class DateRangeSelect(widgets.Widget):
         widget_cxt = context['widget']
 
         final_attrs = widget_cxt['attrs']
-        css_class = 'ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else 'ui-creme-widget '
+        css_class = (
+            'ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-widget '
+        )
         widget_cxt['class'] = css_class + widget_type
         widget_cxt['widget_type'] = widget_type
         final_attrs['class'] = 'ui-creme-input ' + widget_type
@@ -338,7 +364,12 @@ class ChainedInput(widgets.TextInput):
             self.add_input(name, widget=DynamicSelect, attrs=attrs, options=options, **kwargs)
 
     def add_input(self, name, widget, attrs=None, **kwargs):
-        self.inputs.append((name, widget(attrs=attrs or {}, **kwargs) if callable(widget) else widget))
+        self.inputs.append(
+            (
+                name,
+                widget(attrs=attrs or {}, **kwargs) if callable(widget) else widget
+            )
+        )
 
     # TODO ?
     # def clear(self):
@@ -353,7 +384,11 @@ class ChainedInput(widgets.TextInput):
         widget_cxt = context['widget']
         final_attrs = widget_cxt.pop('attrs')
 
-        css_class = 'ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else 'ui-creme-widget '
+        css_class = (
+            'ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-widget '
+        )
         widget_cxt['class'] = css_class + widget_type
         widget_cxt['widget_type'] = widget_type
 
@@ -361,7 +396,9 @@ class ChainedInput(widgets.TextInput):
         widget_cxt['reset'] = final_attrs.pop('reset', True)
 
         final_attrs['class'] = 'ui-creme-input ' + widget_type
-        widget_cxt['input'] = widgets.HiddenInput().get_context(name=name, value=value, attrs=final_attrs)['widget']
+        widget_cxt['input'] = widgets.HiddenInput().get_context(
+            name=name, value=value, attrs=final_attrs,
+        )['widget']
 
         widget_cxt['chained'] = [
             (w_name, w_input.get_context(name='', value='', attrs=None)['widget'])
@@ -428,21 +465,20 @@ class SelectorList(widgets.TextInput):
 
         context = super().get_context(name=name, value=value, attrs=None)
         widget_cxt = context['widget']
-        widget_cxt['class'] = 'ui-creme-widget widget-auto ' + widget_type
+        widget_cxt['class'] = f'ui-creme-widget widget-auto {widget_type}'
         widget_cxt['widget_type'] = widget_type
 
         final_attrs = widget_cxt['attrs']
         widget_cxt['clonelast'] = final_attrs.pop('clonelast', True)
         widget_cxt['enabled'] = self.enabled
 
-        widget_cxt['input'] = widgets.HiddenInput() \
-                                     .get_context(name=name, value=value,
-                                                  attrs={'class': 'ui-creme-input ' + widget_type},
-                                                 )['widget']
+        widget_cxt['input'] = widgets.HiddenInput().get_context(
+            name=name, value=value, attrs={'class': f'ui-creme-input {widget_type}'},
+        )['widget']
         widget_cxt['actions'] = [action.context for action in self.actions]
-        widget_cxt['selector'] = self.selector.get_context(name='', value='',
-                                                           attrs={'auto': False, 'reset': False},
-                                                          )['widget']
+        widget_cxt['selector'] = self.selector.get_context(
+            name='', value='', attrs={'auto': False, 'reset': False},
+        )['widget']
 
         return context
 
@@ -452,7 +488,8 @@ class EntitySelector(widgets.Widget):
 
     def __init__(self, content_type=None, attrs=None):
         """ Constructor.
-        @param content_type: Template variable which represent the ContentType ID in the URL. Default is '${ctype}'.
+        @param content_type: Template variable which represent the ContentType ID in the URL.
+               Default is '${ctype}'.
         @param attrs: see Widget.
         """
         super().__init__(attrs=attrs)
@@ -483,7 +520,11 @@ class EntitySelector(widgets.Widget):
         widget_cxt['text_url'] = self.text_url
 
         final_attrs = widget_cxt['attrs']
-        css_class = 'ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else 'ui-creme-widget '
+        css_class = (
+            'ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-widget '
+        )
         widget_cxt['class'] = css_class + widget_type
         widget_cxt['widget_type'] = widget_type
 
@@ -501,12 +542,13 @@ class EntitySelector(widgets.Widget):
             qfilter = Q(**qfilter)
 
         widget_cxt['qfilter'] = QSerializer().serialize(qfilter) if qfilter else None
-        widget_cxt['input'] = widgets.TextInput().get_context(name=name, value=value,
-                                                              attrs={
-                                                                  'class': 'ui-creme-input ' + widget_type,
-                                                                  'required': self.is_required,
-                                                              },
-                                                             )['widget']
+        widget_cxt['input'] = widgets.TextInput().get_context(
+            name=name, value=value,
+            attrs={
+                'class': f'ui-creme-input {widget_type}',
+                'required': self.is_required,
+            },
+        )['widget']
 
         return context
 
@@ -514,7 +556,13 @@ class EntitySelector(widgets.Widget):
 class CTEntitySelector(ChainedInput):
     # template_name = ... TODO in order to override from apps ?
 
-    def __init__(self, content_types=(), attrs=None, multiple=False, autocomplete=False, creator=False):
+    def __init__(
+            self,
+            content_types=(),
+            attrs=None,
+            multiple=False,
+            autocomplete=False,
+            creator=False):
         super().__init__(attrs=attrs)
         self.content_types = content_types
         self.multiple = multiple
@@ -593,11 +641,15 @@ class RelationSelector(ChainedInput):
         dselect_attrs = {'auto': False, 'autocomplete': True} if self.autocomplete else \
                         {'auto': False}
 
-        self.add_dselect('rtype', options=self.relation_types, attrs=dselect_attrs)
-        self.add_dselect('ctype', options=self.content_types or self._build_ctypes_url(), attrs=dselect_attrs)
-        self.add_input('entity', widget=EntitySelector,
-                       attrs={'auto': False, 'multiple': self.multiple},
-                      )
+        self.add_dselect(
+            'rtype', options=self.relation_types, attrs=dselect_attrs,
+        )
+        self.add_dselect(
+            'ctype', options=self.content_types or self._build_ctypes_url(), attrs=dselect_attrs,
+        )
+        self.add_input(
+            'entity', widget=EntitySelector, attrs={'auto': False, 'multiple': self.multiple},
+        )
 
         return super().get_context(name=name, value=value, attrs=attrs)
 
@@ -665,7 +717,8 @@ class EntityCreatorWidget(ActionButtonList):
     def get_context(self, name, value, attrs):
         model = self.model
 
-        # TODO: creating instance of delegate here is ugly (use an ActionButtonList & not inherit it ?)
+        # TODO: creating instance of delegate here is ugly
+        #       (use an ActionButtonList & not inherit it ?)
         if model is None:
             self.delegate = Label(empty_label='Model is not set')
         else:
@@ -701,13 +754,17 @@ class MultiEntityCreatorWidget(SelectorList):
 
     def get_context(self, name, value, attrs):
         model = self.model
-        self.selector = button_list = ActionButtonList(delegate=None)  # TODO: create only if does not exist ?
+        # TODO: create only if does not exist ?
+        self.selector = button_list = ActionButtonList(delegate=None)
 
         if model is None:
             delegate = Label(empty_label='Model is not set')
         else:
             self.clear_actions()  # TODO: indicate that we do not want actions in __init__
-            self.add_action('add', getattr(model, 'selection_label', pgettext('creme_core-verb', 'Select')))
+            self.add_action(
+                'add',
+                getattr(model, 'selection_label', pgettext('creme_core-verb', 'Select')),
+            )
 
             delegate = EntitySelector(str(ContentType.objects.get_for_model(model).id),
                                       {'auto':       False,
@@ -753,9 +810,10 @@ class FilteredEntityTypeWidget(ChainedInput):
 
         # TODO: allow to omit the 'All' filter ??
         # TODO: do not make a request for ContentType ID == '0'
-        add_dselect('efilter',
-                    options=reverse('creme_core__efilters') + '?ct_id=${%s}&all=true' % ctype_name,
-                   )
+        add_dselect(
+            'efilter',
+            options=reverse('creme_core__efilters') + '?ct_id=${%s}&all=true' % ctype_name,
+        )
 
         return super().get_context(name=name, value=value, attrs=attrs)
 
@@ -809,11 +867,15 @@ class CalendarWidget(widgets.TextInput):
 
         final_attrs = widget_cxt['attrs']
 
-        css_class = 'ui-creme-input ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else \
-                    'ui-creme-input ui-creme-widget '
+        css_class = (
+            'ui-creme-input ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-input ui-creme-widget '
+        )
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type  # TODO: data-widget-type
-        final_attrs['format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)  # TODO: data-date-format
+        # TODO: data-date-format
+        final_attrs['format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
 
         return context
 
@@ -862,9 +924,12 @@ class OptionalWidget(widgets.MultiWidget):
 
     def __init__(self, sub_widget=widgets.TextInput, attrs=None, sub_label=''):
         super().__init__(
-            widgets=(widgets.CheckboxInput(attrs={'onchange': 'creme.forms.optionalWidgetHandler(this)'}),
-                     sub_widget,
-                    ),
+            widgets=(
+                widgets.CheckboxInput(
+                    attrs={'onchange': 'creme.forms.optionalWidgetHandler(this)'},
+                ),
+                sub_widget,
+            ),
             attrs=attrs,
         )
         self.sub_label = sub_label
@@ -894,8 +959,10 @@ class TinyMCEEditor(widgets.Textarea):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
-        css_class = 'ui-creme-input ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else \
-                    'ui-creme-input ui-creme-widget '
+        css_class = (
+            'ui-creme-input ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-input ui-creme-widget ')
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type
         final_attrs['plugin'] = 'tinymce'
@@ -906,11 +973,11 @@ class TinyMCEEditor(widgets.Textarea):
             'convert_urls':                    False,
             'theme':                           'advanced',
             'height':                          300,
-            'plugins':                         "spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,fullpage",
-            'theme_advanced_buttons1':         "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",
-            'theme_advanced_buttons2':         "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
-            'theme_advanced_buttons3':         "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
-            'theme_advanced_buttons4':         "insertlayer,moveforward,movebackward,absolute,|,styleprops,spellchecker,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,blockquote,pagebreak,|,insertfile,insertimage",
+            'plugins':                         "spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,fullpage",  # NOQA
+            'theme_advanced_buttons1':         "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",  # NOQA
+            'theme_advanced_buttons2':         "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",  # NOQA
+            'theme_advanced_buttons3':         "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",  # NOQA
+            'theme_advanced_buttons4':         "insertlayer,moveforward,movebackward,absolute,|,styleprops,spellchecker,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,blockquote,pagebreak,|,insertfile,insertimage",  # NOQA
             'theme_advanced_toolbar_location': 'top',
             'theme_advanced_toolbar_align':    'left',
             'theme_advanced_path_location':    'bottom',
@@ -928,8 +995,10 @@ class ColorPickerWidget(widgets.TextInput):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
-        css_class = 'ui-creme-input ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else \
-                    'ui-creme-input ui-creme-widget '
+        css_class = (
+            'ui-creme-input ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-input ui-creme-widget ')
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type
         final_attrs['plugin'] = 'gccolor'
@@ -955,15 +1024,20 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         @param attrs: See SelectMultiple.attrs.
         @param choices: See SelectMultiple.choices.
         @param columntype: Extra CSS class of the items container.
-        @param filtertype: 'search' to activate search mode (items which do not match are translucent) ;
-                           'filter' to activate filter mode (items which do not match are hidden) ;
-                           Empty to let the widget chose the mode.
+        @param filtertype: 'search' to activate search mode (items which do not
+               match are translucent) ;
+               'filter' to activate filter mode (items which do not
+               match are hidden) ;
+               Empty to let the widget chose the mode.
         @param viewless: An integer N to hide the items after the Nth item ;
-                         True to let the widget chose the value of N ;
-                         False to deactivate this "less" feature.
-        @param creation_url: URL to create a new element (in an inner-popup dialog) ; ignored if empty.
-        @param creation_allowed: False to disable the creation button (only used if 'creation_url' is given).
-        @param creation_label: Label of the creation button (only used if 'creation_url' is given).
+               True to let the widget chose the value of N ;
+               False to deactivate this "less" feature.
+        @param creation_url: URL to create a new element (in an inner-popup dialog) ;
+               ignored if empty.
+        @param creation_allowed: False to disable the creation button
+               (only used if 'creation_url' is given).
+        @param creation_label: Label of the creation button
+               (only used if 'creation_url' is given).
         """
         super().__init__(attrs, choices)
         self.columntype = columntype
@@ -1012,7 +1086,11 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         widget_cxt = context['widget']
 
         final_attrs = widget_cxt['attrs']
-        css_class = 'ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else 'ui-creme-widget '
+        css_class = (
+            'ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-widget '
+        )
         widget_cxt['class'] = css_class + widget_type
         final_attrs['class'] = 'ui-creme-input'
         widget_cxt['widget_type'] = widget_type
@@ -1026,8 +1104,10 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         widget_cxt['filter_type'] = self._build_filtertype(count)
 
         widget_cxt['MIN_CHECKALL_COUNT'] = self.MIN_CHECKALL_COUNT
-        widget_cxt['MIN_SEARCH_COUNT']   = self.MIN_SEARCH_COUNT  # NB: not used ; set for consistency/extensibility.
-        widget_cxt['MIN_FILTER_COUNT']   = self.MIN_FILTER_COUNT  # Idem
+        # NB: not used ; set for consistency/extensibility.
+        widget_cxt['MIN_SEARCH_COUNT'] = self.MIN_SEARCH_COUNT
+        # Idem
+        widget_cxt['MIN_FILTER_COUNT'] = self.MIN_FILTER_COUNT
 
         widget_cxt['creation_allowed'] = self.creation_allowed
         widget_cxt['creation_url']     = self.creation_url
@@ -1203,7 +1283,11 @@ class DateRangeWidget(widgets.MultiWidget):
 
         widget_cxt = context['widget']
         final_attrs = widget_cxt['attrs']
-        css_class = 'ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else 'ui-creme-widget '
+        css_class = (
+            'ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'ui-creme-widget '
+        )
         widget_cxt['class'] = css_class + widget_type
         widget_cxt['widget_type'] = widget_type
 
@@ -1250,6 +1334,9 @@ class CremeRadioSelect(widgets.RadioSelect):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
-        final_attrs['class'] = '{} {}'.format(final_attrs.get('class', ''), 'radio_select').strip()
+        final_attrs['class'] = '{} {}'.format(
+            final_attrs.get('class', ''),
+            'radio_select',
+        ).strip()
 
         return context

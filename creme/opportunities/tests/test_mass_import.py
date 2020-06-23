@@ -322,7 +322,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
         # TODO
         # errors = list(form.import_errors)
-        # self.assertEqual(4, len(errors)) #4 errors: retrieving of Organisation/Contact failed, creation of Opportunities failed
+        # # 4 errors: retrieving of Organisation/Contact failed, creation of Opportunities failed
+        # self.assertEqual(4, len(errors))
         # self.assertIn(_('Organisation'), errors[0].message)
         # self.assertIn(_('Contact'),      errors[2].message)
 
@@ -408,8 +409,12 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         opp1.save()
 
         doc = self._build_csv_doc(
-            [(opp1.name, '1000', '2000', target2.name, phase1.name),  # Should be updated
-             (opp1.name, '1000', '2000', target2.name, phase2.name),  # Phase is different => not updated
+            [
+                # Should be updated
+                (opp1.name, '1000', '2000', target2.name, phase1.name),
+
+                # Phase is different => not updated
+                (opp1.name, '1000', '2000', target2.name, phase2.name),
             ]
         )
         response = self.client.post(

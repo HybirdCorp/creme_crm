@@ -162,7 +162,9 @@ class AbstractOpportunity(CremeEntity):
                 raise ValidationError(gettext('Target is required.'))
 
     def _pre_delete(self):
-        for relation in self.relations.filter(type__in=(constants.REL_SUB_TARGETS, constants.REL_OBJ_EMIT_ORGA)):
+        for relation in self.relations.filter(
+            type__in=(constants.REL_SUB_TARGETS, constants.REL_OBJ_EMIT_ORGA),
+        ):
             relation._delete_without_transaction()
 
     def _pre_save_clone(self, source):
@@ -238,7 +240,8 @@ class AbstractOpportunity(CremeEntity):
     #                        )
 
     # def get_responsibles(self):
-    #     warnings.warn('AbstractOpportunity.get_responsibles() is deprecated.', DeprecationWarning)
+    #     warnings.warn('AbstractOpportunity.get_responsibles() is deprecated.',
+    #     DeprecationWarning)
     #
     #     from creme.persons import get_contact_model
     #
@@ -261,7 +264,8 @@ class AbstractOpportunity(CremeEntity):
 
     @emitter.setter
     def emitter(self, organisation):
-        assert self.pk is None, 'Opportunity.emitter(setter): emitter is already saved (can not change any more).'
+        assert self.pk is None, \
+            'Opportunity.emitter(setter): emitter is already saved (can not change any more).'
         self._opp_emitter = organisation
 
     @property

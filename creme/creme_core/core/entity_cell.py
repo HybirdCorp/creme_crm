@@ -96,7 +96,8 @@ class EntityCell:
         """Constructor.
 
         @param model: Related model.
-        @param value: How to access to the instance's data (eg: field's name, custom field's ID...).
+        @param value: How to access to the instance's data
+               (eg: field's name, custom field's ID...).
         @param title: Name for humans (eg: field's verbose name, custom field's name...).
         @param is_hidden: Should the cell be visible ? Notice that a hidden cell
                will be present in the list-views with a style <display: none;>.
@@ -127,7 +128,13 @@ class EntityCell:
         )
 
     def __repr__(self):
-        return f"<EntityCell(model=<{self.model.__name__}>, type='{self.type_id}', value='{self.value}')>"
+        return (
+            f"<EntityCell("
+            f"model=<{self.model.__name__}>, "
+            f"type='{self.type_id}', "
+            f"value='{self.value}'"
+            f")>"
+        )
 
     def __str__(self):
         return self.title

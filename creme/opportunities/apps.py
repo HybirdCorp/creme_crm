@@ -96,23 +96,35 @@ class OpportunitiesConfig(CremeAppConfig):
     def register_menu(self, creme_menu):
         Opportunity = self.Opportunity
         URLItem = creme_menu.URLItem
-        container = creme_menu.get('features') \
-                              .get_or_create(creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
-                                             defaults={'label': _('Commercial')},
-                                            ) \
-                              .add(URLItem.list_view('opportunities-opportunities', model=Opportunity), priority=10)
-        creme_menu.get('creation', 'main_entities') \
-                  .add(URLItem.creation_view('opportunities-create_opportunity', model=Opportunity), priority=50)
+        container = creme_menu.get(
+            'features',
+        ).get_or_create(
+            creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
+            defaults={'label': _('Commercial')},
+        ).add(
+            URLItem.list_view('opportunities-opportunities', model=Opportunity),
+            priority=10,
+        )
+        creme_menu.get(
+            'creation', 'main_entities',
+        ).add(
+            URLItem.creation_view('opportunities-create_opportunity', model=Opportunity),
+            priority=50
+        )
 
-        create_any = creme_menu.get('creation', 'any_forms') \
-                               .get_or_create_group('opportunities-commercial', _('Commercial'), priority=20) \
-                               .add_link('opportunities-create_opportunity', Opportunity, priority=3)
+        create_any = creme_menu.get(
+            'creation', 'any_forms',
+        ).get_or_create_group(
+            'opportunities-commercial', _('Commercial'), priority=20
+        ).add_link('opportunities-create_opportunity', Opportunity, priority=3)
 
         if self.billing_installed:
             from creme.billing import get_quote_model
             Quote = get_quote_model()
 
-            container.add(URLItem.list_view('opportunities-quotes', model=Quote), priority=20)
+            container.add(
+                URLItem.list_view('opportunities-quotes', model=Quote), priority=20,
+            )
             create_any.add_link('create_quote', Quote, priority=20)
 
     def register_setting_keys(self, setting_key_registry):
@@ -161,10 +173,11 @@ class OpportunitiesConfig(CremeAppConfig):
             linked_invoice    = get_rtype(id=constants.REL_SUB_LINKED_INVOICE)
             linked_quote      = get_rtype(id=constants.REL_SUB_LINKED_QUOTE)
         except Exception as e:
-            logger.info('A problem occurred: %s\n'
-                        'It can happen during unit tests or during the "populate" phase. '
-                        'Otherwise, has the database correctly been populated?', e
-                       )
+            logger.info(
+                'A problem occurred: %s\n'
+                'It can happen during unit tests or during the "populate" phase. '
+                'Otherwise, has the database correctly been populated?', e
+            )
         else:
             Invoice    = billing.get_invoice_model()
             Quote      = billing.get_quote_model()

@@ -493,8 +493,14 @@ class HeaderFiltersTestCase(CremeTestCase):
         user = self.create_user()
 
         create_rt = RelationType.create
-        loved = create_rt(('test-subject_love', 'Is loving'), ('test-object_love', 'Is loved by'))[1]
-        hated = create_rt(('test-subject_hate', 'Is hating'), ('test-object_hate', 'Is hated by'))[1]
+        loved = create_rt(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love', 'Is loved by'),
+        )[1]
+        hated = create_rt(
+            ('test-subject_hate', 'Is hating'),
+            ('test-object_hate', 'Is hated by'),
+        )[1]
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf', name='Contact view', model=FakeContact,

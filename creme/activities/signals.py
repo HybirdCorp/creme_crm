@@ -54,7 +54,9 @@ def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
         return
 
     if contact.is_user:
-        for calendar_id in activity.calendars.filter(user=contact.is_user).values_list('id', flat=True):
+        for calendar_id in activity.calendars.filter(
+            user=contact.is_user,
+        ).values_list('id', flat=True):
             activity.calendars.remove(calendar_id)
 
 

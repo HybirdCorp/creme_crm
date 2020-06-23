@@ -27,7 +27,14 @@ def _add_tags_to_fields():
     """Hook Django models.Field to add a tag system.
     DO NOT CALL THIS METHOD, CREME DOES IT FOR YOU !!
     """
-    from django.db.models import Field, AutoField, OneToOneField, ForeignKey, ManyToManyField, UUIDField
+    from django.db.models import (
+        AutoField,
+        Field,
+        ForeignKey,
+        ManyToManyField,
+        OneToOneField,
+        UUIDField,
+    )
 
     def _set_tags(self, **kwargs):
         for tag_name in ('clonable', 'viewable', 'enumerable', 'optional'):

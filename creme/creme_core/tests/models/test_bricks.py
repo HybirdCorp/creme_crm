@@ -106,7 +106,8 @@ class BrickTestCase(CremeTestCase):
     #     order = 4
     #     zone = BrickDetailviewLocation.LEFT
     #     brick_id = PropertiesBrick.id_
-    #     loc = BrickDetailviewLocation.create_if_needed(brick_id=brick_id, order=order, zone=zone, model=FakeContact)
+    #     loc = BrickDetailviewLocation.create_if_needed(brick_id=brick_id,
+    #         order=order, zone=zone, model=FakeContact)
     #     loc = self.get_object_or_fail(BrickDetailviewLocation, pk=loc.pk)
     #     self.assertEqual(FakeContact, loc.content_type.model_class())
     #     self.assertEqual(brick_id, loc.brick_id)
@@ -121,7 +122,8 @@ class BrickTestCase(CremeTestCase):
     #     order = 5
     #     zone = BrickDetailviewLocation.RIGHT
     #
-    #     create_bdl = partial(BrickDetailviewLocation.create_if_needed, brick_id=brick_id, model=FakeContact)
+    #     create_bdl = partial(BrickDetailviewLocation.create_if_needed,
+    #         brick_id=brick_id, model=FakeContact)
     #     create_bdl(order=order, zone=zone)
     #     create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
     #
@@ -217,7 +219,9 @@ class BrickTestCase(CremeTestCase):
         # brick_id = RelationsBrick.id_
         brick_id = self.TestBrick01.id_
 
-        loc = BrickDetailviewLocation.objects.create_if_needed(brick=brick_id, order=order, zone=zone)
+        loc = BrickDetailviewLocation.objects.create_if_needed(
+            brick=brick_id, order=order, zone=zone,
+        )
         self.assertIsInstance(loc, BrickDetailviewLocation)
 
         loc = self.get_object_or_fail(BrickDetailviewLocation, pk=loc.pk)
@@ -550,7 +554,10 @@ class BrickTestCase(CremeTestCase):
         rbi.save()
         self.assertFalse(self.refresh(rbi).all_ctypes_configured)
 
-        rbi.set_cells(get_ct(FakeOrganisation), [EntityCellRegularField.build(FakeOrganisation, 'name')])
+        rbi.set_cells(
+            get_ct(FakeOrganisation),
+            [EntityCellRegularField.build(FakeOrganisation, 'name')]
+        )
         rbi.save()
         self.assertTrue(self.refresh(rbi).all_ctypes_configured)
 
@@ -676,7 +683,10 @@ class BrickTestCase(CremeTestCase):
 
         brick = ibi.brick
         self.assertIsInstance(brick, Brick)
-        self.assertFalse(isinstance(brick, TestInstanceBrick))  # Because the class is not registered
+
+        # Because the class is not registered
+        self.assertFalse(isinstance(brick, TestInstanceBrick))
+
         self.assertEqual(brick_id, brick.id_)
         self.assertEqual('??', brick.verbose_name)
 

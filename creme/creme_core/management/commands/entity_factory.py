@@ -356,7 +356,9 @@ class Command(BaseCommand):
         #     entity_factory.create_batch(number)
 
         create = entity_factory.create
-        progress = ProgressBar(max=number, stdout=self.stdout).progress if verbosity else lambda: None
+        progress = ProgressBar(
+            max=number, stdout=self.stdout,
+        ).progress if verbosity else lambda: None
 
         # with print_time(mute=not verbosity):
         with optimiser_class(cursor, verbosity, self.stdout):

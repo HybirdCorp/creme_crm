@@ -130,7 +130,9 @@ class EmailSending(CremeModel):
                       'use the property unsent_mails instead.',
                       DeprecationWarning
                      )
-        return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]).count()
+        return self.mails_set.filter(
+            status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR],
+        ).count()
 
     def get_absolute_url(self):
         return reverse('emails__view_sending', args=(self.id,))
@@ -197,14 +199,15 @@ class LightWeightEmail(_Email):
     """Used by campaigns.
     id is a unique generated string in order to avoid stats hacking.
     """
-    id               = CharField(_('Email ID'), primary_key=True, max_length=ID_LENGTH, editable=False)
-    sending          = ForeignKey(EmailSending, verbose_name=_('Related sending'),
-                                  related_name='mails_set', editable=False,
-                                  on_delete=CASCADE,
-                                 )
-    recipient_entity = ForeignKey(CremeEntity, null=True, related_name='received_lw_mails',
-                                  editable=False, on_delete=CASCADE,
-                                 )
+    id = CharField(_('Email ID'), primary_key=True, max_length=ID_LENGTH, editable=False)
+    sending = ForeignKey(
+        EmailSending, verbose_name=_('Related sending'),
+        related_name='mails_set', editable=False, on_delete=CASCADE,
+    )
+    recipient_entity = ForeignKey(
+        CremeEntity, null=True, related_name='received_lw_mails',
+        editable=False, on_delete=CASCADE,
+    )
 
     class Meta:
         app_label = 'emails'

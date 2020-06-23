@@ -346,7 +346,9 @@ class ContactMergeTestCase(_BaseTestCase):
         user = self.login()
 
         first_name1 = 'FAYE'
-        contact01 = Contact.objects.create(user=user, first_name=first_name1, last_name='VALENTINE')
+        contact01 = Contact.objects.create(
+            user=user, first_name=first_name1, last_name='VALENTINE',
+        )
         contact02 = user.linked_contact
 
         url = self.build_merge_url(contact01, contact02)
@@ -355,12 +357,15 @@ class ContactMergeTestCase(_BaseTestCase):
         with self.assertNoException():
             first_name_f = response.context['form'].fields['first_name']
 
-        self.assertEqual([contact02.first_name,  # The entities have been swapped (to keep the user-contact first)
-                          contact01.first_name,
-                          contact02.first_name,
-                         ],
-                         first_name_f.initial
-                        )
+        self.assertListEqual(
+            [
+                # The entities have been swapped (to keep the user-contact first)
+                contact02.first_name,
+                contact01.first_name,
+                contact02.first_name,
+            ],
+            first_name_f.initial
+        )
 
         data = {
             'user_1':      user.id,

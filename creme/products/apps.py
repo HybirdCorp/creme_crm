@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,45 +47,76 @@ class ProductsConfig(CremeAppConfig):
         from .forms.product import ProductInnerEditCategory
 
         register = bulk_update_registry.register
-        register(self.Product, innerforms={'category':     ProductInnerEditCategory,
-                                           'sub_category': ProductInnerEditCategory,
-                                          }
-                )
-        register(self.Service, innerforms={'category':     ProductInnerEditCategory,
-                                           'sub_category': ProductInnerEditCategory,
-                                          }
-                )
+        register(
+            self.Product,
+            innerforms={
+                'category':     ProductInnerEditCategory,
+                'sub_category': ProductInnerEditCategory,
+            },
+        )
+        register(
+            self.Service,
+            innerforms={
+                'category':     ProductInnerEditCategory,
+                'sub_category': ProductInnerEditCategory,
+            },
+        )
 
     def register_creme_config(self, config_registry):
         from . import models
         from .forms import category
 
         register_model = config_registry.register_model
-        register_model(models.Category,    'category')
-        register_model(models.SubCategory, 'subcategory').creation(form_class=category.SubCategoryForm) \
-                                                         .edition(form_class=category.SubCategoryForm)
+        register_model(
+            models.Category,    'category',
+        )
+        register_model(
+            models.SubCategory, 'subcategory',
+        ).creation(
+            form_class=category.SubCategoryForm,
+        ).edition(
+            form_class=category.SubCategoryForm,
+        )
 
     def register_icons(self, icon_registry):
-        icon_registry.register(self.Product, 'images/product_%(size)s.png') \
-                     .register(self.Service, 'images/service_%(size)s.png')
+        icon_registry.register(
+            self.Product, 'images/product_%(size)s.png',
+        ).register(
+            self.Service, 'images/service_%(size)s.png',
+        )
 
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import get_massimport_form_builder
 
-        import_form_registry.register(self.Product, get_massimport_form_builder) \
-                            .register(self.Service, get_massimport_form_builder)
+        import_form_registry.register(
+            self.Product, get_massimport_form_builder,
+        ).register(
+            self.Service, get_massimport_form_builder,
+        )
 
     def register_menu(self, creme_menu):
         Product = self.Product
         Service = self.Service
         LvURLItem = creme_menu.URLItem.list_view
-        creme_menu.get('features') \
-                  .get_or_create(creme_menu.ContainerItem, 'management', priority=50,
-                                 defaults={'label': _('Management')},
-                                ) \
-                  .add(LvURLItem('products-products', model=Product), priority=20) \
-                  .add(LvURLItem('products-services', model=Service), priority=25)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('management', label=_('Management'), priority=50) \
-                  .add_link('products-create_product', Product, priority=20) \
-                  .add_link('products-create_service', Service, priority=25)
+        creme_menu.get(
+            'features',
+        ).get_or_create(
+            creme_menu.ContainerItem, 'management',
+            priority=50,
+            defaults={'label': _('Management')},
+        ).add(
+            LvURLItem('products-products', model=Product),
+            priority=20,
+        ).add(
+            LvURLItem('products-services', model=Service),
+            priority=25,
+        )
+        creme_menu.get(
+            'creation', 'any_forms',
+        ).get_or_create_group(
+            'management', label=_('Management'), priority=50,
+        ).add_link(
+            'products-create_product', Product, priority=20,
+        ).add_link(
+            'products-create_service', Service, priority=25,
+        )

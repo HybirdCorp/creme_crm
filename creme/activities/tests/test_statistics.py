@@ -41,19 +41,26 @@ class StatisticsTestCase(CremeTestCase):
         )
 
         for i in range(1, 13):
-            create_activity(title='Meeting #{}'.format(i), start=now_value - relativedelta(months=i))
+            create_activity(
+                title=f'Meeting #{i}', start=now_value - relativedelta(months=i),
+            )
 
         # Should not be counted (too old)
         for i in range(1, 4):
-            create_activity(title='Task', start=now_value - relativedelta(years=1, months=1))
+            create_activity(
+                title='Task', start=now_value - relativedelta(years=1, months=1),
+            )
 
-        self.assertEqual(
-            [ngettext('{count} meeting per month',
-                      '{count} meetings per month',
-                      1
-                     ).format(count=number_format(1, decimal_pos=1, use_l10n=True),
-             ),
-             _('No phone call since one year'),
+        self.assertListEqual(
+            [
+                ngettext(
+                    '{count} meeting per month',
+                    '{count} meetings per month',
+                    1
+                ).format(
+                    count=number_format(1, decimal_pos=1, use_l10n=True),
+                ),
+                _('No phone call since one year'),
             ],
             AveragePerMonthStatistics(Activity)()
         )

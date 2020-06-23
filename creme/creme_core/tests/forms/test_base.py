@@ -948,7 +948,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         form1 = FakeContactForm(user=user, data={**data, 'user': self.other_user.id})
         self.assertFormInstanceErrors(
             form1,
-            ('relation_types', _('You are not allowed to link the created entity (wrong owner?).')),
+            (
+                'relation_types',
+                _('You are not allowed to link the created entity (wrong owner?).'),
+            ),
         )
 
         # OK ---
@@ -990,7 +993,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         form1 = FakeContactForm(user=user, data={**data, 'user': self.other_user.id})
         self.assertFormInstanceErrors(
             form1,
-            ('semifixed_rtypes', _('You are not allowed to link the created entity (wrong owner?).')),
+            (
+                'semifixed_rtypes',
+                _('You are not allowed to link the created entity (wrong owner?).'),
+            ),
         )
 
         # OK ---
@@ -1111,12 +1117,16 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         self.assertFormInstanceErrors(
             form2,
-            ('relation_types',
-             _('The property «%(property)s» is mandatory '
-               'in order to use the relationship «%(predicate)s»'
-              ) % {'property': ptype1.text,
-                   'predicate': rtype1.predicate,
-            }),
+            (
+                'relation_types',
+                _(
+                    'The property «%(property)s» is mandatory '
+                    'in order to use the relationship «%(predicate)s»'
+                ) % {
+                    'property': ptype1.text,
+                    'predicate': rtype1.predicate,
+                },
+            ),
         )
 
         # --
@@ -1126,12 +1136,16 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         self.assertFormInstanceErrors(
             form3,
-            ('semifixed_rtypes',
-             _('The property «%(property)s» is mandatory '
-               'in order to use the relationship «%(predicate)s»'
-              ) % {'property': ptype1.text,
-                   'predicate': rtype1.predicate,
-            }),
+            (
+                'semifixed_rtypes',
+                _(
+                    'The property «%(property)s» is mandatory '
+                    'in order to use the relationship «%(predicate)s»'
+                ) % {
+                    'property': ptype1.text,
+                    'predicate': rtype1.predicate,
+                }
+            ),
         )
 
         # --
@@ -1139,7 +1153,9 @@ class CremeEntityFormTestCase(CremeTestCase):
             user=user,
             data={
                 **data,
-                'relation_types': self.formfield_value_multi_relation_entity((rtype2.id, orga)),
+                'relation_types': self.formfield_value_multi_relation_entity(
+                    (rtype2.id, orga),
+                ),
             },
         )
         self.assertFormInstanceErrors(
@@ -1158,17 +1174,23 @@ class CremeEntityFormTestCase(CremeTestCase):
             data={
                 **data,
                 'property_types': [ptype1.id],
-                'relation_types': self.formfield_value_multi_relation_entity((rtype2.id, orga)),
+                'relation_types': self.formfield_value_multi_relation_entity(
+                    (rtype2.id, orga),
+                ),
             },
         )
         self.assertFormInstanceErrors(
             form4,
-            ('relation_types',
-             _('These properties are mandatory in order to use '
-               'the relationship «%(predicate)s»: %(properties)s'
-              ) % {'properties': f'{ptype1.text}, {ptype2.text}',
-                   'predicate': rtype2.predicate,
-            }),
+            (
+                'relation_types',
+                _(
+                    'These properties are mandatory in order to use '
+                    'the relationship «%(predicate)s»: %(properties)s'
+                ) % {
+                    'properties': f'{ptype1.text}, {ptype2.text}',
+                    'predicate': rtype2.predicate,
+                },
+            ),
         )
 
     @override_settings(FORMS_RELATION_FIELDS=True)

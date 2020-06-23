@@ -206,7 +206,10 @@ class BricksConfigTestCase(CremeTestCase):
             try:
                 model.objects.bulk_create(backup)
             except Exception:
-                print('CremeBlockTagsTestCase: test-data backup problem with model={}'.format(model))
+                print(
+                    'CremeBlockTagsTestCase: '
+                    'test-data backup problem with model={}'.format(model)
+                )
 
         gui_bricks.brick_registry = cls._original_brick_registry
 
@@ -367,7 +370,9 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        b_locs = BrickDetailviewLocation.objects.filter(content_type=ct, role=role, superuser=superuser)
+        b_locs = BrickDetailviewLocation.objects.filter(
+            content_type=ct, role=role, superuser=superuser,
+        )
 
         def filter_locs(zone):
             return [bl for bl in b_locs if bl.zone == zone]
@@ -524,9 +529,18 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, len(top_locations))
         self.assertEqual(CompleteBrick1.id_, top_locations[0].brick_id)
 
-        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.LEFT)])
-        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.RIGHT)])
-        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.BOTTOM)])
+        self.assertListEqual(
+            [''],
+            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.LEFT)]
+        )
+        self.assertListEqual(
+            [''],
+            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.RIGHT)]
+        )
+        self.assertListEqual(
+            [''],
+            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.BOTTOM)]
+        )
 
         hat_locations = filter_locs(BrickDetailviewLocation.HAT)
         self.assertEqual(1, len(hat_locations))
@@ -535,9 +549,12 @@ class BricksConfigTestCase(CremeTestCase):
     def test_add_detailview06(self):
         "Admin credentials are needed"
         self.login(is_superuser=False)
-        self.assertGET403(self._build_adddetail_url(ContentType.objects.get_for_model(FakeContact)))
+        self.assertGET403(
+            self._build_adddetail_url(ContentType.objects.get_for_model(FakeContact))
+        )
 
-    def _aux_test_edit_detailview(self, role=None, superuser=False, expected_title='Edit the bricks'):
+    def _aux_test_edit_detailview(
+            self, role=None, superuser=False, expected_title='Edit the bricks'):
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
@@ -635,9 +652,9 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        b_locs = BrickDetailviewLocation.objects.filter(content_type=ct, role=role,
-                                                        superuser=superuser,
-                                                       )
+        b_locs = BrickDetailviewLocation.objects.filter(
+            content_type=ct, role=role, superuser=superuser,
+        )
 
         def filter_locs(zone):
             return [bl for bl in b_locs if bl.zone == zone]
@@ -897,7 +914,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
 
-        # instance_brick_id = InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, '')
+        # instance_brick_id = InstanceBrickConfigItem.generate_id(
+        #     DetailviewInstanceBrick, naru, '')
         ibci = InstanceBrickConfigItem.objects.create(
             # brick_id=instance_brick_id,
             brick_class_id=DetailviewInstanceBrick.id_,
@@ -995,9 +1013,18 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, len(top_locations))
         self.assertEqual(brick_top_id, top_locations[0].brick_id)
 
-        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.LEFT)])
-        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.RIGHT)])
-        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.BOTTOM)])
+        self.assertListEqual(
+            [''],
+            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.LEFT)]
+        )
+        self.assertListEqual(
+            [''],
+            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.RIGHT)]
+        )
+        self.assertListEqual(
+            [''],
+            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.BOTTOM)]
+        )
 
         hat_locations = filter_locs(BrickDetailviewLocation.HAT)
         self.assertEqual(1, len(hat_locations))
@@ -1970,8 +1997,14 @@ class BricksConfigTestCase(CremeTestCase):
         "Validation errors with Relation."
         self.login()
         create_rtype = RelationType.create
-        rt1 = create_rtype(('test-subfoo', 'subject_predicate1'), ('test-objfoo', 'object_predicate2'))[0]
-        rt2 = create_rtype(('test-subbar', 'subject_predicate2'), ('test-objbar', 'object_predicate2'))[0]
+        rt1 = create_rtype(
+            ('test-subfoo', 'subject_predicate1'),
+            ('test-objfoo', 'object_predicate2'),
+        )[0]
+        rt2 = create_rtype(
+            ('test-subbar', 'subject_predicate2'),
+            ('test-objbar', 'object_predicate2'),
+        )[0]
 
         rb_item = RelationBrickItem(
             brick_id='specificblock_creme_config-test-subfoo',
@@ -2351,14 +2384,14 @@ class BricksConfigTestCase(CremeTestCase):
         #
         rf_prefix = 'regular_field-'
         # self.assertIn(rf_prefix + valid_fname,   choices_keys)
-        # self.assertIn(rf_prefix + hidden_fname1, choices_keys) # was already in the block => still proposed
+        # self.assertIn(rf_prefix + hidden_fname1, choices_keys)
         # self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
         #
         # self.assertIn(rf_prefix + addr_prefix + hidden_subfname1, address_choices_keys) # idem
         # self.assertNotIn(rf_prefix + addr_prefix + hidden_subfname2, address_choices_keys)
         #
         # self.assertIn(rf_prefix + hidden_fkname, image_choices_keys) # idem
-        # self.assertIn(rf_prefix + 'image',       choices_keys) # we need it because we have a subfield
+        # self.assertIn(rf_prefix + 'image',       choices_keys)
 
         response = self.client.post(
             url, follow=True,

@@ -164,7 +164,7 @@ def do_cell_4_regularfield(parser, token):
                            )
 
 
-# {% cell_render %} ----------------------------------------------------------------------------------------------------
+# {% cell_render %} ------------------------------------------------------------
 __RENDER_ARGS_MAP = {
     'cell':     'cell_var',
     'instance': 'instance_var',
@@ -185,7 +185,8 @@ def do_render(parser, token):
         {{cell_content}}
 
     B. Mandatory arguments (notice that the arguments must be pass with keyword-notation):
-        - cell: an EntityCell instance. Eg: it could be generated with {% cell_4_regularfield ... %}
+        - cell: an EntityCell instance.
+          Eg: it could be generated with {% cell_4_regularfield ... %}
         - instance: an instance of a model.
         - user: an instance of auth.get_user_model().
 

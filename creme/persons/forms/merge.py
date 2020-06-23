@@ -41,7 +41,9 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         if isinstance(entity1, Contact):  # TODO: create a ContactMergeForm ?
             if entity2.is_user:
                 if entity1.is_user:
-                    raise self.CanNotMergeError(_('Can not merge 2 Contacts which represent some users.'))
+                    raise self.CanNotMergeError(
+                        _('Can not merge 2 Contacts which represent some users.')
+                    )
 
                 entity1, entity2 = entity2, entity1
         else:
@@ -82,7 +84,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
             Address(name=name)
         )
 
-        address_is_empty = True  # We do not use Address.__bool__() because we ignore the address' name.
+        # We do not use Address.__bool__() because we ignore the address' name.
+        address_is_empty = True
         for fname in self._address_field_names:
             value = cleaned_data.get(prefix + fname)
             setattr(address, fname, value)
@@ -107,8 +110,12 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         super()._post_entity1_update(entity1, entity2, cleaned_data)
         handle_addr = self._handle_addresses
 
-        must_save1 = handle_addr(entity1, entity2, 'billing_address',  cleaned_data, _BILL_PREFIX, _('Billing address'))
-        must_save2 = handle_addr(entity1, entity2, 'shipping_address', cleaned_data, _SHIP_PREFIX, _('Shipping address'))
+        must_save1 = handle_addr(
+            entity1, entity2, 'billing_address',  cleaned_data, _BILL_PREFIX, _('Billing address')
+        )
+        must_save2 = handle_addr(
+            entity1, entity2, 'shipping_address', cleaned_data, _SHIP_PREFIX, _('Shipping address')
+        )
 
         if must_save1 or must_save2:
             entity1.save()

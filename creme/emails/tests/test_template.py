@@ -76,7 +76,9 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         name    = 'my template'
         subject = 'Insert a joke *here*'
         body    = 'blablabla'
-        template = EmailTemplate.objects.create(user=user, name=name, subject=subject, body=body)
+        template = EmailTemplate.objects.create(
+            user=user, name=name, subject=subject, body=body,
+        )
 
         url = template.get_edit_absolute_url()
         self.assertGET200(url)
@@ -134,7 +136,10 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
                         )
         self.assertEqual(_('Add the attachments'), context.get('submit_label'))
 
-        response = self.client.post(url, data={'attachments': self.formfield_value_multi_creator_entity(doc1, doc2)})
+        response = self.client.post(
+            url,
+            data={'attachments': self.formfield_value_multi_creator_entity(doc1, doc2)},
+        )
         self.assertNoFormError(response)
         self.assertSetEqual({doc1, doc2}, {*template.attachments.all()})
 

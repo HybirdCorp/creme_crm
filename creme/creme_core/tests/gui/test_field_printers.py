@@ -84,7 +84,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         o = FakeOrganisation()
         user = CremeUser()
         field = o._meta.get_field('capital')
-        self.assertEqual('', field_printers.print_integer(o, fval=None, user=user, field=field))
+        self.assertEqual(
+            '',
+            field_printers.print_integer(o, fval=None, user=user, field=field)
+        )
         self.assertEqual(
             '1234',
             field_printers.print_integer(o, fval=1234, user=user, field=field)
@@ -125,7 +128,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         c = FakeContact()
         user = CremeUser()
         field = c._meta.get_field('is_a_nerd')
-        self.assertEqual('', field_printers.print_boolean_html(c, None, user, field))
+        self.assertEqual(
+            '',
+            field_printers.print_boolean_html(c, None, user, field)
+        )
 
         self.assertEqual(
             '<input type="checkbox" checked disabled/>{}'.format(_('Yes')),
@@ -140,7 +146,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         c = FakeContact()
         user = CremeUser()
         field = c._meta.get_field('is_a_nerd')
-        self.assertEqual('', field_printers.print_boolean_csv(c, None, user, field))
+        self.assertEqual(
+            '',
+            field_printers.print_boolean_csv(c, None, user, field)
+        )
 
         self.assertEqual(
             _('Yes'),
@@ -155,7 +164,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         o = FakeOrganisation()
         user = CremeUser()
         field = o._meta.get_field('url_site')
-        self.assertEqual('', field_printers.print_url_html(o, fval=None, user=user, field=field))
+        self.assertEqual(
+            '',
+            field_printers.print_url_html(o, fval=None, user=user, field=field)
+        )
 
         url1 = 'www.wikipedia.org'
         self.assertEqual(
@@ -222,9 +234,11 @@ class FieldsPrintersTestCase(CremeTestCase):
         with override_settings(URLIZE_TARGET_BLANK=True):
             p1 = field_printers.print_text_html(c, user=user, field=field, fval=text)
 
-        self.assertEqual(
+        self.assertHTMLEqual(
             '<p>See you &lt;b&gt;space&lt;/b&gt; cowboy...<br>The real folk blues: '
-            '<a target="_blank" rel="noopener noreferrer" href="http://www.bebop.org">www.bebop.org</a>'
+            '<a target="_blank" rel="noopener noreferrer" href="http://www.bebop.org">'
+            'www.bebop.org'
+            '</a>'
             '</p>',
             p1
         )
@@ -265,7 +279,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             linked_folder=folder,
             filedata=file_path,
         )
-        self.assertEqual(
+        self.assertHTMLEqual(
             # f'upload/creme_core-tests/gui/{file_name}',
             '<a href="{url}" alt="{label}">{label}</a>'.format(
                 url=reverse(
@@ -538,7 +552,9 @@ class FieldsPrintersTestCase(CremeTestCase):
         desc1 = 'important'
         desc2 = 'beware'
         efilter = EntityFilter.objects.smart_update_or_create(
-            pk='test-ef_orga', name='My filter', model=FakeOrganisation, is_custom=True,
+            pk='test-ef_orga', name='My filter',
+            model=FakeOrganisation,
+            is_custom=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
@@ -585,7 +601,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         c = FakeContact()
         field1 = c._meta.get_field('sector')
 
-        self.assertEqual('', field_printers.print_foreignkey_csv(c, None, user, field1))
+        self.assertEqual(
+            '',
+            field_printers.print_foreignkey_csv(c, None, user, field1)
+        )
 
         sector = FakeSector.objects.first()
         self.assertEqual(
@@ -596,7 +615,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         # entity (credentials OK)
         img = FakeImage.objects.create(user=user, name='Img#1')
         field2 = c._meta.get_field('image')
-        self.assertEqual(str(img), field_printers.print_foreignkey_csv(c, img, user, field2))
+        self.assertEqual(
+            str(img),
+            field_printers.print_foreignkey_csv(c, img, user, field2)
+        )
 
     def test_print_foreignkey_csv02(self):
         "No view credentials."
@@ -695,10 +717,11 @@ class FieldsPrintersTestCase(CremeTestCase):
         printer = M2MPrinter(
             default_printer=M2MPrinter.printer_html,
             default_enumerator=M2MPrinter.enumerator_all,
-        ).register(CremeEntity,
-                   printer=M2MPrinter.printer_entity_html,  # TODO: test is_deleted too (other enumerator)
-                   enumerator=M2MPrinter.enumerator_entity,
-                  )
+        ).register(
+            CremeEntity,
+            printer=M2MPrinter.printer_entity_html,  # TODO: test is_deleted too (other enumerator)
+            enumerator=M2MPrinter.enumerator_entity,
+        )
         self.assertHTMLEqual(
             f'<ul>'
             f' <li><a target="_blank" href="{img1.get_absolute_url()}">{img1}</a></li>'

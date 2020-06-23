@@ -65,7 +65,9 @@ class FieldsConfigManager(models.Manager):
     def get_for_model(self, model: Type['Model']) -> 'FieldsConfig':
         return self.get_for_models((model,))[model]
 
-    def get_for_models(self, models: Sequence[Type['Model']]) -> Dict[Type['Model'], 'FieldsConfig']:
+    def get_for_models(
+            self,
+            models: Sequence[Type['Model']]) -> Dict[Type['Model'], 'FieldsConfig']:
         result = {}
         get_ct = ContentType.objects.get_for_model
         cache_key_fmt = 'creme_core-fields_config-{}'.format
@@ -105,7 +107,7 @@ class FieldsConfigManager(models.Manager):
 
 
 class FieldsConfig(CremeModel):
-    content_type     = CTypeOneToOneField(editable=False, primary_key=True)  # verbose_name=_('Related type')
+    content_type     = CTypeOneToOneField(editable=False, primary_key=True)
     raw_descriptions = models.TextField(editable=False)  # TODO: JSONField ?
 
     objects = FieldsConfigManager()
@@ -132,10 +134,14 @@ class FieldsConfig(CremeModel):
         def __init__(self):
             self._configs = {}
 
-        def get_4_model(self, model: Type['Model']) -> 'FieldsConfig':  # TODO: rename get_for_model
+        # TODO: rename get_for_model
+        def get_4_model(self, model: Type['Model']) -> 'FieldsConfig':
             return self.get_4_models((model,))[model]
 
-        def get_4_models(self, models: Iterable[Type['Model']]) -> Dict[Type['Model'], 'FieldsConfig']:  # TODO: rename get_for_models
+        # TODO: rename get_for_models
+        def get_4_models(
+                self,
+                models: Iterable[Type['Model']]) -> Dict[Type['Model'], 'FieldsConfig']:
             result = {}
             configs = self._configs
             missing_models = []
@@ -165,7 +171,8 @@ class FieldsConfig(CremeModel):
             # if len(field_info) > 1:
             #     assert len(field_info) == 2
             #
-            #     if self.get_4_model(field_info[0].remote_field.model).is_field_hidden(field_info[1]):
+            #     if self.get_4_model(field_info[0].remote_field.model)
+            #            .is_field_hidden(field_info[1]):
             #         return True
             #
             # return False

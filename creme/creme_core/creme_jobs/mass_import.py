@@ -58,18 +58,23 @@ class _MassImportType(JobType):
         form = form_class(user=job.user, data=POST)
 
         if not form.is_valid():
-            raise self.Error(gettext('Invalid data [{}]').format(form.errors.as_text()))  # TODO: unit test
+            # TODO: unit test
+            raise self.Error(
+                gettext('Invalid data [{}]').format(form.errors.as_text())
+            )
 
         form.process(job)
 
     def progress(self, job):
         count = MassImportJobResult.objects.filter(job=job).count()
-        return JobProgress(percentage=None,
-                           label=ngettext('{count} line has been processed.',
-                                          '{count} lines have been processed.',
-                                          count
-                                         ).format(count=count)
-                          )
+        return JobProgress(
+            percentage=None,
+            label=ngettext(
+                '{count} line has been processed.',
+                '{count} lines have been processed.',
+                count
+            ).format(count=count)
+        )
 
     @property
     def results_bricks(self):
@@ -105,33 +110,47 @@ class _MassImportType(JobType):
 
         if created_count:
             stats.append(
-                ngettext('{count} «{model}» has been created.',
-                         '{count} «{model}» have been created.',
-                         created_count
-                        ).format(count=created_count,
-                                 model=get_model_verbose_name(model, created_count),
-                                )
+                ngettext(
+                    '{count} «{model}» has been created.',
+                    '{count} «{model}» have been created.',
+                    created_count
+                ).format(
+                    count=created_count,
+                    model=get_model_verbose_name(model, created_count),
+                )
             )
         elif updated_count != lines_count:
-            stats.append(gettext('No «{model}» has been created.').format(model=model._meta.verbose_name))
+            stats.append(
+                gettext('No «{model}» has been created.').format(
+                    model=model._meta.verbose_name,
+                )
+            )
 
         if updated_count:
             stats.append(
-                ngettext('{count} «{model}» has been updated.',
-                         '{count} «{model}» have been updated.',
-                         updated_count
-                        ).format(count=updated_count,
-                                 model=get_model_verbose_name(model, updated_count),
-                                )
+                ngettext(
+                    '{count} «{model}» has been updated.',
+                    '{count} «{model}» have been updated.',
+                    updated_count
+                ).format(
+                    count=updated_count,
+                    model=get_model_verbose_name(model, updated_count),
+                )
             )
         elif created_count != lines_count:
-            stats.append(gettext('No «{model}» has been updated.').format(model=model._meta.verbose_name))
+            stats.append(
+                gettext('No «{model}» has been updated.').format(
+                    model=model._meta.verbose_name,
+                )
+            )
 
-        stats.append(ngettext('{count} line in the file.',
-                              '{count} lines in the file.',
-                              lines_count,
-                             ).format(count=lines_count)
-                    )
+        stats.append(
+            ngettext(
+                '{count} line in the file.',
+                '{count} lines in the file.',
+                lines_count,
+            ).format(count=lines_count)
+        )
 
         return stats
 

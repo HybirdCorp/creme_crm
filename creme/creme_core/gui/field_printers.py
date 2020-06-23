@@ -181,7 +181,7 @@ class FileFieldPrinterForHTML:
 #
 # def print_image_html(entity: Model, fval, user, field: Field) -> str:
 #     return format_html(
-#         """<a onclick="creme.dialogs.image('{url}').open();"><img src="{url}" {size}/></a>""",  # alt="{???}"
+#         """<a onclick="creme.dialogs.image('{url}').open();"><img src="{url}" {size}/></a>""",
 #         url=fval.url,
 #         size=image_size(fval),
 #     ) if fval else ''
@@ -540,26 +540,26 @@ class _FieldPrintersRegistry:
         css_default        = getattr(settings, 'CSS_DEFAULT_LISTVIEW')
         css_default_header = getattr(settings, 'CSS_DEFAULT_HEADER_LISTVIEW')
 
-        css_number_listview      = getattr(settings, 'CSS_NUMBER_LISTVIEW',      css_default)
-        css_textarea_listview    = getattr(settings, 'CSS_TEXTAREA_LISTVIEW',    css_default)
-        css_date_header_listview = getattr(settings, 'CSS_DATE_HEADER_LISTVIEW', css_default_header)
+        css_number_lv      = getattr(settings, 'CSS_NUMBER_LISTVIEW',      css_default)
+        css_textarea_lv    = getattr(settings, 'CSS_TEXTAREA_LISTVIEW',    css_default)
+        css_date_lv_header = getattr(settings, 'CSS_DATE_HEADER_LISTVIEW', css_default_header)
 
         self._listview_css_printers = ClassKeyedMap(
             [
-                (models.IntegerField,               css_number_listview),
-                (models.CommaSeparatedIntegerField, css_number_listview),
-                (models.DecimalField,               css_number_listview),
-                (models.FloatField,                 css_number_listview),
+                (models.IntegerField,               css_number_lv),
+                (models.CommaSeparatedIntegerField, css_number_lv),
+                (models.DecimalField,               css_number_lv),
+                (models.FloatField,                 css_number_lv),
 
-                (models.TextField,                  css_textarea_listview),
+                (models.TextField,                  css_textarea_lv),
             ],
             default=css_default,
         )
 
         self._header_listview_css_printers = ClassKeyedMap(
             [
-                (models.DateField,      css_date_header_listview),
-                (models.DateTimeField,  css_date_header_listview),
+                (models.DateField,      css_date_lv_header),
+                (models.DateTimeField,  css_date_lv_header),
             ],
             default=css_default_header,
         )

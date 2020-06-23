@@ -58,13 +58,17 @@ def generate_string_id_and_save(model: Type[Model],
             obj.id = prefix + str(index)
 
             try:
-                # We use transaction because the IntegrityError aborts the current transaction on PGSQL
+                # We use transaction because the IntegrityError aborts the
+                # current transaction on PGSQL
                 with atomic():
                     obj.save(force_insert=True)
             except IntegrityError as e:  # An object with this id already exists
                 # TODO: indeed it can be raise if the given object if badly build....
                 #       --> improve this (detect the guilty column) ?
-                logger.debug('generate_string_id_and_save(): id "%s" already exists ? (%s)', obj.id, e)
+                logger.debug(
+                    'generate_string_id_and_save(): id "%s" already exists ? (%s)',
+                    obj.id, e,
+                )
                 last_exception = e
                 obj.pk = None
             else:

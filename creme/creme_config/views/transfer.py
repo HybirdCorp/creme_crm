@@ -41,7 +41,8 @@ class ConfigExport(generic.CheckedView):
 
     def get_info(self) -> dict:
         # NB: we use an OrderedDict to kept this global order in our output file
-        #     (it seems better to be sure that 'version is at the beginning, like a in a file header).
+        #     (it seems better to be sure that 'version is at the beginning,
+        #     like a in a file header).
         info: Dict[str, Any] = OrderedDict()
         info[ID_VERSION] = '1.0'
         info.update((e_id, exporter()) for e_id, exporter in self.registry)

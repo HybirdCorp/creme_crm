@@ -121,7 +121,10 @@ class Command(BaseCommand):
             changed = False
 
             for app_label in apps_2_populate:
-                populator = self._get_populator(app_label=app_label, verbosity=verbosity, all_apps=all_apps, options=options)
+                populator = self._get_populator(
+                    app_label=app_label, verbosity=verbosity, all_apps=all_apps,
+                    options=options,
+                )
 
                 if populator is not None:
                     populators.append(populator)
@@ -170,7 +173,9 @@ class Command(BaseCommand):
                 self.stderr.write(f' Populate "{populator.app}" failed ({e})')
                 if verbosity >= 1:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    self.stderr.write(''.join(format_exception(exc_type, exc_value, exc_traceback)))
+                    self.stderr.write(
+                        ''.join(format_exception(exc_type, exc_value, exc_traceback))
+                    )
 
             if verbosity >= 1:
                 self.stdout.write(' OK', self.style.SUCCESS)
@@ -204,7 +209,12 @@ class Command(BaseCommand):
         if verbosity >= 1:
             self.stdout.write(self.style.SUCCESS('Populate is OK.'))
 
-    def _get_populator(self, app_label, verbosity, all_apps, options) -> Optional[BasePopulator]:
+    def _get_populator(
+            self,
+            app_label,
+            verbosity,
+            all_apps,
+            options) -> Optional[BasePopulator]:
         try:
             mod = import_module(apps.get_app_config(app_label).name + '.populate')
         except ImportError:
@@ -228,7 +238,9 @@ class Command(BaseCommand):
             return None
 
         try:
-            populator = populator_class(verbosity, app_label, all_apps, options, self.stdout, self.style)
+            populator = populator_class(
+                verbosity, app_label, all_apps, options, self.stdout, self.style,
+            )
         except Exception as e:
             self.stderr.write(
                 f'Disable populate for "{app_label}": '

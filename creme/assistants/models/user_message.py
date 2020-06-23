@@ -51,24 +51,31 @@ class UserMessagePriority(CremeModel):
 
 
 class UserMessage(CremeModel):
-    title         = models.CharField(_('Title'), max_length=200)
-    body          = models.TextField(_('Message body'))
+    title = models.CharField(_('Title'), max_length=200)
+    body = models.TextField(_('Message body'))
     creation_date = models.DateTimeField(_('Creation date'))
-    priority      = models.ForeignKey(UserMessagePriority, verbose_name=_('Priority'), on_delete=models.PROTECT)
-    sender        = creme_fields.CremeUserForeignKey(verbose_name=_('Sender'),
-                                                     related_name='sent_assistants_messages_set',
-                                                    )
-    recipient     = creme_fields.CremeUserForeignKey(verbose_name=_('Recipient'),
-                                                     related_name='received_assistants_messages_set',
-                                                    )
+    priority = models.ForeignKey(
+        UserMessagePriority, verbose_name=_('Priority'), on_delete=models.PROTECT,
+    )
 
+    sender = creme_fields.CremeUserForeignKey(
+        verbose_name=_('Sender'), related_name='sent_assistants_messages_set',
+    )
+    recipient = creme_fields.CremeUserForeignKey(
+        verbose_name=_('Recipient'), related_name='received_assistants_messages_set',
+    )
     email_sent = models.BooleanField(default=False)
 
-    entity_content_type = creme_fields.EntityCTypeForeignKey(null=True, related_name='+', editable=False)
-    entity              = models.ForeignKey(CremeEntity, null=True,  related_name='assistants_messages',
-                                            editable=False, on_delete=models.CASCADE,
-                                           ).set_tags(viewable=False)
-    creme_entity        = creme_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
+    entity_content_type = creme_fields.EntityCTypeForeignKey(
+        null=True, related_name='+', editable=False,
+    )
+    entity = models.ForeignKey(
+        CremeEntity, null=True,  related_name='assistants_messages',
+        editable=False, on_delete=models.CASCADE,
+    ).set_tags(viewable=False)
+    creme_entity = creme_fields.RealEntityForeignKey(
+        ct_field='entity_content_type', fk_field='entity',
+    )
 
     creation_label = _('Create a message')
     save_label     = _('Save the message')

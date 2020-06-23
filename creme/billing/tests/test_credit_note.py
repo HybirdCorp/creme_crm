@@ -55,11 +55,17 @@ class CreditNoteTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
-        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
-        create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
+        create_line(
+            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
+        )
+        create_line(
+            related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200'),
+        )
 
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
-        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("299"))
+        create_line(
+            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('299'),
+        )
 
         # TODO: the credit note must be valid : Status OK (not out of date or consumed),
         #                                       Target = Billing document's target
@@ -82,11 +88,17 @@ class CreditNoteTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
-        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
-        create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
+        create_line(
+            related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
+        )
+        create_line(
+            related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200')
+        )
 
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
-        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("301"))
+        create_line(
+            related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('301'),
+        )
 
         Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
                                 type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
@@ -202,15 +214,26 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('Credit notes for «{entity}»').format(entity=invoice), context.get('title'))
-        self.assertEqual(_('Link the credit notes'),                              context.get('submit_label'))
+        self.assertEqual(
+            _('Credit notes for «{entity}»').format(entity=invoice),
+            context.get('title')
+        )
+        self.assertEqual(
+            _('Link the credit notes'),
+            context.get('submit_label')
+        )
 
         # ---
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
-        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
+        credit_note = self.create_credit_note(
+            'Credit Note 001', source=credit_note_source, target=invoice_target,
+        )
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
-        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            0,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post(
@@ -219,7 +242,10 @@ class CreditNoteTestCase(_BillingTestCase):
         )
         self.assertNoFormError(response)
 
-        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            1,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 250)
 
         # Check invoice view (bug in block_credit_note.html)
@@ -253,7 +279,10 @@ class CreditNoteTestCase(_BillingTestCase):
         )
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'))
 
-        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            0,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post(
@@ -262,7 +291,10 @@ class CreditNoteTestCase(_BillingTestCase):
         )
         self.assertFormError(response, 'form', 'credit_notes', _('This entity does not exist.'))
 
-        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            0,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 300)
 
         # Check invoice view (bug in block_credit_note.html)
@@ -294,15 +326,22 @@ class CreditNoteTestCase(_BillingTestCase):
                                 type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
                                )
 
-        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            1,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 250)
 
-        response = self.client.post(url, follow=True,
-                                    data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
+        )
         self.assertFormError(response, 'form', 'credit_notes', _('This entity does not exist.'))
 
-        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            1,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 250)
 
         # Check invoice view (bug in block_credit_note.html)
@@ -324,10 +363,15 @@ class CreditNoteTestCase(_BillingTestCase):
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note_target = Organisation.objects.create(user=user, name='Organisation 004')
-        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=credit_note_target)
+        credit_note = self.create_credit_note(
+            'Credit Note 001', source=credit_note_source, target=credit_note_target,
+        )
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
-        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            0,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post(
@@ -336,7 +380,10 @@ class CreditNoteTestCase(_BillingTestCase):
         )
         self.assertFormError(response, 'form', 'credit_notes', _('This entity does not exist.'))
 
-        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            0,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 300)
 
     @skipIfCustomInvoice
@@ -405,14 +452,19 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
-        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
+        credit_note = self.create_credit_note(
+            'Credit Note 001', source=credit_note_source, target=invoice_target,
+        )
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
         Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
                                 type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
                                )
 
-        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            1,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 50)
 
         url = self._build_deleterelated_url(credit_note, invoice)
@@ -421,7 +473,9 @@ class CreditNoteTestCase(_BillingTestCase):
         response = self.assertPOST200(url, follow=True)
         self.assertRedirects(response, invoice.get_absolute_url())
 
-        self.assertFalse(Relation.objects.filter(object_entity=invoice, subject_entity=credit_note))
+        self.assertFalse(
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note),
+        )
         self.assertInvoiceTotalToPay(invoice, 100)
 
     @skipIfCustomInvoice
@@ -435,15 +489,23 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
-        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
+        credit_note = self.create_credit_note(
+            'Credit Note 001', source=credit_note_source, target=invoice_target,
+        )
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
-        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            0,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 100)
 
         self.assertPOST404(self._build_deleterelated_url(credit_note, invoice), follow=True)
 
-        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            0,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 100)
 
     @skipIfCustomInvoice
@@ -457,14 +519,19 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
-        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
+        credit_note = self.create_credit_note(
+            'Credit Note 001', source=credit_note_source, target=invoice_target,
+        )
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
         Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
                                 type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
                                )
 
-        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            1,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 50)
 
         self.client.logout()
@@ -472,7 +539,10 @@ class CreditNoteTestCase(_BillingTestCase):
 
         self.assertPOST403(self._build_deleterelated_url(credit_note, invoice), follow=True)
 
-        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertEqual(
+            1,
+            Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count(),
+        )
         self.assertInvoiceTotalToPay(invoice, 50)
 
     def test_editcomment01(self):

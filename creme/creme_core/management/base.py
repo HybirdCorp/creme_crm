@@ -64,7 +64,7 @@ class CSVImportCommand(BaseCommand):
 # Content of 'my_file.csv' ----------------------------------------------------
 
 # "Organisation";"Manager";"Address 1";"Address 2";"PO";"City";"Zip";"Department";"Phone";"Email"
-# "NERV";"Gendô IKARI";"12, Avenue of the bearded";"Block 2";"12345";"NeoTôkyô";"XXX-XXX";"Kantô";"666666";"gendo.ikari@nerv.org"
+# "NERV";"Gendô IKARI";"12, Avenue of the bearded";"Block 2";"12345";"NeoTôkyô";"XXX-XXX";"Kantô";"666666";"gendo.ikari@nerv.org"  # NOQA
 # etc....
 
 # Content of 'my_app/management/commands/my_import.py' ------------------------
@@ -112,7 +112,9 @@ class CSVImportCommand(BaseCommand):
 #         l_get = line_dict.get
 #
 #         try:
-#             organisation, is_created = Organisation.objects.get_or_create(name=l_get('Organisation'), user=self.user)
+#             organisation, is_created = Organisation.objects.get_or_create(
+#                 name=l_get('Organisation'), user=self.user,
+#             )
 #
 #             phone = l_get('Phone')
 #             if phone and not organisation.phone:
@@ -152,5 +154,9 @@ class CSVImportCommand(BaseCommand):
 #             super().handle(*csv_filenames, **options)
 #
 #             self.stdout.write('Importing organisation [OK]')
-#             self.stdout.write('    Organisations in database: {}'.format(Organisation.objects.count()))
-#             self.stdout.write('    Contacts in database: {}'.format(Contact.objects.count()))
+#             self.stdout.write(
+#                 '    Organisations in database: {}'.format(Organisation.objects.count())
+#             )
+#             self.stdout.write(
+#                 '    Contacts in database: {}'.format(Contact.objects.count())
+#             )

@@ -42,7 +42,10 @@ class SignaturesTestCase(_EmailsTestCase):
         url = signature.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Edit «{object}»').format(object=signature), response.context.get('title'))
+        self.assertEqual(
+            _('Edit «{object}»').format(object=signature),
+            response.context.get('title')
+        )
 
         # ---
         name += '_edited'
@@ -76,7 +79,9 @@ class SignaturesTestCase(_EmailsTestCase):
         self.assertGET200(signature.get_edit_absolute_url())
 
     def _delete(self, signature):
-        return self.client.post(reverse('emails__delete_signature'), data={'id': signature.id}, follow=True)
+        return self.client.post(
+            reverse('emails__delete_signature'), data={'id': signature.id}, follow=True,
+        )
 
     def test_delete01(self):
         user = self.login()

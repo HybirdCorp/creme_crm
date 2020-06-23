@@ -43,15 +43,16 @@ class OwnedGraphFetcher(GraphFetcher):
     def _aux_fetch_4_entity(self, entity, order, user):
         if not isinstance(entity, Contact):
             raise self.IncompatibleContentType(gettext(
-                "The volatile link «Belows to the Contact/User» is only compatible with Contacts ; "
-                "you should fix your blocks' configuration."
+                "The volatile link «Belows to the Contact/User» is only "
+                "compatible with Contacts ; you should fix your blocks' configuration."
             ))
 
         owner = entity.is_user
         if owner is None:
             # NB: should never happen with 'linked_models' checked correctly before...
             raise self.UselessResult(
-                'OwnedGraphFetcher is only useful for Contacts representing users (see field "is_user")'
+                'OwnedGraphFetcher is only useful for Contacts representing users '
+                '(see field "is_user")'
             )
 
         return self.graph.fetch(

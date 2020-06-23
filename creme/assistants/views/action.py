@@ -46,7 +46,8 @@ class ActionCreation(generic.AddingInstanceToEntityPopup):
 
 # @login_required
 # def edit(request, action_id):
-#     return generic.edit_related_to_entity(request, action_id, Action, ActionForm, _('Action for «%s»'))
+#     return generic.edit_related_to_entity(request, action_id, Action,
+#     ActionForm, _('Action for «%s»'))
 class ActionEdition(generic.RelatedToEntityEditionPopup):
     model = Action
     form_class = ActionForm

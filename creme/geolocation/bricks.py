@@ -81,7 +81,12 @@ class GoogleDetailMapBrick(_MapBrick):
 
     def detailview_display(self, context):
         entity = context['object']
-        addresses = [address for address in self.get_addresses_as_dict(entity) if address.get('content')]
+        addresses = [
+            address
+            for address in self.get_addresses_as_dict(entity)
+            if address.get('content')
+        ]
+
         return self._render(self.get_template_context(
             context,
             addresses=addresses,

@@ -120,7 +120,8 @@ class JobSchedulerTestCase(CremeTestCase):
         next_hour = rounded_hour + timedelta(hours=1)
         self.assertEqual(next_hour, next_wakeup(job))
 
-        job.reference_run = rounded_hour - timedelta(hours=1)  # should not be used because "rounded_hour" is given
+        # should not be used because "rounded_hour" is given
+        job.reference_run = rounded_hour - timedelta(hours=1)
         self.assertEqual(next_hour, next_wakeup(job, reference_run=rounded_hour))
 
     @override_settings(PSEUDO_PERIOD=1)

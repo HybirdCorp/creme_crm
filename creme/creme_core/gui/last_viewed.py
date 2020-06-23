@@ -107,9 +107,11 @@ class LastViewedItem:
                 updated = True  # The settings has change since the list has been stored
                 del old_items[MAX_LAST_ITEMS:]
 
-            entities = CremeEntity.objects.filter(is_deleted=False) \
-                                          .in_bulk([item.pk for item in old_items])
-            updated |= (len(old_items) != len(entities))  # If any entity has been deleted -> must update
+            entities = CremeEntity.objects.filter(
+                is_deleted=False,
+            ).in_bulk([item.pk for item in old_items])
+            # If any entity has been deleted -> must update
+            updated |= (len(old_items) != len(entities))
 
             for item in old_items:
                 entity = entities.get(item.pk)
@@ -117,7 +119,8 @@ class LastViewedItem:
                 if entity:
                     if entity.modified > item.modified:
                         updated = True
-                        item.update(entity.get_real_entity())  # TODO: use CremeEntity.populate_real_entities()
+                        # TODO: use CremeEntity.populate_real_entities()
+                        item.update(entity.get_real_entity())
 
                     items.append(item)
 

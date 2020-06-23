@@ -72,7 +72,9 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
     def _create_several_todos(self):
         self._create_todo('Todo01', 'Description01')
 
-        entity02 = FakeContact.objects.create(user=self.user, first_name='Akane', last_name='Tendo')
+        entity02 = FakeContact.objects.create(
+            user=self.user, first_name='Akane', last_name='Tendo',
+        )
         self._create_todo('Todo02', 'Description02', entity=entity02)
 
         user02 = get_user_model().objects.create_user(username='ryoga',
@@ -201,7 +203,11 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, ToDo.objects.count())
 
         ct = ContentType.objects.get_for_model(ToDo)
-        self.assertPOST(302, reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': todo.id})
+        self.assertPOST(
+            302,
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': todo.id},
+        )
         self.assertFalse(ToDo.objects.all())
 
     def test_validate(self):
@@ -255,7 +261,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         todos = ToDo.objects.filter_by_user(self.user)
         self.assertEqual(2, len(todos))
 
-        response = self.assertGET200(reverse('creme_core__reload_home_bricks'), data={'brick_id': TodosBrick.id_})
+        response = self.assertGET200(
+            reverse('creme_core__reload_home_bricks'),
+            data={'brick_id': TodosBrick.id_},
+        )
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
@@ -315,7 +324,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         # limit to 3 ToDos
         # self._create_todo('Todo03', 'Description03')
         # self._create_todo('Todo04', 'Description04')
-        # self.assertEqual('<ul><li>Todo04</li><li>Todo03</li><li>Todo02</li></ul>', funf(self.entity))
+        # self.assertHTMLEqual(
+        #     '<ul><li>Todo04</li><li>Todo03</li><li>Todo02</li></ul>',
+        #     funf(self.entity)
+        # )
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'"
@@ -396,9 +408,12 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         message = messages[0]
         self.assertEqual([user.email], message.to)
-        self.assertEqual(_('Reminder concerning a Creme CRM todo related to {entity}').format(entity=self.entity),
-                         message.subject
-                        )
+        self.assertEqual(
+            _('Reminder concerning a Creme CRM todo related to {entity}').format(
+                entity=self.entity,
+            ),
+            message.subject
+        )
         self.assertIn(todo1.title, message.body)
 
         self.assertFalse(JobResult.objects.filter(job=job))
@@ -506,7 +521,9 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         sv.value = max(localtime(now_value).hour - 1, 0)
         sv.save()
 
-        ToDo.objects.create(title='Todo#1', deadline=now_value, creme_entity=self.entity, user=team)
+        ToDo.objects.create(
+            title='Todo#1', deadline=now_value, creme_entity=self.entity, user=team,
+        )
 
         self.execute_reminder_job()
 

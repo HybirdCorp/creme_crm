@@ -94,8 +94,9 @@ def persons_contact_first_employer(contact, user):
     managed_ids = []
     employing_ids = []
 
-    for rtype_id, orga_id in contact.relations.filter(type__in=(REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES))\
-                                    .values_list('type', 'object_entity'):
+    for rtype_id, orga_id in contact.relations.filter(
+        type__in=(REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES),
+    ).values_list('type', 'object_entity'):
         if rtype_id == REL_SUB_MANAGES:
             managed_ids.append(orga_id)
         else:

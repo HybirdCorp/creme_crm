@@ -76,7 +76,9 @@ class CalendarM2MReplacer(gen_forms.M2MHandler):
 
     def _get_choicefield_data(self):
         data = super()._get_choicefield_data()
-        data['help_text'] = _('The activities on the deleted calendar will be moved to the selected one.')
+        data['help_text'] = _(
+            'The activities on the deleted calendar will be moved to the selected one.'
+        )
 
         return data
 

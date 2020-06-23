@@ -68,18 +68,20 @@ class _RelatedToOpportunity:
 
 
 class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
-    id_           = Brick._generate_hat_id('opportunities', 'opportunity_card')
-    dependencies  = [Opportunity,
-                     Organisation, Contact,
-                     Relation,
-                     *Activities4Card.dependencies,
-                     *CommercialActs4Card.dependencies,
-                    ]
-    relation_type_deps = [REL_SUB_EMPLOYED_BY,
-                          constants.REL_OBJ_LINKED_CONTACT,
-                          *Activities4Card.relation_type_deps,
-                          *CommercialActs4Card.relation_type_deps
-                         ]
+    id_ = Brick._generate_hat_id('opportunities', 'opportunity_card')
+    dependencies = [
+        Opportunity,
+        Organisation, Contact,
+        Relation,
+        *Activities4Card.dependencies,
+        *CommercialActs4Card.dependencies,
+    ]
+    relation_type_deps = [
+        REL_SUB_EMPLOYED_BY,
+        constants.REL_OBJ_LINKED_CONTACT,
+        *Activities4Card.relation_type_deps,
+        *CommercialActs4Card.relation_type_deps
+    ]
     verbose_name  = _('Card header block')
     template_name = 'opportunities/bricks/opportunity-hat-card.html'
 
@@ -111,11 +113,13 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
             is_neglected=is_neglected,
             target=target,
             target_is_organisation=isinstance(target, Organisation),
-            contacts=Paginator(self.get_related_contacts(opportunity=opportunity,
-                                                         rtype_id=constants.REL_SUB_LINKED_CONTACT,
-                                                        ),
-                               per_page=self.displayed_contacts_number,
-                              ).page(1),
+            contacts=Paginator(
+                self.get_related_contacts(
+                    opportunity=opportunity,
+                    rtype_id=constants.REL_SUB_LINKED_CONTACT,
+                ),
+                per_page=self.displayed_contacts_number,
+            ).page(1),
             activities=Activities4Card.get(context, opportunity),
             acts=CommercialActs4Card.get(context, opportunity),
         ))
@@ -260,7 +264,9 @@ class OppTargetBrick(Brick):
 
     def __init__(self):
         super().__init__()
-        self.display_source = display_source = len(Organisation.objects.filter_managed_by_creme()) > 1
+        self.display_source = display_source = (
+            len(Organisation.objects.filter_managed_by_creme()) > 1
+        )
 
         if display_source:
             self.relation_type_deps += (constants.REL_OBJ_EMIT_ORGA,)
@@ -268,8 +274,9 @@ class OppTargetBrick(Brick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context,
-            # NB: we do not use .count() in order to use/fill the QuerySet cache ; it will probably
-            #     be used several times in the same page (and if not, this query should be small).
+            # NB: we do not use .count() in order to use/fill the QuerySet
+            #     cache ; it will probably be used several times in the same
+            #     page (and if not, this query should be small).
             display_source=self.display_source,
         ))
 

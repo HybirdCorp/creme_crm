@@ -157,9 +157,10 @@ class EnumerableViewsTestCase(ViewsTestCase):
     def test_choices_not_entity_model(self):
         self.login()
         response = self.assertGET409(self._build_choices_url(models.FakeAddress, 'entity'))
-        self.assertIn('This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
-                      response.content.decode()
-                     )
+        self.assertIn(
+            'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
+            response.content.decode()
+        )
 
     def test_choices_no_app_credentials(self):
         self.login(is_superuser=False, allowed_apps=['creme_config'])

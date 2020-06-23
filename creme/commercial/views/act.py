@@ -268,7 +268,9 @@ class RelatedEntityCreation(generic.AddingInstanceToEntityPopup):
                 raise ConflictError('This objective is not a relationship counter.')
 
             if objective.filter_id is not None:
-                raise ConflictError('This objective has a filter, so you cannot build a related entity.')
+                raise ConflictError(
+                    'This objective has a filter, so you cannot build a related entity.'
+                )
 
             model = ctype.model_class()
             user = self.request.user

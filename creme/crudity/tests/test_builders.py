@@ -139,11 +139,27 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         self.assertEqual(builder.get_urn(), xml.get('name'))
 
-        self.assertEqual(namespace, xml_find(f'{ns}package/{ns}files/{ns}file/{ns}fileProperties/{ns}property').get('value'))
-        self.assertEqual(namespace, xml_find(f'{ns}applicationParameters/{ns}solutionProperties').get('fullyEditableNamespace'))
-        self.assertEqual(namespace, xml_find(f'{ns}documentSchemas/{ns}documentSchema').get('location').split()[0])
+        self.assertEqual(
+            namespace,
+            xml_find(
+                f'{ns}package/{ns}files/{ns}file/{ns}fileProperties/{ns}property'
+            ).get('value')
+        )
+        self.assertEqual(
+            namespace,
+            xml_find(
+                f'{ns}applicationParameters/{ns}solutionProperties'
+            ).get('fullyEditableNamespace')
+        )
+        self.assertEqual(
+            namespace,
+            xml_find(
+                f'{ns}documentSchemas/{ns}documentSchema'
+            ).get('location').split()[0]
+        )
 
-        # ElementTree 1.2.6 (shipped with python <= 2.6) doesn't support advanced xpath expressions  TODO: improve
+        # ElementTree 1.2.6 (shipped with python <= 2.6) doesn't support
+        # advanced xpath expressions  TODO: improve
         file_nodes = xml.findall(f'{ns}package/{ns}files/{ns}file')
 
         for node in file_nodes:
@@ -156,15 +172,23 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         for node in found_node.findall(f'{ns}fileProperties/{ns}property'):
             if node.get('name') == 'lang':
                 # property_node = node  # TODO: use ?
-                self.assertEqual(builder._get_lang_code(self.request.LANGUAGE_CODE), node.get('value'))
+                self.assertEqual(
+                    builder._get_lang_code(self.request.LANGUAGE_CODE),
+                    node.get('value')
+                )
                 break
         else:
-            self.fail('<xsf:property name="lang" type="string" value=""></xsf:property> not found')
+            self.fail(
+                '<xsf:property name="lang" type="string" value=""></xsf:property> not found'
+            )
 
         mail_form_name = backend.subject
         self.assertEqual(
             mail_form_name,
-            xml_find(f'{ns}extensions/{ns}extension/{ns2}solutionDefinition/{ns2}solutionPropertiesExtension/{ns2}mail').get('formName')
+            xml_find(
+                f'{ns}extensions/{ns}extension/{ns2}solutionDefinition/'
+                f'{ns2}solutionPropertiesExtension/{ns2}mail'
+            ).get('formName')
         )
 
     def test_manifest_xsf_02(self):
@@ -190,7 +214,9 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         button_nodes = xml.findall(f'{xsf}views/{xsf}view/{xsf}menuArea/{xsf}button')
         self.assertTrue(button_nodes)
-        self.assertEqual({'image'}, {button_node.get('xmlToEdit') for button_node in button_nodes})
+        self.assertSetEqual(
+            {'image'}, {button_node.get('xmlToEdit') for button_node in button_nodes}
+        )
 
     def test_manifest_xsf_03(self):
         "Test M2M field."
@@ -297,11 +323,14 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
             # TODO: check if my:requiredAnyURI accepts empty strings
             # 'url_site':       {'name': 'url_site', 'type': 'xsd:anyURI'},
-            'url_site':       {'name': 'url_site', 'type': 'my:requiredAnyURI'},
+            'url_site': {'name': 'url_site', 'type': 'my:requiredAnyURI'},
 
-            'image':          {'name': 'image', 'type': 'xsd:base64Binary', 'nillable': 'true'},
-            'language':       {'name': 'language'},
-            'language_value': {'name': 'language_value', 'type': 'xsd:integer', 'nillable': 'true'},
+            'image': {'name': 'image', 'type': 'xsd:base64Binary', 'nillable': 'true'},
+
+            'language': {'name': 'language'},
+            'language_value': {
+                'name': 'language_value', 'type': 'xsd:integer', 'nillable': 'true',
+            },
         }
 
         for element_node in xml.findall(f'{xsd}element'):
@@ -362,8 +391,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         xsd_elements = {
             'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
-            'user_id': {'name': 'user_id', 'type': 'xsd:integer'},  # <xsd:element name="user_id" type="xsd:integer"/>
-            'title':   {'name': 'title', 'type': 'my:requiredString'},  # <xsd:element name="first_name" type="xsd:requiredString"/>
+            # <xsd:element name="user_id" type="xsd:integer"/>
+            'user_id': {'name': 'user_id', 'type': 'xsd:integer'},
+            # <xsd:element name="first_name" type="xsd:requiredString"/>
+            'title':   {'name': 'title', 'type': 'my:requiredString'},
             # <xsd:element name="description">
             #   <xsd:complexType mixed="true">
             #       <xsd:sequence>
@@ -382,7 +413,9 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             xsd_element_attrs = xsd_elements.pop(element_node.get('name'))
 
             if xsd_element_attrs is None:
-                self.fail('There is at least an extra node named: {}'.format(element_node.get('name')))
+                self.fail(
+                    f'There is at least an extra node named: {element_node.get("name")}'
+                )
 
             self.assertSetEqual({*xsd_element_attrs.keys()}, {*element_node.keys()})
 
@@ -391,7 +424,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         self.assertFalse(
             xsd_elements,
-            'The elements with the following names have not been found: {}'.format(xsd_elements)
+            f'The elements with the following names have not been found: {xsd_elements}'
         )
 
     def test_template_xml01(self):
@@ -481,7 +514,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xsl = '{http://www.w3.org/1999/XSL/Transform}'
         findall = XML(content).findall
 
-        # fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys()) #TODO: use it ??
+        # TODO: use it ??
+        # fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys())
         template_nodes = [
             n
             for n in findall(f'{xsl}template')
@@ -899,7 +933,10 @@ class InfopathFormFieldTestCase(CrudityTestCase):
 
         uuid3 = InfopathFormField(builder3.urn, Contact, 'user_id', request).uuid
         for i in range(10):
-            self.assertEqual(uuid3, InfopathFormField(builder3.urn, Contact, 'user_id', request).uuid)
+            self.assertEqual(
+                uuid3,
+                InfopathFormField(builder3.urn, Contact, 'user_id', request).uuid
+            )
 
         self.assertNotEqual(uuid1, uuid3)
         self.assertNotEqual(uuid2, uuid3)
@@ -915,7 +952,9 @@ class InfopathFormFieldTestCase(CrudityTestCase):
             'email': 'none@none.com', 'description': '', 'birthday': '',
         }
 
-        backend = self._get_backend(ContactFakeBackend, subject='create_contact', body_map=body_map)
+        backend = self._get_backend(
+            ContactFakeBackend, subject='create_contact', body_map=body_map,
+        )
         urn = InfopathFormBuilder(request=request, backend=backend).urn
 
         def get_model_field(fname):

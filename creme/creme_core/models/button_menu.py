@@ -69,7 +69,8 @@ class ButtonMenuItemManager(models.Manager):
 class ButtonMenuItem(CremeModel):
     id           = models.CharField(primary_key=True, max_length=100)
     # 'null' means: all ContentTypes are accepted.
-    content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)  # TODO: EntityCTypeForeignKey ??
+    # TODO: EntityCTypeForeignKey ??
+    content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
     button_id    = models.CharField(_('Button ID'), max_length=100, blank=False, null=False)
     order        = models.PositiveIntegerField(_('Priority'))
 

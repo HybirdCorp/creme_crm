@@ -32,7 +32,8 @@ from ..models import Resource
 from .task import _link_contact_n_activity
 
 
-class ResourceCreateForm(CremeModelForm):  # Not CremeEntityForm to avoid Relations/CremeProperties fields
+# Not CremeEntityForm to avoid Relations/CremeProperties fields
+class ResourceCreateForm(CremeModelForm):
     contact = CreatorEntityField(label=_('Contact to be assigned to this task'),
                                  model=get_contact_model(),
                                 )
@@ -92,7 +93,8 @@ class ResourceEditForm(ResourceCreateForm):
 
             for r in Relation.objects.filter(subject_entity=old_contact, type__in=atypes,
                                              object_entity__in=[a.id for a in task_activities],
-                                            ):  # NB: no delete() on queryset in order to send signals
+                                            ):
+                # NB: no delete() on queryset in order to send signals
                 r.delete()
 
             for activity in task_activities:

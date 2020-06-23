@@ -319,7 +319,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
         )
 
     # def assertFieldEditorTag(self, render, entity, field_name, block=False):
-    #     url = reverse('creme_core__inner_edition', args=(entity.entity_type_id, entity.id, field_name))
+    #     url = reverse('creme_core__inner_edition',
+    #                   args=(entity.entity_type_id, entity.id, field_name))
     #
     #     if block:
     #         expected = """<a onclick="creme.blocks.form('{}', {blockReloadUrl:""".format(url)
@@ -421,17 +422,25 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self._assertJsonscriptTag('<script type="application/json"><!-- [] --></script>', [])
         self._assertJsonscriptTag('<script type="application/json"><!-- {} --></script>', {})
-        # self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":"-->alert();<script/>"}') + ' --></script>',
-        #                           {"a": 12, "b": "-->alert();<script/>"}
-        #                          )  # TODO: uncomment when order is guaranteed (Python 3.7)
+        # self._assertJsonscriptTag(
+        #     r'<script type="application/json"><!-- '
+        #     + escapejson('{"a":12,"b":"-->alert();<script/>"}')
+        #     + ' --></script>',
+        #     {"a": 12, "b": "-->alert();<script/>"}
+        #   )  # TODO: uncomment when order is guaranteed (Python 3.8)
         self._assertJsonscriptTag(
-            r'<script type="application/json"><!-- ' + escapejson('{"b":"-->alert();<script/>"}') + ' --></script>',
+            r'<script type="application/json"><!-- '
+            + escapejson('{"b":"-->alert();<script/>"}')
+            + ' --></script>',
             {'b': '-->alert();<script/>'}
         )
 
-        # self._assertJsonscriptTag(r'<script type="application/json"><!-- ' + escapejson('{"a":12,"b":0.47,"c":"' + ugettext('User') + '"}') + r' --></script>',
-        #                           {"a": 12, "b": Decimal("0.47"), "c": ugettext_lazy('User')}
-        #                          )  # TODO: uncomment when order is guaranteed (Python 3.7)
+        # self._assertJsonscriptTag(
+        #     r'<script type="application/json"><!-- '
+        #     + escapejson('{"a":12,"b":0.47,"c":"' + ugettext('User') + '"}')
+        #     + r' --></script>',
+        #     {"a": 12, "b": Decimal("0.47"), "c": ugettext_lazy('User')}
+        # )  # TODO: uncomment when order is guaranteed (Python 3.8)
         self._assertJsonscriptTag(
             r'<script type="application/json"><!-- {"a":12} --></script>',
             {'a': 12}
@@ -441,17 +450,22 @@ class CremeCoreTagsTestCase(CremeTestCase):
             {'b': Decimal("0.47")}
         )
         self._assertJsonscriptTag(
-            r'<script type="application/json"><!-- ' + escapejson('{"c":"%s"}' % gettext('User')) + r' --></script>',
+            r'<script type="application/json"><!-- '
+            + escapejson('{"c":"%s"}' % gettext('User'))
+            + r' --></script>',
             {'c': gettext_lazy('User')}
         )
 
         self._assertJsonscriptTag(
-            '<script type="application/json" class="test" name="&lt;script/&gt;"><!--  --></script>',
+            '<script type="application/json" class="test" name="&lt;script/&gt;">'
+            '<!--  -->'
+            '</script>',
             '', "class='test' name='<script/>'",
         )
 
         self._assertJsonscriptTag(
-            '<script type="application/json" class="test" name="script#1"><!--  --></script>',
+            '<script type="application/json" class="test" name="script#1">'
+            '<!--  --></script>',
             '', "class='test' name=name",
         )
 
@@ -490,12 +504,14 @@ class CremeCoreTagsTestCase(CremeTestCase):
         )
 
         self._assertJsonscriptNode(
-            '<script type="application/json" class="test" name="&lt;script/&gt;"><!--  --></script>',
+            '<script type="application/json" class="test" name="&lt;script/&gt;">'
+            '<!--  --></script>',
             '', "class='test' name='<script/>'",
         )
 
         self._assertJsonscriptNode(
-            '<script type="application/json" class="test" name="script#1"><!--  --></script>',
+            '<script type="application/json" class="test" name="script#1">'
+            '<!--  --></script>',
             '', "class='test' name=name",
         )
 
@@ -508,7 +524,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
         orgas = [orga1, orga2]
 
         with self.assertNoException():
-            template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable|jsonify|safe}}")
+            template = Template(
+                "{% load creme_core_tags %}{{data|optionize_model_iterable|jsonify|safe}}"
+            )
             render = template.render(Context({'data': orgas}))
 
         with self.assertNoException():
@@ -521,7 +539,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         # ---
         with self.assertNoException():
-            template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable:'dict'|jsonify|safe}}")
+            template = Template(
+                "{% load creme_core_tags %}{{data|optionize_model_iterable:'dict'|jsonify|safe}}"
+            )
             render = template.render(Context({'data': orgas}))
 
         with self.assertNoException():

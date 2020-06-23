@@ -184,12 +184,16 @@ class CreditNotesBrick(PaginatedBrick):
 
 
 class TotalBrick(Brick):
-    id_                 = SimpleBrick.generate_id('billing', 'total')
-    dependencies        = (ProductLine, ServiceLine, Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
-    relation_type_deps  = (constants.REL_OBJ_CREDIT_NOTE_APPLIED,)
-    verbose_name        = _('Total')
-    template_name       = 'billing/bricks/total.html'
-    target_ctypes       = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
+    id_ = SimpleBrick.generate_id('billing', 'total')
+    dependencies = (
+        ProductLine, ServiceLine,
+        Relation,
+        CreditNote, Quote, Invoice, SalesOrder, TemplateBase,
+    )
+    relation_type_deps = (constants.REL_OBJ_CREDIT_NOTE_APPLIED,)
+    verbose_name = _('Total')
+    template_name = 'billing/bricks/total.html'
+    target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -345,7 +349,8 @@ class BillingPaymentInformationBrick(QuerysetBrick):
 
 
 class BillingDetailedAddressBrick(persons_bricks.DetailedAddressesBrick):
-    id_ = persons_bricks.DetailedAddressesBrick.generate_id('billing', 'address')  # TODO: renames 'addresses'
+    # TODO: renames 'addresses'
+    id_ = persons_bricks.DetailedAddressesBrick.generate_id('billing', 'address')
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
 

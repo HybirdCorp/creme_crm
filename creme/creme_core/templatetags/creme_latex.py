@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# See http://stackoverflow.com/questions/16259923/how-can-i-escape-latex-special-characters-inside-django-templates
+# See http://stackoverflow.com/questions/16259923/how-can-i-escape-latex-special-characters-inside-django-templates  # NOQA
 
 ################################################################################
 #    Copyright (C) 2014 Matt Bierner

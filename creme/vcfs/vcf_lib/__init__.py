@@ -61,7 +61,8 @@ VObject Overview
     >>> newrule.rrule(rrule.rrule(rrule.WEEKLY, count=2, dtstart=v.dtstart.value))
     >>> v.rruleset = newrule
     >>> list(v.rruleset)
-    [datetime.datetime(2004, 12, 15, 14, 0, tzinfo=tzutc()), datetime.datetime(2004, 12, 22, 14, 0, tzinfo=tzutc())]
+    [datetime.datetime(2004, 12, 15, 14, 0, tzinfo=tzutc()),
+    datetime.datetime(2004, 12, 22, 14, 0, tzinfo=tzutc())]
     >>> v.add('uid').value = "randomuid@MYHOSTNAME"
     >>> print x.serialize()
     BEGIN:VCALENDAR

@@ -211,7 +211,9 @@ else:
         title    = models.CharField(_('Title'), max_length=100)
         shortcut = models.CharField(_('Shortcut'), max_length=100)
 
-        # NB: do not define (see creme.creme_config.tests.test_generics_views.GenericModelConfigTestCase.test_add01() )
+        # NB: do not define (see
+        #     creme.creme_config.tests.test_generics_views.GenericModelConfigTestCase.test_add01()
+        # )
         # creation_label = _('Create a civility')
         # save_label     = _('Save the civility')
 
@@ -238,7 +240,8 @@ else:
 
     class FakeSector(CremeModel):
         title     = models.CharField(_('Title'), max_length=100)
-        is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+        # Used by creme_config
+        is_custom = models.BooleanField(default=True).set_tags(viewable=False)
         order     = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
 
         creation_label = _('Create a sector')
@@ -254,18 +257,23 @@ else:
             ordering = ('order',)
 
     class FakeAddress(CremeModel):
-        value      = models.TextField(_('Address'), blank=True, null=True)
-        zipcode    = models.CharField(_('Zip code'), max_length=100, blank=True, null=True) \
-                           .set_tags(optional=True)
-        city       = models.CharField(_('City'), max_length=100, blank=True, null=True) \
-                           .set_tags(optional=True)
-        department = models.CharField(_('Department'), max_length=100, blank=True, null=True) \
-                           .set_tags(optional=True)
-        country    = models.CharField(_('Country'), max_length=40, blank=True, null=True) \
-                           .set_tags(optional=True)
+        value = models.TextField(_('Address'), blank=True, null=True)
+        zipcode = models.CharField(
+            _('Zip code'), max_length=100, blank=True, null=True,
+        ).set_tags(optional=True)
+        city = models.CharField(
+            _('City'), max_length=100, blank=True, null=True,
+        ).set_tags(optional=True)
+        department = models.CharField(
+            _('Department'), max_length=100, blank=True, null=True,
+        ).set_tags(optional=True)
+        country = models.CharField(
+            _('Country'), max_length=40, blank=True, null=True,
+        ).set_tags(optional=True)
 
-        entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False, on_delete=models.CASCADE) \
-                           .set_tags(viewable=False)
+        entity = models.ForeignKey(
+            CremeEntity, related_name='+', editable=False, on_delete=models.CASCADE,
+        ).set_tags(viewable=False)
 
         creation_label = _('Create an address')
         save_label     = _('Save the address')
@@ -274,10 +282,13 @@ else:
             app_label = 'creme_core'
             verbose_name = 'Test address'
             verbose_name_plural = 'Test addresses'
-            # ordering = ('id',)  # See test_listview.ListViewTestCase.test_ordering_related_column()
+            # See test_listview.ListViewTestCase.test_ordering_related_column()
+            # ordering = ('id',)
 
         def __str__(self):
-            return ' '.join(filter(None, [self.value, self.zipcode, self.city, self.department, self.country]))
+            return ' '.join(filter(
+                None, [self.value, self.zipcode, self.city, self.department, self.country],
+            ))
 
         def get_edit_absolute_url(self):
             return reverse('creme_core__edit_fake_address', args=(self.id,))
@@ -286,52 +297,65 @@ else:
             return self.entity
 
     class FakeContact(CremeEntity):
-        civility    = models.ForeignKey(FakeCivility, verbose_name=_('Civility'),
-                                        blank=True, null=True,
-                                        # on_delete=models.SET_NULL,
-                                        on_delete=deletion.CREME_REPLACE_NULL,
-                                       ).set_tags(optional=True)
+        civility = models.ForeignKey(
+            FakeCivility, verbose_name=_('Civility'), blank=True, null=True,
+            # on_delete=models.SET_NULL,
+            on_delete=deletion.CREME_REPLACE_NULL,
+        ).set_tags(optional=True)
         last_name   = models.CharField(_('Last name'), max_length=100)
-        first_name  = models.CharField(_('First name'), max_length=100,
-                                       blank=True,  # null=True,
-                                      ).set_tags(optional=True)
-        is_a_nerd   = models.BooleanField(_('Is a Nerd'), default=False)
+        first_name  = models.CharField(
+            _('First name'), max_length=100, blank=True,  # null=True,
+        ).set_tags(optional=True)
+
+        is_a_nerd = models.BooleanField(_('Is a Nerd'), default=False)
         loves_comics = models.BooleanField(_('Loves comics'), default=None, null=True, blank=True)
-        phone       = core_fields.PhoneField(_('Phone number'), max_length=100,
-                                             blank=True, null=True,
-                                            ).set_tags(optional=True)
-        mobile      = core_fields.PhoneField(_('Mobile'), max_length=100,
-                                             blank=True, null=True,
-                                            ).set_tags(optional=True)
-        position    = models.ForeignKey(FakePosition, verbose_name=_('Position'),
-                                        blank=True, null=True, on_delete=models.SET_NULL,
-                                       ).set_tags(optional=True)
-        sector      = models.ForeignKey(FakeSector, verbose_name=_('Line of business'),
-                                        blank=True, null=True,
-                                        # on_delete=models.SET_NULL,
-                                        on_delete=deletion.CREME_REPLACE_NULL,
-                                        limit_choices_to=lambda: ~Q(title='[INVALID]'),
-                                       ).set_tags(optional=True)
-        email       = models.EmailField(_('Email address'), max_length=100, blank=True, null=True)
-        url_site    = models.URLField(_('Web Site'), max_length=500, blank=True, null=True)
-        languages   = models.ManyToManyField(Language, verbose_name=_('Spoken language(s)'), blank=True,
-                                             limit_choices_to=~Q(name__contains='[deprecated]'),
-                                            )
-        address     = models.ForeignKey(FakeAddress, verbose_name=_('Billing address'),
-                                        blank=True, null=True,  editable=False,
-                                        related_name='+', on_delete=models.SET_NULL,
-                                       ).set_tags(enumerable=False)  # clonable=False useless
-        is_user     = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Related user'),
-                                        blank=True, null=True, editable=False,
-                                        related_name='+',
-                                        on_delete=models.SET_NULL,
-                                       ).set_tags(clonable=False, enumerable=False) \
-                                        .set_null_label(pgettext_lazy('persons-is_user', 'None'))
-        birthday    = models.DateField(_('Birthday'), blank=True, null=True) \
-                            .set_tags(optional=True)
-        image       = models.ForeignKey(FakeImage, verbose_name=_('Photograph'),
-                                        blank=True, null=True, on_delete=models.SET_NULL,
-                                       ).set_tags(optional=True)
+
+        phone = core_fields.PhoneField(
+            _('Phone number'), max_length=100, blank=True, null=True,
+        ).set_tags(optional=True)
+        mobile = core_fields.PhoneField(
+            _('Mobile'), max_length=100, blank=True, null=True,
+        ).set_tags(optional=True)
+
+        position = models.ForeignKey(
+            FakePosition, verbose_name=_('Position'),
+            blank=True, null=True, on_delete=models.SET_NULL,
+        ).set_tags(optional=True)
+        sector = models.ForeignKey(
+            FakeSector, verbose_name=_('Line of business'), blank=True, null=True,
+            # on_delete=models.SET_NULL,
+            on_delete=deletion.CREME_REPLACE_NULL,
+            limit_choices_to=lambda: ~Q(title='[INVALID]'),
+        ).set_tags(optional=True)
+
+        email = models.EmailField(_('Email address'), max_length=100, blank=True, null=True)
+        url_site = models.URLField(_('Web Site'), max_length=500, blank=True, null=True)
+
+        languages = models.ManyToManyField(
+            Language, verbose_name=_('Spoken language(s)'), blank=True,
+            limit_choices_to=~Q(name__contains='[deprecated]'),
+        )
+        address = models.ForeignKey(
+            FakeAddress, verbose_name=_('Billing address'),
+            blank=True, null=True,  editable=False,
+            related_name='+', on_delete=models.SET_NULL,
+        ).set_tags(enumerable=False)  # clonable=False useless
+
+        is_user = models.ForeignKey(
+            settings.AUTH_USER_MODEL, verbose_name=_('Related user'),
+            blank=True, null=True, editable=False,
+            related_name='+',
+            on_delete=models.SET_NULL,
+        ).set_tags(
+            clonable=False, enumerable=False,
+        ).set_null_label(pgettext_lazy('persons-is_user', 'None'))
+
+        birthday = models.DateField(_('Birthday'), blank=True, null=True).set_tags(optional=True)
+
+        image = models.ForeignKey(
+            FakeImage, verbose_name=_('Photograph'),
+            blank=True, null=True, on_delete=models.SET_NULL,
+        ).set_tags(optional=True)
 
         search_score = 101
         creation_label = _('Create a contact')
@@ -350,7 +374,9 @@ else:
 
         def clean(self):
             if self.is_user_id and not self.first_name:
-                raise ValidationError(gettext('This Contact is related to a user and must have a first name.'))
+                raise ValidationError(
+                    gettext('This Contact is related to a user and must have a first name.')
+                )
 
         def get_absolute_url(self):
             return reverse('creme_core__view_fake_contact', args=(self.id,))
@@ -386,9 +412,11 @@ else:
         email           = models.EmailField(_('Email address'), max_length=100,
                                             blank=True, null=True,
                                            )
+
+        # NB: keep nullable for some tests
         url_site        = models.URLField(_('Web Site'), max_length=500,
                                           blank=True, null=True,
-                                         ).set_tags(optional=True)  # NB: keep nullable for some tests
+                                         ).set_tags(optional=True)
         sector          = models.ForeignKey(FakeSector, verbose_name=_('Sector'),
                                             blank=True, null=True,
                                             # on_delete=models.SET_NULL,
@@ -397,15 +425,19 @@ else:
         capital         = models.PositiveIntegerField(_('Capital'), blank=True, null=True)\
                                 .set_tags(optional=True)
         subject_to_vat  = models.BooleanField(_('Subject to VAT'), default=True)
-        legal_form      = models.ForeignKey(FakeLegalForm, verbose_name=_('Legal form'),
-                                            blank=True, null=True,
-                                            # on_delete=models.SET_NULL,
-                                            on_delete=deletion.CREME_REPLACE_NULL,
-                                            related_name='+',  # NB: see creme_config.tests.test_generics_views
-                                                               #                     .GenericModelConfigTestCase
-                                                               #                     .test_delete_hidden_related()
-                                            limit_choices_to={'title__endswith': '[OK]'},
-                                           )
+
+        legal_form = models.ForeignKey(
+            FakeLegalForm, verbose_name=_('Legal form'),
+            blank=True, null=True,
+            # on_delete=models.SET_NULL,
+            on_delete=deletion.CREME_REPLACE_NULL,
+            # NB: see creme_config.tests
+            #                     .test_generics_views
+            #                     .GenericModelConfigTestCase
+            #                     .test_delete_hidden_related()
+            related_name='+',
+            limit_choices_to={'title__endswith': '[OK]'},
+        )
         address         = models.ForeignKey(FakeAddress, verbose_name=_('Billing address'),
                                             blank=True, null=True, editable=False,
                                             related_name='+', on_delete=models.SET_NULL,
@@ -507,8 +539,12 @@ else:
             return reverse('creme_core__list_fake_mlists')
 
     class FakeEmailCampaign(CremeEntity):
-        name          = models.CharField(_('Name of the campaign'), max_length=100, blank=False, null=False)
-        mailing_lists = models.ManyToManyField(FakeMailingList, verbose_name=_('Related mailing lists'), blank=True)
+        name = models.CharField(
+            _('Name of the campaign'), max_length=100, blank=False, null=False,
+        )
+        mailing_lists = models.ManyToManyField(
+            FakeMailingList, verbose_name=_('Related mailing lists'), blank=True,
+        )
 
         class Meta:
             app_label = 'creme_core'
@@ -531,17 +567,22 @@ else:
         name            = models.CharField(_('Name'), max_length=100)
         number          = models.CharField(_('Number'), max_length=100, blank=True, null=True)
         issuing_date    = models.DateField(_('Issuing date'), blank=True, null=True)
-        expiration_date = models.DateField(_('Expiration date'), blank=True, null=True)\
-                                .set_tags(optional=True)
-        periodicity     = core_fields.DatePeriodField(_('Periodicity of the generation'),
-                                                      blank=True, null=True,
-                                                     )
-        total_vat       = core_fields.MoneyField(_('Total with VAT'), max_digits=14, decimal_places=2,
-                                                 blank=True, null=True, editable=False, default=0,
-                                                )
-        total_no_vat    = core_fields.MoneyField(_('Total without VAT'), max_digits=14, decimal_places=2,
-                                                 blank=True, null=True, editable=False, default=0,
-                                                ).set_tags(optional=True)
+        expiration_date = models.DateField(
+            _('Expiration date'), blank=True, null=True,
+        ).set_tags(optional=True)
+
+        periodicity = core_fields.DatePeriodField(
+            _('Periodicity of the generation'), blank=True, null=True,
+        )
+
+        total_vat = core_fields.MoneyField(
+            _('Total with VAT'), max_digits=14, decimal_places=2,
+            blank=True, null=True, editable=False, default=0,
+        )
+        total_no_vat = core_fields.MoneyField(
+            _('Total without VAT'), max_digits=14, decimal_places=2,
+            blank=True, null=True, editable=False, default=0,
+        ).set_tags(optional=True)
 
         class Meta:
             app_label = 'creme_core'
@@ -722,7 +763,10 @@ else:
         name        = models.CharField(_('Name'), max_length=100)
         ingredients = models.ManyToManyField(
             FakeIngredient, verbose_name=_('Ingredients'), related_name='+',
-            # NB: see creme_config.tests.test_generics_views.GenericModelConfigTestCase#test_delete_m2m_03
+            # NB: see creme_config.tests
+            #                     .test_generics_views
+            #                     .GenericModelConfigTestCase
+            #                     .test_delete_m2m_03
             blank=False,
         )
 
@@ -737,19 +781,22 @@ else:
             return self.name
 
     class FakeTodo(CremeModel):
-        title         = models.CharField(_('Title'), max_length=200)
-        # is_ok         = models.BooleanField(_('Done ?'), editable=False, default=False)
-        # reminded      = models.BooleanField(_('Notification sent'), editable=False, default=False)  # Needed by creme_core.core.reminder
-        description   = models.TextField(_('Description'), blank=True)
+        title = models.CharField(_('Title'), max_length=200)
+        # is_ok = models.BooleanField(_('Done ?'), editable=False, default=False)
+        # reminded = models.BooleanField(_('Notification sent'), editable=False, default=False)
+        description = models.TextField(_('Description'), blank=True)
         # creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
-        # deadline      = models.DateTimeField(_('Deadline'), blank=True, null=True)
-        # user          = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+        # deadline = models.DateTimeField(_('Deadline'), blank=True, null=True)
+        # user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
         entity_content_type = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
-        entity              = models.ForeignKey(CremeEntity,  related_name='fake_todos',
-                                                editable=False, on_delete=models.CASCADE,
-                                               ).set_tags(viewable=False)
-        creme_entity        = core_fields.RealEntityForeignKey(ct_field='entity_content_type', fk_field='entity')
+        entity = models.ForeignKey(
+            CremeEntity,  related_name='fake_todos',
+            editable=False, on_delete=models.CASCADE,
+        ).set_tags(viewable=False)
+        creme_entity = core_fields.RealEntityForeignKey(
+            ct_field='entity_content_type', fk_field='entity',
+        )
 
         # creation_label = _('Create a todo')
         # save_label     = _('Save the todo')

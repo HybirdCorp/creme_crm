@@ -9,17 +9,41 @@ from . import fake_constants, fake_models
 def populate():
     create_rtype = RelationType.create
     create_rtype(
-        (fake_constants.FAKE_REL_SUB_EMPLOYED_BY, 'is an employee of', [fake_models.FakeContact]),
-        (fake_constants.FAKE_REL_OBJ_EMPLOYED_BY, 'employs',           [fake_models.FakeOrganisation]),
+        (
+            fake_constants.FAKE_REL_SUB_EMPLOYED_BY,
+            'is an employee of',
+            [fake_models.FakeContact],
+        ),
+        (
+            fake_constants.FAKE_REL_OBJ_EMPLOYED_BY,
+            'employs',
+            [fake_models.FakeOrganisation],
+        ),
     )
     create_rtype(
-        (fake_constants.FAKE_REL_SUB_BILL_ISSUED, 'issued by',  [fake_models.FakeInvoice]),
-        (fake_constants.FAKE_REL_OBJ_BILL_ISSUED, 'has issued', [fake_models.FakeOrganisation]),
+        (
+            fake_constants.FAKE_REL_SUB_BILL_ISSUED,
+            'issued by',
+            [fake_models.FakeInvoice],
+        ),
+        (
+            fake_constants.FAKE_REL_OBJ_BILL_ISSUED,
+            'has issued',
+            [fake_models.FakeOrganisation],
+        ),
         is_internal=True
     )
     create_rtype(
-        (fake_constants.FAKE_REL_SUB_BILL_RECEIVED, 'received by',  [fake_models.FakeInvoice]),
-        (fake_constants.FAKE_REL_OBJ_BILL_RECEIVED, 'has received', [fake_models.FakeOrganisation, fake_models.FakeContact]),
+        (
+            fake_constants.FAKE_REL_SUB_BILL_RECEIVED,
+            'received by',
+            [fake_models.FakeInvoice],
+        ),
+        (
+            fake_constants.FAKE_REL_OBJ_BILL_RECEIVED,
+            'has received',
+            [fake_models.FakeOrganisation, fake_models.FakeContact],
+        ),
         is_internal=True
     )
 

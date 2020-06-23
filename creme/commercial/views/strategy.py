@@ -146,8 +146,12 @@ class OrganisationRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletio
 
         with atomic():
             strategy.evaluated_orgas.remove(orga_id)
-            CommercialAssetScore.objects.filter(asset__strategy=strategy, organisation=orga_id).delete()
-            MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
+            CommercialAssetScore.objects.filter(
+                asset__strategy=strategy, organisation=orga_id,
+            ).delete()
+            MarketSegmentCharmScore.objects.filter(
+                charm__strategy=strategy, organisation=orga_id,
+            ).delete()
 
 
 # def _get_strategy_n_orga(request, strategy_id, orga_id):

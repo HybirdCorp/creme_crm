@@ -39,7 +39,8 @@ class EntitiesHeaderWidget(Widget):
     template_name = 'creme_core/forms/widgets/merge/headers.html'
 
     def get_context(self, name, value, attrs):
-        # TODO: remove 'ui-layout hbox' + improve class 'merge_entity_field' (+ rename 'merge-entity-field')
+        # TODO: remove 'ui-layout hbox'
+        #  + improve class 'merge_entity_field' (+ rename 'merge-entity-field')
         extra_attrs = {'class': 'merge_entity_field ui-layout hbox'}
         if attrs is not None:
             extra_attrs.update(attrs)
@@ -69,13 +70,15 @@ class MergeWidget(Widget):
 
         value_1, value_2, value_m = value or ('', '', '')
         widget = self._original_widget
-        # TODO: improve Wigdets with a 'read_only' param -> each type choose the right html attribute
+        # TODO: improve Wigdets with a 'read_only' param
+        #   -> each type choose the right html attribute
         ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readonly'
 
-        # NB: the classes 'merge_entity1'/'merge_entity2'/'merge_result' won't be used by complexes Widget
+        # NB: the classes 'merge_entity1'/'merge_entity2'/'merge_result' won't
+        #     be used by complexes Widget
         #     (eg: CalendarWidget) so the CSS 'width: 99%;' won't be used for them
-        # TODO: is it a good way to do this ? (ex: always wrap widget in <div> for layout, & this layouts use
-        #       the extra classes given in attrs).
+        # TODO: is it a good way to do this ? (eg: always wrap widget in <div>
+        #       for layout, & this layouts use the extra classes given in attrs).
         get_sub_context = self._original_widget.get_context
         widget_cxt['first'] = get_sub_context(
             name=f'{name}_1',
@@ -116,7 +119,8 @@ class MergeWidget(Widget):
 
 
 class MergeField(Field):
-    def __init__(self, *, modelform_field, model_field, user=None, **kwargs):  # TODO: remove 'model_field' ?
+    # TODO: remove 'model_field' ?
+    def __init__(self, *, modelform_field, model_field, user=None, **kwargs):
         super().__init__(widget=MergeWidget(modelform_field.widget), **kwargs)
 
         self.required = modelform_field.required
