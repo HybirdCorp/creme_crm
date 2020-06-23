@@ -105,11 +105,36 @@ shell:
 
 
 ## Run the Javascript linters
-.PHONY: eslint
-eslint:
-	git diff --name-only origin/master creme/ | { grep '.js$$' || true; } | xargs --no-run-if-empty \
+.PHONY: eslint-diff
+eslint-diff:
+	git diff --name-only origin/master creme/ | { grep -E '.js$$' || true; } | xargs --no-run-if-empty \
 		node_modules/.bin/eslint \
 			--config .eslintrc \
+			--ignore-path .eslintignore \
+			--format stylish \
+			--quiet
+
+	git diff --name-only origin/master creme/ | { grep -E '.html$$' || true; } | xargs --no-run-if-empty \
+		node_modules/.bin/eslint \
+			--config .eslintrc \
+			--plugin template \
+			--ignore-path .eslintignore \
+			--format stylish \
+			--quiet
+
+.PHONY: eslint
+eslint:
+	find creme/ -iname *.js | xargs --no-run-if-empty \
+		node_modules/.bin/eslint \
+			--config .eslintrc \
+			--ignore-path .eslintignore \
+			--format stylish \
+			--quiet
+
+	find creme/ -iname *.html | xargs --no-run-if-empty \
+		node_modules/.bin/eslint \
+			--config .eslintrc \
+			--plugin template \
 			--ignore-path .eslintignore \
 			--format stylish \
 			--quiet

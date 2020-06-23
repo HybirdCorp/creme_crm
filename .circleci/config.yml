@@ -189,7 +189,7 @@ jobs:
       - run:
           name: Run linter
           command: |
-            node_modules/.bin/eslint --config .eslintrc --ignore-path .eslintignore --format stylish --quiet creme/
+            make eslint
 
 
   tests-js:
