@@ -50,8 +50,10 @@ class CremeJSONEncoder(DjangoJSONEncoder):
 
     def __init__(self, use_utc: bool = True, **kwargs):
         """Constructor.
-        @param use_utc: Boolean (default=True) to control the time/datetime objects representation.
-               e.g: the datetime '12-01-2018 at 08:12:25.012345 (US/Eastern, -0500)' will become
+        @param use_utc: Boolean (default=True) to control the time/datetime
+               objects representation.
+               e.g: the datetime '12-01-2018 at 08:12:25.012345 (US/Eastern, -0500)'
+                    will become:
                      - "2018-01-12T13:12:25.012Z" (use_utc=True)
                      - "2018-01-12T08:12:25.012-05:00" (use_utc=False)
         """
@@ -65,29 +67,27 @@ class CremeJSONEncoder(DjangoJSONEncoder):
             if is_aware(dt_value):
                 dt_value = make_aware(to_utc(dt_value), timezone.utc)
 
-            # TODO: uncomment when Py3.6 is required
-            #   r = dt_value.isoformat(timespec='milliseconds')[11:]
-            r = dt_value.isoformat()
-            if value.microsecond:
-                r = r[:23] + r[26:]
-            r = r[11:]
+            # r = dt_value.isoformat()
+            # if value.microsecond:
+            #     r = r[:23] + r[26:]
+            # r = r[11:]
+            r = dt_value.isoformat(timespec='milliseconds')[11:]
         else:
             # HACK : utcoffset is None for an AWARE datetime.time
             if value.tzinfo is not None:
-                # TODO: uncomment when Py3.6 is required
-                #    r = datetime.combine(datetime.today(), value)
-                #                .isoformat(timespec='milliseconds')[11:]
-                r = datetime.combine(datetime.today(), value).isoformat()
-                if value.microsecond:
-                    r = r[:23] + r[26:]
-
-                r = r[11:]
+                # r = datetime.combine(datetime.today(), value).isoformat()
+                # if value.microsecond:
+                #     r = r[:23] + r[26:]
+                #
+                # r = r[11:]
+                r = datetime.combine(datetime.today(), value).isoformat(
+                    timespec='milliseconds',
+                )[11:]
             else:
-                # TODO: uncomment when Py3.6 is required
-                #   r = value.isoformat(timespec='milliseconds')
-                r = value.isoformat()
-                if value.microsecond:
-                    r = r[:12]
+                # r = value.isoformat()
+                # if value.microsecond:
+                #     r = r[:12]
+                r = value.isoformat(timespec='milliseconds')
 
         if r.endswith('+00:00'):
             r = r[:-6] + 'Z'
@@ -99,10 +99,10 @@ class CremeJSONEncoder(DjangoJSONEncoder):
             if is_aware(value):
                 value = make_aware(to_utc(value), timezone.utc)
 
-            # r = value.isoformat(timespec='milliseconds') # TODO: uncomment when Py3.6 is required
-            r = value.isoformat()
-            if value.microsecond:
-                r = r[:23] + r[26:]
+            # r = value.isoformat()
+            # if value.microsecond:
+            #     r = r[:23] + r[26:]
+            r = value.isoformat(timespec='milliseconds')
 
             if r.endswith('+00:00'):
                 r = r[:-6] + 'Z'
