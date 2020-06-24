@@ -3,5 +3,6 @@
 
 {% block version %}
     {{block.super}}<br/>
-    {% hg_info as hg %}{% if hg %}{% blocktrans with id=hg.id date=hg.date %}Changeset: {{id}} ({{date}}){% endblocktrans %}{% endif %}
+{#    {% hg_info as hg %}{% if hg %}{% blocktrans with id=hg.id date=hg.date %}Changeset: {{id}} ({{date}}){% endblocktrans %}{% endif %} #}
+    {% scm_info as scm %}{% if scm %}{% blocktrans with id=scm.id date=scm.date %}Changeset: {{id}} ({{date}}){% endblocktrans %}{% endif %}
 {% endblock %}

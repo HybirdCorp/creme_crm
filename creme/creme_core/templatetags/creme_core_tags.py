@@ -612,6 +612,21 @@ def get_hg_info():
     return get_hg_info
 
 
+@register.simple_tag(name='scm_info')
+def get_scm_info():
+    from ..utils import version
+
+    scm = settings.SCM
+
+    if scm == 'git':
+        return version.get_git_info
+
+    if scm == 'hg':
+        return version.get_hg_info
+
+    return None
+
+
 @register.tag(name='blockjsondata')
 def do_jsondata(parser, token):
     """ Encode json of the block and render it in a <script> tag with attributes.
