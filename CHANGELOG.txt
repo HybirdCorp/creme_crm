@@ -359,7 +359,9 @@
                 - The ending date returned by the view named "activities__calendars_activities" has changed : "end day + 1 at 00:00" instead of "end day at 23:59"
                 - In JavaScript, all methods of 'creme.activities.calendar' have been removed & replaced by 'creme.activities.CalendarController'.
             * Emails :
-                - These function-view have been replaced by classes :
+                - These fields of 'models.AbstractMailingList' are now <editable=False> :
+                  'children', 'contacts' & 'organisations'.
+                - These function-views have been replaced by classes :
                     - 'sending.reload_sending_bricks()' by 'SendingBricksReloading'.
                     - 'mail.resend_mails()' by 'EntityEmailsResending' (beware the response is not JSON anymore).
                     - 'mail.get_lightweight_mail_body()' by 'LightWeightEmailBody'.

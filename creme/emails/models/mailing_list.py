@@ -27,17 +27,23 @@ from creme.creme_core.models import CremeEntity
 
 
 class AbstractMailingList(CremeEntity):
-    name          = CharField(_('Name of the mailing list'), max_length=80)
-    children      = ManyToManyField(settings.EMAILS_MLIST_MODEL,
-                                    verbose_name=_('Child mailing lists'),
-                                    symmetrical=False, related_name='parents_set',
-                                   )
-    contacts      = ManyToManyField(settings.PERSONS_CONTACT_MODEL,
-                                    verbose_name=_('Contacts recipients'),
-                                   )
-    organisations = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL,
-                                    verbose_name=_('Organisations recipients'),
-                                   )
+    name = CharField(_('Name of the mailing list'), max_length=80)
+    children = ManyToManyField(
+        settings.EMAILS_MLIST_MODEL,
+        verbose_name=_('Child mailing lists'),
+        symmetrical=False, related_name='parents_set',
+        editable=False,
+    )
+    contacts = ManyToManyField(
+        settings.PERSONS_CONTACT_MODEL,
+        verbose_name=_('Contacts recipients'),
+        editable=False,
+    )
+    organisations = ManyToManyField(
+        settings.PERSONS_ORGANISATION_MODEL,
+        verbose_name=_('Organisations recipients'),
+        editable=False,
+    )
 
     creation_label = _('Create a mailing list')
     save_label     = _('Save the mailing list')

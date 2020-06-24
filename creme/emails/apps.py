@@ -86,7 +86,7 @@ class EmailsConfig(CremeAppConfig):
         from . import models
 
         register = bulk_update_registry.register
-        register(self.MailingList, exclude=('children', 'contacts', 'organisations'))
+        # register(self.MailingList, exclude=('children', 'contacts', 'organisations'))
         register(self.EmailCampaign, exclude=('mailing_lists',))
         # TODO: tags modifiable=False ??
         register(models.EmailSending, exclude=('sender', 'type', 'sending_date'))

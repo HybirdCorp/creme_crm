@@ -55,9 +55,9 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=80, verbose_name='Name of the mailing list')),
-                ('children', models.ManyToManyField(related_name='parents_set', verbose_name='Child mailing lists', to=settings.EMAILS_MLIST_MODEL)),
-                ('contacts', models.ManyToManyField(to=settings.PERSONS_CONTACT_MODEL, verbose_name='Contacts recipients')),
-                ('organisations', models.ManyToManyField(to=settings.PERSONS_ORGANISATION_MODEL, verbose_name='Organisations recipients')),
+                ('children', models.ManyToManyField(related_name='parents_set', verbose_name='Child mailing lists', to=settings.EMAILS_MLIST_MODEL, editable=False)),
+                ('contacts', models.ManyToManyField(to=settings.PERSONS_CONTACT_MODEL, verbose_name='Contacts recipients', editable=False)),
+                ('organisations', models.ManyToManyField(to=settings.PERSONS_ORGANISATION_MODEL, verbose_name='Organisations recipients', editable=False)),
             ],
             options={
                 'swappable': 'EMAILS_MLIST_MODEL',
