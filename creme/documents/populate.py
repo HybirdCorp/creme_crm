@@ -104,12 +104,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        user_qs = get_user_model().objects.order_by('id')
-        user = (
-            user_qs.filter(is_superuser=True, is_staff=False).first() or
-            user_qs.filter(is_superuser=True).first() or
-            user_qs[0]
-        )
+        user = get_user_model().objects.get_admin()
 
         if not folder_model_is_custom():
             get_create_folder = Folder.objects.get_or_create
