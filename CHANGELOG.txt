@@ -112,6 +112,7 @@
                     - The function 'build_ct_choices() is deprecated ; use 'content_type.ctype_choices()' instead.
             - In 'creme_core.templatetags' :
                 - "{% creme_media_url %}" is deprecated ; use the icon system instead.
+                - "{% hg_info %}" is deprecated ; use "{% scm_info %}" instead.
             - In JavaScript :
                 - The package "creme.color" is deprecated and can be replaced by RGBColor tools.
             - Apps :
