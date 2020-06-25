@@ -75,7 +75,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
     def populate(self):
-        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_BILL_ISSUED).exists()
+        already_populated = RelationType.objects.filter(
+            pk=constants.REL_SUB_BILL_ISSUED,
+        ).exists()
 
         Contact      = persons.get_contact_model()
         Organisation = persons.get_organisation_model()
@@ -131,14 +133,16 @@ class Populator(BasePopulator):
 
             from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
-            RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT) \
-                                .add_subject_ctypes(Invoice, Quote, SalesOrder)
+            RelationType.objects.get(
+                pk=REL_SUB_ACTIVITY_SUBJECT,
+            ).add_subject_ctypes(Invoice, Quote, SalesOrder)
 
         # Payment Terms ---------------------------
-        create_if_needed(PaymentTerms, {'pk': 1}, name=_('Deposit'),
-                         description=_(r'20% deposit will be required'),
-                         is_custom=False,
-                        )
+        create_if_needed(
+            PaymentTerms, {'pk': 1}, name=_('Deposit'),
+            description=_(r'20% deposit will be required'),
+            is_custom=False,
+        )
 
         # SalesOrder Status ---------------------------
         def create_order_status(pk, name, **kwargs):
@@ -474,52 +478,52 @@ class Populator(BasePopulator):
                 (SalesOrder,   cbci_s_order, True),
                 (TemplateBase, cbci_tbase,   False),
             ]
-            create_bdl = BrickDetailviewLocation.objects.create_if_needed
+
             TOP   = BrickDetailviewLocation.TOP
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
             for model, cbci, has_credit_notes in models_4_blocks:
-                create_bdl(brick=bricks.ProductLinesBrick, order=10, zone=TOP, model=model)
-                create_bdl(brick=bricks.ServiceLinesBrick, order=20, zone=TOP, model=model)
+                data = [
+                    # LEFT
+                    {'brick': cbci.generate_id(),                    'order':   5},
+                    {'brick': core_bricks.CustomFieldsBrick,         'order':  40},
+                    {'brick': bricks.BillingPaymentInformationBrick, 'order':  60},
+                    {'brick': bricks.BillingPrettyAddressBrick,      'order':  70},
+                    {'brick': core_bricks.PropertiesBrick,           'order': 450},
+                    {'brick': core_bricks.RelationsBrick,            'order': 500},
+
+                    {'brick': bricks.TargetBrick,       'order':  2,  'zone': RIGHT},
+                    {'brick': bricks.TotalBrick,        'order':  3,  'zone': RIGHT},
+                    {'brick': core_bricks.HistoryBrick, 'order': 20,  'zone': RIGHT},
+
+                    {'brick': bricks.ProductLinesBrick, 'order': 10,  'zone': TOP},
+                    {'brick': bricks.ServiceLinesBrick, 'order': 20,  'zone': TOP},
+                ]
                 if has_credit_notes:
-                    create_bdl(brick=bricks.CreditNotesBrick, order=30, zone=TOP, model=model)
+                    data.append({'brick': bricks.CreditNotesBrick, 'order': 30, 'zone': TOP})
 
-                for brick, order in [
-                    (cbci.generate_id(),                    5),
-                    (core_bricks.CustomFieldsBrick,         40),
-                    (bricks.BillingPaymentInformationBrick, 60),
-                    (bricks.BillingPrettyAddressBrick,      70),
-                    (core_bricks.PropertiesBrick,           450),
-                    (core_bricks.RelationsBrick,            500),
-                ]:
-                    create_bdl(brick=brick, order=order, zone=LEFT, model=model)
-
-                for brick, order in [
-                    (bricks.TargetBrick,        2),
-                    (bricks.TotalBrick,         3),
-                    (core_bricks.HistoryBrick, 20),
-                ]:
-                    create_bdl(brick=brick, order=order, zone=RIGHT, model=model)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'model': model, 'zone': LEFT}, data=data,
+                )
 
             if apps.is_installed('creme.assistants'):
                 logger.info(
                     'Assistants app is installed => we use the assistants blocks on detail views'
                 )
 
-                from creme.assistants.bricks import (
-                    AlertsBrick,
-                    MemosBrick,
-                    TodosBrick,
-                    UserMessagesBrick,
-                )
+                from creme.assistants import bricks as a_bricks
 
                 for t in models_4_blocks:
-                    model = t[0]
-                    create_bdl(brick=TodosBrick,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick=MemosBrick,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick=AlertsBrick,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick=UserMessagesBrick, order=400, zone=RIGHT, model=model)
+                    BrickDetailviewLocation.objects.multi_create(
+                        defaults={'model': t[0], 'zone': RIGHT},
+                        data=[
+                            {'brick': a_bricks.TodosBrick,        'order': 100},
+                            {'brick': a_bricks.MemosBrick,        'order': 200},
+                            {'brick': a_bricks.AlertsBrick,       'order': 300},
+                            {'brick': a_bricks.UserMessagesBrick, 'order': 400},
+                        ],
+                    )
 
             if apps.is_installed('creme.documents'):
                 # logger.info(
@@ -530,22 +534,18 @@ class Populator(BasePopulator):
                 from creme.documents.bricks import LinkedDocsBrick
 
                 for t in models_4_blocks:
-                    create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=t[0])
+                    BrickDetailviewLocation.objects.create_if_needed(
+                        brick=LinkedDocsBrick, order=600, zone=RIGHT, model=t[0],
+                    )
 
-            create_bdl(
-                brick=bricks.PaymentInformationBrick,
-                order=300, zone=LEFT,
-                model=Organisation,
-            )
-            create_bdl(
-                brick=bricks.ReceivedInvoicesBrick,
-                order=14, zone=RIGHT,
-                model=Organisation,
-            )
-            create_bdl(
-                brick=bricks.ReceivedQuotesBrick,
-                order=18, zone=RIGHT,
-                model=Organisation,
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Organisation, 'zone': RIGHT},
+                data=[
+                    {'brick': bricks.PaymentInformationBrick, 'order': 300, 'zone': LEFT},
+
+                    {'brick': bricks.ReceivedInvoicesBrick,  'order':  14},
+                    {'brick': bricks.ReceivedQuotesBrick,    'order':  18},
+                ],
             )
 
             # ---------------------------
@@ -560,9 +560,10 @@ class Populator(BasePopulator):
                     current_year_unpaid_invoice_filter,
                 )
 
-    def create_reports(self,
-                       rt_sub_bill_received, current_year_invoice_filter,
-                       current_year_unpaid_invoice_filter):
+    def create_reports(
+            self,
+            rt_sub_bill_received, current_year_invoice_filter,
+            current_year_unpaid_invoice_filter):
         from functools import partial
 
         from django.contrib.auth import get_user_model

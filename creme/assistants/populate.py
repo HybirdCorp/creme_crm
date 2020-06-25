@@ -45,25 +45,33 @@ class Populator(BasePopulator):
         already_populated = UserMessagePriority.objects.filter(pk=PRIO_IMP_PK).exists()
 
         for pk, title in USERMESSAGE_PRIORITIES.items():
-            create_if_needed(UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False)
+            create_if_needed(
+                UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False,
+            )
 
-        SettingValue.objects.get_or_create(key_id=todo_reminder_key.id, defaults={'value': 9})
+        SettingValue.objects.get_or_create(
+            key_id=todo_reminder_key.id, defaults={'value': 9},
+        )
 
-        Job.objects.get_or_create(type_id=usermessages_send_type.id,
-                                  defaults={'language': settings.LANGUAGE_CODE,
-                                            'status':   Job.STATUS_OK,
-                                           },
-                                 )
+        Job.objects.get_or_create(
+            type_id=usermessages_send_type.id,
+            defaults={
+                'language': settings.LANGUAGE_CODE,
+                'status':   Job.STATUS_OK,
+            },
+        )
 
         if not already_populated:
-            create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
-                                 zone=BrickDetailviewLocation.RIGHT,
-                                )
+            create_bdl = partial(
+                BrickDetailviewLocation.objects.create_if_needed,
+                zone=BrickDetailviewLocation.RIGHT,
+            )
             create_bdl(brick=TodosBrick,        order=100)
             create_bdl(brick=MemosBrick,        order=200)
             create_bdl(brick=AlertsBrick,       order=300)
             create_bdl(brick=UserMessagesBrick, order=400)
 
-            BrickHomeLocation.objects.create(brick_id=MemosBrick.id_,        order=100)
-            BrickHomeLocation.objects.create(brick_id=AlertsBrick.id_,       order=200)
-            BrickHomeLocation.objects.create(brick_id=UserMessagesBrick.id_, order=300)
+            create_bhl = BrickHomeLocation.objects.create
+            create_bhl(brick_id=MemosBrick.id_,        order=100)
+            create_bhl(brick_id=AlertsBrick.id_,       order=200)
+            create_bhl(brick_id=UserMessagesBrick.id_, order=300)

@@ -422,6 +422,117 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual('modelblock', loc.brick_id)
         self.assertEqual(role,         loc.role)
 
+    def test_detail_manager_multi_create01(self):
+        order1 = 25
+        order2 = 50
+        order3 = 75
+        zone1 = BrickDetailviewLocation.LEFT
+        zone2 = BrickDetailviewLocation.RIGHT
+        zone3 = BrickDetailviewLocation.BOTTOM
+        locs = BrickDetailviewLocation.objects.multi_create(
+            data=[
+                {'brick': self.TestBrick01.id_, 'order': order1, 'zone': zone1},
+                {'brick': self.TestBrick02,     'order': order2, 'zone': zone2},
+                {'order': order3, 'zone': zone3},
+            ],
+        )
+
+        self.assertIsInstance(locs, list)
+        self.assertEqual(3, len(locs))
+
+        loc1 = locs[0]
+        self.assertIsInstance(loc1, BrickDetailviewLocation)
+        self.assertIsNotNone(loc1.pk)
+
+        loc1 = self.refresh(loc1)
+        self.assertIsNone(loc1.content_type)
+        self.assertIsNone(loc1.role)
+        self.assertFalse(loc1.superuser)
+        self.assertEqual(self.TestBrick01.id_, loc1.brick_id)
+        self.assertEqual(order1,               loc1.order)
+        self.assertEqual(zone1,                loc1.zone)
+
+        loc2 = locs[1]
+        self.assertIsNone(loc2.content_type)
+        self.assertEqual(self.TestBrick02.id_, loc2.brick_id)
+        self.assertEqual(order2,               loc2.order)
+        self.assertEqual(zone2,                loc2.zone)
+
+        loc3 = locs[2]
+        self.assertIsNone(loc3.content_type)
+        self.assertIsNone(loc3.role)
+        self.assertFalse(loc3.superuser)
+        self.assertEqual('modelblock', loc3.brick_id)
+        self.assertEqual(order3,       loc3.order)
+        self.assertEqual(zone3,        loc3.zone)
+
+    def test_detail_manager_multi_create02(self):
+        "<defaults> argument."
+        order1 = 25
+        order2 = 50
+        zone1 = BrickDetailviewLocation.LEFT
+        zone2 = BrickDetailviewLocation.RIGHT
+        locs = BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': FakeContact, 'role': 'superuser', 'zone': zone1},
+            data=[
+                {'brick': self.TestBrick01.id_, 'order': order1},
+                {'order': order2, 'zone': zone2},
+            ],
+        )
+
+        self.assertIsInstance(locs, list)
+        self.assertEqual(2, len(locs))
+
+        loc1 = locs[0]
+        ct = ContentType.objects.get_for_model(FakeContact)
+        self.assertEqual(ct, loc1.content_type)
+        self.assertIsNone(loc1.role)
+        self.assertTrue(loc1.superuser)
+        self.assertEqual(self.TestBrick01.id_, loc1.brick_id)
+        self.assertEqual(order1,               loc1.order)
+        self.assertEqual(zone1,                loc1.zone)
+
+        loc2 = locs[1]
+        self.assertEqual(ct, loc1.content_type)
+        self.assertIsNone(loc2.role)
+        self.assertTrue(loc2.superuser)
+        self.assertEqual('modelblock', loc2.brick_id)
+        self.assertEqual(order2,       loc2.order)
+        self.assertEqual(zone2,        loc2.zone)
+
+    def test_detail_manager_multi_create03(self):
+        "'brick' in <defaults> argument."
+        order1 = 25
+        order2 = 50
+        zone = BrickDetailviewLocation.LEFT
+        locs = BrickDetailviewLocation.objects.multi_create(
+            defaults={'brick': self.TestBrick01.id_, 'zone': zone},
+            data=[
+                {'model': FakeContact,      'order': order1},
+                {'model': FakeOrganisation, 'order': order1},
+            ],
+        )
+
+        self.assertIsInstance(locs, list)
+        self.assertEqual(2, len(locs))
+
+        # loc1 = locs[0]
+        # ct = ContentType.objects.get_for_model(FakeContact)
+        # self.assertEqual(ct, loc1.content_type)
+        # self.assertIsNone(loc1.role)
+        # self.assertTrue(loc1.superuser)
+        # self.assertEqual(self.TestBrick01.id_, loc1.brick_id)
+        # self.assertEqual(order1,               loc1.order)
+        # self.assertEqual(zone1,                loc1.zone)
+        #
+        # loc2 = locs[1]
+        # self.assertEqual(ct, loc1.content_type)
+        # self.assertIsNone(loc2.role)
+        # self.assertTrue(loc2.superuser)
+        # self.assertEqual('modelblock', loc2.brick_id)
+        # self.assertEqual(order2,       loc2.order)
+        # self.assertEqual(zone2,        loc2.zone)
+
     def test_mypage_new_user(self):
         brick_id = HistoryBrick.id_
         order = 3

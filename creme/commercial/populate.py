@@ -105,23 +105,28 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(pk=constants.DEFAULT_HFILTER_ACT, model=Act,
-                  name=_('Com Action view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'expected_sales'}),
-                              (EntityCellRegularField, {'name': 'due_date'}),
-                             ],
-                 )
-        create_hf(pk=constants.DEFAULT_HFILTER_STRATEGY, model=Strategy,
-                  name=_('Strategy view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'})],
-                 )
-        create_hf(pk=constants.DEFAULT_HFILTER_PATTERN, model=ActObjectivePattern,
-                  name=_('Objective pattern view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'segment'}),
-                             ],
-                 )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_ACT, model=Act,
+            name=_('Com Action view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'expected_sales'}),
+                (EntityCellRegularField, {'name': 'due_date'}),
+            ],
+        )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_STRATEGY, model=Strategy,
+            name=_('Strategy view'),
+            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+        )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_PATTERN, model=ActObjectivePattern,
+            name=_('Objective pattern view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'segment'}),
+            ],
+        )
 
         # ---------------------------
         create_searchconf = SearchConfigItem.objects.create_if_needed
@@ -152,59 +157,59 @@ class Populator(BasePopulator):
                 button=buttons.CompleteGoalButton, order=60,
             )
 
-            create_bdl           = BrickDetailviewLocation.objects.create_if_needed
-            create_bdl_for_model = BrickDetailviewLocation.objects.create_for_model_brick
             TOP   = BrickDetailviewLocation.TOP
             RIGHT = BrickDetailviewLocation.RIGHT
             LEFT  = BrickDetailviewLocation.LEFT
 
-            create_bdl(brick=bricks.ApproachesBrick, order=10, zone=RIGHT)
-            create_bdl(brick=bricks.ApproachesBrick, order=10, zone=RIGHT, model=Contact)
-            create_bdl(brick=bricks.ApproachesBrick, order=10, zone=RIGHT, model=Organisation)
-
-            def create_multi_bdl(model, info):
-                for brick, order, zone in info:
-                    if brick == 'model':
-                        create_bdl_for_model(order=order, zone=zone, model=model)
-                    else:
-                        create_bdl(brick=brick, order=order, zone=zone, model=model)
-
-            create_multi_bdl(
-                Act,
-                [
-                    ('model',                            5, LEFT),
-                    (bricks.ActObjectivesBrick,         10, LEFT),
-                    (bricks.RelatedOpportunitiesBrick,  20, LEFT),
-                    (core_bricks.CustomFieldsBrick,     40, LEFT),
-                    (core_bricks.PropertiesBrick,      450, LEFT),
-                    (core_bricks.RelationsBrick,       500, LEFT),
-                    (core_bricks.HistoryBrick,          20, RIGHT),
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'brick': bricks.ApproachesBrick, 'order': 10, 'zone': RIGHT},
+                data=[
+                    {},  # default configuration
+                    {'model': Contact},
+                    {'model': Organisation},
                 ]
             )
-            create_multi_bdl(
-                ActObjectivePattern,
-                [
-                    (bricks.PatternComponentsBrick,  10, TOP),
-                    ('model',                         5, LEFT),
-                    (core_bricks.CustomFieldsBrick,  40, LEFT),
-                    (core_bricks.PropertiesBrick,   450, LEFT),
-                    (core_bricks.RelationsBrick,    500, LEFT),
-                    (core_bricks.HistoryBrick,       20, RIGHT),
-                ]
+
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Act, 'zone': LEFT},
+                data=[
+                    {'order': 5},  # generic information brick
+                    {'brick': bricks.ActObjectivesBrick,        'order': 10},
+                    {'brick': bricks.RelatedOpportunitiesBrick, 'order': 20},
+                    {'brick': core_bricks.CustomFieldsBrick,    'order': 40},
+                    {'brick': core_bricks.PropertiesBrick,      'order': 450},
+                    {'brick': core_bricks.RelationsBrick,       'order': 500},
+
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                ],
             )
-            create_multi_bdl(
-                Strategy,
-                [
-                    (bricks.SegmentDescriptionsBrick,  10, TOP),
-                    ('model',                           5, LEFT),
-                    (core_bricks.CustomFieldsBrick,    40, LEFT),
-                    (bricks.EvaluatedOrgasBrick,       50, LEFT),
-                    (bricks.AssetsBrick,               60, LEFT),
-                    (bricks.CharmsBrick,               70, LEFT),
-                    (core_bricks.PropertiesBrick,     450, LEFT),
-                    (core_bricks.RelationsBrick,      500, LEFT),
-                    (core_bricks.HistoryBrick,         20, RIGHT),
-                ]
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': ActObjectivePattern, 'zone': LEFT},
+                data=[
+                    {'brick': bricks.PatternComponentsBrick, 'order': 10, 'zone': TOP},
+
+                    {'order': 5},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                ],
+            )
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Strategy, 'zone': LEFT},
+                data=[
+                    {'brick': bricks.SegmentDescriptionsBrick, 'order': 10, 'zone': TOP},
+
+                    {'order': 5},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': bricks.EvaluatedOrgasBrick,    'order':  50},
+                    {'brick': bricks.AssetsBrick,            'order':  60},
+                    {'brick': bricks.CharmsBrick,            'order':  70},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                ],
             )
 
             if apps.is_installed('creme.assistants'):
@@ -213,17 +218,17 @@ class Populator(BasePopulator):
                     '=> we use the assistants blocks on detail views'
                 )
 
-                from creme.assistants import bricks as assistants_bricks
+                from creme.assistants import bricks as a_bricks
 
                 for model in (Act, ActObjectivePattern, Strategy):
-                    create_multi_bdl(
-                        model,
-                        [
-                            (assistants_bricks.TodosBrick,        100, RIGHT),
-                            (assistants_bricks.MemosBrick,        200, RIGHT),
-                            (assistants_bricks.AlertsBrick,       300, RIGHT),
-                            (assistants_bricks.UserMessagesBrick, 400, RIGHT),
-                        ]
+                    BrickDetailviewLocation.objects.multi_create(
+                        defaults={'model': model, 'zone': RIGHT},
+                        data=[
+                            {'brick': a_bricks.TodosBrick,        'order': 100},
+                            {'brick': a_bricks.MemosBrick,        'order': 200},
+                            {'brick': a_bricks.AlertsBrick,       'order': 300},
+                            {'brick': a_bricks.UserMessagesBrick, 'order': 400},
+                        ],
                     )
 
             if apps.is_installed('creme.documents'):
@@ -232,5 +237,11 @@ class Populator(BasePopulator):
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                for model in (Act, ActObjectivePattern, Strategy):
-                    create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=model)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'brick': LinkedDocsBrick, 'order': 600, 'zone': RIGHT},
+                    data=[
+                        {'model': Act},
+                        {'model': ActObjectivePattern},
+                        {'model': Strategy},
+                    ],
+                )

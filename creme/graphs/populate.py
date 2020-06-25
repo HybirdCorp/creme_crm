@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-from functools import partial
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -54,22 +53,21 @@ class Populator(BasePopulator):
 
         # NB: no straightforward way to test that this populate script has not been already run
         if not BrickDetailviewLocation.objects.filter_for_model(Graph).exists():
-            create_bdl = partial(
-                BrickDetailviewLocation.objects.create_if_needed,
-                model=Graph,
-            )
-            LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            BrickDetailviewLocation.objects.create_for_model_brick(
-                order=5, zone=LEFT, model=Graph,
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Graph, 'zone': BrickDetailviewLocation.LEFT},
+                data=[
+                    {'order': 5},
+                    {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
+                    {'brick': bricks.RootNodesBrick,            'order':  60},
+                    {'brick': bricks.OrbitalRelationTypesBrick, 'order':  65},
+                    {'brick': core_bricks.PropertiesBrick,      'order': 450},
+                    {'brick': core_bricks.RelationsBrick,       'order': 500},
+
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                ],
             )
-            create_bdl(brick=core_bricks.CustomFieldsBrick,    order=40,  zone=LEFT)
-            create_bdl(brick=bricks.RootNodesBrick,            order=60,  zone=LEFT)
-            create_bdl(brick=bricks.OrbitalRelationTypesBrick, order=65,  zone=LEFT)
-            create_bdl(brick=core_bricks.PropertiesBrick,      order=450, zone=LEFT)
-            create_bdl(brick=core_bricks.RelationsBrick,       order=500, zone=LEFT)
-            create_bdl(brick=core_bricks.HistoryBrick,         order=20,  zone=RIGHT)
 
             if apps.is_installed('creme.assistants'):
                 logger.info(
@@ -79,10 +77,15 @@ class Populator(BasePopulator):
 
                 from creme.assistants import bricks as a_bricks
 
-                create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT)
-                create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT)
-                create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT)
-                create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'model': Graph, 'zone': RIGHT},
+                    data=[
+                        {'brick': a_bricks.TodosBrick,        'order': 100},
+                        {'brick': a_bricks.MemosBrick,        'order': 200},
+                        {'brick': a_bricks.AlertsBrick,       'order': 300},
+                        {'brick': a_bricks.UserMessagesBrick, 'order': 400},
+                    ],
+                )
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed
@@ -90,4 +93,6 @@ class Populator(BasePopulator):
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT)
+                BrickDetailviewLocation.objects.create_if_needed(
+                    brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Graph,
+                )

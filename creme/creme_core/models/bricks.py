@@ -120,14 +120,47 @@ class BrickDetailviewLocationManager(models.Manager):
             zone: int,
             model: Union[Type[CremeEntity], ContentType, None] = None,
             role: Union[None, UserRole, str] = None) -> 'BrickDetailviewLocation':
-        return self.create_if_needed(brick=MODELBRICK_ID, order=order,
-                                     zone=zone, model=model, role=role,
-                                    )
+        return self.create_if_needed(
+            brick=MODELBRICK_ID, order=order,
+            zone=zone, model=model, role=role,
+        )
 
     def filter_for_model(self, model: Type[CremeEntity]) -> models.QuerySet:
         return BrickDetailviewLocation.objects.filter(
             content_type=ContentType.objects.get_for_model(model),
         )
+
+    def multi_create(
+            self, *,
+            defaults: Optional[dict] = None,
+            data: Iterable[dict]) -> List['BrickDetailviewLocation']:
+        """Create several instances at once.
+        Each instance is created only if related brick is not already on the
+        configuration.
+
+        @param defaults: dictionary used for default value of arguments.
+               <None> means no default argument.
+        @param data: Iterable of dictionaries used as creation arguments
+               (see create_if_needed() for arguments).
+
+        Each dictionary of 'data' is combined with 'defaults' ; notice that
+        if no "brick" argument is given, the method create_for_model_brick()
+        is used.
+        """
+        locations = []
+
+        if defaults is None:
+            defaults = {}
+
+        for kwargs in data:
+            final_kwargs = {**defaults, **kwargs}
+            locations.append(
+                self.create_if_needed(**final_kwargs)
+                if 'brick' in final_kwargs else
+                self.create_for_model_brick(**final_kwargs)
+            )
+
+        return locations
 
 
 class BrickDetailviewLocation(CremeModel):
