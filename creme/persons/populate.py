@@ -27,7 +27,6 @@ from django.utils.translation import gettext as _
 from creme import persons
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core import constants as core_constants
-from creme.creme_core import models as core_models
 from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
@@ -38,7 +37,17 @@ from creme.creme_core.core.entity_filter import (
     operators,
 )
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import EntityFilter
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    ButtonMenuItem,
+    CustomBrickConfigItem,
+    EntityFilter,
+    HeaderFilter,
+    RelationBrickItem,
+    RelationType,
+    SearchConfigItem,
+)
 from creme.creme_core.utils import create_if_needed
 
 from . import bricks, buttons, constants
@@ -51,7 +60,7 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
-        already_populated = core_models.RelationType.objects.filter(
+        already_populated = RelationType.objects.filter(
             pk=constants.REL_SUB_EMPLOYED_BY,
         ).exists()
 
@@ -105,11 +114,11 @@ class Populator(BasePopulator):
                 (constants.REL_OBJ_COMPETITOR, _('has as competitor'),  [Contact, Organisation]),
             ),
         ]:
-            rt, sym_rt = core_models.RelationType.create(*rt_info)
+            rt, sym_rt = RelationType.create(*rt_info)
             rt_map[rt.id] = rt
             rt_map[sym_rt.id] = sym_rt
 
-        get_rtype = core_models.RelationType.objects.get
+        get_rtype = RelationType.objects.get
         get_rtype(pk=core_constants.REL_SUB_HAS).add_subject_ctypes(Contact, Organisation)
         get_rtype(pk=core_constants.REL_OBJ_HAS).add_subject_ctypes(Organisation)
 
@@ -140,7 +149,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        create_hf = core_models.HeaderFilter.objects.create_if_needed
+        create_hf = HeaderFilter.objects.create_if_needed
         create_hf(
             pk=constants.DEFAULT_HFILTER_CONTACT, model=Contact,
             name=_('Contact view'),
@@ -185,7 +194,7 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        create_sci = core_models.SearchConfigItem.objects.create_if_needed
+        create_sci = SearchConfigItem.objects.create_if_needed
         create_sci(Contact, ['last_name', 'first_name', 'phone', 'mobile', 'email'])
         create_sci(Organisation, ['name', 'phone', 'email', 'sector__title', 'legal_form__title'])
 
@@ -233,7 +242,7 @@ class Populator(BasePopulator):
             create_if_needed(StaffSize, {'pk': 6}, size='> 500',     order=6)
 
             # ---------------------------
-            create_bmi = core_models.ButtonMenuItem.objects.create_if_needed
+            create_bmi = ButtonMenuItem.objects.create_if_needed
             create_bmi(
                 pk='persons-customer_contact_button',
                 model=Contact, button=buttons.BecomeCustomerButton, order=20,
@@ -277,11 +286,11 @@ class Populator(BasePopulator):
             )
 
             # Populate bricks ------------------
-            create_rbi = core_models.RelationBrickItem.objects.create_if_needed
+            create_rbi = RelationBrickItem.objects.create_if_needed
             rbi_1 = create_rbi(constants.REL_SUB_CUSTOMER_SUPPLIER)
             rbi_2 = create_rbi(constants.REL_OBJ_CUSTOMER_SUPPLIER)
 
-            create_cbci = core_models.CustomBrickConfigItem.objects.create
+            create_cbci = CustomBrickConfigItem.objects.create
             build_cell = EntityCellRegularField.build
 
             # cbci_orga_1 =
@@ -351,31 +360,27 @@ class Populator(BasePopulator):
                 ],
             )
 
-            HAT   = core_models.BrickDetailviewLocation.HAT
-            LEFT  = core_models.BrickDetailviewLocation.LEFT
-            RIGHT = core_models.BrickDetailviewLocation.RIGHT
+            HAT   = BrickDetailviewLocation.HAT
+            LEFT  = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
-            create_bdl = core_models.BrickDetailviewLocation.objects.create_if_needed
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Organisation, 'zone': LEFT},
+                data=[
+                    {'brick': bricks.OrganisationCardHatBrick, 'order': 1, 'zone': HAT},
 
-            def create_multi_bdl(model, info):
-                for brick, order, zone in info:
-                    create_bdl(brick=brick, order=order, zone=zone, model=model)
+                    {'brick': cbci_orga_extra.generate_id(),    'order':   5},
+                    {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
+                    {'brick': bricks.PrettyAddressesBrick,      'order':  50},
+                    {'brick': bricks.PrettyOtherAddressesBrick, 'order':  60},
+                    {'brick': bricks.ManagersBrick,             'order': 100},
+                    {'brick': bricks.EmployeesBrick,            'order': 120},
+                    {'brick': core_bricks.PropertiesBrick,      'order': 450},
+                    {'brick': core_bricks.RelationsBrick,       'order': 500},
 
-            create_multi_bdl(
-                Organisation,
-                [
-                    (bricks.OrganisationCardHatBrick,    1, HAT),
-                    (cbci_orga_extra.generate_id(),      5, LEFT),
-                    (core_bricks.CustomFieldsBrick,     40, LEFT),
-                    (bricks.PrettyAddressesBrick,       50, LEFT),
-                    (bricks.PrettyOtherAddressesBrick,  60, LEFT),
-                    (bricks.ManagersBrick,             100, LEFT),
-                    (bricks.EmployeesBrick,            120, LEFT),
-                    (core_bricks.PropertiesBrick,      450, LEFT),
-                    (core_bricks.RelationsBrick,       500, LEFT),
-                    (rbi_1.brick_id,                     5, RIGHT),
-                    (rbi_2.brick_id,                    10, RIGHT),
-                    (core_bricks.HistoryBrick,          30, RIGHT),
+                    {'brick': rbi_1.brick_id,           'order':   5, 'zone': RIGHT},
+                    {'brick': rbi_2.brick_id,           'order':  10, 'zone': RIGHT},
+                    {'brick': core_bricks.HistoryBrick, 'order':  30, 'zone': RIGHT},
                 ],
             )
 
@@ -432,18 +437,20 @@ class Populator(BasePopulator):
                 ],
             )
 
-            create_multi_bdl(
-                Contact,
-                [
-                    (bricks.ContactCardHatBrick,       1,   HAT),
-                    (cbci_contact_extra.generate_id(), 30,  LEFT),
-                    (core_bricks.CustomFieldsBrick,    40,  LEFT),
-                    (bricks.PrettyAddressesBrick,      50,  LEFT),
-                    (bricks.PrettyOtherAddressesBrick, 60,  LEFT),
-                    (core_bricks.PropertiesBrick,      450, LEFT),
-                    (core_bricks.RelationsBrick,       500, LEFT),
-                    (core_bricks.HistoryBrick,         20,  RIGHT),
-                ]
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Contact, 'zone': LEFT},
+                data=[
+                    {'brick': bricks.ContactCardHatBrick, 'order': 1, 'zone': HAT},
+
+                    {'brick': cbci_contact_extra.generate_id(), 'order':  30},
+                    {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
+                    {'brick': bricks.PrettyAddressesBrick,      'order':  50},
+                    {'brick': bricks.PrettyOtherAddressesBrick, 'order':  60},
+                    {'brick': core_bricks.PropertiesBrick,      'order': 450},
+                    {'brick': core_bricks.RelationsBrick,       'order': 500},
+
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                ],
             )
 
             if apps.is_installed('creme.assistants'):
@@ -452,22 +459,17 @@ class Populator(BasePopulator):
                     ' => we use the assistants blocks on detail views and portal'
                 )
 
-                from creme.assistants.bricks import (
-                    AlertsBrick,
-                    MemosBrick,
-                    TodosBrick,
-                    UserMessagesBrick,
-                )
+                from creme.assistants import bricks as a_bricks
 
                 for model in (Contact, Organisation):
-                    create_multi_bdl(
-                        model,
-                        [
-                            (TodosBrick,        100, RIGHT),
-                            (MemosBrick,        200, RIGHT),
-                            (AlertsBrick,       300, RIGHT),
-                            (UserMessagesBrick, 500, RIGHT),
-                        ]
+                    BrickDetailviewLocation.objects.multi_create(
+                        defaults={'model': model, 'zone': RIGHT},
+                        data=[
+                            {'brick': a_bricks.TodosBrick,        'order': 100},
+                            {'brick': a_bricks.MemosBrick,        'order': 200},
+                            {'brick': a_bricks.AlertsBrick,       'order': 300},
+                            {'brick': a_bricks.UserMessagesBrick, 'order': 500},
+                        ],
                     )
 
             if apps.is_installed('creme.documents'):
@@ -476,10 +478,15 @@ class Populator(BasePopulator):
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Contact)
-                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Organisation)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'brick': LinkedDocsBrick, 'order': 600, 'zone': RIGHT},
+                    data=[
+                        {'model': Contact},
+                        {'model': Organisation},
+                    ],
+                )
 
             if apps.is_installed('creme.activities'):
-                core_models.BrickHomeLocation.objects.create(
+                BrickHomeLocation.objects.create(
                     brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15,
                 )

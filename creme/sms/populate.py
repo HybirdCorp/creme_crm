@@ -72,42 +72,35 @@ class Populator(BasePopulator):
         # ---------------------------
         # NB: no straightforward way to test that this populate script has not been already run
         if not BrickDetailviewLocation.objects.filter_for_model(SMSCampaign).exists():
-            create_bdl         = BrickDetailviewLocation.objects.create_if_needed
-            create_bdl_4_model = BrickDetailviewLocation.objects.create_for_model_brick
-
             TOP   = BrickDetailviewLocation.TOP
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            def create_multi_bdl(model, info):
-                for brick, order, zone in info:
-                    if brick == 'model':
-                        create_bdl_4_model(order=order, zone=zone, model=model)
-                    else:
-                        create_bdl(brick=brick, order=order, zone=zone, model=model)
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': SMSCampaign, 'zone': LEFT},
+                data=[
+                    {'brick': bricks.SendingsBrick, 'order': 2,  'zone': TOP},
 
-            create_multi_bdl(
-                SMSCampaign,
-                [
-                    (bricks.SendingsBrick,           2,  TOP),
-                    ('model',                        5,  LEFT),
-                    (core_bricks.CustomFieldsBrick, 40,  LEFT),
-                    (bricks.MessagingListsBlock,    50,  LEFT),
-                    (core_bricks.PropertiesBrick,   450, LEFT),
-                    (core_bricks.RelationsBrick,    500, LEFT),
-                    (core_bricks.HistoryBrick,      20,  RIGHT),
+                    {'order': 5},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': bricks.MessagingListsBlock,    'order':  50},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
                 ],
             )
-            create_multi_bdl(
-                MessagingList,
-                [
-                    ('model',                         5, LEFT),
-                    (core_bricks.CustomFieldsBrick,  40, LEFT),
-                    (bricks.RecipientsBrick,         50, LEFT),
-                    (bricks.ContactsBrick,           55, LEFT),
-                    (core_bricks.PropertiesBrick,   450, LEFT),
-                    (core_bricks.RelationsBrick,    500, LEFT),
-                    (core_bricks.HistoryBrick,       20, RIGHT),
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': MessagingList, 'zone': LEFT},
+                data=[
+                    {'order': 5},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': bricks.RecipientsBrick,        'order':  50},
+                    {'brick': bricks.ContactsBrick,          'order':  55},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
                 ],
             )
 
@@ -119,14 +112,14 @@ class Populator(BasePopulator):
                 from creme.assistants import bricks as a_bricks
 
                 for model in (SMSCampaign, MessagingList):
-                    create_multi_bdl(
-                        model,
-                        [
-                            (a_bricks.TodosBrick,        100, RIGHT),
-                            (a_bricks.MemosBrick,        200, RIGHT),
-                            (a_bricks.AlertsBrick,       300, RIGHT),
-                            (a_bricks.UserMessagesBrick, 400, RIGHT),
-                        ]
+                    BrickDetailviewLocation.objects.multi_create(
+                        defaults={'model': model, 'zone': RIGHT},
+                        data=[
+                            {'brick': a_bricks.TodosBrick,        'order': 100},
+                            {'brick': a_bricks.MemosBrick,        'order': 200},
+                            {'brick': a_bricks.AlertsBrick,       'order': 300},
+                            {'brick': a_bricks.UserMessagesBrick, 'order': 400},
+                        ],
                     )
 
             if apps.is_installed('creme.documents'):
@@ -135,4 +128,6 @@ class Populator(BasePopulator):
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=SMSCampaign)
+                BrickDetailviewLocation.objects.create_if_needed(
+                    brick=LinkedDocsBrick, order=600, zone=RIGHT, model=SMSCampaign,
+                )

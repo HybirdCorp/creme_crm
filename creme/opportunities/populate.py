@@ -128,11 +128,11 @@ class Populator(BasePopulator):
                 ' => we create relationships between Opportunities & billing models'
             )
 
-            from creme.billing import get_invoice_model, get_quote_model, get_sales_order_model
+            from creme import billing
 
-            Invoice    = get_invoice_model()
-            Quote      = get_quote_model()
-            SalesOrder = get_sales_order_model()
+            Invoice    = billing.get_invoice_model()
+            Quote      = billing.get_quote_model()
+            SalesOrder = billing.get_sales_order_model()
 
             create_rtype(
                 (
@@ -285,13 +285,8 @@ class Populator(BasePopulator):
             )
 
             # ---------------------------
-            create_bdl = partial(
-                BrickDetailviewLocation.objects.create_if_needed,
-                model=Opportunity,
-            )
             LEFT = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
-            HAT = BrickDetailviewLocation.HAT
 
             build_cell = EntityCellRegularField.build
             cbci = CustomBrickConfigItem.objects.create(
@@ -310,18 +305,28 @@ class Populator(BasePopulator):
                 ],
             )
 
-            create_bdl(brick=bricks.OpportunityCardHatBrick, order=1,   zone=HAT)
-            create_bdl(brick=cbci.generate_id(),             order=5,   zone=LEFT)
-            create_bdl(brick=core_bricks.CustomFieldsBrick,  order=40,  zone=LEFT)
-            create_bdl(brick=bricks.BusinessManagersBrick,   order=60,  zone=LEFT)
-            create_bdl(brick=bricks.LinkedContactsBrick,     order=62,  zone=LEFT)
-            create_bdl(brick=bricks.LinkedProductsBrick,     order=64,  zone=LEFT)
-            create_bdl(brick=bricks.LinkedServicesBrick,     order=66,  zone=LEFT)
-            create_bdl(brick=core_bricks.PropertiesBrick,    order=450, zone=LEFT)
-            create_bdl(brick=core_bricks.RelationsBrick,     order=500, zone=LEFT)
-            create_bdl(brick=bricks.OppTargetBrick,          order=1,   zone=RIGHT)
-            create_bdl(brick=bricks.OppTotalBrick,           order=2,   zone=RIGHT)
-            create_bdl(brick=core_bricks.HistoryBrick,       order=20,  zone=RIGHT)
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Opportunity, 'zone': LEFT},
+                data=[
+                    {
+                        'brick': bricks.OpportunityCardHatBrick, 'order': 1,
+                        'zone': BrickDetailviewLocation.HAT,
+                    },
+
+                    {'brick': cbci.generate_id(),            'order':   5},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': bricks.BusinessManagersBrick,  'order':  60},
+                    {'brick': bricks.LinkedContactsBrick,    'order':  62},
+                    {'brick': bricks.LinkedProductsBrick,    'order':  64},
+                    {'brick': bricks.LinkedServicesBrick,    'order':  66},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                    {'brick': bricks.OppTargetBrick,    'order':  1, 'zone': RIGHT},
+                    {'brick': bricks.OppTotalBrick,     'order':  2, 'zone': RIGHT},
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                ],
+            )
 
             if apps.is_installed('creme.activities'):
                 logger.info(
@@ -331,8 +336,13 @@ class Populator(BasePopulator):
 
                 from creme.activities import bricks as act_bricks
 
-                create_bdl(brick=act_bricks.FutureActivitiesBrick, order=20, zone=RIGHT)
-                create_bdl(brick=act_bricks.PastActivitiesBrick,   order=21, zone=RIGHT)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'model': Opportunity, 'zone': RIGHT},
+                    data=[
+                        {'brick': act_bricks.FutureActivitiesBrick, 'order': 20},
+                        {'brick': act_bricks.PastActivitiesBrick,   'order': 21},
+                    ],
+                )
 
             if apps.is_installed('creme.assistants'):
                 logger.info(
@@ -340,12 +350,17 @@ class Populator(BasePopulator):
                     ' => we use the assistants blocks on detail views and portal'
                 )
 
-                from creme.assistants import bricks as assistants_bricks
+                from creme.assistants import bricks as a_bricks
 
-                create_bdl(brick=assistants_bricks.TodosBrick,        order=100, zone=RIGHT)
-                create_bdl(brick=assistants_bricks.MemosBrick,        order=200, zone=RIGHT)
-                create_bdl(brick=assistants_bricks.AlertsBrick,       order=300, zone=RIGHT)
-                create_bdl(brick=assistants_bricks.UserMessagesBrick, order=500, zone=RIGHT)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'model': Opportunity, 'zone': RIGHT},
+                    data=[
+                        {'brick': a_bricks.TodosBrick,        'order': 100},
+                        {'brick': a_bricks.MemosBrick,        'order': 200},
+                        {'brick': a_bricks.AlertsBrick,       'order': 300},
+                        {'brick': a_bricks.UserMessagesBrick, 'order': 500},
+                    ],
+                )
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed
@@ -353,7 +368,10 @@ class Populator(BasePopulator):
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT)
+                BrickDetailviewLocation.objects.create_if_needed(
+                    brick=LinkedDocsBrick, order=600, zone=RIGHT,
+                    model=Opportunity,
+                )
 
             if apps.is_installed('creme.billing'):
                 logger.info(
@@ -361,9 +379,14 @@ class Populator(BasePopulator):
                     ' => we use the billing blocks on detail view'
                 )
 
-                create_bdl(brick=bricks.QuotesBrick,      order=70, zone=LEFT)
-                create_bdl(brick=bricks.SalesOrdersBrick, order=72, zone=LEFT)
-                create_bdl(brick=bricks.InvoicesBrick,    order=74, zone=LEFT)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'model': Opportunity, 'zone': LEFT},
+                    data=[
+                        {'brick': bricks.QuotesBrick,      'order': 70},
+                        {'brick': bricks.SalesOrdersBrick, 'order': 72},
+                        {'brick': bricks.InvoicesBrick,    'order': 74},
+                    ],
+                )
 
             if apps.is_installed('creme.emails'):
                 logger.info(
@@ -373,9 +396,12 @@ class Populator(BasePopulator):
 
                 from creme.emails.bricks import MailsHistoryBrick
 
-                create_bdl(brick=MailsHistoryBrick, order=600, zone=RIGHT)
+                BrickDetailviewLocation.objects.create_if_needed(
+                    brick=MailsHistoryBrick, order=600, zone=RIGHT,
+                    model=Opportunity,
+                )
 
-            create_bdl(
+            BrickDetailviewLocation.objects.create_if_needed(
                 brick=bricks.TargettingOpportunitiesBrick, order=16, zone=RIGHT,
                 model=Organisation,
             )

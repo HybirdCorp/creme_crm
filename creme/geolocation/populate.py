@@ -62,24 +62,20 @@ class Populator(BasePopulator):
             GeolocationCommand().import_town_all(verbosity=self.verbosity)
 
         if not already_populated:
-            Contact      = persons.get_contact_model()
-            Organisation = persons.get_organisation_model()
-            LEFT = BrickDetailviewLocation.LEFT
-            BOTTOM = BrickDetailviewLocation.BOTTOM
-
-            create_bdl = BrickDetailviewLocation.objects.create_if_needed
-            create_bdl(
-                brick=bricks.GoogleDetailMapBrick, order=70, zone=LEFT, model=Organisation,
-            )
-            create_bdl(
-                brick=bricks.GoogleDetailMapBrick, order=70, zone=LEFT, model=Contact,
-            )
-            create_bdl(
-                brick=bricks.GoogleNeighboursMapBrick, order=600, zone=BOTTOM, model=Organisation,
-            )
-            create_bdl(
-                brick=bricks.GoogleNeighboursMapBrick, order=600, zone=BOTTOM, model=Contact,
-            )
+            for model in (persons.get_organisation_model(), persons.get_contact_model()):
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'model': model},
+                    data=[
+                        {
+                            'brick': bricks.GoogleDetailMapBrick, 'order': 70,
+                            'zone': BrickDetailviewLocation.LEFT,
+                        },
+                        {
+                            'brick': bricks.GoogleNeighboursMapBrick, 'order': 600,
+                            'zone': BrickDetailviewLocation.BOTTOM,
+                        },
+                    ],
+                )
 
             BrickMypageLocation.objects.create(
                 brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=None,

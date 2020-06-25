@@ -52,25 +52,29 @@ class Populator(BasePopulator):
         Organisation = persons.get_organisation_model()
 
         create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(pk=constants.DEFAULT_HFILTER_PFORM,
-                  model=PollForm, name=_('Form view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                              ],
-                  )
-        create_hf(pk=constants.DEFAULT_HFILTER_PREPLY,
-                  model=PollReply, name=_('Reply view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'pform'}),
-                              (EntityCellRegularField, {'name': 'person'}),
-                              ],
-                  )
-        create_hf(pk=constants.DEFAULT_HFILTER_PCAMPAIGN,
-                  model=PollCampaign, name=_('Campaign view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'due_date'}),
-                              (EntityCellRegularField, {'name': 'segment'}),
-                              ],
-                  )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_PFORM,
+            model=PollForm, name=_('Form view'),
+            cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+        )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_PREPLY,
+            model=PollReply, name=_('Reply view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'pform'}),
+                (EntityCellRegularField, {'name': 'person'}),
+            ],
+        )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_PCAMPAIGN,
+            model=PollCampaign, name=_('Campaign view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'due_date'}),
+                (EntityCellRegularField, {'name': 'segment'}),
+            ],
+        )
 
         # ---------------------------
         create_searchconf = SearchConfigItem.objects.create_if_needed
@@ -92,56 +96,49 @@ class Populator(BasePopulator):
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            create_bdl         = BrickDetailviewLocation.objects.create_if_needed
-            create_bdl_4_model = BrickDetailviewLocation.objects.create_for_model_brick
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': PollForm, 'zone': LEFT},
+                data=[
+                    {'brick': bricks.PollFormLinesBrick, 'order': 5, 'zone': TOP},
 
-            def create_multi_bdl(model, info):
-                for brick, order, zone in info:
-                    if brick == 'model':
-                        create_bdl_4_model(order=order, zone=zone, model=model)
-                    else:
-                        create_bdl(brick=brick, order=order, zone=zone, model=model)
+                    {'order': 5},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
 
-            create_multi_bdl(
-                PollForm,
-                [
-                    (bricks.PollFormLinesBrick,       5, TOP),
-                    ('model',                         5, LEFT),
-                    (core_bricks.CustomFieldsBrick,  40, LEFT),
-                    (core_bricks.PropertiesBrick,   450, LEFT),
-                    (core_bricks.RelationsBrick,    500, LEFT),
-                    (bricks.PollRepliesBrick,         5, RIGHT),
-                    (core_bricks.HistoryBrick,       20, RIGHT),
-                ]
+                    {'brick': bricks.PollRepliesBrick,  'order':  5, 'zone': RIGHT},
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                ],
             )
-            create_multi_bdl(
-                PollReply,
-                [
-                    (bricks.PollReplyLinesBrick,    5,   TOP),
-                    ('model',                       5,   LEFT),
-                    (core_bricks.CustomFieldsBrick, 40,  LEFT),
-                    (core_bricks.PropertiesBrick,   450, LEFT),
-                    (core_bricks.RelationsBrick,    500, LEFT),
-                    (core_bricks.HistoryBrick,      20,  RIGHT),
-                ]
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': PollReply, 'zone': LEFT},
+                data=[
+                    {'brick': bricks.PollReplyLinesBrick, 'order': 5, 'zone': TOP},
+
+                    {'order': 5},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                ],
             )
-            create_multi_bdl(
-                PollCampaign,
-                [
-                    ('model',                         5,   LEFT),
-                    (core_bricks.CustomFieldsBrick,   40,  LEFT),
-                    (core_bricks.PropertiesBrick,     450, LEFT),
-                    (core_bricks.RelationsBrick,      500, LEFT),
-                    (bricks.PollCampaignRepliesBrick, 5,   RIGHT),
-                    (core_bricks.HistoryBrick,        20,  RIGHT),
-                ]
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': PollCampaign, 'zone': LEFT},
+                data=[
+                    {'order': 5},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order': 40},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                    {'brick': bricks.PollCampaignRepliesBrick, 'order': 5,  'zone': RIGHT},
+                    {'brick': core_bricks.HistoryBrick,        'order': 20, 'zone': RIGHT},
+                ],
             )
 
-            create_bdl(
-                brick=bricks.PersonPollRepliesBrick, order=500, zone=RIGHT, model=Contact,
-            )
-            create_bdl(
-                brick=bricks.PersonPollRepliesBrick, order=500, zone=RIGHT, model=Organisation,
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'brick': bricks.PersonPollRepliesBrick, 'order': 500, 'zone': RIGHT},
+                data=[{'model': Contact}, {'model': Organisation}],
             )
 
             if apps.is_installed('creme.assistants'):
@@ -150,18 +147,18 @@ class Populator(BasePopulator):
                     ' => we use the assistants blocks on detail view'
                 )
 
-                from creme.assistants.bricks import (
-                    AlertsBrick,
-                    MemosBrick,
-                    TodosBrick,
-                    UserMessagesBrick,
-                )
+                from creme.assistants import bricks as a_bricks
 
                 for model in (PollForm, PollReply, PollCampaign):
-                    create_bdl(brick=TodosBrick,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick=MemosBrick,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick=AlertsBrick,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick=UserMessagesBrick, order=400, zone=RIGHT, model=model)
+                    BrickDetailviewLocation.objects.multi_create(
+                        defaults={'model': model, 'zone': RIGHT},
+                        data=[
+                            {'brick': a_bricks.TodosBrick,        'order': 100},
+                            {'brick': a_bricks.MemosBrick,        'order': 200},
+                            {'brick': a_bricks.AlertsBrick,       'order': 300},
+                            {'brick': a_bricks.UserMessagesBrick, 'order': 400},
+                        ],
+                    )
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed
@@ -169,5 +166,7 @@ class Populator(BasePopulator):
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                for model in (PollForm, PollReply, PollCampaign):
-                    create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=model)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'brick': LinkedDocsBrick, 'order': 600, 'zone': RIGHT},
+                    data=[{'model': m} for m in (PollForm, PollReply, PollCampaign)],
+                )

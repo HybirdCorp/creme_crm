@@ -90,36 +90,43 @@ class Populator(BasePopulator):
 
         # ---------------------------
         for pk, statusdesc in constants.TASK_STATUS.items():
-            create_if_needed(TaskStatus, {'pk': pk}, name=str(statusdesc.name), order=pk,
-                             description=str(statusdesc.verbose_name), is_custom=False,
-                            )
+            create_if_needed(
+                TaskStatus, {'pk': pk}, name=str(statusdesc.name), order=pk,
+                description=str(statusdesc.verbose_name), is_custom=False,
+            )
 
         # ---------------------------
         create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(pk=constants.DEFAULT_HFILTER_PROJECT,
-                  model=Project,
-                  name=_('Project view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'start_date'}),
-                              (EntityCellRegularField, {'name': 'end_date'}),
-                              (EntityCellRegularField, {'name': 'status'}),
-                              (EntityCellRegularField, {'name': 'description'}),
-                             ],
-                 )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_PROJECT,
+            model=Project,
+            name=_('Project view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'start_date'}),
+                (EntityCellRegularField, {'name': 'end_date'}),
+                (EntityCellRegularField, {'name': 'status'}),
+                (EntityCellRegularField, {'name': 'description'}),
+            ],
+        )
 
         # Used in form
-        create_hf(pk='projects-hf_task', name=_('Task view'), model=ProjectTask,
-                  cells_desc=[(EntityCellRegularField, {'name': 'title'}),
-                              (EntityCellRegularField, {'name': 'description'}),
-                             ],
-                 )
+        create_hf(
+            pk='projects-hf_task', name=_('Task view'), model=ProjectTask,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'title'}),
+                (EntityCellRegularField, {'name': 'description'}),
+            ],
+        )
 
         # Used in form
-        create_hf(pk='projects-hf_resource', name=_('Resource view'), model=Resource,
-                  cells_desc=[(EntityCellRegularField, {'name': 'linked_contact'}),
-                              (EntityCellRegularField, {'name': 'hourly_cost'}),
-                             ],
-                 )
+        create_hf(
+            pk='projects-hf_resource', name=_('Resource view'), model=Resource,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'linked_contact'}),
+                (EntityCellRegularField, {'name': 'hourly_cost'}),
+            ],
+        )
 
         # ---------------------------
         create_searchconf = SearchConfigItem.objects.create_if_needed
@@ -174,48 +181,38 @@ class Populator(BasePopulator):
                 )
 
             # ---------------------------
-            create_bdl         = BrickDetailviewLocation.objects.create_if_needed
-            create_bdl_4_model = BrickDetailviewLocation.objects.create_for_model_brick
-
             TOP   = BrickDetailviewLocation.TOP
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            def create_multi_bdl(model, info):
-                for brick, order, zone in info:
-                    if brick == 'model':
-                        create_bdl_4_model(order=order, zone=zone, model=model)
-                    else:
-                        create_bdl(brick=brick, order=order, zone=zone, model=model)
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Project, 'zone': LEFT},
+                data=[
+                    {'brick': bricks.ProjectTasksBrick, 'order': 2, 'zone': TOP},
 
-            create_multi_bdl(
-                Project,
-                [
-                    (bricks.ProjectTasksBrick,      2,   TOP),
+                    {'order': 5},
+                    {'brick': bricks.ProjectExtraInfoBrick,  'order':  30},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
 
-                    ('model',                       5,   LEFT),
-                    (bricks.ProjectExtraInfoBrick,  30,  LEFT),
-                    (core_bricks.CustomFieldsBrick, 40,  LEFT),
-                    (core_bricks.PropertiesBrick,   450, LEFT),
-                    (core_bricks.RelationsBrick,    500, LEFT),
-
-                    (core_bricks.HistoryBrick,      20,  RIGHT),
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
                 ],
             )
-            create_multi_bdl(
-                ProjectTask,
-                [
-                    (bricks.TaskResourcesBrick,     2,   TOP),
-                    (bricks.TaskActivitiesBrick,    4,   TOP),
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': ProjectTask, 'zone': LEFT},
+                data=[
+                    {'brick': bricks.TaskResourcesBrick,  'order': 2, 'zone': TOP},
+                    {'brick': bricks.TaskActivitiesBrick, 'order': 4, 'zone': TOP},
 
-                    ('model',                       5,   LEFT),
-                    (bricks.TaskExtraInfoBrick,     30,  LEFT),
-                    (core_bricks.CustomFieldsBrick, 40,  LEFT),
-                    (bricks.ParentTasksBrick,       50,  LEFT),
-                    (core_bricks.PropertiesBrick,   450, LEFT),
-                    (core_bricks.RelationsBrick,    500, LEFT),
+                    {'order': 5},
+                    {'brick': bricks.TaskExtraInfoBrick,     'order':  30},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': bricks.ParentTasksBrick,       'order':  50},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
 
-                    (core_bricks.HistoryBrick,      20,  RIGHT),
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
                 ],
             )
 
@@ -228,13 +225,13 @@ class Populator(BasePopulator):
                 from creme.assistants import bricks as a_bricks
 
                 for model in (Project, ProjectTask):
-                    create_multi_bdl(
-                        model,
-                        [
-                            (a_bricks.TodosBrick,        100, RIGHT),
-                            (a_bricks.MemosBrick,        200, RIGHT),
-                            (a_bricks.AlertsBrick,       300, RIGHT),
-                            (a_bricks.UserMessagesBrick, 400, RIGHT),
+                    BrickDetailviewLocation.objects.multi_create(
+                        defaults={'model': model, 'zone': RIGHT},
+                        data=[
+                            {'brick': a_bricks.TodosBrick,        'order': 100},
+                            {'brick': a_bricks.MemosBrick,        'order': 200},
+                            {'brick': a_bricks.AlertsBrick,       'order': 300},
+                            {'brick': a_bricks.UserMessagesBrick, 'order': 400},
                         ],
                     )
 
@@ -244,5 +241,7 @@ class Populator(BasePopulator):
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                for model in (Project, ProjectTask):
-                    create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=model)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'brick': LinkedDocsBrick, 'order': 600, 'zone': RIGHT},
+                    data=[{'model': model} for model in (Project, ProjectTask)],
+                )

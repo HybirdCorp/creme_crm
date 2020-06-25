@@ -154,7 +154,7 @@ class Populator(BasePopulator):
             (constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION, _('Qualification')),
             (constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,       _('Revival')),
             (constants.ACTIVITYSUBTYPE_MEETING_NETWORK,       _('Network')),
-            (constants.ACTIVITYSUBTYPE_MEETING_OTHER,     pgettext('activities-meeting', 'Other')),
+            (constants.ACTIVITYSUBTYPE_MEETING_OTHER, pgettext('activities-meeting', 'Other')),
         ]:
             create_subtype(meeting_t, pk, name)
 
@@ -247,18 +247,20 @@ class Populator(BasePopulator):
             LEFT = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
-            BrickDetailviewLocation.objects.create_for_model_brick(
-                order=5, zone=LEFT, model=Activity,
-            )
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Activity, 'zone': LEFT},
+                data=[
+                    {'order': 5},
+                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                    {'brick': bricks.RelatedCalendarBrick,   'order':  90},
+                    {'brick': bricks.ParticipantsBrick,      'order': 100},
+                    {'brick': bricks.SubjectsBrick,          'order': 120},
+                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                    {'brick': core_bricks.RelationsBrick,    'order': 500},
 
-            create_bdl = BrickDetailviewLocation.objects.create_if_needed
-            create_bdl(brick=core_bricks.CustomFieldsBrick, order=40,  zone=LEFT,  model=Activity)
-            create_bdl(brick=bricks.RelatedCalendarBrick,   order=90,  zone=LEFT,  model=Activity)
-            create_bdl(brick=bricks.ParticipantsBrick,      order=100, zone=LEFT,  model=Activity)
-            create_bdl(brick=bricks.SubjectsBrick,          order=120, zone=LEFT,  model=Activity)
-            create_bdl(brick=core_bricks.PropertiesBrick,   order=450, zone=LEFT,  model=Activity)
-            create_bdl(brick=core_bricks.RelationsBrick,    order=500, zone=LEFT,  model=Activity)
-            create_bdl(brick=core_bricks.HistoryBrick,      order=20,  zone=RIGHT, model=Activity)
+                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                ],
+            )
 
             if apps.is_installed('creme.assistants'):
                 logger.info(
@@ -268,10 +270,15 @@ class Populator(BasePopulator):
 
                 from creme.assistants import bricks as a_bricks
 
-                create_bdl(brick=a_bricks.TodosBrick,        order=100, zone=RIGHT, model=Activity)
-                create_bdl(brick=a_bricks.MemosBrick,        order=200, zone=RIGHT, model=Activity)
-                create_bdl(brick=a_bricks.AlertsBrick,       order=300, zone=RIGHT, model=Activity)
-                create_bdl(brick=a_bricks.UserMessagesBrick, order=400, zone=RIGHT, model=Activity)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'model': Activity, 'zone': RIGHT},
+                    data=[
+                        {'brick': a_bricks.TodosBrick,        'order': 100},
+                        {'brick': a_bricks.MemosBrick,        'order': 200},
+                        {'brick': a_bricks.AlertsBrick,       'order': 300},
+                        {'brick': a_bricks.UserMessagesBrick, 'order': 400},
+                    ]
+                )
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed
@@ -279,14 +286,22 @@ class Populator(BasePopulator):
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Activity)
+                BrickDetailviewLocation.objects.create_if_needed(
+                    brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Activity,
+                )
 
             future_id = bricks.FutureActivitiesBrick.id_
             past_id   = bricks.PastActivitiesBrick.id_
-            create_bdl(brick=future_id, order=20, zone=RIGHT, model=Contact)
-            create_bdl(brick=past_id,   order=21, zone=RIGHT, model=Contact)
-            create_bdl(brick=future_id, order=20, zone=RIGHT, model=Organisation)
-            create_bdl(brick=past_id,   order=21, zone=RIGHT, model=Organisation)
+
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'zone': RIGHT},
+                data=[
+                    {'brick': future_id, 'order': 20, 'model': Contact},
+                    {'brick': past_id,   'order': 21, 'model': Contact},
+                    {'brick': future_id, 'order': 20, 'model': Organisation},
+                    {'brick': past_id,   'order': 21, 'model': Organisation},
+                ]
+            )
 
             BrickHomeLocation.objects.create(brick_id=future_id, order=20)
             BrickHomeLocation.objects.create(brick_id=past_id,   order=21)

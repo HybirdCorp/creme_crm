@@ -118,22 +118,29 @@ class Populator(BasePopulator):
             # ---------------------------
             create_if_needed(
                 Currency, {'pk': 2},
-                name=_('United States dollar'), local_symbol=_('$'), international_symbol=_('USD'),
+                name=_('United States dollar'),
+                local_symbol=_('$'), international_symbol=_('USD'),
             )
 
             create_if_needed(Language, {'pk': 1}, name=_('French'),  code='FRA')
             create_if_needed(Language, {'pk': 2}, name=_('English'), code='EN')
 
             # ---------------------------
-            LEFT = BrickDetailviewLocation.LEFT
-            RIGHT = BrickDetailviewLocation.RIGHT
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'zone': BrickDetailviewLocation.LEFT},
+                data=[
+                    {'order': 5},
+                    {'brick': bricks.CustomFieldsBrick, 'order': 40},
+                    {'brick': bricks.PropertiesBrick,   'order': 450},
+                    {'brick': bricks.RelationsBrick,    'order': 500},
 
-            create_bdl = BrickDetailviewLocation.objects.create_if_needed
-            BrickDetailviewLocation.objects.create_for_model_brick(order=5, zone=LEFT)
-            create_bdl(brick=bricks.CustomFieldsBrick, order=40,  zone=LEFT)
-            create_bdl(brick=bricks.PropertiesBrick,   order=450, zone=LEFT)
-            create_bdl(brick=bricks.RelationsBrick,    order=500, zone=LEFT)
-            create_bdl(brick=bricks.HistoryBrick,      order=8,   zone=RIGHT)
+                    {
+                        'brick': bricks.HistoryBrick, 'order': 8,
+                        'zone': BrickDetailviewLocation.RIGHT,
+                    },
+
+                ],
+            )
 
             create_bhl = BrickHomeLocation.objects.create
             create_bhl(brick_id=bricks.StatisticsBrick.id_, order=8)

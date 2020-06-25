@@ -51,25 +51,29 @@ class Populator(BasePopulator):
         Service = get_service_model()
 
         create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(pk=constants.DEFAULT_HFILTER_PRODUCT,
-                  model=Product,
-                  name=_('Product view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'images'}),
-                              (EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'code'}),
-                              (EntityCellRegularField, {'name': 'user'}),
-                              ],
-                  )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_PRODUCT,
+            model=Product,
+            name=_('Product view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'images'}),
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'code'}),
+                (EntityCellRegularField, {'name': 'user'}),
+            ],
+        )
 
-        create_hf(pk=constants.DEFAULT_HFILTER_SERVICE,
-                  model=Service,
-                  name=_('Service view'),
-                  cells_desc=[(EntityCellRegularField, {'name': 'images'}),
-                              (EntityCellRegularField, {'name': 'name'}),
-                              (EntityCellRegularField, {'name': 'reference'}),
-                              (EntityCellRegularField, {'name': 'user'}),
-                              ],
-                  )
+        create_hf(
+            pk=constants.DEFAULT_HFILTER_SERVICE,
+            model=Service,
+            name=_('Service view'),
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'images'}),
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'reference'}),
+                (EntityCellRegularField, {'name': 'user'}),
+            ],
+        )
 
         # ---------------------------
         create_searchconf = SearchConfigItem.objects.create_if_needed
@@ -127,19 +131,25 @@ class Populator(BasePopulator):
         # ---------------------------
         # NB: no straightforward way to test that this populate script has not been already run
         if not BrickDetailviewLocation.objects.filter_for_model(Product).exists():
-            create_bdl = BrickDetailviewLocation.objects.create_if_needed
-            create_bdl_4_model = BrickDetailviewLocation.objects.create_for_model_brick
-            TOP   = BrickDetailviewLocation.TOP
-            LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 
             for model in (Product, Service):
-                create_bdl(brick=bricks.ImagesBrick, order=10, zone=TOP, model=model)
-                create_bdl_4_model(order=5, zone=LEFT, model=model)
-                create_bdl(brick=CustomFieldsBrick, order=40,  zone=LEFT,  model=model)
-                create_bdl(brick=PropertiesBrick,   order=450, zone=LEFT,  model=model)
-                create_bdl(brick=RelationsBrick,    order=500, zone=LEFT,  model=model)
-                create_bdl(brick=HistoryBrick,      order=30,  zone=RIGHT, model=model)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'model': model, 'zone': BrickDetailviewLocation.LEFT},
+                    data=[
+                        {
+                            'brick': bricks.ImagesBrick, 'order': 10,
+                            'zone': BrickDetailviewLocation.TOP,
+                        },
+
+                        {'order': 5},  # generic info brick
+                        {'brick': CustomFieldsBrick, 'order':  40},
+                        {'brick': PropertiesBrick,   'order': 450},
+                        {'brick': RelationsBrick,    'order': 500},
+
+                        {'brick': HistoryBrick, 'order': 30, 'zone': RIGHT},
+                    ],
+                )
 
             if apps.is_installed('creme.assistants'):
                 logger.info(
@@ -147,18 +157,18 @@ class Populator(BasePopulator):
                     ' => we use the assistants blocks on detail views and portal'
                 )
 
-                from creme.assistants.bricks import (
-                    AlertsBrick,
-                    MemosBrick,
-                    TodosBrick,
-                    UserMessagesBrick,
-                )
+                from creme.assistants import bricks as a_bricks
 
                 for model in (Product, Service):
-                    create_bdl(brick=TodosBrick,        order=100, zone=RIGHT, model=model)
-                    create_bdl(brick=MemosBrick,        order=200, zone=RIGHT, model=model)
-                    create_bdl(brick=AlertsBrick,       order=300, zone=RIGHT, model=model)
-                    create_bdl(brick=UserMessagesBrick, order=500, zone=RIGHT, model=model)
+                    BrickDetailviewLocation.objects.multi_create(
+                        defaults={'model': model, 'zone': RIGHT},
+                        data=[
+                            {'brick': a_bricks.TodosBrick,        'order': 100},
+                            {'brick': a_bricks.MemosBrick,        'order': 200},
+                            {'brick': a_bricks.AlertsBrick,       'order': 300},
+                            {'brick': a_bricks.UserMessagesBrick, 'order': 500},
+                        ],
+                    )
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed
@@ -166,5 +176,7 @@ class Populator(BasePopulator):
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                for model in (Product, Service):
-                    create_bdl(brick=LinkedDocsBrick, order=600, zone=RIGHT, model=model)
+                BrickDetailviewLocation.objects.multi_create(
+                    defaults={'brick': LinkedDocsBrick, 'order': 600, 'zone': RIGHT},
+                    data=[{'model': model} for model in (Product, Service)],
+                )
