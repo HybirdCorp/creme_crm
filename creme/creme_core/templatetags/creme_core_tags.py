@@ -607,6 +607,10 @@ class MediaNode(TemplateNode):
 
 @register.simple_tag(name='hg_info')
 def get_hg_info():
+    warnings.warn(
+        '{% hg_info %} is deprecated ; use {% scm_info %} instead.',
+        DeprecationWarning
+    )
     from ..utils.version import get_hg_info
 
     return get_hg_info
