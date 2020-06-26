@@ -6,7 +6,7 @@
 {% block extrahead %}
     <script type='text/javascript'>
         $(document).ready(function() {
-            var controller = new creme.activities.CalendarController({
+            new creme.activities.CalendarController({
                 owner: "{{user_username}}",
                 eventSelectUrl: '{% url "activities__select_calendars" %}',
                 eventUpdateUrl: '{% url "activities__set_activity_dates" %}',

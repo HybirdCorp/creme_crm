@@ -10,7 +10,7 @@
              var properties = {
                  charts: {
                      {% for name, chart in report_charts %}
-                     {{name}}: '{{chart.label}}'{% if not forloop.last %},{% endif %}
+                     '{{name}}': '{{chart.label}}'{% if not forloop.last %},{% endif %}
                      {% endfor %}
                  },
                  sorts: {
