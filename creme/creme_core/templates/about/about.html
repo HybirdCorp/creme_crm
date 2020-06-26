@@ -1,6 +1,8 @@
 {% extends 'about/base.html' %}
 {% load i18n creme_core_tags %}
 
+{% block icon %}<a href="{% url 'creme_core__home' %}" title="{% trans 'Back to home' %}" >{{block.super}}</a>{% endblock %}
+
 {% block version %}
     {{block.super}}<br/>
 {#    {% hg_info as hg %}{% if hg %}{% blocktrans with id=hg.id date=hg.date %}Changeset: {{id}} ({{date}}){% endblocktrans %}{% endif %} #}
