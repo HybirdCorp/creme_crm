@@ -1,0 +1,189 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load i18n %}
+{% load creme_core_tags %}
+
+{% block test_title %}JQuery Color picker{% endblock %}
+{% block test_header %}
+    <style type="text/css">
+        #clean-output {
+            padding: 5px;
+            border-top: 1px solid #ccc;
+            font-size: 10px;
+            font-family: monospace;
+            width: 100%;
+            height: 20%;
+            position: fixed;
+            bottom: 0px;
+        }
+
+        #clean-output.invalid {
+            border-top: 1px solid red;
+        }
+
+        ul {
+            display: flex;
+            flex-direction: row;
+            padding: 2px;
+        }
+
+        li {
+            padding: 0px 10px;
+            list-style: none;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        li + li {
+            border-left: 1px solid #ccc;
+        }
+
+        form {
+            display: flex;
+            flex-flow: row wrap;
+            align-items: stretch;
+        }
+
+        form label {
+            padding: 3px;
+            box-sizing: border-box;
+            width: 35%;
+            text-align: right;
+            white-space: pre-wrap;
+        }
+
+        form .field {
+            margin: 3px 0px;
+            box-sizing: border-box;
+            width: 65%;
+            align-self: flex-start;
+            display: flex;
+            flex-flow: column;
+        }
+
+        form .field input {
+            width: auto;
+        }
+
+        form .field input[type="color"] {
+            width: 80px;
+            border: 0px;
+            padding: 0px;
+        }
+
+        form .field-error {
+            display: none;
+            color: red;
+            text-align: right;
+        }
+
+        form .is-field-invalid + .field-error {
+            display: block;
+        }
+
+        form button[type="submit"], form input[type="submit"] {
+            margin: 5px auto;
+            display: block;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(document).on('submit', 'form', function(e) {
+                e.preventDefault();
+            });
+
+            $(document).on('form-submit', 'form', function(e, form) {
+                form.toggleSubmitState(false);
+            });
+
+            $(document).on('field-error', function(e, field, valid, error) {
+                field.form().find('[name="' + field.name() + '"] + .field-error').text(error ? error.message : '');
+            });
+
+            $(document).on('form-clean', 'form', function(e, form, data) {
+                $('#clean-output').toggleClass('invalid', !data.isValid)
+                                  .text(data.isValid ? $.toJSON(data.cleanedData) : $.toJSON(data.fieldErrors));
+            });
+
+            $('form').flyform();
+        });
+    </script>
+{% endblock %}
+{% block test_content %}
+<ul>
+    <li>
+        <h4>Input states</h4>
+        <form>
+            <label>Text</label><div class="field" ><input name="text" type="text" /></div>
+            <label>Text (disabled)</label><div class="field" ><input name="text-disabled" type="text" value="disabled" disabled/></div>
+            <label>Text (readonly)</label><div class="field" ><input name="text-readonly" type="text" value="read it" readonly/></div>
+            <label>Text (required)</label><div class="field" ><input name="text-required" type="text" value="" required/></div>
+            <button type="submit">Send</button>
+        </form>
+    </li>
+    <li>
+        <h4>Input data-type</h4>
+        <form>
+            <label>number</label><div class="field" ><input name="text-number" data-type="number" value="12"/></div>
+            <label>decimal</label><div class="field" ><input name="text-decimal" data-type="float" value="12.5337"/></div>
+            <label>integer</label><div class="field" ><input name="text-integer" data-type="integer" value="1337"/></div>
+            <label>date</label><div class="field" ><input name="text-date" data-type="date" value="2020-06-01"/></div>
+            <label>datetime</label><div class="field" ><input name="text-datetime" data-type="datetime" value="2020-06-01T17:53:12"/></div>
+            <label>color</label><div class="field" ><input name="text-color" data-type="color" value="#eaea12"/></div>
+            <button type="submit">Send</button>
+        </form>
+    </li>
+    <li>
+        <h4>Input html5-type</h4>
+        <form>
+            <label>number</label><div class="field" ><input name="number" type="number" value="12"/></div>
+            <label>decimal</label><div class="field" ><input name="text-decimal" data-type="float" value="12.5337"/></div>
+            <label>integer</label><div class="field" ><input name="integer" type="integer" value="1337"/></div>
+            <label>date</label><div class="field" ><input name="date" type="date" value="2020-06-01"/></div>
+            <label>datetime</label><div class="field" ><input name="datetime" type="datetime-local" value="2020-06-01T17:53:12"/></div>
+            <label>color</label><div class="field" ><input name="color" type="color" value="#eaea12"/></div>
+            <button type="submit">Send</button>
+        </form>
+    </li>
+    <li>
+        <h4>Custom messages</h4>
+        <form>
+            <label>number</label><div class="field" ><input name="number" type="number" value="12"/></div>
+            <label>decimal</label><div class="field" ><input name="text-decimal" data-type="float" value="12.5337" data-err-clean-mismatch="Wrong decimal !"/></div>
+            <label>integer (required)</label><div class="field" ><input name="integer" type="integer" value="1337" required data-err-value-missing="Not here !"/></div>
+            <label>date</label><div class="field" ><input name="date" type="date" value="2020-06-01"/></div>
+            <label>datetime</label><div class="field" ><input name="datetime" type="datetime-local" value="2020-06-01T17:53:12"/></div>
+            <label>color</label><div class="field" ><input name="color" type="color" value="#eaea12"/></div>
+            <button type="submit">Send</button>
+        </form>
+    </li>
+    <li>
+        <h4>Custom error rendering</h4>
+        <form data-notooltip>
+            <label>text (required)</label><div class="field" ><input name="text-required" type="text" value="" required/><span class="field-error"></span></div>
+            <label>number</label><div class="field" ><input name="number" type="number" value="12"/><span class="field-error"></span></div>
+            <label>decimal</label><div class="field" ><input name="text-decimal" data-type="float" value="12.5337" data-err-clean-mismatch="Wrong decimal !"/><span class="field-error"></span></div>
+            <label>integer</label><div class="field" ><input name="integer" type="integer" value="1337"/><span class="field-error"></span></div>
+            <label>date</label><div class="field" ><input name="date" type="date" value="2020-06-01"/><span class="field-error"></span></div>
+            <label>datetime − text</label><div class="field" ><input name="text-datetime" data-type="datetime-local" value="2020-06-01T17:53:12"/><span class="field-error"></span></div>
+            <label>color</label><div class="field" ><input name="color" type="color" value="#eaea12"/><span class="field-error"></span></div>
+            <button type="submit">Send</button>
+        </form>
+    </li>
+    <li>
+        <h4>Custom error rendering & responsive</h4>
+        <form data-notooltip data-responsive>
+            <label>text (required)</label><div class="field" ><input name="text-required" type="text" value="" required data-err-value-missing="Not here !"/><span class="field-error"></span></div>
+            <label>number</label><div class="field" ><input name="text-number" type="number" value="12"/><span class="field-error"></span></div>
+            <label>decimal</label><div class="field" ><input name="text-decimal" data-type="float" value="12.5337"/><span class="field-error"></span></div>
+            <label>integer</label><div class="field" ><input name="text-integer" type="integer" value="1337"/><span class="field-error"></span></div>
+            <label>date</label><div class="field" ><input name="text-date" type="date" value="2020-06-01"/><span class="field-error"></span></div>
+            <label>datetime − text</label><div class="field" ><input name="text-datetime" data-type="datetime-local" value="2020-06-01T17:53:12"/><span class="field-error"></span></div>
+            <label>color</label><div class="field" ><input name="text-color" type="color" value="#eaea12"/><span class="field-error"></span></div>
+            <button type="submit">Send</button>
+        </form>
+    </li>
+</ul>
+<div id="clean-output"></div>
+{% endblock %}
