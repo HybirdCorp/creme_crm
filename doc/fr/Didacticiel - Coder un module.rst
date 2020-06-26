@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 19-06-2020 pour la version 2.2 de Creme
+:Version: 04-09-2020 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -242,13 +242,13 @@ Créer la table dans la base de données
 
 Toujours depuis le répertoire ``creme/``, lancez les commandes suivantes : ::
 
-    > python manage.py makemigrations beavers
+    > python creme/manage.py makemigrations beavers
 
 Cela devrait créer un répertoire ``creme/beavers/migrations/`` avec dedans un
 fichier ``__init__.py`` et un fichier ``0001_initial.py``. Ce dernier donne
 à Django la description de la table qui va contenir nos castors : ::
 
-    > python manage.py migrate beavers
+    > python creme/manage.py migrate beavers
     Operations to perform:
         Apply all migrations: beavers
     Running migrations:
@@ -302,7 +302,7 @@ Si nous lançons Creme avec le serveur de développement de Django, et que nous 
 connectons avec notre navigateur Web (à l'adresse définie par SITE_DOMAIN dans
 la configuration), que se passe-t-il ? ::
 
-    > python manage.py runserver
+    > python creme/manage.py runserver
 
 
 Il n'y a aucune trace de notre nouvelle app. Mais pas d'inquiétude, nous allons
@@ -645,7 +645,7 @@ Explications :
 Le code est exécuté par la commande ``creme_populate``. La commande permet de ne
 'peupler' que notre app. Dans ``creme/``, exécutez : ::
 
-    > python manage.py creme_populate beavers
+    > python creme/manage.py creme_populate beavers
 
 
 En réaffichant votre liste de castors, la deuxième vue est bien là.
@@ -872,7 +872,7 @@ Modifiez *models/__init__.py* : ::
 
 Nous allons générer une première migration qui généré la table correspondante : ::
 
-    > python manage.py makemigrations beavers
+    > python creme/manage.py makemigrations beavers
 
 Un fichier nommé ``0002_status.py`` est alors créé.
 
@@ -886,7 +886,7 @@ faire évoluer sans casser les données existantes.
 
 Générer donc cette migration (notez le paramètre ``empty``) : ::
 
-    > python manage.py makemigrations beavers --empty
+    > python creme/manage.py makemigrations beavers --empty
 
 Un fichier noméé en fonction de la date du jour vient d'être créé. Une fois
 celui-ci rénommé en ``0003_populate_default_status.py``, ouvrez le.
@@ -962,7 +962,7 @@ instances ``Beaver`` qui l'utilisent.
 Il faut maintenant générer la migration correspondante (pas de ``empty``
 puisque c'est une migration de schéma) : ::
 
-    > python manage.py makemigrations beavers
+    > python creme/manage.py makemigrations beavers
     You are trying to add a non-nullable field 'status' to beaver without a default; we can't do that (the database needs something to populate existing rows).
     Please select a fix:
     1) Provide a one-off default now (will be set on all existing rows)
@@ -975,7 +975,7 @@ migration précédente).
 
 On peut maintenant exécuter nos migrations : ::
 
-    > python manage.py migrate
+    > python creme/manage.py migrate
 
 En relançant le serveur, lorsqu'on ajoute un castor, on a bien un nouveau champ
 dans le formulaire. En revanche un seul choix de ``Status`` est disponible, ce
@@ -1022,7 +1022,7 @@ lors d'une mise à jour (et donc d'un lancement de la commande ``creme_populate`
 
 Relancez la commande pour 'peupler' : ::
 
-    > python manage.py creme_populate beavers
+    > python creme/manage.py creme_populate beavers
 
 
 Le formulaire de création de Beaver nous propose bien ces 2 statuts.
@@ -2133,7 +2133,7 @@ vouloir remplacer les occurrences de 'Société' par 'Association'.
 Dans le répertoire ``creme/``, il faut lancer la commande suivante (notez que
 'organisation' est le terme utilisé en anglais pour 'société') : ::
 
-    > python manage.py i18n_overload -l fr organisation Organisation
+    > python creme/manage.py i18n_overload -l fr organisation Organisation
 
 
 Il faut ensuite éditer le fichier de traduction nouvellement créé dans
@@ -2377,7 +2377,7 @@ sont assez sensibles).
 #. Générez la migration de votre nouveau modèle. Cependant, comme la table existe
    déjà en base il faut *faker* cette migration : ::
 
-        > python manage.py migrate my_tickets --fake-initial
+        > python creme/manage.py migrate my_tickets --fake-initial
 
 #. Comme nous l'avons vu, il faut gérer les vues de notre nouveau modèle.
 
@@ -3157,7 +3157,7 @@ Remarques:
 
 Vous pouvez alors lancer vos tests : ::
 
-    > python manage.py test beavers
+    > python creme/manage.py test beavers
 
 **Astuce** : travaillez avec SQLite lorsque vous écrivez le nouveau code.
 Vous pouvez même, lorsque vous êtes dans une passe de TDD (c'est-à-dire que

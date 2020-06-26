@@ -13,6 +13,8 @@ django.wsgi
 creme/media/upload/*/*
 creme/media/static/*
 _generated_media_names.py
+*.sqlite
+*.db
 
 # creme/activesync/SyncEngine/*
 # creme/activesync/backup/*

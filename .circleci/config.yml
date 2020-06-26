@@ -20,23 +20,21 @@ commands:
     description: "Install creme dependencies"
     steps:
       - run: sudo apt update
-      - run: sudo apt install -y python-dev graphviz libgraphviz-dev pkg-config lcab
+      - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config lcab
 
   install-py-dev-env:
     steps:
       - restore_cache:
           keys:
-            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
-            - creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}
+            - creme_crm-{{ checksum "setup.cfg" }}
+            - creme_crm
 
       - create-virtualenv
-      - run: pip install -r creme/requirements-dev.txt
-      - run: pip install -r creme/requirements-mysql.txt
-      - run: pip install -r creme/requirements-pgsql.txt
+      - run: pip install -e .[dev,mysql,pgsql,graphs]
       - run: pip list --outdated
 
       - save_cache:
-          key: creme_crm-{{ checksum "creme/requirements.txt" }}-{{ checksum "creme/requirements-dev.txt" }}-{{ checksum "creme/requirements-mysql.txt" }}-{{ checksum "creme/requirements-pgsql.txt" }}
+          key: creme_crm-{{ checksum "setup.cfg" }}
           paths: "~/venv"
 
   install-node-env:
@@ -77,6 +75,7 @@ jobs:
       - image: circleci/python:3.7
     steps:
       - checkout
+      - install-creme-system-packages
       - install-py-dev-env
       - run: make isort-check
 
@@ -86,6 +85,7 @@ jobs:
       - image: circleci/python:3.7
     steps:
       - checkout
+      - install-creme-system-packages
       - install-py-dev-env
       - run: flake8 creme/
 
@@ -112,10 +112,10 @@ jobs:
       - install-py-dev-env
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/mysql_settings.py creme/local_settings.py
-      - run: python manage.py migrate
-      - run: python manage.py creme_populate
-      - run: python manage.py generatemedia
-      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ manage.py test --noinput --parallel=6
+      - run: python creme/manage.py migrate
+      - run: python creme/manage.py creme_populate
+      - run: python creme/manage.py generatemedia
+      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=6
       - run: coverage combine
       - run: coverage html
       - store_artifacts:
@@ -144,10 +144,10 @@ jobs:
       - install-py-dev-env
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/pgsql_settings.py creme/local_settings.py
-      - run: python manage.py migrate
-      - run: python manage.py creme_populate
-      - run: python manage.py generatemedia
-      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ manage.py test --noinput --parallel=8
+      - run: python creme/manage.py migrate
+      - run: python creme/manage.py creme_populate
+      - run: python creme/manage.py generatemedia
+      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
       - run: coverage combine
       - run: coverage html
       - store_artifacts:
@@ -167,10 +167,10 @@ jobs:
       - install-py-dev-env
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/sqlite3_settings.py creme/local_settings.py
-      - run: python manage.py migrate
-      - run: python manage.py creme_populate
-      - run: python manage.py generatemedia
-      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ manage.py test --noinput --parallel=8
+      - run: python creme/manage.py migrate
+      - run: python creme/manage.py creme_populate
+      - run: python creme/manage.py generatemedia
+      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
       - run: coverage combine
       - run: coverage html
       - store_artifacts:
@@ -197,7 +197,7 @@ jobs:
       - install-creme-system-packages
       - install-py-dev-env
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
-      - run: python manage.py generatemedia
+      - run: python creme/manage.py generatemedia
       - install-node-env
       - run:
           name: Run javascript tests

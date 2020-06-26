@@ -41,7 +41,7 @@ def check_secret_key(**kwargs):
             "You did not generate a secret key.",
             hint='Change the SECRET_KEY setting in your'
                  ' local_settings.py/project_settings.py\n'
-                 'Use the result of the command "python manage.py build_secret_key".',
+                 'Use the result of the command "python creme/manage.py build_secret_key".',
             obj='creme.creme_core',
             id='creme.E002',
         ))

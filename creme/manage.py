@@ -24,7 +24,10 @@ def start_parallel_coverage():
     coverage.process_startup()
 
 
-if __name__ == "__main__":
+def execute():
+    # Allow to define external django settings
+    sys.path.append(os.getcwd())
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "creme.settings")
 
     from django.core.management import execute_from_command_line
@@ -34,3 +37,7 @@ if __name__ == "__main__":
         start_parallel_coverage()
 
     execute_from_command_line(argv)
+
+
+if __name__ == "__main__":
+    execute()
