@@ -48,11 +48,13 @@ class _PersonMassImportForm(ImportForm4CremeEntity):
         if getattr(self, f'_{attr_name}_hidden'):
             return False
 
+        user = self.user
         address_dict = {}
         save = False
 
         for field_name in self._address_field_names:
-            extr_value, err_msg = data[prefix + field_name].extract_value(line)
+            # extr_value, err_msg = data[prefix + field_name].extract_value(line)
+            extr_value, err_msg = data[prefix + field_name].extract_value(line, user)
             if extr_value:
                 address_dict[field_name] = extr_value
 

@@ -38,14 +38,20 @@ class CategoriesExtractor:
     class _FatalError(Exception):
         pass
 
-    def __init__(self, cat_index, subcat_index, default_subcat, create_if_unfound=False):
+    def __init__(
+            self,
+            cat_index,
+            subcat_index,
+            default_subcat,
+            create_if_unfound=False):
         self._cat_index = cat_index
         self._subcat_index = subcat_index
         self._default_cat = default_subcat.category
         self._default_subcat = default_subcat
         self._create = create_if_unfound
 
-    def extract_value(self, line):
+    # def extract_value(self, line):
+    def extract_value(self, line, user):
         error_msg = None
         category = self._default_cat
         sub_category = self._default_subcat
@@ -170,10 +176,13 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
         # (in order to avoid HTTP requests later)
         sub_cat_map = defaultdict(list)
         if cat_choices:
-            for sub_cat in SubCategory.objects.filter(category__in=[c[0] for c in cat_choices]):
+            for sub_cat in SubCategory.objects.filter(
+                category__in=[c[0] for c in cat_choices],
+            ):
                 sub_cat_map[sub_cat.category_id].append((sub_cat.id, sub_cat.name))
 
-        # NB: we need to work with an int, in order to not mix int & str as keys for 'sub_cat_map'.
+        # NB: we need to work with an int, in order to not mix int & str as keys
+        #     for 'sub_cat_map'.
         try:
             selected_cat_id = int(value['default_cat'])
         except (KeyError, ValueError, TypeError):
@@ -290,24 +299,29 @@ class CategoriesExtractorField(Field):
         if create and not self._can_create:
             raise ValidationError('You cannot create Category or SubCategory')
 
-        return CategoriesExtractor(cat_index=cat_index,
-                                   subcat_index=subcat_index,
-                                   default_subcat=default_subcat,
-                                   create_if_unfound=create,
-                                  )
+        return CategoriesExtractor(
+            cat_index=cat_index,
+            subcat_index=subcat_index,
+            default_subcat=default_subcat,
+            create_if_unfound=create,
+        )
 
 
 def get_massimport_form_builder(header_dict, choices):
     class ProductMassImportForm(ImportForm4CremeEntity):
-        categories = CategoriesExtractorField(choices=choices, label=_('Categories'),
-                                              categories=Category.objects.all(),
-                                             )
+        categories = CategoriesExtractorField(
+            choices=choices, label=_('Categories'),
+            categories=Category.objects.all(),
+        )
 
         class Meta:
             exclude = ('images', 'category', 'sub_category')
 
         def _pre_instance_save(self, instance, line):
-            category, sub_category, error = self.cleaned_data['categories'].extract_value(line)
+            # category, sub_category, error = self.cleaned_data['categories'].extract_value(line)
+            category, sub_category, error = self.cleaned_data['categories'].extract_value(
+                line=line, user=self.user,
+            )
 
             if error:
                 self.append_error(error)
