@@ -42,7 +42,7 @@ DEPENDENCIES:
  - Redis 3+
  - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
  - These python packages :
-   (exact versions of Python packages are indicated in the files 'creme/requirements*.txt')
+   (exact versions of Python packages are indicated in the 'setup.cfg' file)
      - Mandatory :
          - Django 2.2
          - redis 3.4
@@ -68,12 +68,12 @@ DEPENDENCIES:
 
 Installation with 'pip':
     - You should probably use "virtualenv" (on a Python >= 3.6).
+    - Creme should be installed using 'pip install .'
     - About DB server :
-        - If you use MySQL, you can use the file 'creme/requirements-mysql.txt' to install
-          all the libraries needed by a classical installation with the command :
-            >> pip install -r creme/requirements-mysql.txt
-        - For PostGreSQL, use 'creme/requirements-pgsql.txt' instead.
-        - For SQLite, just use 'creme/requirements.txt' instead (see RECOMMENDATIONS).
+        - If you use MySQL, you must add the 'mysql' flag:
+          'pip install .[mysql]'
+        - For PostGreSQL, use 'pip install .[pgsql]' instead.
+        - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
     - Notice some of these python packages need system libraries to be installed.
       For example, here a list of Debian/Ubuntu packages you'll have to install before:
         - python-dev
@@ -118,7 +118,7 @@ Here the minimal information you must fill :
     TIME_ZONE = 'Europe/Paris'  # See http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 
 To generate the value of SECRET_KEY, run the following command in the root directory & copy its result:
-    >> python manage.py build_secret_key
+    >> python creme/manage.py build_secret_key
 
 You can chose precisely the creme apps you want, by copying INSTALLED_CREME_APPS & commenting the unwanted apps ;
 beware to only comment app in the 'optional' section, & respect the dependencies which are indicated.
@@ -138,12 +138,12 @@ For an upgrade from Creme 1.8 :
 
 Filling the DB tables:
 Run the following commands in the root directory:
-    >> python manage.py migrate
-    >> python manage.py generatemedia
-    >> python manage.py creme_populate
+    >> python creme/manage.py migrate
+    >> python creme/manage.py generatemedia
+    >> python creme/manage.py creme_populate
 
 If you are upgrading from Creme 2.0, clean all existing sessions, for example like this:
-    >> python manage.py shell
+    >> python creme/manage.py shell
     > from django.contrib.sessions.models import Session
     > Session.objects.all().delete()
 
@@ -156,13 +156,13 @@ Note for MySQL users: you should load the time zone tables.
 LAUNCH:
 
 To run the development server, you just have to run this command:
-    >> python manage.py runserver
+    >> python creme/manage.py runserver
 You can then go to http://localhost:8000 & log in with root/root.
 
 For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/1.11/howto/deployment/
 
 In order to use the job system (eg: sending emails campaign, CSV import...), run the job manager too:
-    >> python manage.py creme_job_manager
+    >> python creme/manage.py creme_job_manager
 
 
 UNINSTALL APPS:

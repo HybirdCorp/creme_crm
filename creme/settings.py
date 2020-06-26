@@ -198,7 +198,7 @@ MEDIA_ROOT = join(CREME_ROOT, 'media')
 MEDIA_URL = 'http://127.0.0.1:8000/site_media/'
 
 # Make this unique, and don't share it with anybody.
-# Use 'python manage.py build_secret_key' to generate it.
+# Use 'python creme/manage.py build_secret_key' to generate it.
 SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
 
 # A list of strings representing the host/domain names that this Django site can serve.

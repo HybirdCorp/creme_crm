@@ -1,4 +1,4 @@
-from .settings import INSTALLED_CREME_APPS, INSTALLED_DJANGO_APPS
+from creme.settings import INSTALLED_CREME_APPS, INSTALLED_DJANGO_APPS
 
 SECRET_KEY = "CircleCi-Secret-Key"
 

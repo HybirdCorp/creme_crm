@@ -68,7 +68,7 @@ class CSVImportCommand(BaseCommand):
 # etc....
 
 # Content of 'my_app/management/commands/my_import.py' ------------------------
-# [so command is: > python manage.py my_import path/to/my_file.csv]
+# [so command is: > python creme/manage.py my_import path/to/my_file.csv]
 
 # from django.contrib.auth import get_user_model
 #

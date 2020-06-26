@@ -38,9 +38,10 @@ class GraphBarHatBrick(Brick):
         try:
             import pygraphviz  # NOQA
         except ImportError:
-            logger.warn(
+            logger.warning(
                 'The package "pygraphviz" is not installed ; '
-                'see creme/graphs/requirements.txt for version.'
+                'please install creme with the `graphs` flag. '
+                'I.E `pip install creme[mysql,graphs]`'
             )
             dl_button = False
         else:
