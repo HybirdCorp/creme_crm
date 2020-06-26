@@ -144,7 +144,10 @@ class UploadForm(CremeForm):
             format_html_join(
                 '', '<li>{}: {}</li>',
                 # ((be.verbose_name, be.help_text) for be in import_backend_registry.backends)
-                ((be.verbose_name, be.help_text) for be in import_backend_registry.backend_classes)
+                (
+                    (be.verbose_name, be.help_text)
+                    for be in import_backend_registry.backend_classes
+                )
             )
         )
 
@@ -161,19 +164,56 @@ class UploadForm(CremeForm):
         return cdata
 
 
+# Base Extractors (+ widget) ---------------------------------------------------
+
+class BaseExtractor:
+    def extract_value(self, line: Line, user) -> ExtractedTuple:
+        raise NotImplementedError()
+
+
+class SingleColumnExtractor(BaseExtractor):
+    def __init__(self, column_index: int):
+        self._column_index = column_index
+
+
+class BaseExtractorWidget(Widget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.column_select = Select()
+
+    @property
+    def choices(self):
+        return self.column_select.choices
+
+    @choices.setter
+    def choices(self, choices):
+        self.column_select.choices = choices
+
+
 # Extractors (and related field/widget) for regular model's fields--------------
 
-class Extractor:
-    def __init__(self, column_index: int, default_value, value_castor: ValueCastor):
-        self._column_index  = column_index
+# class Extractor:
+class RegularFieldExtractor(SingleColumnExtractor):
+    def __init__(
+            self,
+            column_index: int,
+            default_value,
+            value_castor: ValueCastor):
+        # self._column_index = column_index
+        super().__init__(column_index=column_index)
         self._default_value = default_value
-        self._value_castor  = value_castor
+        self._value_castor = value_castor
         self._subfield_search = None
         self._fk_model = None
         self._m2m = None
         self._fk_form = None
 
-    def set_subfield_search(self, subfield_search, subfield_model, multiple, create_if_unfound):
+    def set_subfield_search(
+            self,
+            subfield_search,
+            subfield_model,
+            multiple,
+            create_if_unfound):
         self._subfield_search = str(subfield_search)
         self._fk_model = subfield_model
         self._m2m = multiple
@@ -182,7 +222,8 @@ class Extractor:
             # TODO: creme_config form ??
             self._fk_form = modelform_factory(subfield_model, fields='__all__')
 
-    def extract_value(self, line: Line) -> ExtractedTuple:
+    # def extract_value(self, line):
+    def extract_value(self, line, user) -> ExtractedTuple:
         value = self._default_value
         err_msg = None
 
@@ -243,22 +284,10 @@ class Extractor:
         return value, err_msg
 
 
-class BaseExtractorWidget(Widget):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.column_select = Select()
-
-    @property
-    def choices(self):
-        return self.column_select.choices
-
-    @choices.setter
-    def choices(self, choices):
-        self.column_select.choices = choices
-
-
-class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldExtractorWidget ??
-    template_name = 'creme_core/forms/widgets/mass-import/extractor.html'
+# class ExtractorWidget(BaseExtractorWidget):
+class RegularFieldExtractorWidget(BaseExtractorWidget):
+    # template_name = 'creme_core/forms/widgets/mass-import/extractor.html'
+    template_name = 'creme_core/forms/widgets/mass-import/field-extractor.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -312,19 +341,20 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
     def value_from_datadict(self, data, files, name):
         get = data.get
         return {
-            'selected_column':  get(f'{name}_colselect'),
-            'subfield_search':  get(f'{name}_subfield'),
-            'subfield_create':  get(f'{name}_create', False),
-            'default_value':    self.default_value_widget
-                                    .value_from_datadict(data=data,
-                                                         files=files,
-                                                         name=f'{name}_defval',
-                                                        ),
+            'selected_column': get(f'{name}_colselect'),
+            'subfield_search': get(f'{name}_subfield'),
+            'subfield_create': get(f'{name}_create', False),
+            'default_value': self.default_value_widget.value_from_datadict(
+                data=data,
+                files=files,
+                name=f'{name}_defval',
+            ),
         }
 
 
-class ExtractorField(Field):
-    widget = ExtractorWidget
+# class ExtractorField(Field):
+class RegularFieldExtractorField(Field):
+    widget = RegularFieldExtractorWidget
     default_error_messages = {
         'invalid': _('Enter a valid value.'),
         'invalid_subfield': _(
@@ -388,7 +418,9 @@ class ExtractorField(Field):
 
             widget = self.widget
             self._subfield_choices = widget.subfield_select = sf_choices
-            widget.propose_creation = self._can_create = creation_perm and (len(sf_choices) == 1)
+            widget.propose_creation = self._can_create = (
+                creation_perm and (len(sf_choices) == 1)
+            )
 
     def clean(self, value):
         try:
@@ -420,7 +452,7 @@ class ExtractorField(Field):
         if not self._can_create and subfield_create:
             raise ValidationError('You can not create instances')
 
-        extractor = Extractor(col_index, def_value, self._original_field.clean)
+        extractor = RegularFieldExtractor(col_index, def_value, self._original_field.clean)
 
         subfield_choices = self._subfield_choices
         if subfield_choices:
@@ -429,7 +461,9 @@ class ExtractorField(Field):
             if subfield_search:
                 if not any(subfield_search == choice[0] for choice in subfield_choices):
                     raise ValidationError(
-                        self.error_messages['invalid_subfield'].format(value=subfield_search),
+                        self.error_messages['invalid_subfield'].format(
+                            value=subfield_search,
+                        ),
                         code='invalid_subfield',
                     )
 
@@ -463,7 +497,8 @@ class EntityExtractionCommand:
         return index
 
 
-class EntityExtractor:
+# class EntityExtractor:
+class EntityExtractor(BaseExtractor):
     def __init__(self, extraction_cmds: List[EntityExtractionCommand]):
         "@params extraction_cmds: List of EntityExtractionCommands."
         self._commands = extraction_cmds
@@ -642,7 +677,10 @@ class EntityExtractorField(Field):
                 index = cmd.build_column_index()
 
                 if index not in allowed_indexes:
-                    raise ValidationError(self.error_messages['invalid'], code='invalid')
+                    raise ValidationError(
+                        self.error_messages['invalid'],
+                        code='invalid',
+                    )
 
                 if cmd.create and not can_create(cmd.model):
                     raise ValidationError(
@@ -653,7 +691,10 @@ class EntityExtractorField(Field):
 
                 one_active_command |= bool(index)
         except TypeError as e:
-            raise ValidationError(self.error_messages['invalid'], code='invalid') from e
+            raise ValidationError(
+                self.error_messages['invalid'],
+                code='invalid',
+            ) from e
 
         return one_active_command
 
@@ -661,14 +702,18 @@ class EntityExtractorField(Field):
         one_active_command = self._clean_commands(value)
 
         if self.required and not one_active_command:
-            raise ValidationError(self.error_messages['required'], code='required')
+            raise ValidationError(
+                self.error_messages['required'],
+                code='required',
+            )
 
         return EntityExtractor(value)
 
 
 # Extractors (and related field/widget) for relations---------------------------
 
-class RelationExtractor:
+# class RelationExtractor:
+class RelationExtractor(SingleColumnExtractor):
     def __init__(
             self,
             column_index: int,
@@ -676,11 +721,12 @@ class RelationExtractor:
             subfield_search,
             related_model,
             create_if_unfound):
-        self._column_index    = column_index
-        self._rtype           = rtype
+        # self._column_index = column_index
+        super().__init__(column_index=column_index)
+        self._rtype = rtype
         self._subfield_search = str(subfield_search)
-        self._related_model   = related_model
-        self._related_form    = modelform_factory(
+        self._related_model = related_model
+        self._related_form = modelform_factory(
             related_model, fields='__all__',
         ) if create_if_unfound else None
 
@@ -777,9 +823,13 @@ class RelationExtractorSelector(SelectorList):
 
         # TODO: use GET args instead of using TemplateURLBuilders ?
         add_dselect = partial(
-            chained_input.add_dselect, attrs={'auto': False, 'autocomplete': True},
+            chained_input.add_dselect,
+            attrs={'auto': False, 'autocomplete': True},
         )
-        add_dselect('rtype', options=self.relation_types, label=gettext('The entity'))
+        add_dselect(
+            'rtype',
+            options=self.relation_types, label=gettext('The entity'),
+        )
         add_dselect(
             'ctype',
             options=TemplateURLBuilder(
@@ -795,15 +845,21 @@ class RelationExtractorSelector(SelectorList):
         )
         add_dselect('column', options=self.columns, label=gettext('equals to'))
 
-        context = super().get_context(name=name, attrs=attrs, value=value.get('selectorlist'))
+        context = super().get_context(
+            name=name,
+            attrs=attrs,
+            value=value.get('selectorlist'),
+        )
         context['widget']['can_create_checked'] = value.get('can_create', False)
 
         return context
 
     def value_from_datadict(self, data, files, name):
         return {
-            'selectorlist': super().value_from_datadict(data=data, files=files, name=name),
-            'can_create':   data.get(f'{name}_can_create', False),
+            'selectorlist': super().value_from_datadict(
+                data=data, files=files, name=name,
+            ),
+            'can_create': data.get(f'{name}_can_create', False),
         }
 
 
@@ -833,12 +889,18 @@ class RelationExtractorField(MultiRelationEntityField):
 
         if not selector_data:
             if self.required:
-                raise ValidationError(self.error_messages['required'], code='required')
+                raise ValidationError(
+                    self.error_messages['required'],
+                    code='required',
+                )
 
             return MultiRelationsExtractor([])
 
         if not isinstance(selector_data, list):
-            raise ValidationError(self.error_messages['invalidformat'], code='invalidformat')
+            raise ValidationError(
+                self.error_messages['invalidformat'],
+                code='invalidformat',
+            )
 
         clean_value = self.clean_value
         cleaned_entries = [
@@ -912,15 +974,19 @@ class RelationExtractorField(MultiRelationEntityField):
 
 # Extractors (and related field/widget) for custom fields ----------------------
 
-class CustomFieldExtractor:
+# class CustomFieldExtractor:
+class CustomFieldExtractor(SingleColumnExtractor):
     _manage_enum: Optional[Callable]
 
-    def __init__(self, column_index: int,
-                 default_value,
-                 value_castor: ValueCastor,
-                 custom_field: CustomField,
-                 create_if_unfound: bool):
-        self._column_index  = column_index
+    def __init__(
+            self,
+            column_index: int,
+            default_value,
+            value_castor: ValueCastor,
+            custom_field: CustomField,
+            create_if_unfound: bool):
+        # self._column_index  = column_index
+        super().__init__(column_index=column_index)
         self._default_value = default_value
         self._value_castor  = value_castor
 
@@ -935,7 +1001,8 @@ class CustomFieldExtractor:
         else:
             self._manage_enum = None
 
-    def extract_value(self, line):
+    # def extract_value(self, line):
+    def extract_value(self, line, user):
         value = self._default_value
         err_msg = None
 
@@ -958,10 +1025,10 @@ class CustomFieldExtractor:
                         # TODO: improve self._value_castor avoid the direct 'return' ?
                         return (
                             self._manage_enum(
-                                CustomFieldEnumValue.objects
-                                                    .create(custom_field=self._custom_field,
-                                                            value=line_value,
-                                                           ).id
+                                CustomFieldEnumValue.objects.create(
+                                    custom_field=self._custom_field,
+                                    value=line_value,
+                                ).id
                             ),
                             err_msg
                         )
@@ -990,7 +1057,8 @@ class CustomFieldExtractor:
 
 
 # TODO: make a BaseFieldExtractorWidget ??
-class CustomFieldExtractorWidget(ExtractorWidget):
+# class CustomFieldExtractorWidget(ExtractorWidget):
+class CustomFieldExtractorWidget(RegularFieldExtractorWidget):
     template_name = 'creme_core/forms/widgets/mass-import/cfield-extractor.html'
 
     def get_context(self, name, value, attrs):
@@ -1004,12 +1072,12 @@ class CustomFieldExtractorWidget(ExtractorWidget):
         get = data.get
         return {
             'selected_column': get(f'{name}_colselect'),
-            'can_create':      get(f'{name}_create', False),
-            'default_value':   self.default_value_widget
-                                   .value_from_datadict(data=data,
-                                                        files=files,
-                                                        name=f'{name}_defval',
-                                                       ),
+            'can_create': get(f'{name}_create', False),
+            'default_value': self.default_value_widget.value_from_datadict(
+                data=data,
+                files=files,
+                name=f'{name}_defval',
+            ),
         }
 
 
@@ -1055,11 +1123,17 @@ class CustomfieldExtractorField(Field):
         try:
             col_index = int(value['selected_column'])
         except (TypeError, ValueError) as e:
-            raise ValidationError(self.error_messages['invalid'], code='invalid') from e
+            raise ValidationError(
+                self.error_messages['invalid'],
+                code='invalid',
+            ) from e
 
         if not any(col_index == t[0] for t in self._choices):
             # TODO: better message ("invalid choice") ?
-            raise ValidationError(self.error_messages['invalid'], code='invalid')
+            raise ValidationError(
+                self.error_messages['invalid'],
+                code='invalid',
+            )
 
         try:
             def_value = value['default_value']
@@ -1071,9 +1145,11 @@ class CustomfieldExtractorField(Field):
 
         if def_value:
             self._original_field.clean(def_value)  # To raise ValidationError if needed
-        # Should be useless while CustomFields can not be marked as required
         elif self.required and not col_index:
-            raise ValidationError(self.error_messages['required'], code='required')
+            raise ValidationError(
+                self.error_messages['required'],
+                code='required',
+            )
 
         # create_if_unfound = value['can_create']
         create_if_unfound = value.get('can_create')
@@ -1104,8 +1180,8 @@ class ImportForm(CremeModelForm):
         widget=UnorderedMultipleChoiceWidget(columntype='wide'),
         help_text=_(
             'Select at least one field if you want to use the "update" mode. '
-            'If an entity already exists with the same field values, it will be simply updated '
-            '(ie: a new entity will not be created).\n'
+            'If an entity already exists with the same field values, it will '
+            'be simply updated (ie: a new entity will not be created).\n'
             'But if several entities are found, a new entity is created '
             '(in order to avoid errors).'
         ),
@@ -1193,6 +1269,7 @@ class ImportForm(CremeModelForm):
     def process(self, job: Job):
         model_class = self._meta.model
         get_cleaned = self.cleaned_data.get
+        user = self.user
 
         exclude = frozenset(self._meta.exclude or ())
 
@@ -1200,7 +1277,7 @@ class ImportForm(CremeModelForm):
         regular_fields: List[Tuple[str, Any]] = []
 
         # Contains tuples (field_name, extractor)
-        extractor_fields: List[Tuple[str, Extractor]] = []
+        extractor_fields: List[Tuple[str, RegularFieldExtractor]] = []
 
         for field in model_class._meta.fields:
             fname = field.name
@@ -1212,7 +1289,11 @@ class ImportForm(CremeModelForm):
             if not cleaned:
                 continue
 
-            good_fields = extractor_fields if isinstance(cleaned, Extractor) else regular_fields
+            good_fields = (
+                extractor_fields
+                if isinstance(cleaned, RegularFieldExtractor) else
+                regular_fields
+            )
             good_fields.append((fname, cleaned))
 
         filedata = self.cleaned_data['document'].filedata
@@ -1251,7 +1332,8 @@ class ImportForm(CremeModelForm):
 
                         extr_values = []
                         for fname, extractor in extractor_fields:
-                            extr_value, err_msg = extractor.extract_value(line)
+                            # extr_value, err_msg = extractor.extract_value(line)
+                            extr_value, err_msg = extractor.extract_value(line=line, user=user)
 
                             # TODO: Extractor.extract_value() should return a ExtractedTuple
                             #       instead of a tuple
@@ -1308,7 +1390,8 @@ class ImportForm(CremeModelForm):
                             extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
                             if extractor:
                                 # TODO: factorise
-                                extr_value, err_msg = extractor.extract_value(line)
+                                # extr_value, err_msg = extractor.extract_value(line)
+                                extr_value, err_msg = extractor.extract_value(line, user)
                                 getattr(instance, m2m.name).set(extr_value)
                                 append_error(err_msg)
 
@@ -1431,7 +1514,10 @@ class ImportForm4CremeEntity(ImportForm):
         #         elif value is not None and value != '':
         #             CustomFieldValue.save_values_for_entities(cfield, [instance], value)
         for cfield_id, cfield in self.cfields.items():
-            value, err_msg = cdata[_CUSTOM_NAME.format(cfield_id)].extract_value(line)
+            # value, err_msg = cdata[_CUSTOM_NAME.format(cfield_id)].extract_value(line)
+            value, err_msg = cdata[_CUSTOM_NAME.format(cfield_id)].extract_value(
+                line=line, user=user,
+            )
 
             if err_msg is not None:
                 self.append_error(err_msg)
@@ -1491,7 +1577,7 @@ def extractorfield_factory(modelfield, header_dict, choices):
             formfield.empty_label = None
             formfield.choices = options  # we force the refreshing of widget's choices
 
-    return ExtractorField(
+    return RegularFieldExtractorField(
         choices=choices,
         modelfield=modelfield,
         modelform_field=formfield,

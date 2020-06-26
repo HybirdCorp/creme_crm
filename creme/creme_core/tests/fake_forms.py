@@ -58,9 +58,13 @@ class _FakePersonCSVImportForm(ImportForm4CremeEntity):
         super()._post_instance_creation(instance, line, updated)
         data = self.cleaned_data
         address_dict = {}
+        user = self.user
 
         for field_name in _ADDR_FIELD_NAMES:
-            extr_value, err_msg = data[_ADDRESS_PREFIX + field_name].extract_value(line)
+            # extr_value, err_msg = data[_ADDRESS_PREFIX + field_name].extract_value(line)
+            extr_value, err_msg = data[_ADDRESS_PREFIX + field_name].extract_value(
+                line=line, user=user,
+            )
             if extr_value:
                 address_dict[field_name] = extr_value
 

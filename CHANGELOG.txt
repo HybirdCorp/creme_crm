@@ -261,7 +261,14 @@
         # The class attribute 'creme_core.creme_jobs.base.JobType.id' is now an empty string, not <None> any more.
         # In 'creme_core.forms' :
             - A Quick Form class must now inherit 'creme_core.forms.base.CremeEntityQuickForm'.
-            - The attribute 'mass_import.ImportForm4CremeEntity.cfields' is now a <Dict[int, CustomField]>.
+            - In 'mass_import':
+                - The class 'Extractor' has ben renamed 'RegularFieldExtractor'.
+                - The medthods 'extract_value' of these classes take an additional argument "user" :
+                  'RegularFieldExtractor', 'CustomFieldExtractor'.
+                - The class 'ExtractorField' has been renamed 'RegularFieldExtractorField'.
+                - The class 'ExtractorWidget' has been renamed 'RegularFieldExtractorWidget'.
+                - The template "creme_core/forms/widgets/mass-import/extractor.html" has been renamed "field-extractor.html".
+                - The attribute 'ImportForm4CremeEntity.cfields' is now a <Dict[int, CustomField]>.
         # In 'creme_core.gui' :
             - In 'actions' :
                 - The class attribute 'UIAction.id' is now an empty string, not <None> any more.
@@ -352,7 +359,7 @@
                     - The class 'BaseRoleEdition' has been removed.
                     - There were many changes in the class 'RoleDeletion' (mainly: it does not delete the role any more).
             * Persons :
-                - The function-view 'views.organisation.unset_managed()' has been replaced bu the class 'OrganisationUnmanage'.
+                - The function-view 'views.organisation.unset_managed()' has been replaced by the class 'OrganisationUnmanage'.
             * Documens :
                 - The method 'models.Document.get_dl_url()' has been removed ; use the method 'get_download_absolute_url()' instead.
             * Activities :
@@ -384,6 +391,8 @@
                     - 'set_charm_score()' by 'CharmScoreSetting'.
                     - 'set_segment_category()' by 'SegmentCategorySetting'.
                     - '_set_score()' (abstract view) by 'BaseScoreSetting'.
+            * Products :
+                - The method 'forms.mass_import.CategoriesExtractor.extract_value()' takes an additional argument "user".
             * Reports :
                 - In the class 'bricks.ReportGraphBrick', the attribute "instance_brick_id" has been removed.
                 - In 'core' :
