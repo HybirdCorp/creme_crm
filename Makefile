@@ -119,6 +119,7 @@ eslint-diff:
 			--config .eslintrc \
 			--plugin template \
 			--ignore-path .eslintignore \
+			--global '_$$$$_' \
 			--format stylish \
 			--quiet
 
@@ -136,6 +137,7 @@ eslint:
 			--config .eslintrc \
 			--plugin template \
 			--ignore-path .eslintignore \
+			--global '_$$$$_' \
 			--format stylish \
 			--quiet
 

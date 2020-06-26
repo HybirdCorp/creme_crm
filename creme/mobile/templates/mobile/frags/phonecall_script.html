@@ -2,7 +2,9 @@
 <script type="text/javascript">
   var PHONECALL_COOKIE = 'phone_call=';
   var CSRF_COOKIE = 'csrftoken=';
-  var csrf_token = undefined;
+  var csrf_token;
+  var phonecall_data;
+
 {% comment %}
   Attributes of 'phonecall_data':
     -pcall_id   -> ID of the existings delayed PhoneCall thats contains the phone number the user clicked on.
@@ -11,10 +13,9 @@
     -person_id  -> ID of the contact/orga associated to the phone number.
     -number     -> phone number the user clicked on.
 {% endcomment %}
-  var phonecall_data = undefined;
 
   document.addEventListener('click', function (e) {
-    if (e.target.href !== undefined && e.target.href.indexOf('tel:') == 0) {
+    if (e.target.href !== undefined && e.target.href.indexOf('tel:') === 0) {
       var d = new Date();
 
       phonecall_data = {number: e.target.text, call_start: d.toJSON()};
@@ -50,7 +51,7 @@
       setTimeout(displayWorkflowPanel, 3000);
     }
   });
-
+/*
   function checkCallCookies() {
     var cookies = document.cookie.split(';');
 
@@ -65,7 +66,7 @@
       }
     }
   }
-
+*/
   function objectToParameters(obj) {
     var parameters = "";
 

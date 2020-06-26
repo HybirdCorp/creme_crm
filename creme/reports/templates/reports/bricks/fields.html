@@ -16,7 +16,9 @@
                               'checked': $(checkbox).is(':checked') ? 1 : 0
                              }
                    )
-                   .onDone(function() {brick.refresh();})
+                   .onDone(function() {
+                       brick.refresh();
+                   })
                    .start();
      };
  </script>
