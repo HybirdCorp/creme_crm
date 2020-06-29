@@ -1,6 +1,7 @@
 {% extends 'creme_core/generics/blockform/edit.html' %}
-{% load i18n %}
+{# {% load i18n %} #}
 
-{% block content %}{% blocktrans asvar form_title %}Edit «{{object}}»{% endblocktrans %}
-    {% include 'billing/form/base.html' with icon_name='edit' title=form_title %}
+{% block content %}{# {% blocktrans asvar form_title %}Edit «{{object}}»{% endblocktrans %} #}
+{#    {% include 'billing/form/base.html' with icon_name='edit' title=form_title %} #}
+    {% include 'billing/form/base.html' with icon_name='edit' %}
 {% endblock %}

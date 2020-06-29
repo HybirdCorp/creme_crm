@@ -6,9 +6,9 @@
 {% block content %}
     {% if not form.instance.pk %}
         {% blocktrans with ctype=form.instance.entity_type asvar form_title %}Create a view of list for «{{ctype}}»{% endblocktrans %}
-        {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title %}
+        {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title|safe %}
     {% else %}
         {% blocktrans with view=form.instance asvar form_title %}Edit the view of list «{{view}}»{% endblocktrans %}
-        {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title %}
+        {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title|safe %}
     {% endif %}
 {% endblock %}
