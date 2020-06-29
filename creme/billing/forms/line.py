@@ -40,21 +40,23 @@ ServiceLine = billing.get_service_line_model()
 
 
 class _LineMultipleAddForm(core_forms.CremeForm):
-    quantity = forms.DecimalField(label=_('Quantity'),
-                                  min_value=constants.DEFAULT_DECIMAL,
-                                  initial=constants.DEFAULT_QUANTITY,
-                                  decimal_places=2,
-                                 )
-    discount_value = forms.DecimalField(label=_('Discount'),
-                                        min_value=constants.DEFAULT_DECIMAL,
-                                        max_value=Decimal('100'),
-                                        initial=constants.DEFAULT_DECIMAL,
-                                        decimal_places=2,
-                                        help_text=_('Percentage applied on the unit price'),
-                                       )
-    vat = forms.ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
-                                 empty_label=None,
-                                )
+    quantity = forms.DecimalField(
+        label=_('Quantity'),
+        min_value=constants.DEFAULT_DECIMAL,
+        initial=constants.DEFAULT_QUANTITY,
+        decimal_places=2,
+    )
+    discount_value = forms.DecimalField(
+        label=_('Discount'),
+        min_value=constants.DEFAULT_DECIMAL,
+        max_value=Decimal('100'),
+        initial=constants.DEFAULT_DECIMAL,
+        decimal_places=2,
+        help_text=_('Percentage applied on the unit price'),
+    )
+    vat = forms.ModelChoiceField(
+        label=_('Vat'), queryset=Vat.objects.all(), empty_label=None,
+    )
 
     def _get_line_class(self):
         raise NotImplementedError
@@ -67,18 +69,18 @@ class _LineMultipleAddForm(core_forms.CremeForm):
 
     def save(self):
         cdata = self.cleaned_data
-        create_item = partial(self._get_line_class().objects.create,
-                              related_document=self.billing_document,
-                              quantity=cdata['quantity'],
-                              discount=cdata['discount_value'],
-                              vat_value=cdata['vat'],
-                             )
+        create_item = partial(
+            self._get_line_class().objects.create,
+            related_document=self.billing_document,
+            quantity=cdata['quantity'],
+            discount=cdata['discount_value'],
+            vat_value=cdata['vat'],
+        )
 
         for item in cdata['items']:
-            create_item(related_item=item,
-                        unit_price=item.unit_price,
-                        unit=item.unit,
-                       )
+            create_item(
+                related_item=item, unit_price=item.unit_price, unit=item.unit,
+            )
 
 
 class ProductLineMultipleAddForm(_LineMultipleAddForm):
@@ -117,10 +119,9 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 class LineEditForm(core_forms.CremeModelForm):
     # TODO: we want to disabled CreatorChoiceField ;
     #       should we disabled globally this feature with Vat model ??
-    vat_value = forms.ModelChoiceField(label=_('Vat'), queryset=Vat.objects.all(),
-                                       required=True,  # TODO: remove when null=False in the model
-                                       empty_label=None,
-                                      )
+    vat_value = forms.ModelChoiceField(
+        label=_('Vat'), queryset=Vat.objects.all(), empty_label=None,
+    )
 
     class Meta:
         exclude = ()
@@ -209,9 +210,10 @@ class AddToCatalogForm(core_forms.CremeForm):
 
     error_messages = {
         'forbidden_creation': _('You are not allowed to create this entity'),
-        'not_on_the_fly': _('You are not allowed to add this item '
-                            'to the catalog because it is not on the fly'
-                           ),
+        'not_on_the_fly': _(
+            'You are not allowed to add this item '
+            'to the catalog because it is not on the fly'
+        ),
     }
 
     def __init__(self, user, line, related_item_class, *args, **kwargs):
@@ -221,14 +223,16 @@ class AddToCatalogForm(core_forms.CremeForm):
 
     def clean(self):
         if not self.user.has_perm_to_create(self.related_item_class):
-            raise ValidationError(self.error_messages['forbidden_creation'],
-                                  code='forbidden_creation',
-                                 )
+            raise ValidationError(
+                self.error_messages['forbidden_creation'],
+                code='forbidden_creation',
+            )
 
         if not self.line.on_the_fly_item:
-            raise ValidationError(self.error_messages['not_on_the_fly'],
-                                  code='not_on_the_fly',
-                                 )
+            raise ValidationError(
+                self.error_messages['not_on_the_fly'],
+                code='not_on_the_fly',
+            )
 
         return super().clean()
 

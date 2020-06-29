@@ -171,9 +171,10 @@ class _BillingTestCaseMixin:
 
     def create_invoice_n_orgas(self, name, user=None, discount=Decimal(), currency=None):
         source, target = self.create_orgas()
-        invoice = self.create_invoice(name, source, target, user=user,
-                                      discount=discount, currency=currency,
-                                      )
+        invoice = self.create_invoice(
+            name, source, target,
+            user=user, discount=discount, currency=currency,
+        )
 
         return invoice, source, target
 

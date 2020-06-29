@@ -44,20 +44,17 @@ class Line(CremeEntity):
 
     comment = models.TextField(_('Comment'), blank=True)
 
-    quantity   = models.DecimalField(_('Quantity'),
-                                     max_digits=10, decimal_places=2,
-                                     default=constants.DEFAULT_QUANTITY,
-                                    )
-    unit_price = models.DecimalField(_('Unit price'),
-                                     max_digits=10, decimal_places=2,
-                                     default=constants.DEFAULT_DECIMAL,
-                                    )
-    unit       = models.CharField(_('Unit'), max_length=100, blank=True)
+    quantity = models.DecimalField(
+        _('Quantity'), max_digits=10, decimal_places=2, default=constants.DEFAULT_QUANTITY,
+    )
+    unit_price = models.DecimalField(
+        _('Unit price'), max_digits=10, decimal_places=2, default=constants.DEFAULT_DECIMAL,
+    )
+    unit = models.CharField(_('Unit'), max_length=100, blank=True)
 
-    discount      = models.DecimalField(_('Discount'),
-                                        max_digits=10, decimal_places=2,
-                                        default=constants.DEFAULT_DECIMAL,
-                                       )
+    discount = models.DecimalField(
+        _('Discount'), max_digits=10, decimal_places=2, default=constants.DEFAULT_DECIMAL,
+    )
     # TODO: move constants in the model class
     # discount_unit  = models.PositiveIntegerField(_('Discount Unit'),
     #                                              blank=True, null=True, editable=False,
@@ -65,13 +62,17 @@ class Line(CremeEntity):
     #                                              default=constants.DISCOUNT_PERCENT,
     #                                             )
     # total_discount = models.BooleanField(_('Total discount ?'), editable=False, default=False)
-    discount_unit = models.PositiveIntegerField(_('Discount Unit'),
-                                                choices=constants.DISCOUNT_UNIT.items(),
-                                                default=constants.DISCOUNT_PERCENT,
-                                               )
-    vat_value     = models.ForeignKey(Vat, verbose_name=_('VAT'),
-                                      blank=True, null=True, on_delete=models.PROTECT,
-                                     )  # TODO null=False
+    discount_unit = models.PositiveIntegerField(
+        _('Discount Unit'),
+        choices=constants.DISCOUNT_UNIT.items(),
+        default=constants.DISCOUNT_PERCENT,
+    )
+    vat_value = models.ForeignKey(
+        Vat, verbose_name=_('VAT'), on_delete=models.PROTECT,
+        # null=True, blank=True,
+        # NB: these VAT should exist (see creme_core.populate), and is normally 0.0%
+        default=1,
+    )
 
     creation_label = _('Create a line')
 
@@ -88,10 +89,12 @@ class Line(CremeEntity):
 
     def _pre_delete(self):
         for relation in Relation.objects.filter(
-                type__in=[constants.REL_OBJ_HAS_LINE,
-                          constants.REL_SUB_LINE_RELATED_ITEM,
-                         ],
-                subject_entity=self.id):
+            type__in=[
+                constants.REL_OBJ_HAS_LINE,
+                constants.REL_SUB_LINE_RELATED_ITEM,
+            ],
+            subject_entity=self.id,
+        ):
             relation._delete_without_transaction()
 
     def _pre_save_clone(self, source):
@@ -114,9 +117,10 @@ class Line(CremeEntity):
         elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:  # Global discount
             if self.discount > self.unit_price * self.quantity:
                 raise ValidationError(
-                    gettext('Your overall discount is superior than'
-                            ' the total line (unit price * quantity)'
-                           ),
+                    gettext(
+                        'Your overall discount is superior than'
+                        ' the total line (unit price * quantity)'
+                    ),
                     code='discount_gt_total',
                 )
         else:  # DISCOUNT_ITEM_AMOUNT (Unitary discount)
@@ -143,7 +147,8 @@ class Line(CremeEntity):
         super().clean()
 
     def clone(self, new_related_document=None):
-        # BEWARE: CremeProperty and Relation are not cloned (except our 2 internal relations)
+        # BEWARE: CremeProperty and Relation are not cloned
+        #         (excepted our 2 internal relations)
         self._new_related_document = new_related_document or self.related_document
 
         return super().clone()
@@ -193,11 +198,10 @@ class Line(CremeEntity):
 
         if related is False:
             try:
-                related = self.relations.get(type=constants.REL_OBJ_HAS_LINE,
-                                             subject_entity=self.id,
-                                            ) \
-                                        .object_entity \
-                                        .get_real_entity()
+                related = self.relations.get(
+                    type=constants.REL_OBJ_HAS_LINE,
+                    subject_entity=self.id,
+                ).object_entity.get_real_entity()
             except Relation.DoesNotExist:
                 related = None
 
@@ -215,9 +219,10 @@ class Line(CremeEntity):
     def related_item(self):
         if self.id and not self._related_item and not self.on_the_fly_item:
             try:
-                self._related_item = self.relations.get(type=constants.REL_SUB_LINE_RELATED_ITEM,
-                                                        subject_entity=self.id,
-                                                       ).object_entity.get_real_entity()
+                self._related_item = self.relations.get(
+                    type=constants.REL_SUB_LINE_RELATED_ITEM,
+                    subject_entity=self.id,
+                ).object_entity.get_real_entity()
             except Relation.DoesNotExist:
                 logger.warning('Line.related_item(): relation does not exist !!')
 
@@ -240,8 +245,8 @@ class Line(CremeEntity):
     def save(self, *args, **kwargs):
         if not self.pk:  # Creation
             assert self._related_document, 'Line.related_document is required'
-            assert bool(self._related_item) ^ bool(self.on_the_fly_item), \
-                   'Line.related_item or Line.on_the_fly_item is required'
+            assert bool(self._related_item) ^ bool(self.on_the_fly_item),\
+                'Line.related_item or Line.on_the_fly_item is required'
 
             self.user = self._related_document.user
 

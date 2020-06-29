@@ -376,13 +376,17 @@
                 - In JavaScript :
                     - 'creme.emails.ResendEMailsAction' does not expect a JSON response anymore.
             * Billing :
-                - The way discount types are represented has been fixed (we used some hacks since years).
-                    - The model-field 'models.Line.total_discount' has been removed.
-                    - In the model-field 'models.Line.discount_unit' :
-                        - The choice 'DISCOUNT_ITEM_AMOUNT' has been added.
-                        - The value of these attributes has changed :
-                            - "blank == False" & "null == False".
-                            - "editable == True".
+                - In 'models.Line' :
+                    - The way discount types are represented has been fixed (we used some hacks since years).
+                        - The model-field 'total_discount' has been removed.
+                        - In the model-field 'discount_unit' :
+                            - The choice 'DISCOUNT_ITEM_AMOUNT' has been added.
+                            - The value of these attributes has changed :
+                                - "null == False" & "blank == False".
+                                - "editable == True".
+                    - These attribute of the model-field 'vat_value' have changed :
+                        - "null == False" & "blank == False".
+                        - "default == 1".
                 - The function-view 'views.invoice.generate_number()' has been replaced by the class 'NumberGeneration'.
             * Commercial :
                 - These function-views of 'views.strategy' have been replaced by classes.
