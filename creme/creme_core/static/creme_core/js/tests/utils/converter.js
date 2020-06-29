@@ -309,7 +309,7 @@ QUnit.parameterize('creme.utils.converters (datetime-string)', [
     equal(result, expected);
 });
 
-QUnit.parameterize('creme.utils.converters (string-datetime, fail)', [
+QUnit.parameterize('creme.utils.converters (datetime-string, fail)', [
     [{from: 'date', to: 'string'}, '2019-13-52', '"2019-13-52" is not a date nor datetime'],
     [{from: 'date', to: 'text'}, 12, '12 is not a date nor datetime'],
     [{from: 'datetime', to: 'string'}, '12-12-2019', '"12-12-2019" is not a date nor datetime'],
@@ -320,6 +320,27 @@ QUnit.parameterize('creme.utils.converters (string-datetime, fail)', [
     this.assertRaises(function() {
         converters.convert(value, options);
     }, Error, 'Error: ${expected}'.template({expected: expected}));
+});
+
+QUnit.parameterize('creme.utils.converters (string-color, fail)', [
+    [{from: 'string', to: 'color'}, '#ee', '"#ee" is not a RGB hexadecimal value'],
+    [{from: 'string', to: 'color'}, '#000000aa', '"#000000aa" is not a RGB hexadecimal value']
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
+
+    this.assertRaises(function() {
+        converters.convert(value, options);
+    }, Error, 'Error: ${expected}'.template({expected: expected}));
+});
+
+QUnit.parameterize('creme.utils.converters (string-color)', [
+    [{from: 'color', to: 'string'}, new RGBColor(), '#000000'],
+    [{from: 'color', to: 'string'}, new RGBColor({r: 0x12, g: 0xea, b: 0xff}), '#12EAFF']
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
+    var result = converters.convert(value, options);
+
+    equal(result, expected);
 });
 
 QUnit.parameterize('creme.utils.converters (string-json)', [

@@ -168,6 +168,15 @@ var __fromIso8601Date = function(value) {
     return res;
 };
 
+var __toRGBColor = function(value) {
+    return new RGBColor(value);
+};
+
+var __fromRGBColor = function(value) {
+    Assert.is(value, RGBColor, '${value} is not a RGBColor', {value: value});
+    return value.toString();
+};
+
 __registry.register(['string', 'text'], {
     int: __toInt,
     integer: __toInt,
@@ -176,7 +185,8 @@ __registry.register(['string', 'text'], {
     json: __fromJSON,
     date: __fromIso8601Date,
     datetime: __fromIso8601,
-    'datetime-local': __fromIso8601
+    'datetime-local': __fromIso8601,
+    'color': __toRGBColor
 });
 
 __registry.register(['number', 'int', 'integer', 'float', 'decimal'], {
@@ -204,6 +214,11 @@ __registry.register(['datetime', 'datetime-local'], {
 __registry.register('json', {
     string: __toJSON,
     text: __toJSON
+});
+
+__registry.register('color', {
+    string: __fromRGBColor,
+    text: __fromRGBColor
 });
 
 }(jQuery));
