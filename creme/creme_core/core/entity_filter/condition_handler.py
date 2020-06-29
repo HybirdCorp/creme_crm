@@ -522,7 +522,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     @property
     def error(self):
         try:
-            __ = self.field_info
+            self.field_info  # NOQA
         except FieldDoesNotExist as e:
             return str(e)
 

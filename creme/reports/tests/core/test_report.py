@@ -108,7 +108,7 @@ class ReportHandTestCase(CremeTestCase):
         rfield = Field(report=Report(ct=FakeContact), type=RFT_FIELD, name=fname)
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHRegularField(rfield)
+            RHRegularField(rfield)
 
         self.assertEqual(
             f'Invalid field: "{fname}" (does not exist)',
@@ -121,7 +121,7 @@ class ReportHandTestCase(CremeTestCase):
         rfield = Field(report=Report(ct=FakeContact), type=RFT_FIELD, name=fname)
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHRegularField(rfield)
+            RHRegularField(rfield)
 
         self.assertEqual(
             f'Invalid field: "{fname}" (too deep)',
@@ -357,7 +357,7 @@ class ReportHandTestCase(CremeTestCase):
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         evalue1 = create_evalue(value='Sword')
-        __      = create_evalue(value='Axe')
+        create_evalue(value='Axe')
         evalue3 = create_evalue(value='Bow')
 
         aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
@@ -382,7 +382,7 @@ class ReportHandTestCase(CremeTestCase):
             type=RFT_CUSTOM, name=cf_id,
         )
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHCustomField(rfield)
+            RHCustomField(rfield)
 
         self.assertEqual(
             f'Invalid custom field: "{cf_id}"',
@@ -433,7 +433,7 @@ class ReportHandTestCase(CremeTestCase):
             type=RFT_RELATION, name=rtype_id,
         )
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHRelation(rfield)
+            RHRelation(rfield)
 
         self.assertEqual(
             f'Invalid relation type: "{rtype_id}"',
@@ -478,7 +478,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHFunctionField(rfield)
+            RHFunctionField(rfield)
 
         self.assertEqual(
             f'Invalid function field: "{name}"',
@@ -538,7 +538,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHAggregateRegularField(rfield)
+            RHAggregateRegularField(rfield)
 
         self.assertEqual(
             f'Unknown field: "{fname}"',
@@ -553,7 +553,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHAggregateRegularField(rfield)
+            RHAggregateRegularField(rfield)
 
         self.assertEqual(
             f'Invalid aggregation: "{aggname}"',
@@ -568,7 +568,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHAggregateRegularField(rfield)
+            RHAggregateRegularField(rfield)
 
         self.assertEqual(
             f'This type of field can not be aggregated: "{fname}"',
@@ -636,7 +636,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHAggregateCustomField(rfield)
+            RHAggregateCustomField(rfield)
 
         self.assertEqual(
             f'Invalid custom field aggregation: "{cf_id}"',
@@ -657,7 +657,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHAggregateCustomField(rfield)
+            RHAggregateCustomField(rfield)
 
         self.assertEqual(
             f'Invalid aggregation: "{agg_id}"',
@@ -677,7 +677,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHAggregateCustomField(rfield)
+            RHAggregateCustomField(rfield)
 
         self.assertEqual(
             f'This type of custom field can not be aggregated: "{cfield.id}"',
@@ -724,7 +724,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ReportHand.ValueError) as cm:
-            __ = RHRelated(rfield)
+            RHRelated(rfield)
 
         self.assertEqual(
             f'Invalid related field: "{fname}"',
@@ -737,7 +737,7 @@ class ReportHandRegistryTestCase(CremeTestCase):
         registry = ReportHandRegistry()
 
         with self.assertRaises(KeyError):
-            __ = registry[RFT_FIELD]
+            registry[RFT_FIELD]
 
         self.assertIsNone(registry.get(RFT_FIELD))
         self.assertFalse([*registry])

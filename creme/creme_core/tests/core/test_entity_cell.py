@@ -57,7 +57,7 @@ class EntityCellTestCase(CremeTestCase):
         registry = EntityCellsRegistry()
 
         with self.assertRaises(KeyError):
-            __ = registry[EntityCellRegularField.type_id]
+            registry[EntityCellRegularField.type_id]  # NOQA
 
         self.assertNotIn(EntityCellRegularField.type_id, registry)
 
@@ -76,16 +76,16 @@ class EntityCellTestCase(CremeTestCase):
         registry2(EntityCellFunctionField)
 
         with self.assertNoException():
-            __ = registry1[EntityCellRegularField.type_id]
-            __ = registry2[EntityCellRegularField.type_id]
+            registry1[EntityCellRegularField.type_id]
+            registry2[EntityCellRegularField.type_id]
 
-            __ = registry1[EntityCellCustomField.type_id]
-            __ = registry2[EntityCellCustomField.type_id]
+            registry1[EntityCellCustomField.type_id]
+            registry2[EntityCellCustomField.type_id]
 
-            __ = registry2[EntityCellFunctionField.type_id]
+            registry2[EntityCellFunctionField.type_id]
 
         with self.assertRaises(KeyError):
-            __ = registry1[EntityCellFunctionField.type_id]
+            registry1[EntityCellFunctionField.type_id]
 
     def test_registry_build_cells_from_dicts01(self):
         "No error."

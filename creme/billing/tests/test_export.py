@@ -890,7 +890,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         # Consume stream to avoid ResourceWarning
-        __ = b''.join(response.streaming_content)
+        b''.join(response.streaming_content)
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
@@ -938,7 +938,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         # Consume stream to avoid ResourceWarning
-        __ = b''.join(response.streaming_content)
+        b''.join(response.streaming_content)
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
@@ -1316,7 +1316,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('application/pdf', response['Content-Type'])
 
         # Consume stream to avoid ResourceWarning
-        __ = b''.join(response.streaming_content)
+        b''.join(response.streaming_content)
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
@@ -1445,7 +1445,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('application/pdf', response['Content-Type'])
 
         # Consume stream to avoid ResourceWarning
-        __ = b''.join(response.streaming_content)
+        b''.join(response.streaming_content)
 
     @skipIfCustomQuote
     @skipIfCustomServiceLine

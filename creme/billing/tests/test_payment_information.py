@@ -320,7 +320,7 @@ class PaymentInformationTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     def test_set_default_in_invoice04(self):
         "'payment_info' is hidden."
-        user = self.login()
+        self.login()
 
         invoice, sony_source = self.create_invoice_n_orgas('Playstations')[:2]
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')

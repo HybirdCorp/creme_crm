@@ -342,7 +342,7 @@ class OrganisationTestCase(_BaseTestCase):
         # Test request-cache
         with self.assertNumQueries(0):
             qs2 = Organisation.objects.filter_managed_by_creme()
-            __ = [*qs2]
+            [*qs2]  # NOQA
 
         self.assertEqual(id(qs1), id(qs2))
 

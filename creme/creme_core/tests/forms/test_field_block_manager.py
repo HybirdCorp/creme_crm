@@ -64,7 +64,8 @@ class FieldBlockManagerTestCase(CremeTestCase):
 
         # ---
         with self.assertRaises(KeyError):
-            __ = blocks['names']  # Already pop
+            # Already pop
+            blocks['names']  # NOQA
 
     def test_basic_iter(self):
         class TestForm(forms.Form):
@@ -203,7 +204,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ValueError) as cm:
-            __ = fbm.build(TestForm())
+            fbm.build(TestForm())
 
         self.assertEqual(
             f'Only one wildcard is allowed: {TestForm}',
@@ -295,7 +296,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ValueError) as cm:
-            __ = fbm1.new(
+            fbm1.new(
                 ('names',   'Names',   ['cell']),
                 ('details', 'Details', ('phone', 'fax')),
             )
@@ -312,7 +313,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ValueError) as cm:
-            __ = fbm1.new(
+            fbm1.new(
                 ('names', 'Names', '*'),
                 ('details', 'Details', ('phone', 'fax')),
             )

@@ -47,10 +47,10 @@ class SettingKeyTestCase(CremeTestCase):
         self.assertEqual(sk2, registry[sk2.id])
 
         with self.assertRaises(KeyError):
-            __ = registry[sk1.id]
+            registry[sk1.id]  # NOQA
 
         with self.assertRaises(KeyError):
-            __ = registry[sk3.id]
+            registry[sk3.id]  # NOQA
 
         all_key_ids = {sk.id for sk in registry}
         self.assertIn(sk2.id, all_key_ids)

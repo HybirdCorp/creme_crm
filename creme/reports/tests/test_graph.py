@@ -2372,8 +2372,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         lannisters = create_orga(name='House Lannister', creation_date='2013-06-22')
         starks     = create_orga(name='House Stark',     creation_date='2013-07-25')
         baratheons = create_orga(name='House Baratheon', creation_date='2014-08-5')
-        __         = create_orga(name='House Targaryen', creation_date='2015-08-5')
         tullies    = create_orga(name='House Tully',     creation_date='2016-08-5')
+        create_orga(name='House Targaryen', creation_date='2015-08-5')
 
         cf = CustomField.objects.create(content_type=self.ct_orga,
                                         name='Vine', field_type=CustomField.FLOAT,
@@ -3871,7 +3871,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         create_doc = partial(FakeReportsDocument.objects.create, linked_folder=folder)
         doc1 = create_doc(title='Doc#1', user=user)
-        __   = create_doc(title='Doc#2', user=user)
+        create_doc(title='Doc#2', user=user)
         # Cannot be seen => should not be used to compute aggregate
         doc3 = create_doc(title='Doc#3', user=self.other_user)
         self.assertEqual(doc1.created.year, doc3.created.year)

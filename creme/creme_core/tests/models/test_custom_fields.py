@@ -42,7 +42,7 @@ class CustomFieldManagerTestCase(CremeTestCase):
         )
         cfield1 = create_cfield(name='Length of ship', field_type=CustomField.INT)
         cfield2 = create_cfield(name='Width of ship',  field_type=CustomField.STR)
-        __ = create_cfield(
+        create_cfield(
             name='Weapon', field_type=CustomField.STR, content_type=FakeContact,
         )
         # __ = create_cfield(name='Flag', field_type=CustomField.STR, is_deleted=True) ??
@@ -68,7 +68,7 @@ class CustomFieldManagerTestCase(CremeTestCase):
         )
         cfield1 = create_cfield(name='Length of ship', field_type=CustomField.INT)
         cfield2 = create_cfield(name='Width of ship',  field_type=CustomField.STR)
-        __ = create_cfield(
+        create_cfield(
             name='Weapon', field_type=CustomField.STR, content_type=FakeContact,
         )
 

@@ -54,10 +54,10 @@ class ContentTypeTestCase(CremeTestCase):
 
         # Errors ----
         with self.assertRaises(Http404):
-            __ = get_ctype_or_404(self.UNUSED_PK)
+            get_ctype_or_404(self.UNUSED_PK)
 
         with self.assertRaises(Http404):
-            __ = get_ctype_or_404('invalid')
+            get_ctype_or_404('invalid')
 
         # DEPRECATED:
         from creme.creme_core import utils

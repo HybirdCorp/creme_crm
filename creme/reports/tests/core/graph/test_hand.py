@@ -370,7 +370,7 @@ class ReportGraphHandRegistryTestCase(CremeTestCase):
         registry = ReportGraphHandRegistry()
 
         with self.assertRaises(KeyError):
-            __ = registry[RGT_FK]
+            registry[RGT_FK]  # NOQA
 
         self.assertIsNone(registry.get(RGT_FK))
         self.assertListEqual([], [*registry])

@@ -134,7 +134,7 @@ s556"""
         chunks = self.chunks(chunk_size, '7777788888\n9999900000555\n1111122222')
 
         with self.assertRaises(ValueError) as error:
-            __ = [*chunktools.iter_splitchunks(chunks, '\n', ChunkToolsTestCase.filter, limit=10)]
+            [*chunktools.iter_splitchunks(chunks, '\n', ChunkToolsTestCase.filter, limit=10)]
 
         self.assertEqual(str(error.exception), 'line length is over %d characters' % 10)
 

@@ -635,7 +635,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         eval01 = create_evalue(value='C')
-        __     = create_evalue(value='Java')
+        create_evalue(value='Java')
 
         url = reverse('creme_config__add_custom_enums', args=(cfield.id,))
         data = {
@@ -760,7 +760,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         eval01 = create_evalue(value='C')
-        __     = create_evalue(value='Java')
+        create_evalue(value='Java')
 
         response = self.assertPOST200(
             reverse('creme_config__add_custom_enum', args=(cfield.id,)),
@@ -899,9 +899,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        __     = create_evalue(value='C')
+        create_evalue(value='C')
         eval02 = create_evalue(value='bash')
-        __     = create_evalue(value='sh')
+        create_evalue(value='sh')
 
         url = reverse('creme_config__delete_custom_enum', args=(eval02.id,))
         response = self.assertGET200(url)
@@ -1017,7 +1017,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         eval1_01 = create_evalue(value='C')
-        __       = create_evalue(value='lisp')
+        create_evalue(value='lisp')
 
         linus = FakeContact.objects.create(user=user, first_name='Linus', last_name='Torvalds')
 
@@ -1050,7 +1050,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        __     = create_evalue(value='C')
+        create_evalue(value='C')
         eval02 = create_evalue(value='bash')
 
         self.assertGET403(
@@ -1072,7 +1072,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
         eval01 = create_evalue(value='C')
         eval02 = create_evalue(value='C89')
-        __     = create_evalue(value='Java')
+        create_evalue(value='Java')
 
         job1 = Job.objects.create(type_id=deletor_type.id, user=user)
         job2 = Job.objects.create(type_id=deletor_type.id, user=user)
@@ -1127,7 +1127,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_multi_enum01(self):
         "MULTI_ENUM not used."
-        user = self.login(is_superuser=False, admin_4_apps=('creme_core',))
+        self.login(is_superuser=False, admin_4_apps=('creme_core',))
 
         cfield = CustomField.objects.create(
             content_type=FakeContact,
@@ -1136,9 +1136,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        __     = create_evalue(value='C')
+        create_evalue(value='C')
         eval02 = create_evalue(value='bash')
-        __     = create_evalue(value='sh')
+        create_evalue(value='sh')
 
         url = reverse('creme_config__delete_custom_enum', args=(eval02.id,))
         response = self.assertGET200(url)

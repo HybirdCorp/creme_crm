@@ -310,7 +310,7 @@ class InheritedDataChainTestCase(CremeTestCase):
 
         # Bad value key
         with self.assertRaises(ValueError):
-            __ = idc[1]
+            idc[1]  # NOQA
 
     def test_chain01(self):
         class Klass1:
@@ -394,7 +394,7 @@ class InheritedDataChainTestCase(CremeTestCase):
             pass
 
         idc = InheritedDataChain(InnerClass)
-        __ = idc[Klass1]
+        __ = idc[Klass1]  # NOQA
 
         del idc[Klass1]
         self.assertIsNone(idc.get(Klass1))
@@ -414,7 +414,7 @@ class InheritedDataChainTestCase(CremeTestCase):
         self.assertNotIn(Klass2, idc)
         self.assertNotIn(1,      idc)
 
-        __ = idc[Klass1]
+        __ = idc[Klass1]  # NOQA
         self.assertIn(Klass1, idc)
         self.assertNotIn(Klass2, idc)
 

@@ -2204,27 +2204,31 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
-                                     ('test-object_foobar',  'is loved by')
-                                    )[0]
+        rtype1 = RelationType.create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by')
+        )[0]
 
-        create_activity = partial(Activity.objects.create, user=user,
-                                  type_id=constants.ACTIVITYTYPE_MEETING,
-                                  start=today + timedelta(hours=3),
-                                  end=today   + timedelta(hours=4),
-                                 )
+        create_activity = partial(
+            Activity.objects.create, user=user,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            start=today + timedelta(hours=3),
+            end=today + timedelta(hours=4),
+        )
         activity1 = create_activity(title='Meeting#1')
-        ___       = create_activity(title='Meeting#2')  # No relation
+        create_activity(title='Meeting#2')  # No relation
         activity3 = create_activity(title='Meeting#3')  # Ignored type of relation
         activity4 = create_activity(title='Meeting#4', is_deleted=True)
-        activity5 = create_activity(title='Meeting#5',
-                                    start=today - timedelta(hours=15),
-                                    end=today   - timedelta(hours=14),
-                                   )  # In the past
-        activity6 = create_activity(title='Meeting#6',
-                                    start=today + timedelta(hours=1),
-                                    end=today   + timedelta(hours=2),
-                                   )
+        activity5 = create_activity(
+            title='Meeting#5',
+            start=today - timedelta(hours=15),
+            end=today   - timedelta(hours=14),
+        )  # In the past
+        activity6 = create_activity(
+            title='Meeting#6',
+            start=today + timedelta(hours=1),
+            end=today + timedelta(hours=2),
+        )
 
         create_contact = partial(Contact.objects.create, user=user)
         c1 = create_contact(first_name='Ranma', last_name='Saotome')
@@ -2234,9 +2238,11 @@ class ActivityTestCase(_ActivitiesTestCase):
         o1 = create_orga(name='Saotome dojo')
         o2 = create_orga(name='Tendou dojo')
 
-        create_rel = partial(Relation.objects.create, user=user, object_entity=activity1,
-                             type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                            )
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, object_entity=activity1,
+            type_id=constants.REL_SUB_PART_2_ACTIVITY,
+        )
 
         create_rel(subject_entity=c1)
         # Second relation on the same activity => return once
@@ -2267,27 +2273,31 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
-                                     ('test-object_foobar',  'is loved by')
-                                    )[0]
+        rtype1 = RelationType.create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by')
+        )[0]
 
-        create_activity = partial(Activity.objects.create, user=user,
-                                  type_id=constants.ACTIVITYTYPE_MEETING,
-                                  start=today - timedelta(hours=24),
-                                  end=today   - timedelta(hours=23),
-                                 )
+        create_activity = partial(
+            Activity.objects.create, user=user,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            start=today - timedelta(hours=24),
+            end=today - timedelta(hours=23),
+        )
         activity1 = create_activity(title='Meeting#1')
-        ___       = create_activity(title='Meeting#2')  # No relation
+        create_activity(title='Meeting#2')  # No relation
         activity3 = create_activity(title='Meeting#3')  # Ignored type of relation
         activity4 = create_activity(title='Meeting#4', is_deleted=True)
-        activity5 = create_activity(title='Meeting#5',
-                                    start=today + timedelta(hours=4),
-                                    end=today   + timedelta(hours=5),
-                                   )  # In the future
-        activity6 = create_activity(title='Meeting#6',
-                                    start=today - timedelta(hours=15),
-                                    end=today   - timedelta(hours=14),
-                                   )
+        activity5 = create_activity(
+            title='Meeting#5',
+            start=today + timedelta(hours=4),
+            end=today + timedelta(hours=5),
+        )  # In the future
+        activity6 = create_activity(
+            title='Meeting#6',
+            start=today - timedelta(hours=15),
+            end=today   - timedelta(hours=14),
+        )
 
         create_contact = partial(Contact.objects.create, user=user)
         c1 = create_contact(first_name='Ranma', last_name='Saotome')
@@ -2297,9 +2307,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         o1 = create_orga(name='Saotome dojo')
         o2 = create_orga(name='Tendou dojo')
 
-        create_rel = partial(Relation.objects.create, user=user, object_entity=activity1,
-                             type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                            )
+        create_rel = partial(
+            Relation.objects.create, user=user, object_entity=activity1,
+            type_id=constants.REL_SUB_PART_2_ACTIVITY,
+        )
 
         create_rel(subject_entity=c1)
         # Second relation on the same activity => return once
@@ -2311,15 +2322,15 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=c1, object_entity=activity5)
         create_rel(subject_entity=c1, object_entity=activity6)
 
-        self.assertEqual(
+        self.assertListEqual(
             [activity6, activity1],
             [*Activity.objects.past_linked(entity=c1, today=today)]
         )
-        self.assertEqual(
+        self.assertListEqual(
             [activity1],
             [*Activity.objects.past_linked(entity=o1, today=today)]
         )
-        self.assertEqual(
+        self.assertListEqual(
             [activity1],
             [*Activity.objects.past_linked(entity=o2, today=today)]
         )

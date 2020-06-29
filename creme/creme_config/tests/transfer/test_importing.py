@@ -818,7 +818,6 @@ class ImportingTestCase(CremeTestCase):
     def test_home_bricks03(self):
         "Config per role (role is imported)."
         self.login(is_staff=True)
-        role = self.role
 
         role_name = 'Super-hero'
         bricks_data = [

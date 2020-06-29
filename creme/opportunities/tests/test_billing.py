@@ -584,7 +584,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         quote1 = create_quote('Quote#1')
         quote2 = create_quote('Quote#2')
-        __     = create_quote('Quote#3', target=target2)
+        create_quote('Quote#3', target=target2)
         quote4 = create_quote('Quote#4', emitter=emitter2)
 
         # 'quote2' should not be proposed
@@ -661,7 +661,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         quote1 = create_quote('Quote#1')
         quote2 = create_quote('Quote#2')
         quote3 = create_quote('Quote#3', target=target2)
-        __     = create_quote('Quote#4', emitter=emitter2)
+        create_quote('Quote#4', emitter=emitter2)
 
         # 'quote2' should not be proposed
         create_rel(

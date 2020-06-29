@@ -856,7 +856,7 @@ class ListViewSearchTestCase(CremeTestCase):
         # self.assertFalse(field.widget.type)
 
         with self.assertRaises(KeyError):
-            __ = registry[EntityCellFunctionField.type_id]
+            registry[EntityCellFunctionField.type_id]  # NOQA
 
     def test_cell_registry_functionfield02(self):
         "Default data."

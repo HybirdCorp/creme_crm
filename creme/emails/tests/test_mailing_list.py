@@ -93,7 +93,7 @@ class MailingListsTestCase(_EmailsTestCase):
         response = self.assertGET200(MailingList.get_lv_absolute_url())
 
         with self.assertNoException():
-            __ = response.context['page_obj']
+            response.context['page_obj']  # NOQA
 
     def test_ml_and_campaign01(self):
         user = self.login()

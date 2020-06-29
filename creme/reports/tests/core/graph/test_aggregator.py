@@ -111,7 +111,7 @@ class AggregatorTestCase(CremeTestCase):
 
         # ---
         with self.assertRaises(ValueError) as cm:
-            __ = RGACount(cell=EntityCellRegularField.build(FakeOrganisation, 'capital'))
+            RGACount(cell=EntityCellRegularField.build(FakeOrganisation, 'capital'))
 
         self.assertEqual(
             'RGACount does not work with a cell.',
@@ -125,7 +125,7 @@ class AggregatorTestCase(CremeTestCase):
 
         # ---
         with self.assertRaises(ValueError) as cm1:
-            __ = RGAAverage(cell=None)
+            RGAAverage(cell=None)
 
         self.assertEqual(
             _('the field does not exist any more.'),
@@ -134,7 +134,7 @@ class AggregatorTestCase(CremeTestCase):
 
         # ---
         with self.assertRaises(ValueError) as cm2:
-            __ = RGAAverage(
+            RGAAverage(
                 cell=EntityCellFunctionField.build(FakeOrganisation, 'get_pretty_properties'),
             )
 

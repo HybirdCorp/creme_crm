@@ -1101,12 +1101,12 @@ class CredentialsTestCase(CremeTestCase):
         qs = CremeEntity.objects.filter(id__in=[contact1.id, contact2.id])
 
         with self.assertRaises(EntityCredentials.FilteringError):
-            __ = EntityCredentials.filter_entities(
+            EntityCredentials.filter_entities(
                 user=user, perm=VIEW, queryset=qs,
             )
 
         with self.assertRaises(EntityCredentials.FilteringError):
-            __ = EntityCredentials.filter_entities(
+            EntityCredentials.filter_entities(
                 user=user, perm=VIEW, queryset=qs,
                 as_model=FakeContact,
             )
@@ -1992,7 +1992,7 @@ class CredentialsTestCase(CremeTestCase):
             team.teammates = [self.user]
 
         with self.assertRaises(AssertionError):
-            __ = team.teammates
+            team.teammates  # NOQA
 
     def test_create_team02(self):
         team = CremeUser.objects.create(username='Teamee', is_team=True)
@@ -2008,7 +2008,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertDictEqual({user.id: user, other.id: other}, team.teammates)
 
         with self.assertNumQueries(0):  # Teammates are cached
-            __ = team.teammates
+            team.teammates  # NOQA
 
         self.assertTrue(all(isinstance(u, CremeUser) for u in teammates.values()))
 
@@ -2123,7 +2123,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertSetEqual({team1, team2}, {*teams})
 
         with self.assertNumQueries(0):  # Teams are cached
-            __ = user.teams
+            user.teams  # NOQA
 
         # Filtering ------------------------------------------------------------
         entity3 = create_user(user=team3, first_name='Ryohei', last_name='Ueda')
@@ -3069,7 +3069,7 @@ class CredentialsTestCase(CremeTestCase):
         filter_entities = EntityCredentials.filter_entities
 
         with self.assertRaises(EntityCredentials.FilteringError):
-            __ = filter_entities(user, qs, perm=VIEW)
+            filter_entities(user, qs, perm=VIEW)
 
         with self.assertNoException():
             ids_list = self._ids_list(

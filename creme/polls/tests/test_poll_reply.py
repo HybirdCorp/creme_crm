@@ -2205,7 +2205,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         preply1 = self._build_preply_from_pform(pform, 'Reply#1')
         preply2 = self._build_preply_from_pform(pform, 'Reply#2')
-        __      = self._build_preply_from_pform(pform, 'Reply#3')  # No answer --> no stats
+        self._build_preply_from_pform(pform, 'Reply#3')  # No answer --> no stats
         preply4 = self._build_preply_from_pform(pform, 'Reply#4')
 
         answer_1_1 = 'They are cool'

@@ -100,7 +100,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         todo = self.refresh(todo)
 
         with self.assertNumQueries(1):
-            __ = todo.creme_entity
+            todo.creme_entity  # NOQA
 
         with self.assertNumQueries(0):  # <= cache
             creme_entity = todo.creme_entity
@@ -118,7 +118,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         todo = self.refresh(todo)
 
         with self.assertNumQueries(1):
-            __ = todo.creme_entity
+            todo.creme_entity  # NOQA
 
         with self.assertNumQueries(0):  # <= cache
             creme_entity = todo.entity
@@ -149,7 +149,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ValueError) as error_context:
-            __ = todo.creme_entity
+            todo.creme_entity  # NOQA
 
         self.assertEqual(
             'The content type is not set while the entity is. '
@@ -164,7 +164,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
                        )
 
         with self.assertRaises(ValueError) as error_context:
-            __ = todo.creme_entity
+            todo.creme_entity  # NOQA
 
         self.assertEqual(
             'The content type is not set while the entity is. '
@@ -269,7 +269,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         todo.entity = entity = self.entity
 
         with self.assertRaises(ValueError):
-            __ = todo.creme_entity
+            todo.creme_entity  # NOQA
 
         # --
         todo.entity_content_type_id = entity.entity_type_id
@@ -300,7 +300,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         )
 
         with self.assertRaises(FakeOrganisation.DoesNotExist):
-            __ = todo.creme_entity
+            todo.creme_entity  # NOQA
 
     def test_bad_ctype02(self):
         "Bad CT + base entity."
@@ -313,7 +313,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         )
 
         with self.assertRaises(ValueError) as error_context:
-            __ = todo.creme_entity
+            todo.creme_entity  # NOQA
 
         self.assertEqual('The content type does not match this entity.',
                          error_context.exception.args[0]
