@@ -61,7 +61,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertListEqual([], [*brick_registry])
 
         with self.assertRaises(KeyError):
-            __ = brick_registry[FoobarBrick1.id_]
+            brick_registry[FoobarBrick1.id_]  # NOQA
 
         # 1 brick
         brick_registry.register(FoobarBrick1)
@@ -1432,7 +1432,7 @@ class BrickTestCase(CremeTestCase):
 
         with self.assertNoException():
             page = template_context['page']
-            __ = [*page.object_list]
+            [*page.object_list]  # NOQA
 
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
@@ -1454,7 +1454,7 @@ class BrickTestCase(CremeTestCase):
 
         with self.assertNoException():
             page = template_context['page']
-            __ = [*page.object_list]
+            [*page.object_list]  # NOQA
 
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 

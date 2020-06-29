@@ -693,11 +693,11 @@ class EntityEmailTestCase(_EmailsTestCase):
         with self.assertNoException():
             form = context['form']
             fields = form.fields
-            __ = fields['subject']
-            __ = fields['body']
-            __ = fields['body_html']
-            __ = fields['signature']
-            __ = fields['attachments']
+            fields['subject']  # NOQA
+            fields['body']  # NOQA
+            fields['body_html']  # NOQA
+            fields['signature']  # NOQA
+            fields['attachments']  # NOQA
 
         ini_get = form.initial.get
         self.assertEqual(subject, ini_get('subject'))

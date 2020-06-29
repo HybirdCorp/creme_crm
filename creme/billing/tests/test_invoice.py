@@ -955,16 +955,17 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual([product_line], plines)
 
         with self.assertNumQueries(0):
-            __ = [*invoice.get_lines(ProductLine)]
+            [*invoice.get_lines(ProductLine)]  # NOQA
 
         # ----
         service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
-        slines = [*invoice.get_lines(ServiceLine)]
+        slines1 = [*invoice.get_lines(ServiceLine)]
 
-        self.assertEqual([service_line], slines)
+        self.assertEqual([service_line], slines1)
 
         with self.assertNumQueries(0):
-            __ = [*invoice.get_lines(ServiceLine)]
+            slines2 = [*invoice.get_lines(ServiceLine)]
+        self.assertEqual([service_line], slines2)
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine

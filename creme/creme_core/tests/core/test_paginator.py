@@ -153,7 +153,7 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         self.assertEqual(contacts[0], page[0])
         with self.assertNumQueries(0):
-            __ = page[0]
+            page[0]  # NOQA
 
         with self.assertNumQueries(0):
             c = page[1]
@@ -162,7 +162,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertEqual(contacts[2], page[-1])
 
         with self.assertRaises(TypeError):
-            __ = page['notint']
+            page['notint']  # NOQA
 
         self.assertListEqual([contacts[1], contacts[2]], page[1:])
         self.assertListEqual([contacts[1], contacts[2]], page[1:3])

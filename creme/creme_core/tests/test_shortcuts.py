@@ -50,7 +50,7 @@ class ShortcutsTestCase(CremeTestCase):
         create_cat = FakeFolderCategory.objects.create
         cat1 = create_cat(name='Pix')
         cat2 = create_cat(name='Music')
-        ___  = create_cat(name='Video')
+        create_cat(name='Video')
 
         bulk = get_bulk_or_404(
             FakeFolderCategory.objects, [cat1.name, cat2.name], field_name='name',

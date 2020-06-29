@@ -1217,29 +1217,36 @@ class ListViewTestCase(ViewsTestCase):
                 'search-' + phone_cell.key: phone,
             }
 
-        response = self.assertPOST200(url, data=build_data('Red'))
-        lv_node = self._get_lv_node(response)
-        widget_node = self._get_lv_header_widget_nodes(
-            lv_node, phone_cell.key, input_type='input',
+        response1 = self.assertPOST200(url, data=build_data('Red'))
+        lv_node1 = self._get_lv_node(response1)
+        widget_node1 = self._get_lv_header_widget_nodes(
+            lv_node1, phone_cell.key, input_type='input',
         )[0]
+        self.assertEqual('text', widget_node1.attrib.get('data-lv-search-widget'))
+        self.assertNotIn('value', widget_node1.attrib)
         # self.assertEqual(_('Phone number'), widget_node.attrib.get('title')) TODO ?
 
-        content = self._get_lv_content(lv_node)
-        self.assertNotIn(bebop.name,     content)
-        self.assertNotIn(swordfish.name, content)
-        self.assertCountOccurrences(redtail.name, content, count=1)
-        self.assertCountOccurrences(dragons.name, content, count=1)
-        self.assertEqual(2, response.context['page_obj'].paginator.count)
+        content1 = self._get_lv_content(lv_node1)
+        self.assertNotIn(bebop.name,     content1)
+        self.assertNotIn(swordfish.name, content1)
+        self.assertCountOccurrences(redtail.name, content1, count=1)
+        self.assertCountOccurrences(dragons.name, content1, count=1)
+        self.assertEqual(2, response1.context['page_obj'].paginator.count)
 
-        response = self.assertPOST200(url, data=build_data('', '88'))
-        content = self._get_lv_content(self._get_lv_node(response))
+        response2 = self.assertPOST200(url, data=build_data('', '88'))
+        lv_node2 = self._get_lv_node(response2)
+        content = self._get_lv_content(lv_node2)
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertIn(redtail.name,    content)
         self.assertNotIn(dragons.name, content)
+        widget_node2 = self._get_lv_header_widget_nodes(
+            lv_node2, phone_cell.key, input_type='input',
+        )[0]
+        self.assertEqual('88', widget_node2.attrib.get('value'))
 
-        response = self.assertPOST200(url, data=build_data('Red', '88'))
-        content = self._get_lv_content(self._get_lv_node(response))
+        response3 = self.assertPOST200(url, data=build_data('Red', '88'))
+        content = self._get_lv_content(self._get_lv_node(response3))
         self.assertNotIn(bebop.name,     content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
@@ -1248,14 +1255,14 @@ class ListViewTestCase(ViewsTestCase):
         context = CaptureQueriesContext()
 
         with context:
-            response = self.assertPOST200(url, data=build_data(clear=True))
+            response4 = self.assertPOST200(url, data=build_data(clear=True))
 
-        content = self._get_lv_content(self._get_lv_node(response))
+        content = self._get_lv_content(self._get_lv_node(response4))
         self.assertIn(bebop.name,     content)
         self.assertIn(swordfish.name, content)
         self.assertIn(redtail.name,   content)
         self.assertIn(dragons.name,   content)
-        self.assertEqual(4, response.context['page_obj'].paginator.count)
+        self.assertEqual(4, response4.context['page_obj'].paginator.count)
 
         self._assertFastCount(context.captured_sql)
 

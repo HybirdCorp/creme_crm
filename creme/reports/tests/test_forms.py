@@ -314,7 +314,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
 
     def test_regular_aggregates01(self):
         field = ReportHandsField()
-        widget = field.widget
+        # widget = field.widget
         # self.assertListEqual([], [*widget.regular_aggregates])
         self.assertListEqual(
             [],
@@ -2203,7 +2203,7 @@ class GraphFetcherFieldTestCase(FieldTestCase):
         self.assertTrue(field.required)
 
         with self.assertRaises(ValidationError) as cm:
-            __ = field.clean(None)
+            field.clean(None)
 
         exception = cm.exception
         self.assertEqual('required', exception.code)

@@ -144,7 +144,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         with self.assertRaises(GraphFetcher.UselessResult) as cm:
-            __ = fetcher.fetch_4_entity(entity=contact, user=user)
+            fetcher.fetch_4_entity(entity=contact, user=user)
 
         self.assertEqual(
             'OwnedGraphFetcher is only useful for Contacts representing users '
@@ -191,7 +191,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         invoice = FakeInvoice.objects.create(user=user, name='SwordFish II')
 
         with self.assertRaises(GraphFetcher.IncompatibleContentType) as cm:
-            __ = fetcher.fetch_4_entity(entity=invoice, user=user)
+            fetcher.fetch_4_entity(entity=invoice, user=user)
 
         error_msg = _(
             "The volatile link «Belows to the Contact/User» is only compatible with Contacts ; "

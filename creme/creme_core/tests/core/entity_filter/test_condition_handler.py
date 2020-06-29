@@ -871,7 +871,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         with self.assertNumQueries(0):
-            ___ = handler1.description(user)
+            handler1.description(user)
 
         # ---
         handler2 = RegularFieldConditionHandler(
@@ -947,7 +947,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         with self.assertNumQueries(0):
-            ___ = handler1.description(user)
+            handler1.description(user)
 
         # ---
         handler2 = RegularFieldConditionHandler(
@@ -1329,7 +1329,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(custom_field, cfield2)
 
         with self.assertNumQueries(0):
-            __ = handler.custom_field
+            handler.custom_field  # NOQA
 
         # ---
         with self.assertRaises(TypeError):
@@ -2026,7 +2026,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         with self.assertNumQueries(0):
-            ___ = handler1.description(user)
+            handler1.description(user)
 
         # ---
         handler2 = CustomFieldConditionHandler(
@@ -2130,7 +2130,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(custom_field, cfield2)
 
         with self.assertNumQueries(0):
-            __ = handler.custom_field
+            handler.custom_field  # NOQA
 
     def test_datecustomfield_init02(self):
         "Pass a CustomField instance + start/end."
@@ -2455,7 +2455,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(rtype, rtype2)
 
         with self.assertNumQueries(0):
-            __ = handler1.relation_type
+            handler1.relation_type  # NOQA
 
         # ---
         with self.assertNumQueries(0):
@@ -2493,7 +2493,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(entity, e3)
 
         with self.assertNumQueries(0):
-            __ = handler3.entity
+            handler3.entity  # NOQA
 
     def test_relation_init02(self):
         "Pass an instance of RelationType."
@@ -2763,8 +2763,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         create_rel = partial(Relation.objects.create, user=user)
         rel1 = create_rel(subject_entity=shinji, type=loves, object_entity=rei)
-        rel2 = create_rel(subject_entity=asuka,  type=loves, object_entity=shinji)
-        rel3 = create_rel(subject_entity=misato, type=loves, object_entity=nerv)
+        # rel2 =
+        create_rel(subject_entity=asuka,  type=loves, object_entity=shinji)
+        # rel3 =
+        create_rel(subject_entity=misato, type=loves, object_entity=nerv)
 
         handler1 = RelationConditionHandler(model=FakeContact,
                                             rtype=loves.id,
@@ -3062,7 +3064,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(sub_efilter, subfilter)
 
         with self.assertNumQueries(0):
-            __ = handler.subfilter
+            handler.subfilter  # NOQA
 
         self.assertIsNone(handler.error)
         self.assertIs(handler.applicable_on_entity_base, False)
@@ -3271,7 +3273,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(sub_efilter, subfilter)
 
         with self.assertNumQueries(0):
-            __ = handler.subfilter
+            handler.subfilter  # NOQA
 
         self.assertIsNone(handler.error)
         self.assertIs(handler.applicable_on_entity_base, True)
@@ -3640,7 +3642,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(ptype, ptype2)
 
         with self.assertNumQueries(0):
-            __ = handler.property_type
+            handler.property_type  # NOQA
 
     def test_property_init02(self):
         "Pass a CremePropertyType instance."
@@ -3769,16 +3771,20 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        shinji = create_contact(last_name='Ikari',     first_name='Shinji')
-        rei    = create_contact(last_name='Ayanami',   first_name='Rei')
-        ___    = create_contact(last_name='Langley',   first_name='Asuka')
-        misato = create_contact(last_name='Katsuragi', first_name='Misato')
+        contacts = {
+            'shinji': create_contact(last_name='Ikari',     first_name='Shinji'),
+            'rei':    create_contact(last_name='Ayanami',   first_name='Rei'),
+            'asuka':  create_contact(last_name='Langley',   first_name='Asuka'),
+            'misato': create_contact(last_name='Katsuragi', first_name='Misato'),
+        }
 
         create_prop = CremeProperty.objects.create
-        prop1 = create_prop(creme_entity=rei,    type=cute)
-        ___   = create_prop(creme_entity=rei,    type=pilot)
-        prop3 = create_prop(creme_entity=misato, type=cute)
-        ___   = create_prop(creme_entity=shinji, type=pilot)
+        properties = [
+            create_prop(creme_entity=contacts['rei'],    type=cute),
+            create_prop(creme_entity=contacts['rei'],    type=pilot),
+            create_prop(creme_entity=contacts['misato'], type=cute),
+            create_prop(creme_entity=contacts['shinji'], type=pilot),
+        ]
 
         handler1 = PropertyConditionHandler(
             model=FakeContact,
@@ -3786,9 +3792,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertQEqual(
             Q(pk__in=CremeProperty.objects
-                                  .filter(id__in=[prop1.id, prop3.id])
-                                  .values_list('creme_entity_id', flat=True)
-             ),
+                                  .filter(id__in=[properties[0].id, properties[2].id])
+                                  .values_list('creme_entity_id', flat=True)),
             handler1.get_q(user=user)
         )
 
@@ -3800,9 +3805,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertQEqual(
             ~Q(pk__in=CremeProperty.objects
-                                   .filter(id__in=[prop1.id, prop3.id])
-                                   .values_list('creme_entity_id', flat=True)
-              ),
+                                   .filter(id__in=[properties[0].id, properties[2].id])
+                                   .values_list('creme_entity_id', flat=True)),
             handler2.get_q(user=user)
         )
 

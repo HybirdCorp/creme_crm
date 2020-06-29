@@ -125,7 +125,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             form = context['form']
             # NB: difficult to test the content in a robust way (depends on the DB config)
-            __ = context['help_message']
+            context['help_message']  # NOQA
 
         self.assertIs(form.initial.get('is_private'), False)
 
@@ -1004,7 +1004,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             submit_label = context['submit_label']
             formfields = context['form'].fields
             # NB: difficult to test the content in a robust way (depends on the DB config)
-            __ = context['help_message']
+            context['help_message']  # NOQA
 
         self.assertEqual(_('Save the modified filter'), submit_label)
 
@@ -1644,7 +1644,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter01 = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter01', FakeContact, is_custom=True,
         )
-        ___ = EntityFilter.objects.smart_update_or_create(
+        EntityFilter.objects.smart_update_or_create(
             'test-filter02', 'Filter02', FakeContact, is_custom=True,
             conditions=[SubFilterConditionHandler.build_condition(efilter01)],
         )
@@ -1663,7 +1663,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter01 = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter01', FakeContact, is_custom=True,
         )
-        ___ = EntityFilter.objects.smart_update_or_create(
+        EntityFilter.objects.smart_update_or_create(
             'test-filter02', 'Filter02', FakeContact, is_custom=True,
             conditions=[
                 RelationSubFilterConditionHandler.build_condition(

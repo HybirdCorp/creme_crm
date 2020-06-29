@@ -96,7 +96,7 @@ class SettingValueManager(models.Manager):
 
             if isinstance(key, str):
                 key_id = key
-                __key = self.key_registry[key_id]
+                self.key_registry[key_id]  # NOQA
             else:
                 key_id = key.id
                 # self.key_registry[key_id] TODO ?

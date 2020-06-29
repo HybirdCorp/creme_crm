@@ -209,7 +209,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf = self.refresh(hf)
 
         with self.assertNumQueries(0):
-            __ = hf.entity_type
+            hf.entity_type  # NOQA
 
     def test_cells_property01(self):
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
@@ -392,7 +392,7 @@ class HeaderFiltersTestCase(CremeTestCase):
             hf.populate_entities(contacts, user)
 
         with self.assertNumQueries(1):
-            __ = contacts[0].position
+            contacts[0].position  # NOQA
 
     def test_populate_entities_fields02(self):
         "Regular fields: FK."
@@ -421,10 +421,10 @@ class HeaderFiltersTestCase(CremeTestCase):
             hf.populate_entities(contacts, user)
 
         with self.assertNumQueries(0):
-            __ = contacts[0].position
-            __ = contacts[1].position
-            __ = contacts[0].civility
-            __ = contacts[1].civility
+            contacts[0].position
+            contacts[1].position
+            contacts[0].civility
+            contacts[1].civility
 
     def test_populate_entities_fields03(self):
         "Regular fields: invalid fields are removed automatically."

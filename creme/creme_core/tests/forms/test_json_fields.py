@@ -2327,7 +2327,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.q_filter = ['pk', contact.pk]
 
         with self.assertRaises(ValueError) as error:
-            __ = field.q_filter_query
+            field.q_filter_query  # NOQA
 
         qfilter_error = f"Invalid type for q_filter (needs dict or Q): ['pk', {contact.id}]"
         self.assertEqual(str(error.exception), qfilter_error)
@@ -2338,7 +2338,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
         with self.assertRaises(ValueError) as error:
-            __ = field.q_filter_query
+            field.q_filter_query  # NOQA
 
         self.assertEqual(str(error.exception), qfilter_error)
 

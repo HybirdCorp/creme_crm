@@ -161,7 +161,7 @@ class EntityFilterSuperRegistryTestCase(CremeTestCase):
         self.assertIs(registry02, registries[rid2])
 
         with self.assertRaises(KeyError):
-            __ = registries[2]
+            registries[2]  # NOQA
 
         self.assertListEqual(
             [registry01, registry02, registry03],

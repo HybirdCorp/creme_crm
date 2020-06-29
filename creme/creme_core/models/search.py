@@ -212,7 +212,7 @@ class SearchConfigItem(CremeModel):
     @property
     def all_fields(self) -> bool:
         "@return True means that all fields are used."
-        __ = self.searchfields  # Computes self._all_fields
+        self.searchfields  # NOQA  # Computes self._all_fields
         return self._all_fields
 
     @property

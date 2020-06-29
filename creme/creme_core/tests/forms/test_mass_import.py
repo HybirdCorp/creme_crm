@@ -432,28 +432,28 @@ class ExtractorFieldTestCase(CremeTestCase):
         #                                 'notadict'
         #                                )
         invalid = (_('Enter a valid value.'), 'invalid', None)
-        with self.assertRaises(ValidationError) as cm:
-            __ = field.clean('notadict')
-        self.assertEqual(invalid, cm.exception.args)
+        with self.assertRaises(ValidationError) as cm1:
+            field.clean('notadict')
+        self.assertEqual(invalid, cm1.exception.args)
 
-        with self.assertRaises(ValidationError) as cm:
-            __ = field.clean({'selected_column': 'notanint'})
-        self.assertEqual(invalid, cm.exception.args)
+        with self.assertRaises(ValidationError) as cm2:
+            field.clean({'selected_column': 'notanint'})
+        self.assertEqual(invalid, cm2.exception.args)
 
-        with self.assertRaises(ValidationError) as cm:
-            __ = field.clean({'selected_column': '25'})
-        self.assertEqual(invalid, cm.exception.args)
+        with self.assertRaises(ValidationError) as cm3:
+            field.clean({'selected_column': '25'})
+        self.assertEqual(invalid, cm3.exception.args)
 
-        with self.assertRaises(ValidationError) as cm:
-            __ = field.clean({'selected_column': '1'})  # No default value
-        self.assertEqual('invalid', cm.exception.args[1])
+        with self.assertRaises(ValidationError) as cm4:
+            field.clean({'selected_column': '1'})  # No default value
+        self.assertEqual('invalid', cm4.exception.args[1])
 
-        with self.assertRaises(ValidationError) as cm:
-            __ = field.clean({'selected_column': '1',
-                              'default_value': 'John',
-                             }
-                            )
-        self.assertEqual(invalid, cm.exception.args)
+        with self.assertRaises(ValidationError) as cm5:
+            field.clean({
+                'selected_column': '1',
+                'default_value': 'John',
+            })
+        self.assertEqual(invalid, cm5.exception.args)
 
     # TODO: test with required + no column
     # TODO: test with not required
@@ -470,11 +470,11 @@ class ExtractorFieldTestCase(CremeTestCase):
 
         col = 1
         def_val = 'John'
-        extractor = field.clean({'selected_column': str(col),
-                                 'default_value': def_val,
-                                 'subfield_create': '',
-                                }
-                              )
+        extractor = field.clean({
+            'selected_column': str(col),
+            'default_value': def_val,
+            'subfield_create': '',
+        })
         self.assertIsInstance(extractor, RegularFieldExtractor)
         self.assertEqual(col, extractor._column_index)
         self.assertEqual(def_val, extractor._default_value)
@@ -534,21 +534,21 @@ class CustomfieldExtractorFieldTestCase(CremeTestCase):
         )
 
         invalid = (_('Enter a valid value.'), 'invalid', None)
-        with self.assertRaises(ValidationError) as cm:
-            __ = field.clean('notadict')
-        self.assertEqual(invalid, cm.exception.args)
+        with self.assertRaises(ValidationError) as cm1:
+            field.clean('notadict')
+        self.assertEqual(invalid, cm1.exception.args)
 
-        with self.assertRaises(ValidationError) as cm:
-            __ = field.clean({'selected_column': 'notanint'})
-        self.assertEqual(invalid, cm.exception.args)
+        with self.assertRaises(ValidationError) as cm2:
+            field.clean({'selected_column': 'notanint'})
+        self.assertEqual(invalid, cm2.exception.args)
 
-        with self.assertRaises(ValidationError) as cm:
-            __ = field.clean({'selected_column': '25'})
-        self.assertEqual(invalid, cm.exception.args)
+        with self.assertRaises(ValidationError) as cm3:
+            field.clean({'selected_column': '25'})
+        self.assertEqual(invalid, cm3.exception.args)
 
-        with self.assertRaises(ValidationError) as cm:
-            __ = field.clean({'selected_column': '1'})  # No default value
-        self.assertEqual('invalid', cm.exception.args[1])
+        with self.assertRaises(ValidationError) as cm4:
+            field.clean({'selected_column': '1'})  # No default value
+        self.assertEqual('invalid', cm4.exception.args[1])
 
     def test_clean(self):
         user = self.login()
