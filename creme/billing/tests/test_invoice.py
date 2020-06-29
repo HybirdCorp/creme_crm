@@ -976,6 +976,10 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
         self.populate('creme_core', 'creme_config', 'billing')
         self.login()
 
+        # NB: we need pk=1 for the default instances created by formset for detail-view.
+        #     It would not be useful if we reset ID sequences...
+        Vat.objects.get_or_create(id=1, value=Decimal('0.0'))
+
     def test_delete01(self):
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
         product_line = ProductLine.objects.create(
@@ -1010,17 +1014,18 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
         "Can't be deleted"
         user = self.user
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
-        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='Flyyyyy',
-                                                 )
+        service_line = ServiceLine.objects.create(
+            user=user, related_document=invoice, on_the_fly_item='Flyyyyy',
+        )
         rel1 = Relation.objects.get(subject_entity=invoice.id, object_entity=service_line.id)
 
         # This relation prohibits the deletion of the invoice
         ce = CremeEntity.objects.create(user=user)
-        rtype = RelationType.create(('test-subject_linked', 'is linked to'),
-                                    ('test-object_linked',  'is linked to'),
-                                    is_internal=True,
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_linked', 'is linked to'),
+            ('test-object_linked',  'is linked to'),
+            is_internal=True,
+        )[0]
         rel2 = Relation.objects.create(
             subject_entity=invoice, object_entity=ce, type=rtype, user=user,
         )
