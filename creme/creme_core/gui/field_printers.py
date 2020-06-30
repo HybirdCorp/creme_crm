@@ -102,6 +102,11 @@ def simple_print_csv(entity: Model, fval, user, field: Field) -> str:
     return str(fval) if fval is not None else ''
 
 
+def print_choice(entity: Model, fval, user, field: Field) -> str:
+    choice = getattr(entity, f'get_{field.name}_display')()
+    return str(choice) if choice is not None else ''
+
+
 def print_color_html(entity: Model, fval, user, field: Field) -> str:
     return format_html(
         '''<span style="background:#{color};">{color}</span>''',
@@ -189,13 +194,39 @@ print_file_html = print_image_html = FileFieldPrinterForHTML(registry=filefield_
 
 
 def print_integer(entity: Model, fval, user, field: Field) -> str:
-    if field.choices:  # TODO: manage 'choices' for other types...
+    warnings.warn(
+        'The function creme_core.gui.field_printers.print_integer() is deprecated.',
+        DeprecationWarning
+    )
+
+    if field.choices:
         fval = getattr(entity, f'get_{field.name}_display')()
 
     return str(fval) if fval is not None else ''
 
 
+def print_integer_html(entity: Model, fval, user, field: Field) -> str:
+    # TODO remove 'use_l10n' when settings.USE_L10N == True
+    # NB: force grouping instead of <USE_THOUSAND_SEPARATOR = True> in settings
+    #     to not impact CSV output, reports etc...
+    return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
+
+
 def print_decimal(entity: Model, fval, user, field: Field) -> str:
+    warnings.warn(
+        'The function creme_core.gui.field_printers.print_decimal() is deprecated.',
+        DeprecationWarning
+    )
+
+    return number_format(fval, use_l10n=True) if fval is not None else ''
+
+
+def print_decimal_html(entity: Model, fval, user, field: Field) -> str:
+    # TODO remove 'use_l10n' when settings.USE_L10N == True
+    return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
+
+
+def print_decimal_csv(entity: Model, fval, user, field: Field) -> str:
     # TODO remove 'use_l10n' when settings.USE_L10N == True
     return number_format(fval, use_l10n=True) if fval is not None else ''
 
@@ -294,22 +325,25 @@ print_foreignkey_csv = FKPrinter(
 
 class BaseM2MPrinter:
     @staticmethod
-    def enumerator_all(entity: Model,
-                       fval: Manager,
-                       user,
-                       field: Field) -> Iterator[Model]:
+    def enumerator_all(
+            entity: Model,
+            fval: Manager,
+            user,
+            field: Field) -> Iterator[Model]:
         return fval.all()
 
     @staticmethod
-    def enumerator_entity(entity: Model,
-                          fval: Manager,
-                          user,
-                          field: Field) -> Iterator[Model]:
+    def enumerator_entity(
+            entity: Model,
+            fval: Manager,
+            user,
+            field: Field) -> Iterator[Model]:
         return fval.filter(is_deleted=False)
 
-    def __init__(self,
-                 default_printer: M2MInstancePrinter,
-                 default_enumerator: M2MEnumerator):
+    def __init__(
+            self,
+            default_printer: M2MInstancePrinter,
+            default_enumerator: M2MEnumerator):
         self._sub_printers = ClassKeyedMap(default=(default_printer, default_enumerator))
 
     def __call__(self, entity: Model, fval, user, field: Field) -> str:
@@ -325,19 +359,21 @@ class BaseM2MPrinter:
 
 class M2MPrinterForHTML(BaseM2MPrinter):
     @staticmethod
-    def printer_html(instance: Model,
-                     related_entity: Model,
-                     fval: Manager,
-                     user,
-                     field: Field) -> str:
+    def printer_html(
+            instance: Model,
+            related_entity: Model,
+            fval: Manager,
+            user,
+            field: Field) -> str:
         return escape(instance)
 
     @staticmethod
-    def printer_entity_html(instance: Model,
-                            related_entity: Model,
-                            fval: Manager,
-                            user,
-                            field: Field) -> str:
+    def printer_entity_html(
+            instance: Model,
+            related_entity: Model,
+            fval: Manager,
+            user,
+            field: Field) -> str:
         assert isinstance(instance, CremeEntity)
 
         return format_html(
@@ -367,10 +403,11 @@ class M2MPrinterForHTML(BaseM2MPrinter):
 
 class M2MPrinter(M2MPrinterForHTML):
     def __init__(self, *args, **kwargs):
-        warnings.warn('The class creme_core.gui.field_printers.M2MPrinter is deprecated ; '
-                      'use M2MPrinterForHTML instead.',
-                      DeprecationWarning
-                     )
+        warnings.warn(
+            'The class creme_core.gui.field_printers.M2MPrinter is deprecated ; '
+            'use M2MPrinterForHTML instead.',
+            DeprecationWarning
+        )
         super().__init__(*args, **kwargs)
 
 
@@ -387,19 +424,21 @@ print_many2many_html = M2MPrinterForHTML(
 
 class M2MPrinterForCSV(BaseM2MPrinter):
     @staticmethod
-    def printer_csv(instance: Model,
-                    related_entity: Model,
-                    fval: Manager,
-                    user,
-                    field: Field) -> str:
+    def printer_csv(
+            instance: Model,
+            related_entity: Model,
+            fval: Manager,
+            user,
+            field: Field) -> str:
         return str(instance)
 
     @staticmethod
-    def printer_entity_csv(instance: Model,
-                           related_entity: Model,
-                           fval: Manager,
-                           user,
-                           field: Field) -> str:
+    def printer_entity_csv(
+            instance: Model,
+            related_entity: Model,
+            fval: Manager,
+            user,
+            field: Field) -> str:
         assert isinstance(instance, CremeEntity)
 
         # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
@@ -476,12 +515,16 @@ def print_unsafehtml_html(entity: Model, fval, user, field: Field) -> str:
 # TODO: Do more specific fields (i.e: currency field....) ?
 class _FieldPrintersRegistry:
     def __init__(self):
-        self._printers = ClassKeyedMap(
+        # self._printers = ClassKeyedMap(
+        self._html_printers = ClassKeyedMap(
             [
-                (models.IntegerField,       print_integer),
+                # (models.IntegerField,       print_integer),
+                (models.IntegerField,       print_integer_html),
 
-                (models.FloatField,         print_decimal),
-                (models.DecimalField,       print_decimal),
+                # (models.FloatField,         print_decimal),
+                # (models.DecimalField,       print_decimal),
+                (models.FloatField,         print_decimal_html),
+                (models.DecimalField,       print_decimal_html),
 
                 (models.BooleanField,       print_boolean_html),
                 (models.NullBooleanField,   print_boolean_html),
@@ -509,12 +552,15 @@ class _FieldPrintersRegistry:
             ],
             default=simple_print_html,
         )
+
         self._csv_printers = ClassKeyedMap(
             [
-                (models.IntegerField,       print_integer),
+                # (models.IntegerField,       print_integer),
 
-                (models.FloatField,         print_decimal),
-                (models.DecimalField,       print_decimal),
+                # (models.FloatField,         print_decimal),
+                # (models.DecimalField,       print_decimal),
+                (models.FloatField,         print_decimal_csv),
+                (models.DecimalField,       print_decimal_csv),
 
                 (models.BooleanField,       print_boolean_csv),
                 (models.NullBooleanField,   print_boolean_csv),
@@ -533,8 +579,13 @@ class _FieldPrintersRegistry:
         )
 
         self._printers_maps = {
-            'html': self._printers,
+            # 'html': self._printers,
+            'html': self._html_printers,
             'csv':  self._csv_printers,
+        }
+        self._choice_printers = {
+            'html': print_choice,
+            'csv':  print_choice,
         }
 
         css_default        = getattr(settings, 'CSS_DEFAULT_LISTVIEW')
@@ -564,10 +615,12 @@ class _FieldPrintersRegistry:
             default=css_default_header,
         )
 
-    def register(self,
-                 field: Type[models.Field],
-                 printer: FieldPrinter,
-                 output: str = 'html') -> '_FieldPrintersRegistry':
+    # TODO: rename register_printer
+    def register(
+            self,
+            field: Type[models.Field],
+            printer: FieldPrinter,
+            output: str = 'html') -> '_FieldPrintersRegistry':
         """Register a field printer.
         @param field: A class inheriting <django.models.Field>.
         @param printer: A callable object. See simple_print_html() for arguments/return.
@@ -577,10 +630,23 @@ class _FieldPrintersRegistry:
         self._printers_maps[output][field] = printer
         return self
 
-    def register_listview_css_class(self,
-                                    field: Type[models.Field],
-                                    css_class: str,
-                                    header_css_class: str):
+    def register_choice_printer(
+            self,
+            printer: FieldPrinter,
+            output: str = 'html') -> '_FieldPrintersRegistry':
+        """Register a printer for fields with a "choices" attribute.
+        @param printer: A callable object. See print_choice() for arguments/return.
+        @param output: string in {'html', 'csv'}.
+        @return Self to chain calls.
+        """
+        self._choice_printers[output] = printer
+        return self
+
+    def register_listview_css_class(
+            self,
+            field: Type[models.Field],
+            css_class: str,
+            header_css_class: str):
         """Register CSS classes used in list-views to display field's value and column header.
         @param field: A class inheriting <django.models.Field>.
         @param css_class: CSS class for table cell.
@@ -595,9 +661,10 @@ class _FieldPrintersRegistry:
     def get_header_listview_css_class_for_field(self, field_class: Type[models.Field]) -> str:
         return self._header_listview_css_printers[field_class]
 
-    def _build_field_printer(self,
-                             field_info: FieldInfo,
-                             output: str = 'html') -> ReducedPrinter:
+    def _build_field_printer(
+            self,
+            field_info: FieldInfo,
+            output: str = 'html') -> ReducedPrinter:
         base_field = field_info[0]
         base_name = base_field.name
         HIDDEN_VALUE = settings.HIDDEN_VALUE
@@ -669,29 +736,36 @@ class _FieldPrintersRegistry:
 
                             return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
         else:
-            print_func = self._printers_maps[output][base_field.__class__]
+            print_func = (
+                self._choice_printers[output]
+                if base_field.choices else
+                self._printers_maps[output][base_field.__class__]
+            )
 
             def printer(obj, user):
                 return print_func(obj, getattr(obj, base_name), user, base_field)
 
         return printer
 
-    def build_field_printer(self,
-                            model: Type[models.Model],
-                            field_name: str,
-                            output: str = 'html') -> ReducedPrinter:
+    def build_field_printer(
+            self,
+            model: Type[models.Model],
+            field_name: str,
+            output: str = 'html') -> ReducedPrinter:
         return self._build_field_printer(FieldInfo(model, field_name), output=output)
 
-    def get_html_field_value(self,
-                             obj: models.Model,
-                             field_name: str,
-                             user) -> str:
+    def get_html_field_value(
+            self,
+            obj: models.Model,
+            field_name: str,
+            user) -> str:
         return self.build_field_printer(obj.__class__, field_name)(obj, user)
 
-    def get_csv_field_value(self,
-                            obj: models.Model,
-                            field_name: str,
-                            user) -> str:
+    def get_csv_field_value(
+            self,
+            obj: models.Model,
+            field_name: str,
+            user) -> str:
         return self.build_field_printer(obj.__class__, field_name, output='csv')(obj, user)
 
 

@@ -91,7 +91,9 @@
             - In 'creme_core.forms' :
                 - In 'widgets', these classes are deprecated : DependentSelect, AjaxChoiceField & AjaxMultipleChoiceField
             - In 'creme_core.gui' :
-                - The class 'field_printers.M2MPrinter' is deprecated ; use 'M2MPrinterForHTML' instead.
+                - In 'field_printers' :
+                    - These functions are deprecated : 'print_integer()', 'print_decimal()'.
+                    - The class 'M2MPrinter' is deprecated ; use 'M2MPrinterForHTML' instead.
                 - The class 'quick_forms.QuickFormsRegistry' has been improved :
                     - The method 'iter_models()' is deprecated ; use '@models' instead.
                     - The method 'get_form() is deprecated ; use 'get_form_class()' instead.
@@ -488,11 +490,15 @@
             - The attribute '_backends' has been renamed '_backend_classes'.
             - The method '_get_backends()' has been renamed '_get_backend_classes()'.
             - The inner-class 'InvalidId' has been removed.
+        # In 'creme_core.core' :
+            - The method 'function_field.FunctionFieldDecimal._format_decimal()' has been removed.
         # In 'creme_core.forms' :
             - Some rework has been done in 'base' :
                 - The class 'HookableForm' has been renamed 'HookableFormMixin'.
                 - The order of the parent classes of 'CremeForm' & 'CremeModelForm' has changed.
             - In 'fields.RelationEntityField', the default value of the attribute "allowed_rtypes" has changed (empty queryset now).
+        # In 'creme_core.gui' :
+            - The attribute 'field_printers._FieldPrintersRegistry._printers' has been renamed '_html_printers'.
         # In 'creme_core.models' :
             - The method 'Relation._build_symmetric_relation()' is deprecated.
             - The attribute 'fields.RealEntityForeignKey.cache_attr' has been removed.

@@ -493,6 +493,10 @@ ESLINT = {
 
 # GUI ##########################################################################
 
+# Django's settings ; True means "20000" will be displayed "20 000" (if ' '  is
+# the thousand separator in the locale).
+# USE_THOUSAND_SEPARATOR = True
+
 BLOCK_SIZE = 10  # Lines number in common blocks
 MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar
 

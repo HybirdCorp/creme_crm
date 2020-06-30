@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from decimal import Decimal
+
+from django.utils.formats import number_format
+
 from creme.creme_core.core.function_field import (
     FunctionField,
+    FunctionFieldDecimal,
     _FunctionFieldRegistry,
 )
 
@@ -146,5 +151,17 @@ class FunctionFieldsTestCase(CremeTestCase):
 
         with self.assertRaises(_FunctionFieldRegistry.RegistrationError):
             registry.unregister(Klass, TestFunctionField)
+
+    def test_result_decimal(self):
+        value = Decimal('1234.45')
+        result = FunctionFieldDecimal(value)
+        self.assertEqual(
+            number_format(value, use_l10n=True, force_grouping=True),
+            result.for_html(),
+        )
+        self.assertEqual(
+            number_format(value, use_l10n=True),
+            result.for_csv(),
+        )
 
     # TODO: test other classes
