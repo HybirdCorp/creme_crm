@@ -111,9 +111,14 @@ class FunctionFieldTestCase(_BillingTestCase):
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
         self.assertIsNotNone(funf)
 
-        val = number_format('7000.00', use_l10n=True)
-        self.assertEqual(val, funf(target, user).for_html())
-        self.assertEqual(val, funf(target, user).for_csv())
+        self.assertEqual(
+            number_format('7000.00', use_l10n=True, force_grouping=True),
+            funf(target, user).for_html()
+        )
+        self.assertEqual(
+            number_format('7000.00', use_l10n=True),
+            funf(target, user).for_csv()
+        )
 
         # Test for EntityCellFunctionField + CSS
         cell = EntityCellFunctionField(model=Invoice, func_field=funf)
@@ -388,9 +393,14 @@ class FunctionFieldTestCase(_BillingTestCase):
         funf = function_field_registry.get(Organisation, 'total_won_quote_last_year')
         self.assertIsNotNone(funf)
 
-        val = number_format('5300.00', use_l10n=True)
-        self.assertEqual(val, funf(target, user).for_html())
-        self.assertEqual(val, funf(target, user).for_csv())
+        self.assertEqual(
+            number_format('5300.00', use_l10n=True, force_grouping=True),
+            funf(target, user).for_html()
+        )
+        self.assertEqual(
+            number_format('5300.00', use_l10n=True),
+            funf(target, user).for_csv()
+        )
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
@@ -536,9 +546,14 @@ class FunctionFieldTestCase(_BillingTestCase):
         funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
         self.assertIsNotNone(funf)
 
-        val = number_format('6000.00', use_l10n=True)
-        self.assertEqual(val, funf(target, user).for_html())
-        self.assertEqual(val, funf(target, user).for_csv())
+        self.assertEqual(
+            number_format('6000.00', use_l10n=True, force_grouping=True),
+            funf(target, user).for_html()
+        )
+        self.assertEqual(
+            number_format('6000.00', use_l10n=True),
+            funf(target, user).for_csv()
+        )
 
     @skipIfCustomQuote
     @skipIfCustomProductLine

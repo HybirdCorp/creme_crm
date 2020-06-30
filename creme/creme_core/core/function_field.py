@@ -43,6 +43,7 @@ if TYPE_CHECKING:
 class FunctionFieldResult:
     __slots__ = ('_data',)
 
+    # TODO: str_data => can be Any type (eg: Decimal) ??
     def __init__(self, str_data: str):
         self._data: str = str_data
 
@@ -57,17 +58,20 @@ class FunctionFieldResult:
 
 
 class FunctionFieldDecimal(FunctionFieldResult):
-    def _format_decimal(self):
-        val = self._data
-        # TODO: factorise with field_printers ?
-        # TODO remove 'use_l10n' when settings.USE_L10N == True
-        return number_format(val, use_l10n=True)  # TODO: ?? "if val is not None else ''"
+    # def _format_decimal(self):
+    #     val = self._data
+    #     return number_format(val, use_l10n=True)
 
     def for_html(self) -> str:
-        return self._format_decimal()  # TODO: escape() ?
+        # return self._format_decimal()
+        # TODO: escape() ?
+        # TODO: remove 'use_l10n' when settings.USE_L10N == True
+        # TODO: ?? "if self._data is not None else ''"
+        return number_format(self._data, use_l10n=True, force_grouping=True)
 
     def for_csv(self) -> str:
-        return self._format_decimal()
+        # return self._format_decimal()
+        return number_format(self._data, use_l10n=True)
 
 
 class FunctionFieldLink(FunctionFieldResult):
@@ -126,12 +130,13 @@ class FunctionFieldResultsList(FunctionFieldResult):
         self._data: List[FunctionFieldResult] = [*iterable]  # type: ignore
 
     def for_html(self) -> str:
-        return format_html('<ul>{}</ul>',
-                           format_html_join(
-                               '', '<li>{}</li>',
-                               ([e.for_html()] for e in self._data)
-                           )
-                          )
+        return format_html(
+            '<ul>{}</ul>',
+            format_html_join(
+                '', '<li>{}</li>',
+                ([e.for_html()] for e in self._data)
+            )
+        )
 
     def for_csv(self) -> str:
         return '/'.join(e.for_csv() for e in self._data)
