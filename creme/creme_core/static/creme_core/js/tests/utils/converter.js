@@ -238,6 +238,21 @@ QUnit.parameterize('creme.utils.converters (string-number, fail)', [
     equal(0, converters.convert('nan', $.extend({}, options, {defaults: 0})));
 });
 
+QUnit.parameterize('creme.utils.converters (string-number, empty)', [
+    [{from: 'string', to: 'number', empty: true}, null],
+    [{from: 'string', to: 'int', empty: true}, null],
+    [{from: 'string', to: 'float', empty: true}, null],
+    [{from: 'string', to: 'number', empty: true}, undefined],
+    [{from: 'string', to: 'int', empty: true}, undefined],
+    [{from: 'string', to: 'float', empty: true}, undefined],
+    [{from: 'string', to: 'number', empty: true}, ''],
+    [{from: 'string', to: 'int', empty: true}, ''],
+    [{from: 'string', to: 'float', empty: true}, '']
+], function(options, value, assert) {
+    var converters = creme.utils.converters();
+    equal(undefined, converters.convert(value, options));
+});
+
 QUnit.parameterize('creme.utils.converters (string-datetime)', [
     [{from: 'string', to: 'date'},
         '2019-11-28',
@@ -262,6 +277,20 @@ QUnit.parameterize('creme.utils.converters (string-datetime)', [
     ok(result.isValid());
     ok(expected.isValid());
     equal(expected.format(), result.format());
+});
+
+QUnit.parameterize('creme.utils.converters (string-datetime, empty)', [
+    [{from: 'string', to: 'date', empty: true}, null],
+    [{from: 'string', to: 'date', empty: true}, undefined],
+    [{from: 'string', to: 'date', empty: true}, ''],
+    [{from: 'string', to: 'datetime', empty: true}, null],
+    [{from: 'string', to: 'datetime', empty: true}, undefined],
+    [{from: 'string', to: 'datetime', empty: true}, '']
+], function(options, value, assert) {
+    var converters = creme.utils.converters();
+    var result = converters.convert(value, options);
+
+    equal(undefined, result);
 });
 
 QUnit.parameterize('creme.utils.converters (string-datetime, fail)', [
@@ -323,6 +352,9 @@ QUnit.parameterize('creme.utils.converters (datetime-string, fail)', [
 });
 
 QUnit.parameterize('creme.utils.converters (string-color, fail)', [
+    [{from: 'string', to: 'color'}, null, '"null" is not a RGB hexadecimal value'],
+    [{from: 'string', to: 'color'}, undefined, '"undefined" is not a RGB hexadecimal value'],
+    [{from: 'string', to: 'color'}, '', '"" is not a RGB hexadecimal value'],
     [{from: 'string', to: 'color'}, '#ee', '"#ee" is not a RGB hexadecimal value'],
     [{from: 'string', to: 'color'}, '#000000aa', '"#000000aa" is not a RGB hexadecimal value']
 ], function(options, value, expected, assert) {
@@ -333,7 +365,32 @@ QUnit.parameterize('creme.utils.converters (string-color, fail)', [
     }, Error, 'Error: ${expected}'.template({expected: expected}));
 });
 
+
+QUnit.parameterize('creme.utils.converters (string-color, empty)', [
+    [{from: 'string', to: 'color', empty: true}, null],
+    [{from: 'string', to: 'color', empty: true}, undefined],
+    [{from: 'string', to: 'color', empty: true}, '']
+], function(options, value, assert) {
+    var converters = creme.utils.converters();
+    var result = converters.convert(value, options);
+
+    equal(undefined, result);
+});
+
 QUnit.parameterize('creme.utils.converters (string-color)', [
+    [{from: 'string', to: 'color'}, '#ee', '"#ee" is not a RGB hexadecimal value'],
+    [{from: 'string', to: 'color'}, '#000000aa', '"#000000aa" is not a RGB hexadecimal value']
+], function(options, value, expected, assert) {
+    var converters = creme.utils.converters();
+
+    this.assertRaises(function() {
+        converters.convert(value, options);
+    }, Error, 'Error: ${expected}'.template({expected: expected}));
+});
+
+
+QUnit.parameterize('creme.utils.converters (color-string)', [
+    [{from: 'color', to: 'string', empty: true}, null, ''],
     [{from: 'color', to: 'string'}, new RGBColor(), '#000000'],
     [{from: 'color', to: 'string'}, new RGBColor({r: 0x12, g: 0xea, b: 0xff}), '#12EAFF']
 ], function(options, value, expected, assert) {
@@ -343,7 +400,19 @@ QUnit.parameterize('creme.utils.converters (string-color)', [
     equal(result, expected);
 });
 
+QUnit.parameterize('creme.utils.converters (color-string, empty)', [
+    [{from: 'color', to: 'string', empty: true}, null],
+    [{from: 'color', to: 'string', empty: true}, undefined]
+], function(options, value, assert) {
+    var converters = creme.utils.converters();
+    var result = converters.convert(value, options);
+
+    equal('', result);
+});
+
 QUnit.parameterize('creme.utils.converters (string-json)', [
+    [{from: 'string', to: 'json', empty: true}, '', {}],
+    [{from: 'string', to: 'json'}, 'null', null],
     [{from: 'string', to: 'json'}, '12', 12],
     [{from: 'string', to: 'json'}, '"a"', 'a'],
     [{from: 'string', to: 'json'}, '[1, 3, "a"]', [1, 3, 'a']],

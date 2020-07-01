@@ -618,13 +618,17 @@ QUnit.parameterize('creme.form.Field (html5 validation, custom messages)', [
 
 QUnit.parametrize('creme.form.Field (clean)', [
     [$('<input type="text" value="a"/>'), 'a', 'a'],
+    [$('<input type="text"/>'), '', ''],
 
     [$('<input type="text" value="12" data-type="number"/>'), '12', 12],
+    [$('<input type="text" data-type="number"/>'), '', undefined],
+
     [$('<input type="number" value="12"/>'), '12', 12],
     [$('<input type="number" value="12.5" data-type="int"/>'), '12.5', 12],
     [$('<input type="number" value="12.5"/>'), '12.5', 12.5],
 
-    [$('<input type="date" value="2019-12-12" data-type="text"/>'), '2019-12-12', '2019-12-12']
+    [$('<input type="date" value="2019-12-12" data-type="text"/>'), '2019-12-12', '2019-12-12'],
+    [$('<input type="date" data-type="text"/>'), '', '']
 ], function(input, value, expected, assert) {
     var field = new creme.form.Field(input.appendTo(this.qunitFixture()));
 
@@ -640,22 +644,28 @@ QUnit.parametrize('creme.form.Field (clean, datatype=date|datetime)', [
     [$('<input type="date" value="2019-12-12"/>'),
         '2019-12-12', moment([2019, 11, 12])
     ],
+    [$('<input type="date"/>'), '', undefined],
     [$('<input type="text" value="2019-12-12T08:10:38" data-type="datetime"/>'),
         '2019-12-12T08:10:38', moment([2019, 11, 12, 8, 10, 38])
     ],
     [$('<input type="datetime" value="2019-12-12T08:10:38"/>'),
         '2019-12-12T08:10:38', moment([2019, 11, 12, 8, 10, 38])
     ],
+    [$('<input type="datetime"/>'), '', undefined],
     [$('<input type="datetime-local" value="2019-12-12T08:10:38"/>'),
         '2019-12-12T08:10:38', moment([2019, 11, 12, 8, 10, 38])
-    ]
+    ],
+    [$('<input type="datetime-local"/>'), '', undefined]
 ], function(input, value, expected, assert) {
     var field = new creme.form.Field(input.appendTo(this.qunitFixture()));
 
     equal(field.isValidHtml(), true);
     equal(field.value(), value);
 
-    equal(field.clean().format(), expected.format());
+    var cleaned = field.clean();
+
+    equal((cleaned instanceof moment) ? cleaned.format() : cleaned,
+          (expected instanceof moment) ? expected.format() : expected);
 });
 
 QUnit.parametrize('creme.form.Field (clean, datatype=json)', [
@@ -687,11 +697,20 @@ QUnit.parametrize('creme.form.Field (clean, invalid)', [
     [$('<input name="field-A" type="text" required/>'),
         false, 'valueMissing', '"field-A" is required !'
     ],
-    [$('<input name="field-A" type="date" value="notadate"/>'),
+    /* WTF : invalid value="notadate" means "" for the browser */
+    [$('<input name="field-A" type="date" value="notadate" required/>'),
+        false, 'valueMissing', '"field-A" is required !'
+    ],
+    /* If we use the custom data-type, no pb */
+    [$('<input name="field-A" type="text" data-type="date" value="notadate"/>'),
         true, 'cleanMismatch', gettext('This value is not a valid "${dataType}"').template({dataType: 'date'})
     ],
-    [$('<input name="field-A" type="number" value="NaN"/>'),
+    /* Same for number */
+    [$('<input name="field-A" type="text" data-type="number" value="NaN"/>'),
         true, 'cleanMismatch', gettext('This value is not a valid "${dataType}"').template({dataType: 'number'})
+    ],
+    [$('<input name="field-A" type="number" value="NaN" required/>'),
+        false, 'valueMissing', '"field-A" is required !'
     ],
     [$('<input name="field-A" type="number" value="3" min="5"/>'),
         false, 'rangeUnderflow', gettext('This value must be superior or equal to ${min}').template({min: 5})
@@ -720,6 +739,24 @@ QUnit.parametrize('creme.form.Field (clean, invalid)', [
     equal(field.errorCode(), code);
 });
 
+QUnit.test('creme.form.Field (clean, invalid, noThrow)', function(assert) {
+    var input = $('<input name="field-A" type="text" required/>');
+    var field = new creme.form.Field(input.appendTo(this.qunitFixture()), {
+        errorMessages: {
+            valueMissing: '"${name}" is required !'
+        }
+    });
+
+    equal(field.isValidHtml(), false);
+    equal(field.isValid(), false);
+
+    equal(undefined, field.clean({noThrow: true}));
+
+    equal(field.isValidHtml(), false);
+    equal('valueMissing', field.errorCode());
+    equal('"field-A" is required !', field.errorMessage());
+});
+
 QUnit.parametrize('creme.form.Field (preventBrowserTooltip)', [
     [$('<input name="A" />'), {}, false],
     [$('<input data-notooltip name="A" />'), {}, true],
@@ -741,6 +778,29 @@ QUnit.parametrize('creme.form.Field (preventBrowserTooltip, form)', [
 ], function(element, options, expected, assert) {
     var field = new creme.form.Field(element.find('input'), options);
     equal(field.preventBrowserTooltip(), expected);
+});
+
+QUnit.parametrize('creme.form.Field (responsive)', [
+    [$('<input name="A" />'), {}, false],
+    [$('<input data-responsive name="A" />'), {}, true],
+    [$('<input name="A" />'), {responsive: true}, true],
+    [$('<input data-responsive name="A" />'), {responsive: false}, false]
+], function(element, options, expected, assert) {
+    var field = new creme.form.Field(element, options);
+    equal(field.responsive(), expected);
+    equal(element.is('[data-responsive]'), expected);
+});
+
+QUnit.parametrize('creme.form.Field (responsive, form)', [
+    [$('<form><input name="A" /></form>'), {}, false],
+    [$('<form data-responsive><input name="A" /></form>'), {}, true],
+    [$('<form><input name="A" data-responsive/></form>'), {}, true],
+
+    [$('<form><input name="A" /></form>'), {responsive: true}, true],
+    [$('<form data-responsive><input name="A" /></form>'), {responsive: false}, true]
+], function(element, options, expected, assert) {
+    var field = new creme.form.Field(element.find('input'), options);
+    equal(field.responsive(), expected);
 });
 
 }(jQuery));
