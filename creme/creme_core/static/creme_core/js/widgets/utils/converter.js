@@ -45,7 +45,7 @@ creme.utils.ConverterRegistry = creme.component.Component.sub({
             }
         }
 
-        return this.converter(options.from, options.to)(data);
+        return this.converter(options.from, options.to)(data, options);
     },
 
     available: function(from, to) {
@@ -116,41 +116,65 @@ creme.utils.convert = function(data, options) {
     return __registry.convert(data, options);
 };
 
-var __toInt = function(value) {
+function __toInt(value, options) {
+    if (Object.isEmpty(value) && options.empty) {
+        return;
+    }
+
     var res = Object.isString(value) ? parseInt(value) : value;
     Assert.not(isNaN(res), '"${value}" is not an integer', {value: value});
     return res;
 };
 
-var __toFloat = function(value) {
+function __toFloat(value, options) {
+    if (Object.isEmpty(value) && options.empty) {
+        return;
+    }
+
     var res = Object.isString(value) ? parseFloat(value) : value;
     Assert.not(isNaN(res), '"${value}" is not a number', {value: value});
     return res;
 };
 
-var __fromJSON = function(value) {
+function __fromJSON(value, options) {
+    if (Object.isEmpty(value) && options.empty) {
+        return {};
+    }
+
     return creme.utils.JSON.clean(value);
 };
 
-var __toJSON = function(value) {
+function __toJSON(value) {
     return $.toJSON(value);
 };
 
-var __toString = function(value) {
+function __toString(value) {
     return String(value);
 };
 
-var __toIso8601 = function(value) {
+function __momentToIso8601(value, options) {
+    if (Object.isNone(value) && options.empty) {
+        return '';
+    }
+
     Assert.isAnyOf(value, [moment, Date], '${value} is not a date nor datetime', {value: value});
     return moment(value).format();
 };
 
-var __toIso8601Date = function(value) {
+function __momentToIso8601Date(value, options) {
+    if (Object.isNone(value) && options.empty) {
+        return '';
+    }
+
     Assert.isAnyOf(value, [moment, Date], '${value} is not a date nor datetime', {value: value});
     return moment(value).format('YYYY-MM-DD');
 };
 
-var __fromIso8601 = function(value) {
+function __iso8601ToMoment(value, options) {
+    if (Object.isEmpty(value) && options.empty) {
+        return;
+    }
+
     var res = Assert.notThrown(function() {
         return value instanceof moment ? value : moment(value, moment.HTML5_FMT.DATETIME_LOCAL_SECONDS, true);
     }, '"${value}" is not an iso8601 datetime', {value: value});
@@ -159,7 +183,11 @@ var __fromIso8601 = function(value) {
     return res;
 };
 
-var __fromIso8601Date = function(value) {
+function __iso8601ToMomentDate(value, options) {
+    if (Object.isEmpty(value) && options.empty) {
+        return;
+    }
+
     var res = Assert.notThrown(function() {
         return value instanceof moment ? value : moment(value, moment.HTML5_FMT.DATE);
     }, '"${value}" is not an iso8601 datetime', {value: value});
@@ -168,11 +196,22 @@ var __fromIso8601Date = function(value) {
     return res;
 };
 
-var __toRGBColor = function(value) {
+function __toRGBColor(value, options) {
+    var isEmpty = Object.isEmpty(value);
+
+    if (isEmpty && options.empty) {
+        return;
+    }
+
+    Assert.not(isEmpty, '"${value}" is not a RGB hexadecimal value', {value: String(value)});
     return new RGBColor(value);
 };
 
-var __fromRGBColor = function(value) {
+function __fromRGBColor(value, options) {
+    if (Object.isNone(value) && options.empty) {
+        return '';
+    }
+
     Assert.is(value, RGBColor, '${value} is not a RGBColor', {value: value});
     return value.toString();
 };
@@ -183,9 +222,9 @@ __registry.register(['string', 'text'], {
     float: __toFloat,
     number: __toFloat,
     json: __fromJSON,
-    date: __fromIso8601Date,
-    datetime: __fromIso8601,
-    'datetime-local': __fromIso8601,
+    date: __iso8601ToMomentDate,
+    datetime: __iso8601ToMoment,
+    'datetime-local': __iso8601ToMoment,
     'color': __toRGBColor
 });
 
@@ -196,18 +235,18 @@ __registry.register(['number', 'int', 'integer', 'float', 'decimal'], {
 });
 
 __registry.register('date', {
-    string: __toIso8601Date,
-    text: __toIso8601Date,
-    json: function(value) {
-        return __toJSON(__toIso8601Date(value));
+    string: __momentToIso8601Date,
+    text: __momentToIso8601Date,
+    json: function(value, options) {
+        return __toJSON(__momentToIso8601Date(value, options), options);
     }
 });
 
 __registry.register(['datetime', 'datetime-local'], {
-    string: __toIso8601,
-    text: __toIso8601,
-    json: function(value) {
-        return __toJSON(__toIso8601Date(value));
+    string: __momentToIso8601,
+    text: __momentToIso8601,
+    json: function(value, options) {
+        return __toJSON(__momentToIso8601(value, options), options);
     }
 });
 

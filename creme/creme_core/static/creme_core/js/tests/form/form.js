@@ -297,9 +297,9 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors)', [
             }
         }
     }],
-    [$('<form><input name="field_a" type="number" value="notnumber"></form>'), {
+    [$('<form><input name="field_a" data-type="number" value="notnumber"></form>'), {
         cleanedData: {},
-        data: {field_a: ''},
+        data: {field_a: 'notnumber'},
         isValid: false,
         fieldErrors: {
             field_a: {
@@ -332,9 +332,9 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors, custom messages)', [
             }
         }
     }],
-    [$('<form><input name="field_a" type="number" value="notnumber" data-err-clean-mismatch="Not a number"></form>'), {
+    [$('<form><input name="field_a" data-type="number" value="notnumber" data-err-clean-mismatch="Not a number"></form>'), {
         cleanedData: {},
-        data: {field_a: ''},
+        data: {field_a: 'notnumber'},
         isValid: false,
         fieldErrors: {
             field_a: {
@@ -429,6 +429,16 @@ QUnit.parametrize('creme.form.Form (preventBrowserTooltip)', [
 ], function(element, options, expected, assert) {
     var form = new creme.form.Form(element, options);
     equal(form.preventBrowserTooltip(), expected);
+});
+
+QUnit.parametrize('creme.form.Form (responsive)', [
+    [$('<form></form>'), {}, false],
+    [$('<form data-responsive></form>'), {}, true],
+    [$('<form></form>'), {responsive: true}, true],
+    [$('<form data-responsive></form>'), {responsive: false}, false]
+], function(element, options, expected, assert) {
+    var form = new creme.form.Form(element, options);
+    equal(form.responsive(), expected);
 });
 
 QUnit.parametrize('creme.form.Form (submit)', [
@@ -661,6 +671,39 @@ QUnit.parametrize('creme.form.Form (submit button)', [
     equal(true, form.isValidHtml());
     equal(true, form.isValid());
     equal(true, form.isSubmitting());
+});
+
+QUnit.test('flyform (empty, defaults)', function() {
+    var validator = function() {};
+    var element = $('<form action="mock/submit">');
+
+    var form = element.flyform({
+        responsive: true,
+        validator: validator
+    });
+
+    ok(form instanceof creme.form.Form);
+    deepEqual(form, element.flyform('instance'));
+
+    equal(true, element.flyform('prop', 'isValid'));
+    equal(true, element.flyform('prop', 'isValidHtml'));
+    equal(false, element.flyform('prop', 'isSubmitting'));
+
+    equal('mock/submit', element.flyform('prop', 'url'));
+    deepEqual({}, element.flyform('prop', 'initialData'));
+    deepEqual({}, element.flyform('prop', 'data'));
+    equal(validator, element.flyform('prop', 'validator'));
+
+    equal(false, element.flyform('prop', 'preventBrowserTooltip'));
+    equal(true, element.flyform('prop', 'responsive'));
+
+    equal(true, element.flyform('validateHtml'));
+    deepEqual({
+        cleanedData: {},
+        data: {},
+        fieldErrors: {},
+        isValid: true
+    }, element.flyform('clean'));
 });
 
 }(jQuery));

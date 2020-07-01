@@ -71,6 +71,7 @@ creme.form.Form = creme.component.Component.sub({
         this.scrollOnError(options.scrollOnError);
         this.noValidate(options.noValidate);
         this.preventBrowserTooltip(options.preventBrowserTooltip);
+        this.responsive(options.responsive);
 
         element.on('click', this._submitSelector, this._onButtonSubmit.bind(this));
         element.on('submit', this._onFormSubmit.bind(this));
