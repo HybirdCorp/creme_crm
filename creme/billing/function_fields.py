@@ -21,6 +21,7 @@
 import datetime
 import logging
 from collections import defaultdict
+from decimal import Decimal
 
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -30,6 +31,7 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.function_field import (
     FunctionField,
     FunctionFieldDecimal,
+    FunctionFieldResult,
 )
 from creme.creme_core.models import FieldsConfig, Relation
 
@@ -73,7 +75,7 @@ class TemplateBaseVerboseStatusField(FunctionField):
     # def populate_entities(self, entities, user):
 
 
-def sum_totals_no_vat(model, entity, user, **kwargs):
+def sum_totals_no_vat(model, entity, user, **kwargs) -> Decimal:
     all_totals = dict(
         EntityCredentials.filter(
             user,
@@ -127,7 +129,8 @@ def sum_totals_no_vat_multi(model, entities, user, **kwargs):
         yield (
             entity,
             sum(
-                total for bill_id, total in bill_info_map[entity.id]
+                total
+                for bill_id, total in bill_info_map[entity.id]
                 if bill_id in managed_bill_ids
             )
         )
@@ -145,10 +148,11 @@ def get_total_won_quote_last_year(entity, user):
     if FieldsConfig.objects.get_for_model(Quote).is_fieldname_hidden('acceptation_date'):
         return gettext('Error: «Acceptation date» is hidden')
 
-    return sum_totals_no_vat(Quote, entity, user,
-                             status__won=True,
-                             acceptation_date__year=datetime.date.today().year - 1,
-                            )
+    return sum_totals_no_vat(
+        Quote, entity, user,
+        status__won=True,
+        acceptation_date__year=datetime.date.today().year - 1,
+    )
 
 
 def get_total_won_quote_last_year_multi(entities, user):
@@ -156,10 +160,11 @@ def get_total_won_quote_last_year_multi(entities, user):
         msg = gettext('Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 
-    return sum_totals_no_vat_multi(Quote, entities, user,
-                                   status__won=True,
-                                   acceptation_date__year=datetime.date.today().year - 1,
-                                  )
+    return sum_totals_no_vat_multi(
+        Quote, entities, user,
+        status__won=True,
+        acceptation_date__year=datetime.date.today().year - 1,
+    )
 
 
 def get_total_won_quote_this_year(entity, user):
@@ -167,10 +172,11 @@ def get_total_won_quote_this_year(entity, user):
     if FieldsConfig.objects.get_for_model(Quote).is_fieldname_hidden('acceptation_date'):
         return gettext('Error: «Acceptation date» is hidden')
 
-    return sum_totals_no_vat(Quote, entity, user,
-                             status__won=True,
-                             acceptation_date__year=datetime.date.today().year,
-                            )
+    return sum_totals_no_vat(
+        Quote, entity, user,
+        status__won=True,
+        acceptation_date__year=datetime.date.today().year,
+    )
 
 
 def get_total_won_quote_this_year_multi(entities, user):
@@ -179,10 +185,11 @@ def get_total_won_quote_this_year_multi(entities, user):
         msg = gettext('Error: «Acceptation date» is hidden')
         return ((entity, msg) for entity in entities)
 
-    return sum_totals_no_vat_multi(Quote, entities, user,
-                                   status__won=True,
-                                   acceptation_date__year=datetime.date.today().year,
-                                  )
+    return sum_totals_no_vat_multi(
+        Quote, entities, user,
+        status__won=True,
+        acceptation_date__year=datetime.date.today().year,
+    )
 
 
 class _BaseTotalFunctionField(FunctionField):
@@ -199,7 +206,12 @@ class _BaseTotalFunctionField(FunctionField):
         if total is None:
             total = e_cache[user.id] = self.single_func()(entity, user)
 
-        return FunctionFieldDecimal(total)
+        # return FunctionFieldDecimal(total)
+        return (
+            FunctionFieldDecimal(total)
+            if isinstance(total, Decimal) else
+            FunctionFieldResult(total)
+        )
 
     def populate_entities(self, entities, user):
         cache = self._cache
