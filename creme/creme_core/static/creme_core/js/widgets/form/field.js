@@ -340,7 +340,8 @@ creme.form.Field = creme.component.Component.sub({
     _parseValue: function(value) {
         return creme.utils.convert(value, {
             from: 'text',
-            to: this.dataType() || 'text'
+            to: this.dataType() || 'text',
+            empty: !this.required()
         });
     },
 
