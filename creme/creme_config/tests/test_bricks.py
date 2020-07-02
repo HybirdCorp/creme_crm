@@ -5,6 +5,7 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 
 from creme.creme_config import bricks
@@ -2100,7 +2101,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertPOST200(url, data=data)
         self.assertIsNone(self.refresh(rb_item).get_cells(ct))
 
-    def test_delete_relationbrick(self):
+    def test_delete_relationbrick01(self):
         user = self.login()
         rt = RelationType.create(
             ('test-subfoo', 'subject_predicate'),
@@ -2109,29 +2110,58 @@ class BricksConfigTestCase(CremeTestCase):
         )[0]
         rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
 
-        brick_id = rbi.brick_id
-
-        create_bdl = partial(
-            BrickDetailviewLocation.objects.create_if_needed,
-            zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
-        )
-        loc1 = create_bdl(brick=brick_id,           order=5)
-        loc2 = create_bdl(brick=CompleteBrick1.id_, order=6)
-
+        # loc = BrickDetailviewLocation.objects.create_if_needed(
+        #     brick=rbi.brick_id, order=5,
+        #     zone=BrickDetailviewLocation.RIGHT,
+        #     model=FakeContact,
+        # )
         create_state = partial(BrickState.objects.create, user=user)
-        state1 = create_state(brick_id=brick_id)
+        state1 = create_state(brick_id=rbi.brick_id)
         state2 = create_state(brick_id=CompleteBrick1.id_)
 
-        self.assertPOST200(reverse('creme_config__delete_rtype_brick'), data={'id': rbi.id})
+        self.assertPOST200(
+            reverse('creme_config__delete_rtype_brick'),
+            data={'id': rbi.id},
+        )
         self.assertDoesNotExist(rbi)
-        self.assertDoesNotExist(loc1)
-        self.assertStillExists(loc2)
+        # self.assertDoesNotExist(loc)
         self.assertDoesNotExist(state1)
         self.assertStillExists(state2)
 
-    def test_delete_instancebrick(self):
+    def test_delete_relationbrick02(self):
+        "Cannot delete because it is used."
+        self.login()
+        rt = RelationType.create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+            is_custom=False,
+        )[0]
+        rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+
+        url = reverse('creme_config__delete_rtype_brick')
+        data = {'id': rbi.id}
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=rbi.brick_id,
+            model=FakeContact, role=self.role,
+            zone=BrickDetailviewLocation.RIGHT, order=5,
+        )
+
+        response = self.client.post(url, data=data)
+        self.assertContains(
+            response,
+            status_code=409,
+            text=escape(_(
+                'This block is used in the detail-view configuration of '
+                '«{model}» for role «{role}»'
+            ).format(model='Test Contact', role=self.role)),
+        )
+
+    def test_delete_instancebrick01(self):
         user = self.login()
-        naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
+        naru = FakeContact.objects.create(
+            user=user, first_name='Naru', last_name='Narusegawa',
+        )
 
         ibi = InstanceBrickConfigItem.objects.create(
             # brick_id=InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, ''),
@@ -2140,40 +2170,69 @@ class BricksConfigTestCase(CremeTestCase):
             # verbose='All stuffes',
         )
 
-        create_bdl = partial(
-            BrickDetailviewLocation.objects.create_if_needed,
-            zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
-        )
+        # create_bdl = partial(
+        #     BrickDetailviewLocation.objects.create_if_needed,
+        #     zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
+        # )
         brick_id = ibi.brick_id
-        # dloc1 = create_bdl(brick=ibi.brick_id,       order=5)
-        dloc1 = create_bdl(brick=brick_id,           order=5)
-        dloc2 = create_bdl(brick=CompleteBrick1.id_, order=6)
-
-        create_bhl = BrickHomeLocation.objects.create
-        # hloc1 = create_bhl(brick_id=ibi.brick_id,       order=5)
-        hloc1 = create_bhl(brick_id=brick_id,           order=5)
-        hloc2 = create_bhl(brick_id=CompleteBrick1.id_, order=6)
-
-        create_bml = BrickMypageLocation.objects.create
-        # mloc1 = create_bml(brick_id=ibi.brick_id,       order=5)
-        mloc1 = create_bml(brick_id=brick_id,           order=5)
-        mloc2 = create_bml(brick_id=CompleteBrick1.id_, order=6)
+        # dloc1 = create_bdl(brick=brick_id,           order=5)
+        # dloc2 = create_bdl(brick=CompleteBrick1.id_, order=6)
+        #
+        # create_bhl = BrickHomeLocation.objects.create
+        # hloc1 = create_bhl(brick_id=brick_id,           order=5)
+        # hloc2 = create_bhl(brick_id=CompleteBrick1.id_, order=6)
+        #
+        # create_bml = BrickMypageLocation.objects.create
+        # mloc1 = create_bml(brick_id=brick_id,           order=5)
+        # mloc2 = create_bml(brick_id=CompleteBrick1.id_, order=6)
 
         create_state = BrickState.objects.create
-        # state1 = create_state(brick_id=ibi.brick_id,       user=self.user)
         state1 = create_state(brick_id=brick_id,           user=user)
         state2 = create_state(brick_id=CompleteBrick1.id_, user=user)
 
-        self.assertPOST200(reverse('creme_config__delete_instance_brick'), data={'id': ibi.id})
+        self.assertPOST200(
+            reverse('creme_config__delete_instance_brick'),
+            data={'id': ibi.id}
+        )
         self.assertDoesNotExist(ibi)
-        self.assertDoesNotExist(dloc1)
-        self.assertStillExists(dloc2)
-        self.assertDoesNotExist(hloc1)
-        self.assertStillExists(hloc2)
-        self.assertDoesNotExist(mloc1)
-        self.assertStillExists(mloc2)
+        # self.assertDoesNotExist(dloc1)
+        # self.assertStillExists(dloc2)
+        # self.assertDoesNotExist(hloc1)
+        # self.assertStillExists(hloc2)
+        # self.assertDoesNotExist(mloc1)
+        # self.assertStillExists(mloc2)
         self.assertDoesNotExist(state1)
         self.assertStillExists(state2)
+
+    def test_delete_instancebrick02(self):
+        "Cannot delete because it is used in configuration."
+        user = self.login()
+        naru = FakeContact.objects.create(
+            user=user, first_name='Naru', last_name='Narusegawa',
+        )
+
+        ibi = InstanceBrickConfigItem.objects.create(
+            brick_class_id=DetailviewInstanceBrick.id_,
+            entity=naru,
+        )
+        BrickDetailviewLocation.objects.create_if_needed(
+            zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
+            brick=ibi.brick_id, order=5,
+        )
+
+        response = self.client.post(
+            reverse('creme_config__delete_instance_brick'),
+            data={'id': ibi.id},
+        )
+        self.assertContains(
+            response, status_code=409,
+            text=escape(
+                _(
+                    'This block is used in the detail-view configuration '
+                    'of «{model}»'
+                ).format(model='Test Contact')
+            )
+        )
 
     def test_edit_custombrick01(self):
         self.login()
@@ -2431,7 +2490,25 @@ class BricksConfigTestCase(CremeTestCase):
             self.refresh(cbc_item).cells
         )
 
-    def test_delete_custombrick(self):
+    def test_delete_custombrick01(self):
+        self.login()
+        ct = ContentType.objects.get_for_model(FakeContact)
+        cbci = CustomBrickConfigItem.objects.create(content_type=ct, name='Info')
+        # loc = BrickDetailviewLocation.objects.create_if_needed(
+        #     brick=cbci.generate_id(), order=5,
+        #     model=FakeContact,
+        #     zone=BrickDetailviewLocation.RIGHT,
+        # )
+
+        self.assertPOST200(
+            reverse('creme_config__delete_custom_brick'),
+            data={'id': cbci.id},
+        )
+        self.assertDoesNotExist(cbci)
+        # self.assertDoesNotExist(loc)
+
+    def test_delete_custombrick02(self):
+        "Cannot delete because it is used."
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
         cbci = CustomBrickConfigItem.objects.create(content_type=ct, name='Info')
@@ -2441,12 +2518,21 @@ class BricksConfigTestCase(CremeTestCase):
             zone=BrickDetailviewLocation.RIGHT,
         )
 
-        self.assertPOST200(
+        response = self.client.post(
             reverse('creme_config__delete_custom_brick'),
             data={'id': cbci.id},
         )
-        self.assertDoesNotExist(cbci)
-        self.assertDoesNotExist(loc)
+        self.assertContains(
+            response, status_code=409,
+            text=escape(
+                _(
+                    'This block is used in the detail-view '
+                    'configuration of «{model}»'
+                ).format(model='Test Contact')
+            )
+        )
+        self.assertStillExists(cbci)
+        self.assertStillExists(loc)
 
     def test_custombrick_wizard_model_step(self):
         self.login()

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-26 13:40+0200\n"
+"POT-Creation-Date: 2020-07-21 21:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -176,14 +176,14 @@ msgstr "Fichier XLSX"
 msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
-#: bricks.py:52 forms/base.py:411 forms/base.py:449 forms/mass_import.py:1341
+#: bricks.py:52 forms/base.py:411 forms/base.py:449 forms/mass_import.py:1424
 #: function_fields.py:52 models/creme_property.py:252
 #: templates/creme_core/bricks/properties.html:7
 msgid "Properties"
 msgstr "Propriétés"
 
 #: bricks.py:72 core/entity_cell.py:639 forms/base.py:452 forms/relation.py:37
-#: gui/bricks.py:467 models/relation.py:447
+#: gui/bricks.py:473 models/relation.py:447
 #: templates/creme_core/bricks/relations.html:7
 #: templates/creme_core/forms/widgets/entity-cells/relationships.html:3
 msgid "Relationships"
@@ -1346,7 +1346,7 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/mass_import.py:215
+#: forms/mass_import.py:256
 #, python-brace-format
 msgid ""
 "Error while extracting value: tried to retrieve and then build "
@@ -1356,7 +1356,7 @@ msgstr ""
 "construire «{value}» (colonne {column}) sur {model}. Erreur brute: "
 "[{raw_error}]"
 
-#: forms/mass_import.py:226
+#: forms/mass_import.py:267
 #, python-brace-format
 msgid ""
 "Error while extracting value: tried to retrieve «{value}» (column {column}) "
@@ -1365,11 +1365,11 @@ msgstr ""
 "Erreur lors de l'extraction de valeur: a essayé de retrouver "
 "«{value}» (colonne {column}) sur {model}. Erreur brute: [{raw_error}]"
 
-#: forms/mass_import.py:329 forms/mass_import.py:617 forms/mass_import.py:1019
+#: forms/mass_import.py:359 forms/mass_import.py:652 forms/mass_import.py:1087
 msgid "Enter a valid value."
 msgstr "Saisissez une valeur valide."
 
-#: forms/mass_import.py:331
+#: forms/mass_import.py:361
 #, python-brace-format
 msgid ""
 "Select a valid choice. \"{value}\" is not one of the available sub-field."
@@ -1377,7 +1377,7 @@ msgstr ""
 "Sélectionnez un choix valide. \"{value}\" n'est pas un des sous-champs "
 "disponibles."
 
-#: forms/mass_import.py:498
+#: forms/mass_import.py:533
 #, python-brace-format
 msgid ""
 "Error while extracting value [{raw_error}]: tried to retrieve and then build "
@@ -1386,7 +1386,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur ({raw_error}) : a essayé de retrouver "
 "et puis de construire «{value}» sur {model}"
 
-#: forms/mass_import.py:509
+#: forms/mass_import.py:544
 #, python-brace-format
 msgid ""
 "Error while extracting value [{raw_error}]: tried to retrieve «{value}» on "
@@ -1395,12 +1395,12 @@ msgstr ""
 "Erreur lors de l'extraction de valeur ({raw_error}) : a essayé de retrouver "
 "«{value}» sur {model}"
 
-#: forms/mass_import.py:618 forms/mass_import.py:1364
+#: forms/mass_import.py:653 forms/mass_import.py:1447
 #, python-format
 msgid "You are not allowed to create: %(model)s"
 msgstr "Vous n'avez pas la permission de créer : %(model)s"
 
-#: forms/mass_import.py:709
+#: forms/mass_import.py:755
 #, python-brace-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve {field}"
@@ -1410,7 +1410,7 @@ msgstr ""
 "essayé de retrouver {field}=«{value}» (colonne {column}) sur {model}. Erreur "
 "brute: [{raw_error}]"
 
-#: forms/mass_import.py:729
+#: forms/mass_import.py:775
 #, python-brace-format
 msgid ""
 "Error while extracting value: tried to build {model} with data={data} "
@@ -1419,7 +1419,7 @@ msgstr ""
 "Erreur lors de l'extraction  de valeur: a essayé de construire {model} avec "
 "données={data} (colonne {column}) ➔ erreurs={errors}"
 
-#: forms/mass_import.py:740
+#: forms/mass_import.py:786
 #, python-brace-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve {field}"
@@ -1428,27 +1428,27 @@ msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver {field}=«{value}» (column {column}) sur {model}"
 
-#: forms/mass_import.py:782
+#: forms/mass_import.py:831
 msgid "The entity"
 msgstr "La fiche"
 
-#: forms/mass_import.py:794
+#: forms/mass_import.py:844
 msgid "which field"
 msgstr "quel champs"
 
-#: forms/mass_import.py:796
+#: forms/mass_import.py:846
 msgid "equals to"
 msgstr "Est égal à"
 
-#: forms/mass_import.py:813
+#: forms/mass_import.py:869
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/mass_import.py:814
+#: forms/mass_import.py:870
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/mass_import.py:972
+#: forms/mass_import.py:1039
 #, python-brace-format
 msgid ""
 "Error while extracting value: the choice «{value}» was not found in existing "
@@ -1459,11 +1459,11 @@ msgstr ""
 "dans les choix existants (colonne {column}).Suggestion : corrigez votre "
 "fichier importé, ou configurer l'import pour créer les nouveaux choix."
 
-#: forms/mass_import.py:1102
+#: forms/mass_import.py:1178
 msgid "Key fields"
 msgstr "Champs clé"
 
-#: forms/mass_import.py:1106
+#: forms/mass_import.py:1182
 msgid ""
 "Select at least one field if you want to use the \"update\" mode. If an "
 "entity already exists with the same field values, it will be simply updated "
@@ -1477,23 +1477,23 @@ msgstr ""
 "Mais si plusieurs fiches sont trouvées, une nouvelle fiche sera créée (pour "
 "éviter les erreurs)."
 
-#: forms/mass_import.py:1115
+#: forms/mass_import.py:1191
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/mass_import.py:1116
+#: forms/mass_import.py:1192
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/mass_import.py:1126
+#: forms/mass_import.py:1202
 msgid "Update mode"
 msgstr "Mode mise-à-jour"
 
-#: forms/mass_import.py:1127 forms/mass_import.py:1357
+#: forms/mass_import.py:1203 forms/mass_import.py:1440
 msgid "Field values"
 msgstr "Valeurs de champ"
 
-#: forms/mass_import.py:1286
+#: forms/mass_import.py:1368
 msgid ""
 "Several entities corresponding to the search have been found. So a new "
 "entity have been created to avoid errors."
@@ -1501,41 +1501,41 @@ msgstr ""
 "Plusieurs fiches correspondant à la recherche ont été trouvées. Donc une "
 "nouvelle fiche a été créée pour éviter les erreurs."
 
-#: forms/mass_import.py:1337 models/entity.py:68 models/entity_filter.py:321
+#: forms/mass_import.py:1420 models/entity.py:68 models/entity_filter.py:321
 #: models/header_filter.py:172 models/relation.py:430
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
 
-#: forms/mass_import.py:1345
+#: forms/mass_import.py:1428
 msgid "Fixed relationships"
 msgstr "Relations fixes"
 
-#: forms/mass_import.py:1348
+#: forms/mass_import.py:1431
 msgid "Relationships from the file"
 msgstr "Relations depuis le fichier"
 
-#: forms/mass_import.py:1354
+#: forms/mass_import.py:1437
 msgid "General"
 msgstr "Général"
 
-#: forms/mass_import.py:1358
+#: forms/mass_import.py:1441
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/mass_import.py:1359
+#: forms/mass_import.py:1442
 msgid "Associated relationships"
 msgstr "Relations associées"
 
-#: forms/mass_import.py:1510
+#: forms/mass_import.py:1596
 msgid "Not in the file"
 msgstr "Pas dans le fichier"
 
-#: forms/mass_import.py:1514
+#: forms/mass_import.py:1600
 #, python-brace-format
 msgid "Column {index} - {name}"
 msgstr "Colonne {index} - {name}"
 
-#: forms/mass_import.py:1521
+#: forms/mass_import.py:1607
 msgid "Column {}"
 msgstr "Colonne {}"
 
@@ -1652,62 +1652,62 @@ msgstr "{dateperiod_value}{dateperiod_type}"
 msgid "* no property *"
 msgstr "* pas de propriété *"
 
-#: gui/bricks.py:429
+#: gui/bricks.py:435
 msgid "Information on the entity (generic)"
 msgstr "Information sur la fiche (générique)"
 
-#: gui/bricks.py:452
+#: gui/bricks.py:458
 #, python-brace-format
 msgid "Information «{model}»"
 msgstr "Informations «{model}»"
 
-#: gui/bricks.py:478
+#: gui/bricks.py:484
 #, python-brace-format
 msgid "Relationship block: «{predicate}»"
 msgstr "Bloc de relation: «{predicate}»"
 
-#: gui/bricks.py:835
+#: gui/bricks.py:841
 msgid "Unknown type of block (bad uninstall ?)"
 msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 
-#: gui/bricks.py:964
+#: gui/bricks.py:970
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: gui/bricks.py:983
+#: gui/bricks.py:989
 msgid "Title bar"
 msgstr "Barre de titre"
 
-#: gui/field_printers.py:159 gui/field_printers.py:166
+#: gui/field_printers.py:164 gui/field_printers.py:171
 #, python-brace-format
 msgid "Download «{file}»"
 msgstr "Télécharger «{file}»"
 
-#: gui/field_printers.py:211 models/custom_field.py:419 models/history.py:174
+#: gui/field_printers.py:242 models/custom_field.py:419 models/history.py:174
 #: templates/creme_core/listview/search-widgets/boolean.html:5
 #: utils/__init__.py:267
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:211 models/custom_field.py:419 models/history.py:175
+#: gui/field_printers.py:242 models/custom_field.py:419 models/history.py:175
 #: templates/creme_core/listview/search-widgets/boolean.html:6
 #: utils/__init__.py:270
 msgid "No"
 msgstr "Non"
 
-#: gui/field_printers.py:452
+#: gui/field_printers.py:491
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] "heure"
 msgstr[1] "heures"
 
-#: gui/field_printers.py:454
+#: gui/field_printers.py:493
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "minute"
 msgstr[1] "minutes"
 
-#: gui/field_printers.py:456
+#: gui/field_printers.py:495
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "seconde"
@@ -1762,7 +1762,7 @@ msgstr "À la première page"
 msgid "Next page"
 msgstr "Page suivante"
 
-#: models/auth.py:73 models/bricks.py:672 models/entity_filter.py:312
+#: models/auth.py:73 models/bricks.py:887 models/entity_filter.py:312
 #: models/i18n.py:28 templates/creme_core/bricks/relations.html:17
 #: templates/creme_core/bricks/trash.html:18
 msgid "Name"
@@ -2031,36 +2031,149 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: models/bricks.py:167 models/bricks.py:671 models/button_menu.py:73
+#: models/bricks.py:169 models/bricks.py:886 models/button_menu.py:73
 #: models/custom_field.py:82
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/bricks.py:168 models/bricks.py:274 models/search.py:160
+#: models/bricks.py:172 models/bricks.py:351 models/search.py:160
 msgid "Related role"
 msgstr "Rôle associé"
 
-#: models/bricks.py:400 models/bricks.py:805
+#: models/bricks.py:265
+#, python-brace-format
+msgid "Default block configuration for detail-views uses «{block}»"
+msgstr ""
+"La configuration par défaut des blocs pour les vues détaillée utilise "
+"«{block}»"
+
+#: models/bricks.py:269
+#, python-brace-format
+msgid ""
+"Block configuration for detail-views of «{model}» for role «{role}» uses "
+"«{block}»"
+msgstr ""
+"La configuration des blocs pour la vue détaillée de «{model}» pour le rôle "
+"«{role}» utilise «{block}»"
+
+#: models/bricks.py:274
+#, python-brace-format
+msgid ""
+"Block configuration for detail-views of «{model}» for superusers uses "
+"«{block}»"
+msgstr ""
+"La configuration des blocs pour la vue détaillée de «{model}» pour les super-"
+"utilisateurs utilise «{block}»"
+
+#: models/bricks.py:279
+#, python-brace-format
+msgid "Block configuration for detail-views of «{model}» uses «{block}»"
+msgstr ""
+"La configuration des blocs pour la vue détaillée de «{model}» utilise "
+"«{block}»"
+
+#: models/bricks.py:386
+#, python-brace-format
+msgid "Block configuration of Home for role «{role}» uses «{block}»"
+msgstr ""
+"La configuration des blocs pour l'accueil du role «{role}» utilise «{block}»"
+
+#: models/bricks.py:390
+#, python-brace-format
+msgid "Block configuration of Home for superusers uses «{block}»"
+msgstr ""
+"La configuration des blocs pour l'accueil des super-utilisateurs utilise "
+"«{block}»"
+
+#: models/bricks.py:393
+#, python-brace-format
+msgid "Block configuration of Home uses «{block}»"
+msgstr "La configuration des blocs pour l'accueil utilise «{block}»"
+
+#: models/bricks.py:430
+#, python-brace-format
+msgid "Block configuration of \"My page\" for «{user}» uses «{block}»"
+msgstr ""
+"La configuration des blocs de \"My page\" pour l'utilisateur «{user}» "
+"utilise «{block}»"
+
+#: models/bricks.py:432
+#, python-brace-format
+msgid "Default block configuration of \"My page\" uses «{block}»"
+msgstr "La configuration par défaut des blocs de \"My page\" utilise «{block}»"
+
+#: models/bricks.py:485
+msgid "This block is used in the default detail-view configuration"
+msgstr ""
+"Ce bloc est utilisé dans la configuration de la vue détaillée par défaut"
+
+#: models/bricks.py:491
+#, python-brace-format
+msgid "This block is used in the detail-view configuration of «{model}»"
+msgstr ""
+"Ce bloc est utilisé dans la configuration de la vue détaillée de «{model}»"
+
+#: models/bricks.py:497
+#, python-brace-format
+msgid ""
+"This block is used in the detail-view configuration of «{model}» for "
+"superusers"
+msgstr ""
+"Ce bloc est utilisé dans la configuration de la vue détaillée de «{model}» "
+"pour les super-utilisateurs"
+
+#: models/bricks.py:504
+#, fuzzy, python-brace-format
+msgid ""
+"This block is used in the detail-view configuration of «{model}» for role "
+"«{role}»"
+msgstr ""
+"Ce bloc est utilisé dans la configuration de la vue détaillée de «{model}» "
+"pour le rôle «{role}»"
+
+#: models/bricks.py:519
+msgid "This block is used in the default Home configuration"
+msgstr "Ce bloc est utilisé dans la configuration par défaut de l'accueil"
+
+#: models/bricks.py:523
+msgid "This block is used in the Home configuration for superusers"
+msgstr ""
+"Ce bloc est utilisé dans la configuration de l'accueil pour les super-"
+"utilisateurs"
+
+#: models/bricks.py:529
+msgid "This block is used in the Home configuration of role «{}»"
+msgstr "Ce bloc est utilisé dans la configuration de l'accueil du rôle «{}»"
+
+#: models/bricks.py:544
+msgid "This block is used in the default configuration for \"My page\""
+msgstr "Ce bloc est utilisé dans la configuration par défaut de \"Ma page\""
+
+#: models/bricks.py:550
+msgid "This block is used in the configuration of «{}» for \"My page\""
+msgstr "Ce bloc est utilisé dans la configuration de «{}» pour \"Ma page\""
+
+#: models/bricks.py:602 models/bricks.py:1022
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/bricks.py:402
+#: models/bricks.py:606
 msgid "Related type of relationship"
 msgstr "Type de relation associé"
 
-#: models/bricks.py:408
+#: models/bricks.py:612
 msgid "Create a type of block"
 msgstr "Créer un type de bloc"
 
-#: models/bricks.py:409 models/bricks.py:538
+#: models/bricks.py:613 models/bricks.py:748
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: models/bricks.py:524
+#: models/bricks.py:734
 msgid "Block related entity"
 msgstr "Fiche associée au bloc"
 
-#: models/bricks.py:537
+#: models/bricks.py:747
 msgid "Create a block"
 msgstr "Créer un bloc"
 
@@ -3388,16 +3501,16 @@ msgstr "Sélectionner…"
 
 #: templates/creme_core/forms/widgets/mass-import/cfield-extractor.html:11
 #: templates/creme_core/forms/widgets/mass-import/entity-extractor.html:10
-#: templates/creme_core/forms/widgets/mass-import/extractor.html:23
+#: templates/creme_core/forms/widgets/mass-import/field-extractor.html:23
 msgid "Create if not found?"
 msgstr "Créer si non trouvé ?"
 
 #: templates/creme_core/forms/widgets/mass-import/cfield-extractor.html:22
-#: templates/creme_core/forms/widgets/mass-import/extractor.html:36
+#: templates/creme_core/forms/widgets/mass-import/field-extractor.html:36
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: templates/creme_core/forms/widgets/mass-import/extractor.html:12
+#: templates/creme_core/forms/widgets/mass-import/field-extractor.html:12
 msgid "Search by:"
 msgstr "Chercher selon:"
 
@@ -3431,6 +3544,19 @@ msgstr "Plus"
 #: templatetags/creme_bricks.py:123 templatetags/creme_bricks.py:231
 msgid "Information"
 msgstr "Informations"
+
+#: templates/creme_core/frags/entity-filter-summary.html:3
+#, python-format
+msgid "Conditions of «%(efilter)s»"
+msgstr "Conditions du filtre «%(efilter)s»"
+
+#: templates/creme_core/frags/entity-filter-summary.html:7
+msgid "Any condition is met:"
+msgstr "Au moins une condition est remplie :"
+
+#: templates/creme_core/frags/entity-filter-summary.html:7
+msgid "All these conditions are met:"
+msgstr "Toutes les conditions sont remplies :"
 
 #: templates/creme_core/generics/blockform/base-wizard.html:8
 #, python-format
@@ -3626,32 +3752,19 @@ msgstr "Afficher les actions disponibles pour «&nbsp;%(entity)s&nbsp;»"
 msgid "Filter the lines of the table"
 msgstr "Filtrer les lignes de la table"
 
-#: templates/creme_core/templatetags/listview/entity-filters.html:13
-#, python-format
-msgid "Conditions of «%(efilter)s»"
-msgstr "Conditions du filtre «%(efilter)s»"
-
 #: templates/creme_core/templatetags/listview/entity-filters.html:15
 msgid "Information on the current filter"
 msgstr "Informations sur le filtre courant"
 
-#: templates/creme_core/templatetags/listview/entity-filters.html:18
-msgid "Any condition is met:"
-msgstr "Au moins une condition est remplie :"
-
-#: templates/creme_core/templatetags/listview/entity-filters.html:18
-msgid "All these conditions are met:"
-msgstr "Toutes les conditions sont remplies :"
-
-#: templates/creme_core/templatetags/listview/entity-filters.html:30
+#: templates/creme_core/templatetags/listview/entity-filters.html:21
 msgid "Create a custom filter"
 msgstr "Créer un filtre personnalisé"
 
-#: templates/creme_core/templatetags/listview/entity-filters.html:33
+#: templates/creme_core/templatetags/listview/entity-filters.html:24
 msgid "Edit this filter"
 msgstr "Modifier ce filtre"
 
-#: templates/creme_core/templatetags/listview/entity-filters.html:36
+#: templates/creme_core/templatetags/listview/entity-filters.html:27
 msgid "Delete this custom filter"
 msgstr "Supprimer ce filtre personnalisé"
 
