@@ -565,12 +565,7 @@ class RelationBricksConfigBrick(_ConfigAdminBrick):
 
 class InstanceBricksConfigBrick(_ConfigAdminBrick):
     id_ = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
-    # BrickDetailviewLocation/BrickHomeLocation/BrickMypageLocation because
-    # they can be deleted if we delete a InstanceBrickConfigItem
-    dependencies = (
-        InstanceBrickConfigItem, BrickDetailviewLocation,
-        BrickHomeLocation, BrickMypageLocation,
-    )
+    dependencies = (InstanceBrickConfigItem,)
     verbose_name  = 'Instance blocks configuration'
     template_name = 'creme_config/bricks/instancebricks-configs.html'
 

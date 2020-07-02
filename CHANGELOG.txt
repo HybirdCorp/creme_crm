@@ -30,8 +30,10 @@
                     - The deletion view proposes now to replace a choice by another one in related entities.
                     - Duplicated choices are now avoided when creating or editing choices.
             - The deletion/replacement of UserRoles uses now the "deletor" Job.
-            - The configuration of bricks displays now the constraints of InstanceBricks.
-            - Use popover for permissions by filter in role configuration view.
+            - A popover is used for permissions by filter in the role configuration.
+            - In the configuration of bricks :
+                - The constraints of InstanceBricks are displayed.
+                - It's now forbidden to delete a RelationType block, a custom block or an instance block when it is used in a configuration.
         * Reports :
             - In Reports, the aggregates related to hidden field are hidden too.
             - The way the abscissa & the ordinate of 'models.AbstractReportGraph' are stored has been rework.

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import Model, ProtectedError
 from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -383,31 +384,27 @@ class MyPageDeletion(base.ConfigDeletion):
         ).delete()
 
 
-class RelationTypeBrickDeletion(base.ConfigDeletion):
+class BaseBrickTypeDeletion(base.ConfigDeletion):
     id_arg = 'id'
+    model = Model
 
     def perform_deletion(self, request):
-        get_object_or_404(
-            RelationBrickItem,
-            pk=get_from_POST_or_404(request.POST, self.id_arg),
-        ).delete()
+        try:
+            get_object_or_404(
+                self.model,
+                pk=get_from_POST_or_404(request.POST, self.id_arg),
+            ).delete()
+        except ProtectedError as e:
+            raise ConflictError(e.args[0])
 
 
-class InstanceBrickDeletion(base.ConfigDeletion):
-    id_arg = 'id'
-
-    def perform_deletion(self, request):
-        get_object_or_404(
-            InstanceBrickConfigItem,
-            pk=get_from_POST_or_404(request.POST, self.id_arg),
-        ).delete()
+class RelationTypeBrickDeletion(BaseBrickTypeDeletion):
+    model = RelationBrickItem
 
 
-class CustomBrickDeletion(base.ConfigDeletion):
-    id_arg = 'id'
+class CustomBrickDeletion(BaseBrickTypeDeletion):
+    model = CustomBrickConfigItem
 
-    def perform_deletion(self, request):
-        get_object_or_404(
-            CustomBrickConfigItem,
-            pk=get_from_POST_or_404(request.POST, self.id_arg),
-        ).delete()
+
+class InstanceBrickDeletion(BaseBrickTypeDeletion):
+    model = InstanceBrickConfigItem

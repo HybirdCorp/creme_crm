@@ -7,6 +7,7 @@ from urllib.parse import parse_qs, urlparse
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import ProtectedError
 from django.db.models.query_utils import Q
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -3516,11 +3517,42 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertIsInstance(fetcher2, SimpleGraphFetcher)
         self.assertEqual(msg, fetcher2.error)
 
-    def test_delete_graph_instance(self):
-        "BrickDetailviewLocation instances must be deleted in cascade."
+    # def test_delete_graph_instance(self):
+    #     "BrickDetailviewLocation instances must be deleted in cascade."
+    #     self.login()
+    #     rgraph = self._create_documents_rgraph()
+    #     # ibci = rgraph.create_instance_brick_config_item()
+    #     ibci = SimpleGraphFetcher(graph=rgraph).create_brick_config_item()
+    #
+    #     brick_id = ibci.brick_id
+    #     bdl = BrickDetailviewLocation.objects.create_if_needed(
+    #         brick=brick_id,
+    #         order=1,
+    #         zone=BrickDetailviewLocation.RIGHT,
+    #         model=FakeContact,
+    #     )
+    #     bhl = BrickHomeLocation.objects.create(brick_id=brick_id, order=1)
+    #
+    #     rgraph.delete()
+    #     self.assertDoesNotExist(rgraph)
+    #     self.assertDoesNotExist(ibci)
+    #     self.assertDoesNotExist(bdl)
+    #     self.assertDoesNotExist(bhl)
+
+    def test_delete_graph_instance01(self):
+        "No related Brick location."
         self.login()
         rgraph = self._create_documents_rgraph()
-        # ibci = rgraph.create_instance_brick_config_item()
+        ibci = SimpleGraphFetcher(graph=rgraph).create_brick_config_item()
+
+        rgraph.delete()
+        self.assertDoesNotExist(rgraph)
+        self.assertDoesNotExist(ibci)
+
+    def test_delete_graph_instance02(self):
+        "There are Brick locations => cannot delete."
+        self.login()
+        rgraph = self._create_documents_rgraph()
         ibci = SimpleGraphFetcher(graph=rgraph).create_brick_config_item()
 
         brick_id = ibci.brick_id
@@ -3532,11 +3564,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
         bhl = BrickHomeLocation.objects.create(brick_id=brick_id, order=1)
 
-        rgraph.delete()
-        self.assertDoesNotExist(rgraph)
-        self.assertDoesNotExist(ibci)
-        self.assertDoesNotExist(bdl)
-        self.assertDoesNotExist(bhl)
+        with self.assertRaises(ProtectedError):
+            rgraph.delete()
+
+        self.assertStillExists(rgraph)
+        self.assertStillExists(ibci)
+        self.assertStillExists(bdl)
+        self.assertStillExists(bhl)
 
     def test_get_available_report_graph_types01(self):
         self.login()

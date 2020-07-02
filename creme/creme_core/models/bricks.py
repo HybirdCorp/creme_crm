@@ -39,8 +39,10 @@ from typing import (
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError, models
+from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.db.transaction import atomic
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..constants import (
@@ -165,14 +167,19 @@ class BrickDetailviewLocationManager(models.Manager):
 
 class BrickDetailviewLocation(CremeModel):
     content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
-    role         = models.ForeignKey(UserRole, verbose_name=_('Related role'),
-                                     null=True, default=None, on_delete=models.CASCADE,
-                                    )
+
+    role = models.ForeignKey(
+        UserRole, verbose_name=_('Related role'),
+        null=True, default=None, on_delete=models.CASCADE,
+    )
     # TODO: a UserRole for superusers instead ??
-    superuser    = models.BooleanField('related to superusers', default=False, editable=False)
-    brick_id     = models.CharField(max_length=100)
-    order        = models.PositiveIntegerField()
-    zone         = models.PositiveSmallIntegerField()
+    superuser = models.BooleanField(
+        'related to superusers', default=False, editable=False,
+    )
+
+    brick_id = models.CharField(max_length=100)
+    order = models.PositiveIntegerField()
+    zone = models.PositiveSmallIntegerField()
 
     objects = BrickDetailviewLocationManager()
 
@@ -340,13 +347,17 @@ class BrickDetailviewLocation(CremeModel):
 
 
 class BrickHomeLocation(CremeModel):
-    role      = models.ForeignKey(UserRole, verbose_name=_('Related role'),
-                                  null=True, default=None, on_delete=models.CASCADE,
-                                 )
+    role = models.ForeignKey(
+        UserRole, verbose_name=_('Related role'),
+        null=True, default=None, on_delete=models.CASCADE,
+    )
     # TODO: a UserRole for superusers instead ??
-    superuser = models.BooleanField('related to superusers', default=False, editable=False)
-    brick_id  = models.CharField(max_length=100)
-    order     = models.PositiveIntegerField()
+    superuser = models.BooleanField(
+        'related to superusers', default=False, editable=False,
+    )
+
+    brick_id = models.CharField(max_length=100)
+    order = models.PositiveIntegerField()
 
     class Meta:
         app_label = 'creme_core'
@@ -399,9 +410,9 @@ class BrickHomeLocation(CremeModel):
 
 
 class BrickMypageLocation(CremeModel):
-    user     = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
     brick_id = models.CharField(max_length=100)
-    order    = models.PositiveIntegerField()
+    order = models.PositiveIntegerField()
 
     class Meta:
         app_label = 'creme_core'
@@ -461,6 +472,90 @@ post_save.connect(
 )
 
 
+class StoredBrickClassMixin:
+    @staticmethod
+    def check_detail_configuration(brick_id: str):
+        locations = BrickDetailviewLocation.objects.filter(brick_id=brick_id)
+
+        if locations:
+            def get_message():
+                for loc in locations:
+                    if loc.content_type is None:
+                        return gettext(
+                            'This block is used in the default detail-view configuration'
+                        )
+
+                for loc in locations:
+                    if not loc.superuser and loc.role is None:
+                        return gettext(
+                            'This block is used in the detail-view configuration of «{model}»'
+                        ).format(model=loc.content_type)
+
+                for loc in locations:
+                    if loc.superuser:
+                        return gettext(
+                            'This block is used in the detail-view configuration '
+                            'of «{model}» for superusers'
+                        ).format(model=loc.content_type)
+
+                for loc in locations:
+                    if loc.role is not None:
+                        return gettext(
+                            'This block is used in the detail-view configuration '
+                            'of «{model}» for role «{role}»'
+                        ).format(model=loc.content_type, role=loc.role)
+
+                return 'This block is used in a detail-view configuration (unexpected case)'
+
+            raise ProtectedError(get_message(), [*locations])
+
+    @staticmethod
+    def check_home_configuration(brick_id: str):
+        locations = BrickHomeLocation.objects.filter(brick_id=brick_id)
+
+        if locations:
+            if any(not hl.superuser and hl.role is None for hl in locations):
+                msg = gettext(
+                    'This block is used in the default Home configuration'
+                )
+            elif any(hl.superuser for hl in locations):
+                msg = gettext(
+                    'This block is used in the Home configuration for superusers'
+                )
+            else:
+                for hl in locations:
+                    if hl.role:
+                        msg = gettext(
+                            'This block is used in the Home configuration of role «{}»'
+                        ).format(hl.role)
+                        break
+                else:
+                    msg = 'This block is used in the Home configuration (unexpected case)'
+
+            raise ProtectedError(msg, [*locations])
+
+    @staticmethod
+    def check_mypage_configuration(brick_id: str):
+        locations = BrickMypageLocation.objects.filter(brick_id=brick_id)
+
+        if locations:
+            if any(mpl.user is None for mpl in locations):
+                msg = gettext(
+                    'This block is used in the default configuration for "My page"'
+                )
+            else:
+                for mpl in locations:
+                    if mpl.user:
+                        msg = gettext(
+                            'This block is used in the configuration of «{}» for "My page"'
+                        ).format(mpl.user)
+                        break
+                else:
+                    msg = 'This block is used in the "My page" configuration (unexpected case)'
+
+            raise ProtectedError(msg, [*locations])
+
+
 class RelationBrickItemManager(models.Manager):
     def create_if_needed(self, relation_type: Union[RelationType, str]) -> 'RelationBrickItem':
         """Create an instance of RelationBrickItem corresponding to a RelationType
@@ -498,15 +593,18 @@ class RelationBrickItemManager(models.Manager):
         return rbi
 
 
-class RelationBrickItem(CremeModel):
+# class RelationBrickItem(CremeModel):
+class RelationBrickItem(StoredBrickClassMixin, CremeModel):
     # TODO: 'brick_id' not really useful (can be dynamically generated with the RelationType)
     #        + in the 'brick_id':
     #           1) remove the app_name
     #           2) "specificblock_" => "rtypebrick_" (need data migration)
-    brick_id       = models.CharField(_('Block ID'), max_length=100, editable=False)
-    relation_type  = models.OneToOneField(RelationType, on_delete=models.CASCADE,
-                                          verbose_name=_('Related type of relationship'),
-                                         )
+    brick_id = models.CharField(_('Block ID'), max_length=100, editable=False)
+
+    relation_type = models.OneToOneField(
+        RelationType, on_delete=models.CASCADE,
+        verbose_name=_('Related type of relationship'),
+    )
     json_cells_map = models.TextField(editable=False, default='{}')  # TODO: JSONField
 
     objects = RelationBrickItemManager()
@@ -529,16 +627,20 @@ class RelationBrickItem(CremeModel):
         return self.relation_type.predicate
 
     def delete(self, *args, **kwargs):
-        BrickDetailviewLocation.objects.filter(brick_id=self.brick_id).delete()
-        BrickState.objects.filter(brick_id=self.brick_id).delete()
+        brick_id = self.brick_id
+        self.check_detail_configuration(brick_id)
+
+        # BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
+        BrickState.objects.filter(brick_id=brick_id).delete()
 
         super().delete(*args, **kwargs)
 
     @property
     def all_ctypes_configured(self) -> bool:
         # TODO: cache (object_ctypes) ??
-        compat_ctype_ids = {*self.relation_type.object_ctypes.values_list('id', flat=True)} or \
-                           {ct.id for ct in entity_ctypes()}
+        compat_ctype_ids = {
+            *self.relation_type.object_ctypes.values_list('id', flat=True),
+        } or {ct.id for ct in entity_ctypes()}
 
         for ct_id in self._cells_by_ct():
             compat_ctype_ids.discard(ct_id)
@@ -617,7 +719,8 @@ class RelationBrickItem(CremeModel):
         # return self  TODO ??
 
 
-class InstanceBrickConfigItem(CremeModel):
+# class InstanceBrickConfigItem(CremeModel):
+class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
     # brick_id = models.CharField(_('Block ID'), max_length=300, blank=False,
     #                             null=False, editable=False,
     #                            )
@@ -661,10 +764,14 @@ class InstanceBrickConfigItem(CremeModel):
     @atomic
     def delete(self, *args, **kwargs):
         brick_id = self.brick_id
-        BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
+        self.check_detail_configuration(brick_id)
+        self.check_home_configuration(brick_id)
+        self.check_mypage_configuration(brick_id)
+
+        # BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
+        # BrickHomeLocation.objects.filter(brick_id=brick_id).delete()
+        # BrickMypageLocation.objects.filter(brick_id=brick_id).delete()
         BrickState.objects.filter(brick_id=brick_id).delete()
-        BrickHomeLocation.objects.filter(brick_id=brick_id).delete()
-        BrickMypageLocation.objects.filter(brick_id=brick_id).delete()
 
         super().delete(*args, **kwargs)
 
@@ -773,11 +880,12 @@ class InstanceBrickConfigItem(CremeModel):
         super().save(**kwargs)
 
 
-class CustomBrickConfigItem(CremeModel):
-    id           = models.CharField(primary_key=True, max_length=100, editable=False)
+# class CustomBrickConfigItem(CremeModel):
+class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
+    id = models.CharField(primary_key=True, max_length=100, editable=False)
     content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
-    name         = models.CharField(_('Name'), max_length=200)
-    json_cells   = models.TextField(editable=False, default='[]')  # TODO: JSONField
+    name = models.CharField(_('Name'), max_length=200)
+    json_cells = models.TextField(editable=False, default='[]')  # TODO: JSONField
 
     _cells = None
 
@@ -797,7 +905,9 @@ class CustomBrickConfigItem(CremeModel):
     @atomic
     def delete(self, *args, **kwargs):
         brick_id = self.generate_id()
-        BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
+        self.check_detail_configuration(brick_id)
+
+        # BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
         BrickState.objects.filter(brick_id=brick_id).delete()
 
         super().delete(*args, **kwargs)

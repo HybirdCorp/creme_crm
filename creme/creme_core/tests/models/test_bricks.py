@@ -5,6 +5,7 @@ from json import loads as jsonloads
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import ProtectedError
 from django.utils.translation import gettext as _
 
 from creme.creme_core import setting_keys
@@ -68,10 +69,11 @@ class BrickTestCase(CremeTestCase):
         BrickHomeLocation.objects.all().delete()
         BrickMypageLocation.objects.all().delete()
 
-        for model, backup in [(BrickDetailviewLocation, cls._bdl_backup),
-                              (BrickHomeLocation, cls._bpl_backup),
-                              (BrickMypageLocation, cls._bml_backup),
-                             ]:
+        for model, backup in [
+            (BrickDetailviewLocation, cls._bdl_backup),
+            (BrickHomeLocation, cls._bpl_backup),
+            (BrickMypageLocation, cls._bml_backup),
+        ]:
             try:
                 model.objects.bulk_create(backup)
             except Exception as e:
@@ -844,6 +846,88 @@ class BrickTestCase(CremeTestCase):
             deserialized
         )
 
+    def test_relationbrick_delete01(self):
+        user = self.login()
+        rt = RelationType.create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+            is_custom=False,
+        )[0]
+        rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+
+        create_state = partial(BrickState.objects.create, user=user)
+        state1 = create_state(brick_id=rbi.brick_id)
+        state2 = create_state(brick_id=self.TestBrick01.id_)
+
+        rbi.delete()
+        self.assertDoesNotExist(rbi)
+        self.assertDoesNotExist(state1)
+        self.assertStillExists(state2)
+
+    def test_relationbrick_delete02(self):
+        "Cannot delete because it is used."
+        self.login()
+        rt = RelationType.create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+            is_custom=False,
+        )[0]
+        rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+
+        def try_delete(msg, locs):
+            with self.assertRaises(ProtectedError) as cm:
+                rbi.delete()
+
+            exc = cm.exception
+            self.assertEqual(msg, exc.args[0])
+            self.assertCountEqual(locs, exc.args[1])
+
+            self.assertStillExists(rbi)
+
+        create_dbl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            brick=rbi.brick_id, order=5,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
+        loc1 = create_dbl(model=FakeContact, role=self.role)
+        try_delete(
+            _(
+                'This block is used in the detail-view configuration of '
+                '«{model}» for role «{role}»'
+            ).format(model='Test Contact', role=self.role),
+            [loc1],
+        )
+        self.assertStillExists(loc1)
+
+        # ---
+        loc2 = create_dbl(model=FakeContact, role='superuser')
+        try_delete(
+            _(
+                'This block is used in the detail-view configuration of '
+                '«{model}» for superusers'
+            ).format(model='Test Contact'),
+            [loc1, loc2],
+        )
+        self.assertStillExists(loc2)
+
+        # ---
+        loc3 = create_dbl(model=FakeContact)
+        try_delete(
+            _('This block is used in the detail-view configuration of «{model}»').format(
+                model='Test Contact',
+            ),
+            [loc1, loc2, loc3],
+        )
+        self.assertStillExists(loc3)
+
+        # ---
+        loc4 = create_dbl()
+        try_delete(
+            _('This block is used in the default detail-view configuration'),
+            [loc1, loc2, loc3, loc4],
+        )
+        self.assertStillExists(loc4)
+
     def test_custom_brick(self):
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
@@ -893,6 +977,43 @@ class BrickTestCase(CremeTestCase):
 
         cbci = self.refresh(cbci)
         self.assertEqual(1, len(cbci.cells))
+
+    def test_custom_brick_delete01(self):
+        self.login()
+        cbci = CustomBrickConfigItem.objects.create(
+            content_type=FakeContact, name='Info',
+        )
+
+        cbci.delete()
+        self.assertDoesNotExist(cbci)
+
+    def test_custom_brick_delete02(self):
+        "Cannot delete because it is used."
+        self.login()
+        cbci = CustomBrickConfigItem.objects.create(
+            content_type=FakeContact, name='Info',
+        )
+        loc = BrickDetailviewLocation.objects.create_if_needed(
+            brick=cbci.generate_id(), order=5,
+            model=FakeContact,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
+
+        with self.assertRaises(ProtectedError) as cm:
+            cbci.delete()
+
+        exc = cm.exception
+        self.assertEqual(
+            _(
+                'This block is used in the detail-view '
+                'configuration of «{model}»'
+            ).format(model='Test Contact'),
+            exc.args[0]
+        )
+        self.assertCountEqual([loc], exc.args[1])
+
+        self.assertStillExists(cbci)
+        self.assertStillExists(loc)
 
     # NB: see reports for InstanceBrickConfigItem with a working Brick class
     def test_instance_brick01(self):
@@ -972,6 +1093,150 @@ class BrickTestCase(CremeTestCase):
             },
             dict(ibi.extra_data_items)
         )
+
+    def test_instance_brick_delete01(self):
+        user = self.login()
+        naru = FakeContact.objects.create(
+            user=user, first_name='Naru', last_name='Narusegawa',
+        )
+
+        ibi = InstanceBrickConfigItem.objects.create(
+            brick_class_id=self.TestBrick01.id_,
+            entity=naru,
+        )
+
+        brick_id = ibi.brick_id
+
+        create_state = BrickState.objects.create
+        state1 = create_state(brick_id=brick_id,             user=user)
+        state2 = create_state(brick_id=self.TestBrick02.id_, user=user)
+
+        ibi.delete()
+        self.assertDoesNotExist(ibi)
+        self.assertDoesNotExist(state1)
+        self.assertStillExists(state2)
+
+    def test_instance_brick_delete02(self):
+        "Cannot delete because it is used by detail-view configuration."
+        user = self.login()
+        naru = FakeContact.objects.create(
+            user=user, first_name='Naru', last_name='Narusegawa',
+        )
+
+        ibi = InstanceBrickConfigItem.objects.create(
+            brick_class_id=self.TestBrick01.id_,
+            entity=naru,
+        )
+        loc = BrickDetailviewLocation.objects.create_if_needed(
+            zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
+            brick=ibi.brick_id, order=5,
+        )
+
+        with self.assertRaises(ProtectedError) as cm:
+            ibi.delete()
+
+        exc = cm.exception
+        self.assertEqual(
+            _(
+                'This block is used in the detail-view configuration '
+                'of «{model}»'
+            ).format(model='Test Contact'),
+            exc.args[0]
+        )
+        self.assertEqual([loc], exc.args[1])
+
+        self.assertStillExists(ibi)
+        self.assertStillExists(loc)
+
+    def test_instance_brick_delete03(self):
+        "Cannot delete because it is used by home configuration."
+        user = self.login()
+        naru = FakeContact.objects.create(
+            user=user, first_name='Naru', last_name='Narusegawa',
+        )
+
+        ibi = InstanceBrickConfigItem.objects.create(
+            brick_class_id=self.TestBrick01.id_,
+            entity=naru,
+        )
+
+        def try_delete(msg, locs):
+            with self.assertRaises(ProtectedError) as cm:
+                ibi.delete()
+
+            args = cm.exception.args
+            self.assertEqual(msg, args[0])
+            self.assertCountEqual(locs, args[1])
+
+            self.assertStillExists(ibi)
+
+        create_bhl = partial(
+            BrickHomeLocation.objects.create,
+            brick_id=ibi.brick_id, order=5,
+        )
+        loc1 = create_bhl(role=self.role)
+        try_delete(
+            _('This block is used in the Home configuration of role «{}»').format(self.role),
+            [loc1],
+        )
+        self.assertStillExists(loc1)
+
+        # ------------------------
+        loc2 = create_bhl(superuser=True)
+        try_delete(
+            _('This block is used in the Home configuration for superusers'),
+            [loc1, loc2],
+        )
+        self.assertStillExists(loc2)
+
+        # ------------------------
+        loc3 = create_bhl()
+        try_delete(
+            _('This block is used in the default Home configuration'),
+            [loc1, loc2, loc3],
+        )
+        self.assertStillExists(loc3)
+
+    def test_instance_brick_delete04(self):
+        """Cannot delete because it is used by "My Page" configuration."""
+        user = self.login()
+        naru = FakeContact.objects.create(
+            user=user, first_name='Naru', last_name='Narusegawa',
+        )
+
+        ibi = InstanceBrickConfigItem.objects.create(
+            brick_class_id=self.TestBrick01.id_,
+            entity=naru,
+        )
+
+        def try_delete(msg, locs):
+            with self.assertRaises(ProtectedError) as cm:
+                ibi.delete()
+
+            args = cm.exception.args
+            self.assertEqual(msg, args[0])
+            self.assertCountEqual(locs, args[1])
+
+            self.assertStillExists(ibi)
+
+        create_bml = partial(
+            BrickMypageLocation.objects.create,
+            brick_id=ibi.brick_id, order=5,
+        )
+        loc1 = create_bml(user=user)
+        try_delete(
+            _('This block is used in the configuration of «{}» for "My page"').format(user),
+            [loc1],
+        )
+        self.assertStillExists(loc1)
+
+        # ------------------------
+        loc2 = create_bml()
+        try_delete(
+            _('This block is used in the default configuration for "My page"'),
+            [loc1, loc2],
+        )
+        self.assertStillExists(loc2)
 
     # def test_brick_state_get_for_brick_ids01(self):
     #     "States do not exist in DB."
