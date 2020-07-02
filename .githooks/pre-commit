@@ -36,8 +36,8 @@ hook_check_print() {
 }
 
 hook_check_headers() {
-    local _files=$(git diff HEAD~1 --name-only --diff-filter=MAR | grep '.py$')
-    local _matches=$(egrep -e '#.+Copyright.+Hybird' $_files|grep -v "$(date +%Y)")
+    local _files=$(git diff HEAD~1 --name-only --diff-filter=MAR | grep -E '.(py|js)$')
+    local _matches=$(egrep -e '\s+Copyright.+Hybird' $_files|grep -v "$(date +%Y)")
     local _result=0
 
     if [ -n "$_matches" ]; then
