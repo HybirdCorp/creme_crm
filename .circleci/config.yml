@@ -196,6 +196,7 @@ jobs:
       - checkout
       - install-creme-system-packages
       - install-py-dev-env
+      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: python manage.py generatemedia
       - install-node-env
       - run:

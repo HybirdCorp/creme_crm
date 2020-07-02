@@ -63,6 +63,12 @@ serve: media
 	python manage.py runserver
 
 
+## Run shell
+.PHONY: shell
+shell:
+	python manage.py shell_plus
+
+
 ## Run the Javascript linters
 .PHONY: eslint
 eslint:
@@ -96,6 +102,12 @@ flake8:
 ## Run all the Python linters
 .PHONY: lint
 lint: isort-check flake8
+
+
+## Print some Django settings
+.PHONY: settings
+settings:
+	@python manage.py print_settings INSTALLED_APPS MIDDLEWARE DATABASES LOGGING --format pprint
 
 
 ## Collect the messages to translate for the entire projet or the given app directories
