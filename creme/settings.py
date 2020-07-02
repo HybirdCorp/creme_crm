@@ -892,6 +892,7 @@ TEST_CREME_OPT_JS = [
     ('creme.billing',       'billing/js/tests/billing.js'),
     ('creme.billing',       'billing/js/tests/billing-actions.js'),
     ('creme.billing',       'billing/js/tests/billing-listview.js'),
+    ('creme.commercial',    'commercial/js/tests/commercial-score.js'),
     ('creme.crudity',       'crudity/js/tests/crudity-actions.js'),
     ('creme.emails',        'emails/js/tests/emails-actions.js'),
     ('creme.emails',        'emails/js/tests/emails-listview.js'),
