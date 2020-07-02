@@ -161,9 +161,9 @@ class SettingsBrick(QuerysetBrick):
 
 
 class _ConfigAdminBrick(QuerysetBrick):
-    page_size    = _PAGE_SIZE
+    page_size = _PAGE_SIZE
     # The portals can be viewed by all users => reloading can be done by all users too.
-    permission = None
+    # permission = ''
     configurable = False
 
 
@@ -594,7 +594,7 @@ class CustomBricksConfigBrick(PaginatedBrick):
     template_name = 'creme_config/bricks/custombricks-configs.html'
     page_size = _PAGE_SIZE
     # The portals can be viewed by all users => reloading can be done by all users too.
-    permission = None
+    # permission = ''
     configurable = False
 
     def detailview_display(self, context):
@@ -637,7 +637,6 @@ class ButtonMenuBrick(Brick):
     dependencies = (ButtonMenuItem,)
     verbose_name = 'Button menu configuration'
     template_name = 'creme_config/bricks/button-menu.html'
-    permission = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable = False
 
     def detailview_display(self, context):
@@ -673,7 +672,6 @@ class SearchConfigBrick(PaginatedBrick):
     template_name = 'creme_config/bricks/search-config.html'
     order_by = 'content_type'
     page_size = _PAGE_SIZE * 2  # Only one brick
-    permission = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable = False
 
     def detailview_display(self, context):
@@ -752,10 +750,6 @@ class UserSettingValuesBrick(Brick):
     verbose_name = 'My setting values'
     template_name = 'creme_config/bricks/user-setting-values.html'
     configurable = False
-
-    # NB: used by the view creme_core.views.bricks.BricksReloading ;
-    # <None> means 'No special permission required'.
-    permission = None
 
     user_setting_key_registry = setting_key.user_setting_key_registry
 

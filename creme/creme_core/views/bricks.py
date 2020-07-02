@@ -43,10 +43,11 @@ logger = logging.getLogger(__name__)
 
 
 def build_context(request, **kwargs):
-    warnings.warn('creme_core.views.bricks.build_context() is deprecated ; '
-                  'use the class based view BricksReloading instead.',
-                  DeprecationWarning
-                 )
+    warnings.warn(
+        'creme_core.views.bricks.build_context() is deprecated ; '
+        'use the class based view BricksReloading instead.',
+        DeprecationWarning
+    )
 
     context = make_context({}, request)
 
@@ -59,10 +60,11 @@ def build_context(request, **kwargs):
 
 
 def get_brick_ids_or_404(request):
-    warnings.warn('creme_core.views.bricks.get_brick_ids_or_404() is deprecated ; '
-                  'use the class based view BricksReloading instead.',
-                  DeprecationWarning
-                 )
+    warnings.warn(
+        'creme_core.views.bricks.get_brick_ids_or_404() is deprecated ; '
+        'use the class based view BricksReloading instead.',
+        DeprecationWarning
+    )
 
     brick_ids = request.GET.getlist('brick_id')
 
@@ -73,9 +75,10 @@ def get_brick_ids_or_404(request):
 
 
 def render_detailview_brick(brick, context):
-    warnings.warn('creme_core.views.bricks.render_detailview_brick() is deprecated',
-                  DeprecationWarning
-                 )
+    warnings.warn(
+        'creme_core.views.bricks.render_detailview_brick() is deprecated',
+        DeprecationWarning
+    )
 
     fun = getattr(brick, 'detailview_display', None)
 
@@ -86,9 +89,10 @@ def render_detailview_brick(brick, context):
 
 
 def render_home_brick(brick, context):
-    warnings.warn('creme_core.views.bricks.render_home_brick() is deprecated',
-                  DeprecationWarning
-                 )
+    warnings.warn(
+        'creme_core.views.bricks.render_home_brick() is deprecated',
+        DeprecationWarning
+    )
 
     fun = getattr(brick, 'home_display', None)
 
@@ -114,10 +118,11 @@ def bricks_render_info(request, bricks, context=None,
            instances has to be checked.
     @return A JSON-friendly list of tuples.
     """
-    warnings.warn('creme_core.views.bricks.bricks_render_info() is deprecated ; '
-                  'use the class based view BricksReloading instead.',
-                  DeprecationWarning
-                 )
+    warnings.warn(
+        'creme_core.views.bricks.bricks_render_info() is deprecated ; '
+        'use the class based view BricksReloading instead.',
+        DeprecationWarning
+    )
 
     from collections import Iterator
 
@@ -140,11 +145,13 @@ def bricks_render_info(request, bricks, context=None,
             try:
                 permission = brick.permission
             except AttributeError:
-                logger.error('You should set "permission" on the brick: %s (id=%s)',
-                             brick.__class__, brick.id_,
-                            )
+                logger.error(
+                    'You should set "permission" on the brick: %s (id=%s)',
+                    brick.__class__, brick.id_,
+                )
             else:
-                if permission is not None and not has_perm(permission):
+                # if permission is not None and not has_perm(permission):
+                if permission and not has_perm(permission):
                     raise PermissionDenied(
                         f'Error: you are not allowed to view this brick: {brick.id_}'
                     )
@@ -235,18 +242,12 @@ class BricksReloading(generic.CheckedView):
             has_perm = request.user.has_perm
 
             for brick in bricks:
-                try:
-                    permission = brick.permission
-                except AttributeError:
-                    logger.error(
-                        'You should set "permission" on the brick: %s (id=%s)',
-                        brick.__class__, brick.id_,
+                permission = brick.permission
+
+                if permission and not has_perm(permission):
+                    raise PermissionDenied(
+                        f'Error: you are not allowed to view this brick: {brick.id_}'
                     )
-                else:
-                    if permission is not None and not has_perm(permission):
-                        raise PermissionDenied(
-                            f'Error: you are not allowed to view this brick: {brick.id_}'
-                        )
 
         all_reloading_info = {}
         all_reloading_info_json = request.GET.get('extra_data')
@@ -274,9 +275,10 @@ class BricksReloading(generic.CheckedView):
             render_func = getattr(brick, render_method, None)
 
             if render_func is None:
-                logger.warning('Brick without %s(): %s (id=%s)',
-                               render_method, brick.__class__, brick.id_,
-                              )
+                logger.warning(
+                    'Brick without %s(): %s (id=%s)',
+                    render_method, brick.__class__, brick.id_,
+                )
             else:
                 # NB: the context is copied is order to a 'fresh' one for each
                 # brick, & so avoid annoying side-effects
@@ -322,9 +324,9 @@ class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading
 
     def get_bricks(self):
         return [
-            *self.brick_registry.get_bricks(self.get_brick_ids(),
-                                            entity=self.get_related_entity(),
-                                           )
+            *self.brick_registry.get_bricks(
+                self.get_brick_ids(), entity=self.get_related_entity(),
+            )
         ]
 
     def get_bricks_context(self):
@@ -376,7 +378,9 @@ class BrickStateSetting(generic.CheckedView):
             #     select_for_update() ; but it's a state related one user & one
             #     brick, so it would not be a real world problem.
             for _i in range(10):
-                state = BrickState.objects.get_for_brick_id(brick_id=brick_id, user=request.user)
+                state = BrickState.objects.get_for_brick_id(
+                    brick_id=brick_id, user=request.user,
+                )
 
                 try:
                     utils.update_model_instance(state, **fields_2_update)
