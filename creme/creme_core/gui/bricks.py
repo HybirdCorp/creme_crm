@@ -157,6 +157,12 @@ class Brick:
     target_ctypes: Sequence[Type[CremeEntity]] = ()
     # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS [END] -------------------------------
 
+    # Some reloading views (see 'creme_core.views.bricks.BricksReloading') check
+    # permission to avoid information leaking. It's a classical permission
+    # string, like 'my_app' or 'my_app.can_admin' for example.
+    # An empty string means "No special permission required".
+    permission: str = ''
+
     GENERIC_HAT_BRICK_ID: str = 'hatbrick'
 
     def __init__(self):

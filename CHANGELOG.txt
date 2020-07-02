@@ -159,6 +159,8 @@
             - A class attribute "verbose_name" has been added.
             - An attribute "is_excluded" has been added.
         # In 'creme_core.forms.base', the calls to class-methods "add_post_*_callback()" can be chained.
+        # In the class 'creme_core.gui.bricks.Brick', the attribute "permission" has been clearly added (it was dynamiccaly checked by the views).
+          If you set it, youy should use an empty string isntead of <None>.
         # A custom manager has been added to CustomField ; some queries are now cached.
         # A new templatetag for bricks has been added : {% brick_get_by_ids ... %}.
         # In unit tests :
