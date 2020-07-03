@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2020  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -62,10 +62,9 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
     _updateSelector: function(element, selector, value, cb, sync) {
         if (Object.isNone(selector)) {
             creme.object.invoke(cb, element);
-            return this;
+        } else {
+            selector.val(value);
         }
-
-        selector.val(value);
     },
 
     _removeSelector: function(element) {
@@ -75,7 +74,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
 
             selectorElement.unbind('change paste', this._selector_onchange_cb);
             selector.destroy();
-            element.remove();
+            selectorElement.remove();
 
             this._selector = undefined;
             this._selectorModel = undefined;
@@ -93,43 +92,38 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         this._target = $('<span>').addClass('delegate').html(model).appendTo(element);
         var selector = $('> .delegate > .ui-creme-widget:first', element);
 
-        if (selector.length !== 1) { return; }
+        if (selector.length === 1) {
+            creme.widget.create(selector, {}, function(delegate) {
+                creme.object.invoke(cb, element);
+                delegate.bind('change paste', self._selector_onchange_cb);
+                element.change();
+            }, sync);
 
-        creme.widget.create(selector, {}, function(delegate) {
-            creme.object.invoke(cb, element);
-            delegate.bind('change paste', self._selector_onchange_cb);
-            element.change();
-        }, sync);
-
-        this._selector = selector.creme().widget();
-        this._selectorModel = model;
+            this._selector = selector.creme().widget();
+            this._selectorModel = model;
+        }
     },
 
     toggleSelector: function(element, previous_key, cb, error_cb, sync) {
         var value = this.val(element);
         var previous = this._selector;
-        var previous_model = this._selectorModel;
+        var previousModel = this._selectorModel;
 
         var key = this.selectorKey(element);
         var model = this.selectorModel(element, key);
 
         if (Object.isNone(model)) {
             this._removeSelector(element);
-            return;
+        } else if (previousModel === model) { // already active selector, set value and get out !
+            return this._updateSelector(element, previous, value, cb, sync);
+        } else {
+            this._removeSelector(element);
+            this._createSelector(element, model, null, cb, error_cb, sync);
         }
-
 //        console.log('key:', '"' + key + '"', 'value:', value, 'context:', this._selectorKey.parameters,
 //                    'deps:', this.dependencies(element),
 //                    'deps:', previous !== undefined ? previous.dependencies() : undefined,
 //                    'same:', previous_model !== undefined && previous_model === model);
-
-        // already active selector, set value and get out !
-        if (previous_model !== undefined && previous_model === model) {
-            return this._updateSelector(element, previous, value, cb, sync);
-        }
-
-        this._removeSelector(element);
-        this._createSelector(element, model, null, cb, error_cb, sync);
     },
 
     selectorKey: function(element) {
@@ -182,7 +176,9 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
     },
 
     val: function(element, value) {
-        if (value === undefined) { return this._selector ? this._selector.val() : null; }
+        if (value === undefined) {
+            return this._selector ? this._selector.val() : null;
+        }
 
         if (this._selector) {
             this._selector.val(value);
