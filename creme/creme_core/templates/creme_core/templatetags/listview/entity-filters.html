@@ -10,19 +10,10 @@
         {% endfor %}
     </select>
 {% with efilter=entity_filters.selected %}
-    {% if efilter_id %}{% blocktrans asvar popup_title %}Conditions of «{{efilter}}»{% endblocktrans %}
-        <a onclick="event.preventDefault(); creme.dialogs.html($('.lv-entity_filter-description', this).html(), {'title': '{{popup_title|escapejs}}'}).open();">
+    {% if efilter_id %}
+        <a data-action="popover">
             {% widget_icon name='info' label=_('Information on the current filter') size='listview-filter-action' %}
-            <div style="display:none" class="lv-entity_filter-description">{% get_efilter_conditions efilter=efilter user=user as vconds %}
-            {% if vconds|length > 1 %}
-                <span>{% if efilter.use_or %}{% trans 'Any condition is met:' %}{% else %}{% trans 'All these conditions are met:' %}{% endif %}</span>
-                <ul>
-                    {% for vcond in vconds %}<li>{{vcond}}</li>{% endfor %}
-                </ul>
-            {% else %}
-                <span>{{vconds.0}}</span>
-            {% endif %}
-            </div>
+            {% include 'creme_core/templatetags/listview/entity-filter-summary.html' with efilter=efilter user=user %}
         </a>
     {% endif %}
     {% if show_buttons %}{% ctype_for_model model as ctype %}

@@ -1160,6 +1160,38 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, delete)', functi
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
+QUnit.test('creme.listview.core (hatbar controls, entityfilter, info)', function(assert) {
+    var html = this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        hatbarcontrols: [{
+            name: 'filter',
+            group: 'filters',
+            options: [
+                '<option value="filter-a">Filter A</option>',
+                '<option value="filter-b">Filter B</option>'
+            ],
+            actions: [
+                {action: 'popover', html: '<summary>Filter A Details</summary><details><h3>Filter by "A"</h3></details>'}
+            ]
+        }]
+    });
+
+    var element = $(html).appendTo(this.qunitFixture());
+    var listview = creme.widget.create(element);
+    var link = element.find('.list-control-group.list-filters a[data-action="popover"]');
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(1, link.length);
+
+    link.click();
+
+    var popover = this.assertOpenedPopover();
+    this.assertPopoverTitle('Filter A Details');
+    equal(popover.find('.popover-content').html(), '<h3>Filter by "A"</h3>');
+});
+
 QUnit.test('creme.listview.core (hatbar controls, view, change)', function(assert) {
     var html = this.createListViewHtml({
         tableclasses: ['listview-standalone'],

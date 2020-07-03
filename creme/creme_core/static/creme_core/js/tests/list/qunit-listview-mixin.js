@@ -100,11 +100,13 @@
             return (
                 '<a href="${url}" data-action="${action}" class="${classes}" ${attrs}>'
                   + '<script type="application/json"><!-- ${data} --></script>'
+                  + '${html}'
               + '</a>').template({
                 classes: (options.classes || []).join(' '),
                 url: options.url || '',
                 action: options.action || '',
                 attrs: Object.entries(options.attrs || {}).map(renderAttr).join(' '),
+                html: options.html || '',
                 data: $.toJSON({
                     data: options.data || {},
                     options: options.options || {}
