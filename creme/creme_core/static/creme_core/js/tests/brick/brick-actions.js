@@ -1087,6 +1087,29 @@ QUnit.test('creme.bricks.Brick.action (link, async)', function(assert) {
               this.mockListenerCalls('action-link-complete').map(function(d) { return d.slice(0, 2); }));
 });
 
+QUnit.test('creme.bricks.Brick.action (popover)', function(assert) {
+    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
+    var action = $(
+       '<a data-action="popover" >' +
+           '<summary>Filter A Details</summary><details><h3>Filter by "A"</h3></details>' +
+       '</a>'
+    ).appendTo(element);
+
+    var brick = new creme.bricks.Brick().bind(element);
+
+    equal(true, brick.isBound());
+    equal(false, brick.isLoading());
+    equal(1, brick._actionLinks.length);
+
+    brick._actionLinks[0].on(this.brickActionLinkListeners);
+
+    action.click();
+
+    var popover = this.assertOpenedPopover();
+    this.assertPopoverTitle('Filter A Details');
+    equal(popover.find('.popover-content').html(), '<h3>Filter by "A"</h3>');
+});
+
 QUnit.test('creme.bricks.Brick.registry', function(assert) {
     var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var brick = new creme.bricks.Brick().bind(element);
@@ -1110,6 +1133,7 @@ QUnit.test('creme.bricks.Brick.registry', function(assert) {
     ok(registry.has('delete'));
     ok(registry.has('update'));
     ok(registry.has('update_redirect'));
+    ok(registry.has('popover'));
 
     ok(registry.has('add_relationships'));
 });

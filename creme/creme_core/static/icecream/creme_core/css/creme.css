@@ -496,6 +496,15 @@ div.hat-bar {
 
 /* Title bar - [end] */
 
+/* Action links */
+
+a[data-action] summary,
+a[data-action] details {
+    display: none;
+}
+
+/* Action links - [end] */
+
 /* Footer */
 
 .footer {

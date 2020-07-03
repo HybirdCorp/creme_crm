@@ -697,6 +697,7 @@ QUnit.test('creme.listview.actionregistry', function(assert) {
     ok(registry.has('clone'));
     ok(registry.has('form'));
     ok(registry.has('redirect'));
+    ok(registry.has('popover'));
 
     ok(registry.has('submit-lv-state'));
     ok(registry.has('edit-selection'));

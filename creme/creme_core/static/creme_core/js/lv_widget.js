@@ -458,6 +458,17 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
         };
     },
 
+    _build_popover: function(url, options, data, e) {
+        var target = $(e.target);
+        var link = target.is('[data-action]') ? target : target.parents('[data-action]:first');
+
+        return new creme.dialog.PopoverAction({
+            title: link.find('summary').text(),
+            content: link.find('details').html(),
+            target: target
+        });
+    },
+
     _build_update: function(url, options, data, e) {
         var list = this._list;
         return this._postQueryAction(url, options, data).onDone(function() {
