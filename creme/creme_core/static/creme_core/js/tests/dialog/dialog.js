@@ -473,6 +473,22 @@ QUnit.test('creme.dialog.Dialog (title)', function(assert) {
     this.assertDialogTitleHtml('Modified title');
 });
 
+QUnit.test('creme.dialog.Dialog (title, escaped)', function(assert) {
+    var dialog = new creme.dialog.Dialog({
+        title: 'Default&nbsp;title &amp; &lt; escaped&gt;'
+    });
+
+    dialog.open();
+
+    equal('Default\u00A0title & < escaped>', dialog.title());
+    this.assertDialogTitleHtml('Default\u00A0title & < escaped>');
+
+    dialog.title('Modified title &quot;escaped&quot;');
+
+    equal('Modified title "escaped"', dialog.title());
+    this.assertDialogTitleHtml('Modified title "escaped"');
+});
+
 QUnit.test('creme.dialog.Dialog (clear)', function(assert) {
     var dialog = new creme.dialog.Dialog();
 

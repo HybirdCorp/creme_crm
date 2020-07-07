@@ -755,8 +755,18 @@ QUnit.test('fallbacks.String.removeDiacritics', function() {
 
 QUnit.test('fallbacks.String.decodeHTMLEntities', function() {
     equal(''.decodeHTMLEntities(), '');
+    equal('&amp;&quot;&apos;&lt;&gt;&unk;'.decodeHTMLEntities(), '&"\'<>&unk;');
     equal('&#x000C8;&&#x000C9;;'.decodeHTMLEntities(), 'È&É;');
-    equal('&#200;&&#201;;'.decodeHTMLEntities(),     'È&É;');
-    equal('\\u00C8&\\u00C9;'.decodeHTMLEntities(),     'È&É;');
+    equal('&#200;&&#201;;'.decodeHTMLEntities(), 'È&É;');
+    equal('\\u00C8&\\u00C9;'.decodeHTMLEntities(), 'È&É;');
 });
+
+QUnit.test('fallbacks.String.unescapeHTML', function() {
+    equal('  &amp;&quot;&apos;&lt;&gt;  &unk;  '.unescapeHTML(), '  &"\'<>  &unk;  ');
+});
+
+QUnit.test('fallbacks.String.escapeHTML', function() {
+    equal('  &"\'<>\u00A0'.escapeHTML(), '  &amp;&quot;&apos;&lt;&gt;&nbsp;');
+});
+
 }(jQuery));
