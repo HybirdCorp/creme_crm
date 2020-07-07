@@ -94,8 +94,39 @@
         return String.fromCharCode(parseInt(x.substr(2, x.length - 2), 16));
     };
 
+    var __htmlEntityToChar = {
+        '&lt;': '<',
+        '&gt;': '>',
+        '&amp;': '&',
+        '&apos;': "'",
+        '&quot;': '"',
+        '&nbsp;': '\u00A0'
+    };
+
+    var __charToHtmlEntity = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '&': '&amp;',
+        "'": '&apos;',
+        '"': '&quot;',
+        '\u00A0': '&nbsp;'
+    };
+
+    append('unescapeHTML', function() {
+        return this.replace(/&([a-z]+);/g, function(c) {
+            return __htmlEntityToChar[c] || c;
+        });
+    });
+
+    append('escapeHTML', function() {
+        return this.replace(/[<>&'"\u00A0]/g, function(c) {
+            return __charToHtmlEntity[c] || c;
+        });
+    });
+
     append('decodeHTMLEntities', function() {
-        return this.replace(/\\u[0-9A-F]{4,6}/gi, __decodeUnicode)
+        return this.unescapeHTML()
+                   .replace(/\\u[0-9A-F]{4,6}/gi, __decodeUnicode)
                    .replace(/&(#([0-9]{2,4})|#x([0-9A-F]{2,6}));/gi, __decodeEntity);
     });
 
