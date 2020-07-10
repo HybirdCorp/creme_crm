@@ -110,8 +110,8 @@ jobs:
       - install-creme-system-packages
       - run: sudo apt install -y mariadb-client
       - install-py-dev-env
-      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
-      - run: cp ~/project/.circleci/mysql_settings.py creme/local_settings.py
+      - run: cp ~/project/.circleci/circleci_settings.py creme/settings/project.py
+      - run: cp ~/project/.circleci/mysql_settings.py creme/settings/local.py
       - run: python manage.py migrate
       - run: python manage.py creme_populate
       - run: python manage.py generatemedia
@@ -142,8 +142,8 @@ jobs:
 
       - install-creme-system-packages
       - install-py-dev-env
-      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
-      - run: cp ~/project/.circleci/pgsql_settings.py creme/local_settings.py
+      - run: cp ~/project/.circleci/circleci_settings.py creme/settings/project.py
+      - run: cp ~/project/.circleci/pgsql_settings.py creme/settings/local.py
       - run: python manage.py migrate
       - run: python manage.py creme_populate
       - run: python manage.py generatemedia
@@ -165,8 +165,8 @@ jobs:
 
       - install-creme-system-packages
       - install-py-dev-env
-      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
-      - run: cp ~/project/.circleci/sqlite3_settings.py creme/local_settings.py
+      - run: cp ~/project/.circleci/circleci_settings.py creme/settings/project.py
+      - run: cp ~/project/.circleci/sqlite3_settings.py creme/settings/local.py
       - run: python manage.py migrate
       - run: python manage.py creme_populate
       - run: python manage.py generatemedia
@@ -196,7 +196,7 @@ jobs:
       - checkout
       - install-creme-system-packages
       - install-py-dev-env
-      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
+      - run: cp ~/project/.circleci/circleci_settings.py creme/settings/project.py
       - run: python manage.py generatemedia
       - install-node-env
       - run:

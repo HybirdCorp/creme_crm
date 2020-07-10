@@ -4,12 +4,13 @@ syntax: glob
 *.blend1
 *.pyc
 *.db
-local_settings*.py
 django.wsgi
 *.orig
 .project*
 .settings*
 
+# Creme
+creme/settings/local*.py
 creme/media/upload/*/*
 creme/media/static/*
 _generated_media_names.py
