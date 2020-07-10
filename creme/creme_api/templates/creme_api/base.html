@@ -1,0 +1,68 @@
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_widgets creme_bricks %}
+
+{% block page_title %}{{page_title}} - {% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .api-content-page {
+            display: flex;
+            margin-top: 15px;
+        }
+        .api-left-panel-container {
+            flex-shrink: 1
+        }
+        .api-left-panel-content {
+            min-width: 250px;
+            background: white;
+            border-left: 1px solid #d9d9d9;
+            border-right: 1px solid #d9d9d9;
+            border-top: 1px solid #d9d9d9;
+            border-bottom: 1px solid #dedede;
+
+            display: inline-block;
+
+            -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+               -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+        }
+        .api-left-panel-content ul {
+            list-style: none;
+        }
+        .api-left-panel-content ul li {
+            padding-left: 15px;
+        }
+        .api-left-panel-content ul li.title {
+            padding-left: 0;
+            font-weight: 600;
+            padding-bottom: 10px;
+        }
+        .api-content-container {
+            flex: 1;
+            padding-left: 15px;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="api-content-page">
+        <div class="api-left-panel-container">
+            {% block content-left-panel %}
+                <div class="api-left-panel-content">
+                    <ul>
+                        <li class="title">Creme CRM API</li>
+                        <li><a href="{% url 'creme_api__documentation' %}">{% trans "Documentation" %}</a></li>
+                        <li><a href="{% url 'creme_api__configuration' %}">{% trans "Configuration" %}</a></li>
+                    </ul>
+                </div>
+            {% endblock %}
+        </div>
+        <div class="api-content-container">
+            {% block content-right-panel %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}
