@@ -31,6 +31,7 @@
                     - Duplicated choices are now avoided when creating or editing choices.
             - The deletion/replacement of UserRoles uses now the "deletor" Job.
             - The configuration of bricks displays now the constraints of InstanceBricks.
+            - Use popover for permissions by filter in role configuration view.
         * Reports :
             - In Reports, the aggregates related to hidden field are hidden too.
             - The way the abscissa & the ordinate of 'models.AbstractReportGraph' are stored has been rework.
