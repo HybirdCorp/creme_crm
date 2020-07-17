@@ -9,7 +9,7 @@ QUnit.module("creme.form.Field", new QUnitMixin(QUnitEventMixin,
             'field-change': this.mockListener('field-change'),
             'field-prop-change': this.mockListener('field-prop-change'),
             'field-reset': this.mockListener('field-reset'),
-            'field-invalid': this.mockListener('field-invalid')
+            'field-error': this.mockListener('field-error')
         });
     }
 }));
@@ -29,7 +29,6 @@ QUnit.test('creme.form.Field (defaults)', function() {
 
     equal(field.isValidHtml(), true);
     equal(field.isValid(), true);
-    equal(field.htmlErrorMessage(), '');
     equal(field.htmlErrorCode(), undefined);
     equal(field.errorMessage(), '');
     equal(field.errorCode(), undefined);
@@ -535,11 +534,24 @@ QUnit.parameterize('creme.form.Field (html5 validation)', [
     equal(field.htmlErrorCode(), errorCode);
     equal(input.is('.is-field-invalid'), false);
 
+    if (errorCode) {
+        deepEqual(field.error(), {
+            code: errorCode,
+            message: field.errorMessage()
+        });
+    } else {
+        equal(field.error(), null);
+    }
+
     // the class is set only AFTER manual html validation.
     field.validateHtml();
 
     equal(field.isValidHtml(), isvalid);
     equal(field.htmlErrorCode(), errorCode);
+
+    deepEqual([
+        ['field-error', [field, isvalid, field.error()]]
+    ], this.mockListenerJQueryCalls('field-error'));
 });
 
 QUnit.parameterize('creme.form.Field (html5 validation, data-err-*)', [
@@ -563,17 +575,24 @@ QUnit.parameterize('creme.form.Field (html5 validation, data-err-*)', [
         'typeMismatch',
         undefined
     ]
-], function(input, errorKey, customMessage, assert) {
+], function(input, errorCode, customMessage, assert) {
     var field = new creme.form.Field(input.appendTo(this.qunitFixture()));
 
     equal(field.isValidHtml(), false);
-    equal(field.htmlErrorCode(), errorKey);
+    equal(field.htmlErrorCode(), errorCode);
     equal(field.htmlErrorMessage(), input.get(0).validationMessage);
 
-    if (customMessage !== undefined) {
-        equal(field.errorMessage(), customMessage);
+    var expectedMessage = customMessage || input.get(0).validationMessage;
+
+    equal(field.errorMessage(), expectedMessage);
+
+    if (errorCode) {
+        deepEqual(field.error(), {
+            code: errorCode,
+            message: expectedMessage
+        });
     } else {
-        equal(field.errorMessage(), input.get(0).validationMessage);
+        equal(field.error(), null);
     }
 });
 
@@ -697,15 +716,15 @@ QUnit.parametrize('creme.form.Field (clean, invalid)', [
     [$('<input name="field-A" type="text" required/>'),
         false, 'valueMissing', '"field-A" is required !'
     ],
-    /* WTF : invalid value="notadate" means "" for the browser */
+    // WTF : invalid value="notadate" means "" for the browser
     [$('<input name="field-A" type="date" value="notadate" required/>'),
         false, 'valueMissing', '"field-A" is required !'
     ],
-    /* If we use the custom data-type, no pb */
+    // If we use the custom data-type, no pb
     [$('<input name="field-A" type="text" data-type="date" value="notadate"/>'),
         true, 'cleanMismatch', gettext('This value is not a valid "${dataType}"').template({dataType: 'date'})
     ],
-    /* Same for number */
+    // Same for number
     [$('<input name="field-A" type="text" data-type="number" value="NaN"/>'),
         true, 'cleanMismatch', gettext('This value is not a valid "${dataType}"').template({dataType: 'number'})
     ],
@@ -721,22 +740,39 @@ QUnit.parametrize('creme.form.Field (clean, invalid)', [
     [$('<input name="field-A" type="text" value="12:a" data-type="json" data-err-clean-mismatch="Invalid JSON"/>'),
         true, 'cleanMismatch', 'Invalid JSON'
     ]
-], function(input, valid, code, message, assert) {
+], function(input, isValidHtml, code, message, assert) {
     var field = new creme.form.Field(input.appendTo(this.qunitFixture()), {
         errorMessages: {
             valueMissing: '"${name}" is required !'
         }
     });
 
-    equal(field.isValidHtml(), valid);
-    equal(field.isValid(), valid);
+    equal(field.isValidHtml(), isValidHtml);
+    equal(field.isValid(), isValidHtml);
+
+    this.resetMockListenerCalls();
 
     this.assertRaises(function() {
         field.clean();
     }, Error, 'Error: ${expected}'.template({expected: message}));
 
     equal(field.isValidHtml(), false);
+    equal(field.isValid(), false);
     equal(field.errorCode(), code);
+    equal(field.errorMessage(), message);
+
+    // When html validity is check and returns "ok", the errorCode is reset to null
+    // and a field-error event is triggered
+    if (isValidHtml) {
+        deepEqual([
+            ['field-error', [field, true, null]],
+            ['field-error', [field, false, field.error()]]
+        ], this.mockListenerJQueryCalls('field-error'));
+    } else {
+        deepEqual([
+            ['field-error', [field, false, field.error()]]
+        ], this.mockListenerJQueryCalls('field-error'));
+    }
 });
 
 QUnit.test('creme.form.Field (clean, invalid, noThrow)', function(assert) {
