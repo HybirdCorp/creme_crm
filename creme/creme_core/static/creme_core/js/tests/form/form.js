@@ -370,30 +370,26 @@ QUnit.parametrize('creme.form.Form (clean, novalidate)', [
 
 QUnit.parametrize('creme.form.Form (clean, validators)', [
     [{}, {
-        cleanedData: {},
+        cleanedData: {clone: ''},
         data: {a: '', clone: ''},
         isValid: false,
         fieldErrors: {
-            a: {code: 'valueMissing', message: 'Not here !'},
-            clone: {code: 'valueMissing', message: 'Not here !'}
-        },
-        formError: 'One or both of the fields are empty'
+            a: {code: 'valueMissing', message: 'Not here !'}
+        }
     }],
     [{a: 'a'}, {
-        cleanedData: {a: 'a'},
+        cleanedData: {a: 'a', clone: ''},
         data: {a: 'a', clone: ''},
         isValid: false,
-        fieldErrors: {
-            clone: {code: 'valueMissing', message: 'Not here !'}
-        },
-        formError: 'One or both of the fields are empty'
+        fieldErrors: {},
+        errors: ['The clone field is empty']
     }],
     [{a: 'a', clone: 'b'}, {
         cleanedData: {a: 'a', clone: 'b'},
         data: {a: 'a', clone: 'b'},
         isValid: false,
         fieldErrors: {},
-        formError: "The fields aren't the same !"
+        errors: ["The fields aren't the same !"]
     }],
     [{a: 'a', clone: 'a'}, {
         cleanedData: {a: 'a', clone: 'a'},
@@ -405,20 +401,58 @@ QUnit.parametrize('creme.form.Form (clean, validators)', [
     var form = new creme.form.Form($(
         '<form>' +
             '<input name="a" required>' +
-            '<input name="clone" required>' +
+            '<input name="clone">' +
         '</form>'
-    ), {errorMessages: {valueMissing: 'Not here !'}});
-
-    form.validator(function(data) {
-        if (data.isValid) {
-            Assert.that(data.cleanedData['a'] === data.cleanedData['clone'],
-                        "The fields aren't the same !");
-        } else {
-            throw new Error('One or both of the fields are empty');
+    ), {
+        errorMessages: {
+            valueMissing: 'Not here !'
         }
     });
 
+    form.validator(function(data) {
+        Assert.not(Object.isEmpty(data.cleanedData['clone']), 'The clone field is empty');
+        Assert.that(data.cleanedData['a'] === data.cleanedData['clone'], "The fields aren't the same !");
+    });
+
     deepEqual(expected, form.data(data).clean({noThrow: true}));
+});
+
+QUnit.parametrize('creme.form.Form (clean, validators, field errors)', [
+    [$('<form><input name="field_a"></form>'), {
+        cleanedData: {field_a: ''},
+        data: {field_a: ''},
+        isValid: false,
+        fieldErrors: {
+            field_a: {
+                code: 'cleanMismatch',
+                message: 'The form said Not here !'
+            }
+        }
+    }],
+    [$('<form><input name="field_a" value="ok"></form>'), {
+        cleanedData: {field_a: 'ok'},
+        data: {field_a: 'ok'},
+        isValid: true,
+        fieldErrors: {}
+    }]
+], function(element, expected, assert) {
+    var form = new creme.form.Form(element, {
+        validator: function(data) {
+            if (Object.isEmpty(data.cleanedData.field_a)) {
+                return {
+                    fieldErrors: {
+                        field_a: {
+                            code: 'cleanMismatch',
+                            message: 'The form said Not here !'
+                        }
+                    }
+                };
+            }
+        }
+    });
+
+    deepEqual(expected, form.clean({noThrow: true}));
+    equal(form.isValidHtml(), expected.isValid);
 });
 
 QUnit.parametrize('creme.form.Form (preventBrowserTooltip)', [
