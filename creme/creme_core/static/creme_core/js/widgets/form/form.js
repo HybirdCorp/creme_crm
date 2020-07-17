@@ -180,7 +180,16 @@ creme.form.Form = creme.component.Component.sub({
     },
 
     validateHtml: function() {
-        return this.noValidate() ? true : this._element.get(0).checkValidity();
+        if (this.noValidate()) {
+            return true;
+        }
+
+        var valid = this.fields().every(function(field) {
+            return field.validateHtml();
+        });
+
+        this.trigger('validate', valid, this.errors());
+        return valid;
     },
 
     reset: function() {
@@ -232,53 +241,91 @@ creme.form.Form = creme.component.Component.sub({
 
         var data = this.data();
         var cleanedData = {};
-        var errors = {};
         var isValid = true;
         var noValidate = this.noValidate();
+        var fields = this.fields();
 
-        this.fields().forEach(function(field) {
+        fields.forEach(function(field) {
             var name = field.name();
 
             try {
                 cleanedData[name] = field.clean();
             } catch (e) {
-                if (noValidate === false) {
-                    isValid = false;
-                    __addRawEntry(errors, name, {
-                        code: field.errorCode(),
-                        message: field.errorMessage()
-                    });
-                }
+                isValid = noValidate;
             }
         });
 
-        var result = this._postValidate({
+        var output = {
             data: data,
             cleanedData: cleanedData,
             isValid: isValid,
-            fieldErrors: errors
-        });
+            fieldErrors: this.errors()
+        };
 
-        this.trigger('clean', result);
+        if (isValid) {
+            output = this._cleanFormData(output);
 
-        if (result.isValid || options.noThrow) {
-            return result;
+            fields.forEach(function(field) {
+                var error = output.fieldErrors[field.name()];
+
+                if (error && error.code) {
+                    field.error(error);
+                }
+            });
+
+            isValid = output.isValid = (Object.isEmpty(output.fieldErrors) && Object.isEmpty(output.errors)) || noValidate;
+        }
+
+        this.trigger('clean', output);
+
+        if (output.isValid || options.noThrow) {
+            return output;
         } else {
             var error = new Error('Form data is invalid');
-            error.output = result;
+            error.output = output;
             throw error;
         }
     },
 
-    _postValidate: function(options) {
+    _cleanFormData: function(data) {
+        var output = {};
+
         try {
-            this._validator.bind(this)(options);
+            output = this._validator.bind(this)(data);
         } catch (e) {
-            options.isValid = false;
-            options.formError = e.message;
+            output.errors = [e.message];
         }
 
-        return options;
+        return $.extend({}, data, output);
+    },
+
+    errors: function(errors) {
+        if (errors !== undefined) {
+            this.fields().forEach(function(field) {
+                var error = errors[field.name()];
+
+                if (error) {
+                    field.error(error);
+                }
+            });
+
+            return this;
+        }
+
+        var output = {};
+
+        if (this.noValidate() === false) {
+            this.fields().forEach(function(field) {
+                if (!field.isValid()) {
+                    __addRawEntry(output, field.name(), {
+                        code: field.errorCode(),
+                        message: field.errorMessage()
+                    });
+                }
+            });
+        }
+
+        return output;
     },
 
     _boundField: function(field) {
