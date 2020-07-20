@@ -2101,22 +2101,33 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertIsNone(self.refresh(rb_item).get_cells(ct))
 
     def test_delete_relationbrick(self):
-        self.login()
+        user = self.login()
         rt = RelationType.create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
         rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
-        loc = BrickDetailviewLocation.objects.create_if_needed(
-            brick=rbi.brick_id, order=5,
-            zone=BrickDetailviewLocation.RIGHT,
-            model=FakeContact,
+
+        brick_id = rbi.brick_id
+
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
         )
+        loc1 = create_bdl(brick=brick_id,           order=5)
+        loc2 = create_bdl(brick=CompleteBrick1.id_, order=6)
+
+        create_state = partial(BrickState.objects.create, user=user)
+        state1 = create_state(brick_id=brick_id)
+        state2 = create_state(brick_id=CompleteBrick1.id_)
 
         self.assertPOST200(reverse('creme_config__delete_rtype_brick'), data={'id': rbi.id})
         self.assertDoesNotExist(rbi)
-        self.assertDoesNotExist(loc)
+        self.assertDoesNotExist(loc1)
+        self.assertStillExists(loc2)
+        self.assertDoesNotExist(state1)
+        self.assertStillExists(state2)
 
     def test_delete_instancebrick(self):
         user = self.login()
