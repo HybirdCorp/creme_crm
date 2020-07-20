@@ -424,6 +424,7 @@ class RelationBrickItem(CremeModel):
 
     def delete(self, *args, **kwargs):
         BrickDetailviewLocation.objects.filter(brick_id=self.brick_id).delete()
+        BrickState.objects.filter(brick_id=self.brick_id).delete()
 
         super().delete(*args, **kwargs)
 
