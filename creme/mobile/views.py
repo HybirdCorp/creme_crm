@@ -367,11 +367,10 @@ def activities_portal(request):
         status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED),
     ).order_by('start')
 
-    phone_calls = cred_filter(
-        activities.filter(type=act_constants.ACTIVITYTYPE_PHONECALL,
-                          start__lte=now_val,
-                         )
-    )[:10]
+    phone_calls = cred_filter(activities.filter(
+        type=act_constants.ACTIVITYTYPE_PHONECALL,
+        start__lte=now_val,
+    ))[:10]
 
     floating_qs = cred_filter(
         activities.filter(floating_type=act_constants.FLOATING).order_by('title')

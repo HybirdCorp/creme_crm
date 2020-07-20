@@ -275,7 +275,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         def create_pc(participant=contact, **kwargs):
             return self._create_pcall(
-                title='Pcall#{}'.format(next(i)), participant=participant, **kwargs
+                title=f'Pcall#{next(i)}', participant=participant, **kwargs
             )
 
         pc1 = create_pc(start=yesterday, status_id=STATUS_PLANNED)
@@ -297,7 +297,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
                 create_pc(
                     start=now_val - timedelta(hours=23, minutes=60 - minute),
                     participant=contact,
-                ) for minute in range(8)
+                ) for minute in range(1, 9)
             ),
         ]
 
@@ -314,9 +314,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         create_floating('Floating #6', contact, status_id=STATUS_CANCELLED)
 
         # Tomorrow activities --------------------------------------------------
-        create_m = partial(self._create_meeting, participant=contact,
-                           start=now_val + timedelta(hours=23 if now_val.hour >= 1 else 24),
-                          )
+        create_m = partial(
+            self._create_meeting, participant=contact,
+            start=now_val + timedelta(hours=23 if now_val.hour >= 1 else 24),
+        )
         tom2 = create_m('Meeting #1')
         create_m('Meeting #2', participant=other_contact)
         create_m('Meeting #3', start=now_val + timedelta(days=2))
