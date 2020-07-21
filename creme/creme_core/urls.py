@@ -27,7 +27,7 @@ entity_patterns = [
         r'^delete/multi[/]?$',
         # entity.delete_entities,
         entity.EntitiesDeletion.as_view(),
-        name='creme_core__delete_entities'
+        name='creme_core__delete_entities',
     ),
     re_path(
         r'^delete/(?P<entity_id>\d+)[/]?$',

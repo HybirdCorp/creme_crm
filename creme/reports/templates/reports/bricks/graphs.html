@@ -78,7 +78,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'reports' as admin_perm %}{% url 'creme_core__delete_entities' as delete_multi_url %}
+{% has_perm_to admin 'reports' as admin_perm %}{# {% url 'creme_core__delete_entities' as delete_multi_url %} #}
 {% widget_icon name='expandme' label=_('Expand') size='brick-table-action' class='graph-row-toggle-icon graph-row-expand' as expand_icon %}
 {% widget_icon name='expanded' label=_('Close') size='brick-table-action' class='graph-row-toggle-icon graph-row-collapse' as collapse_icon %}
     {% for graph in page.object_list %}
@@ -99,8 +99,9 @@
             {% brick_table_action id='edit' url=edition_url enabled=graph_edit_perm %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% has_perm_to delete graph as graph_delete_perm %}
-            {% brick_table_action id='delete' url=delete_multi_url __ids=graph.id label=_('Delete this graph') enabled=graph_delete_perm %}
+            {% has_perm_to delete graph as graph_delete_perm %}{% url 'creme_core__delete_entity' graph.id as delete_url %}
+{#            {% brick_table_action id='delete' url=delete_multi_url __ids=graph.id label=_('Delete this graph') enabled=graph_delete_perm %} #}
+            {% brick_table_action id='delete' url=delete_url label=_('Delete this graph') enabled=graph_delete_perm %}
         </td>
     </tr>
     <tr data-graph-chart="{{graph.chart|default:''}}" data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed">
