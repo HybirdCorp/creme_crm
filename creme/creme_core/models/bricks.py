@@ -209,6 +209,75 @@ class BrickDetailviewLocation(CremeModel):
             )
         )
 
+    # def __str__(self):
+    #     # TODO: @property "brick" ??
+    #     from ..gui.bricks import brick_registry  # TODO: in attribute ?
+    #
+    #     brick = next(brick_registry.get_bricks((self.brick_id,)))
+    #     ct = self.content_type
+    #
+    #     if ct is None:
+    #         return gettext(
+    #             'Default block configuration for detail-views uses «{block}»'
+    #         ).format(block=brick.verbose_name)
+    #
+    #     if self.role:
+    #         return gettext(
+    #             'Block configuration for detail-views of «{model}» '
+    #             'for role «{role}» uses «{block}»'
+    #         ).format(
+    #             model=ct,
+    #             role=self.role,
+    #             block=brick.verbose_name,
+    #         )
+    #
+    #     if self.superuser:
+    #         return gettext(
+    #             'Block configuration for detail-views of «{model}» '
+    #             'for superusers uses «{block}»'
+    #         ).format(
+    #             model=ct,
+    #             block=brick.verbose_name,
+    #         )
+    #
+    #     return gettext(
+    #         'Block configuration for detail-views of «{model}» uses «{block}»'
+    #     ).format(
+    #         model=ct,
+    #         block=brick.verbose_name,
+    #     )
+    def __str__(self):
+        # TODO: @property "brick" ?? (or method to pass registry)
+        from ..gui.bricks import brick_registry  # TODO: in attribute ?
+
+        ct = self.content_type
+        role = self.role
+
+        if ct is None:
+            msg = gettext(
+                'Default block configuration for detail-views uses «{block}»'
+            )
+        elif role:
+            msg = gettext(
+                'Block configuration for detail-views of «{model}» '
+                'for role «{role}» uses «{block}»'
+            )
+        elif self.superuser:
+            msg = gettext(
+                'Block configuration for detail-views of «{model}» '
+                'for superusers uses «{block}»'
+            )
+        else:
+            msg = gettext(
+                'Block configuration for detail-views of «{model}» uses «{block}»'
+            )
+
+        return msg.format(
+            model=ct,
+            role=role,
+            block=next(brick_registry.get_bricks((self.brick_id,))).verbose_name,
+        )
+
     # @staticmethod
     # def create_if_needed(brick_id, order, zone, model=None, role=None):
     #     """Create an instance of BrickDetailviewLocation, but if only if the related
@@ -294,7 +363,28 @@ class BrickHomeLocation(CremeModel):
         )
 
     def __str__(self):
-        return repr(self)
+        # return repr(self)
+        # TODO: see remark in BrickDetailviewLocation.__str__
+        #  (+ see uses of {% brick_get_by_ids %}
+        from ..gui.bricks import brick_registry
+
+        role = self.role
+
+        if role:
+            msg = gettext(
+                'Block configuration of Home for role «{role}» uses «{block}»'
+            )
+        elif self.superuser:
+            msg = gettext(
+                'Block configuration of Home for superusers uses «{block}»'
+            )
+        else:
+            msg = gettext('Block configuration of Home uses «{block}»')
+
+        return msg.format(
+            role=role,
+            block=next(brick_registry.get_bricks((self.brick_id,))).verbose_name,
+        )
 
     @property
     def brick_verbose_name(self):
@@ -319,6 +409,22 @@ class BrickMypageLocation(CremeModel):
 
     def __repr__(self):
         return f'BrickMypageLocation(id={self.id}, user={self.user_id})'
+
+    def __str__(self):
+        # TODO: see remark in BrickDetailviewLocation.__str__
+        from ..gui.bricks import brick_registry
+
+        user = self.user
+        msg = gettext(
+            'Block configuration of "My page" for «{user}» uses «{block}»'
+        ) if user else gettext(
+            'Default block configuration of "My page" uses «{block}»'
+        )
+
+        return msg.format(
+            user=user,
+            block=next(brick_registry.get_bricks((self.brick_id,))).verbose_name,
+        )
 
     @classmethod
     def _copy_default_config(cls, sender, instance, created, **kwargs):
