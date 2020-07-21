@@ -2513,7 +2513,7 @@ class BricksConfigTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(FakeContact)
         cbci = CustomBrickConfigItem.objects.create(content_type=ct, name='Info')
         loc = BrickDetailviewLocation.objects.create_if_needed(
-            brick=cbci.generate_id(), order=5,
+            brick=cbci.brick_id, order=5,
             model=FakeContact,
             zone=BrickDetailviewLocation.RIGHT,
         )

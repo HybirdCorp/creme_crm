@@ -477,7 +477,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
         brick = bricks[2]
         self.assertIsInstance(brick, CustomBrick)
-        self.assertEqual(cbci.generate_id(), brick.id_)
+        self.assertEqual(cbci.brick_id, brick.id_)
 
         brick = bricks[3]
         self.assertIsInstance(brick, FoobarInstanceBrick1)
@@ -781,7 +781,7 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry.register(QuuxBrick1)
 
         bricks = [
-            *brick_registry.get_bricks([QuuxBrick1.id_, rbi.brick_id, cbci.generate_id()]),
+            *brick_registry.get_bricks([QuuxBrick1.id_, rbi.brick_id, cbci.brick_id]),
         ]
         self.assertEqual(3, len(bricks))
 
@@ -793,7 +793,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
         custom_brick = bricks[2]
         self.assertIsInstance(custom_brick, CustomBrick)
-        self.assertEqual(cbci.generate_id(), custom_brick.id_)
+        self.assertEqual(cbci.brick_id,      custom_brick.id_)
         self.assertEqual([FakeOrganisation], custom_brick.dependencies)
         self.assertEqual(cbci.name,          custom_brick.verbose_name)
 
@@ -1234,7 +1234,7 @@ class BrickTestCase(CremeTestCase):
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
 
-        cbrick = CustomBrick(cbci.generate_id(), cbci)
+        cbrick = CustomBrick(cbci.brick_id, cbci)
         self.assertEqual([FakeOrganisation], cbrick.dependencies)
         self.assertFalse(cbrick.relation_type_deps)
 
@@ -1251,7 +1251,7 @@ class BrickTestCase(CremeTestCase):
                   ],
         )
 
-        cbrick = CustomBrick(cbci.generate_id(), cbci)
+        cbrick = CustomBrick(cbci.brick_id, cbci)
         self.assertEqual([FakeOrganisation, Relation], cbrick.dependencies)
         self.assertEqual([rtype.id], cbrick.relation_type_deps)
 

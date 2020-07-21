@@ -313,7 +313,7 @@ class Populator(BasePopulator):
                         'zone': BrickDetailviewLocation.HAT,
                     },
 
-                    {'brick': cbci.generate_id(),            'order':   5},
+                    {'brick': cbci.brick_id,                 'order':   5},
                     {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
                     {'brick': bricks.BusinessManagersBrick,  'order':  60},
                     {'brick': bricks.LinkedContactsBrick,    'order':  62},

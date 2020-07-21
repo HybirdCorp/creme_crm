@@ -85,6 +85,7 @@
                 - In 'bricks' :
                     - The property 'BrickHomeLocation.brick_verbose_name' is deprecated.
                     - The property 'BrickMypageLocation.brick_verbose_name' is deprecated.
+                    - The method 'CustomBrickConfigItem.generate_id()' is deprecated ; use the property "brick_id" instead.
                     - The method 'InstanceBrickConfigItem.errors()' is deprecated ; use 'InstanceBrickConfigItem.brick.errors' instead.
                 - In 'search' :
                     - The method 'SearchConfigItem.create_if_needed()' is deprecated ; use 'SearchConfigItem.objects.create_if_needed()' instead.

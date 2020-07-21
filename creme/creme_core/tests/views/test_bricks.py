@@ -84,15 +84,17 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNone(bstate.pk)
 
         # ---
-        self.assertPOST200(self.SET_STATE_URL,
-                           data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
-                          )
+        self.assertPOST200(
+            self.SET_STATE_URL,
+            data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
+        )
         self.assertFalse(BrickState.objects.all())
 
         # ---
-        self.assertPOST200(self.SET_STATE_URL,
-                           data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 0},
-                          )
+        self.assertPOST200(
+            self.SET_STATE_URL,
+            data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 0},
+        )
         bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
         self.assertTrue(bstate.is_open)
         self.assertFalse(bstate.show_empty_fields)
@@ -104,9 +106,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_id = RelationsBrick.id_
         BrickState.objects.get_for_brick_id(brick_id=brick_id, user=other_user).save()
 
-        self.client.post(self.SET_STATE_URL,
-                         data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0},
-                        )
+        self.client.post(
+            self.SET_STATE_URL,
+            data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0},
+        )
 
         bstates = BrickState.objects.filter(brick_id=brick_id)
         user_bstates  = [bstate for bstate in bstates if bstate.user == user]
@@ -185,9 +188,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
         )
         self.assertEqual('application/json', response['Content-Type'])
+
+        fmt = self.TestBrick.string_format_detail
         self.assertListEqual(
-            [[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)],
-             [FoobarBrick2.id_, self.TestBrick.string_format_detail(FoobarBrick2.id_)],
+            [
+                [FoobarBrick1.id_, fmt(FoobarBrick1.id_)],
+                [FoobarBrick2.id_, fmt(FoobarBrick2.id_)],
             ],
             response.json()
         )
@@ -281,11 +287,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick)
 
-        self.assertGET200(reverse('creme_core__reload_bricks'),
-                          data={'brick_id': FoobarBrick.id_,
-                                'extra_data': '{%s: ' % FoobarBrick.id_,
-                               },
-                         )
+        self.assertGET200(
+            reverse('creme_core__reload_bricks'),
+            data={
+                'brick_id': FoobarBrick.id_,
+                'extra_data': '{%s: ' % FoobarBrick.id_,
+            },
+        )
         self.assertIsNone(received_extra_data)
         self.assertIsNotNone(error)
 
@@ -352,12 +360,14 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         fmt = self.TestBrick.string_format_detail
-        self.assertEqual([[FoobarBrick1.id_, fmt(FoobarBrick1.id_)],
-                          [FoobarBrick2.id_, fmt(FoobarBrick2.id_)],
-                          [FoobarBrick3.id_, fmt(FoobarBrick3.id_)],
-                         ],
-                         response.json()
-                        )
+        self.assertEqual(
+            [
+                [FoobarBrick1.id_, fmt(FoobarBrick1.id_)],
+                [FoobarBrick2.id_, fmt(FoobarBrick2.id_)],
+                [FoobarBrick3.id_, fmt(FoobarBrick3.id_)],
+            ],
+            response.json()
+        )
         self.assertEqual(atom, FoobarBrick1.contact)
         self.assertEqual(atom, FoobarBrick2.contact)
         self.assertEqual(atom, FoobarBrick3.contact)
@@ -375,9 +385,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_registry.register(FoobarBrick)
 
-        self.assertGET403(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-                          data={'brick_id': FoobarBrick.id_},
-                         )
+        self.assertGET403(
+            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+            data={'brick_id': FoobarBrick.id_},
+        )
 
     def test_reload_detailview04(self):
         "Not superuser"
@@ -412,11 +423,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
-        response = self.assertGET200(reverse('creme_core__reload_detailview_bricks',
-                                             args=(atom.id,),
-                                            ),
-                                     data={'brick_id': 'test_bricks_reload_detailview05'},
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+            data={'brick_id': 'test_bricks_reload_detailview05'},
+        )
         self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual([], response.json())
 
@@ -485,15 +495,21 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         tenma = create_contact(first_name='Dr',   last_name='Tenma')
         uran  = create_contact(first_name='Uran', last_name='Ochanomizu')
 
-        rtype1 = RelationType.create(('test-subject_son',   'is the son of'),
-                                     ('test-object_father', 'is the father of')
-                                    )[0]
-        Relation.objects.create(subject_entity=atom, type=rtype1, object_entity=tenma, user=user)
+        rtype1 = RelationType.create(
+            ('test-subject_son',   'is the son of'),
+            ('test-object_father', 'is the father of')
+        )[0]
+        Relation.objects.create(
+            subject_entity=atom, type=rtype1, object_entity=tenma, user=user,
+        )
 
-        rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
-                                     ('test-object_sister',   'is the sister of')
-                                    )[0]
-        Relation.objects.create(subject_entity=atom, type=rtype2, object_entity=uran, user=user)
+        rtype2 = RelationType.create(
+            ('test-subject_brother', 'is the brother of'),
+            ('test-object_sister',   'is the sister of')
+        )[0]
+        Relation.objects.create(
+            subject_entity=atom, type=rtype2, object_entity=uran, user=user,
+        )
 
         response = self.assertGET200(atom.get_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/bricks/relations.html')
@@ -511,21 +527,24 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
         rbrick_id = RelationsBrick.id_
 
-        rtype1 = RelationType.create(('test-subject_son',   'is the son of'),
-                                     ('test-object_father', 'is the father of')
-                                    )[0]
-        rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
-                                     ('test-object_sister',   'is the sister of')
-                                    )[0]
+        rtype1 = RelationType.create(
+            ('test-subject_son',   'is the son of'),
+            ('test-object_father', 'is the father of')
+        )[0]
+        rtype2 = RelationType.create(
+            ('test-subject_brother', 'is the brother of'),
+            ('test-object_sister',   'is the sister of')
+        )[0]
         rbi = RelationBrickItem.objects.create_if_needed(rtype1)
 
         BrickDetailviewLocation.objects.create_for_model_brick(
             order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact,
         )
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
-                             zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
+        )
         create_bdl(brick=rbi.brick_id, order=2)
         create_bdl(brick=rbrick_id,    order=3)
 
@@ -546,9 +565,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         rel_brick_node = self.get_brick_node(document, rbrick_id)
 
         reloading_info = {'include': [rtype1.id]}
-        self.assertEqual(json_dump(reloading_info, separators=(',', ':')),
-                         rel_brick_node.attrib.get('data-brick-reloading-info')
-                        )
+        self.assertEqual(
+            json_dump(reloading_info, separators=(',', ':')),
+            rel_brick_node.attrib.get('data-brick-reloading-info')
+        )
         self.assertInstanceLink(rel_brick_node, tenma)
         self.assertInstanceLink(rel_brick_node, uran)
 
@@ -581,22 +601,25 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
         rbrick_id = RelationsBrick.id_
 
-        rtype1 = RelationType.create(('test-subject_son',   'is the son of'),
-                                     ('test-object_father', 'is the father of'),
-                                     minimal_display=(True, True),
-                                    )[0]
-        rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
-                                     ('test-object_sister',   'is the sister of')
-                                    )[0]
+        rtype1 = RelationType.create(
+            ('test-subject_son',   'is the son of'),
+            ('test-object_father', 'is the father of'),
+            minimal_display=(True, True),
+        )[0]
+        rtype2 = RelationType.create(
+            ('test-subject_brother', 'is the brother of'),
+            ('test-object_sister',   'is the sister of')
+        )[0]
         rbi = RelationBrickItem.objects.create_if_needed(rtype1)
 
         BrickDetailviewLocation.objects.create_for_model_brick(
             order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact,
         )
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
-                             zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
+        )
         create_bdl(brick=rbi.brick_id, order=2)
         create_bdl(brick=rbrick_id,    order=3)
 
@@ -620,9 +643,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoInstanceLink(rel_brick_node, tenma)
 
         reloading_info = {'exclude': [rtype1.id]}
-        self.assertEqual(json_dump(reloading_info, separators=(',', ':')),
-                         rel_brick_node.attrib.get('data-brick-reloading-info')
-                        )
+        self.assertEqual(
+            json_dump(reloading_info, separators=(',', ':')),
+            rel_brick_node.attrib.get('data-brick-reloading-info')
+        )
 
         # Reloading
         response = self.assertGET200(
@@ -672,9 +696,9 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_display_objectbrick01(self):
         user = self.login()
-        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
-                                          first_name='Naru', phone='1122334455',
-                                         )
+        naru = FakeContact.objects.create(
+            user=user, last_name='Narusegawa', first_name='Naru', phone='1122334455',
+        )
 
         # content_node = self._get_contact_brick_content(
         #     naru, brick_id='modelblock_creme_core-fakecontact')
@@ -717,12 +741,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         cbc_item = CustomBrickConfigItem.objects.create(
             id='tests-contacts1', name='Contact info',
             content_type=FakeContact,
-            cells=[build_cell(FakeContact, fname1),
-                   build_cell(FakeContact, fname2),
-                  ],
+            cells=[
+                build_cell(FakeContact, fname1),
+                build_cell(FakeContact, fname2),
+            ],
         )
         bdl = BrickDetailviewLocation.objects.create_if_needed(
-            brick=cbc_item.generate_id(),
+            brick=cbc_item.brick_id,
             order=1000,
             model=FakeContact,
             zone=BrickDetailviewLocation.BOTTOM,
@@ -754,12 +779,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         cbc_item = CustomBrickConfigItem.objects.create(
             id='tests-contacts1', name='Contact info',
             content_type=FakeContact,
-            cells=[build_cell(FakeContact, 'last_name'),
-                   build_cell(FakeContact, hidden_fname),
-                  ],
+            cells=[
+                build_cell(FakeContact, 'last_name'),
+                build_cell(FakeContact, hidden_fname),
+            ],
         )
         bdl = BrickDetailviewLocation.objects.create_if_needed(
-            brick=cbc_item.generate_id(),
+            brick=cbc_item.brick_id,
             order=1000,
             model=FakeContact,
             zone=BrickDetailviewLocation.BOTTOM,
@@ -795,17 +821,17 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             ],
         )
         bdl = BrickDetailviewLocation.objects.create_if_needed(
-            brick=cbc_item.generate_id(),
+            brick=cbc_item.brick_id,
             order=1000,  # Should be the last block
             model=FakeContact,
             zone=BrickDetailviewLocation.BOTTOM,
         )
-        naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
-                                          first_name='Naru', phone='1122334455',
-                                         )
-        naru.address = FakeAddress.objects.create(value='Hinata Inn', city='Tokyo',
-                                                  zipcode='112233', entity=naru,
-                                                 )
+        naru = FakeContact.objects.create(
+            user=user, last_name='Narusegawa', first_name='Naru', phone='1122334455',
+        )
+        naru.address = FakeAddress.objects.create(
+            value='Hinata Inn', city='Tokyo', zipcode='112233', entity=naru,
+        )
         naru.save()
 
         content_node = self._get_contact_brick_content(naru, brick_id=bdl.brick_id)

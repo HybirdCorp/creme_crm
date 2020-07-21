@@ -369,7 +369,7 @@ class Populator(BasePopulator):
                 data=[
                     {'brick': bricks.OrganisationCardHatBrick, 'order': 1, 'zone': HAT},
 
-                    {'brick': cbci_orga_extra.generate_id(),    'order':   5},
+                    {'brick': cbci_orga_extra.brick_id,         'order':   5},
                     {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
                     {'brick': bricks.PrettyAddressesBrick,      'order':  50},
                     {'brick': bricks.PrettyOtherAddressesBrick, 'order':  60},
@@ -442,7 +442,7 @@ class Populator(BasePopulator):
                 data=[
                     {'brick': bricks.ContactCardHatBrick, 'order': 1, 'zone': HAT},
 
-                    {'brick': cbci_contact_extra.generate_id(), 'order':  30},
+                    {'brick': cbci_contact_extra.brick_id,      'order':  30},
                     {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
                     {'brick': bricks.PrettyAddressesBrick,      'order':  50},
                     {'brick': bricks.PrettyOtherAddressesBrick, 'order':  60},
