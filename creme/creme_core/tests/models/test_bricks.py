@@ -42,9 +42,11 @@ from ..base import CremeTestCase
 class BrickTestCase(CremeTestCase):
     class TestBrick01(Brick):
         id_ = Brick.generate_id('creme_core', 'test_models_bricks01')
+        verbose_name = 'First test block'
 
     class TestBrick02(Brick):
         id_ = Brick.generate_id('creme_core', 'test_models_bricks02')
+        verbose_name = 'Second test block'
 
     @classmethod
     def setUpClass(cls):
@@ -76,11 +78,13 @@ class BrickTestCase(CremeTestCase):
                 print(f'BrickTestCase: test-data backup problem with model={model} ({e})')
 
     def test_populate(self):
-        self.assertLessEqual({'modelblock', CustomFieldsBrick.id_, RelationsBrick.id_,
-                              PropertiesBrick.id_, HistoryBrick.id_,
-                              },
-                             {loc.brick_id for loc in self._bdl_backup}
-                            )
+        self.assertLessEqual(
+            {
+                'modelblock', CustomFieldsBrick.id_, RelationsBrick.id_,
+                PropertiesBrick.id_, HistoryBrick.id_,
+            },
+            {loc.brick_id for loc in self._bdl_backup}
+        )
         brick_id = HistoryBrick.id_
         self.assertIn(brick_id, {bpl.brick_id for bpl in self._bpl_backup})
         self.assertIn(brick_id, {bml.brick_id for bml in self._bml_backup if bml.user is None})
@@ -533,6 +537,137 @@ class BrickTestCase(CremeTestCase):
         # self.assertEqual(order2,       loc2.order)
         # self.assertEqual(zone2,        loc2.zone)
 
+    def test_detail_str(self):
+        TOP = BrickDetailviewLocation.TOP
+
+        # Default
+        loc1 = BrickDetailviewLocation.objects.create_if_needed(
+            brick=RelationsBrick, order=25, zone=TOP,
+        )
+        self.assertEqual(
+            _('Default block configuration for detail-views uses «{block}»').format(
+                block=RelationsBrick.verbose_name,
+            ),
+            str(loc1)
+        )
+
+        # For a model
+        loc2 = BrickDetailviewLocation.objects.create_if_needed(
+            brick=RelationsBrick, order=25, zone=TOP, model=FakeContact,
+        )
+        self.assertEqual(
+            _('Block configuration for detail-views of «{model}» uses «{block}»').format(
+                model='Test Contact',
+                block=RelationsBrick.verbose_name,
+            ),
+            str(loc2)
+        )
+
+        # For a role
+        role = UserRole.objects.create(name='Viewer')
+        loc3 = BrickDetailviewLocation.objects.create_if_needed(
+            brick=RelationsBrick, order=25, zone=TOP,
+            model=FakeContact, role=role,
+        )
+        self.assertEqual(
+            _(
+                'Block configuration for detail-views of «{model}» '
+                'for role «{role}» uses «{block}»'
+            ).format(
+                model='Test Contact',
+                role=role,
+                block=RelationsBrick.verbose_name,
+            ),
+            str(loc3)
+        )
+
+        # For superusers
+        loc4 = BrickDetailviewLocation.objects.create_if_needed(
+            brick=PropertiesBrick, order=25, zone=TOP,
+            model=FakeOrganisation, role='superuser',
+        )
+        self.assertEqual(
+            _(
+                'Block configuration for detail-views of «{model}» '
+                'for superusers uses «{block}»'
+            ).format(
+                model='Test Organisation',
+                block=PropertiesBrick.verbose_name,
+            ),
+            str(loc4)
+        )
+
+        # Unknown brick
+        loc5 = BrickDetailviewLocation.objects.create_if_needed(
+            brick='invalid', order=25, zone=TOP,
+        )
+        self.assertEqual(
+            _('Default block configuration for detail-views uses «{block}»').format(
+                block='BLOCK',
+            ),
+            str(loc5)
+        )
+
+    def test_home_str(self):
+        loc1 = BrickHomeLocation.objects.create(
+            brick_id=HistoryBrick.id_, order=1,
+        )
+        self.assertEqual(
+            _('Block configuration of Home uses «{block}»').format(
+                block=HistoryBrick.verbose_name,
+            ),
+            str(loc1)
+        )
+
+        # For role
+        role = UserRole.objects.create(name='Viewer')
+        loc2 = BrickHomeLocation.objects.create(
+            brick_id=HistoryBrick.id_, order=1, role=role,
+        )
+        self.assertEqual(
+            _('Block configuration of Home for role «{role}» uses «{block}»').format(
+                role=role,
+                block=HistoryBrick.verbose_name,
+            ),
+            str(loc2)
+        )
+
+        # For superusers
+        loc3 = BrickHomeLocation.objects.create(
+            brick_id=HistoryBrick.id_, order=1, superuser=True,
+        )
+        self.assertEqual(
+            _('Block configuration of Home for superusers uses «{block}»').format(
+                role=role,
+                block=HistoryBrick.verbose_name,
+            ),
+            str(loc3)
+        )
+
+    def test_mypage_str(self):
+        loc1 = BrickMypageLocation.objects.create(
+            brick_id=HistoryBrick.id_, order=1,
+        )
+        self.assertEqual(
+            _('Default block configuration of "My page" uses «{block}»').format(
+                block=HistoryBrick.verbose_name,
+            ),
+            str(loc1)
+        )
+
+        # For user
+        user = self.create_user()
+        loc2 = BrickMypageLocation.objects.create(
+            brick_id=HistoryBrick.id_, order=1, user=user,
+        )
+        self.assertEqual(
+            _('Block configuration of "My page" for «{user}» uses «{block}»').format(
+                user=user,
+                block=HistoryBrick.verbose_name,
+            ),
+            str(loc2)
+        )
+
     def test_mypage_new_user(self):
         brick_id = HistoryBrick.id_
         order = 3
@@ -593,9 +728,10 @@ class BrickTestCase(CremeTestCase):
     #     self.assertEqual(rbi, RelationBrickItem.create(rtype.id))
 
     def test_relation_brick01(self):
-        rtype = RelationType.create(('test-subject_loves', 'loves'),
-                                    ('test-object_loved',  'is loved by')
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loved',  'is loved by')
+        )[0]
 
         rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
         self.assertIsInstance(rbi, RelationBrickItem)
