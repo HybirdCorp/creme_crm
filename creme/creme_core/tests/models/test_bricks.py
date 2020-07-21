@@ -933,6 +933,8 @@ class BrickTestCase(CremeTestCase):
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
+        self.assertEqual(f'customblock-{cbci.id}', cbci.generate_id())
+        self.assertEqual(f'customblock-{cbci.id}', cbci.brick_id)
 
         cells = self.refresh(cbci).cells
         self.assertEqual(1, len(cells))
@@ -994,7 +996,7 @@ class BrickTestCase(CremeTestCase):
             content_type=FakeContact, name='Info',
         )
         loc = BrickDetailviewLocation.objects.create_if_needed(
-            brick=cbci.generate_id(), order=5,
+            brick=cbci.brick_id, order=5,
             model=FakeContact,
             zone=BrickDetailviewLocation.RIGHT,
         )

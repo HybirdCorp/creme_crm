@@ -486,7 +486,7 @@ class Populator(BasePopulator):
             for model, cbci, has_credit_notes in models_4_blocks:
                 data = [
                     # LEFT
-                    {'brick': cbci.generate_id(),                    'order':   5},
+                    {'brick': cbci.brick_id,                         'order':   5},
                     {'brick': core_bricks.CustomFieldsBrick,         'order':  40},
                     {'brick': bricks.BillingPaymentInformationBrick, 'order':  60},
                     {'brick': bricks.BillingPrettyAddressBrick,      'order':  70},

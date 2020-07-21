@@ -198,7 +198,7 @@ class Populator(BasePopulator):
             BrickDetailviewLocation.objects.multi_create(
                 defaults={'model': EntityEmail, 'zone': LEFT},
                 data=[
-                    {'brick': cbci_email.generate_id(),      'order':   5},
+                    {'brick': cbci_email.brick_id,           'order':   5},
                     {'brick': bricks.EmailHTMLBodyBrick,     'order':  20},
                     {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
                     {'brick': core_bricks.PropertiesBrick,   'order': 450},
@@ -240,7 +240,7 @@ class Populator(BasePopulator):
             BrickDetailviewLocation.objects.multi_create(
                 defaults={'model': EmailTemplate, 'zone': LEFT},
                 data=[
-                    {'brick': cbci_template.generate_id(),   'order':   5},
+                    {'brick': cbci_template.brick_id,        'order':   5},
                     {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
                     {'brick': bricks.AttachmentsBrick,       'order':  60},
                     {'brick': bricks.TemplateHTMLBodyBrick,  'order':  70},

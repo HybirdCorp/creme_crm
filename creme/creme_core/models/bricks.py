@@ -902,6 +902,10 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
     def __str__(self):
         return self.name
 
+    @property
+    def brick_id(self) -> str:
+        return f'customblock-{self.id}'
+
     @atomic
     def delete(self, *args, **kwargs):
         brick_id = self.generate_id()
@@ -912,9 +916,14 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
         super().delete(*args, **kwargs)
 
-    # TODO: property brick_id ?
     def generate_id(self) -> str:
-        return f'customblock-{self.id}'
+        warnings.warn(
+            'CustomBrickConfigItem.generate_id() is deprecated ; '
+            'use the property CustomBrickConfigItem.brick_id instead.'
+        )
+
+        # return f'customblock-{self.id}'
+        return self.brick_id
 
     @staticmethod
     def id_from_brick_id(brick_id: str) -> Optional[str]:

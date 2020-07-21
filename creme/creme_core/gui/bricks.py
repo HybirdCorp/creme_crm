@@ -886,7 +886,7 @@ class _BrickRegistry:
                                               .prefetch_related('entity')
         } if instance_ids else {}
         custom_bricks_items = {
-            cbci.generate_id(): cbci
+            cbci.brick_id: cbci
             for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_ids)
         } if custom_ids else {}
 
@@ -1025,7 +1025,7 @@ class _BrickRegistry:
             for cbci in CustomBrickConfigItem.objects.filter(
                     content_type=ContentType.objects.get_for_model(model),
             ):
-                yield CustomBrick(cbci.generate_id(), cbci)
+                yield CustomBrick(cbci.brick_id, cbci)
         else:
             yield EntityBrick()
 
