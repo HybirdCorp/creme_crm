@@ -18,7 +18,18 @@ from .views import (
 )
 
 urlpatterns = [
-    re_path(r'^generate_pdf/(?P<base_id>\d+)[/]?$', export.export_as_pdf, name='billing__export'),
+    re_path(
+        r'^exporter/(?P<ct_id>\d+)[/]?$',
+        export.ExporterConfigEditionWizard.as_view(),
+        name='billing__edit_exporter_config',
+    ),
+    re_path(
+        # r'^generate_pdf/(?P<base_id>\d+)[/]?$',
+        r'^export/(?P<entity_id>\d+)[/]?$',
+        # export.export_as_pdf,
+        export.Export.as_view(),
+        name='billing__export',
+    ),
 
     re_path(r'^payment_information/', include([
         re_path(r'^add/(?P<orga_id>\d+)[/]?$',

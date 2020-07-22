@@ -384,4 +384,27 @@ th.bline-item {
     width: 100%;
 }
 
+.billing-exporters-brick .billing-exporter-empty,
+.billing-exporters-brick .billing-exporter-error {
+    font-style: italic;
+    color: #f08080;
+}
+
 /* Bricks - end */
+
+/* Forms */
+
+.billing-exporter-select .billing-exporter-choice .billing-exporter-choice-images {
+    padding-left: 20px;
+}
+
+.billing-exporter-select .billing-exporter-choice .billing-exporter-choice-label {
+    padding-left: 50px;
+
+    opacity: .7;
+
+    font-size: 15px;
+    font-style: italic;
+}
+
+/* Forms - end */

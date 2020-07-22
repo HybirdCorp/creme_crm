@@ -1,0 +1,48 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n media creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} billing-exporters-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Exporters') %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Type') status='primary' %}
+    {% brick_table_column title=_('Exporter') %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for config_item in config_items %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{config_item.content_type}}</td>
+        <td>
+            {% with exporter=config_item.exporter %}
+                {% if not config_item.engine_id %}
+                    <span class="billing-exporter-empty">{% trans 'Not configured' %}</span>
+                {% elif exporter == None %}
+                    <span class="billing-exporter-error">{% trans 'Invalid configuration' %}</span>
+                {% else %}
+                    <span class="billing-exporter-name">{{exporter.verbose_name}}</span>
+                    <div class="billing-exporter-screenshots">
+                        {% for img_src in exporter.screenshots %}
+                        <a onclick="creme.dialogs.image('{% media_url img_src %}').open();">
+                            <img style="max-width:200px;max-height:200px;" src="{% media_url img_src %}"/>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </td>
+
+        <td {% brick_table_data_status action %}>{% url 'billing__edit_exporter_config' config_item.content_type_id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this configuration') %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No model configured for export ; see with your administrator if you want to add one.' %}
+{% endblock %}

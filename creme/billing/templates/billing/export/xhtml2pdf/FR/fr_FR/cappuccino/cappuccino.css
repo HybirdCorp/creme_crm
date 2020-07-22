@@ -1,0 +1,255 @@
+{% with dark_coffee='#7b3b15' light_coffee='#957460' %}
+
+@page {
+    /* 842pt x 595pt */
+    size: a4 portrait;
+
+    @frame content_frame {
+        left: 36pt;
+        top: 36pt;
+
+        /* 595 - 36 * 2 */
+        width: 523pt;
+
+        /* 842 - 36 - 50 (footer) - 20 (footer margin) */
+        height: 736pt;
+
+        /* for debugging the layout */
+        /* -pdf-frame-border: 1; */
+    }
+
+    @frame footer_frame {
+        -pdf-frame-content: footer_content;
+        /* -pdf-frame-border: 1; */
+
+        left: 36pt;
+        bottom: 5pt;
+
+        width: 523pt;
+        height: 50pt;
+    }
+}
+
+
+html {
+    color: black;
+/*    font-family: OpenSans; TODO?? */
+    font-family: Helvetica;
+    font-size: 11pt;
+    line-height: 1.6em;
+}
+
+body {
+    margin: 0;
+}
+
+/* Header */
+
+.header {
+    margin-bottom: 20pt;
+}
+
+.header .logo {
+    width: 200pt;
+    height: 200pt;
+}
+
+.header .doc-title {
+    color: {{dark_coffee}};
+    font-size: 20pt;
+    text-align: right;
+}
+
+.header .doc-info ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+
+    text-align: right;
+}
+
+.header .doc-info .doc-info-key {
+    color: {{light_coffee}};
+    font-size: 10pt;
+}
+
+/* Header - end */
+
+/* Footer */
+
+.footer {
+    font-size: 9pt;
+    text-align: center
+}
+
+.footer .orga-info-key {
+    color: {{light_coffee}};
+}
+
+/* Footer - end */
+
+/* Addresses */
+.addresses {
+    margin-bottom: 20pt;
+}
+
+.addresses .address-from {
+    text-align: left;
+}
+
+.addresses .address-from span.address-name {
+    font-weight: bold;
+    /* text-transform: uppercase; */ /* would be cool.. => HTML */
+}
+
+.addresses .address-to {
+    text-align: right;
+}
+
+.addresses .address-to span.address-name {
+   font-weight: bold;
+   color: {{dark_coffee}};
+}
+
+/* Addresses - end */
+
+/* Lines */
+.lines {
+    margin-bottom: 50pt;
+}
+
+.lines thead tr,
+.total thead tr {
+    border-bottom-color: {{dark_coffee}};
+    border-bottom-style: solid;
+    border-bottom-width: 0.5pt;
+}
+
+.lines thead tr th,
+.total thead tr th {
+    font-size: 12pt;
+    font-weight: normal;
+}
+
+.lines thead tr .line-description,
+.lines tbody tr .line-description {
+    width: 40%;
+
+    text-align: left;
+}
+
+.lines thead tr .line-unit_price,
+.lines tbody tr .line-unit_price,
+.lines thead tr .line-quantity,
+.lines tbody tr .line-quantity,
+.lines thead tr .line-price,
+.lines tbody tr .line-price {
+    text-align: right;
+}
+
+.lines thead tr .line-unit_price {
+    width: 25%;
+}
+
+.lines thead tr .line-quantity {
+    width: 15%;
+}
+
+.lines thead tr .line-price {
+    width: 20%;
+}
+
+.lines tbody tr {
+    /* height: 30pt; */
+    min-height: 30pt;
+    padding-top: 5pt;
+}
+
+.lines tbody tr .line-description {
+    line-height: 0.5em;
+}
+
+.lines tbody tr .line-description .line-description-comment {
+    font-size: 8pt;
+}
+
+.lines tbody tr .line-price {
+    color: {{dark_coffee}};
+    font-weight: bold;
+}
+
+/* Lines - end */
+
+/* Total */
+
+.total {
+    margin-bottom: 40pt;
+
+    /* page-break-before: always; */
+}
+
+/* DOES NOT WORK :(
+.total tbody {
+    page-break-before: avoid;
+}
+*/
+
+.total tbody tr {
+    font-size: 17pt;
+    height: 40pt;
+    padding-top: 5pt;
+}
+
+.total thead tr .total-excluded,
+.total tbody tr .total-excluded {
+    text-align: left;
+}
+
+.total thead tr .total-included {
+    text-align: right;
+}
+
+.total tbody tr .total-vat {
+    text-align: center;
+}
+
+.total tbody tr .total-included {
+    color: {{dark_coffee}};
+    font-weight: bold;
+    text-align: right;
+}
+
+/* Total - end */
+
+/* Bank */
+
+.payment {
+    font-size: 8pt;
+    margin-top: 10pt;
+}
+
+.payment table {
+    text-align: center;
+}
+
+.payment table thead tr th {
+    color: {{light_coffee}};
+    font-weight: normal;
+}
+
+.payment table .bank-bank_code,
+.payment table .bank-counter_code,
+.payment table .bank-account_number,
+.payment table .bank-key {
+    border-right-color: {{light_coffee}};
+    border-right-style: solid;
+    border-right-width: 0.3pt;
+}
+
+.payment .legal-notice {
+    text-align: center;
+}
+
+/* Bank - end */
+
+{% endwith %}

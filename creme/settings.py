@@ -1042,6 +1042,22 @@ QUOTE_NUMBER_PREFIX = 'DE'
 INVOICE_NUMBER_PREFIX = 'FA'
 SALESORDER_NUMBER_PREFIX = 'BC'
 
+BILLING_EXPORTERS = [
+    'creme.billing.exporters.xls.XLSExportEngine',
+    'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
+
+    # You needed to install LateX on the server (the command "pdflatex" is run).
+    # Some extra packages may be needed to render correctly the themes
+    # (see FLAVOURS_INFO in 'creme/billing/exporters/latex.py')
+    # 'creme.billing.exporters.latex.LatexExportEngine',
+
+    # Need the package "weasyprint" (pip install weasyprint) (tested with weasyprint == 51).
+    # 'creme.billing.exporters.weasyprint.WeasyprintExportEngine',
+
+    # Other possibilities:
+    #   https://wkhtmltopdf.org/  => uses Qt WebKit
+]
+
 # OPPORTUNITIES ----------------------------------------------------------------
 OPPORTUNITIES_OPPORTUNITY_MODEL = 'opportunities.Opportunity'
 OPPORTUNITIES_OPPORTUNITY_FORCE_NOT_CUSTOM = False

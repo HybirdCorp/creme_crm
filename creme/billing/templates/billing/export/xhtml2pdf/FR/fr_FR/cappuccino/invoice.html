@@ -1,0 +1,15 @@
+{% extends 'billing/export/xhtml2pdf/FR/fr_FR/cappuccino/base.html' %}
+
+{% block doc_info %}
+    <li><span class="doc-info-key">DATE</span>: {{object.issuing_date}}</li>
+    <li><span class="doc-info-key">RÉGLEMENT</span>: {{object.payment_type|default:'À 30 jours'}}</li>
+    <li><span class="doc-info-key">BON DE CMD ACHETEUR</span>: {{object.buyers_order_number|default:'—'}}</li>
+{% endblock %}
+
+{% block payment %}
+    {{block.super}}
+    <p class="legal-notice">En cas de retard de paiement, seront exigibles, conformément à l’article L 441-6 du code de
+commerce, une indemnité calculée sur la base de trois fois le taux de l’intérêt légal en vigueur
+ainsi qu’une indemnité forfaitaire pour frais de recouvrement de 40 euros.</p>
+{% endblock %}
+

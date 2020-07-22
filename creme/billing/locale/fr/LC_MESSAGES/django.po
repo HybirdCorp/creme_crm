@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-07 18:13+0200\n"
+"POT-Creation-Date: 2020-08-18 15:05+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 msgid "Download"
 msgstr "Télécharger"
 
-#: actions.py:37 templates/billing/bricks/billing-hat-bar.html:8
+#: actions.py:37
 msgid "Download as PDF"
 msgstr "Télécharger en tant que PDF"
 
@@ -35,15 +35,15 @@ msgstr "Générer le numéro de facture"
 msgid "Do you really want to generate an invoice number?"
 msgstr "Voulez vous vraiment générer un numéro de facture ?"
 
-#: apps.py:29
+#: apps.py:31
 msgid "Billing"
 msgstr "Facturation"
 
-#: apps.py:186 apps.py:195
+#: apps.py:235 apps.py:244
 msgid "Management"
 msgstr "Gestion"
 
-#: apps.py:227
+#: apps.py:276
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} won"
@@ -51,123 +51,123 @@ msgid_plural "{count} won"
 msgstr[0] "{count} gagné"
 msgstr[1] "{count} gagnés"
 
-#: apps.py:240
+#: apps.py:289
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} in all"
 msgstr "{count} en tout"
 
-#: bricks.py:139 models/product_line.py:36
+#: bricks.py:141 models/product_line.py:36
 msgid "Product lines"
 msgstr "Lignes produit"
 
-#: bricks.py:151 models/service_line.py:36
+#: bricks.py:153 models/service_line.py:36
 msgid "Service lines"
 msgstr "Lignes service"
 
-#: bricks.py:165
+#: bricks.py:167
 msgid "Related Credit Notes"
 msgstr "Avoirs relatifs"
 
-#: bricks.py:177 models/credit_note.py:39
+#: bricks.py:179 models/credit_note.py:39
 msgid "Create a credit note"
 msgstr "Créer un avoir"
 
-#: bricks.py:194
+#: bricks.py:196
 msgid "Total"
 msgstr "Total"
 
-#: bricks.py:208 templates/billing/bricks/target.html:7
+#: bricks.py:210 templates/billing/bricks/target.html:7
 msgid "Target and source"
 msgstr "Cible et source"
 
-#: bricks.py:217
+#: bricks.py:219
 msgid "Received invoices"
 msgstr "Factures reçues"
 
-#: bricks.py:237 bricks.py:245
+#: bricks.py:239 bricks.py:247
 msgid "Received billing documents"
 msgstr "Documents comptables reçus"
 
-#: bricks.py:243
+#: bricks.py:245
 #, python-brace-format
 msgid "{count} Received billing document"
 msgstr "{count} Document comptable reçu"
 
-#: bricks.py:244
+#: bricks.py:246
 #, python-brace-format
 msgid "{count} Received billing documents"
 msgstr "{count} Documents comptables reçus"
 
-#: bricks.py:246
+#: bricks.py:248
 msgid "No received billing document for the moment"
 msgstr "Aucun document comptable reçu pour le moment"
 
-#: bricks.py:269 bricks.py:274
+#: bricks.py:271 bricks.py:276
 msgid "Received quotes"
 msgstr "Devis reçus"
 
-#: bricks.py:272
+#: bricks.py:274
 #, python-brace-format
 msgid "{count} Received quote"
 msgstr "{count} Devis reçu"
 
-#: bricks.py:273
+#: bricks.py:275
 #, python-brace-format
 msgid "{count} Received quotes"
 msgstr "{count} Devis reçus"
 
-#: bricks.py:275
+#: bricks.py:277
 msgid "No received quote for the moment"
 msgstr "Aucun devis reçu pour le moment"
 
-#: bricks.py:281 bricks.py:286
+#: bricks.py:283 bricks.py:288
 msgid "Received sales orders"
 msgstr "Bons de commande reçus"
 
-#: bricks.py:284
+#: bricks.py:286
 #, python-brace-format
 msgid "{count} Received sales order"
 msgstr "{count} Bon de commande reçu"
 
-#: bricks.py:285
+#: bricks.py:287
 #, python-brace-format
 msgid "{count} Received sales orders"
 msgstr "{count} Bons de commande reçus"
 
-#: bricks.py:287
+#: bricks.py:289
 msgid "No received sales order for the moment"
 msgstr "Aucun bon reçu pour le moment"
 
-#: bricks.py:293 bricks.py:298
+#: bricks.py:295 bricks.py:300
 msgid "Received credit notes"
 msgstr "Avoirs reçus"
 
-#: bricks.py:296
+#: bricks.py:298
 #, python-brace-format
 msgid "{count} Received credit note"
 msgstr "{count} Avoir reçu"
 
-#: bricks.py:297
+#: bricks.py:299
 #, python-brace-format
 msgid "{count} Received credit notes"
 msgstr "{count} Avoirs reçus"
 
-#: bricks.py:299
+#: bricks.py:301
 msgid "No received credit note for the moment"
 msgstr "Aucun avoir reçu pour le moment"
 
-#: bricks.py:304 models/base.py:123
+#: bricks.py:306 models/base.py:123
 #: templates/billing/bricks/billing-payment-information.html:7
 #: templates/billing/bricks/orga-payment-information.html:7
 msgid "Payment information"
 msgstr "Informations de paiement"
 
-#: bricks.py:324
+#: bricks.py:326
 msgid "Default payment information"
 msgstr "Information de paiement par défaut"
 
-#: bricks.py:366 templates/billing/bricks/persons-statistics.html:11
+#: bricks.py:397 templates/billing/bricks/persons-statistics.html:11
 msgid "Billing statistics"
 msgstr "Statistiques de facturation"
 
@@ -207,6 +207,30 @@ msgstr "Montant sur le total"
 msgid "Amount per unit"
 msgstr "Montant par unité"
 
+#: exporters/latex.py:81
+msgid ""
+"The generation of the PDF file has failed ; please contact your "
+"administrator."
+msgstr "La génération du PDF a échoué ; prévenez votre administrateur."
+
+#: exporters/xhtml2pdf.py:64
+msgid "An error happened while generating the PDF file."
+msgstr "Une erreur s'est produite pendant la génération du fichier PDF."
+
+#: exporters/xls.py:42
+msgid ".xls (data for template)"
+msgstr ".xls (données pour patron)"
+
+#: exporters/xls.py:131 forms/line.py:157
+#, python-brace-format
+msgid "{currency} per line"
+msgstr "{currency} sur le total"
+
+#: exporters/xls.py:134 forms/line.py:161
+#, python-brace-format
+msgid "{currency} per unit"
+msgstr "{currency} par unité"
+
 #: forms/base.py:64 forms/mass_import.py:64
 #: templates/billing/bricks/target.html:24
 msgctxt "billing"
@@ -239,6 +263,26 @@ msgstr "Adresse de livraison"
 #: forms/credit_note.py:54 models/credit_note.py:45
 msgid "Credit notes"
 msgstr "Avoirs"
+
+#: forms/export.py:64
+msgid "Agnostic (raw data)"
+msgstr "Agnostique (données brutes)"
+
+#: forms/export.py:245
+msgid "Localisation"
+msgstr "Localisation"
+
+#: forms/export.py:247
+msgid ""
+"You have to choose the country, because of the legal notices printed of the "
+"output document."
+msgstr ""
+"Vous devez choisir le pays, à cause des mentions légales imprimées sur le "
+"document sorti"
+
+#: forms/export.py:359
+msgid "Theme"
+msgstr "Thème"
 
 #: forms/fields.py:31
 msgid "Enter a number between 0 and 100 (it is a percentage)."
@@ -287,16 +331,6 @@ msgstr "Choix du ou des services"
 msgid "Optional global information applied to your selected services"
 msgstr ""
 "Informations complémentaires appliquables à votre sélection de services"
-
-#: forms/line.py:157
-#, python-brace-format
-msgid "{currency} per line"
-msgstr "{currency} sur le total"
-
-#: forms/line.py:161
-#, python-brace-format
-msgid "{currency} per unit"
-msgstr "{currency} par unité"
 
 #: forms/line.py:209
 msgid "Sub-category"
@@ -442,6 +476,10 @@ msgstr "Enregistrer l'avoir"
 #: models/credit_note.py:44
 msgid "Credit note"
 msgstr "Avoir"
+
+#: models/exporters.py:33
+msgid "Export configuration of: {}"
+msgstr "Configuration d'export pour : {}"
 
 #: models/invoice.py:37
 msgid "Status of invoice"
@@ -797,265 +835,265 @@ msgctxt "billing"
 msgid "Templates"
 msgstr "Patrons de document"
 
-#: populate.py:91
+#: populate.py:94
 msgid "issued by"
 msgstr "a été émis(e) par"
 
-#: populate.py:92
+#: populate.py:95
 msgid "has issued"
 msgstr "a émis"
 
-#: populate.py:97
+#: populate.py:100
 msgid "received by"
 msgstr "a été reçu(e) par"
 
-#: populate.py:98
+#: populate.py:101
 msgid "has received"
 msgstr "a reçu"
 
-#: populate.py:103
+#: populate.py:106
 msgid "had the line"
 msgstr "a la ligne"
 
-#: populate.py:104
+#: populate.py:107
 msgid "is the line of"
 msgstr "est la ligne de"
 
-#: populate.py:109
+#: populate.py:112
 msgid "has the related item"
 msgstr "a comme service/produit associé"
 
-#: populate.py:110
+#: populate.py:113
 msgid "is the related item of"
 msgstr "est le produit/service associé"
 
-#: populate.py:116
+#: populate.py:119
 msgid "is used in the billing document"
 msgstr "est consommé dans le document comptable"
 
-#: populate.py:121
+#: populate.py:124
 msgid "used the credit note"
 msgstr "consomme l'avoir"
 
-#: populate.py:142
+#: populate.py:145
 msgid "Deposit"
 msgstr "Accompte"
 
-#: populate.py:143
+#: populate.py:146
 #, python-format
 msgid "20% deposit will be required"
 msgstr "20% d'acompte sera demandé"
 
-#: populate.py:153
+#: populate.py:156
 msgctxt "billing-salesorder"
 msgid "Issued"
 msgstr "Émis"
 
-#: populate.py:156
+#: populate.py:159
 msgctxt "billing-salesorder"
 msgid "Accepted"
 msgstr "Accepté"
 
-#: populate.py:157
+#: populate.py:160
 msgctxt "billing-salesorder"
 msgid "Rejected"
 msgstr "Rejeté"
 
-#: populate.py:158
+#: populate.py:161
 msgctxt "billing-salesorder"
 msgid "Created"
 msgstr "Créé"
 
-#: populate.py:165
+#: populate.py:168
 msgctxt "billing-invoice"
 msgid "Draft"
 msgstr "Brouillon"
 
-#: populate.py:168
+#: populate.py:171
 msgctxt "billing-invoice"
 msgid "To be sent"
 msgstr "À envoyer"
 
-#: populate.py:173
+#: populate.py:176
 msgctxt "billing-invoice"
 msgid "Sent"
 msgstr "Envoyée"
 
-#: populate.py:176
+#: populate.py:179
 msgctxt "billing-invoice"
 msgid "Resulted"
 msgstr "Soldée"
 
-#: populate.py:179
+#: populate.py:182
 msgctxt "billing-invoice"
 msgid "Partly resulted"
 msgstr "Partiellement soldée"
 
-#: populate.py:182
+#: populate.py:185
 msgid "Collection"
 msgstr "Recouvrement"
 
-#: populate.py:185
+#: populate.py:188
 msgid "Resulted collection"
 msgstr "Recouvrement soldé"
 
-#: populate.py:188
+#: populate.py:191
 msgctxt "billing-invoice"
 msgid "Canceled"
-msgstr "Annulée"
+msgstr ""
 
-#: populate.py:195
+#: populate.py:198
 msgctxt "billing-creditnote"
 msgid "Draft"
 msgstr "Brouillon"
 
-#: populate.py:198
+#: populate.py:201
 msgctxt "billing-creditnote"
 msgid "Issued"
 msgstr "Émise"
 
-#: populate.py:199
+#: populate.py:202
 msgctxt "billing-creditnote"
 msgid "Consumed"
 msgstr "Consommée"
 
-#: populate.py:200
+#: populate.py:203
 msgctxt "billing-creditnote"
 msgid "Out of date"
 msgstr "Périmée"
 
-#: populate.py:204
+#: populate.py:207
 msgid "Invoices unpaid"
 msgstr "Factures impayées"
 
-#: populate.py:216
+#: populate.py:219
 msgid "Invoices unpaid and late"
 msgstr "Factures impayées et en retard"
 
-#: populate.py:233
+#: populate.py:236
 msgid "Current year invoices"
 msgstr "Factures de l'année en cours"
 
-#: populate.py:245
+#: populate.py:248
 msgid "Current year and unpaid invoices"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:277
+#: populate.py:280
 msgid "Invoice view"
 msgstr "Vue de Facture"
 
-#: populate.py:278
+#: populate.py:281
 msgid "Quote view"
 msgstr "Vue de Devis"
 
-#: populate.py:279
+#: populate.py:282
 msgid "Sales order view"
 msgstr "Vue de Bon de Commande"
 
-#: populate.py:280
+#: populate.py:283
 msgid "Credit note view"
 msgstr "Vue des Avoirs"
 
-#: populate.py:282
+#: populate.py:285
 msgid "Template view"
 msgstr "Vue de Patron"
 
-#: populate.py:296
+#: populate.py:299
 msgid "Product lines view"
 msgstr "Vue des lignes de produit"
 
-#: populate.py:297
+#: populate.py:300
 msgid "Service lines view"
 msgstr "Vue des lignes de service"
 
-#: populate.py:317
+#: populate.py:350
 msgctxt "billing-quote"
 msgid "Pending"
 msgstr "En attente"
 
-#: populate.py:319
+#: populate.py:352
 msgctxt "billing-quote"
 msgid "Accepted"
 msgstr "Accepté"
 
-#: populate.py:320
+#: populate.py:353
 msgctxt "billing-quote"
 msgid "Rejected"
 msgstr "Rejeté"
 
-#: populate.py:321
+#: populate.py:354
 msgctxt "billing-quote"
 msgid "Created"
 msgstr "Créé"
 
-#: populate.py:324
+#: populate.py:357
 msgid "30 days"
 msgstr "À 30 jours"
 
-#: populate.py:325
+#: populate.py:358
 msgid "Cash"
 msgstr "Comptant"
 
-#: populate.py:326
+#: populate.py:359
 msgid "45 days"
 msgstr "À 45 jours"
 
-#: populate.py:327
+#: populate.py:360
 msgid "60 days"
 msgstr "À 60 jours"
 
-#: populate.py:328
+#: populate.py:361
 msgid "30 days, end month the 10"
 msgstr "À 30 jours, fin de mois le 10"
 
-#: populate.py:333
+#: populate.py:366
 msgid "Trainer accreditation"
 msgstr "Agrément formateur"
 
-#: populate.py:334
+#: populate.py:367
 msgid "being certified trainer courses could be supported by your OPCA"
 msgstr ""
 "étant agrée formateur les formations pourront être prises en charge par "
 "votre OPCA"
 
-#: populate.py:427
+#: populate.py:460
 msgid "Invoice information"
 msgstr "Informations sur la facture"
 
-#: populate.py:438
+#: populate.py:471
 msgid "Credit note information"
 msgstr "Informations sur l'avoir"
 
-#: populate.py:447
+#: populate.py:480
 msgid "Quote information"
 msgstr "Informations sur le devis"
 
-#: populate.py:457
+#: populate.py:490
 msgid "Salesorder information"
 msgstr "Informations sur le bon de commande"
 
-#: populate.py:466
+#: populate.py:499
 msgctxt "billing"
 msgid "Template information"
 msgstr "Informations sur le patron de document"
 
-#: populate.py:607
+#: populate.py:643
 msgid "All invoices of the current year"
 msgstr "Toutes les factures de l'année en cours"
 
-#: populate.py:614
+#: populate.py:650
 msgid "Sum of current year invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures de l'année en cours / mois"
 
-#: populate.py:623
+#: populate.py:659
 msgid "Sum of current year invoices total without taxes / invoices status"
 msgstr "Somme des totaux HT des factures de l'année en cours / statut"
 
-#: populate.py:637
+#: populate.py:673
 msgid "Invoices unpaid of the current year"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:643
+#: populate.py:679
 msgid "Sum of current year and unpaid invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures impayées de l'année en cours / mois"
 
@@ -1098,6 +1136,10 @@ msgstr "Réinitialiser"
 #: templates/billing/bricks/base/lines.html:58
 msgid "Flag for delete"
 msgstr "Marquer pour suppression"
+
+#: templates/billing/bricks/billing-hat-bar.html:8
+msgid "Download as file (PDF/XLS…)"
+msgstr "Télécharger en tant que fichier (PDF/XLS…)"
 
 #: templates/billing/bricks/billing-payment-information.html:7
 #: templates/billing/bricks/orga-payment-information.html:7
@@ -1172,6 +1214,7 @@ msgstr "Total TTC"
 
 # Already in creme_core
 #: templates/billing/bricks/credit-notes.html:35
+#: templates/billing/bricks/exporters.html:13
 msgid "Action"
 msgstr ""
 
@@ -1186,6 +1229,38 @@ msgstr "Délier cet avoir"
 #: templates/billing/bricks/credit-notes.html:78
 msgid "No related credit note for the moment"
 msgstr "Aucun avoir consommé pour le moment"
+
+#: templates/billing/bricks/exporters.html:7
+msgid "Exporters"
+msgstr "Exporteurs"
+
+#: templates/billing/bricks/exporters.html:11
+msgid "Type"
+msgstr "Type"
+
+#: templates/billing/bricks/exporters.html:12
+msgid "Exporter"
+msgstr "Exporteur"
+
+#: templates/billing/bricks/exporters.html:23
+msgid "Not configured"
+msgstr "Pas configuré"
+
+#: templates/billing/bricks/exporters.html:25
+msgid "Invalid configuration"
+msgstr "Configuration invalide"
+
+#: templates/billing/bricks/exporters.html:40
+msgid "Edit this configuration"
+msgstr "Modifier cette configuration"
+
+#: templates/billing/bricks/exporters.html:47
+msgid ""
+"No model configured for export ; see with your administrator if you want to "
+"add one."
+msgstr ""
+"pas de modèle configuré pour l'export ; voyez avec votre administrateur si "
+"vous voulez en ajouter un"
 
 #: templates/billing/bricks/frags/line-fields.html:12
 msgid "Total (without tax) discounted"
@@ -1264,7 +1339,7 @@ msgid "Totals"
 msgstr "Totaux"
 
 # Already in creme_core
-#: templates/billing/form/add-popup.html:4
+#: templates/billing/forms/add-popup.html:5
 msgid "Add"
 msgstr ""
 
@@ -1305,11 +1380,24 @@ msgstr "Avoirs consommables par «{entity}»"
 msgid "Link the credit notes"
 msgstr "Lier les avoirs"
 
-#: views/export.py:108
+#: views/export.py:170
+#, fuzzy
+#| msgid ""
+#| "The exporter is not configured ; go to the configuration of the app "
+#| "«Billing»."
 msgid ""
-"The generation of the PDF file has failed ; please contact your "
-"administrator."
-msgstr "La génération du PDF a échoué ; prévenez votre administrateur."
+"The engine is not configured ; go to the configuration of the app «Billing»."
+msgstr ""
+"L'exporteur n'est pas configuré ; allez dans la configuration de l'app "
+"«Facturation»."
+
+#: views/export.py:182
+msgid ""
+"The configured exporter is invalid ; go to the configuration of the app "
+"«Billing»."
+msgstr ""
+"L'exporteur configuré est invalide ; allez dans la configuration de l'app "
+"«Facturation»."
 
 #: views/invoice.py:75
 #, python-brace-format
@@ -1547,9 +1635,6 @@ msgstr "Créer un bon de commande pour «{entity}»"
 
 #~ msgid "Line type"
 #~ msgstr "Type de ligne"
-
-#~ msgid "Type"
-#~ msgstr "Type"
 
 #~ msgid "Check to apply on line total"
 #~ msgstr "Cochez pour appliquer sur le total de la ligne"

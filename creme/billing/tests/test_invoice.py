@@ -247,7 +247,7 @@ class InvoiceTestCase(_BillingTestCase):
             po_box='6565', zipcode='789', city='Konoha',
             department='dep1', state='Stuff', country='Land of Fire',
         )
-        target.billing_address  = create_addr(
+        target.billing_address = create_addr(
             name='BillingAddr', address='Temple of sand',
             po_box='8778', zipcode='123', city='Suna',
             department='dep2', state='Foo', country='Land of Sand',

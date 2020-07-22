@@ -3,6 +3,7 @@
 from .algo import ConfigBillingAlgo, SimpleBillingAlgo  # NOQA
 from .base import Base  # NOQA
 from .credit_note import AbstractCreditNote, CreditNote  # NOQA
+from .exporters import ExporterConfigItem  # NOQA
 from .invoice import AbstractInvoice, Invoice  # NOQA
 from .line import Line  # NOQA
 from .other_models import (  # NOQA

@@ -30,7 +30,7 @@ class XlwtWriter:
     def __init__(self, encoding='utf-8'):
         self.nline = 0
         self.wb = wb = Workbook(encoding=encoding)
-        self.ws = wb.add_sheet("sheet 1")
+        self.ws = wb.add_sheet('sheet 1')
         self.date_format = XFStyle()
         self.date_format.num_format_str = 'dd/mm/yyyy'  # TODO: convert from settings.DATE_FORMAT
         self.truncate_prefix = _('(truncated cell)')  # TODO: cached_gettext

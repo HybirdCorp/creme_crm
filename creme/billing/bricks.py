@@ -31,10 +31,12 @@ from creme.creme_core.gui.bricks import (
     SimpleBrick,
 )
 from creme.creme_core.models import Relation, SettingValue
+from creme.creme_core.utils.unicode_collation import collator
 from creme.persons import bricks as persons_bricks
 
 from . import constants, function_fields
-from .models import PaymentInformation
+from .exporters import BillingExportEngineManager
+from .models import ExporterConfigItem, PaymentInformation
 from .setting_keys import payment_info_key
 
 Contact      = persons.get_contact_model()
@@ -359,6 +361,35 @@ class BillingDetailedAddressBrick(persons_bricks.DetailedAddressesBrick):
 class BillingPrettyAddressBrick(persons_bricks.PrettyAddressesBrick):
     id_ = persons_bricks.PrettyAddressesBrick.generate_id('billing', 'addresses_pretty')
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
+
+
+class BillingExportersBrick(Brick):
+    id_ = Brick.generate_id('billing', 'exporters')
+    verbose_name = 'Billing exporters'
+    template_name = 'billing/bricks/exporters.html'
+    dependencies = (ExporterConfigItem,)
+    configurable = False
+    permission = 'billing'
+
+    def detailview_display(self, context):
+        items = [*ExporterConfigItem.objects.all()]
+
+        sort_key = collator.sort_key
+        items.sort(key=lambda item: sort_key(str(item.content_type)))
+
+        manager = BillingExportEngineManager()
+
+        for conf_item in items:
+            conf_item.exporter = manager.exporter(
+                engine_id=conf_item.engine_id,
+                flavour_id=conf_item.flavour_id,
+                model=conf_item.content_type.model_class(),
+            )
+
+        return self._render(self.get_template_context(
+            context,
+            config_items=items,
+        ))
 
 
 class PersonsStatisticsBrick(Brick):

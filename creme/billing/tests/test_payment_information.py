@@ -38,11 +38,13 @@ class PaymentInformationTestCase(_BillingTestCase):
         )
         self.assertEqual(_('Save the payment information'), context.get('submit_label'))
 
-        self.assertNoFormError(self.client.post(url, data={'user': self.user.pk,
-                                                           'name': f'RIB of {organisation}',
-                                                          },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user': self.user.pk,
+                'name': f'RIB of {organisation}',
+            },
+        ))
 
         all_pi = PaymentInformation.objects.all()
         self.assertEqual(1, len(all_pi))
@@ -60,11 +62,14 @@ class PaymentInformationTestCase(_BillingTestCase):
         url = self._build_add_url(organisation)
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'user':       self.user.pk,
-                                               'name':       f'RIB of {organisation}',
-                                               'is_default': True,
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'user':       self.user.pk,
+                'name':       f'RIB of {organisation}',
+                'is_default': True,
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertEqual(2, PaymentInformation.objects.count())
@@ -81,25 +86,29 @@ class PaymentInformationTestCase(_BillingTestCase):
 
     def test_editview01(self):
         organisation = Organisation.objects.create(user=self.user, name='Nintendo')
-        pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1")
+        pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
 
         # TODO: get_edit_absolute_url() ?
         url = reverse('billing__edit_payment_info', args=(pi.id,))
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Payment information for «{entity}»').format(entity=organisation),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Payment information for «{entity}»').format(entity=organisation),
+            response.context.get('title')
+        )
 
         rib_key = '00'
-        name    = f'RIB of {organisation}'
-        bic     = 'pen ?'
-        response = self.client.post(url, data={'user':    self.user.pk,
-                                               'name':    name,
-                                               'rib_key': rib_key,
-                                               'bic':     bic,
-                                              },
-                                   )
+        name = f'RIB of {organisation}'
+        bic = 'pen ?'
+        response = self.client.post(
+            url,
+            data={
+                'user':    self.user.pk,
+                'name':    name,
+                'rib_key': rib_key,
+                'bic':     bic,
+            },
+        )
         self.assertNoFormError(response)
 
         pi = self.refresh(pi)
@@ -126,16 +135,18 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         rib_key = '00'
-        name    = f'RIB of {orga1}'
-        bic     = 'pen ?'
-        self.assertNoFormError(self.client.post(url, data={'user':       self.user.pk,
-                                                           'name':       name,
-                                                           'rib_key':    rib_key,
-                                                           'bic':        bic,
-                                                           'is_default': True,
-                                                          },
-                                               )
-                              )
+        name = f'RIB of {orga1}'
+        bic = 'pen ?'
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user':       self.user.pk,
+                'name':       name,
+                'rib_key':    rib_key,
+                'bic':        bic,
+                'is_default': True,
+            },
+        ))
 
         pi_11 = self.refresh(pi_11)
         pi_12 = self.refresh(pi_12)
@@ -208,7 +219,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         sega = Organisation.objects.create(user=self.user, name='Sega')
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
 
-        pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
+        pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
         self.assertPOST200(self._build_setdefault_url(pi_sony, invoice))
 
         currency = Currency.objects.all()[0]
@@ -238,10 +249,13 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         name = pi.name + ' (default)'
-        response = self.client.post(url, data={'entities_lbl': [str(pi)],
-                                               'field_value':  name,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'entities_lbl': [str(pi)],
+                'field_value':  name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(pi).name)
 

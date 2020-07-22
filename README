@@ -50,14 +50,15 @@ DEPENDENCIES:
          - bleach 3.1
          - Pillow 7.2
          - django-formtools 2.2
+         - xlrd (to import contacts, organisations, activities, tickets... from xls files)
+         - xlwt (to export all types of entities -- like contacts or organisations -- as xls files)
 
      - Optional :
-         - creme.creme_core:
-             - xlrd (to import contacts and organisations from xls files)
-             - xlwt (to export contacts and organisations as xls files)
-
          - creme.billing:
-             - pdflatex (if you want PDF export -- you'll need 'Latex' too)
+           If you want PDF export, you can use :
+             - xhtml2pdf (default)
+             - weasyprint (easy to install on Linux ; harder on Windows)
+             - you can use too the binary "pdflatex" (Ubuntu package 'texlive-latex-base').
 
          - creme.graphs:
              - pygraphviz 1.5 (seems unavailable on windows -- you'll need 'graphviz' too)
