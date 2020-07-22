@@ -1,7 +1,8 @@
 {% autoescape off %}
 {% load creme_core_tags creme_latex %}
 
-{% with billing_address=object.billing_address source_address=source.billing_address curr=object.currency.local_symbol %}
+{% with source=object.source currency=object.currency %}
+{% with billing_address=object.billing_address source_address=source.billing_address %}
 
 \documentclass[french,11pt]{article}
 \usepackage[french]{babel}
@@ -40,11 +41,11 @@
 }
 
 \def\EditDate{%
-{{object.issuing_date}}
+{{object.issuing_date|date:'d-m-Y'}}
 }
 
 \def\TargetName{% 
-{{target|latex_escape}}
+{{object.target|latex_escape}}
 }
 
 \def\Number{%
@@ -52,7 +53,7 @@
 }
 
 \def\DocumentName{% 
-{{document_name}} 
+{{object.entity_type}}
 }
 \newcommand{\HyHeader}[1]{
   \centering{#1}
@@ -67,12 +68,14 @@
 \color{hydarkblue}{% templatetag openvariable %}\Huge\textbf{\MakeTextUppercase{#1}{% templatetag closevariable %}}
 }
 
-\newcommand{\HyInvoiceHeader}[1]{
+\newcommand{\HyBillingHeader}[1]{
 
         \begin{tabular}{| c | c |}
+    {% block doc_header  %}
         \hline Numéro & {#1} \\
         \hline Date & {\EditDate}\\
         \hline Réglement & À 30 jours \\
+    {% endblock %}
         \hline 
         \end{tabular}
 
@@ -85,30 +88,35 @@
 }
 {% endcomment %}
 
+{% block footer %}
 \cfoot{ \footnotesize{ SIRET : {{source.siret}} - NAF : {{source.naf}} -  RCS : {{source.rcs}} - Numéro TVA : {{source.tvaintra}} } }
-
+{% endblock %}
 
 \begin{document}
 
 
-
+{% block source_info %}
 \begin{tabular}{@{}p{0.5\linewidth}M{0.5\linewidth{% templatetag closevariable %}
 \HySourceName{\SourceName} & \HyDocName{\DocumentName} \tabularnewline
 {{source_address.address|latex_escape}} &  \tabularnewline
 {{source_address.city|latex_escape}} {{source_address.po_box|latex_escape}} &  \tabularnewline
 \end{tabular}
+{% endblock %}
 
 \vspace{1cm}
 
+{% block target_info %}
 \begin{tabular}{@{}p{10cm} l }
-\multirow{3}{*} {\HyInvoiceHeader{\Number}} & \textbf{\TargetName} \\
+\multirow{3}{*} {\HyBillingHeader{\Number}} & \textbf{\TargetName} \\
  & {{billing_address.address|latex_escape}} \\
  & {{billing_address.city|latex_escape}} {{billing_address.po_box|latex_escape}} \\
-\end{tabular} 
+\end{tabular}
+{% endblock %}
 
 \vspace{2cm}
 
 
+{% block lines %}
 \begin{longtable}
    {|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|}
    \hline
@@ -117,25 +125,23 @@
    \endfoot
 \hline
 \multicolumn{3}{c} {} \tabularnewline \cline{3-4}
-\multicolumn{2}{c|} {} & \centering{ Total HT } & \centering{ {{object.total_no_vat}} {{curr}} } \tabularnewline \cline{3-4}
-\multicolumn{2}{c|} {} & \centering{ TVA } & \centering{ {{object.total_vat|sub:object.total_no_vat}} {{curr}} } \tabularnewline \cline{3-4}
-\multicolumn{2}{c|} {} & \centering{ TTC } & \centering{ {{object.total_vat}} {{curr}} } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ Total HT } & \centering{ {{object.total_no_vat|format_amount:currency|latex_escape}} } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ TVA } & \centering{ {{object.total_vat|sub:object.total_no_vat|format_amount:currency|latex_escape}} } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ TTC } & \centering{ {{object.total_vat|format_amount:currency|latex_escape}} } \tabularnewline \cline{3-4}
 \endlastfoot
 
-{% for line in plines %}
+{% for line in object.iter_all_lines %}
    \hline
-    {% if line.related_item %} \centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} {{curr}} } & \centering{ {{line.get_raw_price}} {{curr}} } \tabularnewline
-{% endfor %}
-
-{% for line in slines %}
-   \hline
-    {% if line.related_item %}\centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} {{curr}} } & \centering{ {{line.get_raw_price}} {{curr}} }  \tabularnewline
+   \centering{ {{line.related_item|default:line.on_the_fly_item|latex_escape}} } & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price|format_amount:currency|latex_escape}} } & \centering{ {{line.get_raw_price|format_amount:currency|latex_escape}} } \tabularnewline
 {% endfor %}
 \end{longtable}
+{% endblock %}
 
 \vspace{3cm}
 
-{% if object.payment_info %}
+{% block bank_info %}
+{% with pinfo=object.payment_info %}
+{% if pinfo %}
 Vous pouvez régler par chéque ou par virement bancaire sur le compte suivant : \\
 \begin{center}
 
@@ -143,12 +149,18 @@ Vous pouvez régler par chéque ou par virement bancaire sur le compte suivant :
 \hline
 Banque & Guichet & Numéro de Compte & Clé RIB & Domiciliation \\
 \hline
- {{object.payment_info.bank_code|latex_escape}} & {{object.payment_info.counter_code|latex_escape}}  & {{object.payment_info.account_number|latex_escape}} & {{object.payment_info.rib_key|latex_escape}}   & {{object.payment_info.banking_domiciliation|latex_escape}}  \\
+ {{pinfo.bank_code|latex_escape}} & {{pinfo.counter_code|latex_escape}}  & {{pinfo.account_number|latex_escape}} & {{pinfo.rib_key|latex_escape}}   & {{pinfo.banking_domiciliation|latex_escape}}  \\
 \hline
 \end{tabular}
 \end{center}
 {% endif %}
+{% endwith %}
+{% endblock %}
+
+{% block payment_notice %}{% endblock %}
+
 \end{document}
 
+{% endwith %}
 {% endwith %}
 {% endautoescape %}

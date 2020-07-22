@@ -271,7 +271,8 @@ class Base(CremeEntity):
         from creme.billing.registry import algo_registry
 
         if source is None:
-            source = self.get_source()
+            # source = self.get_source()
+            source = self.source
         self.number = 0
 
         if source:
@@ -302,7 +303,7 @@ class Base(CremeEntity):
         return lines
 
     def iter_all_lines(self):
-        from ..registry import lines_registry
+        from ..registry import lines_registry  # TODO: in class attribute ?
 
         for line_cls in lines_registry:
             yield from self.get_lines(line_cls)

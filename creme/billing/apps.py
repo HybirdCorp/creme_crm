@@ -18,16 +18,60 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core import checks
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import npgettext, pgettext
 
 from creme.creme_core.apps import CremeAppConfig
+from creme.creme_core.checks import Tags
 
 
 class BillingConfig(CremeAppConfig):
     name = 'creme.billing'
     verbose_name = _('Billing')
     dependencies = ['creme.persons', 'creme.products']
+
+    def ready(self):
+        # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
+        # because we get an error from django:
+        # [AttributeError: 'instancemethod' object has no attribute 'tags']
+        @checks.register(Tags.settings)
+        def check_exporters(**kwargs):
+            from .exporters import (
+                BillingExportEngine,
+                BillingExportEngineManager,
+            )
+
+            errors = []
+            ids = set()
+
+            for engine_cls in BillingExportEngineManager().engine_classes:
+                if not issubclass(engine_cls, BillingExportEngine):
+                    errors.append(
+                        checks.Error(
+                            f"the exporter engine {engine_cls} does not inherit "
+                            f"<BillingExportEngine>.",
+                            hint='Check the BILLING_EXPORTERS setting in your'
+                                 ' local_settings.py/project_settings.py',
+                            obj=self.name,
+                            id='creme.billing.E001',
+                        )
+                    )
+
+                if engine_cls.id in ids:
+                    errors.append(
+                        checks.Error(
+                            f"the exporter {engine_cls} uses an id already used.",
+                            hint='Check the BILLING_EXPORTERS setting in your'
+                                 ' local_settings.py/project_settings.py',
+                            obj=self.name,
+                            id='creme.billing.E002',
+                        )
+                    )
+
+                ids.add(engine_cls.id)
+
+            return errors
 
     def all_apps_ready(self):
         from creme import billing
@@ -93,6 +137,7 @@ class BillingConfig(CremeAppConfig):
             bricks.ReceivedCreditNotesBrick,
             bricks.BillingDetailedAddressBrick,
             bricks.BillingPrettyAddressBrick,
+            bricks.BillingExportersBrick,
             bricks.PersonsStatisticsBrick,
         ).register_invalid_models(self.ProductLine, self.ServiceLine) \
          .register_hat(self.CreditNote,   main_brick_cls=bricks.CreditNoteBarHatBrick) \
@@ -123,7 +168,7 @@ class BillingConfig(CremeAppConfig):
         )
 
     def register_creme_config(self, config_registry):
-        from . import models
+        from . import bricks, models
 
         register_model = config_registry.register_model
         register_model(models.InvoiceStatus,         'invoice_status')
@@ -133,6 +178,11 @@ class BillingConfig(CremeAppConfig):
         register_model(models.AdditionalInformation, 'additional_information')
         register_model(models.PaymentTerms,          'payment_terms')
         register_model(models.SettlementTerms,       'invoice_payment_type')
+
+        config_registry.register_app_bricks(
+            'billing',
+            bricks.BillingExportersBrick,
+        )
 
     def register_field_printers(self, field_printers_registry):
         from .models.fields import BillingDiscountField

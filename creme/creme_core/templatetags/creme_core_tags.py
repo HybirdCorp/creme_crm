@@ -295,6 +295,16 @@ def jsonify(value):
     return json_encode(value)
 
 
+@register.filter
+def filter_empty(iterable):
+    return [x for x in iterable if x]
+
+
+@register.simple_tag
+def listify(*args):
+    return [*args]
+
+
 @register.simple_tag
 def jsondata(value, **kwargs):
     """ Encode and render json data in a <script> tag with attributes.

@@ -1,0 +1,16 @@
+{% load media %}
+{% if widget.wrap_label %}<label{% if widget.attrs.id %} for="{{widget.attrs.id}}"{% endif %}>{% endif %}
+{% include 'django/forms/widgets/input.html' %}
+{% if widget.wrap_label %}
+    <div class="billing-exporter-choice">
+        <div class="billing-exporter-choice-images">
+            {% for img_src in widget.value.images %}
+            <a onclick="creme.dialogs.image('{% media_url img_src %}').open();">
+                <img style="max-width:{{widget.thumbnail_width}};max-height:{{widget.thumbnail_height}};" src="{% media_url img_src %}"/>
+            </a>
+            {% endfor %}
+        </div>
+        <span class="billing-exporter-choice-label">{{widget.label}}</span>
+    </div>
+    </label>
+{% endif %}

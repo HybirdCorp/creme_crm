@@ -1,0 +1,10 @@
+{% extends 'billing/export/weasyprint/FR/fr_FR/mint/base.html' %}
+
+{% block description %}Facture générée par Creme+WeasyPrint{% endblock %}
+
+{% block payment %}
+    {{block.super}}
+    <p id="legal-notice">En cas de retard de paiement, seront exigibles, conformément à l’article L 441-6 du code de
+commerce, une indemnité calculée sur la base de trois fois le taux de l’intérêt légal en vigueur
+ainsi qu’une indemnité forfaitaire pour frais de recouvrement de 40 euros.</p>
+{% endblock %}

@@ -21,6 +21,8 @@
 import logging
 
 from django.apps import apps
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
@@ -51,6 +53,7 @@ from .core import BILLING_MODELS
 from .models import (
     AdditionalInformation,
     CreditNoteStatus,
+    ExporterConfigItem,
     InvoiceStatus,
     PaymentTerms,
     QuoteStatus,
@@ -295,6 +298,36 @@ class Populator(BasePopulator):
 
         create_hf_lines('billing-hg_product_lines', _('Product lines view'), ProductLine)
         create_hf_lines('billing-hg_service_lines', _('Service lines view'), ServiceLine)
+
+        # ---------------------------
+        get_ct = ContentType.objects.get_for_model
+        engine_id = ''
+        flavour_id = ''
+
+        if 'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine' in settings.BILLING_EXPORTERS:
+            from creme.billing.exporters.xhtml2pdf import Xhtml2pdfExportEngine
+            from creme.creme_core.utils import l10n
+
+            # TODO: add the country in settings & use it...
+            country = l10n.FR
+            language = 'fr_FR'
+            theme = 'cappuccino'
+            try:
+                Xhtml2pdfExportEngine.FLAVOURS_INFO[country][language][theme]
+            except KeyError:
+                pass
+            else:
+                engine_id = Xhtml2pdfExportEngine.id
+                flavour_id = f'{country}/{language}/{theme}'
+
+        for model in (CreditNote, Invoice, Quote, SalesOrder, TemplateBase):
+            ExporterConfigItem.objects.get_or_create(
+                content_type=get_ct(model),
+                defaults={
+                    'engine_id': engine_id,
+                    'flavour_id': flavour_id,
+                },
+            )
 
         # ---------------------------
         for model in (Invoice, CreditNote, Quote, SalesOrder):

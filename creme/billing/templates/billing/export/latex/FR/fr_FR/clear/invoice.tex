@@ -1,0 +1,15 @@
+{% extends 'billing/export/latex/FR/fr_FR/clear/base.tex' %}
+
+{% block doc_header  %}
+        \hline Numéro & {#1} \\
+        \hline Date & {\EditDate}\\
+        \hline Réglement & {{object.payment_type|default:'À 30 jours'}} \\
+        {% if object.buyers_order_number %}\hline Bon de commande acheteur & {{object.buyers_order_number}} \\{% endif %}
+{% endblock %}
+
+
+{% block payment_notice %}
+\begin{center}
+En cas de retard de paiement, seront exigibles, conformément à l'article L 441-6 du code de commerce, une indemnité calculée sur la base de trois fois le taux de l'intérêt légal en vigueur ainsi qu'une indemnité forfaitaire pour frais de recouvrement de 40 euros.
+\end{center}
+{% endblock %}

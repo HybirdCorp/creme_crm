@@ -1,0 +1,125 @@
+{% load creme_core_tags persons_tags %}
+{% with currency=object.currency source=object.source %}
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{object.entity_type}}</title>
+    <meta name="description" content="{% block description %}Document généré par Creme+WeasyPrint{% endblock %}">
+    <meta name="author" content="Kozea">
+    <meta name="author" content="Hybird">
+  </head>
+
+  <body>
+    <h1>{% block title %}{{object.entity_type}}{% endblock %}</h1>
+
+    <aside>
+      {% block address_from %}
+      <address id="from">
+        <span id="source" >{{object.source}}</span>
+        {% with source_address=source.billing_address %}{% if source_address %}{{source_address|persons_pretty_address|linebreaksbr}}{% if source_address.country %}<br>{{source_address.country}}{% endif %}{% endif %}{% endwith %}
+      </address>
+      {% endblock %}
+
+      {% block address_to %}
+      <address id="to">
+        <span id="target" >{{object.target}}</span>
+        {% with billing_address=object.billing_address %}{% if billing_address %}{{billing_address|persons_pretty_address|linebreaksbr}}{% if billing_address.country %}<br>{{billing_address.country}}{% endif %}{% endif %}{% endwith %}
+      </address>
+      {% endblock %}
+    </aside>
+
+    <dl id="information">
+    {% block information %}
+      <dt>Numéro</dt>
+      <dd>{{object.number|default:'Numéro non généré'}}</dd>
+      <dt>Date</dt>
+      <dd>{{object.issuing_date|date:'d-m-Y'}}</dd>
+      <dt>Réglement</dt>
+      <dd>{{object.payment_type|default:'À 30 jours'}}</dd>
+      {% if object.buyers_order_number %}
+        <dt>Bon de commande acheteur</dt>
+        <dd>{{object.buyers_order_number}}</dd>
+      {% endif %}
+      {% if source.siret %}
+        <dt>SIRET</dt>
+        <dd>{{source.siret}}</dd>
+      {% endif %}
+      {% if source.naf %}
+        <dt>NAF</dt>
+        <dd>{{source.naf}}</dd>
+      {% endif %}
+      {% if source.rcs %}
+        <dt>RCS</dt>
+        <dd>{{source.rcs}}</dd>
+      {% endif %}
+      {% if source.tvaintra %}
+        <dt>N° TVA</dt>
+        <dd>{{source.tvaintra}}</dd>
+      {% endif %}
+    {% endblock %}
+    </dl>
+
+    <table>
+      <thead>
+      {% block lines_head %}
+        <th>Description</th>
+        <th>Prix unitaire (HT)</th>
+        <th>Quantité</th>
+        <th>Montant HT</th>
+      {% endblock %}
+      </thead>
+      <tbody>
+        {% block lines_body %}
+        {% for line in object.iter_all_lines %}
+        <tr>
+          <td>{{line.related_item|default:line.on_the_fly_item}}</td>
+          <td>{{line.unit_price|format_amount:currency}}</td>
+          <td>{{line.quantity}}</td>
+          <td>{{line.get_raw_price|format_amount:currency}}</td>
+        </tr>
+        {% endfor %}
+        {% endblock %}
+      </tbody>
+    </table>
+
+    {% block total %}
+    <table id="total">
+      <thead>
+      {% block total_head %}
+        <th>Total HT</th>
+        <th>TVA</th>
+        <th>TTC</th>
+      {% endblock %}
+      </thead>
+      <tbody>
+        <tr>
+          {% block total_body %}
+          <td>{{object.total_no_vat|format_amount:currency}}</td>
+          <td>{{object.total_vat|sub:object.total_no_vat|format_amount:currency}}</td>
+          <td>{{object.total_vat|format_amount:currency}}</td>
+          {% endblock %}
+        </tr>
+      </tbody>
+    </table>
+    {% endblock %}
+
+    {% block payment %}
+      {% with pinfo=object.payment_info %}
+      {% if pinfo %}
+        <section id="bank_info">
+          <span>Vous pouvez régler par chéque ou par virement bancaire sur le compte suivant :</span><br>
+          <dl>
+            <dt>Banque</dt><dd>{{pinfo.bank_code|default:'—'}}</dd>
+            <dt>Guichet</dt><dd>{{pinfo.counter_code|default:'—'}}</dd>
+            <dt>N° de Compte</dt><dd>{{pinfo.account_number|default:'—'}}</dd>
+            <dt>Clé RIB</dt><dd>{{pinfo.rib_key|default:'—'}}</dd>
+            <dt>Domiciliation</dt><dd>{{pinfo.banking_domiciliation|default:'—'}}</dd>
+          </dl>
+        </section>
+      {% endif %}
+      {% endwith %}
+    {% endblock %}
+  </body>
+</html>
+{% endwith %}

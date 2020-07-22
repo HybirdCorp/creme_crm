@@ -1,0 +1,207 @@
+{% load creme_core_tags %}
+
+@charset "UTF-8";
+{# @import url("https://fonts.googleapis.com/css?family=Pacifico|Source+Sans+Pro:400,700"); #}
+{# TODO: import our internal version of OpenSans ? #}
+{% with source=object.source %}
+@page {
+{#    margin: 3cm; #}
+    margin: 1.5cm;
+
+{% comment %}
+    @bottom-left {
+        color: #1ee494;
+        font-family: Pacifico;
+    }
+{% endcomment %}
+
+    @bottom-right {
+        color: #a9a;
+        {% listify source.email source.phone source.url_site as details %}content: '{{details|filter_empty|join:" | "}}';
+{#        font-family: Pacifico;  #}
+        font-size: 9pt;
+    }
+}
+{% endwith %}
+
+html {
+    color: #14213d;
+    font-family: Source Sans Pro;
+    font-size: 11pt;
+    line-height: 1.6;
+}
+
+html body {
+    margin: 0;
+}
+
+html h1 {
+    color: #1ee494;
+{#    font-family: Pacifico; #}
+    font-family: 'Open Sans', 'Verdana', sans-serif;
+    font-size: 40pt;
+    margin: 0;
+}
+
+html aside {
+    display: flex;
+{#    margin: 2em 0 4em; #}
+    margin: 8em 0 4em;
+}
+
+html aside address {
+    font-style: normal;
+    white-space: pre-line;
+}
+
+html aside dl {
+    font-style: normal;
+}
+
+html aside address#from {
+   color: #a9a;
+   flex: 1;
+}
+
+html aside address span#target {
+   font-weight: bold;
+   color: #1ee494;
+}
+
+html aside address#to {
+    text-align: right;
+}
+
+html dl#information {
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    text-align: right;
+    font-size: 10pt;
+}
+
+html dl#information dt,
+html dl#information dd {
+    display: inline;
+    margin: 0;
+}
+
+html dl#information dt {
+    color: #a9a;
+}
+
+html dl#information dt::before {
+    content: '';
+    display: block;
+}
+
+html dl#information dt::after {
+    content: ':';
+}
+
+html table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+html table th {
+    border-bottom: .2mm solid #a9a;
+    color: #a9a;
+    font-size: 10pt;
+    font-weight: 400;
+    padding-bottom: .25cm;
+    text-transform: uppercase;
+}
+
+html table td {
+    padding-top: 7mm;
+}
+
+html table td:last-of-type {
+    color: #1ee494;
+    font-weight: bold;
+    text-align: right;
+}
+
+html table th, html table td {
+    text-align: center;
+}
+
+html table th:first-of-type, html table td:first-of-type {
+    text-align: left;
+}
+
+html table th:last-of-type, html table td:last-of-type {
+    text-align: right;
+}
+
+html table#total {
+    position: absolute;
+    bottom: 3cm;
+    width: 20cm;
+    margin: 0 -3cm;
+
+    border-color: #f6f6f6;
+    border-style: solid;
+    border-width: 1cm 3cm;
+
+    background: #f6f6f6;
+    font-size: 20pt;
+}
+
+html body section#bank_info {
+    position: absolute;
+    bottom: 1.5cm;
+    width: 18cm;
+    margin: 0;
+}
+
+html body section#bank_info span {
+    color: #a9a;
+    font-weight: 400;
+    font-size: 8pt;
+}
+
+html body section#bank_info dl {
+    display: inline;
+}
+
+html body section#bank_info dt {
+    display: inline;
+    padding-left: .2cm;
+
+    border-left: 1pt solid #a9a;
+
+    text-transform: uppercase;
+    font-size: 5pt;
+    color: #8a7f8a;
+}
+
+html body section#bank_info dl dd {
+    display: inline;
+    padding-right: .2cm;
+
+    font-size: 7pt;
+}
+
+html body section#bank_info dl dt::after {
+    content: ':';
+}
+
+html body section#bank_info dl dt:first-of-type {
+    border-left: 0;
+    padding-left: 0;
+}
+
+html body p#legal-notice {
+    position: absolute;
+    bottom: 0;
+    width: 16cm;
+    margin: 0;
+
+    text-align: center;
+    color: #a9a;
+    font-weight: 400;
+    font-size: 8pt;
+}

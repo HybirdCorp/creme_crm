@@ -175,6 +175,32 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertEqual('Hello world', render.strip())
 
+    def test_listify(self):
+        with self.assertNoException():
+            template = Template(
+                '{% load creme_core_tags %}'
+                '{% listify email phone as mylist %}'
+                '{{mylist|join:","}}'
+            )
+            render = template.render(Context({
+                'email': 'foo@bar.org',
+                'phone': '123-FOOBAR',
+            }))
+
+        self.assertEqual('foo@bar.org,123-FOOBAR', render.strip())
+
+    def test_filter_empty(self):
+        with self.assertNoException():
+            template = Template(
+                '{% load creme_core_tags %}'
+                '{{mylist|filter_empty|join:","}}'
+            )
+            render = template.render(Context({
+                'mylist': ['', 'foo@bar.org', None, '123-FOOBAR', False],
+            }))
+
+        self.assertEqual('foo@bar.org,123-FOOBAR', render.strip())
+
     def test_verbose_models(self):
         with self.assertNoException():
             template = Template(

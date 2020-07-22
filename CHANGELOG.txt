@@ -43,6 +43,13 @@
             - A new ReportGraph fetcher specific to Contact has been added : "belows to the Contact/User".
             - The report graph bricks set now the compatible entities types (attribute "target_ctypes") ;
               so they are only proposed for detail-view's brick configuration which are relevant.
+        * Billing :
+            - A backend system to export documents as files replaces the old PDF export (based on LateX) ;
+              Several backends have been created, based on: xhtml2pdf, weasyprint, xlwt (python packages) & pdflatex (external binary, like before).
+              All these backends export PDF files, excepted the one based on 'xlwt' which exports raw data in XLS files.
+              In the default settings, the one based on 'xhtml2pdf' & 'xlwt' are activated ; there are easy to install with "pip", even on Windows, & give good results.
+              The 2 "new" PDF exporters ('xhtml2pdf' & 'weasyprint') got new visual design.
+              If you were using LateX in previous releases, configure your setting 'BILLING_EXPORTERS', & then select it in the configuration GUI of 'billing'.
         * Activities :
             - The version of Fullcalendar has been upgraded (from "1.6.7" to "3.10").
             - The creation/edition of events through a range selection is now possible in the calendar.
@@ -406,8 +413,17 @@
                 - Several changes in 'forms.base.BaseEditForm' :
                     - The attributes "issued_relation" & "received_relation" have been removed.
                     - The method '_manage_relation()' has been removed.
-                - The function-view 'views.invoice.generate_number()' has been replaced by the class 'NumberGeneration'.
-                - The template directory 'billing/templates/billing/form/' has been renamed 'forms' ; class-views have been updated.
+                - In 'views' :
+                    - The function-view 'invoice.generate_number()' has been replaced by the class 'NumberGeneration'.
+                    - The function-view 'export.export_as_pdf()' has been replaced by the class 'Export'.
+                      Notice that the context injected in '.tex' files (if you still use this backend) has changed (only "object" is injected).
+                    - The variable 'export.TEMPLATE_PATHS' has been removed.
+                - The URL named "billing__export" has changed ("/generate_pdf/" became "/export/" ) ; no problem if you use the name.
+                - In 'templates/billing/' :
+                    - The template directory 'form' has been renamed 'forms' ; class-views have been updated.
+                    - The files 'templates/*.tex' has changed :
+                        - 'invoice.tex' has moved to 'export/latex/FR/fr_FR/clear/', and now extends 'export/latex/FR/fr_FR/clear/base.tex'.
+                        - 'billings.tex' has been removed (see other files in 'export/latex/FR/fr_FR/clear/').
             * Commercial :
                 - These function-views of 'views.strategy' have been replaced by classes.
                     - 'reload_matrix_brick()' by 'MatrixBricksReloading'.

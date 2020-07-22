@@ -151,9 +151,10 @@ class FileCreator:
 
                 root_max_len = max_length - len(suffix)
                 if root_max_len < 0:
-                    raise self.Error('No unique filename has been found with the '
-                                     'current rules (max length too short for suffix alone).'
-                                    )
+                    raise self.Error(
+                        'No unique filename has been found with the '
+                        'current rules (max length too short for suffix alone).'
+                    )
 
                 current_name_root = name_root[:root_max_len] + suffix
                 final_path = join(dir_path, current_name_root + name_ext)
@@ -162,9 +163,10 @@ class FileCreator:
                     f = io.open(final_path, 'x')
                 except FileExistsError as e:
                     if trials >= max_trials:
-                        raise self.Error('No unique filename has been found with the '
-                                         'current rules (max trials reached).'
-                                        ) from e
+                        raise self.Error(
+                            'No unique filename has been found with the '
+                            'current rules (max trials reached).'
+                        ) from e
                 else:
                     f.close()
 
