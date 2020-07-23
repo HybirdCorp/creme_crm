@@ -23,6 +23,7 @@
         "which": "1.2.14",
         "set-value": "~2.0.1",
         "axios": "^0.18.1",
-        "graceful-fs": "^4.1.15"
+        "graceful-fs": "^4.1.15",
+        "minimist": "1.2.5"
     }
 }
