@@ -505,7 +505,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             return this._dialog.dialog('option', 'title');
         }
 
-        this._dialog.dialog('option', 'title', String(title).unescapeHTML());
+        this._dialog.dialog('option', 'title', String(title).decodeHTMLEntities());
         return this;
     },
 
@@ -572,7 +572,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var draggable = is_framescroll ? options.draggable : false;
         var width = options.minWidth > 0 ? Math.max(options.minWidth, options.width) : options.width;
         var height = options.minHeight > 0 ? Math.max(options.minHeight, options.height) : options.height;
-        var title = options.title ? String(options.title).unescapeHTML() : options.title;
+        var title = options.title ? String(options.title).decodeHTMLEntities() : options.title;
 
         this._dialog = content.dialog({buttons:   Object.values(buttons),
                                        title:     title,
