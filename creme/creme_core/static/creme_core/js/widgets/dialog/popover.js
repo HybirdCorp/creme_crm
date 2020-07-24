@@ -215,7 +215,7 @@ creme.dialog.Popover = creme.component.Component.sub({
         $('.popover-title', this._dialog).toggleClass('hidden', title === false);
 
         if (Object.isString(title)) {
-            $('.popover-title', this._dialog).html(title);
+            $('.popover-title', this._dialog).text(title.decodeHTMLEntities());
         } else {
             $('.popover-title', this._dialog).empty().append(title);
         }
