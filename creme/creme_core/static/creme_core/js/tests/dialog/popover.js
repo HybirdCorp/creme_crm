@@ -74,6 +74,26 @@ QUnit.test('creme.dialog.Popover (title)', function(assert) {
     popover.title('B');
     this.assertPopoverTitle('B');
     this.equalHtml('B', popover.title());
+
+    this.assertNoXSS(function(value) {
+        popover.title(value);
+    });
+});
+
+QUnit.test('creme.dialog.Popover (title, escaped)', function(assert) {
+    var popover = new creme.dialog.Popover({
+        title: 'Default&nbsp;title &amp; &lt; escaped&gt;'
+    });
+    var anchor = this.qunitFixture('popover');
+
+    popover.open(anchor);
+    this.assertPopoverTitle('Default\u00A0title & < escaped>');
+    this.equalHtml('Default\u00A0title & < escaped>', popover.title());
+
+    popover.title('Modified title &quot;escaped&quot;');
+
+    this.equalHtml('Modified title "escaped"', popover.title());
+    this.assertPopoverTitle('Modified title "escaped"');
 });
 
 QUnit.test('creme.dialog.Popover (direction)', function(assert) {

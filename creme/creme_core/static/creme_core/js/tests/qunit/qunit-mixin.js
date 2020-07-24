@@ -217,6 +217,31 @@
             return block.__raised;
         },
 
+        assertNoXSS: function(block) {
+            // Theses scripts are inspired by those found here:
+            // https://owasp.org/www-community/xss-filter-evasion-cheatsheet
+            var scripts = [
+                '<script>QUnit.pushFailure("XSS < script>...< /script>");</script>',
+                '<img src="javascript:QUnit.pushFailure(\'XSS < img src=...>\')" />',
+                '<img src=/ onerror="QUnit.pushFailure(\'XSS < img onerror=...>\')"></img>',
+                '\<a data-test="qunitXSS" onmouseover="QUnit.pushFailure(\'XSS < a mouseover=...>\')"\>xxs link\</a\>',
+            ];
+
+            scripts.forEach(function(script) {
+                var success = false;
+
+                try {
+                    block.bind(this)(script);
+                    success = true;
+                } finally {
+                    ok(success, 'XSS test as failed. See logs for stacktrace.');
+                }
+
+                // Trigger events for some XSS issues
+                $('[data-test="qunitXSS"]').mouseover().click();
+            }.bind(this));
+        },
+
         equalHtml: function(expected, element, message) {
             QUnit.assert.equal($('<div>').append(expected).html(), $(element).html(), message);
         },

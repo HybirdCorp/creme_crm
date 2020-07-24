@@ -471,6 +471,10 @@ QUnit.test('creme.dialog.Dialog (title)', function(assert) {
 
     equal('Modified title', dialog.title());
     this.assertDialogTitleHtml('Modified title');
+
+    this.assertNoXSS(function(value) {
+        dialog.title(value);
+    });
 });
 
 QUnit.test('creme.dialog.Dialog (title, escaped)', function(assert) {
