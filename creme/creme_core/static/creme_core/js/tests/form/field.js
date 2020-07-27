@@ -521,6 +521,36 @@ QUnit.parametrize('creme.form.Field (reset, readonly)', [
     deepEqual([], this.mockListenerJQueryCalls('field-change'));
 });
 
+QUnit.parametrize('creme.form.Field (error)', [
+    [$('<input type="text" value="a" />'), null, null],
+    [$('<input type="text" value="a" />'), {code: null}, null],
+    [$('<input type="text" value="a" />'), {}, null],
+    [$('<input type="text" value="a" />'), {code: 'valueMissing'}, {
+        code: 'valueMissing', message: gettext("This value is required")
+    }],
+    [$('<input type="text" value="a" />'), {code: 'valueMissing', message: 'Not here !'}, {
+        code: 'valueMissing', message: 'Not here !'
+    }]
+], function(input, errorData, expected, assert) {
+    var field = new creme.form.Field(input.appendTo(this.qunitFixture()));
+
+    equal(null, field.error());
+    equal(null, field.errorCode());
+    equal('', field.errorMessage());
+
+    field.error(errorData);
+
+    if (expected !== null) {
+        deepEqual(expected, field.error());
+        equal(expected.code, field.errorCode());
+        equal(expected.message, field.errorMessage());
+    } else {
+        equal(null, field.error());
+        equal(null, field.errorCode());
+        equal('', field.errorMessage());
+    }
+});
+
 QUnit.parameterize('creme.form.Field (html5 validation)', [
     [$('<input type="text" value="" />'), true, undefined],
     [$('<input type="text" value="" required/>'), false, 'valueMissing'],
@@ -580,10 +610,8 @@ QUnit.parameterize('creme.form.Field (html5 validation, data-err-*)', [
 
     equal(field.isValidHtml(), false);
     equal(field.htmlErrorCode(), errorCode);
-    equal(field.htmlErrorMessage(), input.get(0).validationMessage);
 
     var expectedMessage = customMessage || input.get(0).validationMessage;
-
     equal(field.errorMessage(), expectedMessage);
 
     if (errorCode) {
@@ -626,13 +654,9 @@ QUnit.parameterize('creme.form.Field (html5 validation, custom messages)', [
     equal(field.isValidHtml(), false);
     equal(field.isValid(), false);
     equal(field.htmlErrorCode(), errorKey);
-    equal(field.htmlErrorMessage(), input.get(0).validationMessage);
 
-    if (customMessage !== undefined) {
-        equal(field.errorMessage(), customMessage);
-    } else {
-        equal(field.errorMessage(), input.get(0).validationMessage);
-    }
+    var expectedMessage = customMessage || input.get(0).validationMessage;
+    equal(field.errorMessage(), expectedMessage);
 });
 
 QUnit.parametrize('creme.form.Field (clean)', [
@@ -794,14 +818,23 @@ QUnit.test('creme.form.Field (clean, invalid, noThrow)', function(assert) {
 });
 
 QUnit.parametrize('creme.form.Field (preventBrowserTooltip)', [
-    [$('<input name="A" />'), {}, false],
-    [$('<input data-notooltip name="A" />'), {}, true],
-    [$('<input name="A" />'), {preventBrowserTooltip: true}, true],
-    [$('<input data-notooltip name="A" />'), {preventBrowserTooltip: false}, false]
+    [$('<input name="A" required/>'), {}, false],
+    [$('<input data-notooltip name="A" required/>'), {}, true],
+    [$('<input name="A" required/>'), {preventBrowserTooltip: true}, true],
+    [$('<input data-notooltip name="A" required/>'), {preventBrowserTooltip: false}, false]
 ], function(element, options, expected, assert) {
     var field = new creme.form.Field(element, options);
     equal(field.preventBrowserTooltip(), expected);
     equal(element.is('[data-notooltip]'), expected);
+
+    // check if the "invalid" is prevented
+    element.on('invalid', this.mockListener('invalid-html'));
+
+    equal(false, field.validateHtml());
+
+    var calls = this.mockListenerCalls('invalid-html');
+    equal(1, calls.length);
+    equal(expected, calls[0][0].isDefaultPrevented());
 });
 
 QUnit.parametrize('creme.form.Field (preventBrowserTooltip, form)', [
@@ -837,6 +870,40 @@ QUnit.parametrize('creme.form.Field (responsive, form)', [
 ], function(element, options, expected, assert) {
     var field = new creme.form.Field(element.find('input'), options);
     equal(field.responsive(), expected);
+});
+
+QUnit.test('flyfield (empty, defaults)', function() {
+    var element = $('<input name="A">');
+
+    var field = element.flyfield({
+        responsive: true
+    });
+
+    ok(field instanceof creme.form.Field);
+    deepEqual(field, element.flyfield('instance'));
+
+    equal(true, element.flyfield('prop', 'isValid'));
+    equal(true, element.flyfield('prop', 'isValidHtml'));
+    equal(false, element.flyfield('prop', 'disabled'));
+    equal(false, element.flyfield('prop', 'readonly'));
+    equal(false, element.flyfield('prop', 'multiple'));
+    equal(false, element.flyfield('prop', 'checked'));
+    equal(true, element.flyfield('prop', 'responsive'));
+    equal(false, element.flyfield('prop', 'preventBrowserTooltip'));
+
+    equal("A", element.flyfield('prop', 'name'));
+    equal('text', element.flyfield('prop', 'dataType'));
+    equal('text', element.flyfield('prop', 'htmlType'));
+    equal('', element.flyfield('prop', 'initial'));
+
+    equal(null, element.flyfield('prop', 'errorCode'));
+    equal('', element.flyfield('prop', 'errorMessage'));
+
+    equal(true, element.flyfield('validateHtml'));
+    equal('', element.flyfield('value'));
+    equal('', element.flyfield('clean'));
+
+    deepEqual(field, element.flyfield('reset'));
 });
 
 }(jQuery));
