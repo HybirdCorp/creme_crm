@@ -90,8 +90,14 @@ creme.form.Field = creme.component.Component.sub({
         this.dataType(options.dataType);
         this.responsive(options.responsive);
 
-        element.on('input invalid field-error', this._onFieldInvalidHtml.bind(this));
+        element.on('invalid', this._onFieldInvalidHtml.bind(this));
+        element.on('field-error', this._onFieldError.bind(this));
         element.on('propertychange keyup paste change input', this._onFieldChange.bind(this));
+
+        // Fields can be "invalid" on document load, so we need update the messages on binding
+        if (!this.isValidHtml()) {
+            this.errorMessage(this._formatErrorMessage(this.htmlErrorCode()));
+        }
     },
 
     trigger: function(event) {
@@ -246,8 +252,7 @@ creme.form.Field = creme.component.Component.sub({
         var valid = input.checkValidity();
 
         this.error({
-            code: this.htmlErrorCode(),
-            message: this._formatErrorMessage(this.htmlErrorCode())
+            code: this.htmlErrorCode()
         });
 
         return valid;
@@ -257,21 +262,12 @@ creme.form.Field = creme.component.Component.sub({
         return __htmlErrorCode(this._element.get(0).validity);
     },
 
-    htmlErrorMessage: function(message) {
+    errorMessage: function(message) {
         if (message === undefined) {
             return this._element.get(0).validationMessage || '';
         }
 
         this._element.get(0).setCustomValidity(message);
-        return this;
-    },
-
-    errorMessage: function(message) {
-        if (message === undefined) {
-            return this._formatErrorMessage(this.errorCode());
-        }
-
-        this.htmlErrorMessage(message);
         return this;
     },
 
@@ -300,12 +296,15 @@ creme.form.Field = creme.component.Component.sub({
         }
 
         if (error === null) {
-            this.errorCode(null);
+            this._errorCode = null;
+            this.errorMessage('');
         } else {
-            this.errorCode(error.code);
+            this._errorCode = error.code;
 
             if (error.message) {
                 this.errorMessage(error.message);
+            } else {
+                this.errorMessage(this._formatErrorMessage(error.code));
             }
         }
 
@@ -322,10 +321,13 @@ creme.form.Field = creme.component.Component.sub({
         $(e.target).toggleClass('is-field-invalid', !this.isValid());
     },
 
+    _onFieldError: function(e) {
+        $(e.target).toggleClass('is-field-invalid', !this.isValid());
+    },
+
     _onFieldChange: function(e) {
         if (this.responsive()) {
             this.clean({noThrow: true});
-            $(e.target).toggleClass('is-field-invalid', !this.isValid());
         }
     },
 
@@ -339,7 +341,7 @@ creme.form.Field = creme.component.Component.sub({
         if (Object.isString(message)) {
             return message.template(this._errorMessageData.bind(this));
         } else {
-            return this.htmlErrorMessage();
+            return this.errorMessage();
         }
     },
 
