@@ -122,12 +122,12 @@
 
 {% for line in plines %}
    \hline
-    {% if line.related_item %} \centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} } \tabularnewline
+    {% if line.related_item %} \centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.get_raw_price}} } \tabularnewline
 {% endfor %}
 
 {% for line in slines %}
    \hline
-    {% if line.related_item %}\centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} }  \tabularnewline
+    {% if line.related_item %}\centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.get_raw_price}} }  \tabularnewline
 {% endfor %}
 \end{longtable}
 

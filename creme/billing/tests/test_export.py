@@ -83,6 +83,9 @@ class ExportTestCase(_BillingTestCase):
         response = self.assertGET200(self._build_export_url(quote), follow=True)
         self.assertEqual('application/pdf', response['Content-Type'])
 
+        # Consume stream to avoid ResourceWarning
+        __ = b''.join(response.streaming_content)
+
     def test_bad_ct(self):
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Laputa')
