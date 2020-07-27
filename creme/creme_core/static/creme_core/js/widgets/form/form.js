@@ -75,6 +75,10 @@ creme.form.Form = creme.component.Component.sub({
 
         element.on('click', this._submitSelector, this._onButtonSubmit.bind(this));
         element.on('submit', this._onFormSubmit.bind(this));
+
+        if (this.responsive()) {
+            this.clean({noThrow: true});
+        }
     },
 
     trigger: function(event) {
