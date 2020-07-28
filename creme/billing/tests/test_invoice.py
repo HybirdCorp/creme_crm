@@ -627,7 +627,10 @@ class InvoiceTestCase(_BillingTestCase):
         self._set_managed(source)
 
         self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
-        self.assertTrue(settings.INVOICE_NUMBER_PREFIX + '1', self.refresh(invoice).number)
+        self.assertEqual(
+            settings.INVOICE_NUMBER_PREFIX + '1',
+            self.refresh(invoice).number,
+        )
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
