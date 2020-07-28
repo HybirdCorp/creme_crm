@@ -80,9 +80,10 @@ class ConvertTestCase(_BillingTestCase):
     def test_convert01(self):
         self.login()
 
-        currency = Currency.objects.create(name='Berry', local_symbol='B',
-                                           international_symbol='BB', is_custom=True,
-                                          )
+        currency = Currency.objects.create(
+            name='Berry', local_symbol='B',
+            international_symbol='BB', is_custom=True,
+        )
 
         create_orga = partial(Organisation.objects.create, user=self.user)
         source = create_orga(name='Source Orga')
@@ -110,10 +111,9 @@ class ConvertTestCase(_BillingTestCase):
         quote = self.create_quote('My Quote', source, target, currency)
         quote.additional_info = AdditionalInformation.objects.all()[0]
         quote.payment_terms = PaymentTerms.objects.all()[0]
-        quote.payment_info  = PaymentInformation.objects.create(organisation=source,
-                                                                name='Bank details',
-                                                                is_default=True,
-                                                               )
+        quote.payment_info = PaymentInformation.objects.create(
+            organisation=source, name='Bank details', is_default=True,
+        )
         quote.save()
 
         self.assertFalse(Invoice.objects.count())
@@ -172,9 +172,11 @@ class ConvertTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.VIEW |
+                EntityCredentials.CHANGE |
                 EntityCredentials.DELETE |
-                EntityCredentials.LINK   | EntityCredentials.UNLINK
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -196,9 +198,11 @@ class ConvertTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.VIEW |
+                EntityCredentials.CHANGE |
                 EntityCredentials.DELETE |
-                EntityCredentials.LINK   | EntityCredentials.UNLINK
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -209,9 +213,10 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(0, Invoice.objects.count())
         self.assertEqual(1, SalesOrder.objects.count())
 
-        self.assertEqual(force_text(response.content),
-                         SalesOrder.objects.first().get_absolute_url()
-                        )
+        self.assertEqual(
+            force_text(response.content),
+            SalesOrder.objects.first().get_absolute_url()
+        )
 
     @skipIfCustomQuote
     def test_convert03(self):
@@ -223,9 +228,11 @@ class ConvertTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.VIEW |
+                EntityCredentials.CHANGE |
                 EntityCredentials.DELETE |
-                EntityCredentials.LINK   | EntityCredentials.UNLINK
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -237,25 +244,33 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     def test_convert04(self):
         "Credentials (view) errors."
-        self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
+        user = self.login(
+            is_superuser=False, allowed_apps=['billing', 'persons'],
+        )
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes.set([get_ct(Quote), get_ct(Invoice)])
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                EntityCredentials.VIEW |
+                EntityCredentials.CHANGE |
                 EntityCredentials.DELETE |
-                EntityCredentials.LINK   | EntityCredentials.UNLINK
+                EntityCredentials.LINK |
+                EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
 
-        quote = Quote.objects.create(user=self.other_user, name='My Quote',
-                                     issuing_date=now(),
-                                     expiration_date=now() + timedelta(days=10),
-                                     status=QuoteStatus.objects.all()[0],
-                                    )
+        source, target = self.create_orgas(user=user)
+        quote = Quote.objects.create(
+            user=self.other_user, name='My Quote',
+            issuing_date=now(),
+            expiration_date=now() + timedelta(days=10),
+            status=QuoteStatus.objects.all()[0],
+            source=source,
+            target=target,
+        )
         self.assertFalse(self.user.has_perm_to_view(quote))
 
         self._convert(403, quote, 'invoice')
@@ -272,13 +287,25 @@ class ConvertTestCase(_BillingTestCase):
         quote, source, target = self.create_quote_n_orgas('My Quote')
         user = self.user
 
-        create_pline = partial(ProductLine.objects.create, user=user, related_document=quote)
-        product_line_otf = create_pline(on_the_fly_item='otf1', unit_price=Decimal('1'))
-        product_line = create_pline(related_item=self.create_product(), unit_price=Decimal('2'))
+        create_pline = partial(
+            ProductLine.objects.create, user=user, related_document=quote,
+        )
+        product_line_otf = create_pline(
+            on_the_fly_item='otf1', unit_price=Decimal('1'),
+        )
+        product_line = create_pline(
+            related_item=self.create_product(), unit_price=Decimal('2'),
+        )
 
-        create_sline = partial(ServiceLine.objects.create, user=user, related_document=quote)
-        service_line_otf = create_sline(on_the_fly_item='otf2', unit_price=Decimal('4'))
-        service_line = create_sline(related_item=self.create_service(), unit_price=Decimal('5'))
+        create_sline = partial(
+            ServiceLine.objects.create, user=user, related_document=quote,
+        )
+        service_line_otf = create_sline(
+            on_the_fly_item='otf2', unit_price=Decimal('4'),
+        )
+        service_line = create_sline(
+            related_item=self.create_service(), unit_price=Decimal('5'),
+        )
 
         # quote.save() # To set total_vat...
         quote = self.refresh(quote)

@@ -61,10 +61,10 @@ def export_as_pdf(request, base_id):
     if template_path is None:
         raise ConflictError('This type of entity cannot be exported as pdf')
 
-    source = entity.get_source().get_real_entity()
+    source = entity.source
     has_perm(source)
 
-    target = entity.get_target().get_real_entity()
+    target = entity.target
     has_perm(target)
 
     document_name = str(entity._meta.verbose_name)

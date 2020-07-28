@@ -295,6 +295,7 @@ class AbstractOpportunity(CremeEntity):
 
             super().save(*args, **kwargs)
 
+            # TODO: set *_rel attributes (see billing.Base)
             create_relation(subject_entity=self._opp_emitter, type_id=constants.REL_SUB_EMIT_ORGA)
             create_relation(subject_entity=target,            type_id=constants.REL_OBJ_TARGETS)
 
@@ -306,6 +307,7 @@ class AbstractOpportunity(CremeEntity):
 
             if old_relation and old_relation.object_entity_id != target.id:
                 old_relation.delete()
+                # TODO: set *_rel attribute (see billing.Base)
                 create_relation(subject_entity=self._opp_target, type_id=constants.REL_OBJ_TARGETS)
                 transform_target_into_prospect(self.emitter, target, self.user)
 
@@ -317,11 +319,11 @@ class AbstractOpportunity(CremeEntity):
 
             ct = ContentType.objects.get_for_model(get_quote_model())
 
-            return Relation.objects.filter(object_entity=self.id,
-                                           type=constants.REL_SUB_CURRENT_DOC,
-                                           subject_entity__entity_type=ct,
-                                          ) \
-                                   .values_list('subject_entity_id', flat=True)
+            return Relation.objects.filter(
+                object_entity=self.id,
+                type=constants.REL_SUB_CURRENT_DOC,
+                subject_entity__entity_type=ct,
+            ).values_list('subject_entity_id', flat=True)
 
 
 class Opportunity(AbstractOpportunity):

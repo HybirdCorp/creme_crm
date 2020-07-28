@@ -26,6 +26,7 @@ from .base import (
     Contact,
     OpportunitiesBaseTestCase,
     Opportunity,
+    Organisation,
     skipIfCustomOpportunity,
 )
 
@@ -50,9 +51,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     SELECTION_URL = reverse('opportunities__select_billing_objs_to_link')
 
     def _build_currentquote_url(self, opportunity, quote, action='set_current'):
-        return reverse('opportunities__linked_quote_is_current',
-                       args=(opportunity.id, quote.id, action),
-                      )
+        return reverse(
+            'opportunities__linked_quote_is_current',
+            args=(opportunity.id, quote.id, action),
+        )
 
     def _build_gendoc_url(self, opportunity, model=None):
         model = model or Quote
@@ -60,6 +62,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             'opportunities__generate_billing_doc',
             args=(opportunity.id, ContentType.objects.get_for_model(model).id),
         )
+
+    def _create_organisations(self):
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        return create_orga(name='Source'), create_orga(name='Target')
 
     def _set_quote_config(self, use_current_quote):
         sv = SettingValue.objects.get_4_key(setting_keys.quote_key)
@@ -88,7 +94,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
 
         self.get_relationtype_or_fail(
-            constants.REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder],
+            constants.REL_OBJ_CURRENT_DOC,
+            [Opportunity],
+            [Invoice, Quote, SalesOrder],
         )
 
     @skipIfCustomOrganisation
@@ -111,9 +119,9 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertDatetimesAlmostEqual(date.today(), quote.issuing_date)
         self.assertEqual(1, quote.status_id)
         self.assertTrue(quote.number)
-        self.assertEqual(f'{quote.number} — {opportunity.name}',
-                         quote.name
-                        )
+        self.assertEqual(
+            f'{quote.number} — {opportunity.name}', quote.name
+        )
 
         self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
@@ -188,9 +196,11 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_generate_new_doc_error02(self):
         "Credentials problems"
-        self.login(is_superuser=False, allowed_apps=['billing', 'opportunities'],
-                   creatable_models=[Opportunity],  # Not Quote
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['billing', 'opportunities'],
+            creatable_models=[Opportunity],  # Not Quote
+        )
 
         opportunity = self._create_opportunity_n_organisations()[0]
         url = self._build_gendoc_url(opportunity)
@@ -202,9 +212,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         role.creatable_ctypes.add(quote_ct)
         self.assertPOST403(url)
 
-        create_sc = partial(SetCredentials.objects.create, role=role,
-                            set_type=SetCredentials.ESET_ALL,
-                           )
+        create_sc = partial(
+            SetCredentials.objects.create,
+            role=role, set_type=SetCredentials.ESET_ALL,
+        )
         create_sc(
             value=(
                 EntityCredentials.VIEW
@@ -267,14 +278,18 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         create_sline = partial(ServiceLine.objects.create, user=user)
         self.client.post(url)
         quote1 = Quote.objects.all()[0]
-        create_sline(related_document=quote1, on_the_fly_item='Stuff1', unit_price=Decimal('300'))
+        create_sline(
+            related_document=quote1, on_the_fly_item='Stuff1', unit_price=Decimal('300'),
+        )
 
         self.client.post(url)
         quote2 = Quote.objects.exclude(pk=quote1.id)[0]
         quote2.status = QuoteStatus.objects.create(name="WONStatus", order=15, won=True)
         quote2.save()
 
-        create_sline(related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal('500'))
+        create_sline(
+            related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal('500'),
+        )
         self.assertPOST200(
             self._build_currentquote_url(opportunity, quote1, action='unset_current'),
             follow=True,
@@ -322,9 +337,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         self.client.post(self._build_gendoc_url(opportunity))
         quote1 = Quote.objects.all()[0]
-        ServiceLine.objects.create(user=user, related_document=quote1,
-                                   on_the_fly_item='Foobar', unit_price=Decimal("300")
-                                  )
+        ServiceLine.objects.create(
+            user=user, related_document=quote1,
+            on_the_fly_item='Foobar', unit_price=Decimal("300")
+        )
 
         self.assertPOST200(self._build_currentquote_url(opportunity, quote1), follow=True)
 
@@ -344,9 +360,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(self.refresh(opportunity).estimated_sales, quote.total_no_vat)
         self.assertPOST200(self._build_currentquote_url(opportunity, quote), follow=True)
 
-        ServiceLine.objects.create(user=user, related_document=quote,
-                                   on_the_fly_item='Stuff', unit_price=Decimal("300"),
-                                  )
+        ServiceLine.objects.create(
+            user=user, related_document=quote,
+            on_the_fly_item='Stuff', unit_price=Decimal('300'),
+        )
         self.assertEqual(300, self.refresh(quote).total_no_vat)
         self.assertEqual(300, self.refresh(opportunity).estimated_sales)
 
@@ -365,21 +382,24 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(0, self.refresh(quote).total_no_vat)
         self.assertEqual(0, self.refresh(opportunity).estimated_sales)
 
-        ServiceLine.objects.create(user=user, related_document=quote,
-                                   on_the_fly_item='Stuff', unit_price=Decimal("300"),
-                                  )
+        ServiceLine.objects.create(
+            user=user, related_document=quote,
+            on_the_fly_item='Stuff', unit_price=Decimal('300'),
+        )
         self.assertEqual(300, self.refresh(quote).total_no_vat)
         self.assertEqual(300, self.refresh(opportunity).estimated_sales)
 
-        Relation.objects.filter(type__in=(constants.REL_SUB_CURRENT_DOC,
-                                          constants.REL_OBJ_CURRENT_DOC
-                                         ),
-                               ).delete()
+        Relation.objects.filter(
+            type__in=(
+                constants.REL_SUB_CURRENT_DOC,
+                constants.REL_OBJ_CURRENT_DOC
+            ),
+        ).delete()
 
         self.assertEqual(0, self.refresh(opportunity).estimated_sales)
 
     def test_current_quote_6(self):
-        "Avoid queries when the billing instance has just been created"
+        "Avoid queries when the billing instance has just been created."
         if billing.quote_model_is_custom():
             return
 
@@ -391,12 +411,13 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         context = CaptureQueriesContext(connections[DEFAULT_DB_ALIAS])
 
         status = QuoteStatus.objects.all()[0]
+        source, target = self._create_organisations()
 
         with context:
-            quote = Quote.objects.create(user=user,
-                                         name='My Quote',
-                                         status=status,
-                                        )
+            quote = Quote.objects.create(
+                user=user, name='My Quote', status=status,
+                source=source, target=target,
+            )
 
         self.assertTrue(quote.pk)
 
@@ -421,23 +442,25 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
         self.client.post(self._build_gendoc_url(opp2))
 
-        linked_rel1 = self.get_object_or_fail(Relation,
-                                              subject_entity=opp1.id,
-                                              type=constants.REL_OBJ_LINKED_QUOTE,
-                                             )
+        linked_rel1 = self.get_object_or_fail(
+            Relation,
+            subject_entity=opp1.id,
+            type=constants.REL_OBJ_LINKED_QUOTE,
+        )
         quote1 = linked_rel1.object_entity.get_real_entity()
         self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC, opp1)
 
-        ServiceLine.objects.create(user=user, related_document=quote1,
-                                   on_the_fly_item='Stuff', unit_price=Decimal('42'),
-                                  )
+        ServiceLine.objects.create(
+            user=user, related_document=quote1,
+            on_the_fly_item='Stuff', unit_price=Decimal('42'),
+        )
         self.assertEqual(42, self.refresh(quote1).total_no_vat)
         self.assertEqual(42, self.refresh(opp1).estimated_sales)
 
-        linked_rel2 = self.get_object_or_fail(Relation,
-                                              subject_entity=opp2.id,
-                                              type=constants.REL_OBJ_LINKED_QUOTE,
-                                             )
+        linked_rel2 = self.get_object_or_fail(
+            Relation,
+            subject_entity=opp2.id, type=constants.REL_OBJ_LINKED_QUOTE,
+        )
         quote2 = linked_rel2.object_entity.get_real_entity()
         self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC, opp2)
 
@@ -468,11 +491,14 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         create_rel = partial(Relation.objects.create, user=user)
 
         def create_quote(name, emitter=emitter1, target=target1):
-            quote = Quote.objects.create(user=user, name=name, status=qstatus)
-            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,   object_entity=emitter)
-            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
-
-            return quote
+            # quote = Quote.objects.create(user=user, name=name, status=qstatus)
+            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,  object_entity=emitter)
+            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+            #
+            # return quote
+            return Quote.objects.create(
+                user=user, name=name, status=qstatus, source=emitter, target=target,
+            )
 
         quote1 = create_quote('Quote#1')
         quote2 = create_quote('Quote#2')
@@ -544,11 +570,14 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         create_rel = partial(Relation.objects.create, user=user)
 
         def create_quote(name, emitter=emitter1, target=target1):
-            quote = Quote.objects.create(user=user, name=name, status=qstatus)
-            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,   object_entity=emitter)
-            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
-
-            return quote
+            # quote = Quote.objects.create(user=user, name=name, status=qstatus)
+            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,  object_entity=emitter)
+            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+            #
+            # return quote
+            return Quote.objects.create(
+                user=user, name=name, status=qstatus, source=emitter, target=target,
+            )
 
         quote1 = create_quote('Quote#1')
         quote2 = create_quote('Quote#2')
@@ -617,11 +646,14 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         create_rel = partial(Relation.objects.create, user=user)
 
         def create_quote(name, emitter=emitter1, target=target1):
-            quote = Quote.objects.create(user=user, name=name, status=qstatus)
-            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,   object_entity=emitter)
-            create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
-
-            return quote
+            # quote = Quote.objects.create(user=user, name=name, status=qstatus)
+            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,  object_entity=emitter)
+            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+            #
+            # return quote
+            return Quote.objects.create(
+                user=user, name=name, status=qstatus, source=emitter, target=target,
+            )
 
         quote1 = create_quote('Quote#1')
         quote2 = create_quote('Quote#2')

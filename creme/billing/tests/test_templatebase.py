@@ -3,14 +3,13 @@
 from datetime import date, timedelta
 from functools import partial
 
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.function_field import function_field_registry
-from creme.creme_core.models import Relation
+# from creme.creme_core.models import Relation
 from creme.persons.tests.base import skipIfCustomOrganisation
 
-from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+# from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..models import (
     AdditionalInformation,
     CreditNoteStatus,
@@ -39,23 +38,26 @@ from .base import (
 class TemplateBaseTestCase(_BillingTestCase):
     def setUp(self):
         super().setUp()
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         self.source = create_orga(name='Source')
         self.target = create_orga(name='Target')
 
     def _create_templatebase(self, model, status_id, comment=''):
         user = self.user
-        tpl = TemplateBase.objects.create(user=user,
-                                          ct=ContentType.objects.get_for_model(model),
-                                          status_id=status_id,
-                                          comment=comment,
-                                         )
+        tpl = TemplateBase.objects.create(
+            user=user,
+            ct=model,
+            status_id=status_id,
+            comment=comment,
+            source=self.source,
+            target=self.target,
+        )
 
-        create_rel = partial(Relation.objects.create, user=user, subject_entity=tpl)
-        create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=self.source)
-        create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=self.target)
+        # create_rel = partial(Relation.objects.create, user=user, subject_entity=tpl)
+        # create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=self.source)
+        # create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=self.target)
 
         return tpl
 
@@ -100,8 +102,10 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(invoice_status, invoice.status)
         self.assertEqual(tpl.additional_info, invoice.additional_info)
         self.assertEqual(tpl.payment_terms,   invoice.payment_terms)
-        self.assertEqual(self.source, invoice.get_source().get_real_entity())
-        self.assertEqual(self.target, invoice.get_target().get_real_entity())
+        # self.assertEqual(self.source, invoice.get_source().get_real_entity())
+        # self.assertEqual(self.target, invoice.get_target().get_real_entity())
+        self.assertEqual(self.source, invoice.source)
+        self.assertEqual(self.target, invoice.target)
 
         self.assertIsNotNone(invoice.number)
         self.assertEqual(date.today(), invoice.issuing_date)
@@ -109,7 +113,7 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     def test_create_invoice02(self):
-        "Bad status id"
+        "Bad status id."
         pk = 12
         self.assertFalse(InvoiceStatus.objects.filter(pk=pk))
 
@@ -135,7 +139,7 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     def test_create_quote02(self):
-        "Bad status id"
+        "Bad status id."
         pk = 8
         self.assertFalse(QuoteStatus.objects.filter(pk=pk))
 
@@ -185,11 +189,12 @@ class TemplateBaseTestCase(_BillingTestCase):
         invoice.status = status2del
         invoice.save()
 
-        self.assertDeleteStatusOK(status2del=status2del,
-                                  short_name='invoice_status',
-                                  new_status=new_status,
-                                  doc=invoice,
-                                 )
+        self.assertDeleteStatusOK(
+            status2del=status2del,
+            short_name='invoice_status',
+            new_status=new_status,
+            doc=invoice,
+        )
 
         tpl1 = self.assertStillExists(tpl1)
         self.assertEqual(new_status.id, tpl1.status_id)
@@ -210,11 +215,12 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         quote = self.create_quote_n_orgas('Nerv', status=status2del)[0]
 
-        self.assertDeleteStatusOK(status2del=status2del,
-                                  short_name='quote_status',
-                                  new_status=new_status,
-                                  doc=quote,
-                                 )
+        self.assertDeleteStatusOK(
+            status2del=status2del,
+            short_name='quote_status',
+            new_status=new_status,
+            doc=quote,
+        )
 
         tpl1 = self.assertStillExists(tpl1)
         self.assertEqual(new_status.id, tpl1.status_id)
@@ -235,11 +241,12 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         order = self.create_salesorder_n_orgas('Order', status=status2del)[0]
 
-        self.assertDeleteStatusOK(status2del=status2del,
-                                  short_name='sales_order_status',
-                                  new_status=new_status,
-                                  doc=order,
-                                 )
+        self.assertDeleteStatusOK(
+            status2del=status2del,
+            short_name='sales_order_status',
+            new_status=new_status,
+            doc=order,
+        )
 
         tpl1 = self.assertStillExists(tpl1)
         self.assertEqual(new_status.id, tpl1.status_id)
@@ -260,11 +267,12 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         credit_note = self.create_credit_note_n_orgas('Credit Note', status=status2del)[0]
 
-        self.assertDeleteStatusOK(status2del=status2del,
-                                  short_name='credit_note_status',
-                                  new_status=new_status,
-                                  doc=credit_note,
-                                 )
+        self.assertDeleteStatusOK(
+            status2del=status2del,
+            short_name='credit_note_status',
+            new_status=new_status,
+            doc=credit_note,
+        )
 
         tpl1 = self.assertStillExists(tpl1)
         self.assertEqual(new_status.id, tpl1.status_id)

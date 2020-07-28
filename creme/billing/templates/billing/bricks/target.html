@@ -10,7 +10,8 @@
 {% block brick_table_head %}{% endblock %}
 
 {% block brick_table_rows %}
-    {% with target=object.get_target emitter=object.get_source %}
+{#    {% with target=object.get_target emitter=object.get_source %} #}
+    {% with target=object.target emitter=object.source %}
     <tr>
         <td>
             <h1 class="billing-target billing-target-label">{% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}

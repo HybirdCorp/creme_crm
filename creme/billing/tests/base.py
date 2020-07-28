@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme import billing
-from creme.creme_core.models import Currency, Relation
+from creme.creme_core.models import Currency  # Relation
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 from creme.persons import (
@@ -79,17 +79,18 @@ def skipIfCustomServiceLine(test_func):
 
 class _BillingTestCaseMixin:
     def login(self, is_superuser=True, allowed_apps=None, *args, **kwargs):
-        return super().login(is_superuser,
-                             allowed_apps=allowed_apps or ['billing'],
-                             *args, **kwargs
-                             )
+        return super().login(
+            is_superuser,
+            allowed_apps=allowed_apps or ['billing'],
+            *args, **kwargs
+        )
 
     def assertAddressContentEqual(self, address1, address2):  # TODO: move in persons ??
         self.assertIsInstance(address1, Address)
         self.assertIsInstance(address2, Address)
 
         for f in (
-                'name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country',
+            'name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country',
         ):
             self.assertEqual(getattr(address1, f), getattr(address2, f))
 
@@ -165,9 +166,13 @@ class _BillingTestCaseMixin:
 
         return invoice
 
-    def create_orgas(self, user=None):
+    def create_orgas(self, user=None, index=1):
         create_orga = partial(Organisation.objects.create, user=user or self.user)
-        return create_orga(name='Source Orga'), create_orga(name='Target Orga')
+
+        return (
+            create_orga(name=f'Source #{index}'),
+            create_orga(name=f'Target #{index}'),
+        )
 
     def create_invoice_n_orgas(self, name, user=None, discount=Decimal(), currency=None):
         source, target = self.create_orgas()
@@ -226,7 +231,7 @@ class _BillingTestCaseMixin:
             user=self.user, name=name, code='465',
             unit_price=unit_price or Decimal('1.0'),
             description='Drug',
-            category=cat, sub_category=subcat
+            category=cat, sub_category=subcat,
         )
 
     def create_service(self):
@@ -235,7 +240,7 @@ class _BillingTestCaseMixin:
         return Service.objects.create(
             user=self.user, name='Mushroom hunting',
             unit_price=Decimal('6'),
-            category=cat, sub_category=subcat
+            category=cat, sub_category=subcat,
         )
 
     # TODO inline (used once)
@@ -270,10 +275,13 @@ class _BillingTestCaseMixin:
 
     def assertDeleteStatusOK(self, *, status2del, short_name, new_status, doc):
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('billing', short_name, status2del.id)
-                    ),
-            data={'replace_billing__{}_status'.format(type(doc).__name__.lower()): new_status.id},
+            reverse(
+                'creme_config__delete_instance',
+                args=('billing', short_name, status2del.id),
+            ),
+            data={
+                f'replace_billing__{type(doc).__name__.lower()}_status': new_status.id,
+            },
         )
         self.assertNoFormError(response)
 
@@ -289,7 +297,10 @@ class _BillingTestCaseMixin:
         orga.save()
 
 
-class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestCaseMixin):
+# class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestCaseMixin):
+class _BillingTestCase(_BillingTestCaseMixin,
+                       MassImportBaseTestCaseMixin,
+                       CremeTestCase):
     def _aux_test_csv_import(self, model, status_model, update=False):
         count = model.objects.count()
         create_orga = partial(Organisation.objects.create, user=self.user)
@@ -460,11 +471,13 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
 
         # Billing_doc1
         billing_doc1 = billing_docs[0]
-        imp_source1 = billing_doc1.get_source()
+        # imp_source1 = billing_doc1.get_source()
+        imp_source1 = billing_doc1.source
         self.assertIsNotNone(imp_source1)
         self.assertEqual(source1, imp_source1.get_real_entity())
 
-        imp_target1 = billing_doc1.get_target()
+        # imp_target1 = billing_doc1.get_target()
+        imp_target1 = billing_doc1.target
         self.assertIsNotNone(imp_target1)
         self.assertEqual(target1, imp_target1.get_real_entity())
 
@@ -478,31 +491,34 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
 
         # Billing_doc2
         billing_doc2 = billing_docs[1]
-        imp_source2 = billing_doc2.get_source()
+        # imp_source2 = billing_doc2.get_source()
+        imp_source2 = billing_doc2.source
         self.assertIsNotNone(imp_source2)
         source2 = self.get_object_or_fail(Organisation, name=source2_name)
         self.assertEqual(imp_source2.get_real_entity(), source2)
 
-        imp_target2 = billing_doc2.get_target()
+        # imp_target2 = billing_doc2.get_target()
+        imp_target2 = billing_doc2.target
         self.assertIsNotNone(imp_target2)
         target2 = self.get_object_or_fail(Organisation, name=target2_name)
         self.assertEqual(imp_target2.get_real_entity(), target2)
 
         # Billing_doc3
-        imp_target3 = billing_docs[2].get_target()
+        imp_target3 = billing_docs[2].target
         self.assertIsNotNone(imp_target3)
         self.assertEqual(target3, imp_target3.get_real_entity())
 
         # Billing_doc4
-        imp_target4 = billing_docs[3].get_target()
+        # imp_target4 = billing_docs[3].get_target()
+        imp_target4 = billing_docs[3].target
         self.assertIsNotNone(imp_target4)
         target4 = self.get_object_or_fail(Contact, last_name=target4_last_name)
         self.assertEqual(imp_target4.get_real_entity(), target4)
 
     def _aux_test_csv_import_update(self, model, status_model,
                                     target_billing_address=True,
-                                    override_billing_addr=False, override_shipping_addr=False,
-                                   ):
+                                    override_billing_addr=False,
+                                    override_shipping_addr=False):
         user = self.user
         create_orga = partial(Organisation.objects.create, user=user)
 
@@ -513,12 +529,15 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
         target2 = create_orga(name='Acme2')
 
         def_status = status_model.objects.all()[0]
-        bdoc = model.objects.create(user=user, name='Billdoc #1', status=def_status)
+        bdoc = model.objects.create(
+            user=user, name='Billdoc #1', status=def_status,
+            source=source1,
+            target=target1,
+        )
 
-        # TODO: copy the API of Opportunities
-        create_rel = partial(Relation.objects.create, subject_entity=bdoc, user=user)
-        create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source1)
-        create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target1)
+        # create_rel = partial(Relation.objects.create, subject_entity=bdoc, user=user)
+        # create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source1)
+        # create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target1)
 
         create_addr = Address.objects.create
         if target_billing_address:
@@ -532,7 +551,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
         )
         target2.save()
 
-        bdoc.billing_address  = b_addr2 = create_addr(
+        bdoc.billing_address = b_addr2 = create_addr(
             owner=bdoc,
             name='BillingAddr22', address='Temple of rain', city='Kiri',
         )
@@ -568,7 +587,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
                 'discount_defval':    '0',
 
                 'currency_colselect': 0,
-                'currency_defval':    Currency.objects.all()[0].pk,
+                'currency_defval':    Currency.objects.first().pk,
 
                 'acceptation_date_colselect': 0,
 
@@ -622,4 +641,5 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestC
         self.assertEqual(expected_s_addr.address, s_addr.address)
         self.assertEqual(expected_s_addr.city,    s_addr.city)
 
-        self.assertEqual(addr_count, Address.objects.count())  # No new Address should be created
+        # No new Address should be created
+        self.assertEqual(addr_count, Address.objects.count())

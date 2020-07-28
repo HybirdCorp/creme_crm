@@ -334,9 +334,11 @@ class BillingPaymentInformationBrick(QuerysetBrick):
     def detailview_display(self, context):
         billing = context['object']
         pi_qs = PaymentInformation.objects.none()
-        hidden = context['fields_configs'].get_4_model(billing.__class__)\
-                                          .is_fieldname_hidden('payment_info')
-        organisation = billing.get_source()
+        hidden = context['fields_configs'].get_4_model(
+            billing.__class__,
+        ).is_fieldname_hidden('payment_info')
+        # organisation = billing.get_source()
+        organisation = billing.source
 
         if not hidden and organisation is not None:
             pi_qs = PaymentInformation.objects.filter(organisation=organisation)

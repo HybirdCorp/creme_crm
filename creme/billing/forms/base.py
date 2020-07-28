@@ -28,15 +28,15 @@ from creme.creme_core.forms import (
     CremeEntityForm,
     GenericEntityField,
 )
-from creme.creme_core.models import Relation
-from creme.creme_core.utils import find_first
+# from creme.creme_core.models import Relation
+# from creme.creme_core.utils import find_first
 from creme.persons import (
     get_address_model,
     get_contact_model,
     get_organisation_model,
 )
 
-from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+# from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 logger = logging.getLogger(__name__)
 
@@ -81,58 +81,71 @@ class BaseEditForm(CremeEntityForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.issued_relation   = None
-        self.received_relation = None
-        self.old_user_id = self.instance.user_id
+        # self.issued_relation   = None
+        # self.received_relation = None
+        instance = self.instance
+        self.old_user_id = instance.user_id
 
-        pk = self.instance.pk
+        pk = instance.pk
 
         if pk is not None:  # Edit mode
-            relations = Relation.objects.filter(
-                subject_entity=pk, type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED),
-            )
+            # relations = Relation.objects.filter(
+            #     subject_entity=pk, type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED),
+            # )
+            #
+            # issued_relation = find_first(
+            #     relations,
+            #     (lambda r: r.type_id == REL_SUB_BILL_ISSUED),
+            #     None
+            # )
+            # received_relation = find_first(
+            #     relations,
+            #     (lambda r: r.type_id == REL_SUB_BILL_RECEIVED),
+            #     None
+            # )
+            #
+            # if issued_relation:
+            #     self.issued_relation = issued_relation
+            #     self.fields['source'].initial = issued_relation.object_entity_id
+            #
+            # if received_relation:
+            #     self.received_relation = received_relation
+            #     self.fields['target'].initial = received_relation.object_entity
+            fields = self.fields
+            fields['source'].initial = instance.source.id
+            fields['target'].initial = instance.target
 
-            issued_relation = find_first(
-                relations,
-                (lambda r: r.type_id == REL_SUB_BILL_ISSUED),
-                None
-            )
-            received_relation = find_first(
-                relations,
-                (lambda r: r.type_id == REL_SUB_BILL_RECEIVED),
-                None
-            )
+    # def _manage_relation(self, existing_relation, type_id, related_entity):
+    #     if existing_relation:
+    #         if related_entity.id != existing_relation.object_entity_id:
+    #             existing_relation.delete()
+    #             existing_relation = None
+    #
+    #     if not existing_relation:
+    #         instance = self.instance
+    #         Relation.objects.safe_create(
+    #             subject_entity=instance,
+    #             type_id=type_id,
+    #             object_entity=related_entity,
+    #             user=instance.user,
+    #         )
 
-            if issued_relation:
-                self.issued_relation = issued_relation
-                self.fields['source'].initial = issued_relation.object_entity_id
+    def clean_source(self):
+        self.instance.source = source = self.cleaned_data['source']
 
-            if received_relation:
-                self.received_relation = received_relation
-                self.fields['target'].initial = received_relation.object_entity
+        return source
 
-    def _manage_relation(self, existing_relation, type_id, related_entity):
-        if existing_relation:
-            if related_entity.id != existing_relation.object_entity_id:
-                existing_relation.delete()
-                existing_relation = None
+    def clean_target(self):
+        self.instance.target = target = self.cleaned_data['target']
 
-        if not existing_relation:
-            instance = self.instance
-            Relation.objects.safe_create(
-                subject_entity=instance,
-                type_id=type_id,
-                object_entity=related_entity,
-                user=instance.user,
-            )
+        return target
 
     def save(self, *args, **kwargs):
         instance = self.instance
 
         cleaned_data = self.cleaned_data
         source = cleaned_data['source']
-        target = cleaned_data['target']
-        user   = cleaned_data['user']
+        # target = cleaned_data['target']
 
         payment_info = instance.payment_info
         org_payment_info = payment_info.get_related_entity() if payment_info else None
@@ -142,12 +155,11 @@ class BaseEditForm(CremeEntityForm):
 
         instance = super().save(*args, **kwargs)
 
-        # TODO: move this intelligence in models.Base.save()
-        self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source)
-        self._manage_relation(self.received_relation, REL_SUB_BILL_RECEIVED, target)
+        # self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source)
+        # self._manage_relation(self.received_relation, REL_SUB_BILL_RECEIVED, target)
 
         # TODO: do this in model/with signal to avoid errors ???
-        if self.old_user_id and self.old_user_id != user.id:
+        if self.old_user_id and self.old_user_id != cleaned_data['user'].id:
             # Do not use queryset.update() to call the CremeEntity.save() method
             #  TODO: change with future Credentials system ??
             for line in instance.iter_all_lines():
@@ -174,7 +186,7 @@ class BaseCreateForm(BaseEditForm):
         super().save(*args, **kwargs)
 
         instance.billing_address = copy_or_create_address(
-            target.billing_address,  owner=instance, name=_('Billing address'),
+            target.billing_address, owner=instance, name=_('Billing address'),
         )
         instance.shipping_address = copy_or_create_address(
             target.shipping_address, owner=instance, name=_('Shipping address'),

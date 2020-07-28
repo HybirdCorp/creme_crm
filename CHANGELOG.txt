@@ -147,6 +147,8 @@
                     - In 'views.graph':
                         - The function-view 'get_available_report_graph_types()' is deprecated.
                         - The function '_get_available_report_graph_types()' is deprecated.
+                * Billing :
+                    - In 'models.Base', the methods 'get_source()/get_target()' are deprecated ; use the properties "source/target" instead.
                 * Commercial :
                     - These constants are deprecated : REL_SUB_SOLD_BY REL_OBJ_SOLD_BY. Use REL_SUB_SOLD & REL_OBJ_SOLD instead.
                 * Emails :
@@ -388,17 +390,22 @@
                 - In JavaScript :
                     - 'creme.emails.ResendEMailsAction' does not expect a JSON response anymore.
             * Billing :
-                - In 'models.Line' :
-                    - The way discount types are represented has been fixed (we used some hacks since years).
-                        - The model-field 'total_discount' has been removed.
-                        - In the model-field 'discount_unit' :
-                            - The choice 'DISCOUNT_ITEM_AMOUNT' has been added.
-                            - The value of these attributes has changed :
-                                - "null == False" & "blank == False".
-                                - "editable == True".
-                    - These attribute of the model-field 'vat_value' have changed :
-                        - "null == False" & "blank == False".
-                        - "default == 1".
+                _ In 'models':
+                    - In 'Base' (& so child classes 'Invoice', 'Quote'…), "source" & "target" must be provided before saving.
+                    - In 'Line' :
+                        - The way discount types are represented has been fixed (we used some hacks since years).
+                            - The model-field 'total_discount' has been removed.
+                            - In the model-field 'discount_unit' :
+                                - The choice 'DISCOUNT_ITEM_AMOUNT' has been added.
+                                - The value of these attributes has changed :
+                                    - "null == False" & "blank == False".
+                                    - "editable == True".
+                        - These attribute of the model-field 'vat_value' have changed :
+                            - "null == False" & "blank == False".
+                            - "default == 1".
+                - Several changes in 'forms.base.BaseEditForm' :
+                    - The attributes "issued_relation" & "received_relation" have been removed.
+                    - The method '_manage_relation()' has been removed.
                 - The function-view 'views.invoice.generate_number()' has been replaced by the class 'NumberGeneration'.
             * Commercial :
                 - These function-views of 'views.strategy' have been replaced by classes.
