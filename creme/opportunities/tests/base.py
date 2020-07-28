@@ -24,7 +24,7 @@ class OpportunitiesBaseTestCase(CremeTestCase):
         user = self.user
         create_orga = Organisation.objects.create
         emitter = create_orga(user=user, name='My society', is_managed=managed)
-        target  = (
+        target = (
             create_orga(user=user, name='Target renegade')
             if not contact else
             Contact.objects.create(user=user, first_name='Target', last_name='Renegade')
@@ -34,9 +34,10 @@ class OpportunitiesBaseTestCase(CremeTestCase):
 
     def _create_opportunity_n_organisations(self, name='Opp', managed=True, contact=False):
         target, emitter = self._create_target_n_emitter(managed=managed, contact=contact)
-        opp = Opportunity.objects.create(user=self.user, name=name,
-                                         sales_phase=SalesPhase.objects.all()[0],
-                                         emitter=emitter, target=target,
-                                        )
+        opp = Opportunity.objects.create(
+            user=self.user, name=name,
+            sales_phase=SalesPhase.objects.all()[0],
+            emitter=emitter, target=target,
+        )
 
         return opp, target, emitter

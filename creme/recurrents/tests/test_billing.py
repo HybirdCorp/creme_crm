@@ -59,17 +59,19 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
         gen_name = 'Recurrent invoice'
         ct = ContentType.objects.get_for_model(model)
-        response = self.client.post(url,
-                                    data={'recurrent_generator_wizard-current_step': 0,
+        response = self.client.post(
+            url,
+            data={
+                'recurrent_generator_wizard-current_step': 0,
 
-                                          '0-user':             user.id,
-                                          '0-name':             gen_name,
-                                          '0-ct':               ct.id,
-                                          '0-first_generation': '08-07-2014 11:00',
-                                          '0-periodicity_0':    'months',
-                                          '0-periodicity_1':    '1',
-                                         }
-                                    )
+                '0-user':             user.id,
+                '0-name':             gen_name,
+                '0-ct':               ct.id,
+                '0-first_generation': '08-07-2014 11:00',
+                '0-periodicity_0':    'months',
+                '0-periodicity_1':    '1',
+            },
+        )
         self.assertNoWizardFormError(response)
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -121,10 +123,13 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
         self.assertEqual(user,        gen.user)
         self.assertEqual(ct,          gen.ct)
-        self.assertEqual({'type': 'months', 'value': 1}, gen.periodicity.as_dict())
-        self.assertEqual(self.create_datetime(year=2014, month=7, day=8, hour=11),
-                         gen.first_generation
-                        )
+        self.assertDictEqual(
+            {'type': 'months', 'value': 1}, gen.periodicity.as_dict(),
+        )
+        self.assertEqual(
+            self.create_datetime(year=2014, month=7, day=8, hour=11),
+            gen.first_generation
+        )
         self.assertIsNone(gen.last_generation)
         self.assertEqual(tpl, gen.template.get_real_entity())
         self.assertTrue(gen.is_working)
@@ -133,8 +138,10 @@ class RecurrentsBillingTestCase(CremeTestCase):
         self.assertEqual(currency,  tpl.currency)
         self.assertEqual(status.id, tpl.status_id)
         self.assertEqual(discount,  tpl.discount)
-        self.assertEqual(source,    tpl.get_source().get_real_entity())
-        self.assertEqual(target,    tpl.get_target().get_real_entity())
+        # self.assertEqual(source,    tpl.get_source().get_real_entity())
+        # self.assertEqual(target,    tpl.get_target().get_real_entity())
+        self.assertEqual(source,    tpl.source)
+        self.assertEqual(target,    tpl.target)
 
         billing_address = tpl.billing_address
         self.assertIsInstance(billing_address, Address)
@@ -187,26 +194,31 @@ class RecurrentsBillingTestCase(CremeTestCase):
     @skipIfNotInstalled('creme.billing')
     def test_create_credentials01(self):
         "Creation credentials for generated models."
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'recurrents'],
-                          creatable_models=[RecurrentGenerator, Quote],  # Not Invoice
-                         )
+        user = self.login(
+            is_superuser=False, allowed_apps=['persons', 'recurrents'],
+            creatable_models=[RecurrentGenerator, Quote],  # Not Invoice
+        )
 
         url = self.ADD_URL
         self.assertGET200(url)
 
         def post(model):
             ct = ContentType.objects.get_for_model(model)
-            return self.client.post(url,
-                                    data={'recurrent_generator_wizard-current_step': 0,
+            return self.client.post(
+                url,
+                data={
+                    'recurrent_generator_wizard-current_step': 0,
 
-                                          '0-user':             user.id,
-                                          '0-name':             'Recurrent billing obj',
-                                          '0-ct':               ct.id,
-                                          '0-first_generation': '08-07-2014 11:00',
-                                          '0-periodicity_0':    'weeks',
-                                          '0-periodicity_1':    '3',
-                                         },
-                                   )
+                    '0-user': user.id,
+                    '0-name': 'Recurrent billing obj',
+                    '0-ct':   ct.id,
+
+                    '0-first_generation': '08-07-2014 11:00',
+
+                    '0-periodicity_0': 'weeks',
+                    '0-periodicity_1': '3',
+                },
+            )
 
         response = post(Invoice)
 
@@ -216,8 +228,13 @@ class RecurrentsBillingTestCase(CremeTestCase):
         with self.assertNoException():
             errors = response.context['wizard']['form'].errors
 
-        self.assertEqual(
-            {'ct': [_('Select a valid choice. That choice is not one of the available choices.')]},
+        self.assertDictEqual(
+            {
+                'ct': [_(
+                    'Select a valid choice. '
+                    'That choice is not one of the available choices.'
+                )],
+            },
             errors
         )
 
@@ -225,17 +242,19 @@ class RecurrentsBillingTestCase(CremeTestCase):
         self.assertNoWizardFormError(response)
 
     def test_create_credentials02(self):
-        "App credentials"
-        self.login(is_superuser=False, allowed_apps=['persons'],  # Not 'recurrents'
-                   creatable_models=[RecurrentGenerator, Quote],
-                  )
+        "App credentials."
+        self.login(
+            is_superuser=False, allowed_apps=['persons'],  # Not 'recurrents'
+            creatable_models=[RecurrentGenerator, Quote],
+        )
 
         self.assertGET403(self.ADD_URL)
 
     @skipIfNotInstalled('creme.billing')
     def test_create_credentials03(self):
-        "Creation credentials for generator"
-        self.login(is_superuser=False, allowed_apps=['persons', 'recurrents'],
-                   creatable_models=[Quote],  # Not RecurrentGenerator
-                  )
+        "Creation credentials for generator."
+        self.login(
+            is_superuser=False, allowed_apps=['persons', 'recurrents'],
+            creatable_models=[Quote],  # Not RecurrentGenerator
+        )
         self.assertGET403(self.ADD_URL)

@@ -70,7 +70,8 @@ class CreditNoteRelatedForm(base.CremeForm):
                 # TODO: workflow status
                 # status=CreditNoteStatus.objects.get(pk=ISSUED_CREDIT_NOTE).id,
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
-                relations__object_entity=entity.get_real_entity().get_target().id,
+                # relations__object_entity=entity.get_real_entity().get_target().id,
+                relations__object_entity=entity.get_real_entity().target.id,
             )
         )
 

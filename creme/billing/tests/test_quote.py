@@ -37,10 +37,11 @@ from .base import (
 class QuoteTestCase(_BillingTestCase):
     def test_detailview01(self):
         "Cannot create Sales Orders => convert button disabled"
-        self.login(is_superuser=False,
-                   allowed_apps=['billing', 'persons'],
-                   creatable_models=[Organisation, Quote, Invoice],  # Not SalesOrder
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['billing', 'persons'],
+            creatable_models=[Organisation, Quote, Invoice],  # Not SalesOrder
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -60,11 +61,12 @@ class QuoteTestCase(_BillingTestCase):
         self.assertContains(response, '"type": "sales_order"')
 
     def test_detailview02(self):
-        "Cannot create Invoice => convert button disabled"
-        self.login(is_superuser=False,
-                   allowed_apps=['billing', 'persons'],
-                   creatable_models=[Organisation, Quote, SalesOrder],  # Not Invoice
-                  )
+        "Cannot create Invoice => convert button disabled."
+        self.login(
+            is_superuser=False,
+            allowed_apps=['billing', 'persons'],
+            creatable_models=[Organisation, Quote, SalesOrder],  # Not Invoice
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -108,24 +110,27 @@ class QuoteTestCase(_BillingTestCase):
         self.assertTemplateUsed(response, 'billing/form/add-popup.html')
 
         context = response.context
-        self.assertEqual(_('Create a quote for «{entity}»').format(entity=target),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Create a quote for «{entity}»').format(entity=target),
+            context.get('title')
+        )
         self.assertEqual(Quote.save_label, context.get('submit_label'))
 
         # ---
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertEqual({'status': 1,
-                          'target': target,
-                         },
-                         form.initial
-                        )
+        self.assertDictEqual(
+            {
+                'status': 1,
+                'target': target,
+            },
+            form.initial
+        )
 
         name = 'Quote#1'
         currency = Currency.objects.all()[0]
-        status   = QuoteStatus.objects.all()[1]
+        status = QuoteStatus.objects.all()[1]
         response = self.client.post(
             url, follow=True,
             data={
@@ -152,11 +157,12 @@ class QuoteTestCase(_BillingTestCase):
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
 
     def test_create_related02(self):
-        "Not a super-user"
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'billing'],
-                   creatable_models=[Quote],
-                  )
+        "Not a super-user."
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Quote],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=(
@@ -170,14 +176,17 @@ class QuoteTestCase(_BillingTestCase):
         )
 
         source, target = self.create_orgas()
-        self.assertGET200(reverse('billing__create_related_quote', args=(target.id,)))
+        self.assertGET200(
+            reverse('billing__create_related_quote', args=(target.id,)),
+        )
 
     def test_create_related03(self):
-        "Creation creds are needed"
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'billing'],
-                   # creatable_models=[Quote],
-                  )
+        "Creation creds are needed."
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            # creatable_models=[Quote],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=(
@@ -191,14 +200,17 @@ class QuoteTestCase(_BillingTestCase):
         )
 
         source, target = self.create_orgas()
-        self.assertGET403(reverse('billing__create_related_quote', args=(target.id,)))
+        self.assertGET403(
+            reverse('billing__create_related_quote', args=(target.id,)),
+        )
 
     def test_create_related04(self):
-        "CHANGE creds are needed"
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'billing'],
-                   creatable_models=[Quote],
-                  )
+        "CHANGE creds are needed."
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Quote],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=(
@@ -212,7 +224,9 @@ class QuoteTestCase(_BillingTestCase):
         )
 
         source, target = self.create_orgas()
-        self.assertGET403(reverse('billing__create_related_quote', args=(target.id,)))
+        self.assertGET403(
+            reverse('billing__create_related_quote', args=(target.id,)),
+        )
 
     def test_editview01(self):
         user = self.login()
@@ -224,9 +238,10 @@ class QuoteTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         name = name.title()
-        currency = Currency.objects.create(name='Marsian dollar', local_symbol='M$',
-                                           international_symbol='MUSD', is_custom=True,
-                                          )
+        currency = Currency.objects.create(
+            name='Marsian dollar', local_symbol='M$',
+            international_symbol='MUSD', is_custom=True,
+        )
         status = QuoteStatus.objects.all()[1]
         response = self.client.post(
             url, follow=True,
@@ -261,11 +276,12 @@ class QuoteTestCase(_BillingTestCase):
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
 
     def test_editview02(self):
-        "Change source/target + perms"
-        user = self.login(is_superuser=False,
-                          allowed_apps=('persons', 'billing'),
-                          creatable_models=[Quote],
-                         )
+        "Change source/target + perms."
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('persons', 'billing'),
+            creatable_models=[Quote],
+        )
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(
@@ -315,11 +331,12 @@ class QuoteTestCase(_BillingTestCase):
         self.assertRelationCount(0, quote, REL_SUB_BILL_RECEIVED, target1)
 
     def test_editview03(self):
-        "Change source/target + perms: unlinkable but not changed"
-        user = self.login(is_superuser=False,
-                          allowed_apps=('persons', 'billing'),
-                          creatable_models=[Quote],
-                         )
+        "Change source/target + perms: unlinkable but not changed."
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('persons', 'billing'),
+            creatable_models=[Quote],
+        )
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(
@@ -399,11 +416,12 @@ class QuoteTestCase(_BillingTestCase):
 
         quote = self.create_quote_n_orgas('Nerv', status=status2del)[0]
 
-        self.assertDeleteStatusOK(status2del=status2del,
-                                  short_name='quote_status',
-                                  new_status=new_status,
-                                  doc=quote,
-                                 )
+        self.assertDeleteStatusOK(
+            status2del=status2del,
+            short_name='quote_status',
+            new_status=new_status,
+            doc=quote,
+        )
 
     @skipIfCustomAddress
     def test_mass_import(self):
@@ -414,29 +432,27 @@ class QuoteTestCase(_BillingTestCase):
     @skipIfCustomServiceLine
     def test_clone(self):
         user = self.login()
+        source, target = self.create_orgas(user=user)
 
-        create_orga = partial(Organisation.objects.create, user=user)
-        source = create_orga(name='Source Orga')
-        target = create_orga(name='Target Orga')
-
-        target.billing_address = b_addr = \
-            Address.objects.create(name="Billing address 01",
-                                   address="BA1 - Address", city="BA1 - City",
-                                   owner=target,
-                                  )
+        target.billing_address = b_addr = Address.objects.create(
+            name='Billing address 01',
+            address='BA1 - Address', city='BA1 - City',
+            owner=target,
+        )
         target.save()
 
         # status = QuoteStatus.objects.filter(is_default=False)[0] TODO
 
-        quote = self.create_quote('Quote001', source, target,
-                                  # status=status,
-                                 )
+        quote = self.create_quote(
+            'Quote001', source, target,
+            # status=status,
+        )
         quote.acceptation_date = date.today()
         quote.save()
 
-        sl = ServiceLine.objects.create(related_item=self.create_service(),
-                                        user=user, related_document=quote,
-                                       )
+        sl = ServiceLine.objects.create(
+            related_item=self.create_service(), user=user, related_document=quote,
+        )
 
         cloned = self.refresh(quote.clone())
         quote = self.refresh(quote)
@@ -445,8 +461,10 @@ class QuoteTestCase(_BillingTestCase):
         # self.assertTrue(cloned.status.is_default) TODO
 
         self.assertNotEqual(quote, cloned)  # Not the same pk
-        self.assertEqual(source, cloned.get_source().get_real_entity())
-        self.assertEqual(target, cloned.get_target().get_real_entity())
+        # self.assertEqual(source, cloned.get_source().get_real_entity())
+        # self.assertEqual(target, cloned.get_target().get_real_entity())
+        self.assertEqual(source, cloned.source)
+        self.assertEqual(target, cloned.target)
 
         # Lines are cloned
         cloned_lines = [*cloned.iter_all_lines()]
@@ -474,9 +492,13 @@ class QuoteTestCase(_BillingTestCase):
         context = CaptureQueriesContext(connections[DEFAULT_DB_ALIAS])
 
         status = QuoteStatus.objects.all()[0]
+        source, target = self.create_orgas(user=user)
 
         with context:
-            quote = Quote.objects.create(user=user, name='My Quote', status=status)
+            quote = Quote.objects.create(
+                user=user, name='My Quote', status=status,
+                source=source, target=target,
+            )
 
         self.assertTrue(quote.pk)
         self.assertEqual(0, quote.total_no_vat)

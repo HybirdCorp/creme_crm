@@ -75,8 +75,9 @@ class PaymentInformationAsDefault(generic.base.EntityRelatedMixin, generic.Check
         pi = self.get_payment_information()
         billing_doc = self.get_related_entity()
 
-        if FieldsConfig.objects.get_for_model(type(billing_doc))\
-                               .is_fieldname_hidden(self.payment_info_fk):
+        if FieldsConfig.objects.get_for_model(
+            model=type(billing_doc),
+        ).is_fieldname_hidden(self.payment_info_fk):
             raise ConflictError(f'The field "{self.payment_info_fk}" is hidden.')
 
         user = request.user
@@ -84,7 +85,8 @@ class PaymentInformationAsDefault(generic.base.EntityRelatedMixin, generic.Check
         user.has_perm_to_view_or_die(organisation)
         user.has_perm_to_link_or_die(organisation)
 
-        source = billing_doc.get_source()
+        # source = billing_doc.get_source()
+        source = billing_doc.source
         if not source or source.id != organisation.id:
             raise ConflictError('The related organisation does not match.')
 

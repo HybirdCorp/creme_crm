@@ -103,7 +103,8 @@ class AbstractInvoice(Base):
 
         self.status_id = status_id
         super().build(template)
-        transform_target_into_customer(self.get_source(), self.get_target(), self.user)
+        # transform_target_into_customer(self.get_source(), self.get_target(), self.user)
+        transform_target_into_customer(self.source, self.target, self.user)
 
         return self
 

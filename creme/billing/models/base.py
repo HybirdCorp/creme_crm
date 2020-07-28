@@ -19,9 +19,12 @@
 ################################################################################
 
 import logging
+import warnings
 from datetime import date
+from functools import partial
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db.models import (
     PROTECT,
     SET_NULL,
@@ -30,6 +33,7 @@ from django.db.models import (
     ForeignKey,
     TextField,
 )
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
@@ -125,6 +129,10 @@ class Base(CremeEntity):
     generate_number_in_create = True  # TODO: use settings instead ???
 
     # Caches
+    _source = None
+    _source_rel = None
+    _target = None
+    _target_rel = None
     _creditnotes_cache = None
 
     class Meta:
@@ -140,29 +148,80 @@ class Base(CremeEntity):
     def __str__(self):
         return self.name
 
+    def _clean_source_n_target(self):
+        if not self.pk:  # Creation
+            if not self._source:
+                raise ValidationError(gettext('Source organisation is required.'))
+
+            if not self._target:
+                raise ValidationError(gettext('Target is required.'))
+
     def _pre_delete(self):
         lines = [*self.iter_all_lines()]
 
-        for relation in Relation.objects.filter(type__in=[REL_SUB_BILL_ISSUED,
-                                                          REL_SUB_BILL_RECEIVED,
-                                                          REL_SUB_HAS_LINE,
-                                                          REL_OBJ_LINE_RELATED_ITEM,
-                                                         ],
-                                                subject_entity=self.id):
+        for relation in Relation.objects.filter(
+                type__in=[
+                    REL_SUB_BILL_ISSUED,
+                    REL_SUB_BILL_RECEIVED,
+                    REL_SUB_HAS_LINE,
+                    REL_OBJ_LINE_RELATED_ITEM,
+                ],
+                subject_entity=self.id):
             relation._delete_without_transaction()
 
         for line in lines:
             line._delete_without_transaction()
 
+    def clean(self):
+        self._clean_source_n_target()
+        super().clean()
+
     def invalidate_cache(self):
         self._lines_cache.clear()
         self._creditnotes_cache = None
 
-    # TODO: property + cache
-    # TODO: factorise with get_target()
-    # TODO: return an Organisation instead of a CremeEntity ??
-    #       (if "yes" doing this check calls to .get_source().get_real_entity())
+    @property
+    def source(self):
+        if not self._source:
+            self._source_rel = rel = self.relations.get(type=REL_SUB_BILL_ISSUED)
+            self._source = rel.object_entity.get_real_entity()
+
+        return self._source
+
+    @source.setter
+    def source(self, organisation):
+        if self.pk:  # Edition:
+            old_source = self.source
+            if old_source != organisation:
+                self._source = organisation
+        else:
+            self._source = organisation
+
+    # TODO: factorise
+    @property
+    def target(self):
+        if not self._target:
+            self._target_rel = rel = self.relations.get(type=REL_SUB_BILL_RECEIVED)
+            self._target = rel.object_entity.get_real_entity()
+
+        return self._target
+
+    @target.setter
+    def target(self, person):
+        if self.pk:  # Edition:
+            old_target = self.target
+            if old_target != person:
+                self._target = person
+        else:
+            self._target = person
+
     def get_source(self):
+        warnings.warn(
+            'billing.Base.get_source() is deprecated ; '
+            'use the property "source" instead.',
+            DeprecationWarning,
+        )
+
         try:
             return Relation.objects.get(
                 subject_entity=self.id,
@@ -172,6 +231,12 @@ class Base(CremeEntity):
             return None
 
     def get_target(self):
+        warnings.warn(
+            'billing.Base.get_target() is deprecated ; '
+            'use the property "target" instead.',
+            DeprecationWarning,
+        )
+
         try:
             return Relation.objects.get(
                 subject_entity=self.id,
@@ -180,6 +245,7 @@ class Base(CremeEntity):
         except Relation.DoesNotExist:
             return None
 
+    # TODO: property ?
     def get_credit_notes(self):
         credit_notes = self._creditnotes_cache
 
@@ -187,10 +253,10 @@ class Base(CremeEntity):
             self._creditnotes_cache = credit_notes = []
 
             if self.id:
-                relations = Relation.objects.filter(subject_entity=self.id,
-                                                    type=REL_OBJ_CREDIT_NOTE_APPLIED,
-                                                   ) \
-                                            .select_related('object_entity')
+                relations = Relation.objects.filter(
+                    subject_entity=self.id,
+                    type=REL_OBJ_CREDIT_NOTE_APPLIED,
+                ).select_related('object_entity')
                 Relation.populate_real_object_entities(relations)
                 credit_notes.extend(
                     rel.object_entity.get_real_entity()
@@ -212,7 +278,7 @@ class Base(CremeEntity):
 
             try:
                 name_algo = ConfigBillingAlgo.objects.get(
-                    organisation=source, ct=real_content_type
+                    organisation=source, ct=real_content_type,
                 ).name_algo
                 algo = algo_registry.get_algo(name_algo)
                 self.number = algo().generate_number(source, real_content_type)
@@ -227,9 +293,10 @@ class Base(CremeEntity):
         lines = cache.get(klass)
 
         if lines is None:
-            lines = cache[klass] = klass.objects.filter(relations__object_entity=self.id,
-                                                        relations__type=REL_OBJ_HAS_LINE,
-                                                       )
+            lines = cache[klass] = klass.objects.filter(
+                relations__object_entity=self.id,
+                relations__type=REL_OBJ_HAS_LINE,
+            )
 
         return lines
 
@@ -271,8 +338,12 @@ class Base(CremeEntity):
         return max(DEFAULT_DECIMAL, lines_total_with_tax - creditnotes_total)
 
     def _pre_save_clone(self, source):
+        self.source = source.source
+        self.target = source.target
+
         if self.generate_number_in_create:
-            self.generate_number(source.get_source())
+            # self.generate_number(source.get_source())
+            self.generate_number(source.source)
         else:
             self.number = ''
 
@@ -283,17 +354,19 @@ class Base(CremeEntity):
         class_map = relationtype_converter.get_class_map(source, self)
         super()._copy_relations(
             source,
-            allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED],
+            # allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED],
         )
 
-        for relation in source.relations.filter(type__is_internal=False,
-                                                type__is_copiable=True,
-                                                type__in=class_map.keys()):
-            relation_create(user_id=relation.user_id,
-                            subject_entity=self,
-                            type=class_map[relation.type],
-                            object_entity_id=relation.object_entity_id,
-                           )
+        for relation in source.relations.filter(
+                type__is_internal=False,
+                type__is_copiable=True,
+                type__in=class_map.keys()):
+            relation_create(
+                user_id=relation.user_id,
+                subject_entity=self,
+                type=class_map[relation.type],
+                object_entity_id=relation.object_entity_id,
+            )
 
     def _post_clone(self, source):
         source.invalidate_cache()
@@ -323,20 +396,25 @@ class Base(CremeEntity):
         self._post_clone(template)  # Copy lines
         self._build_relations(template)
         self._build_properties(template)
+
         return self
 
     def _build_object(self, template):
-        logger.debug("=> Clone base object")
-        today                   = date.today()
-        self.user               = template.user
-        self.name               = template.name
-        self.number             = template.number
-        self.issuing_date       = today
-        self.expiration_date    = today
-        self.discount           = template.discount
-        self.currency           = template.currency
-        self.comment            = template.comment
-        self.payment_info       = template.payment_info
+        logger.debug('=> Clone base object')
+
+        self.user         = template.user
+        self.name         = template.name
+        self.number       = template.number
+        self.discount     = template.discount
+        self.currency     = template.currency
+        self.comment      = template.comment
+        self.payment_info = template.payment_info
+
+        self.issuing_date = self.expiration_date = date.today()
+
+        self.source = template.source
+        self.target = template.target
+
         self.save()
 
         # NB: not copied:
@@ -344,18 +422,59 @@ class Base(CremeEntity):
         # - payment_terms
 
     def _build_relations(self, template):
-        logger.debug("=> Clone relations")
+        logger.debug('=> Clone relations')
         self._copy_relations(template)
 
     def _build_properties(self, template):
-        logger.debug("=> Clone properties")
+        logger.debug('=> Clone properties')
         self._copy_properties(template)
 
+    # TODO: @atomic ??
     def save(self, *args, **kwargs):
-        if self.pk:
+        # if self.pk:
+        #     self.invalidate_cache()
+        #
+        #     self.total_vat    = self._get_total_with_tax()
+        #     self.total_no_vat = self._get_total()
+        #
+        # return super().save(*args, **kwargs)
+        create_relation = partial(
+            Relation.objects.create, subject_entity=self, user=self.user,
+        )
+        source = self._source
+        target = self._target
+
+        if not self.pk:   # Creation
+            self._clean_source_n_target()
+
+            super().save(*args, **kwargs)
+
+            self._source_rel = create_relation(
+                type_id=REL_SUB_BILL_ISSUED,   object_entity=source,
+            )
+            self._target_rel = create_relation(
+                type_id=REL_SUB_BILL_RECEIVED, object_entity=target,
+            )
+
+        else:  # Edition
             self.invalidate_cache()
 
             self.total_vat    = self._get_total_with_tax()
             self.total_no_vat = self._get_total()
 
-        return super().save(*args, **kwargs)
+            super().save(*args, **kwargs)
+
+            old_source_rel = self._source_rel
+            if old_source_rel and old_source_rel.object_entity_id != source.id:
+                old_source_rel.delete()
+                self._source_rel = create_relation(
+                    type_id=REL_SUB_BILL_ISSUED, object_entity=source,
+                )
+
+            # TODO: factorise
+            old_target_rel = self._target_rel
+            if old_target_rel and old_target_rel.object_entity_id != target.id:
+                old_target_rel.delete()
+                self._target_rel = create_relation(
+                    type_id=REL_SUB_BILL_RECEIVED, object_entity=target,
+                )

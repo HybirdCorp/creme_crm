@@ -84,7 +84,7 @@ class Populator(BasePopulator):
         Product = products.get_product_model()
         Service = products.get_service_model()
 
-        # Realtionships ---------------------------
+        # Relationships ---------------------------
         line_entities = [*lines_registry]
         create_rtype = RelationType.create
         create_rtype(

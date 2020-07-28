@@ -38,9 +38,10 @@ class OpportunityForm(CremeEntityForm):
 
 
 class TargetMixin(Form):
-    target = GenericEntityField(label=_('Target organisation / contact'),
-                                models=[Organisation, Contact],
-                               )
+    target = GenericEntityField(
+        label=_('Target organisation / contact'),
+        models=[Organisation, Contact],
+    )
 
     def clean_target(self):
         self.instance.target = target = self.cleaned_data['target']
@@ -49,14 +50,17 @@ class TargetMixin(Form):
 
 
 class EmitterMixin(Form):
-    emitter = ModelChoiceField(label=_('Concerned organisation'),
-                               queryset=Organisation.objects.filter_managed_by_creme(),
-                               empty_label=None,
-                              )
+    emitter = ModelChoiceField(
+        label=_('Concerned organisation'),
+        queryset=Organisation.objects.filter_managed_by_creme(),
+        empty_label=None,
+    )
 
     def clean_emitter(self):
-        self.instance.emitter = emitter = \
-            validate_linkable_entity(self.cleaned_data['emitter'], self.user)
+        self.instance.emitter = emitter = validate_linkable_entity(
+            entity=self.cleaned_data['emitter'],
+            user=self.user,
+        )
 
         return emitter
 

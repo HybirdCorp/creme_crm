@@ -143,22 +143,28 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
             issuing_date=now(),
             status_id=1,
             currency=opp.currency,
+            source=opp.emitter,
+            target=opp.target,
         )
 
-        create_relation = partial(Relation.objects.create, subject_entity=b_document, user=user)
-        create_relation(type_id=REL_SUB_BILL_ISSUED,   object_entity=opp.emitter)
-        create_relation(type_id=REL_SUB_BILL_RECEIVED, object_entity=opp.target)
+        create_relation = partial(
+            Relation.objects.create, subject_entity=b_document, user=user,
+        )
+        # create_relation(type_id=REL_SUB_BILL_ISSUED,   object_entity=opp.emitter)
+        # create_relation(type_id=REL_SUB_BILL_RECEIVED, object_entity=opp.target)
         create_relation(type_id=rtype_id,              object_entity=opp)
 
         b_document.generate_number()  # Need the relationship with emitter organisation
         b_document.name = self.generated_name.format(document=b_document, opportunity=opp)
         b_document.save()
 
-        relations = Relation.objects.filter(subject_entity=opp.id,
-                                            type__in=[constants.REL_OBJ_LINKED_PRODUCT,
-                                                      constants.REL_OBJ_LINKED_SERVICE,
-                                                     ],
-                                           ).select_related('object_entity')
+        relations = Relation.objects.filter(
+            subject_entity=opp.id,
+            type__in=[
+                constants.REL_OBJ_LINKED_PRODUCT,
+                constants.REL_OBJ_LINKED_SERVICE,
+            ],
+        ).select_related('object_entity')
 
         # TODO: Missing test case
         if relations:
@@ -228,11 +234,10 @@ class RelatedObjectsSelectionPopup(RelationsObjectsSelectionPopup):
 
         if constraints['emitter']:
             extra_q &= Q(
-                pk__in=Relation.objects
-                               .filter(object_entity=self.get_related_entity().emitter.id,
-                                       type=REL_SUB_BILL_ISSUED,
-                                      )
-                               .values_list('subject_entity_id', flat=True)
+                pk__in=Relation.objects.filter(
+                    object_entity=self.get_related_entity().emitter.id,
+                    type=REL_SUB_BILL_ISSUED,
+                ).values_list('subject_entity_id', flat=True)
             )
 
         return extra_q
