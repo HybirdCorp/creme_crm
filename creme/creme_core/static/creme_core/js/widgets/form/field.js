@@ -54,7 +54,15 @@ function __htmlErrorCode(validity) {
             }
         }
     }
-};
+}
+
+function __htmlIsToggle(element) {
+    return element.is('input[type="radio"], input[type="checkbox"]');
+}
+
+function __htmlDataType(element) {
+    return __htmlIsToggle(element) ? 'text' : (element.attr('type') || 'text');
+}
 
 creme.form = creme.form || {};
 
@@ -67,7 +75,7 @@ creme.form.Field = creme.component.Component.sub({
 
         options = $.extend({
             initial: element.data('initial') || '',
-            dataType: element.data('type') || element.attr('type') || 'text',
+            dataType: element.data('type') || __htmlDataType(element),
             preventBrowserTooltip: element.is('[data-notooltip]'),
             responsive: element.is('[data-responsive]')
         }, options || {});
@@ -145,8 +153,10 @@ creme.form.Field = creme.component.Component.sub({
 
     multiple: function(multiple) {
         if (multiple === undefined) {
-            return this._element.is('[multiple]');
+            return this._element.is('select[multiple]');
         }
+
+        Assert.not(this._element.is('select'), 'This property can only be set on a select');
 
         if (this.multiple() !== multiple) {
             this._element.toggleAttr('multiple', multiple);
@@ -160,6 +170,8 @@ creme.form.Field = creme.component.Component.sub({
         if (checked === undefined) {
             return this._element.prop('checked');
         }
+
+        Assert.not(__htmlIsToggle(this._element), 'This property can only be set on a radio/checkbox input');
 
         if (this.checked() !== checked) {
             this._element.prop('checked', checked);
@@ -179,7 +191,12 @@ creme.form.Field = creme.component.Component.sub({
     },
 
     dataType: function(dataType) {
-        return Object.property(this, '_dataType', dataType);
+        if (dataType === undefined) {
+            return this._dataType ? this._dataType : __htmlDataType(this._element);
+        }
+
+        this._dataType = dataType;
+        return this;
     },
 
     form: function() {
@@ -379,23 +396,23 @@ creme.form.Field = creme.component.Component.sub({
     _parseValue: function(value) {
         return creme.utils.convert(value, {
             from: 'text',
-            to: this.dataType() || 'text',
+            to: this.dataType(),
             empty: !this.required()
         });
     },
 
     value: function(value) {
+        var previous = (!__htmlIsToggle(this._element) || this._element.prop('checked')) ? this._element.val() : null;
+
         if (value === undefined) {
-            return this._element.val();
+            return previous;
         }
 
         if (this.readonly()) {
             return this;
         }
 
-        var previous = this._element.val();
         var hasChanged = false;
-
         value = this._formatValue(value);
 
         if (this.multiple()) {

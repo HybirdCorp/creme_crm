@@ -59,7 +59,12 @@ QUnit.parametrize('creme.form.Field (types)', [
     [$('<input type="number"/>'), {}, 'number', 'number'],
     [$('<input data-type="number"/>'), {}, 'text', 'number'],
     [$('<input type="number" data-type="integer"/>'), {}, 'number', 'integer'],
-    [$('<input type="text" data-type="number"/>'), {dataType: 'integer'}, 'text', 'integer']
+    [$('<input type="text" data-type="number"/>'), {dataType: 'integer'}, 'text', 'integer'],
+
+    [$('<input type="radio"/>'), {}, 'radio', 'text'],
+    [$('<input type="radio" data-type="number"/>'), {}, 'radio', 'number'],
+    [$('<input type="checkbox"/>'), {}, 'checkbox', 'text'],
+    [$('<input type="checkbox" data-type="number"/>'), {}, 'checkbox', 'number']
 ], function(input, options, htmlType, dataType) {
     var field = new creme.form.Field(input.appendTo(this.qunitFixture()), options);
     equal(field.htmlType(), htmlType, 'htmlType');

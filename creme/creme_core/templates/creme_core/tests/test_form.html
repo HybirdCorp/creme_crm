@@ -64,6 +64,10 @@
             flex-flow: column;
         }
 
+        form .field.-column-layout {
+            flex-flow: row;
+        }
+
         form .field input {
             width: auto;
         }
@@ -72,6 +76,20 @@
             width: 80px;
             border: 0px;
             padding: 0px;
+        }
+
+        form .field label {
+            align-self: flex-start;
+            text-align: left;
+            padding: 0;
+            display: flex;
+            flex-flow: row;
+        }
+
+        form .field label input[type="checkbox"],
+        form .field label input[type="radio"] {
+            position: relative;
+            top: -2px;
         }
 
         form .field-error {
@@ -106,7 +124,7 @@
 
             $(document).on('form-clean', 'form', function(e, form, data) {
                 $('#clean-output').toggleClass('invalid', !data.isValid)
-                                  .text(data.isValid ? $.toJSON(data.cleanedData) : $.toJSON(data.fieldErrors));
+                                  .text(data.isValid ? $.toJSON(data) : $.toJSON(data.fieldErrors));
             });
 
             $('form').flyform();
@@ -139,6 +157,60 @@
         </form>
     </li>
     <li>
+        <h4>Checkbox states</h4>
+        <form>
+            <label>Choices</label><div class="field -column-layout" >
+                <label><input name="checkbox" type="checkbox" value="A"/>A</label>
+                <label><input name="checkbox" type="checkbox" value="B"/>B</label>
+                <label><input name="checkbox" type="checkbox" value="C"/>C</label>
+            </div>
+            <label>Choices (disabled)</label><div class="field -column-layout" >
+                 <label><input name="checkbox-disabled" type="checkbox" value="A" disabled/>A</label>
+                 <label><input name="checkbox-disabled" type="checkbox" value="B" disabled/>B</label>
+                 <label><input name="checkbox-disabled" type="checkbox" value="C"/>C</label>
+            </div>
+            <label>Choices (readonly)</label><div class="field -column-layout" >
+                 <label><input name="checkbox-readonly" type="checkbox" value="A"/>A</label>
+                 <label><input name="checkbox-readonly" type="checkbox" value="B" readonly/>B</label>
+                 <label><input name="checkbox-readonly" type="checkbox" value="C" readonly/>C</label>
+            </div>
+            <label>Choices (required)</label><div class="field -column-layout" >
+                 <label><input name="choices-required" type="checkbox" value="A" required/>A</label>
+                 <label><input name="choices-required" type="checkbox" value="B" required/>B</label>
+                 <label><input name="choices-required" type="checkbox" value="C" required/>C</label>
+            </div>
+            <button type="submit">Send</button>
+        </form>
+    </li>
+        <li>
+        <h4>Radio states</h4>
+        <form>
+            <label>Choices</label><div class="field -column-layout" >
+                 <label><input name="radio" type="radio" value="A"/>A</label>
+                 <label><input name="radio" type="radio" value="B"/>B</label>
+                 <label><input name="radio" type="radio" value="C"/>C</label>
+            </div>
+            <label>Choices (disabled)</label><div class="field -column-layout" >
+                 <label><input name="radio-disabled" type="radio" value="A" disabled/>A</label>
+                 <label><input name="radio-disabled" type="radio" value="B" disabled/>B</label>
+                 <label><input name="radio-disabled" type="radio" value="C"/>C</label>
+            </div>
+            <label>Choices (readonly)</label><div class="field -column-layout" >
+                 <label><input name="radio-readonly" type="radio" value="A"/>A</label>
+                 <label><input name="radio-readonly" type="radio" value="B" readonly/>B</label>
+                 <label><input name="radio-readonly" type="radio" value="C" readonly/>C</label>
+            </div>
+            <label>Choices (required)</label><div class="field -column-layout" >
+                 <label><input name="radio-required" type="radio" value="A" required/>A</label>
+                 <label><input name="radio-required" type="radio" value="B" required/>B</label>
+                 <label><input name="radio-required" type="radio" value="C" required/>C</label>
+            </div>
+            <button type="submit">Send</button>
+        </form>
+    </li>
+</ul>
+<ul>
+    <li>
         <h4>Input data-type</h4>
         <form>
             <label>number</label><div class="field" ><input name="text-number" data-type="number" value="12"/></div>
@@ -163,7 +235,7 @@
         </form>
     </li>
     <li>
-        <h4>Custom messages</h4>
+        <h4>Custom html5 error messages</h4>
         <form>
             <label>number</label><div class="field" ><input name="number" type="number" value="12"/></div>
             <label>decimal</label><div class="field" ><input name="text-decimal" data-type="float" value="12.5337" data-err-clean-mismatch="Wrong decimal !"/></div>
@@ -177,7 +249,7 @@
 </ul>
 <ul>
     <li>
-        <h4>Custom error rendering</h4>
+        <h4>Error rendering</h4>
         <form data-notooltip>
             <label>text (required)</label><div class="field" ><input name="text-required" type="text" value="" required/><span class="field-error"></span></div>
             <label>number</label><div class="field" ><input name="number" type="number" value="12"/><span class="field-error"></span></div>
@@ -190,7 +262,7 @@
         </form>
     </li>
     <li>
-        <h4>Custom error rendering & responsive</h4>
+        <h4>Error rendering & responsive</h4>
         <form data-notooltip data-responsive>
             <label>text (required)</label><div class="field" ><input name="text-required" type="text" value="" required data-err-value-missing="Not here !"/><span class="field-error"></span></div>
             <label>number</label><div class="field" ><input name="text-number" type="number" value="12"/><span class="field-error"></span></div>
@@ -203,7 +275,7 @@
         </form>
     </li>
     <li>
-        <h4>Custom form validator</h4>
+        <h4>Error rendering & form validator</h4>
         <form id="cloneform" data-notooltip>
             <label>text (required)</label><div class="field" ><input name="text-required" type="text" value="" required data-err-value-missing="Not here !"/><span class="field-error"></span></div>
             <label>text (copy)</label><div class="field" ><input name="text-copy" type="text" value="" required data-err-value-missing="Copy here !"/><span class="field-error"></span></div>
