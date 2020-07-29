@@ -253,7 +253,7 @@ creme.form.Form = creme.component.Component.sub({
             var name = field.name();
 
             try {
-                cleanedData[name] = field.clean();
+                __addRawEntry(cleanedData, name, field.clean());
             } catch (e) {
                 isValid = noValidate;
             }
