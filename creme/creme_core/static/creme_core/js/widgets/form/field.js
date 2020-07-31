@@ -60,8 +60,15 @@ function __htmlIsToggle(element) {
     return element.is('input[type="radio"], input[type="checkbox"]');
 }
 
+var __DEFAULT_DATA_TYPES = {
+    radio: 'text',
+    checkbox: 'text',
+    hidden: 'text'
+};
+
 function __htmlDataType(element) {
-    return __htmlIsToggle(element) ? 'text' : (element.attr('type') || 'text');
+    var htmlType = (element.attr('type') || 'text');
+    return __DEFAULT_DATA_TYPES[htmlType] || htmlType;
 }
 
 creme.form = creme.form || {};
@@ -156,7 +163,7 @@ creme.form.Field = creme.component.Component.sub({
             return this._element.is('select[multiple]');
         }
 
-        Assert.not(this._element.is('select'), 'This property can only be set on a select');
+        Assert.that(this._element.is('select'), 'This property can only be set on a select');
 
         if (this.multiple() !== multiple) {
             this._element.toggleAttr('multiple', multiple);
@@ -171,7 +178,7 @@ creme.form.Field = creme.component.Component.sub({
             return this._element.prop('checked');
         }
 
-        Assert.not(__htmlIsToggle(this._element), 'This property can only be set on a radio/checkbox input');
+        Assert.that(__htmlIsToggle(this._element), 'This property can only be set on a radio/checkbox input');
 
         if (this.checked() !== checked) {
             this._element.prop('checked', checked);
@@ -250,8 +257,8 @@ creme.form.Field = creme.component.Component.sub({
         return this;
     },
 
-    htmlType: function() {
-        return this._element.attr('type') || 'text';
+    htmlDataType: function() {
+        return __htmlDataType(this._element);
     },
 
     isValid: function() {
@@ -483,7 +490,7 @@ creme.utils.newJQueryPlugin({
     ],
     properties: [
         'disabled', 'readonly', 'multiple', 'checked', 'name',
-        'dataType', 'htmlType', 'responsive', 'initial', 'preventBrowserTooltip',
+        'dataType', 'htmlDataType', 'responsive', 'initial', 'preventBrowserTooltip',
         'errorCode', 'errorMessage', 'isValid', 'isValidHtml'
     ]
 });

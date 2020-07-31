@@ -61,8 +61,9 @@ creme.form.Form = creme.component.Component.sub({
 
         this._element = element;
         this._errorMessages = options.errorMessages || {};
+        this._fieldOptions = options.fields || {};
 
-        this.validator(options.validator);
+        this.constraints(options.constraints || []);
 
         this.fieldSelector(options.fieldSelector);
         this.submitSelector(options.submitSelector);
@@ -97,11 +98,16 @@ creme.form.Form = creme.component.Component.sub({
         this._element.one.apply(this._element, Array.copy(arguments));
     },
 
-    validator: function(validator) {
-        Assert.that(Object.isNone(validator) || Object.isFunc(validator),
-                    'Validator must be a function');
+    constraints: function(constraints) {
+        if (constraints === undefined) {
+            return this._constraints;
+        }
 
-        return Object.property(this, '_validator', validator);
+        Assert.that(Object.isFunc(constraints) || (Array.isArray(constraints) && constraints.every(Object.isFunc)),
+                    'Constraints must be a function or a list of functions');
+
+        this._constraints = Object.isFunc(constraints) ? [constraints] : constraints;
+        return this;
     },
 
     errorListSelector: function(selector) {
@@ -263,11 +269,12 @@ creme.form.Form = creme.component.Component.sub({
             data: data,
             cleanedData: cleanedData,
             isValid: isValid,
+            errors: [],
             fieldErrors: this.errors()
         };
 
         if (isValid) {
-            output = this._cleanFormData(output);
+            output = this._applyConstraints(output);
 
             fields.forEach(function(field) {
                 var error = output.fieldErrors[field.name()];
@@ -291,16 +298,20 @@ creme.form.Form = creme.component.Component.sub({
         }
     },
 
-    _cleanFormData: function(data) {
-        var output = {};
+    _applyConstraints: function(data) {
+        var output = $.extend({
+            errors: []
+        }, data);
 
-        try {
-            output = this._validator.bind(this)(data);
-        } catch (e) {
-            output.errors = [e.message];
-        }
+        this.constraints().forEach(function(constraint) {
+            try {
+                $.extend(output, constraint(this, data));
+            } catch (e) {
+                __addRawEntry(output, 'errors', e.message);
+            }
+        }.bind(this));
 
-        return $.extend({}, data, output);
+        return output;
     },
 
     errors: function(errors) {
@@ -336,9 +347,9 @@ creme.form.Form = creme.component.Component.sub({
         var bound = field.flyfield('instance');
 
         if (Object.isNone(bound)) {
-            bound = field.flyfield({
+            bound = field.flyfield($.extend({}, {
                 errorMessages: this._errorMessages
-            });
+            }, this._fieldOptions[field.attr('name')] || {}));
         }
 
         return bound;
@@ -465,7 +476,7 @@ creme.utils.newJQueryPlugin({
     ],
     properties: [
         'url', 'responsive', 'initialData', 'data', 'preventBrowserTooltip',
-        'validator', 'isValid', 'isValidHtml', 'isSubmitting'
+        'constraints', 'isValid', 'isValidHtml', 'isSubmitting'
     ]
 });
 
