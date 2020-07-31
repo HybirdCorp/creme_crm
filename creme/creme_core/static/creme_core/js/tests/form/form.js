@@ -31,6 +31,7 @@ QUnit.test('creme.form.Form (empty, defaults)', function() {
     deepEqual({
         cleanedData: {},
         data: {},
+        errors: [],
         fieldErrors: {},
         isValid: true
     }, form.clean());
@@ -49,19 +50,30 @@ QUnit.parametrize('creme.form.Form (init, invalid element)', [
     }, Error, 'Error: ${message}'.template({message: message}));
 });
 
-QUnit.test('creme.form.Form (validator)', function(options, message, assert) {
+QUnit.test('creme.form.Form (constraints)', function(options, message, assert) {
     this.assertRaises(function() {
-        return new creme.form.Form($('<form action="mock/submit">'), {validator: 'notamethod'});
-    }, Error, 'Error: Validator must be a function');
+        return new creme.form.Form($('<form action="mock/submit">'), {constraints: 'notamethod'});
+    }, Error, 'Error: Constraints must be a function or a list of functions');
 
     var form = new creme.form.Form($('<form action="mock/submit">'));
-    this.assertRaises(function() {
-        form.validator('notamethod');
-    }, Error, 'Error: Validator must be a function');
+    deepEqual([], form.constraints());
 
-    var validator = function() {};
-    form.validator(validator);
-    equal(validator, form.validator());
+    this.assertRaises(function() {
+        form.constraints('notamethod');
+    }, Error, 'Error: Constraints must be a function or a list of functions');
+
+    var constraint = function() {};
+    form.constraints(constraint);
+    deepEqual([constraint], form.constraints());
+
+    var a = function() { return true; },
+        b = function() { return false; };
+
+    form.constraints([a, b]);
+    deepEqual([a, b], form.constraints());
+
+    form.constraints([]);
+    deepEqual([], form.constraints());
 });
 
 QUnit.parametrize('creme.form.Form (fields)', [
@@ -104,6 +116,53 @@ QUnit.parametrize('creme.form.Form (field)', [
     var field = form.field('field_a');
 
     equal(field.value(), expected);
+});
+
+QUnit.parametrize('creme.form.Form (field options)', [
+    [{}, {
+        field_a: {
+            value: 'a',
+            required: false,
+            dataType: 'text'
+        },
+        field_b: {
+            value: '12',
+            required: true,
+            dataType: 'number'
+        }
+    }],
+    [{
+        field_a: {required: true},
+        field_b: {required: false, dataType: 'datetime'}
+    }, {
+        field_a: {
+            value: 'a',
+            required: true,
+            dataType: 'text'
+        },
+        field_b: {
+            value: '12',
+            required: false,
+            dataType: 'datetime'
+        }
+    }]
+], function(fieldOptions, expectedStates, assert) {
+    var form = new creme.form.Form($(
+       '<form>' +
+           '<input name="field_a" value="a"/>' +
+           '<input name="field_b" type="number" value="12" required/>' +
+       '</form>'
+    ), {
+        fields: fieldOptions
+    });
+
+    form.fields().forEach(function(field) {
+        var expected = expectedStates[field.name()];
+
+        equal(field.dataType(), expected.dataType);
+        equal(field.value(), expected.value);
+        equal(field.required(), expected.required);
+    });
 });
 
 QUnit.parametrize('creme.form.Form (data)', [
@@ -247,12 +306,14 @@ QUnit.parametrize('creme.form.Form (clean)', [
         cleanedData: {field_a: 12},
         data: {field_a: '12'},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }],
     [$('<form><input name="field_a" type="text" data-type="json" value="{&quot;a&quot;:12}"></form>'), {
         cleanedData: {field_a: {a: 12}},
         data: {field_a: '{\"a\":12}'},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }]
 ], function(element, expected, assert) {
@@ -266,12 +327,14 @@ QUnit.parametrize('creme.form.Form (clean, datatype=date|datetime)', [
         cleanedData: {field_a: moment([2018, 11, 8])},
         data: {field_a: '2018-12-08'},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }],
     [$('<form><input name="field_a" type="datetime" value="2018-12-08T08:15:32"></form>'), {
         cleanedData: {field_a: moment([2018, 11, 8, 8, 15, 32])},
         data: {field_a: '2018-12-08T08:15:32'},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }]
 ], function(element, expected, assert) {
@@ -290,6 +353,7 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors)', [
         cleanedData: {},
         data: {field_a: ''},
         isValid: false,
+        errors: [],
         fieldErrors: {
             field_a: {
                 code: 'valueMissing',
@@ -301,6 +365,7 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors)', [
         cleanedData: {},
         data: {field_a: 'notnumber'},
         isValid: false,
+        errors: [],
         fieldErrors: {
             field_a: {
                 code: 'cleanMismatch',
@@ -325,6 +390,7 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors, custom messages)', [
         cleanedData: {},
         data: {field_a: ''},
         isValid: false,
+        errors: [],
         fieldErrors: {
             field_a: {
                 code: 'valueMissing',
@@ -336,6 +402,7 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors, custom messages)', [
         cleanedData: {},
         data: {field_a: 'notnumber'},
         isValid: false,
+        errors: [],
         fieldErrors: {
             field_a: {
                 code: 'cleanMismatch',
@@ -368,14 +435,15 @@ QUnit.parametrize('creme.form.Form (clean, novalidate)', [
     equal(element.get(0).noValidate, expected);
 });
 
-QUnit.parametrize('creme.form.Form (clean, validators)', [
+QUnit.parametrize('creme.form.Form (clean, constraintss)', [
     [{}, {
         cleanedData: {clone: ''},
         data: {a: '', clone: ''},
         isValid: false,
         fieldErrors: {
             a: {code: 'valueMissing', message: 'Not here !'}
-        }
+        },
+        errors: []
     }],
     [{a: 'a'}, {
         cleanedData: {a: 'a', clone: ''},
@@ -395,7 +463,8 @@ QUnit.parametrize('creme.form.Form (clean, validators)', [
         cleanedData: {a: 'a', clone: 'a'},
         data: {a: 'a', clone: 'a'},
         isValid: true,
-        fieldErrors: {}
+        fieldErrors: {},
+        errors: []
     }]
 ], function(data, expected, assert) {
     var form = new creme.form.Form($(
@@ -409,7 +478,7 @@ QUnit.parametrize('creme.form.Form (clean, validators)', [
         }
     });
 
-    form.validator(function(data) {
+    form.constraints(function(form, data) {
         Assert.not(Object.isEmpty(data.cleanedData['clone']), 'The clone field is empty');
         Assert.that(data.cleanedData['a'] === data.cleanedData['clone'], "The fields aren't the same !");
     });
@@ -417,11 +486,12 @@ QUnit.parametrize('creme.form.Form (clean, validators)', [
     deepEqual(expected, form.data(data).clean({noThrow: true}));
 });
 
-QUnit.parametrize('creme.form.Form (clean, validators, field errors)', [
+QUnit.parametrize('creme.form.Form (clean, constraints, field errors)', [
     [$('<form><input name="field_a"></form>'), {
         cleanedData: {field_a: ''},
         data: {field_a: ''},
         isValid: false,
+        errors: [],
         fieldErrors: {
             field_a: {
                 code: 'cleanMismatch',
@@ -433,11 +503,12 @@ QUnit.parametrize('creme.form.Form (clean, validators, field errors)', [
         cleanedData: {field_a: 'ok'},
         data: {field_a: 'ok'},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }]
 ], function(element, expected, assert) {
     var form = new creme.form.Form(element, {
-        validator: function(data) {
+        constraints: function(form, data) {
             if (Object.isEmpty(data.cleanedData.field_a)) {
                 return {
                     fieldErrors: {
@@ -646,12 +717,14 @@ QUnit.parametrize('creme.form.Form (submit button)', [
         cleanedData: {a: '1'},
         data: {a: '1'},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }],
     [$('<form action="mock/submit"><input name="a" value="1" required/><button type="submit"></form>'), {}, {
         cleanedData: {a: '1'},
         data: {a: '1'},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }],
 
@@ -659,18 +732,21 @@ QUnit.parametrize('creme.form.Form (submit button)', [
         cleanedData: {},
         data: {a: ''},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }],
     [$('<form action="mock/submit"><input name="a" required/><button type="submit"></form>'), {noValidate: true}, {
         cleanedData: {},
         data: {a: ''},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }],
     [$('<form action="mock/submit"><input name="a" required/><button type="submit" data-novalidate></form>'), {}, {
         cleanedData: {},
         data: {a: ''},
         isValid: true,
+        errors: [],
         fieldErrors: {}
     }]
 ], function(element, options, expected) {
@@ -708,12 +784,12 @@ QUnit.parametrize('creme.form.Form (submit button)', [
 });
 
 QUnit.test('flyform (empty, defaults)', function() {
-    var validator = function() {};
+    var constraint = function() {};
     var element = $('<form action="mock/submit">');
 
     var form = element.flyform({
         responsive: true,
-        validator: validator
+        constraints: constraint
     });
 
     ok(form instanceof creme.form.Form);
@@ -726,7 +802,7 @@ QUnit.test('flyform (empty, defaults)', function() {
     equal('mock/submit', element.flyform('prop', 'url'));
     deepEqual({}, element.flyform('prop', 'initialData'));
     deepEqual({}, element.flyform('prop', 'data'));
-    equal(validator, element.flyform('prop', 'validator'));
+    deepEqual([constraint], element.flyform('prop', 'constraints'));
 
     equal(false, element.flyform('prop', 'preventBrowserTooltip'));
     equal(true, element.flyform('prop', 'responsive'));
@@ -735,6 +811,7 @@ QUnit.test('flyform (empty, defaults)', function() {
     deepEqual({
         cleanedData: {},
         data: {},
+        errors: [],
         fieldErrors: {},
         isValid: true
     }, element.flyform('clean'));
