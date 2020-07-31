@@ -22,7 +22,7 @@ QUnit.test('creme.form.Field (defaults)', function() {
     equal(field.readonly(), false);
     equal(field.disabled(), false);
     equal(field.dataType(), 'text');
-    equal(field.htmlType(), 'text');
+    equal(field.htmlDataType(), 'text');
 
     equal(field.value(), '');
     equal(field.initial(), '');
@@ -56,18 +56,25 @@ QUnit.parametrize('creme.form.Field (types)', [
     [$('<input type="text"/>'), {}, 'text', 'text'],
     [$('<input data-type="text"/>'), {}, 'text', 'text'],
 
+    [$('<input type="hidden"/>'), {}, 'text', 'text'],
+    [$('<select></select>'), {}, 'text', 'text'],
+    [$('<textarea/>'), {}, 'text', 'text'],
+
     [$('<input type="number"/>'), {}, 'number', 'number'],
     [$('<input data-type="number"/>'), {}, 'text', 'number'],
     [$('<input type="number" data-type="integer"/>'), {}, 'number', 'integer'],
     [$('<input type="text" data-type="number"/>'), {dataType: 'integer'}, 'text', 'integer'],
+    [$('<input type="hidden" data-type="number"/>'), {}, 'text', 'number'],
+    [$('<select data-type="number"></select>'), {}, 'text', 'number'],
+    [$('<textarea data-type="number"/>'), {}, 'text', 'number'],
 
-    [$('<input type="radio"/>'), {}, 'radio', 'text'],
-    [$('<input type="radio" data-type="number"/>'), {}, 'radio', 'number'],
-    [$('<input type="checkbox"/>'), {}, 'checkbox', 'text'],
-    [$('<input type="checkbox" data-type="number"/>'), {}, 'checkbox', 'number']
+    [$('<input type="radio"/>'), {}, 'text', 'text'],
+    [$('<input type="radio" data-type="number"/>'), {}, 'text', 'number'],
+    [$('<input type="checkbox"/>'), {}, 'text', 'text'],
+    [$('<input type="checkbox" data-type="number"/>'), {}, 'text', 'number']
 ], function(input, options, htmlType, dataType) {
     var field = new creme.form.Field(input.appendTo(this.qunitFixture()), options);
-    equal(field.htmlType(), htmlType, 'htmlType');
+    equal(field.htmlDataType(), htmlType, 'htmlType');
     equal(field.dataType(), dataType, 'dataType');
 });
 
@@ -898,7 +905,7 @@ QUnit.test('flyfield (empty, defaults)', function() {
 
     equal("A", element.flyfield('prop', 'name'));
     equal('text', element.flyfield('prop', 'dataType'));
-    equal('text', element.flyfield('prop', 'htmlType'));
+    equal('text', element.flyfield('prop', 'htmlDataType'));
     equal('', element.flyfield('prop', 'initial'));
 
     equal(null, element.flyfield('prop', 'errorCode'));
