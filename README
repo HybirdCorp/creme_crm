@@ -45,11 +45,11 @@ DEPENDENCIES:
    (exact versions of Python packages are indicated in the files 'creme/requirements*.txt')
      - Mandatory :
          - Django 2.2
-         - redis 3.3
+         - redis 3.4
          - python-dateutil 2.8
          - bleach 3.1
-         - Pillow 6.2
-         - django-formtools 2.1
+         - Pillow 7.2
+         - django-formtools 2.2
 
      - Optional :
          - creme.creme_core:
