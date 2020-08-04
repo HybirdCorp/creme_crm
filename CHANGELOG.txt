@@ -407,6 +407,7 @@
                     - The attributes "issued_relation" & "received_relation" have been removed.
                     - The method '_manage_relation()' has been removed.
                 - The function-view 'views.invoice.generate_number()' has been replaced by the class 'NumberGeneration'.
+                - The template directory 'billing/templates/billing/form/' has been renamed 'forms' ; class-views have been updated.
             * Commercial :
                 - These function-views of 'views.strategy' have been replaced by classes.
                     - 'reload_matrix_brick()' by 'MatrixBricksReloading'.
