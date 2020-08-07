@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-29 10:36+0200\n"
+"POT-Creation-Date: 2020-08-07 18:13+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -990,7 +990,7 @@ msgstr "Créé"
 
 #: populate.py:324
 msgid "30 days"
-msgstr "à 30 jours"
+msgstr "À 30 jours"
 
 #: populate.py:325
 msgid "Cash"
@@ -998,15 +998,15 @@ msgstr "Comptant"
 
 #: populate.py:326
 msgid "45 days"
-msgstr "à 45 jours"
+msgstr "À 45 jours"
 
 #: populate.py:327
 msgid "60 days"
-msgstr "à 60 jours"
+msgstr "À 60 jours"
 
 #: populate.py:328
 msgid "30 days, end month the 10"
-msgstr "à 30 jours, fin de mois le 10"
+msgstr "À 30 jours, fin de mois le 10"
 
 #: populate.py:333
 msgid "Trainer accreditation"
