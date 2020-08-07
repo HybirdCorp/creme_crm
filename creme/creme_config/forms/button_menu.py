@@ -24,11 +24,12 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
-from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.gui import button_menu
 from creme.creme_core.models import ButtonMenuItem
 # from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
+
+from .widgets import ButtonMenuEditionWidget
 
 # _PREFIX = 'creme_config-userbmi'
 
@@ -60,7 +61,10 @@ class ButtonMenuEditForm(CremeForm):
     # TODO: use EnhancedMultipleChoiceField + description of the button as help text ?
     button_ids = MultipleChoiceField(
         label=_('Buttons to display'), required=False,
-        choices=(), widget=OrderedMultipleChoiceWidget,
+        choices=(), widget=ButtonMenuEditionWidget,
+        help_text=_("Drag and drop the buttons between the available buttons and "
+                    "the selected buttons sections to enable or disable the buttons, "
+                    "or within the selected buttons section to change the order.")
     )
 
     def __init__(self, button_menu_items, ct_id, button_registry=None, *args, **kwargs):
@@ -74,7 +78,7 @@ class ButtonMenuEditForm(CremeForm):
 
         if not self.ct:  # Default conf
             choices.extend(
-                (id_, str(button.verbose_name))
+                (id_, button)
                 for id_, button in button_registry
                 if not button.get_ctypes()
             )
@@ -92,12 +96,12 @@ class ButtonMenuEditForm(CremeForm):
 
                 if not ctypes:
                     if id_ not in default_conf_ids:
-                        choices.append((id_, str(button.verbose_name)))
+                        choices.append((id_, button))
                 elif model_class in ctypes:
-                    choices.append((id_, str(button.verbose_name)))
+                    choices.append((id_, button))
 
         sort_key = collator.sort_key
-        choices.sort(key=lambda c: sort_key(c[1]))
+        choices.sort(key=lambda c: sort_key(str(c[1].verbose_name)))
 
         button_ids = self.fields['button_ids']
         button_ids.choices = choices

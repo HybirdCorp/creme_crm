@@ -346,6 +346,16 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     fill: #666;
 }
 
+.creme_config-buttonmenu-brick .buttons-list.instance-buttons.buttons-config {
+    width: 97.8%;
+    margin-top: -7px;
+    margin-bottom: 7px;
+}
+
+.creme_config-buttonmenu-brick .buttons-list.instance-buttons.buttons-config .menu_button {
+    padding: 4px 12px;
+}
+
 /* FieldsConfig brick */
 
 .creme_config-fields-brick td.fieldconf-label {

@@ -73,9 +73,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['button_ids'].choices
 
-        button_index = self.assertInChoices(
+        self.assertInChoices(
             value=TestButton.id_,
-            label=TestButton.verbose_name,
+            label=button_registry.get_button(TestButton.id_),
             choices=choices,
         )
 
@@ -83,9 +83,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             url,
             data={
                 step_key: '1',
-                f'1-button_ids_check_{button_index}': 'on',
-                f'1-button_ids_value_{button_index}': TestButton.id_,
-                f'1-button_ids_order_{button_index}': 1,
+                '1-button_ids': [TestButton.id_],
             },
         )
         self.assertNoFormError(response)
@@ -122,18 +120,16 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         with self.assertNoException():
             choices = context['form'].fields['button_ids'].choices
 
-        button_index = self.assertInChoices(
+        self.assertInChoices(
             value=TestButton.id_,
-            label=TestButton.verbose_name,
+            label=button_registry.get_button(TestButton.id_),
             choices=choices,
         )
 
         response = self.client.post(
             url,
             data={
-                f'button_ids_check_{button_index}': 'on',
-                f'button_ids_value_{button_index}': TestButton.id_,
-                f'button_ids_order_{button_index}': 1,
+                'button_ids': TestButton.id_,
             },
         )
         self.assertNoFormError(response)
@@ -181,14 +177,14 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         with self.assertNoException():
             choices = context['form'].fields['button_ids'].choices
 
-        button01_index = self.assertInChoices(
+        self.assertInChoices(
             value=TestButton01.id_,
-            label=TestButton01.verbose_name,
+            label=button_registry.get_button(TestButton01.id_),
             choices=choices,
         )
-        button02_index = self.assertInChoices(
+        self.assertInChoices(
             value=TestButton02.id_,
-            label=TestButton02.verbose_name,
+            label=button_registry.get_button(TestButton02.id_),
             choices=choices,
         )
 
@@ -198,13 +194,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         response = self.client.post(
             url,
             data={
-                f'button_ids_check_{button01_index}': 'on',
-                f'button_ids_value_{button01_index}': TestButton01.id_,
-                f'button_ids_order_{button01_index}': 1,
-
-                f'button_ids_check_{button02_index}': 'on',
-                f'button_ids_value_{button02_index}': TestButton02.id_,
-                f'button_ids_order_{button02_index}': 2,
+                'button_ids': [TestButton01.id_, TestButton02.id_],
             },
         )
         self.assertNoFormError(response)

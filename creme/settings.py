@@ -567,6 +567,7 @@ CREME_CORE_CSS = [
     'creme_core/css/popover.css',
 
     'creme_config/css/creme_config.css',
+    'creme_config/css/widgets.css',
 ]
 
 CREME_OPT_CSS = [  # APPS
@@ -645,6 +646,7 @@ CREME_LIB_JS = [
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
     'creme_core/js/lib/editor/tinymce.3.4.9.js',
+    'creme_core/js/lib/Sortable/Sortable.js',
 ]
 
 CREME_CORE_JS = [
@@ -753,6 +755,9 @@ CREME_CORE_JS = [
     'creme_core/js/merge.js',
     'creme_core/js/relations.js',
     'creme_core/js/jobs.js',
+
+    # creme_config js
+    'creme_config/js/widgets.js',
 ]
 
 CREME_OPTLIB_JS = [

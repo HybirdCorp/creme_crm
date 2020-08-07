@@ -38,6 +38,7 @@ from creme.creme_core.gui.bricks import (
     QuerysetBrick,
     brick_registry,
 )
+from creme.creme_core.gui.button_menu import button_registry
 from creme.creme_core.gui.custom_form import (
     FieldGroupList,
     customform_descriptor_registry,
@@ -739,24 +740,34 @@ class ButtonMenuBrick(Brick):
     template_name = 'creme_config/bricks/button-menu.html'
     configurable = False
 
-    def detailview_display(self, context):
+    button_registry = button_registry
+
+    def get_buttons(self):
+        default_buttons = []
         buttons_map = defaultdict(list)
 
+        get_button = self.button_registry.get_button
+
         for bmi in ButtonMenuItem.objects.order_by('order'):
-            buttons_map[bmi.content_type_id].append(bmi)
+            if bmi.content_type is not None:
+                _button_list = buttons_map[bmi.content_type]
+            else:
+                _button_list = default_buttons
 
-        def build_verbose_names(bm_items):
-            return [str(bmi) for bmi in bm_items if bmi.button_id]
+            button = get_button(bmi.button_id)
+            if button is not None:
+                _button_list.append({
+                    'label': str(bmi),
+                    'description': str(button.description)
+                })
 
-        default_buttons = build_verbose_names(buttons_map.pop(None, ()))
-
-        get_ct = ContentType.objects.get_for_id
-        buttons = [
-            (get_ct(ct_id), build_verbose_names(bm_items))
-            for ct_id, bm_items in buttons_map.items()
-        ]
         sort_key = collator.sort_key
-        buttons.sort(key=lambda t: sort_key(str(t[0])))
+        buttons = sorted(buttons_map.items(), key=lambda t: sort_key(str(t[0])))
+
+        return default_buttons, buttons
+
+    def detailview_display(self, context):
+        default_buttons, buttons = self.get_buttons()
 
         return self._render(self.get_template_context(
             context,

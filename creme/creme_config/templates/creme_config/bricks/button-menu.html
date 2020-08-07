@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/list.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks %}
+{% load i18n creme_config_tags creme_core_tags creme_widgets creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-buttonmenu-brick{% endblock %}
 
@@ -22,10 +22,10 @@
             </div>
         </div>
         <div class="buttonmenu-config-group">
-            {% widget_select_or_msg default_buttons _('No button') %}
+            {% config_render_buttons_placeholders default_buttons _('No button') %}
         </div>
     </div>
-    {% for ctype, buttons_vnames in buttons %}
+    {% for ctype, buttons_data in buttons %}
     <div class="brick-list-item buttonmenu-config-item">
         <div class="buttonmenu-config-group buttonmenu-config-summary-group">
             <div class="buttonmenu-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='buttonmenu-config-type-icon' %} {{ctype}}</div>
@@ -35,7 +35,7 @@
             </div>
         </div>
         <div class="buttonmenu-config-group">
-            {% widget_select_or_msg buttons_vnames _('No button') %}
+            {% config_render_buttons_placeholders buttons_data _('No button') %}
         </div>
     </div>
     {% endfor %}

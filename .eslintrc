@@ -31,6 +31,7 @@
     "tinymce": true,
     "FullCalendar": true,
     "google": true,
+    "Sortable": true,
 
     /* Django i18n */
     "gettext": true,

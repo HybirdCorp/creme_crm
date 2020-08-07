@@ -1,0 +1,22 @@
+{% load creme_core_tags creme_widgets i18n %}
+
+<div class="buttonmenu-edit-widget" id="{{widget.attrs.id}}">
+  <div class="widget-available buttons-list instance-buttons">
+    <div class="buttons-list-header">{% trans "Available buttons" %}</div>
+    <div class="widget-container"></div>
+  </div>
+  <div class="widget-selected buttons-list instance-buttons">
+    <div class="buttons-list-header">{% trans "Selected buttons" %}</div>
+    <div class="widget-container"></div>
+  </div>
+</div>
+
+{{ widget.choices|json_script:"buttons-widget-choices" }}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        creme.initButtonMenuWidget($("#{{widget.attrs.id}}"), {
+            optionsId: 'buttons-widget-choices'
+        });
+    });
+</script>
