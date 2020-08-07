@@ -2,6 +2,7 @@
 **/js/lib/momentjs/*
 **/js/lib/leaflet*.js
 **/js/lib/editor/*
+**/js/lib/Sortable/*
 **/js/tests/qunit/qunit-*.js
 **/creme_core/js/datejs/*
 **/creme_core/js/d3/*

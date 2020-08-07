@@ -72,3 +72,8 @@ def config_brick_menu_hide_deleted_cfields_action(context, url, hidden):
         out_label=_('Show deleted custom fields'),
         __value='false' if hidden else 'true',
     )
+
+
+@register.inclusion_tag('creme_config/templatetags/buttons_placeholders.html')
+def config_render_buttons_placeholders(buttons, empty_label):
+    return {'buttons': buttons, 'empty_label': empty_label}

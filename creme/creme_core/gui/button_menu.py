@@ -51,6 +51,9 @@ class Button:
     # BEWARE: you have to use the template context variable 'has_perm' yourself !!
     permission: Optional[str] = None  # TODO: <permission: str = ''> ??
 
+    def __eq__(self, other):
+        return other.id_ == self.id_
+
     @staticmethod
     def generate_id(app_name: str, name: str) -> str:
         return f'button_{app_name}-{name}'

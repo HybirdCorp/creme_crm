@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms.widgets import Select
+from django.forms.widgets import Select, Widget
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -63,4 +63,49 @@ class CreatorModelChoiceWidget(Select):
 
                 context = button_list.get_context(name=name, value=value, attrs=attrs)
 
+        return context
+
+
+class ButtonMenuEditionWidget(Widget):
+    template_name = 'creme_config/forms/widgets/buttonmenu-editor.html'
+
+    def __init__(self, attrs=None, choices=()):
+        super().__init__(attrs)
+        # choices can be any iterable, but we may need to render this widget
+        # multiple times. Thus, collapse it into a list so it can be consumed
+        # more than once.
+        self.choices = [*choices]
+
+    def create_option(self, name, button_id, button, selected):
+        return {
+            'name': name,
+            'value': button_id,
+            'label': str(button.verbose_name),
+            'description': str(button.description),
+            'selected': selected,
+        }
+
+    def create_options(self, name, value):
+        """Return a list of optgroups for this widget."""
+        options = []
+
+        for button_id, button in self.choices:
+            if button_id is None:
+                button_id = ''
+            selected = str(button_id) in value
+            order = value.index(str(button_id)) + 1 if selected else 0
+            options.append((order, button_id, button, selected))
+
+        return [
+            self.create_option(name, button_id, button, selected)
+            for (order, button_id, button, selected)
+            in sorted(options, key=lambda x: x[0])
+        ]
+
+    def value_from_datadict(self, data, files, name):
+        return data.getlist(name)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['choices'] = self.create_options(name, context['widget']['value'])
         return context

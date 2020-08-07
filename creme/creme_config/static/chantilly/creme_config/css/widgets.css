@@ -1,0 +1,61 @@
+.buttonmenu-edit-widget {
+    display: flex;
+    margin-top: 10px;
+    padding-bottom: 5px;
+}
+
+.buttonmenu-edit-widget .buttons-list {
+    margin: 5px 0;
+}
+
+.buttonmenu-edit-widget .buttons-list.instance-buttons {
+    margin: 0;
+}
+
+.buttonmenu-edit-widget .widget-available {
+    flex: 0;
+    min-width: 250px;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.buttonmenu-edit-widget .widget-container {
+    margin: 0 0 10px 0;
+}
+
+.buttonmenu-edit-widget .widget-available .widget-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.buttonmenu-edit-widget .buttons-list.instance-buttons.widget-selected {
+    flex: 1;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    margin-left: 25px;
+}
+
+.buttonmenu-edit-widget .widget-selected .widget-container {
+    flex: 1;
+}
+
+.buttonmenu-edit-widget .menu_button {
+    padding: 4px 12px;
+}
+
+.buttonmenu-edit-widget .widget-selected .widget-container .menu_button {
+    margin-right: 13px;
+}
+
+.buttons-list .buttons-list-header {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #dedede;
+    text-transform: uppercase;
+    color: #666;
+    font-size: 12px;
+    font-weight: 600;
+    flex: 0;
+}
