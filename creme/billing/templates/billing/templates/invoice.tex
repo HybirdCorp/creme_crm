@@ -78,10 +78,12 @@
         \end{tabular}
 }
 
+{% comment %}
 \def\TargetAddress{%
 {{billing_address.address|latex_escape}} \\
 {{billing_address.city|latex_escape}} {{billing_address.po_box|latex_escape}} \\
 }
+{% endcomment %}
 
 \cfoot{ \footnotesize{ SIRET : {{source.siret}} - NAF : {{source.naf}} -  RCS : {{source.rcs}} - Numéro TVA : {{source.tvaintra}} } }
 
