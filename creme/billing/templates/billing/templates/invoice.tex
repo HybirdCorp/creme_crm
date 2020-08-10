@@ -1,7 +1,7 @@
 {% autoescape off %}
 {% load creme_core_tags creme_latex %}
 
-{% with billing_address=object.billing_address source_address=source.billing_address %}
+{% with billing_address=object.billing_address source_address=source.billing_address curr=object.currency.local_symbol %}
 
 \documentclass[french,11pt]{article}
 \usepackage[french]{babel}
@@ -117,19 +117,19 @@
    \endfoot
 \hline
 \multicolumn{3}{c} {} \tabularnewline \cline{3-4}
-\multicolumn{2}{c|} {} & \centering{ Total HT } & \centering{ {{object.total_no_vat}} Euros } \tabularnewline \cline{3-4}
-\multicolumn{2}{c|} {} & \centering{ TVA } & \centering{ {{object.total_vat|sub:object.total_no_vat}} Euros } \tabularnewline \cline{3-4}
-\multicolumn{2}{c|} {} & \centering{ TTC } & \centering{ {{object.total_vat}} Euros } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ Total HT } & \centering{ {{object.total_no_vat}} {{curr}} } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ TVA } & \centering{ {{object.total_vat|sub:object.total_no_vat}} {{curr}} } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ TTC } & \centering{ {{object.total_vat}} {{curr}} } \tabularnewline \cline{3-4}
 \endlastfoot
 
 {% for line in plines %}
    \hline
-    {% if line.related_item %} \centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.get_raw_price}} } \tabularnewline
+    {% if line.related_item %} \centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} {{curr}} } & \centering{ {{line.get_raw_price}} {{curr}} } \tabularnewline
 {% endfor %}
 
 {% for line in slines %}
    \hline
-    {% if line.related_item %}\centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.get_raw_price}} }  \tabularnewline
+    {% if line.related_item %}\centering{ {{line.related_item|latex_escape}} } {% else %} \centering{ {{line.on_the_fly_item|latex_escape}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} {{curr}}} & \centering{ {{line.get_raw_price}} {{curr}} }  \tabularnewline
 {% endfor %}
 \end{longtable}
 
