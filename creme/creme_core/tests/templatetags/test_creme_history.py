@@ -17,7 +17,7 @@ from ..fake_models import FakeContact
 
 class CremeHistoryTagsTestCase(CremeTestCase):
     def test_history_summary01(self):
-        "No edition"
+        "No edition."
         user = self.login()
         togame = FakeContact.objects.create(user=user, first_name='Togame', last_name='Kisakushi')
         self.assertTrue(HistoryLine.objects.filter(entity=togame.id))
@@ -68,9 +68,10 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         "No stored history lines"
         user = self.login()
 
-        togame = FakeContact(user=user, first_name='Togame', last_name='Kisakushi',
-                             created=now() - timedelta(hours=2),
-                            )
+        togame = FakeContact(
+            user=user, first_name='Togame', last_name='Kisakushi',
+            created=now() - timedelta(hours=2),
+        )
         HistoryLine.disable(togame)
         togame.save()
         self.assertFalse(HistoryLine.objects.filter(entity=togame.id))
@@ -107,9 +108,11 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         togame = self.get_object_or_fail(FakeContact, last_name=last_name)
-        response = self.client.post(togame.get_edit_absolute_url(), follow=True,
-                                    data={**data, 'phone': '123456'},
-                                   )
+        response = self.client.post(
+            togame.get_edit_absolute_url(),
+            follow=True,
+            data={**data, 'phone': '123456'},
+        )
         self.assertNoFormError(response)
         self.assertEqual(2, HistoryLine.objects.filter(entity=togame.id).count())
 

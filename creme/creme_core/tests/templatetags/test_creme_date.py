@@ -11,13 +11,14 @@ from ..base import CremeTestCase
 class CremeDateTagsTestCase(CremeTestCase):
     def test_date_timedelta_pprint(self):
         with self.assertNoException():
-            template = Template(r'{% load creme_date %}'
-                                '{{d1|date_timedelta_pprint}}#'
-                                '{{d2|date_timedelta_pprint}}#'
-                                '{{d3|date_timedelta_pprint}}#'
-                                '{{d4|date_timedelta_pprint}}#'
-                                '{{d5|date_timedelta_pprint}}'
-                               )
+            template = Template(
+                r'{% load creme_date %}'
+                '{{d1|date_timedelta_pprint}}#'
+                '{{d2|date_timedelta_pprint}}#'
+                '{{d3|date_timedelta_pprint}}#'
+                '{{d4|date_timedelta_pprint}}#'
+                '{{d5|date_timedelta_pprint}}'
+            )
             render = template.render(Context({
                 'd1': (
                     datetime(year=2011, month=3, day=12, hour=20, minute=30, second=21) -

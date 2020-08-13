@@ -28,13 +28,15 @@ class CremeQueryTagsTestCase(CremeTestCase):
         create_orga(user=user, name='O-2')
 
         with self.assertNoException():
-            template = Template(r'{% load creme_query %}'
-                                r'{% query_entities_count ctype=ct user=user as count %}'
-                                r'{{count}}'
-                               )
-            render = template.render(Context({'user': user,
-                                              'ct': orga1.entity_type,
-                                             }))
+            template = Template(
+                r'{% load creme_query %}'
+                r'{% query_entities_count ctype=ct user=user as count %}'
+                r'{{count}}'
+            )
+            render = template.render(Context({
+                'user': user,
+                'ct': orga1.entity_type,
+            }))
 
         self.assertEqual('2', render.strip())
 
@@ -42,7 +44,9 @@ class CremeQueryTagsTestCase(CremeTestCase):
         "Regular user."
         user = self.login(is_superuser=False)
         SetCredentials.objects.create(
-            role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
         )
 
         create_orga = FakeOrganisation.objects.create
@@ -56,9 +60,10 @@ class CremeQueryTagsTestCase(CremeTestCase):
                     r'{% query_entities_count ctype=ct user=user as count %}'
                     r'{{count}}'
                 )
-                render = template.render(Context({'user': user,
-                                                  'ct': orga1.entity_type,
-                                                 }))
+                render = template.render(Context({
+                    'user': user,
+                    'ct': orga1.entity_type,
+                }))
 
         self.assertEqual('1', render.strip())
 
@@ -92,12 +97,13 @@ class CremeQueryTagsTestCase(CremeTestCase):
             check_privacy=False,  # No sense here.
         )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_FILTER,
-                                      ctype=FakeOrganisation,
-                                      efilter=efilter,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_FILTER,
+            ctype=FakeOrganisation,
+            efilter=efilter,
+        )
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name=name)
@@ -110,9 +116,10 @@ class CremeQueryTagsTestCase(CremeTestCase):
                     r'{% query_entities_count ctype=ct user=user as count %}'
                     r'{{count}}'
                 )
-                render = template.render(Context({'user': user,
-                                                  'ct': orga1.entity_type,
-                                                 }))
+                render = template.render(Context({
+                    'user': user,
+                    'ct': orga1.entity_type,
+                }))
 
         self.assertEqual('1', render.strip())
 
@@ -127,15 +134,17 @@ class CremeQueryTagsTestCase(CremeTestCase):
 
     def test_serialize(self):
         with self.assertNoException():
-            template = Template(r'{% load creme_query %}'
-                                r'{{query|query_serialize|safe}}'
-                               )
+            template = Template(
+                r'{% load creme_query %}'
+                r'{{query|query_serialize|safe}}'
+            )
             render = template.render(Context({'query': Q(name='Foobar')}))
 
         # self.assertEqual('{"op":"AND","val":[["name","Foobar"]]}', render.strip())
         self.assertIn(
             render.strip(),
-            ('{"op":"AND","val":[["name","Foobar"]]}',
-             '{"val":[["name","Foobar"]],"op":"AND"}'
+            (
+                '{"op":"AND","val":[["name","Foobar"]]}',
+                '{"val":[["name","Foobar"]],"op":"AND"}'
             )
         )
