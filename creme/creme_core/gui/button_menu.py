@@ -61,7 +61,8 @@ class Button:
 
     def has_perm(self, context) -> bool:
         permission = self.permission
-        return context['request'].user.has_perm(permission) if permission else True
+        # return context['request'].user.has_perm(permission) if permission else True
+        return context['user'].has_perm(permission) if permission else True
 
     def ok_4_display(self, entity: CremeEntity) -> bool:
         """Can this button be displayed on this entity's detail-view ?
