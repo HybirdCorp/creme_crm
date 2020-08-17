@@ -109,9 +109,9 @@ class ReportsConfig(CremeAppConfig):
     def register_reports_aggregations(self):
         from django.db.models import aggregates
 
+        from .report_aggregation_registry import FieldAggregation
         from .report_aggregation_registry import (
             field_aggregation_registry as registry,
-            FieldAggregation,
         )
 
         registry.register(
@@ -125,7 +125,7 @@ class ReportsConfig(CremeAppConfig):
         )
 
     def register_reports_charts(self):
-        from .report_chart_registry import report_chart_registry, ReportChart
+        from .report_chart_registry import ReportChart, report_chart_registry
 
         # TODO: register several at once
         report_chart_registry.register(

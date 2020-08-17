@@ -29,7 +29,11 @@ class PollsConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.commercial']
 
     def all_apps_ready(self):
-        from . import get_pollform_model, get_pollreply_model, get_pollcampaign_model
+        from . import (
+            get_pollcampaign_model,
+            get_pollform_model,
+            get_pollreply_model,
+        )
 
         self.PollCampaign = get_pollcampaign_model()
         self.PollForm     = get_pollform_model()

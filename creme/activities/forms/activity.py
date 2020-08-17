@@ -458,8 +458,8 @@ class ActivityCreateForm(_ActivityCreateForm):
         raw_users = cdata.get('informed_users')
 
         if raw_users:
-            from creme.assistants.models import UserMessage
             from creme.assistants.constants import PRIO_NOT_IMP_PK
+            from creme.assistants.models import UserMessage
 
             activity = self.instance
             title = gettext('[Creme] Activity created: {activity}').format(activity=activity)

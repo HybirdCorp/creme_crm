@@ -121,7 +121,7 @@ class AbstractPollForm(CremeEntity):
         return matches
 
     def duplicate_tree(self, instance, pform_lines):
-        from .poll_reply import PollReplyLineCondition, PollReplyLine
+        from .poll_reply import PollReplyLine, PollReplyLineCondition
 
         if isinstance(instance, get_pollform_model()):
             create_line = partial(PollFormLine.objects.create, pform=instance)

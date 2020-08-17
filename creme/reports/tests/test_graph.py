@@ -3646,8 +3646,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         bigger data-sets where there is a visible difference between the old
          "manual group by's" and the new real sql ones.
         """
-        from datetime import datetime
         import time
+        from datetime import datetime
 
         user = self.login()
         report = self._create_simple_organisations_report()
@@ -3687,8 +3687,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         bigger data-sets where there is a visible difference between the old
         "manual group by's" and the new real sql ones.
         """
-        from datetime import datetime
         import time
+        from datetime import datetime
 
         user = self.login()
         report = self._create_simple_organisations_report()

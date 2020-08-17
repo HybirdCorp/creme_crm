@@ -52,11 +52,9 @@ from ..report_aggregation_registry import (
 )
 
 if TYPE_CHECKING:
-    from django.db.models import (
-        Model, Field,
-        QuerySet,
-    )
+    from django.db.models import Field, Model, QuerySet
     from django.db.models.aggregates import Aggregate
+
     from ..models import Field as ReportField  # TODO: rename model ??
 
 # TODO: use Window/Frame to compute aggregate ?

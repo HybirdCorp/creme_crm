@@ -82,8 +82,9 @@ class ActivitiesConfig(CremeAppConfig):
         )
 
     def register_creme_config(self, config_registry):
-        from . import models, bricks
-        from .forms import activity_type as type_forms, calendar as cal_forms
+        from . import bricks, models
+        from .forms import activity_type as type_forms
+        from .forms import calendar as cal_forms
 
         register_model = config_registry.register_model
         register_model(

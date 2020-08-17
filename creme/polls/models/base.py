@@ -49,7 +49,8 @@ class _PollLine:
 
     @property
     def poll_line_type(self):
-        from ..core import PollLineType  # import here to avoid AppRegistryNotReady
+        # Import here to avoid AppRegistryNotReady
+        from ..core import PollLineType
 
         line_type = self._line_type_cache
 

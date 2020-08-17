@@ -50,15 +50,15 @@ if TYPE_CHECKING:
     from .gui.bricks import _BrickRegistry
     from .gui.bulk_update import _BulkUpdateRegistry
     from .gui.button_menu import ButtonsRegistry
-    from .gui.fields_config import FieldsConfigRegistry
     from .gui.field_printers import _FieldPrintersRegistry
+    from .gui.fields_config import FieldsConfigRegistry
     from .gui.icons import IconRegistry
+    from .gui.listview.search import ListViewSearchFieldRegistry
+    from .gui.listview.smart_columns import SmartColumnsRegistry
     from .gui.mass_import import FormRegistry  # TODO: rename ?
     from .gui.menu import Menu
     from .gui.merge import _MergeFormRegistry
     from .gui.quick_forms import QuickFormsRegistry
-    from .gui.listview.search import ListViewSearchFieldRegistry
-    from .gui.listview.smart_columns import SmartColumnsRegistry
     from .gui.statistics import _StatisticsRegistry
 
 logger = logging.getLogger(__name__)
@@ -218,13 +218,30 @@ class CremeAppConfig(AppConfig):
     def all_apps_ready(self):
         if not self.MIGRATION_MODE:
             from .core import (
-                download, entity_filter, enumerable, function_field, imprint,
-                reminder, sandbox, setting_key, sorter,
+                download,
+                entity_filter,
+                enumerable,
+                function_field,
+                imprint,
+                reminder,
+                sandbox,
+                setting_key,
+                sorter,
             )
             from .gui import (
-                actions, bricks, bulk_update, button_menu, fields_config,
-                field_printers, icons, listview, mass_import, menu, merge,
-                quick_forms, statistics,
+                actions,
+                bricks,
+                bulk_update,
+                button_menu,
+                field_printers,
+                fields_config,
+                icons,
+                listview,
+                mass_import,
+                menu,
+                merge,
+                quick_forms,
+                statistics,
             )
 
             self.register_entity_models(creme_registry)
@@ -379,8 +396,13 @@ class CremeCoreConfig(CremeAppConfig):
 
         from .auth import SUPERUSER_PERM
         from .gui.menu import (
-            ItemGroup, ContainerItem, URLItem, TrashItem, LastViewedEntitiesItem,
-            QuickCreationItemGroup, CreationFormsItem,
+            ContainerItem,
+            CreationFormsItem,
+            ItemGroup,
+            LastViewedEntitiesItem,
+            QuickCreationItemGroup,
+            TrashItem,
+            URLItem,
         )
         from .gui.quick_forms import quickforms_registry
 
@@ -513,6 +535,7 @@ class CremeCoreConfig(CremeAppConfig):
 
     def register_enumerable(self, enumerable_registry):
         from django.contrib.auth import get_user_model
+
         from . import enumerators, models
 
         enumerable_registry.register_related_model(
@@ -551,7 +574,7 @@ class CremeCoreConfig(CremeAppConfig):
         register_model(models.Vat,      'vat_value')
 
         if settings.TESTS_ON:
-            from .tests import fake_models, fake_bricks
+            from .tests import fake_bricks, fake_models
 
             # NB: see creme.creme_config.tests.test_generics_views.GenericModelConfigTestCase
             register_model(fake_models.FakeDocumentCategory, 'fake_documentcat')
@@ -603,10 +626,10 @@ class CremeCoreConfig(CremeAppConfig):
     def hook_fk_formfield():
         from django.db.models import ForeignKey
 
+        from creme.creme_config.forms.fields import CreatorModelChoiceField
+
         from .forms.fields import CreatorEntityField
         from .models import CremeEntity
-
-        from creme.creme_config.forms.fields import CreatorModelChoiceField
 
         original_fk_formfield = ForeignKey.formfield
 
@@ -657,10 +680,12 @@ class CremeCoreConfig(CremeAppConfig):
     def hook_m2m_formfield():
         from django.db.models import ManyToManyField
 
+        from creme.creme_config.forms.fields import (
+            CreatorModelMultipleChoiceField,
+        )
+
         from .forms.fields import MultiCreatorEntityField
         from .models import CremeEntity
-
-        from creme.creme_config.forms.fields import CreatorModelMultipleChoiceField
 
         original_m2m_formfield = ManyToManyField.formfield
 

@@ -267,7 +267,8 @@ class Base(CremeEntity):
         return credit_notes
 
     def generate_number(self, source=None):
-        from creme.billing.registry import algo_registry  # Lazy loading of number generators
+        # Lazy loading of number generators
+        from creme.billing.registry import algo_registry
 
         if source is None:
             source = self.get_source()
@@ -349,6 +350,7 @@ class Base(CremeEntity):
 
     def _copy_relations(self, source):
         from ..registry import relationtype_converter
+
         # Not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
         relation_create = Relation.objects.create
         class_map = relationtype_converter.get_class_map(source, self)

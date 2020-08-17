@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2019  Hybird
+#    Copyright (C) 2015-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,11 @@ class SMSConfig(CremeAppConfig):
     dependencies = ['creme.persons']
 
     def all_apps_ready(self):
-        from . import get_smscampaign_model, get_messaginglist_model, get_messagetemplate_model
+        from . import (
+            get_messagetemplate_model,
+            get_messaginglist_model,
+            get_smscampaign_model,
+        )
 
         self.SMSCampaign     = get_smscampaign_model()
         self.MessagingList   = get_messaginglist_model()

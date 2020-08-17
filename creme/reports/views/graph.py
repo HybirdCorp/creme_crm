@@ -55,7 +55,8 @@ def _get_available_report_graph_types(ct, name):
                  )
 
     from django.db.models import DateField, DateTimeField, ForeignKey
-    from creme.creme_core.models import RelationType, CustomField
+
+    from creme.creme_core.models import CustomField, RelationType
 
     model = ct.model_class()
 

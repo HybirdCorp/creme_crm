@@ -23,11 +23,11 @@ from collections import OrderedDict
 from typing import TYPE_CHECKING, Dict, Iterator, Optional, Type
 
 if TYPE_CHECKING:
-    from .condition_handler import FilterConditionHandler
-    from .operators import ConditionOperator
-    from .operands import ConditionDynamicOperand
-
     from creme.creme_core.models import CremeEntity
+
+    from .condition_handler import FilterConditionHandler
+    from .operands import ConditionDynamicOperand
+    from .operators import ConditionOperator
 
 logger = logging.getLogger(__name__)
 EF_CREDENTIALS = 0

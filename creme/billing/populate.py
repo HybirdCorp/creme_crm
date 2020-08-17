@@ -570,8 +570,11 @@ class Populator(BasePopulator):
 
         from creme import reports
         from creme.reports.constants import (
-            RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH,
+            RFT_FIELD,
+            RFT_RELATION,
             RGA_SUM,
+            RGT_FK,
+            RGT_MONTH,
         )
         from creme.reports.core.graph.fetcher import SimpleGraphFetcher
         # from creme.reports.models import Report, Field, ReportGraph

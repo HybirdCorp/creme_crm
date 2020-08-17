@@ -185,7 +185,10 @@ class Populator(BasePopulator):
             # ---------------------------
             if apps.is_installed('creme.persons'):
                 try:
-                    from creme.persons import get_contact_model, get_organisation_model
+                    from creme.persons import (
+                        get_contact_model,
+                        get_organisation_model,
+                    )
                 except ImportError as e:
                     logger.info(str(e))
                 else:

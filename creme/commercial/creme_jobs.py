@@ -46,7 +46,6 @@ class _ComApproachesEmailsSendType(JobType):
 
     def _execute(self, job):
         from creme import persons
-
         from creme.opportunities import get_opportunity_model
         from creme.opportunities.constants import REL_SUB_TARGETS
 

@@ -48,7 +48,8 @@ Organisation = persons.get_organisation_model()
 if apps.is_installed('creme.activities'):
     from datetime import timedelta
 
-    from creme.activities import get_activity_model, constants as activities_constants
+    from creme.activities import constants as activities_constants
+    from creme.activities import get_activity_model
 
     Activity = get_activity_model()
 
@@ -115,8 +116,8 @@ else:
             return {}
 
 if apps.is_installed('creme.opportunities'):
-    from creme.opportunities import get_opportunity_model
     from creme.opportunities import constants as opp_constants
+    from creme.opportunities import get_opportunity_model
 
     Opportunity = get_opportunity_model()
 
@@ -148,8 +149,8 @@ else:
             return None
 
 if apps.is_installed('creme.commercial'):
-    from creme.commercial import get_act_model
     from creme.commercial import constants as commercial_constants
+    from creme.commercial import get_act_model
 
     Act = get_act_model()
 

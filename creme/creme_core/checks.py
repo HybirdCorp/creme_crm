@@ -127,7 +127,7 @@ def check_real_entity_foreign_keys(**kwargs):
 
 @register(CoreTags.urls)
 def check_swapped_urls(**kwargs):
-    from django.urls import reverse, NoReverseMatch
+    from django.urls import NoReverseMatch, reverse
 
     from creme.creme_core.conf.urls import swap_manager
 

@@ -34,8 +34,11 @@ if apps.is_installed('creme.billing'):
     skip_billing = False
 
     from creme import billing
+    from creme.billing.constants import (
+        REL_SUB_BILL_ISSUED,
+        REL_SUB_BILL_RECEIVED,
+    )
     from creme.billing.models import QuoteStatus
-    from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
     Invoice     = billing.get_invoice_model()
     Quote       = billing.get_quote_model()

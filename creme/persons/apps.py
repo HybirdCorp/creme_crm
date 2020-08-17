@@ -100,7 +100,9 @@ class PersonsConfig(CremeAppConfig):
         from django.contrib.auth import get_user_model
 
         from creme.creme_core.gui.field_printers import print_foreignkey_html
-        from creme.creme_core.templatetags.creme_widgets import widget_entity_hyperlink
+        from creme.creme_core.templatetags.creme_widgets import (
+            widget_entity_hyperlink,
+        )
 
         def print_fk_user_html(entity, fval, user, field) -> str:
             if fval.is_team:
@@ -118,7 +120,9 @@ class PersonsConfig(CremeAppConfig):
         imprint_manager.register(self.Contact, hours=1)
 
     def register_mass_import(self, import_form_registry):
-        from .forms.mass_import import get_massimport_form_builder as form_builder
+        from .forms.mass_import import (
+            get_massimport_form_builder as form_builder,
+        )
 
         Contact = self.Contact
         Organisation = self.Organisation

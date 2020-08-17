@@ -22,12 +22,11 @@ from django.apps import apps
 
 if apps.is_installed('creme.billing'):
     from django.db.models import Sum
-    from django.db.models.signals import post_save, post_delete
+    from django.db.models.signals import post_delete, post_save
     from django.dispatch import receiver
 
-    from creme.creme_core.models import SettingValue, Relation
-
     from creme.billing import get_quote_model
+    from creme.creme_core.models import Relation, SettingValue
     from creme.opportunities.constants import REL_SUB_LINKED_QUOTE
 
     from .constants import REL_SUB_CURRENT_DOC

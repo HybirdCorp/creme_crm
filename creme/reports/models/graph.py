@@ -321,7 +321,7 @@ class AbstractReportGraph(CremeEntity):
         )
 
         from ..bricks import ReportGraphBrick
-        from ..constants import RGF_FK, RGF_RELATION, RGF_NOLINK
+        from ..constants import RGF_FK, RGF_NOLINK, RGF_RELATION
         from ..core.graph.fetcher import RegularFieldLinkedGraphFetcher
 
         ibci = InstanceBrickConfigItem(

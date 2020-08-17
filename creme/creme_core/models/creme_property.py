@@ -212,7 +212,9 @@ class CremePropertyType(CremeModel):
                 },
             )[0]
         else:
-            from creme.creme_core.utils.id_generator import generate_string_id_and_save
+            from creme.creme_core.utils.id_generator import (
+                generate_string_id_and_save,
+            )
 
             property_type = CremePropertyType(
                 text=text, is_custom=is_custom, is_copiable=is_copiable,

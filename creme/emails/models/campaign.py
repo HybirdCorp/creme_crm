@@ -97,7 +97,7 @@ class AbstractEmailCampaign(CremeEntity):
 
         # TODO: in a signal handler instead ?
         #       (we need a restore signal, or an official "backup" feature -- see HistoryLine)
-        from .sending import EmailSending, SENDING_STATE_DONE
+        from .sending import SENDING_STATE_DONE, EmailSending
 
         if EmailSending.objects.filter(campaign=self).exclude(state=SENDING_STATE_DONE).exists():
             # TODO: regroup the 'refresh' message, to avoid flooding the job manager

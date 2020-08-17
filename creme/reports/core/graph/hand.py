@@ -136,7 +136,9 @@ class ReportGraphHand:
             DeprecationWarning,
         )
 
-        from creme.reports.templatetags.reports_tags import reports_graph_ordinate
+        from creme.reports.templatetags.reports_tags import (
+            reports_graph_ordinate,
+        )
         return reports_graph_ordinate(self._graph)
 
     # TODO: The 'group by' query could be extracted into a common Manager
