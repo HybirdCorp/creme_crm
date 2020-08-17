@@ -9,7 +9,12 @@ __all__: Tuple[str, ...]
 if not settings.TESTS_ON:
     __all__ = ()
 else:
-    from django.db.models import CharField, ForeignKey, ManyToManyField, PROTECT
+    from django.db.models import (
+        PROTECT,
+        CharField,
+        ForeignKey,
+        ManyToManyField,
+    )
     from django.urls import reverse
     from django.utils.translation import gettext_lazy as _
 

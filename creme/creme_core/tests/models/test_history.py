@@ -447,7 +447,7 @@ about this fantastic animation studio."""
         "Other fields: TimeField, SlugField, FloatField, NullBooleanField"
         # TODO: use true fields in a fake model
 
-        from creme.creme_core.models.history import _JSONEncoder, _PRINTERS
+        from creme.creme_core.models.history import _PRINTERS, _JSONEncoder
 
         encode = _JSONEncoder().encode
 

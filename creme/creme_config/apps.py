@@ -150,7 +150,7 @@ class CremeConfigConfig(CremeAppConfig):
 
         from creme.creme_core import models as core_models
 
-        from .gui import TimezoneItem, ConfigContainerItem
+        from .gui import ConfigContainerItem, TimezoneItem
 
         URLItem = creme_menu.URLItem
         creme_menu.get(

@@ -1464,7 +1464,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self._build_stats_url(pform))
         self.assertTemplateUsed(response, 'polls/stats.html')
 
-        from ..utils import StatsTree, NodeStyle
+        from ..utils import NodeStyle, StatsTree
 
         get = response.context.get
         self.assertIsInstance(get('nodes'), StatsTree)

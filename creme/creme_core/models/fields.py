@@ -93,7 +93,8 @@ class DatePeriodField(models.TextField):  # TODO: inherit from a JSONField
         return json_encode(value.as_dict())
 
     def formfield(self, **kwargs):
-        from ..forms.fields import DatePeriodField as DatePeriodFormField  # Lazy loading
+        # Lazy loading
+        from ..forms.fields import DatePeriodField as DatePeriodFormField
 
         # BEWARE: we do not call TextField.formfield because it overload 'widget'
         # (we could define the 'widget' key in 'defaults'...)

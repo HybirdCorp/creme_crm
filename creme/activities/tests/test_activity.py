@@ -43,8 +43,8 @@ from .base import (
 )
 
 if apps.is_installed('creme.assistants'):
-    from creme.assistants.models import Alert, UserMessage
     from creme.assistants.constants import PRIO_NOT_IMP_PK
+    from creme.assistants.models import Alert, UserMessage
 
 
 @skipIfCustomActivity

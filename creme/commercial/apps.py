@@ -65,7 +65,10 @@ class CommercialConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        from .models import ActObjectivePatternComponent, MarketSegmentDescription
+        from .models import (
+            ActObjectivePatternComponent,
+            MarketSegmentDescription,
+        )
 
         register = bulk_update_registry.register
         # TODO: min_value/max_value constraint in the model... )

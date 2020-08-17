@@ -57,7 +57,9 @@ from . import CremeEntity
 from . import fields as core_fields
 
 if TYPE_CHECKING:
-    from creme.creme_core.core.entity_filter.condition_handler import FilterConditionHandler
+    from creme.creme_core.core.entity_filter.condition_handler import (
+        FilterConditionHandler,
+    )
 
 logger = logging.getLogger(__name__)
 

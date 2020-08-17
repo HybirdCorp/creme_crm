@@ -136,7 +136,6 @@ class BillingConfig(CremeAppConfig):
 
     def register_field_printers(self, field_printers_registry):
         from .models.fields import BillingDiscountField
-
         from .utils import print_discount
 
         field_printers_registry.register(BillingDiscountField, print_discount)

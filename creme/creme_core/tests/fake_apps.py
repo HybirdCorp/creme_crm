@@ -11,32 +11,40 @@ def ready():
 
     already_run = True
 
+    from creme.creme_config.tests.fake_models import FakeConfigEntity
+
     from ..core.download import filefield_download_registry
     from ..core.function_field import function_field_registry
     from ..core.imprint import imprint_manager
     from ..gui.bricks import brick_registry
-    from ..gui.quick_forms import quickforms_registry
     from ..gui.listview import smart_columns_registry
     from ..gui.mass_import import import_form_registry
     from ..gui.merge import merge_form_registry
+    from ..gui.quick_forms import quickforms_registry
     from ..models import CremeEntity
     from ..registry import creme_registry
-
+    from . import fake_function_fields
     from .fake_bricks import FakeAppPortalBrick
     from .fake_constants import FAKE_REL_SUB_EMPLOYED_BY
     from .fake_forms import (
-        FakeContactQuickForm, FakeOrganisationQuickForm,
-        get_csv_form_builder, get_merge_form_builder,
+        FakeContactQuickForm,
+        FakeOrganisationQuickForm,
+        get_csv_form_builder,
+        get_merge_form_builder,
     )
-    from . import fake_function_fields
     from .fake_models import (
-        FakeContact, FakeOrganisation,
-        FakeDocument, FakeImage,
-        FakeActivity, FakeEmailCampaign, FakeMailingList,
-        FakeInvoice, FakeInvoiceLine, FakeTicket, FakeRecipe,
+        FakeActivity,
+        FakeContact,
+        FakeDocument,
+        FakeEmailCampaign,
+        FakeImage,
+        FakeInvoice,
+        FakeInvoiceLine,
+        FakeMailingList,
+        FakeOrganisation,
+        FakeRecipe,
+        FakeTicket,
     )
-
-    from creme.creme_config.tests.fake_models import FakeConfigEntity
 
     creme_registry.register_entity_models(
         FakeContact,

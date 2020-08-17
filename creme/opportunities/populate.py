@@ -418,9 +418,8 @@ class Populator(BasePopulator):
         "Create the report 'Opportunities' and 2 ReportGraphs."
         from django.contrib.auth import get_user_model
 
-        from creme.creme_core.utils.meta import FieldInfo
-
         from creme import reports
+        from creme.creme_core.utils.meta import FieldInfo
         from creme.reports import constants as rep_constants
         from creme.reports.core.graph.fetcher import SimpleGraphFetcher
         from creme.reports.models import Field

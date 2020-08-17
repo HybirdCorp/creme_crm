@@ -548,7 +548,10 @@ def ordered_models_to_delete(app_config, connection):
     from django.db import router
     from django.utils.datastructures import OrderedSet
 
-    from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
+    from creme.creme_core.utils.dependence_sort import (
+        DependenciesLoopError,
+        dependence_sort,
+    )
 
     class ModelInfo:
         def __init__(self, model, dependencies):

@@ -972,6 +972,7 @@ class ContactTestCase(_BaseTestCase):
     @skipIfCustomUser
     def test_command_create_staffuser(self):
         from django.core.management import call_command
+
         from creme.creme_core.management.commands.creme_createstaffuser import (
             Command as StaffCommand,
         )

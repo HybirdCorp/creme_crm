@@ -15,17 +15,19 @@ else:
     from django.db import models
     from django.db.models.query_utils import Q
     from django.urls import reverse
-    from django.utils.translation import gettext_lazy as _, gettext, pgettext_lazy
+    from django.utils.translation import gettext
+    from django.utils.translation import gettext_lazy as _
+    from django.utils.translation import pgettext_lazy
 
     from ..core.entity_filter import EF_USER
     from ..models import (
-        CremeModel, CremeEntity,
-        Language,
+        CremeEntity,
+        CremeModel,
         EntityFilter,
-        fields as core_fields,
+        Language,
         deletion,
     )
-
+    from ..models import fields as core_fields
     from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
 
     __all__ = (

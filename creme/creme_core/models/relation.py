@@ -316,7 +316,9 @@ class RelationType(CremeModel):
                 },
             )[0]
         else:
-            from creme.creme_core.utils.id_generator import generate_string_id_and_save
+            from creme.creme_core.utils.id_generator import (
+                generate_string_id_and_save,
+            )
 
             sub_relation_type = RelationType(
                 predicate=pred_subject, is_custom=is_custom, is_internal=is_internal,
@@ -575,7 +577,6 @@ def _handle_merge(sender, other_entity, **kwargs):
     from .history import HistoryLine, _HLTRelation
 
     # Deletion of duplicates ---------------------------------------------------
-
     # Key#1 => relation-type ID
     # Key#2 => object_entity ID (linked to at least one of the merged entities)
     # Value => set of merged entities IDs (so 1 or 2 IDs between [sender.id, other_entity.id])

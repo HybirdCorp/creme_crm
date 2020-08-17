@@ -68,7 +68,10 @@ from .base import CremeModelForm
 
 if TYPE_CHECKING:
     from django.contrib.contenttypes.models import ContentType
-    from creme.creme_core.gui.listview.smart_columns import SmartColumnsRegistry
+
+    from creme.creme_core.gui.listview.smart_columns import (
+        SmartColumnsRegistry,
+    )
 
 logger = logging.getLogger(__name__)
 # _RFIELD_PREFIX = EntityCellRegularField.type_id + '-'

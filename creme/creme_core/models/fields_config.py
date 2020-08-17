@@ -47,7 +47,8 @@ from .base import CremeModel
 from .fields import CTypeOneToOneField
 
 if TYPE_CHECKING:
-    from django.db.models import Model, Field
+    from django.db.models import Field, Model
+
     from ..utils.meta import ModelFieldEnumerator
 
 logger = logging.getLogger(__name__)

@@ -159,10 +159,9 @@ class OpportunitiesConfig(CremeAppConfig):
         )
 
     def register_billing(self):
-        from creme.creme_core.models import RelationType
-
         from creme import billing
         from creme.billing.registry import relationtype_converter
+        from creme.creme_core.models import RelationType
 
         from . import constants
 

@@ -214,9 +214,9 @@ if settings.TESTS_ON:
         def pong(self, ping_value):
             pass
 else:
+    import traceback
     from functools import wraps
     from json import loads as json_load
-    import traceback
     from time import sleep
 
     from redis import StrictRedis  # TODO: "Redis" with redis3
