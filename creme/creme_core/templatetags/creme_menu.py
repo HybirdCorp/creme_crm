@@ -18,10 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
+
 from django.db.models import Q
 from django.template import Library
 
-from ..gui.button_menu import button_registry
+from ..gui import button_menu
 from ..gui.menu import creme_menu
 from ..models import ButtonMenuItem
 
@@ -34,21 +36,29 @@ def menu_display(context):
 
 
 # TODO: rename template file (menu-buttons.html ? detailview-buttons.html ? menu/buttons.html ?)
-@register.inclusion_tag('creme_core/templatetags/menu_buttons.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/menu_buttons.html', takes_context=True,
+)
 def menu_buttons_display(context):
     entity = context['object']
-    bmi = ButtonMenuItem.objects.filter(Q(content_type=entity.entity_type) |
-                                        Q(content_type__isnull=True)
-                                       ) \
-                                .exclude(button_id='') \
-                                .order_by('order') \
-                                .values_list('button_id', flat=True)
+    bmi = ButtonMenuItem.objects.filter(
+        Q(content_type=entity.entity_type)
+        | Q(content_type__isnull=True)
+    ).exclude(
+        button_id='',
+    ).order_by(
+        'order',
+    ).values_list(
+        'button_id', flat=True,
+    )
 
     button_ctxt = context.flatten()
     # TODO: pass the registry in the context ?
-    context['buttons'] = [
-        button.render(button_ctxt)
-        for button in button_registry.get_buttons(bmi, entity)
-    ]
+    buttons = OrderedDict()
+
+    for button in button_menu.button_registry.get_buttons(bmi, entity):
+        buttons[button.id_] = button.render(button_ctxt)
+
+    context['buttons'] = [*buttons.values()]
 
     return context
