@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from decimal import Decimal
 from functools import partial
 
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import Currency, FieldsConfig
+from creme.creme_core.models import FieldsConfig
 from creme.persons.tests.base import skipIfCustomOrganisation
 
 from ..models import PaymentInformation
@@ -214,38 +213,12 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         self.assertPOST409(self._build_setdefault_url(pi_sony, invoice))
 
-    @skipIfCustomInvoice
-    def test_set_null_in_invoice01(self):
-        sega = Organisation.objects.create(user=self.user, name='Sega')
-        invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
-
-        pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
-        self.assertPOST200(self._build_setdefault_url(pi_sony, invoice))
-
-        currency = Currency.objects.all()[0]
-        response = self.client.post(
-            invoice.get_edit_absolute_url(), follow=True,
-            data={
-                'user':            self.user.pk,
-                'name':            'Dreamcast',
-                'issuing_date':    '2010-9-7',
-                'expiration_date': '2010-10-13',
-                'status':          1,
-                'currency':        currency.pk,
-                'discount':        Decimal(),
-                'source':          sega.id,
-                'target':          self.formfield_value_generic_entity(nintendo_target),
-            },
-        )
-        self.assertNoFormError(response)
-        self.assertIsNone(self.refresh(invoice).payment_info)
-
     def test_inneredit(self):
         organisation = Organisation.objects.create(user=self.user, name='Nintendo')
         pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
 
         build_url = self.build_inneredit_url
-        url =  build_url(pi, 'name')
+        url = build_url(pi, 'name')
         self.assertGET200(url)
 
         name = pi.name + ' (default)'

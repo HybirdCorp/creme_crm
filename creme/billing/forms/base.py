@@ -37,6 +37,7 @@ from creme.persons import (
 )
 
 # from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..models import PaymentInformation
 
 logger = logging.getLogger(__name__)
 
@@ -148,10 +149,15 @@ class BaseEditForm(CremeEntityForm):
         # target = cleaned_data['target']
 
         payment_info = instance.payment_info
-        org_payment_info = payment_info.get_related_entity() if payment_info else None
+        pinfo_orga_id = payment_info.organisation_id if payment_info else None
 
-        if source != org_payment_info:
+        if source.id != pinfo_orga_id:
             instance.payment_info = None
+
+        if instance.payment_info is None:  # Optimization
+            source_pis = PaymentInformation.objects.filter(organisation=source.id)[:2]
+            if len(source_pis) == 1:
+                instance.payment_info = source_pis[0]
 
         instance = super().save(*args, **kwargs)
 
