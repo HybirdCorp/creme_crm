@@ -16,14 +16,13 @@
 {% block brick_list_content %}
     {% for payment_info in page.object_list %}
      <div class="brick-list-item billing-item">
-        <div class="billing-group billing-summary-group{% if page.paginator.count > 1 and payment_info == object.payment_info %} billing-is-default{% endif %}">
+        <div class="billing-group billing-summary-group{% if payment_info == object.payment_info %} billing-is-default{% endif %}">
             <div class="billing-group-key">
                 {{payment_info.name}}
             </div>
             <div class="billing-group-value">
                 {% blocktrans with account=payment_info.account_number|default:'—' %}N° {{account}}{% endblocktrans %}
             </div>
-            {% if page.paginator.count > 1 %}
             <div class="billing-action">
                 {% if payment_info == object.payment_info %}
                     {% trans 'Selected account for this document' %}
@@ -31,7 +30,6 @@
                     {% brick_action id='update' url=set_default_url label=_('Select this account') class='billing-select-account' icon='edit' display='both' %}
                 {% endif %}
             </div>
-            {% endif %}
         </div>
         <div class="billing-group billing-info-group">
             <div class="billing-group-key">{% trans 'RIB' %}</div>
