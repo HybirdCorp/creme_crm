@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if organisation %}{% has_perm_to change organisation as has_perm_organisation %}{% url 'billing__create_payment_info' organisation.id as create_url %}
-        {% brick_header_action id='add' url=create_url label=_('Add a payment information') enabled=has_perm_organisation %}
+    {% if organisation %}{% has_perm_to change object as can_edit %}{% has_perm_to change organisation as can_edit_orga %}{% url 'billing__create_related_payment_info' object.id as create_url %}
+        {% brick_header_action id='add' url=create_url label=_('Add a payment information') enabled=can_edit|and_op:can_edit_orga %}
     {% endif %}
 {% endblock %}
 
