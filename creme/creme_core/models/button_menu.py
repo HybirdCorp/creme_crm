@@ -21,6 +21,7 @@
 import warnings
 from typing import TYPE_CHECKING, Optional, Type, Union
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -35,7 +36,6 @@ if TYPE_CHECKING:
 
 class ButtonMenuItemManager(models.Manager):
     def create_if_needed(self,
-                         pk: str,
                          *,
                          model: Optional[Type[CremeEntity]] = None,
                          button: Union[Type['Button'], str],
@@ -50,29 +50,24 @@ class ButtonMenuItemManager(models.Manager):
         """
         # TODO: py 3.8
         # class ButtonItemDefaultDict(TypedDict):
-        #     content_type: Optional[Type[CremeEntity]]
-        #     button_id: str
         #     order: int
+        ct = ContentType.objects.get_for_model(model) if model else None
 
         return self.get_or_create(
-            pk=pk,
-            defaults={
-                'content_type': model,
-                'button_id': button if isinstance(button, str) else button.id_,
-                'order': order,
-            },
+            content_type=ct,
+            button_id=button if isinstance(button, str) else button.id_,
+            defaults={'order': order},
         )[0]
 
 
-# TODO: remove pkstring & use ('content_type', 'button_id') as PK ?
-#       (what about button per role ?)
+# TODO: what about button per role ?
 class ButtonMenuItem(CremeModel):
-    id           = models.CharField(primary_key=True, max_length=100)
+    # id           = models.CharField(primary_key=True, max_length=100)
     # 'null' means: all ContentTypes are accepted.
     # TODO: EntityCTypeForeignKey ??
     content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
-    button_id    = models.CharField(_('Button ID'), max_length=100, blank=False, null=False)
-    order        = models.PositiveIntegerField(_('Priority'))
+    button_id = models.CharField(_('Button ID'), max_length=100, blank=False, null=False)
+    order = models.PositiveIntegerField(_('Priority'))
 
     objects = ButtonMenuItemManager()
 
@@ -80,6 +75,7 @@ class ButtonMenuItem(CremeModel):
         app_label = 'creme_core'
         verbose_name = _('Button to display')
         verbose_name_plural = _('Buttons to display')
+        # TODO: unique_together = ('content_type', 'button_id') ??
 
     def __str__(self):
         from creme.creme_core.gui.button_menu import button_registry
@@ -87,23 +83,26 @@ class ButtonMenuItem(CremeModel):
         button = button_registry.get_button(self.button_id)
         return str(button.verbose_name) if button else gettext('Deprecated button')
 
-    @staticmethod
-    def create_if_needed(pk, model, button, order):
+    # @staticmethod
+    @classmethod
+    # def create_if_needed(pk, model, button, order):
+    def create_if_needed(cls, pk, model, button, order):
         """Creation helper ; useful for populate.py scripts.
         @param model: Can be None for 'all models'.
         """
-        warnings.warn('ButtonMenuItem.create_if_needed() is deprecated ; '
-                      'use ButtonMenuItem.objects.create_if_needed() instead.',
-                      DeprecationWarning,
-                     )
+        warnings.warn(
+            'ButtonMenuItem.create_if_needed() is deprecated ; '
+            'use ButtonMenuItem.objects.create_if_needed() instead '
+            '(tips: remove the argument "pk" ; you can pass a button class too).',
+            DeprecationWarning,
+        )
 
-        from django.contrib.contenttypes.models import ContentType
-
-        return ButtonMenuItem.objects.get_or_create(
-            pk=pk,
-            defaults={
-                'content_type': ContentType.objects.get_for_model(model) if model else None,
-                'button_id':    button.id_,
-                'order':        order,
-            },
-        )[0]
+        # return ButtonMenuItem.objects.get_or_create(
+        #     pk=pk,
+        #     defaults={
+        #         'content_type': ContentType.objects.get_for_model(model) if model else None,
+        #         'button_id':    button.id_,
+        #         'order':        order,
+        #     },
+        # )[0]
+        return cls.objects.create_if_needed(model=model, button=button, order=order)

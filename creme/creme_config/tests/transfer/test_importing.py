@@ -919,24 +919,30 @@ class ImportingTestCase(CremeTestCase):
         def gen_bid(i):
             return Button.generate_id('creme_config_export', f'test_import_buttons{i}')
 
-        create_button = partial(ButtonMenuItem.objects.create, content_type=contact_ct)
-        id_fmt = 'creme_config-test_import_buttons-{}'.format
-        create_button(id=id_fmt(1), order=1, button_id=gen_bid(1))
-        create_button(id=id_fmt(2), order=2, button_id=gen_bid(2))
+        create_bmi = partial(ButtonMenuItem.objects.create, content_type=contact_ct)
+        # id_fmt = 'creme_config-test_import_buttons-{}'.format
+        # create_bmi(id=id_fmt(1), order=1, button_id=gen_bid(1))
+        # create_bmi(id=id_fmt(2), order=2, button_id=gen_bid(2))
+        create_bmi(order=1, button_id=gen_bid(1))
+        create_bmi(order=2, button_id=gen_bid(2))
 
-        # orga_bmi = create_button(id=id_fmt(10), order=1, button_id=gen_bid(3),
-        #                          content_type=get_ct(FakeOrganisation))
-        orga_bmi = create_button(
-            id=id_fmt(10), order=1, button_id=gen_bid(3), content_type=FakeOrganisation,
+        # orga_bmi = create_bmi(id=id_fmt(10), order=1, button_id=gen_bid(3),
+        #                       content_type=get_ct(FakeOrganisation))
+        orga_bmi = create_bmi(
+            order=1, button_id=gen_bid(3), content_type=FakeOrganisation,
         )
 
         ct_str = 'creme_core.fakecontact'
         buttons_data = [
-            {'id': id_fmt(3), 'order': 1, 'button_id': gen_bid(3)},
-            {'id': id_fmt(4), 'order': 2, 'button_id': gen_bid(4)},
+            # {'id': id_fmt(3), 'order': 1, 'button_id': gen_bid(3)},
+            {'order': 1, 'button_id': gen_bid(3)},
+            # {'id': id_fmt(4), 'order': 2, 'button_id': gen_bid(4)},
+            {'order': 2, 'button_id': gen_bid(4)},
 
-            {'id': id_fmt(5), 'order': 1, 'button_id': gen_bid(5), 'ctype': ct_str},
-            {'id': id_fmt(6), 'order': 2, 'button_id': gen_bid(6), 'ctype': ct_str},
+            # {'id': id_fmt(5), 'order': 1, 'button_id': gen_bid(5), 'ctype': ct_str},
+            {'order': 1, 'button_id': gen_bid(5), 'ctype': ct_str},
+            # {'id': id_fmt(6), 'order': 2, 'button_id': gen_bid(6), 'ctype': ct_str},
+            {'order': 2, 'button_id': gen_bid(6), 'ctype': ct_str},
         ]
 
         json_file = StringIO(json_dump({'version': '1.0', 'buttons': buttons_data}))
@@ -946,14 +952,17 @@ class ImportingTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             [buttons_data[0], buttons_data[1]],
-            [{'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id}
+            [
+                # {'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id}
+                {'order': bmi.order, 'button_id': bmi.button_id}
                 for bmi in ButtonMenuItem.objects.filter(content_type=None)
             ]
         )
         self.assertListEqual(
             [buttons_data[2], buttons_data[3]],
             [
-                {'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
+                # {'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
+                {'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
                 for bmi in ButtonMenuItem.objects.filter(content_type=contact_ct)
             ]
         )

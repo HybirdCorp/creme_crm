@@ -652,7 +652,8 @@ class ExportingTestCase(CremeTestCase):
         def create_button(i):
             return ButtonMenuItem.objects.create(
                 content_type=contact_ct,
-                id=f'creme_config_export-test_export_buttons-{i}', order=i,
+                # id=f'creme_config_export-test_export_buttons-{i}',
+                order=i,
                 button_id=Button.generate_id('creme_config_export', f'test_export_buttons{i}'),
             )
 
@@ -665,7 +666,8 @@ class ExportingTestCase(CremeTestCase):
         loaded_buttons = content.get('buttons')
         self.assertListEqual(
             [
-                {'id': bconf.id, 'order': bconf.order, 'button_id': bconf.button_id}
+                # {'id': bconf.id, 'order': bconf.order, 'button_id': bconf.button_id}
+                {'order': bconf.order, 'button_id': bconf.button_id}
                 for bconf in default_buttons
             ],
             [d for d in loaded_buttons if 'ctype' not in d]
@@ -673,10 +675,12 @@ class ExportingTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 {
-                    'id': bmi1.id, 'order': bmi1.order, 'button_id': bmi1.button_id,
+                    # 'id': bmi1.id, 'order': bmi1.order, 'button_id': bmi1.button_id,
+                    'order': bmi1.order, 'button_id': bmi1.button_id,
                     'ctype': 'creme_core.fakecontact',
                 }, {
-                    'id': bmi2.id, 'order': bmi2.order, 'button_id': bmi2.button_id,
+                    # 'id': bmi2.id, 'order': bmi2.order, 'button_id': bmi2.button_id,
+                    'order': bmi2.order, 'button_id': bmi2.button_id,
                     'ctype': 'creme_core.fakecontact',
                 },
             ],

@@ -62,8 +62,9 @@ class VcfExportTestCase(CremeTestCase):
     def test_button(self):
         self.login()
         ButtonMenuItem.objects.create_if_needed(
-            pk='vcfs-test_button', model=Contact,
-            button=GenerateVcfButton, order=100,
+            model=Contact,
+            button=GenerateVcfButton,
+            order=100,
         )
 
         contact = self.create_contact()
@@ -75,14 +76,15 @@ class VcfExportTestCase(CremeTestCase):
         response = self._generate_vcf(Contact.objects.create(user=user, last_name='Abitbol'))
         self.assertEqual(
             b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nEND:VCARD\r\n',
-            response.content
+            response.content,
         )
 
     def test_get_vcf_basic_role(self):
-        user = self.login(is_superuser=False,
-                          allowed_apps=('creme_core', 'persons', 'vcfs'),
-                          creatable_models=[Contact],
-                         )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('creme_core', 'persons', 'vcfs'),
+            creatable_models=[Contact],
+        )
 
         SetCredentials.objects.create(
             role=self.role,
@@ -100,15 +102,16 @@ class VcfExportTestCase(CremeTestCase):
 
     def test_get_vcf_civility(self):
         user = self.login()
-        contact = Contact.objects.create(user=user,
-                                         civility=Civility.objects.create(title='Monsieur'),
-                                         last_name='Abitbol',
-                                        )
+        contact = Contact.objects.create(
+            user=user,
+            civility=Civility.objects.create(title='Monsieur'),
+            last_name='Abitbol',
+        )
 
         response = self._generate_vcf(contact)
         self.assertEqual(
             b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;Monsieur;\r\nEND:VCARD\r\n',
-            response.content
+            response.content,
         )
 
     @skipIfCustomOrganisation
@@ -124,7 +127,7 @@ class VcfExportTestCase(CremeTestCase):
         self.assertEqual(
             b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\n'
             b'ORG:ORGNAME\r\nEND:VCARD\r\n',
-            response.content
+            response.content,
         )
 
     @skipIfCustomAddress
@@ -141,7 +144,7 @@ class VcfExportTestCase(CremeTestCase):
             b'EMAIL;TYPE=INTERNET:a@aa.fr\r\n'
             b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
             b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-            response.content
+            response.content,
         )
 
     @skipIfCustomAddress
@@ -158,7 +161,7 @@ class VcfExportTestCase(CremeTestCase):
             b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
             b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;'
             b'\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-            response.content
+            response.content,
         )
 
     @skipIfCustomAddress
@@ -179,7 +182,7 @@ class VcfExportTestCase(CremeTestCase):
             b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
             b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
             b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-            response.content
+            response.content,
         )
 
     @skipIfCustomAddress
@@ -198,7 +201,7 @@ class VcfExportTestCase(CremeTestCase):
             b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
             b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
             b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-            response.content
+            response.content,
         )
 
     @skipIfCustomAddress
@@ -221,7 +224,7 @@ class VcfExportTestCase(CremeTestCase):
             b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
             b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
             b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-            response.content
+            response.content,
         )
 
     @skipIfCustomAddress
@@ -232,12 +235,14 @@ class VcfExportTestCase(CremeTestCase):
         contact.save()
 
         create_fc = FieldsConfig.objects.create
-        create_fc(content_type=Contact,
-                  descriptions=[('email', {FieldsConfig.HIDDEN: True})],
-                 )
-        create_fc(content_type=Address,
-                  descriptions=[('zipcode', {FieldsConfig.HIDDEN: True})],
-                 )
+        create_fc(
+            content_type=Contact,
+            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
+        )
+        create_fc(
+            content_type=Address,
+            descriptions=[('zipcode', {FieldsConfig.HIDDEN: True})],
+        )
 
         response = self._generate_vcf(contact)
         self.assertEqual(
@@ -247,5 +252,5 @@ class VcfExportTestCase(CremeTestCase):
             b'TEL;TYPE=CELL:0606060606\r\n'
             b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;;\r\n'
             b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
-            response.content
+            response.content,
         )

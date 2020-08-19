@@ -276,12 +276,10 @@ class Populator(BasePopulator):
             # ---------------------------
             create_button = ButtonMenuItem.objects.create_if_needed
             create_button(
-                pk='opportunities-linked_opp_button',  # TODO: This pk is kept for compatibility
                 model=Organisation, button=LinkedOpportunityButton, order=30,
             )
             create_button(
-                pk='opportunities-linked_opp_button_contact',
-                model=Contact,      button=LinkedOpportunityButton, order=30
+                model=Contact,      button=LinkedOpportunityButton, order=30,
             )
 
             # ---------------------------

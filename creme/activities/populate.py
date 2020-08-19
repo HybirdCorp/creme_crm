@@ -277,7 +277,7 @@ class Populator(BasePopulator):
                         {'brick': a_bricks.MemosBrick,        'order': 200},
                         {'brick': a_bricks.AlertsBrick,       'order': 300},
                         {'brick': a_bricks.UserMessagesBrick, 'order': 400},
-                    ]
+                    ],
                 )
 
             if apps.is_installed('creme.documents'):
@@ -300,7 +300,7 @@ class Populator(BasePopulator):
                     {'brick': past_id,   'order': 21, 'model': Contact},
                     {'brick': future_id, 'order': 20, 'model': Organisation},
                     {'brick': past_id,   'order': 21, 'model': Organisation},
-                ]
+                ],
             )
 
             BrickHomeLocation.objects.create(brick_id=future_id, order=20)
@@ -308,18 +308,6 @@ class Populator(BasePopulator):
 
             # ---------------------------
             create_button = ButtonMenuItem.objects.create_if_needed
-            create_button(
-                'activities-add_activity_button',
-                button=buttons.AddRelatedActivityButton,
-                order=10,
-            )
-            create_button(
-                'activities-add_meeting_button',
-                button=buttons.AddMeetingButton,
-                order=11,
-            )
-            create_button(
-                'activities-add_phonecall_button',
-                button=buttons.AddPhoneCallButton,
-                order=12,
-            )
+            create_button(button=buttons.AddRelatedActivityButton, order=10)
+            create_button(button=buttons.AddMeetingButton,         order=11)
+            create_button(button=buttons.AddPhoneCallButton,       order=12)

@@ -260,7 +260,7 @@ class ButtonMenuItemExporter(Exporter):
         assert isinstance(instance, models.ButtonMenuItem)
 
         data = {
-            'id':        instance.id,
+            # 'id':        instance.id,
             'order':     instance.order,
             'button_id': instance.button_id,
         }

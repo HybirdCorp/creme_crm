@@ -313,6 +313,7 @@
                   If you wrote your own class of 'InstanceBrick' & which uses extra data, you should write a data migration (see the app 'reports' for an example).
                 - The field 'verbose' has been removed.
                 - These methods have been removed: generate_id(), get_base_id(), id_is_specific()
+            - The PK ("id" field) of 'ButtonMenuItem' is now a classical AutoField (so IDs are integers), not a CharField anymore.
             - The method 'CustomFieldValue._get_formfield()' is now abstract (ie: it will raise a 'NotImplementedError' if not overriden).
             - In 'EntityFilterCondition' :
                 - The field "value" has been renamed "raw_value".
@@ -544,6 +545,7 @@
             * Creme_config :
                 - These functions of 'views.generics_views' have been removed : _get_appconf(), _get_modelconf()
                 - In 'forms.fields.CreatorModelChoiceMixin', the initial value of the class attribute "_create_action_url" is <''> (it was <None>).
+                - The constant 'forms.button_menu._PREFIX' has been removed.
             * Commercial :
                 - The function 'views.strategy._get_strategy_n_orga()' has been removed.
             * Reports :

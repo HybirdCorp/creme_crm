@@ -369,68 +369,20 @@ class Populator(BasePopulator):
 
             # ---------------------------
             create_bmi = ButtonMenuItem.objects.create_if_needed
-            create_bmi(
-                pk='billing-generate_invoice_number', model=Invoice,
-                button=buttons.GenerateInvoiceNumberButton, order=0,
-            )
+            create_bmi(model=Invoice, button=buttons.GenerateInvoiceNumberButton, order=0)
 
-            create_bmi(
-                pk='billing-convert_quote_to_invoice',
-                model=Quote,
-                button=buttons.ConvertToInvoiceButton,
-                order=0,
-            )
-            create_bmi(
-                pk='billing-convert_quote_to_salesorder',
-                model=Quote,
-                button=buttons.ConvertToSalesOrderButton,
-                order=1,
-            )
+            create_bmi(model=Quote, button=buttons.ConvertToInvoiceButton,    order=0)
+            create_bmi(model=Quote, button=buttons.ConvertToSalesOrderButton, order=1)
 
-            create_bmi(
-                pk='billing-convert_salesorder_to_invoice',
-                model=SalesOrder,
-                button=buttons.ConvertToInvoiceButton,
-                order=0,
-            )
+            create_bmi(model=SalesOrder, button=buttons.ConvertToInvoiceButton, order=0)
 
-            create_bmi(
-                pk='billing-quote_orga_button',
-                model=Organisation,
-                button=buttons.AddQuoteButton,
-                order=100,
-            )
-            create_bmi(
-                pk='billing-salesorder_orga_button',
-                model=Organisation,
-                button=buttons.AddSalesOrderButton,
-                order=101,
-            )
-            create_bmi(
-                pk='billing-invoice_orga_button',
-                model=Organisation,
-                button=buttons.AddInvoiceButton,
-                order=102,
-            )
+            create_bmi(model=Organisation, button=buttons.AddQuoteButton,      order=100)
+            create_bmi(model=Organisation, button=buttons.AddSalesOrderButton, order=101)
+            create_bmi(model=Organisation, button=buttons.AddInvoiceButton,    order=102)
 
-            create_bmi(
-                pk='billing-quote_contact_button',
-                model=Contact,
-                button=buttons.AddQuoteButton,
-                order=100,
-            )
-            create_bmi(
-                pk='billing-salesorder_contact_button',
-                model=Contact,
-                button=buttons.AddSalesOrderButton,
-                order=101,
-            )
-            create_bmi(
-                pk='billing-invoice_contact_button',
-                model=Contact,
-                button=buttons.AddInvoiceButton,
-                order=102,
-            )
+            create_bmi(model=Contact, button=buttons.AddQuoteButton,      order=100)
+            create_bmi(model=Contact, button=buttons.AddSalesOrderButton, order=101)
+            create_bmi(model=Contact, button=buttons.AddInvoiceButton,    order=102)
 
             # ---------------------------
             create_cbci = CustomBrickConfigItem.objects.create

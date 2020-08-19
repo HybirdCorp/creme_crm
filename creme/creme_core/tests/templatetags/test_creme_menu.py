@@ -91,10 +91,10 @@ class CremeMenuTagsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         create_button = ButtonMenuItem.objects.create_if_needed
-        create_button(pk='test-button1', button=TestButton01, order=1)
-        create_button(pk='test-button2', button=TestButton02, order=102, model=FakeOrganisation)
-        create_button(pk='test-button3', button=TestButton03, order=101, model=FakeOrganisation)
-        create_button(pk='test-button4', button=TestButton04, order=102, model=FakeContact)
+        create_button(button=TestButton01, order=1)
+        create_button(button=TestButton02, order=102, model=FakeOrganisation)
+        create_button(button=TestButton03, order=101, model=FakeOrganisation)
+        create_button(button=TestButton04, order=102, model=FakeContact)
 
         with self.assertNoException():
             template = Template(
@@ -131,9 +131,9 @@ class CremeMenuTagsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         create_button = ButtonMenuItem.objects.create_if_needed
-        create_button(pk='test-button1', button=TestButton01, order=1)
-        create_button(pk='test-button2', button=TestButton02, order=101, model=FakeOrganisation)
-        create_button(pk='test-button3', button=TestButton01, order=102, model=FakeOrganisation)
+        create_button(button=TestButton01, order=1)
+        create_button(button=TestButton02, order=101, model=FakeOrganisation)
+        create_button(button=TestButton01, order=102, model=FakeOrganisation)
 
         with self.assertNoException():
             template = Template(

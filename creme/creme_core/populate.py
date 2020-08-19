@@ -153,7 +153,7 @@ class Populator(BasePopulator):
             # ---------------------------
             if not ButtonMenuItem.objects.filter(content_type=None).exists():
                 ButtonMenuItem.objects.create(
-                    pk='creme_core-void', content_type=None, button_id='', order=1,
+                    content_type=None, button_id='', order=1,
                 )
 
             # ---------------------------
