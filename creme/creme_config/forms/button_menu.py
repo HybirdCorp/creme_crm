@@ -27,10 +27,10 @@ from creme.creme_core.forms.fields import EntityCTypeChoiceField
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.gui import button_menu
 from creme.creme_core.models import ButtonMenuItem
-from creme.creme_core.utils.id_generator import generate_string_id_and_save
+# from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
 
-_PREFIX = 'creme_config-userbmi'
+# _PREFIX = 'creme_config-userbmi'
 
 
 class ButtonMenuAddForm(CremeForm):
@@ -50,7 +50,8 @@ class ButtonMenuAddForm(CremeForm):
     def save(self, commit=True):
         bmi = ButtonMenuItem(content_type=self.cleaned_data['ctype'], button_id='', order=1)
         if commit:
-            generate_string_id_and_save(ButtonMenuItem, [bmi], _PREFIX)
+            # generate_string_id_and_save(ButtonMenuItem, [bmi], _PREFIX)
+            bmi.save()
 
         return bmi
 
@@ -103,17 +104,18 @@ class ButtonMenuEditForm(CremeForm):
         button_ids.initial = [bmi.button_id for bmi in button_menu_items]
 
     def save(self):
-        button_ids   = self.cleaned_data['button_ids']
-        ct           = self.ct
-        BMI_objects  = ButtonMenuItem.objects
-        BMI_get      = BMI_objects.get
-        items_2_save = []
+        button_ids = self.cleaned_data['button_ids']
+        ct = self.ct
+        BMI_objects = ButtonMenuItem.objects
+        BMI_get = BMI_objects.get
+        # items_2_save = []
 
         if not button_ids:
             # No pk to BMI objects --> can delete() on queryset directly
             BMI_objects.filter(content_type=ct).delete()
             # No button for this content type -> fake button_id
-            items_2_save.append(ButtonMenuItem(content_type=ct, button_id='', order=1))
+            # items_2_save.append(ButtonMenuItem(content_type=ct, button_id='', order=1))
+            ButtonMenuItem.objects.create(content_type=ct, button_id='', order=1)
         else:
             old_ids = {bmi.button_id for bmi in self.set_buttons}
             new_ids = {*button_ids}
@@ -127,8 +129,11 @@ class ButtonMenuEditForm(CremeForm):
 
             for i, button_id in enumerate(button_ids):
                 if button_id in buttons_2_add:
-                    items_2_save.append(
-                        ButtonMenuItem(content_type=ct, button_id=button_id, order=i + offset)
+                    # items_2_save.append(
+                    #     ButtonMenuItem(content_type=ct, button_id=button_id, order=i + offset)
+                    # )
+                    ButtonMenuItem.objects.create(
+                        content_type=ct, button_id=button_id, order=i + offset,
                     )
                 else:
                     bmi = BMI_get(content_type=ct, button_id=button_id)
@@ -137,4 +142,4 @@ class ButtonMenuEditForm(CremeForm):
                         bmi.order = i + offset
                         bmi.save()
 
-        generate_string_id_and_save(ButtonMenuItem, items_2_save, _PREFIX)
+        # generate_string_id_and_save(ButtonMenuItem, items_2_save, _PREFIX)

@@ -290,7 +290,7 @@ class Populator(BasePopulator):
 
             # ---------------------------
             ButtonMenuItem.objects.create_if_needed(
-                pk='emails-entity_email_link_button',
-                model=EntityEmail, button=buttons.EntityEmailLinkButton,
+                model=EntityEmail,
+                button=buttons.EntityEmailLinkButton,
                 order=20,
             )

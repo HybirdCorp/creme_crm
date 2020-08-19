@@ -420,7 +420,7 @@ class MypageBricksLocationsImporter(Importer):
 class ButtonsConfigImporter(Importer):
     def load_bmi(self, bmi_info: dict) -> dict:
         data = {
-            'id': bmi_info['id'],
+            # 'id': bmi_info['id'],
             'button_id': bmi_info['button_id'],
             'order': int(bmi_info['order']),
         }

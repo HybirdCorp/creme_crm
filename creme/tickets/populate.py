@@ -200,15 +200,5 @@ class Populator(BasePopulator):
                     )
 
                     create_bmi = ButtonMenuItem.objects.create_if_needed
-                    create_bmi(
-                        pk='tickets-linked_contact_button',
-                        model=get_contact_model(),
-                        button=Linked2TicketButton,
-                        order=50,
-                    )
-                    create_bmi(
-                        pk='tickets-linked_orga_button',
-                        model=get_organisation_model(),
-                        button=Linked2TicketButton,
-                        order=50,
-                    )
+                    for model in (get_contact_model(), get_organisation_model()):
+                        create_bmi(model=model, button=Linked2TicketButton, order=50)

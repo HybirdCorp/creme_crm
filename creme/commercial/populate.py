@@ -153,7 +153,6 @@ class Populator(BasePopulator):
         # ---------------------------
         if not already_populated:
             ButtonMenuItem.objects.create_if_needed(
-                pk='commercial-complete_goal_button',
                 button=buttons.CompleteGoalButton, order=60,
             )
 
