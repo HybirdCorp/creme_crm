@@ -29,10 +29,18 @@ EntityEmail = get_entityemail_model()
 
 
 class EntityEmailLinkButton(Button):
-    id_           = Button.generate_id('emails', 'entity_email_link')
-    verbose_name  = _('Link this email to')
+    id_ = Button.generate_id('emails', 'entity_email_link')
+    verbose_name = _('Link this email to')
+    description = _(
+        'This button links the current entity with a selected email, '
+        'using a relationship type in:\n'
+        ' - «sent the email».\n'
+        ' - «received the email».\n'
+        ' - «related to the email».\n'
+        'App: Emails'
+    )
     template_name = 'emails/buttons/entityemail-link.html'
-    permission    = build_link_perm(EntityEmail)
+    permission = build_link_perm(EntityEmail)
 
     rtype_ids = [
         constants.REL_SUB_MAIL_SENDED,

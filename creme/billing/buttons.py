@@ -37,8 +37,12 @@ SalesOrder = billing.get_sales_order_model()
 
 
 class GenerateInvoiceNumberButton(Button):
-    id_           = Button.generate_id('billing', 'generate_invoice_number')
-    verbose_name  = _('Generate the number of the Invoice')
+    id_ = Button.generate_id('billing', 'generate_invoice_number')
+    verbose_name = _('Generate the number of the Invoice')
+    description = _(
+        'This button generates the number for the current invoice.\n'
+        'App: Billing'
+    )
     template_name = 'billing/buttons/generate-invoice-number.html'
 
     def get_ctypes(self):
@@ -52,9 +56,10 @@ class GenerateInvoiceNumberButton(Button):
 
 
 class _AddBillingDocumentButton(Button):
-    template_name   = 'billing/buttons/add-billing-document.html'
+    template_name = 'billing/buttons/add-billing-document.html'
     model_to_create = Base  # Overload
-    url_name        = 'OVERLOADME'
+
+    url_name = 'OVERLOADME'
 
     def get_ctypes(self):
         return persons.get_organisation_model(), persons.get_contact_model()
@@ -82,31 +87,46 @@ class _AddBillingDocumentButton(Button):
 
 class AddInvoiceButton(_AddBillingDocumentButton):
     model_to_create = Invoice
-    id_          = Button.generate_id('billing', 'add_invoice')
+    id_ = Button.generate_id('billing', 'add_invoice')
     verbose_name = _('Create a related invoice')
-    permission   = cperm(Invoice)
-    url_name     = 'billing__create_related_invoice'
+    description = _(
+        'This button displays the creation form for invoices. '
+        'The current entity is pre-selected to be the target of the created invoice.\n'
+        'App: Billing'
+    )
+    permission = cperm(Invoice)
+    url_name = 'billing__create_related_invoice'
 
 
 class AddSalesOrderButton(_AddBillingDocumentButton):
     model_to_create = SalesOrder
-    id_             = Button.generate_id('billing', 'add_salesorder')
-    verbose_name    = _('Create a related salesorder')
-    permission      = cperm(SalesOrder)
-    url_name        = 'billing__create_related_order'
+    id_ = Button.generate_id('billing', 'add_salesorder')
+    verbose_name = _('Create a related salesorder')
+    description = _(
+        'This button displays the creation form for salesorders. '
+        'The current entity is pre-selected to be the target of the created order.\n'
+        'App: Billing'
+    )
+    permission = cperm(SalesOrder)
+    url_name = 'billing__create_related_order'
 
 
 class AddQuoteButton(_AddBillingDocumentButton):
     model_to_create = Quote
-    id_             = Button.generate_id('billing', 'add_quote')
-    verbose_name    = _('Create a related quote')
-    permission      = cperm(Quote)
-    url_name        = 'billing__create_related_quote'
+    id_ = Button.generate_id('billing', 'add_quote')
+    verbose_name = _('Create a related quote')
+    description = _(
+        'This button displays the creation form for quotes. '
+        'The current entity is pre-selected to be the target of the created quote.\n'
+        'App: Billing'
+    )
+    permission = cperm(Quote)
+    url_name = 'billing__create_related_quote'
 
 
 class _ConvertToButton(Button):
-    template_name    = 'billing/buttons/convert-to.html'
-    target_model     = Base  # Overload
+    template_name = 'billing/buttons/convert-to.html'
+    target_model = Base  # Overload
     target_modelname = ''
 
     def get_ctypes(self):
@@ -114,10 +134,11 @@ class _ConvertToButton(Button):
 
     def has_perm(self, context):
         user = context['user']
-        return (user.has_perm_to_create(self.target_model) and
-                not user.is_staff and
-                not context['object'].is_deleted
-               )
+        return (
+            user.has_perm_to_create(self.target_model)
+            and not user.is_staff
+            and not context['object'].is_deleted
+        )
 
     def render(self, context):
         context['verbose_name'] = self.verbose_name
@@ -127,21 +148,36 @@ class _ConvertToButton(Button):
 
 
 class ConvertToInvoiceButton(_ConvertToButton):
-    id_              = Button.generate_id('billing', 'convert_to_invoice')
-    verbose_name     = _('Convert to Invoice')
+    id_ = Button.generate_id('billing', 'convert_to_invoice')
+    verbose_name = _('Convert to Invoice')
+    description = _(
+        'This button converts automatically the current entity into an invoice. '
+        'Notice that the current entity is kept unchanged, a new invoice is created.\n'
+        'App: Billing'
+    )
     target_model     = Invoice
     target_modelname = 'invoice'
 
 
 class ConvertToSalesOrderButton(_ConvertToButton):
-    id_              = Button.generate_id('billing', 'convert_to_salesorder')
-    verbose_name     = _('Convert to Salesorder')
+    id_ = Button.generate_id('billing', 'convert_to_salesorder')
+    verbose_name = _('Convert to Salesorder')
+    description = _(
+        'This button converts automatically the current entity into an salesorder. '
+        'Notice that the current entity is kept unchanged, a new order is created.\n'
+        'App: Billing'
+    )
     target_model     = SalesOrder
     target_modelname = 'sales_order'
 
 
 class ConvertToQuoteButton(_ConvertToButton):
-    id_              = Button.generate_id('billing', 'convert_to_quote')
-    verbose_name     = _('Convert to Quote')
+    id_ = Button.generate_id('billing', 'convert_to_quote')
+    verbose_name = _('Convert to Quote')
+    description = _(
+        'This button converts automatically the current entity into an quote. '
+        'Notice that the current entity is kept unchanged, a new quote is created.\n'
+        'App: Billing'
+    )
     target_model     = Quote
     target_modelname = 'quote'

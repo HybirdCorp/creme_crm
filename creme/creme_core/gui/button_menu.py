@@ -39,6 +39,10 @@ class Button:
     # Tips: use gettext_lazy()
     verbose_name: str = 'BUTTON'
 
+    # Description used as tool-tips
+    # Tips: use gettext_lazy()
+    description: str = ''
+
     # Name/path of the template used to render the button.
     template_name: str = 'creme_core/buttons/place-holder.html'
 
@@ -73,6 +77,7 @@ class Button:
 
     def render(self, context) -> str:
         context['has_perm'] = self.has_perm(context)
+        context['description'] = self.description
 
         return get_template(self.template_name).render(context)
 

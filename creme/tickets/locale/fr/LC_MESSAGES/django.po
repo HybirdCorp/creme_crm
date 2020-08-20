@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Tickets 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-06 15:40+0100\n"
+"POT-Creation-Date: 2020-08-20 20:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -34,82 +34,92 @@ msgstr "Informations sur le ticket"
 msgid "Is linked to a ticket"
 msgstr "Est lié à un ticket"
 
+#: buttons.py:32
+msgid ""
+"This button links the current entity to a selected ticket, using the "
+"relationship type «is linked to the ticket».\n"
+"App: Tickets"
+msgstr ""
+"Ce bouton relie la fiche courante avec un ticket sélectionné, en utilisant le "
+"type de relation «est lié au ticket».\n"
+"App: Tickets"
+
 #: function_fields.py:31
 msgid "Resolving duration"
 msgstr "Temps de résolution"
 
-#: models/criticity.py:30 models/priority.py:30 models/status.py:51
+#: models/criticity.py:31 models/priority.py:31 models/status.py:52
 msgid "Name"
 msgstr "Nom"
 
-#: models/criticity.py:31 models/priority.py:31 models/status.py:54
+#: models/criticity.py:32 models/priority.py:32 models/status.py:55
 msgid "Order"
 msgstr "Ordre"
 
-#: models/criticity.py:33
+#: models/criticity.py:34
 msgctxt "tickets-criticality"
 msgid "Create a criticality"
 msgstr "Créer une criticité"
 
-#: models/criticity.py:40
+#: models/criticity.py:41
 msgid "Ticket criticality"
 msgstr "Criticité de ticket"
 
-#: models/criticity.py:41
+#: models/criticity.py:42
 msgid "Ticket criticalities"
 msgstr "Criticités de ticket"
 
-#: models/priority.py:33
+#: models/priority.py:34
 msgctxt "tickets-priority"
 msgid "Create a priority"
 msgstr "Créer une priorité"
 
-#: models/priority.py:40
+#: models/priority.py:41
 msgid "Ticket priority"
 msgstr "Priorité de ticket"
 
-#: models/priority.py:41
+#: models/priority.py:42
 msgid "Ticket priorities"
 msgstr "Priorités de ticket"
 
-#: models/status.py:41
+#: models/status.py:42
 msgctxt "tickets-status"
 msgid "Open"
 msgstr "Ouvert"
 
-#: models/status.py:42
+#: models/status.py:43
 msgctxt "tickets-status"
 msgid "Closed"
 msgstr "Fermé"
 
-#: models/status.py:43
+#: models/status.py:44
 msgctxt "tickets-status"
 msgid "Invalid"
 msgstr "Invalide"
 
-#: models/status.py:44
+#: models/status.py:45
 msgctxt "tickets-status"
 msgid "Duplicated"
 msgstr "Dupliqué"
 
-#: models/status.py:45
+#: models/status.py:46
 msgid "Won't fix"
 msgstr "Ne sera pas corrigé"
 
-#: models/status.py:52
+#: models/status.py:53
 msgid "Is a \"closed\" status?"
 msgstr "Est un statut \"fermé\" ?"
 
-#: models/status.py:56
+#: models/status.py:57
 msgctxt "tickets-status"
 msgid "Create a status"
 msgstr "Créer un statut"
 
-#: models/status.py:63
+#: models/status.py:64
 msgid "Ticket status"
 msgstr "Statut de ticket"
 
-#: models/status.py:64
+#: models/status.py:65
 msgid "Ticket statuses"
 msgstr "Statuts de ticket"
 
@@ -169,63 +179,63 @@ msgstr "Patron de ticket"
 msgid "Ticket templates"
 msgstr "Patrons de ticket"
 
-#: populate.py:53
+#: populate.py:58
 msgid "is linked to the ticket"
 msgstr "est lié au ticket"
 
-#: populate.py:54
+#: populate.py:59
 msgid "(ticket) linked to the entity"
 msgstr "(ticket) lié à la fiche"
 
-#: populate.py:79
+#: populate.py:87
 msgid "Ticket view"
 msgstr "Vue de Ticket"
 
-#: populate.py:92
+#: populate.py:100
 msgid "Ticket template view"
 msgstr "Vue de patron de ticket"
 
-#: populate.py:115
+#: populate.py:125
 msgid "Low"
 msgstr "Basse"
 
-#: populate.py:115
+#: populate.py:125
 msgid "Normal"
 msgstr "Normale"
 
-#: populate.py:115
+#: populate.py:125
 msgid "High"
 msgstr "Haute"
 
-#: populate.py:115
+#: populate.py:125
 msgid "Urgent"
 msgstr "Urgente"
 
-#: populate.py:115
+#: populate.py:125
 msgid "Blocking"
 msgstr "Bloquante"
 
-#: populate.py:118
+#: populate.py:132
 msgid "Minor"
 msgstr "Mineure"
 
-#: populate.py:118
+#: populate.py:132
 msgid "Major"
 msgstr "Majeure"
 
-#: populate.py:118
+#: populate.py:133
 msgid "Feature"
 msgstr "Fonctionnalité"
 
-#: populate.py:118
+#: populate.py:133
 msgid "Critical"
 msgstr "Critique"
 
-#: populate.py:118
+#: populate.py:133
 msgid "Enhancement"
 msgstr "Amélioration"
 
-#: populate.py:118
+#: populate.py:134
 msgid "Error"
 msgstr "Erreur"
 

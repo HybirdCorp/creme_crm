@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-18 15:05+0200\n"
+"POT-Creation-Date: 2020-08-20 17:15+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -171,29 +171,94 @@ msgstr "Information de paiement par défaut"
 msgid "Billing statistics"
 msgstr "Statistiques de facturation"
 
-#: buttons.py:86
+#: buttons.py:43
+msgid ""
+"This button generates the number for the current invoice.\n"
+"App: Billing"
+msgstr ""
+"Ce bouton génère le nombre pour la facture actuelle.\n"
+"App: Facturation"
+
+#: buttons.py:91
 msgid "Create a related invoice"
 msgstr "Créer une facture liée"
 
-#: buttons.py:94
+#: buttons.py:93
+msgid ""
+"This button displays the creation form for invoices. The current entity is "
+"pre-selected to be the target of the created invoice.\n"
+"App: Billing"
+msgstr ""
+"Ce bouton affiche le formulaire de création des factures. La fiche courante "
+"estpré-sélectionnée pour être la cible de la facture créée.App: Facturation"
+
+#: buttons.py:104
 msgid "Create a related salesorder"
 msgstr "Créer un bon de commande lié"
 
-#: buttons.py:102
+#: buttons.py:106
+msgid ""
+"This button displays the creation form for salesorders. The current entity "
+"is pre-selected to be the target of the created order.\n"
+"App: Billing"
+msgstr ""
+"Ce bouton affiche le formulaire de création des bons de commande. La fiche "
+"courante estpré-sélectionnée pour être la cible du bon créé.App: Facturation"
+
+#: buttons.py:117
 msgid "Create a related quote"
 msgstr "Créer un devis lié"
 
-#: buttons.py:131
+#: buttons.py:119
+msgid ""
+"This button displays the creation form for quotes. The current entity is pre-"
+"selected to be the target of the created quote.\n"
+"App: Billing"
+msgstr ""
+"Ce bouton affiche le formulaire de création des devis. La fiche courante "
+"estpré-sélectionnée pour être la cible du devis créé.App: Facturation"
+
+#: buttons.py:152
 msgid "Convert to Invoice"
 msgstr "Convertir en Facture"
 
-#: buttons.py:138
+#: buttons.py:154
+msgid ""
+"This button converts automatically the current entity into an invoice. "
+"Notice that the current entity is kept unchanged, a new invoice is created.\n"
+"App: Billing"
+msgstr ""
+"Ce bouton convertit automatiquement la fiche courante en facture. Notez que "
+"la fiche courante n'est pas modifiée, une nouvelle facture est créée.\n"
+"App: Facturation"
+
+#: buttons.py:164
 msgid "Convert to Salesorder"
 msgstr "Convertir en Bon de Commande"
 
-#: buttons.py:145
+#: buttons.py:166
+msgid ""
+"This button converts automatically the current entity into an salesorder. "
+"Notice that the current entity is kept unchanged, a new order is created.\n"
+"App: Billing"
+msgstr ""
+"Ce bouton convertit automatiquement la fiche courante en bon de commande. "
+"Notez que la fiche courante n'est pas modifiée, un nouveau bon est créé.\n"
+"App: Facturation"
+
+#: buttons.py:176
 msgid "Convert to Quote"
 msgstr "Convertir en Devis"
+
+#: buttons.py:178
+msgid ""
+"This button converts automatically the current entity into an quote. Notice "
+"that the current entity is kept unchanged, a new quote is created.\n"
+"App: Billing"
+msgstr ""
+"Ce bouton convertit automatiquement la fiche courante en devis. Notez que la "
+"fiche courante n'est pas modifiée, un nouveau devis est créé.\n"
+"App: Facturation"
 
 #: constants.py:48
 msgid "Percent"
@@ -231,31 +296,31 @@ msgstr "{currency} sur le total"
 msgid "{currency} per unit"
 msgstr "{currency} par unité"
 
-#: forms/base.py:64 forms/mass_import.py:64
+#: forms/base.py:65 forms/mass_import.py:64
 #: templates/billing/bricks/target.html:24
 msgctxt "billing"
 msgid "Source organisation"
 msgstr "Société émettrice"
 
-#: forms/base.py:68 forms/mass_import.py:71
+#: forms/base.py:69 forms/mass_import.py:71
 msgctxt "billing"
 msgid "Target"
 msgstr "Cible"
 
-#: forms/base.py:74
+#: forms/base.py:75
 msgid "Overall discount (in %)"
 msgstr "Remise globale (en %)"
 
-#: forms/base.py:79
+#: forms/base.py:80
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: forms/base.py:189 forms/mass_import.py:120 forms/mass_import.py:159
+#: forms/base.py:195 forms/mass_import.py:120 forms/mass_import.py:159
 #: forms/templatebase.py:75 models/base.py:82
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:192 forms/mass_import.py:124 forms/mass_import.py:164
+#: forms/base.py:198 forms/mass_import.py:124 forms/mass_import.py:164
 #: forms/templatebase.py:78 models/base.py:87
 msgid "Shipping address"
 msgstr "Adresse de livraison"
@@ -692,7 +757,7 @@ msgid "RIB key"
 msgstr "Clé RIB"
 
 #: models/other_models.py:141
-#: templates/billing/bricks/billing-payment-information.html:41
+#: templates/billing/bricks/billing-payment-information.html:39
 #: templates/billing/bricks/orga-payment-information.html:47
 msgid "Banking domiciliation"
 msgstr "Domiciliation"
@@ -1056,44 +1121,44 @@ msgstr ""
 "étant agrée formateur les formations pourront être prises en charge par "
 "votre OPCA"
 
-#: populate.py:460
+#: populate.py:412
 msgid "Invoice information"
 msgstr "Informations sur la facture"
 
-#: populate.py:471
+#: populate.py:423
 msgid "Credit note information"
 msgstr "Informations sur l'avoir"
 
-#: populate.py:480
+#: populate.py:432
 msgid "Quote information"
 msgstr "Informations sur le devis"
 
-#: populate.py:490
+#: populate.py:442
 msgid "Salesorder information"
 msgstr "Informations sur le bon de commande"
 
-#: populate.py:499
+#: populate.py:451
 msgctxt "billing"
 msgid "Template information"
 msgstr "Informations sur le patron de document"
 
-#: populate.py:643
+#: populate.py:595
 msgid "All invoices of the current year"
 msgstr "Toutes les factures de l'année en cours"
 
-#: populate.py:650
+#: populate.py:602
 msgid "Sum of current year invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures de l'année en cours / mois"
 
-#: populate.py:659
+#: populate.py:611
 msgid "Sum of current year invoices total without taxes / invoices status"
 msgstr "Somme des totaux HT des factures de l'année en cours / statut"
 
-#: populate.py:673
+#: populate.py:625
 msgid "Invoices unpaid of the current year"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:679
+#: populate.py:631
 msgid "Sum of current year and unpaid invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures impayées de l'année en cours / mois"
 
@@ -1164,20 +1229,20 @@ msgstr "Ajouter une information de paiement"
 msgid "N° %(account)s"
 msgstr "N° %(account)s"
 
-#: templates/billing/bricks/billing-payment-information.html:29
+#: templates/billing/bricks/billing-payment-information.html:28
 msgid "Selected account for this document"
 msgstr "Compte sélectionné pour ce document"
 
-#: templates/billing/bricks/billing-payment-information.html:31
+#: templates/billing/bricks/billing-payment-information.html:30
 msgid "Select this account"
 msgstr "Sélectionner ce compte"
 
-#: templates/billing/bricks/billing-payment-information.html:37
+#: templates/billing/bricks/billing-payment-information.html:35
 #: templates/billing/bricks/orga-payment-information.html:51
 msgid "RIB"
 msgstr "RIB"
 
-#: templates/billing/bricks/billing-payment-information.html:49
+#: templates/billing/bricks/billing-payment-information.html:47
 #: templates/billing/bricks/orga-payment-information.html:67
 msgid "No payment information for the moment"
 msgstr "Aucune information de paiement pour le moment"
@@ -1426,12 +1491,12 @@ msgstr "Ajouter cette ligne à la volée à vôtre catalogue"
 msgid "Add to the catalog"
 msgstr "Ajouter au catalogue"
 
-#: views/payment_information.py:42
+#: views/payment_information.py:42 views/payment_information.py:56
 #, python-brace-format
 msgid "New payment information in the organisation «{entity}»"
 msgstr "Nouvelle information de paiement pour la société «{entity}»"
 
-#: views/payment_information.py:50
+#: views/payment_information.py:91
 #, python-brace-format
 msgid "Payment information for «{entity}»"
 msgstr "Information de paiement pour «{entity}»"

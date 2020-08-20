@@ -25,8 +25,12 @@ from creme.persons import get_contact_model
 
 
 class GenerateVcfButton(Button):
-    id_           = Button.generate_id('vcfs', 'generate_vcf')
-    verbose_name  = _('Generate a VCF')
+    id_ = Button.generate_id('vcfs', 'generate_vcf')
+    verbose_name = _('Generate a VCF file')
+    description = _(
+        'This button generates a VCF file from the current contact.\n'
+        'App: VCF'
+    )
     template_name = 'vcfs/buttons/generate.html'
 
     def get_ctypes(self):
