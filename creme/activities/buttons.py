@@ -33,10 +33,15 @@ Activity = get_activity_model()
 
 
 class AddRelatedActivityButton(Button):
-    id_           = Button.generate_id('activities', 'add_activity')
+    id_ = Button.generate_id('activities', 'add_activity')
     template_name = 'activities/buttons/add-related.html'
-    permission    = build_creation_perm(Activity)
-    verbose_name  = _('Create a related activity')
+    permission = build_creation_perm(Activity)
+    verbose_name = _('Create a related activity')
+    description = _(
+        'This button displays the creation form for activities (meetings, phone calls…). '
+        'The current entity is pre-selected to be linked to the created activity.\n'
+        'App: Activities'
+    )
     activity_type: Optional[str] = None  # None means type is not fixed
 
     def render(self, context):
@@ -60,18 +65,33 @@ class AddRelatedActivityButton(Button):
 
 
 class AddMeetingButton(AddRelatedActivityButton):
-    id_           = Button.generate_id('activities', 'add_meeting')
-    verbose_name  = _('Create a related meeting')
+    id_ = Button.generate_id('activities', 'add_meeting')
+    verbose_name = _('Create a related meeting')
+    description = _(
+        'This button displays the creation form for meetings (kind of activity). '
+        'The current entity is pre-selected to be linked to the created meeting.\n'
+        'App: Activities'
+    )
     activity_type = constants.ACTIVITYTYPE_MEETING
 
 
 class AddPhoneCallButton(AddRelatedActivityButton):
-    id_           = Button.generate_id('activities', 'add_phonecall')
-    verbose_name  = _('Create a related phone call')
+    id_ = Button.generate_id('activities', 'add_phonecall')
+    verbose_name = _('Create a related phone call')
+    description = _(
+        'This button displays the creation form for phone calls (kind of activity). '
+        'The current entity is pre-selected to be linked to the created phone call.\n'
+        'App: Activities'
+    )
     activity_type = constants.ACTIVITYTYPE_PHONECALL
 
 
 class AddTaskButton(AddRelatedActivityButton):
-    id_           = Button.generate_id('activities', 'add_task')
-    verbose_name  = _('Create a related task')
+    id_ = Button.generate_id('activities', 'add_task')
+    verbose_name = _('Create a related task')
+    description = _(
+        'This button displays the creation form for tasks (kind of activity). '
+        'The current entity is pre-selected to be linked to the created task.\n'
+        'App: Activities'
+    )
     activity_type = constants.ACTIVITYTYPE_TASK

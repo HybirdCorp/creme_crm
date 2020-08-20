@@ -28,10 +28,15 @@ from .constants import REL_SUB_COMPLETE_GOAL
 
 
 class CompleteGoalButton(Button):
-    id_           = Button.generate_id('commercial', 'complete_goal')
-    verbose_name  = _('Completes a goal (Commercial action)')
+    id_ = Button.generate_id('commercial', 'complete_goal')
+    verbose_name = _('Completes a goal (Commercial action)')
+    description = _(
+        'This button links the current entity with a selected commercial action, '
+        'using the relationship type «completes a goal of the commercial action».\n'
+        'App: Commercial'
+    )
     template_name = 'commercial/buttons/complete-goal.html'
-    permission    = 'commercial'
+    permission = 'commercial'
 
     def render(self, context):
         context['predicate_id'] = REL_SUB_COMPLETE_GOAL

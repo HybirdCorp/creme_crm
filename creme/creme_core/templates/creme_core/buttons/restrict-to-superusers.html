@@ -9,7 +9,7 @@
 </a>
 {% elif sandbox_uuid == UUID_SANDBOX_SUPERUSERS %}
 {% trans 'Are you sure you want this entity to be accessible to regular users?' as confirm_msg %}
-<a class="menu_button menu-button-icon" onclick="creme.dialogs.confirm('{{confirm_msg|escapejs}}').onOk(function() { creme.utils.ajaxQuery('{% url 'creme_core__restrict_entity_2_superusers' %}', {action: 'POST', reloadOnSuccess: true}, {id: {{object.id}}, set: false}).start();}).open();">
+<a class="menu_button menu-button-icon" title="{{description}}" onclick="creme.dialogs.confirm('{{confirm_msg|escapejs}}').onOk(function() { creme.utils.ajaxQuery('{% url 'creme_core__restrict_entity_2_superusers' %}', {action: 'POST', reloadOnSuccess: true}, {id: {{object.id}}, set: false}).start();}).open();">
     {% widget_icon name='security' size='instance-button' label=img_title %}
     {% trans 'Not restrict to superusers' %}
 </a>

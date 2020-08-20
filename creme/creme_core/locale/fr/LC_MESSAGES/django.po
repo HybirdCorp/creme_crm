@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-18 15:04+0200\n"
+"POT-Creation-Date: 2020-08-20 17:54+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -218,6 +218,22 @@ msgstr "Statistiques"
 #: templates/creme_core/buttons/restrict-to-superusers.html:19
 msgid "Restrict to superusers"
 msgstr "Réserver aux super-utilisateurs"
+
+#: buttons.py:31
+msgid ""
+"This button moves the current entity within a sandbox reserved to the "
+"superusers, so the regular users cannot see it. If the current is already "
+"restricted to superusers, the button can be used to move the entity out of "
+"the sandbox.\n"
+"The button is only viewable by superusers.\n"
+"App: Core"
+msgstr ""
+"Ce bouton déplace la fiche courante dans un bac-à-sable réservé aux super-"
+"utilisateurs, donc les utilisateurs normaux ne peuvent plus la voir. Si la "
+"fiche courante est déjà réservée aux super-utilisateurs, le bouton peut être "
+"utilisé pour sortir la fiche du bac-à-sable.\n"
+"Le bouton est seulement visible par les super-utilisateurs.\n"
+"App: Cœur"
 
 #: core/batch_process.py:44
 msgid "enter a whole number"
@@ -2031,7 +2047,7 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: models/bricks.py:169 models/bricks.py:886 models/button_menu.py:73
+#: models/bricks.py:169 models/bricks.py:886 models/button_menu.py:68
 #: models/custom_field.py:82
 msgid "Related type"
 msgstr "Type associé"
@@ -2177,23 +2193,23 @@ msgstr "Fiche associée au bloc"
 msgid "Create a block"
 msgstr "Créer un bloc"
 
-#: models/button_menu.py:74
+#: models/button_menu.py:69
 msgid "Button ID"
 msgstr "Identifiant de bouton"
 
-#: models/button_menu.py:75
+#: models/button_menu.py:70
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/button_menu.py:81
+#: models/button_menu.py:76
 msgid "Button to display"
 msgstr "Bouton à afficher"
 
-#: models/button_menu.py:82
+#: models/button_menu.py:77
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
 
-#: models/button_menu.py:88
+#: models/button_menu.py:84
 msgid "Deprecated button"
 msgstr "Bouton obsolète"
 
