@@ -10,6 +10,7 @@ from typing import List, Union
 from unittest import skipIf
 from unittest.util import safe_repr
 
+from bleach._vendor import html5lib
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -714,6 +715,9 @@ class _CremeTestCase:
             'ctype': str(ctype.id if ctype else 0),
             'efilter': efilter.id if efilter else '',
         })
+
+    def get_html_tree(self, content):
+        return html5lib.parse(content, namespaceHTMLElements=False)
 
     @staticmethod
     def http_file(file_path):

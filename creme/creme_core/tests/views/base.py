@@ -2,7 +2,6 @@
 
 from tempfile import NamedTemporaryFile
 
-from bleach._vendor import html5lib
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
@@ -16,6 +15,7 @@ from ..base import CremeTestCase
 
 
 class ViewsTestCase(CremeTestCase):
+    # TODO: improve CremeTestCase.login instead ?
     def login(self, is_superuser=True, *args, **kwargs):
         user = super().login(is_superuser, *args, **kwargs)
 
@@ -39,15 +39,13 @@ class ViewsTestCase(CremeTestCase):
             if cred != excluded:
                 value |= cred
 
-        SetCredentials.objects.create(role=self.user.role, value=value,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.user.role, value=value,
+            set_type=SetCredentials.ESET_ALL,
+        )
 
 
 class BrickTestCaseMixin:
-    def get_html_tree(self, content):
-        return html5lib.parse(content, namespaceHTMLElements=False)
-
     def get_brick_node(self, tree, brick_id):
         brick_node = tree.find(f".//div[@id='{brick_id}']")
         self.assertIsNotNone(brick_node, f'The brick id="{brick_id}" is not found.')
@@ -133,7 +131,36 @@ class BrickTestCaseMixin:
             self.fail(f'The <a> markup with href="{url}" has been unexpectedly found.')
 
 
-# class CSVImportBaseTestCaseMixin:
+class ButtonTestCaseMixin:
+    def get_instance_buttons_node(self, tree):
+        for div_node in tree.findall('.//div'):
+            classes_attr = div_node.attrib.get('class')
+            if classes_attr is None:
+                continue
+
+            classes = classes_attr.split()
+            if 'buttons-list' in classes and 'instance-buttons' in classes:
+                return div_node
+
+        self.fail('The instance buttons node has not been found.')
+
+    @staticmethod
+    def iter_instance_button_nodes(instances_button_node, *, data_action=None):
+        for a_node in instances_button_node.findall('.//a'):
+            classes_attr = a_node.attrib.get('class')
+            if classes_attr is None:
+                continue
+
+            if (
+                'menu_button' in classes_attr.split()
+                and (
+                    not data_action
+                    or data_action == a_node.attrib.get('data-action')
+                )
+            ):
+                yield a_node
+
+
 class MassImportBaseTestCaseMixin:
     def _assertNoResultError(self, results):
         for r in results:
@@ -141,7 +168,7 @@ class MassImportBaseTestCaseMixin:
                 self.fail(f'Import error: {r.messages}')
 
     def _build_file(self, content, extension=None):
-        tmpfile = NamedTemporaryFile(suffix=".%s" % extension if extension else '')
+        tmpfile = NamedTemporaryFile(suffix=f'.{extension}' if extension else '')
         tmpfile.write(content)
         tmpfile.flush()
 
@@ -150,20 +177,23 @@ class MassImportBaseTestCaseMixin:
     def _build_doc(self, tmpfile):
         tmpfile.file.seek(0)
         category = FolderCategory.objects.create(id=10, name='Test category')
-        folder = Folder.objects.create(user=self.user, title='Test folder',
-                                       parent_folder=None,
-                                       category=category,
-                                      )
+        folder = Folder.objects.create(
+            user=self.user, title='Test folder',
+            parent_folder=None,
+            category=category,
+        )
 
         title = 'Test doc'
-        response = self.client.post(reverse('documents__create_document'), follow=True,
-                                    data={'user':        self.user.id,
-                                          'title':       title,
-                                          'description': 'CSV file for contacts',
-                                          'filedata':    tmpfile,
-                                          'linked_folder': folder.id,
-                                         },
-                                   )
+        response = self.client.post(
+            reverse('documents__create_document'), follow=True,
+            data={
+                'user':          self.user.id,
+                'title':         title,
+                'description':   'CSV file for contacts',
+                'filedata':      tmpfile,
+                'linked_folder': folder.id,
+            },
+        )
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -172,7 +202,9 @@ class MassImportBaseTestCaseMixin:
         return doc
 
     def _build_csv_doc(self, lines, separator=',', extension='csv'):
-        content = '\n'.join(separator.join(f'"{item}"' for item in line) for line in lines)
+        content = '\n'.join(
+            separator.join(f'"{item}"' for item in line) for line in lines
+        )
         tmpfile = self._build_file(content.encode(), extension)
 
         return self._build_doc(tmpfile)

@@ -10,7 +10,7 @@ from creme.creme_core.models import (
     SettingValue,
     Vat,
 )
-from creme.creme_core.tests.base import CremeTestCase
+# from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -40,11 +40,12 @@ from .base import (
 )
 
 
-class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
+# class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
+class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_populate(self):
-        billing_classes = [Invoice, Quote, SalesOrder,
-                           CreditNote, TemplateBase,
-                          ]
+        billing_classes = [
+            Invoice, Quote, SalesOrder, CreditNote, TemplateBase,
+        ]
         lines_classes = [ProductLine, ServiceLine]
 
         self.get_relationtype_or_fail(
@@ -66,7 +67,9 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
         self.assertTrue(Vat.objects.exists())  # In creme_core populate...
 
-        sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.button_redirection_key.id)
+        sv = self.get_object_or_fail(
+            SettingValue, key_id=setting_keys.button_redirection_key.id,
+        )
         self.assertIs(True, sv.value)
 
         # Contribution to activities
@@ -129,16 +132,18 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
     def _merge_organisations(self, orga1, orga2):
         user = self.user
-        response = self.client.post(self.build_merge_url(orga1, orga2), follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            self.build_merge_url(orga1, orga2), follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'name_1':      orga1.name,
-                                          'name_2':      orga2.name,
-                                          'name_merged': orga1.name,
-                                         },
-                                   )
+                'name_1':      orga1.name,
+                'name_2':      orga2.name,
+                'name_merged': orga1.name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertStillExists(orga1)
         self.assertDoesNotExist(orga2)

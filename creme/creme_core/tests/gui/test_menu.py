@@ -2,7 +2,6 @@
 
 from xml.etree import ElementTree
 
-from bleach._vendor import html5lib  # Avoid a dependence only for test
 from django.test.client import RequestFactory
 
 # from creme.creme_core.gui.menu import OnClickItem
@@ -36,10 +35,11 @@ class MenuTestCase(CremeTestCase):
     def build_context(self):
         user = getattr(self, 'user', None) or self.login()
 
-        return {'request': self.factory.get('/'),
-                'user': user,
-                'THEME_NAME': self.theme,
-               }
+        return {
+            'request': self.factory.get('/'),
+            'user': user,
+            'THEME_NAME': self.theme,
+        }
 
     def test_item_id(self):
         item_id = 'persons-add_contact'
@@ -77,7 +77,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(my_icon_label, item.icon_label)
 
     def test_item_icon03(self):
-        "No icon_label => use label"
+        "No icon_label => use label."
         my_label = 'Contact'
         item = ViewableItem('add_contact', icon='contact', label=my_label)
         self.assertEqual(my_label, item.icon_label)
@@ -160,9 +160,9 @@ class MenuTestCase(CremeTestCase):
         label = 'My contacts'
         url = '/tests/my_contacts'
         perm = 'persons'
-        item = URLItem.list_view(id_, model=FakeContact, perm=perm,
-                                 label=label, url=url,
-                                 )
+        item = URLItem.list_view(
+            id_, model=FakeContact, perm=perm, label=label, url=url,
+        )
         self.assertEqual(label, item.label)
         self.assertEqual(url,   item.url)
         self.assertEqual(perm,  item.perm)
@@ -174,16 +174,16 @@ class MenuTestCase(CremeTestCase):
         self.assertIsInstance(item, URLItem)
         self.assertEqual(id_,                          item.id)
         self.assertEqual('/tests/contact/add',         item.url)
-        self.assertEqual('Test Contact',              item.label)
+        self.assertEqual('Test Contact',               item.label)
         self.assertEqual('creme_core.add_fakecontact', item.perm)
 
         # Custom attributes
         label = 'My contact'
         url = '/tests/my_contacts/add'
         perm = 'persons'
-        item = URLItem.creation_view(id_, model=FakeContact, perm=perm,
-                                     label=label, url=url,
-                                    )
+        item = URLItem.creation_view(
+            id_, model=FakeContact, perm=perm, label=label, url=url,
+        )
         self.assertEqual(label, item.label)
         self.assertEqual(url,   item.url)
         self.assertEqual(perm,  item.perm)
@@ -223,7 +223,7 @@ class MenuTestCase(CremeTestCase):
         self.assertListEqual([item1, item2, item4, item6, item3, item5], [*group])
 
     def test_add_items_to_group03(self):
-        "Several items at once"
+        "Several items at once."
         group = ItemGroup('persons')
         item1 = ViewableItem('add_contact')
         item2 = ViewableItem('add_orga')
@@ -232,7 +232,7 @@ class MenuTestCase(CremeTestCase):
         self.assertListEqual([item2, item1], [*group])
 
     def test_add_items_to_group04(self):
-        "First has priority"
+        "First has priority."
         group = ItemGroup('persons')
         item1 = ViewableItem('add_contact')
         item2 = ViewableItem('add_orga')
@@ -261,8 +261,9 @@ class MenuTestCase(CremeTestCase):
         item2 = ViewableItem('add_orga')
         item3 = ViewableItem('add_ticket')
 
-        menu.add(container1.add(group1.add(item1).add(item2)).add(group2.add(item3))) \
-            .add(container2)
+        menu.add(
+            container1.add(group1.add(item1).add(item2)).add(group2.add(item3))
+        ).add(container2)
 
         self.assertEqual(group1, menu.get(container1.id, group1.id))
         self.assertEqual(item1,  menu.get(container1.id, group1.id, item1.id))
@@ -344,24 +345,24 @@ class MenuTestCase(CremeTestCase):
 
         id_ = 'analysis'
         label = 'Analysis'
-        container1 = menu.get_or_create(ContainerItem, id_, priority=5,
-                                        defaults={'label': label},
-                                       )
+        container1 = menu.get_or_create(
+            ContainerItem, id_, priority=5, defaults={'label': label},
+        )
         self.assertIsInstance(container1, ContainerItem)
         self.assertEqual(id_,   container1.id)
         self.assertEqual(label, container1.label)
 
-        container2 = menu.get_or_create(ContainerItem, id_, priority=5,
-                                        defaults={'label': label + ' #2'},
-                                       )
+        container2 = menu.get_or_create(
+            ContainerItem, id_, priority=5, defaults={'label': label + ' #2'},
+        )
         self.assertIs(container1, container2)
         self.assertEqual(label, container2.label)
         self.assertListEqual([container1], [*menu])
 
         with self.assertRaises(ValueError):
-            menu.get_or_create(ItemGroup, id_, priority=5,
-                               defaults={'label': label},
-                              )
+            menu.get_or_create(
+                ItemGroup, id_, priority=5, defaults={'label': label},
+            )
 
         # defaults is None
         gid = 'my_group'
@@ -663,8 +664,11 @@ class MenuTestCase(CremeTestCase):
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
         group = cfi.get_or_create_group('persons', 'Directory')
 
-        group.add_link('add_contact', FakeContact,      priority=10) \
-             .add_link('add_orga',    FakeOrganisation, priority=5)
+        group.add_link(
+            'add_contact', FakeContact,      priority=10,
+        ).add_link(
+            'add_orga',    FakeOrganisation, priority=5,
+        )
         self.assertListEqual(
             [
                 [
@@ -846,9 +850,13 @@ class MenuTestCase(CremeTestCase):
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        cfi.get_or_create_group('persons', 'Directory') \
-           .add_link('add_contact', FakeContact) \
-           .add_link('add_orga',    FakeOrganisation)
+        cfi.get_or_create_group(
+            'persons', 'Directory',
+        ).add_link(
+            'add_contact', FakeContact,
+        ).add_link(
+            'add_orga', FakeOrganisation,
+        )
         self.assertListEqual(
             [
                 [
@@ -865,24 +873,25 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_creation_forms_item08(self):
-        "ID uniqueness"
+        "ID uniqueness."
         cfi = CreationFormsItem('any_forms', label='Other type of entity')
 
-        group = cfi.get_or_create_group('persons', 'Directory') \
-                   .add_link('add_contact', FakeContact)
+        group = cfi.get_or_create_group(
+            'persons', 'Directory',
+        ).add_link('add_contact', FakeContact)
 
         with self.assertRaises(ValueError):
             group.add_link('add_contact', FakeContact, label='Contact')
 
     def test_render_url_item01(self):
-        "URLItem with icon"
+        "URLItem with icon."
         url = '/'
         icon = 'creme'
         label = 'Home'
         item = URLItem('home', url=url, icon=icon, icon_label=label)
 
-        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
-        a_node = elt.find('.//a')
+        tree = self.get_html_tree(item.render(self.build_context()))
+        a_node = tree.find('.//a')
         self.assertEqual(url, a_node.get('href'))
 
         children = [*a_node]
@@ -897,16 +906,16 @@ class MenuTestCase(CremeTestCase):
         self.assertFalse(img_node.tail)
 
     def test_render_url_item02(self):
-        "URLItem with icon and label"
+        "URLItem with icon and label."
         icon = 'creme'
         my_label = 'HOME'
-        item = URLItem('home', url='/', label=my_label,
-                       icon=icon, icon_label='Home',
-                       perm='creme_core',
-                      )
+        item = URLItem(
+            'home',
+            url='/', label=my_label, icon=icon, icon_label='Home', perm='creme_core',
+        )
 
-        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
-        img_node = elt.find('.//a/img')
+        tree = self.get_html_tree(item.render(self.build_context()))
+        img_node = tree.find('.//a/img')
         self.assertEqual('header-menu-icon', img_node.get('class'))
         self.assertEqual(my_label,           img_node.tail)
 
@@ -916,37 +925,46 @@ class MenuTestCase(CremeTestCase):
 
         icon = 'creme'
         my_label = 'HOME'
-        item = URLItem('home', url='/', label=my_label, icon=icon, icon_label='Home',
-                       perm='creme_core.add_fakecontact',
-                      )
+        item = URLItem(
+            'home',
+            url='/', label=my_label, icon=icon, icon_label='Home',
+            perm='creme_core.add_fakecontact',
+        )
 
-        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
-        span_node = elt.find('.//span')
-        self.assertEqual('ui-creme-navigation-text-entry forbidden', span_node.get('class'))
+        tree = self.get_html_tree(item.render(self.build_context()))
+        span_node = tree.find('.//span')
+        self.assertEqual(
+            'ui-creme-navigation-text-entry forbidden',
+            span_node.get('class'),
+        )
 
         children = [*span_node]
         self.assertEqual(1, len(children))
         self.assertEqual('img', children[0].tag)
 
     def test_render_url_item04(self):
-        "Perm is callable"
+        "Perm is callable."
         self.login(is_superuser=False)
 
         url = '/creme/add_contact'
-        item = URLItem('home', url=url, label='Create contact',
-                       perm=lambda user: user.is_superuser
-                      )
+        item = URLItem(
+            'home',
+            url=url, label='Create contact', perm=lambda user: user.is_superuser
+        )
 
-        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
-        span_node = elt.find('.//span')
-        self.assertEqual('ui-creme-navigation-text-entry forbidden', span_node.get('class'))
+        tree1 = self.get_html_tree(item.render(self.build_context()))
+        span_node = tree1.find('.//span')
+        self.assertEqual(
+            'ui-creme-navigation-text-entry forbidden',
+            span_node.get('class'),
+        )
 
         # ---
         item.perm = lambda user: True
-        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
-        self.assertIsNone(elt.find('.//span'))
+        tree2 = self.get_html_tree(item.render(self.build_context()))
+        self.assertIsNone(tree2.find('.//span'))
 
-        a_node = elt.find('.//a')
+        a_node = tree2.find('.//a')
         self.assertEqual(url, a_node.get('href'))
 
     def test_render_label_item(self):
@@ -1008,7 +1026,7 @@ class MenuTestCase(CremeTestCase):
 #                            )
 
     def test_render_container_item01(self):
-        "No icon"
+        "No icon."
         context = self.build_context()
 
         label = 'Creations'
@@ -1034,7 +1052,7 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_render_container_item02(self):
-        "No icon"
+        "No icon."
         context = self.build_context()
 
         label = 'Contacts'
@@ -1042,10 +1060,11 @@ class MenuTestCase(CremeTestCase):
         icon_label = 'Contact'
         parent = ContainerItem(
             'persons', label=label, icon=icon, icon_label=icon_label
-        ).add(URLItem('home', url='/persons/contacts', label='List of contacts'))
+        ).add(
+            URLItem('home', url='/persons/contacts', label='List of contacts'),
+        )
 
-        render = parent.render(context, level=1)
-        elt = html5lib.parse(render, namespaceHTMLElements=False)
+        tree = self.get_html_tree(parent.render(context, level=1))
 
         # ElementTree.dump(elt) >>>
         # <html><head /><body>
@@ -1060,7 +1079,7 @@ class MenuTestCase(CremeTestCase):
         #             </li>
         #         </ul>
         # </body>
-        img_node = elt.find('.//img')
+        img_node = tree.find('.//img')
         self.assertIsNotNone(img_node, 'No <img> tag.')
         self.assertEqual('header-menu-icon', img_node.get('class'))
         self.assertEqual(icon_label,         img_node.get('alt'))
@@ -1068,7 +1087,7 @@ class MenuTestCase(CremeTestCase):
         self.assertIn(icon,                  img_node.get('src', ''))
         self.assertIn(label,                 img_node.tail)
 
-        ul_node = elt.find('.//ul')
+        ul_node = tree.find('.//ul')
         self.assertIsNotNone(ul_node, 'No <ul> tag.')
         self.assertHTMLEqual(
             '<ul>'

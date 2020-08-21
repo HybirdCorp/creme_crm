@@ -32,10 +32,11 @@ class SalesOrderTestCase(_BillingTestCase):
         return reverse('billing__create_related_order', args=(target.id,))
 
     def test_detailview01(self):
-        self.login(is_superuser=False,
-                   allowed_apps=['billing', 'persons'],
-                   creatable_models=[Organisation, SalesOrder, Invoice],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['billing', 'persons'],
+            creatable_models=[Organisation, SalesOrder, Invoice],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -46,20 +47,25 @@ class SalesOrderTestCase(_BillingTestCase):
         response = self.assertGET200(order.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_sales_order.html')
 
-        self.assertContains(
+        # self.assertContains(
+        #     response,
+        #     '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"'
+        # )
+        #
+        # self.assertContains(response, _('Convert to Invoice'))
+        # self.assertContains(response, '"type": "invoice"')
+        self.assertConvertButtons(
             response,
-            '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"'
+            [{'title': _('Convert to Invoice'), 'type': 'invoice', 'disabled': False}],
         )
-
-        self.assertContains(response, _('Convert to Invoice'))
-        self.assertContains(response, '"type": "invoice"')
 
     def test_detailview02(self):
         "Cannot create invoice => convert button disabled."
-        self.login(is_superuser=False,
-                   allowed_apps=['billing', 'persons'],
-                   creatable_models=[Organisation, SalesOrder],  # Invoice
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['billing', 'persons'],
+            creatable_models=[Organisation, SalesOrder],  # Invoice
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -69,14 +75,18 @@ class SalesOrderTestCase(_BillingTestCase):
         order = self.create_salesorder_n_orgas('My order')[0]
         response = self.assertGET200(order.get_absolute_url())
 
-        self.assertContains(
+        # self.assertContains(
+        #     response,
+        #     '<a class="menu_button menu-button-icon is-disabled" '
+        #     'data-action="billing-hatmenubar-convert"'
+        # )
+        #
+        # self.assertContains(response, _('Convert to Invoice').encode())
+        # self.assertContains(response, '"type": "invoice"')
+        self.assertConvertButtons(
             response,
-            '<a class="menu_button menu-button-icon is-disabled" '
-            'data-action="billing-hatmenubar-convert"'
+            [{'title': _('Convert to Invoice'), 'type': 'invoice', 'disabled': True}],
         )
-
-        self.assertContains(response, _('Convert to Invoice').encode())
-        self.assertContains(response, '"type": "invoice"')
 
     def test_createview01(self):
         self.login()
@@ -103,24 +113,27 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertTemplateUsed(response, 'billing/forms/add-popup.html')
 
         context = response.context
-        self.assertEqual(_('Create a salesorder for «{entity}»').format(entity=target),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Create a salesorder for «{entity}»').format(entity=target),
+            context.get('title')
+        )
         self.assertEqual(SalesOrder.save_label, context.get('submit_label'))
 
         with self.assertNoException():
             form = context['form']
 
-        self.assertEqual({'status': 1,
-                          'target': target
-                         },
-                         form.initial
-                        )
+        self.assertDictEqual(
+            {
+                'status': 1,
+                'target': target
+            },
+            form.initial
+        )
 
         # ---
         name = 'Order#1'
         currency = Currency.objects.all()[0]
-        status   = SalesOrderStatus.objects.all()[1]
+        status = SalesOrderStatus.objects.all()[1]
         response = self.client.post(
             url, follow=True,
             data={
@@ -185,10 +198,11 @@ class SalesOrderTestCase(_BillingTestCase):
 
     def test_create_related03(self):
         "Not a super-user."
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'billing'],
-                   creatable_models=[SalesOrder],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[SalesOrder],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=(
@@ -206,10 +220,11 @@ class SalesOrderTestCase(_BillingTestCase):
 
     def test_create_related04(self):
         "Creation creds are needed."
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'billing'],
-                   # creatable_models=[SalesOrder],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            # creatable_models=[SalesOrder],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=(
@@ -227,10 +242,11 @@ class SalesOrderTestCase(_BillingTestCase):
 
     def test_create_related05(self):
         "CHANGE creds are needed."
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'billing'],
-                   creatable_models=[SalesOrder],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[SalesOrder],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=(
@@ -255,10 +271,11 @@ class SalesOrderTestCase(_BillingTestCase):
         url = order.get_edit_absolute_url()
         self.assertGET200(url)
 
-        name     = name.title()
-        currency = Currency.objects.create(name='Marsian dollar', local_symbol='M$',
-                                           international_symbol='MUSD', is_custom=True,
-                                          )
+        name = name.title()
+        currency = Currency.objects.create(
+            name='Martian dollar', local_symbol='M$',
+            international_symbol='MUSD', is_custom=True,
+        )
         status   = SalesOrderStatus.objects.all()[1]
         response = self.client.post(
             url, follow=True,
@@ -304,11 +321,12 @@ class SalesOrderTestCase(_BillingTestCase):
 
         order = self.create_salesorder_n_orgas('Order', status=status2del)[0]
 
-        self.assertDeleteStatusOK(status2del=status2del,
-                                  short_name='sales_order_status',
-                                  new_status=new_status,
-                                  doc=order,
-                                 )
+        self.assertDeleteStatusOK(
+            status2del=status2del,
+            short_name='sales_order_status',
+            new_status=new_status,
+            doc=order,
+        )
 
     @skipIfCustomAddress
     def test_mass_import(self):
