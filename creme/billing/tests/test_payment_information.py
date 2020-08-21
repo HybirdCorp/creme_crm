@@ -53,6 +53,13 @@ class PaymentInformationTestCase(_BillingTestCase):
         pi = all_pi[0]
         self.assertIs(True, pi.is_default)
         self.assertEqual(organisation, pi.organisation)
+        self.assertEqual('', pi.bank_code)
+        self.assertEqual('', pi.counter_code)
+        self.assertEqual('', pi.account_number)
+        self.assertEqual('', pi.rib_key)
+        self.assertEqual('', pi.banking_domiciliation)
+        self.assertEqual('', pi.iban)
+        self.assertEqual('', pi.bic)
 
     def test_createview02(self):
         user = self.login()
