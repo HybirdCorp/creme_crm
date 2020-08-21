@@ -202,7 +202,7 @@
                     - config_exists()
                     - create_if_needed(), create_4_model_brick()
                     - id_is_4_model()
-                - In 'BrickState', these method have been removed: get_for_brick_id(), get_for_brick_ids()
+                - In 'BrickState', these methods have been removed: get_for_brick_id(), get_for_brick_ids()
             - In 'creme_core.forms' :
                 - The class 'base.CremeModelWithUserForm' has been removed.
                 - The method 'mass_import.CustomFieldExtractor.extract_value()' does not raise ValidationErrors anymore ; their are transparently converted into error message like in basic 'Extractor'.
@@ -243,6 +243,9 @@
                         - The function 'creme.persons.become()' has been removed and replaced by 'creme.persons.BecomeAction'.
                 * Billing :
                     - These constants have been removed: DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA, PERCENT_PK & AMOUNT_PK.
+                    - There were some changes in 'bricks._LinesBrick' (and child classes):
+                        - The method '_get_document_lines()' has been removed.
+                        - These class attributes have been removed: related_item_model & related_item_label
                     - These templates of 'billing/frags/' have been removed : button_convert2invoice.html, button_convert2order.html
                     - The JavaScript function 'creme.billing.generateInvoiceNumber()' has been removed.
                 * Opportunities :
