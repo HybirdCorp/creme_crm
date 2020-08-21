@@ -1,6 +1,7 @@
 {% load i18n creme_core_tags creme_widgets %}
 {% has_perm_to link object as link_perm %}
-<a class="menu_button {% if not link_perm %}is-disabled{% endif %}" title="{{description}}" data-action="persons-hatmenubar-become">
+<a class="menu_button menu-button-icon{% if not link_perm %} is-disabled{% endif %}" title="{{description}}" data-action="persons-hatmenubar-become">
+    {% widget_icon name='relations' size='instance-button' label=_('Relationship') %}
     {{verbose_name}}
     {% blockjsondata %}{
         "data": {
