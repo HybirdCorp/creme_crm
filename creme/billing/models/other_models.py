@@ -27,6 +27,7 @@ from django.db.models import (
     TextField,
 )
 from django.db.transaction import atomic
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -179,15 +180,18 @@ class PaymentInformation(CremeModel):
     @atomic
     def delete(self, *args, **kwargs):
         if self.is_default:
-            first_pi = PaymentInformation.objects.filter(organisation=self.organisation) \
-                                                 .exclude(id=self.id) \
-                                                 .first()
+            first_pi = PaymentInformation.objects.filter(
+                organisation=self.organisation,
+            ).exclude(id=self.id).first()
 
             if first_pi:
                 first_pi.is_default = True
                 first_pi.save()
 
         super().delete(*args, **kwargs)
+
+    def get_edit_absolute_url(self):
+        return reverse('billing__edit_payment_info', args=(self.id,))
 
     def get_related_entity(self):
         return self.organisation
