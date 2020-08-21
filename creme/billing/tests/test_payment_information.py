@@ -72,12 +72,27 @@ class PaymentInformationTestCase(_BillingTestCase):
         url = self._build_add_url(organisation)
         self.assertGET200(url)
 
+        bank_code = 'BANK'
+        counter_code = 'COUNTER'
+        account_number = 'ACCOUNT'
+        key = '12345'
+        domiciliation = 'DOM'
+        iban = 'IBAN'
+        bic = 'BIC'
         response = self.client.post(
             url,
             data={
                 'user':       user.pk,
                 'name':       f'RIB of {organisation}',
                 'is_default': True,
+
+                'bank_code':             bank_code,
+                'counter_code':          counter_code,
+                'account_number':        account_number,
+                'rib_key':               key,
+                'banking_domiciliation': domiciliation,
+                'iban':                  iban,
+                'bic':                   bic,
             },
         )
         self.assertNoFormError(response)
@@ -89,9 +104,16 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         second_pi.delete()
         self.assertIs(True, first_pi.is_default)
+        self.assertEqual(bank_code,      second_pi.bank_code)
+        self.assertEqual(counter_code,   second_pi.counter_code)
+        self.assertEqual(account_number, second_pi.account_number)
+        self.assertEqual(key,            second_pi.rib_key)
+        self.assertEqual(domiciliation,  second_pi.banking_domiciliation)
+        self.assertEqual(iban,           second_pi.iban)
+        self.assertEqual(bic,            second_pi.bic)
 
     def test_createview03(self):
-        "Related is not an organisation"
+        "Related is not an organisation."
         user = self.login()
         self.assertGET404(self._build_add_url(user.linked_contact))
 
@@ -284,7 +306,7 @@ class PaymentInformationTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice03(self):
-        "Trashed organisation"
+        "Trashed organisation."
         self.login()
 
         invoice, sony_source = self.create_invoice_n_orgas('Playstations')[:2]
