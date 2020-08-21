@@ -52,13 +52,20 @@ class QuoteTestCase(_BillingTestCase):
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
 
-        self.assertContains(
+        # self.assertContains(
+        #     response,
+        #     '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"'
+        # )
+        #
+        # self.assertContains(response, _('Convert to Salesorder'))
+        # self.assertContains(response, '"type": "sales_order"')
+        self.assertConvertButtons(
             response,
-            '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"'
+            [
+                {'title': _('Convert to Salesorder'), 'type': 'sales_order', 'disabled': True},
+                {'title': _('Convert to Invoice'),    'type': 'invoice',     'disabled': False},
+            ],
         )
-
-        self.assertContains(response, _('Convert to Salesorder'))
-        self.assertContains(response, '"type": "sales_order"')
 
     def test_detailview02(self):
         "Cannot create Invoice => convert button disabled."
@@ -77,14 +84,21 @@ class QuoteTestCase(_BillingTestCase):
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
 
-        self.assertContains(
+        # self.assertContains(
+        #     response,
+        #     '<a class="menu_button menu-button-icon is-disabled" '
+        #     'data-action="billing-hatmenubar-convert"'
+        # )
+        #
+        # self.assertContains(response, _('Convert to Invoice'))
+        # self.assertContains(response, '"type": "invoice"')
+        self.assertConvertButtons(
             response,
-            '<a class="menu_button menu-button-icon is-disabled" '
-            'data-action="billing-hatmenubar-convert"'
+            [
+                {'title': _('Convert to Salesorder'), 'type': 'sales_order', 'disabled': False},
+                {'title': _('Convert to Invoice'),    'type': 'invoice',     'disabled': True},
+            ],
         )
-
-        self.assertContains(response, _('Convert to Invoice'))
-        self.assertContains(response, '"type": "invoice"')
 
     def test_createview01(self):
         self.login()

@@ -2,7 +2,6 @@
 
 from copy import deepcopy
 
-from bleach._vendor import html5lib
 from django.template import Context, Template
 from django.utils.safestring import mark_safe
 
@@ -77,10 +76,8 @@ class CremeMenuTagsTestCase(CremeTestCase):
         super().setUp()
         button_menu.button_registry = self.button_registry = deepcopy(self.button_registry)
 
-    def get_html_tree(self, content):
-        return html5lib.parse(content, namespaceHTMLElements=False)
-
-    def get_button_nodes(self, tree):
+    @staticmethod
+    def get_button_nodes(tree):
         for li_node in tree.findall('.//li'):
             for node in li_node.findall('.//a'):
                 if 'menu_button' in node.attrib.get('class').split():

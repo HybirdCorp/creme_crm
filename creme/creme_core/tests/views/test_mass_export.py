@@ -5,7 +5,6 @@ from functools import partial
 from os.path import dirname, exists, join
 from urllib.parse import urlencode
 
-from bleach._vendor import html5lib  # Avoid a dependence only for test
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -68,7 +67,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         rtype_pilots = RelationType.create(
             ('test-subject_pilots', 'pilots'),
-            ('test-object_pilots',  'is piloted by')
+            ('test-object_pilots',  'is piloted by'),
         )[0]
 
         create_ptype = CremePropertyType.create
@@ -86,9 +85,10 @@ class MassExportViewsTestCase(ViewsTestCase):
             ]
         }
 
-        create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots,
-                             object_entity=organisations['Bebop'],
-                            )
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, type=rtype_pilots, object_entity=organisations['Bebop'],
+        )
         create_rel(subject_entity=contacts['Jet'])
         create_rel(subject_entity=contacts['Spike'])
         create_rel(subject_entity=contacts['Spike'], object_entity=organisations['Swordfish'])
@@ -175,9 +175,10 @@ class MassExportViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_test_invalid_hfilter',
             name='Contact view', model=FakeContact,
-            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                        (EntityCellRegularField, {'name': 'created'}),
-                       ],
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'created'}),
+            ],
         )
         self.assertGET404(build_url(ct_or_model=FakeEmailCampaign, hfilter_id=hf.id))
 
@@ -234,12 +235,20 @@ class MassExportViewsTestCase(ViewsTestCase):
         it = (force_text(line) for line in result)
         self.assertEqual(next(it), ','.join(f'"{hfi.title}"' for hfi in hf.cells))
         self.assertEqual(next(it), '"","Black","Jet","Bebop",""')
-        self.assertIn(next(it), ('"","Spiegel","Spike","Bebop/Swordfish",""',
-                                 '"","Spiegel","Spike","Swordfish/Bebop",""')
-                     )
-        self.assertIn(next(it), ('"","Valentine","Faye","","is a girl/is beautiful"',
-                                 '"","Valentine","Faye","","is beautiful/is a girl"')
-                     )
+        self.assertIn(
+            next(it),
+            (
+                '"","Spiegel","Spike","Bebop/Swordfish",""',
+                '"","Spiegel","Spike","Swordfish/Bebop",""',
+            )
+        )
+        self.assertIn(
+            next(it),
+            (
+                '"","Valentine","Faye","","is a girl/is beautiful"',
+                '"","Valentine","Faye","","is beautiful/is a girl"',
+            )
+        )
         self.assertEqual(next(it), '"","Wong","Edward","","is a girl"')
         with self.assertRaises(StopIteration):
             next(it)
@@ -254,9 +263,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(TYPE_EXPORT, hline.type)
 
         count = len(result) - 1
-        self.assertEqual([count, hf.name],
-                         hline.modifications
-                        )
+        self.assertListEqual(
+            [count, hf.name], hline.modifications
+        )
         self.assertListEqual(
             [
                 _('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
@@ -280,12 +289,20 @@ class MassExportViewsTestCase(ViewsTestCase):
         it = (force_text(line) for line in response.content.splitlines())
         self.assertEqual(next(it), ';'.join(f'"{hfi.title}"' for hfi in cells))
         self.assertEqual(next(it), '"";"Black";"Jet";"Bebop";""')
-        self.assertIn(next(it), ('"";"Spiegel";"Spike";"Bebop/Swordfish";""',
-                                 '"";"Spiegel";"Spike";"Swordfish/Bebop";""')
-                     )
-        self.assertIn(next(it), ('"";"Valentine";"Faye";"";"is a girl/is beautiful"',
-                                 '"";"Valentine";"Faye";"";"is beautiful/is a girl"')
-                     )
+        self.assertIn(
+            next(it),
+            (
+                '"";"Spiegel";"Spike";"Bebop/Swordfish";""',
+                '"";"Spiegel";"Spike";"Swordfish/Bebop";""',
+            )
+        )
+        self.assertIn(
+            next(it),
+            (
+                '"";"Valentine";"Faye";"";"is a girl/is beautiful"',
+                '"";"Valentine";"Faye";"";"is beautiful/is a girl"',
+            )
+        )
         self.assertEqual(next(it), '"";"Wong";"Edward";"";"is a girl"')
         with self.assertRaises(StopIteration):
             next(it)
@@ -348,9 +365,10 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(2, len(result))
         self.assertEqual(
             result[1],
-            '"{}","{}"'.format(spike.last_name,
-                               date_format(localtime(spike.created), 'DATETIME_FORMAT'),
-                              )
+            '"{}","{}"'.format(
+                spike.last_name,
+                date_format(localtime(spike.created), 'DATETIME_FORMAT'),
+            )
         )
 
     def test_list_view_export06(self):
@@ -412,12 +430,11 @@ class MassExportViewsTestCase(ViewsTestCase):
             ],
         )
 
-        response = self.assertGET200(
-            self._build_dl_url(FakeEmailCampaign,
-                               list_url=FakeEmailCampaign.get_lv_absolute_url(),
-                               hfilter_id=hf.id,
-                              ),
-        )
+        response = self.assertGET200(self._build_dl_url(
+            FakeEmailCampaign,
+            list_url=FakeEmailCampaign.get_lv_absolute_url(),
+            hfilter_id=hf.id,
+        ))
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(4, len(result))
 
@@ -489,9 +506,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(1, len(hlines))
 
         hline = hlines[0]
-        self.assertEqual([1, hf.name, efilter.name],
-                         hline.modifications
-                        )
+        self.assertListEqual(
+            [1, hf.name, efilter.name], hline.modifications
+        )
         self.assertListEqual(
             [
                 _('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
@@ -509,24 +526,28 @@ class MassExportViewsTestCase(ViewsTestCase):
         cells = self._build_hf_n_contacts().cells
         existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
 
-        response = self.assertGET200(self._build_contact_dl_url(doc_type='xls'),
-                                     follow=True,
-                                    )
+        response = self.assertGET200(
+            self._build_contact_dl_url(doc_type='xls'), follow=True,
+        )
 
         # it = iter(XlrdReader(None, file_contents=response.content))
         it = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
         self.assertEqual(next(it), [hfi.title for hfi in cells])
         self.assertEqual(next(it), ['', 'Black', 'Jet', 'Bebop', ''])
-        self.assertIn(next(it),
-                      (['', 'Spiegel', 'Spike', 'Bebop/Swordfish', ''],
-                       ['', 'Spiegel', 'Spike', 'Swordfish/Bebop', ''],
-                      )
-                     )
-        self.assertIn(next(it),
-                      (['', 'Valentine', 'Faye', '', 'is a girl/is beautiful'],
-                       ['', 'Valentine', 'Faye', '', 'is beautiful/is a girl'],
-                      )
-                     )
+        self.assertIn(
+            next(it),
+            (
+                ['', 'Spiegel', 'Spike', 'Bebop/Swordfish', ''],
+                ['', 'Spiegel', 'Spike', 'Swordfish/Bebop', ''],
+            )
+        )
+        self.assertIn(
+            next(it),
+            (
+                ['', 'Valentine', 'Faye', '', 'is a girl/is beautiful'],
+                ['', 'Valentine', 'Faye', '', 'is beautiful/is a girl'],
+            )
+        )
         self.assertEqual(next(it), ['', 'Wong', 'Edward', '', 'is a girl'])
         with self.assertRaises(StopIteration):
             next(it)
@@ -556,10 +577,11 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
-        cells = [build_cell(name='name'),
-                 build_cell(name='subject_to_vat'),
-                 build_cell(name='creation_date'),
-                ]
+        cells = [
+            build_cell(name='name'),
+            build_cell(name='subject_to_vat'),
+            build_cell(name='creation_date'),
+        ]
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_orga', name='Organisation view',
@@ -567,11 +589,12 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         response = self.assertGET200(
-            self._build_dl_url(FakeOrganisation,
-                               doc_type='xls',
-                               list_url=FakeOrganisation.get_lv_absolute_url(),
-                               hfilter_id=hf.id,
-                              ),
+            self._build_dl_url(
+                FakeOrganisation,
+                doc_type='xls',
+                list_url=FakeOrganisation.get_lv_absolute_url(),
+                hfilter_id=hf.id,
+            ),
             follow=True,
         )
 
@@ -616,9 +639,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         "Field with choices"
         user = self.login()
 
-        invoice = FakeInvoice.objects.create(user=user, name='Invoice',
-                                             expiration_date=date(year=2012, month=12, day=15),
-                                            )
+        invoice = FakeInvoice.objects.create(
+            user=user, name='Invoice', expiration_date=date(year=2012, month=12, day=15),
+        )
 
         create_pline = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
         create_pline(item='Bebop',     discount_unit=FAKE_PERCENT_UNIT)
@@ -628,16 +651,15 @@ class MassExportViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_fakeinvoiceline', name='InvoiceLine view',
             model=FakeInvoiceLine,
-            cells_desc=[build(name='item'),
-                        build(name='discount_unit'),
-                       ],
+            cells_desc=[build(name='item'), build(name='discount_unit')],
         )
 
         response = self.assertGET200(
-            self._build_dl_url(FakeInvoiceLine,
-                               list_url=FakeInvoiceLine.get_lv_absolute_url(),
-                               hfilter_id=hf.id,
-                              ),
+            self._build_dl_url(
+                FakeInvoiceLine,
+                list_url=FakeInvoiceLine.get_lv_absolute_url(),
+                hfilter_id=hf.id,
+            ),
             follow=True,
         )
 
@@ -647,14 +669,14 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     # TODO: factorise with ListViewTestCase
     def _get_lv_content(self, response):
-        page_tree = html5lib.parse(response.content, namespaceHTMLElements=False)
+        page_tree = self.get_html_tree(response.content)
 
         content_node = page_tree.find(
             ".//form[@widget='ui-creme-listview']//table[@data-total-count]"
         )
         self.assertIsNotNone(content_node, 'The table listviews is not found.')
 
-        tbody = content_node.find(".//tbody")
+        tbody = content_node.find('.//tbody')
         self.assertIsNotNone(tbody)
 
         content = []
@@ -667,7 +689,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                     classes = class_attr.split()
 
                     if 'lv-cell-content' in classes:
-                        div_node = td_node.find(".//div")
+                        div_node = td_node.find('.//div')
 
                         if div_node is not None:
                             content.append(div_node.text.strip())
@@ -681,10 +703,11 @@ class MassExportViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_test_quick_search', name='Contact view',
             model=FakeContact,
-            cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
-                        (EntityCellRegularField, {'name': 'last_name'}),
-                        (EntityCellRegularField, {'name': 'first_name'}),
-                       ],
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'phone'}),
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'first_name'}),
+            ],
         )
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -693,14 +716,13 @@ class MassExportViewsTestCase(ViewsTestCase):
         create_contact(first_name='Faye',  last_name='Valentine', phone='678678')
 
         # ----------------------
-        response = self.assertGET200(
-            self._build_contact_dl_url(hfilter_id=hf.id,
-                                       **{'search-regular_field-phone': '123'}
-                                      )
-        )
+        response = self.assertGET200(self._build_contact_dl_url(
+            hfilter_id=hf.id, **{'search-regular_field-phone': '123'}
+        ))
         self.assertListEqual(
-            ['"123455","Black","Jet"',
-             '"123233","Spiegel","Spike"',
+            [
+                '"123455","Black","Jet"',
+                '"123233","Spiegel","Spike"',
             ],
             # NB: slice to remove the header
             [force_text(line) for line in response.content.splitlines()[1:]]
@@ -713,10 +735,11 @@ class MassExportViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_test_sorting', name='Contact view',
             model=FakeContact,
-            cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
-                        (EntityCellRegularField, {'name': 'last_name'}),
-                        (EntityCellRegularField, {'name': 'first_name'}),
-                       ],
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'phone'}),
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'first_name'}),
+            ],
         )
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -732,8 +755,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         ))
 
         self.assertListEqual(
-            ['"123233","Spiegel","Spike"',
-             '"123455","Black","Jet"',
+            [
+                '"123233","Spiegel","Spike"',
+                '"123455","Black","Jet"',
             ],
             # NB: slice to remove the header
             [force_text(line) for line in response.content.splitlines()[1:]]
@@ -757,9 +781,10 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         HeaderFilter.objects.create_if_needed(
             pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
-            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                        (EntityCellRegularField, {'name': 'mailing_lists'}),
-                       ],
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                (EntityCellRegularField, {'name': 'mailing_lists'}),
+            ],
         )
 
         # Set the current list view state, with the quick search

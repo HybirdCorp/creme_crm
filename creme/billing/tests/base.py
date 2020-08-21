@@ -12,7 +12,7 @@ from django.utils.translation import gettext as _
 from creme import billing
 from creme.creme_core.models import Currency  # Relation
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from creme.creme_core.tests.views import base
 from creme.persons import (
     get_address_model,
     get_contact_model,
@@ -304,7 +304,8 @@ class _BillingTestCaseMixin:
 
 # class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestCaseMixin):
 class _BillingTestCase(_BillingTestCaseMixin,
-                       MassImportBaseTestCaseMixin,
+                       base.ButtonTestCaseMixin,
+                       base.MassImportBaseTestCaseMixin,
                        CremeTestCase):
     def _aux_test_csv_import(self, model, status_model, update=False):
         count = model.objects.count()
@@ -648,3 +649,32 @@ class _BillingTestCase(_BillingTestCaseMixin,
 
         # No new Address should be created
         self.assertEqual(addr_count, Address.objects.count())
+
+    def assertConvertButtons(self, response, expected):
+        found = []
+
+        for button_node in self.iter_instance_button_nodes(
+            self.get_instance_buttons_node(self.get_html_tree(response.content)),
+            data_action='billing-hatmenubar-convert',
+        ):
+            title, json_data = filter(None, (txt.strip() for txt in button_node.itertext()))
+            found.append(
+                (
+                    title,
+                    json_data,
+                    ('is-disabled' in button_node.attrib.get('class').split()),
+                )
+            )
+
+        for item in expected:
+            title = item['title']
+            btype = item['type']
+            disabled = item['disabled']
+
+            for f in found:
+                if f[0] == title:
+                    self.assertIn(f'"type": "{btype}"', f[1])
+                    self.assertEqual(disabled, f[2])
+                    break
+            else:
+                self.fail(f'The conversion button with title="{title}" has not been found.')
