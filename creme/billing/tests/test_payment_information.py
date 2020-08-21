@@ -168,8 +168,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         organisation = Organisation.objects.create(user=user, name='Nintendo')
         pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
 
-        # TODO: get_edit_absolute_url() ?
-        url = reverse('billing__edit_payment_info', args=(pi.id,))
+        url = pi.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
@@ -213,7 +212,7 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         self.assertTrue(self.refresh(pi_11).is_default)
 
-        url = reverse('billing__edit_payment_info', args=(pi_12.id,))
+        url = pi_12.get_edit_absolute_url()
         self.assertGET200(url)
 
         rib_key = '00'
