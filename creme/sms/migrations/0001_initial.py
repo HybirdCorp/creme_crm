@@ -58,6 +58,7 @@ class Migration(migrations.Migration):
                 ('messaging_list', models.ForeignKey(verbose_name='Related messaging list', to=settings.SMS_MLIST_MODEL, on_delete=CASCADE)),
             ],
             options={
+                'ordering': ('phone',),
                 'verbose_name': 'Recipient',
                 'verbose_name_plural': 'Recipients',
             },
@@ -99,10 +100,10 @@ class Migration(migrations.Migration):
             name='Sending',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('date', models.DateField(verbose_name='Date')),
-                ('content', models.TextField(max_length=160, verbose_name='Generated message')),
-                ('campaign', models.ForeignKey(related_name='sendings', verbose_name='Related campaign', to=settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE)),
-                ('template', models.ForeignKey(verbose_name='Message template', to=settings.SMS_TEMPLATE_MODEL, on_delete=CASCADE)),
+                ('date', models.DateField(verbose_name='Date', editable=False)),
+                ('content', models.TextField(max_length=160, verbose_name='Generated message', editable=False)),
+                ('campaign', models.ForeignKey(related_name='sendings', verbose_name='Related campaign', to=settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE, editable=False)),
+                ('template', models.ForeignKey(verbose_name='Message template', to=settings.SMS_TEMPLATE_MODEL, on_delete=CASCADE, editable=False)),
             ],
             options={
                 'verbose_name': 'Sending',

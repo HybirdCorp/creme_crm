@@ -44,7 +44,9 @@ class MessagingListForm(CremeEntityForm):
 
 class AddContactsForm(CremeForm):
     # TODO: other filter (name + email) ?
-    recipients = MultiCreatorEntityField(label=_('Contacts'), required=False, model=Contact)
+    recipients = MultiCreatorEntityField(
+        label=_('Contacts'), required=False, model=Contact,
+    )
 
     blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
 
@@ -61,9 +63,10 @@ class AddContactsForm(CremeForm):
 
 
 class AddPersonsFromFilterForm(CremeForm):  # private class ???
-    filters = ModelChoiceField(label=_('Filters'), queryset=EntityFilter.objects.none(),
-                               empty_label=_('All'), required=False,
-                              )
+    filters = ModelChoiceField(
+        label=_('Filters'), queryset=EntityFilter.objects.none(),
+        empty_label=_('All'), required=False,
+    )
 
     person_model = None  # Contact/Organisation
 
@@ -82,7 +85,8 @@ class AddPersonsFromFilterForm(CremeForm):  # private class ???
     def save(self):
         persons = self.get_persons_m2m()
         efilter = self.cleaned_data['filters']
-        new_persons = self.person_model.objects.all()
+        # new_persons = self.person_model.objects.all()
+        new_persons = self.person_model.objects.filter(is_deleted=False)
 
         if efilter:
             new_persons = efilter.filter(new_persons)

@@ -68,15 +68,18 @@ MESSAGE_STATUS = {
 
 
 class Sending(CremeModel):
-    date     = DateField(_('Date'))
+    date = DateField(_('Date'), editable=False)
     campaign = ForeignKey(
         settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE,
         verbose_name=_('Related campaign'), related_name='sendings',
+        editable=False,
     )
     template = ForeignKey(
-        settings.SMS_TEMPLATE_MODEL, verbose_name=_('Message template'), on_delete=CASCADE,
+        settings.SMS_TEMPLATE_MODEL,
+        verbose_name=_('Message template'), on_delete=CASCADE,
+        editable=False,
     )  # TODO: PROTECT ? copy data like in 'emails' ?
-    content  = TextField(_('Generated message'), max_length=160)
+    content = TextField(_('Generated message'), max_length=160, editable=False)
 
     creation_label = pgettext_lazy('sms', 'Create a sending')
     save_label     = pgettext_lazy('sms', 'Save the sending')
@@ -92,6 +95,14 @@ class Sending(CremeModel):
             date=date_format(self.date, 'DATE_FORMAT'),
         )
 
+    def delete(self, *args, **kwargs):
+        ws = SamoussaBackEnd()  # TODO: 'with'
+        ws.connect()
+        ws.delete_messages(user_data=self.id)
+        ws.close()
+
+        return super().delete(*args, **kwargs)
+
     def formatstatus(self):
         # TODO: use <Conditional aggregation> to perform only one query
         items = (
@@ -103,13 +114,8 @@ class Sending(CremeModel):
             for count, label in items if count > 0
         )
 
-    def delete(self, *args, **kwargs):
-        ws = SamoussaBackEnd()  # TODO: 'with'
-        ws.connect()
-        ws.delete_messages(user_data=self.id)
-        ws.close()
-
-        return super().delete(*args, **kwargs)
+    def get_related_entity(self):  # For generic views
+        return self.campaign
 
 
 # TODO: keep the related entity (to hide the number when the entity is not viewable)
@@ -126,8 +132,8 @@ class Message(CremeModel):
 
     class Meta:
         app_label = 'sms'
-        verbose_name = _('Message')
-        verbose_name_plural = _('Messages')
+        verbose_name = pgettext_lazy('sms', 'Message')
+        verbose_name_plural = pgettext_lazy('sms', 'Messages')
 
     # TODO: improve delete() method & remove the view delete_message ?
     # def get_related_entity(self):  # For generic views (deletion)

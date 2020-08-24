@@ -31,8 +31,9 @@ class SendingCreateForm(CremeModelForm):
     template = CreatorEntityField(label=_('Message template'), model=get_messagetemplate_model())
 
     class Meta:
-        model   = Sending
-        exclude = ('campaign', 'date', 'content')
+        model = Sending
+        # exclude = ('campaign', 'date', 'content')
+        fields = ()
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,18 +41,21 @@ class SendingCreateForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         instance = self.instance
+        template = self.cleaned_data['template']
+
         instance.campaign = self.campaign
+        instance.template = template
         instance.date = now()
         super().save()
 
-        template = instance.template
         instance.content = (template.subject + ' : ' + template.body) if template else ''
         instance.save()
 
-        for phone in instance.campaign.all_recipients():
-            Message.objects.create(phone=phone, sending=instance,
-                                   status=MESSAGE_STATUS_NOTSENT,
-                                  )
+        # for phone in instance.campaign.all_recipients():
+        for phone in instance.campaign.all_phone_numbers():
+            Message.objects.create(
+                phone=phone, sending=instance, status=MESSAGE_STATUS_NOTSENT,
+            )
 
         Message.send(instance)
 

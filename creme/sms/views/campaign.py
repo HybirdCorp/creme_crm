@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,7 +59,8 @@ class SMSCampaignEdition(generic.EntityEdition):
     pk_url_kwarg = 'campaign_id'
 
 
-class MessagingListsAdding(generic.AddingInstanceToEntityPopup):
+# class MessagingListsAdding(generic.AddingInstanceToEntityPopup):
+class MessagingListsAdding(generic.RelatedToEntityFormPopup):
     # model = MessagingList
     form_class = camp_forms.CampaignAddListForm
     template_name = 'creme_core/generics/blockform/link-popup.html'

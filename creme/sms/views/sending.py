@@ -145,6 +145,18 @@ class MessagesBrickReloading(BricksReloading):
 
     def get_bricks(self):
         # TODO: map of allowed bricks ?
+        #   bricks = []
+        #   allowed_bricks = self.allowed_bricks
+        #
+        #   for brick_id in self.get_brick_ids():
+        #       try:
+        #           brick_cls = allowed_bricks[brick_id]
+        #       except KeyError as e:
+        #           raise Http404('Invalid brick ID') from e
+        #
+        #       bricks.append(brick_cls())
+        #
+        #   return bricks
         return [MessagesBrick()]
 
     def get_bricks_context(self):
