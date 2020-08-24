@@ -41,11 +41,12 @@ class PhoneField(RegexField):
         if value and not self.regex.search(value):
             raise ValidationError(self.error_messages['invalid'])
 
-        return PhoneField.filternumbers(value)
+        # return PhoneField.filternumbers(value)
+        return self.filternumbers(value)
 
     @staticmethod
     def filternumbers(value):
-        return ''.join((c for c in value if c.isdigit()))
+        return ''.join(c for c in value if c.isdigit())
 
 
 class PhoneListField(RegexField):
@@ -66,4 +67,7 @@ class PhoneListField(RegexField):
         if value and not self.regex.search(value):
             raise ValidationError(self.error_messages['invalid'])
 
-        return [PhoneField.filternumbers(number) for number in value.split(self.separator)]
+        return [
+            PhoneField.filternumbers(number)
+            for number in value.split(self.separator)
+        ]

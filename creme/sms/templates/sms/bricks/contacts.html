@@ -22,7 +22,11 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as edit_perm %}{% url 'sms__remove_contact_from_mlist' object.id as rm_contact_url %}
+{% if field_hidden %}
+    <tr>
+        <td class="td_error">{% trans "The field «Mobile» of Contact is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
+    </tr>
+{% else %}{% has_perm_to change object as edit_perm %}{% url 'sms__remove_contact_from_mlist' object.id as rm_contact_url %}
     {% for contact in page.object_list %}
     <tr>{% has_perm_to view contact as contact_perm %}
         <td {% brick_table_data_status primary %}>
@@ -36,6 +40,7 @@
         </td>
     </tr>
     {% endfor %}
+{% endif %}
 {% endblock %}
 
 {% block brick_table_empty %}
