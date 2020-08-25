@@ -65,16 +65,17 @@ class SendingsTestCase(_EmailsTestCase):
     def test_sender_setting01(self):
         user = self.login()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
-        template = EmailTemplate.objects.create(user=user, name='name',
-                                                subject='SUBJECT', body='BODY',
-                                               )
+        template = EmailTemplate.objects.create(
+            user=user, name='name', subject='SUBJECT', body='BODY',
+        )
 
         url = self._build_add_url(camp)
         response = self.assertGET200(url)
         context = response.context
-        self.assertEqual(_('New sending for «{entity}»').format(entity=camp),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New sending for «{entity}»').format(entity=camp),
+            context.get('title')
+        )
         self.assertEqual(EmailSending.save_label, context.get('submit_label'))
 
         with self.assertNoException():
@@ -82,12 +83,14 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertIsNone(sender.initial)
 
         sender_email = 'vicious@reddragons.mrs'
-        self.assertNoFormError(self.client.post(url, data={'sender':   sender_email,
-                                                           'type':     SENDING_TYPE_IMMEDIATE,
-                                                           'template': template.id,
-                                                          }
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'sender':   sender_email,
+                'type':     SENDING_TYPE_IMMEDIATE,
+                'template': template.id,
+            },
+        ))
 
         # --
         response = self.assertGET200(url)
@@ -109,9 +112,7 @@ class SendingsTestCase(_EmailsTestCase):
         )
 
     def test_sender_setting02(self):
-        user = self.login(is_superuser=False,
-                          creatable_models=(EmailSending, EmailCampaign),
-                         )
+        user = self.login(is_superuser=False)
         SetCredentials.objects.create(
             role=self.role,
             value=(
@@ -138,15 +139,18 @@ class SendingsTestCase(_EmailsTestCase):
             sender.initial)
         sender_email = 'vicious@reddragons.mrs'
 
-        response = self.client.post(url, data={'sender':   sender_email,
-                                               'type':     SENDING_TYPE_IMMEDIATE,
-                                               'template': template.id,
-                                              }
-                                   )
         self.assertFormError(
-            response, 'form', 'sender',
+            self.client.post(
+                url,
+                data={
+                    'sender': sender_email,
+                    'type': SENDING_TYPE_IMMEDIATE,
+                    'template': template.id,
+                },
+            ),
+            'form', 'sender',
             _('You are not allowed to modify the sender address, '
-              'please contact your administrator.')
+              'please contact your administrator.'),
         )
 
         sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
@@ -160,12 +164,14 @@ class SendingsTestCase(_EmailsTestCase):
 
         self.assertEqual(sender_email, sender.initial)
 
-        self.assertNoFormError(self.client.post(url, data={'sender':   sender_email,
-                                                           'type':     SENDING_TYPE_IMMEDIATE,
-                                                           'template': template.id,
-                                                          }
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'sender':   sender_email,
+                'type':     SENDING_TYPE_IMMEDIATE,
+                'template': template.id,
+            },
+        ))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -212,12 +218,13 @@ class SendingsTestCase(_EmailsTestCase):
         create_recipient(ml=mlist06, address='jin@reddragons.mrs')
 
         create_contact = partial(Contact.objects.create, user=user)
-        contacts = [create_contact(first_name='Spike', last_name='Spiegel', email=addresses[0]),
-                    create_contact(first_name='Jet',   last_name='Black',   email=addresses[1]),
-                   ]
-        deleted_contact = create_contact(first_name='Ed', last_name='Wong',
-                                         email='ew@bebop.com', is_deleted=True,
-                                        )
+        contacts = [
+            create_contact(first_name='Spike', last_name='Spiegel', email=addresses[0]),
+            create_contact(first_name='Jet',   last_name='Black',   email=addresses[1]),
+        ]
+        deleted_contact = create_contact(
+            first_name='Ed', last_name='Wong', email='ew@bebop.com', is_deleted=True,
+        )
 
         mlist01.contacts.add(contacts[0])
         mlist02.contacts.add(contacts[0])
@@ -225,16 +232,17 @@ class SendingsTestCase(_EmailsTestCase):
         mlist02.contacts.add(deleted_contact)
 
         create_orga = partial(Organisation.objects.create, user=user)
-        orgas = [create_orga(name='NERV',  email=addresses[5]),
-                 create_orga(name='Seele', email=addresses[6]),
-                ]
+        orgas = [
+            create_orga(name='NERV',  email=addresses[5]),
+            create_orga(name='Seele', email=addresses[6]),
+        ]
 
         mlist02.organisations.add(orgas[0])
         mlist03.organisations.add(orgas[0])
         mlist03.organisations.add(orgas[1])
 
         subject = 'SUBJECT'
-        body    = 'BODYYYYYYYYYYY'
+        body = 'BODYYYYYYYYYYY'
         template = EmailTemplate.objects.create(
             user=user, name='My template', subject=subject, body=body,
         )
@@ -332,16 +340,17 @@ class SendingsTestCase(_EmailsTestCase):
 
     @skipIfCustomContact
     def test_create02(self):
-        "Test template"
+        "Test template."
         user = self.login()
         first_name = 'Spike'
         last_name  = 'Spiegel'
 
         camp    = EmailCampaign.objects.create(user=user, name='camp01')
         mlist   = MailingList.objects.create(user=user, name='ml01')
-        contact = Contact.objects.create(user=user, first_name=first_name,
-                                         last_name=last_name, email='spike.spiegel@bebop.com',
-                                        )
+        contact = Contact.objects.create(
+            user=user, first_name=first_name,
+            last_name=last_name, email='spike.spiegel@bebop.com',
+        )
 
         camp.mailing_lists.add(mlist)
         mlist.contacts.add(contact)
@@ -349,15 +358,17 @@ class SendingsTestCase(_EmailsTestCase):
         subject = 'Hello'
         body    = 'Your first name is: {{first_name}} !'
         body_html = '<p>Your last name is: {{last_name}} !</p>'
-        template = EmailTemplate.objects.create(user=user, name='name', subject=subject,
-                                                body=body, body_html=body_html,
-                                               )
-        response = self.client.post(self._build_add_url(camp),
-                                    data={'sender':   'vicious@reddragons.mrs',
-                                          'type':     SENDING_TYPE_IMMEDIATE,
-                                          'template': template.id,
-                                         },
-                                   )
+        template = EmailTemplate.objects.create(
+            user=user, name='name', subject=subject, body=body, body_html=body_html,
+        )
+        response = self.client.post(
+            self._build_add_url(camp),
+            data={
+                'sender':   'vicious@reddragons.mrs',
+                'type':     SENDING_TYPE_IMMEDIATE,
+                'template': template.id,
+            },
+        )
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -395,7 +406,7 @@ class SendingsTestCase(_EmailsTestCase):
     @skipIfCustomOrganisation
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):
-        "Job + outbox"
+        "Job + outbox."
         queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
@@ -424,13 +435,14 @@ class SendingsTestCase(_EmailsTestCase):
         mlist.organisations.add(orga1, orga2)
 
         sender = 'vicious@reddragons.mrs'
-        response = self.client.post(self._build_add_url(camp),
-                                    data={'sender':   sender,
-                                          'type':     SENDING_TYPE_IMMEDIATE,
-                                          'template': template.id,
-                                         },
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(camp),
+            data={
+                'sender':   sender,
+                'type':     SENDING_TYPE_IMMEDIATE,
+                'template': template.id,
+            },
+        ))
         self.assertFalse(django_mail.outbox)
         self.assertIs(job.type.next_wakeup(job, now_value), now_value)
 
@@ -453,7 +465,7 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(template.subject, message.subject)
         self.assertEqual(template.body,    message.body)
         self.assertEqual(sender,           message.from_email)
-        self.assertEqual([('', 'text/html')], message.alternatives)
+        self.assertListEqual([('', 'text/html')], message.alternatives)
         self.assertFalse(message.attachments)
 
         self.assertSetEqual(
@@ -472,7 +484,7 @@ class SendingsTestCase(_EmailsTestCase):
     def test_create04(self):
         "Test deferred"
         user = self.login()
-        camp     = EmailCampaign.objects.create(user=user, name='camp01')
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(
             user=user, name='name', subject='subject', body='body',
         )
@@ -480,10 +492,11 @@ class SendingsTestCase(_EmailsTestCase):
         now_value = now()
         sending_date = now_value + timedelta(weeks=1)
         naive_sending_date = make_naive(sending_date, get_current_timezone())
-        data = {'sender':   'vicious@reddragons.mrs',
-                'type':     SENDING_TYPE_DEFERRED,
-                'template': template.id,
-               }
+        data = {
+            'sender':   'vicious@reddragons.mrs',
+            'type':     SENDING_TYPE_DEFERRED,
+            'template': template.id,
+        }
 
         post = partial(self.client.post, self._build_add_url(camp))
         self.assertNoFormError(post(
@@ -505,9 +518,10 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertIsNotNone(wakeup)
         self.assertDatetimesAlmostEqual(sending.sending_date, wakeup)
 
-        self.assertFormError(post(data=data), 'form', 'sending_date',
-                             _('Sending date required for a deferred sending')
-                            )
+        self.assertFormError(
+            post(data=data), 'form', 'sending_date',
+            _('Sending date required for a deferred sending')
+        )
 
         msg = _('Sending date must be is the future')
         self.assertFormError(
@@ -526,9 +540,9 @@ class SendingsTestCase(_EmailsTestCase):
         )
 
     def test_create05(self):
-        "Test deferred (today)"
+        "Test deferred (today)."
         user = self.login()
-        camp     = EmailCampaign.objects.create(user=user, name='camp01')
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(
             user=user, name='name', subject='subject', body='body',
         )
@@ -537,10 +551,11 @@ class SendingsTestCase(_EmailsTestCase):
         sending_date = now_dt + timedelta(hours=1)  # Today if we run the test before 23h...
 
         naive_sending_date = make_naive(sending_date, get_current_timezone())
-        data = {'sender':   'vicious@reddragons.mrs',
-                'type':     SENDING_TYPE_DEFERRED,
-                'template': template.id,
-               }
+        data = {
+            'sender':   'vicious@reddragons.mrs',
+            'type':     SENDING_TYPE_DEFERRED,
+            'template': template.id,
+        }
 
         post = partial(self.client.post, self._build_add_url(camp))
         self.assertNoFormError(post(
@@ -558,20 +573,21 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertDatetimesAlmostEqual(sending_date, sending.sending_date, seconds=60)
 
     def test_create06(self):
-        "Body with variables"
+        "Body with variables."
         user = self.login()
 
-        camp     = EmailCampaign.objects.create(user=user, name='camp01')
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(
             user=user, name='name', subject='subject',
             body='Hello {{first_name}} {{last_name}} !',
             body_html='<b>Hello</b> {{first_name}} {{last_name}} !',
         )
 
-        mlist    = MailingList.objects.create(user=user, name='ml01')
-        contact  = Contact.objects.create(user=user, email='spike.spiegel@bebop.com',
-                                          first_name='Spike', last_name='Spiegel',
-                                         )
+        mlist = MailingList.objects.create(user=user, name='ml01')
+        contact = Contact.objects.create(
+            user=user, email='spike.spiegel@bebop.com',
+            first_name='Spike', last_name='Spiegel',
+        )
         camp.mailing_lists.add(mlist)
         mlist.contacts.add(contact)
 
@@ -590,9 +606,10 @@ class SendingsTestCase(_EmailsTestCase):
 
         message = messages[0]
         self.assertEqual('Hello Spike Spiegel !', message.body)
-        self.assertEqual([('<b>Hello</b> Spike Spiegel !', 'text/html')],
-                         message.alternatives
-                        )
+        self.assertListEqual(
+            [('<b>Hello</b> Spike Spiegel !', 'text/html')],
+            message.alternatives
+        )
 
     def test_create07(self):
         "No related to a campaign => error"
@@ -603,21 +620,21 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_view_lw_email01(self):
         "Not super-user"
-        user = self.login(is_superuser=False,
-                          creatable_models=(EmailSending, EmailCampaign),
-                         )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         camp = EmailCampaign.objects.create(user=user, name='Camp#1')
-        sending = EmailSending.objects.create(sender='vicious@reddragons.mrs',
-                                              campaign=camp,
-                                              sending_date=now(),
-                                              body='My body is ready',
-                                              body_html='My body is <b>ready</b>',
-                                             )
+        sending = EmailSending.objects.create(
+            sender='vicious@reddragons.mrs',
+            campaign=camp,
+            sending_date=now(),
+            body='My body is ready',
+            body_html='My body is <b>ready</b>',
+        )
 
         lw_mail = LightWeightEmail(sending=sending)
         lw_mail.genid_n_save()
@@ -636,21 +653,21 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_view_lw_email02(self):
         "Cannot view the campaign => error."
-        user = self.login(is_superuser=False,
-                          creatable_models=(EmailSending, EmailCampaign),
-                         )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         camp = EmailCampaign.objects.create(user=self.other_user, name='Camp#1')
         self.assertFalse(user.has_perm_to_view(camp))
 
-        sending = EmailSending.objects.create(sender='vicious@reddragons.mrs',
-                                              campaign=camp,
-                                              sending_date=now(),
-                                             )
+        sending = EmailSending.objects.create(
+            sender='vicious@reddragons.mrs',
+            campaign=camp,
+            sending_date=now(),
+        )
 
         lw_mail = LightWeightEmail(sending=sending)
         lw_mail.genid_n_save()
@@ -661,21 +678,21 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_reload_sending_bricks01(self):
         "Not super-user."
-        user = self.login(is_superuser=False,
-                          creatable_models=(EmailSending, EmailCampaign),
-                         )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         camp = EmailCampaign.objects.create(user=user, name='Camp#1')
-        sending = EmailSending.objects.create(sender='vicious@reddragons.mrs',
-                                              campaign=camp,
-                                              sending_date=now(),
-                                              body='My body is ready',
-                                              body_html='My body is <b>ready</b>',
-                                             )
+        sending = EmailSending.objects.create(
+            sender='vicious@reddragons.mrs',
+            campaign=camp,
+            sending_date=now(),
+            body='My body is ready',
+            body_html='My body is <b>ready</b>',
+        )
 
         url = reverse('emails__reload_sending_bricks', args=(sending.id,))
         self.assertGET404(url)  # No brick ID
@@ -697,29 +714,33 @@ class SendingsTestCase(_EmailsTestCase):
     def test_reload_sending_bricks02(self):
         "Can not see the campaign"
         self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         camp = EmailCampaign.objects.create(user=self.other_user, name='Camp#1')
-        sending = EmailSending.objects.create(sender='vicious@reddragons.mrs',
-                                              campaign=camp,
-                                              sending_date=now(),
-                                              body='My body is ready',
-                                              body_html='My body is <b>ready</b>',
-                                             )
+        sending = EmailSending.objects.create(
+            sender='vicious@reddragons.mrs',
+            campaign=camp,
+            sending_date=now(),
+            body='My body is ready',
+            body_html='My body is <b>ready</b>',
+        )
 
-        self.assertGET403(reverse('emails__reload_sending_bricks', args=(sending.id,)),
-                          data={'brick_id': MailsBrick.id_}
-                         )
+        self.assertGET403(
+            reverse('emails__reload_sending_bricks', args=(sending.id,)),
+            data={'brick_id': MailsBrick.id_}
+        )
 
     def test_inneredit(self):
         user = self.login()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
-        sending = EmailSending.objects.create(campaign=camp, type=SENDING_TYPE_IMMEDIATE,
-                                              sending_date=now(), state=SENDING_STATE_PLANNED,
-                                             )
+        sending = EmailSending.objects.create(
+            campaign=camp, type=SENDING_TYPE_IMMEDIATE,
+            sending_date=now(), state=SENDING_STATE_PLANNED,
+        )
 
         build_url = self.build_inneredit_url
         self.assertGET(400, build_url(sending, 'campaign'))
@@ -735,15 +756,16 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertGET(400, build_url(sending, 'sending_date'))
 
     def test_next_wakeup01(self):
-        "Several deferred sendings"
+        "Several deferred sendings."
         user = self.login()
         job = self._get_job()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
 
         now_value = now()
-        create_sending = partial(EmailSending.objects.create, campaign=camp,
-                                 type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
-                                )
+        create_sending = partial(
+            EmailSending.objects.create, campaign=camp,
+            type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+        )
         create_sending(sending_date=now_value + timedelta(weeks=2))
         sending1 = create_sending(sending_date=now_value + timedelta(weeks=1))
         create_sending(sending_date=now_value + timedelta(weeks=3))
@@ -753,22 +775,23 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertDatetimesAlmostEqual(sending1.sending_date, wakeup)
 
     def test_next_wakeup02(self):
-        "A deferred sending with passed sending_date"
+        "A deferred sending with passed sending_date."
         self.login()
         job = self._get_job()
         camp = EmailCampaign.objects.create(user=self.user, name='camp01')
         now_value = now()
 
-        EmailSending.objects.create(campaign=camp,
-                                    type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
-                                    sending_date=now_value - timedelta(hours=1),
-                                   )
+        EmailSending.objects.create(
+            campaign=camp,
+            type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+            sending_date=now_value - timedelta(hours=1),
+        )
 
         self.assertLess(job.type.next_wakeup(job, now_value), now_value)
 
     @skipIfCustomContact
     def test_job(self):
-        "Deleted campaign"
+        "Deleted campaign."
         user = self.login()
         job = self._get_job()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
@@ -785,12 +808,14 @@ class SendingsTestCase(_EmailsTestCase):
         mlist.contacts.add(contact)
 
         sender = 'vicious@reddragons.mrs'
-        response = self.client.post(self._build_add_url(camp),
-                                    data={'sender':   sender,
-                                          'type':     SENDING_TYPE_IMMEDIATE,
-                                          'template': template.id,
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(camp),
+            data={
+                'sender':   sender,
+                'type':     SENDING_TYPE_IMMEDIATE,
+                'template': template.id,
+            },
+        )
         self.assertNoFormError(response)
         self.assertFalse(django_mail.outbox)
 
@@ -801,15 +826,16 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertFalse(django_mail.outbox)
 
     def test_refresh_job01(self):
-        "Restore campaign with sending which has to be sent"
+        "Restore campaign with sending which has to be sent."
         self.login()
         job = self._get_job()
         camp = EmailCampaign.objects.create(user=self.user, name='camp01', is_deleted=True)
 
-        EmailSending.objects.create(campaign=camp,
-                                    type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
-                                    sending_date=now() - timedelta(hours=1),
-                                   )
+        EmailSending.objects.create(
+            campaign=camp,
+            type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+            sending_date=now() - timedelta(hours=1),
+        )
 
         queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
@@ -822,14 +848,15 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(job, jobs[0][0])
 
     def test_refresh_job02(self):
-        "Restore campaign with sending which does not have to be sent"
+        "Restore campaign with sending which does not have to be sent."
         self.login()
         camp = EmailCampaign.objects.create(user=self.user, name='camp01', is_deleted=True)
 
-        EmailSending.objects.create(campaign=camp,
-                                    type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_DONE,
-                                    sending_date=now() - timedelta(hours=1),
-                                   )
+        EmailSending.objects.create(
+            campaign=camp,
+            type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_DONE,
+            sending_date=now() - timedelta(hours=1),
+        )
 
         queue = JobSchedulerQueue.get_main_queue()
         queue.clear()

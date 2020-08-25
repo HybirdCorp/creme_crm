@@ -80,11 +80,13 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGET200(url)
 
         name += '_edited'
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.pk,
-                                          'name': name,
-                                         },
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(mlist).name)
 
@@ -109,9 +111,10 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('New mailing lists for «{entity}»').format(entity=campaign),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New mailing lists for «{entity}»').format(entity=campaign),
+            context.get('title')
+        )
         self.assertEqual(_('Link the mailing lists'), context.get('submit_label'))
 
         # ----
@@ -147,27 +150,30 @@ class MailingListsTestCase(_EmailsTestCase):
         campaign = EmailCampaign.objects.create(user=user, name='camp')
         campaign.mailing_lists.set([mlist01, mlist02])
 
-        self.assertPOST200(self._build_remove_from_campaign(campaign),
-                           follow=True, data={'id': mlist01.id},
-                          )
+        self.assertPOST200(
+            self._build_remove_from_campaign(campaign),
+            follow=True, data={'id': mlist01.id},
+        )
         self.assertListEqual([mlist02], [*campaign.mailing_lists.all()])
 
     def test_ml_and_campaign03(self):
         "Not allowed to change the campaign."
         user = self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,  # Not CHANGE
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,  # Not CHANGE
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         mlist = MailingList.objects.create(user=user, name='Ml01')
 
         campaign = EmailCampaign.objects.create(user=user, name='camp')
         campaign.mailing_lists.add(mlist)
 
-        self.assertPOST403(self._build_remove_from_campaign(campaign),
-                           follow=True, data={'id': mlist.id},
-                          )
+        self.assertPOST403(
+            self._build_remove_from_campaign(campaign),
+            follow=True, data={'id': mlist.id},
+        )
 
     def test_detect_end_line(self):
         from creme.emails.forms.recipient import _detect_end_line
@@ -209,9 +215,10 @@ class MailingListsTestCase(_EmailsTestCase):
         url = reverse('emails__add_recipients', args=(mlist.id,))
 
         context = self.assertGET200(url).context
-        self.assertEqual(_('New recipients for «{entity}»').format(entity=mlist),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New recipients for «{entity}»').format(entity=mlist),
+            context.get('title')
+        )
         self.assertEqual(EmailRecipient.multi_save_label, context.get('submit_label'))
 
         # --------------------
@@ -298,9 +305,10 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('New contacts for «{entity}»').format(entity=mlist),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New contacts for «{entity}»').format(entity=mlist),
+            context.get('title')
+        )
         self.assertEqual(_('Link the contacts'), context.get('submit_label'))
 
         create = partial(Contact.objects.create, user=user)
@@ -315,13 +323,16 @@ class MailingListsTestCase(_EmailsTestCase):
             data={'recipients': '[{}]'.format(','.join(str(c.id) for c in recipients))},
         )
         self.assertNoFormError(response)
-        self.assertEqual({c.id for c in recipients}, {c.id for c in mlist.contacts.all()})
+        self.assertSetEqual(
+            {c.id for c in recipients}, {c.id for c in mlist.contacts.all()},
+        )
 
         # --------------------
         contact_to_del = recipients[0]
-        self.client.post(reverse('emails__remove_contact_from_mlist', args=(mlist.id,)),
-                         data={'id': contact_to_del.id},
-                        )
+        self.client.post(
+            reverse('emails__remove_contact_from_mlist', args=(mlist.id,)),
+            data={'id': contact_to_del.id},
+        )
 
         contacts = {*mlist.contacts.all()}
         self.assertEqual(len(recipients) - 1, len(contacts))
@@ -356,9 +367,10 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('New contacts for «{entity}»').format(entity=mlist),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New contacts for «{entity}»').format(entity=mlist),
+            context.get('title')
+        )
         self.assertEqual(_('Link the contacts'), context.get('submit_label'))
 
         create = partial(Contact.objects.create, user=user)
@@ -376,10 +388,11 @@ class MailingListsTestCase(_EmailsTestCase):
         "With a real EntityFilter."
         user = self.login()
         create = partial(Contact.objects.create, user=user)
-        recipients = [create(first_name='Ranma', last_name='Saotome'),
-                      create(first_name='Genma', last_name='Saotome'),
-                      create(first_name='Akane', last_name='Tendô'),
-                     ]
+        recipients = [
+            create(first_name='Ranma', last_name='Saotome'),
+            create(first_name='Genma', last_name='Saotome'),
+            create(first_name='Akane', last_name='Tendô'),
+        ]
         expected_ids = {recipients[0].id, recipients[1].id}
 
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -456,9 +469,10 @@ class MailingListsTestCase(_EmailsTestCase):
         mlist = MailingList.objects.create(user=user, name='ml01')
         mlist.contacts.add(contact)
 
-        self.assertPOST403(reverse('emails__remove_contact_from_mlist', args=(mlist.id,)),
-                           data={'id': contact.id}, follow=True,
-                          )
+        self.assertPOST403(
+            reverse('emails__remove_contact_from_mlist', args=(mlist.id,)),
+            data={'id': contact.id}, follow=True,
+        )
 
     @skipIfCustomOrganisation
     def test_ml_orgas01(self):
@@ -470,15 +484,17 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('New organisations for «{entity}»').format(entity=mlist),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New organisations for «{entity}»').format(entity=mlist),
+            context.get('title')
+        )
         self.assertEqual(_('Link the organisations'), context.get('submit_label'))
 
         create = partial(Organisation.objects.create, user=user)
-        recipients = [create(name='NERV',  email='contact@nerv.jp'),
-                      create(name='Seele', email='contact@seele.jp'),
-                     ]
+        recipients = [
+            create(name='NERV',  email='contact@nerv.jp'),
+            create(name='Seele', email='contact@seele.jp'),
+        ]
         response = self.client.post(
             url,
             data={'recipients': self.formfield_value_multi_creator_entity(*recipients)},
@@ -491,9 +507,10 @@ class MailingListsTestCase(_EmailsTestCase):
 
         # --------------------
         orga_to_del = recipients[0]
-        self.client.post(reverse('emails__remove_orga_from_mlist', args=(mlist.id,)),
-                         data={'id': orga_to_del.id}
-                        )
+        self.client.post(
+            reverse('emails__remove_orga_from_mlist', args=(mlist.id,)),
+            data={'id': orga_to_del.id}
+        )
 
         orgas = {*mlist.organisations.all()}
         self.assertEqual(len(recipients) - 1, len(orgas))
@@ -528,9 +545,10 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('New organisations for «{entity}»').format(entity=mlist),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New organisations for «{entity}»').format(entity=mlist),
+            context.get('title')
+        )
         self.assertEqual(_('Link the organisations'), context.get('submit_label'))
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -549,10 +567,11 @@ class MailingListsTestCase(_EmailsTestCase):
         mlist = MailingList.objects.create(user=user, name='ml01')
 
         create = partial(Organisation.objects.create, user=self.user)
-        recipients = [create(name='NERV',  email='contact@nerv.jp'),
-                      create(name='Seele', email='contact@seele.jp'),
-                      create(name='Bebop'),
-                     ]
+        recipients = [
+            create(name='NERV',  email='contact@nerv.jp'),
+            create(name='Seele', email='contact@seele.jp'),
+            create(name='Bebop'),
+        ]
         expected_ids = {recipients[0].id, recipients[1].id}
 
         create_ef = partial(
@@ -618,20 +637,22 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('New child list for «{entity}»').format(entity=mlist01),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New child list for «{entity}»').format(entity=mlist01),
+            context.get('title')
+        )
         self.assertEqual(_('Link the mailing list'), context.get('submit_label'))
 
         # --------------------
         self.assertPOST200(url, data={'child': mlist02.id})
-        self.assertEqual([mlist02.id], [ml.id for ml in mlist01.children.all()])
+        self.assertListEqual([mlist02.id], [ml.id for ml in mlist01.children.all()])
         self.assertFalse(mlist02.children.exists())
 
         # --------------------
-        self.assertPOST200(reverse('emails__remove_child_mlist', args=(mlist01.id,)),
-                           data={'id': mlist02.id}, follow=True,
-                          )
+        self.assertPOST200(
+            reverse('emails__remove_child_mlist', args=(mlist01.id,)),
+            data={'id': mlist02.id}, follow=True,
+        )
         self.assertFalse(mlist01.children.exists())
         self.assertFalse(mlist02.children.exists())
 

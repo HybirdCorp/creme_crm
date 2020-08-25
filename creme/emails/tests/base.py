@@ -64,15 +64,16 @@ class _EmailsTestCase(CremeTestCase):
 
     def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html='', signature=None):
         user = self.user
-        return EntityEmail.objects.create(user=user,
-                                          sender=user.linked_contact.email,
-                                          recipient='vincent.law@immigrates.rmd',
-                                          subject='Under arrest',
-                                          body='Freeze !',
-                                          status=status,
-                                          body_html=body_html,
-                                          signature=signature,
-                                         )
+        return EntityEmail.objects.create(
+            user=user,
+            sender=user.linked_contact.email,
+            recipient='vincent.law@immigrates.rmd',
+            subject='Under arrest',
+            body='Freeze !',
+            status=status,
+            body_html=body_html,
+            signature=signature,
+        )
 
     def _create_emails(self):
         if persons.contact_model_is_custom():

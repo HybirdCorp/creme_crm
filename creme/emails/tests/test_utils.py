@@ -75,17 +75,16 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         self.assertFalse(message.attachments)
 
     def test_sender02(self):
-        "Signature (with images)"
+        "Signature (with images)."
         user = self.login()
 
         create_img = self._create_image
         img1 = create_img(title='My image#1', ident=1)
         img2 = create_img(title='My image#2', ident=2)
 
-        signature = EmailSignature.objects.create(user=user,
-                                                  name='Funny signature',
-                                                  body='I love you... not',
-                                                 )
+        signature = EmailSignature.objects.create(
+            user=user, name='Funny signature', body='I love you... not',
+        )
         signature.images.set([img1, img2])
 
         body = 'Want to meet you'

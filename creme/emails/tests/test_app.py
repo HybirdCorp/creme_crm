@@ -36,7 +36,7 @@ class EmailsTestCase(_EmailsTestCase):
 
         # fconf = FieldsConfig.create(Contact)
         fconf = FieldsConfig.objects.create(content_type=Contact, descriptions=[])
-        self.assertEqual([], fconf.errors_on_hidden)
+        self.assertListEqual([], fconf.errors_on_hidden)
 
         fconf.descriptions = [('email', {FieldsConfig.HIDDEN: True})]
         fconf.save()

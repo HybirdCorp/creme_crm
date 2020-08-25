@@ -205,7 +205,7 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         with self.assertNoException():
             recipients = {r.strip() for r in e_email.recipient.split(',')}
 
-        self.assertEqual({user.email, email.tos[0], email.tos[1]}, recipients)
+        self.assertSetEqual({user.email, email.tos[0], email.tos[1]}, recipients)
 
         history = self.get_object_or_fail(History, entity=e_email.id)
         self.assertEqual('create',      history.action)
