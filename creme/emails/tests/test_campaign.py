@@ -15,12 +15,14 @@ class CampaignTestCase(_EmailsTestCase):
         url = reverse('emails__create_campaign')
         self.assertGET200(url)
 
-        name     = 'my_campaign'
-        response = self.client.post(url, follow=True,
-                                    data={'user': self.user.pk,
-                                          'name': name,
-                                         }
-                                   )
+        name = 'my_campaign'
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user': self.user.pk,
+                'name': name,
+            },
+        )
         self.assertNoFormError(response)
         self.get_object_or_fail(EmailCampaign, name=name)
 
@@ -32,11 +34,14 @@ class CampaignTestCase(_EmailsTestCase):
         self.assertGET200(url)
 
         name += '_edited'
-        response = self.client.post(url, follow=True,
-                                    data={'user': self.user.pk,
-                                          'name': name,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user': self.user.pk,
+                'name': name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(camp).name)
 

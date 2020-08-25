@@ -264,9 +264,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         "Required CustomFields."
         user = self.login()
 
-        create_cf = partial(CustomField.objects.create,
-                            content_type=EntityEmail,
-                           )
+        create_cf = partial(CustomField.objects.create, content_type=EntityEmail)
         cf1 = create_cf(field_type=CustomField.STR, name='Comment')
         cf2 = create_cf(field_type=CustomField.INT, name='Business ID', is_required=True)
 
@@ -292,12 +290,14 @@ class EntityEmailTestCase(_EmailsTestCase):
         user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
-        contact01 = create_contact(first_name='Vincent', last_name='Law',
-                                   email='vincent.law@immigrates',  # Invalid
-                                  )
-        contact02 = create_contact(first_name='Pino', last_name='AutoReiv',
-                                   email='pino@autoreivs.rmd',  # Ok
-                                  )
+        contact01 = create_contact(
+            first_name='Vincent', last_name='Law',
+            email='vincent.law@immigrates',  # Invalid
+        )
+        contact02 = create_contact(
+            first_name='Pino', last_name='AutoReiv',
+            email='pino@autoreivs.rmd',  # OK
+        )
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='Venus gate', email='contact/venusgate.jp')  # Invalid
@@ -396,9 +396,9 @@ class EntityEmailTestCase(_EmailsTestCase):
         )
 
         create_orga = Organisation.objects.create
-        orga01 = create_orga(user=self.other_user, name='Venus gate',
-                             email='contact@venusgate.jp',
-                            )
+        orga01 = create_orga(
+            user=self.other_user, name='Venus gate', email='contact@venusgate.jp',
+        )
         orga02 = create_orga(user=user, name='Nerv', email='contact@nerv.jp')
 
         self.assertTrue(user.has_perm_to_view(contact01))
@@ -555,9 +555,9 @@ class EntityEmailTestCase(_EmailsTestCase):
         EmailBackend.send_messages = send_messages
 
         recipient = 'vincent.law@immigrates.rmd'
-        contact = Contact.objects.create(user=user, first_name='Vincent',
-                                         last_name='Law', email=recipient,
-                                        )
+        contact = Contact.objects.create(
+            user=user, first_name='Vincent', last_name='Law', email=recipient,
+        )
 
         sender = user.linked_contact.email
         response = self.client.post(
@@ -626,12 +626,12 @@ class EntityEmailTestCase(_EmailsTestCase):
                 'body_html':    '<p>Freeze !</p>',
             },
         )
-        self.assertFormError(response, 'form', 'c_recipients',
-                             _('This entity does not exist.')
-                            )
-        self.assertFormError(response, 'form', 'o_recipients',
-                             _('This entity does not exist.')
-                            )
+        self.assertFormError(
+            response, 'form', 'c_recipients', _('This entity does not exist.')
+        )
+        self.assertFormError(
+            response, 'form', 'o_recipients', _('This entity does not exist.')
+        )
 
     @skipIfCustomEmailTemplate
     @skipIfCustomContact
@@ -676,11 +676,13 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         # ---
         step_key = 'entity_email_wizard-current_step'
-        response = self.client.post(url,
-                                    data={step_key: '0',
-                                          '0-template': template.id,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                step_key: '0',
+                '0-template': template.id,
+            },
+        )
         self.assertNoFormError(response)
 
         context = response.context
@@ -790,9 +792,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertGET200(url)
 
         context = response.context
-        self.assertEqual(_('Link «{entity}» to emails').format(entity=contact),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Link «{entity}» to emails').format(entity=contact),
+            context.get('title')
+        )
         self.assertEqual(_('Save the relationships'), context.get('submit_label'))
 
         with self.assertNoException():

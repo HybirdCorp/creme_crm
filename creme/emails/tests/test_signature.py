@@ -61,21 +61,21 @@ class SignaturesTestCase(_EmailsTestCase):
     # TODO: edit with images....
 
     def test_edit02(self):
-        "'perm' error"
+        "'perm' error."
         self.login(is_superuser=False)
 
-        signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature',
-                                                  body='I love you... not',
-                                                 )
+        signature = EmailSignature.objects.create(
+            user=self.other_user, name='Funny signature', body='I love you... not',
+        )
         self.assertGET403(signature.get_edit_absolute_url())
 
     def test_edit03(self):
-        "Superuser can edit all signatures"
+        "Superuser can edit all signatures."
         self.login()
 
-        signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature',
-                                                  body='I love you... not',
-                                                 )
+        signature = EmailSignature.objects.create(
+            user=self.other_user, name='Funny signature', body='I love you... not',
+        )
         self.assertGET200(signature.get_edit_absolute_url())
 
     def _delete(self, signature):
@@ -86,25 +86,25 @@ class SignaturesTestCase(_EmailsTestCase):
     def test_delete01(self):
         user = self.login()
 
-        signature = EmailSignature.objects.create(user=user, name="Spike's one",
-                                                  body='See U space cowboy',
-                                                 )
+        signature = EmailSignature.objects.create(
+            user=user, name="Spike's one", body='See U space cowboy',
+        )
         self.assertEqual(200, self._delete(signature).status_code)
         self.assertDoesNotExist(signature)
 
     def test_delete02(self):
-        "'perm' error"
+        "'perm' error."
         self.login(is_superuser=False)
 
-        signature = EmailSignature.objects.create(user=self.other_user, name="Spike's one",
-                                                  body='See U space cowboy',
-                                                 )
+        signature = EmailSignature.objects.create(
+            user=self.other_user, name="Spike's one", body='See U space cowboy',
+        )
         self.assertEqual(403, self._delete(signature).status_code)
         self.assertEqual(1, EmailSignature.objects.filter(pk=signature.id).count())
 
     @skipIfCustomEmailTemplate
     def test_delete03(self):
-        "Dependencies problem"
+        "Dependencies problem."
         user = self.login()
 
         signature = EmailSignature.objects.create(
