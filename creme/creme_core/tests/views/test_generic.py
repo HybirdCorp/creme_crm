@@ -11,9 +11,14 @@ from django.utils.translation import gettext as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.constants import MODELBRICK_ID
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import (
     CremePropertyType,
+    CustomFormConfigItem,
+    FakeActivity,
+    FakeActivityType,
     FakeAddress,
     FakeContact,
     FakeOrganisation,
@@ -21,6 +26,9 @@ from creme.creme_core.models import (
     RelationType,
     SemiFixedRelationType,
     SetCredentials,
+)
+from creme.creme_core.tests.fake_custom_forms import (
+    FAKEACTIVITY_CREATION_CFORM,
 )
 
 from .. import fake_forms
@@ -30,11 +38,11 @@ from .base import BrickTestCaseMixin, ViewsTestCase
 class MiscTestCase(ViewsTestCase):
     def test_placeholder_view01(self):
         self.login()
-        response = self.client.get(reverse('creme_core__fake_removed_view', args=(1,)))
+        response = self.client.get(reverse('creme_core__fake_removed_view', args=[1]))
         self.assertContains(response, 'Custom error message', status_code=409)
 
     def test_placeholder_view02(self):
-        "Not logged"
+        "Not logged."
         url = reverse('creme_core__fake_removed_view', args=(1,))
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
@@ -81,32 +89,38 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.get_brick_node(tree, MODELBRICK_ID)
 
     def test_detail02(self):
-        "Object does not exist"
+        "Object does not exist."
         self.login()
 
         response = self.assertGET404(
-            reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,))
+            reverse('creme_core__view_fake_contact', args=[self.UNUSED_PK]),
         )
         self.assertTemplateUsed(response, '404.html')
 
     def test_detail03(self):
-        "Not super-user"
+        "Not super-user."
         user = self.login(is_superuser=False)
-        fox = FakeContact.objects.create(user=user, first_name='Fox', last_name='McCloud')
+        fox = FakeContact.objects.create(
+            user=user, first_name='Fox', last_name='McCloud',
+        )
         self.assertGET200(fox.get_absolute_url())
 
     def test_detail04(self):
-        "Not logged"
+        "Not logged."
         user = self.login()
-        fox = FakeContact.objects.create(user=user, first_name='Fox', last_name='McCloud')
+        fox = FakeContact.objects.create(
+            user=user, first_name='Fox', last_name='McCloud',
+        )
         url = fox.get_absolute_url()
 
         self.client.logout()
         response = self.assertGET(302, url)
-        self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
+        self.assertRedirects(
+            response, '{}?next={}'.format(reverse('creme_login'), url),
+        )
 
     def test_detail05(self):
-        "Viewing is not allowed (model credentials)"
+        "Viewing is not allowed (model credentials)."
         self.login(is_superuser=False)
         fox = FakeContact.objects.create(
             user=self.other_user, first_name='Fox', last_name='McCloud',
@@ -120,22 +134,22 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
                     _('Entity #{id} (not viewable)').format(id=fox.id)
                 )
             ),
-            response.content.decode()
+            response.content.decode(),
         )
 
     def test_detail06(self):
-        "Viewing is not allowed (app credentials)"
+        "Viewing is not allowed (app credentials)."
         # NB: not need to create an instance, the "app" permission must be
         #     checked before the SQL query.
-        self.login(is_superuser=False, allowed_apps=('creme_config',))  # Not "creme_core"
+        self.login(is_superuser=False, allowed_apps=['creme_config'])  # Not "creme_core"
 
         response = self.assertGET403(
-            reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,))
+            reverse('creme_core__view_fake_contact', args=[self.UNUSED_PK])
         )
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertIn(
             escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
-            response.content.decode()
+            response.content.decode(),
         )
 
 
@@ -154,19 +168,20 @@ class CreationTestCase(ViewsTestCase):
 
         count = FakeContact.objects.count()
         first_name = 'Spike'
-        last_name  = 'Spiegel'
-        response = self.client.post(url, follow=True,
-                                    data={'user':       user.id,
-                                          'first_name': first_name,
-                                          'last_name':  last_name,
-                                         },
-                                   )
+        last_name = 'Spiegel'
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':       user.id,
+                'first_name': first_name,
+                'last_name':  last_name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(count + 1, FakeContact.objects.count())
-        contact = self.get_object_or_fail(FakeContact,
-                                          first_name=first_name,
-                                          last_name=last_name,
-                                         )
+        contact = self.get_object_or_fail(
+            FakeContact, first_name=first_name, last_name=last_name,
+        )
         self.assertRedirects(response, contact.get_absolute_url())
 
         self.assertFalse(contact.properties.all())
@@ -181,12 +196,14 @@ class CreationTestCase(ViewsTestCase):
         response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
         self.assertEqual(lv_url, response.context.get('cancel_url'))
 
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.id,
-                                          # 'last_name': name,  # NB: Missing
-                                          'cancel_url': lv_url,
-                                         },
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user': user.id,
+                # 'last_name': name,  # NB: Missing
+                'cancel_url': lv_url,
+            },
+        )
         self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
         self.assertEqual(lv_url, response.context.get('cancel_url'))
 
@@ -198,11 +215,11 @@ class CreationTestCase(ViewsTestCase):
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertIn(
             escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
-            response.content.decode()
+            response.content.decode(),
         )
 
     def test_entity_creation04(self):
-        "Not creation credentials"
+        "Not creation credentials."
         self.login(is_superuser=False, creatable_models=[FakeOrganisation])  # Not FakeContact
 
         response = self.assertGET403(reverse('creme_core__create_fake_contact'))
@@ -226,12 +243,12 @@ class CreationTestCase(ViewsTestCase):
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_smokes',  text='Smokes')
         ptype02 = create_ptype(str_pk='test-prop_glasses', text='Wears glasses')
-        ptype03 = create_ptype(str_pk='test-prop_gun',     text='Has a gun',
-                               subject_ctypes=[FakeContact],
-                              )
-        ptype04 = create_ptype(str_pk='test-prop_ship', text='Is a ship',
-                               subject_ctypes=[FakeOrganisation],
-                              )
+        ptype03 = create_ptype(
+            str_pk='test-prop_gun', text='Has a gun', subject_ctypes=[FakeContact],
+        )
+        ptype04 = create_ptype(
+            str_pk='test-prop_ship', text='Is a ship', subject_ctypes=[FakeOrganisation],
+        )
 
         url = reverse('creme_core__create_fake_contact')
 
@@ -253,25 +270,26 @@ class CreationTestCase(ViewsTestCase):
 
         # POST ---
         first_name = 'Spike'
-        last_name  = 'Spiegel'
+        last_name = 'Spiegel'
         response = self.client.post(
             url,
             follow=True,
-            data={'user':       user.id,
-                  'first_name': first_name,
-                  'last_name':  last_name,
-                  'property_types': [ptype01.id, ptype03.id],
+            data={
+                'user':       user.id,
+                'first_name': first_name,
+                'last_name':  last_name,
+                'property_types': [ptype01.id, ptype03.id],
             },
         )
         self.assertNoFormError(response)
 
-        contact = self.get_object_or_fail(FakeContact,
-                                          first_name=first_name,
-                                          last_name=last_name,
-                                         )
-        self.assertSetEqual({ptype01, ptype03},
-                            {p.type for p in contact.properties.all()}
-                           )
+        contact = self.get_object_or_fail(
+            FakeContact, first_name=first_name, last_name=last_name,
+        )
+        self.assertSetEqual(
+            {ptype01, ptype03},
+            {p.type for p in contact.properties.all()},
+        )
 
     @override_settings(FORMS_RELATION_FIELDS=True)
     def test_entity_creation_relations(self):
@@ -286,22 +304,26 @@ class CreationTestCase(ViewsTestCase):
         orga2 = create_orga(user=user, name='Swordfish II')
 
         create_rtype = RelationType.create
-        rtype1 = create_rtype(('test-subject_loves', 'loves'),
-                              ('test-object_loves',  'is loved'),
-                             )[0]
-        rtype2 = create_rtype(('test-subject_pilots', 'pilots',     [FakeContact]),
-                              ('test-object_pilots',  'is piloted', [FakeOrganisation]),
-                             )[0]
+        rtype1 = create_rtype(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loves',  'is loved'),
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_pilots', 'pilots',     [FakeContact]),
+            ('test-object_pilots',  'is piloted', [FakeOrganisation]),
+        )[0]
 
         create_strt = SemiFixedRelationType.objects.create
-        sfrt1 = create_strt(predicate='Pilots the Swordfish',
-                            relation_type=rtype2,
-                            object_entity=orga2,
-                           )
-        sfrt2 = create_strt(predicate='Loves Faye',
-                            relation_type=rtype1,
-                            object_entity=contact2,
-                           )
+        sfrt1 = create_strt(
+            predicate='Pilots the Swordfish',
+            relation_type=rtype2,
+            object_entity=orga2,
+        )
+        sfrt2 = create_strt(
+            predicate='Loves Faye',
+            relation_type=rtype1,
+            object_entity=contact2,
+        )
 
         url = reverse('creme_core__create_fake_contact')
 
@@ -320,7 +342,7 @@ class CreationTestCase(ViewsTestCase):
 
         # POST ---
         first_name = 'Spike'
-        last_name  = 'Spiegel'
+        last_name = 'Spiegel'
         response = self.client.post(
             url,
             follow=True,
@@ -339,10 +361,9 @@ class CreationTestCase(ViewsTestCase):
         )
         self.assertNoFormError(response)
 
-        subject = self.get_object_or_fail(FakeContact,
-                                          first_name=first_name,
-                                          last_name=last_name,
-                                         )
+        subject = self.get_object_or_fail(
+            FakeContact, first_name=first_name, last_name=last_name,
+        )
 
         self.assertEqual(4, subject.relations.count())
         self.assertRelationCount(1, subject, rtype1, contact1)
@@ -363,6 +384,111 @@ class CreationTestCase(ViewsTestCase):
         self.assertNotIn('rtypes_info',      fields)
         self.assertNotIn('relation_types',   fields)
         self.assertNotIn('semifixed_rtypes', fields)
+
+    def test_entity_creation_customform01(self):
+        user = self.login()
+
+        url = reverse('creme_core__create_fake_activity')
+        self.assertGET200(url)
+
+        # TODO: test HTML
+
+        title = 'My activity'
+        place = 'Mars'
+        atype = FakeActivityType.objects.first()
+        # minutes = 'Alright'
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':        user.id,
+                'title':       title,
+                'description': 'Trip on Mars',  # should not be used see FAKEACTIVITY_CFORM
+                'type':        atype.id,
+                'place':       place,
+                # 'minutes':     minutes,
+
+                'cform_extra-fakeactivity_start': '26-08-2020',
+                'cform_extra-fakeactivity_end':   '26-09-2020',
+            },
+        ))
+
+        activity = self.get_object_or_fail(FakeActivity, title=title)
+        self.assertEqual(title,   activity.title)
+        self.assertEqual('',      activity.description)
+        self.assertEqual(place,   activity.place)
+        self.assertEqual(atype,   activity.type)
+        # self.assertEqual(minutes, activity.minutes)
+        self.assertEqual('',      activity.minutes)
+        self.assertEqual(
+            self.create_datetime(year=2020, month=8, day=26), activity.start,
+        )
+        self.assertEqual(
+            self.create_datetime(year=2020, month=9, day=26), activity.end,
+        )
+
+    def test_entity_creation_customform02(self):
+        user = self.login()
+
+        cfci = self.get_object_or_fail(
+            CustomFormConfigItem, cform_id=FAKEACTIVITY_CREATION_CFORM.id,
+        )
+        build_cell = partial(EntityCellRegularField.build, model=FakeActivity)
+        cfci.store_groups(
+            FieldGroupList(
+                model=FakeActivity,
+                cell_registry=FAKEACTIVITY_CREATION_CFORM.build_cell_registry(),
+                groups=[
+                    FieldGroup(
+                        name='My fields',
+                        cells=[
+                            *(
+                                build_cell(name=name)
+                                for name in ('user', 'title', 'place', 'type')
+                            ),
+                            fake_forms.FakeActivityStartSubCell().into_cell(),
+                            # fake_forms.FakeActivityEndSubCell().into_cell(),
+                        ],
+                    ),
+                ],
+            )
+        )
+        cfci.save()
+
+        url = reverse('creme_core__create_fake_activity')
+        self.assertGET200(url)
+
+        # TODO: test HTML (or in model tests ?)
+
+        title = 'My meeting'
+        place = 'Mars capital'
+        atype = FakeActivityType.objects.get(name='Meeting')
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':  user.id,
+                'title': title,
+                'place': place,
+                'type':  atype.id,
+
+                'cform_extra-fakeactivity_start': '28-09-2020',
+
+                # Should not be used
+                'cform_extra-fakeactivity_end': '30-09-2020',
+                'minutes': 'Should not be used',
+            },
+        ))
+
+        activity = self.get_object_or_fail(FakeActivity, title=title)
+        self.assertEqual(title, activity.title)
+        self.assertEqual(place, activity.place)
+        self.assertEqual(atype, activity.type)
+        self.assertEqual(
+            self.create_datetime(year=2020, month=9, day=28), activity.start,
+        )
+        self.assertIsNone(activity.end)
+        self.assertFalse(activity.minutes)
 
     def test_adding_to_entity(self):
         user = self.login()
@@ -385,20 +511,19 @@ class CreationTestCase(ViewsTestCase):
 class EditionTestCase(ViewsTestCase):
     def test_entity_edition01(self):
         user = self.login()
-        contact = FakeContact.objects.create(user=user,
-                                             first_name='Spik',
-                                             last_name='Spiege',
-                                            )
+        contact = FakeContact.objects.create(
+            user=user, first_name='Spik', last_name='Spiege',
+        )
         url = contact.get_edit_absolute_url()
 
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit.html')
 
-        context = response.context
-        self.assertIsInstance(context.get('form'), fake_forms.FakeContactForm)
-        self.assertEqual(_('Edit «{object}»').format(object=contact), context.get('title'))
-        self.assertEqual(_('Save the modifications'),                 context.get('submit_label'))
-        self.assertIsNone(context.get('cancel_url', -1))
+        get_ctxt = response.context.get
+        self.assertIsInstance(get_ctxt('form'), fake_forms.FakeContactForm)
+        self.assertEqual(_('Edit «{object}»').format(object=contact), get_ctxt('title'))
+        self.assertEqual(_('Save the modifications'),                 get_ctxt('submit_label'))
+        self.assertIsNone(get_ctxt('cancel_url', -1))
 
         first_name = 'Spike'
         last_name = 'Spiegel'
@@ -406,13 +531,16 @@ class EditionTestCase(ViewsTestCase):
 
         # from creme.creme_core.utils.profiling import QueriesPrinter
         # with QueriesPrinter():
-        response = self.client.post(url, follow=True,
-                                    data={'user':        user.id,
-                                          'first_name':  first_name,
-                                          'last_name':   last_name,
-                                          'description': description,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':        user.id,
+                'first_name':  first_name,
+                'last_name':   last_name,
+                'description': description,
+            },
+        )
 
         self.assertNoFormError(response)
 
@@ -424,80 +552,125 @@ class EditionTestCase(ViewsTestCase):
         self.assertRedirects(response, contact.get_absolute_url())
 
     def test_entity_edition02(self):
-        "Invalid ID"
+        "Invalid ID."
         self.login()
-        self.assertGET404(reverse('creme_core__edit_fake_contact', args=(self.UNUSED_PK,)))
+        self.assertGET404(reverse('creme_core__edit_fake_contact', args=[self.UNUSED_PK]))
 
     def test_entity_edition03(self):
-        "ValidationError + cancel_url"
+        "ValidationError + cancel_url."
         user = self.login()
-        contact = FakeContact.objects.create(user=user,
-                                             first_name='Spik',
-                                             last_name='Spiegel',
-                                            )
+        contact = FakeContact.objects.create(
+            user=user, first_name='Spik', last_name='Spiegel',
+        )
         url = contact.get_edit_absolute_url()
 
         lv_url = FakeContact.get_lv_absolute_url()
         response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
         self.assertEqual(lv_url, response.context.get('cancel_url'))
 
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.id,
-                                          'first_name': 'Spike',
-                                          # 'last_name': last_name,  # NB: Missing
-                                          'cancel_url': lv_url,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user': user.id,
+                'first_name': 'Spike',
+                # 'last_name': last_name,  # NB: Missing
+                'cancel_url': lv_url,
+            },
+        )
         self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
         self.assertEqual(lv_url, response.context.get('cancel_url'))
 
     def test_entity_edition04(self):
-        "Not app credentials"
+        "Not app credentials."
         self.login(is_superuser=False, allowed_apps=['creme_config'])
 
         response = self.assertGET403(
-            reverse('creme_core__edit_fake_contact', args=(self.UNUSED_PK,)),
+            reverse('creme_core__edit_fake_contact', args=[self.UNUSED_PK]),
         )
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertIn(
             escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
-            response.content.decode()
+            response.content.decode(),
         )
 
     def test_entity_edition05(self):
-        "Not edition credentials"
+        "Not edition credentials."
         self.login(is_superuser=False)
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),  # Not EntityCredentials.CHANGE
             set_type=SetCredentials.ESET_ALL,
         )
 
-        contact = FakeContact.objects.create(user=self.other_user,
-                                             first_name='Spike',
-                                             last_name='Spiegel',
-                                            )
+        contact = FakeContact.objects.create(
+            user=self.other_user, first_name='Spike', last_name='Spiegel',
+        )
 
         response = self.assertGET403(contact.get_edit_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
 
     def test_entity_edition06(self):
         "Not logged."
-        url = reverse('creme_core__edit_fake_contact', args=(self.UNUSED_PK,))
+        url = reverse('creme_core__edit_fake_contact', args=[self.UNUSED_PK])
         response = self.assertGET(302, url)
         self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
 
     def test_entity_edition07(self):
         "Not super-user."
         user = self.login(is_superuser=False)
-        contact = FakeContact.objects.create(user=user,
-                                             first_name='Spike',
-                                             last_name='Spiegel',
-                                            )
+        contact = FakeContact.objects.create(
+            user=user, first_name='Spike', last_name='Spiegel',
+        )
         self.assertGET200(contact.get_edit_absolute_url())
+
+    def test_entity_edition_customform(self):
+        user = self.login()
+
+        atype1, atype2 = FakeActivityType.objects.all()[:2]
+        activity = FakeActivity.objects.create(
+            user=user, title='my activity', place='Mars sea', type=atype1,
+        )
+
+        url = reverse('creme_core__edit_fake_activity', args=[activity.id])
+        self.assertGET200(url)
+
+        title = activity.title.title()
+        place = f'{activity.place} #2'
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':  user.id,
+                'title': title,
+
+                # Should not be used ; see FAKEACTIVITY_CFORM
+                'description': 'Trip on Mars',
+
+                'type':  atype2.id,
+                'place': place,
+
+                'cform_extra-fakeactivity_start': '26-08-2020',
+                'cform_extra-fakeactivity_end':   '26-09-2020',
+            },
+        ))
+
+        activity = self.refresh(activity)
+        self.assertEqual(title,  activity.title)
+        self.assertEqual('',     activity.description)
+        self.assertEqual(place,  activity.place)
+        self.assertEqual(atype2, activity.type)
+        self.assertEqual(
+            self.create_datetime(year=2020, month=8, day=26), activity.start,
+        )
+        self.assertEqual(
+            self.create_datetime(year=2020, month=9, day=26), activity.end,
+        )
 
     def test_related_to_entity_edition01(self):
         user = self.login()
@@ -506,7 +679,7 @@ class EditionTestCase(ViewsTestCase):
             entity=nerv,
             value='26 angel street',
         )
-        url = reverse('creme_core__edit_fake_address', args=(address.id,))
+        url = reverse('creme_core__edit_fake_address', args=[address.id])
 
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
@@ -547,7 +720,7 @@ class EditionTestCase(ViewsTestCase):
                     _('Entity #{id} (not viewable)').format(id=nerv.id)
                 )
             ),
-            response.content.decode()
+            response.content.decode(),
         )
 
         # ---

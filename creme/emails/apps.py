@@ -113,6 +113,20 @@ class EmailsConfig(CremeAppConfig):
 
         button_registry.register(buttons.EntityEmailLinkButton)
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.CAMPAIGN_CREATION_CFORM,
+            custom_forms.CAMPAIGN_EDITION_CFORM,
+
+            custom_forms.TEMPLATE_CREATION_CFORM,
+            custom_forms.TEMPLATE_EDITION_CFORM,
+
+            custom_forms.MAILINGLIST_CREATION_CFORM,
+            custom_forms.MAILINGLIST_EDITION_CFORM,
+        )
+
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 
@@ -161,15 +175,30 @@ class EmailsConfig(CremeAppConfig):
 
         LvURLItem = creme_menu.URLItem.list_view
 
-        group.add(LvURLItem('emails-campaigns', model=ECampaign),        priority=10) \
-             .add(LvURLItem('emails-mlists',    model=MList),            priority=15) \
-             .add(LvURLItem('emails-templates', model=ETemplate),        priority=20) \
-             .add(LvURLItem('emails-emails',    model=self.EntityEmail), priority=25)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('marketing', _('Marketing'), priority=200) \
-                  .add_link('emails-create_campaign', ECampaign, priority=10) \
-                  .add_link('emails-create_mlist',    MList, priority=15) \
-                  .add_link('emails-create_template', ETemplate, priority=20)
+        group.add(
+            LvURLItem('emails-campaigns', model=ECampaign),
+            priority=10,
+        ).add(
+            LvURLItem('emails-mlists', model=MList),
+            priority=15,
+        ).add(
+            LvURLItem('emails-templates', model=ETemplate),
+            priority=20,
+        ).add(
+            LvURLItem('emails-emails',  model=self.EntityEmail),
+            priority=25,
+        )
+        creme_menu.get(
+            'creation', 'any_forms',
+        ).get_or_create_group(
+            'marketing', _('Marketing'), priority=200,
+        ).add_link(
+            'emails-create_campaign', ECampaign, priority=10,
+        ).add_link(
+            'emails-create_mlist', MList, priority=15,
+        ).add_link(
+            'emails-create_template', ETemplate, priority=20,
+        )
 
         if apps.is_installed('creme.crudity'):
             group.add(

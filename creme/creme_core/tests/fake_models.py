@@ -61,15 +61,17 @@ else:
             ordering = ('name',)
 
     class FakeFolder(CremeEntity):
-        title     = models.CharField(_('Title'), max_length=100)
-        parent    = models.ForeignKey('self', verbose_name=_('Parent folder'),
-                                      blank=True, null=True, related_name='children',
-                                      on_delete=models.CASCADE,  # TODO: PROTECT
-                                     )
-        category  = models.ForeignKey(FakeFolderCategory, verbose_name=_('Category'),
-                                      blank=True, null=True, on_delete=models.SET_NULL,
-                                      # related_name='folder_category_set',
-                                     )
+        title = models.CharField(_('Title'), max_length=100)
+        parent = models.ForeignKey(
+            'self', verbose_name=_('Parent folder'),
+            blank=True, null=True, related_name='children',
+            on_delete=models.CASCADE,  # TODO: PROTECT
+        )
+        category = models.ForeignKey(
+            FakeFolderCategory, verbose_name=_('Category'),
+            blank=True, null=True, on_delete=models.SET_NULL,
+            # related_name='folder_category_set',
+        )
 
         # allowed_related = CremeEntity.allowed_related | {'document'}
         # creation_label = _('Create a folder')
@@ -98,18 +100,17 @@ else:
             ordering = ('name',)
 
     class FakeDocument(CremeEntity):
-        title         = models.CharField(_('Title'), max_length=100)
-        filedata      = models.FileField(_('File'), max_length=100,
-                                         upload_to='upload/creme_core-tests',
-                                        ).set_tags(optional=True)
-        linked_folder = models.ForeignKey(FakeFolder, verbose_name=_('Folder'),
-                                          on_delete=models.PROTECT,
-                                         )
-        categories    = models.ManyToManyField(FakeDocumentCategory,
-                                               verbose_name=_('Categories'),
-                                               related_name='+',
-                                               blank=True,
-                                              ).set_tags(optional=True)
+        title = models.CharField(_('Title'), max_length=100)
+        filedata = models.FileField(
+            _('File'), max_length=100, upload_to='upload/creme_core-tests',
+        ).set_tags(optional=True)
+        linked_folder = models.ForeignKey(
+            FakeFolder, verbose_name=_('Folder'), on_delete=models.PROTECT,
+        )
+        categories = models.ManyToManyField(
+            FakeDocumentCategory,
+            verbose_name=_('Categories'), related_name='+', blank=True,
+        ).set_tags(optional=True)
 
         # creation_label = _('Create a document')
 
@@ -132,10 +133,10 @@ else:
             return reverse('creme_core__list_fake_documents')
 
     class FakeFileComponent(CremeModel):
-        filedata = models.FileField(_('File'), max_length=100,
-                                    upload_to='upload/creme_core-tests',
-                                    null=True, blank=True,
-                                   )
+        filedata = models.FileField(
+            _('File'), max_length=100, upload_to='upload/creme_core-tests',
+            null=True, blank=True,
+        )
 
         class Meta:
             app_label = 'creme_core'
@@ -146,9 +147,10 @@ else:
         name = models.CharField(_('Name'), max_length=100)
         # NB: it's not really useful to use FakeFileComponent instead of FileField
         #     directly of course, but we need to test sub-FileField
-        file1 = models.ForeignKey(FakeFileComponent, verbose_name='First file',
-                                  null=True, blank=True, on_delete=models.PROTECT,
-                                 ).set_tags(enumerable=False)
+        file1 = models.ForeignKey(
+            FakeFileComponent, verbose_name='First file',
+            null=True, blank=True, on_delete=models.PROTECT,
+        ).set_tags(enumerable=False)
 
         class Meta:
             app_label = 'creme_core'
@@ -170,19 +172,20 @@ else:
             ordering = ('name',)
 
     class FakeImage(CremeEntity):
-        name        = models.CharField(_('Name'), max_length=100, blank=True, null=True)
-        # image       = models.ImageField(_('Image'), height_field='height', width_field='width',
-        #                                 upload_to='upload/images', max_length=500
-        #                                )
-        filedata    = models.FileField(_('File'), max_length=100, editable=False,
-                                       upload_to='upload/creme_core-tests',
-                                      )
-        categories  = models.ManyToManyField(FakeImageCategory,
-                                             verbose_name=_('Categories'),
-                                             related_name='+', blank=True,
-                                            )
-        exif_date   = models.DateField(_('Exif date'), blank=True, null=True)\
-                            .set_tags(optional=True)
+        name = models.CharField(_('Name'), max_length=100, blank=True, null=True)
+        # image = models.ImageField(
+        #     _('Image'), height_field='height', width_field='width',
+        #     upload_to='upload/images', max_length=500,
+        # )
+        filedata = models.FileField(
+            _('File'), max_length=100, editable=False, upload_to='upload/creme_core-tests',
+        )
+        categories = models.ManyToManyField(
+            FakeImageCategory, verbose_name=_('Categories'), related_name='+', blank=True,
+        )
+        exif_date = models.DateField(
+            _('Exif date'), blank=True, null=True,
+        ).set_tags(optional=True)
 
         # creation_label = _('Create an image')
 
@@ -210,7 +213,7 @@ else:
         # def get_edit_absolute_url(self):
 
     class FakeCivility(CremeModel):
-        title    = models.CharField(_('Title'), max_length=100)
+        title = models.CharField(_('Title'), max_length=100)
         shortcut = models.CharField(_('Shortcut'), max_length=100)
 
         # NB: do not define (see
@@ -241,10 +244,10 @@ else:
             ordering = ('title',)
 
     class FakeSector(CremeModel):
-        title     = models.CharField(_('Title'), max_length=100)
+        title = models.CharField(_('Title'), max_length=100)
         # Used by creme_config
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)
-        order     = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
+        order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
 
         creation_label = _('Create a sector')
         save_label     = _('Save the sector')
@@ -309,7 +312,7 @@ else:
             _('First name'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
 
-        is_a_nerd = models.BooleanField(_('Is a Nerd'), default=False)
+        is_a_nerd = models.BooleanField(_('Is a Nerd'), default=False, blank=True)
         loves_comics = models.BooleanField(_('Loves comics'), default=None, null=True, blank=True)
 
         phone = core_fields.PhoneField(
@@ -407,26 +410,27 @@ else:
             ordering = ('title',)
 
     class FakeOrganisation(CremeEntity):
-        name            = models.CharField(_('Name'), max_length=200)
-        phone           = core_fields.PhoneField(_('Phone number'), max_length=100,
-                                                 blank=True, null=True,
-                                                )
-        email           = models.EmailField(_('Email address'), max_length=100,
-                                            blank=True, null=True,
-                                           )
+        name = models.CharField(_('Name'), max_length=200)
+        phone = core_fields.PhoneField(
+            _('Phone number'), max_length=100, blank=True, null=True,
+        )
+        email = models.EmailField(
+            _('Email address'), max_length=100, blank=True, null=True,
+        )
 
         # NB: keep nullable for some tests
-        url_site        = models.URLField(_('Web Site'), max_length=500,
-                                          blank=True, null=True,
-                                         ).set_tags(optional=True)
-        sector          = models.ForeignKey(FakeSector, verbose_name=_('Sector'),
-                                            blank=True, null=True,
-                                            # on_delete=models.SET_NULL,
-                                            on_delete=deletion.CREME_REPLACE,
-                                          ).set_tags(optional=True)
-        capital         = models.PositiveIntegerField(_('Capital'), blank=True, null=True)\
-                                .set_tags(optional=True)
-        subject_to_vat  = models.BooleanField(_('Subject to VAT'), default=True)
+        url_site = models.URLField(
+            _('Web Site'), max_length=500, blank=True, null=True,
+        ).set_tags(optional=True)
+        sector = models.ForeignKey(
+            FakeSector, verbose_name=_('Sector'), blank=True, null=True,
+            # on_delete=models.SET_NULL,
+            on_delete=deletion.CREME_REPLACE,
+        ).set_tags(optional=True)
+        capital = models.PositiveIntegerField(
+            _('Capital'), blank=True, null=True,
+        ).set_tags(optional=True)
+        subject_to_vat = models.BooleanField(_('Subject to VAT'), default=True, blank=True)
 
         legal_form = models.ForeignKey(
             FakeLegalForm, verbose_name=_('Legal form'),
@@ -440,15 +444,17 @@ else:
             related_name='+',
             limit_choices_to={'title__endswith': '[OK]'},
         )
-        address         = models.ForeignKey(FakeAddress, verbose_name=_('Billing address'),
-                                            blank=True, null=True, editable=False,
-                                            related_name='+', on_delete=models.SET_NULL,
-                                           ).set_tags(enumerable=False)
-        creation_date   = models.DateField(_('Date of creation'), blank=True, null=True)
-        image           = models.ForeignKey(FakeImage, verbose_name=_('Logo'),
-                                            blank=True, null=True, on_delete=models.SET_NULL,
-                                            limit_choices_to=lambda: {'user__is_staff': False},
-                                           )
+        address = models.ForeignKey(
+            FakeAddress, verbose_name=_('Billing address'),
+            blank=True, null=True, editable=False,
+            related_name='+', on_delete=models.SET_NULL,
+        ).set_tags(enumerable=False)
+        creation_date = models.DateField(_('Date of creation'), blank=True, null=True)
+        image = models.ForeignKey(
+            FakeImage, verbose_name=_('Logo'),
+            blank=True, null=True, on_delete=models.SET_NULL,
+            limit_choices_to=lambda: {'user__is_staff': False},
+        )
 
         search_score = 102
         creation_label = _('Create an organisation')
@@ -495,11 +501,15 @@ else:
     class FakeActivity(CremeEntity):
         title = models.CharField(_('Title'), max_length=100, unique=True)
         place = models.CharField(_('Place'), max_length=100)
+        minutes = models.TextField(_('Minutes'), blank=True)
+
         start = models.DateTimeField(_('Start'), blank=True, null=True)
-        end   = models.DateTimeField(_('End'), blank=True, null=True)
-        type  = models.ForeignKey(FakeActivityType, verbose_name=_('Activity type'),
-                                  on_delete=models.PROTECT,  # editable=False,
-                                 ).set_tags(optional=True)
+        end = models.DateTimeField(_('End'), blank=True, null=True)
+
+        type = models.ForeignKey(
+            FakeActivityType, verbose_name=_('Activity type'), on_delete=models.PROTECT,
+            # editable=False,
+        ).set_tags(optional=True)
 
         # creation_label = _('Create an activity')
 
@@ -564,9 +574,9 @@ else:
             return reverse('creme_core__list_fake_ecampaigns')
 
     class FakeInvoice(CremeEntity):
-        name            = models.CharField(_('Name'), max_length=100)
-        number          = models.CharField(_('Number'), max_length=100, blank=True, null=True)
-        issuing_date    = models.DateField(_('Issuing date'), blank=True, null=True)
+        name = models.CharField(_('Name'), max_length=100)
+        number = models.CharField(_('Number'), max_length=100, blank=True, null=True)
+        issuing_date = models.DateField(_('Issuing date'), blank=True, null=True)
         expiration_date = models.DateField(
             _('Expiration date'), blank=True, null=True,
         ).set_tags(optional=True)
@@ -606,22 +616,20 @@ else:
 
     class FakeInvoiceLine(CremeEntity):
         linked_invoice = models.ForeignKey(FakeInvoice, on_delete=models.CASCADE)
-        item           = models.CharField('Item', max_length=100, blank=True, null=True)
-        quantity       = models.DecimalField(_('Quantity'),
-                                             max_digits=10, decimal_places=2,
-                                             default=Decimal('1.00'),
-                                            )
-        unit_price     = models.DecimalField(_('Unit price'), default=Decimal(),
-                                             max_digits=10, decimal_places=2,
-                                            )
-        discount       = models.DecimalField(_('Discount'), default=Decimal(),
-                                             max_digits=10, decimal_places=2,
-                                            )
-        discount_unit  = models.PositiveIntegerField(_('Discount Unit'),
-                                                     blank=True, null=True,
-                                                     choices=FAKE_DISCOUNT_UNIT.items(),
-                                                     default=FAKE_PERCENT_UNIT,
-                                                    )
+        item = models.CharField('Item', max_length=100, blank=True, null=True)
+        quantity = models.DecimalField(
+            _('Quantity'), max_digits=10, decimal_places=2, default=Decimal('1.00'),
+        )
+        unit_price = models.DecimalField(
+            _('Unit price'), default=Decimal(), max_digits=10, decimal_places=2,
+        )
+        discount = models.DecimalField(
+            _('Discount'), default=Decimal(), max_digits=10, decimal_places=2,
+        )
+        discount_unit = models.PositiveIntegerField(
+            _('Discount Unit'), blank=True, null=True,
+            choices=FAKE_DISCOUNT_UNIT.items(), default=FAKE_PERCENT_UNIT,
+        )
 
         class Meta:
             app_label = 'creme_core'
@@ -650,15 +658,16 @@ else:
             ordering = ('name',)
 
     class FakeProduct(CremeEntity):
-        name   = models.CharField(_('Name'), max_length=100)
-        type   = models.ForeignKey(FakeProductType, verbose_name=_('Type'),
-                                   on_delete=models.CASCADE,
-                                   null=True, blank=True,
-                                  ).set_tags(optional=True)
-        images = models.ManyToManyField(FakeImage, blank=True, verbose_name=_('Images'),
-                                        limit_choices_to={'user__is_active': True},
-                                        # related_name='products',
-                                       )
+        name = models.CharField(_('Name'), max_length=100)
+        type = models.ForeignKey(
+            FakeProductType, verbose_name=_('Type'),
+            on_delete=models.CASCADE, null=True, blank=True,
+        ).set_tags(optional=True)
+        images = models.ManyToManyField(
+            FakeImage, blank=True, verbose_name=_('Images'),
+            limit_choices_to={'user__is_active': True},
+            # related_name='products',
+        )
 
         # creation_label = _('Create a product')
 
@@ -677,13 +686,13 @@ else:
         # NB: no get_lv_absolute_url(()  (see views.test_header_filter)
 
     class FakeReport(CremeEntity):
-        name    = models.CharField(_('Name'), max_length=100)
-        ctype   = core_fields.EntityCTypeForeignKey(verbose_name=_('Entity type'))
-        efilter = models.ForeignKey(EntityFilter, verbose_name=_('Filter'),
-                                    blank=True, null=True,
-                                    on_delete=models.PROTECT,
-                                    limit_choices_to={'filter_type': EF_USER},
-                                   ).set_null_label(_('No filter'))
+        name = models.CharField(_('Name'), max_length=100)
+        ctype = core_fields.EntityCTypeForeignKey(verbose_name=_('Entity type'))
+        efilter = models.ForeignKey(
+            EntityFilter, verbose_name=_('Filter'),
+            blank=True, null=True, on_delete=models.PROTECT,
+            limit_choices_to={'filter_type': EF_USER},
+        ).set_null_label(_('No filter'))
 
         # creation_label = _('Create a report')
         # save_label     = _('Save the report')
@@ -730,15 +739,15 @@ else:
         return FakeTicketPriority.objects.get_or_create(name='Deleted')[0]
 
     class FakeTicket(CremeEntity):
-        title  = models.CharField(_('Title'), max_length=100)
-        status = models.ForeignKey(FakeTicketStatus, verbose_name=_('Status'),
-                                   on_delete=models.SET_DEFAULT,
-                                   default=1,
-                                  ).set_tags(optional=True)
-        priority = models.ForeignKey(FakeTicketPriority, verbose_name=_('Priority'),
-                                     on_delete=models.SET(get_sentinel_priority),
-                                     default=3,
-                                    ).set_tags(optional=True)
+        title = models.CharField(_('Title'), max_length=100)
+        status = models.ForeignKey(
+            FakeTicketStatus,
+            verbose_name=_('Status'), on_delete=models.SET_DEFAULT, default=1,
+        ).set_tags(optional=True)
+        priority = models.ForeignKey(
+            FakeTicketPriority, verbose_name=_('Priority'),
+            on_delete=models.SET(get_sentinel_priority), default=3,
+        ).set_tags(optional=True)
 
         class Meta:
             app_label = 'creme_core'
@@ -760,7 +769,7 @@ else:
             ordering = ('name',)
 
     class FakeRecipe(CremeEntity):
-        name        = models.CharField(_('Name'), max_length=100)
+        name = models.CharField(_('Name'), max_length=100)
         ingredients = models.ManyToManyField(
             FakeIngredient, verbose_name=_('Ingredients'), related_name='+',
             # NB: see creme_config.tests

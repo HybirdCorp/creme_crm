@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from functools import partial
 
 from django.db.models.query import Q
@@ -37,10 +38,18 @@ class CreditNoteCreateForm(BaseCreateForm):
     class Meta(BaseCreateForm.Meta):
         model = CreditNote
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('CreditNoteCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
 
 class CreditNoteEditForm(BaseEditForm):
     class Meta(BaseEditForm.Meta):
         model = CreditNote
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('CreditNoteEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class CreditNotePopupEditForm(base.CremeModelForm):
@@ -62,7 +71,7 @@ class CreditNoteRelatedForm(base.CremeForm):
 
         # TODO: waiting for automated change of status when a credit note is out
         #       of date by looking to expiration date
-        # TODO Add another filter today <= expiration_date ??
+        # TODO: Add another filter today <= expiration_date ??
         q_filter = (
             ~Q(pk__in=[rel.object_entity_id for rel in existing]) &
             Q(

@@ -96,6 +96,17 @@ class PersonsConfig(CremeAppConfig):
 
         config_registry.register_portal_bricks(bricks.ManagedOrganisationsBrick)
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.CONTACT_CREATION_CFORM,
+            custom_forms.CONTACT_EDITION_CFORM,
+
+            custom_forms.ORGANISATION_CREATION_CFORM,
+            custom_forms.ORGANISATION_EDITION_CFORM,
+        )
+
     def register_field_printers(self, field_printers_registry):
         from django.contrib.auth import get_user_model
 

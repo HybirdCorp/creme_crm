@@ -26,7 +26,7 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import require_model_fields
 
-from .. import get_messaginglist_model
+from .. import custom_forms, get_messaginglist_model
 from ..constants import DEFAULT_HFILTER_MLIST
 from ..forms import messaging_list as ml_forms
 
@@ -47,7 +47,8 @@ class ContactRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
 
 class MessagingListCreation(generic.EntityCreation):
     model = MessagingList
-    form_class = ml_forms.MessagingListForm
+    # form_class = ml_forms.MessagingListForm
+    form_class = custom_forms.MESSAGINGLIST_CREATION_CFORM
 
 
 class MessagingListDetail(generic.EntityDetail):
@@ -58,7 +59,8 @@ class MessagingListDetail(generic.EntityDetail):
 
 class MessagingListEdition(generic.EntityEdition):
     model = MessagingList
-    form_class = ml_forms.MessagingListForm
+    # form_class = ml_forms.MessagingListForm
+    form_class = custom_forms.MESSAGINGLIST_EDITION_CFORM
     pk_url_kwarg = 'mlist_id'
 
 

@@ -711,7 +711,7 @@ class ListViewTestCase(ViewsTestCase):
         act2 = create_act(title='Act#2', start=act1.start + timedelta(hours=1))
 
         # See fake populate
-        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakeactivity')
+        hf = self.get_object_or_fail(HeaderFilter, pk=fake_constants.DEFAULT_HFILTER_FAKE_ACTIVITY)
 
         response = self.assertPOST200(FakeActivity.get_lv_absolute_url(), {'hfilter': hf.pk})
         content = self._get_lv_content(self._get_lv_node(response))
@@ -747,7 +747,7 @@ class ListViewTestCase(ViewsTestCase):
         url = FakeContact.get_lv_absolute_url()
         # For the filter to prevent an issue when HeaderFiltersTestCase is run before this test
         # See fake populate
-        hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakecontact')
+        hf = self.get_object_or_fail(HeaderFilter, pk=fake_constants.DEFAULT_HFILTER_FAKE_CONTACT)
         response = self.assertPOST200(url, {'hfilter': hf.pk})
 
         entries = FakeContact.objects.all()
@@ -3321,7 +3321,7 @@ class ListViewTestCase(ViewsTestCase):
 
         response = self.assertPOST200(
             FakeContact.get_lv_absolute_url(),
-            data={'hfilter': 'creme_core-hf_fakecontact'},  # See fake_populate.py
+            data={'hfilter': fake_constants.DEFAULT_HFILTER_FAKE_CONTACT},  # See fake_populate.py
         )
 
         with self.assertNoException():

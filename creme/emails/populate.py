@@ -27,11 +27,13 @@ from django.utils.translation import gettext as _
 from creme import emails, persons
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
     CustomBrickConfigItem,
+    CustomFormConfigItem,
     HeaderFilter,
     Job,
     RelationType,
@@ -39,7 +41,7 @@ from creme.creme_core.models import (
     SettingValue,
 )
 
-from . import bricks, buttons, constants
+from . import bricks, buttons, constants, custom_forms
 from .creme_jobs import campaign_emails_send_type, entity_emails_send_type
 from .setting_keys import emailcampaign_sender
 
@@ -113,6 +115,128 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'recipient'}),
                 (EntityCellRegularField, {'name': 'subject'}),
             ],
+        )
+
+        # ---------------------------
+        common_groups_desc = [
+            {
+                'name': _('Description'),
+                'cells': [
+                    (EntityCellRegularField, {'name': 'description'}),
+                ],
+            }, {
+                'name': _('Custom fields'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                    ),
+                ],
+            },
+        ]
+
+        def build_creation_custom_form_items(descriptor, field_names):
+            CustomFormConfigItem.objects.create_if_needed(
+                descriptor=descriptor,
+                groups_desc=[
+                    {
+                        'name': _('General information'),
+                        'cells': [
+                            *(
+                                (EntityCellRegularField, {'name': fname})
+                                for fname in field_names
+                            ),
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                            ),
+                        ],
+                    },
+                    *common_groups_desc,
+                    {
+                        'name': _('Properties'),
+                        'cells': [
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                            ),
+                        ],
+                    }, {
+                        'name': _('Relationships'),
+                        'cells': [
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.RELATIONS},
+                            ),
+                        ],
+                    },
+                ],
+            )
+
+        def build_edition_custom_form_items(descriptor, field_names):
+            CustomFormConfigItem.objects.create_if_needed(
+                descriptor=descriptor,
+                groups_desc=[
+                    {
+                        'name': _('General information'),
+                        'cells': [
+                            *(
+                                (EntityCellRegularField, {'name': fname})
+                                for fname in field_names
+                            ),
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                            ),
+                        ],
+                    },
+                    *common_groups_desc,
+                ],
+            )
+
+        build_creation_custom_form_items(
+            descriptor=custom_forms.CAMPAIGN_CREATION_CFORM,
+            field_names=[
+                'user',
+                'name',
+                'mailing_lists',
+            ],
+        )
+        build_edition_custom_form_items(
+            descriptor=custom_forms.CAMPAIGN_EDITION_CFORM,
+            field_names=[
+                'user',
+                'name',
+                # 'mailing_lists',
+            ],
+        )
+
+        template_field_names = [
+            'user',
+            'name',
+            'subject',
+            'body',
+            'body_html',
+            'signature',
+            'attachments',
+        ]
+        build_creation_custom_form_items(
+            descriptor=custom_forms.TEMPLATE_CREATION_CFORM,
+            field_names=template_field_names,
+        )
+        build_edition_custom_form_items(
+            descriptor=custom_forms.TEMPLATE_EDITION_CFORM,
+            field_names=template_field_names,
+        )
+
+        mlist_field_names = ['user', 'name']
+        build_creation_custom_form_items(
+            descriptor=custom_forms.MAILINGLIST_CREATION_CFORM,
+            field_names=mlist_field_names,
+        )
+        build_edition_custom_form_items(
+            descriptor=custom_forms.MAILINGLIST_EDITION_CFORM,
+            field_names=mlist_field_names,
         )
 
         # ---------------------------

@@ -506,7 +506,8 @@ DEFAULT_PAGE_SIZE_IDX = 1  # Index (0-based, in PAGE_SIZES) of the default size 
 FILTERS_INITIAL_PRIVATE = False
 
 # Forms
-# Add some fields to create Relationships & Properties in all common entities creation forms.
+# Add some fields to create Relationships & Properties in all common entities
+# creation forms (only for not custom-form).
 FORMS_RELATION_FIELDS = True
 
 # When <a> tags are generated in TextFields,
@@ -758,6 +759,8 @@ CREME_OPTLIB_JS = [
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
+    ('creme.creme_config',  'creme_config/js/creme_config.js'),
+
     ('creme.persons',       'persons/js/persons.js'),
 
     ('creme.activities',    'activities/js/activities.js'),

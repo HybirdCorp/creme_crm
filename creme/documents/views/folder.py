@@ -29,9 +29,9 @@ from creme.creme_core.gui import listview as lv_gui
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic import base
 
-from .. import get_folder_model, gui
+# from ..forms import folder as f_forms
+from .. import custom_forms, get_folder_model, gui
 from ..constants import DEFAULT_HFILTER_FOLDER
-from ..forms import folder as f_forms
 
 logger = logging.getLogger(__name__)
 Folder = get_folder_model()
@@ -39,12 +39,14 @@ Folder = get_folder_model()
 
 class FolderCreation(generic.EntityCreation):
     model = Folder
-    form_class = f_forms.FolderForm
+    # form_class = f_forms.FolderForm
+    form_class = custom_forms.FOLDER_CREATION_CFORM
 
 
 class ChildFolderCreation(base.EntityRelatedMixin, generic.EntityCreation):
     model = Folder
-    form_class = f_forms.ChildFolderForm
+    # form_class = f_forms.ChildFolderForm
+    form_class = custom_forms.FOLDER_CREATION_CFORM
     entity_id_url_kwarg = 'parent_id'
     entity_classes = Folder
     title = _('Create a sub-folder for «{entity}»')
@@ -52,6 +54,17 @@ class ChildFolderCreation(base.EntityRelatedMixin, generic.EntityCreation):
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
         user.has_perm_to_link_or_die(Folder, owner=None)
+
+    def get_form_class(self):
+        form_cls = super().get_form_class()
+
+        class ChildFolderForm(form_cls):
+            def __init__(self, entity, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                del self.fields['parent_folder']
+                self.instance.parent_folder = entity
+
+        return ChildFolderForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -70,7 +83,8 @@ class ChildFolderCreation(base.EntityRelatedMixin, generic.EntityCreation):
 # TODO: link-popup.html ?
 class ChildFolderCreationPopup(generic.AddingInstanceToEntityPopup):
     model = Folder
-    form_class = f_forms.ChildFolderForm
+    # form_class = f_forms.ChildFolderForm
+    form_class = custom_forms.FOLDER_CREATION_CFORM
     permissions = ['documents', cperm(Folder)]
     title = _('Create a sub-folder for «{entity}»')
     entity_id_url_kwarg = 'folder_id'
@@ -79,6 +93,18 @@ class ChildFolderCreationPopup(generic.AddingInstanceToEntityPopup):
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
         user.has_perm_to_link_or_die(Folder, owner=None)
+
+    # TODO: factorise
+    def get_form_class(self):
+        form_cls = super().get_form_class()
+
+        class ChildFolderForm(form_cls):
+            def __init__(self, entity, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                del self.fields['parent_folder']
+                self.instance.parent_folder = entity
+
+        return ChildFolderForm
 
 
 class FolderDetail(generic.EntityDetail):
@@ -89,7 +115,8 @@ class FolderDetail(generic.EntityDetail):
 
 class FolderEdition(generic.EntityEdition):
     model = Folder
-    form_class = f_forms.FolderForm
+    # form_class = f_forms.FolderForm
+    form_class = custom_forms.FOLDER_EDITION_CFORM
     pk_url_kwarg = 'folder_id'
 
 

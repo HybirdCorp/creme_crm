@@ -20,9 +20,9 @@
 
 from creme.creme_core.views import generic
 
-from .. import get_ticket_model
+from .. import custom_forms, get_ticket_model
 from ..constants import DEFAULT_HFILTER_TICKET
-from ..forms import ticket as ticket_forms
+# from ..forms import ticket as ticket_forms
 from ..models import Criticity, Priority
 
 Ticket = get_ticket_model()
@@ -30,11 +30,12 @@ Ticket = get_ticket_model()
 
 class TicketCreation(generic.EntityCreation):
     model = Ticket
-    form_class = ticket_forms.TicketCreateForm
+    # form_class = ticket_forms.TicketCreateForm
+    form_class = custom_forms.TICKET_CREATION_CFORM
 
     def get_initial(self):
         initial = super().get_initial()
-        initial['priority']  = Priority.objects.first()
+        initial['priority'] = Priority.objects.first()
         initial['criticity'] = Criticity.objects.first()
 
         return initial
@@ -48,7 +49,8 @@ class TicketDetail(generic.EntityDetail):
 
 class TicketEdition(generic.EntityEdition):
     model = Ticket
-    form_class = ticket_forms.TicketEditForm
+    # form_class = ticket_forms.TicketEditForm
+    form_class = custom_forms.TICKET_EDITION_CFORM
     pk_url_kwarg = 'ticket_id'
 
 

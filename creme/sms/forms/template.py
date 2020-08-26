@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.forms import  CharField ValidationError
+import warnings
+
+# from django.forms import CharField, Textarea, ValidationError
 # from django.utils.translation import gettext
 # from django.utils.translation import gettext_lazy as _
 # from django.utils.translation import pgettext_lazy
-from django.forms import Textarea
-
 from creme.creme_core.forms import CremeEntityForm
 
 # from ..encoding import SMS_MAX_LENGTH, gsm_encoded_content
@@ -42,17 +42,15 @@ class TemplateCreateForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = MessageTemplate
-        widgets = {
-            'body': Textarea,
-        }
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['body'].help_text = gettext(
-    #         'Message with a maximum of 160 characters.\n'
-    #         'Beware, the header matters (+ 3 characters) '
-    #         'and the following characters count double: {}'
-    #     ).format(_FORBIDDEN)
+    def __init__(self, *args, **kwargs):
+        warnings.warn('TemplateCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+        # self.fields['body'].help_text = gettext(
+        #     'Message with a maximum of 160 characters.\n'
+        #     'Beware, the header matters (+ 3 characters) '
+        #     'and the following characters count double: {}'
+        # ).format(_FORBIDDEN)
 
     # def clean(self):
     #     cleaned_data = super().clean()
@@ -75,4 +73,6 @@ class TemplateCreateForm(CremeEntityForm):
 
 
 class TemplateEditForm(TemplateCreateForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        warnings.warn('TemplateEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)

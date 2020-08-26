@@ -37,6 +37,8 @@ from .base import (
 @skipIfCustomOrganisation
 @skipIfCustomTemplateBase
 class TemplateBaseTestCase(_BillingTestCase):
+    STATUS_KEY = 'cform_extra-billing_template_status'
+
     def setUp(self):
         super().setUp()
         user = self.login()
@@ -216,6 +218,70 @@ class TemplateBaseTestCase(_BillingTestCase):
             order = tpl.create_entity()
 
         self.assertEqual(1, order.status.id)
+
+    def test_editview(self):
+        user = self.user
+
+        invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
+        invoice_status2 = self.get_object_or_fail(InvoiceStatus, pk=2)
+
+        name = 'My template'
+        tpl = self._create_templatebase(Invoice, invoice_status1.id, name=name)
+
+        url = tpl.get_edit_absolute_url()
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            formfields = response1.context['form'].fields
+            source_f = formfields[self.SOURCE_KEY]
+            target_f = formfields[self.TARGET_KEY]
+            status_f = formfields[self.STATUS_KEY]
+            number_f = formfields['number']
+
+        self.assertEqual(self.source, source_f.initial)
+        self.assertEqual(self.target, target_f.initial)
+        self.assertEqual(invoice_status1.id, status_f.initial)
+        self.assertEqual(
+            _(
+                'If a number is given, it will be only used as fallback value '
+                'when generating a number in the final recurring entities.'
+            ),
+            number_f.help_text,
+        )
+
+        # ---
+        name += ' (edited)'
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        source2 = create_orga(name='Source Orga 2')
+        target2 = create_orga(name='Target Orga 2')
+
+        response2 = self.client.post(
+            url, follow=True,
+            data={
+                'user':            user.pk,
+                'name':            name,
+                'issuing_date':    '2020-10-31',
+                'expiration_date': '2020-11-30',
+                self.STATUS_KEY:    invoice_status2.id,
+                'currency':        tpl.currency_id,
+                'discount':        '0',
+
+                self.SOURCE_KEY: source2.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target2),
+            },
+        )
+        self.assertNoFormError(response2)
+        self.assertRedirects(response2, tpl.get_absolute_url())
+
+        tpl = self.refresh(tpl)
+        self.assertEqual(name, tpl.name)
+        self.assertEqual(date(year=2020, month=11, day=30), tpl.expiration_date)
+        self.assertIsNone(tpl.payment_info)
+        self.assertEqual(invoice_status2.id, tpl.status_id)
+
+        self.assertEqual(source2, tpl.source)
+        self.assertEqual(target2, tpl.target)
 
     def test_delete_invoice_status(self):
         new_status, other_status = InvoiceStatus.objects.all()[:2]

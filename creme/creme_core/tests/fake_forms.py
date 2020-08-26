@@ -1,44 +1,50 @@
 # -*- coding: utf-8 -*-
 
-from .. import forms
+from django import forms
+
+from .. import forms as core_forms
 from ..forms.mass_import import ImportForm4CremeEntity, extractorfield_factory
 from ..forms.merge import MergeEntitiesBaseForm
-from .fake_models import (
-    FakeAddress,
-    FakeContact,
-    FakeEmailCampaign,
-    FakeOrganisation,
-    FakeProduct,
-)
+from ..gui.custom_form import CustomFormExtraSubCell, ExtraFieldGroup
+from . import fake_models
 
 
-class FakeContactQuickForm(forms.CremeEntityQuickForm):
+class FakeContactQuickForm(core_forms.CremeEntityQuickForm):
     class Meta:
-        model = FakeContact
+        model = fake_models.FakeContact
         fields = ('user', 'last_name', 'first_name', 'phone', 'email')
 
 
-class FakeContactForm(forms.CremeEntityForm):
+class FakeAddressGroup(ExtraFieldGroup):
+    extra_group_id = 'test-address'
+    name = 'Address'
+
+    # NB: currently used in creme_config only.
+    # def formfields(self, ...):
+    # def save(self, ...):
+
+
+class FakeContactForm(core_forms.CremeEntityForm):
     class Meta:
-        model = FakeContact
+        model = fake_models.FakeContact
         fields = '__all__'
 
 
-class FakeOrganisationQuickForm(forms.CremeEntityQuickForm):
+class FakeOrganisationQuickForm(core_forms.CremeEntityQuickForm):
     class Meta:
-        model = FakeOrganisation
+        model = fake_models.FakeOrganisation
         fields = ('name', 'user')
 
 
-class FakeOrganisationForm(forms.CremeEntityForm):
+class FakeOrganisationForm(core_forms.CremeEntityForm):
     class Meta:
-        model = FakeOrganisation
+        model = fake_models.FakeOrganisation
         fields = '__all__'
 
 
-class FakeAddressForm(forms.CremeModelForm):
+class FakeAddressForm(core_forms.CremeModelForm):
     class Meta:
-        model = FakeAddress
+        model = fake_models.FakeAddress
         fields = '__all__'
 
     def __init__(self, entity, *args, **kwargs):
@@ -79,12 +85,49 @@ class _FakePersonCSVImportForm(ImportForm4CremeEntity):
                     setattr(address, fname, fvalue)
                 address.save()
             else:
-                instance.address = FakeAddress.objects.create(**address_dict)
+                instance.address = fake_models.FakeAddress.objects.create(**address_dict)
                 instance.save()
 
 
+# Activity ---
+class _FakeActivitySubCell(CustomFormExtraSubCell):
+    def __init__(self, model=fake_models.FakeActivity):
+        super().__init__(model=model)
+
+
+class FakeActivityStartSubCell(_FakeActivitySubCell):
+    sub_type_id = 'fakeactivity_start'
+    verbose_name = 'Start'
+
+    def formfield(self, instance, user, **kwargs):
+        return forms.DateTimeField(label='Start', **kwargs)
+
+
+class FakeActivityEndSubCell(_FakeActivitySubCell):
+    sub_type_id = 'fakeactivity_end'
+    verbose_name = 'End'
+    is_required = False
+
+    def formfield(self, instance, user, **kwargs):
+        return forms.DateTimeField(label='End', **kwargs)
+
+
+class BaseFakeActivityCustomForm(core_forms.CremeEntityForm):
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        cdata = self.cleaned_data
+
+        instance.start = cdata[FakeActivityStartSubCell().into_cell().key]
+        instance.end = cdata.get(FakeActivityEndSubCell().into_cell().key)
+
+        return super().save(*args, **kwargs)
+
+
+# ---
+
+
 def get_csv_form_builder(header_dict, choices):
-    get_field = FakeAddress._meta.get_field
+    get_field = fake_models.FakeAddress._meta.get_field
     attrs = {
         _ADDRESS_PREFIX + field_name: extractorfield_factory(
             get_field(field_name), header_dict, choices,
@@ -98,13 +141,13 @@ def get_merge_form_builder():
     return MergeEntitiesBaseForm
 
 
-class FakeEmailCampaignForm(forms.CremeEntityForm):
+class FakeEmailCampaignForm(core_forms.CremeEntityForm):
     class Meta:
-        model = FakeEmailCampaign
+        model = fake_models.FakeEmailCampaign
         fields = '__all__'
 
 
-class FakeProductForm(forms.CremeEntityForm):
+class FakeProductForm(core_forms.CremeEntityForm):
     class Meta:
-        model = FakeProduct
+        model = fake_models.FakeProduct
         fields = '__all__'

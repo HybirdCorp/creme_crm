@@ -1,6 +1,7 @@
 {% load i18n %}
-<div class="basic_field_selectors">
+<div class="basic_field_selectors{% if not widget.choices %} inline_selectors{% endif %}">
     <h4 class="selector_title">{% trans 'Regular fields'%}</h4>
+    {% if widget.choices %}
     <ul class="selector_list">
         {% for choice_id, field_vname, sub_choices in widget.choices %}
             <li class="selector" data-column="{{choice_id}}">
@@ -31,6 +32,9 @@
             </li>
         {% endfor %}
     </ul>
+    {% else %}
+    <span class="empty-message">{% trans 'No available field.' %}</span>
+    {% endif %}
 </div>
 {% comment %}
 <div class="creme_field_selectors inline_selectors">

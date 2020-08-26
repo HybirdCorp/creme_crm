@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.forms import CharField
 from django.forms.utils import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -44,6 +46,10 @@ from ..models import (
 class StrategyForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_strategy_model()
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('ObjectivePatternForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class _AuxForm(CremeModelForm):

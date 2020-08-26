@@ -26,7 +26,7 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import require_model_fields
 
-from .. import get_mailinglist_model
+from .. import custom_forms, get_mailinglist_model
 from ..constants import DEFAULT_HFILTER_MAILINGLIST
 from ..forms import mailing_list as ml_forms
 
@@ -37,7 +37,8 @@ MailingList  = get_mailinglist_model()
 
 class MailingListCreation(generic.EntityCreation):
     model = MailingList
-    form_class = ml_forms.MailingListForm
+    # form_class = ml_forms.MailingListForm
+    form_class = custom_forms.MAILINGLIST_CREATION_CFORM
 
 
 class MailingListDetail(generic.EntityDetail):
@@ -48,7 +49,8 @@ class MailingListDetail(generic.EntityDetail):
 
 class MailingListEdition(generic.EntityEdition):
     model = MailingList
-    form_class = ml_forms.MailingListForm
+    # form_class = ml_forms.MailingListForm
+    form_class = custom_forms.MAILINGLIST_EDITION_CFORM
     pk_url_kwarg = 'ml_id'
 
 

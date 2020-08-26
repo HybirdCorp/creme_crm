@@ -18,15 +18,51 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django import forms
 from django.contrib.auth import get_user_model
-from django.forms import ModelMultipleChoiceField
+from django.forms import widgets
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import validators
 from creme.creme_core.forms.fields import OptionalModelChoiceField
+from creme.creme_core.forms.widgets import CalendarWidget, TimeWidget
 from creme.persons import get_contact_model
 
 from ..models import Calendar
+
+# TODO: unit tests
+
+
+class DateWithOptionalTimeWidget(widgets.MultiWidget):
+    template_name = 'activities/forms/widgets/datetime.html'
+
+    def __init__(self, attrs=None):
+        super().__init__(
+            widgets=(CalendarWidget, TimeWidget),
+            attrs=attrs,
+        )
+
+    def decompress(self, value):
+        return (value[0], value[1]) if value else (None, None)
+
+
+# TODO: manage 'required' set after creation...
+class DateWithOptionalTimeField(forms.MultiValueField):
+    widget = DateWithOptionalTimeWidget
+
+    def __init__(self, *, required=True, **kwargs):
+        super().__init__(
+            fields=(
+                forms.DateField(required=required),
+                forms.TimeField(required=False),
+            ),
+            require_all_fields=False,
+            required=required,
+            **kwargs
+        )
+
+    def compress(self, data_list):
+        return (data_list[0], data_list[1]) if data_list else (None, None)
 
 
 class UserParticipationField(OptionalModelChoiceField):
@@ -62,7 +98,7 @@ class UserParticipationField(OptionalModelChoiceField):
         return value
 
 
-class ParticipatingUsersField(ModelMultipleChoiceField):
+class ParticipatingUsersField(forms.ModelMultipleChoiceField):
     def __init__(self, *,
                  user=None,
                  queryset=get_user_model().objects.filter(is_staff=False),

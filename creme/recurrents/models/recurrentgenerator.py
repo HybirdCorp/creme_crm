@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,16 +30,17 @@ class AbstractRecurrentGenerator(CremeEntity):
     name = models.CharField(_('Name of the generator'), max_length=100, blank=True)
 
     first_generation = models.DateTimeField(_('Date of the first generation'))
-    last_generation  = models.DateTimeField(_('Date of the last generation'),
-                                            null=True, editable=False,
-                                           )
-    periodicity      = DatePeriodField(_('Periodicity of the generation'))
+    last_generation = models.DateTimeField(
+        _('Date of the last generation'), null=True, editable=False,
+    )
+    periodicity = DatePeriodField(_('Periodicity of the generation'))
 
-    ct       = CTypeForeignKey(verbose_name=_('Type of the recurrent resource'), editable=False)
-    template = models.ForeignKey(CremeEntity, verbose_name=_('Related model'),
-                                 related_name='template_set', editable=False,
-                                 on_delete=models.CASCADE,
-                                )
+    ct = CTypeForeignKey(verbose_name=_('Type of the recurrent resource'), editable=False)
+    template = models.ForeignKey(
+        CremeEntity,
+        verbose_name=_('Related model'),
+        related_name='template_set', editable=False, on_delete=models.CASCADE,
+    )
 
     is_working = models.BooleanField(_('Active ?'), editable=False, default=True)  # TODO: useful ?
 
@@ -86,8 +87,11 @@ class AbstractRecurrentGenerator(CremeEntity):
         created = bool(not self.pk)
         super().save(*args, **kwargs)
 
-        if created or self._old_first_generation != self.first_generation or \
-           self._old_periodicity != self.periodicity:
+        if (
+            created
+            or self._old_first_generation != self.first_generation
+            or self._old_periodicity != self.periodicity
+        ):
             recurrents_gendocs_type.refresh_job()
             self.__init_refreshing_cache()
 

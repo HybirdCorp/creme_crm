@@ -23,8 +23,10 @@ from creme.creme_core.views import generic
 from ... import billing
 from .. import gui
 from ..constants import DEFAULT_HFILTER_TEMPLATE
-from ..forms.templatebase import TemplateBaseEditForm
-from . import base
+from ..custom_forms import BTEMPLATE_EDITION_CFORM
+
+# from ..forms.templatebase import TemplateBaseEditForm
+# from . import base
 
 TemplateBase = billing.get_template_base_model()
 
@@ -35,9 +37,11 @@ class TemplateBaseDetail(generic.EntityDetail):
     pk_url_kwarg = 'template_id'
 
 
-class TemplateBaseEdition(base.BaseEdition):
+# class TemplateBaseEdition(base.BaseEdition):
+class TemplateBaseEdition(generic.EntityEdition):
     model = TemplateBase
-    form_class = TemplateBaseEditForm
+    # form_class = TemplateBaseEditForm
+    form_class = BTEMPLATE_EDITION_CFORM
     pk_url_kwarg = 'template_id'
 
 

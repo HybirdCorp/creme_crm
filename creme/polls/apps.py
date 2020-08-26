@@ -41,7 +41,11 @@ class PollsConfig(CremeAppConfig):
         super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
-        creme_registry.register_entity_models(self.PollForm, self.PollReply, self.PollCampaign)
+        creme_registry.register_entity_models(
+            self.PollForm,
+            self.PollReply,
+            self.PollCampaign,
+        )
 
     def register_bricks(self, brick_registry):
         from . import bricks
@@ -61,9 +65,9 @@ class PollsConfig(CremeAppConfig):
         from .forms.poll_reply import InnerEditPersonForm
         from .models import PollFormLine
 
-        bulk_update_registry.register(self.PollReply,
-                                      innerforms={'person': InnerEditPersonForm},
-                                     )
+        bulk_update_registry.register(
+            self.PollReply, innerforms={'person': InnerEditPersonForm},
+        )
         bulk_update_registry.register(PollFormLine, exclude=['type'])
 
     def register_creme_config(self, config_registry):
@@ -71,10 +75,25 @@ class PollsConfig(CremeAppConfig):
 
         config_registry.register_model(models.PollType, 'poll_type')
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.CAMPAIGN_CREATION_CFORM,
+            custom_forms.CAMPAIGN_EDITION_CFORM,
+
+            custom_forms.PFORM_CREATION_CFORM,
+            custom_forms.PFORM_EDITION_CFORM,
+        )
+
     def register_icons(self, icon_registry):
-        icon_registry.register(self.PollForm,     'images/poll_%(size)s.png') \
-                     .register(self.PollReply,    'images/poll_%(size)s.png') \
-                     .register(self.PollCampaign, 'images/poll_%(size)s.png')
+        icon_registry.register(
+            self.PollForm,     'images/poll_%(size)s.png',
+        ).register(
+            self.PollReply,    'images/poll_%(size)s.png',
+        ).register(
+            self.PollCampaign, 'images/poll_%(size)s.png',
+        )
 
     def register_menu(self, creme_menu):
         PCampaign = self.PollCampaign

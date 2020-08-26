@@ -116,7 +116,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
 
         self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': str(self.UNUSED_PK)})
-        self.assertFalse(Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL).exists())
+        self.assertFalse(Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL))
 
     @skipIfCustomOrganisation
     def test_add_phonecall03(self):
@@ -148,9 +148,10 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
         get = response.context.get
         self.assertEqual(phone, get('number'))
-        self.assertEqual(reverse('cti__reload_callers_brick', args=(phone,)),
-                         get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('cti__reload_callers_brick', args=(phone,)),
+            get('bricks_reload_url')
+        )
 
         brick_id = CallersBrick.id_
         brick_node = self.get_brick_node(self.get_html_tree(response.content), brick_id)
@@ -271,21 +272,24 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         phone = '987654'
         url = reverse('cti__create_organisation', args=(phone,))
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'persons/add_organisation_form.html')
+        # self.assertTemplateUsed(response, 'persons/add_organisation_form.html')
 
         with self.assertNoException():
             form = response.context['form']
 
+        self.assertEqual(Organisation, form._meta.model)
         self.assertEqual(phone, form.initial.get('phone'))
 
         name = 'Gunsmith cats'
-        self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'user':  user.id,
-                                                      'name':  name,
-                                                      'phone': phone,
-                                                     },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':  user.id,
+                'name':  name,
+                'phone': phone,
+            },
+        ))
         orga = self.get_object_or_fail(Organisation, phone=phone)
         self.assertEqual(name, orga.name)
 

@@ -24,6 +24,7 @@ from collections import OrderedDict
 from copy import copy
 from functools import partial
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Collection,
@@ -63,8 +64,12 @@ from . import fields as core_fields
 from . import widgets
 from .validators import validate_linkable_model
 
+if TYPE_CHECKING:
+    from ..gui.custom_form import CustomFormExtraSubCell
+
 __all__ = (
-    'LAYOUT_REGULAR', 'LAYOUT_DUAL_FIRST', 'LAYOUT_DUAL_SECOND',
+    'LayoutType',
+    'LAYOUT_REGULAR', 'LAYOUT_DUAL_FIRST', 'LAYOUT_DUAL_SECOND', 'LAYOUTS',
     'FieldBlockManager', 'CremeForm', 'CremeModelForm',
     # 'CremeModelWithUserForm',
     'CremeEntityForm', 'CremeEntityQuickForm',
@@ -72,9 +77,10 @@ __all__ = (
 
 logger = logging.getLogger(__name__)
 
-# TODO: use Litteral for '*' case ?
+# TODO: use Literal for '*' case ?
 FieldNamesOrWildcard = Union[Sequence[str], str]
 
+# NB: we use a '-' to be sure that collision with a regular field is not possible
 # _CUSTOM_NAME = 'custom_field_{}'
 _CUSTOM_NAME = 'custom_field-{}'
 
@@ -538,7 +544,8 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
 
         self._creme_post_init()
 
-    def clean(self, *args, **kwargs):
+    # def clean(self, *args, **kwargs):
+    def clean(self):
         res = super().clean()
         self._creme_post_clean()
         return res
@@ -574,13 +581,17 @@ class CustomFieldsMixin:
         return _CUSTOM_NAME.format(cfield.id)
 
     def _build_customfields(self, only_required=False) -> None:
-        self._customs = self.instance.get_custom_fields_n_values(only_required=only_required)
+        # self._customs = self.instance.get_custom_fields_n_values(only_required=only_required)
+        self._customs = self._get_customfields_n_values(only_required=only_required)
         fields = self.fields
         user = self.user
         build_name = self._build_customfield_name
 
         for cfield, cvalue in self._customs:
             fields[build_name(cfield)] = cfield.get_formfield(cvalue, user=user)
+
+    def _get_customfields_n_values(self, only_required):
+        return self.instance.get_custom_fields_n_values(only_required=only_required)
 
     def _save_customfields(self) -> None:
         cfields_n_values = self._customs
@@ -695,7 +706,8 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
     def _build_properties_field(self, forced_ptype_ids: Iterable[str]) -> None:
         instance = self.instance
 
-        if settings.FORMS_RELATION_FIELDS and not instance.pk:
+        # if settings.FORMS_RELATION_FIELDS and not instance.pk:
+        if self._use_properties_fields() and not instance.pk:
             ptypes_f = self.fields['property_types']
             ptypes_f.queryset = CremePropertyType.objects.compatible(type(instance))
             ptypes_f.forced_values = forced_ptype_ids
@@ -709,7 +721,8 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         instance = self.instance
         info: Optional[str] = None
 
-        if settings.FORMS_RELATION_FIELDS and not instance.pk:
+        # if settings.FORMS_RELATION_FIELDS and not instance.pk:
+        if self._use_relations_fields() and not instance.pk:
             if forced_relations_info:
                 if len(forced_relations_info) == 1:
                     rel = forced_relations_info[0]
@@ -782,7 +795,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                     need_validation = True
 
         if need_validation:
-            subject_prop_ids = {pt.id for pt in self.cleaned_data['property_types']}
+            subject_prop_ids = {pt.id for pt in self.cleaned_data.get('property_types', ())}
 
             for rtype, needed_properties in ptypes_contraints.values():
                 if any(
@@ -810,9 +823,9 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                         )
 
     def _check_subject_linkable(self, rtypes: Collection[RelationType]) -> None:
-        if rtypes and not self.user.has_perm_to_link(type(self.instance),
-                                                     owner=self.cleaned_data['user'],
-                                                    ):
+        if rtypes and not self.user.has_perm_to_link(
+            type(self.instance), owner=self.cleaned_data['user'],
+        ):
             raise forms.ValidationError(
                 self.error_messages['subject_not_linkable'],
                 code='subject_not_linkable',
@@ -906,14 +919,26 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         created = self.instance.pk is None  # TODO: attribute in CremeModelForm ?
         instance = super().save(*args, **kwargs)
         self._save_customfields()
-        self._save_properties(properties=self._get_properties_to_create(),
-                              check_existing=not created,
-                             )
-        self._save_relations(relations=self._get_relations_to_create(),
-                             check_existing=not created,
-                            )
+        self._save_properties(
+            properties=self._get_properties_to_create(),
+            check_existing=not created,
+        )
+        self._save_relations(
+            relations=self._get_relations_to_create(),
+            check_existing=not created,
+        )
 
         return instance
+
+    def subcell_key(self, subcell_cls: Type['CustomFormExtraSubCell']) -> str:
+        "Helper method when writing base class for Custom forms."
+        return subcell_cls(model=self._meta.model).into_cell().key
+
+    def _use_properties_fields(self):
+        return settings.FORMS_RELATION_FIELDS
+
+    def _use_relations_fields(self):
+        return settings.FORMS_RELATION_FIELDS
 
 
 class CremeEntityQuickForm(CustomFieldsMixin, CremeModelForm):

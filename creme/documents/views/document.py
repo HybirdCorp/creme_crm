@@ -17,33 +17,44 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from functools import partial
 
+from django.core.exceptions import ValidationError
+from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
+from creme import documents
 from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core.forms.validators import validate_linkable_model
+from creme.creme_core.models import Relation
+from creme.creme_core.utils import ellipsis
 from creme.creme_core.views import generic
 
-from .. import get_document_model, get_folder_model
+from .. import constants, custom_forms
 from ..constants import DEFAULT_HFILTER_DOCUMENT
-from ..forms import document as doc_forms
+# from ..forms import document as doc_forms
+from ..models import FolderCategory
 
-Document = get_document_model()
+Folder = documents.get_folder_model()
+Document = documents.get_document_model()
 
 
 class DocumentCreation(generic.EntityCreation):
     model = Document
-    form_class = doc_forms.DocumentCreateForm
+    # form_class = doc_forms.DocumentCreateForm
+    form_class = custom_forms.DOCUMENT_CREATION_CFORM
 
     def get_initial(self):
         initial = super().get_initial()
-        initial['linked_folder'] = get_folder_model().objects.first()
+        initial['linked_folder'] = Folder.objects.first()
 
         return initial
 
 
 class RelatedDocumentCreation(generic.AddingInstanceToEntityPopup):
     model = Document
-    form_class = doc_forms.RelatedDocumentCreateForm
+    # form_class = doc_forms.RelatedDocumentCreateForm
+    form_class = custom_forms.DOCUMENT_CREATION_CFORM
     permissions = ['documents', cperm(Document)]
     title = _('New document for «{entity}»')
 
@@ -55,6 +66,89 @@ class RelatedDocumentCreation(generic.AddingInstanceToEntityPopup):
         super().check_view_permissions(user=user)
         user.has_perm_to_link_or_die(Document, owner=None)
 
+    def get_form_class(self):
+        form_cls = super().get_form_class()
+
+        class RelatedDocumentCreationForm(form_cls):
+            def __init__(this, entity, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                this.related_entity = entity
+                this.folder_category = None
+                this.root_folder = None
+
+                del this.fields['linked_folder']
+
+            def clean_user(this):
+                return validate_linkable_model(
+                    Document, this.user, owner=this.cleaned_data['user'],
+                )
+
+            def clean(this):
+                cleaned_data = super().clean()
+
+                if not this._errors:
+                    this.folder_category = cat = FolderCategory.objects.filter(
+                        pk=constants.DOCUMENTS_FROM_ENTITIES,
+                    ).first()
+                    if cat is None:
+                        raise ValidationError(
+                            f'Populate script has not been run '
+                            f'(unknown folder category pk={constants.DOCUMENTS_FROM_ENTITIES}) ; '
+                            f'please contact your administrator'
+                        )
+
+                    this.root_folder = folder = Folder.objects.filter(
+                        uuid=constants.UUID_FOLDER_RELATED2ENTITIES,
+                    ).first()
+                    if folder is None:
+                        raise ValidationError(
+                            f'Populate script has not been run '
+                            f'(unknown folder uuid={constants.UUID_FOLDER_RELATED2ENTITIES}) ; '
+                            f'please contact your administrator'
+                        )
+
+                return cleaned_data
+
+            def _get_relations_to_create(this):
+                instance = this.instance
+
+                return super()._get_relations_to_create().append(
+                    Relation(
+                        subject_entity=this.related_entity.get_real_entity(),
+                        type_id=constants.REL_SUB_RELATED_2_DOC,
+                        object_entity=instance,
+                        user=instance.user,
+                    ),
+                )
+
+            def _get_folder(this):
+                entity = this.related_entity.get_real_entity()
+                get_or_create_folder = partial(
+                    Folder.objects.get_or_create,
+                    category=this.folder_category,
+                    defaults={'user': this.cleaned_data['user']},
+                )
+                model_folder = get_or_create_folder(
+                    title=str(entity.entity_type),
+                    parent_folder=this.root_folder,
+                )[0]
+
+                return get_or_create_folder(
+                    title=ellipsis(
+                        f'{entity.id}_{entity}',
+                        length=Folder._meta.get_field('title').max_length,
+                    ),  # Meh
+                    parent_folder=model_folder,
+                )[0]
+
+            @atomic
+            def save(this, *args, **kwargs):
+                this.instance.linked_folder = this._get_folder()
+
+                return super().save(*args, **kwargs)
+
+        return RelatedDocumentCreationForm
+
 
 class DocumentDetail(generic.EntityDetail):
     model = Document
@@ -64,7 +158,8 @@ class DocumentDetail(generic.EntityDetail):
 
 class DocumentEdition(generic.EntityEdition):
     model = Document
-    form_class = doc_forms.DocumentEditForm
+    # form_class = doc_forms.DocumentEditForm
+    form_class = custom_forms.DOCUMENT_EDITION_CFORM
     pk_url_kwarg = 'document_id'
 
 

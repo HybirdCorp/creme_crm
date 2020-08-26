@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-07 19:43+0200\n"
+"POT-Creation-Date: 2020-10-28 16:15+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -39,11 +39,11 @@ msgstr "Voulez vous vraiment générer un numéro de facture ?"
 msgid "Billing"
 msgstr "Facturation"
 
-#: apps.py:257 apps.py:274
+#: apps.py:277 apps.py:294
 msgid "Management"
 msgstr "Gestion"
 
-#: apps.py:314
+#: apps.py:334
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} won"
@@ -51,7 +51,7 @@ msgid_plural "{count} won"
 msgstr[0] "{count} gagné"
 msgstr[1] "{count} gagnés"
 
-#: apps.py:327
+#: apps.py:347
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} in all"
@@ -272,6 +272,48 @@ msgstr "Montant sur le total"
 msgid "Amount per unit"
 msgstr "Montant par unité"
 
+#: custom_forms.py:20
+msgid "Creation form for invoice"
+msgstr "Formulaire de création de facture"
+
+#: custom_forms.py:31
+msgid "Edition form for invoice"
+msgstr "Formulaire de modification de facture"
+
+#: custom_forms.py:42
+msgid "Creation form for quote"
+msgstr "Formulaire de création de devis"
+
+#: custom_forms.py:53
+msgid "Edition form for quote"
+msgstr "Formulaire de modification de devis"
+
+#: custom_forms.py:64
+msgid "Creation form for salesorder"
+msgstr "Formulaire de création de bon"
+
+#: custom_forms.py:75
+msgid "Edition form for salesorder"
+msgstr "Formulaire de modification de bon"
+
+#: custom_forms.py:86
+msgid "Creation form for credit note"
+msgstr "Formulaire de création d'avoir"
+
+#: custom_forms.py:97
+msgid "Edition form for credit note"
+msgstr "Formulaire de modification d'avoir"
+
+#: custom_forms.py:108
+msgctxt "billing"
+msgid "Creation form for template"
+msgstr "Formulaire de création de patron"
+
+#: custom_forms.py:120
+msgctxt "billing"
+msgid "Edition form for template"
+msgstr "Formulaire de modification de patron"
+
 #: exporters/latex.py:81
 msgid ""
 "The generation of the PDF file has failed ; please contact your "
@@ -296,26 +338,22 @@ msgstr "{currency} sur le total"
 msgid "{currency} per unit"
 msgstr "{currency} par unité"
 
-#: forms/base.py:65 forms/mass_import.py:64
+#: forms/base.py:75 forms/base.py:151 forms/mass_import.py:65
 #: templates/billing/bricks/target.html:24
 msgctxt "billing"
 msgid "Source organisation"
 msgstr "Société émettrice"
 
-#: forms/base.py:69 forms/mass_import.py:71
+#: forms/base.py:88 forms/base.py:155 forms/mass_import.py:72
 msgctxt "billing"
 msgid "Target"
 msgstr "Cible"
 
-#: forms/base.py:75
+#: forms/base.py:106 forms/base.py:161
 msgid "Overall discount (in %)"
 msgstr "Remise globale (en %)"
 
-#: forms/base.py:80
-msgid "Organisations"
-msgstr "Sociétés"
-
-#: forms/base.py:193
+#: forms/base.py:122 forms/base.py:275
 msgid ""
 "If you chose an organisation managed by Creme (like «{}») as source "
 "organisation, a number will be automatically generated."
@@ -323,17 +361,11 @@ msgstr ""
 "Si vous choisissez une société gérée par Creme (comme «{}») en tant "
 "qu'émettrice, un nombre sera automatiquement généré."
 
-#: forms/base.py:208 forms/mass_import.py:130 forms/mass_import.py:169
-#: forms/templatebase.py:82 models/base.py:78
-msgid "Billing address"
-msgstr "Adresse de facturation"
+#: forms/base.py:165 populate.py:342 populate.py:472
+msgid "Organisations"
+msgstr "Sociétés"
 
-#: forms/base.py:211 forms/mass_import.py:134 forms/mass_import.py:174
-#: forms/templatebase.py:85 models/base.py:83
-msgid "Shipping address"
-msgstr "Adresse de livraison"
-
-#: forms/credit_note.py:54 models/credit_note.py:45
+#: forms/credit_note.py:63 models/credit_note.py:45
 msgid "Credit notes"
 msgstr "Avoirs"
 
@@ -421,25 +453,25 @@ msgstr ""
 "Vous n'êtes pas autorisé à ajouter cet élément au catalogue car il ne s'agit "
 "pas d'une ligne à la volée"
 
-#: forms/mass_import.py:75
+#: forms/mass_import.py:76
 msgid "Update the billing address"
 msgstr "Mettre à jour l'adresse de facturation"
 
-#: forms/mass_import.py:76
+#: forms/mass_import.py:77
 msgid "In update mode, update the billing address from the target."
 msgstr ""
 "En mode mise-à-jour, mettre à jour l'adresse de facturation depuis la cible."
 
-#: forms/mass_import.py:79
+#: forms/mass_import.py:80
 msgid "Update the shipping address"
 msgstr "Mettre à jour l'adresse de livraison"
 
-#: forms/mass_import.py:80
+#: forms/mass_import.py:81
 msgid "In update mode, update the shipping address from the target."
 msgstr ""
 "En mode mise-à-jour, mettre à jour l'adresse de livraison depuis la cible."
 
-#: forms/mass_import.py:89
+#: forms/mass_import.py:90
 msgid ""
 "If you chose an organisation managed by Creme as source organisation, a "
 "number will be automatically generated for created «{}»."
@@ -447,24 +479,32 @@ msgstr ""
 "Si vous choisissez une société gérée par Creme en tant qu'émettrice, un "
 "nombre sera automatiquement généré for les «{}» créé(e)s."
 
-#: forms/templatebase.py:30 function_fields.py:50
+#: forms/mass_import.py:171 models/base.py:78 models/base.py:438
+msgid "Billing address"
+msgstr "Adresse de facturation"
+
+#: forms/mass_import.py:176 models/base.py:83 models/base.py:441
+msgid "Shipping address"
+msgstr "Adresse de livraison"
+
+#: forms/templatebase.py:36 forms/templatebase.py:82 function_fields.py:50
 #: templates/billing/bricks/credit-notes.html:19
 #: templates/billing/bricks/received-billing-documents.html:17
 #: templates/billing/bricks/received-invoices.html:25
 msgid "Status"
 msgstr "Statut"
 
-#: forms/templatebase.py:38
+#: forms/templatebase.py:42 forms/templatebase.py:103
+msgid "Status of {}"
+msgstr "Statut de {}"
+
+#: forms/templatebase.py:61 forms/templatebase.py:90
 msgid ""
 "If a number is given, it will be only used as fallback value when generating "
 "a number in the final recurring entities."
 msgstr ""
 "Si un nombre est donné, il sera seulement utilisé comme valeur de secours "
 "lors de la génération du nombre des fiches récurrentes finales."
-
-#: forms/templatebase.py:47
-msgid "Status of {}"
-msgstr "Statut de {}"
 
 #: function_fields.py:149 function_fields.py:160 function_fields.py:173
 #: function_fields.py:185
@@ -566,7 +606,7 @@ msgstr "Enregistrer l'avoir"
 msgid "Credit note"
 msgstr "Avoir"
 
-#: models/exporters.py:33
+#: models/exporters.py:36
 msgid "Export configuration of: {}"
 msgstr "Configuration d'export pour : {}"
 
@@ -729,7 +769,8 @@ msgstr "Statut d'avoir"
 msgid "Credit note statuses"
 msgstr "Statuts d'avoir"
 
-#: models/other_models.py:103 models/other_models.py:120
+#: models/other_models.py:103 models/other_models.py:120 populate.py:348
+#: populate.py:478
 msgid "Description"
 msgstr "Description"
 
@@ -924,265 +965,285 @@ msgctxt "billing"
 msgid "Templates"
 msgstr "Patrons de document"
 
-#: populate.py:94
+#: populate.py:98
 msgid "issued by"
 msgstr "a été émis(e) par"
 
-#: populate.py:95
+#: populate.py:99
 msgid "has issued"
 msgstr "a émis"
 
-#: populate.py:100
+#: populate.py:104
 msgid "received by"
 msgstr "a été reçu(e) par"
 
-#: populate.py:101
+#: populate.py:105
 msgid "has received"
 msgstr "a reçu"
 
-#: populate.py:106
+#: populate.py:110
 msgid "had the line"
 msgstr "a la ligne"
 
-#: populate.py:107
+#: populate.py:111
 msgid "is the line of"
 msgstr "est la ligne de"
 
-#: populate.py:112
+#: populate.py:116
 msgid "has the related item"
 msgstr "a comme service/produit associé"
 
-#: populate.py:113
+#: populate.py:117
 msgid "is the related item of"
 msgstr "est le produit/service associé"
 
-#: populate.py:119
+#: populate.py:123
 msgid "is used in the billing document"
 msgstr "est consommé dans le document comptable"
 
-#: populate.py:124
+#: populate.py:128
 msgid "used the credit note"
 msgstr "consomme l'avoir"
 
-#: populate.py:145
+#: populate.py:149
 msgid "Deposit"
 msgstr "Accompte"
 
-#: populate.py:146
+#: populate.py:150
 #, python-format
 msgid "20% deposit will be required"
 msgstr "20% d'acompte sera demandé"
 
-#: populate.py:156
+#: populate.py:160
 msgctxt "billing-salesorder"
 msgid "Issued"
 msgstr "Émis"
 
-#: populate.py:159
+#: populate.py:163
 msgctxt "billing-salesorder"
 msgid "Accepted"
 msgstr "Accepté"
 
-#: populate.py:160
+#: populate.py:164
 msgctxt "billing-salesorder"
 msgid "Rejected"
 msgstr "Rejeté"
 
-#: populate.py:161
+#: populate.py:165
 msgctxt "billing-salesorder"
 msgid "Created"
 msgstr "Créé"
 
-#: populate.py:168
+#: populate.py:172
 msgctxt "billing-invoice"
 msgid "Draft"
 msgstr "Brouillon"
 
-#: populate.py:171
+#: populate.py:175
 msgctxt "billing-invoice"
 msgid "To be sent"
 msgstr "À envoyer"
 
-#: populate.py:176
+#: populate.py:180
 msgctxt "billing-invoice"
 msgid "Sent"
 msgstr "Envoyée"
 
-#: populate.py:179
+#: populate.py:183
 msgctxt "billing-invoice"
 msgid "Resulted"
 msgstr "Soldée"
 
-#: populate.py:182
+#: populate.py:186
 msgctxt "billing-invoice"
 msgid "Partly resulted"
 msgstr "Partiellement soldée"
 
-#: populate.py:185
+#: populate.py:189
 msgid "Collection"
 msgstr "Recouvrement"
 
-#: populate.py:188
+#: populate.py:192
 msgid "Resulted collection"
 msgstr "Recouvrement soldé"
 
-#: populate.py:191
+#: populate.py:195
 msgctxt "billing-invoice"
 msgid "Canceled"
 msgstr ""
 
-#: populate.py:198
+#: populate.py:202
 msgctxt "billing-creditnote"
 msgid "Draft"
 msgstr "Brouillon"
 
-#: populate.py:201
+#: populate.py:205
 msgctxt "billing-creditnote"
 msgid "Issued"
 msgstr "Émise"
 
-#: populate.py:202
+#: populate.py:206
 msgctxt "billing-creditnote"
 msgid "Consumed"
 msgstr "Consommée"
 
-#: populate.py:203
+#: populate.py:207
 msgctxt "billing-creditnote"
 msgid "Out of date"
 msgstr "Périmée"
 
-#: populate.py:207
+#: populate.py:211
 msgid "Invoices unpaid"
 msgstr "Factures impayées"
 
-#: populate.py:219
+#: populate.py:223
 msgid "Invoices unpaid and late"
 msgstr "Factures impayées et en retard"
 
-#: populate.py:236
+#: populate.py:240
 msgid "Current year invoices"
 msgstr "Factures de l'année en cours"
 
-#: populate.py:248
+#: populate.py:252
 msgid "Current year and unpaid invoices"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:280
+#: populate.py:284
 msgid "Invoice view"
 msgstr "Vue de Facture"
 
-#: populate.py:281
+#: populate.py:285
 msgid "Quote view"
 msgstr "Vue de Devis"
 
-#: populate.py:282
+#: populate.py:286
 msgid "Sales order view"
 msgstr "Vue de Bon de Commande"
 
-#: populate.py:283
+#: populate.py:287
 msgid "Credit note view"
 msgstr "Vue des Avoirs"
 
-#: populate.py:285
+#: populate.py:289
 msgid "Template view"
 msgstr "Vue de Patron"
 
-#: populate.py:299
+#: populate.py:303
 msgid "Product lines view"
 msgstr "Vue des lignes de produit"
 
-#: populate.py:300
+#: populate.py:304
 msgid "Service lines view"
 msgstr "Vue des lignes de service"
 
-#: populate.py:350
+# Already in creme_core
+#: populate.py:309
+msgid "Properties"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:317
+msgid "Relationships"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:330 populate.py:453
+msgid "General information"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:353 populate.py:483
+msgid "Custom fields"
+msgstr ""
+
+#: populate.py:552
 msgctxt "billing-quote"
 msgid "Pending"
 msgstr "En attente"
 
-#: populate.py:352
+#: populate.py:554
 msgctxt "billing-quote"
 msgid "Accepted"
 msgstr "Accepté"
 
-#: populate.py:353
+#: populate.py:555
 msgctxt "billing-quote"
 msgid "Rejected"
 msgstr "Rejeté"
 
-#: populate.py:354
+#: populate.py:556
 msgctxt "billing-quote"
 msgid "Created"
 msgstr "Créé"
 
-#: populate.py:357
+#: populate.py:559
 msgid "30 days"
 msgstr "À 30 jours"
 
-#: populate.py:358
+#: populate.py:560
 msgid "Cash"
 msgstr "Comptant"
 
-#: populate.py:359
+#: populate.py:561
 msgid "45 days"
 msgstr "À 45 jours"
 
-#: populate.py:360
+#: populate.py:562
 msgid "60 days"
 msgstr "À 60 jours"
 
-#: populate.py:361
+#: populate.py:563
 msgid "30 days, end month the 10"
 msgstr "À 30 jours, fin de mois le 10"
 
-#: populate.py:366
+#: populate.py:568
 msgid "Trainer accreditation"
 msgstr "Agrément formateur"
 
-#: populate.py:367
+#: populate.py:569
 msgid "being certified trainer courses could be supported by your OPCA"
 msgstr ""
 "étant agrée formateur les formations pourront être prises en charge par "
 "votre OPCA"
 
-#: populate.py:412
+#: populate.py:614
 msgid "Invoice information"
 msgstr "Informations sur la facture"
 
-#: populate.py:423
+#: populate.py:625
 msgid "Credit note information"
 msgstr "Informations sur l'avoir"
 
-#: populate.py:432
+#: populate.py:634
 msgid "Quote information"
 msgstr "Informations sur le devis"
 
-#: populate.py:442
+#: populate.py:644
 msgid "Salesorder information"
 msgstr "Informations sur le bon de commande"
 
-#: populate.py:451
+#: populate.py:653
 msgctxt "billing"
 msgid "Template information"
 msgstr "Informations sur le patron de document"
 
-#: populate.py:595
+#: populate.py:797
 msgid "All invoices of the current year"
 msgstr "Toutes les factures de l'année en cours"
 
-#: populate.py:602
+#: populate.py:804
 msgid "Sum of current year invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures de l'année en cours / mois"
 
-#: populate.py:611
+#: populate.py:813
 msgid "Sum of current year invoices total without taxes / invoices status"
 msgstr "Somme des totaux HT des factures de l'année en cours / statut"
 
-#: populate.py:625
+#: populate.py:827
 msgid "Invoices unpaid of the current year"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:631
+#: populate.py:833
 msgid "Sum of current year and unpaid invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures impayées de l'année en cours / mois"
 
@@ -1451,7 +1512,7 @@ msgstr "Général :"
 msgid "Field <em>«%(field_name)s»</em>:"
 msgstr "Champ <em>«%(field_name)s»</em> :"
 
-#: utils.py:42
+#: utils.py:44
 msgid "{} %"
 msgstr "{} %"
 
@@ -1460,12 +1521,12 @@ msgstr "{} %"
 msgid "{src} (converted into {dest._meta.verbose_name})"
 msgstr "{src} (converti en {dest._meta.verbose_name})"
 
-#: views/credit_note.py:65
+#: views/credit_note.py:67
 #, python-brace-format
 msgid "Credit notes for «{entity}»"
 msgstr "Avoirs consommables par «{entity}»"
 
-#: views/credit_note.py:66
+#: views/credit_note.py:68
 msgid "Link the credit notes"
 msgstr "Lier les avoirs"
 
@@ -1484,7 +1545,7 @@ msgstr ""
 "L'exporteur configuré est invalide ; allez dans la configuration de l'app "
 "«Facturation»."
 
-#: views/invoice.py:75
+#: views/invoice.py:77
 #, python-brace-format
 msgid "Create an invoice for «{entity}»"
 msgstr "Créer une facture pour «{entity}»"
@@ -1521,12 +1582,12 @@ msgstr "Nouvelle information de paiement pour la société «{entity}»"
 msgid "Payment information for «{entity}»"
 msgstr "Information de paiement pour «{entity}»"
 
-#: views/quote.py:45
+#: views/quote.py:48
 #, python-brace-format
 msgid "Create a quote for «{entity}»"
 msgstr "Créer un devis pour «{entity}»"
 
-#: views/sales_order.py:44
+#: views/sales_order.py:47
 #, python-brace-format
 msgid "Create a salesorder for «{entity}»"
 msgstr "Créer un bon de commande pour «{entity}»"
@@ -1570,9 +1631,6 @@ msgstr "Créer un bon de commande pour «{entity}»"
 #~ msgctxt "billing-quote_stats"
 #~ msgid "%s in all"
 #~ msgstr "%s en tout"
-
-#~ msgid "List of invoices"
-#~ msgstr "Liste des factures"
 
 #~ msgid "Number of invoices"
 #~ msgstr "Nombre de facture(s)"

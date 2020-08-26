@@ -38,7 +38,7 @@ from .base import (
 @skipIfCustomQuote
 class QuoteTestCase(_BillingTestCase):
     def test_detailview01(self):
-        "Cannot create Sales Orders => convert button disabled"
+        "Cannot create Sales Orders => convert button disabled."
         self.login(
             is_superuser=False,
             allowed_apps=['billing', 'persons'],
@@ -114,7 +114,9 @@ class QuoteTestCase(_BillingTestCase):
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            source_f = fields['source']
+            # source_f = fields['source']
+            # number_f = fields['number']
+            source_f = fields[self.SOURCE_KEY]
             number_f = fields['number']
 
         self.assertEqual(managed_orga, source_f.initial)
@@ -163,7 +165,7 @@ class QuoteTestCase(_BillingTestCase):
 
         self.assertRelationCount(1, quote,  REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, quote,  REL_SUB_BILL_RECEIVED, target1)
-        self.assertRelationCount(1, target1, REL_SUB_PROSPECT,      source)
+        self.assertRelationCount(1, target1, REL_SUB_PROSPECT,     source)
 
         self.assertEqual([1], [*algo_qs.values_list('last_number', flat=True)])
 
@@ -189,12 +191,11 @@ class QuoteTestCase(_BillingTestCase):
         url = reverse('billing__create_related_quote', args=(target.id,))
         response = self.assertGET200(url)
         # self.assertTemplateUsed(response, 'billing/form/add-popup.html')
-        self.assertTemplateUsed(response, 'billing/forms/add-popup.html')
 
         context = response.context
         self.assertEqual(
             _('Create a quote for «{entity}»').format(entity=target),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(Quote.save_label, context.get('submit_label'))
 
@@ -205,9 +206,10 @@ class QuoteTestCase(_BillingTestCase):
         self.assertDictEqual(
             {
                 'status': 1,
-                'target': target,
+                'target': target,  # deprecated
+                self.TARGET_KEY: target,
             },
-            form.initial
+            form.initial,
         )
 
         name = 'Quote#1'
@@ -223,8 +225,12 @@ class QuoteTestCase(_BillingTestCase):
                 'status':          status.id,
                 'currency':        currency.id,
                 'discount':        Decimal(),
-                'source':          source.id,
-                'target':          self.formfield_value_generic_entity(target),
+
+                # 'source':          source.id,
+                # 'target':          self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+
             },
         )
         self.assertNoFormError(response)
@@ -248,11 +254,11 @@ class QuoteTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -272,13 +278,13 @@ class QuoteTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
-            set_type=SetCredentials.ESET_ALL
+            set_type=SetCredentials.ESET_ALL,
         )
 
         source, target = self.create_orgas()
@@ -296,13 +302,13 @@ class QuoteTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                # EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                # | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
-            set_type=SetCredentials.ESET_ALL
+            set_type=SetCredentials.ESET_ALL,
         )
 
         source, target = self.create_orgas()
@@ -317,10 +323,10 @@ class QuoteTestCase(_BillingTestCase):
         quote, source, target = self.create_quote_n_orgas(name)
 
         url = quote.get_edit_absolute_url()
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            number_f = response.context['form'].fields['number']
+            number_f = response1.context['form'].fields['number']
 
         self.assertFalse(number_f.help_text)
 
@@ -330,7 +336,7 @@ class QuoteTestCase(_BillingTestCase):
             international_symbol='MUSD', is_custom=True,
         )
         status = QuoteStatus.objects.all()[1]
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'user': user.pk,
@@ -345,11 +351,13 @@ class QuoteTestCase(_BillingTestCase):
                 'currency': currency.id,
                 'discount': Decimal(),
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         quote = self.refresh(quote)
         self.assertEqual(name,                             quote.name)
@@ -373,9 +381,11 @@ class QuoteTestCase(_BillingTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -396,16 +406,21 @@ class QuoteTestCase(_BillingTestCase):
                     'status':     quote.status_id,
                     'currency':   quote.currency_id,
                     'discount':   quote.discount,
-                    'source':     source.id,
-                    'target':     self.formfield_value_generic_entity(target),
+
+                    # 'source':     source.id,
+                    # 'target':     self.formfield_value_generic_entity(target),
+                    self.SOURCE_KEY: source.id,
+                    self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 },
             )
 
         response = post(unlinkable_source, unlinkable_target)
         self.assertEqual(200, response.status_code)
         msg_fmt = _('You are not allowed to link this entity: {}').format
-        self.assertFormError(response, 'form', 'source', msg_fmt(unlinkable_source))
-        self.assertFormError(response, 'form', 'target', msg_fmt(unlinkable_target))
+        # self.assertFormError(response, 'form', 'source', msg_fmt(unlinkable_source))
+        # self.assertFormError(response, 'form', 'target', msg_fmt(unlinkable_target))
+        self.assertFormError(response, 'form', self.SOURCE_KEY, msg_fmt(unlinkable_source))
+        self.assertFormError(response, 'form', self.TARGET_KEY, msg_fmt(unlinkable_target))
 
         # ----
         source2, target2 = self.create_orgas(user=user)
@@ -428,9 +443,11 @@ class QuoteTestCase(_BillingTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -452,8 +469,11 @@ class QuoteTestCase(_BillingTestCase):
                 'status':   status.id,
                 'currency': quote.currency_id,
                 'discount': quote.discount,
-                'source':   source.id,
-                'target':   self.formfield_value_generic_entity(target),
+
+                # 'source':   source.id,
+                # 'target':   self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)

@@ -32,6 +32,7 @@ from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
+from .. import custom_forms
 from ..constants import REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
 from ..forms import task as task_forms
 
@@ -42,7 +43,8 @@ ProjectTask = projects.get_task_model()
 
 class TaskCreation(generic.AddingInstanceToEntityPopup):
     model = ProjectTask
-    form_class = task_forms.TaskCreateForm
+    # form_class = task_forms.TaskCreateForm
+    form_class = custom_forms.TASK_CREATION_CFORM
     title = _('Create a task for «{entity}»')
     entity_id_url_kwarg = 'project_id'
     entity_classes = projects.get_project_model()
@@ -60,13 +62,15 @@ class TaskDetail(generic.EntityDetail):
 
 class TaskEdition(generic.EntityEdition):
     model = ProjectTask
-    form_class = task_forms.TaskEditForm
+    # form_class = task_forms.TaskEditForm
+    form_class = custom_forms.TASK_EDITION_CFORM
     pk_url_kwarg = 'task_id'
 
 
 class TaskEditionPopup(generic.EntityEditionPopup):
     model = ProjectTask
-    form_class = task_forms.TaskEditForm
+    # form_class = task_forms.TaskEditForm
+    form_class = custom_forms.TASK_EDITION_CFORM
     pk_url_kwarg = 'task_id'
 
 

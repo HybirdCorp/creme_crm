@@ -33,13 +33,29 @@ def skipIfCustomActivity(test_func):
 class _ActivitiesTestCase(CremeTestCase):
     ACTIVITY_CREATION_URL = reverse('activities__create_activity')
 
+    EXTRA_START_KEY = 'cform_extra-activities_start'
+    EXTRA_END_KEY   = 'cform_extra-activities_end'
+
+    EXTRA_SUBTYPE_KEY = 'cform_extra-activities_subtype'
+
+    EXTRA_MYPART_KEY    = 'cform_extra-activities_my_participation'
+    EXTRA_PARTUSERS_KEY = 'cform_extra-activities_users'
+    EXTRA_OTHERPART_KEY = 'cform_extra-activities_others_participants'
+    EXTRA_SUBJECTS_KEY  = 'cform_extra-activities_subjects'
+    EXTRA_LINKED_KEY    = 'cform_extra-activities_linked'
+
+    EXTRA_ALERTDT_KEY     = 'cform_extra-activities_alert_datetime'
+    EXTRA_ALERTPERIOD_KEY = 'cform_extra-activities_alert_period'
+    EXTRA_MESSAGES_KEY    = 'cform_extra-activities_user_messages'
+
     def login(self, is_superuser=True, is_staff=False,
               allowed_apps=('activities', 'persons'), *args, **kwargs):
-        return super().login(is_superuser=is_superuser,
-                             is_staff=is_staff,
-                             allowed_apps=allowed_apps,
-                             *args, **kwargs
-                            )
+        return super().login(
+            is_superuser=is_superuser,
+            is_staff=is_staff,
+            allowed_apps=allowed_apps,
+            *args, **kwargs
+        )
 
     def _acttype_field_value(self, atype_id, subtype_id=None):
         return json_dump({'type': atype_id, 'sub_type': subtype_id})
@@ -47,24 +63,32 @@ class _ActivitiesTestCase(CremeTestCase):
     def _build_nolink_setcreds(self):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                  EntityCredentials.DELETE     | EntityCredentials.UNLINK,  # Not LINK
-                  set_type=SetCredentials.ESET_ALL,
-                 )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
+            ),  # Not LINK
+            set_type=SetCredentials.ESET_ALL,
+        )
 
     def _create_activity_by_view(self, title='My task',
                                  atype_id=ACTIVITYTYPE_TASK, subtype_id=None,
-                                 **kwargs
-                                ):
+                                 **kwargs):
         user = self.login()
 
         data = {
-            'user':          user.pk,
-            'title':         title,
-            'type_selector': self._acttype_field_value(atype_id, subtype_id),
+            'user': user.pk,
+            'title': title,
 
-            'my_participation_0': True,
-            'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
+            # 'type_selector': self._acttype_field_value(atype_id, subtype_id),
+            self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(atype_id, subtype_id),
+
+            # 'my_participation_0': True,
+            # 'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
+            f'{self.EXTRA_MYPART_KEY}_0': True,
+            f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
         }
         data.update(kwargs)
 

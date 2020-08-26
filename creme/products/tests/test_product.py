@@ -24,7 +24,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertTrue(Category.objects.exists())
         self.assertTrue(SubCategory.objects.exists())
 
-    def test_ajaxview01(self):
+    def test_subcategories_view(self):
         self.login()
 
         self.assertGET404(reverse('products__subcategories', args=(0,)))
@@ -38,9 +38,10 @@ class ProductTestCase(_ProductsTestCase):
         subcat2 = create_subcat(name=name2, description='description')
 
         response = self.assertGET200(reverse('products__subcategories', args=(cat.id,)))
-        self.assertEqual([[subcat1.id, name1], [subcat2.id, name2]],
-                         response.json()
-                        )
+        self.assertListEqual(
+            [[subcat1.id, name1], [subcat2.id, name2]],
+            response.json(),
+        )
 
     @skipIfCustomProduct
     def test_createview01(self):
@@ -57,16 +58,20 @@ class ProductTestCase(_ProductsTestCase):
         cat = sub_cat.category
         description = 'A fake god'
         unit_price = '1.23'
-        response = self.client.post(url, follow=True,
-                                    data={'user':         user.pk,
-                                          'name':         name,
-                                          'code':         code,
-                                          'description':  description,
-                                          'unit_price':   unit_price,
-                                          'unit':         'anything',
-                                          'sub_category': self._cat_field(cat, sub_cat),
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':         user.pk,
+                'name':         name,
+                'code':         code,
+                'description':  description,
+                'unit_price':   unit_price,
+                'unit':         'anything',
+                # 'sub_category': self._cat_field(cat, sub_cat),
+                self.EXTRA_CATEGORY_KEY: self._cat_field(cat, sub_cat),
+            },
+        )
         self.assertNoFormError(response)
 
         products = Product.objects.all()
@@ -86,7 +91,7 @@ class ProductTestCase(_ProductsTestCase):
 
     @skipIfCustomProduct
     def test_createview02(self):
-        "Images + credentials"
+        "Images + credentials."
         user = self.login_as_basic_user(Product)
 
         create_image = partial(
@@ -107,22 +112,27 @@ class ProductTestCase(_ProductsTestCase):
             return self.client.post(
                 reverse('products__create_product'), follow=True,
                 data={
-                    'user':         user.pk,
-                    'name':         name,
-                    'code':         42,
-                    'description':  'A fake god',
-                    'unit_price':   '1.23',
-                    'unit':         'anything',
-                    'sub_category': self._cat_field(sub_cat.category, sub_cat),
-                    'images':       self.formfield_value_multi_creator_entity(*images),
+                    'user':        user.pk,
+                    'name':        name,
+                    'code':        42,
+                    'description': 'A fake god',
+                    'unit_price':  '1.23',
+                    'unit':        'anything',
+                    'images':      self.formfield_value_multi_creator_entity(*images),
+
+                    # 'sub_category': self._cat_field(sub_cat.category, sub_cat),
+                    self.EXTRA_CATEGORY_KEY: self._cat_field(
+                        sub_cat.category, sub_cat,
+                    ),
                 },
             )
 
         response = post(img_1, img_3)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images',
-                             _('Some entities are not linkable: {}').format(img_3),
-                            )
+        self.assertFormError(
+            response, 'form', 'images',
+            _('Some entities are not linkable: {}').format(img_3),
+        )
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)
@@ -134,35 +144,43 @@ class ProductTestCase(_ProductsTestCase):
     def test_editview(self):
         user = self.login()
 
-        name    = 'Eva00'
-        code    = 42
+        name = 'Eva00'
+        code = 42
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=user, name=name, description='A fake god',
-                                         unit_price=Decimal('1.23'), code=code,
-                                         category=sub_cat.category, sub_category=sub_cat,
-                                        )
+        product = Product.objects.create(
+            user=user, name=name, description='A fake god',
+            unit_price=Decimal('1.23'), code=code,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
         url = product.get_edit_absolute_url()
         response = self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
+            subcat_f = fields[self.EXTRA_CATEGORY_KEY]
 
         self.assertNotIn('images', fields)
+        self.assertEqual(sub_cat, subcat_f.initial)
+        self.assertEqual(user, subcat_f.user)
 
         name += '_edited'
         unit_price = '4.53'
-        response = self.client.post(url, follow=True,
-                                    data={'user':         user.pk,
-                                          'name':         name,
-                                          'code':         product.code,
-                                          'description':  product.description,
-                                          'unit_price':   unit_price,
-                                          'unit':         'anything',
-                                          'sub_category': self._cat_field(product.category,
-                                                                          product.sub_category
-                                                                         ),
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':         user.pk,
+                'name':         name,
+                'code':         product.code,
+                'description':  product.description,
+                'unit_price':   unit_price,
+                'unit':         'anything',
+                # 'sub_category': self._cat_field(product.category, product.sub_category),
+                self.EXTRA_CATEGORY_KEY: self._cat_field(
+                    product.category, product.sub_category,
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         product = self.refresh(product)
@@ -174,13 +192,16 @@ class ProductTestCase(_ProductsTestCase):
         user = self.login()
 
         cat = Category.objects.all()[0]
-        create_prod = partial(Product.objects.create, user=user,
-                              description='A fake god', unit_price=Decimal('1.23'),
-                              category=cat, sub_category=SubCategory.objects.all()[0],
-                             )
-        products = [create_prod(name='Eva00', code=42),
-                    create_prod(name='Eva01', code=43),
-                   ]
+        create_prod = partial(
+            Product.objects.create,
+            user=user,
+            description='A fake god', unit_price=Decimal('1.23'),
+            category=cat, sub_category=SubCategory.objects.all()[0],
+        )
+        products = [
+            create_prod(name='Eva00', code=42),
+            create_prod(name='Eva01', code=43),
+        ]
 
         response = self.assertGET200(Product.get_lv_absolute_url())
 
@@ -194,12 +215,14 @@ class ProductTestCase(_ProductsTestCase):
         self.login()
 
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
-        sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
+        sub_cat = SubCategory.objects.create(
+            name='Eva', description='Fake gods', category=cat,
+        )
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('products', 'subcategory', sub_cat.id)
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('products', 'subcategory', sub_cat.id),
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(SubCategory).job
@@ -208,11 +231,14 @@ class ProductTestCase(_ProductsTestCase):
 
     def _build_product_cat_subcat(self):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
-        sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
-        product = Product.objects.create(user=self.user, name='Eva00', description='A fake god',
-                                         unit_price=Decimal('1.23'), code=42,
-                                         category=cat, sub_category=sub_cat,
-                                        )
+        sub_cat = SubCategory.objects.create(
+            name='Eva', description='Fake gods', category=cat,
+        )
+        product = Product.objects.create(
+            user=self.user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'), code=42,
+            category=cat, sub_category=sub_cat,
+        )
 
         return product, cat, sub_cat
 
@@ -221,10 +247,10 @@ class ProductTestCase(_ProductsTestCase):
         self.login()
 
         product, cat, sub_cat = self._build_product_cat_subcat()
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('products', 'subcategory', sub_cat.id)
-                                             ),
-                                     )
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance',
+            args=('products', 'subcategory', sub_cat.id)
+        ))
         self.assertFormError(
             response, 'form',
             'replace_products__product_sub_category',
@@ -235,13 +261,12 @@ class ProductTestCase(_ProductsTestCase):
         self.login()
 
         product, cat, sub_cat = self._build_product_cat_subcat()
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('products', 'category', cat.id)
-                                             ),
-                                     )
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance',
+            args=('products', 'category', cat.id)
+        ))
         self.assertFormError(
-            response, 'form',
-            'replace_products__product_category',
+            response, 'form', 'replace_products__product_category',
             _('Deletion is not possible.')
         )
 
@@ -249,11 +274,11 @@ class ProductTestCase(_ProductsTestCase):
         user = self.login()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
-        product = Product.objects.create(user=user, name='Eva00',
-                                         description='A fake god',
-                                         unit_price=Decimal('1.23'), code=42,
-                                         category=sub_cat.category, sub_category=sub_cat
-                                        )
+        product = Product.objects.create(
+            user=user, name='Eva00',
+            description='A fake god', unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
 
         url = self.build_inneredit_url(product, 'category')
         self.assertGET200(url)
@@ -278,11 +303,11 @@ class ProductTestCase(_ProductsTestCase):
         user = self.login()
 
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=user, name='Eva00',
-                                         description='A fake god',
-                                         unit_price=Decimal('1.23'), code=42,
-                                         category=sub_cat.category, sub_category=sub_cat,
-                                        )
+        product = Product.objects.create(
+            user=user, name='Eva00',
+            description='A fake god', unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
 
         url = self.build_inneredit_url(product, 'category')
         self.assertGET200(url)
@@ -297,9 +322,10 @@ class ProductTestCase(_ProductsTestCase):
                 ),
             },
         )
-        self.assertFormError(response, 'form', 'sub_category',
-                             _('This sub-category causes constraint error.')
-                            )
+        self.assertFormError(
+            response, 'form', 'sub_category',
+            _('This sub-category causes constraint error.'),
+        )
 
         product = self.refresh(product)
         self.assertEqual(sub_cat, product.sub_category)
@@ -309,11 +335,11 @@ class ProductTestCase(_ProductsTestCase):
         user = self.login()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
-        create_product = partial(Product.objects.create,
-                                 user=user, description='A fake god',
-                                 unit_price=Decimal('1.23'),
-                                 category=sub_cat.category, sub_category=sub_cat,
-                                )
+        create_product = partial(
+            Product.objects.create,
+            user=user, description='A fake god', unit_price=Decimal('1.23'),
+            category=sub_cat.category, sub_category=sub_cat,
+        )
 
         product = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
@@ -347,11 +373,11 @@ class ProductTestCase(_ProductsTestCase):
         user = self.login()
 
         sub_cat = SubCategory.objects.all()[0]
-        create_product = partial(Product.objects.create,
-                                 user=user, description='A fake god',
-                                 unit_price=Decimal('1.23'),
-                                 category=sub_cat.category, sub_category=sub_cat
-                                )
+        create_product = partial(
+            Product.objects.create,
+            user=user, description='A fake god', unit_price=Decimal('1.23'),
+            category=sub_cat.category, sub_category=sub_cat
+        )
 
         product = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
@@ -371,9 +397,10 @@ class ProductTestCase(_ProductsTestCase):
                 'entities': [product.id, product2.id],
             },
         )
-        self.assertFormError(response, 'form', 'sub_category',
-                             _('This sub-category causes constraint error.')
-                            )
+        self.assertFormError(
+            response, 'form', 'sub_category',
+            _('This sub-category causes constraint error.')
+        )
 
         product = self.refresh(product)
         self.assertEqual(sub_cat, product.sub_category)
@@ -387,11 +414,11 @@ class ProductTestCase(_ProductsTestCase):
         user = self.login()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
-        create_product = partial(Product.objects.create,
-                                 user=user, description='A fake god',
-                                 unit_price=Decimal('1.23'),
-                                 category=sub_cat.category, sub_category=sub_cat,
-                                )
+        create_product = partial(
+            Product.objects.create,
+            user=user, description='A fake god', unit_price=Decimal('1.23'),
+            category=sub_cat.category, sub_category=sub_cat,
+        )
 
         product1 = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
@@ -425,11 +452,11 @@ class ProductTestCase(_ProductsTestCase):
         user = self.login()
 
         sub_cat = SubCategory.objects.all()[0]
-        create_product = partial(Product.objects.create,
-                                 user=user, description='A fake god',
-                                 unit_price=Decimal('1.23'),
-                                 category=sub_cat.category, sub_category=sub_cat
-                                )
+        create_product = partial(
+            Product.objects.create,
+            user=user, description='A fake god', unit_price=Decimal('1.23'),
+            category=sub_cat.category, sub_category=sub_cat,
+        )
 
         product1 = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
@@ -449,9 +476,10 @@ class ProductTestCase(_ProductsTestCase):
                 'entities': [product1.pk, product2.pk],
             },
         )
-        self.assertFormError(response, 'form', 'sub_category',
-                             _('This sub-category causes constraint error.')
-                            )
+        self.assertFormError(
+            response, 'form', 'sub_category',
+            _('This sub-category causes constraint error.')
+        )
 
         product1 = self.refresh(product1)
         self.assertEqual(sub_cat,          product1.sub_category)
@@ -476,11 +504,11 @@ class ProductTestCase(_ProductsTestCase):
         self.assertFalse(user.has_perm_to_link(img_4))
 
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=user, name='Eva00', description='A fake god',
-                                         unit_price=Decimal('1.23'), code=42,
-                                         category=sub_cat.category,
-                                         sub_category=sub_cat,
-                                        )
+        product = Product.objects.create(
+            user=user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
         product.images.set([img_3])
 
         url = reverse('products__add_images_to_product', args=(product.id,))
@@ -488,9 +516,10 @@ class ProductTestCase(_ProductsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('New images for «{entity}»').format(entity=product),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New images for «{entity}»').format(entity=product),
+            context.get('title'),
+        )
         self.assertEqual(_('Link the images'), context.get('submit_label'))
 
         def post(*images):
@@ -501,9 +530,10 @@ class ProductTestCase(_ProductsTestCase):
 
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images',
-                             _('Some entities are not linkable: {}').format(img_4),
-                            )
+        self.assertFormError(
+            response, 'form', 'images',
+            _('Some entities are not linkable: {}').format(img_4),
+        )
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)
@@ -522,9 +552,11 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET404(reverse('products__add_images_to_product', args=(rei.id,)))
 
     def test_remove_image(self):
-        user = self.login(is_superuser=False, allowed_apps=['documents', 'products'],
-                          creatable_models=[get_document_model()],
-                         )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['documents', 'products'],
+            creatable_models=[get_document_model()],
+        )
         creds = SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -536,12 +568,11 @@ class ProductTestCase(_ProductsTestCase):
         img_2 = create_image(ident=2, user=user)
 
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=user, name='Eva00',
-                                         description='A fake god',
-                                         unit_price=Decimal('1.23'), code=42,
-                                         category=sub_cat.category,
-                                         sub_category=sub_cat,
-                                        )
+        product = Product.objects.create(
+            user=user, name='Eva00',
+            description='A fake god', unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
         product.images.set([img_1, img_2])
 
         url = reverse('products__remove_image', args=(product.id,))
@@ -574,9 +605,10 @@ class ProductTestCase(_ProductsTestCase):
         prices = '10', '20.50'
         codes = 123, 456
 
-        lines = [(names[0], descriptions[0], prices[0], codes[0]),
-                 (names[1], descriptions[1], prices[1], codes[1]),
-                ]
+        lines = [
+            (names[0], descriptions[0], prices[0], codes[0]),
+            (names[1], descriptions[1], prices[1], codes[1]),
+        ]
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Product)
@@ -584,30 +616,31 @@ class ProductTestCase(_ProductsTestCase):
 
         sub_cat = SubCategory.objects.first()
 
-        data = {'step': 1,
-                'document': doc.id,
-                # has_header
-                'user': user.id,
+        data = {
+            'step': 1,
+            'document': doc.id,
+            # has_header
+            'user': user.id,
 
-                'name_colselect': 1,
-                'description_colselect': 2,
-                'unit_price_colselect': 3,
-                'code_colselect': 4,
+            'name_colselect': 1,
+            'description_colselect': 2,
+            'unit_price_colselect': 3,
+            'code_colselect': 4,
 
-                'categories_cat_colselect': 0,
-                'categories_subcat_colselect': 0,
-                # 'categories_defval': ...,
+            'categories_cat_colselect': 0,
+            'categories_subcat_colselect': 0,
+            # 'categories_defval': ...,
 
-                'unit_colselect': 0,
-                'quantity_per_unit_colselect': 0,
-                'weight_colselect': 0,
-                'stock_colselect': 0,
-                'web_site_colselect': 0,
+            'unit_colselect': 0,
+            'quantity_per_unit_colselect': 0,
+            'weight_colselect': 0,
+            'stock_colselect': 0,
+            'web_site_colselect': 0,
 
-                # 'property_types',
-                # 'fixed_relations',
-                # 'dyn_relations',
-               }
+            # 'property_types',
+            # 'fixed_relations',
+            # 'dyn_relations',
+        }
 
         # Validation errors ------------------------
         msg = _('Select a valid sub-category.')
@@ -683,36 +716,37 @@ class ProductTestCase(_ProductsTestCase):
         description = 'Imported from CSV'
         price = '12'
         code = 489
-        data = {'step': 1,
-                'document': doc.id,
-                # has_header
-                'user': user.id,
+        data = {
+            'step': 1,
+            'document': doc.id,
+            # has_header
+            'user': user.id,
 
-                'name_colselect': 1,
+            'name_colselect': 1,
 
-                'description_colselect': 0,
-                'description_defval': description,
+            'description_colselect': 0,
+            'description_defval': description,
 
-                'unit_price_colselect': 0,
-                'unit_price_defval': price,
+            'unit_price_colselect': 0,
+            'unit_price_defval': price,
 
-                'code_colselect': 0,
-                'code_defval': code,
+            'code_colselect': 0,
+            'code_defval': code,
 
-                'categories_cat_colselect': 2,
-                'categories_subcat_colselect': 3,
-                'categories_subcat_defval': sub_cat11.pk,
+            'categories_cat_colselect': 2,
+            'categories_subcat_colselect': 3,
+            'categories_subcat_defval': sub_cat11.pk,
 
-                'unit_colselect': 0,
-                'quantity_per_unit_colselect': 0,
-                'weight_colselect': 0,
-                'stock_colselect': 0,
-                'web_site_colselect': 0,
+            'unit_colselect': 0,
+            'quantity_per_unit_colselect': 0,
+            'weight_colselect': 0,
+            'stock_colselect': 0,
+            'web_site_colselect': 0,
 
-                # 'property_types',
-                # 'fixed_relations',
-                # 'dyn_relations',
-               }
+            # 'property_types',
+            # 'fixed_relations',
+            # 'dyn_relations',
+        }
 
         # Validation error ------------------------
         response = self.assertPOST200(
@@ -810,50 +844,53 @@ class ProductTestCase(_ProductsTestCase):
 
         names = ['Product %2i' % i for i in range(1, 5)]
 
-        lines = [(names[0], '', ''),
-                 (names[1], cat2.name, sub_cat21.name),
-                 (names[2], cat2.name, sub_cat22_name),
-                 (names[3], cat3_name, sub_cat31_name),
-                ]
+        lines = [
+            (names[0], '', ''),
+            (names[1], cat2.name, sub_cat21.name),
+            (names[2], cat2.name, sub_cat22_name),
+            (names[3], cat3_name, sub_cat31_name),
+        ]
 
         doc = self._build_csv_doc(lines)
 
         description = 'Imported from CSV'
         price = '12'
         code = 489
-        response = self.client.post(self._build_import_url(Product), follow=True,
-                                    data={'step': 1,
-                                          'document': doc.id,
-                                          # has_header
-                                          'user': user.id,
+        response = self.client.post(
+            self._build_import_url(Product), follow=True,
+            data={
+                'step': 1,
+                'document': doc.id,
+                # has_header
+                'user': user.id,
 
-                                          'name_colselect': 1,
+                'name_colselect': 1,
 
-                                          'description_colselect': 0,
-                                          'description_defval': description,
+                'description_colselect': 0,
+                'description_defval': description,
 
-                                          'unit_price_colselect': 0,
-                                          'unit_price_defval': price,
+                'unit_price_colselect': 0,
+                'unit_price_defval': price,
 
-                                          'code_colselect': 0,
-                                          'code_defval': code,
+                'code_colselect': 0,
+                'code_defval': code,
 
-                                          'categories_cat_colselect': 2,
-                                          'categories_subcat_colselect': 3,
-                                          'categories_subcat_defval': sub_cat11.pk,
-                                          'categories_create': 'on',  # <==
+                'categories_cat_colselect': 2,
+                'categories_subcat_colselect': 3,
+                'categories_subcat_defval': sub_cat11.pk,
+                'categories_create': 'on',  # <==
 
-                                          'unit_colselect': 0,
-                                          'quantity_per_unit_colselect': 0,
-                                          'weight_colselect': 0,
-                                          'stock_colselect': 0,
-                                          'web_site_colselect': 0,
+                'unit_colselect': 0,
+                'quantity_per_unit_colselect': 0,
+                'weight_colselect': 0,
+                'stock_colselect': 0,
+                'web_site_colselect': 0,
 
-                                          # 'property_types',
-                                          # 'fixed_relations',
-                                          # 'dyn_relations',
-                                         }
-                                   )
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
@@ -891,16 +928,21 @@ class ProductTestCase(_ProductsTestCase):
 
     def test_mass_import04(self):
         "Categories in CSV ; want to create Category but not it is allowed"
-        user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],
-                          creatable_models=[Product, get_document_model()],
-                         )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['products', 'documents'],
+            creatable_models=[Product, get_document_model()],
+        )
         count = Product.objects.count()
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -912,49 +954,53 @@ class ProductTestCase(_ProductsTestCase):
         sub_cat21 = SubCategory.objects.create(name='Thriller', category=cat2)
 
         names = ['Product %2i' % i for i in range(1, 5)]
-        lines = [(names[0], '', ''),
-                 (names[1], cat2.name, sub_cat21.name),
-                 (names[2], cat2.name, 'Action'),
-                 (names[3], 'Books',   'Sci-Fi'),
-                ]
+        lines = [
+            (names[0], '', ''),
+            (names[1], cat2.name, sub_cat21.name),
+            (names[2], cat2.name, 'Action'),
+            (names[3], 'Books',   'Sci-Fi'),
+        ]
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Product)
         self.assertGET200(url)
 
-        data = {'step': 1,
-                'document': doc.id,
-                # has_header
-                'user': user.id,
+        data = {
+            'step': 1,
+            'document': doc.id,
+            # has_header
+            'user': user.id,
 
-                'name_colselect': 1,
+            'name_colselect': 1,
 
-                'description_colselect': 0,
-                'description_defval': 'Imported from CSV',
+            'description_colselect': 0,
+            'description_defval': 'Imported from CSV',
 
-                'unit_price_colselect': 0,
-                'unit_price_defval': '12',
+            'unit_price_colselect': 0,
+            'unit_price_defval': '12',
 
-                'code_colselect': 0,
-                'code_defval': 489,
+            'code_colselect': 0,
+            'code_defval': 489,
 
-                'categories_cat_colselect': 2,
-                'categories_subcat_colselect': 3,
-                'categories_subcat_defval': sub_cat11.pk,
+            'categories_cat_colselect': 2,
+            'categories_subcat_colselect': 3,
+            'categories_subcat_defval': sub_cat11.pk,
 
-                'unit_colselect': 0,
-                'quantity_per_unit_colselect': 0,
-                'weight_colselect': 0,
-                'stock_colselect': 0,
-                'web_site_colselect': 0,
+            'unit_colselect': 0,
+            'quantity_per_unit_colselect': 0,
+            'weight_colselect': 0,
+            'stock_colselect': 0,
+            'web_site_colselect': 0,
 
-                # 'property_types',
-                # 'fixed_relations',
-                # 'dyn_relations',
-               }
+            # 'property_types',
+            # 'fixed_relations',
+            # 'dyn_relations',
+        }
 
         # Validation error -----------
-        response = self.assertPOST200(url, follow=True, data={**data, 'categories_create': 'on'})
+        response = self.assertPOST200(
+            url, follow=True, data={**data, 'categories_create': 'on'},
+        )
         self.assertFormError(
             response, 'form', 'categories', 'You cannot create Category or SubCategory',
         )

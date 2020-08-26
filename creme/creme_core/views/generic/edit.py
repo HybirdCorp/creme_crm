@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type
+from typing import Type, Union
 
 from django.db.transaction import atomic
 from django.forms.forms import BaseForm
@@ -27,6 +27,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import UpdateView
 
 from creme.creme_core import forms, models
+from creme.creme_core.gui.custom_form import CustomFormDescriptor
 
 from . import base
 
@@ -43,7 +44,8 @@ class CremeEditionPopup(base.CremeFormPopup):
     submit_label = _('Save the modifications')
 
 
-class CremeModelEdition(base.CancellableMixin,
+class CremeModelEdition(base.CustomFormMixin,
+                        base.CancellableMixin,
                         base.PermissionsMixin,
                         base.TitleMixin,
                         base.SubmittableMixin,
@@ -66,7 +68,7 @@ class CremeModelEdition(base.CancellableMixin,
     be backed out by the 'initial' field value of the other form).
     """
     model = models.CremeModel
-    form_class: Type[BaseForm] = forms.CremeModelForm
+    form_class: Union[Type[BaseForm], CustomFormDescriptor] = forms.CremeModelForm
     template_name = 'creme_core/generics/blockform/edit.html'
     pk_url_kwarg = 'object_id'
     title = _('Edit «{object}»')
@@ -92,6 +94,9 @@ class CremeModelEdition(base.CancellableMixin,
         context['cancel_url'] = self.get_cancel_url()
 
         return context
+
+    def get_form_class(self):
+        return self.get_custom_form_class(super().get_form_class())
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -169,7 +174,7 @@ class EntityEditionPopup(CremeModelEditionPopup):
     It's based on CremeModelEditionPopup & adds the credentials checking.
     """
     model = models.CremeEntity
-    form_class: Type[BaseForm] = forms.CremeEntityForm
+    form_class: Union[Type[BaseForm], CustomFormDescriptor] = forms.CremeEntityForm
     pk_url_kwarg = 'entity_id'
 
     def check_instance_permissions(self, instance, user):

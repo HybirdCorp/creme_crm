@@ -5,6 +5,7 @@ from .. import get_rgenerator_model, rgenerator_model_is_custom
 skip_generator_tests = rgenerator_model_is_custom()
 
 RecurrentGenerator = get_rgenerator_model()
+CTYPE_KEY = '0-cform_extra-recurrents_ctype'
 
 
 def skipIfCustomGenerator(test_func):

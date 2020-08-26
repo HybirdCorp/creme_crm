@@ -25,6 +25,8 @@ def skipIfCustomService(test_func):
 
 
 class _ProductsTestCase(_DocumentsTestCase, MassImportBaseTestCaseMixin):
+    EXTRA_CATEGORY_KEY = 'cform_extra-products_subcategory'
+
     def _cat_field(self, category, sub_category):
         return json_dump({'category': category.id, 'subcategory': sub_category.id})
 

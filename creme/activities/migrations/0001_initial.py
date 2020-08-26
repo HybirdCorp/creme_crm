@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
@@ -90,9 +91,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Activity',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    ),
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
@@ -103,16 +107,27 @@ class Migration(migrations.Migration):
                 (
                     'duration',
                     models.PositiveIntegerField(
-                        null=True, verbose_name='Duration (in hour)', blank=True,
+                        verbose_name='Duration (in hour)', blank=True, null=True,
                         help_text='It is only informative and is not used to compute the end time.',
-                    )
+                    ),
                 ),
                 ('is_all_day', models.BooleanField(blank=True, default=False, verbose_name='All day?')),
                 ('busy', models.BooleanField(default=False, verbose_name='Busy?')),
                 ('floating_type', models.PositiveIntegerField(default=1, verbose_name='Floating type', editable=False)),
                 ('type', models.ForeignKey(on_delete=PROTECT, verbose_name='Activity type', to='activities.ActivityType')),
-                ('sub_type',models.ForeignKey(on_delete=SET_NULL, verbose_name='Activity sub-type', blank=True, to='activities.ActivitySubType', null=True)),
-                ('status', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Status', blank=True, to='activities.Status', null=True)),
+                (
+                    'sub_type',
+                    models.ForeignKey(
+                        verbose_name='Activity sub-type', to='activities.ActivitySubType',
+                        blank=True, null=True, on_delete=SET_NULL,
+                    ),
+                ),
+                (
+                    'status',
+                    models.ForeignKey(
+                        on_delete=CREME_REPLACE_NULL, verbose_name='Status', blank=True, to='activities.Status', null=True,
+                    ),
+                ),
                 ('calendars', models.ManyToManyField(verbose_name='Calendars', editable=False, to='activities.Calendar')),
             ],
             options={

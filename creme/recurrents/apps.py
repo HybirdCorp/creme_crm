@@ -44,6 +44,14 @@ class RecurrentsConfig(CremeAppConfig):
             self.RecurrentGenerator, exclude=['first_generation'],
         )
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.GENERATOR_CREATION_CFORM,
+            custom_forms.GENERATOR_EDITION_CFORM,
+        )
+
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.RecurrentGenerator, 'images/recurrent_doc_%(size)s.png',

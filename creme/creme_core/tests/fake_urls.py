@@ -77,6 +77,16 @@ urlpatterns = [
     ),
 
     re_path(
+        r'^tests/activity/add[/]?$',
+        fake_views.FakeActivityCreation.as_view(),
+        name='creme_core__create_fake_activity',
+    ),
+    re_path(
+        r'^tests/activity/edit/(?P<activity_id>\d+)[/]?$',
+        fake_views.FakeActivityEdition.as_view(),
+        name='creme_core__edit_fake_activity',
+    ),
+    re_path(
         r'^tests/activities[/]?$',
         fake_views.FakeActivitiesList.as_view(),
         name='creme_core__list_fake_activities',

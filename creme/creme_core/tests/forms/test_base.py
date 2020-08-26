@@ -411,13 +411,19 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.create_user()
 
         create_ptype = CremePropertyType.create
-        ptype01 = create_ptype(str_pk='test-prop_spirit',   text='Haunted by a spirit')
-        ptype02 = create_ptype(str_pk='test-prop_bakemono', text='Cursed by a bakemono')
+        ptype01 = create_ptype(
+            str_pk='test-prop_spirit', text='Haunted by a spirit',
+        )
+        ptype02 = create_ptype(
+            str_pk='test-prop_bakemono', text='Cursed by a bakemono',
+        )
         ptype03 = create_ptype(
-            str_pk='test-prop_see', text='See the yokai', subject_ctypes=[FakeContact],
+            str_pk='test-prop_see', text='See the yokai',
+            subject_ctypes=[FakeContact],
         )
         ptype04 = create_ptype(
-            str_pk='test-prop_license', text='Has a license', subject_ctypes=[FakeOrganisation],
+            str_pk='test-prop_license', text='Has a license',
+            subject_ctypes=[FakeOrganisation],
         )
 
         form = FakeContactForm(user=user)
@@ -474,8 +480,12 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.create_user()
 
         create_ptype = CremePropertyType.create
-        ptype01 = create_ptype(str_pk='test-prop_spirit',   text='Haunted by a spirit')
-        ptype02 = create_ptype(str_pk='test-prop_bakemono', text='Cursed by a bakemono')
+        ptype01 = create_ptype(
+            str_pk='test-prop_spirit',   text='Haunted by a spirit',
+        )
+        ptype02 = create_ptype(
+            str_pk='test-prop_bakemono', text='Cursed by a bakemono',
+        )
         ptype03 = create_ptype(
             str_pk='test-prop_see', text='See the yokai', subject_ctypes=[FakeContact],
         )
@@ -498,8 +508,12 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.create_user()
 
         create_ptype = CremePropertyType.create
-        ptype01 = create_ptype(str_pk='test-prop_spirit',   text='Haunted by a spirit')
-        ptype02 = create_ptype(str_pk='test-prop_bakemono', text='Cursed by a bakemono')
+        ptype01 = create_ptype(
+            str_pk='test-prop_spirit',   text='Haunted by a spirit',
+        )
+        ptype02 = create_ptype(
+            str_pk='test-prop_bakemono', text='Cursed by a bakemono',
+        )
         ptype03 = create_ptype(
             str_pk='test-prop_see', text='See the yokai', subject_ctypes=[FakeContact],
         )
@@ -522,7 +536,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes + no <properties> field."
         user = self.create_user()
 
-        ptype = CremePropertyType.create(str_pk='test-prop_spirit',   text='Haunted by a spirit')
+        ptype = CremePropertyType.create(str_pk='test-prop_spirit', text='Haunted by a spirit')
 
         form = FakeContactForm(
             user=user, forced_ptypes=[ptype.id],

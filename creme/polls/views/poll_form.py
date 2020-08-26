@@ -32,7 +32,7 @@ from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic import base
 
-from .. import get_pollform_model
+from .. import custom_forms, get_pollform_model
 from ..constants import DEFAULT_HFILTER_PFORM
 from ..forms import poll_form as pf_forms
 from ..models import PollFormLine, PollFormSection
@@ -124,7 +124,8 @@ class LineChoices(base.CheckedView):
 
 class PollFormCreation(generic.EntityCreation):
     model = PollForm
-    form_class = pf_forms.PollFormForm
+    # form_class = pf_forms.PollFormForm
+    form_class = custom_forms.PFORM_CREATION_CFORM
 
 
 class PollFormDetail(generic.EntityDetail):
@@ -135,7 +136,8 @@ class PollFormDetail(generic.EntityDetail):
 
 class PollFormEdition(generic.EntityEdition):
     model = PollForm
-    form_class = pf_forms.PollFormForm
+    # form_class = pf_forms.PollFormForm
+    form_class = custom_forms.PFORM_EDITION_CFORM
     pk_url_kwarg = 'pform_id'
 
 

@@ -28,7 +28,9 @@ creme.persons = creme.persons || {};
 // Copy inputs from a form to another in the SAME order.
 // WARNING : Extremely weak function, if any field is missing or moved on the
 // other side, it will fall apart.
-creme.persons.copyTo = function (source, target) {
+creme.persons.copyTo = function(source, target) {
+    console.warn('creme.persons.copyTo() is deprecated.');
+
     source = Object.isString(source) ? $('#' + source) : $(source);
     target = Object.isString(target) ? $('#' + target) : $(target);
 
@@ -42,12 +44,24 @@ creme.persons.copyTo = function (source, target) {
     if ($from.size() > 0 && $to.size() > 0) {
         var $to_fill = $to.find('input, textarea, select');
 
-        // TODO: use ':input' selector ??
         $from.find('input, textarea, select').each(function(ind) {
             $($to_fill[ind]).val($(this).val());
         });
     }
     */
+};
+
+// TODO: unit test
+creme.persons.copyAddressInputs = function(source_prefix, target_prefix, source_root, target_root) {
+    if (target_root === undefined) {
+        target_root = source_root;
+    }
+
+    source_root.find('input, textarea, select').filter('[name|=' + source_prefix + ']').each(function() {
+        target_root.find('input, textarea, select').filter(
+            '[name=' + $(this).attr('name').replace(source_prefix, target_prefix) + ']'
+        ).val($(this).val());
+    });
 };
 
 // creme.persons.become = function(url, organisations) {

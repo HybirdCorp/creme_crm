@@ -169,7 +169,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview03(self):
-        "Double extension (bugfix)"
+        "Double extension (bugfix)."
         self.login()
 
         ext = 'php'
@@ -245,9 +245,9 @@ class DocumentTestCase(_DocumentsTestCase):
     def test_editview(self):
         user = self.login()
 
-        title       = 'Test doc'
+        title = 'Test doc'
         description = 'Test description'
-        content     = 'Yes I am the content (DocumentTestCase.test_editview)'
+        content = 'Yes I am the content (DocumentTestCase.test_editview)'
         doc = self._create_doc(
             title,
             self.build_filedata(content),
@@ -257,7 +257,7 @@ class DocumentTestCase(_DocumentsTestCase):
         url = doc.get_edit_absolute_url()
         self.assertGET200(url)
 
-        title       = title.upper()
+        title = title.upper()
         description = description.upper()
         # content     = content.upper() TODO: use ?
         folder = Folder.objects.create(
@@ -335,15 +335,18 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(ct_folder,     entity_folder2.parent_folder)
 
     def test_add_related_document02(self):
-        "Creation credentials"
+        "Creation credentials."
         self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'])
 
         SetCredentials.objects.create(
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
         )
 
@@ -351,7 +354,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertGET403(self._buid_addrelated_url(entity))
 
     def test_add_related_document03(self):
-        "Link credentials"
+        "Link credentials."
         user = self.login(
             is_superuser=False,
             allowed_apps=['documents', 'creme_core'],
@@ -581,7 +584,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(download_action.is_visible)
 
     def test_delete_category(self):
-        "Set to null"
+        "Set to null."
         user = self.login()
 
         cat = FolderCategory.objects.create(name='Manga')
@@ -792,14 +795,14 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
                 'added': [[doc.id, str(doc)]],
                 'value': doc.id,
             },
-            response.json()
+            response.json(),
         )
 
         with doc.filedata.open('r') as f:
             self.assertEqual([content], f.readlines())
 
     def test_add_csv_doc02(self):
-        "Not super-user"
+        "Not super-user."
         self.login(
             is_superuser=False, allowed_apps=['documents'], creatable_models=[Document],
         )
@@ -860,7 +863,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
                 'added': [[doc.id, str(doc)]],
                 'value': doc.id,
             },
-            response.json()
+            response.json(),
         )
 
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))

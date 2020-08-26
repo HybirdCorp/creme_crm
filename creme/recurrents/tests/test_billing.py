@@ -12,7 +12,7 @@ from creme.creme_core.models import Currency, Vat
 from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 from creme.persons import get_address_model, get_organisation_model
 
-from .base import RecurrentGenerator, skipIfCustomGenerator
+from .base import CTYPE_KEY, RecurrentGenerator, skipIfCustomGenerator
 
 Address = get_address_model()
 Organisation = get_organisation_model()
@@ -83,10 +83,12 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
                 '0-user':             user.id,
                 '0-name':             gen_name,
-                '0-ct':               ct.id,
                 '0-first_generation': '08-07-2014 11:00',
                 '0-periodicity_0':    'months',
                 '0-periodicity_1':    '1',
+
+                # '0-ct': ct.id,
+                CTYPE_KEY: ct.id,
             },
         )
         self.assertNoWizardFormError(response)
@@ -139,9 +141,14 @@ class RecurrentsBillingTestCase(CremeTestCase):
                 '1-name':     tpl_name,
                 '1-currency': currency.id,
                 '1-discount': discount,
-                '1-status':   status.id,
-                '1-source':   source.id,
-                '1-target':   self.formfield_value_generic_entity(target),
+
+                # '1-status':   status.id,
+                '1-cform_extra-billing_template_status':   status.id,
+
+                # '1-source':   source.id,
+                # '1-target':   self.formfield_value_generic_entity(target),
+                '1-cform_extra-billing_source': source.id,
+                '1-cform_extra-billing_target': self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoWizardFormError(response)
@@ -239,7 +246,8 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
                     '0-user': user.id,
                     '0-name': 'Recurrent billing obj',
-                    '0-ct':   ct.id,
+                    # '0-ct':   ct.id,
+                    '0-cform_extra-recurrents_ctype':   ct.id,
 
                     '0-first_generation': '08-07-2014 11:00',
 
@@ -258,12 +266,13 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
         self.assertDictEqual(
             {
-                'ct': [_(
+                # 'ct': [_(
+                'cform_extra-recurrents_ctype': [_(
                     'Select a valid choice. '
                     'That choice is not one of the available choices.'
                 )],
             },
-            errors
+            errors,
         )
 
         response = post(Quote)

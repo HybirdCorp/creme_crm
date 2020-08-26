@@ -1,5 +1,7 @@
 {% extends 'creme_core/generics/blockform/content.html' %}
-{% load i18n %}
+{% load i18n creme_core_tags %}
+
+{% log 'The template file "creme/persons/templates/persons/frags/billing_block.html" is deprecated.' level='WARN' %}
 
 {% block table_attrs %}
     id="billing_table"

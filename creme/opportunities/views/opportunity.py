@@ -25,9 +25,9 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 
-from .. import get_opportunity_model
+# from ..forms import opportunity as opp_forms
+from .. import custom_forms, get_opportunity_model
 from ..constants import DEFAULT_HFILTER_OPPORTUNITY
-from ..forms import opportunity as opp_forms
 from ..models import SalesPhase
 
 Opportunity = get_opportunity_model()
@@ -35,7 +35,8 @@ Opportunity = get_opportunity_model()
 
 class _BaseOpportunityCreation(generic.EntityCreation):
     model = Opportunity
-    form_class = opp_forms.OpportunityCreationForm
+    # form_class = opp_forms.OpportunityCreationForm
+    form_class = custom_forms.OPPORTUNITY_CREATION_CFORM
 
     def get_initial(self):
         initial = super().get_initial()
@@ -71,7 +72,8 @@ class RelatedOpportunityCreation(EntityRelatedMixin, _BaseOpportunityCreation):
 # TODO: factorise ?
 class RelatedOpportunityCreationPopup(generic.AddingInstanceToEntityPopup):
     model = Opportunity
-    form_class = opp_forms.TargetedOpportunityCreationForm
+    # form_class = opp_forms.TargetedOpportunityCreationForm
+    form_class = custom_forms.OPPORTUNITY_CREATION_CFORM
     permissions = ['opportunities', cperm(Opportunity)]
     title = _('New opportunity targeting «{entity}»')
     entity_id_url_kwarg = 'person_id'
@@ -86,6 +88,23 @@ class RelatedOpportunityCreationPopup(generic.AddingInstanceToEntityPopup):
         # Target/emitter relationships are internal (they are mandatory
         # and can be seen as ForeignKeys).
         user.has_perm_to_link_or_die(entity)
+
+    def get_form_class(self):
+        form_cls = super().get_form_class()
+
+        class TargetedOpportunityCreationForm(form_cls):
+            def __init__(this, target, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                this.target = target
+                del this.fields[this.target_cell_key]
+
+            def clean(this):
+                cdata = super().clean()
+                this.instance.target = this.target
+
+                return cdata
+
+        return TargetedOpportunityCreationForm
 
     def get_initial(self):
         initial = super().get_initial()
@@ -102,7 +121,8 @@ class OpportunityDetail(generic.EntityDetail):
 
 class OpportunityEdition(generic.EntityEdition):
     model = Opportunity
-    form_class = opp_forms.OpportunityEditionForm
+    # form_class = opp_forms.OpportunityEditionForm
+    form_class = custom_forms.OPPORTUNITY_EDITION_CFORM
     pk_url_kwarg = 'opp_id'
 
 

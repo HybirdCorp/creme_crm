@@ -78,6 +78,9 @@ def skipIfCustomServiceLine(test_func):
 
 
 class _BillingTestCaseMixin:
+    SOURCE_KEY = 'cform_extra-billing_source'
+    TARGET_KEY = 'cform_extra-billing_target'
+
     def login(self, is_superuser=True, allowed_apps=None, *args, **kwargs):
         return super().login(
             is_superuser,
@@ -112,8 +115,10 @@ class _BillingTestCaseMixin:
                 'currency': currency.id,
                 'discount': discount,
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)
@@ -154,8 +159,10 @@ class _BillingTestCaseMixin:
                 'currency': currency.id,
                 'discount': discount,
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
 
                 **kwargs
             },
@@ -202,8 +209,10 @@ class _BillingTestCaseMixin:
                 'currency': currency.id,
                 'discount': Decimal(),
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
 
                 **kwargs
             },
@@ -264,8 +273,10 @@ class _BillingTestCaseMixin:
                 'currency': currency.id,
                 'discount': Decimal(),
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)

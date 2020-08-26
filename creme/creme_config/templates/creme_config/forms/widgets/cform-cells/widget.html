@@ -1,0 +1,18 @@
+{% extends 'creme_core/forms/widgets/entity-cells/widget.html' %}
+{% load i18n %}
+
+{% block field_selectors %}
+    {% with extra_widget=widget.cform_extra %}
+    {% if extra_widget %}{% include extra_widget.template_name with widget=extra_widget %}{% endif %}
+    {% endwith %}
+
+    {{block.super}}
+{% endblock %}
+
+{% block selectors %}
+    {{block.super}}
+
+    {% with special_widget=widget.cform_special %}
+    {% if special_widget %}{% include special_widget.template_name with widget=special_widget %}{% endif %}
+    {% endwith %}
+{% endblock %}

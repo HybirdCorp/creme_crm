@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from itertools import chain, zip_longest
 
 from django.core.exceptions import ValidationError
@@ -41,6 +42,10 @@ from .fields import PollFormLineConditionsField
 class PollFormForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_pollform_model()
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('PollFormForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class PollFormSectionEditForm(CremeModelForm):

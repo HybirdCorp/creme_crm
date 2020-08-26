@@ -27,11 +27,13 @@ from django.utils.translation import gettext as _
 from creme import commercial, persons, products
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
     CremePropertyType,
+    CustomFormConfigItem,
     HeaderFilter,
     Job,
     RelationType,
@@ -42,7 +44,14 @@ from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.utils.date_period import date_period_registry
 
-from . import bricks, buttons, constants, creme_jobs, setting_keys
+from . import (
+    bricks,
+    buttons,
+    constants,
+    creme_jobs,
+    custom_forms,
+    setting_keys,
+)
 from .models import ActType, MarketSegment
 
 logger = logging.getLogger(__name__)
@@ -125,6 +134,99 @@ class Populator(BasePopulator):
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
                 (EntityCellRegularField, {'name': 'segment'}),
+            ],
+        )
+
+        # ---------------------------
+        def build_custom_form_items(creation_descriptor, edition_descriptor, field_names):
+            base_groups_desc = [
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        *(
+                            (EntityCellRegularField, {'name': fname})
+                            for fname in field_names
+                        ),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                }, {
+                    'name': _('Description'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'description'}),
+                    ],
+                }, {
+                    'name': _('Custom fields'),
+                    'cells': [
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                        ),
+                    ],
+                },
+            ]
+
+            CustomFormConfigItem.objects.create_if_needed(
+                descriptor=creation_descriptor,
+                groups_desc=[
+                    *base_groups_desc,
+                    {
+                        'name': _('Properties'),
+                        'cells': [
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                            ),
+                        ],
+                    }, {
+                        'name': _('Relationships'),
+                        'cells': [
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.RELATIONS},
+                            ),
+                        ],
+                    },
+                ],
+            )
+            CustomFormConfigItem.objects.create_if_needed(
+                descriptor=edition_descriptor,
+                groups_desc=base_groups_desc,
+            )
+
+        build_custom_form_items(
+            creation_descriptor=custom_forms.ACT_CREATION_CFORM,
+            edition_descriptor=custom_forms.ACT_EDITION_CFORM,
+            field_names=[
+                'user',
+                'name',
+                'expected_sales',
+                'cost',
+                'goal',
+                'start',
+                'due_date',
+                'act_type',
+                'segment',
+            ],
+        )
+        build_custom_form_items(
+            creation_descriptor=custom_forms.PATTERN_CREATION_CFORM,
+            edition_descriptor=custom_forms.PATTERN_EDITION_CFORM,
+            field_names=[
+                'user',
+                'name',
+                'average_sales',
+                'segment',
+            ],
+        )
+        build_custom_form_items(
+            creation_descriptor=custom_forms.STRATEGY_CREATION_CFORM,
+            edition_descriptor=custom_forms.STRATEGY_EDITION_CFORM,
+            field_names=[
+                'user',
+                'name',
             ],
         )
 

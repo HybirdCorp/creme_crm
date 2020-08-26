@@ -1,0 +1,8 @@
+<div class="activities-field-datetime">
+{% with widget=widget.subwidgets.0 %}
+    <div class="activities-field-date-part">{% include widget.template_name %}</div>
+{% endwith %}
+{% with widget=widget.subwidgets.1 %}
+    <div class="activities-field-date-time">{% include widget.template_name %}</div>
+{% endwith %}
+</div>

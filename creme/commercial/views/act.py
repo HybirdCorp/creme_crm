@@ -23,6 +23,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
+from creme import commercial
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import (
     login_required,
@@ -34,9 +35,10 @@ from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.opportunities import get_opportunity_model
-from creme.opportunities.forms.opportunity import OpportunityCreationForm
+# from creme.opportunities.forms.opportunity import OpportunityCreationForm
+from creme.opportunities.custom_forms import OPPORTUNITY_CREATION_CFORM
 
-from .. import constants, get_act_model, get_pattern_model
+from .. import constants, custom_forms
 from ..forms import act as forms
 from ..models import (
     ActObjective,
@@ -46,30 +48,33 @@ from ..models import (
 )
 
 Opportunity = get_opportunity_model()
-Act = get_act_model()
-ActObjectivePattern = get_pattern_model()
+Act = commercial.get_act_model()
+ActObjectivePattern = commercial.get_pattern_model()
 
 
 class ActCreation(generic.EntityCreation):
     model = Act
-    form_class = forms.ActForm
+    # form_class = forms.ActForm
+    form_class = custom_forms.ACT_CREATION_CFORM
 
     def get_initial(self):
         initial = super().get_initial()
         initial['act_type'] = ActType.objects.first()
-        initial['segment']  = MarketSegment.objects.first()
+        initial['segment'] = MarketSegment.objects.first()
 
         return initial
 
 
 class ActObjectivePatternCreation(generic.EntityCreation):
     model = ActObjectivePattern
-    form_class = forms.ObjectivePatternForm
+    # form_class = forms.ObjectivePatternForm
+    form_class = custom_forms.PATTERN_CREATION_CFORM
 
 
 class RelatedOpportunityCreation(generic.AddingInstanceToEntityPopup):
     model = Opportunity
-    form_class = OpportunityCreationForm
+    # form_class = OpportunityCreationForm
+    form_class = OPPORTUNITY_CREATION_CFORM
     permissions = ['opportunities', cperm(Opportunity)]
     title = _('Create a linked opportunity')
     entity_id_url_kwarg = 'act_id'
@@ -86,9 +91,10 @@ class RelatedOpportunityCreation(generic.AddingInstanceToEntityPopup):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['forced_relations'] = [
-            Relation(type_id=constants.REL_SUB_COMPLETE_GOAL,
-                     object_entity=self.related_entity,
-                    ),
+            Relation(
+                type_id=constants.REL_SUB_COMPLETE_GOAL,
+                object_entity=self.related_entity,
+            ),
         ]
 
         return kwargs
@@ -108,13 +114,15 @@ class ActObjectivePatternDetail(generic.EntityDetail):
 
 class ActEdition(generic.EntityEdition):
     model = Act
-    form_class = forms.ActForm
+    # form_class = forms.ActForm
+    form_class = custom_forms.ACT_EDITION_CFORM
     pk_url_kwarg = 'act_id'
 
 
 class ActObjectivePatternEdition(generic.EntityEdition):
     model = ActObjectivePattern
-    form_class = forms.ObjectivePatternForm
+    # form_class = forms.ObjectivePatternForm
+    form_class = custom_forms.PATTERN_EDITION_CFORM
     pk_url_kwarg = 'objpattern_id'
 
 
@@ -291,11 +299,12 @@ class RelatedEntityCreation(generic.AddingInstanceToEntityPopup):
 
     def form_valid(self, form):
         response = super().form_valid(form=form)
-        Relation.objects.create(subject_entity=form.instance,
-                                type_id=constants.REL_SUB_COMPLETE_GOAL,
-                                object_entity=self.related_entity,
-                                user=self.request.user,
-                               )
+        Relation.objects.create(
+            subject_entity=form.instance,
+            type_id=constants.REL_SUB_COMPLETE_GOAL,
+            object_entity=self.related_entity,
+            user=self.request.user,
+        )
 
         return response
 

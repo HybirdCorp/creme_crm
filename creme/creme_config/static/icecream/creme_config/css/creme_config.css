@@ -175,6 +175,92 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     fill: #666;
 }
 
+/* Custom-forms brick */
+
+.creme_config-customforms-brick td.customform-config-ctype-label {
+    width: 300px;
+}
+
+.creme_config-customforms-brick .customform-config-item + .customform-config-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-customforms-brick .customform-config-group-title {
+    min-width: 160px;
+
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+
+    align-self: center;
+
+    background: #fcfcfc;
+
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.creme_config-customforms-brick .customform-config-block-container .customform-config-block-layout-regular {
+    width: 960px;
+}
+
+.creme_config-customforms-brick .customform-config-block-container .customform-config-block-layout-dual-first {
+    width: 480px;
+}
+
+.creme_config-customforms-brick .customform-config-block-container .customform-config-block-layout-dual-second {
+    width: 480px;
+    margin-left: 480px;
+}
+
+.creme_config-customforms-brick .brick-table-content .customform-config-block {
+    border: 1px solid #ccc;
+}
+
+.creme_config-customforms-brick .brick-table-content .customform-config-block-header {
+    border-bottom: 1px solid #dedede;
+
+    background-color: hsl(197deg 69% 97%);
+
+    text-align: center;
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 600;
+}
+
+.creme_config-customforms-brick .brick-table-content .customform-config-block-content table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-bottom: 0;
+
+    margin-left: 6px;
+}
+
+.creme_config-customforms-brick .brick-table-content .customform-config-block-content table tbody tr:not(:last-child) {
+    border-bottom: 1px solid #ddd;
+}
+
+.creme_config-customforms-brick .brick-table-content .customform-config-block + .customform-config-block {
+    margin-top: 15px;
+}
+
+.creme_config-customforms-brick .brick-table-content .customform-config-block td[data-table-primary-column] {
+    width: 100%;
+}
+
+.creme_config-customforms-brick .brick-table-content .customform-config-fields-actions {
+    margin-top: 10px;
+}
+
+.creme_config-customforms-brick .brick-table-content .help-instructions {
+    margin-bottom: 15px;
+
+    font-size: 12px;
+    color: #777;
+}
+
 /* Buttons brick */
 
 .creme_config-buttonmenu-brick .brick-content {

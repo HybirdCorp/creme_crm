@@ -50,6 +50,7 @@ if TYPE_CHECKING:
     from .gui.bricks import _BrickRegistry
     from .gui.bulk_update import _BulkUpdateRegistry
     from .gui.button_menu import ButtonsRegistry
+    from .gui.custom_form import CustomFormDescriptorRegistry
     from .gui.field_printers import _FieldPrintersRegistry
     from .gui.fields_config import FieldsConfigRegistry
     from .gui.icons import IconRegistry
@@ -233,6 +234,7 @@ class CremeAppConfig(AppConfig):
                 bricks,
                 bulk_update,
                 button_menu,
+                custom_form,
                 field_printers,
                 fields_config,
                 icons,
@@ -257,6 +259,7 @@ class CremeAppConfig(AppConfig):
             self.register_entity_filter(
                 entity_filter.entity_filter_registries[entity_filter.EF_USER]
             )
+            self.register_custom_forms(custom_form.customform_descriptor_registry)
             self.register_enumerable(enumerable.enumerable_registry)
             self.register_fields_config(fields_config.fields_config_registry)
             self.register_field_printers(field_printers.field_printers_registry)
@@ -298,6 +301,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_entity_filter(self, entity_filter_registry: '_EntityFilterRegistry') -> None:
+        pass
+
+    def register_custom_forms(self, cform_registry: 'CustomFormDescriptorRegistry') -> None:
         pass
 
     def register_enumerable(self, enumerable_registry: '_EnumerableRegistry') -> None:

@@ -191,6 +191,26 @@ class BillingConfig(CremeAppConfig):
             bricks.BillingExportersBrick,
         )
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.INVOICE_CREATION_CFORM,
+            custom_forms.INVOICE_EDITION_CFORM,
+
+            custom_forms.QUOTE_CREATION_CFORM,
+            custom_forms.QUOTE_EDITION_CFORM,
+
+            custom_forms.ORDER_CREATION_CFORM,
+            custom_forms.ORDER_EDITION_CFORM,
+
+            custom_forms.CNOTE_CREATION_CFORM,
+            custom_forms.CNOTE_EDITION_CFORM,
+
+            custom_forms.BTEMPLATE_CREATION_CFORM,
+            custom_forms.BTEMPLATE_EDITION_CFORM,
+        )
+
     def register_field_printers(self, field_printers_registry):
         from .models.fields import BillingDiscountField
         from .utils import print_discount

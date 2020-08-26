@@ -1,4 +1,7 @@
 {% extends 'creme_core/generics/blockform/base.html' %}
+{% load creme_core_tags %}
+
+{% log 'The template file "creme/persons/templates/persons/frags/contact_form_content.html" is deprecated.' level='WARN' %}
 
 {% block main_content %}
     {% with form.get_blocks as blocks %}

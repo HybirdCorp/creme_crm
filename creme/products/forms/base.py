@@ -18,17 +18,42 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm
+from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.documents.forms.fields import MultiImageEntityField
 
 from .fields import CategoryField
 
 
+class SubCategorySubCell(CustomFormExtraSubCell):
+    sub_type_id = 'products_subcategory'
+    verbose_name = _('Category & sub-category')
+
+    def formfield(self, instance, user, **kwargs):
+        field = CategoryField(label=self.verbose_name, **kwargs)
+        field.user = user  # TODO: fix constructor
+
+        if instance.sub_category_id:
+            field.initial = instance.sub_category
+
+        return field
+
+    def post_clean_instance(self, *, instance, value, form):
+        instance.category = value.category
+        instance.sub_category = value
+
+
 class _BaseForm(CremeEntityForm):
     sub_category = CategoryField(label=_('Sub-category'))
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('products.forms.base._BaseForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     class Meta(CremeEntityForm.Meta):
         # model = OVERLOAD ME
@@ -50,6 +75,7 @@ class _BaseEditForm(_BaseForm):
         exclude = (*_BaseForm.Meta.exclude, 'images')
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('products.forms.base._BaseEditForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
         self.fields['sub_category'].initial = self.instance.sub_category
 

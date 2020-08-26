@@ -68,14 +68,16 @@ class FieldInfoTestCase(CremeTestCase):
 
         self.assertEqual(FakeContact._meta.get_field('first_name'), base_field)
 
-        self.assertEqual(FakeOrganisation._meta.get_field('name'),
-                         meta.FieldInfo(FakeOrganisation, 'name')[0]
-                        )
+        self.assertEqual(
+            FakeOrganisation._meta.get_field('name'),
+            meta.FieldInfo(FakeOrganisation, 'name')[0],
+        )
 
         # FK
-        self.assertEqual(FakeContact._meta.get_field('image'),
-                         meta.FieldInfo(FakeContact, 'image')[0]
-                        )
+        self.assertEqual(
+            FakeContact._meta.get_field('image'),
+            meta.FieldInfo(FakeContact, 'image')[0],
+        )
 
     def test_field_info02(self):
         "depth > 1"
@@ -85,20 +87,22 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(FakeContact._meta.get_field('image'), fi[0])
         self.assertEqual(FakeImage._meta.get_field('name'), fi[1])
 
-        self.assertEqual(_('Photograph') + ' - ' + _('Name'), fi.verbose_name)
+        self.assertEqual(f'{_("Photograph")} - {_("Name")}', fi.verbose_name)
 
         with self.assertNoException():
             fi_as_list = [*meta.FieldInfo(FakeContact, 'image__user__username')]
 
-        self.assertEqual([FakeContact._meta.get_field('image'),
-                          FakeImage._meta.get_field('user'),
-                          get_user_model()._meta.get_field('username'),
-                         ],
-                         fi_as_list
-                        )
+        self.assertListEqual(
+            [
+                FakeContact._meta.get_field('image'),
+                FakeImage._meta.get_field('user'),
+                get_user_model()._meta.get_field('username'),
+            ],
+            fi_as_list
+        )
 
     def test_field_info03(self):
-        "Invalid fields"
+        "Invalid fields."
         FieldDoesNotExist = models.FieldDoesNotExist
 
         with self.assertRaises(FieldDoesNotExist):
@@ -129,7 +133,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertIs(False, bool(empty_sub_fi))
 
     def test_field_info_slice02(self):
-        "Stop (no start)"
+        "Stop (no start)."
         fi = meta.FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
@@ -142,7 +146,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(FakeImage._meta.get_field('user'), sub_fi[1])
 
     def test_field_info_slice03(self):
-        "Negative start"
+        "Negative start."
         fi = meta.FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
@@ -154,7 +158,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(User._meta.get_field('username'), sub_fi[0])
 
     def test_field_info_slice04(self):
-        "'very' negative start"
+        "'very' negative start."
         fi = meta.FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
@@ -192,15 +196,15 @@ class FieldInfoTestCase(CremeTestCase):
         user = get_user_model().objects.create(username='alphonse')
         al = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
 
-        self.assertEqual(al.first_name,
-                         FieldInfo(FakeContact, 'first_name').value_from(al)
-                        )
-        self.assertEqual(user,
-                         FieldInfo(FakeContact, 'user').value_from(al)
-                        )
-        self.assertEqual(user.username,
-                         FieldInfo(FakeContact, 'user__username').value_from(al)
-                        )
+        self.assertEqual(
+            al.first_name,
+            FieldInfo(FakeContact, 'first_name').value_from(al),
+        )
+        self.assertEqual(user, FieldInfo(FakeContact, 'user').value_from(al))
+        self.assertEqual(
+            user.username,
+            FieldInfo(FakeContact, 'user__username').value_from(al),
+        )
 
         # Other model
         ptype = CremePropertyType.objects.create(text='Is the hero', is_custom=True)
@@ -211,7 +215,7 @@ class FieldInfoTestCase(CremeTestCase):
         )
         self.assertEqual(
             al.entity_type.model,
-            FieldInfo(CremeProperty, 'creme_entity__entity_type__model').value_from(prop)
+            FieldInfo(CremeProperty, 'creme_entity__entity_type__model').value_from(prop),
         )
 
         with self.assertRaises(ValueError):
@@ -221,7 +225,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertIsNone(FieldInfo(FakeContact, 'sector__title').value_from(al))
 
     def test_field_info_get_value02(self):
-        "ManyToManyField"
+        "ManyToManyField."
         FieldInfo = meta.FieldInfo
 
         user = get_user_model().objects.create(username='alphonse')
@@ -236,15 +240,14 @@ class FieldInfoTestCase(CremeTestCase):
         create_language(name='French', code='FRA')
         l3 = create_language(name='Japanese', code='JP')
 
-        # al.languages = [l1, l3]
         al.languages.set([l1, l3])
         self.assertListEqual(
             [l1, l3],
-            FieldInfo(FakeContact, 'languages').value_from(al)
+            FieldInfo(FakeContact, 'languages').value_from(al),
         )
         self.assertListEqual(
             [l1.name, l3.name],
-            FieldInfo(FakeContact, 'languages__name').value_from(al)
+            FieldInfo(FakeContact, 'languages__name').value_from(al),
         )
 
     # TODO: test mtom1__mtom2
@@ -300,7 +303,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                 ('sandbox',                    'sandbox'),
                 ('uuid',                       'uuid'),
             ],
-            choices, choices
+            choices, choices,
         )
 
     def test_field_enumerator02(self):
@@ -322,7 +325,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('created',     _('Creation date')),
             ('description', _('Description')),
             ('modified',    _('Last modification')),
-            ('user',        _('Owner user'))
+            ('user',        _('Owner user')),
         ]
         choices = meta.ModelFieldEnumerator(
             CremeEntity, only_leafs=False,
@@ -358,7 +361,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             meta.ModelFieldEnumerator(CremeEntity, deep=1, only_leafs=True)
                 .filter(viewable=True).choices()
         )
-        self.assertEqual(
+        self.assertListEqual(
             [
                 ('created',     _('Creation date')),
                 ('description', _('Description')),
@@ -381,13 +384,13 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             [('modified', _('Last modification'))],
             meta.ModelFieldEnumerator(CremeEntity, deep=1)
                 .filter(lambda f, depth: f.name.endswith('ied'), viewable=True)
-                .choices()
+                .choices(),
         )
         self.assertListEqual(
             [('description', _('Description'))],
             meta.ModelFieldEnumerator(CremeEntity, deep=0)
                 .exclude(lambda f, depth: f.name.endswith('ed'), viewable=False)
-                .choices()
+                .choices(),
         )
 
     def test_field_enumerator05(self):
@@ -434,20 +437,23 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('languages',    _('Spoken language(s)')),
             ('url_site',     _('Web Site')),
         ]
-        choices = meta.ModelFieldEnumerator(FakeContact, only_leafs=False) \
-                      .filter(editable=True, viewable=True).choices()
-        self.assertEqual(expected, choices, choices)
+        choices1 = meta.ModelFieldEnumerator(
+            FakeContact, only_leafs=False,
+        ).filter(editable=True, viewable=True).choices()
+        self.assertEqual(expected, choices1, choices1)
 
-        choices = meta.ModelFieldEnumerator(FakeContact, only_leafs=False) \
-                      .exclude(editable=False, viewable=False).choices()
-        self.assertEqual(expected, choices, choices)
+        choices2 = meta.ModelFieldEnumerator(
+            FakeContact, only_leafs=False,
+        ).exclude(editable=False, viewable=False).choices()
+        self.assertEqual(expected, choices2, choices2)
 
     def test_field_enumerator07(self):
         "Ordering of FKs."
         self._deactivate_translation()
 
-        choices = meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False) \
-                      .filter(viewable=True).choices()
+        choices = meta.ModelFieldEnumerator(
+            FakeActivity, deep=1, only_leafs=False,
+        ).filter(viewable=True).choices()
         fs = '[{}] - {}'.format
         type_lbl = _('Activity type')
         user_lbl = _('Owner user')
@@ -458,6 +464,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                 ('description',     _('Description')),
                 ('end',             _('End')),
                 ('modified',        _('Last modification')),
+                ('minutes',         _('Minutes')),
                 ('user',            user_lbl),
                 ('place',           _('Place')),
                 ('start',           _('Start')),
@@ -469,7 +476,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                 ('user__last_name', fs(user_lbl, _('Last name'))),
                 ('user__username',  fs(user_lbl, _('Username'))),
             ],
-            choices, choices
+            choices, choices,
         )
 
     def test_field_enumerator08(self):
@@ -480,7 +487,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             FakeActivity, deep=1, only_leafs=False,
         ).filter(
             (lambda f, depth: not depth or f.name == 'name'),
-            viewable=True
+            viewable=True,
         ).choices()
 
         type_lbl = _('Activity type')
@@ -491,6 +498,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                 ('description', _('Description')),
                 ('end',         _('End')),
                 ('modified',    _('Last modification')),
+                ('minutes',     _('Minutes')),
                 ('user',        _('Owner user')),
                 ('place',       _('Place')),
                 ('start',       _('Start')),
@@ -498,7 +506,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
                 ('type__name', f'[{type_lbl}] - {_("Name")}'),
             ],
-            choices, choices
+            choices, choices,
         )
 
     def test_field_enumerator09(self):
@@ -506,7 +514,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         choices = {
             *meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False)
                  .filter(viewable=True)
-                 .choices()
+                 .choices(),
         }
         fs = '[{}] - {}'.format
         type_lbl = _('Activity type')
@@ -518,6 +526,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                 ('description', _('Description')),
                 ('end',         _('End')),
                 ('modified',    _('Last modification')),
+                ('minutes',     _('Minutes')),
                 ('user',        user_lbl),
                 ('start',       _('Start')),
                 ('title',       _('Title')),
@@ -529,7 +538,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                 ('user__last_name', fs(user_lbl, _('Last name'))),
                 ('user__username',  fs(user_lbl, _('Username'))),
             },
-            choices, choices
+            choices, choices,
         )
 
 

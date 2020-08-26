@@ -33,7 +33,7 @@ from creme.creme_core.views import generic
 from creme.persons import get_organisation_model
 
 from .. import bricks as com_bricks
-from .. import get_strategy_model
+from .. import custom_forms, get_strategy_model
 # from ..bricks import AssetsMatrixBrick, CharmsMatrixBrick, AssetsCharmsMatrixBrick
 from ..constants import DEFAULT_HFILTER_STRATEGY
 from ..forms import strategy as forms
@@ -51,7 +51,8 @@ Strategy = get_strategy_model()
 
 class StrategyCreation(generic.EntityCreation):
     model = Strategy
-    form_class = forms.StrategyForm
+    # form_class = forms.StrategyForm
+    form_class = custom_forms.STRATEGY_CREATION_CFORM
 
 
 class StrategyDetail(generic.EntityDetail):
@@ -62,7 +63,8 @@ class StrategyDetail(generic.EntityDetail):
 
 class StrategyEdition(generic.EntityEdition):
     model = Strategy
-    form_class = forms.StrategyForm
+    # form_class = forms.StrategyForm
+    form_class = custom_forms.STRATEGY_EDITION_CFORM
     pk_url_kwarg = 'strategy_id'
 
 
@@ -172,9 +174,10 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
     strategy_id_url_kwarg = 'strategy_id'
 
     def get_bricks_reload_url(self):
-        return reverse('commercial__reload_matrix_brick',
-                       args=(self.get_strategy().id, self.get_organisation().id)
-                      )
+        return reverse(
+            'commercial__reload_matrix_brick',
+            args=(self.get_strategy().id, self.get_organisation().id)
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -207,10 +210,10 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
         try:
             strategy = getattr(self, 'strategy')
         except AttributeError:
-            self.strategy = strategy = \
-                get_object_or_404(Strategy,
-                                  pk=self.kwargs[self.strategy_id_url_kwarg],
-                                 )
+            self.strategy = strategy = get_object_or_404(
+                Strategy,
+                pk=self.kwargs[self.strategy_id_url_kwarg],
+            )
             self.request.user.has_perm_to_view_or_die(strategy)
 
         return strategy

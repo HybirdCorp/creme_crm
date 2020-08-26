@@ -26,8 +26,9 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import jsonify
 
+from .. import custom_forms
 from ..constants import DEFAULT_HFILTER_PRODUCT
-from ..forms import product as product_forms
+# from ..forms import product as product_forms
 from ..models import Category, SubCategory
 from .base import ImagesAddingBase
 
@@ -39,10 +40,12 @@ Service = products.get_service_model()
 @login_required
 def get_subcategories(request, category_id):
     get_object_or_404(Category, pk=category_id)
-    return [*SubCategory.objects.filter(category=category_id)
-                                .order_by('id')
-                                .values_list('id', 'name')
-           ]
+    return [
+        *SubCategory.objects
+                    .filter(category=category_id)
+                    .order_by('id')
+                    .values_list('id', 'name'),
+    ]
 
 
 class ImageRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
@@ -58,7 +61,8 @@ class ImageRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
 
 class ProductCreation(generic.EntityCreation):
     model = Product
-    form_class = product_forms.ProductCreateForm
+    # form_class = product_forms.ProductCreateForm
+    form_class = custom_forms.PRODUCT_CREATION_CFORM
 
 
 class ProductDetail(generic.EntityDetail):
@@ -69,7 +73,8 @@ class ProductDetail(generic.EntityDetail):
 
 class ProductEdition(generic.EntityEdition):
     model = Product
-    form_class = product_forms.ProductEditForm
+    # form_class = product_forms.ProductEditForm
+    form_class = custom_forms.PRODUCT_EDITION_CFORM
     pk_url_kwarg = 'product_id'
 
 

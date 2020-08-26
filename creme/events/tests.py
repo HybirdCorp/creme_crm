@@ -134,7 +134,8 @@ class EventsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'end_date', _('The end date must be after the start date.')
+            response, 'form', 'end_date',
+            _('The end date must be after the start date.'),
         )
 
     def test_event_createview04(self):
@@ -200,12 +201,14 @@ class EventsTestCase(CremeTestCase):
         event = self._create_event('Eclipse')
         casca = Contact.objects.create(first_name='Casca', last_name='Miura', user=user)
 
-        action = AddRelatedOpportunityAction(user=user, model=Contact, instance=casca, event=event)
+        action = AddRelatedOpportunityAction(
+            user=user, model=Contact, instance=casca, event=event,
+        )
         self.assertEqual('redirect', action.type)
         self.assertEqual(event, action.event)
         self.assertEqual(
             reverse('events__create_related_opportunity', args=(event.id, casca.id)),
-            action.url
+            action.url,
         )
         self.assertTrue(action.is_visible)
         self.assertTrue(action.is_enabled)
@@ -458,7 +461,7 @@ class EventsTestCase(CremeTestCase):
             200,
             self._set_presence_status(
                 event, casca, constants.PRES_STATUS_COME,
-            ).status_code
+            ).status_code,
         )
 
         stats = event.get_stats()
@@ -576,7 +579,6 @@ class EventsTestCase(CremeTestCase):
         response = self.assertGET200(reverse('events__list_related_contacts', args=(event1.id,)))
 
         with self.assertNoException():
-            # contacts_page = response.context['entities']
             contacts_page = response.context['page_obj']
 
         self.assertEqual(3, contacts_page.paginator.count)
@@ -602,7 +604,7 @@ class EventsTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link.html')
         self.assertEqual(
             _('Link some contacts to «{object}»').format(object=event),
-            response.context.get('title')
+            response.context.get('title'),
         )
         self.assertEqual(_('Link these contacts'), response.context.get('submit_label'))
 
@@ -615,8 +617,12 @@ class EventsTestCase(CremeTestCase):
             },
         )
         self.assertNoFormError(response)
-        self.assertEqual([constants.REL_SUB_CAME_EVENT], self.relations_types(casca, event))
-        self.assertRedirects(response, reverse('events__list_related_contacts', args=(event.id,)))
+        self.assertListEqual(
+            [constants.REL_SUB_CAME_EVENT], self.relations_types(casca, event),
+        )
+        self.assertRedirects(
+            response, reverse('events__list_related_contacts', args=(event.id,))
+        )
 
     @skipIfCustomContact
     def test_link_contacts02(self):
@@ -693,7 +699,7 @@ class EventsTestCase(CremeTestCase):
         )
         self.assertSetEqual(
             {constants.REL_SUB_IS_INVITED_TO, constants.REL_SUB_CAME_EVENT},
-            {*self.relations_types(rickert, event)}
+            {*self.relations_types(rickert, event)},
         )
         self.assertListEqual(
             [constants.REL_SUB_CAME_EVENT],
@@ -745,7 +751,8 @@ class EventsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         response = self.assertPOST200(
-            url, follow=True,
+            url,
+            follow=True,
             data={
                 'related_contacts': self.formfield_value_multi_relation_entity(
                     (constants.REL_OBJ_IS_INVITED_TO, casca),
@@ -754,7 +761,7 @@ class EventsTestCase(CremeTestCase):
         )
         self.assertFormError(
             response, 'form', 'related_contacts',
-            _('Some entities are not linkable: {}').format(casca)
+            _('Some entities are not linkable: {}').format(casca),
         )
 
     def test_delete_type(self):
@@ -804,7 +811,8 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(Opportunity.save_label, context.get('submit_label'))
 
         with self.assertNoException():
-            target_f = context['form'].fields['target']
+            # target_f = context['form'].fields['target']
+            target_f = context['form'].fields['cform_extra-opportunities_target']
 
         self.assertTrue(target_f.help_text)
 
@@ -817,9 +825,12 @@ class EventsTestCase(CremeTestCase):
                 'user':        user.id,
                 'name':        name,
                 'sales_phase': phase.id,
-                'target':      self.formfield_value_generic_entity(casca),
-                'emitter':     emitter.id,
                 'currency':    DEFAULT_CURRENCY_PK,
+
+                # 'target': self.formfield_value_generic_entity(casca),
+                # 'emitter': emitter.id,
+                'cform_extra-opportunities_target': self.formfield_value_generic_entity(casca),
+                'cform_extra-opportunities_emitter': emitter.id,
             },
         )
         self.assertNoFormError(response)
@@ -856,26 +867,33 @@ class EventsTestCase(CremeTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            target_f = response.context['form'].fields['target']
+            # target_f = response.context['form'].fields['target']
+            target_f = response.context['form'].fields['cform_extra-opportunities_target']
 
         self.assertFalse(target_f.help_text)
 
         name = 'Opp01'
-        data = {'user':        user.pk,
-                'name':        name,
-                'sales_phase': SalesPhase.objects.all()[0].id,
-                'target':      rhino.id,
-                'emitter':     emitter.id,
-                'currency':    DEFAULT_CURRENCY_PK,
-               }
+        data = {
+            'user':        user.pk,
+            'name':        name,
+            'sales_phase': SalesPhase.objects.all()[0].id,
+            'currency':    DEFAULT_CURRENCY_PK,
+
+            # 'target': rhino.id,
+            # 'emitter': emitter.id,
+            'cform_extra-opportunities_target': rhino.id,
+            'cform_extra-opportunities_emitter': emitter.id,
+        }
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response, 'form', 'target',
+            # response, 'form', 'target',
+            response, 'form', 'cform_extra-opportunities_target',
             _('Select a valid choice. That choice is not one of the available choices.')
         )
 
-        data['target'] = hawks.id,
+        # data['target'] = hawks.id,
+        data['cform_extra-opportunities_target'] = hawks.id
         response = self.client.post(url, follow=True, data=data)
         self.assertNoFormError(response)
 
@@ -908,9 +926,12 @@ class EventsTestCase(CremeTestCase):
                 'user':        user.id,
                 'name':        name,
                 'sales_phase': SalesPhase.objects.first().id,
-                'target':      self.formfield_value_generic_entity(casca),
-                'emitter':     emitter.id,
                 'currency':    DEFAULT_CURRENCY_PK,
+
+                # 'target': self.formfield_value_generic_entity(casca),
+                # 'emitter': emitter.id,
+                'cform_extra-opportunities_target': self.formfield_value_generic_entity(casca),
+                'cform_extra-opportunities_emitter': emitter.id,
             },
         )
         self.assertNoFormError(response)
@@ -950,7 +971,11 @@ class EventsTestCase(CremeTestCase):
         )
         SetCredentials.objects.create(
             role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.LINK
+            ),
             set_type=SetCredentials.ESET_ALL,
         )
 
@@ -992,7 +1017,11 @@ class EventsTestCase(CremeTestCase):
         )
         SetCredentials.objects.create(
             role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.LINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 

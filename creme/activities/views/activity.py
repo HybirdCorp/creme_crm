@@ -20,7 +20,7 @@
 
 from datetime import time
 from functools import partial
-from typing import Type
+from typing import Type, Union
 
 from dateutil.parser import isoparse
 from django.db.models import Q
@@ -37,6 +37,7 @@ from creme.creme_core.auth.decorators import (
     login_required,
     permission_required,
 )
+from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import CremeEntity, RelationType
@@ -45,7 +46,7 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.generic import base
 from creme.persons import get_contact_model
 
-from .. import constants, get_activity_model
+from .. import constants, custom_forms, get_activity_model
 from ..forms import activity as act_forms
 from ..models import ActivitySubType, ActivityType
 from ..utils import get_ical
@@ -62,10 +63,11 @@ _TYPES_MAP = {
 
 class ActivityCreation(generic.EntityCreation):
     model = Activity
-    form_class: Type[BaseForm] = act_forms.ActivityCreateForm
-    template_name = 'activities/add_activity_form.html'
+    # form_class: Type[BaseForm] = act_forms.ActivityCreateForm
+    form_class: Union[Type[BaseForm], CustomFormDescriptor] = custom_forms.ACTIVITY_CREATION_CFORM
+    # template_name = 'activities/add_activity_form.html'
     type_name_url_kwarg = 'act_type'
-    form_template_name = 'activities/frags/activity_form_content.html'
+    # form_template_name = 'activities/frags/activity_form_content.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,11 +81,11 @@ class ActivityCreation(generic.EntityCreation):
         self.type_id = self.get_type_id()
         return super().post(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['content_template'] = self.form_template_name
-
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['content_template'] = self.form_template_name
+    #
+    #     return context
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -110,8 +112,9 @@ class ActivityCreation(generic.EntityCreation):
 
 class ActivityCreationPopup(generic.EntityCreationPopup):
     model = Activity
-    form_class = act_forms.CalendarActivityCreateForm
-    template_name = 'activities/forms/add-activity-popup.html'
+    # form_class = act_forms.CalendarActivityCreateForm
+    form_class = custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM
+    # template_name = 'activities/forms/add-activity-popup.html'
 
     # def get_form_kwargs(self):
     #     kwargs = super().get_form_kwargs()
@@ -149,34 +152,44 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
 
                 return value
 
-            def _set_datefield(key, **kwargs):
-                value = get(key=key, cast=isoparse_naive, **kwargs)
+            def _set_datefield(request_key, field_name, **kwargs):
+                value = get(key=request_key, cast=isoparse_naive, **kwargs)
 
                 if value:
-                    initial[key] = value
+                    initial[field_name] = (
+                        value.date(),
+                        time(hour=value.hour, minute=value.minute)
+                        if value.hour or value.minute else
+                        None,
+                    )
 
-                    if value.hour or value.minute:
-                        initial[f'{key}_time'] = time(
-                            hour=value.hour, minute=value.minute,
-                        )
-
-            _set_datefield('start')
-            _set_datefield('end', default=None)
+            model = self.model
+            _set_datefield(
+                request_key='start',
+                field_name=act_forms.StartSubCell(model=model).into_cell().key,
+            )
+            _set_datefield(
+                request_key='end',
+                field_name=act_forms.EndSubCell(model=model).into_cell().key,
+                default=None,
+            )
 
         return initial
 
 
 class UnavailabilityCreation(ActivityCreation):
-    form_class = act_forms.IndisponibilityCreateForm
-    form_template_name = 'activities/frags/indispo_form_content.html'
+    # form_class = act_forms.IndisponibilityCreateForm
+    form_class = custom_forms.UNAVAILABILITY_CREATION_FROM
+    # form_template_name = 'activities/frags/indispo_form_content.html'
 
     def get_type_id(self):
         return constants.ACTIVITYTYPE_INDISPO
 
 
 class RelatedActivityCreation(ActivityCreation):
-    # form_class = act_forms.RelatedActivityCreateForm
-    form_class = act_forms.ActivityCreateForm
+    # # form_class = act_forms.RelatedActivityCreateForm
+    # form_class = act_forms.ActivityCreateForm
+    form_class = custom_forms.ACTIVITY_CREATION_CFORM
     entity_pk_url_kwargs = 'entity_id'
 
     def __init__(self, *args, **kwargs):
@@ -206,15 +219,18 @@ class RelatedActivityCreation(ActivityCreation):
         related_entity = self.related_entity
         rtype_id = self.rtype_id
 
+        def get_key(subcell_cls):
+            return subcell_cls(model=self.model).into_cell().key
+
         if rtype_id == constants.REL_SUB_PART_2_ACTIVITY:
             if related_entity.is_user:
-                initial['participating_users'] = [related_entity.is_user]
+                initial[get_key(act_forms.ParticipatingUsersSubCell)] = [related_entity.is_user]
             else:
-                initial['other_participants'] = [related_entity]
+                initial[get_key(act_forms.OtherParticipantsSubCell)] = [related_entity]
         elif rtype_id == constants.REL_SUB_ACTIVITY_SUBJECT:
-            initial['subjects'] = [related_entity]
+            initial[get_key(act_forms.ActivitySubjectsSubCell)] = [related_entity]
         else:
-            initial['linked_entities'] = [related_entity]
+            initial[get_key(act_forms.LinkedEntitiesSubCell)] = [related_entity]
 
         return initial
 
@@ -269,7 +285,8 @@ class ActivityPopup(generic.EntityDetailPopup):
 
 class ActivityEdition(generic.EntityEdition):
     model = Activity
-    form_class = act_forms.ActivityEditForm
+    # form_class = act_forms.ActivityEditForm
+    form_class = custom_forms.ACTIVITY_EDITION_CFORM
     pk_url_kwarg = 'activity_id'
 
 
@@ -280,7 +297,7 @@ class ActivitiesList(generic.EntitiesList):
 
 class TypedActivitiesList(ActivitiesList):
     creation_label = 'Create a typed activity'
-    creation_url   = '/activities/typed_activity/create/'
+    creation_url = '/activities/typed_activity/create/'
 
     def get_buttons(self):
         class TypedActivityCreationButton(CreationButton):
@@ -290,21 +307,22 @@ class TypedActivitiesList(ActivitiesList):
             def get_url(this, request, model):
                 return self.creation_url
 
-        return super().get_buttons()\
-                      .replace(old=CreationButton, new=TypedActivityCreationButton)
+        return super().get_buttons().replace(
+            old=CreationButton, new=TypedActivityCreationButton,
+        )
 
 
 class PhoneCallsList(TypedActivitiesList):
     title = _('List of phone calls')
     creation_label = _('Create a phone call')
-    creation_url   = reverse_lazy('activities__create_activity', args=('phonecall',))
+    creation_url = reverse_lazy('activities__create_activity', args=('phonecall',))
     internal_q = Q(type=constants.ACTIVITYTYPE_PHONECALL)
 
 
 class MeetingsList(TypedActivitiesList):
     title = _('List of meetings')
     creation_label = _('Create a meeting')
-    creation_url   = reverse_lazy('activities__create_activity', args=('meeting',))
+    creation_url = reverse_lazy('activities__create_activity', args=('meeting',))
     internal_q = Q(type=constants.ACTIVITYTYPE_MEETING)
 
 
@@ -314,9 +332,9 @@ def download_ical(request):
     act_ids = request.GET.getlist('id')
 
     # TODO: is_deleted=False ??
-    activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=act_ids),
-                                          user=request.user,
-                                         )
+    activities = EntityCredentials.filter(
+        queryset=Activity.objects.filter(pk__in=act_ids), user=request.user,
+    )
     response = HttpResponse(get_ical(activities), content_type='text/calendar')
     response['Content-Disposition'] = 'attachment; filename=Calendar.ics'
 
@@ -336,10 +354,9 @@ class TypeChoices(base.CheckedView):
 
         get_object_or_404(ActivityType, pk=type_id)
 
-        return [*ActivitySubType.objects
-                                .filter(type=type_id)
-                                .values_list('id', 'name')
-               ]
+        return [
+            *ActivitySubType.objects.filter(type=type_id).values_list('id', 'name'),
+        ]
 
     def get(self, request, *args, **kwargs):
         return self.response_class(

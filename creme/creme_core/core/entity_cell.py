@@ -98,7 +98,6 @@ class EntityCell:
         @param model: Related model.
         @param value: How to access to the instance's data
                (eg: field's name, custom field's ID...).
-        @param title: Name for humans (eg: field's verbose name, custom field's name...).
         @param is_hidden: Should the cell be visible ? Notice that a hidden cell
                will be present in the list-views with a style <display: none;>.
         @param is_excluded: Should the cell be totally ignored.
@@ -108,6 +107,7 @@ class EntityCell:
 
         @return: True means <ignore me>.
         """
+        # @param title: Name for humans (eg: field's verbose name, custom field's name...).
         self._model = model
         self.value = value
         # self.title = title
@@ -237,17 +237,25 @@ class EntityCellsRegistry:
         try:
             for dict_cell in dicts:
                 try:
-                    cell = self._cell_classes[dict_cell['type']].build(model, dict_cell['value'])
+                    cell = self._cell_classes[dict_cell['type']].build(
+                        model, dict_cell['value'],
+                    )
 
                     if cell is not None:
                         cells.append(cell)
                     else:
                         errors = True
-                except Exception as e:
-                    logger.warning('EntityCellsRegistry: %s, %s', e.__class__, e)
+                except Exception:
+                    logger.exception(
+                        'EntityCellsRegistry.build_cells_from_dicts(): data=%s',
+                        dict_cell,
+                    )
                     errors = True
-        except Exception as e:
-            logger.warning('EntityCellsRegistry: %s, %s', e.__class__, e)
+        except Exception:
+            logger.exception(
+                'EntityCellsRegistry.build_cells_from_dicts(): all data=%s',
+                dicts
+            )
             errors = True
 
         return cells, errors
