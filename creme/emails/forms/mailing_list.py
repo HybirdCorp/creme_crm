@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -47,11 +49,15 @@ class MailingListForm(CremeEntityForm):
         model = MailingList
         # fields = ('user', 'name', 'description')
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('MailingListForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
 
 class AddContactsForm(CremeForm):
-    recipients = MultiCreatorEntityField(label=_('Contacts'),
-                                         required=False, model=Contact,
-                                        )  # other filter (name + email)??
+    recipients = MultiCreatorEntityField(
+        label=_('Contacts'), required=False, model=Contact,
+    )  # other filter (name + email)??
 
     blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
 
@@ -68,9 +74,9 @@ class AddContactsForm(CremeForm):
 
 
 class AddOrganisationsForm(CremeForm):  # TODO: factorise
-    recipients = MultiCreatorEntityField(label=_('Organisations'),
-                                         required=False, model=Organisation,
-                                        )  # other filter (name + email)??
+    recipients = MultiCreatorEntityField(
+        label=_('Organisations'), required=False, model=Organisation,
+    )  # other filter (name + email)??
 
     blocks = FieldBlockManager(('general', _('Organisations recipients'), '*'))
 
@@ -87,10 +93,10 @@ class AddOrganisationsForm(CremeForm):  # TODO: factorise
 
 
 class _AddPersonsFromFilterForm(CremeForm):
-    filters = ModelChoiceField(label=_('Filters'),
-                               queryset=EntityFilter.objects.none(),
-                               empty_label=_('All'), required=False,
-                              )
+    filters = ModelChoiceField(
+        label=_('Filters'), queryset=EntityFilter.objects.none(),
+        empty_label=_('All'), required=False,
+    )
 
     person_model = None  # Contact/Organisation
 

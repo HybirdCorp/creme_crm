@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.models.query import Q
 # from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -38,11 +40,19 @@ class CampaignCreateForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = SMSCampaign
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('CampaignCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
 
 class CampaignEditForm(CremeEntityForm):
     class Meta:
         model   = SMSCampaign
         exclude = (*CremeEntityForm.Meta.exclude, 'lists')
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('CampaignEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class CampaignAddListForm(CremeForm):

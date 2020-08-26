@@ -21,31 +21,36 @@
 from typing import Type
 
 from django.db.models import Q
-from django.forms.forms import BaseForm
+from django.forms import BaseForm, ModelChoiceField
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext
 
+from creme import persons
 from creme.creme_core.actions import ViewAction
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.entity_cell import EntityCellRelation
 from creme.creme_core.gui import listview as lv_gui
 from creme.creme_core.gui.actions import EntityAction
-from creme.creme_core.models import RelationType
+from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 from creme.opportunities import get_opportunity_model
-from creme.persons import get_contact_model
+from creme.opportunities.custom_forms import OPPORTUNITY_CREATION_CFORM
+from creme.persons import constants as persons_constants
 from creme.persons.views.contact import ContactsList
 
-from .. import constants, get_event_model, gui
+from .. import constants, custom_forms, get_event_model, gui
 from ..forms import event as event_forms
 from ..models import EventType
 
-Contact = get_contact_model()
-Event   = get_event_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+Event = get_event_model()
 Opportunity = get_opportunity_model()
 
 
@@ -127,7 +132,8 @@ class AddRelatedOpportunityAction(EntityAction):
 
 class EventCreation(generic.EntityCreation):
     model = Event
-    form_class = event_forms.EventForm
+    # form_class = event_forms.EventForm
+    form_class = custom_forms.EVENT_CREATION_CFORM
 
     def get_initial(self):
         initial = super().get_initial()
@@ -144,7 +150,8 @@ class EventDetail(generic.EntityDetail):
 
 class EventEdition(generic.EntityEdition):
     model = Event
-    form_class = event_forms.EventForm
+    # form_class = event_forms.EventForm
+    form_class = custom_forms.EVENT_EDITION_CFORM
     pk_url_kwarg = 'event_id'
 
 
@@ -172,7 +179,9 @@ class RelatedContactsList(EntityRelatedMixin, ContactsList):
 
     def get_actions_registry(self):
         view_action_class = next(
-            (c for c in self.actions_registry.instance_action_classes(model=Contact)
+            (
+                c
+                for c in self.actions_registry.instance_action_classes(model=Contact)
                 if (issubclass(c, ViewAction))
             ),
             None
@@ -217,9 +226,10 @@ class RelatedContactsList(EntityRelatedMixin, ContactsList):
         return cells
 
     def get_internal_q(self):
-        return Q(relations__type__in=self.RTYPE_IDS,
-                 relations__object_entity=self.get_related_entity().id,
-                )
+        return Q(
+            relations__type__in=self.RTYPE_IDS,
+            relations__object_entity=self.get_related_entity().id,
+        )
 
     def get_title_format_data(self):
         return {
@@ -242,7 +252,8 @@ class AddContactsToEvent(generic.EntityEdition):
 
 class RelatedOpportunityCreation(generic.EntityCreation):
     model = Opportunity
-    form_class = event_forms.RelatedOpportunityCreateForm
+    # form_class = event_forms.RelatedOpportunityCreateForm
+    form_class = OPPORTUNITY_CREATION_CFORM
     permissions = 'events'
     title = _('Create an opportunity related to «{contact}»')
     event_id_url_kwarg = 'event_id'
@@ -256,8 +267,9 @@ class RelatedOpportunityCreation(generic.EntityCreation):
     def get_contact(self):
         contact = self.contact
         if contact is None:
-            self.contact = contact = \
-                get_object_or_404(Contact, pk=self.kwargs[self.contact_id_url_kwarg])
+            self.contact = contact = get_object_or_404(
+                Contact, pk=self.kwargs[self.contact_id_url_kwarg],
+            )
             self.request.user.has_perm_to_view_or_die(contact)
 
         return contact
@@ -265,15 +277,64 @@ class RelatedOpportunityCreation(generic.EntityCreation):
     def get_event(self):
         event = self.event
         if event is None:
-            self.event = event = \
-                get_object_or_404(Event, pk=self.kwargs[self.event_id_url_kwarg])
+            self.event = event = get_object_or_404(
+                Event, pk=self.kwargs[self.event_id_url_kwarg],
+            )
             self.request.user.has_perm_to_link_or_die(event)
 
         return event
 
+    def get_form_class(self):
+        form_cls = super().get_form_class()
+
+        class RelatedOpportunityCreationForm(form_cls):
+            def __init__(this, event, contact, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                fields = this.fields
+                this.event = event
+
+                qs = Organisation.objects.filter(
+                    relations__type__in=[
+                        persons_constants.REL_OBJ_EMPLOYED_BY,
+                        persons_constants.REL_OBJ_MANAGES,
+                    ],
+                    relations__object_entity=contact.id,
+                )
+
+                description_f = fields.get('description')
+                if description_f:
+                    description_f.initial = gettext(
+                        'Generated by the event «{}»'
+                    ).format(event)
+
+                if not qs:
+                    # fields['target'].help_text = gettext(
+                    fields[this.target_cell_key].help_text = gettext(
+                        '(The contact «{}» is not related to an organisation).'
+                    ).format(contact)
+                else:
+                    # fields['target'] = ModelChoiceField(
+                    fields[this.target_cell_key] = ModelChoiceField(
+                        label=pgettext('events-opportunity', 'Target organisation'),
+                        queryset=qs,
+                        empty_label=None,
+                    )
+
+            def _get_relations_to_create(this):
+                instance = this.instance
+
+                return super()._get_relations_to_create().append(Relation(
+                    user=instance.user,
+                    subject_entity=instance,
+                    type_id=constants.REL_SUB_GEN_BY_EVENT,
+                    object_entity=this.event,
+                ))
+
+        return RelatedOpportunityCreationForm
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['event']   = self.get_event()
+        kwargs['event'] = self.get_event()
         kwargs['contact'] = self.get_contact()
 
         return kwargs

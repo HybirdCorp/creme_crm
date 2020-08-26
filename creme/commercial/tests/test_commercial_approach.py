@@ -16,11 +16,15 @@ from creme.activities.constants import (
     ACTIVITYTYPE_MEETING,
     REL_SUB_PART_2_ACTIVITY,
 )
+from creme.activities.custom_forms import ACTIVITY_CREATION_CFORM
 from creme.activities.models import Calendar, Status
 from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.forms import LAYOUT_REGULAR
+from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.models import (
     BrickHomeLocation,
     CremeEntity,
+    CustomFormConfigItem,
     Job,
     JobResult,
     Relation,
@@ -45,6 +49,7 @@ from creme.persons.tests.base import (
 from ..bricks import ApproachesBrick
 from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
 from ..creme_jobs import com_approaches_emails_send_type
+from ..forms.activity import IsCommercialApproachSubCell
 from ..models import CommercialApproach
 from .base import Activity, Contact, Opportunity, Organisation
 
@@ -77,17 +82,15 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         url = reverse('commercial__create_approach', args=(entity.id,))
 
         context = self.assertGET200(url).context
-        self.assertEqual(_('New commercial approach for «{entity}»').format(entity=entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New commercial approach for «{entity}»').format(entity=entity),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the commercial approach'), context.get('submit_label'))
 
-        title       = 'TITLE'
+        title = 'TITLE'
         description = 'DESCRIPTION'
-        response = self.client.post(url, data={'title':       title,
-                                               'description': description,
-                                              }
-                                   )
+        response = self.client.post(url, data={'title': title, 'description': description})
         self.assertNoFormError(response)
 
         commapps = CommercialApproach.objects.all()
@@ -115,19 +118,21 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         old_count = HistoryLine.objects.count()
 
-        response = self.client.post(self.build_merge_url(orga01, orga02),
-                                    follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            self.build_merge_url(orga01, orga02),
+            follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'name_1':      orga01.name,
-                                          'name_2':      orga02.name,
-                                          'name_merged': orga01.name,
+                'name_1':      orga01.name,
+                'name_2':      orga02.name,
+                'name_merged': orga01.name,
 
-                                          'subject_to_vat_merged': orga01.subject_to_vat,
-                                         }
-                                   )
+                'subject_to_vat_merged': orga01.subject_to_vat,
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertDoesNotExist(orga02)
@@ -148,36 +153,71 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(TYPE_DELETION, hline.type)
         self.assertEqual(str(orga02), hline.entity_repr)
 
+    def _add_approach_extra_cell(self):
+        cfci = CustomFormConfigItem.objects.get(cform_id=ACTIVITY_CREATION_CFORM.id)
+        old_groups = ACTIVITY_CREATION_CFORM.groups(item=cfci)
+        new_groups = FieldGroupList(
+            model=old_groups.model,
+            cell_registry=old_groups.cell_registry,
+            groups=[
+                *old_groups,
+                FieldGroup(
+                    name='Commercial approach',
+                    cells=[
+                        IsCommercialApproachSubCell(model=Activity).into_cell(),
+                    ],
+                    layout=LAYOUT_REGULAR,
+                )
+            ]
+        )
+        cfci.store_groups(new_groups)
+        cfci.save()
+
     @skipIfCustomActivity
     def test_create_from_activity01(self):
-        "No subjects"
+        "No subjects."
+        self._add_approach_extra_cell()
+
         user = self.user
         url = reverse('activities__create_activity')
 
-        self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+
+        self.assertIn('cform_extra-commercial_is_commercial_approach', fields)
+
+        # ---
         title = 'Meeting #01'
         my_calendar = Calendar.objects.get_default_calendar(user)
-        response = self.client.post(
-            url, follow=True,
+        response2 = self.client.post(
+            url,
+            follow=True,
             data={
                 'user':   user.id,
                 'title':  title,
                 'status': Status.objects.all()[0].pk,
-                'start':  '2011-5-18',
 
-                'type_selector': json_dump({
+                # 'start':  '2011-5-18',
+                'cform_extra-activities_start_0': '2011-5-18',
+
+                # 'type_selector': json_dump({
+                'cform_extra-activities_subtype': json_dump({
                     'type':     ACTIVITYTYPE_MEETING,
                     'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 }),
 
-                'my_participation_0': True,
-                'my_participation_1': my_calendar.id,
+                # 'my_participation_0': True,
+                # 'my_participation_1': my_calendar.id,
+                'cform_extra-activities_my_participation_0': True,
+                'cform_extra-activities_my_participation_1': my_calendar.id,
 
-                'is_comapp': True,
+                # 'is_comapp': True,
+                'cform_extra-commercial_is_commercial_approach': True,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
         self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
         self.assertFalse(CommercialApproach.objects.all())
 
@@ -185,6 +225,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     @skipIfCustomActivity
     def test_create_from_activity02(self):
+        self._add_approach_extra_cell()
+
         user = self.user
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -204,21 +246,33 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                 'title':       title,
                 'description': description,
                 'status':      Status.objects.all()[0].pk,
-                'start':       '2011-5-18',
 
-                'type_selector':    json_dump({
+                # 'start': '2011-5-18',
+                'cform_extra-activities_start_0': '2011-5-18',
+
+                # 'type_selector':    json_dump({
+                'cform_extra-activities_subtype': json_dump({
                     'type': ACTIVITYTYPE_MEETING,
                     'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 }),
 
-                'my_participation_0': True,
-                'my_participation_1': my_calendar.id,
+                # 'my_participation_0': True,
+                # 'my_participation_1': my_calendar.id,
+                'cform_extra-activities_my_participation_0': True,
+                'cform_extra-activities_my_participation_1': my_calendar.id,
 
-                'other_participants': self.formfield_value_multi_creator_entity(genma),
-                'subjects':           self.formfield_value_multi_generic_entity(ranma),
-                'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
+                # 'other_participants': self.formfield_value_multi_creator_entity(genma),
+                'cform_extra-activities_others_participants':
+                    self.formfield_value_multi_creator_entity(genma),
+                # 'subjects':           self.formfield_value_multi_generic_entity(ranma),
+                'cform_extra-activities_subjects':
+                    self.formfield_value_multi_generic_entity(ranma),
+                # 'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
+                'cform_extra-activities_linked':
+                    self.formfield_value_multi_generic_entity(dojo),
 
-                'is_comapp': True,
+                # 'is_comapp': True,
+                'cform_extra-commercial_is_commercial_approach': True,
             },
         )
         self.assertNoFormError(response)
@@ -227,14 +281,18 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         comapps = CommercialApproach.objects.filter(related_activity=meeting)
         self.assertEqual(3, len(comapps))
-        self.assertEqual({genma, ranma, dojo}, {comapp.creme_entity for comapp in comapps})
+        self.assertSetEqual(
+            {genma, ranma, dojo}, {comapp.creme_entity for comapp in comapps},
+        )
 
         now_value = now()
 
         for comapp in comapps:
             self.assertEqual(title,       comapp.title)
             self.assertEqual(description, comapp.description)
-            self.assertAlmostEqual(now_value, comapp.creation_date, delta=timedelta(seconds=10))
+            self.assertAlmostEqual(
+                now_value, comapp.creation_date, delta=timedelta(seconds=10),
+            )
 
     @skipIfCustomActivity
     def test_sync_with_activity(self):
@@ -270,16 +328,17 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete(self):
         orga = FakeOrganisation.objects.create(user=self.user, name='NERV')
-        comapp = CommercialApproach.objects.create(title='Commapp01',
-                                                   description='A commercial approach',
-                                                   creme_entity=orga,
-                                                  )
+        comapp = CommercialApproach.objects.create(
+            title='Commapp01',
+            description='A commercial approach',
+            creme_entity=orga,
+        )
 
         orga.delete()
         self.assertDoesNotExist(comapp)
 
     def test_get_approaches01(self):
-        "Related to entity"
+        "Related to entity."
         user = self.user
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -290,12 +349,12 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         commapp1 = create_commapp(title='Commapp #1', creme_entity=nerv)
         create_commapp(title='Commapp #2', creme_entity=seele)
 
-        self.assertListEqual([commapp1],
-                             [*CommercialApproach.get_approaches(nerv.id)]
-                            )
+        self.assertListEqual(
+            [commapp1], [*CommercialApproach.get_approaches(nerv.id)]
+        )
 
     def test_get_approaches02(self):
-        "Not related to entity"
+        "Not related to entity."
         user = self.user
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -309,9 +368,10 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         create_commapp(title='Commapp #2', creme_entity=seele)
         commapp3 = create_commapp(title='Commapp #2', creme_entity=misato)
 
-        self.assertListEqual([commapp1, commapp3],
-                             [*CommercialApproach.get_approaches().order_by('id')]
-                            )
+        self.assertListEqual(
+            [commapp1, commapp3],
+            [*CommercialApproach.get_approaches().order_by('id')],
+        )
 
     # @override_settings(BLOCK_SIZE=5)
     #  => useless, because the setting value is already read when we override this
@@ -332,14 +392,15 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         manager  = create_contact(last_name='Hikari')
         employee = create_contact(last_name='Katsuragi')
 
-        create_rel     = partial(Relation.objects.create, user=user, object_entity=orga)
+        create_rel = partial(Relation.objects.create, user=user, object_entity=orga)
         create_rel(subject_entity=manager,  type_id=REL_SUB_MANAGES)
         create_rel(subject_entity=employee, type_id=REL_SUB_EMPLOYED_BY)
 
-        opp = Opportunity.objects.create(user=user, name='Opp custo',
-                                         sales_phase=SalesPhase.objects.all()[0],
-                                         emitter=mngd_orga, target=orga,
-                                        )
+        opp = Opportunity.objects.create(
+            user=user, name='Opp custo',
+            sales_phase=SalesPhase.objects.all()[0],
+            emitter=mngd_orga, target=orga,
+        )
 
         create_commapp = CommercialApproach.objects.create
         commapp1 = create_commapp(title='Commapp - orga',     creme_entity=orga)
@@ -368,7 +429,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(commapp4.title, titles)
 
     def test_brick02(self):
-        "Home"
+        "Home."
         BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id_, order=100)
 
         response = self.assertGET200('/')
@@ -387,16 +448,17 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         mngd_orga = Organisation.objects.filter_managed_by_creme()[0]
         customer  = Organisation.objects.create(user=user, name='NERV')
 
-        Relation.objects.create(user=user, subject_entity=customer,
-                                type_id=REL_SUB_CUSTOMER_SUPPLIER,
-                                object_entity=mngd_orga,
-                               )
+        Relation.objects.create(
+            user=user, subject_entity=customer,
+            type_id=REL_SUB_CUSTOMER_SUPPLIER,
+            object_entity=mngd_orga,
+        )
 
         return mngd_orga, customer
 
     @skipIfCustomOrganisation
     def test_job01(self):
-        "Customer has no CommercialApproach"
+        "Customer has no CommercialApproach."
         self._send_mails()
         self.assertFalse(mail.outbox)
 
@@ -409,24 +471,21 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         message = messages[0]
         self.assertEqual(
             _('[CremeCRM] The organisation «{}» seems neglected').format(customer),
-            message.subject
+            message.subject,
         )
         self.assertEqual(
             _(
                 "It seems you haven't created a commercial approach "
                 "for the organisation «{orga}» since {delay} days."
-            ).format(
-                orga=customer,
-                delay=30,
-            ),
-            message.body
+            ).format(orga=customer, delay=30),
+            message.body,
         )
         self.assertEqual(settings.EMAIL_SENDER, message.from_email)
         self.assertFalse(hasattr(message, 'alternatives'))
         self.assertFalse(message.attachments)
         self.assertListEqual(
             [self.user.email],
-            [recipient for msg in messages for recipient in msg.recipients()]
+            [recipient for msg in messages for recipient in msg.recipients()],
         )
 
     @skipIfCustomOrganisation
@@ -434,10 +493,11 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         "A commapp is linked to the customer"
         mngd_orga, customer = self._build_orgas()
 
-        CommercialApproach.objects.create(title='Commapp01',
-                                          description='A commercial approach',
-                                          creme_entity=customer,
-                                         )
+        CommercialApproach.objects.create(
+            title='Commapp01',
+            description='A commercial approach',
+            creme_entity=customer,
+        )
 
         self._send_mails()
         self.assertFalse(mail.outbox)
@@ -447,13 +507,15 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         "The linked Commapp is to old"
         mngd_orga, customer = self._build_orgas()
 
-        commapp = CommercialApproach.objects.create(title='Commapp01',
-                                                    description='A commercial approach',
-                                                    creme_entity=customer,
-                                                   )
+        commapp = CommercialApproach.objects.create(
+            title='Commapp01',
+            description='A commercial approach',
+            creme_entity=customer,
+        )
 
-        CommercialApproach.objects.filter(id=commapp.id) \
-                                  .update(creation_date=commapp.creation_date - timedelta(days=31))
+        CommercialApproach.objects.filter(
+            id=commapp.id,
+        ).update(creation_date=commapp.creation_date - timedelta(days=31))
 
         self._send_mails()
         self.assertEqual(1, len(mail.outbox))
@@ -461,19 +523,23 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     def test_job04(self):
-        "A commapp is linked to a manager"
+        "A commapp is linked to a manager."
         mngd_orga, customer = self._build_orgas()
 
-        manager = Contact.objects.create(user=self.user, first_name='Ryoga', last_name='Hibiki')
-        Relation.objects.create(user=self.user, subject_entity=manager,
-                                type_id=REL_SUB_MANAGES,
-                                object_entity=customer,
-                               )
+        manager = Contact.objects.create(
+            user=self.user, first_name='Ryoga', last_name='Hibiki',
+        )
+        Relation.objects.create(
+            user=self.user, subject_entity=manager,
+            type_id=REL_SUB_MANAGES,
+            object_entity=customer,
+        )
 
-        CommercialApproach.objects.create(title='Commapp01',
-                                          description='A commercial approach',
-                                          creme_entity=manager,
-                                         )
+        CommercialApproach.objects.create(
+            title='Commapp01',
+            description='A commercial approach',
+            creme_entity=manager,
+        )
 
         self._send_mails()
         self.assertFalse(mail.outbox)
@@ -481,19 +547,23 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     def test_job05(self):
-        "A commapp is linked to a employee"
+        "A commapp is linked to a employee."
         mngd_orga, customer = self._build_orgas()
 
-        employee = Contact.objects.create(user=self.user, first_name='Ryoga', last_name='Hibiki')
-        Relation.objects.create(user=self.user, subject_entity=employee,
-                                type_id=REL_SUB_EMPLOYED_BY,
-                                object_entity=customer,
-                               )
+        employee = Contact.objects.create(
+            user=self.user, first_name='Ryoga', last_name='Hibiki',
+        )
+        Relation.objects.create(
+            user=self.user, subject_entity=employee,
+            type_id=REL_SUB_EMPLOYED_BY,
+            object_entity=customer,
+        )
 
-        CommercialApproach.objects.create(title='Commapp01',
-                                          description='A commercial approach',
-                                          creme_entity=employee,
-                                         )
+        CommercialApproach.objects.create(
+            title='Commapp01',
+            description='A commercial approach',
+            creme_entity=employee,
+        )
 
         self._send_mails()
         self.assertFalse(mail.outbox)
@@ -501,25 +571,27 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     @skipIfCustomOpportunity
     def test_job06(self):
-        "A commapp is linked to an Opportunity"
+        "A CommercialApproach is linked to an Opportunity."
         mngd_orga, customer = self._build_orgas()
 
-        opp = Opportunity.objects.create(user=self.user, name='Opp custo',
-                                         sales_phase=SalesPhase.objects.all()[0],
-                                         emitter=mngd_orga, target=customer,
-                                        )
+        opp = Opportunity.objects.create(
+            user=self.user, name='Opp custo',
+            sales_phase=SalesPhase.objects.all()[0],
+            emitter=mngd_orga, target=customer,
+        )
 
-        CommercialApproach.objects.create(title='Commapp01',
-                                          description='A commercial approach',
-                                          creme_entity=opp,
-                                         )
+        CommercialApproach.objects.create(
+            title='Commapp01',
+            description='A commercial approach',
+            creme_entity=opp,
+        )
 
         self._send_mails()
         self.assertFalse(mail.outbox)
 
     @skipIfCustomOrganisation
     def test_job07(self):
-        "Ignore the managed orga that are customer of another managed organisation"
+        "Ignore the managed organisations that are customer of another managed organisation."
         mngd_orga, customer = self._build_orgas()
 
         customer.is_managed = True
@@ -530,7 +602,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_job08(self):
-        "Sending error"
+        "Sending error."
         self._build_orgas()
 
         self.send_messages_called = False
@@ -549,8 +621,10 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(jresults))
 
         jresult = jresults[0]
-        self.assertEqual([_('An error has occurred while sending emails'),
-                          _('Original error: {}').format(err_msg),
-                         ],
-                         jresult.messages
-                        )
+        self.assertListEqual(
+            [
+                _('An error has occurred while sending emails'),
+                _('Original error: {}').format(err_msg),
+            ],
+            jresult.messages
+        )

@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.utils.translation import gettext_lazy as _
 
@@ -30,10 +31,12 @@ from .address import _AuxiliaryAddressForm
 
 logger = logging.getLogger(__name__)
 
+# DEPRECATED
 _BILLING_ADDRESS_FIELD  = 'billing_address'
 _SHIPPING_ADDRESS_FIELD = 'shipping_address'
 
 
+# TODO: to be deprecated in Creme 2.3
 def _get_address_field_names(addr_fieldname):
     form = _AuxiliaryAddressForm(prefix=addr_fieldname)
     return [form.add_prefix(name) for name in form.base_fields]
@@ -62,6 +65,7 @@ class _BasePersonForm(CremeEntityForm):
     hide_shipping_address = False
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('_BasePersonForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
 
         fconfig = self.fields_configs.get_4_model(self.instance.__class__)

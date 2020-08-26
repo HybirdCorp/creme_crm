@@ -1,0 +1,11 @@
+{% load i18n %}
+<div class="extracform_field_selectors inline_selectors">
+    {% if widget.choices %}
+    <h4 class="selector_title">{% trans 'Additional fields'%}</h4>
+    <ul class="selector_list">
+        {% for choice_id, cfield_name in widget.choices %}
+        <li class="selector" data-column="{{choice_id}}"><input type="checkbox" /><label>{{cfield_name}}</label></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>

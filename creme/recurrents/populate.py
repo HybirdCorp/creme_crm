@@ -22,11 +22,18 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import HeaderFilter, Job, SearchConfigItem
+from creme.creme_core.models import (
+    CustomFormConfigItem,
+    HeaderFilter,
+    Job,
+    SearchConfigItem,
+)
 
-from . import constants, get_rgenerator_model
+from . import constants, custom_forms, get_rgenerator_model
 from .creme_jobs import recurrents_gendocs_type
+from .forms.recurrentgenerator import GeneratorCTypeSubCell
 
 
 class Populator(BasePopulator):
@@ -42,10 +49,89 @@ class Populator(BasePopulator):
             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
         )
 
+        # ---------------------------
+        common_groups_desc = [
+            {
+                'name': _('Description'),
+                'cells': [
+                    (EntityCellRegularField, {'name': 'description'}),
+                ],
+            }, {
+                'name': _('Custom fields'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                    ),
+                ],
+            }
+        ]
+
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.GENERATOR_CREATION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        GeneratorCTypeSubCell(model=RecurrentGenerator).into_cell(),
+                        (EntityCellRegularField, {'name': 'first_generation'}),
+                        (EntityCellRegularField, {'name': 'periodicity'}),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
+                {
+                    'name': _('Properties'),
+                    'cells': [
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                        ),
+                    ],
+                }, {
+                    'name': _('Relationships'),
+                    'cells': [
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.RELATIONS},
+                        ),
+                    ],
+                },
+            ],
+        )
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.GENERATOR_EDITION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'first_generation'}),
+                        (EntityCellRegularField, {'name': 'periodicity'}),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
+            ],
+        )
+
+        # ---------------------------
         SearchConfigItem.objects.create_if_needed(RecurrentGenerator, ['name', 'description'])
 
-        Job.objects.get_or_create(type_id=recurrents_gendocs_type.id,
-                                  defaults={'language': settings.LANGUAGE_CODE,
-                                            'status':   Job.STATUS_OK,
-                                           },
-                                 )
+        # ---------------------------
+        Job.objects.get_or_create(
+            type_id=recurrents_gendocs_type.id,
+            defaults={
+                'language': settings.LANGUAGE_CODE,
+                'status':   Job.STATUS_OK,
+            },
+        )

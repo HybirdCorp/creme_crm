@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type
+from typing import Type, Union
 
 from django import forms
 from django.db.models.query_utils import Q
@@ -32,12 +32,13 @@ from django.utils.translation import gettext_lazy as _
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import validators
+from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic  # decorators
 
-from .. import constants, get_organisation_model
+from .. import constants, custom_forms, get_organisation_model
 from ..forms import organisation as orga_forms
 
 Organisation = get_organisation_model()
@@ -45,8 +46,10 @@ Organisation = get_organisation_model()
 
 class OrganisationCreationBase(generic.EntityCreation):
     model = Organisation
-    form_class: Type[forms.BaseForm] = orga_forms.OrganisationForm
-    template_name = 'persons/add_organisation_form.html'
+    # form_class = orga_forms.OrganisationForm
+    form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
+        custom_forms.ORGANISATION_CREATION_CFORM
+    # template_name = 'persons/add_organisation_form.html'
 
 
 # TODO: merge with OrganisationCreationBase
@@ -81,11 +84,12 @@ class CustomerCreation(OrganisationCreationBase):
                 ),
             )
 
-            blocks = form_cls.blocks.new((
-                'customer_relation',
-                _('Suspect / prospect / customer'),
-                ('customers_managed_orga', 'customers_rtypes'),
-            ))
+            blocks = form_cls.blocks.new({
+                'id': 'customer_relation',
+                'label': _('Suspect / prospect / customer'),
+                'fields': ('customers_managed_orga', 'customers_rtypes'),
+                'order': 0,
+            })
 
             def _get_relations_to_create(this):
                 instance = this.instance
@@ -124,8 +128,10 @@ class OrganisationDetail(generic.EntityDetail):
 
 class OrganisationEdition(generic.EntityEdition):
     model = Organisation
-    form_class: Type[forms.BaseForm] = orga_forms.OrganisationForm
-    template_name = 'persons/edit_organisation_form.html'
+    # form_class: Type[BaseForm] = orga_forms.OrganisationForm
+    form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
+        custom_forms.ORGANISATION_EDITION_CFORM
+    # template_name = 'persons/edit_organisation_form.html'
     pk_url_kwarg = 'orga_id'
 
 

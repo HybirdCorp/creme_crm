@@ -73,10 +73,10 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_detailview01(self):
         user = self.login()
 
-        title       = 'Test ticket'
+        title = 'Test ticket'
         description = 'Test description'
-        priority    = Priority.objects.all()[0]
-        criticity   = Criticity.objects.all()[0]
+        priority = Priority.objects.all()[0]
+        criticity = Criticity.objects.all()[0]
         ticket = Ticket.objects.create(
             user=user,
             title=title,
@@ -98,9 +98,9 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual(title,       retr_ticket.title)
         self.assertEqual(description, retr_ticket.description)
 
-        self.assertEqual(f'#{ticket.number} - {title}',
-                         str(retr_ticket)
-                        )
+        self.assertEqual(
+            f'#{ticket.number} - {title}', str(retr_ticket)
+        )
 
     def test_detailview02(self):
         self.login()
@@ -113,10 +113,10 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         url = reverse('tickets__create_ticket')
         self.assertGET200(url)
 
-        title       = 'Test ticket'
+        title = 'Test ticket'
         description = 'Test description'
-        priority    = Priority.objects.all()[0]
-        criticity   = Criticity.objects.all()[0]
+        priority = Priority.objects.all()[0]
+        criticity = Criticity.objects.all()[0]
         number = 1024
         data = {
             'user':         user.pk,
@@ -194,12 +194,13 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         ticket.status = get_status(pk=CLOSED_PK)
         ticket.save()
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
-        self.assertEqual(timedelta_pprint(ticket.closing_date - ticket.created),
-                         funf(ticket, user).for_html()
-                        )
+        self.assertEqual(
+            timedelta_pprint(ticket.closing_date - ticket.created),
+            funf(ticket, user).for_html()
+        )
 
     def test_get_resolving_duration02(self):
-        "Resolving duration with CLOSED_PK + closing_date=None (eg: CSV import)"
+        "Resolving duration with CLOSED_PK + closing_date=None (eg: CSV import)."
         user = self.login()
 
         ticket = Ticket.objects.create(
@@ -229,12 +230,13 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         url = ticket.get_edit_absolute_url()
         self.assertGET200(url)
 
-        title       = 'Test ticket'
+        title = 'Test ticket'
         description = 'Test description'
-        priority    = Priority.objects.all()[1]
-        criticity   = Criticity.objects.all()[1]
+        priority = Priority.objects.all()[1]
+        criticity = Criticity.objects.all()[1]
         response = self.client.post(
-            url, follow=True,
+            url,
+            follow=True,
             data={
                 'user':         user.pk,
                 'title':        title,
@@ -259,10 +261,10 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
     def test_editview02(self):
         user = self.login()
 
-        title       = 'Test ticket'
+        title = 'Test ticket'
         description = 'Test description'
-        priority    = Priority.objects.all()[0]
-        criticity   = Criticity.objects.all()[0]
+        priority = Priority.objects.all()[0]
+        criticity = Criticity.objects.all()[0]
         ticket = Ticket.objects.create(
             user=user,
             title=title,
@@ -464,9 +466,10 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
             criticity=Criticity.objects.all()[0],
         )
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('tickets', 'priority', priority.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('tickets', 'priority', priority.id)
+            ),
             data={
                 'replace_tickets__ticket_priority':         priority2.id,
                 'replace_tickets__tickettemplate_priority': priority2.id,
@@ -497,9 +500,10 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
             criticity=criticity,
         )
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('tickets', 'criticity', criticity.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('tickets', 'criticity', criticity.id)
+            ),
             data={
                 'replace_tickets__ticket_criticity':         criticity2.id,
                 'replace_tickets__tickettemplate_criticity': criticity2.id,
@@ -519,11 +523,11 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
 
         count = Ticket.objects.count()
 
-        titles       = 'Ticket 01', 'Ticket 02'
+        titles = 'Ticket 01', 'Ticket 02'
         descriptions = 'Description #1', 'Description #2'
-        status_l     = Status.objects.all()[:2]
-        priorities   = Priority.objects.all()[:2]
-        crits  = Criticity.objects.all()[:2]
+        status_l = Status.objects.all()[:2]
+        priorities = Priority.objects.all()[:2]
+        crits = Criticity.objects.all()[:2]
 
         lines = [
             (titles[0], status_l[0].name, priorities[0].name, crits[0].name, descriptions[0]),
@@ -607,10 +611,13 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual({}, create_ticket().get_html_attrs({'today': now_value}))
 
         context = {'today': now_value + timedelta(days=8)}
-        self.assertEqual({'data-color': 'tickets-important'},
-                         create_ticket().get_html_attrs(context)
-                        )
-        self.assertFalse(create_ticket(status=get_status(pk=CLOSED_PK)).get_html_attrs(context))
+        self.assertDictEqual(
+            {'data-color': 'tickets-important'},
+            create_ticket().get_html_attrs(context)
+        )
+        self.assertFalse(
+            create_ticket(status=get_status(pk=CLOSED_PK)).get_html_attrs(context),
+        )
 
 
 @skipIfCustomTicketTemplate
@@ -749,10 +756,11 @@ class TicketTemplateTestCase(CremeTestCase):
         template01 = self.create_template('Title01')
         template02 = self.create_template('Title02')
         # self.assertPOST404(reverse('creme_core__delete_entities'),
-        self.assertPOST409(reverse('creme_core__delete_entities'),
-                           data={'ids': f'{template01.id},{template02.id},'}
-                          )
+        self.assertPOST409(
+            reverse('creme_core__delete_entities'),
+            data={'ids': f'{template01.id},{template02.id},'}
+        )
         self.assertEqual(
             2,
-            TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count()
+            TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count(),
         )

@@ -64,18 +64,22 @@ class OrganisationTestCase(_BaseTestCase):
         user = self.login()
 
         url = reverse('persons__create_organisation')
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'persons/add_organisation_form.html')
+        # response = self.assertGET200(url)
+        self.assertGET200(url)
+        # self.assertTemplateUsed(response, 'persons/add_organisation_form.html')
 
         count = Organisation.objects.count()
-        name  = 'Spectre'
+        name = 'Spectre'
         description = 'DESCRIPTION'
-        response = self.client.post(url, follow=True,
-                                    data={'user':        user.pk,
-                                          'name':        name,
-                                          'description': description,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':        user.pk,
+                'name':        name,
+                'description': description,
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(count + 1, Organisation.objects.count())
 
@@ -88,7 +92,7 @@ class OrganisationTestCase(_BaseTestCase):
 
     @skipIfCustomAddress
     def test_createview02(self):
-        "With addresses"
+        "With addresses."
         user = self.login()
 
         name = 'Bebop'
@@ -102,21 +106,24 @@ class OrganisationTestCase(_BaseTestCase):
         b_country = 'Terran federation'
 
         s_address = 'Mars gate (bis)'
-        response = self.client.post(reverse('persons__create_organisation'), follow=True,
-                                    data={'user': user.pk,
-                                          'name': name,
+        response = self.client.post(
+            reverse('persons__create_organisation'),
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
 
-                                          'billing_address-address':    b_address,
-                                          'billing_address-po_box':     b_po_box,
-                                          'billing_address-zipcode':    b_zipcode,
-                                          'billing_address-city':       b_city,
-                                          'billing_address-department': b_department,
-                                          'billing_address-state':      b_state,
-                                          'billing_address-country':    b_country,
+                'billing_address-address':    b_address,
+                'billing_address-po_box':     b_po_box,
+                'billing_address-zipcode':    b_zipcode,
+                'billing_address-city':       b_city,
+                'billing_address-department': b_department,
+                'billing_address-state':      b_state,
+                'billing_address-country':    b_country,
 
-                                          'shipping_address-address': s_address,
-                                         }
-                                   )
+                'shipping_address-address': s_address,
+            },
+        )
         self.assertNoFormError(response)
 
         orga = self.get_object_or_fail(Organisation, name=name)
@@ -195,7 +202,7 @@ class OrganisationTestCase(_BaseTestCase):
 
     @skipIfCustomAddress
     def test_createview04(self):
-        "FieldsConfig on 'billing_address' FK field"
+        "FieldsConfig on 'billing_address' FK field."
         self.login()
         FieldsConfig.objects.create(
             content_type=Organisation,
@@ -219,16 +226,19 @@ class OrganisationTestCase(_BaseTestCase):
         orga = Organisation.objects.create(user=user, name=name)
         url = orga.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'persons/edit_organisation_form.html')
+        # self.assertTemplateUsed(response, 'persons/edit_organisation_form.html')
 
         name += '_edited'
         zipcode = '123456'
-        response = self.client.post(url, follow=True,
-                                    data={'user':                    user.pk,
-                                          'name':                    name,
-                                          'billing_address-zipcode': zipcode,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':                    user.pk,
+                'name':                    name,
+                'billing_address-zipcode': zipcode,
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, orga.get_absolute_url())
 
@@ -262,11 +272,13 @@ class OrganisationTestCase(_BaseTestCase):
 
         bebop = Organisation.objects.create(user=user, name='Bebop')
 
-        create_address = partial(Address.objects.create, address='XXX',
-                                 city='Red city', state='North', zipcode='111',
-                                 country='Mars', department='Dome #12',
-                                 owner=bebop,
-                                )
+        create_address = partial(
+            Address.objects.create,
+            address='XXX',
+            city='Red city', state='North', zipcode='111',
+            country='Mars', department='Dome #12',
+            owner=bebop,
+        )
         bebop.billing_address  = create_address(name='Hideout #1')
         bebop.shipping_address = create_address(name='Hideout #2')
         bebop.save()
@@ -380,9 +392,10 @@ class OrganisationTestCase(_BaseTestCase):
         c4 = create_contact(first_name='Edward',  last_name='Wong')
         c5 = create_contact(first_name='Number2', last_name='Droid', is_deleted=True)
 
-        create_relation = partial(Relation.objects.create,
-                                  user=user, type_id=constants.REL_SUB_EMPLOYED_BY,
-                                 )
+        create_relation = partial(
+            Relation.objects.create,
+            user=user, type_id=constants.REL_SUB_EMPLOYED_BY,
+        )
         create_relation(subject_entity=c1, object_entity=orga1)
         create_relation(subject_entity=c2, object_entity=orga1)
         create_relation(subject_entity=c3, object_entity=orga1, type_id=constants.REL_SUB_MANAGES)
@@ -405,9 +418,10 @@ class OrganisationTestCase(_BaseTestCase):
         c4 = create_contact(first_name='Edward',  last_name='Wong')
         c5 = create_contact(first_name='Number2', last_name='Droid', is_deleted=True)
 
-        create_relation = partial(Relation.objects.create,
-                                  user=user, type_id=constants.REL_SUB_MANAGES,
-                                 )
+        create_relation = partial(
+            Relation.objects.create,
+            user=user, type_id=constants.REL_SUB_MANAGES,
+        )
         create_relation(subject_entity=c1, object_entity=orga1)
         create_relation(subject_entity=c2, object_entity=orga1)
         create_relation(
@@ -429,15 +443,20 @@ class OrganisationTestCase(_BaseTestCase):
         create_creds = partial(SetCredentials.objects.create, role=self.role)
         create_creds(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # Not 'LINK'
             set_type=SetCredentials.ESET_ALL,
         )
         create_creds(
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -449,16 +468,18 @@ class OrganisationTestCase(_BaseTestCase):
             user=self.other_user, first_name='Jet', last_name='Black',
         )
 
-        self.assertPOST403(reverse('persons__become_customer', args=(customer01.id,)),
-                           data={'id': mng_orga01.id}, follow=True
-                          )
+        self.assertPOST403(
+            reverse('persons__become_customer', args=(customer01.id,)),
+            data={'id': mng_orga01.id}, follow=True
+        )
         self.assertEqual(0, Relation.objects.filter(subject_entity=customer01.id).count())
 
         mng_orga02 = self._build_managed_orga(user=self.other_user)  # Can not link it
         customer02 = Contact.objects.create(user=user, first_name='Vicious', last_name='??')
-        self.assertPOST403(reverse('persons__become_customer', args=(customer02.id,)),
-                           data={'id': mng_orga02.id}, follow=True
-                          )
+        self.assertPOST403(
+            reverse('persons__become_customer', args=(customer02.id,)),
+            data={'id': mng_orga02.id}, follow=True
+        )
         self.assertEqual(0, Relation.objects.filter(subject_entity=customer02.id).count())
 
     def test_become_prospect(self):
@@ -579,15 +600,20 @@ class OrganisationTestCase(_BaseTestCase):
         create_creds = partial(SetCredentials.objects.create, role=self.role)
         create_creds(
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # Not 'LINK'
             set_type=SetCredentials.ESET_ALL,
         )
         create_creds(
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -610,22 +636,24 @@ class OrganisationTestCase(_BaseTestCase):
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
             response, 'form', 'customers_managed_orga',
-            _('You are not allowed to link this entity: {}').format(managed1)
+            _('You are not allowed to link this entity: {}').format(managed1),
         )
 
         # ---
         response = self.assertPOST200(
-            url, follow=True,
-            data={**data,
-                  'user': self.other_user.id,  # <==
-                  'customers_managed_orga': managed2.id,
-                 },
+            url,
+            follow=True,
+            data={
+                **data,
+                'user': self.other_user.id,  # <==
+                'customers_managed_orga': managed2.id,
+            },
         )
         self.assertFormError(
             response, 'form', 'user',
             _('You are not allowed to link with the «{models}» of this user.').format(
                 models=_('Organisations'),
-            )
+            ),
         )
 
         # ---
@@ -644,8 +672,10 @@ class OrganisationTestCase(_BaseTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # Not 'LINK'
             set_type=SetCredentials.ESET_ALL,
         )
@@ -699,10 +729,10 @@ class OrganisationTestCase(_BaseTestCase):
         hunting = Sector.objects.create(title='Bounty hunting')
         bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('persons', 'sector', hunting.id)
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('persons', 'sector', hunting.id),
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(Sector).job
@@ -720,9 +750,10 @@ class OrganisationTestCase(_BaseTestCase):
         bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
 
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('persons', 'sector', hunting.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('persons', 'sector', hunting.id),
+            ),
             data={'replace_persons__organisation_sector': sector2.id},
         )
         self.assertNoFormError(response)
@@ -740,10 +771,10 @@ class OrganisationTestCase(_BaseTestCase):
         band = LegalForm.objects.create(title='Bounty hunting band')
         bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('persons', 'legal_form', band.id)
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('persons', 'legal_form', band.id),
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(LegalForm).job
@@ -761,9 +792,10 @@ class OrganisationTestCase(_BaseTestCase):
         bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
 
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('persons', 'legal_form', band.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('persons', 'legal_form', band.id)
+            ),
             data={'replace_persons__organisation_legal_form': lform2.id},
         )
         self.assertNoFormError(response)
@@ -781,10 +813,10 @@ class OrganisationTestCase(_BaseTestCase):
         size = StaffSize.objects.create(size='4 and a dog')
         bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('persons', 'staff_size', size.id)
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('persons', 'staff_size', size.id)
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(StaffSize).job
@@ -802,9 +834,9 @@ class OrganisationTestCase(_BaseTestCase):
         bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
 
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('persons', 'staff_size', size.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance', args=('persons', 'staff_size', size.id)
+            ),
             data={'replace_persons__organisation_staff_size': size2.id},
         )
         self.assertNoFormError(response)
@@ -852,18 +884,20 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_set_orga_as_managed02(self):
         "Not super-user."
-        self.login(is_superuser=False,
-                   allowed_apps=['creme_core', 'persons'],
-                   admin_4_apps=['creme_core'],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core', 'persons'],
+            admin_4_apps=['creme_core'],
+        )
         self.assertGET200(reverse('persons__orga_set_managed'))
 
     def test_set_orga_as_managed03(self):
         "Admin permission needed."
-        self.login(is_superuser=False,
-                   allowed_apps=['creme_core', 'persons'],
-                   # admin_4_apps=['creme_core'],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core', 'persons'],
+            # admin_4_apps=['creme_core'],
+        )
         self.assertGET403(reverse('persons__orga_set_managed'))
 
     def test_set_orga_as_not_managed(self):

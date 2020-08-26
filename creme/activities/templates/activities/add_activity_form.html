@@ -1,4 +1,7 @@
 {% extends 'creme_core/generics/blockform/add.html' %}
+{% load creme_core_tags %}
+
+{% log 'The template file "creme/activities/templates/activities/add_activity_form.html" is deprecated.' level='WARN' %}
 
 {% block content %}
     {% include content_template with icon_name='add' %}

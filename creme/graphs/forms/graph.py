@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _
 
@@ -32,6 +34,10 @@ class GraphForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_graph_model()
         # exclude = (*CremeEntityForm.Meta.exclude, 'orbital_relation_types')
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('ProductEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class AddRelationTypesForm(CremeForm):

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from functools import partial
 
 from django.db.models.query_utils import Q
@@ -35,6 +36,7 @@ from creme.creme_core.forms import (
     CremeForm,
     MultiCreatorEntityField,
 )
+from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import ellipsis_multi
 from creme.persons import get_contact_model
@@ -61,21 +63,59 @@ def _link_contact_n_activity(contact, activity, user):
     create_rel(type_id=REL_SUB_PART_AS_RESOURCE)
 
 
+class ParentTasksSubCell(CustomFormExtraSubCell):
+    sub_type_id = 'projects_parent_tasks'
+    verbose_name = _('Parent tasks')
+
+    def formfield(self, instance, user, **kwargs):
+        return MultiCreatorEntityField(
+            label=self.verbose_name,
+            required=False,
+            model=ProjectTask,
+            user=user,
+            q_filter={'linked_project': instance.linked_project.id},
+        )
+
+
+class BaseTaskCreationCustomForm(CremeEntityForm):
+    # NB: entity=None because the form could be instantiated by creme_config
+    def __init__(self, entity=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance.linked_project = entity
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+
+        # TODO: in AbstractProjectTask.save() ??
+        instance.order = instance.linked_project.attribute_order_task()
+
+        super().save(*args, **kwargs)
+
+        add_parent = instance.parent_tasks.add
+        for parent in self.cleaned_data[self.subcell_key(ParentTasksSubCell)]:
+            add_parent(parent)
+
+        return instance
+
+
 class _TaskForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = ProjectTask
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     fields = self.fields
-    #     fields['duration'].required = True
-    #     fields['start'].required = True
-    #     fields['end'].required = True
+    def __init__(self, *args, **kwargs):
+        warnings.warn('projects.forms.task._TaskForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
+        # fields = self.fields
+        # fields['duration'].required = True
+        # fields['start'].required = True
+        # fields['end'].required = True
 
 
 class TaskEditForm(_TaskForm):
-    pass
+    def __init__(self, entity, *args, **kwargs):
+        warnings.warn('TaskEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class TaskCreateForm(_TaskForm):
@@ -84,6 +124,7 @@ class TaskCreateForm(_TaskForm):
     )
 
     def __init__(self, entity, *args, **kwargs):
+        warnings.warn('TaskCreateForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
         self._project = entity
 
@@ -112,9 +153,9 @@ class TaskAddParentForm(CremeForm):
         super().__init__(*args, **kwargs)
         self.task = instance
         self.fields['parents'].q_filter = (
-            Q(linked_project=instance.linked_project_id) &
-            ~Q(id__in=[t.id for t in instance.get_subtasks()]) &
-            ~Q(children_set=instance.pk)
+            Q(linked_project=instance.linked_project_id)
+            & ~Q(id__in=[t.id for t in instance.get_subtasks()])
+            & ~Q(children_set=instance.pk)
         )
 
     def save(self, *args, **kwargs):

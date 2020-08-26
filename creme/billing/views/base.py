@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from typing import Sequence, Union
 
 from creme import persons
-# from creme.billing.forms import base as base_forms
+from creme.billing.forms import base as base_forms
 from creme.billing.models import Base
 from creme.creme_core.utils import bool_from_str_extended
 from creme.creme_core.views import generic
@@ -30,8 +31,8 @@ from creme.creme_core.views import generic
 class BaseCreation(generic.EntityCreation):
     model = Base
     # form_class = base_forms.BaseCreateForm
-    # template_name = 'billing/form/add.html'
-    template_name = 'billing/forms/add.html'
+    # # template_name = 'billing/form/add.html'
+    # template_name = 'billing/forms/add.html'
     initial_status = 1
 
     def get_initial(self):
@@ -44,8 +45,8 @@ class BaseCreation(generic.EntityCreation):
 class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     model = Base
     # form_class = base_forms.BaseCreateForm
-    # template_name = 'billing/form/add-popup.html'
-    template_name = 'billing/forms/add-popup.html'
+    # # template_name = 'billing/form/add-popup.html'
+    # template_name = 'billing/forms/add-popup.html'
     permissions: Union[str, Sequence[str], None] = 'billing'  # Need creation perm too
     initial_status = 1
     entity_id_url_kwarg = 'target_id'
@@ -58,7 +59,12 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     def get_initial(self):
         initial = super().get_initial()
         initial['status'] = self.initial_status
-        initial['target'] = self.get_related_entity()
+
+        target = self.get_related_entity()
+        initial['target'] = target  # DEPRECATED
+        initial[
+            base_forms.BillingTargetSubCell(model=self.model).into_cell().key
+        ] = target
 
         return initial
 
@@ -73,3 +79,7 @@ class BaseEdition(generic.EntityEdition):
     # form_class = base_forms.BaseEditForm
     # template_name = 'billing/form/edit.html'
     template_name = 'billing/forms/edit.html'
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('billing.views.base.BaseEdition is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)

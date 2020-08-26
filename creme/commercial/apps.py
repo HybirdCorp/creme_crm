@@ -65,16 +65,13 @@ class CommercialConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        from .models import (
-            ActObjectivePatternComponent,
-            MarketSegmentDescription,
-        )
+        from . import models
 
         register = bulk_update_registry.register
         # TODO: min_value/max_value constraint in the model... )
-        register(ActObjectivePatternComponent, exclude=['success_rate'])
+        register(models.ActObjectivePatternComponent, exclude=['success_rate'])
         # TODO: special form for segment
-        register(MarketSegmentDescription, exclude=['segment'])
+        register(models.MarketSegmentDescription, exclude=['segment'])
 
     def register_buttons(self, button_registry):
         from . import buttons
@@ -86,10 +83,28 @@ class CommercialConfig(CremeAppConfig):
 
         config_registry.register_model(models.ActType, 'act_type')
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.ACT_CREATION_CFORM,
+            custom_forms.ACT_EDITION_CFORM,
+
+            custom_forms.PATTERN_CREATION_CFORM,
+            custom_forms.PATTERN_EDITION_CFORM,
+
+            custom_forms.STRATEGY_CREATION_CFORM,
+            custom_forms.STRATEGY_EDITION_CFORM,
+        )
+
     def register_icons(self, icon_registry):
-        icon_registry.register(self.Act,      'images/commercial_%(size)s.png') \
-                     .register(self.Pattern,  'images/commercial_%(size)s.png') \
-                     .register(self.Strategy, 'images/commercial_%(size)s.png')
+        icon_registry.register(
+            self.Act,      'images/commercial_%(size)s.png',
+        ).register(
+            self.Pattern,  'images/commercial_%(size)s.png',
+        ).register(
+            self.Strategy, 'images/commercial_%(size)s.png',
+        )
 
     def register_menu(self, creme_menu):
         from django.urls import reverse_lazy as reverse
@@ -162,48 +177,64 @@ class CommercialConfig(CremeAppConfig):
         setting_key_registry.register(setting_keys.orga_approaches_key)
 
     def hook_activities(self):
-        from functools import partial
+        # from functools import partial
+        #
+        # from django.forms import BooleanField
+        #
+        # from creme.activities.forms.activity import ActivityCreateForm
+        #
+        # from .models import CommercialApproach
+        #
+        # def add_commapp_field(form):
+        #     form.fields['is_comapp'] = BooleanField(
+        #         required=False, label=_('Is a commercial approach ?'),
+        #         help_text=_(
+        #             'All participants (excepted users), subjects and linked entities '
+        #             'will be linked to a commercial approach.'
+        #         ),
+        #         initial=True
+        #     )
+        #
+        # def save_commapp_field(form):
+        #     cleaned_data = form.cleaned_data
+        #
+        #     if not cleaned_data.get('is_comapp', False):
+        #         return
+        #
+        #     comapp_subjects = [
+        #         *cleaned_data['other_participants'],
+        #         *cleaned_data['subjects'],
+        #         *cleaned_data['linked_entities'],
+        #     ]
+        #
+        #     if not comapp_subjects:
+        #         return
+        #
+        #     instance = form.instance
+        #     create_comapp = partial(
+        #         CommercialApproach.objects.create,
+        #         title=instance.title,
+        #         description=instance.description,
+        #         related_activity=instance,
+        #     )
+        #
+        #     for entity in comapp_subjects:
+        #         create_comapp(creme_entity=entity)
+        #
+        # ActivityCreateForm.add_post_init_callback(add_commapp_field)
+        # ActivityCreateForm.add_post_save_callback(save_commapp_field)
 
-        from django.forms import BooleanField
+        from creme.activities import custom_forms as act_cforms
+        from creme.activities import get_activity_model
+        from creme.commercial.forms.activity import IsCommercialApproachSubCell
 
-        from creme.activities.forms.activity import ActivityCreateForm
+        Activity = get_activity_model()
 
-        from .models import CommercialApproach
-
-        def add_commapp_field(form):
-            form.fields['is_comapp'] = BooleanField(
-                required=False, label=_('Is a commercial approach ?'),
-                help_text=_(
-                    'All participants (excepted users), subjects and linked entities '
-                    'will be linked to a commercial approach.'
-                ),
-                initial=True
-            )
-
-        def save_commapp_field(form):
-            cleaned_data = form.cleaned_data
-
-            if not cleaned_data.get('is_comapp', False):
-                return
-
-            comapp_subjects = [
-                *cleaned_data['other_participants'],
-                *cleaned_data['subjects'],
-                *cleaned_data['linked_entities'],
+        for cform_desc in (
+            act_cforms.ACTIVITY_CREATION_CFORM,
+            act_cforms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM,
+        ):
+            cform_desc.extra_sub_cells = [
+                *cform_desc.extra_sub_cells,
+                IsCommercialApproachSubCell(model=Activity),
             ]
-
-            if not comapp_subjects:
-                return
-
-            instance = form.instance
-            create_comapp = partial(CommercialApproach.objects.create,
-                                    title=instance.title,
-                                    description=instance.description,
-                                    related_activity=instance,
-                                   )
-
-            for entity in comapp_subjects:
-                create_comapp(creme_entity=entity)
-
-        ActivityCreateForm.add_post_init_callback(add_commapp_field)
-        ActivityCreateForm.add_post_save_callback(save_commapp_field)

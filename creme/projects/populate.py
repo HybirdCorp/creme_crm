@@ -26,9 +26,11 @@ from django.utils.translation import gettext as _
 from creme.activities import get_activity_model
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
+    CustomFormConfigItem,
     HeaderFilter,
     RelationType,
     SearchConfigItem,
@@ -36,8 +38,16 @@ from creme.creme_core.models import (
 from creme.creme_core.utils import create_if_needed
 from creme.persons import get_contact_model
 
-from . import bricks, constants, get_project_model, get_task_model
+from . import (
+    bricks,
+    constants,
+    custom_forms,
+    get_project_model,
+    get_task_model,
+)
 # from .models import Resource
+from .forms.project import ProjectLeadersSubCell
+from .forms.task import ParentTasksSubCell
 from .models import ProjectStatus, TaskStatus
 
 logger = logging.getLogger(__name__)
@@ -62,8 +72,7 @@ class Populator(BasePopulator):
                 constants.REL_SUB_PROJECT_MANAGER,
                 _('is one of the leaders of this project'),
                 [Contact],
-            ),
-            (
+            ), (
                 constants.REL_OBJ_PROJECT_MANAGER,
                 _('has as leader'),
                 [Project],
@@ -74,8 +83,7 @@ class Populator(BasePopulator):
                 constants.REL_SUB_LINKED_2_PTASK,
                 _('is related to the task of project'),
                 [Activity],
-            ),
-            (
+            ), (
                 constants.REL_OBJ_LINKED_2_PTASK,
                 _('includes the activity'),
                 [ProjectTask],
@@ -129,6 +137,131 @@ class Populator(BasePopulator):
         # )
 
         # ---------------------------
+        common_groups_desc = [
+            {
+                'name': _('Description'),
+                'cells': [
+                    (EntityCellRegularField, {'name': 'description'}),
+                ],
+            }, {
+                'name': _('Custom fields'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                    ),
+                ],
+            },
+        ]
+        only_creation_groups_desc = [
+            {
+                'name': _('Properties'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                    ),
+                ],
+            }, {
+                'name': _('Relationships'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.RELATIONS},
+                    ),
+                ],
+            },
+        ]
+
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.PROJECT_CREATION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'status'}),
+                        ProjectLeadersSubCell(model=Project).into_cell(),
+                        (EntityCellRegularField, {'name': 'start_date'}),
+                        (EntityCellRegularField, {'name': 'end_date'}),
+                        (EntityCellRegularField, {'name': 'currency'}),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
+                *only_creation_groups_desc,
+            ],
+        )
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.PROJECT_EDITION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'status'}),
+                        (EntityCellRegularField, {'name': 'start_date'}),
+                        (EntityCellRegularField, {'name': 'end_date'}),
+                        (EntityCellRegularField, {'name': 'currency'}),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
+            ],
+        )
+
+        task_rfields_cells = [
+            (EntityCellRegularField, {'name': 'user'}),
+            (EntityCellRegularField, {'name': 'title'}),
+            (EntityCellRegularField, {'name': 'start'}),
+            (EntityCellRegularField, {'name': 'end'}),
+            (EntityCellRegularField, {'name': 'duration'}),
+            (EntityCellRegularField, {'name': 'tstatus'}),
+        ]
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.TASK_CREATION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        *task_rfields_cells,
+                        ParentTasksSubCell(model=ProjectTask).into_cell(),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
+                *only_creation_groups_desc,
+            ],
+        )
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.TASK_EDITION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        *task_rfields_cells,
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
+            ],
+        )
+
+        # ---------------------------
         create_searchconf = SearchConfigItem.objects.create_if_needed
         create_searchconf(
             Project,
@@ -149,28 +282,22 @@ class Populator(BasePopulator):
                 (
                     _('Invitation to tender'),
                     _('Response to an invitation to tender'),
-                ),
-                (
+                ), (
                     _('Initialization'),
                     _('The project is starting'),
-                ),
-                (
+                ), (
                     _('Preliminary phase'),
                     _('The project is in the process of analysis and design'),
-                ),
-                (
+                ), (
                     _('Achievement'),
                     _('The project is being implemented'),
-                ),
-                (
+                ), (
                     _('Tests'),
                     _('The project is in the testing process (unit / integration / functional)'),
-                ),
-                (
+                ), (
                     _('User acceptance tests'),
                     _('The project is in the user acceptance testing process'),
-                ),
-                (
+                ), (
                     _('Finished'),
                     _('The project is finished')
                 ),

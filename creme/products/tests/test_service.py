@@ -32,16 +32,20 @@ class ServiceTestCase(_ProductsTestCase):
         sub_cat = SubCategory.objects.filter(category=cat)[0]
         unit = 'A wash'
         unit_price = '1.23'
-        response = self.client.post(url, follow=True,
-                                    data={'user':         self.user.pk,
-                                          'name':         name,
-                                          'reference':    reference,
-                                          'description':  description,
-                                          'unit':         unit,
-                                          'unit_price':   unit_price,
-                                          'sub_category': self._cat_field(cat, sub_cat),
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':         self.user.pk,
+                'name':         name,
+                'reference':    reference,
+                'description':  description,
+                'unit':         unit,
+                'unit_price':   unit_price,
+                # 'sub_category': self._cat_field(cat, sub_cat),
+                self.EXTRA_CATEGORY_KEY: self._cat_field(cat, sub_cat),
+            },
+        )
         self.assertNoFormError(response)
 
         services = Service.objects.all()
@@ -65,28 +69,34 @@ class ServiceTestCase(_ProductsTestCase):
         name = 'Eva washing'
         sub_cat = SubCategory.objects.all()[0]
         cat = sub_cat.category
-        service = Service.objects.create(user=user, name=name, description='Blabla',
-                                         unit_price=Decimal('1.23'), reference='42',
-                                         category=cat, sub_category=sub_cat, unit='A wash',
-                                        )
+        service = Service.objects.create(
+            user=user, name=name, reference='42', description='Blabla',
+            unit_price=Decimal('1.23'),  unit='A wash',
+            category=cat, sub_category=sub_cat,
+        )
 
         url = service.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
         unit_price = '4.53'
-        response = self.client.post(url, follow=True,
-                                    data={'user':         user.pk,
-                                          'name':         name,
-                                          'reference':    service.reference,
-                                          'description':  service.description,
-                                          'unit_price':   unit_price,
-                                          'sub_category': self._cat_field(service.category,
-                                                                          service.sub_category,
-                                                                         ),
-                                          'unit':         service.unit,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':         user.pk,
+                'name':         name,
+                'reference':    service.reference,
+                'description':  service.description,
+                'unit_price':   unit_price,
+                'unit':         service.unit,
+
+                # 'sub_category': self._cat_field(
+                self.EXTRA_CATEGORY_KEY: self._cat_field(
+                    service.category, service.sub_category,
+                ),
+            },
+        )
         self.assertNoFormError(response)
 
         service = self.refresh(service)
@@ -97,16 +107,21 @@ class ServiceTestCase(_ProductsTestCase):
         user = self.login()
 
         cat = Category.objects.all()[0]
-        create_serv = partial(Service.objects.create, user=user, unit='unit',
-                              category=cat, sub_category=SubCategory.objects.all()[0],
-                             )
-        services = [create_serv(name='Eva00', description='description#1',
-                                unit_price=Decimal('1.23'), reference='42',
-                               ),
-                    create_serv(name='Eva01', description='description#2',
-                                unit_price=Decimal('6.58'), reference='43',
-                               ),
-                   ]
+        create_serv = partial(
+            Service.objects.create,
+            user=user, unit='unit',
+            category=cat, sub_category=SubCategory.objects.all()[0],
+        )
+        services = [
+            create_serv(
+                name='Eva00', description='description#1',
+                unit_price=Decimal('1.23'), reference='42',
+            ),
+            create_serv(
+                name='Eva01', description='description#2',
+                unit_price=Decimal('6.58'), reference='43',
+            ),
+        ]
 
         response = self.assertGET200(Service.get_lv_absolute_url())
 
@@ -118,21 +133,24 @@ class ServiceTestCase(_ProductsTestCase):
 
     def _build_service_cat_subcat(self):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
-        sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
-        service = Service.objects.create(user=self.user, name='Eva00', description='description#1',
-                                         unit_price=Decimal('1.23'), reference='42',
-                                         category=cat, sub_category=sub_cat, unit='unit'
-                                        )
+        sub_cat = SubCategory.objects.create(
+            name='Eva', description='Fake gods', category=cat,
+        )
+        service = Service.objects.create(
+            user=self.user, name='Eva00', description='description#1',
+            unit_price=Decimal('1.23'), reference='42', unit='unit',
+            category=cat, sub_category=sub_cat,
+        )
         return service, cat, sub_cat
 
     def test_delete_subcategory(self):
         self.login()
 
         service, cat, sub_cat = self._build_service_cat_subcat()
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('products', 'subcategory', sub_cat.id)
-                                             ),
-                                     )
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance',
+            args=('products', 'subcategory', sub_cat.id),
+        ))
         self.assertFormError(
             response, 'form',
             'replace_products__service_sub_category',
@@ -143,13 +161,12 @@ class ServiceTestCase(_ProductsTestCase):
         self.login()
 
         service, cat, sub_cat = self._build_service_cat_subcat()
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('products', 'category', cat.id)
-                                             ),
-                                     )
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance',
+            args=('products', 'category', cat.id)
+        ))
         self.assertFormError(
-            response, 'form',
-            'replace_products__service_category',
+            response, 'form', 'replace_products__service_category',
             _('Deletion is not possible.')
         )
 
@@ -168,11 +185,11 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertFalse(user.has_perm_to_link(img_4))
 
         sub_cat = SubCategory.objects.all()[0]
-        service = Service.objects.create(user=user, name='Eva00', description='A fake god',
-                                         unit_price=Decimal('1.23'),
-                                         category=sub_cat.category,
-                                         sub_category=sub_cat,
-                                        )
+        service = Service.objects.create(
+            user=user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'),
+            category=sub_cat.category, sub_category=sub_cat,
+        )
         service.images.set([img_3])
 
         url = reverse('products__add_images_to_service', args=(service.id,))
@@ -180,15 +197,19 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('New images for «{entity}»').format(entity=service),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New images for «{entity}»').format(entity=service),
+            context.get('title'),
+        )
         self.assertEqual(_('Link the images'), context.get('submit_label'))
 
         def post(*images):
             return self.client.post(
-                url, follow=True,
-                data={'images': self.formfield_value_multi_creator_entity(*images)}
+                url,
+                follow=True,
+                data={
+                    'images': self.formfield_value_multi_creator_entity(*images),
+                },
             )
 
         response = post(img_1, img_4)
@@ -209,11 +230,11 @@ class ServiceTestCase(_ProductsTestCase):
         img_2 = create_image(ident=2, user=user)
 
         sub_cat = SubCategory.objects.all()[0]
-        service = Service.objects.create(user=user, name='Eva00', description='A fake god',
-                                         unit_price=Decimal('1.23'),
-                                         category=sub_cat.category,
-                                         sub_category=sub_cat,
-                                        )
+        service = Service.objects.create(
+            user=user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'),
+            category=sub_cat.category, sub_category=sub_cat,
+        )
         service.images.set([img_1, img_2])
 
         url = reverse('products__remove_image', args=(service.id,))
@@ -240,11 +261,12 @@ class ServiceTestCase(_ProductsTestCase):
 
         names = ['Service %2i' % i for i in range(1, 5)]
 
-        lines = [(names[0], '', ''),
-                 (names[1], cat2.name, sub_cat21.name),
-                 (names[2], cat2.name, sub_cat22_name),
-                 (names[3], cat3_name, sub_cat31_name),
-                ]
+        lines = [
+            (names[0], '', ''),
+            (names[1], cat2.name, sub_cat21.name),
+            (names[2], cat2.name, sub_cat22_name),
+            (names[3], cat3_name, sub_cat31_name),
+        ]
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Service)
@@ -253,38 +275,41 @@ class ServiceTestCase(_ProductsTestCase):
         description = 'Service imported from CSV'
         price = '39'
         reference = '489'
-        response = self.client.post(url, follow=True,
-                                    data={'step': 1,
-                                          'document': doc.id,
-                                          # has_header
-                                          'user': user.id,
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'step': 1,
+                'document': doc.id,
+                # has_header
+                'user': user.id,
 
-                                          'name_colselect': 1,
+                'name_colselect': 1,
 
-                                          'description_colselect': 0,
-                                          'description_defval': description,
+                'description_colselect': 0,
+                'description_defval': description,
 
-                                          'unit_price_colselect': 0,
-                                          'unit_price_defval': price,
+                'unit_price_colselect': 0,
+                'unit_price_defval': price,
 
-                                          'reference_colselect': 0,
-                                          'reference_defval': reference,
+                'reference_colselect': 0,
+                'reference_defval': reference,
 
-                                          'categories_cat_colselect': 2,
-                                          'categories_subcat_colselect': 3,
-                                          'categories_subcat_defval': sub_cat11.pk,
-                                          'categories_create': 'on',  # <==
+                'categories_cat_colselect': 2,
+                'categories_subcat_colselect': 3,
+                'categories_subcat_defval': sub_cat11.pk,
+                'categories_create': 'on',  # <==
 
-                                          'unit_colselect': 0,
-                                          'quantity_per_unit_colselect': 0,
-                                          'countable_colselect': 0,
-                                          'web_site_colselect': 0,
+                'unit_colselect': 0,
+                'quantity_per_unit_colselect': 0,
+                'countable_colselect': 0,
+                'web_site_colselect': 0,
 
-                                          # 'property_types',
-                                          # 'fixed_relations',
-                                          # 'dyn_relations',
-                                         }
-                                   )
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)

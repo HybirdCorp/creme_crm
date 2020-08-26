@@ -74,6 +74,17 @@ class DocumentsConfig(CremeAppConfig):
         register_model(models.FolderCategory,   'category')
         register_model(models.DocumentCategory, 'doc_category')
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.FOLDER_CREATION_CFORM,
+            custom_forms.FOLDER_EDITION_CFORM,
+
+            custom_forms.DOCUMENT_CREATION_CFORM,
+            custom_forms.DOCUMENT_EDITION_CFORM,
+        )
+
     def register_field_printers(self, field_printers_registry):
         from creme.creme_core.gui import field_printers
 

@@ -8,6 +8,10 @@
 
   Users side :
   ------------
+    # A CustomForm system have been created : the forms for almost all entity types can be customised through
+      a GUI in the general configuration. You can create groups of fields, chose which fields are used (some
+      of them are required anyway) and their order. A basic layout system for the group allows you to display
+      groups on the whole width, or on the half width (left or right).
     # CustomFields have been improved :
         - 3 new types of CustomFields ha ve benn added : TEXT, DATE & URL.
         - New choices for ENUM (Choice list) & MULTI_ENUM (Multiple choice list) CustomFields can be created on-the-go in forms.
@@ -85,6 +89,7 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - Almost all entity forms in apps have been deprecated (because CustomForm are used instead them).
             - In 'creme_core.models', some custom managers have been added to :
                 - The method 'ButtonMenuItem.create_if_needed()' is deprecated ; use 'ButtonMenuItem.objects.create_if_needed()' instead.
                 - In 'entity_filter' :
@@ -144,6 +149,7 @@
             - In 'creme_core.templatetags' :
                 - "{% creme_media_url %}" is deprecated ; use the icon system instead.
                 - "{% hg_info %}" is deprecated ; use "{% scm_info %}" instead.
+            - The template file "creme/creme_core/templates/creme_core/generics/blockform/content.html" is deprecated.
             - In JavaScript :
                 - The package "creme.color" is deprecated and can be replaced by RGBColor tools.
             - Apps :
@@ -158,6 +164,17 @@
                     - These function-views in 'views.crud_relations' are deprecated ; use the view named "creme_core__save_relations" instead :
                       become_customer(), become_prospect(), become_suspect(), become_inactive(), become_supplier()
                     - The abstract function-view 'views.crud_relations._link()' is deprecated.
+                    - These template files are deprecated :
+                        - creme/persons/templates/persons/frags/*.html
+                        - creme/persons/templates/persons/*_form.html
+                        - creme/persons/templates/persons/*_form.html
+                    - The JavaScript function 'creme.persons.copyTo()' is deprecated.
+                * Activities :
+                      - The SettingKey 'setting_keys.form_user_messages_key' is deprecated.
+                      - These template files are deprecated :
+                        - creme/activities/templates/activities/frags/*
+                        - creme/activities/templates/activities/forms/add-activity-popup.html
+                        - creme/activities/templates/activities/add_activity_form.html
                 * Reports :
                     - In 'core.graph' :
                         - In the class 'ReportGraphHand', the property 'verbose_ordinate' is deprecated ; you can use the templatetag "{% reports_graph_ordinate %}" instead.
@@ -175,6 +192,11 @@
                     - The method 'models.AbstractDocument.get_linkeddoc_relations()' is deprecated.
                 * Billing :
                     - In 'models.Base', the methods 'get_source()/get_target()' are deprecated ; use the properties "source/target" instead.
+                    - The function 'forms.base.first_managed_orga_id()' is deprecated.
+                    - In 'views.base' :
+                        - The class 'BaseEdition' is deprecated.
+                        - The key "target" in the dictionary returned by 'RelatedBaseCreation.get_initial()' is deprecated.
+                    - The template files "creme/billing/templates/billing/forms/*" are deprecated.
                 * Commercial :
                     - These constants are deprecated : REL_SUB_SOLD_BY REL_OBJ_SOLD_BY. Use REL_SUB_SOLD & REL_OBJ_SOLD instead.
                 * Emails :
@@ -231,6 +253,8 @@
 
     Breaking changes :
     ------------------
+        # The attribute 'form_class' of almost all creation/edition views for entities has changed to use
+          a CustomFormDescriptor instead of a regular form class. The POST names for some fields have changed (details below).
         # The minimum version of Python has been upgraded to "3.6".
         # The Closure compiler is used instead of YUI for JavaScript (YUI fails on recent JS, but is still used for CSS).
         # Deprecated stuffs which have been removed :
@@ -238,7 +262,7 @@
                 - The method 'CremePropertyType.get_compatible_ones()' has been removed.
                 - In 'Relation', these methods have been removed: get_compatible_ones(), models.Relation.filter_in()
                 - The method 'RelationBrickItem.objects.create_if_needed()' has been removed.
-                - In 'BrickDetailviewLocation', these method have been removed :
+                - In 'BrickDetailviewLocation', these methods have been removed :
                     - config_exists()
                     - create_if_needed(), create_4_model_brick()
                     - id_is_4_model()
@@ -279,9 +303,13 @@
                     - In 'forms' :
                         - The form-field 'UserParticipationField' now checks the LINK credentials.
                         - The constructor of 'CalendarActivityCreateForm' does not take special arguments to initialize fields any more.
+                    - With the custom-forms, the creation/edition POST names for several fields have changed :
+                      'start', 'end', 'type', 'sub_type', 'my_participation', 'participating_users'...
+                    - The creation views do not use specific templates any more.
                 * Persons :
                     - The method 'models.AbstractOrganisation.get_all_managed_by_creme()' has been removed.
                     - The attributes "what" & "url_name" of the button 'buttons.CrmButton' (& so its children) have been removed.
+                    - The creation/edition views do not use specific templates any more.
                     - JavaScript:
                         - The function 'creme.persons.become()' has been removed and replaced by 'creme.persons.BecomeAction'.
                 * Billing :
@@ -289,17 +317,24 @@
                     - There were some changes in 'bricks._LinesBrick' (and child classes):
                         - The method '_get_document_lines()' has been removed.
                         - These class attributes have been removed: related_item_model & related_item_label
-                    - These templates of 'billing/frags/' have been removed : button_convert2invoice.html, button_convert2order.html
+                    - With the custom-forms, the creation/edition POST names for source & target have changed.
+                    - About templates :
+                        - The creation/edition views do not use specific templates any more.
+                        - The ones in 'billing/frags/' have been removed : button_convert2invoice.html, button_convert2order.html
                     - The JavaScript function 'creme.billing.generateInvoiceNumber()' has been removed.
                 * Opportunities :
                     - 'constants.SETTING_USE_CURRENT_QUOTE' has been removed.
                     - These methods of 'models.AbstractOpportunity' have been removed: 'get_contacts()', 'get_products()', 'get_responsibles()', 'get_services()'.
+                    - With the custom-forms, the creation/edition POST names for emitter & target have changed.
                 * Reports :
                     - The view 'views.graph.cast_order()' has been removed.
                     - The JavaScript function 'creme.reports.exportReport()' has been removed.
+                * Products :
+                    - With the custom-forms, the creation/edition POST names for category/sub-category have changed.
                 * Projects :
                     - The model 'Resource' does not inherit 'CremeEntity' any more. Beware the "pure" 'CremeEntity' fields (like "description") are dropped.
                     - In 'forms.task.RelatedActivityEditForm', the field "resource" is now related to 'persons.models.Contact'.
+                    - With the custom-forms, the creation/edition POST names for project leaders & parent task have changed.
                 * Commercial :
                     - The template filter "|has_quickform" (from the lib "commercial_tags") has been removed.
                 * Tickets :
@@ -312,6 +347,8 @@
                     - The template file "creme/events/templates/events/lv_button_link_contacts.html" has been removed.
                 * Graphs :
                     - The model-field 'Graph.orbital_relation_types' is not editable (it was manually excluded from forms).
+                * Recurrents :
+                    - With the custom-forms, the creation POST name for "ct" has changed.
         # The root URL 'site_media/*' has been removed.
         # The URL named "creme_core__dl_file" has been removed ; use the URL named "creme_core__download" instead (beware: the arguments are different).
         # In 'creme_core.core' :

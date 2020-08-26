@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from .. import get_service_model
 from .base import _BaseEditForm, _BaseForm
 
@@ -28,7 +30,15 @@ class ServiceCreateForm(_BaseForm):
     class Meta(_BaseForm.Meta):
         model = Service
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('ServiceCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
 
 class ServiceEditForm(_BaseEditForm):
     class Meta(_BaseEditForm.Meta):
         model = Service
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('ServiceEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)

@@ -34,12 +34,14 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRelation,
 )
 from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     ButtonMenuItem,
     CustomBrickConfigItem,
+    CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
     RelationType,
@@ -48,8 +50,10 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.utils import create_if_needed
 
-from . import bricks, buttons, constants, setting_keys
+from . import bricks, buttons, constants, custom_forms, setting_keys
 from .core import BILLING_MODELS
+from .forms.base import BillingSourceSubCell, BillingTargetSubCell
+from .forms.templatebase import BillingTemplateStatusSubCell
 from .models import (
     AdditionalInformation,
     CreditNoteStatus,
@@ -298,6 +302,204 @@ class Populator(BasePopulator):
 
         create_hf_lines('billing-hg_product_lines', _('Product lines view'), ProductLine)
         create_hf_lines('billing-hg_service_lines', _('Service lines view'), ServiceLine)
+
+        # ---------------------------
+        creation_only_groups_desc = [
+            {
+                'name': _('Properties'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                    ),
+                ],
+            }, {
+                'name': _('Relationships'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.RELATIONS},
+                    ),
+                ],
+            },
+        ]
+
+        def build_custom_form_items(model, creation_descriptor, edition_descriptor, field_names):
+            base_groups = [
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        *(
+                            (EntityCellRegularField, {'name': fname})
+                            for fname in field_names
+                        ),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                }, {
+                    'name': _('Organisations'),
+                    'cells': [
+                        BillingSourceSubCell(model=model).into_cell(),
+                        BillingTargetSubCell(model=model).into_cell(),
+                    ],
+                }, {
+                    'name': _('Description'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'description'}),
+                    ],
+                }, {
+                    'name': _('Custom fields'),
+                    'cells': [
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                        ),
+                    ],
+                },
+            ]
+
+            CustomFormConfigItem.objects.create_if_needed(
+                descriptor=creation_descriptor,
+                groups_desc=[
+                    *base_groups,
+                    *creation_only_groups_desc,
+                ],
+            )
+            CustomFormConfigItem.objects.create_if_needed(
+                descriptor=edition_descriptor,
+                groups_desc=base_groups,
+            )
+
+        build_custom_form_items(
+            model=Invoice,
+            creation_descriptor=custom_forms.INVOICE_CREATION_CFORM,
+            edition_descriptor=custom_forms.INVOICE_EDITION_CFORM,
+            field_names=[
+                'user',
+                'name',
+                'number',
+                'status',
+                'issuing_date',
+                'expiration_date',
+                'discount',
+                'currency',
+                'comment',
+                'additional_info',
+                'payment_terms',
+                'payment_type',
+                'buyers_order_number',
+            ],
+        )
+        build_custom_form_items(
+            model=Quote,
+            creation_descriptor=custom_forms.QUOTE_CREATION_CFORM,
+            edition_descriptor=custom_forms.QUOTE_EDITION_CFORM,
+            field_names=[
+                'user',
+                'name',
+                'number',
+                'status',
+                'issuing_date',
+                'expiration_date',
+                'discount',
+                'currency',
+                'comment',
+                'additional_info',
+                'payment_terms',
+                'acceptation_date',
+            ],
+        )
+        build_custom_form_items(
+            model=SalesOrder,
+            creation_descriptor=custom_forms.ORDER_CREATION_CFORM,
+            edition_descriptor=custom_forms.ORDER_EDITION_CFORM,
+            field_names=[
+                'user',
+                'name',
+                'number',
+                'status',
+                'issuing_date',
+                'expiration_date',
+                'discount',
+                'currency',
+                'comment',
+                'additional_info',
+                'payment_terms',
+            ],
+        )
+        build_custom_form_items(
+            model=CreditNote,
+            creation_descriptor=custom_forms.CNOTE_CREATION_CFORM,
+            edition_descriptor=custom_forms.CNOTE_EDITION_CFORM,
+            field_names=[
+                'user',
+                'name',
+                'number',
+                'status',
+                'issuing_date',
+                'expiration_date',
+                'discount',
+                'currency',
+                'comment',
+                'additional_info',
+                'payment_terms',
+            ],
+        )
+
+        common_template_groups_desc = [
+            {
+                'name': _('General information'),
+                'cells': [
+                    (EntityCellRegularField, {'name': 'user'}),
+                    (EntityCellRegularField, {'name': 'name'}),
+                    (EntityCellRegularField, {'name': 'number'}),
+                    BillingTemplateStatusSubCell(model=TemplateBase).into_cell(),
+                    (EntityCellRegularField, {'name': 'issuing_date'}),
+                    (EntityCellRegularField, {'name': 'expiration_date'}),
+                    (EntityCellRegularField, {'name': 'discount'}),
+                    (EntityCellRegularField, {'name': 'currency'}),
+                    (EntityCellRegularField, {'name': 'comment'}),
+                    (EntityCellRegularField, {'name': 'additional_info'}),
+                    (EntityCellRegularField, {'name': 'payment_terms'}),
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                    ),
+                ],
+            }, {
+                'name': _('Organisations'),
+                'cells': [
+                    BillingSourceSubCell(model=TemplateBase).into_cell(),
+                    BillingTargetSubCell(model=TemplateBase).into_cell(),
+                ],
+            }, {
+                'name': _('Description'),
+                'cells': [
+                    (EntityCellRegularField, {'name': 'description'}),
+                ],
+            }, {
+                'name': _('Custom fields'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                    ),
+                ],
+            },
+        ]
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.BTEMPLATE_CREATION_CFORM,
+            groups_desc=[
+                *common_template_groups_desc,
+                *creation_only_groups_desc,
+            ],
+        )
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.BTEMPLATE_EDITION_CFORM,
+            groups_desc=common_template_groups_desc,
+        )
 
         # ---------------------------
         get_ct = ContentType.objects.get_for_model

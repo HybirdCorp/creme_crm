@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 # from django.forms.utils import ValidationError
 # from django.utils.translation import gettext_lazy as _
 from django.db.models.query_utils import Q
@@ -37,6 +39,10 @@ class _FolderForm(CremeEntityForm):
         #     'category': _("The parent's category will be copied if you do not select one."),
         # }
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('_FolderForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
     # def save(self, *args, **kwargs):
     #     instance = self.instance
     #     if not instance.category and instance.parent_folder:
@@ -51,6 +57,7 @@ class FolderForm(_FolderForm):
     # }
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('FolderForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
         pk = self.instance.id
         if pk:
@@ -75,8 +82,19 @@ class ChildFolderForm(_FolderForm):
         exclude = ('parent_folder',)
 
     def __init__(self, entity, *args, **kwargs):
+        warnings.warn('ChildFolderForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
         self.instance.parent_folder = entity
+
+
+class BaseFolderCustomForm(CremeEntityForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        pk = self.instance.id
+        if pk:
+            # TODO: remove direct children too ??
+            # TODO: would be cool to get 'instance' in limit_choices_to...
+            self.fields['parent_folder'].q_filter = ~Q(id=pk)
 
 
 class ParentFolderBulkForm(BulkDefaultEditForm):

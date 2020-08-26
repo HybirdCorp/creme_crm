@@ -23,7 +23,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
-from .. import get_smscampaign_model
+from .. import custom_forms, get_smscampaign_model
 from ..constants import DEFAULT_HFILTER_SMSCAMPAIGN
 from ..forms import campaign as camp_forms
 
@@ -44,7 +44,8 @@ class MessagingListRemoving(generic.base.EntityRelatedMixin, generic.CremeDeleti
 
 class SMSCampaignCreation(generic.EntityCreation):
     model = SMSCampaign
-    form_class = camp_forms.CampaignCreateForm
+    # form_class = camp_forms.CampaignCreateForm
+    form_class = custom_forms.CAMPAIGN_CREATION_CFORM
 
 
 class SMSCampaignDetail(generic.EntityDetail):
@@ -55,7 +56,8 @@ class SMSCampaignDetail(generic.EntityDetail):
 
 class SMSCampaignEdition(generic.EntityEdition):
     model = SMSCampaign
-    form_class = camp_forms.CampaignEditForm
+    # form_class = camp_forms.CampaignEditForm
+    form_class = custom_forms.CAMPAIGN_EDITION_CFORM
     pk_url_kwarg = 'campaign_id'
 
 

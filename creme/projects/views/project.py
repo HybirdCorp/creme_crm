@@ -28,9 +28,9 @@ from creme.creme_core.core.exceptions import ConflictError
 # from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views import generic
 
-from .. import get_project_model
+# from ..forms import project as project_forms
+from .. import custom_forms, get_project_model
 from ..constants import DEFAULT_HFILTER_PROJECT
-from ..forms import project as project_forms
 from ..models import ProjectStatus
 
 Project = get_project_model()
@@ -72,7 +72,8 @@ class ProjectClosure(generic.base.EntityRelatedMixin, generic.CheckedView):
 
 class ProjectCreation(generic.EntityCreation):
     model = Project
-    form_class = project_forms.ProjectCreateForm
+    # form_class = project_forms.ProjectCreateForm
+    form_class = custom_forms.PROJECT_CREATION_CFORM
 
     def get_initial(self):
         initial = super().get_initial()
@@ -89,7 +90,8 @@ class ProjectDetail(generic.EntityDetail):
 
 class ProjectEdition(generic.EntityEdition):
     model = Project
-    form_class = project_forms.ProjectEditForm
+    # form_class = project_forms.ProjectEditForm
+    form_class = custom_forms.PROJECT_EDITION_CFORM
     pk_url_kwarg = 'project_id'
 
 

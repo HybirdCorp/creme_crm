@@ -18,10 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
+from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 
 from .. import get_rgenerator_model
 
@@ -31,6 +34,8 @@ class RecurrentGeneratorEditForm(CremeEntityForm):
         model = get_rgenerator_model()
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('RecurrentGeneratorEditForm is deprecated.', DeprecationWarning)
+
         super().__init__(*args, **kwargs)
         if self.instance.last_generation:
             del self.fields['first_generation']
@@ -40,6 +45,8 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
     ct = EntityCTypeChoiceField(label=_('Type of resource used as template'))
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('RecurrentGeneratorCreateForm is deprecated.', DeprecationWarning)
+
         from ..registry import recurrent_registry
 
         super().__init__(*args, **kwargs)
@@ -53,3 +60,33 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
         self.instance.ct = self.cleaned_data['ct']
 
         return super().save(*args, **kwargs)
+
+
+class GeneratorCTypeSubCell(CustomFormExtraSubCell):
+    sub_type_id = 'recurrents_ctype'
+    verbose_name = _('Type of resource used as template')
+
+    def formfield(self, instance, user, **kwargs):
+        from ..registry import recurrent_registry
+
+        has_perm = user.has_perm_to_create
+
+        return EntityCTypeChoiceField(
+            label=self.verbose_name,
+            ctypes=[
+                ctype
+                for ctype in recurrent_registry.ctypes
+                if has_perm(ctype.model_class())
+            ],
+        )
+
+    def post_clean_instance(self, *, instance, value, form):
+        if value:
+            instance.ct = value
+
+
+class BaseRecurrentGeneratorCustomForm(CremeEntityForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.last_generation:
+            del self.fields['first_generation']

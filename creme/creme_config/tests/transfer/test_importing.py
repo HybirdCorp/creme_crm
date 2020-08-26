@@ -58,6 +58,7 @@ from creme.creme_core.models import (
     UserRole,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_constants import DEFAULT_HFILTER_FAKE_CONTACT
 
 
 class ImportingTestCase(CremeTestCase):
@@ -403,8 +404,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertSetEqual({'documents'},            role.admin_4_apps)
 
         orga_ct = get_ct(FakeOrganisation)
-        self.assertEqual({contact_ct, orga_ct}, {*role.creatable_ctypes.all()})
-        self.assertEqual([orga_ct],             [*role.exportable_ctypes.all()])
+        self.assertSetEqual({contact_ct, orga_ct}, {*role.creatable_ctypes.all()})
+        self.assertListEqual([orga_ct],            [*role.exportable_ctypes.all()])
 
         all_credentials = [*role.credentials.all()]
         self.assertEqual(1, len(all_credentials))
@@ -495,9 +496,7 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual(1, len(conditions))
 
         condition1 = conditions[0]
-        self.assertEqual(RelationConditionHandler.type_id,
-                         condition1.type
-                        )
+        self.assertEqual(RelationConditionHandler.type_id, condition1.type)
         self.assertEqual(rtype_id, condition1.name)
 
         # ---
@@ -616,10 +615,9 @@ class ImportingTestCase(CremeTestCase):
 
         # --
         default_bricks_data = defaultdict(list)
-        for bdl in BrickDetailviewLocation.objects.filter(content_type=None,
-                                                          role=None,
-                                                          superuser=False,
-                                                         ):
+        for bdl in BrickDetailviewLocation.objects.filter(
+                content_type=None, role=None, superuser=False,
+        ):
             default_bricks_data[bdl.zone].append(
                 {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone}
             )
@@ -637,11 +635,9 @@ class ImportingTestCase(CremeTestCase):
                                                           role=None,
                                                           superuser=False,
                                                          ):
-            contact_bricks_data[bdl.zone].append(
-                {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                 'ctype': ct_str,
-                }
-            )
+            contact_bricks_data[bdl.zone].append({
+                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone, 'ctype': ct_str,
+            })
 
         self.assertFalse(contact_bricks_data.get(BrickDetailviewLocation.HAT))
         self.assertEqual([bricks_data[5]], contact_bricks_data.get(TOP))
@@ -655,11 +651,10 @@ class ImportingTestCase(CremeTestCase):
                                                           role=role,
                                                           superuser=False,
                                                          ):
-            role_contact_bricks_data[bdl.zone].append(
-                {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                 'ctype': ct_str, 'role': role.name,
-                }
-            )
+            role_contact_bricks_data[bdl.zone].append({
+                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
+                'ctype': ct_str, 'role': role.name,
+            })
 
         self.assertFalse(role_contact_bricks_data.get(BrickDetailviewLocation.HAT))
         self.assertEqual([bricks_data[9]],  role_contact_bricks_data.get(TOP))
@@ -669,15 +664,13 @@ class ImportingTestCase(CremeTestCase):
 
         # --
         superuser_contact_bricks_data = defaultdict(list)
-        for bdl in BrickDetailviewLocation.objects.filter(content_type=contact_ct,
-                                                          role=None,
-                                                          superuser=True,
-                                                         ):
-            superuser_contact_bricks_data[bdl.zone].append(
-                {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                 'ctype': ct_str, 'superuser': True,
-                }
-            )
+        for bdl in BrickDetailviewLocation.objects.filter(
+                content_type=contact_ct, role=None, superuser=True,
+        ):
+            superuser_contact_bricks_data[bdl.zone].append({
+                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
+                'ctype': ct_str, 'superuser': True,
+            })
 
         self.assertFalse(superuser_contact_bricks_data.get(BrickDetailviewLocation.HAT))
         self.assertEqual([bricks_data[13]], superuser_contact_bricks_data.get(TOP))
@@ -761,11 +754,10 @@ class ImportingTestCase(CremeTestCase):
             role__name=role_name,
             superuser=False,
         ):
-            role_contact_bricks_data[bdl.zone].append(
-                {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                 'ctype': ct_str, 'role': role_name,
-                }
-            )
+            role_contact_bricks_data[bdl.zone].append({
+                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
+                'ctype': ct_str, 'role': role_name,
+            })
 
         self.assertFalse(role_contact_bricks_data.get(BrickDetailviewLocation.HAT))
         self.assertEqual([bricks_data[5]], role_contact_bricks_data.get(TOP))
@@ -788,7 +780,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             bricks_data,
-            [{'id': loc.brick_id, 'order': loc.order}
+            [
+                {'id': loc.brick_id, 'order': loc.order}
                 for loc in BrickHomeLocation.objects.all()
             ]
         )
@@ -810,7 +803,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             bricks_data,
-            [{'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
+            [
+                {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
                 for loc in BrickHomeLocation.objects.filter(role=role, superuser=False)
             ]
         )
@@ -857,7 +851,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             bricks_data,
-            [{'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
+            [
+                {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
                 for loc in BrickHomeLocation.objects.filter(role__isnull=False, superuser=False)
             ]
         )
@@ -878,7 +873,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             bricks_data,
-            [{'id': loc.brick_id, 'order': loc.order, 'superuser': True}
+            [
+                {'id': loc.brick_id, 'order': loc.order, 'superuser': True}
                 for loc in BrickHomeLocation.objects.filter(role=None, superuser=True)
             ]
         )
@@ -901,7 +897,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             bricks_data,
-            [{'id': loc.brick_id, 'order': loc.order}
+            [
+                {'id': loc.brick_id, 'order': loc.order}
                 for loc in BrickMypageLocation.objects.filter(user=None)
             ]
         )
@@ -1046,10 +1043,11 @@ class ImportingTestCase(CremeTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertNoFormError(response)
 
-        sci = self.get_object_or_fail(SearchConfigItem,
-                                      content_type=ContentType.objects.get_for_model(FakeContact),
-                                      role__name=role_name, superuser=False,
-                                     )
+        sci = self.get_object_or_fail(
+            SearchConfigItem,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            role__name=role_name, superuser=False,
+        )
         fields = sci.searchfields
         self.assertEqual(2, len(fields))
         self.assertEqual('last_name',   fields[0].name)
@@ -1086,9 +1084,10 @@ class ImportingTestCase(CremeTestCase):
 
         ptype3 = self.get_object_or_fail(CremePropertyType, **ptype3_data)
         get_ct = ContentType.objects.get_for_model
-        self.assertSetEqual({get_ct(FakeContact), get_ct(FakeOrganisation)},
-                            {*ptype3.subject_ctypes.all()}
-                           )
+        self.assertSetEqual(
+            {get_ct(FakeContact), get_ct(FakeOrganisation)},
+            {*ptype3.subject_ctypes.all()}
+        )
 
     def test_property_types02(self):
         "Uniqueness of text."
@@ -1180,11 +1179,10 @@ class ImportingTestCase(CremeTestCase):
 
         # ---
         rtype_data = rtypes_data[0]
-        rtype1 = self.get_object_or_fail(RelationType,
-                                         is_custom=True,
-                                         id=rtype_data['id'],
-                                         predicate=rtype_data['predicate'],
-                                        )
+        rtype1 = self.get_object_or_fail(
+            RelationType,
+            is_custom=True, id=rtype_data['id'], predicate=rtype_data['predicate'],
+        )
         self.assertTrue(rtype1.is_copiable)
         self.assertFalse(rtype1.minimal_display)
         self.assertFalse(rtype1.subject_ctypes.all())
@@ -1201,19 +1199,19 @@ class ImportingTestCase(CremeTestCase):
 
         # ---
         rtype_data = rtypes_data[1]
-        rtype2 = self.get_object_or_fail(RelationType,
-                                         is_custom=True,
-                                         id=rtype_data['id'],
-                                         predicate=rtype_data['predicate'],
-                                        )
+        rtype2 = self.get_object_or_fail(
+            RelationType,
+            is_custom=True, id=rtype_data['id'], predicate=rtype_data['predicate'],
+        )
         self.assertFalse(rtype2.is_copiable)
         self.assertTrue(rtype2.minimal_display)
         self.assertFalse(rtype2.subject_properties.all())
         self.assertFalse(rtype2.object_properties.all())
         get_ct = ContentType.objects.get_for_model
-        self.assertSetEqual({get_ct(FakeContact), get_ct(FakeOrganisation)},
-                            {*rtype2.subject_ctypes.all()}
-                           )
+        self.assertSetEqual(
+            {get_ct(FakeContact), get_ct(FakeOrganisation)},
+            {*rtype2.subject_ctypes.all()}
+        )
         self.assertListEqual([get_ct(FakeDocument)], [*rtype2.object_ctypes.all()])
 
         sym_rtype2 = rtype2.symmetric_type
@@ -1254,14 +1252,13 @@ class ImportingTestCase(CremeTestCase):
         rtype = RelationType.objects.filter(is_custom=False, id__contains='-subject_').first()
         self.assertIsNotNone(rtype)
 
-        rtypes_data = [
-            {'id':          rtype.id, 'predicate': 'loves',
-             'is_copiable': True, 'minimal_display': False,
-             'symmetric':   {
-                 'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
-             },
+        rtypes_data = [{
+            'id':          rtype.id, 'predicate': 'loves',
+            'is_copiable': True, 'minimal_display': False,
+            'symmetric':   {
+                'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
             },
-        ]
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'relation_types': rtypes_data}))
         json_file.name = 'config-26-10-2017.csv'
@@ -1277,19 +1274,18 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         ptype_pk = 'creme_config-test_import_relation_types_04_doesnotexist'
-        rtypes_data = [
-            {'id':         'creme_config-subject_test_import_relations_types04',
-             'predicate':  'loves',
-             'is_copiable': True,
-             'minimal_display': False,
+        rtypes_data = [{
+            'id':         'creme_config-subject_test_import_relations_types04',
+            'predicate':  'loves',
+            'is_copiable': True,
+            'minimal_display': False,
 
-             'subject_properties': [ptype_pk],
+            'subject_properties': [ptype_pk],
 
-             'symmetric':   {
-                 'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
-             },
+            'symmetric':   {
+                'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
             },
-        ]
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'relation_types': rtypes_data}))
         json_file.name = 'config-30-10-2017.csv'
@@ -1310,19 +1306,18 @@ class ImportingTestCase(CremeTestCase):
         )
         ptype2_id = 'creme_config-test_import_relations_types05_2'
 
-        rtypes_data = [
-            {'id':         'creme_config-subject_test_import_relations_types05',
-             'predicate':  'loves',
-             'is_copiable': True,
-             'minimal_display': False,
+        rtypes_data = [{
+            'id':         'creme_config-subject_test_import_relations_types05',
+            'predicate':  'loves',
+            'is_copiable': True,
+            'minimal_display': False,
 
-             'subject_properties': [ptype1.id, ptype2_id],
+            'subject_properties': [ptype1.id, ptype2_id],
 
-             'symmetric':   {
-                 'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
-             },
+            'symmetric':   {
+                'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
             },
-        ]
+        }]
         data = {
             'version': '1.0',
             'property_types': [{'id': ptype2_id, 'text': 'Is important', 'is_copiable': True}],
@@ -1336,11 +1331,10 @@ class ImportingTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         rtype_data = rtypes_data[0]
-        rtype = self.get_object_or_fail(RelationType,
-                                        is_custom=True,
-                                        id=rtype_data['id'],
-                                        predicate=rtype_data['predicate'],
-                                       )
+        rtype = self.get_object_or_fail(
+            RelationType,
+            is_custom=True, id=rtype_data['id'], predicate=rtype_data['predicate'],
+        )
         ptype2 = self.get_object_or_fail(CremePropertyType, id=ptype2_id)
         self.assertSetEqual({ptype1, ptype2}, {*rtype.subject_properties.all()})
 
@@ -1378,16 +1372,20 @@ class ImportingTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         cfield_data = cfields_data[0]
-        self.get_object_or_fail(CustomField, content_type=get_ct(FakeContact),
-                                uuid=cfield_data['uuid'],
-                                name=cfield_data['name'], field_type=cfield_data['type'],
-                               )
+        self.get_object_or_fail(
+            CustomField,
+            content_type=get_ct(FakeContact),
+            uuid=cfield_data['uuid'],
+            name=cfield_data['name'], field_type=cfield_data['type'],
+        )
 
         cfield_data = cfields_data[1]
-        self.get_object_or_fail(CustomField, content_type=get_ct(FakeOrganisation),
-                                uuid=cfield_data['uuid'],
-                                name=cfield_data['name'], field_type=cfield_data['type'],
-                               )
+        self.get_object_or_fail(
+            CustomField,
+            content_type=get_ct(FakeOrganisation),
+            uuid=cfield_data['uuid'],
+            name=cfield_data['name'], field_type=cfield_data['type'],
+        )
 
         cfield_data = cfields_data[2]
         cfield3 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
@@ -1430,9 +1428,9 @@ class ImportingTestCase(CremeTestCase):
 
         name = 'Rating'
         # CustomField.objects.create(content_type=ContentType.objects.get_for_model(FakeContact),
-        CustomField.objects.create(content_type=FakeContact,
-                                   name=name, field_type=CustomField.FLOAT,
-                                  )
+        CustomField.objects.create(
+            content_type=FakeContact, name=name, field_type=CustomField.FLOAT,
+        )
 
         cfields_data = [
             {
@@ -1496,30 +1494,31 @@ class ImportingTestCase(CremeTestCase):
         ]
 
         hfilters_data = [
-            {'id':         'creme_config-test_import_headerfilters01',
-             'name':       'Contact view',
-             'ctype':      'creme_core.fakecontact',
-             'is_private': True,  # <== not used
-             'cells':      [cell.to_dict() for cell in cells],
-            },
-            {'id':    'creme_config-test_import_headerfilters02',
-             'name':  'Organisation view with spécial character in name',
-             'ctype': 'creme_core.fakeorganisation',
-             'user':  other_user.username,
-             'cells': [],
-            },
-            {'id':         'creme_config-test_import_headerfilters03',
-             'name':       'Private contact view',
-             'ctype':      'creme_core.fakecontact',
-             'user':       other_user.username,
-             'is_private': True,
-             'cells':      [],
-            },
-            {'id':    'creme_config-test_import_headerfilters04',
-             'name':  "Invalid user's Organisation view",
-             'ctype': 'creme_core.fakeorganisation',
-             'user':  'invalid',
-             'cells': [],
+            {
+                'id':         'creme_config-test_import_headerfilters01',
+                'name':       'Contact view',
+                'ctype':      'creme_core.fakecontact',
+                'is_private': True,  # <== not used
+                'cells':      [cell.to_dict() for cell in cells],
+            }, {
+                'id':    'creme_config-test_import_headerfilters02',
+                'name':  'Organisation view with spécial character in name',
+                'ctype': 'creme_core.fakeorganisation',
+                'user':  other_user.username,
+                'cells': [],
+            }, {
+                'id':         'creme_config-test_import_headerfilters03',
+                'name':       'Private contact view',
+                'ctype':      'creme_core.fakecontact',
+                'user':       other_user.username,
+                'is_private': True,
+                'cells':      [],
+            }, {
+                'id':    'creme_config-test_import_headerfilters04',
+                'name':  "Invalid user's Organisation view",
+                'ctype': 'creme_core.fakeorganisation',
+                'user':  'invalid',
+                'cells': [],
             },
         ]
 
@@ -1530,13 +1529,14 @@ class ImportingTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         hfilter_data = hfilters_data[0]
-        hf1 = self.get_object_or_fail(HeaderFilter,
-                                      is_custom=True,
-                                      entity_type=ct_contact,
-                                      id=hfilter_data['id'],
-                                      name=hfilter_data['name'],
-                                      user=None, is_private=False,
-                                     )
+        hf1 = self.get_object_or_fail(
+            HeaderFilter,
+            is_custom=True,
+            entity_type=ct_contact,
+            id=hfilter_data['id'],
+            name=hfilter_data['name'],
+            user=None, is_private=False,
+        )
         cells1 = hf1.cells
         self.assertEqual(4, len(cells1))
 
@@ -1555,25 +1555,27 @@ class ImportingTestCase(CremeTestCase):
 
         # --
         hfilter_data = hfilters_data[1]
-        self.get_object_or_fail(HeaderFilter,
-                                is_custom=True,
-                                entity_type=get_ct(FakeOrganisation),
-                                id=hfilter_data['id'],
-                                name=hfilter_data['name'],
-                                user=other_user,
-                                is_private=False,
-                               )
+        self.get_object_or_fail(
+            HeaderFilter,
+            is_custom=True,
+            entity_type=get_ct(FakeOrganisation),
+            id=hfilter_data['id'],
+            name=hfilter_data['name'],
+            user=other_user,
+            is_private=False,
+        )
 
         # --
         hfilter_data = hfilters_data[2]
-        self.get_object_or_fail(HeaderFilter,
-                                is_custom=True,
-                                entity_type=ct_contact,
-                                id=hfilter_data['id'],
-                                name=hfilter_data['name'],
-                                user=other_user,
-                                is_private=True,
-                               )
+        self.get_object_or_fail(
+            HeaderFilter,
+            is_custom=True,
+            entity_type=ct_contact,
+            id=hfilter_data['id'],
+            name=hfilter_data['name'],
+            user=other_user,
+            is_private=True,
+        )
 
         self.assertFalse(HeaderFilter.objects.filter(id=hfilters_data[3]['id']))
 
@@ -1581,15 +1583,14 @@ class ImportingTestCase(CremeTestCase):
         "Do not override not custom header-filters."
         self.login(is_staff=True)
 
-        hf = self.get_object_or_fail(HeaderFilter, id='creme_core-hf_fakecontact')
+        hf = self.get_object_or_fail(HeaderFilter, id=DEFAULT_HFILTER_FAKE_CONTACT)
 
-        hfilters_data = [
-            {'id':    hf.id,
-             'name':  'Contact view',
-             'ctype': 'creme_core.fakecontact',
-             'cells': [],
-            },
-        ]
+        hfilters_data = [{
+            'id':    hf.id,
+            'name':  'Contact view',
+            'ctype': 'creme_core.fakecontact',
+            'cells': [],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'header_filters': hfilters_data}))
         json_file.name = 'config-27-10-2017.csv'
@@ -1623,23 +1624,24 @@ class ImportingTestCase(CremeTestCase):
         data = {
             'version': '1.0',
             'relation_types': [
-                {'id':              rtype_id1,
-                 'predicate':       'loves',
-                 'is_copiable':     True,
-                 'minimal_display': False,
+                {
+                    'id':              rtype_id1,
+                    'predicate':       'loves',
+                    'is_copiable':     True,
+                    'minimal_display': False,
 
-                 'symmetric': {
-                     'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
-                 },
-                },
-                {'id':              rtype_id2a,
-                 'predicate':       'likes',
-                 'is_copiable':     True,
-                 'minimal_display': False,
+                    'symmetric': {
+                        'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
+                    },
+                }, {
+                    'id':              rtype_id2a,
+                    'predicate':       'likes',
+                    'is_copiable':     True,
+                    'minimal_display': False,
 
-                 'symmetric':       {
-                     'predicate': 'is liked by', 'is_copiable': False, 'minimal_display': True,
-                 },
+                    'symmetric':       {
+                        'predicate': 'is liked by', 'is_copiable': False, 'minimal_display': True,
+                    },
                 },
             ],
             'header_filters': [hfilter_data],
@@ -1734,13 +1736,12 @@ class ImportingTestCase(CremeTestCase):
         hf_id = 'creme_config-test_import_headerfilters_error01'
         data = {
             'version': '1.0',
-            'header_filters': [
-                {'id':    hf_id,
-                 'name':  'Contact view',
-                 'ctype': 'creme_core.fakecontact',
-                 'cells': [{'type': cell_type, 'value': 'last_name'}],
-                },
-            ],
+            'header_filters': [{
+                'id':    hf_id,
+                'name':  'Contact view',
+                'ctype': 'creme_core.fakecontact',
+                'cells': [{'type': cell_type, 'value': 'last_name'}],
+            }],
         }
 
         json_file = StringIO(json_dump(data))
@@ -1759,13 +1760,12 @@ class ImportingTestCase(CremeTestCase):
 
         fname = 'name'
         hf_id = 'creme_config-test_import_headerfilters_error02'
-        hfilters_data = [
-            {'id':    hf_id,
-             'name':  'Contact view',
-             'ctype': 'creme_core.fakecontact',
-             'cells': [EntityCellRegularField.build(FakeOrganisation, fname).to_dict()],
-            },
-        ]
+        hfilters_data = [{
+            'id':    hf_id,
+            'name':  'Contact view',
+            'ctype': 'creme_core.fakecontact',
+            'cells': [EntityCellRegularField.build(FakeOrganisation, fname).to_dict()],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'header_filters': hfilters_data}))
         json_file.name = 'config-27-10-2017.csv'
@@ -1783,13 +1783,12 @@ class ImportingTestCase(CremeTestCase):
 
         cf_uuid = '6a52b4db-f832-489f-b6de-d1558b3938f4'
         hf_id = 'creme_config-test_import_headerfilters_error03'
-        hfilters_data = [
-            {'id':    hf_id,
-             'name':  'Contact view',
-             'ctype': 'creme_core.fakecontact',
-             'cells': [{'type': EntityCellCustomField.type_id,  'value': cf_uuid}],
-            },
-        ]
+        hfilters_data = [{
+            'id':    hf_id,
+            'name':  'Contact view',
+            'ctype': 'creme_core.fakecontact',
+            'cells': [{'type': EntityCellCustomField.type_id,  'value': cf_uuid}],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'header_filters': hfilters_data}))
         json_file.name = 'config-06-11-2017.csv'
@@ -1809,16 +1808,15 @@ class ImportingTestCase(CremeTestCase):
 
         ff_name = 'invalid'
         hf_id = 'creme_config-test_import_headerfilters-error04'
-        hfilters_data = [
-            {'id':    hf_id,
-             'name':  'Contact view',
-             'ctype': 'creme_core.fakecontact',
-             'cells': [
-                 {'type': EntityCellRegularField.type_id,  'value': 'last_name'},
-                 {'type': EntityCellFunctionField.type_id, 'value': ff_name},
-             ],
-            },
-        ]
+        hfilters_data = [{
+            'id':    hf_id,
+            'name':  'Contact view',
+            'ctype': 'creme_core.fakecontact',
+            'cells': [
+                {'type': EntityCellRegularField.type_id,  'value': 'last_name'},
+                {'type': EntityCellFunctionField.type_id, 'value': ff_name},
+            ],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'header_filters': hfilters_data}))
         json_file.name = 'config-01-11-2017.csv'
@@ -1838,16 +1836,15 @@ class ImportingTestCase(CremeTestCase):
 
         rtype_id = 'creme_config-subject_test_import_headerfilters_error05'  # <= does not exist
         hf_id = 'creme_config-test_import_headerfilters-error04'
-        hfilters_data = [
-            {'id':    hf_id,
-             'name':  'Contact view',
-             'ctype': 'creme_core.fakecontact',
-             'cells': [
-                 {'type': EntityCellRegularField.type_id, 'value': 'last_name'},
-                 {'type': EntityCellRelation.type_id, 'value': rtype_id},
-             ],
-            },
-        ]
+        hfilters_data = [{
+            'id':    hf_id,
+            'name':  'Contact view',
+            'ctype': 'creme_core.fakecontact',
+            'cells': [
+                {'type': EntityCellRegularField.type_id, 'value': 'last_name'},
+                {'type': EntityCellRelation.type_id, 'value': rtype_id},
+            ],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'header_filters': hfilters_data}))
         json_file.name = 'config-01-11-2017.csv'
@@ -2038,9 +2035,7 @@ class ImportingTestCase(CremeTestCase):
 
         condition1_1 = conditions1[0]
         self.assertIsInstance(condition1_1, EntityFilterCondition)
-        self.assertEqual(RegularFieldConditionHandler.type_id,
-                         condition1_1.type
-                        )
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition1_1.type)
         self.assertEqual('first_name', condition1_1.name)
         self.assertDictEqual(
             {'operator': operators.EQUALS, 'values': ['Spike']},
@@ -2055,9 +2050,7 @@ class ImportingTestCase(CremeTestCase):
         )
 
         condition1_3 = conditions1[2]
-        self.assertEqual(RelationConditionHandler.type_id,
-                         condition1_3.type
-                        )
+        self.assertEqual(RelationConditionHandler.type_id, condition1_3.type)
         self.assertEqual(rtype_id1, condition1_3.name)
         self.assertEqual({'has': True}, condition1_3.value)
 
@@ -2087,29 +2080,31 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual(5, len(conditions2))
 
         condition2_1 = conditions2[0]
-        self.assertEqual(DateRegularFieldConditionHandler.type_id,
-                         condition2_1.type
-                        )
-        self.assertEqual({'start': {'day': 1, 'month': 4, 'year': 2015}},
-                         condition2_1.value
-                        )
+        self.assertEqual(DateRegularFieldConditionHandler.type_id, condition2_1.type)
+        self.assertDictEqual(
+            {'start': {'day': 1, 'month': 4, 'year': 2015}},
+            condition2_1.value
+        )
 
-        self.assertEqual({'end': {'day': 1, 'month': 5, 'year': 2015}},
-                         conditions2[1].value
-                        )
+        self.assertDictEqual(
+            {'end': {'day': 1, 'month': 5, 'year': 2015}},
+            conditions2[1].value
+        )
         self.assertEqual({'name': 'current_quarter'}, conditions2[2].value)
 
         condition2_4 = conditions2[3]
         self.assertEqual(rtype2.id, condition2_4.name)
-        self.assertEqual({'has': False, 'ct_id': ct_contact.id},
-                         condition2_4.value
-                        )
+        self.assertDictEqual(
+            {'has': False, 'ct_id': ct_contact.id},
+            condition2_4.value
+        )
 
         condition2_5 = conditions2[4]
         self.assertEqual(rtype2.id, condition2_5.name)
-        self.assertEqual({'has': True, 'entity_id': contact.id},
-                         condition2_5.value
-                        )
+        self.assertDictEqual(
+            {'has': True, 'entity_id': contact.id},
+            condition2_5.value
+        )
 
         # --
         efilter_data3 = efilters_data[2]
@@ -2156,10 +2151,9 @@ class ImportingTestCase(CremeTestCase):
         # --
 
         efilter_data = efilters_data[4]
-        ef5 = self.get_object_or_fail(EntityFilter,
-                                      id=efilter_data['id'],
-                                      name=efilter_data['name'],
-                                     )
+        ef5 = self.get_object_or_fail(
+            EntityFilter, id=efilter_data['id'], name=efilter_data['name'],
+        )
 
         conditions5 = ef5.conditions.all()
         self.assertEqual(2, len(conditions5))
@@ -2387,9 +2381,7 @@ class ImportingTestCase(CremeTestCase):
         condition2_1 = conditions2[0]
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition2_1.type)
         self.assertEqual(rtype.id, condition2_1.name)
-        self.assertDictEqual({'has': False, 'filter_id': ef3.id},
-                             condition2_1.value
-                            )
+        self.assertDictEqual({'has': False, 'filter_id': ef3.id}, condition2_1.value)
 
         # --
         ef4 = self.get_object_or_fail(EntityFilter, id=efilters_data[2]['id'])
@@ -2400,9 +2392,7 @@ class ImportingTestCase(CremeTestCase):
         condition4_1 = conditions4[0]
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition4_1.type)
         self.assertEqual(rtype.id, condition4_1.name)
-        self.assertDictEqual({'has': True, 'filter_id': ef1.id},
-                             condition4_1.value
-                            )
+        self.assertDictEqual({'has': True, 'filter_id': ef1.id}, condition4_1.value)
 
     def test_entityfilters_error01(self):
         "Invalid condition type."
@@ -2440,20 +2430,16 @@ class ImportingTestCase(CremeTestCase):
         "Invalid condition: regular field."
         self.login(is_staff=True)
 
-        efilters_data = [
-            {
-                'id':         'creme_config-test_import_entityfilters_error02',
-                'name':       'Spikes',
-                'ctype':      'creme_core.fakecontact',
-                'conditions': [
-                    {
-                        'type':  RegularFieldConditionHandler.type_id,
-                        'name':  'invalid',  # <=
-                        'value': {'operator': 1, 'values': ['Spike']},
-                    },
-                ],
-            },
-        ]
+        efilters_data = [{
+            'id':         'creme_config-test_import_entityfilters_error02',
+            'name':       'Spikes',
+            'ctype':      'creme_core.fakecontact',
+            'conditions': [{
+                'type':  RegularFieldConditionHandler.type_id,
+                'name':  'invalid',  # <=
+                'value': {'operator': 1, 'values': ['Spike']},
+            }],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
@@ -2471,20 +2457,16 @@ class ImportingTestCase(CremeTestCase):
 
         ptype_id = 'creme_config-test_import_entityfilter03'  # does not exist/not imported
         ef_id = 'creme_config-test_import_entityfilters_error03'
-        efilters_data = [
-            {
-                'id':         ef_id,
-                'name':       'Spikes',
-                'ctype':      'creme_core.fakecontact',
-                'conditions': [
-                    {
-                        'type':  PropertyConditionHandler.type_id,
-                        'name':  ptype_id,
-                        'value': True,
-                    },
-                ],
-            },
-        ]
+        efilters_data = [{
+            'id':         ef_id,
+            'name':       'Spikes',
+            'ctype':      'creme_core.fakecontact',
+            'conditions': [{
+                'type':  PropertyConditionHandler.type_id,
+                'name':  ptype_id,
+                'value': True,
+            }],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
@@ -2504,20 +2486,16 @@ class ImportingTestCase(CremeTestCase):
         rtype_id = 'creme_config-subject_test_import_entityfilter_error04_a'
 
         ef_id = 'creme_config-test_import_entityfilters_error04'
-        efilters_data = [
-            {
-                'id':         ef_id,
-                'name':       'Spikes',
-                'ctype':      'creme_core.fakecontact',
-                'conditions': [
-                    {
-                        'type':  RelationConditionHandler.type_id,
-                        'name':  rtype_id,
-                        'value': {'has': True},
-                    },
-                ],
-            },
-        ]
+        efilters_data = [{
+            'id':         ef_id,
+            'name':       'Spikes',
+            'ctype':      'creme_core.fakecontact',
+            'conditions': [{
+                'type':  RelationConditionHandler.type_id,
+                'name':  rtype_id,
+                'value': {'has': True},
+            }],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
@@ -2541,20 +2519,16 @@ class ImportingTestCase(CremeTestCase):
         self.assertFalse(CremeEntity.objects.filter(uuid=uuid_str))
 
         ef_id = 'creme_config-test_import_entityfilters_error04_b'
-        efilters_data = [
-            {
-                'id':         ef_id,
-                'name':       'Spikes',
-                'ctype':      'creme_core.fakecontact',
-                'conditions': [
-                    {
-                        'type':  RelationConditionHandler.type_id,
-                        'name':  rtype.id,
-                        'value': {'has': True, 'entity_uuid': uuid_str},
-                    },
-                ],
-            },
-        ]
+        efilters_data = [{
+            'id':         ef_id,
+            'name':       'Spikes',
+            'ctype':      'creme_core.fakecontact',
+            'conditions': [{
+                'type':  RelationConditionHandler.type_id,
+                'name':  rtype.id,
+                'value': {'has': True, 'entity_uuid': uuid_str},
+            }],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
@@ -2569,26 +2543,22 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_entityfilters_error05(self):
-        "Invalid condition: custom-field"
+        "Invalid condition: custom-field."
         self.login(is_staff=True)
 
         cf_uuid = str(uuid4())  # does not exist/not imported
 
         ef_id = 'creme_config-test_import_entityfilters_error05'
-        efilters_data = [
-            {
-                'id':         ef_id,
-                'name':       'Spikes',
-                'ctype':      'creme_core.fakecontact',
-                'conditions': [
-                    {
-                        'type':  CustomFieldConditionHandler.type_id,
-                        'name':  cf_uuid,
-                        'value': {'operator': 10, 'values': ['100']},
-                    },
-                ],
-            },
-        ]
+        efilters_data = [{
+            'id':         ef_id,
+            'name':       'Spikes',
+            'ctype':      'creme_core.fakecontact',
+            'conditions': [{
+                'type':  CustomFieldConditionHandler.type_id,
+                'name':  cf_uuid,
+                'value': {'operator': 10, 'values': ['100']},
+            }],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
@@ -2607,20 +2577,16 @@ class ImportingTestCase(CremeTestCase):
         cf_uuid = str(uuid4())  # does not exist/not imported
 
         ef_id = 'creme_config-test_import_entityfilters_error06'
-        efilters_data = [
-            {
-                'id':         ef_id,
-                'name':       'Spikes',
-                'ctype':      'creme_core.fakecontact',
-                'conditions': [
-                    {
-                        'type':  DateCustomFieldConditionHandler.type_id,
-                        'name':  cf_uuid,
-                        'value': {'start': {'month': 11, 'day': 7, 'year': 2017}},
-                    },
-                ],
-            },
-        ]
+        efilters_data = [{
+            'id':         ef_id,
+            'name':       'Spikes',
+            'ctype':      'creme_core.fakecontact',
+            'conditions': [{
+                'type':  DateCustomFieldConditionHandler.type_id,
+                'name':  cf_uuid,
+                'value': {'start': {'month': 11, 'day': 7, 'year': 2017}},
+            }],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
@@ -2638,19 +2604,15 @@ class ImportingTestCase(CremeTestCase):
 
         ef_id1 = 'creme_config-test_import_entityfilters_error07_1'
         ef_id2 = 'creme_config-test_import_entityfilters_error07_2'
-        efilters_data = [
-            {
-                'id':         ef_id1,
-                'name':       'Contact view',
-                'ctype':      'creme_core.fakecontact',
-                'conditions': [
-                    {
-                        'type': SubFilterConditionHandler.type_id,
-                        'name': ef_id2,  # does not exist/not imported
-                    },
-                ],
-            },
-        ]
+        efilters_data = [{
+            'id':         ef_id1,
+            'name':       'Contact view',
+            'ctype':      'creme_core.fakecontact',
+            'conditions': [{
+                'type': SubFilterConditionHandler.type_id,
+                'name': ef_id2,  # does not exist/not imported
+            }],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
         json_file.name = 'config-08-11-2017.csv'
@@ -2676,21 +2638,19 @@ class ImportingTestCase(CremeTestCase):
 
         ef_id1 = 'creme_config-test_import_entityfilters_error08_1'
         ef_id2 = 'creme_config-test_import_entityfilters_error08_2'
-        efilters_data = [
-            {
-                'id':         ef_id1,
-                'name':       'Contact view',
-                'ctype':      'creme_core.fakecontact',
-                'conditions': [{
-                    'type':  RelationSubFilterConditionHandler.type_id,
-                    'name':  rtype.id,
-                    'value': {
-                        'has':       False,
-                        'filter_id': ef_id2,  # does not exist/not imported
-                    },
-                }],
-            },
-        ]
+        efilters_data = [{
+            'id':         ef_id1,
+            'name':       'Contact view',
+            'ctype':      'creme_core.fakecontact',
+            'conditions': [{
+                'type':  RelationSubFilterConditionHandler.type_id,
+                'name':  rtype.id,
+                'value': {
+                    'has':       False,
+                    'filter_id': ef_id2,  # does not exist/not imported
+                },
+            }],
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'entity_filters': efilters_data}))
         json_file.name = 'config-08-11-2017.csv'

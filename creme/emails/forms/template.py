@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 # from django.core.exceptions import ValidationError
 # from django.forms.fields import CharField
 # from django.forms.widgets import Textarea
@@ -64,6 +66,10 @@ class EmailTemplateForm(CremeEntityForm):
             'body_html': TinyMCEEditor,
         }
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('EmailTemplateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
     # def _clean_body(self, body):
     #     invalid_vars = []
     #
@@ -90,6 +96,13 @@ class EmailTemplateForm(CremeEntityForm):
     #     self._clean_body(body)
     #
     #     return body
+
+
+class EmailTemplateBaseCustomForm(CremeEntityForm):
+    class Meta:
+        widgets = {
+            'body_html': TinyMCEEditor,
+        }
 
 
 class EmailTemplateAddAttachment(CremeForm):

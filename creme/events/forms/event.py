@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from collections import defaultdict
 
 from django.forms import ModelChoiceField, ValidationError
@@ -43,6 +44,10 @@ class EventForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_event_model()
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('EventForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
     # def clean(self):
     #     cdata = super().clean()
     #
@@ -58,6 +63,7 @@ class EventForm(CremeEntityForm):
     #     return cdata
 
 
+# TODO: set as class attribute
 _SYMMETRICS = {
     constants.REL_OBJ_CAME_EVENT:     constants.REL_OBJ_NOT_CAME_EVENT,
     constants.REL_OBJ_NOT_CAME_EVENT: constants.REL_OBJ_CAME_EVENT,
@@ -162,6 +168,8 @@ class AddContactsToEventForm(CremeForm):
 
 class RelatedOpportunityCreateForm(OpportunityCreationForm):
     def __init__(self, event, contact, *args, **kwargs):
+        warnings.warn('RelatedOpportunityCreateForm is deprecated.', DeprecationWarning)
+
         super().__init__(*args, **kwargs)
         fields = self.fields
         self.event = event

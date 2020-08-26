@@ -36,9 +36,15 @@ class _OrganisationBaseForm(_BasePersonForm):
     class Meta(_BasePersonForm.Meta):
         model = get_organisation_model()
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('_OrganisationBaseForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
 
 class OrganisationForm(_OrganisationBaseForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        warnings.warn('OrganisationForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class CustomerForm(_OrganisationBaseForm):

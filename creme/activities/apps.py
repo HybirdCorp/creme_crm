@@ -64,12 +64,14 @@ class ActivitiesConfig(CremeAppConfig):
     def register_bulk_update(self, bulk_update_registry):
         from .forms.activity_type import BulkEditTypeForm
 
-        bulk_update_registry.register(self.Activity,
-                                      exclude=('start', 'end', 'busy', 'is_all_day'),
-                                      innerforms={'type':     BulkEditTypeForm,
-                                                  'sub_type': BulkEditTypeForm,
-                                                 },
-                                     )
+        bulk_update_registry.register(
+            self.Activity,
+            exclude=('start', 'end', 'busy', 'is_all_day'),
+            innerforms={
+                'type':     BulkEditTypeForm,
+                'sub_type': BulkEditTypeForm,
+            },
+        )
 
     def register_buttons(self, button_registry):
         from . import buttons
@@ -90,13 +92,17 @@ class ActivitiesConfig(CremeAppConfig):
         register_model(
             models.ActivityType, 'activity_type',
         ).creation(
-            form_class=type_forms.ActivityTypeForm
-        ).edition(form_class=type_forms.ActivityTypeForm)
+            form_class=type_forms.ActivityTypeForm,
+        ).edition(
+            form_class=type_forms.ActivityTypeForm,
+        )
         register_model(
             models.ActivitySubType, 'activity_sub_type',
         ).creation(
-            form_class=type_forms.ActivitySubTypeForm
-        ).edition(form_class=type_forms.ActivitySubTypeForm)
+            form_class=type_forms.ActivitySubTypeForm,
+        ).edition(
+            form_class=type_forms.ActivitySubTypeForm,
+        )
         register_model(models.Status, 'status')
         register_model(
             models.Calendar, 'calendar'
@@ -109,6 +115,16 @@ class ActivitiesConfig(CremeAppConfig):
         )
 
         config_registry.register_user_bricks(bricks.UserCalendarsBrick)
+
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.ACTIVITY_CREATION_CFORM,
+            custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM,
+            custom_forms.UNAVAILABILITY_CREATION_FROM,
+            custom_forms.ACTIVITY_EDITION_CFORM,
+        )
 
     def register_icons(self, icon_registry):
         Activity = self.Activity
@@ -129,31 +145,38 @@ class ActivitiesConfig(CremeAppConfig):
         Activity = self.Activity
         creation_perm = build_creation_perm(Activity)
         URLItem = creme_menu.URLItem
-        creme_menu.get('features') \
-                  .get_or_create(creme_menu.ContainerItem, 'activities-main', priority=10,
-                                 defaults={'label': _('Activities')},
-                                ) \
-                  .add(URLItem('activities-calendar',
-                               url=reverse('activities__calendar'),
-                               label=_('Calendar'), perm='activities',
-                              ),
-                       priority=10
-                      ) \
-                  .add(URLItem.list_view('activities-activities', model=Activity),
-                       priority=20
-                       ) \
-                  .add(URLItem('activities-phone_calls',
-                               url=reverse('activities__list_phone_calls'),
-                               label=_('Phone calls'), perm='activities',
-                              ),
-                       priority=30
-                      ) \
-                  .add(URLItem('activities-meetings',
-                               url=reverse('activities__list_meetings'),
-                               label=_('Meetings'), perm='activities',
-                              ),
-                       priority=40
-                      )
+        creme_menu.get(
+            'features',
+        ).get_or_create(
+            creme_menu.ContainerItem, 'activities-main',
+            priority=10,
+            defaults={'label': _('Activities')},
+        ).add(
+            URLItem(
+                'activities-calendar',
+                url=reverse('activities__calendar'),
+                label=_('Calendar'),
+                perm='activities',
+            ),
+            priority=10,
+        ).add(
+            URLItem.list_view('activities-activities', model=Activity),
+            priority=20,
+        ).add(
+            URLItem(
+                'activities-phone_calls',
+                url=reverse('activities__list_phone_calls'),
+                label=_('Phone calls'), perm='activities',
+            ),
+            priority=30,
+        ).add(
+            URLItem(
+                'activities-meetings',
+                url=reverse('activities__list_meetings'),
+                label=_('Meetings'), perm='activities',
+            ),
+            priority=40,
+        )
 
         creme_menu.get(
             'creation', 'any_forms'
@@ -201,10 +224,11 @@ class ActivitiesConfig(CremeAppConfig):
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
-        setting_key_registry.register(setting_keys.review_key,
-                                      setting_keys.auto_subjects_key,
-                                      setting_keys.form_user_messages_key,
-                                     )
+        setting_key_registry.register(
+            setting_keys.review_key,
+            setting_keys.auto_subjects_key,
+            setting_keys.form_user_messages_key,
+        )
 
     def register_statistics(self, statistics_registry):
         from .statistics import AveragePerMonthStatistics

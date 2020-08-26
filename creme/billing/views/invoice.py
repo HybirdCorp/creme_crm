@@ -30,8 +30,8 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic  # decorators
 
-from .. import constants, get_invoice_model
-from ..forms import invoice as invoice_forms
+from .. import constants, custom_forms, get_invoice_model
+# from ..forms import invoice as invoice_forms
 from ..models import InvoiceStatus
 from . import base
 
@@ -64,13 +64,15 @@ Invoice = get_invoice_model()
 
 class InvoiceCreation(base.BaseCreation):
     model = Invoice
-    form_class = invoice_forms.InvoiceCreateForm
+    # form_class = invoice_forms.InvoiceCreateForm
+    form_class = custom_forms.INVOICE_CREATION_CFORM
     initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
 
 
 class RelatedInvoiceCreation(base.RelatedBaseCreation):
     model = Invoice
-    form_class = invoice_forms.InvoiceCreateForm
+    # form_class = invoice_forms.InvoiceCreateForm
+    form_class = custom_forms.INVOICE_CREATION_CFORM
     permissions = ('billing', cperm(Invoice))
     title = _('Create an invoice for «{entity}»')
     initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
@@ -82,9 +84,11 @@ class InvoiceDetail(generic.EntityDetail):
     pk_url_kwarg = 'invoice_id'
 
 
-class InvoiceEdition(base.BaseEdition):
+# class InvoiceEdition(base.BaseEdition):
+class InvoiceEdition(generic.EntityEdition):
     model = Invoice
-    form_class = invoice_forms.InvoiceEditForm
+    # form_class = invoice_forms.InvoiceEditForm
+    form_class = custom_forms.INVOICE_EDITION_CFORM
     pk_url_kwarg = 'invoice_id'
 
 

@@ -52,6 +52,14 @@ class GraphsConfig(CremeAppConfig):
     # def register_bulk_update(self, bulk_update_registry):
     #     bulk_update_registry.register(self.Graph, exclude=('orbital_relation_types',))
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.GRAPH_CREATION_CFORM,
+            custom_forms.GRAPH_EDITION_CFORM,
+        )
+
     def register_icons(self, icon_registry):
         icon_registry.register(self.Graph, 'images/graph_%(size)s.png')
 

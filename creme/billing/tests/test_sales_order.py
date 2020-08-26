@@ -110,12 +110,11 @@ class SalesOrderTestCase(_BillingTestCase):
         url = self._build_related_creation_url(target) + '?redirection=true'
         response = self.assertGET200(url)
         # self.assertTemplateUsed(response, 'billing/form/add-popup.html')
-        self.assertTemplateUsed(response, 'billing/forms/add-popup.html')
 
         context = response.context
         self.assertEqual(
             _('Create a salesorder for «{entity}»').format(entity=target),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(SalesOrder.save_label, context.get('submit_label'))
 
@@ -125,9 +124,10 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertDictEqual(
             {
                 'status': 1,
-                'target': target
+                'target': target,
+                self.TARGET_KEY: target,
             },
-            form.initial
+            form.initial,
         )
 
         # ---
@@ -144,8 +144,10 @@ class SalesOrderTestCase(_BillingTestCase):
                 'status':          status.id,
                 'currency':        currency.id,
                 'discount':        Decimal(),
-                'source':          source.id,
-                'target':          self.formfield_value_generic_entity(target),
+                # 'source':          source.id,
+                # 'target':          self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)
@@ -168,7 +170,7 @@ class SalesOrderTestCase(_BillingTestCase):
         source, target = self.create_orgas()
         name = 'Order#1'
         currency = Currency.objects.all()[0]
-        status   = SalesOrderStatus.objects.all()[1]
+        status = SalesOrderStatus.objects.all()[1]
         response = self.client.post(
             self._build_related_creation_url(target) + '?redirection=false',
             follow=True,
@@ -180,8 +182,11 @@ class SalesOrderTestCase(_BillingTestCase):
                 'status':          status.id,
                 'currency':        currency.id,
                 'discount':        Decimal(),
-                'source':          source.id,
-                'target':          self.formfield_value_generic_entity(target),
+
+                # 'source':          source.id,
+                # 'target':          self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)
@@ -206,11 +211,11 @@ class SalesOrderTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -228,11 +233,11 @@ class SalesOrderTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -250,11 +255,11 @@ class SalesOrderTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                # EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                # | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -276,7 +281,7 @@ class SalesOrderTestCase(_BillingTestCase):
             name='Martian dollar', local_symbol='M$',
             international_symbol='MUSD', is_custom=True,
         )
-        status   = SalesOrderStatus.objects.all()[1]
+        status = SalesOrderStatus.objects.all()[1]
         response = self.client.post(
             url, follow=True,
             data={
@@ -287,8 +292,11 @@ class SalesOrderTestCase(_BillingTestCase):
                 'status':          status.id,
                 'currency':        currency.id,
                 'discount':        Decimal(),
-                'source':          source.id,
-                'target':          self.formfield_value_generic_entity(target),
+
+                # 'source':          source.id,
+                # 'target':          self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)

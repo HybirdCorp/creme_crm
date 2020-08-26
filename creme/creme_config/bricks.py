@@ -30,12 +30,17 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core import setting_key
+from creme.creme_core.forms import base as base_forms
 from creme.creme_core.gui.bricks import (
     Brick,
     BricksManager,
     PaginatedBrick,
     QuerysetBrick,
     brick_registry,
+)
+from creme.creme_core.gui.custom_form import (
+    FieldGroupList,
+    customform_descriptor_registry,
 )
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -48,6 +53,7 @@ from creme.creme_core.models import (
     CustomBrickConfigItem,
     CustomField,
     CustomFieldEnumValue,
+    CustomFormConfigItem,
     FieldsConfig,
     HistoryConfigItem,
     InstanceBrickConfigItem,
@@ -70,22 +76,22 @@ logger = logging.getLogger(__name__)
 
 
 class ExportButtonBrick(Brick):
-    id_           = Brick.generate_id('creme_config', 'transfer_buttons')
-    verbose_name  = 'Import/export configuration buttons'
+    id_ = Brick.generate_id('creme_config', 'transfer_buttons')
+    verbose_name = 'Import/export configuration buttons'
     template_name = 'creme_config/bricks/transfer-buttons.html'
-    configurable  = False
+    configurable = False
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(context))
 
 
 class GenericModelBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_config', 'model_config')
-    dependencies  = (CremeModel,)
-    page_size     = _PAGE_SIZE
-    verbose_name  = 'Model configuration'
+    id_ = QuerysetBrick.generate_id('creme_config', 'model_config')
+    dependencies = (CremeModel,)
+    page_size = _PAGE_SIZE
+    verbose_name = 'Model configuration'
     template_name = 'creme_config/bricks/configurable-model.html'
-    configurable  = False
+    configurable = False
 
     # NB: credentials are OK : we are sure to use the custom reloading view
     #     because of the specific constructor.
@@ -135,13 +141,13 @@ class GenericModelBrick(QuerysetBrick):
 
 
 class SettingsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_config', 'settings')
-    dependencies  = (SettingValue,)
-    page_size     = _PAGE_SIZE
-    verbose_name  = 'App settings'
+    id_ = QuerysetBrick.generate_id('creme_config', 'settings')
+    dependencies = (SettingValue,)
+    page_size = _PAGE_SIZE
+    verbose_name = 'App settings'
     template_name = 'creme_config/bricks/setting-values.html'
-    configurable  = False
-    order_by      = 'id'
+    configurable = False
+    order_by = 'id'
 
     setting_key_registry = setting_key.setting_key_registry
 
@@ -168,10 +174,10 @@ class _ConfigAdminBrick(QuerysetBrick):
 
 
 class PropertyTypesBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'property_types')
-    dependencies  = (CremePropertyType,)
-    order_by      = 'text'
-    verbose_name  = _('Property types configuration')
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'property_types')
+    dependencies = (CremePropertyType,)
+    order_by = 'text'
+    verbose_name = _('Property types configuration')
     template_name = 'creme_config/bricks/property-types.html'
 
     def detailview_display(self, context):
@@ -182,9 +188,9 @@ class PropertyTypesBrick(_ConfigAdminBrick):
 
 
 class RelationTypesBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'relation_types')
-    dependencies  = (RelationType,)
-    verbose_name  = _('List of standard relation types')
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'relation_types')
+    dependencies = (RelationType,)
+    verbose_name = _('List of standard relation types')
     template_name = 'creme_config/bricks/relation-types.html'
 
     def detailview_display(self, context):
@@ -199,9 +205,9 @@ class RelationTypesBrick(_ConfigAdminBrick):
 
 
 class CustomRelationTypesBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'custom_relation_types')
-    dependencies  = (RelationType,)
-    verbose_name  = _('Custom relation types configuration')
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'custom_relation_types')
+    dependencies = (RelationType,)
+    verbose_name = _('Custom relation types configuration')
     template_name = 'creme_config/bricks/relation-types.html'
 
     def detailview_display(self, context):
@@ -216,9 +222,9 @@ class CustomRelationTypesBrick(_ConfigAdminBrick):
 
 
 class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'semifixed_relation_types')
-    dependencies  = (RelationType, SemiFixedRelationType,)
-    verbose_name  = _('List of semi-fixed relation types')
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'semifixed_relation_types')
+    dependencies = (RelationType, SemiFixedRelationType,)
+    verbose_name = _('List of semi-fixed relation types')
     template_name = 'creme_config/bricks/semi-fixed-relation-types.html'
 
     def detailview_display(self, context):
@@ -234,17 +240,17 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
 
 
 class FieldsConfigsBrick(PaginatedBrick):
-    id_           = PaginatedBrick.generate_id('creme_config', 'fields_configs')
-    dependencies  = (FieldsConfig,)
-    page_size     = _PAGE_SIZE
-    verbose_name  = 'Fields configuration'
+    id_  = PaginatedBrick.generate_id('creme_config', 'fields_configs')
+    dependencies = (FieldsConfig,)
+    page_size = _PAGE_SIZE
+    verbose_name = 'Fields configuration'
     template_name = 'creme_config/bricks/fields-configs.html'
-    permission    = None  # NB: used by the view creme_core.views.bricks.reload_basic()
-    configurable  = False
+    permission = None  # NB: used by the view creme_core.views.bricks.reload_basic()
+    configurable = False
 
     def detailview_display(self, context):
         # TODO: exclude CTs that user cannot see ?
-        #       (should probably done everywhere in creme_config...)
+        #       (should probably be done everywhere in creme_config...)
         fconfigs = [*FieldsConfig.objects.all()]
         sort_key = collator.sort_key
         fconfigs.sort(key=lambda fconf: sort_key(str(fconf.content_type)))
@@ -268,12 +274,12 @@ class FieldsConfigsBrick(PaginatedBrick):
 
 
 class CustomFieldsBrick(Brick):
-    id_           = Brick.generate_id('creme_config', 'custom_fields')
-    dependencies  = (CustomField,)
-    verbose_name  = 'Configuration of custom fields'
+    id_ = Brick.generate_id('creme_config', 'custom_fields')
+    dependencies = (CustomField,)
+    verbose_name = 'Configuration of custom fields'
     template_name = 'creme_config/bricks/custom-fields.html'
-    permission    = None  # NB: used by the view creme_core.views.bricks.reload_basic
-    configurable  = False
+    permission = None  # NB: used by the view creme_core.views.bricks.reload_basic
+    configurable = False
 
     def detailview_display(self, context):
         # NB: we wrap the ContentType instances instead of store extra data in
@@ -335,10 +341,10 @@ class CustomFieldsBrick(Brick):
 
 
 class CustomEnumsBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'custom_enums')
-    dependencies  = (CustomFieldEnumValue,)
-    order_by      = 'id'  # TODO: 'value' ? a new field 'order' ?
-    verbose_name  = 'Custom-field choices'
+    id_  = _ConfigAdminBrick.generate_id('creme_config', 'custom_enums')
+    dependencies = (CustomFieldEnumValue,)
+    order_by = 'id'  # TODO: 'value' ? a new field 'order' ?
+    verbose_name = 'Custom-field choices'
     template_name = 'creme_config/bricks/custom-enums.html'
 
     def detailview_display(self, context):
@@ -348,11 +354,110 @@ class CustomEnumsBrick(_ConfigAdminBrick):
         ))
 
 
+class CustomFormsBrick(PaginatedBrick):
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'custom_forms')
+    dependencies = (CustomFormConfigItem,)
+    verbose_name = 'Custom forms'
+    template_name = 'creme_config/bricks/custom-forms.html'
+    page_size = _PAGE_SIZE
+    configurable = False
+
+    registry = customform_descriptor_registry
+
+    error_field_blocks = {
+        FieldGroupList.BLOCK_ID_MISSING_FIELD:        _('Missing required field: {}'),
+        FieldGroupList.BLOCK_ID_MISSING_CUSTOM_FIELD: _('Missing required custom field: {}'),
+        FieldGroupList.BLOCK_ID_MISSING_EXTRA_FIELD:  _('Missing required special field: {}'),
+    }
+
+    def get_ctype_descriptors(self, user):
+        get_ct = ContentType.objects.get_for_model
+
+        class _ExtendedDescriptor:
+            def __init__(this, descriptor, item):
+                this.id = descriptor.id
+                this.verbose_name = descriptor.verbose_name
+                this.groups = descriptor.groups(item)
+                this._descriptor = descriptor
+                this._item = item
+
+            @property
+            def has_extra_groups(this):
+                # TODO: descriptor.method ?
+                return bool(next(this._descriptor.extra_group_classes, None))
+
+            @property
+            def errors(this):
+                errors = []
+                form_cls = this._descriptor.build_form_class(this._item)
+
+                try:
+                    blocks = form_cls(user=user).get_blocks()
+                except Exception:
+                    logger.exception(
+                        'Error while building the form for "%s" '
+                        '(in order to retrieve erroneous fields)',
+                        form_cls,
+                    )
+                else:
+                    for block_id, error_msg in self.error_field_blocks.items():
+                        try:
+                            errors_block = blocks[block_id]
+                        except KeyError:
+                            pass
+                        else:
+                            errors.extend(
+                                error_msg.format(field.label)
+                                for field in errors_block.bound_fields
+                            )
+
+                return errors
+
+        desc_per_model = defaultdict(list)
+        for desc in self.registry:
+            desc_per_model[desc.model].append(desc)
+
+        items = CustomFormConfigItem.objects.in_bulk(
+            descriptor.id
+            for descriptors in desc_per_model.values()
+            for descriptor in descriptors
+        )
+
+        class _ContentTypeWrapper:
+            __slots__ = ('ctype', 'descriptors')
+
+            def __init__(this, model, descriptors):
+                this.ctype = get_ct(model)
+                # TODO: manage item not created ?
+                this.descriptors = [
+                    _ExtendedDescriptor(descriptor=desc, item=items[desc.id])
+                    for desc in descriptors
+                ]
+
+        wrappers = [
+            _ContentTypeWrapper(model=model, descriptors=descriptors)
+            for model, descriptors in desc_per_model.items()
+        ]
+        sort_key = collator.sort_key
+        wrappers.sort(key=lambda wrp: sort_key(str(wrp.ctype)))
+
+        return wrappers
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            self.get_ctype_descriptors(user=context['user']),
+            LAYOUT_REGULAR=base_forms.LAYOUT_REGULAR,
+            LAYOUT_DUAL_FIRST=base_forms.LAYOUT_DUAL_FIRST,
+            LAYOUT_DUAL_SECOND=base_forms.LAYOUT_DUAL_SECOND,
+        ))
+
+
 class UsersBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'users')
-    dependencies  = (User,)
-    order_by      = 'username'
-    verbose_name  = 'Users configuration'
+    id_  = _ConfigAdminBrick.generate_id('creme_config', 'users')
+    dependencies = (User,)
+    order_by = 'username'
+    verbose_name = 'Users configuration'
     template_name = 'creme_config/bricks/users.html'
 
     def detailview_display(self, context):
@@ -383,10 +488,10 @@ class UsersBrick(_ConfigAdminBrick):
 
 
 class TeamsBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'teams')
-    dependencies  = (User,)
-    order_by      = 'username'
-    verbose_name  = 'Teams configuration'
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'teams')
+    dependencies = (User,)
+    order_by = 'username'
+    verbose_name = 'Teams configuration'
     template_name = 'creme_config/bricks/teams.html'
 
     def detailview_display(self, context):
@@ -396,14 +501,14 @@ class TeamsBrick(_ConfigAdminBrick):
 
 
 class BrickDetailviewLocationsBrick(PaginatedBrick):
-    id_           = PaginatedBrick.generate_id('creme_config', 'blocks_dv_locations')
-    dependencies  = (BrickDetailviewLocation,)
+    id_ = PaginatedBrick.generate_id('creme_config', 'blocks_dv_locations')
+    dependencies = (BrickDetailviewLocation,)
     # '-1' because there is always the line for default config on each page
-    page_size     = _PAGE_SIZE - 1
-    verbose_name  = 'Blocks locations on detailviews'
+    page_size = _PAGE_SIZE - 1
+    verbose_name = 'Blocks locations on detailviews'
     template_name = 'creme_config/bricks/bricklocations-detailviews.html'
-    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic
-    configurable  = False
+    permission = None  # NB: used by the view creme_core.views.blocks.reload_basic
+    configurable = False
 
     brick_registry = brick_registry
 
@@ -484,9 +589,9 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
 
 
 class BrickHomeLocationsBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'blocks_home_locations')
-    dependencies  = (BrickHomeLocation,)
-    verbose_name  = 'Locations of blocks on the home page.'
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'blocks_home_locations')
+    dependencies = (BrickHomeLocation,)
+    verbose_name = 'Locations of blocks on the home page.'
     template_name = 'creme_config/bricks/bricklocations-home.html'
 
     def detailview_display(self, context):
@@ -729,10 +834,10 @@ class HistoryConfigBrick(_ConfigAdminBrick):
 
 
 class UserRolesBrick(_ConfigAdminBrick):
-    id_           = _ConfigAdminBrick.generate_id('creme_config', 'user_roles')
-    dependencies  = (UserRole,)
-    order_by      = 'name'
-    verbose_name  = 'User roles configuration'
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'user_roles')
+    dependencies = (UserRole,)
+    order_by = 'name'
+    verbose_name = 'User roles configuration'
     template_name = 'creme_config/bricks/user-roles.html'
 
     def detailview_display(self, context):

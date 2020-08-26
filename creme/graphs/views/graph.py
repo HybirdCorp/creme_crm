@@ -29,9 +29,10 @@ from creme.creme_core.auth.decorators import (
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
-from .. import get_graph_model
+from .. import custom_forms, get_graph_model
 from ..constants import DEFAULT_HFILTER_GRAPH
-from ..forms import graph as g_forms
+# from ..forms import graph as g_forms
+from ..forms.graph import AddRelationTypesForm
 
 Graph = get_graph_model()
 
@@ -77,7 +78,8 @@ class RelationTypeRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletio
 
 class GraphCreation(generic.EntityCreation):
     model = Graph
-    form_class = g_forms.GraphForm
+    # form_class = g_forms.GraphForm
+    form_class = custom_forms.GRAPH_CREATION_CFORM
 
 
 class GraphDetail(generic.EntityDetail):
@@ -88,7 +90,8 @@ class GraphDetail(generic.EntityDetail):
 
 class GraphEdition(generic.EntityEdition):
     model = Graph
-    form_class = g_forms.GraphForm
+    # form_class = g_forms.GraphForm
+    form_class = custom_forms.GRAPH_EDITION_CFORM
     pk_url_kwarg = 'graph_id'
 
 
@@ -98,7 +101,7 @@ class GraphsList(generic.EntitiesList):
 
 
 class RelationTypesAdding(generic.RelatedToEntityFormPopup):
-    form_class = g_forms.AddRelationTypesForm
+    form_class = AddRelationTypesForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('Add relation types to «{entity}»')
     entity_id_url_kwarg = 'graph_id'

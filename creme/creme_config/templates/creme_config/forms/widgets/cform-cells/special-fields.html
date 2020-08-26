@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="specialcform_field_selectors">
+    <h3 class="selector_title">{% trans 'Special fields' %}</h3>
+
+    {% if widget.choices %}
+        <ul class="selector_list">
+            {% for choice_id, special_name in widget.choices %}
+                <li class="selector" data-column="{{choice_id}}"><input type="checkbox" /><label>{{special_name}}</label></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <span class="empty-message">{% trans 'No available special field.' %}</span>
+    {% endif %}
+</div>

@@ -129,7 +129,7 @@ class Migration(migrations.Migration):
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                     ),
                 ),
-                ('title', models.CharField(max_length=100, verbose_name='Name')),
+                ('title', models.CharField(max_length=100, verbose_name='Name', blank=True)),
                 # ('description', models.TextField(verbose_name='Description', blank=True)),
                 (
                     'filedata',

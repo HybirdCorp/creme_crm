@@ -76,16 +76,19 @@ class ActTestCase(CommercialBaseTestCase):
         name = 'Act#1'
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
-        response = self.client.post(url, follow=True,
-                                    data={'user':           user.id,
-                                          'name':           name,
-                                          'expected_sales': 1000,
-                                          'start':          '2011-11-20',
-                                          'due_date':       '2011-12-25',
-                                          'act_type':       atype.id,
-                                          'segment':        segment.id,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':           user.id,
+                'name':           name,
+                'expected_sales': 1000,
+                'start':          '2011-11-20',
+                'due_date':       '2011-12-25',
+                'act_type':       atype.id,
+                'segment':        segment.id,
+            },
+        )
         self.assertNoFormError(response)
 
         acts = Act.objects.all()
@@ -105,16 +108,19 @@ class ActTestCase(CommercialBaseTestCase):
 
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
-        response = self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'user':           user.id,
-                                            'name':           'Act#1',
-                                            'expected_sales': 1000,
-                                            'start':          '2011-11-20',
-                                            'due_date':       '2011-09-25',
-                                            'act_type':       atype.id,
-                                            'segment':        segment.id,
-                                           }
-                                     )
+        response = self.assertPOST200(
+            self.ADD_URL,
+            follow=True,
+            data={
+                'user':           user.id,
+                'name':           'Act#1',
+                'expected_sales': 1000,
+                'start':          '2011-11-20',
+                'due_date':       '2011-09-25',
+                'act_type':       atype.id,
+                'segment':        segment.id,
+            },
+        )
         self.assertFormError(response, 'form', None, _("Due date can't be before start."))
         self.assertFalse(Act.objects.all())
 
@@ -126,16 +132,18 @@ class ActTestCase(CommercialBaseTestCase):
         segment = self._create_segment()
 
         def post(**kwargs):
-            return self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={
-                                          'user': user.id,
-                                          'name': 'Act#1',
-                                          'expected_sales': 1000,
-                                          'act_type': atype.id,
-                                          'segment': segment.id,
-                                          **kwargs
-                                      },
-                                     )
+            return self.assertPOST200(
+                self.ADD_URL,
+                follow=True,
+                data={
+                    'user': user.id,
+                    'name': 'Act#1',
+                    'expected_sales': 1000,
+                    'act_type': atype.id,
+                    'segment': segment.id,
+                    **kwargs
+                },
+            )
 
         msg = _('This field is required.')
         self.assertFormError(post(start='2011-11-20'),    'form', 'due_date', msg)
@@ -164,18 +172,21 @@ class ActTestCase(CommercialBaseTestCase):
         goal = 'Win'
         atype = ActType.objects.create(title='Demo')
         segment = self._create_segment('Segment#2')
-        response = self.client.post(url, follow=True,
-                                    data={'user':            user.id,
-                                          'name':            name,
-                                          'start':           '2011-11-20',
-                                          'due_date':        '2011-12-25',
-                                          'expected_sales':  expected_sales,
-                                          'cost':            cost,
-                                          'goal':            goal,
-                                          'act_type':        atype.id,
-                                          'segment':         segment.id,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':            user.id,
+                'name':            name,
+                'start':           '2011-11-20',
+                'due_date':        '2011-12-25',
+                'expected_sales':  expected_sales,
+                'cost':            cost,
+                'goal':            goal,
+                'act_type':        atype.id,
+                'segment':         segment.id,
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, act.get_absolute_url())
 
@@ -195,30 +206,35 @@ class ActTestCase(CommercialBaseTestCase):
 
         atype = ActType.objects.create(title='Demo')
         segment = self._create_segment('Segment#2')
-        response = self.assertPOST200(act.get_edit_absolute_url(), follow=True,
-                                      data={'user':            user.id,
-                                            'name':            'Act#1',
-                                            'start':           '2011-11-20',
-                                            'due_date':        '2011-09-25',
-                                            'expected_sales':  2000,
-                                            'cost':            100,
-                                            'goal':            'Win',
-                                            'act_type':        atype.id,
-                                            'segment':         segment.id,
-                                           }
-                                     )
-        self.assertFormError(response, 'form', None, [_("Due date can't be before start.")])
+        response = self.assertPOST200(
+            act.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user':            user.id,
+                'name':            'Act#1',
+                'start':           '2011-11-20',
+                'due_date':        '2011-09-25',
+                'expected_sales':  2000,
+                'cost':            100,
+                'goal':            'Win',
+                'act_type':        atype.id,
+                'segment':         segment.id,
+            },
+        )
+        self.assertFormError(response, 'form', None, _("Due date can't be before start."))
         self.assertEqual(date(year=2011, month=12, day=26), self.refresh(act).due_date)
 
     def test_listview(self):
         user = self.login()
 
-        create_act = partial(Act.objects.create, user=user, expected_sales=1000,
-                             cost=50, goal='GOAL',
-                             start=date(2010, 11, 25), due_date=date(2011, 12, 26),
-                             act_type=ActType.objects.create(title='Show'),
-                             segment=self._create_segment(),
-                            )
+        create_act = partial(
+            Act.objects.create,
+            user=user, expected_sales=1000,
+            cost=50, goal='GOAL',
+            start=date(2010, 11, 25), due_date=date(2011, 12, 26),
+            act_type=ActType.objects.create(title='Show'),
+            segment=self._create_segment(),
+        )
         acts = [create_act(name=f'NAME_{i}') for i in range(1, 3)]
 
         response = self.assertGET200(Act.get_lv_absolute_url())
@@ -251,7 +267,7 @@ class ActTestCase(CommercialBaseTestCase):
         emitter.is_managed = True
         emitter.save()
 
-        name  = 'Opportunity01'
+        name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(
             url,
@@ -259,9 +275,12 @@ class ActTestCase(CommercialBaseTestCase):
                 'user':        user.id,
                 'name':        name,
                 'sales_phase': phase.id,
-                'target':      self.formfield_value_generic_entity(target),
-                'emitter':     emitter.id,
                 'currency':    DEFAULT_CURRENCY_PK,
+
+                # 'target': self.formfield_value_generic_entity(target),
+                # 'emitter': emitter.id,
+                'cform_extra-opportunities_target': self.formfield_value_generic_entity(target),
+                'cform_extra-opportunities_emitter': emitter.id,
             },
         )
         self.assertNoFormError(response)
@@ -274,11 +293,12 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertRelationCount(1, opp, REL_SUB_COMPLETE_GOAL, act)
 
     def test_create_linked_opportunity02(self):
-        "Cannot link the Act"
-        user = self.login(is_superuser=False,
-                          allowed_apps=('commercial', 'opportunities'),
-                          creatable_models=[Opportunity],
-                         )
+        "Cannot link the Act."
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('commercial', 'opportunities'),
+            creatable_models=[Opportunity],
+        )
 
         create_sc = partial(
             SetCredentials.objects.create,
@@ -286,15 +306,19 @@ class ActTestCase(CommercialBaseTestCase):
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # NB: Not EntityCredentials.LINK
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             ctype=Opportunity,
         )
@@ -303,24 +327,31 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertFalse(user.has_perm_to_link(act))
         self.assertTrue(user.has_perm_to_link(Opportunity))
 
-        response = self.client.get(reverse('commercial__create_opportunity', args=(act.id,)))
+        response = self.client.get(
+            reverse('commercial__create_opportunity', args=(act.id,)),
+        )
         self.assertContains(
-            response, status_code=403,
-            text=escape(_('You are not allowed to link this entity: {}').format(act))
+            response,
+            status_code=403,
+            text=escape(_('You are not allowed to link this entity: {}').format(act)),
         )
 
     def test_create_linked_opportunity03(self):
         "Cannot link with Opportunity"
-        user = self.login(is_superuser=False,
-                          allowed_apps=('commercial', 'opportunities'),
-                          creatable_models=[Opportunity],
-                         )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('commercial', 'opportunities'),
+            creatable_models=[Opportunity],
+        )
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
             ctype=Act,
@@ -339,18 +370,19 @@ class ActTestCase(CommercialBaseTestCase):
         )
 
     def test_create_linked_opportunity04(self):
-        "Must be related to an Act"
+        "Must be related to an Act."
         user = self.login()
         orga = FakeOrganisation.objects.create(user=user, name='Acme')
 
         self.assertGET404(reverse('commercial__create_opportunity', args=(orga.id,)))
 
     def test_create_linked_opportunity05(self):
-        "Not super-user"
-        self.login(is_superuser=False,
-                   allowed_apps=('commercial', 'opportunities'),
-                   creatable_models=[Opportunity],
-                  )
+        "Not super-user."
+        self.login(
+            is_superuser=False,
+            allowed_apps=('commercial', 'opportunities'),
+            creatable_models=[Opportunity],
+        )
         SetCredentials.objects.create(
             role=self.role, set_type=SetCredentials.ESET_ALL,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -373,10 +405,11 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_create_linked_opportunity07(self):
         "Creation credentials"
-        self.login(is_superuser=False,
-                   allowed_apps=('commercial', 'opportunities'),
-                   # creatable_models=[Opportunity],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=('commercial', 'opportunities'),
+            # creatable_models=[Opportunity],
+        )
         SetCredentials.objects.create(
             role=self.role, set_type=SetCredentials.ESET_ALL,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -390,9 +423,10 @@ class ActTestCase(CommercialBaseTestCase):
         url = self._build_addobjective_url(act)
 
         context = self.assertGET200(url).context
-        self.assertEqual(_('New objective for «{entity}»').format(entity=act),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New objective for «{entity}»').format(entity=act),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the objective'), context.get('submit_label'))
 
         # ---
@@ -435,7 +469,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.login()
         act = self.create_act()
 
-        name  = 'Objective#2'
+        name = 'Objective#2'
         counter_goal = 2
         ct = ContentType.objects.get_for_model(Organisation)
         response = self.client.post(
@@ -463,10 +497,13 @@ class ActTestCase(CommercialBaseTestCase):
         ct = ContentType.objects.get_for_model(Organisation)
 
         create_efilter = EntityFilter.objects.smart_update_or_create
-        pub_efilter  = create_efilter('test-filter01', 'Acme', Organisation, is_custom=True)
-        priv_efilter = create_efilter('test-filter_priv01', 'Acme', Organisation,
-                                      is_custom=True, is_private=True, user=self.other_user,
-                                     )
+        pub_efilter  = create_efilter(
+            'test-filter01', 'Acme', Organisation, is_custom=True,
+        )
+        priv_efilter = create_efilter(
+            'test-filter_priv01', 'Acme', Organisation,
+            is_custom=True, is_private=True, user=self.other_user,
+        )
 
         name = 'Objective#3'
         counter_goal = 2
@@ -474,17 +511,18 @@ class ActTestCase(CommercialBaseTestCase):
         def post(efilter):
             return self.client.post(
                 self._build_addobjective_url(act),
-                data={'name':            name,
-                      'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
-                      'counter_goal':    counter_goal,
-                     },
+                data={
+                    'name':            name,
+                    'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
+                    'counter_goal':    counter_goal,
+                },
             )
 
         response = post(priv_efilter)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'entity_counting',
-                             _('This filter is invalid.')
-                            )
+        self.assertFormError(
+            response, 'form', 'entity_counting', _('This filter is invalid.'),
+        )
 
         response = post(pub_efilter)
         self.assertNoFormError(response)
@@ -508,9 +546,10 @@ class ActTestCase(CommercialBaseTestCase):
         url = self._build_addobjectivefrompattern_url(act)
 
         context = self.assertGET200(url).context
-        self.assertEqual(_('New objectives for «{entity}»').format(entity=act),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New objectives for «{entity}»').format(entity=act),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the objectives'), context.get('submit_label'))
 
         # ---
@@ -545,10 +584,10 @@ class ActTestCase(CommercialBaseTestCase):
         create_comp(name='Child 01', success_rate=33, parent=root01)
         create_comp(name='Child 02', success_rate=10, parent=root01, ctype=ct_orga)
 
-        self.assertNoFormError(self.client.post(self._build_addobjectivefrompattern_url(act),
-                                                data={'pattern': pattern.id},
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            self._build_addobjectivefrompattern_url(act),
+            data={'pattern': pattern.id},
+        ))
         self.assertEqual(5, ActObjective.objects.filter(act=act).count())
 
         with self.assertNoException():
@@ -557,10 +596,12 @@ class ActTestCase(CommercialBaseTestCase):
             objective02 = objectives.get(name='Root02')
             objective11 = objectives.get(name='Child 01')
             objective12 = objectives.get(name='Child 02')
-            objective00 = objectives.exclude(pk__in=[objective01.id, objective02.id,
-                                                     objective11.id, objective12.id,
-                                                    ]
-                                            )[0]
+            objective00 = objectives.exclude(
+                pk__in=[
+                    objective01.id, objective02.id,
+                    objective11.id, objective12.id,
+                ],
+            )[0]
 
         self.assertTrue(all(
             o.counter == 0
@@ -597,9 +638,10 @@ class ActTestCase(CommercialBaseTestCase):
         url = objective.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Objective for «{entity}»').format(entity=act),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Objective for «{entity}»').format(entity=act),
+            response.context.get('title'),
+        )
 
         name = 'OBJ_NAME'
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -609,10 +651,11 @@ class ActTestCase(CommercialBaseTestCase):
         counter_goal = 3
         response = self.client.post(
             url,
-            data={'name':            name,
-                  'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
-                  'counter_goal':    counter_goal,
-                 },
+            data={
+                'name':            name,
+                'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
+                'counter_goal':    counter_goal,
+            },
         )
         self.assertNoFormError(response)
 
@@ -631,10 +674,11 @@ class ActTestCase(CommercialBaseTestCase):
             is_custom=True, is_private=True, user=self.other_user,
         )
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='OBJ#1', counter_goal=3,
-                                                ctype=priv_efilter.entity_type,
-                                                filter=priv_efilter,
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='OBJ#1', counter_goal=3,
+            ctype=priv_efilter.entity_type,
+            filter=priv_efilter,
+        )
 
         url = objective.get_edit_absolute_url()
         response = self.assertGET200(url)
@@ -647,7 +691,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertIsInstance(label_f.widget, Label)
         self.assertEqual(
             _('The filter cannot be changed because it is private.'),
-            label_f.initial
+            label_f.initial,
         )
 
         name = 'New name'
@@ -676,10 +720,11 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_edit_objective03(self):
         "Not super-user + not custom filter => can be used."
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'commercial'],
-                   creatable_models=[Act],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'commercial'],
+            creatable_models=[Act],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
@@ -737,18 +782,18 @@ class ActTestCase(CommercialBaseTestCase):
         "Relationships counter -> error."
         self.login()
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=Organisation,
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
+        )
         self.assertPOST409(self._build_incr_url(objective), data={'diff': 1})
 
     def test_objective_create_entity01(self):
         "Alright (No filter, quick form exists, credentials are OK)."
         user = self.login()
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=Organisation,
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
+        )
 
         url = self._build_create_related_entity_url(objective)
         response = self.assertGET200(url)
@@ -760,18 +805,16 @@ class ActTestCase(CommercialBaseTestCase):
 
         # ---
         name = 'Nerv'
-        response = self.assertPOST200(url,
-                                      data={'user': user.id,
-                                            'name': name,
-                                           },
-                                     )
+        response = self.assertPOST200(
+            url, data={'user': user.id, 'name': name},
+        )
         self.assertNoFormError(response)
 
         nerv = self.get_object_or_fail(Organisation, name=name)
         self.assertRelationCount(1, nerv, REL_SUB_COMPLETE_GOAL, act)
 
     def test_objective_create_entity02(self):
-        "Not a relationships counter objective"
+        "Not a relationships counter objective."
         self.login()
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
@@ -803,17 +846,17 @@ class ActTestCase(CommercialBaseTestCase):
             ],
         )
 
-        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
-                                                ctype=Organisation,
-                                                filter=efilter,
-                                               )
+        objective = ActObjective.objects.create(
+            act=act, name='Orga counter', counter_goal=2, ctype=Organisation, filter=efilter,
+        )
         self.assertGET409(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity_not_superuser01(self):
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'commercial'],
-                   creatable_models=[Organisation],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'commercial'],
+            creatable_models=[Organisation],
+        )
         create_sc = partial(
             SetCredentials.objects.create,
             role=self.role,
@@ -831,10 +874,11 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_objective_create_entity_not_superuser02(self):
         "Creation permission is needed."
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'commercial'],
-                   # creatable_models=[Organisation],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'commercial'],
+            # creatable_models=[Organisation],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -848,11 +892,12 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertGET403(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity_not_superuser03(self):
-        "<LINK related Act> permission needed"
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'commercial'],
-                   creatable_models=[Organisation],
-                  )
+        "<LINK related Act> permission needed."
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'commercial'],
+            creatable_models=[Organisation],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -867,11 +912,12 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertGET403(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity_not_superuser04(self):
-        "<LINK created entity> permission needed"
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'commercial'],
-                   creatable_models=[Organisation],
-                  )
+        "<LINK created entity> permission needed."
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'commercial'],
+            creatable_models=[Organisation],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -954,9 +1000,10 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertIn(orga01, all_orgas)
         self.assertNotIn(orga02, all_orgas)
 
-        completes_goal = partial(Relation.objects.create, type_id=REL_SUB_COMPLETE_GOAL,
-                                 object_entity=act, user=user
-                                )
+        completes_goal = partial(
+            Relation.objects.create,
+            type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=user
+        )
         completes_goal(subject_entity=orga01)
         self.assertEqual(1, self.refresh(objective).get_count())
 
@@ -1015,9 +1062,10 @@ class ActTestCase(CommercialBaseTestCase):
         emitter = create_orga(name='Ferraille corp')
         target = create_orga(name='World company')
 
-        create_opp = partial(Opportunity.objects.create, user=user, sales_phase=sales_phase,
-                             emitter=emitter, target=target,
-                            )
+        create_opp = partial(
+            Opportunity.objects.create,
+            user=user, sales_phase=sales_phase, emitter=emitter, target=target,
+        )
         create_rel = partial(Relation.objects.create, type=rtype, object_entity=act, user=user)
         opp01 = create_opp(name='OPP01', closing_date=date.today(), estimated_sales=2000)
         create_rel(subject_entity=opp01)
@@ -1048,14 +1096,12 @@ class ActTestCase(CommercialBaseTestCase):
     def test_delete_type(self):
         self.login()
         act = self.create_act()
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('commercial', 'act_type', act.act_type_id)
-                                             ),
-                                     )
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance', args=('commercial', 'act_type', act.act_type_id),
+        ))
         self.assertFormError(
             response, 'form',
-            'replace_commercial__act_act_type',
-            _('Deletion is not possible.')
+            'replace_commercial__act_act_type', _('Deletion is not possible.')
         )
 
     @skipIfCustomOrganisation
@@ -1067,12 +1113,13 @@ class ActTestCase(CommercialBaseTestCase):
         act2 = self.create_act('Act#2')
 
         create_orga = partial(Organisation.objects.create, user=user)
-        opp = Opportunity.objects.create(user=user, name='Opp01',
-                                         sales_phase=SalesPhase.objects.create(name='Foresale'),
-                                         closing_date=date.today(),
-                                         emitter=create_orga(name='Ferraille corp'),
-                                         target=create_orga(name='World company'),
-                                        )
+        opp = Opportunity.objects.create(
+            user=user, name='Opp01',
+            sales_phase=SalesPhase.objects.create(name='Foresale'),
+            closing_date=date.today(),
+            emitter=create_orga(name='Ferraille corp'),
+            target=create_orga(name='World company'),
+        )
 
         create_rel = partial(Relation.objects.create, subject_entity=opp, user=user)
         create_rel(type_id=REL_SUB_COMPLETE_GOAL, object_entity=act1)

@@ -127,6 +127,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.SemiFixedRelationTypesBrick,
             bricks.CustomFieldsBrick,
             bricks.CustomEnumsBrick,
+            bricks.CustomFormsBrick,
             bricks.BrickDetailviewLocationsBrick,
             bricks.BrickHomeLocationsBrick,
             bricks.BrickDefaultMypageLocationsBrick,
@@ -199,6 +200,14 @@ class CremeConfigConfig(CremeAppConfig):
                         label=_('Fields'), perm='creme_config',
                     ),
                     priority=30,
+                ).add(
+                    URLItem(
+                        'creme_config-custom_forms',
+                        url=reverse('creme_config__custom_forms'),
+                        label=_('Custom forms'),
+                        perm='creme_config',
+                    ),
+                    priority=20,
                 ).add(
                     URLItem(
                         'creme_config-history', url=reverse('creme_config__history'),

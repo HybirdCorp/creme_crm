@@ -36,18 +36,19 @@ from .. import fake_constants
 from .base import FieldTestCase
 
 
-class EntityCellsFieldTestCase(FieldTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     super().setUpClass()
-    #     cls.ct_contact = ContentType.objects.get_for_model(FakeContact)
-
+class EntityCellsFieldTestCaseMixin:
     def _find_sub_widget(self, field, cell_class_type_id):
+        available = []
+
         for sub_widget in field.widget.sub_widgets:
-            if sub_widget.type_id == cell_class_type_id:
+            current_type_id = sub_widget.type_id
+
+            if current_type_id == cell_class_type_id:
                 return sub_widget
 
-        self.fail(f'Sub-widget not found: {cell_class_type_id}')
+            available.append(current_type_id)
+
+        self.fail(f'Sub-widget "{cell_class_type_id}" not found in {available}.')
 
     def assertCellInChoices(self, cell_key, choices):
         for choice_cell_key, choice_cell in choices:
@@ -71,6 +72,14 @@ class EntityCellsFieldTestCase(FieldTestCase):
                     f'The choice for cell-key="{cell_key}" has been unexpectedly found.'
                 )
 
+
+# class EntityCellsFieldTestCase(FieldTestCase):
+class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
+    # @classmethod
+    # def setUpClass(cls):
+    #     super().setUpClass()
+    #     cls.ct_contact = ContentType.objects.get_for_model(FakeContact)
+
     def test_clean_empty_required(self):
         # clean = EntityCellsField(required=True, content_type=self.ct_contact).clean
         clean = EntityCellsField(required=True, model=FakeContact).clean
@@ -84,7 +93,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
         with self.assertNoException():
             value = field.clean(None)
 
-        self.assertEqual([], value)
+        self.assertListEqual([], value)
 
     # def test_clean_invalid_choice(self):
     #     field = EntityCellsField(content_type=self.ct_contact)
@@ -116,11 +125,11 @@ class EntityCellsFieldTestCase(FieldTestCase):
 
         self.assertCellInChoices('regular_field-user',           choices=choices)
         self.assertCellInChoices('regular_field-user__username', choices=choices)
-        self.assertCellNotInChoices('regular_field-user__role', choices=choices)
+        self.assertCellNotInChoices('regular_field-user__role',  choices=choices)
 
         self.assertListEqual(
             [EntityCellRegularField.build(CremeEntity, fname1)],
-            field.clean(value)
+            field.clean(value),
         )
 
         fname2 = 'unknown'
@@ -776,6 +785,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(
             # EntityCellsField, 'invalid', field.clean, 'unknown-donotcare',
             EntityCellsField, 'invalid_type', field.clean, 'unknown-donotcare',
+            message_args={'type_id': 'unknown'},
         )
 
     def test_cell_registry01(self):
@@ -811,6 +821,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(
             EntityCellsField, 'invalid_type', field.clean,
             'function_field-get_pretty_properties',
+            message_args={'type_id': 'function_field'},
         )
 
     def test_cell_registry02(self):
@@ -859,7 +870,10 @@ class EntityCellsFieldTestCase(FieldTestCase):
 
         ffield_name = 'get_pretty_properties'
         value = f'function_field-{ffield_name}'
-        self.assertFieldValidationError(EntityCellsField, 'invalid_type', field1.clean, value)
+        self.assertFieldValidationError(
+            EntityCellsField, 'invalid_type', field1.clean, value,
+            message_args={'type_id': 'function_field'},
+        )
         self.assertListEqual(
             [EntityCellFunctionField.build(FakeContact, ffield_name)],
             field2.clean(value)

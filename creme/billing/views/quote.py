@@ -24,8 +24,9 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.views import generic
 
 from ... import billing
+from .. import custom_forms
 from ..constants import DEFAULT_HFILTER_QUOTE
-from ..forms import quote as quote_forms
+# from ..forms import quote as quote_forms
 from . import base
 
 Quote = billing.get_quote_model()
@@ -35,12 +36,14 @@ SalesOrder = billing.get_sales_order_model()
 
 class QuoteCreation(base.BaseCreation):
     model = Quote
-    form_class = quote_forms.QuoteCreateForm
+    # form_class = quote_forms.QuoteCreateForm
+    form_class = custom_forms.QUOTE_CREATION_CFORM
 
 
 class RelatedQuoteCreation(base.RelatedBaseCreation):
     model = Quote
-    form_class = quote_forms.QuoteCreateForm
+    # form_class = quote_forms.QuoteCreateForm
+    form_class = custom_forms.QUOTE_CREATION_CFORM
     permissions = ('billing', cperm(Quote))
     title = _('Create a quote for «{entity}»')
 
@@ -51,9 +54,11 @@ class QuoteDetail(generic.EntityDetail):
     pk_url_kwarg = 'quote_id'
 
 
-class QuoteEdition(base.BaseEdition):
+# class QuoteEdition(base.BaseEdition):
+class QuoteEdition(generic.EntityEdition):
     model = Quote
-    form_class = quote_forms.QuoteEditForm
+    # form_class = quote_forms.QuoteEditForm
+    form_class = custom_forms.QUOTE_EDITION_CFORM
     pk_url_kwarg = 'quote_id'
 
 

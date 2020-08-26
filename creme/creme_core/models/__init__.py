@@ -15,6 +15,7 @@ from .button_menu import ButtonMenuItem  # NOQA
 from .creme_property import CremeProperty, CremePropertyType  # NOQA
 from .currency import Currency  # NOQA
 from .custom_field import *  # NOQA
+from .custom_form import CustomFormConfigItem  # NOQA
 from .database import CaseSensitivity  # NOQA
 from .deletion import (  # NOQA
     CREME_REPLACE,

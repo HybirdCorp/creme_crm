@@ -16,7 +16,7 @@ from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 from creme.creme_core.utils.date_period import DatePeriod, date_period_registry
 
 from ..creme_jobs import recurrents_gendocs_type
-from .base import RecurrentGenerator, skipIfCustomGenerator
+from .base import CTYPE_KEY, RecurrentGenerator, skipIfCustomGenerator
 
 if apps.is_installed('creme.tickets'):
     from creme.tickets import get_ticket_model, get_tickettemplate_model
@@ -92,10 +92,12 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
                 '0-user':             user.id,
                 '0-name':             name,
-                '0-ct':               self.ct.id,
                 '0-first_generation': '11-06-2014 09:00',
                 '0-periodicity_0':    'days',
                 '0-periodicity_1':    '4',
+
+                # '0-ct': self.ct.id,
+                CTYPE_KEY: self.ct.id,
             },
         )
         self.assertNoWizardFormError(response)

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelChoiceField
 from django.utils.translation import gettext_lazy as _
@@ -41,6 +43,10 @@ class MessagingListForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_messaginglist_model()
         # fields = ('user', 'name', 'description')
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('MessagingListForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class AddContactsForm(CremeForm):

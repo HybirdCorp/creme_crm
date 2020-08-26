@@ -349,7 +349,7 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
     cell_class = EntityCellRegularField
     fields_depth = 1
 
-    # This separated method makes overriding easier (see reports)
+    # This separated method makes overriding easier
     def _regular_fields_enum(self, model: Type[CremeEntity]) -> ModelFieldEnumerator:
         # NB: we enumerate all the fields of the model, with a deep=1 (ie: we
         # get also the sub-fields of ForeignKeys for example). We take care of
@@ -475,7 +475,8 @@ class EntityCellsField(Field):
     widget = EntityCellsWidget
     default_error_messages = {
         # 'invalid': _('Enter a valid value.'),
-        'invalid_type': 'The type of cell in invalid.',
+        # 'invalid_type': 'The type of cell in invalid.',
+        'invalid_type': 'The type of cell in invalid: %(type_id)s.',
     }
 
     field_classes: Set[Type[UniformEntityCellsField]] = {
@@ -754,7 +755,9 @@ class EntityCellsField(Field):
                         break
                 else:
                     raise ValidationError(
-                        self.error_messages['invalid_type'], code='invalid_type',
+                        self.error_messages['invalid_type'],
+                        code='invalid_type',
+                        params={'type_id': cell_type_id},
                     )
 
         return cells

@@ -279,7 +279,7 @@ class InvoiceTestCase(_BillingTestCase):
             # source.id,
             source,
             self.client.get(reverse('billing__create_invoice'))
-                       .context['form']['source']
+                       .context['form'][self.SOURCE_KEY]  # .context['form']['source']
                        .field
                        .initial
         )
@@ -309,16 +309,20 @@ class InvoiceTestCase(_BillingTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # Not LINK
             set_type=SetCredentials.ESET_ALL,
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -330,13 +334,15 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertFalse(user.has_perm_to_link(target))
 
         url = reverse('billing__create_invoice')
-        response = self.client.get(url, follow=True)
+        response1 = self.client.get(url, follow=True)
 
         with self.assertNoException():
-            form = response.context['form']
+            form = response1.context['form']
 
-        self.assertIn('source', form.fields, 'Bad form ?!')
-        response = self.assertPOST200(
+        # self.assertIn('source', form.fields, 'Bad form ?!')
+        self.assertIn(self.SOURCE_KEY, form.fields, 'Bad form ?!')
+
+        response2 = self.assertPOST200(
             url, follow=True,
             data={
                 'user':   user.id,
@@ -346,20 +352,24 @@ class InvoiceTestCase(_BillingTestCase):
                 'issuing_date':    '2011-9-7',
                 'expiration_date': '2011-10-13',
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
 
         link_error = _('You are not allowed to link this entity: {}')
         not_viewable_error = _('Entity #{id} (not viewable)').format
         self.assertFormError(
-            response, 'form', 'source',
-            link_error.format(not_viewable_error(id=source.id))
+            # response2, 'form', 'source',
+            response2, 'form', self.SOURCE_KEY,
+            link_error.format(not_viewable_error(id=source.id)),
         )
         self.assertFormError(
-            response, 'form', 'target',
-            link_error.format(not_viewable_error(id=target.id))
+            # response2, 'form', 'target',
+            response2, 'form', self.TARGET_KEY,
+            link_error.format(not_viewable_error(id=target.id)),
         )
 
     def test_createview_payment_info01(self):
@@ -396,7 +406,6 @@ class InvoiceTestCase(_BillingTestCase):
         url = reverse('billing__create_related_invoice', args=(target.id,))
         response = self.assertGET200(url)
         # self.assertTemplateUsed(response, 'billing/form/add-popup.html')
-        self.assertTemplateUsed(response, 'billing/forms/add-popup.html')
 
         context = response.context
         self.assertEqual(
@@ -411,9 +420,10 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertDictEqual(
             {
                 'status': 1,
-                'target': target,
+                'target': target,  # deprecated
+                self.TARGET_KEY: target,
             },
-            form.initial
+            form.initial,
         )
 
         # ---
@@ -433,8 +443,10 @@ class InvoiceTestCase(_BillingTestCase):
                 'currency': currency.id,
                 'discount': Decimal(),
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)
@@ -628,19 +640,28 @@ class InvoiceTestCase(_BillingTestCase):
         user = self.login()
 
         name = 'Invoice001'
-        invoice, source, target = self.create_invoice_n_orgas(name)
+        invoice, source1, target1 = self.create_invoice_n_orgas(name)
 
         url = invoice.get_edit_absolute_url()
-        self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
+        with self.assertNoException():
+            formfields = response1.context['form'].fields
+            source_f = formfields[self.SOURCE_KEY]
+            target_f = formfields[self.TARGET_KEY]
+
+        self.assertEqual(source1, source_f.initial)
+        self.assertEqual(target1, target_f.initial)
+
+        # ---
         name += '_edited'
 
         create_orga = partial(Organisation.objects.create, user=user)
-        source = create_orga(name='Source Orga 2')
-        target = create_orga(name='Target Orga 2')
+        source2 = create_orga(name='Source Orga 2')
+        target2 = create_orga(name='Target Orga 2')
 
         currency = Currency.objects.all()[0]
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'user':            user.pk,
@@ -651,23 +672,26 @@ class InvoiceTestCase(_BillingTestCase):
                 'currency':        currency.pk,
                 'discount':        Decimal(),
                 # 'discount_unit':   1,
-                'source':          source.id,
-                'target':          self.formfield_value_generic_entity(target),
+
+                # 'source':          source2.id,
+                # 'target':          self.formfield_value_generic_entity(target2),
+                self.SOURCE_KEY: source2.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target2),
             },
         )
-        self.assertNoFormError(response)
-        self.assertRedirects(response, invoice.get_absolute_url())
+        self.assertNoFormError(response2)
+        self.assertRedirects(response2, invoice.get_absolute_url())
 
         invoice = self.refresh(invoice)
         self.assertEqual(name, invoice.name)
         self.assertEqual(date(year=2011, month=11, day=14), invoice.expiration_date)
         self.assertIsNone(invoice.payment_info)
 
-        self.assertEqual(source, invoice.source)
-        self.assertEqual(target, invoice.target)
+        self.assertEqual(source2, invoice.source)
+        self.assertEqual(target2, invoice.target)
 
-        self.assertRelationCount(1, source, REL_OBJ_BILL_ISSUED,   invoice)
-        self.assertRelationCount(1, target, REL_OBJ_BILL_RECEIVED, invoice)
+        self.assertRelationCount(1, source2, REL_OBJ_BILL_ISSUED,   invoice)
+        self.assertRelationCount(1, target2, REL_OBJ_BILL_RECEIVED, invoice)
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
@@ -709,8 +733,10 @@ class InvoiceTestCase(_BillingTestCase):
                 'currency': invoice.currency.id,
                 'discount': invoice.discount,
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)
@@ -742,8 +768,11 @@ class InvoiceTestCase(_BillingTestCase):
                     'status':   invoice.status_id,
                     'currency': invoice.currency.pk,
                     'discount': discount,
-                    'source':   source.id,
-                    'target':   self.formfield_value_generic_entity(target),
+
+                    # 'source':   source.id,
+                    # 'target':   self.formfield_value_generic_entity(target),
+                    self.SOURCE_KEY: source.id,
+                    self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 },
             )
 
@@ -774,8 +803,11 @@ class InvoiceTestCase(_BillingTestCase):
                 'status':          1,
                 'currency':        currency.pk,
                 'discount':        Decimal(),
-                'source':          source2.id,
-                'target':          self.formfield_value_generic_entity(target),
+
+                # 'source':          source2.id,
+                # 'target':          self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source2.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)
@@ -798,8 +830,10 @@ class InvoiceTestCase(_BillingTestCase):
                 'currency': invoice.currency.id,
                 'discount': invoice.discount,
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)
@@ -827,8 +861,10 @@ class InvoiceTestCase(_BillingTestCase):
                 'currency': invoice.currency.id,
                 'discount': invoice.discount,
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)

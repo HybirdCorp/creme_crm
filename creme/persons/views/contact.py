@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -29,9 +29,11 @@ from django.utils.translation import gettext_lazy as _
 from creme import persons
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms.validators import validate_linkable_model
+from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.views import generic
 
+from .. import custom_forms
 from ..constants import DEFAULT_HFILTER_CONTACT
 from ..forms import contact as c_forms
 from ..models import AbstractOrganisation
@@ -42,8 +44,10 @@ Organisation = persons.get_organisation_model()
 
 class _ContactBaseCreation(generic.EntityCreation):
     model = Contact
-    form_class: Type[forms.BaseForm] = c_forms.ContactForm
-    template_name = 'persons/add_contact_form.html'
+    # form_class = c_forms.ContactForm
+    form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
+        custom_forms.CONTACT_CREATION_CFORM
+    # template_name = 'persons/add_contact_form.html'
 
 
 class ContactCreation(_ContactBaseCreation):
@@ -108,9 +112,12 @@ class RelatedContactCreation(_ContactBaseCreation):
                 ),
             )
 
-            blocks = form_cls.blocks.new(
-                ('relation_to_orga', 'Status in organisation', ('rtype_for_organisation',)),
-            )
+            blocks = form_cls.blocks.new({
+                'id': 'relation_to_orga',
+                'label': 'Status in organisation',
+                'fields': ['rtype_for_organisation'],
+                'order': 0,
+            })
 
             def clean_user(this):
                 super().clean_user()
@@ -188,8 +195,9 @@ class ContactDetail(generic.EntityDetail):
 
 class ContactEdition(generic.EntityEdition):
     model = Contact
-    form_class: Type[forms.BaseForm] = c_forms.ContactForm
-    template_name = 'persons/edit_contact_form.html'
+    # form_class = c_forms.ContactForm
+    form_class: Type[forms.BaseForm] = custom_forms.CONTACT_EDITION_CFORM
+    # template_name = 'persons/edit_contact_form.html'
     pk_url_kwarg = 'contact_id'
 
 

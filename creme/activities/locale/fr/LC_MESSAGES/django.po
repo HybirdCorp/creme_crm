@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-17 10:17+0100\n"
+"POT-Creation-Date: 2020-11-18 18:56+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,48 +19,48 @@ msgstr ""
 msgid "Download in iCalendar format"
 msgstr "Télécharger au format iCalendar"
 
-#: apps.py:30 apps.py:134 apps.py:161 models/activity.py:130
+#: apps.py:30 apps.py:153 apps.py:184 models/activity.py:129
 msgid "Activities"
 msgstr "Activités"
 
-#: apps.py:138 forms/calendar.py:97 models/calendar.py:110
+#: apps.py:158 forms/calendar.py:97 models/calendar.py:110
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: apps.py:147 populate.py:191
+#: apps.py:169 populate.py:202
 msgid "Phone calls"
 msgstr "Appels téléphoniques"
 
-#: apps.py:153 populate.py:190
+#: apps.py:176 populate.py:201
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: apps.py:164 constants.py:33 populate.py:119
+#: apps.py:187 constants.py:33 populate.py:130
 msgid "Phone call"
 msgstr "Appel téléphonique"
 
-#: apps.py:170 constants.py:32 populate.py:116 populate.py:153
+#: apps.py:193 constants.py:32 populate.py:127 populate.py:164
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: apps.py:176 models/activity.py:129
+#: apps.py:199 models/activity.py:128
 msgid "Activity"
 msgstr "Activité"
 
-#: apps.py:182 constants.py:34 populate.py:113
+#: apps.py:205 constants.py:34 populate.py:124
 msgid "Task"
 msgstr "Tâche"
 
-#: apps.py:188 populate.py:131
+#: apps.py:211 populate.py:142
 msgid "Unavailability"
 msgstr "Indisponibilité"
 
-#: bricks.py:50 forms/activity.py:571 forms/bricks.py:62
+#: bricks.py:50 forms/activity.py:1109 forms/bricks.py:62
 #: forms/mass_import.py:604 templates/activities/bricks/participants.html:7
 msgid "Participants"
 msgstr "Participants"
 
-#: bricks.py:91 forms/activity.py:289 forms/bricks.py:171
+#: bricks.py:91 forms/activity.py:214 forms/activity.py:826 forms/bricks.py:171
 #: templates/activities/bricks/subjects.html:7
 msgid "Subjects"
 msgstr "Sujets"
@@ -143,11 +143,11 @@ msgstr ""
 msgid "Create a task"
 msgstr "Créer une tâche"
 
-#: constants.py:24 views/activity.py:306
+#: constants.py:24 views/activity.py:324
 msgid "Create a meeting"
 msgstr "Créer un rendez-vous"
 
-#: constants.py:25 views/activity.py:299
+#: constants.py:25 views/activity.py:317
 msgid "Create a phone call"
 msgstr "Créer un appel téléphonique"
 
@@ -167,108 +167,117 @@ msgstr "Créer une démo"
 msgid "Create an unavailability"
 msgstr "Créer une indisponibilité"
 
-#: forms/activity.py:65 forms/activity_type.py:199 forms/mass_import.py:586
+#: custom_forms.py:14
+msgid "Creation form for activity"
+msgstr "Formulaire de création d'activité"
+
+#: custom_forms.py:37
+msgid "Creation form for activity from the Calendar"
+msgstr "Formulaire de création d'activité depuis le Calendrier"
+
+#: custom_forms.py:45
+msgid "Creation form for unavailability"
+msgstr "Formulaire de création d'indisponibilité"
+
+#: custom_forms.py:72
+msgid "Edition form for activity"
+msgstr "Formulaire de modification d'activité"
+
+#: forms/activity.py:58 forms/activity.py:591 forms/activity_type.py:199
+#: forms/mass_import.py:586
 msgid "Type"
 msgstr "Type"
 
-#: forms/activity.py:69
-msgid "Start time"
-msgstr "Heure de début"
+#: forms/activity.py:78 forms/activity.py:1086
+msgid "Unavailability type"
+msgstr "Type d'indisponibilité"
 
-#: forms/activity.py:70
-msgid "End time"
-msgstr "Heure de fin"
+#: forms/activity.py:109 models/activity.py:84
+msgid "Start"
+msgstr "Début"
 
-#: forms/activity.py:73
-msgid "A floating on the day activity can't busy its participants"
-msgstr ""
-"Une activité flottante dans une journée ne peut marquer comme 'occupés' ses "
-"participants"
+#: forms/activity.py:125 forms/activity.py:132 models/activity.py:85
+msgid "End"
+msgstr "Fin"
 
-#: forms/activity.py:74
-msgid "You can't set the end of your activity without setting its start"
-msgstr "Vous ne pouvez préciser la fin de l'activité sans préciser son début"
-
-#: forms/activity.py:75 forms/mass_import.py:675
-msgid "End time is before start time"
-msgstr "L'heure de fin est avant le début"
-
-#: forms/activity.py:82
+#: forms/activity.py:138 forms/activity.py:612
 msgid "Default duration of the type will be used if you leave blank."
 msgstr "La durée par défaut du type sera utilisée si vous laissez vide."
 
-#: forms/activity.py:206 forms/activity.py:303 forms/activity.py:568
-msgid "When"
-msgstr "Quand"
-
-#: forms/activity.py:244 forms/bricks.py:59 forms/mass_import.py:600
-msgid "Other participating users"
-msgstr "Autres utilisateurs participants"
-
-#: forms/activity.py:282 forms/bricks.py:51 forms/mass_import.py:591
+#: forms/activity.py:151 forms/activity.py:819 forms/bricks.py:51
+#: forms/mass_import.py:591
 msgid "Do I participate to this activity?"
 msgstr "Est-ce que je participe à cette activité ?"
 
-#: forms/activity.py:286
+#: forms/activity.py:181 forms/activity.py:777 forms/bricks.py:59
+#: forms/mass_import.py:600
+msgid "Other participating users"
+msgstr "Autres utilisateurs participants"
+
+#: forms/activity.py:193 forms/activity.py:1126 populate.py:380
+msgid "Unavailable users"
+msgstr "Utilisateurs non-disponibles"
+
+#: forms/activity.py:199 forms/activity.py:823
 msgid "Other participants"
 msgstr "Autres participants"
 
-#: forms/activity.py:292
-msgid "Entities linked to this activity"
-msgstr "Fiches reliées à l'activité"
-
-#: forms/activity.py:297
-msgid "No participant"
-msgstr "Aucun Participant"
-
-#: forms/activity.py:298
-msgid "You cannot set a relative alert on a floating activity"
-msgstr ""
-"Vous ne pouvez pas mettre une alerte relative sur une activité flottante"
-
-#: forms/activity.py:307 forms/mass_import.py:616
-msgid "Participants & subjects"
-msgstr "Participants & sujets"
-
-#: forms/activity.py:312 forms/activity.py:362
-msgid "Generate an alert on a specific date"
-msgstr "Générer une alerte à une date spécifique"
-
-#: forms/activity.py:313 forms/activity.py:368
-msgid "Generate an alert in a while"
-msgstr "Générer une alerte dans un certain temps"
-
-#: forms/activity.py:314 forms/activity.py:380
-msgid "Users to keep informed"
-msgstr "Utilisateurs à tenir informés"
-
-#: forms/activity.py:340 forms/bricks.py:87
+#: forms/activity.py:227 forms/activity.py:877 forms/bricks.py:87
 msgid ""
 "The organisations of the participants will be automatically added as subjects"
 msgstr ""
 "Les sociétés des participants seront ajoutées automatiquement en tant que "
 "sujets"
 
-#: forms/activity.py:370
-msgid "How long before the activity's start the alert is raised?"
-msgstr ""
-"Combien de temps avant le début de l'activité l'alerte est-elle déclenchée ?"
+#: forms/activity.py:235 forms/activity.py:829
+msgid "Entities linked to this activity"
+msgstr "Fiches reliées à l'activité"
 
-#: forms/activity.py:454
+#: forms/activity.py:259 forms/activity.py:991
 msgid "Alert of activity"
 msgstr "Alerte d'activité"
 
-#: forms/activity.py:455
+#: forms/activity.py:260 forms/activity.py:992
 #, python-brace-format
 msgid "Alert related to {activity}"
 msgstr "Alerte en rapport avec {activity}"
 
-#: forms/activity.py:479
+#: forms/activity.py:273
+msgid ""
+"This field needs the app «Assistants» to be installed. Hint: install it or "
+"remove this field in the form configuration."
+msgstr ""
+
+#: forms/activity.py:283 forms/activity.py:849 forms/activity.py:899
+#: populate.py:241
+msgid "Generate an alert on a specific date"
+msgstr "Générer une alerte à une date spécifique"
+
+#: forms/activity.py:297 forms/activity.py:850 forms/activity.py:905
+#: populate.py:247
+msgid "Generate an alert in a while"
+msgstr "Générer une alerte dans un certain temps"
+
+#: forms/activity.py:301 forms/activity.py:835
+msgid "You cannot set a relative alert on a floating activity"
+msgstr ""
+"Vous ne pouvez pas mettre une alerte relative sur une activité flottante"
+
+#: forms/activity.py:308 forms/activity.py:907
+msgid "How long before the activity's start the alert is raised?"
+msgstr ""
+"Combien de temps avant le début de l'activité l'alerte est-elle déclenchée ?"
+
+#: forms/activity.py:330 forms/activity.py:851 forms/activity.py:917
+msgid "Users to keep informed"
+msgstr "Utilisateurs à tenir informés"
+
+#: forms/activity.py:348 forms/activity.py:1016
 #, python-brace-format
 msgid "[Creme] Activity created: {activity}"
 msgstr "[Creme] Activité créée : {activity}"
 
-#: forms/activity.py:480
+#: forms/activity.py:349 forms/activity.py:1017
 #, python-brace-format
 msgid ""
 "A new activity has been created: {activity}.\n"
@@ -285,15 +294,30 @@ msgstr ""
 "    Sujets : {subjects}.\n"
 "    Participants : {participants}."
 
-#: forms/activity.py:488 forms/activity.py:489
+#: forms/activity.py:357 forms/activity.py:358 forms/activity.py:1025
+#: forms/activity.py:1026
 msgid "not specified"
 msgstr "non renseigné"
 
-#: forms/activity.py:548
-msgid "Unavailability type"
-msgstr "Type d'indisponibilité"
+#: forms/activity.py:383 forms/activity.py:599
+msgid "A floating on the day activity can't busy its participants"
+msgstr ""
+"Une activité flottante dans une journée ne peut marquer comme 'occupés' ses "
+"participants"
 
-#: forms/activity.py:560
+#: forms/activity.py:386 forms/activity.py:600
+msgid "You can't set the end of your activity without setting its start"
+msgstr "Vous ne pouvez préciser la fin de l'activité sans préciser son début"
+
+#: forms/activity.py:388
+msgid "End is before start"
+msgstr "La fin est avant le début"
+
+#: forms/activity.py:498 forms/activity.py:834
+msgid "No participant"
+msgstr "Aucun Participant"
+
+#: forms/activity.py:572 forms/activity.py:1098
 msgid ""
 "An unavailability always busies its participants ; mark it as «all day» if "
 "you do not set the start/end times."
@@ -301,9 +325,26 @@ msgstr ""
 "Une indisponibilité occupe toujours ses participants ; marquez la comme "
 "«toute la journée» si vous ne remplissez pas les heures de début/fin."
 
-#: forms/activity.py:586
-msgid "Unavailable users"
-msgstr "Utilisateurs non-disponibles"
+#: forms/activity.py:595
+msgid "Start time"
+msgstr "Heure de début"
+
+#: forms/activity.py:596
+msgid "End time"
+msgstr "Heure de fin"
+
+#: forms/activity.py:601 forms/mass_import.py:675
+msgid "End time is before start time"
+msgstr "L'heure de fin est avant le début"
+
+#: forms/activity.py:738 forms/activity.py:840 forms/activity.py:1106
+#: populate.py:231
+msgid "When"
+msgstr "Quand"
+
+#: forms/activity.py:844 forms/mass_import.py:616 populate.py:255
+msgid "Participants & subjects"
+msgstr "Participants & sujets"
 
 #: forms/activity_type.py:42
 msgid "Duration"
@@ -358,7 +399,7 @@ msgstr ""
 "Les activités sur le calendrier supprimé seront déplacées sur le calendrier "
 "sélectionné."
 
-#: forms/fields.py:33
+#: forms/fields.py:69
 msgid "Appears on the calendar:"
 msgstr "Apparaît sur le calendrier :"
 
@@ -420,14 +461,6 @@ msgstr "Sujets (sociétés seulement)"
 msgid "Title"
 msgstr "Titre"
 
-#: models/activity.py:84
-msgid "Start"
-msgstr "Début"
-
-#: models/activity.py:85
-msgid "End"
-msgstr "Fin"
-
 #: models/activity.py:87 templates/activities/bricks/base/activities.html:87
 msgid "Minutes"
 msgstr "Bilan"
@@ -444,41 +477,41 @@ msgstr "Durée (en heures)"
 msgid "It is only informative and is not used to compute the end time."
 msgstr "Seulement informative et pas utilisée pour calculer l'heure de fin."
 
-#: models/activity.py:99
+#: models/activity.py:98
 msgid "Activity type"
 msgstr "Type d'activité"
 
-#: models/activity.py:102
+#: models/activity.py:101
 msgid "Activity sub-type"
 msgstr "Sous-type d'activité"
 
-#: models/activity.py:107
+#: models/activity.py:106
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:111 models/calendar.py:111
+#: models/activity.py:110 models/calendar.py:111
 #: templates/activities/bricks/user-calendars.html:7
 #: templates/activities/calendar.html:4
 msgid "Calendars"
 msgstr "Calendriers"
 
-#: models/activity.py:113
+#: models/activity.py:112
 msgid "All day?"
 msgstr "Toute la journée ?"
 
-#: models/activity.py:114
+#: models/activity.py:113
 msgid "Busy?"
 msgstr "Occupé ?"
 
-#: models/activity.py:117
+#: models/activity.py:116
 msgid "Floating type"
 msgstr "Type flottant"
 
-#: models/activity.py:122
+#: models/activity.py:121
 msgid "Create an activity"
 msgstr "Créer une activité"
 
-#: models/activity.py:123
+#: models/activity.py:122
 msgid "Save the activity"
 msgstr "Enregistrer l'activité"
 
@@ -550,7 +583,7 @@ msgstr "Sous-type d'activité"
 msgid "Sub-types of activity"
 msgstr "Sous-types d'activité"
 
-#: models/other_models.py:100
+#: models/other_models.py:100 populate.py:266
 msgid "Description"
 msgstr "Description"
 
@@ -569,117 +602,134 @@ msgctxt "activities-plural"
 msgid "Status of activity"
 msgstr "Statuts d'activité"
 
-#: populate.py:73
+#: populate.py:84
 msgid "related to the activity"
 msgstr "relié à l'activité"
 
-#: populate.py:74
+#: populate.py:85
 msgid "(activity) related to"
 msgstr "(activité) relié à"
 
-#: populate.py:80
+#: populate.py:91
 msgid "is subject of the activity"
 msgstr "est sujet de l'activité"
 
-#: populate.py:84
+#: populate.py:95
 msgid "(activity) has for subject"
 msgstr "(activité) a pour sujet"
 
-#: populate.py:90
+#: populate.py:101
 msgid "participates to the activity"
 msgstr "participe à l'activité"
 
-#: populate.py:91
+#: populate.py:102
 msgid "(activity) has as participant"
 msgstr "(activité) a comme participant"
 
-#: populate.py:104
+#: populate.py:115
 msgctxt "activities-status"
 msgid "Planned"
 msgstr "Prévue"
 
-#: populate.py:105
+#: populate.py:116
 msgctxt "activities-status"
 msgid "In progress"
 msgstr "En cours"
 
-#: populate.py:106
+#: populate.py:117
 msgctxt "activities-status"
 msgid "Done"
 msgstr "Finie"
 
-#: populate.py:107
+#: populate.py:118
 msgctxt "activities-status"
 msgid "Delayed"
 msgstr "En retard"
 
-#: populate.py:108
+#: populate.py:119
 msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
 
-#: populate.py:122
+#: populate.py:133
 msgid "Gathering"
 msgstr "Réunion"
 
-#: populate.py:125
+#: populate.py:136
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:128
+#: populate.py:139
 msgid "Demonstration"
 msgstr "Démonstration"
 
-#: populate.py:154
+#: populate.py:165
 msgid "Qualification"
 msgstr "Qualification"
 
-#: populate.py:155
+#: populate.py:166
 msgid "Revival"
 msgstr "Relance"
 
-#: populate.py:156
+#: populate.py:167
 msgid "Network"
 msgstr "Réseau"
 
-#: populate.py:157
+#: populate.py:168
 msgctxt "activities-meeting"
 msgid "Other"
 msgstr "Autre"
 
-#: populate.py:163
+#: populate.py:174
 msgid "Incoming"
 msgstr "Entrant"
 
-#: populate.py:164
+#: populate.py:175
 msgid "Outgoing"
 msgstr "Sortant"
 
-#: populate.py:165
+#: populate.py:176
 msgid "Conference"
 msgstr "Conférence"
 
-#: populate.py:166
+#: populate.py:177
 msgid "Outgoing - Failed"
 msgstr "Sortant - Échoué"
 
-#: populate.py:173
+#: populate.py:184
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
-#: populate.py:192
+#: populate.py:203
 msgid "Tasks"
 msgstr "Tâches"
 
-#: populate.py:207
+#: populate.py:218
 msgid "In which I participate"
 msgstr "Auxquelles je participe"
+
+#: populate.py:271
+msgid "Custom fields"
+msgstr ""
+
+#: populate.py:282
+msgid "Properties"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:290
+msgid "Relationships"
+msgstr ""
+
+#: populate.py:304 populate.py:341 populate.py:370 populate.py:393
+msgid "General information"
+msgstr ""
 
 #: setting_keys.py:11
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocs d'activités"
 
-#: setting_keys.py:16
+#: setting_keys.py:17
 msgid ""
 "Add automatically the organisations of the participants as activities "
 "subjects"
@@ -687,14 +737,15 @@ msgstr ""
 "Ajouter automatiquement les sociétés des participants en tant que sujets des "
 "activités"
 
-#: setting_keys.py:23
+#: setting_keys.py:25
 msgid ""
 "In the activities form, propose to keep users informed with user messages "
-"(the application «Assistants» is needed)"
+"(the application «Assistants» is needed). DEPRECATED (use custom forms "
+"instead)."
 msgstr ""
 "Dans le formulaire des activités, proposer de tenir les utilisateurs "
 "informés avec des messages utilisateurs (l'application «Assistants» est "
-"nécessaire)."
+"nécessaire). OBSOLÈTE (utilisez les formulaires personnalisés à la place)"
 
 #: statistics.py:31
 msgid "Activities (since one year)"
@@ -980,11 +1031,11 @@ msgstr ""
 "{participant} participe déjà à l'activité «{activity}» entre {start} et "
 "{end}."
 
-#: views/activity.py:298
+#: views/activity.py:316
 msgid "List of phone calls"
 msgstr "Liste des appels téléphoniques"
 
-#: views/activity.py:305
+#: views/activity.py:323
 msgid "List of meetings"
 msgstr "Liste des rendez-vous"
 
@@ -1318,9 +1369,6 @@ msgstr "Changer le calendrier de «{object}»"
 
 #~ msgid "Activity's nomenclature"
 #~ msgstr "Nomenclature d'activité"
-
-#~ msgid "Kind of activity"
-#~ msgstr "Sorte d'activité"
 
 #~ msgid "Activity types"
 #~ msgstr "Types d'activité"

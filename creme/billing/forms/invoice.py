@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from creme.persons.workflow import transform_target_into_customer
+import warnings
 
+# from creme.persons.workflow import transform_target_into_customer
 from .. import get_invoice_model
 from .base import BaseCreateForm, BaseEditForm
 
@@ -29,6 +30,10 @@ Invoice = get_invoice_model()
 class InvoiceCreateForm(BaseCreateForm):
     class Meta(BaseCreateForm.Meta):
         model = Invoice
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('InvoiceCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     # def save(self, *args, **kwargs):
     #     instance = super().save(*args, **kwargs)
@@ -44,3 +49,7 @@ class InvoiceCreateForm(BaseCreateForm):
 class InvoiceEditForm(BaseEditForm):
     class Meta(BaseEditForm.Meta):
         model = Invoice
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('InvoiceEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)

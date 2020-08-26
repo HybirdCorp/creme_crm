@@ -171,8 +171,40 @@
 
 /* Brick - Address [end] */
 
-/* TODO: use class instead (wait for new HTML for forms)  */
+/* Address in forms */
+
+/* DEPRECATED */
 #editforms form .table_detail_view#billing_table tbody > tr:first-child,
 #editforms form .table_detail_view#shipping_table tbody > tr:first-child {
     border-bottom: none;
 }
+
+.persons-form_block-addresses .persons-form_block-addresses-inner-header {
+    text-transform: uppercase;
+}
+
+.persons-form_block-addresses .persons-form_block-addresses-inner-header-buttons .addresses-copy_to_left {
+    float: left;
+}
+
+.persons-form_block-addresses .persons-form_block-addresses-inner-header-buttons .addresses-copy_to_right {
+    float: right;
+}
+
+.persons-form_block-addresses .td_info,
+.persons-form_block-addresses .th_info {
+    width: auto;
+}
+
+form .table_detail_view.persons-form_block-addresses .td_info>input,
+form .table_detail_view.persons-form_block-addresses .td_info>textarea {
+    min-width: 400px;
+}
+
+.persons-form_block-addresses .persons-form_block-addresses-inner-header + .persons-form_block-addresses-inner-header,
+.persons-form_block-addresses .persons-form_block-addresses-inner-header-buttons + .persons-form_block-addresses-inner-header-buttons,
+.persons-form_block-addresses tbody td + th  {
+    border-left: 2px solid #ccc;
+}
+
+/* Address in forms - [end] */

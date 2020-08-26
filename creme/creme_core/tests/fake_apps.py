@@ -17,87 +17,86 @@ def ready():
     from ..core.function_field import function_field_registry
     from ..core.imprint import imprint_manager
     from ..gui.bricks import brick_registry
+    from ..gui.custom_form import customform_descriptor_registry
     from ..gui.listview import smart_columns_registry
     from ..gui.mass_import import import_form_registry
     from ..gui.merge import merge_form_registry
     from ..gui.quick_forms import quickforms_registry
     from ..models import CremeEntity
     from ..registry import creme_registry
-    from . import fake_function_fields
+    from . import (
+        fake_custom_forms,
+        fake_forms,
+        fake_function_fields,
+        fake_models,
+    )
     from .fake_bricks import FakeAppPortalBrick
     from .fake_constants import FAKE_REL_SUB_EMPLOYED_BY
-    from .fake_forms import (
-        FakeContactQuickForm,
-        FakeOrganisationQuickForm,
-        get_csv_form_builder,
-        get_merge_form_builder,
-    )
-    from .fake_models import (
-        FakeActivity,
-        FakeContact,
-        FakeDocument,
-        FakeEmailCampaign,
-        FakeImage,
-        FakeInvoice,
-        FakeInvoiceLine,
-        FakeMailingList,
-        FakeOrganisation,
-        FakeRecipe,
-        FakeTicket,
-    )
 
     creme_registry.register_entity_models(
-        FakeContact,
-        FakeOrganisation,
-        FakeDocument,
-        FakeImage,
-        FakeActivity,
-        FakeEmailCampaign,
-        FakeMailingList,
-        FakeInvoice,
-        FakeInvoiceLine,
+        fake_models.FakeContact,
+        fake_models.FakeOrganisation,
+        fake_models.FakeDocument,
+        fake_models.FakeImage,
+        fake_models.FakeActivity,
+        fake_models.FakeEmailCampaign,
+        fake_models.FakeMailingList,
+        fake_models.FakeInvoice,
+        fake_models.FakeInvoiceLine,
+        fake_models.FakeTicket,
+        fake_models.FakeRecipe,
         FakeConfigEntity,
-        FakeTicket,
-        FakeRecipe,
     )
 
     function_field_registry.register(CremeEntity, fake_function_fields.FakeTodosField)
 
     imprint_manager.register(
-        FakeOrganisation, hours=2,
+        fake_models.FakeOrganisation, hours=2,
     ).register(
-        FakeContact, minutes=60,
+        fake_models.FakeContact, minutes=60,
     )
 
     brick_registry.register(
         FakeAppPortalBrick,
     ).register_invalid_models(
-        FakeInvoiceLine,  # See creme_config tests
+        fake_models.FakeInvoiceLine,  # See creme_config tests
+    )
+
+    customform_descriptor_registry.register(
+        fake_custom_forms.FAKEORGANISATION_CREATION_CFORM,
+
+        fake_custom_forms.FAKEACTIVITY_CREATION_CFORM,
+        fake_custom_forms.FAKEACTIVITY_EDITION_CFORM,
     )
 
     quickforms_registry.register(
-        FakeContact,      FakeContactQuickForm
+        fake_models.FakeContact,      fake_forms.FakeContactQuickForm
     ).register(
-        FakeOrganisation, FakeOrganisationQuickForm
+        fake_models.FakeOrganisation, fake_forms.FakeOrganisationQuickForm
     )
 
-    smart_columns_registry.register_model(FakeContact) \
-                          .register_field('first_name') \
-                          .register_field('last_name') \
-                          .register_relationtype(FAKE_REL_SUB_EMPLOYED_BY)
+    smart_columns_registry.register_model(
+        fake_models.FakeContact
+    ).register_field(
+        'first_name',
+    ).register_field(
+        'last_name',
+    ).register_relationtype(
+        FAKE_REL_SUB_EMPLOYED_BY,
+    )
 
     import_form_registry.register(
-        FakeContact,      get_csv_form_builder,
+        fake_models.FakeContact,      fake_forms.get_csv_form_builder,
     ).register(
-        FakeOrganisation, get_csv_form_builder,
+        fake_models.FakeOrganisation, fake_forms.get_csv_form_builder,
     )
 
     merge_form_registry.register(
-        FakeContact,      get_merge_form_builder,
+        fake_models.FakeContact,      fake_forms.get_merge_form_builder,
     ).register(
-        FakeOrganisation, get_merge_form_builder,
+        fake_models.FakeOrganisation, fake_forms.get_merge_form_builder,
     )
 
     filefield_download_registry.register(
-        model=FakeDocument, field_name='filedata',
+        model=fake_models.FakeDocument, field_name='filedata',
     )

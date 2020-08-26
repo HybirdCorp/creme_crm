@@ -1,0 +1,14 @@
+{% extends 'creme_config/portal.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block page_title %}{% trans 'Configuration of custom forms' %} - {% endblock %}
+
+{% block title %}
+    {% has_perm_to access 'creme_config' as conf_perm %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'Custom forms' %}
+{% endblock %}
+
+{% block portal_bricks %}
+    {% brick_import app='creme_config' name='custom_forms' as cforms_brick %}
+    {% brick_display cforms_brick %}
+{% endblock %}

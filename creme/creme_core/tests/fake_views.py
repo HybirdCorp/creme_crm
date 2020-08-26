@@ -3,6 +3,7 @@
 from creme.creme_core.views import generic
 
 from ..tests import fake_forms, fake_models
+from . import fake_custom_forms
 
 
 class FakeDocumentsList(generic.EntitiesList):
@@ -37,6 +38,7 @@ class FakeContactDetail(generic.EntityDetail):
 
 class FakeContactsList(generic.EntitiesList):
     model = fake_models.FakeContact
+    # default_headerfilter_id = DEFAULT_HFILTER_FAKE_CONTACT TODO ?
 
 
 class FakeOrganisationCreation(generic.EntityCreation):
@@ -71,6 +73,17 @@ class FakeAddressEdition(generic.RelatedToEntityEditionPopup):
     pk_url_kwarg = 'address_id'
     form_class = fake_forms.FakeAddressForm
     title = 'Address for <{entity}>'
+
+
+class FakeActivityCreation(generic.EntityCreation):
+    model = fake_models.FakeActivity
+    form_class = fake_custom_forms.FAKEACTIVITY_CREATION_CFORM
+
+
+class FakeActivityEdition(generic.EntityEdition):
+    model = fake_models.FakeActivity
+    form_class = fake_custom_forms.FAKEACTIVITY_EDITION_CFORM
+    pk_url_kwarg = 'activity_id'
 
 
 class FakeActivitiesList(generic.EntitiesList):

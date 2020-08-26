@@ -1,4 +1,20 @@
-/* calendar sidebar */
+/* Forms */
+
+.activities-field-datetime .activities-field-date-time {
+    margin-top: 10px;
+}
+
+.help-text + .activities-field-datetime {
+    margin-top: 5px;
+}
+
+.activities-field-date-part .help-text-format {
+    color: #646464;
+}
+
+/* Forms - end */
+
+/* Calendar sidebar */
 
 .calendar-menu {
     position: absolute;

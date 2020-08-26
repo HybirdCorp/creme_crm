@@ -25,9 +25,11 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
+    CustomFormConfigItem,
     HeaderFilter,
     RelationType,
     SearchConfigItem,
@@ -36,7 +38,7 @@ from creme.creme_core.utils import create_if_needed
 from creme.opportunities import get_opportunity_model
 from creme.persons import get_contact_model
 
-from . import bricks, constants, get_event_model
+from . import bricks, constants, custom_forms, get_event_model
 from .models import EventType
 
 logger = logging.getLogger(__name__)
@@ -116,6 +118,68 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'start_date'}),
                 (EntityCellRegularField, {'name': 'end_date'}),
             ],
+        )
+
+        # ---------------------------
+        base_groups_desc = [
+            {
+                'name': _('General information'),
+                'cells': [
+                    (EntityCellRegularField, {'name': 'user'}),
+                    (EntityCellRegularField, {'name': 'name'}),
+                    (EntityCellRegularField, {'name': 'type'}),
+                    (EntityCellRegularField, {'name': 'place'}),
+                    (EntityCellRegularField, {'name': 'start_date'}),
+                    (EntityCellRegularField, {'name': 'end_date'}),
+                    (EntityCellRegularField, {'name': 'budget'}),
+                    (EntityCellRegularField, {'name': 'final_cost'}),
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                    ),
+                ],
+            }, {
+                'name': _('Description'),
+                'cells': [
+                    (EntityCellRegularField, {'name': 'description'}),
+                ],
+            }, {
+                'name': _('Custom fields'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                    ),
+                ],
+            },
+        ]
+
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.EVENT_CREATION_CFORM,
+            groups_desc=[
+                *base_groups_desc,
+                {
+                    'name': _('Properties'),
+                    'cells': [
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                        ),
+                    ],
+                }, {
+                    'name': _('Relationships'),
+                    'cells': [
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.RELATIONS},
+                        ),
+                    ],
+                },
+            ],
+        )
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.EVENT_EDITION_CFORM,
+            groups_desc=base_groups_desc,
         )
 
         # ---------------------------

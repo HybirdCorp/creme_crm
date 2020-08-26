@@ -7,6 +7,7 @@ from .views import (
     button_menu,
     creme_property_type,
     custom_fields,
+    custom_form,
     fields_config,
     generics_views,
     history,
@@ -295,6 +296,51 @@ custom_fields_patterns = [
     ),
 ]
 
+custom_forms_patterns = [
+    re_path(
+        r'^portal[/]?$',
+        custom_form.Portal.as_view(),
+        name='creme_config__custom_forms',
+    ),
+
+    re_path(
+        r'^add/group/(?P<form_id>.+)[/]?$',
+        custom_form.CustomFormGroupCreation.as_view(),
+        name='creme_config__add_custom_form_group',
+    ),
+    re_path(
+        r'^add/extra_group/(?P<form_id>.+)[/]?$',
+        custom_form.CustomFormExtraGroupCreation.as_view(),
+        name='creme_config__add_custom_form_extra_group',
+    ),
+    re_path(
+        r'^edit/group/(?P<form_id>.+)/(?P<group_id>\d+)[/]?$',
+        custom_form.CustomFormGroupEdition.as_view(),
+        name='creme_config__edit_custom_form_group',
+    ),
+    re_path(
+        r'^set_layout/group/(?P<form_id>.+)/(?P<group_id>\d+)[/]?$',
+        custom_form.CustomFormGroupLayoutSetting.as_view(),
+        name='creme_config__setlayout_custom_form_group',
+    ),
+    re_path(
+        r'^reorder/group/(?P<form_id>.+)/(?P<group_id>\d+)[/]?$',
+        custom_form.CustomFormGroupReordering.as_view(),
+        name='creme_config__reorder_custom_form_group',
+    ),
+    re_path(
+        r'^delete/group/(?P<form_id>.+)[/]?$',
+        custom_form.CustomFormGroupDeletion.as_view(),
+        name='creme_config__delete_custom_form_group',
+    ),
+
+    re_path(
+        r'^delete/field/(?P<form_id>.+)[/]?$',
+        custom_form.CustomFormCellDeletion.as_view(),
+        name='creme_config__delete_custom_form_cell',
+    ),
+]
+
 bricks_patterns = [
     re_path(
         r'^portal[/]?$', bricks.Portal.as_view(), name='creme_config__bricks',
@@ -493,6 +539,7 @@ urlpatterns = [
     re_path(r'^property_type/', include(property_type_patterns)),
     re_path(r'^fields/',        include(fields_config_patterns)),
     re_path(r'^custom_fields/', include(custom_fields_patterns)),
+    re_path(r'^custom_forms/',  include(custom_forms_patterns)),
     re_path(r'^bricks/',        include(bricks_patterns)),
     re_path(r'^button_menu/',   include(button_menu_patterns)),
     re_path(r'^search/',        include(search_patterns)),

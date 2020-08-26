@@ -89,10 +89,9 @@ class AbstractActivity(CremeEntity):
         _('Activity place'), max_length=500, blank=True
     ).set_tags(optional=True)
     duration = models.PositiveIntegerField(
-        _('Duration (in hour)'), blank=True, null=True,
-        help_text=_(
-            'It is only informative and is not used to compute the end time.'
-        ),
+        verbose_name=_('Duration (in hour)'),
+        blank=True, null=True,
+        help_text=_('It is only informative and is not used to compute the end time.'),
     )
 
     type = models.ForeignKey(

@@ -123,3 +123,32 @@ def persons_contact_first_employer(contact, user):
             info['as_manager'] = False
 
     return info
+
+
+# TODO: unit test
+@register.simple_tag
+def persons_addresses_formblock_fields(form, address_fks):
+    if not address_fks:
+        return None
+
+    meta = []
+    grouped_fields = []
+
+    # NB: we expect that AddressesGroup injects corresponding fields in the
+    #     same order (eg: "city" as first for billing & shipping, then "zipcode"...)
+    for fk in address_fks:
+        prefix = f'{fk.name}-'
+
+        meta.append({
+            'title': fk.verbose_name,
+            # 'prefix': prefix,
+            'prefix': fk.name,  # NB: JQuery |= filter already adds an hyphen
+        })
+        grouped_fields.append(
+            [field for field in form if field.name.startswith(prefix)]
+        )
+
+    return {
+        'grouped_meta': meta,
+        'grouped_fields': [*zip(*grouped_fields)],
+    }

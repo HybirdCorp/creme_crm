@@ -51,7 +51,7 @@ def check_activity_collisions(
         return
 
     collision_test = ~(Q(end__lte=activity_start) | Q(start__gte=activity_end))
-    collisions     = []
+    collisions = []
 
     for participant in participants:
         # Find activities of participant
@@ -64,7 +64,7 @@ def check_activity_collisions(
             activity_req = activity_req.exclude(object_entity=exclude_activity_id)
 
         # Get id of activities of participant
-        activity_ids = activity_req.values_list("object_entity__id", flat=True)
+        activity_ids = activity_req.values_list('object_entity__id', flat=True)
 
         # Do collision request
         # TODO: can be done with less queries ?

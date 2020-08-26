@@ -20,6 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 
+from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.utils.imports import import_apps_sub_modules
 
 # TODO: AppRecurrentRegistry indirection useless (at least for now)
@@ -27,9 +28,9 @@ from creme.creme_core.utils.imports import import_apps_sub_modules
 
 class TemplateRecurrentRegistry:
     def __init__(self, model, template_model, template_form):
-        self.model          = model
+        self.model = model
         self.template_model = template_model
-        self.template_form  = template_form
+        self.template_form = template_form  # TODO: template_form_class
 
 
 class AppRecurrentRegistry:
@@ -38,7 +39,9 @@ class AppRecurrentRegistry:
         self._templates = []
 
     def add(self, model, template_model, template_form):
-        self._templates.append(TemplateRecurrentRegistry(model, template_model, template_form))
+        self._templates.append(
+            TemplateRecurrentRegistry(model, template_model, template_form)
+        )
 
     def __iter__(self):
         return iter(self._templates)
@@ -68,11 +71,22 @@ class RecurrentRegistry:
             for template_entry in app_registry:
                 yield get_ct(template_entry.model)
 
+    # TODO: rename "form_class" ?
+    # TODO: get model argument instead ?
     def get_form_of_template(self, ct_template):
+        model = ct_template.model_class()
+
         for app_registry in self._apps.values():
             for template_entry in app_registry:
-                if template_entry.model == ct_template.model_class():
-                    return template_entry.template_form
+                if template_entry.model == model:
+                    # return template_entry.template_form
+                    form_class = template_entry.template_form
+
+                    return (
+                        form_class.build_form_class()
+                        if isinstance(form_class, CustomFormDescriptor) else
+                        form_class
+                    )
 
 
 recurrent_registry = RecurrentRegistry()

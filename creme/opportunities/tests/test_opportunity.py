@@ -42,6 +42,9 @@ from .base import (
 
 @skipIfCustomOpportunity
 class OpportunitiesTestCase(OpportunitiesBaseTestCase):
+    TARGET_KEY = 'cform_extra-opportunities_target'
+    EMITTER_KEY = 'cform_extra-opportunities_emitter'
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -127,7 +130,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertGET200(url)
 
         target, emitter = self._create_target_n_emitter()
-        name  = 'Opportunity01'
+        name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(
             url, follow=True,
@@ -137,15 +140,18 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'sales_phase':           phase.id,
                 'expected_closing_date': '2010-9-20',
                 'closing_date':          '2010-10-11',
-                'target':                self.formfield_value_generic_entity(target),
-                'emitter':               emitter.id,
                 'first_action_date':     '2010-7-13',
                 'currency':              DEFAULT_CURRENCY_PK,
+
+                # 'target':  self.formfield_value_generic_entity(target),
+                # 'emitter': emitter.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+                self.EMITTER_KEY: emitter.id,
             },
         )
         self.assertNoFormError(response)
 
-        opportunity =  self.get_object_or_fail(Opportunity, name=name)
+        opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase,              opportunity.sales_phase)
         self.assertEqual(date(2010, 9,  20), opportunity.expected_closing_date)
         self.assertEqual(date(2010, 10, 11), opportunity.closing_date)
@@ -168,7 +174,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         user = self.login()
 
         target, emitter = self._create_target_n_emitter()
-        name  = 'Opportunity01'
+        name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(
             self.ADD_URL, follow=True,
@@ -178,11 +184,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'sales_phase':           phase.id,
                 'expected_closing_date': '2010-9-20',
                 'closing_date':          '2010-10-11',
-                'target':                self.formfield_value_generic_entity(target),
-                'emitter':               emitter.id,
                 'first_action_date':     '2010-7-13',
                 'currency':              DEFAULT_CURRENCY_PK,
-            }
+
+                # 'target': self.formfield_value_generic_entity(target),
+                # 'emitter': emitter.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+                self.EMITTER_KEY: emitter.id,
+            },
         )
         self.assertNoFormError(response)
 
@@ -212,7 +221,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         target  = create_camp(name='Target')
         emitter = create_camp(name='Emitter')
 
-        name  = 'Opportunity01'
+        name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(
             self.ADD_URL, follow=True,
@@ -222,17 +231,23 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'sales_phase':           phase.id,
                 'expected_closing_date': '2010-9-20',
                 'closing_date':          '2010-10-11',
-                'target':                self.formfield_value_generic_entity(target),
-                'emitter':               emitter.id,
                 'first_action_date':     '2010-7-13',
                 'currency':              DEFAULT_CURRENCY_PK,
+
+                # 'target': self.formfield_value_generic_entity(target),
+                # 'emitter': emitter.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+                self.EMITTER_KEY: emitter.id,
             },
         )
         self.assertFormError(
-            response, 'form', 'target', _('This content type is not allowed.')
+            # response, 'form', 'target',
+            response, 'form', self.TARGET_KEY,
+            _('This content type is not allowed.')
         )
         self.assertFormError(
-            response, 'form', 'emitter',
+            # response, 'form', 'emitter',
+            response, 'form', self.EMITTER_KEY,
             _('Select a valid choice. That choice is not one of the available choices.')
         )
         self.assertRaises(Opportunity.DoesNotExist, Opportunity.objects.get, name=name)
@@ -265,20 +280,29 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         'My opportunity',
                 'sales_phase':  SalesPhase.objects.all()[0].id,
                 'closing_date': '2011-03-14',
-                'target':       self.formfield_value_generic_entity(target),
-                'emitter':      emitter.id,
                 'currency':     DEFAULT_CURRENCY_PK,
+
+                # 'target': self.formfield_value_generic_entity(target),
+                # 'emitter': emitter.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+                self.EMITTER_KEY: emitter.id,
             },
         )
 
         fmt1 = _('You are not allowed to link this entity: {}').format
         fmt2 = _('Entity #{id} (not viewable)').format
-        self.assertFormError(response, 'form', 'target',  fmt1(fmt2(id=target.id)))
-        self.assertFormError(response, 'form', 'emitter', fmt1(fmt2(id=emitter.id)))
+        self.assertFormError(
+            # response, 'form', 'target',  fmt1(fmt2(id=target.id))
+            response, 'form', self.TARGET_KEY,  fmt1(fmt2(id=target.id))
+        )
+        self.assertFormError(
+            # response, 'form', 'emitter', fmt1(fmt2(id=emitter.id))
+            response, 'form', self.EMITTER_KEY, fmt1(fmt2(id=emitter.id))
+        )
 
     @skipIfCustomOrganisation
     def test_createview05(self):
-        "Emitter not managed by Creme"
+        "Emitter not managed by Creme."
         self.login()
 
         target, emitter = self._create_target_n_emitter(managed=False)
@@ -289,12 +313,16 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         'My opportunity',
                 'sales_phase':  SalesPhase.objects.all()[0].id,
                 'closing_date': '2011-03-14',
-                'target':       self.formfield_value_generic_entity(target),
-                'emitter':      emitter.id,
+
+                # 'target':       self.formfield_value_generic_entity(target),
+                # 'emitter':      emitter.id,
+                self.TARGET_KEY:  self.formfield_value_generic_entity(target),
+                self.EMITTER_KEY: emitter.id,
             },
         )
         self.assertFormError(
-            response, 'form', 'emitter',
+            # response, 'form', 'emitter',
+            response, 'form', self.EMITTER_KEY,
             _('Select a valid choice. That choice is not one of the available choices.')
         )
 
@@ -314,23 +342,28 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         get_initial = context['form'].initial.get
         self.assertIsInstance(get_initial('sales_phase'), SalesPhase)
         self.assertEqual(target, get_initial('target'))
+        self.assertEqual(target, get_initial(self.TARGET_KEY))
 
         # ----
         salesphase = SalesPhase.objects.all()[0]
         name = f'Opportunity linked to {target}'
         response = self.client.post(
             url,
+            follow=True,
             data={
                 'user':         user.pk,
                 'name':         name,
                 'sales_phase':  salesphase.id,
                 'closing_date': '2011-03-12',
-                'target':       self.formfield_value_generic_entity(target),
-                'emitter':      emitter.id,
                 'currency':     DEFAULT_CURRENCY_PK,
+
+                # 'target': self.formfield_value_generic_entity(target),
+                # 'emitter': emitter.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+                self.EMITTER_KEY: emitter.id,
             },
         )
-        self.assertNoFormError(response, status=302)
+        self.assertNoFormError(response)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)
@@ -340,15 +373,19 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
         response = self.client.post(
-            url, follow=True,
+            url,
+            follow=True,
             data={
                 'user':         user.pk,
                 'name':         f'Opportunity Two linked to {target}',
                 'sales_phase':  salesphase.id,
                 'closing_date': '2011-03-12',
-                'target':       self.formfield_value_generic_entity(target),
-                'emitter':      emitter.id,
                 'currency':     DEFAULT_CURRENCY_PK,
+
+                # 'target': self.formfield_value_generic_entity(target),
+                # 'emitter': emitter.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+                self.EMITTER_KEY: emitter.id,
             },
         )
         self.assertNoFormError(response)
@@ -384,8 +421,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':         name,
                 'sales_phase':  salesphase.id,
                 'closing_date': '2011-03-12',
-                'emitter':      emitter.id,
                 'currency':     DEFAULT_CURRENCY_PK,
+
+                # 'emitter': emitter.id,
+                self.EMITTER_KEY: emitter.id,
             },
         )
         self.assertNoFormError(response)
@@ -422,9 +461,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_add_to_orga04(self):
         "User must be allowed to created Opportunity."
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'opportunities'],
-                          # creatable_models=[Opportunity],
-                         )
+        user = self.login(
+            is_superuser=False, allowed_apps=['persons', 'opportunities'],
+            # creatable_models=[Opportunity],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -455,15 +495,19 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         salesphase = SalesPhase.objects.all()[0]
         name = f'Opportunity linked to {target}'
         response = self.client.post(
-            url, follow=True,
+            url,
+            follow=True,
             data={
                 'user':         user.pk,
                 'name':         name,
                 'sales_phase':  salesphase.id,
                 'closing_date': '2011-03-12',
-                'target':       self.formfield_value_generic_entity(target),
-                'emitter':      emitter.id,
                 'currency':     DEFAULT_CURRENCY_PK,
+
+                # 'target': self.formfield_value_generic_entity(target),
+                # 'emitter': emitter.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+                self.EMITTER_KEY: emitter.id,
             },
         )
         self.assertNoFormError(response)
@@ -476,15 +520,19 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
         response = self.client.post(
-            url, follow=True,
+            url,
+            follow=True,
             data={
                 'user':         user.pk,
                 'name':         f'Opportunity 2 linked to {target}',
                 'sales_phase':  salesphase.id,
                 'closing_date': '2011-03-12',
-                'target':       self.formfield_value_generic_entity(target),
-                'emitter':      emitter.id,
                 'currency':     DEFAULT_CURRENCY_PK,
+
+                # 'target': self.formfield_value_generic_entity(target),
+                # 'emitter': emitter.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+                self.EMITTER_KEY: emitter.id,
             },
         )
         self.assertNoFormError(response)
@@ -509,8 +557,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'sales_phase':  salesphase.id,
                 'closing_date': '2011-03-12',
                 'target':       self.formfield_value_generic_entity(target),
-                'emitter':      emitter.id,
                 'currency':     DEFAULT_CURRENCY_PK,
+
+                # 'emitter': emitter.id,
+                self.EMITTER_KEY: emitter.id,
             },
         )
         self.assertNoFormError(response)
@@ -525,25 +575,31 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomContact
     def test_add_to_contact03(self):
         "User can not link to the Contact target"
-        self.login(is_superuser=False, allowed_apps=['persons', 'opportunities'],
-                   creatable_models=[Opportunity],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'opportunities'],
+            creatable_models=[Opportunity],
+        )
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # not LINK
             set_type=SetCredentials.ESET_OWN,
         )
 
-        target = Contact.objects.create(user=self.user, first_name='Target', last_name='Renegade')
+        target = Contact.objects.create(
+            user=self.user, first_name='Target', last_name='Renegade',
+        )
         self.assertGET403(self._build_addrelated_url(target))
         self.assertGET403(self._build_addrelated_url(target, popup=True))
 
     def test_add_to_something01(self):
-        "Target is not a Contact/Organisation"
+        "Target is not a Contact/Organisation."
         user = self.login()
 
         target = CremeEntity.objects.create(user=user)
@@ -560,7 +616,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            target_f = response.context['form'].fields['target']
+            # target_f = response.context['form'].fields['target']
+            target_f = response.context['form'].fields[self.TARGET_KEY]
 
         self.assertEqual(target, target_f.initial)
 
@@ -584,7 +641,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'closing_date':          '2011-5-15',
                 'first_action_date':     '2011-5-1',
                 'currency':              currency.id,
-                'target':                self.formfield_value_generic_entity(target),
+
+                # 'target': self.formfield_value_generic_entity(target),
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response)
@@ -611,9 +670,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         opp, target1, emitter = self._create_opportunity_n_organisations(name)
         target2 = Contact.objects.create(user=user, first_name='Mike', last_name='Danton')
 
-        target_rel = self.get_object_or_fail(Relation, subject_entity=opp.id,
-                                             object_entity=target1.id,
-                                            )
+        target_rel = self.get_object_or_fail(
+            Relation, subject_entity=opp.id, object_entity=target1.id,
+        )
         response = self.client.post(
             opp.get_edit_absolute_url(), follow=True,
             data={
@@ -625,7 +684,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'closing_date':          '2013-5-15',
                 'first_action_date':     '2013-5-1',
                 'currency':              opp.currency_id,
-                'target':                self.formfield_value_generic_entity(target2),
+
+                # 'target': self.formfield_value_generic_entity(target2),
+                self.TARGET_KEY: self.formfield_value_generic_entity(target2),
             },
         )
         self.assertNoFormError(response)
@@ -708,19 +769,21 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         self.assertIsNone(opportunity.estimated_sales)
         self.assertIsNone(opportunity.chance_to_win)
-        self.assertEqual(number_format('0.0', use_l10n=True),
-                         funf(opportunity, user).for_html()
-                        )
+        self.assertEqual(
+            number_format('0.0', use_l10n=True),
+            funf(opportunity, user).for_html()
+        )
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   =  10
-        self.assertEqual(number_format('100.0', use_l10n=True),
-                         funf(opportunity, user).for_html()
-                        )
+        self.assertEqual(
+            number_format('100.0', use_l10n=True),
+            funf(opportunity, user).for_html()
+        )
 
     @skipIfCustomOrganisation
     def test_get_weighted_sales02(self):
-        "With field 'estimated_sales' hidden with FieldsConfig"
+        "With field 'estimated_sales' hidden with FieldsConfig."
         user = self.login()
 
         FieldsConfig.objects.create(
@@ -747,16 +810,17 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         )
 
         create_orga = partial(Organisation.objects.create, user=user)
-        Opportunity.objects.create(user=user, name='Opp', currency=currency,
-                                   sales_phase=SalesPhase.objects.all()[0],
-                                   emitter=create_orga(name='My society'),
-                                   target=create_orga(name='Target renegade'),
-                                  )
+        Opportunity.objects.create(
+            user=user, name='Opp', currency=currency,
+            sales_phase=SalesPhase.objects.all()[0],
+            emitter=create_orga(name='My society'),
+            target=create_orga(name='Target renegade'),
+        )
 
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('creme_core', 'currency', currency.id)
-                                             ),
-                                     )
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', 'currency', currency.id),
+        ))
         self.assertFormError(
             response, 'form',
             'replace_opportunities__opportunity_currency',

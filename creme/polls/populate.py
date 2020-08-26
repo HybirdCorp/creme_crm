@@ -26,15 +26,17 @@ from django.utils.translation import gettext as _
 from creme import persons, polls
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
+    CustomFormConfigItem,
     HeaderFilter,
     SearchConfigItem,
 )
 from creme.creme_core.utils import create_if_needed
 
-from . import bricks, constants
+from . import bricks, constants, custom_forms
 from .models import PollType
 
 logger = logging.getLogger(__name__)
@@ -74,6 +76,84 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'due_date'}),
                 (EntityCellRegularField, {'name': 'segment'}),
             ],
+        )
+
+        # ---------------------------
+        def build_custom_form_items(creation_descriptor, edition_descriptor, field_names):
+            base_groups_desc = [
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        *(
+                            (EntityCellRegularField, {'name': fname})
+                            for fname in field_names
+                        ),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                }, {
+                    'name': _('Description'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'description'}),
+                    ],
+                }, {
+                    'name': _('Custom fields'),
+                    'cells': [
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                        ),
+                    ],
+                },
+            ]
+
+            CustomFormConfigItem.objects.create_if_needed(
+                descriptor=creation_descriptor,
+                groups_desc=[
+                    *base_groups_desc,
+                    {
+                        'name': _('Properties'),
+                        'cells': [
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                            ),
+                        ],
+                    }, {
+                        'name': _('Relationships'),
+                        'cells': [
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.RELATIONS},
+                            ),
+                        ],
+                    },
+                ],
+            )
+            CustomFormConfigItem.objects.create_if_needed(
+                descriptor=edition_descriptor,
+                groups_desc=base_groups_desc,
+            )
+
+        build_custom_form_items(
+            creation_descriptor=custom_forms.CAMPAIGN_CREATION_CFORM,
+            edition_descriptor=custom_forms.CAMPAIGN_EDITION_CFORM,
+            field_names=[
+                'user',
+                'name',
+                'goal',
+                'start',
+                'due_date',
+                'segment',
+                'expected_count',
+            ],
+        )
+        build_custom_form_items(
+            creation_descriptor=custom_forms.PFORM_CREATION_CFORM,
+            edition_descriptor=custom_forms.PFORM_EDITION_CFORM,
+            field_names=['user', 'name', 'type'],
         )
 
         # ---------------------------

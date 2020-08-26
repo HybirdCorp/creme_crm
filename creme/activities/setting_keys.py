@@ -13,15 +13,18 @@ review_key = SettingKey(
 )
 auto_subjects_key = SettingKey(
     id=constants.SETTING_AUTO_ORGA_SUBJECTS,
-    description=_('Add automatically the organisations of the participants as '
-                  'activities subjects'
-                 ),
+    description=_(
+        'Add automatically the organisations of the participants as activities subjects'
+    ),
     app_label='activities', type=SettingKey.BOOL,
 )
+# DEPRECATED (remove it in Creme 2.3 -- remove related SettingValue in DB)
 form_user_messages_key = SettingKey(
     id=constants.SETTING_FORM_USERS_MSG,
-    description=_('In the activities form, propose to keep users informed '
-                  'with user messages (the application «Assistants» is needed)'
-                 ),
+    description=_(
+        'In the activities form, propose to keep users informed '
+        'with user messages (the application «Assistants» is needed). '
+        'DEPRECATED (use custom forms instead).'
+    ),
     app_label='activities', type=SettingKey.BOOL,
 )

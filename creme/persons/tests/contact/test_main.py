@@ -112,7 +112,7 @@ class ContactTestCase(_BaseTestCase):
 
         url = reverse('persons__create_contact')
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'persons/add_contact_form.html')
+        # self.assertTemplateUsed(response, 'persons/add_contact_form.html')
 
         count = Contact.objects.count()
         first_name = 'Spike'
@@ -146,28 +146,30 @@ class ContactTestCase(_BaseTestCase):
         s_address = 'In the Bebop (bis).'
 
         url = reverse('persons__create_contact')
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'persons/forms/addresses-block.html')
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = response1.context['form'].fields
 
         self.assertIn('billing_address-address', fields)
         self.assertIn('shipping_address-address', fields)
         self.assertNotIn('billing_address-name', fields)
         self.assertNotIn('shipping_address-name', fields)
 
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             follow=True,
             data={
-                'user':                     user.pk,
-                'first_name':               first_name,
-                'last_name':                'Spiegel',
+                'user':       user.pk,
+                'first_name': first_name,
+                'last_name':  'Spiegel',
+
                 'billing_address-address':  b_address,
                 'shipping_address-address': s_address,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name)
         billing_address = contact.billing_address
@@ -180,8 +182,8 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(s_address,             shipping_address.address)
         self.assertEqual(_('Shipping address'), shipping_address.name)
 
-        self.assertContains(response, b_address)
-        self.assertContains(response, s_address)
+        self.assertContains(response2, b_address)
+        self.assertContains(response2, s_address)
 
     def test_editview01(self):
         user = self.login()
@@ -192,7 +194,7 @@ class ContactTestCase(_BaseTestCase):
 
         url = contact.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'persons/edit_contact_form.html')
+        # self.assertTemplateUsed(response, 'persons/edit_contact_form.html')
 
         last_name = 'Spiegel'
         response = self.assertPOST200(
@@ -219,14 +221,16 @@ class ContactTestCase(_BaseTestCase):
 
         first_name = 'Faye'
         last_name = 'Valentine'
+        b_address_value = 'In the Bebop.'
         self.assertPOST200(
             reverse('persons__create_contact'),
             follow=True,
             data={
-                'user':                     user.pk,
-                'first_name':               first_name,
-                'last_name':                last_name,
-                'billing_address-address':  'In the Bebop.',
+                'user':       user.pk,
+                'first_name': first_name,
+                'last_name':  last_name,
+
+                'billing_address-address':  b_address_value,
                 'shipping_address-address': 'In the Bebop. (bis)',
             },
         )
@@ -234,15 +238,24 @@ class ContactTestCase(_BaseTestCase):
         billing_address_id  = contact.billing_address_id
         shipping_address_id = contact.shipping_address_id
 
+        url = contact.get_edit_absolute_url()
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            address_f = response.context['form'].fields['billing_address-address']
+
+        self.assertEqual(b_address_value, address_f.initial)
+
         state = 'Solar system'
         country = 'Mars'
         self.assertNoFormError(self.client.post(
-            contact.get_edit_absolute_url(),
+            url,
             follow=True,
             data={
-                'user':                     user.pk,
-                'first_name':               first_name,
-                'last_name':                last_name,
+                'user':       user.id,
+                'first_name': first_name,
+                'last_name':  last_name,
+
                 'billing_address-state':    state,
                 'shipping_address-country': country,
             },

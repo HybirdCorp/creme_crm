@@ -20,11 +20,11 @@
 
 # import warnings
 import logging
-from typing import List, Type
+from typing import List, Type, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.transaction import atomic
-from django.forms.forms import BaseForm
+from django.forms import BaseForm, ModelForm
 from django.http import HttpResponse, HttpResponseRedirect
 # from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
@@ -33,6 +33,7 @@ from formtools.wizard.views import SessionWizardView
 
 # from creme.creme_core.auth.decorators import login_required
 from creme.creme_core import models
+from creme.creme_core.gui.custom_form import CustomFormDescriptor
 
 from . import base
 
@@ -75,10 +76,9 @@ logger = logging.getLogger(__name__)
 #     def get_form_kwargs(self, step):
 #         return {'user': self.request.user}
 
-
-class CremeWizardView(base.TitleMixin,
+class CremeWizardView(base.PermissionsMixin,
+                      base.TitleMixin,
                       base.SubmittableMixin,
-                      base.PermissionsMixin,
                       SessionWizardView):
     """ Base class for wizard view in Creme.
     You'll have to override at least the attributes 'form_list' & 'success_url'
@@ -91,8 +91,9 @@ class CremeWizardView(base.TitleMixin,
       - Label for the submit button
 
     Attributes:
-      - form_list: list of form classes ; each one is used for a step
-                   (see <formtools.wizard.views.SessionWizardView>)
+      - form_list: list of form classes or CustomFormDescriptor instances ;
+                   each one is used for a step
+                   (see <formtools.wizard.views.SessionWizardView>).
       - atomic_POST: <True> (default value means that POST requests are
                      managed within a SQL transaction.
       - success_url: django's generic-views-like attribute for redirection URL
@@ -110,13 +111,43 @@ class CremeWizardView(base.TitleMixin,
     If they contain a non-empty value, their value override the corresponding
     general attribute of the view.
     """
-    form_list: List[Type[BaseForm]]  # = [...]  # TO BE OVERRIDDEN
+    form_list: List[Union[Type[BaseForm], CustomFormDescriptor]]  # = [...]  # TO BE OVERRIDDEN
     template_name = 'creme_core/generics/blockform/add-wizard.html'
     atomic_POST = True
     success_url = None
     step_first_label = _('First step')
     step_prev_label = _('Previous step')
     step_next_label = _('Next step')
+
+    @classmethod
+    def get_initkwargs(cls, form_list=None, *args, **kwargs):
+        raw_form_list = form_list or kwargs.pop('form_list', getattr(cls, 'form_list', None)) or []
+
+        # NB: SessionWizardView.get_initkwargs() needs that <form_list> elements
+        #     are form classes (final ones, with the attribute "base_fields"),
+        #     & SessionWizardView does have a method get_form_class() to
+        #     dynamically build form classes form CustomFormDescriptor
+        #     => we use a proxy system.
+        def _wrap_custom_form(descriptor):
+            class _CustomFormProxy(ModelForm):
+                class Meta:
+                    model = descriptor.model
+                    fields = ()
+
+                def __new__(inner_cls, *inner_args, **inner_kwargs):
+                    return descriptor.build_form_class()(*inner_args, **inner_kwargs)
+
+            return _CustomFormProxy
+
+        return super().get_initkwargs(
+            form_list=[
+                _wrap_custom_form(form_info)
+                if isinstance(form_info, CustomFormDescriptor)
+                else form_info  # NB: form class case
+                for form_info in raw_form_list
+            ],
+            *args, **kwargs
+        )
 
     def dispatch(self, request, *args, **kwargs):
         user = request.user
@@ -209,9 +240,10 @@ class CremeWizardViewPopup(CremeWizardView):
     def done(self, form_list, **kwargs):
         self.done_save(form_list=form_list)
 
-        return HttpResponse(self.get_success_url(form_list=form_list),
-                            content_type='text/plain',
-                           )
+        return HttpResponse(
+            self.get_success_url(form_list=form_list),
+            content_type='text/plain',
+        )
 
 
 # Creation ---------------------------------------------------------------------
@@ -279,9 +311,10 @@ class CremeModelCreationWizardPopup(CremeModelCreationWizard):
     def done(self, form_list, **kwargs):
         self.done_save(form_list=form_list)
 
-        return HttpResponse(self.get_success_url(form_list=form_list),
-                            content_type='text/plain',
-                           )
+        return HttpResponse(
+            self.get_success_url(form_list=form_list),
+            content_type='text/plain',
+        )
 
 
 class EntityCreationWizardPopup(CremeModelCreationWizardPopup):
@@ -426,9 +459,10 @@ class CremeModelEditionWizardPopup(CremeModelEditionWizard):
     def done(self, form_list, **kwargs):
         self.done_save(form_list=form_list)
 
-        return HttpResponse(self.get_success_url(form_list=form_list),
-                            content_type='text/plain',
-                           )
+        return HttpResponse(
+            self.get_success_url(form_list=form_list),
+            content_type='text/plain',
+        )
 
 
 class EntityEditionWizardPopup(CremeModelEditionWizard):  # TODO: test

@@ -24,7 +24,7 @@ from django.forms import ModelChoiceField
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
-from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms import CremeEntityForm, CremeModelForm
 from creme.creme_core.models import Relation, RelationType
 
 from .base import _BasePersonForm
@@ -37,6 +37,19 @@ class ContactNamesForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = Contact
         fields = ('last_name', 'first_name')
+
+
+class BaseContactCustomForm(CremeEntityForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.is_user_id:
+            get_field = self.fields.get
+
+            for field_name in ('first_name', 'email'):
+                field = get_field(field_name)
+                if field is not None:
+                    field.required = True
 
 
 class ContactForm(_BasePersonForm):
@@ -52,6 +65,8 @@ class ContactForm(_BasePersonForm):
         model = Contact
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('ContactForm is deprecated.', DeprecationWarning)
+
         super().__init__(*args, **kwargs)
 
         if self.instance.is_user_id:

@@ -29,7 +29,9 @@ urlpatterns = [
                 r'^folder/(?P<parent_id>\d+)/add/child[/]?$',
                 folder.ChildFolderCreation.as_view(),
                 name='documents__create_folder',
-            ),       check_args=Swappable.INT_ID),
+            ),
+            check_args=Swappable.INT_ID,
+        ),
         Swappable(
             re_path(
                 r'^folder/(?P<folder_id>\d+)/add/child/popup[/]?$',

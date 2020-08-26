@@ -92,28 +92,22 @@ class AbstractFolder(CremeEntity):
             parent_folder = self.parent_folder
             if parent_folder:
                 if parent_folder == self:
-                    # TODO
-                    raise ValidationError(
-                        self.error_messages['itself'],
-                        params={'folder': self},
-                        code='itself',
-                    )
+                    raise ValidationError({
+                        'parent_folder': ValidationError(
+                            self.error_messages['itself'],
+                            params={'folder': self},
+                            code='itself',
+                        ),
+                    })
 
                 if self.already_in_children(parent_folder.id):
-                    # raise ValidationError(
-                    #     self.error_messages['loop'],
-                    #     params={'folder': self},
-                    #     code='loop',
-                    # )
-                    raise ValidationError(
-                        {
-                            'parent_folder': ValidationError(
-                                self.error_messages['loop'],
-                                params={'folder': self},
-                                code='loop',
-                            ),
-                        },
-                    )
+                    raise ValidationError({
+                        'parent_folder': ValidationError(
+                            self.error_messages['loop'],
+                            params={'folder': self},
+                            code='loop',
+                        ),
+                    })
 
     def get_absolute_url(self):
         return reverse('documents__view_folder', args=(self.id,))

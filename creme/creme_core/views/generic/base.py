@@ -42,6 +42,7 @@ from django.views import generic as django_generic
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.gui.bricks import Brick, brick_registry
+from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.content_type import get_ctype_or_404
 
@@ -289,6 +290,19 @@ class EntityCTypeRelatedMixin(ContentTypeRelatedMixin):
         model = ctype.model_class()
         if not issubclass(model, CremeEntity):
             raise ConflictError(f'This model is not a entity model: {model}')
+
+
+class CustomFormMixin:
+    """Mixin for form-views which want to retrieve their form class as a
+    classical class, or from a CustomFormDescriptor.
+    """
+    @staticmethod
+    def get_custom_form_class(form_class):
+        if isinstance(form_class, CustomFormDescriptor):
+            # TODO: raise 404 if invalid item ID ????
+            return form_class.build_form_class()
+
+        return form_class
 
 
 class CheckedView(PermissionsMixin, django_generic.View):

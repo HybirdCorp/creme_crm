@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from creme.persons.workflow import transform_target_into_prospect
+import warnings
 
+# from creme.persons.workflow import transform_target_into_prospect
 from .. import get_quote_model
 from .base import BaseCreateForm, BaseEditForm
 
@@ -29,6 +30,10 @@ Quote = get_quote_model()
 class QuoteCreateForm(BaseCreateForm):
     class Meta(BaseCreateForm.Meta):
         model = Quote
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('QuoteCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     # def save(self, *args, **kwargs):
     #     instance = super().save(*args, **kwargs)
@@ -44,3 +49,7 @@ class QuoteCreateForm(BaseCreateForm):
 class QuoteEditForm(BaseEditForm):
     class Meta(BaseEditForm.Meta):
         model = Quote
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('QuoteEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)

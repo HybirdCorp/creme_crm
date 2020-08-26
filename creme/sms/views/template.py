@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,16 +20,17 @@
 
 from creme.creme_core.views import generic
 
-from .. import get_messagetemplate_model
+# from ..forms import template as tpl_forms
+from .. import custom_forms, get_messagetemplate_model
 from ..constants import DEFAULT_HFILTER_MTEMPLATE
-from ..forms import template as tpl_forms
 
 MessageTemplate = get_messagetemplate_model()
 
 
 class MessageTemplateCreation(generic.EntityCreation):
     model = MessageTemplate
-    form_class = tpl_forms.TemplateCreateForm
+    # form_class = tpl_forms.TemplateCreateForm
+    form_class = custom_forms.TEMPLATE_CREATION_CFORM
 
 
 class MessageTemplateDetail(generic.EntityDetail):
@@ -40,7 +41,8 @@ class MessageTemplateDetail(generic.EntityDetail):
 
 class MessageTemplateEdition(generic.EntityEdition):
     model = MessageTemplate
-    form_class = tpl_forms.TemplateEditForm
+    # form_class = tpl_forms.TemplateEditForm
+    form_class = custom_forms.TEMPLATE_EDITION_CFORM
     pk_url_kwarg = 'template_id'
 
 

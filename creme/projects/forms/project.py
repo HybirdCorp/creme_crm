@@ -18,12 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from functools import partial
 
 # from django.forms import DateTimeField
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, MultiCreatorEntityField
+from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation
 from creme.persons import get_contact_model
 
@@ -35,6 +37,10 @@ class ProjectEditForm(CremeEntityForm):
     # start_date = DateTimeField(label=_('Start date'), required=True)
     # end_date = DateTimeField(label=_('End date'), required=True)
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('ProjectEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
     class Meta(CremeEntityForm.Meta):
         model = get_project_model()
         # exclude = (*CremeEntityForm.Meta.exclude, 'effective_end_date')
@@ -42,6 +48,10 @@ class ProjectEditForm(CremeEntityForm):
 
 class ProjectCreateForm(ProjectEditForm):
     responsibles = MultiCreatorEntityField(label=_('Project leaders'), model=get_contact_model())
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('ProjectCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     def _get_relations_to_create(self):
         instance = self.instance
@@ -53,4 +63,28 @@ class ProjectCreateForm(ProjectEditForm):
         return super()._get_relations_to_create().extend(
             build_relation(object_entity=contact)
             for contact in self.cleaned_data['responsibles']
+        )
+
+
+class ProjectLeadersSubCell(CustomFormExtraSubCell):
+    sub_type_id = 'projects_leaders'
+    verbose_name = _('Project leaders')
+
+    def formfield(self, instance, user, **kwargs):
+        return MultiCreatorEntityField(
+            label=_('Project leaders'), model=get_contact_model(), user=user,
+        )
+
+
+class BaseProjectCreationCustomForm(CremeEntityForm):
+    def _get_relations_to_create(self):
+        instance = self.instance
+        build_relation = partial(
+            Relation,
+            user=instance.user, type_id=REL_OBJ_PROJECT_MANAGER, subject_entity=instance,
+        )
+
+        return super()._get_relations_to_create().extend(
+            build_relation(object_entity=contact)
+            for contact in self.cleaned_data[self.subcell_key(ProjectLeadersSubCell)]
         )

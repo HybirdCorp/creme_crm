@@ -520,8 +520,10 @@ class CreditNoteTestCase(_BillingTestCase):
                 'currency': currency.id,
                 'discount': Decimal(),
 
-                'source': source.id,
-                'target': self.formfield_value_generic_entity(target),
+                # 'source': source.id,
+                # 'target': self.formfield_value_generic_entity(target),
+                self.SOURCE_KEY: source.id,
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
         self.assertNoFormError(response2)

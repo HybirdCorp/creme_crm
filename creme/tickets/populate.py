@@ -25,10 +25,12 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
+    CustomFormConfigItem,
     HeaderFilter,
     RelationBrickItem,
     RelationType,
@@ -36,7 +38,12 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.utils import create_if_needed
 
-from . import constants, get_ticket_model, get_tickettemplate_model
+from . import (
+    constants,
+    custom_forms,
+    get_ticket_model,
+    get_tickettemplate_model,
+)
 from .models import Criticity, Priority, Status
 from .models.status import BASE_STATUS
 
@@ -103,6 +110,118 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'status'}),
                 (EntityCellRegularField, {'name': 'priority'}),
                 (EntityCellRegularField, {'name': 'criticity'}),
+            ],
+        )
+
+        # ---------------------------
+        common_groups_desc = [
+            {
+                'name': _('Description'),
+                'cells': [
+                    (EntityCellRegularField, {'name': 'description'}),
+                ],
+            }, {
+                'name': _('Custom fields'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                    ),
+                ],
+            },
+        ]
+        creation_only_groups_desc = [
+            {
+                'name': _('Properties'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                    ),
+                ],
+            }, {
+                'name': _('Relationships'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.RELATIONS},
+                    ),
+                ],
+            },
+        ]
+
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.TICKET_CREATION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'title'}),
+                        (EntityCellRegularField, {'name': 'priority'}),
+                        (EntityCellRegularField, {'name': 'criticity'}),
+                        (EntityCellRegularField, {'name': 'solution'}),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
+                *creation_only_groups_desc,
+            ],
+        )
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.TICKET_EDITION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'title'}),
+                        (EntityCellRegularField, {'name': 'status'}),
+                        (EntityCellRegularField, {'name': 'priority'}),
+                        (EntityCellRegularField, {'name': 'criticity'}),
+                        (EntityCellRegularField, {'name': 'solution'}),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
+            ],
+        )
+
+        template_rfields_group_desc = {
+            'name': _('General information'),
+            'cells': [
+                (EntityCellRegularField, {'name': 'user'}),
+                (EntityCellRegularField, {'name': 'title'}),
+                (EntityCellRegularField, {'name': 'status'}),
+                (EntityCellRegularField, {'name': 'priority'}),
+                (EntityCellRegularField, {'name': 'criticity'}),
+                (EntityCellRegularField, {'name': 'solution'}),
+                (
+                    EntityCellCustomFormSpecial,
+                    {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                ),
+            ],
+        }
+
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.TTEMPLATE_CREATION_CFORM,
+            groups_desc=[
+                template_rfields_group_desc,
+                *common_groups_desc,
+                *creation_only_groups_desc,
+            ],
+        )
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.TTEMPLATE_EDITION_CFORM,
+            groups_desc=[
+                template_rfields_group_desc,
+                *common_groups_desc,
             ],
         )
 

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.bulk import BulkForm
@@ -33,10 +35,18 @@ class ProductCreateForm(_BaseForm):
     class Meta(_BaseForm.Meta):
         model = Product
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('ProductCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
 
 class ProductEditForm(_BaseEditForm):
     class Meta(_BaseEditForm.Meta):
         model = Product
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('ProductEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class ProductInnerEditCategory(BulkForm):
@@ -56,10 +66,10 @@ class ProductInnerEditCategory(BulkForm):
 
         sub_category = cleaned_data['sub_category']
 
-        self._bulk_clean({'category': sub_category.category,
-                          'sub_category': sub_category,
-                         }
-                        )
+        self._bulk_clean({
+            'category': sub_category.category,
+            'sub_category': sub_category,
+        })
 
         return cleaned_data
 

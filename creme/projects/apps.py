@@ -65,6 +65,17 @@ class ProjectsConfig(CremeAppConfig):
         register_model(models.ProjectStatus, 'projectstatus')
         register_model(models.TaskStatus,    'taskstatus')
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.PROJECT_CREATION_CFORM,
+            custom_forms.PROJECT_EDITION_CFORM,
+
+            custom_forms.TASK_CREATION_CFORM,
+            custom_forms.TASK_EDITION_CFORM,
+        )
+
     def register_icons(self, icon_registry):
         from .models import Resource
 
@@ -88,4 +99,6 @@ class ProjectsConfig(CremeAppConfig):
             'creation', 'any_forms',
         ).get_or_create_group(
             'tools', label=_('Tools'), priority=100,
-        ).add_link('projects-create_project', Project, priority=50)
+        ).add_link(
+            'projects-create_project', Project, priority=50,
+        )

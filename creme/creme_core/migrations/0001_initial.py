@@ -766,6 +766,7 @@ class Migration(migrations.Migration):
                                                             )
                     ),
                     ('title', models.CharField(unique=True, max_length=100, verbose_name='Title')),
+                    ('minutes', models.TextField(verbose_name='Minutes', blank=True)),
                     ('place', models.CharField(max_length=100, verbose_name='Place')),
                     ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
                     ('end', models.DateTimeField(null=True, verbose_name='End', blank=True)),
@@ -974,7 +975,7 @@ class Migration(migrations.Migration):
                     ),
                     ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
                     ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),  # null=True
-                    ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd')),
+                    ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd', blank=True)),
                     ('loves_comics', models.BooleanField(default=None, null=True, blank=True, verbose_name='Loves comics')),
                     ('phone', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Phone number', blank=True)),
                     ('mobile', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Mobile', blank=True)),
@@ -1098,7 +1099,7 @@ class Migration(migrations.Migration):
                     ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
-                    ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT')),
+                    ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT', blank=True)),
                     ('creation_date', models.DateField(null=True, verbose_name='Date of creation', blank=True)),
                     ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address', on_delete=models.SET_NULL)),
                     ('image', models.ForeignKey(on_delete=models.SET_NULL, verbose_name='Logo', blank=True, to='creme_core.FakeImage', null=True)),

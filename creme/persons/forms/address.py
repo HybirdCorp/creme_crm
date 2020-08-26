@@ -18,19 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.forms import ModelForm
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.gui.custom_form import ExtraFieldGroup
 from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model
 
+logger = logging.getLogger(__name__)
+Address = get_address_model()
+
 
 class AddressForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
-        model = get_address_model()
+        model = Address
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -46,18 +52,19 @@ class UnnamedAddressForm(AddressForm):
         exclude = ('name',)
 
 
+# TODO: to be deprecated in Creme 2.3
 # Does not inherit CremeModelForm, so there is no use of FieldsConfig
 #   - all fields are used
 #   - no SQL query
 class _AuxiliaryAddressForm(ModelForm):
     class Meta(AddressForm.Meta):
-        model = get_address_model()
+        model = Address
         exclude = ('name',)
 
 
 class _FieldAddressForm(UnnamedAddressForm):
-    field_name = 'OVERLOAD'
-    verbose_name = 'OVERLOAD'
+    field_name = 'OVERRIDE ME'
+    verbose_name = 'OVERRIDE ME'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -90,3 +97,88 @@ class BillingAddressForm(_FieldAddressForm):
 class ShippingAddressForm(_FieldAddressForm):
     field_name = 'shipping_address'
     verbose_name = _('Shipping address')
+
+
+class AddressesGroup(ExtraFieldGroup):
+    template_name = 'persons/forms/addresses-block.html'
+    extra_group_id = 'persons-addresses'
+    name = _('Addresses')
+
+    sub_form_class = UnnamedAddressForm
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.address_fks = [
+            field
+            for field in self.model._meta.fields
+            if field.is_relation and field.remote_field.model == Address
+        ]
+
+    def _address_formfield(self, instance, user, addr_fieldname):
+        address_form = self.sub_form_class(
+            entity=instance,
+            user=user,
+            prefix=addr_fieldname,
+            instance=getattr(instance, addr_fieldname),
+        )
+
+        for name, field in address_form.fields.items():
+            field.initial = address_form.initial.get(name)
+
+            yield address_form.add_prefix(name), field
+
+    def _visible_address_fks(self):
+        is_field_hidden = FieldsConfig.objects.get_for_model(self.model).is_field_hidden
+
+        for fk in self.address_fks:
+            if not is_field_hidden(fk):
+                yield fk
+
+    def formfields(self, instance, user):
+        for fk in self._visible_address_fks():
+            yield from self._address_formfield(
+                instance=instance, user=user, addr_fieldname=fk.name,
+            )
+
+    def get_context(self):
+        ctxt = super().get_context()
+        ctxt['address_fields'] = [*self._visible_address_fks()]
+
+        return ctxt
+
+    def _save_address(self, form, addr_fieldname, verbose_name):
+        instance = form.instance
+        save_instance = False
+        address = getattr(instance, addr_fieldname)
+        addr_form = self.sub_form_class(
+            entity=instance,
+            user=form.user,
+            instance=address,
+            prefix=addr_fieldname,
+            data=form.data,
+        )
+
+        if addr_form.is_valid():
+            if address is not None:
+                addr_form.save()
+            elif addr_form.instance:  # Do not save empty address
+                addr_form.instance.name = str(verbose_name)
+                setattr(instance, addr_fieldname, addr_form.save())
+                save_instance = True
+        else:
+            logger.debug(
+                'Address form (%s) is not valid: %s',
+                addr_fieldname, addr_form.errors,
+            )
+
+        return save_instance
+
+    def save(self, form):
+        save_addr = self._save_address
+
+        changed = False
+        for fk in self._visible_address_fks():
+            changed |= save_addr(form, fk.name, fk.verbose_name)
+
+        # Saved twice because of bidirectional pk
+        return changed

@@ -18,20 +18,71 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.forms import ChoiceField
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
+
 from .. import get_template_base_model
 # from .base import copy_or_create_address
-from .base import BaseEditForm, first_managed_orga_id
+from . import base
 
 
-class _TemplateBaseForm(BaseEditForm):
+class BillingTemplateStatusSubCell(CustomFormExtraSubCell):
+    sub_type_id = 'billing_template_status'
+    verbose_name = _('Status')
+
+    def formfield(self, instance, user, **kwargs):
+        if instance.ct:
+            meta = instance.ct.model_class()._meta
+            field = ChoiceField(
+                label=gettext('Status of {}').format(meta.verbose_name),
+                choices=[
+                    (status.id, str(status))
+                    for status in meta.get_field('status').remote_field.model.objects.all()
+                ],
+                **kwargs
+            )
+
+            status_id = instance.status_id
+            if status_id:
+                field.initial = status_id
+        else:  # In creme config
+            field = ChoiceField(label='Status')
+
+        return field
+
+
+class BaseTemplateCreationCustomForm(base.BaseCustomForm):
+    class Meta(base.BaseCustomForm.Meta):
+        help_texts = {
+            'number': _(
+                'If a number is given, it will be only used as fallback value '
+                'when generating a number in the final recurring entities.'
+            ),
+        }
+
+    def __init__(self, ct=None, *args, **kwargs):  # 'ct' arg => see RecurrentGeneratorWizard
+        super().__init__(*args, **kwargs)
+        if ct:
+            assert self.instance.pk is None
+            self.instance.ct = ct
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        instance.status_id = self.cleaned_data[self.subcell_key(BillingTemplateStatusSubCell)]
+
+        return super().save(*args, **kwargs)
+
+
+class _TemplateBaseForm(base.BaseEditForm):
     status = ChoiceField(label=_('Status'), choices=())
 
     # class Meta:
-    class Meta(BaseEditForm.Meta):
+    class Meta(base.BaseEditForm.Meta):
         model = get_template_base_model()
         # exclude = (*BaseEditForm.Meta.exclude, 'ct', 'status_id')
         help_texts = {
@@ -40,6 +91,10 @@ class _TemplateBaseForm(BaseEditForm):
                 'when generating a number in the final recurring entities.'
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('_TemplateBaseForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     def _build_status_field(self, billing_ct):
         meta = billing_ct.model_class()._meta
@@ -60,6 +115,7 @@ class _TemplateBaseForm(BaseEditForm):
 
 class TemplateBaseEditForm(_TemplateBaseForm):
     def __init__(self, *args, **kwargs):
+        warnings.warn('TemplateBaseEditForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
 
         instance = self.instance
@@ -71,9 +127,10 @@ class TemplateBaseEditForm(_TemplateBaseForm):
 class TemplateBaseCreateForm(_TemplateBaseForm):
     def __init__(self, ct, *args, **kwargs):  # 'ct' arg => see RecurrentGeneratorWizard
         super().__init__(*args, **kwargs)
+        warnings.warn('TemplateBaseCreateForm is deprecated.', DeprecationWarning)
         self._build_status_field(ct)
         self.instance.ct = ct
-        self.fields['source'].initial = first_managed_orga_id()
+        self.fields['source'].initial = base.first_managed_orga_id()
 
     # def save(self, *args, **kwargs):
     #     instance = super().save(*args, **kwargs)

@@ -20,6 +20,7 @@
 
 # from os.path import basename
 import logging
+import warnings
 from functools import partial
 
 from django.core.exceptions import ValidationError
@@ -36,16 +37,19 @@ from creme.creme_core.views.file_handling import handle_uploaded_file
 from .. import constants
 from ..models import FolderCategory
 
+# DEPRECATED
 logger = logging.getLogger(__name__)
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
 
 
-class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to _DocumentCreationBaseForm ?
+class _DocumentBaseForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Document
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('_DocumentBaseForm is deprecated.', DeprecationWarning)
+
         super().__init__(*args, **kwargs)
         title_f = self.fields['title']
         title_f.required = title_f.widget.is_required = False
@@ -69,17 +73,22 @@ class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to _DocumentCreationBa
 
 
 class DocumentCreateForm(_DocumentBaseForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        warnings.warn('DocumentCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class DocumentEditForm(CremeEntityForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        warnings.warn('DocumentEditForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     class Meta(CremeEntityForm.Meta):
         model = Document
         exclude = (*CremeEntityForm.Meta.exclude, 'filedata')
 
 
+# DEPRECATED
 _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
 
 
@@ -88,6 +97,8 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         exclude = (*_DocumentBaseForm.Meta.exclude, 'linked_folder')
 
     def __init__(self, entity, *args, **kwargs):
+        warnings.warn('RelatedDocumentCreateForm is deprecated.', DeprecationWarning)
+
         super().__init__(*args, **kwargs)
         self.related_entity = entity
         self.folder_category = None
@@ -154,5 +165,21 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
     @atomic
     def save(self, *args, **kwargs):
         self.instance.linked_folder = self._get_folder()
+
+        return super().save(*args, **kwargs)
+
+
+class BaseDocumentCustomForm(CremeEntityForm):
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        file_data = self.cleaned_data.get('filedata')
+
+        if file_data:
+            file_field = type(instance)._meta.get_field('filedata')
+            instance.filedata = handle_uploaded_file(
+                file_data,
+                path=file_field.upload_to.split('/'),
+                max_length=file_field.max_length,
+            )
 
         return super().save(*args, **kwargs)
