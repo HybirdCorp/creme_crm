@@ -58,6 +58,14 @@ karma: media karma-clean
 	node_modules/.bin/karma start .karma.conf.js --browsers=FirefoxHeadless --targets=$(filter-out $@,$(MAKECMDGOALS))
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
+karma-browsers: media karma-clean
+	CHROME_BIN=/usr/bin/google-chrome \
+		node_modules/.bin/karma start .karma.conf.js \
+			--browsers=FirefoxHeadless,ChromiumHeadless,ChromeHeadless \
+			--concurrency 3\
+			--targets=$(filter-out $@,$(MAKECMDGOALS))
+
+	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
 ## Run the Javascript test suite in CI (generatemedia is supposed to be already done)
 .PHONY: karma-ci

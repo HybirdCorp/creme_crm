@@ -658,6 +658,7 @@ CREME_CORE_JS = [
     'creme_core/js/lib/color.js',
     'creme_core/js/lib/assert.js',
     'creme_core/js/lib/faker.js',
+    'creme_core/js/lib/browser.js',
 
     'creme_core/js/creme.js',
     'creme_core/js/color.js',
@@ -843,6 +844,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/color.js',
     'creme_core/js/tests/assert.js',
     'creme_core/js/tests/faker.js',
+    'creme_core/js/tests/browser.js',
 
     'creme_core/js/tests/widgets/base.js',
     'creme_core/js/tests/widgets/widget.js',

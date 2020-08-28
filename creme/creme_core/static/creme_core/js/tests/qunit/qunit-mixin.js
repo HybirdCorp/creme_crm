@@ -1,4 +1,3 @@
-
 (function($) {
     "use strict";
 
@@ -26,19 +25,7 @@
         }
     };
 
-    window.QUnit.browsers = {
-        isChrome: function() {
-            // headless chrome does not have window.chrome defined
-            // (see https://github.com/ChromeDevTools/devtools-protocol/issues/83)
-            return !!window.chrome || /HeadlessChrome/.test(window.navigator.userAgent);
-        },
-        isHeadless: function() {
-            return Object.isNone(navigator.webdriver) === false;
-        },
-        isFirefox: function() {
-            return 'MozAppearance' in document.documentElement.style;
-        }
-    };
+    window.QUnit.browsers = BrowserVersion;
 
     function __scenarioLabel(scenario, index) {
         if (typeof scenario === 'number') {
