@@ -21,7 +21,7 @@
 "use strict";
 
 creme.billing = creme.billing || {};
-
+/*
 creme.billing.ExportDocumentAction = creme.component.Action.sub({
     _init_: function(options) {
         this._super_(creme.component.Action, '_init_', this._run, options);
@@ -69,7 +69,7 @@ creme.billing.EXPORT_FORMATS = [
    // {value:'odt', label: gettext("Document open-office (ODT)")},
    {value: 'pdf', label: gettext("Pdf file (PDF)")}
 ];
-
+*/
 /*
 creme.billing.generateInvoiceNumber = function(url) {
     console.warn('creme.billing.generateInvoiceNumber() is deprecated; use the action named "billing-hatmenubar-invoice-number" instead');
@@ -168,6 +168,7 @@ $(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actio
     });
 });
 
+/*
 var hatbarActions = {
     'billing-export': function(url, options, data, e) {
         return new creme.billing.ExportDocumentAction({
@@ -180,6 +181,7 @@ var hatbarActions = {
 $(document).on('brick-setup-actions', '.brick.brick-hat-bar', function(e, brick, actions) {
     actions.registerAll(hatbarActions);
 });
+*/
 
 var billingLinesActions = {
     'billing-line-addonfly': function(url, options, data, e) {

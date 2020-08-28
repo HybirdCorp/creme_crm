@@ -14,7 +14,7 @@ QUnit.module("creme.billing.listview.actions", new QUnitMixin(QUnitEventMixin,
         });
     }
 }));
-
+/*
 QUnit.test('creme.billing.ExportDocumentAction (no format)', function(assert) {
     var action = new creme.billing.ExportDocumentAction({
         url: '/mock/export/12'
@@ -76,7 +76,7 @@ QUnit.test('creme.billing.ExportDocumentAction (multiple formats, choose one)', 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual(['/mock/export/12?format=html'], this.mockRedirectCalls());
 });
-
+*/
 QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', function(assert) {
     var list = this.createDefaultListView().controller();
     var registry = list.actionBuilders();

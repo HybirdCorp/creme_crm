@@ -5,7 +5,10 @@
     {% if download_button %}
     <div class='bar-action'>
         {% url 'billing__export' object.id as export_url %}
+        {% comment %}
         {% brick_action id='billing-export' url=export_url label=_('Download as file (PDF/XLS…)') class='bar-button' icon_size='brick-hat-bar-button' icon='download' display='icon' %}
+        {% endcomment %}
+        {% brick_action id='redirect' url=export_url label=_('Download as file (PDF/XLS…)') class='bar-button' icon_size='brick-hat-bar-button' icon='download' display='icon' %}
     </div>
     {% endif %}
     {{block.super}}
