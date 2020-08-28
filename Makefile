@@ -33,8 +33,16 @@ test:
 ## Run the Django test suite and generate coverage reports
 .PHONY: test-cov
 test-cov:
-	COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ manage.py test --noinput --keep-db --parallel=${MAKE_NPROCS} $(filter-out $@,$(MAKECMDGOALS))
-	coverage combine
+	$(eval targets := $(filter-out $@,$(MAKECMDGOALS)))
+
+	COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ manage.py test --noinput --keepdb --parallel=${MAKE_NPROCS} ${targets}
+
+	@if [ "$(targets)" ]; then\
+		coverage combine -a;\
+	else \
+		coverage combine;\
+	fi
+
 	coverage report
 	coverage html
 	@echo "file://$(shell pwd)/artifacts/coverage_html/index.html"
