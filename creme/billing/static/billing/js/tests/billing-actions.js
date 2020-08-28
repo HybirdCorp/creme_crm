@@ -289,7 +289,7 @@ QUnit.test('creme.billing.brick (billing-line-clearonfly)', function(assert) {
     equal(1, brick.element().find('.hidden-form').length);
     equal(false, addonflyLink.is('.forbidden'));
 });
-
+/*
 QUnit.test('creme.billing.hatmenubar.export', function(assert) {
     var brick = this.createBrickWidget({
         classes: ['brick-hat-bar']
@@ -299,7 +299,7 @@ QUnit.test('creme.billing.hatmenubar.export', function(assert) {
 
     deepEqual(['/mock/export/12?format=pdf'], this.mockRedirectCalls());
 });
-
+*/
 QUnit.test('creme.billing.hatmenubar.invoice-number (fail)', function(assert) {
     var widget = this.createHatMenuBar({
         buttons: [

@@ -429,6 +429,9 @@
                     - The files 'templates/*.tex' has changed :
                         - 'invoice.tex' has moved to 'export/latex/FR/fr_FR/clear/', and now extends 'export/latex/FR/fr_FR/clear/base.tex'.
                         - 'billings.tex' has been removed (see other files in 'export/latex/FR/fr_FR/clear/').
+                - In Javascript :
+                    - Remove creme.billing.ExportDocumentAction
+                    - Remove the hatbar action 'billing-export' and use a simple link instead : the export output format is selected on server side.
             * Commercial :
                 - These function-views of 'views.strategy' have been replaced by classes.
                     - 'reload_matrix_brick()' by 'MatrixBricksReloading'.
