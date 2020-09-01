@@ -32,7 +32,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
-from creme.creme_core.utils import chunktools
+from creme.creme_core.utils import chunktools, ellipsis
 
 from ..webservice.backend import WSException
 from ..webservice.samoussa import (
@@ -143,14 +143,20 @@ class Message(CremeModel):
         status_desc = MESSAGE_STATUS.get(self.status)
         return status_desc[0] if status_desc else gettext('Unknown')
 
-    @staticmethod
-    def _connect(sending):
+    # @staticmethod
+    @classmethod
+    # def _connect(sending):
+    def _connect(cls, sending):
         ws = SamoussaBackEnd()
 
         try:
             ws.connect()
         except WSException as err:
-            sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).update(status_message=str(err))
+            msg = ellipsis(
+                str(err),
+                length=cls._meta.get_field('status_message').max_length,
+            )
+            sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).update(status_message=msg)
             return None
 
         return ws
@@ -162,9 +168,12 @@ class Message(CremeModel):
         except WSException:
             pass
 
-    @staticmethod
-    def _do_action(sending, request, action, step):
-        ws = Message._connect(sending)
+    # @staticmethod
+    @classmethod
+    # def _do_action(sending, request, action, step):
+    def _do_action(cls, sending, request, action, step):
+        # ws = Message._connect(sending)
+        ws = cls._connect(sending)
 
         if not ws:
             return
@@ -173,7 +182,8 @@ class Message(CremeModel):
         for chunk in chunktools.iter_as_slices(request, 256):
             action(ws, sending, chunk)
 
-        Message._disconnect(ws)
+        # Message._disconnect(ws)
+        cls._disconnect(ws)
 
     @classmethod
     def send(cls, sending):
@@ -217,11 +227,12 @@ class Message(CremeModel):
             res = []
 
             try:
-                res = ws.list_messages(phone=[*numbers],
-                                       user_data=sending_id,
-                                       aslist=True,
-                                       fields=['phone', 'status', 'message'],
-                                      )
+                res = ws.list_messages(
+                    phone=[*numbers],
+                    user_data=sending_id,
+                    aslist=True,
+                    fields=['phone', 'status', 'message'],
+                )
             except WSException:
                 pass
 
