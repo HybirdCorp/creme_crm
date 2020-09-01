@@ -7,7 +7,7 @@ INSTALLED_DJANGO_APPS.extend([
 ])
 
 INSTALLED_CREME_APPS.extend([
-    # 'creme.sms',  # Work In Progress
+    'creme.sms',  # Work In Progress
     'creme.cti',
     'creme.polls',  # Need 'commercial'
     'creme.mobile',
