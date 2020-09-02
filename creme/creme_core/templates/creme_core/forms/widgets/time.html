@@ -8,5 +8,7 @@
     <li><button type="button">{% trans 'Now' %}</button></li>
 </ul>
 <script type="text/javascript">
-    $('.ui-creme-timepicker#{{widget.attrs.id}}_timepicker').each(function() {creme.forms.TimePicker.init($(this));});
+    $('.ui-creme-timepicker#{{widget.attrs.id}}_timepicker').each(function() {
+        creme.forms.TimePicker.init($(this));
+    });
 </script>

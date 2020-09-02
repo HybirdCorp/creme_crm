@@ -5,10 +5,13 @@
     <script type="text/javascript">
         creme.forms.optionalWidgetHandler = function(check_box) {
             var jq_check_box = $(check_box);
-            jq_check_box.parent().siblings('li').css('display', jq_check_box.is(':checked')? '': 'none');
-        }
+            jq_check_box.parent().siblings('li').css('display', jq_check_box.is(':checked') ? '' : 'none');
+        };
+
         $(document).ready(function() {
-            $('ul.optional-widget li input').each(function() {creme.forms.optionalWidgetHandler(this);});
+            $('ul.optional-widget li input').each(function() {
+                creme.forms.optionalWidgetHandler(this);
+            });
         });
     </script>
 </ul>
