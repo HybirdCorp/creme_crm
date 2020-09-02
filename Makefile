@@ -119,25 +119,28 @@ eslint-diff:
 			--config .eslintrc \
 			--plugin template \
 			--ignore-path .eslintignore \
-			--global '_$$$$_' \
+			--global '____' \
 			--format stylish \
 			--quiet
 
+
 .PHONY: eslint
 eslint:
-	find creme/ -iname *.js | xargs --no-run-if-empty \
+	$(eval targets := $(or $(filter-out $@,$(MAKECMDGOALS)),creme/))
+
+	find ${targets} -iname *.js | xargs --no-run-if-empty \
 		node_modules/.bin/eslint \
 			--config .eslintrc \
 			--ignore-path .eslintignore \
 			--format stylish \
 			--quiet
 
-	find creme/ -iname *.html | xargs --no-run-if-empty \
+	find ${targets} -iname *.html | xargs --no-run-if-empty \
 		node_modules/.bin/eslint \
 			--config .eslintrc \
 			--plugin template \
 			--ignore-path .eslintignore \
-			--global '_$$$$_' \
+			--global '____' \
 			--format stylish \
 			--quiet
 
