@@ -74,11 +74,11 @@ if (navigator.userAgent.match(/Android/i)) {
   {% get_footer %}
 
   <script type="text/javascript">
-    document.addEventListener ('click', function (e) {
+    document.addEventListener('click', function (e) {
       var trigger;
-      if (e.target.classList.contains ('more-info-trigger')) {
+      if (e.target.classList.contains('more-info-trigger')) {
         trigger = e.target;
-      } else if (e.target.parentElement.classList.contains ('more-info-trigger')) {
+      } else if (e.target.parentElement.classList.contains('more-info-trigger')) {
         trigger = e.target.parentElement;
       }
 
@@ -87,16 +87,16 @@ if (navigator.userAgent.match(/Android/i)) {
 
         var componentWithMoreInfo = trigger;
         while ((componentWithMoreInfo = componentWithMoreInfo.parentElement)) {
-          if (componentWithMoreInfo.classList.contains ('with-more-info')) {
-            trigger.classList.toggle ('showing-more-info');
-            componentWithMoreInfo.classList.toggle ('showing-more-info');
+          if (componentWithMoreInfo.classList.contains('with-more-info')) {
+            trigger.classList.toggle('showing-more-info');
+            componentWithMoreInfo.classList.toggle('showing-more-info');
             break;
           }
         }
 
 //         if (componentWithMoreInfo != null) {
-//           trigger.classList.toggle ('showing-more-info');
-//           componentWithMoreInfo.classList.toggle ('showing-more-info');
+//           trigger.classList.toggle('showing-more-info');
+//           componentWithMoreInfo.classList.toggle('showing-more-info');
 //         }
       }
     });

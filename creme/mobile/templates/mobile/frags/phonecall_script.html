@@ -1,7 +1,7 @@
 {% load i18n %}
 <script type="text/javascript">
   var PHONECALL_COOKIE = 'phone_call=';
-  var CSRF_COOKIE = 'csrftoken=';
+  var CSRF_COOKIE = 'csrftoken=';  // eslint-disable-line
   var csrf_token;
   var phonecall_data;
 
@@ -71,8 +71,9 @@
     var parameters = "";
 
     for (var key in obj) {
-      if (parameters)
+      if (parameters) {
         parameters += "&";
+      }
 
       parameters += key + "=" + obj[key];
     }
@@ -81,7 +82,7 @@
   }
 
   function setPanelContent(content) {
-    var display_hideable = content ? 'none': 'block';
+    var display_hideable = content ? 'none' : 'block';
     var elements = document.querySelectorAll('.hideable-content');
 
     for (var i = 0; i < elements.length; ++i) {
@@ -108,12 +109,12 @@
     phonecall_data = undefined;
   }
 
-  function closePanel() {
+  function closePanel() {  // eslint-disable-line
     clearCookie();
     setPanelContent('');
   }
 
-  function displayActivityMinutes(e) {
+  function displayActivityMinutes(e) {  // eslint-disable-line
     e = e || window.event;
     var target = e.target || e.srcElement;
 
@@ -135,8 +136,9 @@
     var postData = objectToParameters(phonecall_data);
 
     var minutes = document.querySelector('textarea.activity-minutes').value;
-    if (minutes)
+    if (minutes) {
       postData += "&minutes=" + encodeURIComponent(minutes);
+    }
 
     xhr.send(postData);
 
@@ -144,12 +146,12 @@
       document.getElementById("workflow_errors").innerHTML = "{% trans 'Error' %}: " + xhr.responseText;
     } else {
         clearCookie();
-        window.location = window.location;
+        window.location = window.location;  // eslint-disable-line
     }
   }
 
-  function workflowFailed() {_workflow("{% url 'mobile__pcall_wf_failed' %}");}
-  function workflowPostponed() {_workflow("{% url 'mobile__pcall_wf_postponed' %}");}
-  function workflowLasted5Minutes() {_workflow("{% url 'mobile__pcall_wf_lasted_5_minutes' %}");}
-  function workflowJustDone() {_workflow("{% url 'mobile__pcall_wf_just_done' %}");}
+  function workflowFailed() {_workflow("{% url 'mobile__pcall_wf_failed' %}");}  // eslint-disable-line
+  function workflowPostponed() {_workflow("{% url 'mobile__pcall_wf_postponed' %}");}  // eslint-disable-line
+  function workflowLasted5Minutes() {_workflow("{% url 'mobile__pcall_wf_lasted_5_minutes' %}");}  // eslint-disable-line
+  function workflowJustDone() {_workflow("{% url 'mobile__pcall_wf_just_done' %}");}  // eslint-disable-line
 </script>

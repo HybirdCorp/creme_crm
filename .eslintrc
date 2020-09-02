@@ -13,6 +13,7 @@
   ],
 
   "globals": {
+    "alert": true,
     "console": true,
     "document": true,
     "navigator": false,
@@ -22,6 +23,7 @@
     "CSSStyleDeclaration": true,
     "setTimeout": true,
     "clearTimeout": true,
+    "XMLHttpRequest": true,
 
     /* External libraries */
     "jQuery": true,

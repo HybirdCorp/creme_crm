@@ -100,11 +100,11 @@ if (navigator.userAgent.match(/Android/i)) {
   {% get_footer %}
 
   <script data-no-instant>
-    document.addEventListener ('click', function (e) {
+    document.addEventListener('click', function(e) {
       var trigger;
-      if (e.target.classList.contains ('more-info-trigger')) {
+      if (e.target.classList.contains('more-info-trigger')) {
         trigger = e.target;
-      } else if (e.target.parentElement.classList.contains ('more-info-trigger')) {
+      } else if (e.target.parentElement.classList.contains('more-info-trigger')) {
         trigger = e.target.parentElement;
       }
 
@@ -113,9 +113,9 @@ if (navigator.userAgent.match(/Android/i)) {
 
         var componentWithMoreInfo = trigger;
         while ((componentWithMoreInfo = componentWithMoreInfo.parentElement)) {
-          if (componentWithMoreInfo.classList.contains ('with-more-info')) {
-            trigger.classList.toggle ('showing-more-info');
-            componentWithMoreInfo.classList.toggle ('showing-more-info');
+          if (componentWithMoreInfo.classList.contains('with-more-info')) {
+            trigger.classList.toggle('showing-more-info');
+            componentWithMoreInfo.classList.toggle('showing-more-info');
             break;
           }
         }
@@ -125,69 +125,73 @@ if (navigator.userAgent.match(/Android/i)) {
 
   <script data-no-instant>
     var shortcuts = {
-      init: function (element) {
+      init: function(element) {
         this.element = element;
 
         var gap = document.documentElement.clientHeight - this.element.offsetHeight;
         this.element.style.top = (gap / 2) + 'px';
-        this.element.classList.add ('shortcuts-ready');
+        this.element.classList.add('shortcuts-ready');
 
-        this.element.addEventListener ('touchstart', this.onTouchStart, false);
+        this.element.addEventListener('touchstart', this.onTouchStart, false);
       },
-      onTouchStart: function (e) {
+      onTouchStart: function(e) {
         e.preventDefault();
 
-        var target = this.findTargetElement (e);
-        if (target == null)
+        var target = this.findTargetElement(e);
+        if (target === null) {
           return;
+        }
 
-        this.scroll (target);
+        this.scroll(target);
 
-        this.element.addEventListener ('touchmove', this.onTouchMove, false);
-        this.element.addEventListener ('touchend', this.onTouchEnd, false);
+        this.element.addEventListener('touchmove', this.onTouchMove, false);
+        this.element.addEventListener('touchend', this.onTouchEnd, false);
       },
-      onTouchMove: function (e) {
+      onTouchMove: function(e) {
         e.preventDefault();
 
-        var target = this.findTargetElement (e);
-        if (target == null)
+        var target = this.findTargetElement(e);
+        if (target === null) {
           return;
+        }
 
-        this.scroll (target);
+        this.scroll(target);
       },
-      onTouchEnd: function (e) {
+      onTouchEnd: function(e) {
         e.preventDefault();
 
-        this.element.removeEventListener ('touchmove', this.onTouchMove, false);
-        this.element.removeEventListener ('touchend', this.onTouchEnd, false);
+        this.element.removeEventListener('touchmove', this.onTouchMove, false);
+        this.element.removeEventListener('touchend', this.onTouchEnd, false);
       },
-      findTargetElement: function (e) {
-        return document.elementFromPoint (e.targetTouches[0].clientX,
-                                          e.targetTouches[0].clientY);
+      findTargetElement: function(e) {
+        return document.elementFromPoint(e.targetTouches[0].clientX,
+                                         e.targetTouches[0].clientY);
       },
-      scroll: function (target) {
-        var shortcut = target.getAttribute ('data-shortcut')
+      scroll: function(target) {
+        var shortcut = target.getAttribute('data-shortcut');
 
-        var element = this.findFirstElementOfShortcut (shortcut);
-        if (element == null)
+        var element = this.findFirstElementOfShortcut(shortcut);
+        if (element == null) {
           return;
+        }
 
-        window.scrollTo (0, element.offsetTop - 10);
+        window.scrollTo(0, element.offsetTop - 10);
       },
-      findFirstElementOfShortcut: function (shortcut) {
-        return document.querySelector ('.card[data-shortcut="' + shortcut + '"]');
+      findFirstElementOfShortcut: function(shortcut) {
+        return document.querySelector('.card[data-shortcut="' + shortcut + '"]');
       }
     };
 
     for (var i in shortcuts) {
-      if (typeof shortcuts[i] == 'function')
-        shortcuts[i] = shortcuts[i].bind (shortcuts);
+      if (typeof shortcuts[i] === 'function') {
+        shortcuts[i] = shortcuts[i].bind(shortcuts);
+      }
     }
 
-    function initShortcutsBar () {
-      if (document.documentElement.classList.contains ('ios') &&
-          document.body.classList.contains ('with-shortcuts')) {
-        shortcuts.init (document.querySelector ('.shortcuts'));
+    function initShortcutsBar() {
+      if (document.documentElement.classList.contains('ios') &&
+          document.body.classList.contains('with-shortcuts')) {
+        shortcuts.init(document.querySelector('.shortcuts'));
       }
     }
 
@@ -199,17 +203,18 @@ if (navigator.userAgent.match(/Android/i)) {
 <!--  Tests pjax-->
   <script src="instantclick.min.js" data-no-instant></script>
   <script data-no-instant>
-//    function eventCallback (event, isInitialLoad) {
-//      console.log ('InstantClick - %s - isInitialLoad: %s', event, isInitialLoad);
+      /* globals InstantClick initShortcutsBar */
+//    function eventCallback(event, isInitialLoad) {
+//      console.log('InstantClick - %s - isInitialLoad: %s', event, isInitialLoad);
 //    }
 //
-//    InstantClick.on ('change', eventCallback.bind (null, 'change'));
-//    InstantClick.on ('fetch', eventCallback.bind (null, 'fetch'));
-//    InstantClick.on ('receive', eventCallback.bind (null, 'receive'));
-//    InstantClick.on ('wait', eventCallback.bind (null, 'wait'));
+//    InstantClick.on('change', eventCallback.bind(null, 'change'));
+//    InstantClick.on('fetch', eventCallback.bind(null, 'fetch'));
+//    InstantClick.on('receive', eventCallback.bind(null, 'receive'));
+//    InstantClick.on('wait', eventCallback.bind(null, 'wait'));
 
-    InstantClick.on ('change', initShortcutsBar);
-    InstantClick.init ('mousedown', true);
+    InstantClick.on('change', initShortcutsBar);
+    InstantClick.init('mousedown', true);
   </script>
 {% endcomment %}
 </body>
