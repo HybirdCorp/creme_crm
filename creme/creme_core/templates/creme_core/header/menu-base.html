@@ -42,9 +42,9 @@
             new creme.menu.MenuController().bind($('.header-menu'));
             new creme.search.SearchBox({
                 searchUrl: '{% url 'creme_core__light_search' %}',
-                advancedSearchUrl: '{% url 'creme_core__search' %}',
+                advancedSearchUrl: '{% url 'creme_core__search' %}'
             }).bind($('.search-box'));
-        })
+        });
     {% endblock %}
     </script>
 </div>

@@ -80,7 +80,8 @@
         </style>
 
         <script type="text/javascript">
-            creme.tests = {}
+            /* globals THEME_NAME */
+            creme.tests = {};
 
             creme.tests.Context = function(options) {
                 this.view = "{{TEST_VIEW}}";
@@ -88,20 +89,19 @@
                 this.screen = "{{TEST_SCREEN}}";
 
                 $.extend(this, options || {});
-            }
+            };
 
             creme.tests.Context.prototype = {
                 redirect: function(options) {
-                    var options = $.extend({}, this, options || {});
+                    options = $.extend({}, this, options || {});
                     window.location = options.view + '?theme=' + options.theme + '&screen=' + options.screen.join('x');
                 },
 
-                resize: function(screen)
-                {
-                    var screen = screen || this.screen;
+                resize: function(screen) {
+                    screen = screen || this.screen;
                     screen = $.isArray(screen) ? screen : screen.split('x');
 
-                    if (screen.length == 2) {
+                    if (screen.length === 2) {
                         $('.creme-test-body').addClass('resized').css('width', screen[0]).css('height', screen[1]);
                     } else {
                         $('.creme-test-body').removeClass('resized').css('width', 'auto').css('height', '');
@@ -109,7 +109,7 @@
 
                     this.screen = screen;
                 }
-            }
+            };
 
             creme.tests.context = new creme.tests.Context();
 
