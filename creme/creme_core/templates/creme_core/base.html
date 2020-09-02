@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <title>{% block page_title %}{% endblock %}Creme CRM</title>
     <script type='text/javascript'>
-        var THEME_NAME = "{{THEME_NAME}}";
+        window.THEME_NAME = "{{THEME_NAME}}";
     </script>
     {% include_creme_media 'main.css' %}
     {% include 'creme_core/frags/js_header.html' %}
