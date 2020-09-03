@@ -16,13 +16,10 @@
     </style>
 
     <script type="text/javascript">
-        
-    
         creme.test = creme.test || {};
 
         creme.test.CheckboxListRenderer = creme.model.ListRenderer.sub({
-            createItem: function(target, before, data, index)
-            {
+            createItem: function(target, before, data, index) {
                 var checkbox = $('<label>').append($('<input type="checkbox">').attr('value', data.value)
                                                                                .toggleAttr('disabled', data.disabled)
                                                                                .text(data.label))
@@ -31,14 +28,12 @@
                 return $('<li>').addClass('check').append(checkbox);
             },
 
-            updateItem: function(target, item, data, previous, index)
-            {
-                if (data == previous)
-                    return;
-
-                $('span', item).html(data.label);
-                $('input', item).attr('value', data.value)
-                                .toggleAttr('disabled', data.disabled);
+            updateItem: function(target, item, data, previous, index) {
+                if (data !== previous) {
+                    $('span', item).html(data.label);
+                    $('input', item).attr('value', data.value)
+                                    .toggleAttr('disabled', data.disabled);
+                }
             },
 
             items: function(target) {
@@ -49,12 +44,11 @@
         creme.test.model = {
             containsFilter: function(value) {
                 return function(item) {
-                    return item.label.toLowerCase().indexOf(value.toLowerCase()) != -1;
-                }
+                    return item.label.toLowerCase().indexOf(value.toLowerCase()) !== -1;
+                };
             },
 
-            modelFromItems: function(selector)
-            {
+            modelFromItems: function(selector) {
                 var model = new creme.model.Array();
 
                 model.reset(selector.map(function() {
@@ -64,11 +58,11 @@
                 return model;
             },
 
-            initSelect: function(selector, add, remove)
-            {
-                var self = this;
+            initSelect: function(selector, add, remove) {
                 var model = this.modelFromItems($('option', selector));
-                var renderer = new creme.model.ChoiceRenderer(selector, model).redraw();
+                var renderer = new creme.model.ChoiceRenderer(selector, model);
+
+                renderer.redraw();
 
                 model.bind(['remove', 'clear', 'reset', 'add'], function() {
                     selector.toggleAttr('disabled', this.length() <= 1);
@@ -87,11 +81,11 @@
                 });
             },
 
-            initCheckboxList: function(list, add, remove)
-            {
-                var self = this;
+            initCheckboxList: function(list, add, remove) {
                 var model = new creme.model.Array();
-                var renderer = new creme.test.CheckboxListRenderer(list, model).redraw();
+                var renderer = new creme.test.CheckboxListRenderer(list, model);
+
+                renderer.redraw();
 
                 add.click(function() {
                     var value = model.length();
@@ -106,15 +100,16 @@
                 });
             },
 
-            initFilteredCheckboxList: function(list, input)
-            {
+            initFilteredCheckboxList: function(list, input) {
                 var self = this;
                 var model = this.modelFromItems($('option', list));
                 var filteredmodel = new creme.model.Filter(model, self.containsFilter(''));
-                var renderer = new creme.test.CheckboxListRenderer(list, filteredmodel).redraw();
+                var renderer = new creme.test.CheckboxListRenderer(list, filteredmodel);
+
+                renderer.redraw();
 
                 filteredmodel.bind(['remove', 'clear', 'reset', 'add'], function() {
-                    selector.toggleAttr('disabled', this.length() <= 1);
+                    list.toggleAttr('disabled', this.length() <= 1);
                 });
 
                 input.bind('change keyup', function() {
@@ -122,12 +117,13 @@
                 });
             },
 
-            initFilteredSelect: function(selector, input)
-            {
+            initFilteredSelect: function(selector, input) {
                 var self = this;
                 var model = this.modelFromItems($('option', selector));
                 var filteredmodel = new creme.model.Filter(model, self.containsFilter(''));
-                var renderer = new creme.model.ChoiceRenderer(selector, filteredmodel).redraw();
+                var renderer = new creme.model.ChoiceRenderer(selector, filteredmodel);
+
+                renderer.redraw();
 
                 filteredmodel.bind(['remove', 'clear', 'reset', 'add'], function() {
                     selector.toggleAttr('disabled', this.length() <= 1);
@@ -140,13 +136,13 @@
         };
 
         $(document).ready(function() {
-            creme.test.model.initSelect($('select.static-updated'), 
+            creme.test.model.initSelect($('select.static-updated'),
                                         $('button.static-updated.add-option'),
                                         $('button.static-updated.remove-option'));
 
             creme.test.model.initFilteredSelect($('select.static-filtered'), $('input[type="text"].static-filtered.filter-option'));
 
-            creme.test.model.initCheckboxList($('ul.static-updated'), 
+            creme.test.model.initCheckboxList($('ul.static-updated'),
                                               $('button.static-updated.add-checkbox'),
                                               $('button.static-updated.remove-checkbox'));
 

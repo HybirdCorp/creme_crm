@@ -38,7 +38,7 @@
                                 messageOnSuccess: messageOnSuccess,
                                 warnOnFail: warnOnFail,
                                 reloadOnSuccess: reloadOnSuccess,
-                                confirm: confirm === true ? null : confirm,
+                                confirm: confirm === true ? null : confirm
                             }).start();
             } else {
                 creme.utils.ajaxQuery(url, {
@@ -46,11 +46,11 @@
                                 waitingOverlay: waitingOverlay,
                                 messageOnSuccess: messageOnSuccess,
                                 warnOnFail: warnOnFail,
-                                reloadOnSuccess: reloadOnSuccess,
+                                reloadOnSuccess: reloadOnSuccess
                             }).start();
             }
-        })
-    })
+        });
+    });
 </script>
 {% endblock %}
 {% block test_content %}

@@ -49,8 +49,7 @@
         ul[ui-layout-columns="10"] > li {width:10%}
     </style>
     <script type="text/javascript">
-        function initResizeSensor(content)
-        {
+        function initResizeSensor(content) {
             var element = $('.ui-layout.resizable', content);
             var sensor = new creme.layout.LayoutResizeSensor();
 
@@ -73,9 +72,8 @@
                 sensor.unbind();
             });
         }
-    
-        function initSortedLayout(content)
-        {
+
+        function initSortedLayout(content) {
             var list = $('ul[layout]', content);
             var layout = new creme.layout.SortLayout().comparator(function(a, b) {
                                                                       return $(a).attr('name').localeCompare($(b).attr('name'));
@@ -99,8 +97,7 @@
             });
         }
 
-        function initColumnLayout(content)
-        {
+        function initColumnLayout(content) {
             var list = $('ul[layout]', content);
             var layout = new creme.layout.ColumnSortLayout({columns: 4}).comparator(function(a, b) {
                                                                                        return $(a).attr('name').localeCompare($(b).attr('name'));
@@ -122,16 +119,16 @@
             $('select[name="columns"]', content).change(function(e) {
                 layout.columns(parseInt($(this).val())).layout();
             });
-            
+
             $('select[name="column-size"]', content).change(function(e) {
                 var size = parseInt($(this).val());
                 layout.columns(function() {
-                    //console.log(Math.floor(this.container().width() / size));
+                    // console.log(Math.floor(this.container().width() / size));
                     return Math.floor(this.container().width() / size);
                 }).layout();
             });
         }
-    
+
         $(document).ready(function() {
             initSortedLayout($('#sorted'));
             initColumnLayout($('#column'));

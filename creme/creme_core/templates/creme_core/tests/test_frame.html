@@ -48,53 +48,58 @@
     </style>
 
     <script type="text/javascript">
-    LOREM_IPSUM = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum leo ut mi eleifend rutrum. " +
-                   "Morbi aliquam augue vel elit molestie sagittis. Aenean suscipit, purus lacinia hendrerit accumsan, " +
-                   "risus erat placerat tortor, non rhoncus tellus orci sed libero. Maecenas erat ligula, scelerisque " +
-                   "id interdum in, semper eu metus. Integer eget eros nec nisi pellentesque congue. Sed quis lacinia " +
-                   "magna. Etiam eget nulla sit amet ligula fringilla ornare. In euismod adipiscing lacus, nec congue" +
-                   "elit vulputate vel. Phasellus et velit lacus, id ultricies odio. Fusce imperdiet vehicula justo, " +
-                   "nec gravida velit bibendum porta.").split(" ");
+    var LOREM_IPSUM = (
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum leo ut mi eleifend rutrum. " +
+        "Morbi aliquam augue vel elit molestie sagittis. Aenean suscipit, purus lacinia hendrerit accumsan, " +
+        "risus erat placerat tortor, non rhoncus tellus orci sed libero. Maecenas erat ligula, scelerisque " +
+        "id interdum in, semper eu metus. Integer eget eros nec nisi pellentesque congue. Sed quis lacinia " +
+        "magna. Etiam eget nulla sit amet ligula fringilla ornare. In euismod adipiscing lacus, nec congue" +
+        "elit vulputate vel. Phasellus et velit lacus, id ultricies odio. Fusce imperdiet vehicula justo, " +
+        "nec gravida velit bibendum porta."
+    ).split(" ");
 
-    MOCK_BLOCK_LIST = "{% filter escapejs %}{% include 'creme_core/tests/bricks/dummy-list-frame.html' %}{% endfilter %}";
+    var MOCK_BLOCK_LIST = "{% filter escapejs %}{% include 'creme_core/tests/bricks/dummy-list-frame.html' %}{% endfilter %}";
 
-    function randomText(words)
-    {
+    function randomText(words) {
         var half = words.length / 2;
         var start = Math.random() * (half - 1);
         var end = (1 + Math.random()) * half;
-        var words = words.slice(start, end);
 
+        words = words.slice(start, end);
         words[0] = words[0].capitalize();
 
         return words.join(" ");
     }
 
-    function randomParagraphs(words, paragraphs)
-    {
-        var paragraphs = paragraphs || 1;
+    function randomParagraphs(words, paragraphs) {
+        paragraphs = paragraphs || 1;
         var text = "";
 
-        for(var index = 0; index < paragraphs; ++index) {
+        for (var index = 0; index < paragraphs; ++index) {
             text += "<p>" + randomText(words, paragraphs - 1) + "</p>";
         }
 
         return text;
     }
 
-    function openConfirm(dialog, confirm)
-    {
+    function openConfirm(dialog, confirm) {
         if (confirm) {
             new creme.dialog.ConfirmDialog(gettext('Are you sure ?'), {
                 defaultButtonLabels: {'ok': gettext('Confirm')}
-            }).onOk(function() {dialog.open();}).open();
+            }).onOk(function() {
+                dialog.open();
+            }).open();
         } else {
             dialog.open();
         }
     }
 
     $(document).ready(function() {
-        var mockbackend = new creme.ajax.MockAjaxBackend({sync:false, delay: 500, debug: true});
+        var mockbackend = new creme.ajax.MockAjaxBackend({
+            sync: false,
+            delay: 500,
+            debug: true
+        });
 
         mockbackend.GET = {'mock/notfound':         mockbackend.response(404, 'HTTP - Not Found'),
                            'mock/forbidden':        mockbackend.response(403, 'HTTP - Forbidden'),
@@ -105,10 +110,10 @@
                            'mock/wizard/C':         mockbackend.response(200, $('#mock-wizard-C').text())
                           };
 
-        for(var index = 1; index <= 12; ++index) {
-            mockbackend.GET['mock/content/' + index] = function(index) {
-                return function() {return mockbackend.response(200, '<center><h2>Page %d</h2></center><div>%s</div>'.format(index, randomText(LOREM_IPSUM)));}
-            }(index);
+        for (var index = 1; index <= 12; ++index) {
+            mockbackend.GET['mock/content/' + index] = function() {
+                return mockbackend.response(200, '<center><h2>Page %d</h2></center><div>%s</div>'.format(index, randomText(LOREM_IPSUM)));
+            };
         }
 
         var mockPOST = function(name, redirect) {
@@ -118,20 +123,22 @@
                 var response = (form.response || ['200'])[0];
                 var value = (form.value || [''])[0];
 
-                if (response === '200' && (Object.isEmpty(value) || !name))
+                if (response === '200' && (Object.isEmpty(value) || !name)) {
                     return mockbackend.GET[redirect || url];
+                }
 
                 return mockbackend.response(parseInt(response), value);
             };
         };
 
-        mockbackend.POST = {'mock/form': mockPOST('name'),
-                            'mock/wizard/A': mockPOST('', 'mock/wizard/B'),
-                            'mock/wizard/B': mockPOST('', 'mock/wizard/C'),
-                            'mock/wizard/C': mockPOST('value')
-                           };
+        mockbackend.POST = {
+            'mock/form': mockPOST('name'),
+            'mock/wizard/A': mockPOST('', 'mock/wizard/B'),
+            'mock/wizard/B': mockPOST('', 'mock/wizard/C'),
+            'mock/wizard/C': mockPOST('value')
+        };
 
-        var parseSize = function(value) {
+        function parseSize(value) {
             if (value.endsWith('%')) {
                 return value;
             }
@@ -185,7 +192,7 @@
             var scrollbackOnClose = $('#popup input.popup-scrollbackonclose').is(':checked');
             var defaultButtonLabels = {'close': '%d paragraph(s)'.format(count)};
 
-            if (stackCount == 1) {
+            if (stackCount === 1) {
                 var dialog = creme.dialogs.html(content, {
                     minHeight: minHeight,
                     minWidth: minWidth,
@@ -201,9 +208,9 @@
             } else {
                 var dialogs = [];
 
-                for(var index = 0; index < stackCount; ++index) {
-                    var content = '<center><h2>%s</h2></center><div>%s</div>'.format('Stacked', randomParagraphs(LOREM_IPSUM, count));
-                    dialogs.push(creme.dialogs.html(content, {
+                for (var index = 0; index < stackCount; ++index) {
+                    var dialogContent = '<center><h2>%s</h2></center><div>%s</div>'.format('Stacked', randomParagraphs(LOREM_IPSUM, count));
+                    dialogs.push(creme.dialogs.html(dialogContent, {
                         minHeight: minHeight,
                         minWidth: minWidth,
                         maxHeight: 480,
@@ -234,25 +241,24 @@
                 var content = this.content();
 
                 $('.block-refresh', content).click(function() {
-                    options = creme.tests.context;
                     dialog.fill(MOCK_BLOCK_LIST);
                 });
-            })
+            });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
         $('#popup .popup-form button').click(function() {
-            var confirm = $('#popup input.popup-confirm').val();
+            // var confirm = $('#popup input.popup-confirm').val();
             var url = $(this).attr('data-url') || 'mock/form';
             var reloadOnSuccess = $('#popup .popup-form [name="formreload"]').is(':checked');
             var redirectOnSuccess = $('#popup .popup-form [name="formredirect"]').is(':checked');
             var redirectOnSuccessUrl = $('#popup .popup-form [name="formredirecturl"]').val();
 
             var dialog = creme.dialogs.form(url, {
-                                           backend: mockbackend, 
-                                           title:'Form', 
-                                           compatible:false,
+                                           backend: mockbackend,
+                                           title: 'Form',
+                                           compatible: false,
                                            minWidth: parseSize($('#popup .popup-minwidth').val()),
                                            minHeight: parseSize($('#popup .popup-minheight').val()),
                                            closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
@@ -263,8 +269,12 @@
                                            reloadOnSuccess: reloadOnSuccess,
                                            redirectOnSuccess: !Object.isEmpty(redirectOnSuccessUrl) ? redirectOnSuccessUrl : redirectOnSuccess
                                        })
-                                      .onFormSuccess(function(event, data) {console.log('submitted >', data);})
-                                      .onClose(function() {console.log('canceled');});
+                                      .onFormSuccess(function(event, data) {
+                                           console.log('submitted >', data);
+                                       })
+                                      .onClose(function() {
+                                          console.log('canceled');
+                                       });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
@@ -310,7 +320,7 @@
         });
 
         $('#popup button.popup-select').click(function() {
-            var choices = [{label:'A', value:1}, {label:'B', value:2}, {label:'C', value:3}];
+            var choices = [{label: 'A', value: 1}, {label: 'B', value: 2}, {label: 'C', value: 3}];
             var dialog = creme.dialogs.choice('Choose a value', {
                 choices: choices,
                 selected: 2,
@@ -318,7 +328,7 @@
                 scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
                 scrollbackOnClose: $('#popup input.popup-scrollbackonclose').is(':checked')
             }).onOk(function(e, value) {
-            	console.log('selected > ', value);
+                console.log('selected > ', value);
             });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));

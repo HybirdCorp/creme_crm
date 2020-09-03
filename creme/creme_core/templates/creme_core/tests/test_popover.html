@@ -35,7 +35,7 @@
         var text = '';
 
         if (words > 1) {
-            while(count < words) {
+            while (count < words) {
                 var start = Math.random() * (half - 1);
                 var end = (1 + Math.random()) * half;
 
@@ -69,8 +69,8 @@
 
             popover.fill('<p>${content}</p>'.template({content: content}))
                    .open($(this));
-        })
-    })
+        });
+    });
 }(jQuery));
 </script>
 {% endblock %}
