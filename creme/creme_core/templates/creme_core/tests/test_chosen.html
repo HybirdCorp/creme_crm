@@ -22,7 +22,7 @@
     </style>
 
     <script type="text/javascript">
-        CHOSEN_TEST_OPTIONS = [
+        var CHOSEN_TEST_OPTIONS = [
            ["email",       "Adresse e-mail"],
            ["description", "Description"],
            ["fax",         "Fax"],
@@ -34,21 +34,25 @@
            ["skype",       "Skype"]
         ];
 
-        random_options = function(threshold)
-        {
+        function random_options(threshold) {
             var options = [];
 
             CHOSEN_TEST_OPTIONS.forEach(function(value) {
-                if (Math.random() > threshold) {options.push(value);}
+                if (Math.random() > threshold) {
+                    options.push(value);
+                }
             });
 
             return options;
         }
-        
-        $(document).ready(function() {
-            var mockbackend = new creme.ajax.MockAjaxBackend({sync:true});
 
-            urls = {'mock/options': function() {return mockbackend.response(200, random_options(Math.random()))}};
+        $(document).ready(function() {
+            var mockbackend = new creme.ajax.MockAjaxBackend({sync: true});
+            var urls = {
+                'mock/options': function() {
+                    return mockbackend.response(200, random_options(Math.random()));
+                }
+            };
 
             $.extend(mockbackend.GET, urls);
 
@@ -58,7 +62,7 @@
 
             $('button#test-reload-button').click(function() {
                 $('#reloadable-select').creme().widget().reload({});
-            })
+            });
         });
     </script>
 {% endblock %}

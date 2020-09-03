@@ -6,21 +6,20 @@
 {% block test_title %}Creme Plot Selector Widget{% endblock %}
 {% block test_header %}
     <script type="text/javascript">
-        random_bargraph = function(start, end)
-        {
-            var start = Math.max(1, Math.min(start || 1, 12));
-            var end = Math.max(1, Math.min(end || 12, 12));
+        function randomBargraph(start, end) {
+            start = Math.max(1, Math.min(start || 1, 12));
+            end = Math.max(1, Math.min(end || 12, 12));
 
             var reference = [1000, 1000, 2000, 2500, 5000, 5000, 6000, 6000, 6000, 10000, 10000, 10000];
             var real = [];
 
-            for(var index = 0; index < reference.length; ++index) {
+            for (var index = 0; index < reference.length; ++index) {
                 real.push((1 + Math.random()) * reference[index]);
             }
 
             var data = [[], []];
 
-            for(var month = 0; month < end; ++month) {
+            for (var month = 0; month < end; ++month) {
                 data[0].push((month < start - 1) ? 0 : reference[month]);
                 data[1].push((month < start - 1) ? 0 : real[month]);
             }
@@ -31,10 +30,10 @@
         creme.utils.converters().register("horizontalBargraphData", "jqplotData", function(data) {
             var reference = data[0];
             var real = data[1];
-            var h_reference = []
-            var h_real = []
+            var h_reference = [];
+            var h_real = [];
 
-            for(var index = 0; index < 12; ++index) {
+            for (var index = 0; index < 12; ++index) {
                 h_reference.push([(index < reference.length) ? reference[index] : 0.0, index + 1]);
                 h_real.push([(index < real.length) ? real[index] : 0.0, index + 1]);
             }
@@ -43,33 +42,39 @@
         });
 
         $(document).ready(function() {
-            var mockbackend = new creme.ajax.MockAjaxBackend({sync:true});
+            var mockbackend = new creme.ajax.MockAjaxBackend({sync: true});
+            var urls = {
+                'mock/notfound': mockbackend.response(404, 'HTTP - Not Found'),
+                'mock/forbidden': mockbackend.response(403, 'HTTP - Forbidden'),
+                'mock/error': mockbackend.response(500, 'HTTP - Internal Error')
+            };
 
-            urls = {'mock/notfound':     mockbackend.response(404, 'HTTP - Not Found'),
-                    'mock/forbidden':    mockbackend.response(403, 'HTTP - Forbidden'),
-                    'mock/error':        mockbackend.response(500, 'HTTP - Internal Error')};
-            
-            for(var month = 1; month <= 12; ++month) {
-                urls['mock/content/' + month + '/1'] =  mockbackend.response(200, $.toJSON(random_bargraph(month, month)));
-                urls['mock/content/' + month + '/3'] =  mockbackend.response(200, $.toJSON(random_bargraph(month, month + 2)));
-                urls['mock/content/' + month + '/6'] =  mockbackend.response(200, $.toJSON(random_bargraph(month, month + 5)));
-                urls['mock/content/' + month + '/12'] = mockbackend.response(200, $.toJSON(random_bargraph(month, month + 12)));
+            for (var month = 1; month <= 12; ++month) {
+                urls['mock/content/' + month + '/1'] =  mockbackend.response(200, $.toJSON(randomBargraph(month, month)));
+                urls['mock/content/' + month + '/3'] =  mockbackend.response(200, $.toJSON(randomBargraph(month, month + 2)));
+                urls['mock/content/' + month + '/6'] =  mockbackend.response(200, $.toJSON(randomBargraph(month, month + 5)));
+                urls['mock/content/' + month + '/12'] = mockbackend.response(200, $.toJSON(randomBargraph(month, month + 12)));
             }
 
-            urls['mock/content/1/12'] = function() {return mockbackend.response(200, $.toJSON(random_bargraph(1, 12)));};
+            urls['mock/content/1/12'] = function() {
+                return mockbackend.response(200, $.toJSON(randomBargraph(1, 12)));
+            };
 
             $.extend(mockbackend.GET, urls);
 
-            $('#barplot.ui-creme-plotselector').creme().create({backend: mockbackend, initial: {/*start:4, duration:6*/}});
+            $('#barplot.ui-creme-plotselector').creme().create({
+                backend: mockbackend,
+                initial: {/* start: 4, duration: 6 */}
+            });
 
             $('.ui-creme-widget.ui-creme-chainedselect').creme().create({backend: mockbackend}, function() {
                 $('.ui-creme-widget.ui-creme-chainedselect').creme().widget().val({start: 1, duration: 12, graphtype: 'donut'});
             });
 
             $('button#redraw-plot').click(function() {
-                $('#barplot.widget-ready').creme().widget().reload({start:1, duration:12}, undefined, undefined, true);
+                $('#barplot.widget-ready').creme().widget().reload({start: 1, duration: 12}, undefined, undefined, true);
             });
-            
+
             $('button#reset-plot').click(function() {
                 $('#barplot.widget-ready').creme().widget().reset();
             });

@@ -11,24 +11,25 @@
         }
     </style>
     <script type="text/javascript">
-        TEST_OPTIONS = [
-                           {value: "email",       label: "Adresse e-mail"},
-                           {value: "description", label: "Description"},
-                           {value: "fax",         label: "Fax"},
-                           {value: "mobile",      label: "Mobile"},
-                           {value: "last_name",   label: "Nom"},
-                           {value: "phone",       label: "Numéro de téléphone"},
-                           {value: "first_name",  label: "Prénom"},
-                           {value: "url_site",    label: "Site Web", disabled:true},
-                           {value: "skype",       label: "Skype"}
-                       ];
+        var TEST_OPTIONS = [
+            {value: "email",       label: "Adresse e-mail"},
+            {value: "description", label: "Description"},
+            {value: "fax",         label: "Fax"},
+            {value: "mobile",      label: "Mobile"},
+            {value: "last_name",   label: "Nom"},
+            {value: "phone",       label: "Numéro de téléphone"},
+            {value: "first_name",  label: "Prénom"},
+            {value: "url_site",    label: "Site Web", disabled: true},
+            {value: "skype",       label: "Skype"}
+        ];
 
-        random_options = function(threshold)
-        {
+        function random_options(threshold) {
             var options = [];
 
             TEST_OPTIONS.forEach(function(value) {
-                if (Math.random() > threshold) {options.push(value);}
+                if (Math.random() > threshold) {
+                    options.push(value);
+                }
             });
 
             return options;

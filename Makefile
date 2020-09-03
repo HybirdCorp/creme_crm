@@ -138,8 +138,9 @@ eslint:
 	find ${targets} -iname *.html | xargs --no-run-if-empty \
 		node_modules/.bin/eslint \
 			--config .eslintrc \
-			--plugin template \
 			--ignore-path .eslintignore \
+			--plugin template \
+			--rule 'template/no-template-branch: 2' \
 			--global '____' \
 			--format stylish \
 			--quiet
