@@ -49,8 +49,8 @@ class GraphsConfig(CremeAppConfig):
             main_brick_cls=bricks.GraphBarHatBrick,
         )
 
-    def register_bulk_update(self, bulk_update_registry):
-        bulk_update_registry.register(self.Graph, exclude=('orbital_relation_types',))
+    # def register_bulk_update(self, bulk_update_registry):
+    #     bulk_update_registry.register(self.Graph, exclude=('orbital_relation_types',))
 
     def register_icons(self, icon_registry):
         icon_registry.register(self.Graph, 'images/graph_%(size)s.png')
@@ -58,11 +58,18 @@ class GraphsConfig(CremeAppConfig):
     def register_menu(self, creme_menu):
         Graph = self.Graph
 
-        creme_menu.get('features') \
-                  .get_or_create(creme_menu.ContainerItem, 'analysis', priority=500,
-                                 defaults={'label': _('Analysis')},
-                                ) \
-                  .add(creme_menu.URLItem.list_view('graphs-graphs', model=Graph), priority=50)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('analysis', _('Analysis'), priority=500) \
-                  .add_link('graphs-create_graph', Graph, priority=50)
+        creme_menu.get(
+            'features',
+        ).get_or_create(
+            creme_menu.ContainerItem, 'analysis',
+            priority=500, defaults={'label': _('Analysis')},
+        ).add(
+            creme_menu.URLItem.list_view('graphs-graphs', model=Graph), priority=50,
+        )
+        creme_menu.get(
+            'creation', 'any_forms',
+        ).get_or_create_group(
+            'analysis', _('Analysis'), priority=500,
+        ).add_link(
+            'graphs-create_graph', Graph, priority=50,
+        )

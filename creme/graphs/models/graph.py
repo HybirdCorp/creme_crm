@@ -44,6 +44,7 @@ class AbstractGraph(CremeEntity):
     )
     orbital_relation_types = models.ManyToManyField(
         RelationType, verbose_name=_('Types of the peripheral relations'),
+        editable=False,
     )
 
     creation_label = pgettext_lazy('graphs', 'Create a graph')
@@ -118,8 +119,9 @@ class AbstractGraph(CremeEntity):
         for root in roots:
             subject = root.entity
             str_subject = str(subject)
-            relations   = subject.relations.filter(type__in=root.relation_types.all())\
-                                           .select_related('object_entity', 'type')
+            relations = subject.relations.filter(
+                type__in=root.relation_types.all(),
+            ).select_related('object_entity', 'type')
 
             Relation.populate_real_object_entities(relations)  # Small optimisation
 
@@ -136,8 +138,10 @@ class AbstractGraph(CremeEntity):
                     add_node(uni_object)
                     orbital_nodes[object_.id] = str_object
 
-                add_edge(str_subject, str_object,
-                         label=str(relation.type.predicate))
+                add_edge(
+                    str_subject, str_object,
+                    label=str(relation.type.predicate),
+                )
                 # add_edge(
                 #     'b', 'd', color='#FF0000', fontcolor='#00FF00',
                 #     label='foobar', style='dashed'

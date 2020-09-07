@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the graph')),
-                ('orbital_relation_types', models.ManyToManyField(to='creme_core.RelationType', verbose_name='Types of the peripheral relations')),
+                ('orbital_relation_types', models.ManyToManyField(to='creme_core.RelationType', editable=False, verbose_name='Types of the peripheral relations')),
             ],
             options={
                 'swappable': 'GRAPHS_GRAPH_MODEL',
