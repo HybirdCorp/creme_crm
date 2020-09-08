@@ -55,6 +55,9 @@ class ProjectsConfig(CremeAppConfig):
             bricks.ParentTasksBrick,
         )
 
+    def register_bulk_update(self, bulk_update_registry):
+        bulk_update_registry.register(self.Project, exclude=('effective_end_date',))
+
     def register_creme_config(self, config_registry):
         from . import models
 
