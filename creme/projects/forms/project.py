@@ -39,8 +39,7 @@ class ProjectEditForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = get_project_model()
-        # TODO: field not editable ??
-        exclude = (*CremeEntityForm.Meta.exclude, 'effective_end_date')
+        # exclude = (*CremeEntityForm.Meta.exclude, 'effective_end_date')
 
 
 class ProjectCreateForm(ProjectEditForm):
@@ -48,10 +47,10 @@ class ProjectCreateForm(ProjectEditForm):
 
     def _get_relations_to_create(self):
         instance = self.instance
-        build_relation = partial(Relation, user=instance.user,
-                                 type_id=REL_OBJ_PROJECT_MANAGER,
-                                 subject_entity=instance,
-                                )
+        build_relation = partial(
+            Relation, user=instance.user,
+            type_id=REL_OBJ_PROJECT_MANAGER, subject_entity=instance,
+        )
 
         return super()._get_relations_to_create().extend(
             build_relation(object_entity=contact)

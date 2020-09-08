@@ -46,7 +46,7 @@ class AbstractProject(CremeEntity):
         _('Estimated end'), blank=True, null=True,
     ).set_tags(optional=True)
     effective_end_date = models.DateTimeField(
-        _('Effective end date'), blank=True, null=True,
+        _('Effective end date'), blank=True, null=True, editable=False,
     ).set_tags(optional=True)
 
     currency = models.ForeignKey(

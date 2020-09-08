@@ -55,8 +55,8 @@ class ProjectsConfig(CremeAppConfig):
             bricks.ParentTasksBrick,
         )
 
-    def register_bulk_update(self, bulk_update_registry):
-        bulk_update_registry.register(self.Project, exclude=('effective_end_date',))
+    # def register_bulk_update(self, bulk_update_registry):
+    #     bulk_update_registry.register(self.Project, exclude=('effective_end_date',))
 
     def register_creme_config(self, config_registry):
         from . import models
@@ -69,7 +69,7 @@ class ProjectsConfig(CremeAppConfig):
         from .models import Resource
 
         icon_registry.register(
-            self.Project, 'images/project_%(size)s.png'
+            self.Project, 'images/project_%(size)s.png',
         ).register(
             self.ProjectTask, 'images/task_%(size)s.png',
         ).register(

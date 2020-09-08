@@ -497,6 +497,7 @@
                     - The function '_get_status()' has been removed.
                     - The function '_get_event_n_contact()' has been removed.
             * Projects :
+                - The model-field 'AbstractProject.effective_end_date' is not editable any more.
                 - The function-view 'views.project.close()' has been replaced by the class 'ProjectClosure'.
             * Polls :
                 - The function-view 'views.poll_reply.clean()' has been replaced by the class 'PollReplyCleaning'.
