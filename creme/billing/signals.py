@@ -27,11 +27,14 @@ from django.dispatch import receiver
 from creme import billing, persons
 from creme.creme_core import signals as core_signals
 from creme.creme_core.models import Relation
+from creme.persons.workflow import transform_target_into_customer
 
 from . import constants
 from .models import ConfigBillingAlgo, SimpleBillingAlgo
 
 Organisation = persons.get_organisation_model()
+
+Invoice = billing.get_invoice_model()
 
 
 @receiver(signals.post_save, sender=Organisation)
@@ -85,7 +88,7 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
 
 STATUSES_REPLACEMENTS = {
     billing.get_credit_note_model(): 'status',
-    billing.get_invoice_model():     'status',
+    Invoice:                         'status',
     billing.get_quote_model():       'status',
     billing.get_sales_order_model(): 'status',
 }
@@ -126,3 +129,22 @@ def manage_line_deletion(sender, instance, **kwargs):
     "The calculated totals (Invoice, Quote...) have to be refreshed."
     if instance.type_id == constants.REL_OBJ_HAS_LINE:
         instance.object_entity.get_real_entity().save()
+
+
+# NB: in Base.save(), target relationship is created after source relationships
+#     so we trigger this code target relationship creation, as the source should be OK too.
+@receiver(signals.post_save, sender=Relation)
+def manage_invoice_deletion(sender, instance, **kwargs):
+    if instance.type_id != constants.REL_SUB_BILL_RECEIVED:
+        return
+
+    billing_doc = instance.subject_entity
+
+    if not isinstance(billing_doc, Invoice):
+        return
+
+    transform_target_into_customer(
+        billing_doc.source,
+        instance.object_entity,
+        instance.user,
+    )
