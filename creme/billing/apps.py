@@ -139,12 +139,19 @@ class BillingConfig(CremeAppConfig):
             bricks.BillingPrettyAddressBrick,
             bricks.BillingExportersBrick,
             bricks.PersonsStatisticsBrick,
-        ).register_invalid_models(self.ProductLine, self.ServiceLine) \
-         .register_hat(self.CreditNote,   main_brick_cls=bricks.CreditNoteBarHatBrick) \
-         .register_hat(self.Invoice,      main_brick_cls=bricks.InvoiceBarHatBrick) \
-         .register_hat(self.Quote,        main_brick_cls=bricks.QuoteBarHatBrick) \
-         .register_hat(self.SalesOrder,   main_brick_cls=bricks.SalesOrderBarHatBrick) \
-         .register_hat(self.TemplateBase, main_brick_cls=bricks.TemplateBaseBarHatBrick)
+        ).register_invalid_models(
+            self.ProductLine, self.ServiceLine,
+        ).register_hat(
+            self.CreditNote,   main_brick_cls=bricks.CreditNoteBarHatBrick,
+        ).register_hat(
+            self.Invoice,      main_brick_cls=bricks.InvoiceBarHatBrick
+        ).register_hat(
+            self.Quote,        main_brick_cls=bricks.QuoteBarHatBrick,
+        ).register_hat(
+            self.SalesOrder,   main_brick_cls=bricks.SalesOrderBarHatBrick,
+        ).register_hat(
+            self.TemplateBase, main_brick_cls=bricks.TemplateBaseBarHatBrick,
+        )
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import PaymentInformation
@@ -208,20 +215,32 @@ class BillingConfig(CremeAppConfig):
 
     def register_icons(self, icon_registry):
         icon_fmt = 'images/invoice_%(size)s.png'
-        icon_registry.register(self.Invoice,      icon_fmt) \
-                     .register(self.Quote,        icon_fmt) \
-                     .register(self.SalesOrder,   icon_fmt) \
-                     .register(self.CreditNote,   icon_fmt) \
-                     .register(self.TemplateBase, icon_fmt) \
-                     .register(self.ProductLine,  icon_fmt) \
-                     .register(self.ServiceLine,  icon_fmt)
+        icon_registry.register(
+            self.Invoice,      icon_fmt,
+        ).register(
+            self.Quote,        icon_fmt,
+        ).register(
+            self.SalesOrder,   icon_fmt,
+        ).register(
+            self.CreditNote,   icon_fmt,
+        ).register(
+            self.TemplateBase, icon_fmt,
+        ).register(
+            self.ProductLine,  icon_fmt,
+        ).register(
+            self.ServiceLine,  icon_fmt,
+        )
 
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import get_import_form_builder
 
-        import_form_registry.register(self.Invoice,    get_import_form_builder) \
-                            .register(self.Quote,      get_import_form_builder) \
-                            .register(self.SalesOrder, get_import_form_builder)
+        import_form_registry.register(
+            self.Invoice,    get_import_form_builder,
+        ).register(
+            self.Quote,      get_import_form_builder,
+        ).register(
+            self.SalesOrder, get_import_form_builder,
+        )
 
     def register_menu(self, creme_menu):
         CreditNote = self.CreditNote
@@ -230,22 +249,38 @@ class BillingConfig(CremeAppConfig):
         SalesOrder = self.SalesOrder
 
         LvURLItem = creme_menu.URLItem.list_view
-        creme_menu.get('features') \
-                  .get_or_create(creme_menu.ContainerItem, 'management', priority=50,
-                                 defaults={'label': _('Management')},
-                                ) \
-                  .add(LvURLItem('billing-quotes',        model=Quote),            priority=10) \
-                  .add(LvURLItem('billing-invoices',      model=Invoice),          priority=15) \
-                  .add(LvURLItem('billing-credit_notes',  model=CreditNote),       priority=50) \
-                  .add(LvURLItem('billing-sales_orders',  model=SalesOrder),       priority=55) \
-                  .add(LvURLItem('billing-product_lines', model=self.ProductLine), priority=200) \
-                  .add(LvURLItem('billing-service_lines', model=self.ServiceLine), priority=210)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('management', _('Management'), priority=50) \
-                  .add_link('billing-create_quote',   Quote,      priority=10) \
-                  .add_link('billing-create_invoice', Invoice,    priority=15) \
-                  .add_link('billing-create_cnote',   CreditNote, priority=50) \
-                  .add_link('billing-create_order',   SalesOrder, priority=55)
+        creme_menu.get(
+            'features',
+        ).get_or_create(
+            creme_menu.ContainerItem, 'management',
+            priority=50,
+            defaults={'label': _('Management')},
+        ).add(
+            LvURLItem('billing-quotes',        model=Quote),            priority=10,
+        ).add(
+            LvURLItem('billing-invoices',      model=Invoice),          priority=15,
+        ).add(
+            LvURLItem('billing-credit_notes',  model=CreditNote),       priority=50,
+        ).add(
+            LvURLItem('billing-sales_orders',  model=SalesOrder),       priority=55,
+        ).add(
+            LvURLItem('billing-product_lines', model=self.ProductLine), priority=200,
+        ).add(
+            LvURLItem('billing-service_lines', model=self.ServiceLine), priority=210,
+        )
+        creme_menu.get(
+            'creation', 'any_forms',
+        ).get_or_create_group(
+            'management', _('Management'), priority=50,
+        ).add_link(
+            'billing-create_quote',   Quote,      priority=10,
+        ).add_link(
+            'billing-create_invoice', Invoice,    priority=15,
+        ).add_link(
+            'billing-create_cnote',   CreditNote, priority=50,
+        ).add_link(
+            'billing-create_order',   SalesOrder, priority=55,
+        )
 
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
@@ -259,10 +294,13 @@ class BillingConfig(CremeAppConfig):
         from . import constants
 
         for model in (self.Invoice, self.Quote, self.SalesOrder, self.CreditNote):
-            smart_columns_registry.register_model(model) \
-                                  .register_field('number') \
-                                  .register_field('status') \
-                                  .register_relationtype(constants.REL_SUB_BILL_RECEIVED)
+            smart_columns_registry.register_model(
+                model
+            ).register_field(
+                'number',
+            ).register_field(
+                'status',
+            ).register_relationtype(constants.REL_SUB_BILL_RECEIVED)
 
     def register_statistics(self, statistics_registry):
         Invoice = self.Invoice
