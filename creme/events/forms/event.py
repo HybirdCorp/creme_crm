@@ -43,19 +43,19 @@ class EventForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_event_model()
 
-    def clean(self):
-        cdata = super().clean()
-
-        if not self._errors:
-            end = cdata.get('end_date')
-
-            if end and cdata['start_date'] > end:
-                self.add_error(
-                    'end_date',
-                    gettext('The end date must be after the start date.'),
-                )
-
-        return cdata
+    # def clean(self):
+    #     cdata = super().clean()
+    #
+    #     if not self._errors:
+    #         end = cdata.get('end_date')
+    #
+    #         if end and cdata['start_date'] > end:
+    #             self.add_error(
+    #                 'end_date',
+    #                 gettext('The end date must be after the start date.'),
+    #             )
+    #
+    #     return cdata
 
 
 _SYMMETRICS = {

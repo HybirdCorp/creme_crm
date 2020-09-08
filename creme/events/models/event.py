@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -90,15 +92,25 @@ class AbstractEvent(CremeEntity):
 
     def _pre_delete(self):
         for relation in Relation.objects.filter(
-                type__in=[constants.REL_OBJ_IS_INVITED_TO,
-                          constants.REL_OBJ_ACCEPTED_INVITATION,
-                          constants.REL_OBJ_REFUSED_INVITATION,
-                          constants.REL_OBJ_CAME_EVENT,
-                          constants.REL_OBJ_NOT_CAME_EVENT,
-                          constants.REL_OBJ_GEN_BY_EVENT,
-                         ],
-                subject_entity=self):
+            type__in=[
+                constants.REL_OBJ_IS_INVITED_TO,
+                constants.REL_OBJ_ACCEPTED_INVITATION,
+                constants.REL_OBJ_REFUSED_INVITATION,
+                constants.REL_OBJ_CAME_EVENT,
+                constants.REL_OBJ_NOT_CAME_EVENT,
+                constants.REL_OBJ_GEN_BY_EVENT,
+            ],
+            subject_entity=self,
+        ):
             relation._delete_without_transaction()
+
+    def clean(self):
+        end = self.end_date
+
+        if end and self.start_date > end:
+            raise ValidationError(
+                {'end_date': gettext('The end date must be after the start date.')},
+            )
 
     def get_absolute_url(self):
         return reverse('events__view_event', args=(self.id,))
