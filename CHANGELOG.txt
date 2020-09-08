@@ -63,6 +63,9 @@
                 - "has sold => has been sold by" : [Contact, Organisation] => [Product, Service].
                 - with "completes a goal of the commercial action", this types cannot be subject any more :
                   Strategy, billing.{CreditNote, TemplateBase, ProductLine, ServiceLine}
+        * Projects :
+            - The fields "start" & "end" of Tasks cannot be emptied with the inner-edition any more.
+              BEWARE: if you have empty values, they are replaced at migration (<0> for duration, <01-01-1970> for start/end).
 
   Developers side :
   -----------------
@@ -165,6 +168,8 @@
                     - These function-views of 'views.crudity' are deprecated ; use the class 'EmailStatusSetting' instead :
                       spam(), validated(), waiting()
                     - The function 'views.crudity.set_emails_status()' is deprecated.
+                * Projects :
+                 - The property 'AbstractProjectTask.safe_duration' is deprecated ; use the field "duration" instead.
         # Some static typing has been made in 'creme_core' with the help of mypy (& pyCharm).
         # A configuration for CircleCI has been added ; many checks have been added (isort, flake8, ...).
         # A string permission for staff users has been added : creme_core.auth.STAFF_PERM
@@ -497,7 +502,9 @@
                     - The function '_get_status()' has been removed.
                     - The function '_get_event_n_contact()' has been removed.
             * Projects :
-                - The model-field 'AbstractProject.effective_end_date' is not editable any more.
+                - In 'models' :
+                    - The model-field 'AbstractProject.effective_end_date' is not editable any more.
+                    - These model-fields of 'AbstractProjectTask' are not null/blank anymore: start, end, duration.
                 - The function-view 'views.project.close()' has been replaced by the class 'ProjectClosure'.
             * Polls :
                 - The function-view 'views.poll_reply.clean()' has been replaced by the class 'PollReplyCleaning'.

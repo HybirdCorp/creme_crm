@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
 from functools import partial
 from json import dumps as json_dump
 from unittest import skipIf
@@ -71,10 +72,9 @@ class ProjectsTestCase(CremeTestCase):
         cls.ADD_PROJECT_URL = reverse('projects__create_project')
 
     def login(self, is_superuser=True, allowed_apps=('projects',), *args, **kwargs):
-        return super().login(is_superuser,
-                             allowed_apps=allowed_apps,
-                             *args, **kwargs
-                            )
+        return super().login(
+            is_superuser, allowed_apps=allowed_apps, *args, **kwargs
+        )
 
     def _build_add_task_url(self, project):
         return reverse('projects__create_task', args=(project.id,))
@@ -95,13 +95,15 @@ class ProjectsTestCase(CremeTestCase):
         return json_dump({'type': atype, 'sub_type': sub_type})
 
     def create_resource(self, task, contact, hourly_cost=100, error=False):
-        response = self.client.post(self._build_add_resource_url(task),
-                                    follow=True,
-                                    data={'user':        self.user.id,
-                                          'contact':     contact.id,
-                                          'hourly_cost': hourly_cost,
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_resource_url(task),
+            follow=True,
+            data={
+                'user':        self.user.id,
+                'contact':     contact.id,
+                'hourly_cost': hourly_cost,
+            },
+        )
 
         if not error:
             self.assertNoFormError(response)
@@ -109,18 +111,19 @@ class ProjectsTestCase(CremeTestCase):
         return response
 
     def create_activity(self, resource, start='2015-05-19', end='2015-06-03',
-                        duration='8', atype=None, busy='', errors=False,
-                       ):
-        response = self.client.post(self._build_add_activity_url(resource.task), follow=True,
-                                    data={'resource':      resource.id,
-                                          'start':         start,
-                                          'end':           end,
-                                          'duration':      duration,
-                                          'type_selector': atype or self._build_type_value(),
-                                          'user':          self.user.id,
-                                          'busy':          busy,
-                                         }
-                                   )
+                        duration='8', atype=None, busy='', errors=False):
+        response = self.client.post(
+            self._build_add_activity_url(resource.task), follow=True,
+            data={
+                'resource':      resource.id,
+                'start':         start,
+                'end':           end,
+                'duration':      duration,
+                'type_selector': atype or self._build_type_value(),
+                'user':          self.user.id,
+                'busy':          busy,
+            },
+        )
 
         if not errors:
             self.assertNoFormError(response)
@@ -128,10 +131,10 @@ class ProjectsTestCase(CremeTestCase):
         return response
 
     def test_populate(self):
-        self.get_relationtype_or_fail(REL_SUB_PROJECT_MANAGER,
-                                      sub_models=[Contact],
-                                      obj_models=[Project],
-                                     )
+        self.get_relationtype_or_fail(
+            REL_SUB_PROJECT_MANAGER,
+            sub_models=[Contact], obj_models=[Project],
+        )
 
         status_count = TaskStatus.objects.count()
         self.assertGreaterEqual(status_count, 2)
@@ -163,16 +166,18 @@ class ProjectsTestCase(CremeTestCase):
 
     def create_task(self, project, title, status=None, atype=ACTIVITYTYPE_TASK, sub_type=None):
         status = status or TaskStatus.objects.get(pk=NOT_STARTED_PK)
-        response = self.client.post(self._build_add_task_url(project), follow=True,
-                                    data={'user':          self.user.id,
-                                          'title':         title,
-                                          'start':         '2010-10-11',
-                                          'end':           '2010-10-30',
-                                          'duration':      50,
-                                          'tstatus':       status.id,
-                                          'type_selector': self._build_type_value(atype, sub_type),
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_task_url(project), follow=True,
+            data={
+                'user':          self.user.id,
+                'title':         title,
+                'start':         '2010-10-11',
+                'end':           '2010-10-30',
+                'duration':      50,
+                'tstatus':       status.id,
+                'type_selector': self._build_type_value(atype, sub_type),
+            },
+        )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(ProjectTask, linked_project=project, title=title)
@@ -238,14 +243,15 @@ class ProjectsTestCase(CremeTestCase):
                 'responsibles': self.formfield_value_multi_creator_entity(manager),
             },
         )
-        self.assertFormError(response, 'form', 'responsibles',
-                             _('Some entities are not linkable: {}').format(
-                                 _('Entity #{id} (not viewable)').format(id=manager.id)
-                             )
-                            )
+        self.assertFormError(
+            response, 'form', 'responsibles',
+            _('Some entities are not linkable: {}').format(
+                _('Entity #{id} (not viewable)').format(id=manager.id),
+            )
+        )
 
     def test_project_createview03(self):
-        "Validation error with start/end"
+        "Validation error with start/end."
         user = self.login()
 
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
@@ -262,12 +268,13 @@ class ProjectsTestCase(CremeTestCase):
         )
 
         create_dt = self.create_datetime
-        self.assertFormError(response, 'form', None,
-                             _('Start ({start}) must be before end ({end}).').format(
-                                 start=date_format(create_dt(2012, 2, 16), 'DATE_FORMAT'),
-                                 end=date_format(create_dt(2012, 2, 15), 'DATE_FORMAT'),
-                             )
-                            )
+        self.assertFormError(
+            response, 'form', None,
+            _('Start ({start}) must be before end ({end}).').format(
+                start=date_format(create_dt(2012, 2, 16), 'DATE_FORMAT'),
+                end=date_format(create_dt(2012, 2, 15), 'DATE_FORMAT'),
+            )
+        )
 
     def test_project_listview(self):
         self.login()
@@ -323,49 +330,57 @@ class ProjectsTestCase(CremeTestCase):
         url = self.build_inneredit_url(project, 'start_date')
         self.assertGET200(url)
 
-        self.assertNoFormError(self.client.post(url, data={'entities_lbl': [str(project)],
-                                                           'field_value':  '2012-3-4',
-                                                          }
-                                               )
-                              )
-        self.assertEqual(self.create_datetime(year=2012, month=3, day=4),
-                         self.refresh(project).start_date
-                         )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'entities_lbl': [str(project)],
+                'field_value':  '2012-3-4',
+            },
+        ))
+        self.assertEqual(
+            self.create_datetime(year=2012, month=3, day=4),
+            self.refresh(project).start_date
+        )
 
     def test_project_inner_edit02(self):
-        "Validation error"
+        "Validation error."
         self.login()
 
         project = self.create_project('Eva01', start_date='2012-02-20', end_date='2012-03-25')[0]
-        response = self.assertPOST200(self.build_inneredit_url(project, 'start_date'),
-                                      data={'entities_lbl': [str(project)],
-                                            'field_value':  '2012-03-27',  # <= after end_date
-                                           }
-                                     )
+        response = self.assertPOST200(
+            self.build_inneredit_url(project, 'start_date'),
+            data={
+                'entities_lbl': [str(project)],
+                'field_value':  '2012-03-27',  # <= after end_date
+            },
+        )
 
         create_dt = self.create_datetime
-        self.assertFormError(response, 'form', None,
-                             _('Start ({start}) must be before end ({end}).').format(
-                                 start=date_format(create_dt(2012, 3, 27), 'DATE_FORMAT'),
-                                 end=date_format(create_dt(2012, 3, 25), 'DATE_FORMAT'),
-                             )
-                            )
-        self.assertEqual(create_dt(year=2012, month=2, day=20),
-                         self.refresh(project).start_date
-                        )
+        self.assertFormError(
+            response, 'form', None,
+            _('Start ({start}) must be before end ({end}).').format(
+                start=date_format(create_dt(2012, 3, 27), 'DATE_FORMAT'),
+                end=date_format(create_dt(2012, 3, 25), 'DATE_FORMAT'),
+            )
+        )
+        self.assertEqual(
+            create_dt(year=2012, month=2, day=20),
+            self.refresh(project).start_date
+        )
 
     @skipIfCustomTask
     def test_task_createview01(self):
-        "Create 2 tasks without collisions"
+        "Create 2 tasks without collision."
         user = self.login()
         project = self.create_project('Eva01')[0]
 
         url = self._build_add_task_url(project)
 
         context = self.assertGET200(url).context
-        self.assertEqual(_('Create a task for «{entity}»').format(entity=project),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Create a task for «{entity}»').format(entity=project),
+            context.get('title')
+        )
         self.assertEqual(ProjectTask.save_label, context.get('submit_label'))
 
         # ---
@@ -373,15 +388,17 @@ class ProjectsTestCase(CremeTestCase):
         title = 'head'
 
         def post(duration):
-            return self.client.post(url, follow=True,
-                                    data={'user':     user.id,
-                                          'title':    title,
-                                          'start':    '2010-10-11 15:00',
-                                          'end':      '2010-10-11 17:00',
-                                          'duration': duration,
-                                          'tstatus':  tstatus.id,
-                                         }
-                                   )
+            return self.client.post(
+                url, follow=True,
+                data={
+                    'user':     user.id,
+                    'title':    title,
+                    'start':    '2010-10-11 15:00',
+                    'end':      '2010-10-11 17:00',
+                    'duration': duration,
+                    'tstatus':  tstatus.id,
+                },
+            )
 
         response = post('')
         self.assertEqual(200, response.status_code)
@@ -428,10 +445,12 @@ class ProjectsTestCase(CremeTestCase):
 
     @skipIfCustomTask
     def test_task_createview02(self):
-        "Can not be parented with task of an other project + not super-user"
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'projects'],
-                          creatable_models=[Project, ProjectTask],
-                         )
+        "Can not be parented with task of an other project + not super-user."
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'projects'],
+            creatable_models=[Project, ProjectTask],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -454,15 +473,16 @@ class ProjectsTestCase(CremeTestCase):
                 'parent_tasks':  self.formfield_value_multi_creator_entity(task01),
             },
         )
-        self.assertFormError(response, 'form', 'parent_tasks',
-                             _('This entity does not exist.')
-                            )
+        self.assertFormError(
+            response, 'form', 'parent_tasks', _('This entity does not exist.')
+        )
 
     def test_task_createview03(self):
-        "Not allowed to create a task"
-        self.login(is_superuser=False, allowed_apps=['persons', 'projects'],
-                   creatable_models=[Project],  # ProjectTask
-                  )
+        "Not allowed to create a task."
+        self.login(
+            is_superuser=False, allowed_apps=['persons', 'projects'],
+            creatable_models=[Project],  # ProjectTask
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -494,15 +514,17 @@ class ProjectsTestCase(CremeTestCase):
         title = 'Head'
         duration = 55
         tstatus  = TaskStatus.objects.all()[1]
-        response = self.client.post(url, follow=True,
-                                    data={'user':     user.id,
-                                          'title':    title,
-                                          'start':    '2011-5-16',
-                                          'end':      '2012-6-17',
-                                          'duration': duration,
-                                          'tstatus':  tstatus.id,
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':     user.id,
+                'title':    title,
+                'start':    '2011-5-16',
+                'end':      '2012-6-17',
+                'duration': duration,
+                'tstatus':  tstatus.id,
+            },
+        )
         self.assertNoFormError(response)
 
         task = self.refresh(task)
@@ -516,7 +538,7 @@ class ProjectsTestCase(CremeTestCase):
 
     @skipIfCustomTask
     def test_task_editview_popup01(self):
-        "Popup version"
+        "Popup version."
         user = self.login()
 
         project = self.create_project('Eva01')[0]
@@ -528,15 +550,17 @@ class ProjectsTestCase(CremeTestCase):
         # ---
         title = 'Head'
         duration = 55
-        response = self.client.post(url, follow=True,
-                                    data={'user':     user.id,
-                                          'title':    title,
-                                          'start':    '2011-5-16',
-                                          'end':      '2012-6-17',
-                                          'duration': duration,
-                                          'tstatus':  TaskStatus.objects.all()[0].id,
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':     user.id,
+                'title':    title,
+                'start':    '2011-5-16',
+                'end':      '2012-6-17',
+                'duration': duration,
+                'tstatus':  TaskStatus.objects.all()[0].id,
+            },
+        )
         self.assertNoFormError(response)
 
         task = self.refresh(task)
@@ -559,9 +583,10 @@ class ProjectsTestCase(CremeTestCase):
         url = self._build_add_parent_task_url(task03)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Adding parents to «{object}»').format(object=task03),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Adding parents to «{object}»').format(object=task03),
+            response.context.get('title')
+        )
 
         # ---
         self.assertNoFormError(
@@ -591,7 +616,7 @@ class ProjectsTestCase(CremeTestCase):
 
     @skipIfCustomTask
     def test_task_add_parent02(self):
-        "Error task that belongs to another project"
+        "Error task that belongs to another project."
         self.login()
 
         project01 = self.create_project('Eva01')[0]
@@ -604,9 +629,9 @@ class ProjectsTestCase(CremeTestCase):
             self._build_add_parent_task_url(task02),
             data={'parents': self.formfield_value_multi_creator_entity(task01)},
         )
-        self.assertFormError(response, 'form', 'parents',
-                             _('This entity does not exist.')
-                            )
+        self.assertFormError(
+            response, 'form', 'parents', _('This entity does not exist.')
+        )
 
     @skipIfCustomTask
     def test_task_add_parent03(self):
@@ -622,21 +647,19 @@ class ProjectsTestCase(CremeTestCase):
 
         build_url = self._build_add_parent_task_url
         field_value = self.formfield_value_multi_creator_entity
-        self.assertNoFormError(self.client.post(build_url(task02),
-                                                data={'parents': field_value(task01)},
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            build_url(task02), data={'parents': field_value(task01)},
+        ))
         self.assertSetEqual({task01, task02}, {*task01.get_subtasks()})
 
-        self.assertNoFormError(self.client.post(build_url(task03),
-                                                data={'parents': field_value(task02)},
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            build_url(task03), data={'parents': field_value(task02)},
+        ))
         self.assertSetEqual({task01, task02, task03}, {*task01.get_subtasks()})
 
-        response = self.client.post(build_url(task01),
-                                    data={'parents': field_value(task03)},
-                                   )
+        response = self.client.post(
+            build_url(task01), data={'parents': field_value(task03)},
+        )
         self.assertFormError(response, 'form', 'parents', _('This entity does not exist.'))
 
     @skipIfCustomTask
@@ -660,7 +683,8 @@ class ProjectsTestCase(CremeTestCase):
         project = self.create_project('Eva01')[0]
 
         task = self.create_task(project, 'Title')
-        task.duration = None
+        # task.duration = None
+        task.duration = 0
         task.save()
 
         self.assertEqual(0, task.safe_duration)
@@ -674,7 +698,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_resource_n_activity01(self):
-        "Creation views"
+        "Creation views."
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -696,9 +720,10 @@ class ProjectsTestCase(CremeTestCase):
         resource = resources[0]
 
         context = self.assertGET200(self._build_add_activity_url(task)).context
-        self.assertEqual(_('New activity related to «{entity}»').format(entity=task),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New activity related to «{entity}»').format(entity=task),
+            context.get('title')
+        )
         self.assertEqual(Activity.save_label, context.get('submit_label'))
 
         atype = ACTIVITYTYPE_MEETING
@@ -733,7 +758,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_resource_n_activity02(self):
-        "Edition views + Calendar"
+        "Edition views + Calendar."
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -748,12 +773,14 @@ class ProjectsTestCase(CremeTestCase):
         url = resource.get_edit_absolute_url()
         self.assertGET200(url)
 
-        response = self.client.post(url, follow=True,
-                                    data={'user':        user.id,
-                                          'contact':     worker.id,
-                                          'hourly_cost': 200,
-                                         },
-                                    )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':        user.id,
+                'contact':     worker.id,
+                'hourly_cost': 200,
+            },
+        )
         self.assertNoFormError(response)
 
         resource = self.refresh(resource)
@@ -763,23 +790,26 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, len(activities))
 
         activity = activities[0]
-        self.assertListEqual([Calendar.objects.get_default_calendar(self.other_user)],
-                             [*activity.calendars.all()]
-                            )
+        self.assertListEqual(
+            [Calendar.objects.get_default_calendar(self.other_user)],
+            [*activity.calendars.all()]
+        )
         url = self._build_edit_activity_url(activity)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         # ---
-        response = self.client.post(url, follow=True,
-                                    data={'resource':   resource.id,
-                                          'start':      '2010-10-11',
-                                          'end':        '2010-10-12',
-                                          'duration':   10,
-                                          'user':       user.id,
-                                          'type_selector': self._build_type_value(),
-                                         },
-                                    )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'resource':      resource.id,
+                'start':         '2010-10-11',
+                'end':           '2010-10-12',
+                'duration':      10,
+                'user':          user.id,
+                'type_selector': self._build_type_value(),
+            },
+        )
         self.assertNoFormError(response)
 
         activity = self.refresh(activity)
@@ -790,7 +820,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_resource_n_activity03(self):
-        "Not alive task"
+        "Not alive task."
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -807,7 +837,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_resource_n_activity04(self):
-        "Create 2 activities with a collision"
+        "Create 2 activities with a collision."
         user = self.login()
 
         project = self.create_project('Eva01')[0]
@@ -821,9 +851,9 @@ class ProjectsTestCase(CremeTestCase):
         act1 = task.related_activities[0]
         self.assertTrue(act1.busy)
 
-        response = self.create_activity(resource, '2010-10-11 16:59', '2010-10-11 17:30',
-                                        busy='on', errors=True,
-                                       )
+        response = self.create_activity(
+            resource, '2010-10-11 16:59', '2010-10-11 17:30', busy='on', errors=True,
+        )
         self.assertEqual(1, len(self.refresh(task).related_activities))
         self.assertFormError(
             response, 'form', None,
@@ -841,7 +871,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_resource_n_activity05(self):
-        "Edition of activity: resource changes"
+        "Edition of activity: resource changes."
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -868,14 +898,16 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, len(activities))
 
         activity = activities[0]
-        self.assertListEqual([Calendar.objects.get_default_calendar(self.other_user)],
-                             [*activity.calendars.all()]
-                            )
+        self.assertListEqual(
+            [Calendar.objects.get_default_calendar(self.other_user)],
+            [*activity.calendars.all()]
+        )
 
-        response = self.client.post(self._build_edit_activity_url(activity),
-                                    follow=True,
-                                    data={**data, 'resource': resource2.id},
-                                   )
+        response = self.client.post(
+            self._build_edit_activity_url(activity),
+            follow=True,
+            data={**data, 'resource': resource2.id},
+        )
         self.assertNoFormError(response)
 
         self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
@@ -890,7 +922,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_resource_n_activity06(self):
-        "Edition of activity: resource changes + keep_participating"
+        "Edition of activity: resource changes + keep_participating."
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -904,25 +936,28 @@ class ProjectsTestCase(CremeTestCase):
         self.create_resource(task, worker2)
         resource2 = task.resources_set.exclude(pk=resource1.id)[0]
 
-        data = {'resource':   resource1.id,
-                'start':      '2015-05-21',
-                'end':        '2015-05-22',
-                'duration':   10,
-                'user':       user.id,
-                'type_selector': self._build_type_value(),
-               }
+        data = {
+            'resource':      resource1.id,
+            'start':         '2015-05-21',
+            'end':           '2015-05-22',
+            'duration':      10,
+            'user':          user.id,
+            'type_selector': self._build_type_value(),
+        }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
         activities = task.related_activities
         self.assertEqual(1, len(activities))
 
         activity = activities[0]
-        response = self.client.post(self._build_edit_activity_url(activity),
-                                    follow=True,
-                                    data={**data,
-                                          'resource': resource2.id,
-                                          'keep_participating': 'on',
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_edit_activity_url(activity),
+            follow=True,
+            data={
+                **data,
+                'resource': resource2.id,
+                'keep_participating': 'on',
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
@@ -931,9 +966,10 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity)
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
 
-        self.assertListEqual([Calendar.objects.get_default_calendar(self.other_user)],
-                             [*activity.calendars.all()]
-                            )
+        self.assertListEqual(
+            [Calendar.objects.get_default_calendar(self.other_user)],
+            [*activity.calendars.all()]
+        )
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -953,27 +989,30 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, len(resources))
         resource1 = resources[0]
 
-        response = self.assertPOST200(self._build_add_activity_url(task2), follow=True,
-                                      data={'resource':      resource1.id,
-                                            'start':         '2016-05-19',
-                                            'end':           '2016-06-03',
-                                            'duration':      8,
-                                            'type_selector': self._build_type_value(),
-                                            'user':          user.id,
-                                           }
-                                     )
-        self.assertFormError(response, 'form', 'resource',
-                             _('This entity does not exist.')
-                            )
+        response = self.assertPOST200(
+            self._build_add_activity_url(task2), follow=True,
+            data={
+                'resource':      resource1.id,
+                'start':         '2016-05-19',
+                'end':           '2016-06-03',
+                'duration':      8,
+                'type_selector': self._build_type_value(),
+                'user':          user.id,
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'resource', _('This entity does not exist.')
+        )
 
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_resource_n_activity08(self):
-        "Creation credentials are needed"
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'projects'],
-                   creatable_models=[Project, ProjectTask],
-                  )
+        "Creation credentials are needed."
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'projects'],
+            creatable_models=[Project, ProjectTask],
+        )
 
         SetCredentials.objects.create(
             role=self.role,
@@ -1006,18 +1045,22 @@ class ProjectsTestCase(CremeTestCase):
             name='Eva02',
             status=ProjectStatus.objects.first(),
         )
+        now_value = now()
         task = ProjectTask.objects.create(
             user=user,
             linked_project=project,
             title='legs',
             tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+            start=now_value,
+            end=now_value + timedelta(days=3),
+            duration=21,
         )
         self.assertTrue(user.has_perm_to_change(task))
         self.assertGET200(self._build_add_resource_url(task))
 
     @skipIfCustomTask
     def test_create_resource02(self):
-        "Edition permission needed"
+        "Edition permission needed."
         user = self.login(is_superuser=False)
         SetCredentials.objects.create(
             role=self.role,
@@ -1031,17 +1074,21 @@ class ProjectsTestCase(CremeTestCase):
             name='Eva02',
             status=ProjectStatus.objects.first(),
         )
+        now_value = now()
         task = ProjectTask.objects.create(
             user=user,
             linked_project=project,
             tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+            start=now_value,
+            end=now_value + timedelta(days=3),
+            duration=21,
         )
         self.assertGET403(self._build_add_resource_url(task))
 
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_edit_resource01(self):
-        "Related contact participates to activities"
+        "Related contact participates to activities."
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -1062,17 +1109,19 @@ class ProjectsTestCase(CremeTestCase):
         url = resource1.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Resource for «{entity}»').format(entity=task1),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Resource for «{entity}»').format(entity=task1),
+            response.context.get('title')
+        )
 
-        response = self.client.post(url,
-                                    follow=True,
-                                    data={'user':        user.id,
-                                          'contact':     worker2.id,
-                                          'hourly_cost': 200,
-                                         }
-                                   )
+        response = self.client.post(
+            url, follow=True,
+            data={
+                'user':        user.id,
+                'contact':     worker2.id,
+                'hourly_cost': 200,
+            },
+        )
         self.assertNoFormError(response)
 
         resource1 = self.refresh(resource1)
@@ -1105,7 +1154,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_edit_resource02(self):
-        "Related contact participates to activities: old resource continues to participate"
+        "Related contact participates to activities: old resource continues to participate."
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -1118,14 +1167,16 @@ class ProjectsTestCase(CremeTestCase):
         resource1 = task.resources_set.all()[0]
         self.create_activity(resource1)
 
-        response = self.client.post(resource1.get_edit_absolute_url(),
-                                    follow=True,
-                                    data={'user':        user.id,
-                                          'contact':     worker2.id,
-                                          'hourly_cost': 200,
-                                          'keep_participating': 'on',
-                                         }
-                                   )
+        response = self.client.post(
+            resource1.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user':               user.id,
+                'contact':            worker2.id,
+                'hourly_cost':        200,
+                'keep_participating': 'on',
+            },
+        )
         self.assertNoFormError(response)
 
         resource1 = self.refresh(resource1)
@@ -1142,9 +1193,10 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
 
         get_cal = Calendar.objects.get_default_calendar
-        self.assertSetEqual({get_cal(user), get_cal(self.other_user)},
-                            {*activity.calendars.all()}
-                           )
+        self.assertSetEqual(
+            {get_cal(user), get_cal(self.other_user)},
+            {*activity.calendars.all()}
+        )
 
     @skipIfCustomTask
     def test_project_close(self):
@@ -1170,12 +1222,16 @@ class ProjectsTestCase(CremeTestCase):
         self.assertPOST409(url, follow=True)
 
     def _create_parented_task(self, title, project, parents=None):
-        status = TaskStatus.objects.get_or_create(name='status', description="")[0]
-        task = ProjectTask.objects.create(linked_project=project,
-                                          order=0, duration=0,
-                                          tstatus=status, title=title,
-                                          user=self.user,
-                                         )
+        status = TaskStatus.objects.get_or_create(name='status', description='')[0]
+        now_value = now()
+        task = ProjectTask.objects.create(
+            linked_project=project,
+            order=0, duration=0,
+            tstatus=status, title=title,
+            user=self.user,
+            start=now_value,
+            end=now_value + timedelta(hours=1),
+        )
 
         if parents is not None:
             task.parent_tasks.set(parents)
@@ -1217,24 +1273,27 @@ class ProjectsTestCase(CremeTestCase):
 
         titles_list = self._titles_list
         titles_set = self._titles_set
-        self.assertEqual({'1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2'},
-                         titles_set(cloned_project.get_tasks())
-                        )
+        self.assertSetEqual(
+            {'1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2'},
+            titles_set(cloned_project.get_tasks())
+        )
 
         self.assertFalse(self._tasks_pk_set(project) & self._tasks_pk_set(cloned_project))
 
         get_task = cloned_project.get_tasks().get
         self.assertFalse(get_task(title='1').get_parents())
-        self.assertEqual(['1'],     titles_list(get_task(title='1.1').get_parents()))
-        self.assertEqual(['1.1'],   titles_list(get_task(title='1.1.1').get_parents()))
-        self.assertEqual(['1.1.1'], titles_list(get_task(title='1.1.1.1').get_parents()))
-        self.assertEqual({'1', '1.1', '1.1.1', '1.1.1.1'},
-                         titles_set(get_task(title='all 1').get_parents())
-                        )
+        self.assertListEqual(['1'],     titles_list(get_task(title='1.1').get_parents()))
+        self.assertListEqual(['1.1'],   titles_list(get_task(title='1.1.1').get_parents()))
+        self.assertListEqual(['1.1.1'], titles_list(get_task(title='1.1.1.1').get_parents()))
+        self.assertEqual(
+            {'1', '1.1', '1.1.1', '1.1.1.1'},
+            titles_set(get_task(title='all 1').get_parents())
+        )
         self.assertFalse(get_task(title='2').get_parents())
-        self.assertEqual({'1', '1.1', '1.1.1', '1.1.1.1', '2'},
-                         titles_set(get_task(title='all 2').get_parents())
-                        )
+        self.assertEqual(
+            {'1', '1.1', '1.1.1', '1.1.1.1', '2'},
+            titles_set(get_task(title='all 2').get_parents())
+        )
 
     @skipIfCustomTask
     def test_project_clone02(self):
@@ -1286,9 +1345,10 @@ class ProjectsTestCase(CremeTestCase):
         status = ProjectStatus.objects.create(name='Sinking')
         project = self.create_project('Project', status=status)[0]
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('projects', 'projectstatus', status.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('projects', 'projectstatus', status.id),
+            ),
             data={'replace_projects__project_status': status2.id},
         )
         self.assertNoFormError(response)
@@ -1307,11 +1367,12 @@ class ProjectsTestCase(CremeTestCase):
         project = self.create_project('Eva01')[0]
         status2 = TaskStatus.objects.first()
         status  = TaskStatus.objects.create(name='Coming soon')
-        task    = self.create_task(project, 'Building head', status=status)
+        task = self.create_task(project, 'Building head', status=status)
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('projects', 'taskstatus', status.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('projects', 'taskstatus', status.id),
+            ),
             data={'replace_projects__projecttask_tstatus': status2.id},
         )
         self.assertNoFormError(response)
@@ -1327,7 +1388,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_task_cost_n_duration(self):
-        "With several activities"
+        "With several activities."
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -1370,9 +1431,10 @@ class ProjectsTestCase(CremeTestCase):
 
         self.create_activity(resource, '2015-05-20', '2015-05-21')
         self.create_activity(resource, '2015-05-22', '2015-05-23')
-        self.assertEqual({'Eva00 - head - 001', 'Eva00 - head - 002'},
-                         {a.title for a in task.related_activities}
-                        )
+        self.assertSetEqual(
+            {'Eva00 - head - 001', 'Eva00 - head - 002'},
+            {a.title for a in task.related_activities}
+        )
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -1438,9 +1500,10 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomTask
     def test_delete_resource03(self):
         "Not super-user."
-        self.login(is_superuser=False, allowed_apps=['persons', 'projects'],
-                   creatable_models=[Project, ProjectTask],
-                  )
+        self.login(
+            is_superuser=False, allowed_apps=['persons', 'projects'],
+            creatable_models=[Project, ProjectTask],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -1448,8 +1511,8 @@ class ProjectsTestCase(CremeTestCase):
         )
 
         project = self.create_project('Eva02')[0]
-        task    = self.create_task(project, 'arms')
-        worker  = self.other_user.linked_contact
+        task = self.create_task(project, 'arms')
+        worker = self.other_user.linked_contact
 
         self.create_resource(task, worker)
         resource = task.resources_set.all()[0]
@@ -1461,9 +1524,10 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomTask
     def test_delete_resource04(self):
         "Not super-user + cannot change the task => error."
-        self.login(is_superuser=False, allowed_apps=['persons', 'projects'],
-                   creatable_models=[Project, ProjectTask],
-                  )
+        self.login(
+            is_superuser=False, allowed_apps=['persons', 'projects'],
+            creatable_models=[Project, ProjectTask],
+        )
         creds = SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -1471,8 +1535,8 @@ class ProjectsTestCase(CremeTestCase):
         )
 
         project = self.create_project('Eva02')[0]
-        task    = self.create_task(project, 'arms')
-        worker  = self.other_user.linked_contact
+        task = self.create_task(project, 'arms')
+        worker = self.other_user.linked_contact
 
         self.create_resource(task, worker)
         resource = task.resources_set.all()[0]
@@ -1486,19 +1550,19 @@ class ProjectsTestCase(CremeTestCase):
         "Activity not related to a project task."
         user = self.login()
 
-        activity = Activity.objects.create(user=user, title='My task',
-                                           type_id=ACTIVITYTYPE_TASK,
-                                          )
+        activity = Activity.objects.create(
+            user=user, title='My task', type_id=ACTIVITYTYPE_TASK,
+        )
         self.assertGET409(self._build_edit_activity_url(activity))
 
     @skipIfCustomActivity
     def test_delete_activity01(self):
-        "Activity not related to a project task"
+        "Activity not related to a project task."
         user = self.login()
 
-        activity = Activity.objects.create(user=user, title='My task',
-                                           type_id=ACTIVITYTYPE_TASK,
-                                          )
+        activity = Activity.objects.create(
+            user=user, title='My task', type_id=ACTIVITYTYPE_TASK,
+        )
         url = self.DELETE_ACTIVITY_URL
         data = {'id': activity.id}
         self.assertGET405(url, data=data)
@@ -1507,7 +1571,7 @@ class ProjectsTestCase(CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_delete_activity02(self):
-        "Activity not related to a project task"
+        "Activity not related to a project task."
         self.login()
 
         project = self.create_project('Eva02')[0]
@@ -1529,8 +1593,8 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         project = self.create_project('Eva02')[0]
-        task    = self.create_task(project, 'arms')
-        worker  = self.other_user.linked_contact
+        task = self.create_task(project, 'arms')
+        worker = self.other_user.linked_contact
 
         self.create_resource(task, worker)
         resource = task.resources_set.all()[0]

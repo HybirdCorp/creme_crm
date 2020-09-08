@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from itertools import chain
 
 from django.conf import settings
@@ -38,28 +39,32 @@ from .taskstatus import TaskStatus
 
 class AbstractProjectTask(CremeEntity):
     title = models.CharField(_('Title'), max_length=100)
-    linked_project = models.ForeignKey(settings.PROJECTS_PROJECT_MODEL,
-                                       on_delete=models.CASCADE,
-                                       verbose_name=_('Project'),
-                                       related_name='tasks_set',
-                                       editable=False,
-                                      )
+    linked_project = models.ForeignKey(
+        settings.PROJECTS_PROJECT_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name=_('Project'),
+        related_name='tasks_set',
+        editable=False,
+    )
+
     # TODO: null = False ? remove blank
     order = models.PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)
 
-    parent_tasks = models.ManyToManyField('self', symmetrical=False,
-                                          related_name='children_set',  # TODO: rename children ?
-                                          editable=False,
-                                         )
+    parent_tasks = models.ManyToManyField(
+        'self', symmetrical=False,
+        related_name='children_set',  # TODO: rename children ?
+        editable=False,
+    )
 
-    start    = models.DateTimeField(_('Start'), blank=True, null=True)
-    end      = models.DateTimeField(_('End'), blank=True, null=True)
-    # TODO: null=False (required in form) (idem with start/end)
-    duration = models.PositiveIntegerField(_('Duration (in hours)'), blank=True, null=True)
+    start = models.DateTimeField(_('Start'))  # blank=True, null=True
+    end   = models.DateTimeField(_('End'))    # blank=True, null=True
+    # blank=True, null=True
+    duration = models.PositiveIntegerField(_('Duration (in hours)'), default=0)
 
-    tstatus = models.ForeignKey(TaskStatus, verbose_name=_('Task situation'),
-                                on_delete=CREME_REPLACE,
-                               )
+    # TODO: rename "status" (does not collide with activity's status anymore)
+    tstatus = models.ForeignKey(
+        TaskStatus, verbose_name=_('Task situation'), on_delete=CREME_REPLACE,
+    )
 
     creation_label = _('Create a task')
     save_label     = _('Save the task')
@@ -73,8 +78,8 @@ class AbstractProjectTask(CremeEntity):
         ordering = ('-start',)
 
     effective_duration = None
-    resources          = None
-    parents            = None
+    resources = None
+    parents = None
 
     def __str__(self):
         return self.title
@@ -101,6 +106,12 @@ class AbstractProjectTask(CremeEntity):
 
     @property
     def safe_duration(self):
+        warnings.warn(
+            'The property AbstractProjectTask.safe_duration is deprecated ; '
+            'use the field "duration" instead.',
+            DeprecationWarning,
+        )
+
         return self.duration or 0
 
     def get_parents(self):
@@ -117,7 +128,9 @@ class AbstractProjectTask(CremeEntity):
 
         # TODO: use prefetch_related() ??
         while level_tasks:
-            level_tasks = [*chain.from_iterable(task.children_set.all() for task in level_tasks)]
+            level_tasks = [
+                *chain.from_iterable(task.children_set.all() for task in level_tasks),
+            ]
             subtasks.extend(level_tasks)
 
         return subtasks
@@ -136,10 +149,10 @@ class AbstractProjectTask(CremeEntity):
         ]
         resource_per_contactid = {r.linked_contact_id: r for r in self.get_resources()}
         contact_ids = dict(
-            Relation.objects.filter(type=REL_SUB_PART_AS_RESOURCE,
-                                    object_entity__in=[a.id for a in activities],
-                                   )
-                            .values_list('object_entity_id', 'subject_entity_id')
+            Relation.objects.filter(
+                type=REL_SUB_PART_AS_RESOURCE,
+                object_entity__in=[a.id for a in activities],
+            ).values_list('object_entity_id', 'subject_entity_id')
         )
 
         for activity in activities:
@@ -168,7 +181,8 @@ class AbstractProjectTask(CremeEntity):
         return self.effective_duration
 
     def get_delay(self):
-        return self.get_effective_duration() - self.safe_duration
+        # return self.get_effective_duration() - self.safe_duration
+        return self.get_effective_duration() - self.duration
 
     def is_alive(self):
         return self.tstatus_id not in (COMPLETED_PK, CANCELED_PK)
