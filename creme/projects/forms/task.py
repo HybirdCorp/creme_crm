@@ -49,11 +49,12 @@ def _link_contact_n_activity(contact, activity, user):
     if contact.is_user:
         activity.calendars.add(Calendar.objects.get_default_calendar(contact.is_user))
 
-    create_rel = partial(Relation.objects.safe_create,
-                         subject_entity=contact,
-                         object_entity=activity,
-                         user=user,
-                        )
+    create_rel = partial(
+        Relation.objects.safe_create,
+        subject_entity=contact,
+        object_entity=activity,
+        user=user,
+    )
     create_rel(type_id=REL_SUB_PART_2_ACTIVITY)
     create_rel(type_id=REL_SUB_PART_AS_RESOURCE)
 
@@ -62,17 +63,17 @@ class _TaskForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = ProjectTask
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        fields = self.fields
-        fields['duration'].required = True
-        fields['start'].required = True
-        fields['end'].required = True
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     fields = self.fields
+    #     fields['duration'].required = True
+    #     fields['start'].required = True
+    #     fields['end'].required = True
 
 
 class TaskEditForm(_TaskForm):
-    pass  # TODO: replace _TaskForm with TaskEditForm
+    pass
 
 
 class TaskCreateForm(_TaskForm):
@@ -173,9 +174,9 @@ class RelatedActivityEditForm(CremeEntityForm):
                 raise ConflictError('This Activity is not related to a project task') from e
 
             self.old_participant = self.old_relation.subject_entity.get_real_entity()
-            resource_f.initial = Resource.objects.get(task=task,
-                                                      linked_contact=self.old_participant,
-                                                     )
+            resource_f.initial = Resource.objects.get(
+                task=task, linked_contact=self.old_participant,
+            )
 
             fields['type_selector'].initial = (instance.type_id, instance.sub_type_id)
 
@@ -183,11 +184,12 @@ class RelatedActivityEditForm(CremeEntityForm):
         cdata = self.cleaned_data
 
         if not self._errors:
-            collisions = check_activity_collisions(cdata['start'], cdata['end'],
-                                                   [cdata['resource'].linked_contact],
-                                                   busy=cdata['busy'],
-                                                   exclude_activity_id=self.instance.pk,
-                                                  )
+            collisions = check_activity_collisions(
+                cdata['start'], cdata['end'],
+                [cdata['resource'].linked_contact],
+                busy=cdata['busy'],
+                exclude_activity_id=self.instance.pk,
+            )
 
             if collisions:
                 raise ValidationError(collisions)
@@ -210,10 +212,11 @@ class RelatedActivityEditForm(CremeEntityForm):
 
                 if not cdata.get('keep_participating'):
                     # NB: no delete() on queryset (with a filter()) in order to send signals
-                    Relation.objects.get(subject_entity=old_participant.id,
-                                         type=REL_SUB_PART_2_ACTIVITY,
-                                         object_entity=instance.pk,
-                                        ).delete()
+                    Relation.objects.get(
+                        subject_entity=old_participant.id,
+                        type=REL_SUB_PART_2_ACTIVITY,
+                        object_entity=instance.pk,
+                    ).delete()
 
             _link_contact_n_activity(participant, instance, self.user)
 
@@ -228,13 +231,12 @@ class RelatedActivityCreateForm(RelatedActivityEditForm):
     def _get_relations_to_create(self):
         instance = self.instance
 
-        return super()._get_relations_to_create().append(
-            Relation(subject_entity=instance,
-                     type_id=REL_SUB_LINKED_2_PTASK,
-                     object_entity=self._task,
-                     user=instance.user,
-                    )
-        )
+        return super()._get_relations_to_create().append(Relation(
+            subject_entity=instance,
+            type_id=REL_SUB_LINKED_2_PTASK,
+            object_entity=self._task,
+            user=instance.user,
+        ))
 
     def _get_task(self):
         return self._task
