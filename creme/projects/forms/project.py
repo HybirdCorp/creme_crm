@@ -20,7 +20,7 @@
 
 from functools import partial
 
-from django.forms import DateTimeField
+# from django.forms import DateTimeField
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, MultiCreatorEntityField
@@ -32,10 +32,8 @@ from ..constants import REL_OBJ_PROJECT_MANAGER
 
 
 class ProjectEditForm(CremeEntityForm):
-    # TODO: not required in the model !
-    start_date = DateTimeField(label=_('Start date'), required=True)
-
-    end_date = DateTimeField(label=_('End date'), required=True)
+    # start_date = DateTimeField(label=_('Start date'), required=True)
+    # end_date = DateTimeField(label=_('End date'), required=True)
 
     class Meta(CremeEntityForm.Meta):
         model = get_project_model()
