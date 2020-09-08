@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                 # ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('start_date', models.DateTimeField(null=True, verbose_name='Estimated start', blank=True)),
                 ('end_date', models.DateTimeField(null=True, verbose_name='Estimated end', blank=True)),
-                ('effective_end_date', models.DateTimeField(null=True, verbose_name='Effective end date', blank=True)),
+                ('effective_end_date', models.DateTimeField(null=True, verbose_name='Effective end date', blank=True, editable=False)),
                 ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='projects.ProjectStatus')),
                 ('currency', models.ForeignKey(related_name='+', on_delete=PROTECT, default=1,
                                                verbose_name='Currency', to='creme_core.Currency',
