@@ -628,19 +628,33 @@ class CremeCoreConfig(CremeAppConfig):
 
         from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-        from .forms.fields import CreatorEntityField
+        from .forms.fields import CreatorEntityField, GenericEntityField
         from .models import CremeEntity
 
         original_fk_formfield = ForeignKey.formfield
 
         def new_fk_formfield(self, **kwargs):
-            model = self.remote_field.model
+            remote_field = self.remote_field
+            model = remote_field.model
+            limit_choices_to = remote_field.limit_choices_to
+
             if issubclass(model, CremeEntity):
+                if model is CremeEntity:
+                    if limit_choices_to is not None:
+                        logger.warning(
+                            'GenericEntityField currently does not manage "q_filter".'
+                        )
+
+                    return GenericEntityField(
+                        label=self.verbose_name,
+                        required=not self.blank,
+                    )
+
                 return CreatorEntityField(
                     label=self.verbose_name,
                     model=model,
                     required=not self.blank,
-                    q_filter=self.remote_field.limit_choices_to,
+                    q_filter=limit_choices_to,
                 )
 
             return original_fk_formfield(
