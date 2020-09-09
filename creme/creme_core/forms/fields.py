@@ -452,9 +452,17 @@ class GenericEntityField(EntityCredsJSONField):
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, CremeEntity):
-            ctype_id = value.entity_type_id
             ctype = value.entity_type
             pk = value.id
+        elif isinstance(value, int):
+            ctype_id = CremeEntity.objects.values_list(
+                'entity_type_id', flat=True,
+            ).filter(id=value).first()
+            if ctype_id is None:
+                raise ValueError(f'No such entity with id={value}.')
+
+            ctype = ContentType.objects.get_for_id(ctype_id)
+            pk = value
         else:
             return value
 
@@ -462,7 +470,7 @@ class GenericEntityField(EntityCredsJSONField):
 
         return {
             'ctype': {
-                'id': ctype_id,
+                'id': ctype.id,
                 'create': ctype_create_url,
                 'create_label': str(ctype.model_class().creation_label),
             },

@@ -314,10 +314,11 @@ class RealEntityForeignKey(FieldCacheMixin):
 
     def _check_field_name(self):
         if self.name.endswith('_'):
-            yield checks.Error('Field names must not end with an underscore.',
-                               obj=self,
-                               id='fields.E001',
-                              )
+            yield checks.Error(
+                'Field names must not end with an underscore.',
+                obj=self,
+                id='fields.E001',
+            )
 
     def _check_fk(self, attr_name, related_model):
         fname = getattr(self, attr_name)
@@ -414,9 +415,10 @@ class RealEntityForeignKey(FieldCacheMixin):
             # NB: if the entity is not real & the real entity has not been
             #     retrieved yet, we do not cache it to retrieve it lazily in __get__
             if real_entity is not None:
-                self.set_cached_value(instance,
-                                      value if real_entity is True else real_entity,
-                                     )
+                self.set_cached_value(
+                    instance,
+                    value if real_entity is True else real_entity,
+                )
         else:
             self.set_cached_value(instance, value)
 

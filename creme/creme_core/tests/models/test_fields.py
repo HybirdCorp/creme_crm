@@ -31,9 +31,10 @@ class ModelFieldsTestCase(CremeTestCase):
                 entity_type=FakeContact,
             )
 
-        self.assertEqual(ContentType.objects.get_for_model(FakeContact),
-                         self.refresh(efilter).entity_type
-                        )
+        self.assertEqual(
+            ContentType.objects.get_for_model(FakeContact),
+            self.refresh(efilter).entity_type,
+        )
 
     def test_CTypeOneToOneField01(self):
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -45,9 +46,10 @@ class ModelFieldsTestCase(CremeTestCase):
         with self.assertNoException():
             fconf = FieldsConfig.objects.create(content_type=FakeContact)
 
-        self.assertEqual(ContentType.objects.get_for_model(FakeContact),
-                         self.refresh(fconf).content_type
-                        )
+        self.assertEqual(
+            ContentType.objects.get_for_model(FakeContact),
+            self.refresh(fconf).content_type,
+        )
 
 
 class RealEntityForeignKeyTestCase(CremeTestCase):
@@ -93,9 +95,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         self.assertEqual(self.entity, creme_entity)
 
     def test_get_with_cache(self):
-        todo = FakeTodo.objects.create(title='My todo',
-                                       creme_entity=self.entity,
-                                      )
+        todo = FakeTodo.objects.create(title='My todo', creme_entity=self.entity)
 
         todo = self.refresh(todo)
 
@@ -109,11 +109,12 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
     def test_update_fk_cache(self):
         entity = self.entity
-        todo = FakeTodo.objects.create(title='My todo',
-                                       # creme_entity=self.entity,
-                                       entity_id=entity.id,
-                                       entity_content_type=entity.entity_type,
-                                      )
+        todo = FakeTodo.objects.create(
+            title='My todo',
+            # creme_entity=self.entity,
+            entity_id=entity.id,
+            entity_content_type=entity.entity_type,
+        )
 
         todo = self.refresh(todo)
 
@@ -159,9 +160,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
     def test_missing_ctype02(self):
         "CT not set + entity ID set => error."
-        todo = FakeTodo(title='My todo',
-                        entity_id=self.entity.id,
-                       )
+        todo = FakeTodo(title='My todo', entity_id=self.entity.id)
 
         with self.assertRaises(ValueError) as error_context:
             todo.creme_entity  # NOQA
@@ -224,10 +223,11 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
     def test_set_none01(self):
         entity = self.entity
-        todo = FakeTodo(title='My todo',
-                        entity=entity,
-                        entity_content_type=entity.entity_type,
-                       )
+        todo = FakeTodo(
+            title='My todo',
+            entity=entity,
+            entity_content_type=entity.entity_type,
+        )
 
         todo.creme_entity = None
         self.assertIsNone(todo.entity_id)
@@ -256,9 +256,10 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
     def test_get_none01(self):
         "Get initial None."
-        todo = FakeTodo(title='My todo',
-                        # entity=entity,  # Not set
-                       )
+        todo = FakeTodo(
+            title='My todo',
+            # entity=entity,  # Not set
+        )
 
         with self.assertNumQueries(0):
             creme_entity = todo.creme_entity
@@ -281,9 +282,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
     def test_get_none02(self):
         "Get initial None (explicitly set)."
-        todo = FakeTodo(title='My todo',
-                        entity=None,
-                       )
+        todo = FakeTodo(title='My todo', entity=None)
 
         with self.assertNumQueries(0):
             creme_entity = todo.creme_entity
@@ -315,9 +314,10 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         with self.assertRaises(ValueError) as error_context:
             todo.creme_entity  # NOQA
 
-        self.assertEqual('The content type does not match this entity.',
-                         error_context.exception.args[0]
-                        )
+        self.assertEqual(
+            'The content type does not match this entity.',
+            error_context.exception.args[0]
+        )
 
     def test_change_entity(self):
         "New entity with new CT."
