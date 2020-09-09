@@ -47,6 +47,7 @@ def listview_entity_filters(*, model, user, efilters, show_buttons):
         can_edit = can_delete = False
 
     return {
+        'user': user,
         'model': model,
         'entity_filters': efilters,
         'efilter_id': efilter_id,
