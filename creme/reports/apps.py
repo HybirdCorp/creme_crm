@@ -70,7 +70,7 @@ class ReportsConfig(CremeAppConfig):
         register = bulk_update_registry.register
         register(
             self.Report,
-            exclude=['ct', 'columns'],
+            exclude=['ct'],
             innerforms={'filter': ReportFilterBulkForm},
         )
         register(
