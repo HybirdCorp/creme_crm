@@ -66,7 +66,7 @@ class ButtonMenuItem(CremeModel):
     # 'null' means: all ContentTypes are accepted.
     # TODO: EntityCTypeForeignKey ??
     content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
-    button_id = models.CharField(_('Button ID'), max_length=100, blank=False, null=False)
+    button_id = models.CharField(_('Button ID'), max_length=100)
     order = models.PositiveIntegerField(_('Priority'))
 
     objects = ButtonMenuItemManager()

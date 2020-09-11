@@ -48,11 +48,11 @@ BASE_STATUS = (
 
 
 class Status(CremeModel):
-    "Status of a ticket: open, closed, invalid..."
-    name      = models.CharField(_('Name'), max_length=100, blank=False, null=False, unique=True)
+    """Status of a ticket: open, closed, invalid..."""
+    name = models.CharField(_('Name'), max_length=100, unique=True)
     is_closed = models.BooleanField(_('Is a "closed" status?'), default=False)
     is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
-    order     = BasicAutoField(_('Order'))  # Used by creme_config
+    order = BasicAutoField(_('Order'))  # Used by creme_config
 
     creation_label = pgettext_lazy('tickets-status', 'Create a status')
 

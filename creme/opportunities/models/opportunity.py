@@ -23,29 +23,15 @@ from functools import partial
 
 from django.apps import apps
 from django.core.exceptions import ValidationError
-from django.db.models import (
-    PROTECT,
-    BooleanField,
-    CharField,
-    DateField,
-    ForeignKey,
-    PositiveIntegerField,
-)
+from django.db import models
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+from creme.creme_core import models as core_models
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.models import (
-    CREME_REPLACE_NULL,
-    CremeEntity,
-    CremeModel,
-    Currency,
-    Relation,
-    Vat,
-)
 from creme.creme_core.models.fields import BasicAutoField
 from creme.persons import get_organisation_model
 from creme.persons.workflow import transform_target_into_prospect
@@ -53,11 +39,12 @@ from creme.persons.workflow import transform_target_into_prospect
 from .. import constants
 
 
-class SalesPhase(CremeModel):
-    name  = CharField(_('Name'), max_length=100, blank=False, null=False)
+class SalesPhase(core_models.CremeModel):
+    name = models.CharField(_('Name'), max_length=100)
     order = BasicAutoField(_('Order'))
-    won   = BooleanField(pgettext_lazy('opportunities-sales_phase', 'Won'), default=False)
-    lost  = BooleanField(pgettext_lazy('opportunities-sales_phase', 'Lost'), default=False)
+
+    won  = models.BooleanField(pgettext_lazy('opportunities-sales_phase', 'Won'),  default=False)
+    lost = models.BooleanField(pgettext_lazy('opportunities-sales_phase', 'Lost'), default=False)
 
     creation_label = pgettext_lazy('opportunities-sales_phase', 'Create a phase')
 
@@ -77,8 +64,8 @@ class SalesPhase(CremeModel):
             raise ValidationError(gettext('A phase can not be won and lost at the same time.'))
 
 
-class Origin(CremeModel):
-    name = CharField(_('Origin'), max_length=100, blank=False, null=False)
+class Origin(core_models.CremeModel):
+    name = models.CharField(_('Origin'), max_length=100)
 
     creation_label = pgettext_lazy('opportunities-origin', 'Create an origin')
 
@@ -92,44 +79,44 @@ class Origin(CremeModel):
         ordering = ('name',)
 
 
-class AbstractOpportunity(CremeEntity):
-    name = CharField(_('Name of the opportunity'), max_length=100)
+class AbstractOpportunity(core_models.CremeEntity):
+    name = models.CharField(_('Name of the opportunity'), max_length=100)
 
-    reference = CharField(
+    reference = models.CharField(
         _('Reference'), max_length=100, blank=True,
     ).set_tags(optional=True)
 
-    estimated_sales = PositiveIntegerField(
+    estimated_sales = models.PositiveIntegerField(
         _('Estimated sales'), blank=True, null=True,
     ).set_tags(optional=True)
-    made_sales = PositiveIntegerField(
+    made_sales = models.PositiveIntegerField(
         _('Made sales'), blank=True, null=True,
     ).set_tags(optional=True)
-    currency = ForeignKey(
-        Currency, verbose_name=_('Currency'),
-        default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
+    currency = models.ForeignKey(
+        core_models.Currency, verbose_name=_('Currency'),
+        default=DEFAULT_CURRENCY_PK, on_delete=models.PROTECT,
     )
 
-    sales_phase = ForeignKey(
-        SalesPhase, verbose_name=_('Sales phase'), on_delete=PROTECT,
+    sales_phase = models.ForeignKey(
+        SalesPhase, verbose_name=_('Sales phase'), on_delete=models.PROTECT,
     )
-    chance_to_win = PositiveIntegerField(
+    chance_to_win = models.PositiveIntegerField(
         _(r'% of chance to win'), blank=True, null=True,
     ).set_tags(optional=True)
 
-    expected_closing_date = DateField(
+    expected_closing_date = models.DateField(
         _('Expected closing date'), blank=True, null=True,
     ).set_tags(optional=True)
-    closing_date = DateField(
+    closing_date = models.DateField(
         _('Actual closing date'), blank=True, null=True,
     ).set_tags(optional=True)
 
-    origin = ForeignKey(
+    origin = models.ForeignKey(
         Origin, verbose_name=_('Origin'),
-        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+        blank=True, null=True, on_delete=core_models.CREME_REPLACE_NULL,
     ).set_tags(optional=True)
 
-    first_action_date = DateField(
+    first_action_date = models.DateField(
         _('Date of the first action'), blank=True, null=True,
     ).set_tags(optional=True)
 
@@ -196,7 +183,7 @@ class AbstractOpportunity(CremeEntity):
             return self.estimated_sales or 0
 
     def get_total_with_tax(self):
-        tax = 1 + Vat.get_default_vat().value / 100
+        tax = 1 + core_models.Vat.get_default_vat().value / 100
 
         if self.made_sales:
             return self.made_sales * tax
@@ -287,7 +274,9 @@ class AbstractOpportunity(CremeEntity):
 
     @atomic
     def save(self, *args, **kwargs):
-        create_relation = partial(Relation.objects.create, object_entity=self, user=self.user)
+        create_relation = partial(
+            core_models.Relation.objects.create, object_entity=self, user=self.user,
+        )
         target = self._opp_target
 
         if not self.pk:  # Creation
@@ -319,7 +308,7 @@ class AbstractOpportunity(CremeEntity):
 
             ct = ContentType.objects.get_for_model(get_quote_model())
 
-            return Relation.objects.filter(
+            return core_models.Relation.objects.filter(
                 object_entity=self.id,
                 type=constants.REL_SUB_CURRENT_DOC,
                 subject_entity__entity_type=ct,

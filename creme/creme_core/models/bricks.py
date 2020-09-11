@@ -721,9 +721,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
 
 # class InstanceBrickConfigItem(CremeModel):
 class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
-    # brick_id = models.CharField(_('Block ID'), max_length=300, blank=False,
-    #                             null=False, editable=False,
-    #                            )
+    # brick_id = models.CharField(_('Block ID'), max_length=300, editable=False)
     brick_class_id = models.CharField(
         'Block class ID',
         max_length=300, editable=False,

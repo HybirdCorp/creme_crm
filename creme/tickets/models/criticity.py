@@ -28,7 +28,7 @@ from creme.creme_core.models.fields import BasicAutoField
 
 class Criticity(CremeModel):
     """Criticality of a ticket: critical, not important etc..."""
-    name  = CharField(_('Name'), max_length=100, blank=False, null=False, unique=True)
+    name = CharField(_('Name'), max_length=100, unique=True)
     order = BasicAutoField(_('Order'))  # Used by creme_config
 
     creation_label = pgettext_lazy('tickets-criticality', 'Create a criticality')

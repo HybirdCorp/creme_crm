@@ -541,9 +541,7 @@ else:
             return reverse('creme_core__list_fake_mlists')
 
     class FakeEmailCampaign(CremeEntity):
-        name = models.CharField(
-            _('Name of the campaign'), max_length=100, blank=False, null=False,
-        )
+        name = models.CharField(_('Name of the campaign'), max_length=100)
         mailing_lists = models.ManyToManyField(
             FakeMailingList, verbose_name=_('Related mailing lists'), blank=True,
         )
