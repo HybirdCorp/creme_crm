@@ -335,11 +335,11 @@ class SetCredentials(models.Model):
     set_type = models.PositiveIntegerField(
         verbose_name=_('Type of entities set'),
         choices=ESETS_MAP.items(),
-        blank=False,
         default=ESET_ALL,
-        help_text=_('The choice «Filtered entities» allows to configure credentials '
-                    'based on values of fields or relationships for example.'
-                   ),
+        help_text=_(
+            'The choice «Filtered entities» allows to configure credentials '
+            'based on values of fields or relationships for example.'
+        ),
     )
     # ctype = CTypeForeignKey(
     ctype = EntityCTypeForeignKey(
@@ -354,10 +354,11 @@ class SetCredentials(models.Model):
             (False, _('The users are allowed to perform the selected actions')),
             (True,  _('The users are NOT allowed to perform the selected actions')),
         ],
-        help_text=_('Notice that actions which are forbidden & allowed at '
-                    'the same time are considered as forbidden when final '
-                    'permissions are computed.'
-                   ),
+        help_text=_(
+            'Notice that actions which are forbidden & allowed at '
+            'the same time are considered as forbidden when final '
+            'permissions are computed.'
+        ),
     )
     efilter = models.ForeignKey(
         'EntityFilter', editable=False, null=True, on_delete=models.PROTECT,
@@ -799,11 +800,12 @@ class CremeUserManager(BaseUserManager):
         if not username:
             raise ValueError('The given username must be set')
 
-        user = self.model(username=username,
-                          first_name=first_name, last_name=last_name,
-                          email=self.normalize_email(email),
-                          **extra_fields
-                         )
+        user = self.model(
+            username=username,
+            first_name=first_name, last_name=last_name,
+            email=self.normalize_email(email),
+            **extra_fields
+        )
 
         user.set_password(password)
         user.save()
@@ -821,12 +823,13 @@ class CremeUserManager(BaseUserManager):
         "Creates and saves a superuser."
         extra_fields['is_superuser'] = True
 
-        return self.create_user(username=username,
-                                first_name=first_name, last_name=last_name,
-                                email=email,
-                                password=password,
-                                **extra_fields
-                               )
+        return self.create_user(
+            username=username,
+            first_name=first_name, last_name=last_name,
+            email=email,
+            password=password,
+            **extra_fields
+        )
 
     # TODO: create_staff_user ??
 
@@ -847,17 +850,19 @@ class CremeUser(AbstractBaseUser):
     # NB: auth.models.AbstractUser.username max_length == 150 (since django 1.10) => increase too ?
     username = models.CharField(
         _('Username'), max_length=30, unique=True,
-        help_text=_('Required. 30 characters or fewer. '
-                    'Letters, digits and @/./+/-/_ only.'
-                    ),
+        help_text=_(
+            'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'
+        ),
         validators=[
-            RegexValidator(re_compile(r'^[\w.@+-]+$'),
-                           _('Enter a valid username. '
-                             'This value may contain only letters, numbers, '
-                             'and @/./+/-/_ characters.'
-                             ),
-                           'invalid',
-                           ),
+            RegexValidator(
+                re_compile(r'^[\w.@+-]+$'),
+                _(
+                    'Enter a valid username. '
+                    'This value may contain only letters, numbers, '
+                    'and @/./+/-/_ characters.'
+                ),
+                'invalid',
+            ),
         ],
         error_messages={
             'unique': _('A user with that username already exists.'),
@@ -1244,16 +1249,17 @@ class Sandbox(models.Model):
     user/role, the entities in this sandbox are only accessible to the superusers
     (like the Sandbox built in creme_core.populate.py)
     """
-    uuid      = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
-    type_id   = models.CharField('Type of sandbox', max_length=48, editable=False)
-    role      = models.ForeignKey(UserRole, verbose_name='Related role', null=True,
-                                  default=None, on_delete=models.CASCADE, editable=False,
-                                 )
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    type_id = models.CharField('Type of sandbox', max_length=48, editable=False)
+    role = models.ForeignKey(
+        UserRole, verbose_name='Related role', null=True,
+        default=None, on_delete=models.CASCADE, editable=False,
+    )
     # superuser = BooleanField('related to superusers', default=False, editable=False)
-    user      = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Related user',
-                                  null=True, default=None, on_delete=models.CASCADE,
-                                  editable=False,
-                                 )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name='Related user',
+        null=True, default=None, on_delete=models.CASCADE, editable=False,
+    )
 
     class Meta:
         app_label = 'creme_core'

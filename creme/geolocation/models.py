@@ -21,16 +21,7 @@
 from itertools import chain, groupby
 
 from django.conf import settings
-from django.db.models import (
-    CASCADE,
-    BooleanField,
-    CharField,
-    FloatField,
-    Model,
-    OneToOneField,
-    SlugField,
-    SmallIntegerField,
-)
+from django.db import models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.template.defaultfilters import slugify
@@ -43,7 +34,7 @@ from creme.creme_core.utils.chunktools import iter_as_slices
 from .utils import location_bounding_box
 
 
-class GeoAddress(Model):
+class GeoAddress(models.Model):
     UNDEFINED  = 0
     MANUAL     = 1
     PARTIAL    = 2
@@ -56,18 +47,24 @@ class GeoAddress(Model):
         COMPLETE:  '',
     }
 
-    address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Address'),
-                              primary_key=True, on_delete=CASCADE,
-                             )
+    address = models.OneToOneField(
+        settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Address'),
+        primary_key=True, on_delete=models.CASCADE,
+    )
     # min_value=-90, max_value=90
-    latitude  = FloatField(verbose_name=_('Latitude'), null=True, blank=True)
+    latitude = models.FloatField(verbose_name=_('Latitude'), null=True, blank=True)
     # min_value=-180, max_value=180
-    longitude = FloatField(verbose_name=_('Longitude'), null=True, blank=True)
-    draggable = BooleanField(verbose_name=_('Is this marker draggable in maps ?'), default=True)
-    geocoded  = BooleanField(verbose_name=_('Geocoded from address ?'), default=False)
-    status    = SmallIntegerField(verbose_name=pgettext_lazy('geolocation', 'Status'),
-                                  choices=STATUS_LABELS.items(), default=UNDEFINED,
-                                 )
+    longitude = models.FloatField(verbose_name=_('Longitude'), null=True, blank=True)
+    draggable = models.BooleanField(
+        verbose_name=_('Is this marker draggable in maps ?'), default=True,
+    )
+    geocoded = models.BooleanField(
+        verbose_name=_('Geocoded from address ?'), default=False,
+    )
+    status = models.SmallIntegerField(
+        verbose_name=pgettext_lazy('geolocation', 'Status'),
+        choices=STATUS_LABELS.items(), default=UNDEFINED,
+    )
 
     creation_label = pgettext_lazy('geolocation-address', 'Create an address')
 
@@ -167,22 +164,26 @@ class GeoAddress(Model):
 
         upper_left, lower_right = location_bounding_box(latitude, longitude, distance)
 
-        return GeoAddress.objects.exclude(address_id=self.address.pk)\
-                                 .exclude(address__object_id=self.address.object_id)\
-                                 .filter(latitude__range=(upper_left[0], lower_right[0]),
-                                         longitude__range=(upper_left[1], lower_right[1]))
+        return GeoAddress.objects.exclude(
+            address_id=self.address.pk,
+        ).exclude(
+            address__object_id=self.address.object_id,
+        ).filter(
+            latitude__range=(upper_left[0], lower_right[0]),
+            longitude__range=(upper_left[1], lower_right[1]),
+        )
 
     def __str__(self):
         return f'GeoAddress(lat={self.latitude}, lon={self.longitude}, status={self.status})'
 
 
-class Town(Model):
-    name      = CharField(_('Name of the town'), max_length=100, blank=False, null=False)
-    slug      = SlugField(_('Slugified name of the town'), max_length=100, blank=False, null=False)
-    zipcode   = CharField(_('Zip code'), max_length=100, blank=True)
-    country   = CharField(_('Country'), max_length=40, blank=True)
-    latitude  = FloatField(verbose_name=_('Latitude'))
-    longitude = FloatField(verbose_name=_('Longitude'))
+class Town(models.Model):
+    name = models.CharField(_('Name of the town'), max_length=100)
+    slug = models.SlugField(_('Slugified name of the town'), max_length=100)
+    zipcode = models.CharField(_('Zip code'), max_length=100, blank=True)
+    country = models.CharField(_('Country'), max_length=40, blank=True)
+    latitude = models.FloatField(verbose_name=_('Latitude'))
+    longitude = models.FloatField(verbose_name=_('Longitude'))
 
     creation_label = _('Create a town')
 
@@ -224,10 +225,10 @@ class Town(Model):
     @classmethod
     def search_all(cls, addresses):
         candidates = [
-            *Town.objects.filter(Q(zipcode__in=(a.zipcode for a in addresses if a.zipcode)) |
-                                 Q(slug__in=(slugify(a.city) for a in addresses if a.city))
-                                )
-                         .order_by('zipcode')
+            *Town.objects.filter(
+                Q(zipcode__in=(a.zipcode for a in addresses if a.zipcode))
+                | Q(slug__in=(slugify(a.city) for a in addresses if a.city))
+            ).order_by('zipcode'),
         ]
 
         cities = {key: [*c] for key, c in groupby(candidates, lambda c: c.slug)}

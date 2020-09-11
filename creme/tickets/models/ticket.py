@@ -49,17 +49,17 @@ class TicketNumber(models.Model):
 
 
 class TicketMixin(CremeEntity):
-    title     = models.CharField(_('Title'), max_length=100, blank=True, null=False)
-    status    = models.ForeignKey(Status, verbose_name=_('Status'),
-                                  on_delete=CREME_REPLACE,
-                                 ).set_tags(clonable=False)
-    priority  = models.ForeignKey(Priority, verbose_name=_('Priority'),
-                                  on_delete=CREME_REPLACE,
-                                 )
-    criticity = models.ForeignKey(Criticity, verbose_name=_('Criticity'),
-                                  on_delete=CREME_REPLACE,
-                                 )
-    solution  = models.TextField(_('Solution'), blank=True, null=False)
+    title = models.CharField(_('Title'), max_length=100, blank=True)
+    status = models.ForeignKey(
+        Status, verbose_name=_('Status'), on_delete=CREME_REPLACE,
+    ).set_tags(clonable=False)
+    priority = models.ForeignKey(
+        Priority, verbose_name=_('Priority'), on_delete=CREME_REPLACE,
+    )
+    criticity = models.ForeignKey(
+        Criticity, verbose_name=_('Criticity'), on_delete=CREME_REPLACE,
+    )
+    solution = models.TextField(_('Solution'), blank=True)
 
     class Meta:
         app_label = 'tickets'
@@ -70,13 +70,12 @@ class TicketMixin(CremeEntity):
 
 
 class AbstractTicket(TicketMixin):
-    number       = models.PositiveIntegerField(_('Number'),
-                                               unique=True, editable=False,
-                                              ).set_tags(clonable=False)
-    closing_date = models.DateTimeField(_('Closing date'),
-                                        blank=True, null=True,
-                                        editable=False,
-                                       ).set_tags(clonable=False)
+    number = models.PositiveIntegerField(
+        _('Number'), unique=True, editable=False,
+    ).set_tags(clonable=False)
+    closing_date = models.DateTimeField(
+        _('Closing date'), blank=True, null=True, editable=False,
+    ).set_tags(clonable=False)
 
     creation_label = _('Create a ticket')
     save_label     = _('Save the ticket')

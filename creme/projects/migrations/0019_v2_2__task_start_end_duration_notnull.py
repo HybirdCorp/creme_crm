@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             model_name='projecttask',
             name='duration',
             field=models.PositiveIntegerField(default=0, verbose_name='Duration (in hours)'),
-            preserve_default=False,
+            # preserve_default=False,
         ),
         migrations.AlterField(
             model_name='projecttask',

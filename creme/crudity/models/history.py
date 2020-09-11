@@ -29,8 +29,7 @@ from creme.creme_core.models import fields as core_fields
 
 class History(CremeModel):
     entity = models.ForeignKey(
-        CremeEntity, verbose_name=_('Entity'),
-        blank=False, null=False, on_delete=models.CASCADE,
+        CremeEntity, verbose_name=_('Entity'), on_delete=models.CASCADE,
     )
     created = core_fields.CreationDateTimeField(_('Creation date'))
 

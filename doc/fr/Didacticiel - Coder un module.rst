@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 04-09-2020 pour la version 2.2 de Creme
+:Version: 11-09-2020 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -830,7 +830,7 @@ Créez un fichier ``models/status.py`` : ::
 
 
     class Status(CremeModel):
-        name      = CharField(_('Name'), max_length=100, blank=False, null=False, unique=True)
+        name      = CharField(_('Name'), max_length=100, unique=True)
         is_custom = BooleanField(default=True).set_tags(viewable=False)
 
         creation_label = pgettext_lazy('beavers-status', 'Create a status')
@@ -1075,7 +1075,7 @@ vous devez rajouter un champ ``order`` comme ceci : ::
 
 
     class Status(CremeModel):
-        name      = CharField(_('Name'), max_length=100, blank=False, null=False, unique=True)
+        name      = CharField(_('Name'), max_length=100, unique=True)
         is_custom = BooleanField(default=True).set_tags(viewable=False)
         order     = BasicAutoField(_('Order'))  # <- NEW
 
