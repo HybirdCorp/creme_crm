@@ -22,7 +22,7 @@
 
 {% block brick_table_rows %}
 {% has_perm_to change object as has_perm %}{% url 'projects__delete_resource' as delete_url %}
-{% with currency=object.project.currency %}
+{% with currency=object.linked_project.currency %}
     {% for resource in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink resource.linked_contact user %}</td>
