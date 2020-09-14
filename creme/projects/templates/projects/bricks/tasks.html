@@ -30,7 +30,7 @@
         <td>{{task.order}}</td>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink task user %}</td>
         {% if view_perm %}
-            <td>{{task.safe_duration}}h</td>
+            <td>{{task.duration}}h</td>
             {% if task.get_delay > 0 %}
             <td class="task-delay-value -overtime">
                 {% blocktrans with duration=task.get_effective_duration delay=task.get_delay %}{{duration}}h: overtime of {{delay}}h{% endblocktrans %}

@@ -127,6 +127,7 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Resource of project',
                 'verbose_name_plural': 'Resources of project',
             },
-            bases=('creme_core.cremeentity',),
+            # bases=('creme_core.cremeentity',),
+            bases=(models.Model,),
         ),
     ]

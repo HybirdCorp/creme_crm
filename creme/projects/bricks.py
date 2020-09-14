@@ -22,7 +22,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import projects
 from creme.activities import get_activity_model
-from creme.creme_core.auth import build_creation_perm as cperm
+# from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.bricks import (
     PaginatedBrick,
     QuerysetBrick,
@@ -35,30 +35,30 @@ from .models import Resource
 
 Activity = get_activity_model()
 
-Project     = projects.get_project_model()
+Project = projects.get_project_model()
 ProjectTask = projects.get_task_model()
 
 
 class ProjectExtraInfoBrick(SimpleBrick):
-    id_           = SimpleBrick.generate_id('projects', 'project_extra_info')
-    dependencies  = (ProjectTask,)
-    verbose_name  = _('Extra project information')
+    id_ = SimpleBrick.generate_id('projects', 'project_extra_info')
+    dependencies = (ProjectTask,)
+    verbose_name = _('Extra project information')
     template_name = 'projects/bricks/project-extra-info.html'
     target_ctypes = (Project,)
 
 
 class TaskExtraInfoBrick(SimpleBrick):
-    id_           = SimpleBrick.generate_id('projects', 'task_extra_info')
-    dependencies  = (Activity,)
-    verbose_name  = _('Extra project task information')
+    id_ = SimpleBrick.generate_id('projects', 'task_extra_info')
+    dependencies = (Activity,)
+    verbose_name = _('Extra project task information')
     template_name = 'projects/bricks/task-extra-info.html'
     target_ctypes = (ProjectTask,)
 
 
 class ParentTasksBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('projects', 'parent_tasks')
-    dependencies  = (ProjectTask,)
-    verbose_name  = _('Parents of a task')
+    id_ = QuerysetBrick.generate_id('projects', 'parent_tasks')
+    dependencies = (ProjectTask,)
+    verbose_name = _('Parents of a task')
     template_name = 'projects/bricks/parent-tasks.html'
     target_ctypes = (ProjectTask,)
 
@@ -69,16 +69,17 @@ class ParentTasksBrick(QuerysetBrick):
 
 
 class ProjectTasksBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('projects', 'project_tasks')
-    dependencies  = (ProjectTask,)
-    verbose_name  = _('Tasks of a project')
+    id_ = QuerysetBrick.generate_id('projects', 'project_tasks')
+    dependencies = (ProjectTask,)
+    verbose_name = _('Tasks of a project')
     template_name = 'projects/bricks/tasks.html'
     target_ctypes = (Project,)
 
     def detailview_display(self, context):
         project = context['object']
-        user    = context['user']
-        creation_perm = user.has_perm(cperm(ProjectTask)) and user.has_perm_to_change(project)
+        user = context['user']
+        # creation_perm = user.has_perm(cperm(ProjectTask)) and user.has_perm_to_change(project)
+        creation_perm = user.has_perm_to_create(ProjectTask) and user.has_perm_to_change(project)
 
         return self._render(self.get_template_context(
             context, project.get_tasks(),
@@ -87,25 +88,27 @@ class ProjectTasksBrick(QuerysetBrick):
 
 
 class TaskResourcesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('projects', 'resources')
-    dependencies  = (Resource,)
-    verbose_name  = _('Resources assigned to a task')
+    id_ = QuerysetBrick.generate_id('projects', 'resources')
+    dependencies = (Resource,)
+    verbose_name = _('Resources assigned to a task')
     template_name = 'projects/bricks/resources.html'
     target_ctypes = (ProjectTask,)
+    order_by = 'linked_contact__last_name'
 
     def detailview_display(self, context):
         task = context['object']
         return self._render(self.get_template_context(
             context,
-            task.get_resources().select_related('linked_contact'),
+            # task.get_resources().select_related('linked_contact'),
+            task.get_resources(),
         ))
 
 
 class TaskActivitiesBrick(PaginatedBrick):
-    id_           = QuerysetBrick.generate_id('projects', 'task_activities')
-    dependencies  = (Activity, Resource, Relation)
+    id_ = QuerysetBrick.generate_id('projects', 'task_activities')
+    dependencies = (Activity, Resource, Relation)
     relation_type_deps = (REL_OBJ_LINKED_2_PTASK, )
-    verbose_name  = _('Activities for this task')
+    verbose_name = _('Activities for this task')
     template_name = 'projects/bricks/activities.html'
     target_ctypes = (ProjectTask,)
 

@@ -19,25 +19,27 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import CASCADE, ForeignKey, PositiveIntegerField
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeEntity
+# from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeModel
 
 
-# NB: no AbstractResource because resource should probably not be a CremeEntity at all...
-# NB: CremeEntity and not CremeModel because we use a CreatorEntityField in WorkingPeriods' form
-class Resource(CremeEntity):
+# class Resource(CremeEntity):
+class Resource(CremeModel):
     # TODO: set a editable (& use automatic formfield()) + not bulk_editable ?
-    linked_contact = ForeignKey(settings.PERSONS_CONTACT_MODEL, on_delete=CASCADE,
-                                verbose_name=_('Contact'), editable=False,
-                               )
-    hourly_cost    = PositiveIntegerField(_('Hourly cost'), default=0)
-    task           = ForeignKey(settings.PROJECTS_TASK_MODEL, verbose_name=_('Task'),
-                                related_name='resources_set',  # TODO: rename 'resources'
-                                editable=False, on_delete=CASCADE,
-                               )
+    linked_contact = models.ForeignKey(
+        settings.PERSONS_CONTACT_MODEL, on_delete=models.CASCADE,
+        verbose_name=_('Contact'), editable=False,
+    )
+    hourly_cost = models.PositiveIntegerField(_('Hourly cost'), default=0)
+    task = models.ForeignKey(
+        settings.PROJECTS_TASK_MODEL, verbose_name=_('Task'),
+        related_name='resources_set',  # TODO: rename 'resources'
+        editable=False, on_delete=models.CASCADE,
+    )
 
     creation_label = _('Create a resource')
     save_label     = _('Save the resource')
@@ -52,12 +54,12 @@ class Resource(CremeEntity):
     def __str__(self):
         return str(self.linked_contact)
 
-    def get_absolute_url(self):
-        return self.linked_contact.get_absolute_url()
+    # def get_absolute_url(self):
+    #     return self.linked_contact.get_absolute_url()
 
-    @staticmethod
-    def get_clone_absolute_url():
-        return ''
+    # @staticmethod
+    # def get_clone_absolute_url():
+    #     return ''
 
     def get_edit_absolute_url(self):
         return reverse('projects__edit_resource', args=(self.id,))
@@ -66,6 +68,11 @@ class Resource(CremeEntity):
         return self.task
 
     def clone_for_task(self, task):
-        new_resource = self.clone()
-        new_resource.task = task
-        new_resource.save()
+        # new_resource = self.clone()
+        # new_resource.task = task
+        # new_resource.save()
+        return type(self).objects.create(
+            task=task,
+            linked_contact=self.linked_contact,
+            hourly_cost=self.hourly_cost,
+        )
