@@ -37,7 +37,8 @@ from creme.creme_core.utils import create_if_needed
 from creme.persons import get_contact_model
 
 from . import bricks, constants, get_project_model, get_task_model
-from .models import ProjectStatus, Resource, TaskStatus
+# from .models import Resource
+from .models import ProjectStatus, TaskStatus
 
 logger = logging.getLogger(__name__)
 
@@ -119,14 +120,13 @@ class Populator(BasePopulator):
             ],
         )
 
-        # Used in form
-        create_hf(
-            pk='projects-hf_resource', name=_('Resource view'), model=Resource,
-            cells_desc=[
-                (EntityCellRegularField, {'name': 'linked_contact'}),
-                (EntityCellRegularField, {'name': 'hourly_cost'}),
-            ],
-        )
+        # create_hf(
+        #     pk='projects-hf_resource', name=_('Resource view'), model=Resource,
+        #     cells_desc=[
+        #         (EntityCellRegularField, {'name': 'linked_contact'}),
+        #         (EntityCellRegularField, {'name': 'hourly_cost'}),
+        #     ],
+        # )
 
         # ---------------------------
         create_searchconf = SearchConfigItem.objects.create_if_needed
@@ -134,10 +134,10 @@ class Populator(BasePopulator):
             Project,
             ['name', 'description', 'status__name'],
         )
-        create_searchconf(
-            Resource,
-            ['linked_contact__last_name', 'linked_contact__first_name', 'hourly_cost'],
-        )
+        # create_searchconf(
+        #     Resource,
+        #     ['linked_contact__last_name', 'linked_contact__first_name', 'hourly_cost'],
+        # )
         create_searchconf(
             ProjectTask,
             ['linked_project__name', 'duration', 'tstatus__name'],

@@ -259,6 +259,9 @@
                 * Reports :
                     - The view 'views.graph.cast_order()' has been removed.
                     - The JavaScript function 'creme.reports.exportReport()' has been removed.
+                * Projects :
+                    - The model 'Resource' does not inherit 'CremeEntity' any more. Beware the "pure" 'CremeEntity' fields (like "description") are dropped.
+                    - In 'forms.task.RelatedActivityEditForm', the field "resource" is now related to 'persons.models.Contact'.
                 * Commercial :
                     - The template filter "|has_quickform" (from the lib "commercial_tags") has been removed.
                 * Tickets :

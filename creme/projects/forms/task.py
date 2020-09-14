@@ -37,11 +37,13 @@ from creme.creme_core.forms import (
 )
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import ellipsis_multi
+from creme.persons import get_contact_model
 
 from .. import get_task_model
+# from ..models import Resource
 from ..constants import REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
-from ..models import Resource
 
+Contact = get_contact_model()
 ProjectTask = get_task_model()
 
 
@@ -90,7 +92,7 @@ class TaskCreateForm(_TaskForm):
 
     def save(self, *args, **kwargs):
         instance = self.instance
-        project  = self._project
+        project = self._project
 
         instance.linked_project = project
         instance.order = project.attribute_order_task()
@@ -123,22 +125,16 @@ class TaskAddParentForm(CremeForm):
 
 
 class RelatedActivityEditForm(CremeEntityForm):
-    resource      = CreatorEntityField(label=_('Allocated resource'), model=Resource)
+    # resource = CreatorEntityField(label=_('Allocated resource'), model=Resource)
+    resource = CreatorEntityField(label=_('Allocated resource'), model=Contact)
     type_selector = ActivityTypeField(label=_('Type'))
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = (*CremeEntityForm.Meta.exclude,
-                   'title', 'is_all_day', 'minutes', 'status', 'type', 'sub_type',
-                  )
-
-    def _get_task(self):
-        try:
-            return Relation.objects.get(
-                subject_entity=self.instance.pk, type=REL_SUB_LINKED_2_PTASK,
-            ).object_entity.get_real_entity()
-        except Relation.DoesNotExist as e:
-            raise ConflictError('This Activity is not related to a project task.') from e
+        exclude = (
+            *CremeEntityForm.Meta.exclude,
+            'title', 'is_all_day', 'minutes', 'status', 'type', 'sub_type',
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -154,7 +150,8 @@ class RelatedActivityEditForm(CremeEntityForm):
         task = self._get_task()
 
         resource_f = fields['resource']
-        resource_f.q_filter = {'task_id': task.id}
+        # resource_f.q_filter = {'task_id': task.id}
+        resource_f.q_filter = {'resource__task_id': task.id}
 
         if pk:  # Edition
             fields['keep_participating'] = BooleanField(
@@ -167,18 +164,27 @@ class RelatedActivityEditForm(CremeEntityForm):
             get_relation = Relation.objects.get
 
             try:
-                self.old_relation = get_relation(type=REL_SUB_PART_AS_RESOURCE,
-                                                 object_entity=pk,
-                                                )
+                self.old_relation = get_relation(
+                    type=REL_SUB_PART_AS_RESOURCE, object_entity=pk,
+                )
             except Relation.DoesNotExist as e:
                 raise ConflictError('This Activity is not related to a project task') from e
 
             self.old_participant = self.old_relation.subject_entity.get_real_entity()
-            resource_f.initial = Resource.objects.get(
-                task=task, linked_contact=self.old_participant,
-            )
+            # resource_f.initial = Resource.objects.get(
+            #     task=task, linked_contact=self.old_participant,
+            # )
+            resource_f.initial = self.old_participant
 
             fields['type_selector'].initial = (instance.type_id, instance.sub_type_id)
+
+    def _get_task(self):
+        try:
+            return Relation.objects.get(
+                subject_entity=self.instance.pk, type=REL_SUB_LINKED_2_PTASK,
+            ).object_entity.get_real_entity()
+        except Relation.DoesNotExist as e:
+            raise ConflictError('This Activity is not related to a project task.') from e
 
     def clean(self, *args, **kwargs):
         cdata = self.cleaned_data
@@ -186,7 +192,8 @@ class RelatedActivityEditForm(CremeEntityForm):
         if not self._errors:
             collisions = check_activity_collisions(
                 cdata['start'], cdata['end'],
-                [cdata['resource'].linked_contact],
+                # [cdata['resource'].linked_contact],
+                [cdata['resource']],
                 busy=cdata['busy'],
                 exclude_activity_id=self.instance.pk,
             )
@@ -203,7 +210,8 @@ class RelatedActivityEditForm(CremeEntityForm):
 
         super().save(*args, **kwargs)
 
-        participant = cdata['resource'].linked_contact
+        # participant = cdata['resource'].linked_contact
+        participant = cdata['resource']
         old_participant = self.old_participant
 
         if old_participant != participant:  # Creation mode OR edition mode with resource change
