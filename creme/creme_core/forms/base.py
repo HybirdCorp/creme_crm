@@ -58,7 +58,8 @@ from ..models import (
     SemiFixedRelationType,
 )
 from ..utils.collections import FluentList
-from . import fields, widgets
+from . import fields as core_fields
+from . import widgets
 from .validators import validate_linkable_model
 
 __all__ = (
@@ -68,6 +69,7 @@ __all__ = (
 )
 
 logger = logging.getLogger(__name__)
+FieldNamesOrWildcard = Union[Sequence[str], str]
 _CUSTOM_NAME = 'custom_field_{}'
 
 
@@ -80,6 +82,7 @@ class _FieldBlock:
     name: str
     field_names: Union[List[str], str]  # TODO: use Litteral for '*' case ?
 
+    # TODO: rename name/verbose_name => label ??
     def __init__(self, verbose_name: str, field_names: Union[Sequence[str], str]):
         """Constructor.
         @param verbose_name: Name of the block (displayed in the output).
@@ -89,7 +92,7 @@ class _FieldBlock:
         self.name = verbose_name
 
         if isinstance(field_names, str):
-            assert field_names == '*'
+            assert field_names == '*', f'{field_names!r} != "*"'
             self.field_names = field_names
         else:
             self.field_names = [*field_names]
@@ -98,22 +101,30 @@ class _FieldBlock:
         return f'<_FieldBlock: {self.name} {self.field_names}>'
 
 
-class FieldBlocksGroup:
-    """You should not build them directly ; use FieldBlockManager.build() instead.
-    It contains a list of block descriptors. A blocks descriptor is a tuple
-    (block_verbose_name, [list of tuples (BoundField, field_is_required)]).
+class BoundFieldBlocks:
+    """A collection to retrieve blocks of <django.form.BoundField> instances.
+    Used by templates to get blocks by their ID, or iterate on blocks.
+    Hint: you should not build them directly ; use FieldBlockManager.build() instead.
     """
+    class BoundFieldBlock:
+        __slots__ = ('label', 'bound_fields')
+
+        def __init__(self, *, label: str, bound_fields: List[BoundField]):
+            self.label = label
+            self.bound_fields = bound_fields
+
     _blocks_data: Dict[
-        str,  # Category name
-        Tuple[
-            str,  # Block name
-            List[
-                Tuple[
-                    BoundField,
-                    bool  # Is field required ?
-                ]
-            ]
-        ]
+        str,  # Block ID
+        # Tuple[
+        #     str,  # Block label
+        #     List[
+        #         Tuple[
+        #             BoundField,
+        #             bool  # Is field required ?
+        #         ]
+        #     ]
+        # ]
+        BoundFieldBlock
     ]
 
     def __init__(self,
@@ -123,7 +134,9 @@ class FieldBlocksGroup:
         wildcard_cat: Optional[str] = None
         field_set: Set[str] = set()
 
-        for cat, block in blocks_items:
+        BFB = self.BoundFieldBlock
+
+        for block_id, block in blocks_items:
             field_names = block.field_names
 
             if isinstance(field_names, str):  # Wildcard
@@ -132,41 +145,55 @@ class FieldBlocksGroup:
                 if wildcard_cat:
                     raise ValueError(f'Only one wildcard is allowed: {type(form)}')
 
-                blocks_data[cat] = (block.name, [])  # We fill the fields info list at the end
-                wildcard_cat = cat
+                # We fill the fields info list at the end
+                # blocks_data[block_id] = (block.name, [])
+                blocks_data[block_id] = BFB(label=block.name, bound_fields=[])
+                wildcard_cat = block_id
             else:
                 field_set |= {*field_names}
-                block_data = []
+                # block_data = []
+                bound_fields = []
 
                 for fn in field_names:
                     try:
                         bound_field = form[fn]
                     except KeyError as e:
-                        logger.debug('FieldBlocksGroup: %s', e)
+                        logger.debug('BoundFieldBlocks: %s', e)
                     else:
-                        block_data.append((bound_field, form.fields[fn].required))
+                        # block_data.append((bound_field, form.fields[fn].required))
+                        bound_fields.append(bound_field)
 
-                blocks_data[cat] = (block.name, block_data)
+                # blocks_data[block_id] = (block.name, block_data)
+                blocks_data[block_id] = BFB(label=block.name, bound_fields=bound_fields)
 
         if wildcard_cat is not None:
-            blocks_data[wildcard_cat][1].extend(
-                (form[name], field.required)
-                for name, field in form.fields.items()
+            # blocks_data[wildcard_cat][1].extend(
+            #     (form[name], field.required)
+            #     for name, field in form.fields.items()
+            #     if name not in field_set
+            # )
+            blocks_data[wildcard_cat].bound_fields.extend(
+                form[name]
+                for name in form.fields.keys()
                 if name not in field_set
             )
 
-    def __getitem__(self, category: str):
+    def __getitem__(self, block_id: str) -> BoundFieldBlock:
         """Beware: it pops the retrieved value (__getitem__ is more comfortable
         to be used in templates than a classical method with an argument).
-        @return A block descriptor (see FieldBlocksGroup doc string).
+        @return A BoundFieldBlock instance.
         """
-        return self._blocks_data.pop(category)
+        return self._blocks_data.pop(block_id)
 
-    def __iter__(self) -> Iterator:
+    def __iter__(self) -> Iterator[BoundFieldBlock]:
         """Iterates on the non used blocks (see __getitem__).
-        @return A sequence of block descriptors (see FieldBlocksGroup doc string).
+        @return A sequence of BoundFieldBlock instances.
         """
         return iter(self._blocks_data.values())
+
+
+# DEPRECATED
+FieldBlocksGroup = BoundFieldBlocks
 
 
 class FieldBlockManager:
@@ -174,71 +201,104 @@ class FieldBlockManager:
 
     __blocks: Dict[str, _FieldBlock]
 
-    def __init__(self, *blocks: Tuple[str, str, Union[Sequence[str], str]]):
+    def __init__(self, *blocks: Union[Tuple[str, str, FieldNamesOrWildcard], dict]):
         """Constructor.
-        @param blocks: tuples with 3 elements
-               (category(string), verbose_name(i18n string), sequence of field names)
-               3rd element can be instead a wildcard (the string '*') which
-               means 'all remaining fields'.
+        @param blocks: Each block info can be either
+                - a tuple with 3 elements:
+                  (block_ID(string), block_label(i18n string), sequence_of_field_names)
+                  3rd element can be instead a wildcard (the string '*') which
+                  means 'all remaining fields'.
+                - a dictionary which contains:
+                  "id": block's string ID.
+                  "label": i18n string.
+                  "fields": a sequence of field names, or the wildcard.
                Only zero or one wildcard is allowed.
         """
         # Beware: use a list comprehension instead of a generator expression with this constructor
+
+        def block_kwargs():
+            for e in blocks:
+                if isinstance(e, tuple):
+                    block_id, block_label, field_names = e
+                    yield block_id, {'verbose_name': block_label, 'field_names': field_names}
+                elif isinstance(e, dict):
+                    yield e['id'], {'verbose_name': e['label'], 'field_names': e['fields']}
+                else:
+                    raise TypeError('Arguments <blocks> must be tuples or dicts')
+
         self.__blocks = OrderedDict(
-            [(cat, _FieldBlock(name, field_names)) for cat, name, field_names in blocks]
+            # [
+            #      (block_id, _FieldBlock(name, field_names))
+            #      for block_id, name, field_names in blocks
+            # ]
+            [(block_id, _FieldBlock(**kwargs)) for block_id, kwargs in block_kwargs()]
         )
 
-    def new(self, *blocks: Tuple[str, str, Sequence[str]]) -> 'FieldBlockManager':
+    def new(self,
+            *blocks: Union[Tuple[str, str, FieldNamesOrWildcard], dict]) -> 'FieldBlockManager':
         """Create a clone of self, updated with new blocks.
         @param blocks: see __init__(). New blocks are merged with self's blocks.
         """
         merged_blocks = OrderedDict([
-            (cat, _FieldBlock(block.name, block.field_names))
-            for cat, block in self.__blocks.items()
+            (block_id, _FieldBlock(block.name, block.field_names))
+            for block_id, block in self.__blocks.items()
         ])
         to_add = []
 
-        for cat, name, field_names in blocks:
-            field_block = merged_blocks.get(cat)
+        # for block_id, block_label, block_field_names in blocks:
+        for e in blocks:
+            if isinstance(e, tuple):
+                block_id, block_label, block_field_names = e
+            elif isinstance(e, dict):
+                block_id = e['id']
+                block_label = e['label']
+                block_field_names = e['fields']
+            else:
+                raise TypeError('Arguments <blocks> must be tuples or dicts')
+
+            field_block = merged_blocks.get(block_id)
 
             if field_block is not None:
-                field_block.name = name
+                field_block.name = block_label
 
                 if isinstance(field_block.field_names, str):
                     assert field_block.field_names == '*'
 
                     # TODO: possibility to have ('fieldX', 'fieldY', '*', 'fieldZ') ??
                     raise ValueError(
-                        f'You cannot extend a wildcard (see the form-block with category "{cat}")'
+                        f'You cannot extend a wildcard '
+                        f'(see the form-block with category "{block_id}")'
                     )
                 else:
-                    if isinstance(field_names, str):
-                        assert field_names == '*'
+                    if isinstance(block_field_names, str):
+                        assert block_field_names == '*'
 
                         # TODO: idem
                         raise ValueError(
                             f'You cannot extend with a wildcard '
-                            f'(see the form-block with category "{cat}")'
+                            f'(see the form-block with category "{block_id}")'
                         )
                     else:
-                        field_block.field_names.extend(field_names)
+                        field_block.field_names.extend(block_field_names)
             else:
-                to_add.append((cat, _FieldBlock(name, field_names)))  # Can't add during iteration
+                # NB: cannot add during iteration
+                to_add.append((block_id, _FieldBlock(block_label, block_field_names)))
 
-        for cat, field_block in to_add:
-            merged_blocks[cat] = field_block
+        for block_id, field_block in to_add:
+            merged_blocks[block_id] = field_block
 
         fbm = FieldBlockManager()
         fbm.__blocks = merged_blocks  # Yerk....
 
         return fbm
 
-    def build(self, form: forms.BaseForm) -> FieldBlocksGroup:
+    def build(self, form: forms.BaseForm) -> BoundFieldBlocks:
         """You should not call this directly ; see CremeForm/CremeModelForm
         get_blocks() method.
         @param form: An instance of <django.forms.Form>.
-        @return An instance of FieldBlocksGroup.
+        @return An instance of BoundFieldBlocks.
         """
-        return FieldBlocksGroup(form, self.__blocks.items())
+        return BoundFieldBlocks(form, self.__blocks.items())
 
 
 _FormCallback = Callable[[forms.Form], None]
@@ -317,7 +377,7 @@ class CremeForm(HookableFormMixin, forms.Form):
         self._creme_post_clean()
         return res
 
-    def get_blocks(self) -> FieldBlocksGroup:
+    def get_blocks(self) -> BoundFieldBlocks:
         return self.blocks.build(self)
 
     def save(self, *args, **kwargs):
@@ -353,7 +413,7 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
         self._creme_post_clean()
         return res
 
-    def get_blocks(self) -> FieldBlocksGroup:
+    def get_blocks(self) -> BoundFieldBlocks:
         return self.blocks.build(self)
 
     def save(self, *args, **kwargs):
@@ -407,7 +467,7 @@ class CustomFieldsMixin:
 
 # class CremeEntityForm(CremeModelForm):
 class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
-    property_types = fields.EnhancedModelMultipleChoiceField(
+    property_types = core_fields.EnhancedModelMultipleChoiceField(
         queryset=CremePropertyType.objects.none(),
         label=_('Properties'),
         required=False,
@@ -418,7 +478,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         required=False,
         widget=widgets.Label,
     )
-    relation_types = fields.MultiRelationEntityField(
+    relation_types = core_fields.MultiRelationEntityField(
         label=_('Relationships to add'),
         required=False,
         autocomplete=True,
