@@ -1,12 +1,15 @@
-{% with fields=form_block.1 %}
+{# {% with fields=form_block.1 %} #}
+{% with fields=form_block.bound_fields %}
   {% if fields %}
     <table class="table_detail_view ui-corner-all block-form {% block table_classes %}{% endblock %}" {% block table_attrs %}{% endblock %}>
         {% if fields|length == 1 %}
-            {% for field, is_required in fields %}
+{#            {% for field, is_required in fields %} #}
+            {% with field=fields.0 %}
                 {% if not field.is_hidden %}
                     <thead>
                         <tr>
-                            <th colspan="1">{{field.label}} {% if is_required %}<span class="required-mark">*</span>{% endif %}</th>
+{#                            <th colspan="1">{{field.label}} {% if is_required %}<span class="required-mark">*</span>{% endif %}</th> #}
+                            <th colspan="1">{{field.label}} {% if field.field.required %}<span class="required-mark">*</span>{% endif %}</th>
                         </tr>
                     </thead>
                     <tr>
@@ -16,20 +19,24 @@
                         </td>
                     </tr>
                 {% endif %}
-            {% endfor %}
+{#            {% endfor %} #}
+            {% endwith %}
         {% else %}
             <thead>
                 <tr>
-                    <th colspan="2">{{form_block.0}}</th>
+{#                    <th colspan="2">{{form_block.0}}</th> #}
+                    <th colspan="2">{{form_block.label}}</th>
                 </tr>
             </thead>
             <tbody class="collapsable">
                 {% block extra_buttons %}{% endblock %}
-                {% for field, is_required in fields %}
+{#                {% for field, is_required in fields %} #}
+                {% for field in fields %}
                     {% if not field.is_hidden %}
                         <tr>
                             <th class="{% cycle 'block_header_line_dark' 'block_header_line_light' %} th_info">
-                                <label for="{{field.auto_id}}">{{field.label}} {% if is_required %}<span class="required-mark">*</span>{% endif %}</label>
+{#                                <label for="{{field.auto_id}}">{{field.label}} {% if is_required %}<span class="required-mark">*</span>{% endif %}</label> #}
+                                <label for="{{field.auto_id}}">{{field.label}} {% if field.field.required %}<span class="required-mark">*</span>{% endif %}</label>
                             </th>
                             <td class="{% cycle 'block_line_dark' 'block_line_light' %} td_info">
                                 {% if field.help_text %}<div class="help-text">{{field.help_text|linebreaksbr}}</div>{% endif %}

@@ -117,6 +117,7 @@
                 - The property 'backends' is deprecated ; use 'backend_classes' instead.
                 - The method 'get_backend() is deprecated ; use 'get_backend_class()' instead.
             - In 'creme_core.forms' :
+                - In 'base', the class 'FieldBlocksGroup' is deprecated ; use 'BoundFieldBlocks' instead.
                 - In 'widgets', these classes are deprecated : DependentSelect, AjaxChoiceField & AjaxMultipleChoiceField
             - In 'creme_core.gui' :
                 - In 'field_printers' :
@@ -192,7 +193,9 @@
             - An attribute "is_excluded" has been added.
         # In "creme_core.core.setting_key', the description of a SettingKey can now be multiline.
         # In 'creme_core.forms' :
-            - In 'base', the calls to class-methods "add_post_*_callback()" can be chained.
+            - In 'base' :
+                - In 'FieldBlockManager', the constructor & 'new()' accepts now a dictionary format.
+                - The calls to class-methods "add_post_*_callback()" can be chained.
             - A new field has been added in 'fields': 'ReadonlyMessageField'. It can be used to replace 'CharField(widget=Label)'
         # In the class 'creme_core.gui.bricks.Brick', the attribute "permission" has been clearly added (it was dynamically checked by the views).
           If you set it, you should use an empty string instead of <None>.
@@ -324,10 +327,12 @@
             - The class 'xls_export.XLSExportBackend' does not inherit 'creme_core.utils.xlwt_utils.XlwtWriter' anymore (there is a "writer" attribute instead).
         # The class attribute 'creme_core.creme_jobs.base.JobType.id' is now an empty string, not <None> any more.
         # In 'creme_core.forms' :
+            - In 'base', the values returned by the methods of 'BoundFieldBlocks/FieldBlocksGroup' are not tuples anymore ;
+              a new internal class 'BoundFieldBlock' (with attributes "label", "bound_fields") is used instead.
             - A Quick Form class must now inherit 'creme_core.forms.base.CremeEntityQuickForm'.
             - In 'mass_import':
                 - The class 'Extractor' has ben renamed 'RegularFieldExtractor'.
-                - The medthods 'extract_value' of these classes take an additional argument "user" :
+                - The methods 'extract_value' of these classes take an additional argument "user" :
                   'RegularFieldExtractor', 'CustomFieldExtractor'.
                 - The class 'ExtractorField' has been renamed 'RegularFieldExtractorField'.
                 - The class 'ExtractorWidget' has been renamed 'RegularFieldExtractorWidget'.
@@ -348,10 +353,10 @@
                 - The field "object_properties" ; use "symmetric_type__subject_properties" instead.
             - In the method 'FieldsConfig.LocalCache.is_fieldinfo_hidden()', the argument "model" has been removed.
             - The way the model 'InstanceBrickConfigItem' stores extra data has been reworked :
-              it's a JSON dictionnary now, & data are not duplicated in the brick ID anymore.
+              it's a JSON dictionary now, & data are not duplicated in the brick ID anymore.
                 - The field 'brick_id' has been replaced by 'brick_class_id' ;
                   it only contains the basic class ID ("instanceblock_{appname}-{name}") not the second part with the related entity ID.
-                  A proprerty named "brick_id" has been added, but it returns the new kind of ID for the instance of the bricks ("instanceblock-{config_item_id}").
+                  A property named "brick_id" has been added, but it returns the new kind of ID for the instance of the bricks ("instanceblock-{config_item_id}").
                 - The field 'data' has been replaced by 'json_extra_data', which contains a JSON dictionary.
                   If you wrote your own class of 'InstanceBrick' & which uses extra data, you should write a data migration (see the app 'reports' for an example).
                 - The field 'verbose' has been removed.
