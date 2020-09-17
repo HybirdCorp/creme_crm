@@ -29,7 +29,7 @@
 
 <p class="required-help">{% trans 'Fields marked with * are required.' %}</p>
 
-<div id="editforms">
+<div id="editforms" class="form-container form-container-blocks">
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         {% for hidden in form.hidden_fields %}
@@ -55,9 +55,12 @@
         {% endif %}
 
         {% block main_content %}
+{% comment %}
             {% for form_block in form.get_blocks %}
                 {% include 'creme_core/generics/blockform/content.html' %}
             {% endfor %}
+{% endcomment %}
+            {% include 'creme_core/generics/blockform/field-blocks.html' %}
         {% endblock %}
 
         {% block submit_buttons %}

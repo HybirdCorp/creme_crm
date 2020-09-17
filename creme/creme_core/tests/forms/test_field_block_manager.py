@@ -3,7 +3,13 @@
 from django import forms
 from django.forms.boundfield import BoundField
 
-from creme.creme_core.forms.base import BoundFieldBlocks, FieldBlockManager
+from creme.creme_core.forms.base import (
+    LAYOUT_DUAL_FIRST,
+    LAYOUT_DUAL_SECOND,
+    LAYOUT_REGULAR,
+    BoundFieldBlocks,
+    FieldBlockManager,
+)
 
 from ..base import CremeTestCase
 from ..fake_forms import FakeContactForm
@@ -11,8 +17,22 @@ from ..fake_forms import FakeContactForm
 
 class FieldBlockManagerTestCase(CremeTestCase):
     def test_init_error(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(TypeError) as cm1:
             FieldBlockManager('names-Names-*')
+        self.assertEqual(
+            'Arguments <blocks> must be tuples or dicts.',
+            str(cm1.exception)
+        )
+
+        with self.assertRaises(ValueError) as cm2:
+            FieldBlockManager({
+                'id': 'names', 'label': 'Names', 'fields': '*',
+                'layout': 'invalid',  # <==
+            })
+        self.assertEqual(
+            'The layout "invalid" is invalid.',
+            str(cm2.exception)
+        )
 
     def test_basic_get_item01(self):
         "Constructor with tuples."
@@ -37,7 +57,9 @@ class FieldBlockManagerTestCase(CremeTestCase):
         # self.assertEqual(2, len(names_group))
         # self.assertEqual('Names', names_group[0])
         self.assertIsInstance(names_group, BoundFieldBlocks.BoundFieldBlock)
+        self.assertEqual('names', names_group.id)
         self.assertEqual('Names', names_group.label)
+        self.assertEqual(LAYOUT_REGULAR, names_group.layout)
 
         # items = names_group[1]
         # self.assertIsInstance(items, list)
@@ -90,8 +112,16 @@ class FieldBlockManagerTestCase(CremeTestCase):
             fax   = forms.CharField(label='Fax')
 
         fbm = FieldBlockManager(
-            {'id': 'names',   'label': 'Names',   'fields': ('first_name', 'last_name')},
-            {'id': 'details', 'label': 'Details', 'fields': ['cell', 'phone', 'fax']},
+            {
+                'id': 'names',
+                'label': 'Names',
+                'fields': ('first_name', 'last_name')
+            }, {
+                'id': 'details',
+                'label': 'Details',
+                'fields': ['cell', 'phone', 'fax'],
+                'layout': LAYOUT_DUAL_FIRST,
+            },
         )
         form = TestForm()
 
@@ -101,6 +131,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
 
         self.assertIsInstance(names_group, BoundFieldBlocks.BoundFieldBlock)
         self.assertEqual('Names', names_group.label)
+        self.assertEqual(LAYOUT_REGULAR, names_group.layout)
 
         bfields = names_group.bound_fields
         self.assertEqual(2, len(bfields))
@@ -110,6 +141,11 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual('first_name', bound_field1.name)
 
         self.assertEqual('last_name', bfields[1].name)
+
+        # --
+        details_group = blocks['details']
+        self.assertEqual('Details', details_group.label)
+        self.assertEqual(LAYOUT_DUAL_FIRST, details_group.layout)
 
     def test_basic_iter(self):
         class TestForm(forms.Form):
@@ -196,7 +232,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual('id_email', bound_fields[1].auto_id)
 
     def test_wildcard01(self):
-        "Wildcard in first group."
+        "Wildcard in second group."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name', required=False)
             last_name  = forms.CharField(label='Last name')
@@ -222,7 +258,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         )
 
     def test_wildcard02(self):
-        "Wildcard in second group."
+        "Wildcard in first group + layout."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name', required=False)
             last_name  = forms.CharField(label='Last name')
@@ -231,15 +267,18 @@ class FieldBlockManagerTestCase(CremeTestCase):
             fax   = forms.CharField(label='Fax')
 
         fbm = FieldBlockManager(
-            ('names',   'Names',   '*'),
+            # ('names',   'Names',   '*'),
+            {'id': 'names', 'label': 'Names', 'fields': '*', 'layout': LAYOUT_DUAL_SECOND},
             ('details', 'Details', ('phone', 'fax', 'cell')),
         )
 
         blocks = fbm.build(TestForm())
+        name_block = blocks['names']
+        self.assertEqual(LAYOUT_DUAL_SECOND, name_block.layout)
         self.assertListEqual(
             ['first_name', 'last_name'],
             # [bfield.name for bfield, required in blocks['names'][1]]
-            [bfield.name for bfield in blocks['names'].bound_fields]
+            [bfield.name for bfield in name_block.bound_fields]
         )
         self.assertListEqual(
             ['phone', 'fax', 'cell'],
@@ -303,7 +342,8 @@ class FieldBlockManagerTestCase(CremeTestCase):
             details_group = blocks['details']
 
         # self.assertEqual('Details', details_group[0])
-        self.assertEqual('Details', details_group.label)
+        self.assertEqual('Details',      details_group.label)
+        self.assertEqual(LAYOUT_REGULAR, details_group.layout)
         self.assertListEqual(
             ['cell', 'phone', 'fax'],
             # [bfield.name for bfield, required in details_group[1]]
@@ -396,13 +436,31 @@ class FieldBlockManagerTestCase(CremeTestCase):
             phone = forms.CharField(label='Phone')
             cell  = forms.CharField(label='Cell')
             fax   = forms.CharField(label='Fax')
+            address = forms.CharField(label='Address')
 
         fbm1 = FieldBlockManager(
-            ('names',   'Names',   ('last_name', 'first_name')),
+            {
+                'id': 'names',
+                'label': 'Names',
+                'fields': ('last_name', 'first_name'),
+                'layout': LAYOUT_DUAL_FIRST,
+            },
             ('details', 'Details', ['cell']),
         )
         fbm2 = fbm1.new(
-            {'id': 'details', 'label': 'Details extended', 'fields': ('phone', 'fax')},
+            {
+                'id': 'details',
+                'label': 'Details extended',
+                'fields': ('phone', 'fax'),
+                'layout': LAYOUT_DUAL_SECOND,
+            },
+            {'id': 'address', 'label': 'Address', 'fields': ['address']},
+            {
+                'id': 'other',
+                'label': 'Other',
+                'fields': '*',
+                'layout': LAYOUT_DUAL_FIRST,
+            },
         )
         self.assertIsInstance(fbm2, FieldBlockManager)
         self.assertIsNot(fbm2, fbm1)
@@ -414,6 +472,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             names_group = blocks['names']
 
         self.assertEqual('Names', names_group.label)
+        self.assertEqual(LAYOUT_DUAL_FIRST, names_group.layout)
         self.assertListEqual(
             ['last_name', 'first_name'],
             [bfield.name for bfield in names_group.bound_fields]
@@ -423,10 +482,14 @@ class FieldBlockManagerTestCase(CremeTestCase):
             details_group = blocks['details']
 
         self.assertEqual('Details extended', details_group.label)
+        self.assertEqual(LAYOUT_DUAL_SECOND, details_group.layout)
         self.assertListEqual(
             ['cell', 'phone', 'fax'],
             [bfield.name for bfield in details_group.bound_fields]
         )
+
+        self.assertEqual(LAYOUT_REGULAR,    blocks['address'].layout)
+        self.assertEqual(LAYOUT_DUAL_FIRST, blocks['other'].layout)
 
     def test_new_error(self):
         fbm1 = FieldBlockManager(

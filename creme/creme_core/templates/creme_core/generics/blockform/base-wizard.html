@@ -32,7 +32,7 @@
 
     <p class="required-help">{% trans 'Fields marked with * are required.' %}</p>
 
-    <div id="wizard_form">
+    <div id="wizard_form" class="form-container form-container-blocks wizard-form-container-blocks">
         <form action="" method="POST">{% csrf_token %}
             {{form.media}}
             {{wizard.management_form}}
@@ -71,9 +71,12 @@
                         {{subform.as_p}}
                     {% endfor %}
                 {% else %}
+{% comment %}
                     {% for form_block in form.get_blocks %}
                         {% include 'creme_core/generics/blockform/content.html' %}
                     {% endfor %}
+{% endcomment %}
+                    {% include 'creme_core/generics/blockform/field-blocks.html' %}
                 {% endif %}
             {% endblock %}
 

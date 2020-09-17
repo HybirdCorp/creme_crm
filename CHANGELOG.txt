@@ -195,6 +195,8 @@
         # In 'creme_core.forms' :
             - In 'base' :
                 - In 'FieldBlockManager', the constructor & 'new()' accepts now a dictionary format.
+                  This new format accepts a key "layout" to customize the blocks layout directly from the form class ;
+                  valid layout values are: LAYOUT_REGULAR, LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND.
                 - The calls to class-methods "add_post_*_callback()" can be chained.
             - A new field has been added in 'fields': 'ReadonlyMessageField'. It can be used to replace 'CharField(widget=Label)'
         # In the class 'creme_core.gui.bricks.Brick', the attribute "permission" has been clearly added (it was dynamically checked by the views).
@@ -208,7 +210,7 @@
         # A custom manager has been added to CustomField ; some queries are now cached.
         # A new templatetag for bricks has been added : {% brick_get_by_ids ... %}.
         # In unit tests :
-            - 2 new assertions: assertInChoices(), assertNotInChoices()
+            - 2 new assertions : assertInChoices(), assertNotInChoices()
             - 2 new methods : get_choices_group_or_fail(), create_user()
             - New with-statement OverrideSettingValueContext which allows local changes in SettingValues.
         # In JavaScript :
@@ -221,7 +223,7 @@
                 - In the model 'AbstractEmailTemplate', the fields "attachments" & "body_html" are now <blank=True>.
             * CTI :
                 - Javascript :
-                    - Refactor 'creme.cti.phoneCall' and add 'creme.cti.PhoneCallAction'
+                    - Refactor 'creme.cti.phoneCall' and add 'creme.cti.PhoneCallAction'.
 
     Breaking changes :
     ------------------
@@ -599,6 +601,9 @@
             - The method 'function_field.FunctionFieldDecimal._format_decimal()' has been removed.
         # In 'creme_core.forms' :
             - Some rework has been done in 'base' :
+                - In the class '_FieldBlock' :
+                    - The attribute "name" has been renamed "label".
+                    - The constructor takes now keyword arguments only ; the new argument "id" is mandatory, the argument "verbose_mane" is now "label".
                 - The class 'HookableForm' has been renamed 'HookableFormMixin'.
                 - The order of the parent classes of 'CremeForm' & 'CremeModelForm' has changed.
             - In 'fields.RelationEntityField', the default value of the attribute "allowed_rtypes" has changed (empty queryset now).

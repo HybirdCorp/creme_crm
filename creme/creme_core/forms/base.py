@@ -21,6 +21,7 @@
 # import warnings
 import logging
 from collections import OrderedDict
+from copy import copy
 from functools import partial
 from typing import (
     Any,
@@ -63,33 +64,58 @@ from . import widgets
 from .validators import validate_linkable_model
 
 __all__ = (
+    'LAYOUT_REGULAR', 'LAYOUT_DUAL_FIRST', 'LAYOUT_DUAL_SECOND',
     'FieldBlockManager', 'CremeForm', 'CremeModelForm',
     # 'CremeModelWithUserForm',
     'CremeEntityForm', 'CremeEntityQuickForm',
 )
 
 logger = logging.getLogger(__name__)
+
+# TODO: use Litteral for '*' case ?
 FieldNamesOrWildcard = Union[Sequence[str], str]
+
 _CUSTOM_NAME = 'custom_field_{}'
 
+LayoutType = str
+LAYOUT_REGULAR: LayoutType = 'regular'
+LAYOUT_DUAL_FIRST: LayoutType = 'dual_first'
+LAYOUT_DUAL_SECOND: LayoutType = 'dual_second'
 
-# TODO: add a render method with a template_name attribute ;
-#       stores the block ID as an HTML custom attribute.
+LAYOUTS = {
+    LAYOUT_REGULAR,
+    LAYOUT_DUAL_FIRST,
+    LAYOUT_DUAL_SECOND,
+}
+
+
+# TODO: add a render method with a template_name attribute ?
 #      (see Contact/Organisation form)
 class _FieldBlock:
-    __slots__ = ('name', 'field_names')
+    # __slots__ = ('name', 'field_names', 'layout')
+    __slots__ = ('id', 'label', 'field_names', 'layout')
 
-    name: str
-    field_names: Union[List[str], str]  # TODO: use Litteral for '*' case ?
-
-    # TODO: rename name/verbose_name => label ??
-    def __init__(self, verbose_name: str, field_names: Union[Sequence[str], str]):
+    def __init__(self,
+                 *,
+                 id: str,
+                 # verbose_name: str,
+                 label: str,
+                 field_names: FieldNamesOrWildcard,
+                 layout: Optional[LayoutType] = None):
         """Constructor.
-        @param verbose_name: Name of the block (displayed in the output).
+        @param id: String identifying this block among the group.
+        @param label: Title of the block (displayed in the output).
         @param field_names: Sequence of strings (fields names in the form)
                or string '*' (wildcard->all remaining fields).
+        @param layout: Layout types (see LAYOUTS) or None ; LAYOUT_REGULAR by default.
         """
-        self.name = verbose_name
+        self.id = id
+        # self.name = verbose_name
+        self.label = label
+        self.layout: LayoutType = layout or LAYOUT_REGULAR
+
+        if self.layout not in LAYOUTS:
+            raise ValueError(f'The layout "{layout}" is invalid.')
 
         if isinstance(field_names, str):
             assert field_names == '*', f'{field_names!r} != "*"'
@@ -97,8 +123,14 @@ class _FieldBlock:
         else:
             self.field_names = [*field_names]
 
-    def __str__(self):  # For debugging
-        return f'<_FieldBlock: {self.name} {self.field_names}>'
+    def __repr__(self):
+        return (
+            f'_FieldBlock('
+            f'id="{self.id}", '
+            f'label="{self.label}", '
+            f'layout="{self.layout}", '
+            f'field_names={self.field_names!r})'
+        )
 
 
 class BoundFieldBlocks:
@@ -107,11 +139,18 @@ class BoundFieldBlocks:
     Hint: you should not build them directly ; use FieldBlockManager.build() instead.
     """
     class BoundFieldBlock:
-        __slots__ = ('label', 'bound_fields')
+        __slots__ = ('id', 'label', 'bound_fields', 'layout')
 
-        def __init__(self, *, label: str, bound_fields: List[BoundField]):
+        def __init__(self,
+                     *,
+                     id: str,
+                     label: str,
+                     bound_fields: List[BoundField],
+                     layout: LayoutType):
+            self.id = id
             self.label = label
             self.bound_fields = bound_fields
+            self.layout = layout
 
     _blocks_data: Dict[
         str,  # Block ID
@@ -131,7 +170,7 @@ class BoundFieldBlocks:
                  form: forms.BaseForm,
                  blocks_items: Iterable[Tuple[str, _FieldBlock]]):
         blocks_data = self._blocks_data = OrderedDict()
-        wildcard_cat: Optional[str] = None
+        wildcard_id: Optional[str] = None
         field_set: Set[str] = set()
 
         BFB = self.BoundFieldBlock
@@ -142,13 +181,18 @@ class BoundFieldBlocks:
             if isinstance(field_names, str):  # Wildcard
                 assert field_names == '*'
 
-                if wildcard_cat:
+                if wildcard_id:
                     raise ValueError(f'Only one wildcard is allowed: {type(form)}')
 
                 # We fill the fields info list at the end
                 # blocks_data[block_id] = (block.name, [])
-                blocks_data[block_id] = BFB(label=block.name, bound_fields=[])
-                wildcard_cat = block_id
+                blocks_data[block_id] = BFB(
+                    id=block_id,
+                    label=block.label,
+                    layout=block.layout,
+                    bound_fields=[],
+                )
+                wildcard_id = block_id
             else:
                 field_set |= {*field_names}
                 # block_data = []
@@ -164,15 +208,20 @@ class BoundFieldBlocks:
                         bound_fields.append(bound_field)
 
                 # blocks_data[block_id] = (block.name, block_data)
-                blocks_data[block_id] = BFB(label=block.name, bound_fields=bound_fields)
+                blocks_data[block_id] = BFB(
+                    id=block_id,
+                    label=block.label,
+                    bound_fields=bound_fields,
+                    layout=block.layout,
+                )
 
-        if wildcard_cat is not None:
-            # blocks_data[wildcard_cat][1].extend(
+        if wildcard_id is not None:
+            # blocks_data[wildcard_id][1].extend(
             #     (form[name], field.required)
             #     for name, field in form.fields.items()
             #     if name not in field_set
             # )
-            blocks_data[wildcard_cat].bound_fields.extend(
+            blocks_data[wildcard_id].bound_fields.extend(
                 form[name]
                 for name in form.fields.keys()
                 if name not in field_set
@@ -212,6 +261,7 @@ class FieldBlockManager:
                   "id": block's string ID.
                   "label": i18n string.
                   "fields": a sequence of field names, or the wildcard.
+                  "layout": see LAYOUTS ; optional. Hint: cannot be passed with the tuple format.
                Only zero or one wildcard is allowed.
         """
         # Beware: use a list comprehension instead of a generator expression with this constructor
@@ -220,19 +270,25 @@ class FieldBlockManager:
             for e in blocks:
                 if isinstance(e, tuple):
                     block_id, block_label, field_names = e
-                    yield block_id, {'verbose_name': block_label, 'field_names': field_names}
+                    yield block_id, {'label': block_label, 'field_names': field_names}
                 elif isinstance(e, dict):
-                    yield e['id'], {'verbose_name': e['label'], 'field_names': e['fields']}
+                    yield (
+                        e['id'],
+                        {
+                            'label': e['label'],
+                            'field_names': e['fields'],
+                            'layout': e.get('layout'),
+                        },
+                    )
                 else:
-                    raise TypeError('Arguments <blocks> must be tuples or dicts')
+                    raise TypeError('Arguments <blocks> must be tuples or dicts.')
 
-        self.__blocks = OrderedDict(
-            # [
-            #      (block_id, _FieldBlock(name, field_names))
-            #      for block_id, name, field_names in blocks
-            # ]
-            [(block_id, _FieldBlock(**kwargs)) for block_id, kwargs in block_kwargs()]
-        )
+        self.__blocks = OrderedDict([
+            # (block_id, _FieldBlock(name, field_names))
+            # for block_id, name, field_names in blocks
+            (block_id, _FieldBlock(id=block_id, **kwargs))
+            for block_id, kwargs in block_kwargs()
+        ])
 
     def new(self,
             *blocks: Union[Tuple[str, str, FieldNamesOrWildcard], dict]) -> 'FieldBlockManager':
@@ -240,26 +296,29 @@ class FieldBlockManager:
         @param blocks: see __init__(). New blocks are merged with self's blocks.
         """
         merged_blocks = OrderedDict([
-            (block_id, _FieldBlock(block.name, block.field_names))
+            (block_id, copy(block))
             for block_id, block in self.__blocks.items()
         ])
-        to_add = []
+        # to_add = []
+        blocks_to_add: List[_FieldBlock] = []
 
         # for block_id, block_label, block_field_names in blocks:
         for e in blocks:
             if isinstance(e, tuple):
                 block_id, block_label, block_field_names = e
+                block_layout = None
             elif isinstance(e, dict):
                 block_id = e['id']
                 block_label = e['label']
                 block_field_names = e['fields']
+                block_layout = e.get('layout')
             else:
                 raise TypeError('Arguments <blocks> must be tuples or dicts')
 
             field_block = merged_blocks.get(block_id)
 
             if field_block is not None:
-                field_block.name = block_label
+                field_block.label = block_label
 
                 if isinstance(field_block.field_names, str):
                     assert field_block.field_names == '*'
@@ -280,12 +339,21 @@ class FieldBlockManager:
                         )
                     else:
                         field_block.field_names.extend(block_field_names)
+                        # if block_layout: # TODO ?
+                        field_block.layout = block_layout
             else:
                 # NB: cannot add during iteration
-                to_add.append((block_id, _FieldBlock(block_label, block_field_names)))
+                # to_add.append((block_id, _FieldBlock(block_label, block_field_names)))
+                blocks_to_add.append(_FieldBlock(
+                    id=block_id, label=block_label,
+                    field_names=block_field_names,
+                    layout=block_layout,
+                ))
 
-        for block_id, field_block in to_add:
-            merged_blocks[block_id] = field_block
+        # for block_id, field_block in to_add:
+        #     merged_blocks[block_id] = field_block
+        for field_block in blocks_to_add:
+            merged_blocks[field_block.id] = field_block
 
         fbm = FieldBlockManager()
         fbm.__blocks = merged_blocks  # Yerk....
