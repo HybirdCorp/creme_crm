@@ -1,0 +1,26 @@
+{% load i18n creme_form %}
+{% for section_type, form_blocks in form.get_blocks|form_gather_blocks_for_layout %}
+    {% if section_type == 'regular' %}
+        <div class="form-layout form-layout-regular">
+            {% for form_block in form_blocks %}
+                {% include 'creme_core/generics/blockform/field-block.html' %}
+            {% endfor %}
+        </div>
+    {% else %}{# DUAL #}
+        <div class="form-layout form-layout-dual-columns">
+        {% with left_blocks=form_blocks.0 right_blocks=form_blocks.1 %}
+            <div class="dual-column dual-column-left">
+            {% for form_block in left_blocks %}
+                {% include 'creme_core/generics/blockform/field-block.html' %}
+            {% endfor %}
+            </div>
+            <div class="dual-column dual-column-right">
+            {% for form_block in right_blocks %}
+                {% include 'creme_core/generics/blockform/field-block.html' %}
+            {% endfor %}
+            </div>
+        </div>
+        <div class="clear"></div>
+        {% endwith %}
+    {% endif %}
+{% endfor %}

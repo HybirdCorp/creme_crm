@@ -33,6 +33,42 @@
     border-radius: 0px;
 }
 
+/* Layout */
+
+.form-container-blocks .form-layout-regular {
+     -webkit-box-sizing: border-box;
+       -moz-box-sizing:  border-box;
+            box-sizing:  border-box;
+}
+
+.form-container-blocks .form-layout-regular,
+.form-container-blocks .form-layout-dual-columns {
+    width:99.9%;
+}
+
+.form-container-blocks .form-layout-dual-columns .dual-column {
+    width: 49.9%;
+    width: calc(49.9% - 10px);
+}
+
+.form-container-blocks .form-layout-dual-columns .dual-column-left {
+    float: left;
+    margin-left: 0px;
+}
+
+.form-container-blocks .form-layout-dual-columns .dual-column-right {
+    float: right;
+    margin-right: 0px;
+    padding-left: 13px;
+}
+
+.form-container-blocks div.clear + .form-layout-regular,
+.form-container-blocks .form-layout-regular + .form-layout-dual-columns {
+    margin-top: 15px;
+}
+
+/* Layout - end */
+
 div.submit_buttons {
     margin-top: 20px;
     text-align: center;
