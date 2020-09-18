@@ -221,6 +221,7 @@ __registry.register(['string', 'text'], {
     integer: __toInt,
     float: __toFloat,
     number: __toFloat,
+    decimal: __toFloat,
     json: __fromJSON,
     date: __iso8601ToMomentDate,
     datetime: __iso8601ToMoment,

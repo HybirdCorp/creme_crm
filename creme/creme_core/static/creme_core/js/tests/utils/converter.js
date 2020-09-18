@@ -206,15 +206,19 @@ QUnit.parameterize('creme.utils.converters (string-number)', [
     [{from: 'string', to: 'number'}, '15', 15.0],
     [{from: 'string', to: 'int'}, '15', 15],
     [{from: 'string', to: 'float'}, '15', 15.0],
+    [{from: 'string', to: 'decimal'}, '15', 15.0],
     [{from: 'text', to: 'number'}, '15', 15.0],
     [{from: 'text', to: 'int'}, '15', 15],
     [{from: 'text', to: 'float'}, '15', 15.0],
+    [{from: 'text', to: 'decimal'}, '15', 15.0],
     [{from: 'string', to: 'number'}, '15.52', 15.52],
     [{from: 'string', to: 'int'}, '15.52', 15],
     [{from: 'string', to: 'float'}, '15.52', 15.52],
+    [{from: 'string', to: 'decimal'}, '15.52', 15.52],
     [{from: 'text', to: 'number'}, '15.52', 15.52],
     [{from: 'text', to: 'int'}, '15.52', 15],
-    [{from: 'text', to: 'float'}, '15.52', 15.52]
+    [{from: 'text', to: 'float'}, '15.52', 15.52],
+    [{from: 'text', to: 'decimal'}, '15.52', 15.52]
 ], function(options, value, expected, assert) {
     var converters = creme.utils.converters();
 
