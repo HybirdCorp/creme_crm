@@ -8,7 +8,6 @@ from sys import argv
 from django.utils.translation import gettext_lazy as _
 
 DEBUG = False
-JAVASCRIPT_DEBUG = DEBUG
 
 TESTS_ON = len(argv) > 1 and argv[1] == 'test'
 FORCE_JS_TESTVIEW = False
