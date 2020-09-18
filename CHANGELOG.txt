@@ -535,6 +535,7 @@
                 - The function-view 'views.sending.reload_messages_brick()' has been replaced by the class 'MessageBrickReloading'.
             * Activesync :
                 - Its support was dropped with Creme2.0, and is now removed from the codebase.
+        # The unused django setting 'JAVASCRIPT_DEBUG' was removed.
 
     Internal breaking changes :
     ---------------------------
