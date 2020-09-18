@@ -435,7 +435,7 @@ QUnit.parametrize('creme.form.Form (clean, novalidate)', [
     equal(element.get(0).noValidate, expected);
 });
 
-QUnit.parametrize('creme.form.Form (clean, constraintss)', [
+QUnit.parametrize('creme.form.Form (clean, constraints)', [
     [{}, {
         cleanedData: {clone: ''},
         data: {a: '', clone: ''},
