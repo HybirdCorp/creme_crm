@@ -22,8 +22,10 @@ import os
 import warnings
 from os.path import basename, join
 from random import randint
+from typing import List, Optional
 
 from django.conf import settings
+from django.core.files.base import File
 from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
@@ -40,11 +42,14 @@ from .generic import base
 MAXINT = 100000
 
 
-def handle_uploaded_file(f, path=None, name=None, max_length=None):
+def handle_uploaded_file(f: File,
+                         path: Optional[List[str]] = None,
+                         name: Optional[str] = None,
+                         max_length: Optional[int] = None) -> str:
     """Handle an uploaded file by a form and return the complete file's path
     path has to be iterable
     """
-    def get_name(file):
+    def get_name(file: File) -> str:
         if hasattr(file, 'name'):
             name = file.name
         elif hasattr(file, '_name'):
@@ -92,10 +97,11 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
 def download_file(request, location):
     from mimetypes import guess_type
 
-    warnings.warn('The view download_file() is deprecated ; '
-                  'use the class based-view RegisteredFileFieldDownloadView instead.',
-                  DeprecationWarning
-                 )
+    warnings.warn(
+        'The view download_file() is deprecated ; '
+        'use the class based-view RegisteredFileFieldDownloadView instead.',
+        DeprecationWarning
+    )
 
     name_parts = location.replace('\\', '/').rpartition('/')[2].split('.')
 
