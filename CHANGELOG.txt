@@ -158,6 +158,8 @@
                     - In 'views.graph':
                         - The function-view 'get_available_report_graph_types()' is deprecated.
                         - The function '_get_available_report_graph_types()' is deprecated.
+                * Documents :
+                    - The method 'models.AbstractDocument.get_linkeddoc_relations()' is deprecated.
                 * Billing :
                     - In 'models.Base', the methods 'get_source()/get_target()' are deprecated ; use the properties "source/target" instead.
                 * Commercial :

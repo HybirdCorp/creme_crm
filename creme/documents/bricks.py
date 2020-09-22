@@ -52,12 +52,12 @@ class DocumentBrick(EntityBrick):
 
 
 class FolderDocsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('documents', 'folder_docs')
-    dependencies  = (Document,)
-    verbose_name  = _('Folder documents')
+    id_ = QuerysetBrick.generate_id('documents', 'folder_docs')
+    dependencies = (Document,)
+    verbose_name = _('Folder documents')
     template_name = 'documents/bricks/documents.html'
     target_ctypes = (Folder,)
-    order_by      = 'title'
+    order_by = 'title'
 
     def detailview_display(self, context):
         folder_id = context['object'].id
@@ -72,10 +72,10 @@ class FolderDocsBrick(QuerysetBrick):
 
 
 class ChildFoldersBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('documents', 'child_folders')
-    dependencies  = (Folder,)
-    order_by      = 'title'
-    verbose_name  = _('Child Folders')
+    id_ = QuerysetBrick.generate_id('documents', 'child_folders')
+    dependencies = (Folder,)
+    order_by = 'title'
+    verbose_name = _('Child Folders')
     template_name = 'documents/bricks/child-folders.html'
     target_ctypes = (Folder,)
 
@@ -90,18 +90,19 @@ class ChildFoldersBrick(QuerysetBrick):
 
 
 class LinkedDocsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('documents', 'linked_docs')
-    dependencies  = (Relation, Document)
+    id_ = QuerysetBrick.generate_id('documents', 'linked_docs')
+    dependencies = (Relation, Document)
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
-    verbose_name  = _('Linked documents')
+    verbose_name = _('Linked documents')
     template_name = 'documents/bricks/linked-docs.html'
-    order_by      = 'id'  # For consistent ordering between 2 queries (for pages)
+    order_by = 'id'  # For consistent ordering between 2 queries (for pages)
 
     def detailview_display(self, context):
         entity = context['object']
         btc = self.get_template_context(
             context,
-            Document.get_linkeddoc_relations(entity),
+            # Document.get_linkeddoc_relations(entity),
+            Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC),
             predicate_id=REL_SUB_RELATED_2_DOC,
         )
         relations = btc['page'].object_list
