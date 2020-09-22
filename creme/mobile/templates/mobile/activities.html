@@ -22,40 +22,40 @@ if (navigator.userAgent.match(/Android/i)) {
 {% endcomment %}
 {% include 'mobile/frags/phonecall_script.html' %}
 </head>
-<body class='page-activities' onload='checkCallCookies()'>
+<body class="page-activities" onload="checkCallCookies()">
   <nav>
-    <a href='{% url 'mobile__portal' %}' class='tab'>{% trans 'Home' %}</a>
-    <a href='{% url 'mobile__directory' %}' class='tab'>{% trans 'Directory' %}</a>
-    <a href='{% url 'mobile__activities' %}' class='tab selected-tab'>{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab">{% trans 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab selected-tab">{% trans 'Activities' %}</a>
   </nav>
 
-  <section class='hideable-content'>
+  <section class="hideable-content">
     {% if phone_calls %}
-      <div class='card-list late-activities with-more-info showing-more-info'>
-        <div class='card-list-title'>
-          <a href='' class='more-info-trigger showing-more-info'>
+      <div class="card-list late-activities with-more-info showing-more-info">
+        <div class="card-list-title">
+          <a href="" class="more-info-trigger showing-more-info">
             {% blocktrans count counter=phone_calls|length %}{{counter}} delayed phone call{% plural %}{{counter}} last delayed phone calls{% endblocktrans %}
           </a>
         </div>
 
-        <div class='more-info'>
+        <div class="more-info">
           {% for phone_call in phone_calls %}
-            <div class='card-container'>
+            <div class="card-container">
               {% activity_card phone_call 'done' %}
             </div>
           {% endfor %}
         </div>
       </div>
     {% else %}
-      <div class='card-list late-activities'>
-        <div class='card-list-title'>{% trans 'No delayed phone calls' %}</div>
+      <div class="card-list late-activities">
+        <div class="card-list-title">{% trans 'No delayed phone calls' %}</div>
       </div>
     {% endif %}
 
     {% if floating_activities %}
-      <div class='card-list unplanned-activities with-more-info showing-more-info'>
-        <div class='card-list-title'>
-          <a href='' class='more-info-trigger showing-more-info'>
+      <div class="card-list unplanned-activities with-more-info showing-more-info">
+        <div class="card-list-title">
+          <a href="" class="more-info-trigger showing-more-info">
             {% with floating_length=floating_activities|length %}
               {% if floating_length <= floating_activities_count %}
                 {% blocktrans count counter=floating_length %}{{counter}} activity without date{% plural %}{{counter}} activities without date{% endblocktrans %}
@@ -66,46 +66,46 @@ if (navigator.userAgent.match(/Android/i)) {
           </a>
         </div>
 
-        <div class='more-info'>
+        <div class="more-info">
           {% for activity in floating_activities %}
-            <div class='card-container'>
+            <div class="card-container">
               {% activity_card activity %}
             </div>
           {% endfor %}
         </div>
       </div>
     {% else %}
-      <div class='card-list unplanned-activities'>
-        <div class='card-list-title'>{% trans 'No activity without date' %}</div>
+      <div class="card-list unplanned-activities">
+        <div class="card-list-title">{% trans 'No activity without date' %}</div>
       </div>
     {% endif %}
 
     {% if tomorrow_activities %}
-      <div class='card-list future-activities with-more-info'>
-        <div class='card-list-title'>
-            <a href='' class='more-info-trigger'>
+      <div class="card-list future-activities with-more-info">
+        <div class="card-list-title">
+            <a href="" class="more-info-trigger">
               {% blocktrans count counter=tomorrow_activities|length with tomorrow_date=tomorrow|date:_('l j F') %}{{counter}} activity planned tomorrow, {{tomorrow_date}}{% plural %}{{counter}} activities planned tomorrow, {{tomorrow_date}}{% endblocktrans %}
             </a>
         </div>
 
-        <div class='more-info'>
+        <div class="more-info">
           {% for activity in tomorrow_activities %}
-            <div class='card-container'>
+            <div class="card-container">
               {% activity_card activity 'no-button' never_edit_pcall=1 %}
             </div>
           {% endfor %}
         </div>
       </div>
     {% else %}
-      <div class='card-list future-activities'>
-        <div class='card-list-title'>
+      <div class="card-list future-activities">
+        <div class="card-list-title">
           {% blocktrans with tomorrow_date=tomorrow|date:_('l j F') %}No activity planned tomorrow, {{tomorrow_date}}{% endblocktrans %}
         </div>
       </div>
     {% endif %}
   </section>
 
-  <div id='workflow_panel' />
+  <div id="workflow_panel" />
   {% get_footer %}
 
   <script type="text/javascript">

@@ -21,11 +21,11 @@ if (navigator.userAgent.match(/Android/i)) {
 </script>
 {% endcomment %}
 </head>
-<body class='page-error'>
+<body class="page-error">
   <nav>
-    <a href='{% url 'mobile__portal' %}' class='tab'>{% trans 'Home' %}</a>
-    <a href='{% url 'mobile__directory' %}' class='tab'>{% trans 'Directory' %}</a>
-    <a href='{% url 'mobile__activities' %}' class='tab'>{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab">{% trans 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
   </nav>
 
   <div class="error">{% blocktrans %}Error ! ({{status}}){% endblocktrans %}</div>
