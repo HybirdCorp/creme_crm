@@ -6,6 +6,7 @@ from io import StringIO
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import condition_handler, operators
@@ -120,7 +121,12 @@ class MessagingListTestCase(CremeTestCase):
         self.assertEqual(len(recipients) - 1, len(phones))
         self.assertNotIn(recipient.phone, phones)
 
-    def _aux_test_add_recipients_from_csv(self, end='\n'):
+    @parameterized.expand([
+        ('\n',),    # Unix EOF
+        ('\r\n',),  # Windows EOF
+        ('\r',),    # Old Mac EOF
+    ])
+    def test_add_recipients_from_csv(self, end):
         user = self.login()
 
         mlist = MessagingList.objects.create(user=user, name='ml01')
@@ -140,18 +146,6 @@ class MessagingListTestCase(CremeTestCase):
         )
 
         csvfile.close()
-
-    def test_add_recipientsfrom_csv01(self):
-        "From CSV file (Unix EOF)."
-        self._aux_test_add_recipients_from_csv(end='\n')
-
-    def test_add_recipientsfrom_csv02(self):
-        "From CSV file (Windows EOF)."
-        self._aux_test_add_recipients_from_csv(end='\r\n')
-
-    def test_add_recipientsfrom_csv03(self):
-        "From CSV file (old Mac EOF)."
-        self._aux_test_add_recipients_from_csv(end='\r')
 
     @skipIfCustomContact
     def test_ml_contacts01(self):

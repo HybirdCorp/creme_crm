@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_config import bricks
 from creme.creme_core.bricks import (
@@ -199,11 +200,12 @@ class BricksConfigTestCase(CremeTestCase):
         BrickMypageLocation.objects.all().delete()
         RelationBrickItem.objects.all().delete()
 
-        for model, backup in [(BrickDetailviewLocation, cls._bdl_backup),
-                              (BrickHomeLocation, cls._bpl_backup),
-                              (BrickMypageLocation, cls._bml_backup),
-                              (RelationBrickItem, cls._rbi_backup),
-                             ]:
+        for model, backup in [
+            (BrickDetailviewLocation, cls._bdl_backup),
+            (BrickHomeLocation, cls._bpl_backup),
+            (BrickMypageLocation, cls._bml_backup),
+            (RelationBrickItem, cls._rbi_backup),
+        ]:
             try:
                 model.objects.bulk_create(backup)
             except Exception:
@@ -222,10 +224,13 @@ class BricksConfigTestCase(CremeTestCase):
         return reverse('creme_config__create_detailviews_bricks', args=(ct.id,))
 
     def _build_editdetail_url(self, ct=None, role=None, superuser=False):
-        return reverse('creme_config__edit_detailview_bricks', args=(
-            ct.id if ct else 0,
-            'superuser' if superuser else role.id if role else 'default',
-        ))
+        return reverse(
+            'creme_config__edit_detailview_bricks',
+            args=(
+                ct.id if ct else 0,
+                'superuser' if superuser else role.id if role else 'default',
+            ),
+        )
 
     def _build_rbrick_addctypes_wizard_url(self, rbi):
         return reverse('creme_config__add_cells_to_rtype_brick', args=(rbi.id,))
@@ -260,9 +265,10 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
         response = self.assertGET200(reverse('creme_config__bricks'))
         self.assertTemplateUsed(response, 'creme_config/bricks_portal.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url')
+        )
 
         fmt = 'id="{}"'.format
         self.assertContains(response, fmt(bricks.BrickDetailviewLocationsBrick.id_))
@@ -272,7 +278,14 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertContains(response, fmt(bricks.InstanceBricksConfigBrick.id_))
         self.assertContains(response, fmt(bricks.CustomBricksConfigBrick.id_))
 
-    def _aux_test_add_detailview(self, role=None, superuser=False):
+    @parameterized.expand([
+        (False,),
+        (True,),
+    ])
+    def test_add_detailview(self, superuser):
+        self.login(is_superuser=superuser, admin_4_apps=['creme_core'])
+        role = None if superuser else self.role
+
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
@@ -401,15 +414,7 @@ class BricksConfigTestCase(CremeTestCase):
             [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.HAT)]
         )
 
-    def test_add_detailview01(self):
-        self.login(is_superuser=False, admin_4_apps=['creme_core'])
-        self._aux_test_add_detailview(role=self.role, superuser=False)
-
-    def test_add_detailview02(self):
-        self.login()
-        self._aux_test_add_detailview(role=None, superuser=True)
-
-    def test_add_detailview03(self):
+    def test_add_detailview_ignore_used_roles(self):
         "Used roles are not proposed anymore."
         self.login()
         model = FakeContact
@@ -554,8 +559,8 @@ class BricksConfigTestCase(CremeTestCase):
             self._build_adddetail_url(ContentType.objects.get_for_model(FakeContact))
         )
 
-    def _aux_test_edit_detailview(
-            self, role=None, superuser=False, expected_title='Edit the bricks'):
+    def _aux_test_edit_detailview(self, role=None, superuser=False,
+                                  expected_title='Edit the bricks'):
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
@@ -691,10 +696,11 @@ class BricksConfigTestCase(CremeTestCase):
         brick_id = [*self.brick_registry.get_compatible_bricks(model)][0].id_
 
         # These bricks should not be modified
-        create_loc = partial(BrickDetailviewLocation.objects.create,
-                             content_type=ct, order=1, brick_id=brick_id,
-                             zone=BrickDetailviewLocation.TOP,
-                            )
+        create_loc = partial(
+            BrickDetailviewLocation.objects.create,
+            content_type=ct, order=1, brick_id=brick_id,
+            zone=BrickDetailviewLocation.TOP,
+        )
         b_loc1 = create_loc(role=self.role)
         b_loc2 = create_loc(superuser=True)
 
@@ -712,7 +718,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(brick_id, b_loc2.brick_id)
 
     def test_edit_detailview02(self):
-        "Configuration for a role"
+        "Configuration for a role."
         self.login()
         self._aux_test_edit_detailview(
             role=self.role, superuser=False,
@@ -723,7 +729,7 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
     def test_edit_detailview03(self):
-        "Configuration for superusers"
+        "Configuration for superusers."
         self.login()
         self._aux_test_edit_detailview(
             role=None, superuser=True,
@@ -795,9 +801,10 @@ class BricksConfigTestCase(CremeTestCase):
         def bricks_info(zone):
             return [(bl.brick_id, bl.order) for bl in b_locs if bl.zone == zone]
 
-        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.LEFT))
-        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.RIGHT))
-        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.BOTTOM))
+        empty = [('', 1)]
+        self.assertListEqual(empty, bricks_info(BrickDetailviewLocation.LEFT))
+        self.assertListEqual(empty, bricks_info(BrickDetailviewLocation.RIGHT))
+        self.assertListEqual(empty, bricks_info(BrickDetailviewLocation.BOTTOM))
 
     def test_edit_detailview05(self):
         "Default conf + no empty configuration."
@@ -809,9 +816,9 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(_('Edit default configuration'), context.get('title'))
 
         response = self.assertPOST200(url, data={})
-        self.assertFormError(response, 'form', None,
-                             _('Your configuration is empty !')
-                            )
+        self.assertFormError(
+            response, 'form', None, _('Your configuration is empty !')
+        )
 
         bricks = [*self.brick_registry.get_compatible_bricks(None)]
         self.assertGreaterEqual(len(bricks), 1, bricks)
@@ -842,9 +849,11 @@ class BricksConfigTestCase(CremeTestCase):
             return [(bl.brick_id, bl.order) for bl in b_locs if bl.zone == zone]
 
         self.assertListEqual([(brick_id, 1)], bricks_info(BrickDetailviewLocation.TOP))
-        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.LEFT))
-        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.RIGHT))
-        self.assertListEqual([('', 1)], bricks_info(BrickDetailviewLocation.BOTTOM))
+
+        empty = [('', 1)]
+        self.assertListEqual(empty, bricks_info(BrickDetailviewLocation.LEFT))
+        self.assertListEqual(empty, bricks_info(BrickDetailviewLocation.RIGHT))
+        self.assertListEqual(empty, bricks_info(BrickDetailviewLocation.BOTTOM))
 
     def test_edit_detailview06(self):
         "Post one block several times -> validation error."
@@ -1050,9 +1059,10 @@ class BricksConfigTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(FakeContact)
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create, order=1,
-                             content_type=ct, zone=BrickDetailviewLocation.TOP,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create,
+            order=1, content_type=ct, zone=BrickDetailviewLocation.TOP,
+        )
         locs = [
             create_bdl(brick_id=RelationsBrick.id_),
             create_bdl(zone=BrickDetailviewLocation.LEFT,   brick_id=PropertiesBrick.id_),
@@ -1150,7 +1160,14 @@ class BricksConfigTestCase(CremeTestCase):
                                    .count()
         )
 
-    def _aux_test_add_home(self, role=None, superuser=False):
+    @parameterized.expand([
+        (False,),
+        (True,),
+    ])
+    def test_add_home(self, superuser):
+        self.login(is_superuser=superuser, admin_4_apps=['creme_core'])
+        role = None if superuser else self.role
+
         url = reverse('creme_config__create_home_bricks')
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
@@ -1203,17 +1220,7 @@ class BricksConfigTestCase(CremeTestCase):
 
         self.assertEqual(2, self._find_location(HomeOnlyBrick1.id_, b_locs).order)
 
-    def test_add_home01(self):
-        "Role."
-        self.login()
-        self._aux_test_add_home(role=self.role, superuser=False)
-
-    def test_add_home02(self):
-        "Superuser."
-        self.login()
-        self._aux_test_add_home(superuser=True)
-
-    def test_add_home03(self):
+    def test_add_home_ignore_used_roles(self):
         "Used roles are not proposed anymore."
         self.login()
         url = reverse('creme_config__create_home_bricks')
@@ -1594,9 +1601,11 @@ class BricksConfigTestCase(CremeTestCase):
             choices = bricks_field.choices
 
         self.assertGreaterEqual(len(choices), 2)
-        self.assertEqual(
-            [*BrickMypageLocation.objects.filter(user=None)
-                                         .values_list('brick_id', flat=True)
+        self.assertListEqual(
+            [
+                *BrickMypageLocation.objects
+                                    .filter(user=None)
+                                    .values_list('brick_id', flat=True),
             ],
             bricks_field.initial
         )

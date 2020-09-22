@@ -1543,7 +1543,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                          result_builder(response),
                         )
 
-    def _csv_to_list(self, response):
+    @staticmethod
+    def _csv_to_list(response):
         separator = ','
 
         return [

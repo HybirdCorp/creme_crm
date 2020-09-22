@@ -4,6 +4,7 @@ from decimal import Decimal
 from functools import partial
 
 from django.conf import settings
+from parameterized import parameterized
 
 from creme import products
 from creme.creme_core.models import Relation
@@ -32,10 +33,10 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertEqual(5, brick_cls.displayed_contacts_number)
 
         opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
-        opp02 = Opportunity.objects.create(user=self.user, name='Opp#2',
-                                           sales_phase=opp01.sales_phase,
-                                           emitter=emitter, target=target,
-                                          )
+        opp02 = Opportunity.objects.create(
+            user=self.user, name='Opp#2', sales_phase=opp01.sales_phase,
+            emitter=emitter, target=target,
+        )
 
         create_contact = partial(get_contact_model().objects.create, user=user)
         contact01 = create_contact(first_name='Revy',  last_name='??')
@@ -75,9 +76,10 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         contact01 = create_contact(first_name='Revy',  last_name='??')
         contact02 = create_contact(first_name='Rock',  last_name='??')
 
-        create_rel = partial(Relation.objects.create, user=user, subject_entity=opp,
-                             type_id=constants.REL_OBJ_LINKED_CONTACT,
-                            )
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, subject_entity=opp, type_id=constants.REL_OBJ_LINKED_CONTACT,
+        )
         create_rel(object_entity=contact01)
         create_rel(object_entity=contact02)
 
@@ -94,16 +96,17 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
         user = self.login()
         opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
-        opp02 = Opportunity.objects.create(user=self.user, name='Opp#2',
-                                           sales_phase=opp01.sales_phase,
-                                           emitter=emitter, target=target,
-                                          )
+        opp02 = Opportunity.objects.create(
+            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
+            emitter=emitter, target=target,
+        )
 
         sub_cat = SubCategory.objects.all()[0]
-        create_product = partial(products.get_product_model().objects.create, user=user,
-                                 unit_price=Decimal('1.23'),
-                                 category=sub_cat.category, sub_category=sub_cat,
-                                )
+        create_product = partial(
+            products.get_product_model().objects.create,
+            user=user, unit_price=Decimal('1.23'),
+            category=sub_cat.category, sub_category=sub_cat,
+        )
         product01 = create_product(name='Eva00')
         product02 = create_product(name='Eva01')
         product03 = create_product(name='Eva02')
@@ -134,16 +137,17 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
         user = self.login()
         opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
-        opp02 = Opportunity.objects.create(user=self.user, name='Opp#2',
-                                           sales_phase=opp01.sales_phase,
-                                           emitter=emitter, target=target,
-                                          )
+        opp02 = Opportunity.objects.create(
+            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
+            emitter=emitter, target=target,
+        )
 
         sub_cat = SubCategory.objects.all()[0]
-        create_service = partial(products.get_service_model().objects.create, user=user,
-                                 unit_price=Decimal('1.23'),
-                                 category=sub_cat.category, sub_category=sub_cat,
-                                )
+        create_service = partial(
+            products.get_service_model().objects.create,
+            user=user, unit_price=Decimal('1.23'),
+            category=sub_cat.category, sub_category=sub_cat,
+        )
         service01 = create_service(name='Eva00 support')
         service02 = create_service(name='Eva01 support')
         service03 = create_service(name='Eva02 support')
@@ -167,15 +171,20 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertNoInstanceLink(brick_node, service04)
         self.assertNoInstanceLink(brick_node, service05)
 
-    def _aux_test_linked_contacts(self, brick_cls, rtype_id):
+    @skipIfCustomContact
+    @parameterized.expand([
+        (bricks.LinkedContactsBrick, constants.REL_OBJ_LINKED_CONTACT),
+        (bricks.BusinessManagersBrick, constants.REL_OBJ_RESPONSIBLE),
+    ])
+    def test_linked_contacts(self, brick_cls, rtype_id):
         brick_cls.page_size = max(5, settings.BLOCK_SIZE)
 
         user = self.login()
         opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
-        opp02 = Opportunity.objects.create(user=self.user, name='Opp#2',
-                                           sales_phase=opp01.sales_phase,
-                                           emitter=emitter, target=target,
-                                          )
+        opp02 = Opportunity.objects.create(
+            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
+            emitter=emitter, target=target,
+        )
 
         create_contact = partial(get_contact_model().objects.create, user=user)
         contact01 = create_contact(first_name='Revy',  last_name='??')
@@ -198,17 +207,3 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertNoInstanceLink(brick_node, contact03)
         self.assertNoInstanceLink(brick_node, contact04)
         self.assertNoInstanceLink(brick_node, contact05)
-
-    @skipIfCustomContact
-    def test_linked_contacts(self):
-        self._aux_test_linked_contacts(
-            brick_cls=bricks.LinkedContactsBrick,
-            rtype_id=constants.REL_OBJ_LINKED_CONTACT,
-        )
-
-    @skipIfCustomContact
-    def test_linked_managers(self):
-        self._aux_test_linked_contacts(
-            brick_cls=bricks.BusinessManagersBrick,
-            rtype_id=constants.REL_OBJ_RESPONSIBLE,
-        )
