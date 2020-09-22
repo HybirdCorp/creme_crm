@@ -7,6 +7,7 @@ from django.forms import IntegerField
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import CustomField, SetCredentials
@@ -65,20 +66,17 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        contact = self.get_object_or_fail(Contact,
-                                          first_name=first_name,
-                                          last_name=last_name,
-                                         )
-        self.assertRelationCount(subject_entity=contact,
-                                 type_id=REL_SUB_LINKED_CONTACT,
-                                 object_entity=opp,
-                                 count=1,
-                                )
-        self.assertRelationCount(subject_entity=contact,
-                                 type_id=REL_SUB_EMPLOYED_BY,
-                                 object_entity=target,
-                                 count=0,
-                                )
+        contact = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        self.assertRelationCount(
+            subject_entity=contact, type_id=REL_SUB_LINKED_CONTACT, object_entity=opp,
+            count=1,
+        )
+        self.assertRelationCount(
+            subject_entity=contact, type_id=REL_SUB_EMPLOYED_BY, object_entity=target,
+            count=0,
+        )
 
     def test_create_related_contact02(self):
         "Employed by the target Organisation."
@@ -98,15 +96,13 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        contact = self.get_object_or_fail(Contact,
-                                          first_name=first_name,
-                                          last_name=last_name,
-                                         )
-        self.assertRelationCount(subject_entity=contact,
-                                 type_id=REL_SUB_EMPLOYED_BY,
-                                 object_entity=target,
-                                 count=1,
-                                )
+        contact = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        self.assertRelationCount(
+            subject_entity=contact, type_id=REL_SUB_EMPLOYED_BY, object_entity=target,
+            count=1,
+        )
 
     def test_create_related_contact03(self):
         "Target is a Contact."
@@ -133,22 +129,21 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        contact = self.get_object_or_fail(Contact,
-                                          first_name=first_name,
-                                          last_name=last_name,
-                                         )
-        self.assertRelationCount(subject_entity=contact,
-                                 type_id=REL_SUB_EMPLOYED_BY,
-                                 object_entity=target,
-                                 count=0,
-                                )
+        contact = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        self.assertRelationCount(
+            subject_entity=contact, type_id=REL_SUB_EMPLOYED_BY, object_entity=target,
+            count=0,
+        )
 
     def test_create_related_contact04(self):
         "No credentials to create the Contact."
-        self.login(is_superuser=False,
-                   allowed_apps=('persons', 'opportunities'),
-                   creatable_models=[Organisation, Opportunity],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=('persons', 'opportunities'),
+            creatable_models=[Organisation, Opportunity],
+        )
 
         SetCredentials.objects.create(
             role=self.role,
@@ -163,18 +158,24 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
             response.content.decode(),
         )
 
-    def _aux_test_create_related_contact_no_link(self, allowed_models, error_403=False):
+    @parameterized.expand([
+        ([Opportunity, Contact],      False),  # No credentials to link the Organisation.
+        ([Opportunity, Organisation], False),  # No credentials to link the (future) Contact.
+        ([Contact, Organisation],     True),   # No credentials to link the opportunity.
+    ])
+    def test_create_related_contact_no_link(self, allowed_models, error_403):
         "No credentials to link the Organisation."
-        self.login(is_superuser=False,
-                   allowed_apps=('persons', 'opportunities'),
-                   creatable_models=[Organisation, Contact, Opportunity],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=('persons', 'opportunities'),
+            creatable_models=[Organisation, Contact, Opportunity],
+        )
 
         get_ct = ContentType.objects.get_for_model
-        create_sc = partial(SetCredentials.objects.create,
-                            role=self.role,
-                            set_type=SetCredentials.ESET_OWN,
-                           )
+        create_sc = partial(
+            SetCredentials.objects.create,
+            role=self.role, set_type=SetCredentials.ESET_OWN,
+        )
 
         VIEW   = EntityCredentials.VIEW
         CHANGE = EntityCredentials.CHANGE
@@ -198,25 +199,6 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
                 fields = response.context['form'].fields
 
             self.assertNotIn('is_employed', fields)
-
-    def test_create_related_contact05(self):
-        "No credentials to link the Organisation."
-        self._aux_test_create_related_contact_no_link(
-            allowed_models={Opportunity, Contact},
-        )
-
-    def test_create_related_contact06(self):
-        "No credentials to link the (future) Contact."
-        self._aux_test_create_related_contact_no_link(
-            allowed_models={Opportunity, Organisation},
-        )
-
-    def test_create_related_contact07(self):
-        "No credentials to link the opportunity."
-        self._aux_test_create_related_contact_no_link(
-            allowed_models={Contact, Organisation},
-            error_403=True,
-        )
 
     def test_create_related_contact_customfields(self):
         "Required CustomFields."

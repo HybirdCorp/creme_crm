@@ -63,10 +63,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         if end:
             data['end'] = end
 
-        return self.assertGET(status,
-                              reverse('activities__calendars_activities'),
-                              data=data,
-                             )
+        return self.assertGET(
+            status,
+            reverse('activities__calendars_activities'),
+            data=data,
+        )
 
     @staticmethod
     def _get_user_sessions(user):
@@ -142,9 +143,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         with self.assertNumQueries(3):
             def_cal = Calendar.objects.get_default_calendar(user)
 
-        self.assertEqual(_("{user}'s calendar").format(user=user),
-                         def_cal.name,
-                        )
+        self.assertEqual(_("{user}'s calendar").format(user=user), def_cal.name)
 
         def_cal2 = self.assertUserHasDefaultCalendar(user)
         self.assertEqual(def_cal, def_cal2)
@@ -196,9 +195,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.create_user()
 
         calendar = self.get_object_or_fail(Calendar, user=user)
-        self.assertEqual(_("{user}'s calendar").format(user=user),
-                         calendar.name,
-                        )
+        self.assertEqual(_("{user}'s calendar").format(user=user), calendar.name)
         self.assertTrue(calendar.is_default)
         self.assertFalse(calendar.is_custom)
         self.assertTrue(calendar.is_public)
@@ -209,9 +206,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.create_user()
 
         calendar = self.get_object_or_fail(Calendar, user=user)
-        self.assertEqual(_("{user}'s calendar").format(user=user),
-                         calendar.name,
-                        )
+        self.assertEqual(_("{user}'s calendar").format(user=user), calendar.name)
         self.assertTrue(calendar.is_default)
         self.assertFalse(calendar.is_custom)
         self.assertFalse(calendar.is_public)
@@ -225,10 +220,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
     def test_user_default_calendar_auto04(self):
         "Inactive user => no calendar."
-        user = CremeUser.objects.create(username='altena', email='altena@noir.jp',
-                                        first_name='Altena', last_name='??',
-                                        is_active=False,
-                                       )
         user = self.create_user(is_active=False)
         self.assertFalse(Calendar.objects.filter(user=user))
 
@@ -432,12 +423,13 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         name = 'My pretty calendar'
         color = '009900'
-        self.assertNoFormError(self.client.post(url,
-                                                data={'name':  name,
-                                                      'color': color,
-                                                     },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'name':  name,
+                'color': color,
+            },
+        ))
 
         cals = Calendar.objects.filter(user=user)
         self.assertEqual(1, len(cals))
@@ -455,14 +447,15 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal1 = Calendar.objects.get_default_calendar(user)
 
         name = 'My pretty calendar'
-        self.assertNoFormError(self.client.post(self.ADD_URL,
-                                                data={'name': name,
-                                                      'is_default': True,
-                                                      'is_public': True,
-                                                      'color': 'FF0000',
-                                                     },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            self.ADD_URL,
+            data={
+                'name': name,
+                'is_default': True,
+                'is_public': True,
+                'color': 'FF0000',
+            },
+        ))
 
         cal2 = self.get_object_or_fail(Calendar, name=name)
         self.assertTrue(cal2.is_default)
@@ -485,12 +478,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         # ---
         name = 'My calendar'
         color = '0000FF'
-        self.assertNoFormError(self.client.post(url,
-                                                data={'name':  name,
-                                                      'color': color,
-                                                     },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url, data={'name': name, 'color': color},
+        ))
 
         cal = self.refresh(cal)
         self.assertEqual(name,  cal.name)
@@ -526,7 +516,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         response = self.assertGET409(url)
         self.assertIn(
             escape(_('You cannot delete this calendar: it is not custom.')),
-            response.content.decode()
+            response.content.decode(),
         )
 
         self.get_object_or_fail(Calendar, pk=cal.pk)
@@ -548,17 +538,19 @@ class CalendarTestCase(_ActivitiesTestCase):
         response = self.assertGET200(url)
 
         context = response.context
-        self.assertEqual(_('Replace & delete «{object}»').format(object=cal),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Replace & delete «{object}»').format(object=cal),
+            context.get('title'),
+        )
 
         fname = 'replace_activities__activity_calendars'
         with self.assertNoException():
             replace_field = context['form'].fields[fname]
 
-        self.assertEqual('{} - {}'.format(_('Activity'), _('Calendars')),
-                         replace_field.label
-                        )
+        self.assertEqual(
+            '{} - {}'.format(_('Activity'), _('Calendars')),
+            replace_field.label,
+        )
         self.assertListEqual(
             [(def_cal.id, str(def_cal))],
             [*replace_field.choices]
@@ -578,9 +570,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(cal, dcom.instance_to_delete)
         self.assertListEqual(
             [('fixed_value', Activity, 'calendars', def_cal)],
-            [(r.type_id, r.model_field.model, r.model_field.name, r.get_value())
+            [
+                (r.type_id, r.model_field.model, r.model_field.name, r.get_value())
                 for r in dcom.replacers
-            ]
+            ],
         )
 
         deletor_type.execute(dcom.job)
@@ -636,10 +629,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal2 = Calendar.objects.create(user=user, name='Cal #2')
         cal3 = Calendar.objects.create(user=user, name='Cal #3')
 
-        job = Job.objects.create(
-            type_id=deletor_type.id,
-            user=self.user,
-        )
+        job = Job.objects.create(type_id=deletor_type.id, user=self.user)
         self.assertEqual(Job.STATUS_WAIT, job.status)
 
         dcom = DeletionCommand.objects.create(
@@ -691,9 +681,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         url = self.build_link_url(act.id)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Change calendar of «{object}»').format(object=act),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Change calendar of «{object}»').format(object=act),
+            response.context.get('title')
+        )
 
         response = self.assertPOST200(url, data={'calendar': cal.id})
         self.assertNoFormError(response)
@@ -731,8 +722,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -816,28 +810,34 @@ class CalendarTestCase(_ActivitiesTestCase):
             type_id=constants.ACTIVITYTYPE_TASK,
             start=start,
             end=end,
-            is_all_day=is_all_day
+            is_all_day=is_all_day,
         )
         activity.calendars.set([calendar])
 
-        response = self.assertGET200(reverse('activities__calendars_activities'), data={
-            'calendar_id': calendar.pk,
-            'start': start.strftime('%s'),
-            'end': end.strftime('%s'),
-        })
+        response = self.assertGET200(
+            reverse('activities__calendars_activities'),
+            data={
+                'calendar_id': calendar.pk,
+                'start': start.strftime('%s'),
+                'end': end.strftime('%s'),
+            },
+        )
 
-        self.assertEqual([{
-            'id':       activity.id,
-            'title':    'Act#1',
-            'start':    data_start,
-            'end':      data_end,
-            'allDay':   is_all_day,
-            'calendar': calendar.pk,
-            'color':    f'#{calendar.color}',
-            'url':      reverse('activities__view_activity_popup', args=(activity.id,)),
-            'editable': True,
-            'type':     _('Task'),
-        }], response.json())
+        self.assertListEqual(
+            [{
+                'id':       activity.id,
+                'title':    'Act#1',
+                'start':    data_start,
+                'end':      data_end,
+                'allDay':   is_all_day,
+                'calendar': calendar.pk,
+                'color':    f'#{calendar.color}',
+                'url':      reverse('activities__view_activity_popup', args=(activity.id,)),
+                'editable': True,
+                'type':     _('Task'),
+            }],
+            response.json()
+        )
 
     @skipIfCustomActivity
     def test_activities_data_one_user(self):
@@ -892,10 +892,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=user.linked_contact,            object_entity=act3)
         create_rel(subject_entity=self.other_user.linked_contact, object_entity=act3)
 
-        response = self._get_cal_activities([cal],
-                                            start=start.strftime('%s'),
-                                            end=end.strftime('%s'),
-                                           )
+        response = self._get_cal_activities(
+            [cal], start=start.strftime('%s'), end=end.strftime('%s'),
+        )
 
         data = response.json()
         self.assertEqual(4, len(data))
@@ -906,46 +905,52 @@ class CalendarTestCase(_ActivitiesTestCase):
         def build_popup_url(act):
             return reverse('activities__view_activity_popup', args=(act.id,))
 
-        self.assertEqual({'id':         act3.id,
-                          'title':      'Act#3',
-                          'start':      formatted_dt(act3.start),
-                          # On fullcalendar side a full day ends on the next day at 00:00:00
-                          'end':        formatted_dt(create_dt(year=2013, month=4, day=2)),
-                          'allDay':     True,
-                          'calendar':   cal.id,
-                          'color':      f'#{cal.color}',
-                          'url':        build_popup_url(act3),
-                          'editable':   True,
-                          'type':       _('Meeting'),
-                         },
-                         data[0]
-                        )
-        self.assertEqual({'id':         act1.id,
-                          'title':      'Act#1',
-                          'start':      formatted_dt(act1.start),
-                          'end':        formatted_dt(act1.end),
-                          'allDay':     False,
-                          'calendar':   cal.id,
-                          'color':      f'#{cal.color}',
-                          'url':        build_popup_url(act1),
-                          'editable':   True,
-                          'type':       _('Task'),
-                         },
-                         data[1]
-                        )
-        self.assertEqual({'id':         act0.id,
-                          'title':      'Act#0',
-                          'start':      formatted_dt(act0.start),
-                          'end':        formatted_dt(act0.end),
-                          'allDay':     False,
-                          'calendar':   cal.id,
-                          'color':      f'#{cal.color}',
-                          'url':        build_popup_url(act0),
-                          'editable':   True,
-                          'type':       _('Task'),
-                         },
-                         data[2]
-                        )
+        self.assertDictEqual(
+            {
+                'id':         act3.id,
+                'title':      'Act#3',
+                'start':      formatted_dt(act3.start),
+                # On fullcalendar side a full day ends on the next day at 00:00:00
+                'end':        formatted_dt(create_dt(year=2013, month=4, day=2)),
+                'allDay':     True,
+                'calendar':   cal.id,
+                'color':      f'#{cal.color}',
+                'url':        build_popup_url(act3),
+                'editable':   True,
+                'type':       _('Meeting'),
+            },
+            data[0]
+        )
+        self.assertDictEqual(
+            {
+                'id':         act1.id,
+                'title':      'Act#1',
+                'start':      formatted_dt(act1.start),
+                'end':        formatted_dt(act1.end),
+                'allDay':     False,
+                'calendar':   cal.id,
+                'color':      f'#{cal.color}',
+                'url':        build_popup_url(act1),
+                'editable':   True,
+                'type':       _('Task'),
+            },
+            data[1]
+        )
+        self.assertDictEqual(
+            {
+                'id':         act0.id,
+                'title':      'Act#0',
+                'start':      formatted_dt(act0.start),
+                'end':        formatted_dt(act0.end),
+                'allDay':     False,
+                'calendar':   cal.id,
+                'color':      f'#{cal.color}',
+                'url':        build_popup_url(act0),
+                'editable':   True,
+                'type':       _('Task'),
+            },
+            data[2]
+        )
         self.assertEqual(act4.id, data[3]['id'])
 
     @skipIfCustomActivity
@@ -957,10 +962,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         cal1 = Calendar.objects.get_default_calendar(user)
         cal2 = Calendar.objects.get_default_calendar(other_user)
-        cal3 = Calendar.objects.create(user=other_user, name='Cal #3',
-                                       is_custom=True, is_default=False,
-                                       is_public=True,
-                                      )
+        cal3 = Calendar.objects.create(
+            user=other_user, name='Cal #3',
+            is_custom=True, is_default=False, is_public=True,
+        )
         self.assertFalse(cal2.is_public)
 
         start = self.create_datetime(year=2013, month=4, day=1)
@@ -1012,9 +1017,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=user.linked_contact,       object_entity=act8)
 
         # cal2 should not be used, it does not belong to user (so, no 'act2')
-        response = self._get_cal_activities([cal1, cal2],
-                                            start=start.strftime('%s'),
-                                           )
+        response = self._get_cal_activities([cal1, cal2], start=start.strftime('%s'))
 
         data = response.json()
 
@@ -1055,15 +1058,14 @@ class CalendarTestCase(_ActivitiesTestCase):
         act1.calendars.set([cal1, cal2])  # <== Act1 must be returned twice
         act2.calendars.set([cal2])
 
-        response = self._get_cal_activities([cal1, cal2],
-                                            start=start.strftime('%s'),
-                                           )
+        response = self._get_cal_activities([cal1, cal2], start=start.strftime('%s'))
         self.assertCountEqual(
-            [(act1.id, cal1.id),
-             (act1.id, cal2.id),
-             (act2.id, cal2.id),
+            [
+                (act1.id, cal1.id),
+                (act1.id, cal2.id),
+                (act2.id, cal2.id),
             ],
-            [(d['id'], d['calendar']) for d in response.json()]
+            [(d['id'], d['calendar']) for d in response.json()],
         )
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
@@ -1077,14 +1079,14 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         cal1 = Calendar.objects.get_default_calendar(user)
         cal2 = Calendar.objects.get_default_calendar(other_user)
-        cal3 = Calendar.objects.create(user=other_user, name='Cal #3',
-                                       is_custom=True, is_default=False,
-                                       is_public=True,
-                                      )
-        Calendar.objects.create(user=user, name='Cal #4',
-                                is_custom=True, is_default=False,
-                                is_public=True,
-                               )
+        cal3 = Calendar.objects.create(
+            user=other_user, name='Cal #3',
+            is_custom=True, is_default=False, is_public=True,
+        )
+        Calendar.objects.create(
+            user=user, name='Cal #4',
+            is_custom=True, is_default=False, is_public=True,
+        )
         self.assertFalse(cal2.is_public)  # Ignored
 
         self._get_cal_activities(
@@ -1115,7 +1117,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(1, len(sessions_after))
         self.assertCountEqual(
             [cal1.id, cal3.id],
-            sessions_after[0]['activities__calendars']
+            sessions_after[0]['activities__calendars'],
         )
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
@@ -1129,10 +1131,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         cal1 = Calendar.objects.get_default_calendar(user)
         cal2 = Calendar.objects.get_default_calendar(other_user)
-        cal3 = Calendar.objects.create(user=other_user, name='Cal #3',
-                                       is_custom=True, is_default=False,
-                                       is_public=False,
-                                      )
+        cal3 = Calendar.objects.create(
+            user=other_user, name='Cal #3',
+            is_custom=True, is_default=False, is_public=False,
+        )
 
         url = reverse('activities__select_calendars')
         self.assertGET405(url)
@@ -1146,17 +1148,17 @@ class CalendarTestCase(_ActivitiesTestCase):
         )
 
         # Ignore other not-public Calendars
-        self.assertPOST200(url, data={'add': [str(cal1.id), str(cal2.id), str(cal3.id)]})
+        self.assertPOST200(url, data={'add': [str(c.id) for c in (cal1, cal2, cal3)]})
         self.assertCountEqual(
             [cal1.id, cal2.id],
-            self._get_user_sessions(user)[0]['activities__calendars']
+            self._get_user_sessions(user)[0]['activities__calendars'],
         )
 
         # Remove
         self.assertPOST200(url, data={'remove': [str(cal1.id), str(cal3.id)]})
         self.assertCountEqual(
             [cal2.id],
-            self._get_user_sessions(user)[0]['activities__calendars']
+            self._get_user_sessions(user)[0]['activities__calendars'],
         )
 
     @skipIfCustomActivity
@@ -1175,13 +1177,16 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         offset = timedelta(days=1, hours=2)
         new_start = start + offset
-        new_end   = end  + offset
+        new_end   = end + offset
         self.assertPOST404(url, data={'id': act.id})
-        self.assertPOST200(url, data={'id':    act.id,
-                                      'start': self._build_ts(new_start),
-                                      'end':   self._build_ts(new_end),
-                                     },
-                          )
+        self.assertPOST200(
+            url,
+            data={
+                'id':    act.id,
+                'start': self._build_ts(new_start),
+                'end':   self._build_ts(new_end),
+            },
+        )
 
         act = self.refresh(act)
         self.assertEqual(new_start,        act.start)
@@ -1199,14 +1204,16 @@ class CalendarTestCase(_ActivitiesTestCase):
             type_id=constants.ACTIVITYTYPE_TASK, busy=True,
         )
         create_dt = self.create_datetime
-        act1 = create_act(title='Act#1',
-                          start=create_dt(year=2013, month=4, day=1, hour=9),
-                          end=create_dt(year=2013,   month=4, day=1, hour=10),
-                         )
-        act2 = create_act(title='Act#2',
-                          start=create_dt(year=2013, month=4, day=2, hour=9),
-                          end=create_dt(year=2013,   month=4, day=2, hour=10),
-                         )
+        act1 = create_act(
+            title='Act#1',
+            start=create_dt(year=2013, month=4, day=1, hour=9),
+            end=create_dt(year=2013,   month=4, day=1, hour=10),
+        )
+        act2 = create_act(
+            title='Act#2',
+            start=create_dt(year=2013, month=4, day=2, hour=9),
+            end=create_dt(year=2013,   month=4, day=2, hour=10),
+        )
 
         create_rel = partial(
             Relation.objects.create,
@@ -1215,12 +1222,14 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=contact, object_entity=act1)
         create_rel(subject_entity=contact, object_entity=act2)
 
-        self.assertPOST(409, self.UPDATE_URL,
-                        data={'id':    act1.id,
-                              'start': self._build_ts(act2.start),
-                              'end':   self._build_ts(act2.end),
-                             },
-                       )
+        self.assertPOST(
+            409, self.UPDATE_URL,
+            data={
+                'id':    act1.id,
+                'start': self._build_ts(act2.start),
+                'end':   self._build_ts(act2.end),
+            },
+        )
 
     @skipIfCustomActivity
     def test_update_activity_date03(self):
@@ -1236,12 +1245,15 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         url = self.UPDATE_URL
         self.assertPOST404(url, data={'id': act.id})
-        self.assertPOST200(url, data={'id':     act.id,
-                                      'start':  self._build_ts(start),
-                                      'end':    self._build_ts(end),
-                                      'allDay': '1',
-                                     },
-                          )
+        self.assertPOST200(
+            url,
+            data={
+                'id':     act.id,
+                'start':  self._build_ts(start),
+                'end':    self._build_ts(end),
+                'allDay': '1',
+            },
+        )
 
         act = self.refresh(act)
         create_dt = partial(self.create_datetime, year=2013, month=4, day=1)
@@ -1260,12 +1272,14 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         name = 'My Cal'
         color = '998877'
-        self.assertNoFormError(self.client.post(url, data={'name': name,
-                                                           'user': user.id,
-                                                           'color': color,
-                                                          },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'name': name,
+                'user': user.id,
+                'color': color,
+            },
+        ))
 
         cal = self.get_object_or_fail(Calendar, name=name, user=user)
         self.assertEqual(color, cal.color)
@@ -1279,15 +1293,16 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal1 = Calendar.objects.get_default_calendar(user)
 
         name = 'My default Cal'
-        self.assertNoFormError(self.client.post(self.CONF_ADD_URL,
-                                                data={'name': name,
-                                                      'user': user.id,
-                                                      'is_default': True,
-                                                      'is_public': True,
-                                                      'color': '0000FF',
-                                                     },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            self.CONF_ADD_URL,
+            data={
+                'name': name,
+                'user': user.id,
+                'is_default': True,
+                'is_public': True,
+                'color': '0000FF',
+            },
+        ))
 
         cal2 = self.get_object_or_fail(Calendar, name=name, user=user)
         self.assertTrue(cal2.is_default)
@@ -1304,9 +1319,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         name = 'cal#1'
         cal2 = Calendar.objects.create(user=user, name=name)
 
-        url = reverse('creme_config__edit_instance',
-                      args=('activities', 'calendar', cal2.id),
-                     )
+        url = reverse(
+            'creme_config__edit_instance',
+            args=('activities', 'calendar', cal2.id),
+        )
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1316,14 +1332,15 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         name = name.title()
         color = '0000FF'
-        self.assertNoFormError(self.client.post(url,
-                                                data={'name': name,
-                                                      'is_default': True,
-                                                      'is_public': True,
-                                                      'color': color,
-                                                     },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'name': name,
+                'is_default': True,
+                'is_public': True,
+                'color': color,
+            },
+        ))
 
         cal2 = self.refresh(cal2)
         self.assertEqual(name,  cal2.name)
@@ -1336,9 +1353,10 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_config04(self):
         "Deletion."
         def get_url(cal):
-            return reverse('creme_config__delete_instance',
-                           args=('activities', 'calendar', cal.id),
-                          )
+            return reverse(
+                'creme_config__delete_instance',
+                args=('activities', 'calendar', cal.id),
+            )
 
         user = self.login()
         cal1 = Calendar.objects.get_default_calendar(user)
@@ -1360,25 +1378,25 @@ class CalendarTestCase(_ActivitiesTestCase):
         response = self.assertGET200(url)
 
         context = response.context
-        self.assertEqual(_('Replace & delete «{object}»').format(object=cal3),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Replace & delete «{object}»').format(object=cal3),
+            context.get('title')
+        )
 
         fname = 'replace_activities__activity_calendars'
         with self.assertNoException():
             replace_field = context['form'].fields[fname]
 
-        self.assertEqual('{} - {}'.format(_('Activity'), _('Calendars')),
-                         replace_field.label
-                        )
+        self.assertEqual(
+            '{} - {}'.format(_('Activity'), _('Calendars')),
+            replace_field.label
+        )
         self.assertEqual(
             _('The activities on the deleted calendar will be moved to the selected one.'),
             replace_field.help_text
         )
         self.assertCountEqual(
-            [(cal1.id, str(cal1)),
-             (cal2.id, str(cal2)),
-            ],
+            [(cal1.id, str(cal1)), (cal2.id, str(cal2))],
             [*replace_field.choices]
         )
 
@@ -1396,7 +1414,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(cal3, dcom.instance_to_delete)
         self.assertListEqual(
             [('fixed_value', Activity, 'calendars', cal2)],
-            [(r.type_id, r.model_field.model, r.model_field.name, r.get_value())
+            [
+                (r.type_id, r.model_field.model, r.model_field.name, r.get_value())
                 for r in dcom.replacers
             ]
         )
@@ -1464,48 +1483,61 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertFalse(self.refresh(cal22).is_default)
 
     def test_get_last_day_of_a_month(self):
-        self.assertEqual(date(year=2016, month=1, day=31),
-                         get_last_day_of_a_month(date(year=2016, month=1, day=1))
-                        )
-        self.assertEqual(date(year=2016, month=1, day=31),
-                         get_last_day_of_a_month(date(year=2016, month=1, day=18))
-                        )
+        self.assertEqual(
+            date(year=2016, month=1, day=31),
+            get_last_day_of_a_month(date(year=2016, month=1, day=1)),
+        )
+        self.assertEqual(
+            date(year=2016, month=1, day=31),
+            get_last_day_of_a_month(date(year=2016, month=1, day=18)),
+        )
 
         # Other 31 days
-        self.assertEqual(date(year=2016, month=3, day=31),
-                         get_last_day_of_a_month(date(year=2016, month=3, day=17))
-                        )
+        self.assertEqual(
+            date(year=2016, month=3, day=31),
+            get_last_day_of_a_month(date(year=2016, month=3, day=17)),
+        )
 
         # 30 days
-        self.assertEqual(date(year=2016, month=4, day=30),
-                         get_last_day_of_a_month(date(year=2016, month=4, day=17))
-                        )
-        self.assertEqual(date(year=2016, month=4, day=30),
-                         get_last_day_of_a_month(date(year=2016, month=4, day=30))
-                        )
+        self.assertEqual(
+            date(year=2016, month=4, day=30),
+            get_last_day_of_a_month(date(year=2016, month=4, day=17)),
+        )
+        self.assertEqual(
+            date(year=2016, month=4, day=30),
+            get_last_day_of_a_month(date(year=2016, month=4, day=30)),
+        )
 
         # February
-        self.assertEqual(date(year=2016, month=2, day=29),
-                         get_last_day_of_a_month(date(year=2016, month=2, day=17))
-                        )
-        self.assertEqual(date(year=2015, month=2, day=28),
-                         get_last_day_of_a_month(date(year=2015, month=2, day=17))
-                        )
+        self.assertEqual(
+            date(year=2016, month=2, day=29),
+            get_last_day_of_a_month(date(year=2016, month=2, day=17)),
+        )
+        self.assertEqual(
+            date(year=2015, month=2, day=28),
+            get_last_day_of_a_month(date(year=2015, month=2, day=17)),
+        )
 
-    def _aux_test_command_create_default_calendar_creation(self, is_public):
+    @parameterized.expand([
+        (True,),
+        (False,),
+    ])
+    def test_command_create_default_calendar_creation(self, is_public):
         create_user = CremeUser.objects.create
 
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None):
             user1 = create_user(**self.USERS_DATA[0])
             user2 = create_user(**self.USERS_DATA[1])
-            user3 = create_user(username='altena', email='altena@noir.jp',
-                                first_name='Altena', last_name='??',
-                                is_staff=True,
-                               )
-            user4 = create_user(username='soldat#42', email='soldat42@noir.jp',
-                                first_name='Alan', last_name='Ripman',
-                                is_active=False,
-                               )
+            user3 = create_user(
+                username='altena', email='altena@noir.jp',
+                first_name='Altena', last_name='??',
+                is_staff=True,
+            )
+            user4 = create_user(
+                username='soldat#42', email='soldat42@noir.jp',
+                first_name='Alan', last_name='Ripman',
+                is_active=False,
+            )
 
         self.assertFalse(Calendar.objects.filter(user__in=[user1, user2, user3, user4]))
 
@@ -1534,13 +1566,11 @@ class CalendarTestCase(_ActivitiesTestCase):
             {*Calendar.objects.filter(user=user5)}
         )
 
-    def test_command_create_default_calendar01(self):
-        self._aux_test_command_create_default_calendar_creation(is_public=True)
-
-    def test_command_create_default_calendar02(self):
-        self._aux_test_command_create_default_calendar_creation(is_public=False)
-
-    def _aux_test_command_create_default_calendar_nocreation(self, is_public):
+    @parameterized.expand([
+        (None,),
+        ('invalid',),
+    ])
+    def test_command_create_default_calendar_nocreation(self, is_public):
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None):
             user = self.create_user()
 
@@ -1550,9 +1580,3 @@ class CalendarTestCase(_ActivitiesTestCase):
             call_command(CalCommand(), verbosity=0)
 
         self.assertFalse(Calendar.objects.filter(user=user))
-
-    def test_command_create_default_calendar03(self):
-        self._aux_test_command_create_default_calendar_nocreation(is_public=None)
-
-    def test_command_create_default_calendar04(self):
-        self._aux_test_command_create_default_calendar_nocreation(is_public='invalid')

@@ -6,6 +6,7 @@ from io import StringIO
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import condition_handler, operators
@@ -33,19 +34,24 @@ from .base import (
 
 @skipIfCustomMailingList
 class MailingListsTestCase(_EmailsTestCase):
-    def _build_addcontact_url(self, mlist):
+    @staticmethod
+    def _build_addcontact_url(mlist):
         return reverse('emails__add_contacts_to_mlist', args=(mlist.id,))
 
-    def _build_addcontactfilter_url(self, mlist):
+    @staticmethod
+    def _build_addcontactfilter_url(mlist):
         return reverse('emails__add_contacts_to_mlist_from_filter', args=(mlist.id,))
 
-    def _build_addorga_url(self, mlist):
+    @staticmethod
+    def _build_addorga_url(mlist):
         return reverse('emails__add_orgas_to_mlist', args=(mlist.id,))
 
-    def _build_addorgafilter_url(self, mlist):
+    @staticmethod
+    def _build_addorgafilter_url(mlist):
         return reverse('emails__add_orgas_to_mlist_from_filter', args=(mlist.id,))
 
-    def _build_remove_from_campaign(self, campaign):
+    @staticmethod
+    def _build_remove_from_campaign(campaign):
         return reverse('emails__remove_mlist_from_campaign', args=(campaign.id,))
 
     def test_create(self):
@@ -246,7 +252,12 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual(len(recipients) - 1, len(addresses))
         self.assertNotIn(recipient.address, addresses)
 
-    def _aux_test_add_recipients_csv(self, end='\n'):
+    @parameterized.expand([
+        ('\n',),    # Unix EOF
+        ('\r\n',),  # Windows EOF
+        ('\r',),    # Old Mac EOF
+    ])
+    def test_add_recipients_from_csv(self, end):
         user = self.login()
 
         mlist = MailingList.objects.create(user=user, name='ml01')
@@ -271,19 +282,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         csvfile.close()
 
-    def test_recipients02(self):
-        "From CSV file (Unix EOF)."
-        self._aux_test_add_recipients_csv(end='\n')
-
-    def test_recipients03(self):
-        "From CSV file (Windows EOF)."
-        self._aux_test_add_recipients_csv(end='\r\n')
-
-    def test_recipients04(self):
-        "From CSV file (old Mac EOF)."
-        self._aux_test_add_recipients_csv(end='\r')
-
-    def test_recipients05(self):
+    def test_recipients_error(self):
         "Not a MailingList."
         user = self.login()
         orga = FakeOrganisation.objects.create(user=user, name='Dojo')
