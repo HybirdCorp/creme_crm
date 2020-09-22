@@ -19,6 +19,7 @@
 ################################################################################
 
 from mimetypes import guess_type
+from os.path import basename
 
 from django.conf import settings
 from django.db import models
@@ -27,29 +28,27 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.models.utils import assign_2_charfield
 
 from ..constants import REL_SUB_RELATED_2_DOC
 from . import other_models
 
 
 class AbstractDocument(CremeEntity):
-    title         = models.CharField(_('Name'), max_length=100)
-    filedata      = models.FileField(_('File'), max_length=500,
-                                     upload_to='upload/documents',
-                                    )
-    linked_folder = models.ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
-                                      verbose_name=_('Folder'),
-                                      on_delete=models.PROTECT,
-                                     )
-    mime_type     = models.ForeignKey(other_models.MimeType,
-                                      verbose_name=_('MIME type'),
-                                      editable=False, on_delete=models.PROTECT,
-                                      null=True,
-                                     )
-    categories    = models.ManyToManyField(other_models.DocumentCategory,
-                                           verbose_name=_('Categories'),
-                                           blank=True,
-                                          ).set_tags(optional=True)
+    title = models.CharField(_('Name'), max_length=100)
+    filedata = models.FileField(
+        _('File'), max_length=500, upload_to='upload/documents',
+    )
+    linked_folder = models.ForeignKey(
+        settings.DOCUMENTS_FOLDER_MODEL, verbose_name=_('Folder'), on_delete=models.PROTECT,
+    )
+    mime_type = models.ForeignKey(
+        other_models.MimeType,
+        verbose_name=_('MIME type'), editable=False, on_delete=models.PROTECT, null=True,
+    )
+    categories = models.ManyToManyField(
+        other_models.DocumentCategory, verbose_name=_('Categories'), blank=True,
+    ).set_tags(optional=True)
 
     creation_label = _('Create a document')
     save_label     = _('Save the document')
@@ -118,6 +117,10 @@ class AbstractDocument(CremeEntity):
 
             if mime_name is not None:
                 self.mime_type = other_models.MimeType.objects.get_or_create(name=mime_name)[0]
+
+        if not self.title:
+            # TODO: truncate but keep extension if possible ?
+            assign_2_charfield(self, 'title', basename(self.filedata.path))
 
         super().save(*args, **kwargs)
 

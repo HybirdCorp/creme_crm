@@ -54,6 +54,36 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(FolderCategory.objects.exists())
         self.assertTrue(DocumentCategory.objects.exists())
 
+    def test_create(self):
+        "Auto-fill title if empty."
+        from creme.creme_core.utils.file_handling import FileCreator
+
+        filename = 'DocTestCreate001.txt'
+        final_path = FileCreator(
+            dir_path=join(settings.MEDIA_ROOT, 'upload', 'documents'),
+            name=filename,
+            max_length=Document._meta.get_field('filedata').max_length,
+        ).create()
+
+        user = self.create_user()
+        folder = Folder.objects.all()[0]
+
+        title = 'Test doc'
+        doc1 = Document.objects.create(
+            user=user,
+            title=title,
+            linked_folder=folder,
+            filedata=final_path,
+        )
+        self.assertEqual(title, doc1.title)
+
+        doc2 = Document.objects.create(
+            user=user,
+            linked_folder=folder,
+            filedata=final_path,
+        )
+        self.assertEqual(filename, doc2.title)
+
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
     def test_createview01(self):
         user = self.login()
@@ -105,10 +135,11 @@ class DocumentTestCase(_DocumentsTestCase):
         # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
-        # self.assertEqual('attachment; filename=' + file_obj.base_name,
-        self.assertEqual(f'attachment; filename="{file_obj.base_name}"',
-                         response['Content-Disposition']
-                        )
+        self.assertEqual(
+            # 'attachment; filename=' + file_obj.base_name,
+            f'attachment; filename="{file_obj.base_name}"',
+            response['Content-Disposition'],
+        )
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview02(self):
@@ -124,16 +155,17 @@ class DocumentTestCase(_DocumentsTestCase):
 
         filedata = doc.filedata
 
-        self.assertEqual('upload/documents/{}.txt'.format(file_obj.base_name), filedata.name)
+        self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
         # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
-        # self.assertEqual('attachment; filename={}.txt'.format(file_obj.base_name),
-        self.assertEqual(f'attachment; filename="{file_obj.base_name}.txt"',
-                         response['Content-Disposition']
-                        )
+        self.assertEqual(
+            # 'attachment; filename={}.txt'.format(file_obj.base_name),
+            f'attachment; filename="{file_obj.base_name}.txt"',
+            response['Content-Disposition'],
+        )
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview03(self):
@@ -154,10 +186,11 @@ class DocumentTestCase(_DocumentsTestCase):
         # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
-        # self.assertEqual(f'attachment; filename={file_obj.base_name}.txt',
-        self.assertEqual(f'attachment; filename="{file_obj.base_name}.txt"',
-                         response['Content-Disposition']
-                        )
+        self.assertEqual(
+            # 'attachment; filename={}.txt'.format(file_obj.base_name),
+            f'attachment; filename="{file_obj.base_name}.txt"',
+            response['Content-Disposition'],
+        )
 
     def test_createview04(self):
         "No extension."
@@ -174,10 +207,11 @@ class DocumentTestCase(_DocumentsTestCase):
         # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
-        # self.assertEqual(f'attachment; filename={file_obj.base_name}.txt',
-        self.assertEqual(f'attachment; filename="{file_obj.base_name}.txt"',
-                         response['Content-Disposition']
-                        )
+        self.assertEqual(
+            # f'attachment; filename={file_obj.base_name}.txt',
+            f'attachment; filename="{file_obj.base_name}.txt"',
+            response['Content-Disposition'],
+        )
 
     def test_createview05(self):
         "No title."
@@ -261,9 +295,10 @@ class DocumentTestCase(_DocumentsTestCase):
         entity = CremeEntity.objects.create(user=user)
         url = self._buid_addrelated_url(entity)
         context = self.assertGET200(url).context
-        self.assertEqual(_('New document for «{entity}»').format(entity=entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New document for «{entity}»').format(entity=entity),
+            context.get('title'),
+        )
         self.assertEqual(Document.save_label, context.get('submit_label'))
 
         def post(title):
@@ -276,7 +311,7 @@ class DocumentTestCase(_DocumentsTestCase):
                     'filedata': self.build_filedata(
                         'Yes I am the content (DocumentTestCase.test_add_related_document01)'
                     ),
-                }
+                },
             )
             self.assertNoFormError(response)
 
@@ -317,18 +352,24 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_add_related_document03(self):
         "Link credentials"
-        user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
-                          creatable_models=[Document]
-                         )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['documents', 'creme_core'],
+            creatable_models=[Document],
+        )
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role,
-                            set_type=SetCredentials.ESET_OWN,
-                           )
+        create_sc = partial(
+            SetCredentials.objects.create,
+            role=self.role, set_type=SetCredentials.ESET_OWN,
+        )
         create_sc(
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
-            ),  # Not EntityCredentials.LINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
+                # | EntityCredentials.LINK
+            ),
         )
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
@@ -347,13 +388,13 @@ class DocumentTestCase(_DocumentsTestCase):
 
         response = self.assertPOST200(
             url, follow=True,
-            data={'user': self.other_user.pk,
-                  'title': 'Title',
-                  'description': 'Test description',
-                  'filedata':
-                      self.build_filedata(
-                          'Yes I am the content (DocumentTestCase.test_add_related_document03)'
-                      ),
+            data={
+                'user': self.other_user.pk,
+                'title': 'Title',
+                'description': 'Test description',
+                'filedata': self.build_filedata(
+                    'Yes I am the content (DocumentTestCase.test_add_related_document03)'
+                ),
             }
         )
         self.assertFormError(
@@ -364,24 +405,32 @@ class DocumentTestCase(_DocumentsTestCase):
         )
 
     def test_add_related_document04(self):
-        "Link credentials with related entity are needed"
-        user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
-                          creatable_models=[Document],
-                         )
+        "Link credentials with related entity are needed."
+        user = self.login(
+            is_superuser=False, allowed_apps=['documents', 'creme_core'],
+            creatable_models=[Document],
+        )
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role,
-                            set_type=SetCredentials.ESET_OWN,
-                           )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
-            ),  # Not EntityCredentials.LINK
+        create_sc = partial(
+            SetCredentials.objects.create,
+            role=self.role, set_type=SetCredentials.ESET_OWN,
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE | EntityCredentials.LINK |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
+                # | EntityCredentials.LINK
+            ),
+        )
+        create_sc(
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.LINK
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),
             ctype=Document,
         )
@@ -394,17 +443,21 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertGET403(url)
 
     def test_add_related_document05(self):
-        "View credentials"
-        user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
-                          creatable_models=[Document],
-                         )
+        "View credentials."
+        user = self.login(
+            is_superuser=False, allowed_apps=['documents', 'creme_core'],
+            creatable_models=[Document],
+        )
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
-            ),  # Not EntityCredentials.VIEW
+                EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
+                # | EntityCredentials.VIEW
+            ),
             set_type=SetCredentials.ESET_ALL,
         )
 
@@ -450,7 +503,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(title.endswith('…'))
 
     def test_add_related_document07(self):
-        "Collision with Folder titles"
+        "Collision with Folder titles."
         user = self.login()
         entity = CremeEntity.objects.create(user=user)
 
@@ -520,9 +573,10 @@ class DocumentTestCase(_DocumentsTestCase):
         download_action = dl_actions[0]
         self.assertEqual('redirect', download_action.type)
         # self.assertEqual(reverse('creme_core__dl_file', args=(doc1.filedata,)),
-        self.assertEqual(doc1.get_download_absolute_url(),
-                         download_action.url
-                        )
+        self.assertEqual(
+            doc1.get_download_absolute_url(),
+            download_action.url
+        )
         self.assertTrue(download_action.is_enabled)
         self.assertTrue(download_action.is_visible)
 
@@ -533,10 +587,10 @@ class DocumentTestCase(_DocumentsTestCase):
         cat = FolderCategory.objects.create(name='Manga')
         folder = Folder.objects.create(user=user, title='One piece', category=cat)
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('documents', 'category', cat.id),
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('documents', 'category', cat.id),
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(FolderCategory).job
@@ -559,7 +613,7 @@ class DocumentTestCase(_DocumentsTestCase):
                 url=image.get_download_absolute_url(),
                 name=image.title,
             ),
-            summary
+            summary,
         )
 
         casca = get_contact_model().objects.create(
@@ -622,9 +676,10 @@ class DocumentTestCase(_DocumentsTestCase):
             ''',
             get_html_val(judo, 'image', other_user)
         )
-        self.assertEqual('<p>Judo&#39;s selfie</p>',
-                         get_html_val(judo, 'image__description', other_user)
-                        )
+        self.assertEqual(
+            '<p>Judo&#39;s selfie</p>',
+            get_html_val(judo, 'image__description', other_user)
+        )
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
         self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image', other_user))
@@ -745,18 +800,17 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
     def test_add_csv_doc02(self):
         "Not super-user"
-        self.login(is_superuser=False,
-                   allowed_apps=['documents'],
-                   creatable_models=[Document],
-                  )
+        self.login(
+            is_superuser=False, allowed_apps=['documents'], creatable_models=[Document],
+        )
         self.assertGET200(reverse('documents__create_document_from_widget'))
 
     def test_add_csv_doc03(self):
         "Creation permission needed."
-        self.login(is_superuser=False,
-                   allowed_apps=['documents'],
-                   # creatable_models=[Document],
-                  )
+        self.login(
+            is_superuser=False, allowed_apps=['documents'],
+            # creatable_models=[Document],
+        )
         self.assertGET403(reverse('documents__create_document_from_widget'))
 
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
@@ -777,12 +831,14 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         folder = Folder.objects.all()[0]
         with open(path, 'rb') as image_file:
-            response = self.client.post(url, follow=True,
-                                        data={'user':   user.pk,
-                                              'image':  image_file,
-                                              'linked_folder': folder.id,
-                                             },
-                                       )
+            response = self.client.post(
+                url, follow=True,
+                data={
+                    'user':   user.pk,
+                    'image':  image_file,
+                    'linked_folder': folder.id,
+                },
+            )
         self.assertNoFormError(response)
 
         docs = Document.objects.all()
@@ -799,11 +855,13 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         self.assertTrue(filecmp.cmp(path, doc.filedata.path))
 
-        self.assertEqual({'added': [[doc.id, str(doc)]],
-                          'value': doc.id,
-                         },
-                         response.json()
-                        )
+        self.assertDictEqual(
+            {
+                'added': [[doc.id, str(doc)]],
+                'value': doc.id,
+            },
+            response.json()
+        )
 
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
     def test_add_image_doc02(self):
@@ -824,7 +882,8 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         )
         self.assertFormError(
             response, 'form', 'image',
-            _('Upload a valid image. '
-              'The file you uploaded was either not an image or a corrupted image.'
-             )
+            _(
+                'Upload a valid image. '
+                'The file you uploaded was either not an image or a corrupted image.'
+            ),
         )

@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# from os.path import basename
 import logging
 from functools import partial
-from os.path import basename
 
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
@@ -29,7 +29,7 @@ from creme import documents
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.models import Relation
-from creme.creme_core.models.utils import assign_2_charfield
+# from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.utils import ellipsis
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
@@ -55,15 +55,15 @@ class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to _DocumentCreationBa
 
         file_data = self.cleaned_data['filedata']
         if file_data:
-            instance.filedata = fpath = handle_uploaded_file(
+            # instance.filedata = fpath = handle_uploaded_file(
+            instance.filedata = handle_uploaded_file(
                 file_data,
                 path=['upload', 'documents'],
                 max_length=Document._meta.get_field('filedata').max_length,
             )
 
-        if not instance.title:
-            # TODO: truncate but keep extension if possible ?
-            assign_2_charfield(instance, 'title', basename(fpath))
+        # if not instance.title:
+        #     assign_2_charfield(instance, 'title', basename(fpath))
 
         return super().save(*args, **kwargs)
 
