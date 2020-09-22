@@ -3,10 +3,10 @@
   <hr/>
   {% for cfield_name in form.custom_field_names %}
     {% with field=form|get_by_index:cfield_name %}
-    <div class='form-field'>
-      <label class='field-label' for='{{field.auto_id}}'>{{field.label}}<span class='field-modifier'> {% trans '(required)' %}</span></label>
+    <div class="form-field">
+      <label class="field-label" for="{{field.auto_id}}">{{field.label}}<span class="field-modifier"> {% trans '(required)' %}</span></label>
       {{field}}
-      {% for error in field.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+      {% for error in field.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
     </div>
     {% endwith %}
   {% endfor %}

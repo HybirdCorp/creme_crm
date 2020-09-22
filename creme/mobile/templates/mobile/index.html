@@ -36,35 +36,35 @@ if (navigator.userAgent.match(/Android/i)) {
 {% endcomment %}
 {% include 'mobile/frags/phonecall_script.html' %}
 </head>
-<body class='page-home with-shortcuts' onload='checkCallCookies()'>
+<body class="page-home with-shortcuts" onload="checkCallCookies()">
 {% comment %}
   <!--  Navigation with pjax-->
   <nav>
-    <a href='index.html' class='tab selected-tab' data-instant>Accueil</a>
-    <a href='frag-directory.html' class='tab' data-instant>Annuaire</a>
-    <a href='frag-activities.html' class='tab' data-instant>Activités</a>
+    <a href="index.html" class="tab selected-tab" data-instant>Accueil</a>
+    <a href="frag-directory.html" class="tab" data-instant>Annuaire</a>
+    <a href="frag-activities.html" class="tab" data-instant>Activités</a>
   </nav>
 {% endcomment %}
 
   <nav>
-    <a href='{% url 'mobile__portal' %}' class='tab selected-tab'>{% trans 'Home' %}</a>
-    <a href='{% url 'mobile__directory' %}' class='tab'>{% trans 'Directory' %}</a>
-    <a href='{% url 'mobile__activities' %}' class='tab'>{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab selected-tab">{% trans 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab">{% trans 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
   </nav>
 
-  <ul class='shortcuts hideable-content'>
+  <ul class="shortcuts hideable-content">
     {% for hour, enabled in shortcuts_map %}
-      <li class='shortcut {% if not enabled %}shortcut-disabled{% endif %}' data-shortcut='{{hour}}'>{% blocktrans %}{{hour}}h{% endblocktrans %}</li>
+      <li class="shortcut{% if not enabled %} shortcut-disabled{% endif %}" data-shortcut="{{hour}}">{% blocktrans %}{{hour}}h{% endblocktrans %}</li>
     {% endfor %}
   </ul>
 
-  <div class='welcome-text'>{% blocktrans %}Welcome on Creme Mobile, {{user}}{% endblocktrans %}</div>
+  <div class="welcome-text">{% blocktrans %}Welcome on Creme Mobile, {{user}}{% endblocktrans %}</div>
 
   {% include 'mobile/frags/search_div.html' %}
 
-  <section class='hideable-content'>
-    <div class='card-list in-progress-activities'>
-      <div class='card-list-title'>
+  <section class="hideable-content">
+    <div class="card-list in-progress-activities">
+      <div class="card-list-title">
         {% if hot_activities %}
           {% blocktrans count counter=hot_activities|length with start_time=today|date:_('H:i') today_date=today|date:_('j F') %}{{counter}} activity in progress at {{start_time}} this {{today_date}}{% plural %}{{counter}} activities in progress at {{start_time}} this {{today_date}}{% endblocktrans %}
         {% else %}
@@ -73,14 +73,14 @@ if (navigator.userAgent.match(/Android/i)) {
       </div>
 
       {% for activity in hot_activities %}
-        <div class='card-container'>
+        <div class="card-container">
           {% activity_card activity show_date=0 %}
         </div>
       {% endfor %}
     </div>
 
-    <div class='card-list todays-activities'>
-      <div class='card-list-title'>
+    <div class="card-list todays-activities">
+      <div class="card-list-title">
         {% if today_activities %}
           {% blocktrans count counter=today_activities|length with today_date=today|date:_('j F') %}{{counter}} activity planned this {{today_date}}{% plural %}{{counter}} activities planned this {{today_date}}{% endblocktrans %}
         {% else %}
@@ -89,14 +89,14 @@ if (navigator.userAgent.match(/Android/i)) {
       </div>
 
       {% for activity in today_activities %}
-        <div class='card-container'>
+        <div class="card-container">
           {% activity_card activity show_date=0 shortcut=1 %}
         </div>
       {% endfor %}
     </div>
   </section>
 
-  <div id='workflow_panel' />
+  <div id="workflow_panel" />
   {% get_footer %}
 
   <script data-no-instant>
@@ -198,11 +198,11 @@ if (navigator.userAgent.match(/Android/i)) {
 {% comment %}
 <!--  Tests pjax-->
   <script src="instantclick.min.js" data-no-instant></script>
-  <script data-no-instant>    
+  <script data-no-instant>
 //    function eventCallback (event, isInitialLoad) {
 //      console.log ('InstantClick - %s - isInitialLoad: %s', event, isInitialLoad);
 //    }
-//    
+//
 //    InstantClick.on ('change', eventCallback.bind (null, 'change'));
 //    InstantClick.on ('fetch', eventCallback.bind (null, 'fetch'));
 //    InstantClick.on ('receive', eventCallback.bind (null, 'receive'));

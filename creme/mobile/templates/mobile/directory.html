@@ -27,30 +27,30 @@ if (navigator.userAgent.match(/Android/i)) {
 {% endcomment %}
 {% include 'mobile/frags/phonecall_script.html' %}
 </head>
-<body class='page-directory' onload='checkCallCookies()'>
+<body class="page-directory" onload="checkCallCookies()">
   <nav>
-    <a href='{% url 'mobile__portal' %}' class='tab'>{% trans 'Home' %}</a>
-    <a href='{% url 'mobile__directory' %}' class='tab selected-tab'>{% trans 'Directory' %}</a>
-    <a href='{% url 'mobile__activities' %}' class='tab'>{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% trans 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
   </nav>
 
   {% include 'mobile/frags/search_div.html' %}
 
-  <section class='hideable-content'>
+  <section class="hideable-content">
     {% has_perm_to create contact_model as contact_creation_perm %}{% has_perm_to create orga_model as orga_creation_perm %}
     {% if contact_creation_perm or orga_creation_perm %}
-      <div class='create-actions'>
+      <div class="create-actions">
         {% if contact_creation_perm %}
-          <a href='{% url 'mobile__create_contact' %}' class='button'>{% trans 'Create a contact' %}</a>
+          <a href="{% url 'mobile__create_contact' %}" class="button">{% trans 'Create a contact' %}</a>
         {% endif %}
         {% if orga_creation_perm %}
-          <a href='{% url 'mobile__create_organisation' %}' class='button'>{% trans 'Create an organisation' %}</a>
+          <a href="{% url 'mobile__create_organisation' %}" class="button">{% trans 'Create an organisation' %}</a>
         {% endif %}
       </div>
     {% endif %}
 
-    <div class='card-list favorites-contact list-contact'>
-      <div class='card-list-title'>
+    <div class="card-list favorites-contact list-contact">
+      <div class="card-list-title">
         {% if favorite_contacts %}
           {% blocktrans count counter=favorite_contacts|length %}{{counter}} favorite contact{% plural %}{{counter}} favorite contacts{% endblocktrans %}
         {% else %}
@@ -59,14 +59,14 @@ if (navigator.userAgent.match(/Android/i)) {
       </div>
 
       {% for contact in favorite_contacts %}
-        <div class='card-container'>
+        <div class="card-container">
           {% include 'mobile/frags/contact_card.html' %}
         </div>
       {% endfor %}
     </div>
 
-    <div class='card-list favorites-orga list-orga'>
-      <div class='card-list-title'>
+    <div class="card-list favorites-orga list-orga">
+      <div class="card-list-title">
         {% if favorite_organisations %}
           {% blocktrans count counter=favorite_organisations|length %}{{counter}} favorite organisation{% plural %}{{counter}} favorite organisations{% endblocktrans %}
         {% else %}
@@ -75,14 +75,14 @@ if (navigator.userAgent.match(/Android/i)) {
       </div>
 
       {% for orga in favorite_organisations %}
-        <div class='card-container'>
+        <div class="card-container">
           {% include 'mobile/frags/orga_card.html' %}
         </div>
       {% endfor %}
     </div>
   </section>
 
-  <div id='workflow_panel' />
+  <div id="workflow_panel" />
   {% get_footer %}
 
   <script type="text/javascript">

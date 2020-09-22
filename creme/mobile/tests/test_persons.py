@@ -172,7 +172,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         )
         self.assertContains(
             response,
-            f"<label class='field-label' for='id_custom_field_{cfield2.id}'>{name}"
+            f'<label class="field-label" for="id_custom_field_{cfield2.id}">{name}',
         )
 
         first_name = 'May'
@@ -292,7 +292,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         )
         self.assertContains(
             response,
-            f"<label class='field-label' for='id_custom_field_{cfield2.id}'>{cfield2.name}"
+            f'<label class="field-label" for="id_custom_field_{cfield2.id}">{cfield2.name}'
         )
 
         name = 'Fatal Fury Inc.'

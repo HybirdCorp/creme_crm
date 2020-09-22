@@ -27,37 +27,37 @@ if (navigator.userAgent.match(/Android/i)) {
 {% endcomment %}
 {% include 'mobile/frags/phonecall_script.html' %}
 </head>
-<body class='page-form' onload='checkCallCookies()'>
+<body class="page-form" onload="checkCallCookies()">
   <nav>
-    <a href='{% url 'mobile__portal' %}' class='tab'>{% trans 'Home' %}</a>
-    <a href='{% url 'mobile__directory' %}' class='tab selected-tab'>{% trans 'Directory' %}</a>
-    <a href='{% url 'mobile__activities' %}' class='tab'>{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% trans 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
   </nav>
 
-  <section class='hideable-content'>
+  <section class="hideable-content">
 {% comment %}TODO: use a loop on form fields instead ;
     - the form must give us the 'required' message for last-name
     - boolean field are always managed this way ? (message after checkbox)
 {% endcomment %}
-    <form class='form-add form-add-contact' method="POST">{% csrf_token %}
-      <div class='form-title'>{{title}}</div>
+    <form class="form-add form-add-contact" method="POST">{% csrf_token %}
+      <div class="form-title">{{title}}</div>
 
       {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
 
       {% for error in form.non_field_errors %}
-        <div class='non-field-error non-field-error-server'>{{error}}</div>
+        <div class="non-field-error non-field-error-server">{{error}}</div>
       {% endfor %}
 
-      <div class='form-field'>
-        <label class='field-label' for='{{form.last_name.auto_id}}'>{% trans 'Last name' %}<span class='field-modifier'> {% trans '(required)' %}</span></label>
+      <div class="form-field">
+        <label class="field-label" for="{{form.last_name.auto_id}}">{% trans 'Last name' %}<span class="field-modifier"> {% trans '(required)' %}</span></label>
         {{form.last_name}}
-        <div class='field-error field-error-client'>{% trans 'The last name must be filled.' %}</div>
-        {% for error in form.last_name.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+        <div class="field-error field-error-client">{% trans 'The last name must be filled.' %}</div>
+        {% for error in form.last_name.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
       </div>
-      <div class='form-field'>
-        <label class='field-label' for='{{form.first_name.auto_id}}'>{% trans 'First name' %}</label>
+      <div class="form-field">
+        <label class="field-label" for="{{form.first_name.auto_id}}">{% trans 'First name' %}</label>
         {{form.first_name}}
-        {% for error in form.first_name.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+        {% for error in form.first_name.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
       </div>
 
       {% with phone_f=form.phone mobile_f=form.mobile email_f=form.email %}
@@ -66,24 +66,24 @@ if (navigator.userAgent.match(/Android/i)) {
         {% endif %}
 
         {% if phone_f %}
-          <div class='form-field'>
-            <label class='field-label' for='{{phone_f.auto_id}}'>{% trans 'Phone' %}</label>
+          <div class="form-field">
+            <label class="field-label" for="{{phone_f.auto_id}}">{% trans 'Phone' %}</label>
             {{phone_f}}
-            {% for error in phone_f.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+            {% for error in phone_f.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
           </div>
         {% endif %}
         {% if mobile_f %}
-          <div class='form-field'>
-            <label class='field-label' for='{{mobile_f.auto_id}}'>{% trans 'Mobile' %}</label>
+          <div class="form-field">
+            <label class="field-label" for="{{mobile_f.auto_id}}">{% trans 'Mobile' %}</label>
             {{mobile_f}}
-            {% for error in mobile_f.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+            {% for error in mobile_f.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
           </div>
         {% endif %}
         {% if email_f %}
-          <div class='form-field'>
-            <label class='field-label' for='{{email_f.auto_id}}'>{% trans 'Email address' %}</label>
+          <div class="form-field">
+            <label class="field-label" for="{{email_f.auto_id}}">{% trans 'Email address' %}</label>
             {{email_f}}
-            {% for error in email_f.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+            {% for error in email_f.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
           </div>
         {% endif %}
       {% endwith %}
@@ -92,29 +92,29 @@ if (navigator.userAgent.match(/Android/i)) {
 
       <hr/>
 
-      <div class='form-field'>
-        <label class='field-label' for='{{form.organisation.auto_id}}'>{% trans 'Organisation' %}</label>
+      <div class="form-field">
+        <label class="field-label" for="{{form.organisation.auto_id}}">{% trans 'Organisation' %}</label>
         {{form.organisation}}
-        <div class='field-details'>{{form.organisation.help_text}}</div>
-        {% for error in form.organisation.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+        <div class="field-details">{{form.organisation.help_text}}</div>
+        {% for error in form.organisation.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
       </div>
 
       <hr/>
 
-      <div class='form-field'>
+      <div class="form-field">
         {{form.is_favorite}}
-        <label for='{{form.is_favorite.auto_id}}'>{% trans 'Add this contact to the favorites' %}</label>
+        <label for="{{form.is_favorite.auto_id}}">{% trans 'Add this contact to the favorites' %}</label>
       </div>
 
-      <div class='form-actions'>
-        <button type='submit' class='button'>{% trans 'Save the contact' %}</button>
-        <a href='{{cancel_url}}' class='button'>{% trans 'Cancel' %}</a>
+      <div class="form-actions">
+        <button type="submit" class="button">{% trans 'Save the contact' %}</button>
+        <a href="{{cancel_url}}" class="button">{% trans 'Cancel' %}</a>
       </div>
 
     </form>
   </section>
 
-  <div id='workflow_panel' />
+  <div id="workflow_panel" />
   {% get_footer %}
 
   {% include 'mobile/frags/form_validation_script.html' %}
