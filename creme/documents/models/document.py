@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from mimetypes import guess_type
 from os.path import basename
 
@@ -27,10 +28,9 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.utils import assign_2_charfield
 
-from ..constants import REL_SUB_RELATED_2_DOC
 from . import other_models
 
 
@@ -80,6 +80,15 @@ class AbstractDocument(CremeEntity):
 
     @staticmethod
     def get_linkeddoc_relations(entity):
+        warnings.warn(
+            'AbstractDocument.get_linkeddoc_relations() is deprecated.',
+            DeprecationWarning,
+        )
+
+        from creme.creme_core.models import Relation
+
+        from ..constants import REL_SUB_RELATED_2_DOC
+
         return Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC)
 
     # def get_dl_url(self):
