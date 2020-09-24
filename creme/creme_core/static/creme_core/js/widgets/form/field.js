@@ -104,6 +104,8 @@ creme.form.Field = creme.component.Component.sub({
         this.initial(options.initial);
         this.dataType(options.dataType);
         this.responsive(options.responsive);
+        this.formatter(options.formatter);
+        this.parser(options.parser);
 
         element.on('invalid', this._onFieldInvalidHtml.bind(this));
         element.on('field-error', this._onFieldError.bind(this));
@@ -203,6 +205,28 @@ creme.form.Field = creme.component.Component.sub({
         }
 
         this._dataType = dataType;
+        return this;
+    },
+
+    parser: function(parser) {
+        if (parser === undefined) {
+            return this._parser;
+        }
+
+        Assert.that(parser == null || Object.isFunc(parser), 'Field parser must be a me a function or null');
+
+        this._parser = parser;
+        return this;
+    },
+
+    formatter: function(formatter) {
+        if (formatter === undefined) {
+            return this._formatter;
+        }
+
+        Assert.that(formatter == null || Object.isFunc(formatter), 'Field formatter must be a me a function or null');
+
+        this._formatter = formatter;
         return this;
     },
 
@@ -384,6 +408,8 @@ creme.form.Field = creme.component.Component.sub({
 
     _formatValue: function(value) {
         var convertOpts = {from: this.dataType() || 'text', to: 'text'};
+        var formatter = this._formatter;
+        var hasFormatter = Object.isFunc(formatter);
 
         if (Object.isNone(value)) {
             return this.multiple() ? [] : null;
@@ -393,19 +419,31 @@ creme.form.Field = creme.component.Component.sub({
             value = Array.isArray(value) ? value : [value];
 
             return value.map(function(item) {
-                return Object.isString(item) ? item : creme.utils.convert(item, convertOpts);
+                if (Object.isString(item)) {
+                    return item;
+                }
+
+                return hasFormatter ? formatter(item, this) : creme.utils.convert(item, convertOpts);
             });
         } else {
-            return Object.isString(value) ? value : creme.utils.convert(value, convertOpts);
+            if (Object.isString(value)) {
+                return value;
+            }
+
+            return hasFormatter ? formatter(value, this) : creme.utils.convert(value, convertOpts);
         }
     },
 
     _parseValue: function(value) {
-        return creme.utils.convert(value, {
-            from: 'text',
-            to: this.dataType(),
-            empty: !this.required()
-        });
+        if (Object.isFunc(this._parser)) {
+            return this._parser(value, this);
+        } else {
+            return creme.utils.convert(value, {
+                from: 'text',
+                to: this.dataType(),
+                empty: !this.required()
+            });
+        }
     },
 
     value: function(value) {
