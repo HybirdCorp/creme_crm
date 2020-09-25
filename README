@@ -68,7 +68,7 @@ DEPENDENCIES:
 
 Installation with 'pip':
     - You should probably use "virtualenv" (on a Python >= 3.6).
-    - Creme should be installed using 'pip install .'
+    - Creme should be installed using 'pip install -e .'
     - About DB server :
         - If you use MySQL, you must add the 'mysql' flag:
           'pip install .[mysql]'
