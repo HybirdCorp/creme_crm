@@ -81,7 +81,7 @@ creme.form.Field = creme.component.Component.sub({
         Assert.that(element.size() === 1, 'A single DOM element is required');
 
         options = $.extend({
-            initial: element.data('initial') || '',
+            initial: element.data('initial'),
             dataType: element.data('type') || __htmlDataType(element),
             preventBrowserTooltip: element.is('[data-notooltip]'),
             responsive: element.is('[data-responsive]')
@@ -272,7 +272,7 @@ creme.form.Field = creme.component.Component.sub({
     },
 
     reset: function() {
-        if (this.readonly()) {
+        if (this.readonly() || this._initial === undefined) {
             return this;
         }
 
