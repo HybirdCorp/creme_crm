@@ -255,7 +255,7 @@ QUnit.parametrize('creme.form.Form (initialData, setter)', [
     [{date_a: moment([2018, 11, 8]), int_b: 1778, test_c: 'a test', unknown_c: 'unknown'},
      {date_a: moment([2018, 11, 8]), int_b: 1778, test_c: 'a test'}],
     [{test_c: 'a test'},
-     {date_a: '2017-01-01', int_b: '', test_c: 'a test'}]
+     {date_a: '2017-01-01', test_c: 'a test'}]
 ], function(data, expected, assert) {
     var form = new creme.form.Form($(
         '<form>' +
