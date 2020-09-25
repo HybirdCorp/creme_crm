@@ -25,7 +25,7 @@ QUnit.test('creme.form.Field (defaults)', function() {
     equal(field.htmlDataType(), 'text');
 
     equal(field.value(), '');
-    equal(field.initial(), '');
+    equal(field.initial(), undefined);
 
     equal(field.isValidHtml(), true);
     equal(field.isValid(), true);
@@ -446,8 +446,24 @@ QUnit.parametrize('creme.form.Field (value, readonly)', [
     deepEqual([], this.mockListenerJQueryCalls('field-change'));
 });
 
+QUnit.test('creme.form.Field (reset, no initial)', function(assert) {
+    var input = $('<input type="text" value="a"/>');
+    var field = new creme.form.Field(input.appendTo(this.qunitFixture()));
+
+    equal(field.initial(), undefined);
+    equal(field.value(), 'a');
+    deepEqual([], this.mockListenerJQueryCalls('field-reset'));
+    deepEqual([], this.mockListenerJQueryCalls('field-change'));
+
+    field.reset();
+
+    equal(field.initial(), undefined);
+    equal(field.value(), 'a');
+    deepEqual([], this.mockListenerJQueryCalls('field-reset'));
+    deepEqual([], this.mockListenerJQueryCalls('field-change'));
+});
+
 QUnit.parametrize('creme.form.Field (reset)', [
-    [$('<input type="text" value="a" />'), ''],
     [$('<input type="text" value="a" data-initial="initial" />'), 'initial'],
     [$('<select data-initial="initial">' +
            '<option value="">---</option>' +
@@ -906,7 +922,7 @@ QUnit.test('flyfield (empty, defaults)', function() {
     equal("A", element.flyfield('prop', 'name'));
     equal('text', element.flyfield('prop', 'dataType'));
     equal('text', element.flyfield('prop', 'htmlDataType'));
-    equal('', element.flyfield('prop', 'initial'));
+    equal(undefined, element.flyfield('prop', 'initial'));
 
     equal(null, element.flyfield('prop', 'errorCode'));
     equal('', element.flyfield('prop', 'errorMessage'));
