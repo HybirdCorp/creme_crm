@@ -45,15 +45,46 @@ class EntityCellTestCase(CremeTestCase):
 
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
-    def test_registry01(self):
-        "Global singleton."
+    def test_registry_global(self):
         self.assertEqual(EntityCellRegularField,  CELLS_MAP[EntityCellRegularField.type_id])
         self.assertEqual(EntityCellCustomField,   CELLS_MAP[EntityCellCustomField.type_id])
         self.assertEqual(EntityCellFunctionField, CELLS_MAP[EntityCellFunctionField.type_id])
         self.assertEqual(EntityCellRelation,      CELLS_MAP[EntityCellRelation.type_id])
 
-    def test_registry02(self):
-        "Register."
+    def test_registry_register01(self):
+        registry = EntityCellsRegistry()
+
+        with self.assertRaises(KeyError):
+            registry[EntityCellRegularField.type_id]  # NOQA
+
+        self.assertNotIn(EntityCellFunctionField.type_id, registry)
+        self.assertListEqual([], [*registry.cell_classes])
+
+        res = registry.register(EntityCellRegularField, EntityCellFunctionField)
+        self.assertIs(res, registry)
+
+        self.assertEqual(EntityCellRegularField,  registry[EntityCellRegularField.type_id])
+        self.assertEqual(EntityCellFunctionField, registry[EntityCellFunctionField.type_id])
+
+        self.assertIn(EntityCellRegularField.type_id,  registry)
+        self.assertIn(EntityCellFunctionField.type_id, registry)
+
+        self.assertCountEqual(
+            [EntityCellRegularField, EntityCellFunctionField],
+            [*registry.cell_classes],
+        )
+
+    def test_registry_register02(self):
+        "Duplicate."
+        registry = EntityCellsRegistry().register(EntityCellRegularField)
+
+        class DuplicatedIdCell(EntityCell):
+            type_id = EntityCellRegularField.type_id
+
+        with self.assertRaises(EntityCellsRegistry.RegistrationError):
+            registry.register(DuplicatedIdCell)
+
+    def test_registry_call(self):
         registry = EntityCellsRegistry()
 
         with self.assertRaises(KeyError):
@@ -61,13 +92,13 @@ class EntityCellTestCase(CremeTestCase):
 
         self.assertNotIn(EntityCellRegularField.type_id, registry)
 
-        registry(EntityCellRegularField)
+        res = registry(EntityCellRegularField)
+        self.assertIs(res, EntityCellRegularField)
         self.assertEqual(EntityCellRegularField, registry[EntityCellRegularField.type_id])
 
         self.assertIn(EntityCellRegularField.type_id, registry)
 
-    def test_registry03(self):
-        "Deepcopy."
+    def test_registry_deepcopy(self):
         registry1 = EntityCellsRegistry()
         registry1(EntityCellRegularField)
         registry1(EntityCellCustomField)
