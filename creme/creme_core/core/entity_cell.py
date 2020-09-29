@@ -211,9 +211,8 @@ class EntityCellsRegistry:
     def __init__(self):
         self._cell_classes: Dict[str, Type[EntityCell]] = {}
 
-    def __call__(self, cls):
-        if self._cell_classes.setdefault(cls.type_id, cls) is not cls:
-            raise self.RegistrationError(f'Duplicated Cell id: {cls.id}')
+    def __call__(self, cls: Type[EntityCell]):
+        self.register(cls)
 
         return cls
 
@@ -252,6 +251,19 @@ class EntityCellsRegistry:
             errors = True
 
         return cells, errors
+
+    @property
+    def cell_classes(self):
+        return iter(self._cell_classes.values())
+
+    def register(self, *cell_classes: Type[EntityCell]):
+        store = self._cell_classes.setdefault
+
+        for cls in cell_classes:
+            if store(cls.type_id, cls) is not cls:
+                raise self.RegistrationError(f'Duplicated Cell id: {cls.type_id}')
+
+        return self
 
 
 CELLS_MAP = EntityCellsRegistry()
