@@ -1,0 +1,118 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}billing-order-brick{% endblock %}
+
+{% block brick_extra_attributes %}
+data-type-currency="{{object.currency.local_symbol}}"
+data-type-global-discount="{{object.discount}}"
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as change_perm %}{% url 'billing__multi_save_lines' object.id as save_url %}
+    {% brick_header_action id='billing-orderline-add' __ctype_id=ct_id __prefix=formset.prefix __count=item_count label=_('Add an order line') type='add' enabled=change_perm %}
+    {% block brick_line_header_actions %}{% endblock %}
+{% endblock %}
+
+{% block brick_script %}
+    {{block.super}}
+    <style type="text/css">
+        .brick-orderline {
+            display: flex;
+        }
+
+        .brick-orderline + .brick-orderline {
+            border-top: 1px solid #dedede;
+            padding-top: 5px;
+        }
+
+        .brick-orderline-tiles {
+            flex-grow: 1;
+        }
+
+        .brick-orderline-tiles .brick-tile  {
+            min-width: 100px;
+            width: 10%;
+        }
+
+        .brick-orderline-tiles .tile-discount {
+            color: red;
+        }
+        
+        .brick-orderline-tiles .tile-multiline {
+            min-width: 200px;
+            width: 20%;
+        }
+
+        .brick-orderline-tiles .tile-multiline .brick-tile-value {
+            font-weight: normal;
+            font-style: italic;
+        }
+        
+        .brick-orderline-actions .brick-action {
+            padding: 0px 2px;
+        }
+
+        .order-summary {
+            margin-left: 70%;
+            min-width: 300px;
+        }
+
+        .order-summary .brick-tile  {
+            min-width: 100px;
+            width: 33.33%;
+        }
+    </style>
+
+    {% has_perm_to change object as change_perm %}{% if change_perm %}
+    <script type="text/javascript">
+        $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
+            brick.orderController = new OrderController(brick);
+        });
+    </script>
+    {% endif %}
+{% endblock %}
+
+{% block brick_content %}
+{% has_perm_to change object as change_perm %}
+{% trans 'Reset' context 'billing-lines' as reset_label %}
+<div class="billing-order-form" ct_id="{{ct_id}}" id="form_id_{{ct_id}}" >
+    {% csrf_token %}
+    {{formset.management_form}}
+
+    {% for form in formset %}
+        <div class="brick-orderline">
+            {% include 'billing/bricks/frags/order-line.html' with order=object line=form.instance number=forloop.counter user=user %}
+            {% if change_perm %}
+            <div class="brick-orderline-actions">
+                {% brick_action id='delete-orderline' display='text' label=_('Delete') confirm=_('Are you sure ?') __prefix=form.prefix __lineid=form.instance.id %}
+                {% brick_action id='reset-orderline' display='text' label=reset_label __prefix=form.prefix __lineid=form.instance.id %}
+            </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <div class="brick-tiles order-summary brick-orderline-tiles" data-order-summary>
+        <div class="brick-tile">
+            <span class="brick-tile-name">{% trans "Overall discount" %}</span>
+            <span class="brick-tile-value">{{object.discount}}</span>
+        </div>
+        <div class="brick-tile">
+            <span class="brick-tile-name">{% trans "Total (exclusive of tax)" %}</span>
+            <span class="brick-tile-value">{{object.total_no_vat|format_amount:object.currency}}</span>
+        </div>
+        <div class="brick-tile">
+            <span class="brick-tile-name">{% trans "Total (inclusive of tax)" %}</span>
+            <span class="brick-tile-value">{{object.total_vat|format_amount:object.currency}}</span>
+        </div>
+    </div>
+
+    {% if change_perm %}
+    <script type="text/html" data-orderline-template>
+        <div class="brick-orderline">
+            {% include 'billing/bricks/frags/order-line-edit.html' with order=object form=formset.empty_form number='${number}' user=user %}
+        </div>
+    </script>
+    {% endif %}
+</div>
+{% endblock %}

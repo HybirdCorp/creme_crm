@@ -224,6 +224,24 @@ class Line(CremeEntity):
 
         return self._related_item
 
+    @property
+    def has_unit_discount(self):
+        return self.discount_unit in (
+            constants.DISCOUNT_PERCENT, constants.DISCOUNT_ITEM_AMOUNT
+        )
+
+    @property
+    def has_unit_percent_discount(self):
+        return self.discount_unit == constants.DISCOUNT_PERCENT
+
+    @property
+    def has_unit_amount_discount(self):
+        return self.discount_unit == constants.DISCOUNT_ITEM_AMOUNT
+
+    @property
+    def has_line_discount(self):
+        return self.discount_unit == constants.DISCOUNT_LINE_AMOUNT
+
     @related_item.setter
     def related_item(self, entity):
         assert self.pk is None, \

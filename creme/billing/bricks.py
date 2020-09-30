@@ -117,6 +117,14 @@ class _LinesBrick(SimpleBrick):
         ))
 
 
+class OrderLinesBrick(_LinesBrick):
+    id = _LinesBrick.generate_id('billing', 'order_lines')
+    verbose_name = _('Order lines')
+    template_name = 'billing/bricks/order.html'
+
+    line_model = ProductLine
+
+
 class ProductLinesBrick(_LinesBrick):
     id = _LinesBrick.generate_id('billing', 'product_lines')
     verbose_name = _('Product lines')

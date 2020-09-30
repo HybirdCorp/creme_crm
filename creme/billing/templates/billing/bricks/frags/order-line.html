@@ -1,0 +1,48 @@
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+<div class="brick-tiles brick-orderline-tiles">
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans "Product" %}</span>
+        {% widget_entity_hyperlink line.related_item user %}
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans "Quantity" %}</span>
+        <span class="brick-tile-value">{{line.quantity|default:'—'}}</span>
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans "Unit price" %}</span>
+        <span class="brick-tile-value">{{line.unit_price|default:'—'}}</span>
+        {% if line.discount and line.has_unit_discount %}
+        <span class="brick-tile-value tile-discount">
+            {% if line.has_unit_percent_discount %}
+                −{{line.discount|format:"%0.2f %%"}}
+            {% else %}
+                −{{line.discount|format_amount:order.currency}}
+            {% endif %}
+        </span>
+        {% endif %}
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans "VAT" %}</span>
+        <span class="brick-tile-value">{{line.vat_value.value|format:"%0.2f %%"}}</span>
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans 'Total (exclusive of tax)' %}</span>
+        <span class="brick-tile-value tile-subtotal">{{line.get_raw_price|format_amount:order.currency}}</span>
+        {% if line.discount and line.has_line_discount %}
+        <span class="brick-tile-value tile-discount">−{{line.discount|format_amount:order.currency}}</span>
+        {% endif %}
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans 'Total (without tax) discounted' %}</span>
+        <span class="brick-tile-value tile-total">{{line.get_price_exclusive_of_tax|format_amount:order.currency}}</span>
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans 'Total (inclusive of tax)' %}</span>
+        <span class="brick-tile-value tile-total">{{line.get_price_inclusive_of_tax|format_amount:order.currency}}</span>
+    </div>
+    {% if line.comment %}
+    <div class="brick-tile tile-multiline">
+        <span class="brick-tile-value">{{line.comment}}</span>
+    </div>
+    {% endif %}
+</div>
