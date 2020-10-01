@@ -18,6 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-default_app_config = 'creme.creme_api.apps.CremeApiConfig'
+from django.contrib.contenttypes.models import ContentType
+from rest_framework import serializers
 
-VERSION = "1.0.0"
+
+class ContentTypeSerializer(serializers.ModelSerializer):
+    """Readonly"""
+    class Meta:
+        model = ContentType
+        fields = [
+            "id",
+            "app_label",
+            "model",
+        ]

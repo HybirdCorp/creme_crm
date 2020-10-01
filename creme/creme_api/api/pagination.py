@@ -18,24 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from .views import (
-    AddressViewSet,
-    CivilityViewSet,
-    ContactViewSet,
-    LegalFormViewSet,
-    OrganisationViewSet,
-    PositionViewSet,
-    SectorViewSet,
-    StaffSizeViewSet,
-)
+from rest_framework.pagination import CursorPagination
 
-routes = [
-    (r"contacts", ContactViewSet),
-    (r"organisations", OrganisationViewSet),
-    (r"addresses", AddressViewSet),
-    (r"civilities", CivilityViewSet),
-    (r"positions", PositionViewSet),
-    (r"staffsizes", StaffSizeViewSet),
-    (r"legalforms", LegalFormViewSet),
-    (r"sectors", SectorViewSet),
-]
+
+class CremeCursorPagination(CursorPagination):
+    ordering = 'id'

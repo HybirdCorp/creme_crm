@@ -18,34 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from importlib import import_module
-
-from django.apps import apps
 from rest_framework import routers
 
-from creme.creme_core.apps import creme_app_configs
-from creme.creme_core.utils.collections import OrderedSet
+
+class CremeRouter(routers.DefaultRouter):
+    include_root_view = False
+    include_format_suffixes = False
 
 
-class CremeApiRouter(routers.DefaultRouter):
-    def populate_routes(self):
-        app_labels = OrderedSet(app_config.label for app_config in creme_app_configs())
-
-        for app_label in app_labels:
-            app = apps.get_app_config(app_label).name
-            try:
-                api_module = import_module(f'{app}.api')
-            except ImportError:
-                continue
-
-            try:
-                routes = api_module.routes
-            except AttributeError:
-                continue
-
-            for ressource_path, viewset in routes:
-                self.register(ressource_path, viewset)
-
-
-creme_api_router = CremeApiRouter()
-creme_api_router.populate_routes()
+creme_api_router = CremeRouter()

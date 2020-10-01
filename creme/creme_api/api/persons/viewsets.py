@@ -18,14 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from rest_framework import viewsets
+from rest_framework.schemas.openapi import AutoSchema
 
-from creme.persons.models import (
-    Address,
+from creme.creme_api.api.viewsets import CremeEntityViewSet, CremeModelViewSet
+from creme.persons import (
+    get_address_model,
+    get_contact_model,
+    get_organisation_model,
+)
+from creme.persons.models.other_models import (
     Civility,
-    Contact,
     LegalForm,
-    Organisation,
     Position,
     Sector,
     StaffSize,
@@ -42,42 +45,52 @@ from .serializers import (
     StaffSizeSerializer,
 )
 
+schema = AutoSchema(tags=['Persons'])
 
-class ContactViewSet(viewsets.ModelViewSet):
-    queryset = Contact.objects.all()
+
+class ContactViewSet(CremeEntityViewSet):
+    queryset = get_contact_model().objects.all()
     serializer_class = ContactSerializer
+    schema = schema
 
 
-class OrganisationViewSet(viewsets.ModelViewSet):
-    queryset = Organisation.objects.all()
+class OrganisationViewSet(CremeEntityViewSet):
+    queryset = get_organisation_model().objects.all()
     serializer_class = OrganisationSerializer
+    schema = schema
 
 
-class AddressViewSet(viewsets.ModelViewSet):
-    queryset = Address.objects.all()
+class AddressViewSet(CremeModelViewSet):
+    queryset = get_address_model().objects.all()
     serializer_class = AddressSerializer
+    schema = schema
 
 
-class CivilityViewSet(viewsets.ModelViewSet):
+class CivilityViewSet(CremeModelViewSet):
     queryset = Civility.objects.all()
     serializer_class = CivilitySerializer
+    schema = schema
 
 
-class PositionViewSet(viewsets.ModelViewSet):
+class PositionViewSet(CremeModelViewSet):
     queryset = Position.objects.all()
     serializer_class = PositionSerializer
+    schema = schema
 
 
-class StaffSizeViewSet(viewsets.ModelViewSet):
+class StaffSizeViewSet(CremeModelViewSet):
     queryset = StaffSize.objects.all()
     serializer_class = StaffSizeSerializer
+    schema = schema
 
 
-class LegalFormViewSet(viewsets.ModelViewSet):
+class LegalFormViewSet(CremeModelViewSet):
     queryset = LegalForm.objects.all()
     serializer_class = LegalFormSerializer
+    schema = schema
 
 
-class SectorViewSet(viewsets.ModelViewSet):
+class SectorViewSet(CremeModelViewSet):
     queryset = Sector.objects.all()
     serializer_class = SectorSerializer
+    schema = schema

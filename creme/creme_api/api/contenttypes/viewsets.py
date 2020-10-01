@@ -18,6 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-default_app_config = 'creme.creme_api.apps.CremeApiConfig'
+from django.contrib.contenttypes.models import ContentType
+from rest_framework import viewsets
+from rest_framework.schemas.openapi import AutoSchema
 
-VERSION = "1.0.0"
+from .serializers import ContentTypeSerializer
+
+
+class ContentTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    """Readonly"""
+    queryset = ContentType.objects.all()
+    serializer_class = ContentTypeSerializer
+    schema = AutoSchema(tags=['Content Types'])

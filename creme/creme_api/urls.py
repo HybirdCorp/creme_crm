@@ -18,11 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.urls import include, re_path
+from django.apps import apps
+from django.urls import path
+from django.views.generic import TemplateView
+from rest_framework.schemas import get_schema_view
 
-from .routes import creme_api_router
+from creme.creme_api import VERSION
+
+creme_api_config = apps.get_app_config('creme_api')
+
 
 urlpatterns = [
-    re_path(r'^', include(creme_api_router.urls)),
-    re_path(r'^api-auth/', include('rest_framework.urls'))
-]
+    path('openapi', get_schema_view(
+        title="CremeCRM API",
+        description="Provide a rest API to conquer the world",
+        version=VERSION
+    ), name='openapi-schema'),
+    path('swagger-ui/', TemplateView.as_view(
+        template_name='creme_api/swagger-ui.html',
+        extra_context={'schema_url': 'openapi-schema'}
+    ), name='swagger-ui'),
+] + creme_api_config.router.urls
