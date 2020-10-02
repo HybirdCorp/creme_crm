@@ -37,9 +37,10 @@ Contact = get_contact_model()
 
 
 class MessagingListForm(CremeEntityForm):
-    class Meta:
+    # class Meta:
+    class Meta(CremeEntityForm.Meta):
         model = get_messaginglist_model()
-        fields = ('user', 'name', 'description')
+        # fields = ('user', 'name', 'description')
 
 
 class AddContactsForm(CremeForm):
