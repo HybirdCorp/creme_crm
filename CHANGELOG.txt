@@ -534,6 +534,7 @@
                         - 'abstract_add_phonecall()' & 'abstract_create_phonecall_as_caller()'
                         - '_build_related_phonecall()' & '_create_phonecall()'
             * SMS :
+                - The field 'models.MessagingList.contacts' is not editable anymore.
                 - The function-view 'views.sending.reload_messages_brick()' has been replaced by the class 'MessageBrickReloading'.
             * Activesync :
                 - Its support was dropped with Creme2.0, and is now removed from the codebase.

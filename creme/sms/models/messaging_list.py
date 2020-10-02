@@ -27,10 +27,11 @@ from creme.creme_core.models import CremeEntity
 
 
 class AbstractMessagingList(CremeEntity):
-    name     = CharField(_('Name of the messaging list'), max_length=80)
-    contacts = ManyToManyField(settings.PERSONS_CONTACT_MODEL,
-                               verbose_name=_('Contacts recipients'),
-                              )
+    name = CharField(_('Name of the messaging list'), max_length=80)
+    contacts = ManyToManyField(
+        settings.PERSONS_CONTACT_MODEL,
+        verbose_name=_('Contacts recipients'), editable=False,
+    )
 
     creation_label = _('Create a messaging list')
     save_label     = _('Save the messaging list')

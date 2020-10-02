@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=80, verbose_name='Name of the messaging list')),
-                ('contacts', models.ManyToManyField(to=settings.PERSONS_CONTACT_MODEL, verbose_name='Contacts recipients')),
+                ('contacts', models.ManyToManyField(to=settings.PERSONS_CONTACT_MODEL, verbose_name='Contacts recipients', editable=False,)),
             ],
             options={
                 'swappable': 'SMS_MLIST_MODEL',

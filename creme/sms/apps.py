@@ -59,7 +59,7 @@ class SMSConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        bulk_update_registry.register(self.MessagingList, exclude=('contacts',))
+        # bulk_update_registry.register(self.MessagingList, exclude=('contacts',))
         bulk_update_registry.register(self.SMSCampaign, exclude=('lists',))
 
     def register_fields_config(self, fields_config_registry):
