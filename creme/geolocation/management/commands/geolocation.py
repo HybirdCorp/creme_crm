@@ -289,7 +289,7 @@ class Command(BaseCommand):
         try:
             CSVTownPopulator(defaults=defaults).populate(url)
         except Exception as e:
-            self.syserr(e)
+            self.syserr(str(e))
 
     def import_town_all(self, verbosity=0):
         self.sysout('Importing Towns database...', verbosity > 0)
