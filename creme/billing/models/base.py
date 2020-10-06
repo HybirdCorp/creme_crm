@@ -273,7 +273,9 @@ class Base(CremeEntity):
         if source is None:
             # source = self.get_source()
             source = self.source
-        self.number = 0
+        # self.number = 0
+        if not self.number:
+            self.number = '0'
 
         if source:
             real_content_type = self.entity_type
@@ -285,7 +287,7 @@ class Base(CremeEntity):
                 algo = algo_registry.get_algo(name_algo)
                 self.number = algo().generate_number(source, real_content_type)
             except Exception as e:
-                logger.debug('Exception during billing.generate_number(): %s', e)
+                logger.info('billing.generate_number(): number cannot be generated (%s)', e)
 
     def get_lines(self, klass):
         assert not klass._meta.abstract, \

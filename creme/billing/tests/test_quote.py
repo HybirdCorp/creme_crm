@@ -4,6 +4,7 @@ from datetime import date
 from decimal import Decimal
 from functools import partial
 
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -18,7 +19,7 @@ from creme.persons.tests.base import (
 
 from ..actions import ExportQuoteAction
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from ..models import QuoteStatus
+from ..models import QuoteStatus, SimpleBillingAlgo
 from .base import (
     Address,
     Invoice,
@@ -101,19 +102,84 @@ class QuoteTestCase(_BillingTestCase):
         )
 
     def test_createview01(self):
+        "Source is not managed + no number given."
         self.login()
-        self.assertGET200(reverse('billing__create_quote'))
+
+        managed_orgas = [*Organisation.objects.filter_managed_by_creme()]
+        self.assertEqual(1, len(managed_orgas))
+
+        managed_orga = managed_orgas[0]
+        response = self.assertGET200(reverse('billing__create_quote'))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            source_f = fields['source']
+            number_f = fields['number']
+
+        self.assertEqual(managed_orga, source_f.initial)
+        self.assertFalse(number_f.required)
+        self.assertEqual(
+            _(
+                'If you chose an organisation managed by Creme (like «{}») '
+                'as source organisation, a number will be automatically generated.'
+            ).format(managed_orga),
+            number_f.help_text,
+        )
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
+
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
+        self.assertEqual('0', quote.number)
 
         self.assertRelationCount(1, quote,  REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, quote,  REL_SUB_BILL_RECEIVED, target)
         self.assertRelationCount(1, target, REL_SUB_PROSPECT,      source)
 
-        quote, source, target = self.create_quote_n_orgas('My Quote Two')
-        self.assertRelationCount(1, target, REL_SUB_PROSPECT, source)
+        # ---
+        quote2, source2, target2 = self.create_quote_n_orgas('My Quote Two')
+        self.assertRelationCount(1, target2, REL_SUB_PROSPECT, source2)
+
+    def test_createview02(self):
+        "Source is managed + no number given."
+        user = self.login()
+        self.assertGET200(reverse('billing__create_quote'))
+
+        source, target1 = self.create_orgas()
+        self._set_managed(source)
+
+        algo_qs = SimpleBillingAlgo.objects.filter(
+            organisation=source.id,
+            ct=ContentType.objects.get_for_model(Quote),
+        )
+        self.assertEqual([0], [*algo_qs.values_list('last_number', flat=True)])
+
+        quote = self.create_quote('My Quote', source, target1)
+
+        self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
+        self.assertIsNone(quote.acceptation_date)
+        self.assertEqual('DE1', quote.number)
+
+        self.assertRelationCount(1, quote,  REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, quote,  REL_SUB_BILL_RECEIVED, target1)
+        self.assertRelationCount(1, target1, REL_SUB_PROSPECT,      source)
+
+        self.assertEqual([1], [*algo_qs.values_list('last_number', flat=True)])
+
+        # ---
+        target2 = Organisation.objects.create(user=user, name='Target #2')
+        quote2 = self.create_quote('My second Quote', source, target2)
+
+        self.assertRelationCount(1, target2, REL_SUB_PROSPECT, source)
+        self.assertEqual('DE2', quote2.number)
+
+    def test_createview03(self):
+        "Source is not managed + a number is given."
+        self.login()
+
+        number = 'Q123'
+        quote, source, target = self.create_quote_n_orgas('My Quote', number=number)
+        self.assertEqual(number, quote.number)
 
     def test_create_related01(self):
         user = self.login()
@@ -250,7 +316,12 @@ class QuoteTestCase(_BillingTestCase):
         quote, source, target = self.create_quote_n_orgas(name)
 
         url = quote.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            number_f = response.context['form'].fields['number']
+
+        self.assertFalse(number_f.help_text)
 
         name = name.title()
         currency = Currency.objects.create(

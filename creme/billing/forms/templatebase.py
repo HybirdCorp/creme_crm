@@ -33,6 +33,12 @@ class _TemplateBaseForm(BaseEditForm):
     class Meta(BaseEditForm.Meta):
         model = get_template_base_model()
         # exclude = (*BaseEditForm.Meta.exclude, 'ct', 'status_id')
+        help_texts = {
+            'number': _(
+                'If a number is given, it will be only used as fallback value '
+                'when generating a number in the final recurring entities.'
+            ),
+        }
 
     def _build_status_field(self, billing_ct):
         meta = billing_ct.model_class()._meta
