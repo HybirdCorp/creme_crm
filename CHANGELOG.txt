@@ -72,6 +72,12 @@
                  - OpenStreetMapDetailMapBrick
                  - OpenStreetMapFilteredMapBrick
                  - OpenStreetMapNeighboursMapBrick
+        * Mobile :
+            - Add a new setting to configure the redirection links to "Google Maps" or "Open Street Map". here's some examples
+                 - https://www.openstreetmap.org/search?query={search}
+                 - https://www.openstreetmap.org#map=18/{lat}/{lng}
+                 - https://www.google.com/maps/?q={search}
+                 - https://maps.google.com/maps/place/{lat},{lng}
 
   Developers side :
   -----------------

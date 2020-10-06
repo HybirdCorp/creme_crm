@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2014-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,25 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import gettext_lazy as _
+import logging
 
-from creme.creme_core.apps import CremeAppConfig
+from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.utils.settings import (
+    has_setting_value,
+    set_setting_value,
+)
+
+from . import setting_keys
+
+logger = logging.getLogger(__name__)
 
 
-class MobileConfig(CremeAppConfig):
-    name = 'creme.mobile'
-    verbose_name = _('Mobile')
-    dependencies = ['creme.persons', 'creme.activities']
-    credentials = CremeAppConfig.CRED_NONE
+class Populator(BasePopulator):
+    dependencies = ['creme_core', 'persons']
 
-    def register_bricks(self, brick_registry):
-        from . import bricks
+    def populate(self):
+        already_populated = has_setting_value(setting_keys.LOCATION_MAP_URL)
 
-        brick_registry.register(bricks.FavoritePersonsBrick)
-
-    def register_setting_keys(self, setting_key_registry):
-        from . import setting_keys
-
-        setting_key_registry.register(
-            setting_keys.LOCATION_MAP_URL,
-        )
+        if not already_populated:
+            set_setting_value(
+                setting_keys.LOCATION_MAP_URL,
+                'https://www.google.com/maps/?q={search}'
+            )

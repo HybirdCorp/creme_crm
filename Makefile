@@ -46,7 +46,7 @@ media:
 ## Run the Django test suite
 .PHONY: test
 test:
-	python creme/manage.py test --noinput --parallel=${MAKE_NPROCS} $(filter-out $@,$(MAKECMDGOALS))
+	python creme/manage.py test --keepdb --noinput --parallel=${MAKE_NPROCS} $(filter-out $@,$(MAKECMDGOALS))
 
 
 ## Run the Django test suite and generate coverage reports
