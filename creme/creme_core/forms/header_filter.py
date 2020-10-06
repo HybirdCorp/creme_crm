@@ -363,8 +363,9 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
         get_fconf = FieldsConfig.LocalCache().get_4_model
 
         non_hiddable_fnames: Dict[Type[CremeEntity], Set[str]] = defaultdict(set)
+        cell_class = self.cell_class
         for cell in self._non_hiddable_cells:
-            if isinstance(cell, EntityCellRegularField):
+            if isinstance(cell, cell_class):
                 field_info = cell.field_info
                 field = field_info[-1]
                 non_hiddable_fnames[field.model].add(field.name)
