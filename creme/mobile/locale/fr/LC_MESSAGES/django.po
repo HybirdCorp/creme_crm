@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-20 14:44+0100\n"
+"POT-Creation-Date: 2020-10-07 17:17+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,19 +20,27 @@ msgstr ""
 msgid "Mobile"
 msgstr "Mobile"
 
-#: bricks.py:38
+#: bricks.py:36
 msgid "Favorite Contacts & Organisations (for mobile)"
 msgstr "Contacts & Sociétés favoris (pour mobile)"
 
-#: forms.py:58
+#: forms.py:81
 msgctxt "mobile-contact"
 msgid "Is favorite"
 msgstr "Est favori"
 
-#: forms.py:97
+#: forms.py:123
 msgctxt "mobile-orga"
 msgid "Is favorite"
 msgstr "Est favorite"
+
+#: setting_keys.py:10
+#, python-brace-format
+msgid ""
+"Url pattern to map & geolocation services.Use {search} placeholder for the "
+"address (e.g: 'www.google.com/maps?q={search}').If geolocation is enabled, "
+"{lat} & {lng} coordinates can be used too."
+msgstr ""
 
 # Already in activities
 #: templates/mobile/activities.html:10 templates/mobile/activities.html:29
@@ -108,6 +116,7 @@ msgid "Last name"
 msgstr ""
 
 #: templates/mobile/add_contact.html:52 templates/mobile/add_orga.html:48
+#: templates/mobile/frags/custom_fields.html:7
 msgid "(required)"
 msgstr "(obligatoire)"
 
@@ -129,21 +138,21 @@ msgid "Email address"
 msgstr "Adresse e-mail"
 
 # Already in persons
-#: templates/mobile/add_contact.html:94
+#: templates/mobile/add_contact.html:96
 msgid "Organisation"
 msgstr ""
 
-#: templates/mobile/add_contact.html:104
+#: templates/mobile/add_contact.html:106
 msgid "Add this contact to the favorites"
 msgstr "Ajouter ce contact aux favoris"
 
 # Already in persons
-#: templates/mobile/add_contact.html:108
+#: templates/mobile/add_contact.html:110
 msgid "Save the contact"
 msgstr ""
 
 # Already in creme_core
-#: templates/mobile/add_contact.html:109 templates/mobile/add_orga.html:73
+#: templates/mobile/add_contact.html:111 templates/mobile/add_orga.html:75
 msgid "Cancel"
 msgstr ""
 
@@ -156,12 +165,12 @@ msgstr ""
 msgid "The name must be filled."
 msgstr "Le nom doit être rempli."
 
-#: templates/mobile/add_orga.html:68
+#: templates/mobile/add_orga.html:70
 msgid "Add this organisation to the favorites"
 msgstr "Ajouter cette société aux favoris"
 
 # Already in persons
-#: templates/mobile/add_orga.html:72
+#: templates/mobile/add_orga.html:74
 msgid "Save the organisation"
 msgstr ""
 
@@ -280,37 +289,37 @@ msgstr "Commencer l'activité"
 msgid "Stop this activity"
 msgstr "Terminer l'activité"
 
-#: templates/mobile/frags/contact_card.html:10
-#: templates/mobile/frags/contact_card.html:95
+#: templates/mobile/frags/contact_card.html:9
+#: templates/mobile/frags/contact_card.html:94
 msgid "contact"
 msgstr "contact"
 
-#: templates/mobile/frags/contact_card.html:20
-#: templates/mobile/frags/contact_card.html:67
+#: templates/mobile/frags/contact_card.html:19
+#: templates/mobile/frags/contact_card.html:66
 #: templates/mobile/frags/orga_card.html:17
 msgid "phone"
 msgstr "tél."
 
-#: templates/mobile/frags/contact_card.html:26
+#: templates/mobile/frags/contact_card.html:25
 msgid "mobile"
 msgstr "mobile"
 
-#: templates/mobile/frags/contact_card.html:36
+#: templates/mobile/frags/contact_card.html:35
 msgid "email"
 msgstr "email"
 
-#: templates/mobile/frags/contact_card.html:42
-#: templates/mobile/frags/contact_card.html:73
+#: templates/mobile/frags/contact_card.html:41
+#: templates/mobile/frags/contact_card.html:72
 #: templates/mobile/frags/orga_card.html:26
 msgid "address"
 msgstr "adresse"
 
-#: templates/mobile/frags/contact_card.html:50
+#: templates/mobile/frags/contact_card.html:49
 msgid "position"
 msgstr "fonction"
 
-#: templates/mobile/frags/contact_card.html:62
-#: templates/mobile/frags/contact_card.html:82
+#: templates/mobile/frags/contact_card.html:61
+#: templates/mobile/frags/contact_card.html:81
 #: templates/mobile/frags/orga_card.html:7
 #: templates/mobile/frags/orga_card.html:38
 msgid "organisation"
@@ -449,12 +458,18 @@ msgid "Call in progress"
 msgstr "Appel en cours"
 
 #: templates/mobile/workflow_panel.html:14
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You left the application to call <span class='call-target'><span "
+#| "class='contact-first-name'>%(first_name)s</span> <span class='contact-"
+#| "last-name'>%(last_name)s</span></span> to <a class='phone-number' "
+#| "href='tel:%(number)s'>%(number)s</a>, you can save the result if this "
+#| "call."
 msgid ""
-"You left the application to call <span class='call-target'><span "
-"class='contact-first-name'>%(first_name)s</span> <span class='contact-last-"
-"name'>%(last_name)s</span></span> to <a class='phone-number' href='tel:"
-"%(number)s'>%(number)s</a>, you can save the result if this call."
+"You left the application to call <span class=\"call-target\"><span class="
+"\"contact-first-name\">%(first_name)s</span> <span class=\"contact-last-name"
+"\">%(last_name)s</span></span> to <a class=\"phone-number\" href=\"tel:"
+"%(number)s\">%(number)s</a>, you can save the result if this call."
 msgstr ""
 "Vous avez quitté l'application pour appeler <span class='call-target'><span "
 "class='contact-first-name'>%(first_name)s</span> <span class='contact-last-"
@@ -462,11 +477,16 @@ msgstr ""
 "%(number)s'>%(number)s</a>, vous pouvez sauvegarder le résultat de cet appel."
 
 #: templates/mobile/workflow_panel.html:18
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You left the application to call <span class='call-target'><span "
+#| "class='orga-name'>%(name)s</span></span> to <a class='phone-number' "
+#| "href='tel:%(number)s'>%(number)s</a>, you can save the result if this "
+#| "call."
 msgid ""
-"You left the application to call <span class='call-target'><span class='orga-"
-"name'>%(name)s</span></span> to <a class='phone-number' href='tel:"
-"%(number)s'>%(number)s</a>, you can save the result if this call."
+"You left the application to call <span class=\"call-target\"><span class="
+"\"orga-name\">%(name)s</span></span> to <a class=\"phone-number\" href=\"tel:"
+"%(number)s\">%(number)s</a>, you can save the result if this call."
 msgstr ""
 "Vous avez quitté l'application pour appeler <span class='call-target'><span "
 "class='orga-name'>%(name)s</span></span> au <a class='phone-number' "
@@ -502,42 +522,42 @@ msgid "Do not save"
 msgstr "Ne pas sauvegarder"
 
 # Already in creme_core
-#: views.py:88
+#: views.py:89
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:92
+#: views.py:93
 msgid "The page you have requested is not found."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:96
+#: views.py:97
 msgid "You can not perform this action because of business constraints."
 msgstr ""
 
-#: views.py:302
+#: views.py:269
 msgid "Your search is too short."
 msgstr "Votre recherche est trop courte."
 
-#: views.py:539
+#: views.py:526
 msgid "You cannot create a call to yourself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
-#: views.py:599 views.py:636
+#: views.py:587 views.py:624
 #, python-brace-format
 msgid "{status} call to {person} from Creme Mobile"
 msgstr "Appel {status} vers {person} depuis Creme Mobile"
 
-#: views.py:600
+#: views.py:588
 msgid "Successful"
 msgstr "réussi"
 
-#: views.py:637
+#: views.py:625
 msgid "Failed"
 msgstr "échoué"
 
-#: views.py:697
+#: views.py:686
 msgid "Call to {} from Creme Mobile"
 msgstr "Appel vers {} depuis Creme Mobile"
 

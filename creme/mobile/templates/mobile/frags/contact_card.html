@@ -39,7 +39,7 @@
         {% if has_address %}
           <div class="entity-field">
             <span class="field-label">{% trans 'address' %}</span>
-            <a class="field-value" href="http://maps.google.com/?q={{address}}" target="_blank">{# TODO: generic #}
+            <a class="field-value" href="{% mobile_location_map_url address %}" target="_blank">{# TODO: generic #}
               {{address|linebreaksbr}}
             </a>
           </div>
@@ -70,7 +70,7 @@
                 {% if orga_has_address %}
                   <div class="entity-field">
                     <span class="field-label">{% trans 'address' %}</span>
-                    <a class="field-value" href="http://maps.google.com/?q={{orga_address}}" target="_blank">
+                    <a class="field-value" href="{% mobile_location_map_url orga_address %}" target="_blank">
                       {{orga_address|linebreaksbr}}
                     </a>
                   </div>
