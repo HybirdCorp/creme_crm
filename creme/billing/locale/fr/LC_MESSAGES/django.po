@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-20 17:15+0200\n"
+"POT-Creation-Date: 2020-10-07 13:56+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -39,11 +39,11 @@ msgstr "Voulez vous vraiment générer un numéro de facture ?"
 msgid "Billing"
 msgstr "Facturation"
 
-#: apps.py:235 apps.py:244
+#: apps.py:257 apps.py:274
 msgid "Management"
 msgstr "Gestion"
 
-#: apps.py:276
+#: apps.py:314
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} won"
@@ -51,123 +51,123 @@ msgid_plural "{count} won"
 msgstr[0] "{count} gagné"
 msgstr[1] "{count} gagnés"
 
-#: apps.py:289
+#: apps.py:327
 #, python-brace-format
 msgctxt "billing-quote_stats"
 msgid "{count} in all"
 msgstr "{count} en tout"
 
-#: bricks.py:141 models/product_line.py:36
+#: bricks.py:147 models/product_line.py:36
 msgid "Product lines"
 msgstr "Lignes produit"
 
-#: bricks.py:153 models/service_line.py:36
+#: bricks.py:159 models/service_line.py:36
 msgid "Service lines"
 msgstr "Lignes service"
 
-#: bricks.py:167
+#: bricks.py:173
 msgid "Related Credit Notes"
 msgstr "Avoirs relatifs"
 
-#: bricks.py:179 models/credit_note.py:39
+#: bricks.py:185 models/credit_note.py:39
 msgid "Create a credit note"
 msgstr "Créer un avoir"
 
-#: bricks.py:196
+#: bricks.py:202
 msgid "Total"
 msgstr "Total"
 
-#: bricks.py:210 templates/billing/bricks/target.html:7
+#: bricks.py:216 templates/billing/bricks/target.html:7
 msgid "Target and source"
 msgstr "Cible et source"
 
-#: bricks.py:219
+#: bricks.py:225
 msgid "Received invoices"
 msgstr "Factures reçues"
 
-#: bricks.py:239 bricks.py:247
+#: bricks.py:246 bricks.py:256
 msgid "Received billing documents"
 msgstr "Documents comptables reçus"
 
-#: bricks.py:245
+#: bricks.py:253
 #, python-brace-format
 msgid "{count} Received billing document"
 msgstr "{count} Document comptable reçu"
 
-#: bricks.py:246
+#: bricks.py:254
 #, python-brace-format
 msgid "{count} Received billing documents"
 msgstr "{count} Documents comptables reçus"
 
-#: bricks.py:248
+#: bricks.py:257
 msgid "No received billing document for the moment"
 msgstr "Aucun document comptable reçu pour le moment"
 
-#: bricks.py:271 bricks.py:276
+#: bricks.py:280 bricks.py:287
 msgid "Received quotes"
 msgstr "Devis reçus"
 
-#: bricks.py:274
+#: bricks.py:284
 #, python-brace-format
 msgid "{count} Received quote"
 msgstr "{count} Devis reçu"
 
-#: bricks.py:275
+#: bricks.py:285
 #, python-brace-format
 msgid "{count} Received quotes"
 msgstr "{count} Devis reçus"
 
-#: bricks.py:277
+#: bricks.py:288
 msgid "No received quote for the moment"
 msgstr "Aucun devis reçu pour le moment"
 
-#: bricks.py:283 bricks.py:288
+#: bricks.py:294 bricks.py:301
 msgid "Received sales orders"
 msgstr "Bons de commande reçus"
 
-#: bricks.py:286
+#: bricks.py:298
 #, python-brace-format
 msgid "{count} Received sales order"
 msgstr "{count} Bon de commande reçu"
 
-#: bricks.py:287
+#: bricks.py:299
 #, python-brace-format
 msgid "{count} Received sales orders"
 msgstr "{count} Bons de commande reçus"
 
-#: bricks.py:289
+#: bricks.py:302
 msgid "No received sales order for the moment"
 msgstr "Aucun bon reçu pour le moment"
 
-#: bricks.py:295 bricks.py:300
+#: bricks.py:308 bricks.py:315
 msgid "Received credit notes"
 msgstr "Avoirs reçus"
 
-#: bricks.py:298
+#: bricks.py:312
 #, python-brace-format
 msgid "{count} Received credit note"
 msgstr "{count} Avoir reçu"
 
-#: bricks.py:299
+#: bricks.py:313
 #, python-brace-format
 msgid "{count} Received credit notes"
 msgstr "{count} Avoirs reçus"
 
-#: bricks.py:301
+#: bricks.py:316
 msgid "No received credit note for the moment"
 msgstr "Aucun avoir reçu pour le moment"
 
-#: bricks.py:306 models/base.py:123
+#: bricks.py:321 models/base.py:123
 #: templates/billing/bricks/billing-payment-information.html:7
 #: templates/billing/bricks/orga-payment-information.html:7
 msgid "Payment information"
 msgstr "Informations de paiement"
 
-#: bricks.py:326
+#: bricks.py:341
 msgid "Default payment information"
 msgstr "Information de paiement par défaut"
 
-#: bricks.py:397 templates/billing/bricks/persons-statistics.html:11
+#: bricks.py:412 templates/billing/bricks/persons-statistics.html:11
 msgid "Billing statistics"
 msgstr "Statistiques de facturation"
 
@@ -315,13 +315,21 @@ msgstr "Remise globale (en %)"
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: forms/base.py:195 forms/mass_import.py:120 forms/mass_import.py:159
-#: forms/templatebase.py:75 models/base.py:82
+#: forms/base.py:193
+msgid ""
+"If you chose an organisation managed by Creme (like «{}») as source "
+"organisation, a number will be automatically generated."
+msgstr ""
+"Si vous choisissez une société gérée par Creme (comme «{}») en tant "
+"qu'émettrice,un nombre sera automatiquement généré."
+
+#: forms/base.py:208 forms/mass_import.py:120 forms/mass_import.py:159
+#: forms/templatebase.py:82 models/base.py:82
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:198 forms/mass_import.py:124 forms/mass_import.py:164
-#: forms/templatebase.py:78 models/base.py:87
+#: forms/base.py:211 forms/mass_import.py:124 forms/mass_import.py:164
+#: forms/templatebase.py:85 models/base.py:87
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
@@ -438,7 +446,15 @@ msgstr ""
 msgid "Status"
 msgstr "Statut"
 
-#: forms/templatebase.py:40
+#: forms/templatebase.py:38
+msgid ""
+"If a number is given, it will be only used as fallback value when generating "
+"a number in the final recurring entities."
+msgstr ""
+"Si un nombre est donné, il sera seulement utilisé comme valeur de secours "
+"lors de la génération du nombre des fiches récurrentes finales."
+
+#: forms/templatebase.py:47
 msgid "Status of {}"
 msgstr "Statut de {}"
 
@@ -471,8 +487,8 @@ msgstr "Nom de l'algo"
 msgid "Invoice prefix"
 msgstr "Préfixe de la facture"
 
-#: models/base.py:69 models/other_models.py:53 models/other_models.py:101
-#: models/other_models.py:135 templates/billing/bricks/credit-notes.html:17
+#: models/base.py:69 models/other_models.py:54 models/other_models.py:102
+#: models/other_models.py:136 templates/billing/bricks/credit-notes.html:17
 msgid "Name"
 msgstr "Nom"
 
@@ -550,7 +566,7 @@ msgstr "Configuration d'export pour : {}"
 msgid "Status of invoice"
 msgstr "Statut de la facture"
 
-#: models/invoice.py:42 models/other_models.py:38
+#: models/invoice.py:42 models/other_models.py:39
 msgid "Settlement terms"
 msgstr "Délais de règlement"
 
@@ -641,160 +657,160 @@ msgstr ""
 msgid "You must define a name for an on the fly item"
 msgstr "Vous devez donner un nom à votre produit/service à la volée"
 
-#: models/other_models.py:40
+#: models/other_models.py:41
 msgid "Create settlement terms"
 msgstr "Créer des délais de règlement"
 
-#: models/other_models.py:47
+#: models/other_models.py:48
 msgctxt "billing-singular"
 msgid "Settlement terms"
 msgstr "Délais de règlement"
 
-#: models/other_models.py:48
+#: models/other_models.py:49
 msgctxt "billing-plural"
 msgid "Settlement terms"
 msgstr "Délais de règlement"
 
-#: models/other_models.py:55
+#: models/other_models.py:56
 msgid "Order"
 msgstr "Ordre"
 
-#: models/other_models.py:57
+#: models/other_models.py:58
 msgctxt "billing-status"
 msgid "Create a status"
 msgstr "Créer un statut"
 
-#: models/other_models.py:69
+#: models/other_models.py:70
 msgid "Pending payment"
 msgstr "Paiement en attente"
 
-#: models/other_models.py:73
+#: models/other_models.py:74
 msgid "Invoice status"
 msgstr "Statut de facture"
 
-#: models/other_models.py:74
+#: models/other_models.py:75
 msgid "Invoice statuses"
 msgstr "Statuts de facture"
 
-#: models/other_models.py:78
+#: models/other_models.py:79
 msgctxt "billing-quote_status"
 msgid "Won"
 msgstr "Remporté"
 
-#: models/other_models.py:82
+#: models/other_models.py:83
 msgid "Quote status"
 msgstr "Statut de devis"
 
-#: models/other_models.py:83
+#: models/other_models.py:84
 msgid "Quote statuses"
 msgstr "Statuts de devis"
 
-#: models/other_models.py:89
+#: models/other_models.py:90
 msgid "Sales order status"
 msgstr "Statut de bon de commande"
 
-#: models/other_models.py:90
+#: models/other_models.py:91
 msgid "Sales order statuses"
 msgstr "Statuts de bon de commande"
 
-#: models/other_models.py:96
+#: models/other_models.py:97
 msgid "Credit note status"
 msgstr "Statut d'avoir"
 
-#: models/other_models.py:97
+#: models/other_models.py:98
 msgid "Credit note statuses"
 msgstr "Statuts d'avoir"
 
-#: models/other_models.py:102 models/other_models.py:119
+#: models/other_models.py:103 models/other_models.py:120
 msgid "Description"
 msgstr "Description"
 
-#: models/other_models.py:105
+#: models/other_models.py:106
 msgctxt "billing-additional_info"
 msgid "Create information"
 msgstr "Créer une information"
 
-#: models/other_models.py:112
+#: models/other_models.py:113
 msgctxt "billing-singular"
 msgid "Additional information"
 msgstr "Information additionnelle"
 
-#: models/other_models.py:113
+#: models/other_models.py:114
 msgctxt "billing-plural"
 msgid "Additional information"
 msgstr "Informations additionnelles"
 
-#: models/other_models.py:118 models/other_models.py:129
+#: models/other_models.py:119 models/other_models.py:130
 msgctxt "billing-singular"
 msgid "Payment terms"
 msgstr "Condition de règlement"
 
-#: models/other_models.py:122
+#: models/other_models.py:123
 msgid "Create payment terms"
 msgstr "Créer une condition de règlement"
 
-#: models/other_models.py:130
+#: models/other_models.py:131
 msgctxt "billing-plural"
 msgid "Payment terms"
 msgstr "Conditions de règlement"
 
-#: models/other_models.py:137
+#: models/other_models.py:138
 #: templates/billing/bricks/orga-payment-information.html:39
 msgid "Bank code"
 msgstr "Code banque"
 
-#: models/other_models.py:138
+#: models/other_models.py:139
 #: templates/billing/bricks/orga-payment-information.html:43
 msgid "Counter code"
 msgstr "Code guichet"
 
-#: models/other_models.py:139
+#: models/other_models.py:140
 msgid "Account number"
 msgstr "Numéro de compte"
 
-#: models/other_models.py:140
+#: models/other_models.py:141
 msgid "RIB key"
 msgstr "Clé RIB"
 
-#: models/other_models.py:141
+#: models/other_models.py:142
 #: templates/billing/bricks/billing-payment-information.html:39
 #: templates/billing/bricks/orga-payment-information.html:47
 msgid "Banking domiciliation"
 msgstr "Domiciliation"
 
-#: models/other_models.py:143
+#: models/other_models.py:144
 #: templates/billing/bricks/orga-payment-information.html:55
 msgid "IBAN"
 msgstr "IBAN"
 
-#: models/other_models.py:144
+#: models/other_models.py:145
 #: templates/billing/bricks/orga-payment-information.html:59
 msgid "BIC"
 msgstr "BIC"
 
-#: models/other_models.py:146
+#: models/other_models.py:147
 msgid "Is default?"
 msgstr "Par défaut ?"
 
-#: models/other_models.py:149 templates/billing/bricks/target.html:18
+#: models/other_models.py:150 templates/billing/bricks/target.html:18
 msgctxt "billing"
 msgid "Target organisation"
 msgstr "Société réceptrice"
 
-#: models/other_models.py:154
+#: models/other_models.py:155
 msgid "Create a payment information"
 msgstr "Créer une information de paiement"
 
-#: models/other_models.py:155
+#: models/other_models.py:156
 msgid "Save the payment information"
 msgstr "Enregistrer l'information de paiement"
 
-#: models/other_models.py:162
+#: models/other_models.py:163
 msgctxt "billing-singular"
 msgid "Payment information"
 msgstr "Information de paiement"
 
-#: models/other_models.py:163
+#: models/other_models.py:164
 msgctxt "billing-plural"
 msgid "Payment information"
 msgstr "Informations de paiement"
@@ -1202,7 +1218,7 @@ msgstr "Réinitialiser"
 msgid "Flag for delete"
 msgstr "Marquer pour suppression"
 
-#: templates/billing/bricks/billing-hat-bar.html:8
+#: templates/billing/bricks/billing-hat-bar.html:12
 msgid "Download as file (PDF/XLS…)"
 msgstr "Télécharger en tant que fichier (PDF/XLS…)"
 

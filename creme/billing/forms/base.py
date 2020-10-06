@@ -179,7 +179,20 @@ class BaseCreateForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['source'].initial = first_managed_orga_id()
+        # self.fields['source'].initial = first_managed_orga_id()
+        try:
+            managed_orga = get_organisation_model().objects.filter_managed_by_creme()[0]
+        except IndexError:
+            logger.warning('No managed organisation ?!')
+        else:
+            fields = self.fields
+            fields['source'].initial = managed_orga
+
+            if type(self.instance).generate_number_in_create:
+                fields['number'].help_text = _(
+                    'If you chose an organisation managed by Creme (like «{}») '
+                    'as source organisation, a number will be automatically generated.'
+                ).format(managed_orga)
 
     def save(self, *args, **kwargs):
         instance = self.instance

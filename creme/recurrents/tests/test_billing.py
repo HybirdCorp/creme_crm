@@ -74,6 +74,17 @@ class RecurrentsBillingTestCase(CremeTestCase):
         )
         self.assertNoWizardFormError(response)
 
+        with self.assertNoException():
+            number_f = response.context['form'].fields['number']
+
+        self.assertEqual(
+            _(
+                'If a number is given, it will be only used as fallback value '
+                'when generating a number in the final recurring entities.'
+            ),
+            number_f.help_text,
+        )
+
         create_orga = partial(Organisation.objects.create, user=user)
         source = create_orga(name='Source Orga')
         target = create_orga(name='Target Orga')
