@@ -48,6 +48,14 @@ class SettingValueManager(models.Manager):
         super().__init__(**kwargs)
         self.key_registry = skey_registry
 
+    def clear_cache_of(self, key: Union[SettingKey, str]):
+        cache = get_per_request_cache()
+        cache_key = self.cache_key_fmt.format(
+            key if isinstance(key, str) else key.key_id
+        )
+
+        cache.pop(cache_key, None)
+
     def get_4_key(self, key: Union[SettingKey, str], **kwargs) -> 'SettingValue':
         """Get the SettingValue corresponding to a SettingKey. Results are cached (per request).
 
