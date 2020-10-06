@@ -4,8 +4,7 @@ from django.conf import settings
 from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
-from creme.creme_core.global_info import clear_global_info
-from creme.creme_core.models import SettingValue
+from creme.creme_core.utils.settings import TemporarySettingValueContext
 from creme.geolocation.utils import get_openstreetmap_settings
 from creme.persons.tests.base import (
     skipIfCustomAddress,
@@ -239,30 +238,14 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     def test_get_radius(self):
         self.assertEqual(get_radius(), constants.DEFAULT_SEPARATING_NEIGHBOURS)
 
-        setting = SettingValue.objects.get_or_create(
-            key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id,
-        )[0]
-
-        new_value = 12500
-        setting.value = new_value
-        setting.save()
-        clear_global_info()
-
-        self.assertEqual(get_radius(), new_value)
+        with TemporarySettingValueContext(setting_keys.NEIGHBOURHOOD_DISTANCE, 12500):
+            self.assertEqual(get_radius(), 12500)
 
     def test_get_google_api_key(self):
         self.assertEqual(get_google_api_key(), '')
 
-        setting = SettingValue.objects.get_or_create(
-            key_id=setting_keys.GOOGLE_API_KEY.id,
-        )[0]
-
-        new_value = '12500'
-        setting.value = new_value
-        setting.save()
-        clear_global_info()
-
-        self.assertEqual(get_google_api_key(), new_value)
+        with TemporarySettingValueContext(setting_keys.GOOGLE_API_KEY, 'thegoldenticket'):
+            self.assertEqual(get_google_api_key(), 'thegoldenticket')
 
     def test_get_openstreetmap_settings(self):
         self.assertEqual(get_openstreetmap_settings(), {
