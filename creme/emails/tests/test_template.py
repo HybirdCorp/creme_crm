@@ -19,7 +19,7 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
     def _build_rm_attachment_url(self, template):
         return reverse('emails__remove_attachment_from_template', args=(template.id,))
 
-    def test_createview01(self):  # TODO: test attachments
+    def test_createview01(self):
         user = self.login()
 
         url = reverse('emails__create_template')
@@ -46,17 +46,53 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         self.assertEqual(subject,   template.subject)
         self.assertEqual(body,      template.body)
         self.assertEqual(body_html, template.body_html)
+        self.assertFalse([*template.attachments.all()])
 
         # ----
         response = self.assertGET200(template.get_absolute_url())
         self.assertTemplateUsed(response, 'emails/view_template.html')
 
     def test_createview02(self):
-        "Validation error"
+        "Attachments."
+        user = self.login()
+
+        file_obj1 = self.build_filedata('Content #1')
+        doc1 = self._create_doc('My doc #1', file_obj1)
+
+        file_obj2 = self.build_filedata('Content #2')
+        doc2 = self._create_doc('My doc #2', file_obj2)
+
+        name = 'My first template'
+        subject = 'Very important'
+        body = 'Hello {{name}}'
+        body_html = '<p>Hi {{name}}</p>'
+        response = self.client.post(
+            reverse('emails__create_template'),
+            follow=True,
+            data={
+                'user':      user.pk,
+                'name':      name,
+                'subject':   subject,
+                'body':      body,
+                'body_html': body_html,
+                'attachments': self.formfield_value_multi_creator_entity(doc1, doc2),
+            },
+        )
+        self.assertNoFormError(response)
+
+        template = self.get_object_or_fail(EmailTemplate, name=name)
+        self.assertEqual(subject,   template.subject)
+        self.assertEqual(body,      template.body)
+        self.assertEqual(body_html, template.body_html)
+        self.assertSetEqual({doc1, doc2}, {*template.attachments.all()})
+
+    def test_createview03(self):
+        "Validation error."
         user = self.login()
 
         response = self.assertPOST200(
-            reverse('emails__create_template'), follow=True,
+            reverse('emails__create_template'),
+            follow=True,
             data={
                 'user':      user.pk,
                 'name':      'my_template',
@@ -77,6 +113,9 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
     def test_editview01(self):
         user = self.login()
 
+        file_obj = self.build_filedata('My Content')
+        doc = self._create_doc('My doc #1', file_obj)
+
         name = 'my template'
         subject = 'Insert a joke *here*'
         body = 'blablabla'
@@ -87,33 +126,64 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         url = template.get_edit_absolute_url()
         self.assertGET200(url)
 
-        name    = name.title()
+        name = name.title()
         subject = subject.title()
-        body    += ' edited'
+        body += ' edited'
+        body_html = '<p>blablabla</p>'
         response = self.client.post(
-            url, follow=True,
+            url,
+            follow=True,
             data={
-                'user':    user.pk,
-                'name':    name,
-                'subject': subject,
-                'body':    body,
+                'user':        user.pk,
+                'name':        name,
+                'subject':     subject,
+                'body':        body,
+                'body_html':   body_html,
+                'attachments': self.formfield_value_multi_creator_entity(doc),
             },
         )
         self.assertNoFormError(response)
 
         template = self.refresh(template)
-        self.assertEqual(name,    template.name)
-        self.assertEqual(subject, template.subject)
-        self.assertEqual(body,    template.body)
-        self.assertEqual('',      template.body_html)
+        self.assertEqual(name,      template.name)
+        self.assertEqual(subject,   template.subject)
+        self.assertEqual(body,      template.body)
+        self.assertEqual(body_html, template.body_html)
+        self.assertListEqual([doc], [*template.attachments.all()])
+
+    def test_editview02(self):
+        "Validation errors."
+        user = self.login()
+
+        template = EmailTemplate.objects.create(
+            user=user, name='My template', subject='Hello', body='Complete me',
+        )
+
+        response = self.client.post(
+            template.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user':      user.pk,
+                'name':      template.name,
+                'subject':   template.subject,
+                'body':      'blablabla {{unexisting_var}}',
+                'body_html': '<p>blablabla</p> {{foobar_var}}',
+            },
+        )
+        error_msg = _('The following variables are invalid: %(vars)s')
+        self.assertFormError(
+            response, 'form', 'body', error_msg % {'vars': ['unexisting_var']},
+        )
+        self.assertFormError(
+            response, 'form', 'body_html', error_msg % {'vars': ['foobar_var']}
+        )
 
     def test_listview(self):
         self.login()
         response = self.assertGET200(EmailTemplate.get_lv_absolute_url())
 
         with self.assertNoException():
-            # response.context['entities']
-            response.context['page_obj']
+            response.context['page_obj']  # NOQA
 
     @skipIfCustomDocument
     def test_add_attachments01(self):
@@ -180,7 +250,6 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
 
         url = self._build_rm_attachment_url(template)
         data = {'id': doc1.id}
-        # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data, follow=True)
