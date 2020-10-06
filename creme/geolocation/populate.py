@@ -27,7 +27,10 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickMypageLocation,
-    SettingValue,
+)
+from creme.creme_core.utils.settings import (
+    has_setting_value,
+    set_setting_value,
 )
 
 from . import bricks, constants, setting_keys
@@ -40,53 +43,49 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = SettingValue.objects.filter(
-            key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id,
-        ).exists()
+        already_populated = has_setting_value(setting_keys.NEIGHBOURHOOD_DISTANCE)
 
-        create_skey = SettingValue.objects.get_or_create
-        create_skey(
-            key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id,
-            defaults={'value': constants.DEFAULT_SEPARATING_NEIGHBOURS},
-        )
-        create_skey(
-            key_id=setting_keys.GOOGLE_API_KEY.id,
-            defaults={'value': ''},
+        if already_populated:
+            return
+
+        set_setting_value(
+            setting_keys.NEIGHBOURHOOD_DISTANCE,
+            constants.DEFAULT_SEPARATING_NEIGHBOURS
         )
 
-        if not already_populated:
-            if self.verbosity:
-                self.stdout.write('\n ', ending='')
-                self.stdout.flush()
+        set_setting_value(setting_keys.GOOGLE_API_KEY, '')
 
-            GeolocationCommand().import_town_all(verbosity=self.verbosity)
+        if self.verbosity:
+            self.stdout.write('\n ', ending='')
+            self.stdout.flush()
 
-        if not already_populated:
-            for model in (persons.get_organisation_model(), persons.get_contact_model()):
-                BrickDetailviewLocation.objects.multi_create(
-                    defaults={'model': model},
-                    data=[
-                        {
-                            'brick': bricks.GoogleDetailMapBrick, 'order': 70,
-                            'zone': BrickDetailviewLocation.LEFT,
-                        },
-                        {
-                            'brick': bricks.GoogleNeighboursMapBrick, 'order': 600,
-                            'zone': BrickDetailviewLocation.BOTTOM,
-                        },
-                    ],
-                )
+        GeolocationCommand().import_town_all(verbosity=self.verbosity)
 
-            BrickMypageLocation.objects.create(
-                brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=None,
+        for model in (persons.get_organisation_model(), persons.get_contact_model()):
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': model},
+                data=[
+                    {
+                        'brick': bricks.GoogleDetailMapBrick, 'order': 70,
+                        'zone': BrickDetailviewLocation.LEFT,
+                    },
+                    {
+                        'brick': bricks.GoogleNeighboursMapBrick, 'order': 600,
+                        'zone': BrickDetailviewLocation.BOTTOM,
+                    },
+                ],
             )
 
-            # Add this bloc only if the root user exists (creme_core populated)
-            root = get_user_model().objects.filter(pk=1).first()
-            if root:
-                logger.info(
-                    'Creme core is installed => the block GoogleFilteredMapBrick can be activated'
-                )
-                BrickMypageLocation.objects.create(
-                    brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=root,
-                )
+        BrickMypageLocation.objects.create(
+            brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=None,
+        )
+
+        # Add this bloc only if the root user exists (creme_core populated)
+        root = get_user_model().objects.filter(pk=1).first()
+        if root:
+            logger.info(
+                'Creme core is installed => the block GoogleFilteredMapBrick can be activated'
+            )
+            BrickMypageLocation.objects.create(
+                brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=root,
+            )

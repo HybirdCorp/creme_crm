@@ -4,7 +4,7 @@ from django.conf import settings
 
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.models.entity_filter import EntityFilter
-from creme.creme_core.models.setting_value import SettingValue
+from creme.creme_core.utils.settings import TemporarySettingValueContext
 from creme.geolocation.bricks import (
     GoogleDetailMapBrick,
     OpenStreetMapDetailMapBrick,
@@ -46,16 +46,10 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         )
 
     def test_api_key(self):
-        setting = SettingValue.objects.get_or_create(
-            key_id=setting_keys.GOOGLE_API_KEY.id,
-        )[0]
-
-        setting.value = 'thegoldenticket'
-        setting.save()
-
-        self.assertEqual(_MapBrick().get_api_key(), '')
-        self.assertEqual(OpenStreetMapDetailMapBrick().get_api_key(), '')
-        self.assertEqual(GoogleDetailMapBrick().get_api_key(), 'thegoldenticket')
+        with TemporarySettingValueContext(setting_keys.GOOGLE_API_KEY, 'thegoldenticket'):
+            self.assertEqual(_MapBrick().get_api_key(), '')
+            self.assertEqual(OpenStreetMapDetailMapBrick().get_api_key(), '')
+            self.assertEqual(GoogleDetailMapBrick().get_api_key(), 'thegoldenticket')
 
     def test_map_settings(self):
         self.assertEqual(_MapBrick().get_map_settings(), {})
