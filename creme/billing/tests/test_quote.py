@@ -602,13 +602,13 @@ class QuoteTestCase(_BillingTestCase):
         self.assertEqual(source, quote1.source)
         self.assertEqual(target1, quote1.target)
         number1 = quote1.number
-        self.assertTrue(number1.startswith(settings.QUOTE_NUMBER_PREFIX), number1)
+        self.assertStartsWith(number1, settings.QUOTE_NUMBER_PREFIX)
 
         quote2 = self.get_object_or_fail(Quote, name=names[1])
         self.assertEqual(source, quote2.source)
         self.assertEqual(target2, quote2.target)
         number2 = quote2.number
-        self.assertTrue(number2.startswith(settings.QUOTE_NUMBER_PREFIX), number2)
+        self.assertStartsWith(number2, settings.QUOTE_NUMBER_PREFIX)
 
         self.assertNotEqual(number1, number2)
 

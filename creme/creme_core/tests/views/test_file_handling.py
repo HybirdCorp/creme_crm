@@ -54,8 +54,9 @@ class DownloadViewTestCase(ViewsTestCase):
         self.assertEqual('text/plain', response['Content-Type'])
 
         cdisp = response['Content-Disposition']
-        self.assertTrue(
-            cdisp.startswith('attachment; filename="DownloadViewTestCase_test_download_filefield')
+        self.assertStartsWith(
+            cdisp,
+            'attachment; filename="DownloadViewTestCase_test_download_filefield',
         )
         self.assertTrue(cdisp.endswith('.txt"'))
         self.assertEqual(
@@ -78,9 +79,10 @@ class DownloadViewTestCase(ViewsTestCase):
         # self.assertEqual('text/plain; charset=utf-8', response['Content-Type'])  TODO ?
         self.assertEqual('text/plain', response['Content-Type'])
 
-        self.assertEqual(f'attachment; filename="{temp_file.basename}"',
-                         response['Content-Disposition']
-                        )
+        self.assertEqual(
+            f'attachment; filename="{temp_file.basename}"',
+            response['Content-Disposition'],
+        )
         # Consume stream to avoid error message "ResourceWarning: unclosed file..."
         _ = [*response.streaming_content]
 

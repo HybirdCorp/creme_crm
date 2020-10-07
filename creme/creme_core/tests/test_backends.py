@@ -19,15 +19,15 @@ class BackendsTestCase(CremeTestCase):
         self.assertEqual(CSVImportBackend, registry.get_backend_class(CSVImportBackend.id))
         self.assertEqual(XLSImportBackend, registry.get_backend_class(XLSImportBackend.id))
         self.assertIsNone(registry.get_backend('unknown'))
-        self.assertSetEqual({CSVImportBackend, XLSImportBackend},
-                            {*registry.backends}
-                           )
-        self.assertSetEqual({CSVImportBackend, XLSImportBackend},
-                            {*registry.backend_classes}
-                           )
-        self.assertSetEqual({CSVImportBackend.id, XLSImportBackend.id},
-                            {*registry.extensions}
-                           )
+        self.assertSetEqual(
+            {CSVImportBackend, XLSImportBackend}, {*registry.backends}
+        )
+        self.assertSetEqual(
+            {CSVImportBackend, XLSImportBackend}, {*registry.backend_classes}
+        )
+        self.assertSetEqual(
+            {CSVImportBackend.id, XLSImportBackend.id}, {*registry.extensions}
+        )
 
     def test_registration_errors01(self):
         "Duplicates."
@@ -54,11 +54,10 @@ class BackendsTestCase(CremeTestCase):
 
         messages = log_cm.output
         self.assertEqual(1, len(messages))
-        self.assertTrue(
-            messages[0].startswith(
-                'WARNING:creme.creme_core.utils.imports:'
-                'An error occurred trying to import "{}":'.format(path)
-            )
+        self.assertStartsWith(
+            messages[0],
+            f'WARNING:creme.creme_core.utils.imports:'
+            f'An error occurred trying to import "{path}":'
         )
 
     def test_registration_errors03(self):

@@ -96,21 +96,21 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         return reverse('creme_core__dl_mass_import_errors', args=(job.id,))
 
     def _dyn_relations_value(self, rtype, model, column, subfield):
-        return json_dump([
-            {'rtype':       rtype.id,
-             'ctype':       str(ContentType.objects.get_for_model(model).id),
-             'column':      str(column),
-             'searchfield': subfield,
-            }
-        ])
+        return json_dump([{
+            'rtype':       rtype.id,
+            'ctype':       str(ContentType.objects.get_for_model(model).id),
+            'column':      str(column),
+            'searchfield': subfield,
+        }])
 
     def _test_import01(self, builder):
         user = self.login()
 
         count = FakeContact.objects.count()
-        lines = [('Rei',   'Ayanami'),
-                 ('Asuka', 'Langley'),
-                ]
+        lines = [
+            ('Rei',   'Ayanami'),
+            ('Asuka', 'Langley'),
+        ]
 
         doc = builder(lines)
         url = self._build_import_url(FakeContact)
@@ -119,11 +119,14 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         with self.assertNoException():
             response.context['form']  # NOQA
 
-        response = self.client.post(url, data={'step':     0,
-                                               'document': doc.id,
-                                               # has_header
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'step':     0,
+                'document': doc.id,
+                # has_header
+            },
+        )
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -131,12 +134,15 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         self.assertIn('value="1"', str(form['step']))
 
-        response = self.client.post(url, follow=True,
-                                    data={**self.lv_import_data,
-                                          'document': doc.id,
-                                          'user': user.id,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+            },
+        )
         self.assertNoFormError(response)
 
         jobs = Job.objects.all()
@@ -187,28 +193,35 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self._assertNoResultError(results)
         self.assertIs(results[0].updated, False)
 
-        self.assertEqual([ngettext('{count} «{model}» has been created.',
-                                   '{count} «{model}» have been created.',
-                                   lines_count
-                                  ).format(count=lines_count,
-                                           model='Test Contacts',
-                                          ),
-                          ngettext('{count} line in the file.',
-                                   '{count} lines in the file.',
-                                   lines_count,
-                                  ).format(count=lines_count),
-                         ],
-                         job.stats
-                        )
+        self.assertListEqual(
+            [
+                ngettext(
+                    '{count} «{model}» has been created.',
+                    '{count} «{model}» have been created.',
+                    lines_count,
+                ).format(
+                    count=lines_count,
+                    model='Test Contacts',
+                ),
+                ngettext(
+                    '{count} line in the file.',
+                    '{count} lines in the file.',
+                    lines_count,
+                ).format(count=lines_count),
+            ],
+            job.stats,
+        )
 
         progress = job.progress
         self.assertIsNone(progress.percentage)
-        self.assertEqual(ngettext('{count} line has been processed.',
-                                  '{count} lines have been processed.',
-                                  lines_count
-                                 ).format(count=lines_count),
-                         progress.label
-                        )
+        self.assertEqual(
+            ngettext(
+                '{count} line has been processed.',
+                '{count} lines have been processed.',
+                lines_count,
+            ).format(count=lines_count),
+            progress.label,
+        )
 
         # Reload brick -----------
         reload_url = reverse('creme_core__reload_job_bricks', args=(job.id,))
@@ -269,11 +282,14 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         doc = builder(lines)
         url = self._build_import_url(FakeContact)
-        response = self.client.post(url, data={'step':       0,
-                                               'document':   doc.id,
-                                               'has_header': True,
-                                              },
-                                    )
+        response = self.client.post(
+            url,
+            data={
+                'step':       0,
+                'document':   doc.id,
+                'has_header': True,
+            },
+        )
         self.assertNoFormError(response)
 
         form = response.context['form']
@@ -354,17 +370,21 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         results = self._get_job_results(job)
         self.assertEqual(lines_count, len(results))
-        self.assertEqual([ngettext('{count} «{model}» has been created.',
-                                   '{count} «{model}» have been created.',
-                                   lines_count
-                                 ).format(count=lines_count, model='Test Contacts'),
-                          ngettext('{count} line in the file.',
-                                   '{count} lines in the file.',
-                                   lines_count,
-                                  ).format(count=lines_count),
-                         ],
-                         job.stats
-                        )
+        self.assertListEqual(
+            [
+                ngettext(
+                    '{count} «{model}» has been created.',
+                    '{count} «{model}» have been created.',
+                    lines_count,
+                ).format(count=lines_count, model='Test Contacts'),
+                ngettext(
+                    '{count} line in the file.',
+                    '{count} lines in the file.',
+                    lines_count,
+                ).format(count=lines_count),
+            ],
+            job.stats,
+        )
         self.assertTrue(all(r.messages for r in results))  # Sector not found
 
     def _test_import03(self, builder):
@@ -437,31 +457,41 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         user = self.login()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
-        lines = [('First name', 'Last name'),
-                 ('Unchô',      'Kan-u'),
-                 ('Gentoku',    'Ryûbi'),
-                ]
+        lines = [
+            ('First name', 'Last name'),
+            ('Unchô',      'Kan-u'),
+            ('Gentoku',    'Ryûbi'),
+        ]
 
         doc = self._build_csv_doc(lines, separator=';')
         url = self._build_import_url(FakeContact)
-        response = self.client.post(url, data={'step':     0,
-                                               'document': doc.id,
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'step':     0,
+                'document': doc.id,
+            },
+        )
         self.assertNoFormError(response)
         self.assertIn('value="1"', str(response.context['form']['step']))
 
-        response = self.client.post(url, follow=True,
-                                    data={**self.lv_import_data,
-                                          'document': doc.id,
-                                          'has_header': True,
-                                          'user': user.id,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'has_header': True,
+                'user': user.id,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
-        self.assertEqual(len(lines) - 1, FakeContact.objects.exclude(id__in=contact_ids).count())
+        self.assertEqual(
+            len(lines) - 1,
+            FakeContact.objects.exclude(id__in=contact_ids).count(),
+        )
 
         for first_name, last_name in lines[1:]:
             self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
@@ -471,7 +501,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self._assertNoResultError(results)
 
     def test_duplicated_relations(self):
-        "Same Relation in fixed & dynamic fields at creation"
+        "Same Relation in fixed & dynamic fields at creation."
         user = self.login()
 
         employed = RelationType.create(
@@ -507,14 +537,17 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         first_name = 'Gentoku'
         last_name = 'Ryûbi'
         doc = self._build_csv_doc([(first_name, '')])
-        response = self.client.post(self._build_import_url(FakeContact), follow=True,
-                                    data={**self.lv_import_data,
-                                          'document': doc.id,
-                                          'user': user.id,
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
 
-                                          'last_name_defval': last_name,
-                                         },
-                                   )
+                'last_name_defval': last_name,
+            },
+        )
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -542,9 +575,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
             ('Shimei',     'Ryomou',    'notint', '48'),
         ]
 
-        kanu = FakeContact.objects.create(user=user, first_name=lines[1][0],
-                                          last_name=lines[1][1],
-                                         )
+        kanu = FakeContact.objects.create(
+            user=user,
+            first_name=lines[1][0],
+            last_name=lines[1][1],
+        )
         cf_int.value_class(custom_field=cf_dec, entity=kanu).set_value_n_save(Decimal('56'))
         cf_str.value_class(custom_field=cf_str, entity=kanu).set_value_n_save('Kan')
 
@@ -569,9 +604,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
-        self.assertEqual(len(lines) - 2,  # 2 = 1 header + 1 update
-                         FakeContact.objects.exclude(id__in=contact_ids).count()
-                        )
+        self.assertEqual(
+            len(lines) - 2,  # 2 = 1 header + 1 update
+            FakeContact.objects.exclude(id__in=contact_ids).count()
+        )
 
         def get_contact(line_index):
             line = lines[line_index]
@@ -602,9 +638,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         jr_error = jr_errors[0]
         self.assertEqual([*lines[4]], jr_error.line)
-        self.assertEqual([_('Enter a whole number.')],  # TODO: add the field verbose name !!
-                         jr_error.messages
-                        )
+        self.assertListEqual(
+            [_('Enter a whole number.')],  # TODO: add the field verbose name !!
+            jr_error.messages,
+        )
         self.assertEqual(ryomou, jr_error.entity.get_real_entity())
 
     def test_mass_import_customfields02(self):
@@ -651,9 +688,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
-        self.assertEqual(len(lines) - 1,  # 1 header
-                         FakeContact.objects.exclude(id__in=contact_ids).count()
-                        )
+        self.assertEqual(
+            len(lines) - 1,  # 1 header
+            FakeContact.objects.exclude(id__in=contact_ids).count()
+        )
 
         def get_contact(line_index):
             line = lines[line_index]
@@ -687,10 +725,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         #                 )
         self.assertListEqual(
             [
-                _('Error while extracting value: the choice «{value}» '
-                  'was not found in existing choices (column {column}). '
-                  'Hint: fix your imported file, or configure the import to '
-                  'create new choices.'
+                _(
+                    'Error while extracting value: the choice «{value}» '
+                    'was not found in existing choices (column {column}). '
+                    'Hint: fix your imported file, or configure the import to '
+                    'create new choices.'
                 ).format(
                     column=3,
                     value='strangulation',
@@ -740,9 +779,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
-        self.assertEqual(len(lines) - 1,  # 1 header
-                         FakeContact.objects.exclude(id__in=contact_ids).count()
-                        )
+        self.assertEqual(
+            len(lines) - 1,  # 1 header
+            FakeContact.objects.exclude(id__in=contact_ids).count()
+        )
 
         def get_contact(line_index):
             line = lines[line_index]
@@ -754,15 +794,13 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertListEqual([sword], [*get_cf_values(cf_menum, sonsaku).value.all()])
 
         kanu = get_contact(2)
-        strang = self.get_object_or_fail(CustomFieldEnumValue,
-                                         custom_field=cf_enum,
-                                         value='strangulation',
-                                        )
+        strang = self.get_object_or_fail(
+            CustomFieldEnumValue, custom_field=cf_enum, value='strangulation',
+        )
         self.assertEqual(strang, get_cf_values(cf_enum, kanu).value)
-        spear = self.get_object_or_fail(CustomFieldEnumValue,
-                                        custom_field=cf_menum,
-                                        value='spear',
-                                       )
+        spear = self.get_object_or_fail(
+            CustomFieldEnumValue, custom_field=cf_menum, value='spear',
+        )
         self.assertListEqual([spear], [*get_cf_values(cf_menum, kanu).value.all()])
 
         self.assertEqual(
@@ -774,10 +812,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
     def test_mass_import_customfields04(self):
         "CustomField.ENUM/MULTI_ENUM: creation credentials."
-        user = self.login(is_superuser=False,
-                          allowed_apps=['creme_core', 'documents'],
-                          creatable_models=[FakeContact, Document],
-                         )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core', 'documents'],
+            creatable_models=[FakeContact, Document],
+        )
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
@@ -813,12 +852,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
             )
 
         response = post()
-        self.assertFormError(response, 'form', f'custom_field_{cf_enum.id}',
-                             'You can not create choices',
-                            )
-        self.assertFormError(response, 'form', f'custom_field_{cf_menum.id}',
-                             'You can not create choices',
-                            )
+        self.assertFormError(
+            response, 'form', f'custom_field_{cf_enum.id}', 'You can not create choices',
+        )
+        self.assertFormError(
+            response, 'form', f'custom_field_{cf_menum.id}', 'You can not create choices',
+        )
 
         role = self.role
         role.admin_4_apps = ['creme_config']
@@ -828,12 +867,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertNoFormError(response)
 
         self._execute_job(response)
-        self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_enum,
-                                value='strangulation',
-                               )
-        self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_menum,
-                                value='spear',
-                               )
+        self.get_object_or_fail(
+            CustomFieldEnumValue, custom_field=cf_enum, value='strangulation',
+        )
+        self.get_object_or_fail(
+            CustomFieldEnumValue, custom_field=cf_menum, value='spear',
+        )
 
     def test_mass_import_customfields05(self):
         "Default value"
@@ -879,17 +918,18 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
             )
 
         response = post('notint')
-        self.assertFormError(response, 'form', f'custom_field_{cf_int.id}',
-                             _('Enter a whole number.')
-                            )
+        self.assertFormError(
+            response, 'form', f'custom_field_{cf_int.id}', _('Enter a whole number.')
+        )
 
         response = post('180')
         self.assertNoFormError(response)
 
         self._execute_job(response)
-        self.assertEqual(len(lines) - 1,
-                         FakeContact.objects.exclude(id__in=contact_ids).count()
-                        )
+        self.assertEqual(
+            len(lines) - 1,
+            FakeContact.objects.exclude(id__in=contact_ids).count(),
+        )
 
         line = lines[1]
         kanu = self.get_object_or_fail(FakeContact, first_name=line[0], last_name=line[1])
@@ -904,14 +944,14 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.login()
 
         doc = self._build_doc(self._build_file(b'Non Empty File...', 'doc'))
-        response = self.assertPOST200(self._build_import_url(FakeContact),
-                                      data={'step': 0, 'document': doc.id},
-                                     )
+        response = self.assertPOST200(
+            self._build_import_url(FakeContact), data={'step': 0, 'document': doc.id},
+        )
         self.assertFormError(
             response, 'form', None,
             _('Error reading document, unsupported file type: {file}.').format(
                 file=doc.filedata.name,
-            )
+            ),
         )
 
     def test_import_error02(self):
@@ -964,9 +1004,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         "Required custom-field without column or default value."
         user = self.login()
 
-        create_cf = partial(CustomField.objects.create,
-                            content_type=ContentType.objects.get_for_model(FakeContact),
-                           )
+        create_cf = partial(
+            CustomField.objects.create,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+        )
         cf1 = create_cf(field_type=CustomField.STR, name='Dogtag')
         cf2 = create_cf(field_type=CustomField.INT, name='Eva number', is_required=True)
 
@@ -996,29 +1037,32 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def test_import_error05(self):
         "Max jobs."
         user = self.login()
-        Job.objects.create(user=user,
-                           type_id=mass_import_type.id,
-                           language='en',
-                           status=Job.STATUS_WAIT,
-                          )
+        Job.objects.create(
+            user=user,
+            type_id=mass_import_type.id,
+            language='en',
+            status=Job.STATUS_WAIT,
+        )
 
         response = self.assertGET200(self._build_import_url(FakeContact), follow=True)
         self.assertRedirects(response, reverse('creme_core__my_jobs'))
 
     def test_credentials01(self):
-        "Creation credentials for imported model"
-        user = self.login(is_superuser=False, allowed_apps=['creme_core'],
-                          creatable_models=[FakeOrganisation],  # Not Contact
-                         )
+        "Creation credentials for imported model."
+        user = self.login(
+            is_superuser=False, allowed_apps=['creme_core'],
+            creatable_models=[FakeOrganisation],  # Not Contact
+        )
         self.assertFalse(user.has_perm_to_create(FakeContact))
         self.assertGET403(self._build_import_url(FakeContact))
 
     def test_credentials02(self):
         "Creation credentials for 'auxiliary' models."
-        user = self.login(is_superuser=False,
-                          allowed_apps=['creme_core', 'documents'],
-                          creatable_models=[FakeContact, FakeOrganisation, Document],
-                         )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core', 'documents'],
+            creatable_models=[FakeContact, FakeOrganisation, Document],
+        )
 
         doc = self._build_csv_doc([('Ayanami', 'Rei', 'Pilot')])
         response = self.assertPOST200(
@@ -1038,11 +1082,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertFormError(response, 'form', 'position', 'You can not create instances')
 
     def test_credentials03(self):
-        "Creation credentials for related entities"
-        user = self.login(is_superuser=False,
-                          allowed_apps=['creme_core', 'documents'],
-                          creatable_models=[FakeContact, Document],  # Not Organisation
-                         )
+        "Creation credentials for related entities."
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core', 'documents'],
+            creatable_models=[FakeContact, Document],  # Not Organisation
+        )
 
         employed = RelationType.create(
             ('persons-subject_employed_by', 'is an employee of'),
@@ -1074,9 +1119,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         shinji = create_contact(first_name='Shinji', last_name='Ikari')
         gendo  = create_contact(first_name='Gendo',  last_name='Ikari')
 
-        loves = RelationType.create(('test-subject_loving', 'is loving'),
-                                    ('test-object_loving',  'is loved by')
-                                   )[0]
+        loves = RelationType.create(
+            ('test-subject_loving', 'is loving'),
+            ('test-object_loving',  'is loved by')
+        )[0]
 
         create_ptype = CremePropertyType.create
         ptype1 = create_ptype(str_pk='test-prop_cute',   text='Really cute in her suit')
@@ -1090,11 +1136,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         }
 
         rei_mobile = '54554'
-        rei_email  = 'rei.ayanami@nerv.jp'
-        rei = FakeContact.objects.get_or_create(first_name=rei_info['first_name'],
-                                                last_name=rei_info['last_name'],
-                                                defaults={'user': user},
-                                               )[0]
+        rei_email = 'rei.ayanami@nerv.jp'
+        rei = FakeContact.objects.get_or_create(
+            first_name=rei_info['first_name'],
+            last_name=rei_info['last_name'],
+            defaults={'user': user},
+        )[0]
         self.assertNotEqual(rei_info['phone'], rei.phone)
 
         update_model_instance(rei, mobile=rei_mobile, email=rei_email)
@@ -1104,14 +1151,13 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         CremeProperty.objects.create(type=ptype1, creme_entity=rei)
 
         # Should not be modified, even is 'first_name' is searched
-        rei2 = FakeContact.objects.get_or_create(first_name=rei_info['first_name'],
-                                                 last_name='Iyanima',
-                                                 defaults={'user': user},
-                                                )[0]
+        rei2 = FakeContact.objects.get_or_create(
+            first_name=rei_info['first_name'],
+            last_name='Iyanima',
+            defaults={'user': user},
+        )[0]
 
-        self.assertFalse(FakeContact.objects.filter(last_name=asuka_info['last_name'])
-                                            .exists()
-                        )
+        self.assertFalse(FakeContact.objects.filter(last_name=asuka_info['last_name']))
 
         count = FakeContact.objects.count()
         doc = self._build_csv_doc([
@@ -1153,10 +1199,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         # TODO: if FakeContact.email.null == False
         # asuka = self.get_object_or_fail(FakeContact, **asuka_info)
-        asuka = self.get_object_or_fail(FakeContact,
-                                        first_name=asuka_info['first_name'],
-                                        last_name=asuka_info['last_name'],
-                                       )
+        asuka = self.get_object_or_fail(
+            FakeContact,
+            first_name=asuka_info['first_name'],
+            last_name=asuka_info['last_name'],
+        )
         self.assertEqual(asuka.phone, asuka_info['phone'])
         self.assertFalse(asuka.email)
 
@@ -1194,10 +1241,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         last_name = 'Ayanami'
         first_name = 'Rei'
 
-        create_contact = partial(FakeContact.objects.get_or_create,
-                                 user=user,
-                                 last_name=last_name,
-                                )
+        create_contact = partial(
+            FakeContact.objects.get_or_create, user=user, last_name=last_name,
+        )
         create_contact(first_name='Lei')
         create_contact(first_name='Rey')
 
@@ -1277,18 +1323,19 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual(1, len(results))
 
     def test_import_with_update04(self):
-        "Ignore non editable entities"
-        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'documents'],
-                          creatable_models=[FakeContact, Document],
-                         )
+        "Ignore non editable entities."
+        user = self.login(
+            is_superuser=False, allowed_apps=['creme_core', 'documents'],
+            creatable_models=[FakeContact, Document],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   |
-                # EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK   |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                # | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
             ctype=FakeContact,
@@ -1454,18 +1501,18 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertNoFormError(response)
 
         self._execute_job(response)
-        rei = self.get_object_or_fail(FakeContact,
-                                      last_name=rei_info['last_name'],
-                                      first_name=rei_info['first_name'],
-                                     )
+        rei = self.get_object_or_fail(
+            FakeContact, last_name=rei_info['last_name'], first_name=rei_info['first_name'],
+        )
         self.assertEqual(rei_info['email'], rei.email)
         self.assertIsNone(getattr(rei, hidden_fname))
 
     def test_resume(self):
         user = self.login()
-        lines = [('Rei',   'Ayanami'),
-                 ('Asuka', 'Langley'),
-                ]
+        lines = [
+            ('Rei',   'Ayanami'),
+            ('Asuka', 'Langley'),
+        ]
 
         rei_line = lines[0]
         rei = FakeContact.objects.create(user=user, first_name=rei_line[0], last_name=rei_line[1])
@@ -1510,9 +1557,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         if header:
             data['has_header'] = 'on'
 
-        response = self.client.post(self._build_import_url(FakeContact),
-                                    follow=True, data=data,
-                                   )
+        response = self.client.post(
+            self._build_import_url(FakeContact), follow=True, data=data,
+        )
         self.assertNoFormError(response)
         job = self._execute_job(response)
 
@@ -1524,24 +1571,20 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         kanu = j_error.entity
         self.assertIsNotNone(kanu)
         self.assertEqual(first_name, kanu.get_real_entity().first_name)
-        self.assertEqual([_('Enter a valid date.')], j_error.messages)
+        self.assertListEqual([_('Enter a valid date.')], j_error.messages)
 
         response = self.assertGET200(self._build_dl_errors_url(job), follow=True)
 
         cdisp = response['Content-Disposition']
-        # self.assertTrue(cdisp.startswith(f'attachment; filename={slugify(doc.title)}-errors'),
-        self.assertTrue(cdisp.startswith(f'attachment; filename="{slugify(doc.title)}-errors'),
-                        f'Content-Disposition: not expected: {cdisp}'
-                       )
+        # self.assertTrue(cdisp.startswith(f'attachment; filename={slugify(doc.title)}-errors'))
+        self.assertStartsWith(cdisp, f'attachment; filename="{slugify(doc.title)}-errors')
         # self.assertTrue(cdisp.endswith('.' + ext))
         self.assertTrue(cdisp.endswith(f'.{ext}"'))
 
         result_lines = [['First name',   'Last name', 'Birthday', _('Errors')]] if header else []
         result_lines.append([first_name, last_name,   birthday,   _('Enter a valid date.')])
 
-        self.assertEqual(result_lines,
-                         result_builder(response),
-                        )
+        self.assertEqual(result_lines, result_builder(response))
 
     @staticmethod
     def _csv_to_list(response):
@@ -1554,19 +1597,21 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
     def test_dl_errors01(self):
         "CSV, no header."
-        self._aux_test_dl_errors(self._build_csv_doc,
-                                 result_builder=self._csv_to_list,
-                                 ext='csv',
-                                 header=False,
-                                )
+        self._aux_test_dl_errors(
+            self._build_csv_doc,
+            result_builder=self._csv_to_list,
+            ext='csv',
+            header=False,
+        )
 
     def test_dl_errors02(self):
         "CSV, header."  # TODO: other separator
-        self._aux_test_dl_errors(self._build_csv_doc,
-                                 result_builder=self._csv_to_list,
-                                 ext='csv',
-                                 header=True,
-                                )
+        self._aux_test_dl_errors(
+            self._build_csv_doc,
+            result_builder=self._csv_to_list,
+            ext='csv',
+            header=True,
+        )
 
     def test_dl_errors03(self):
         "XLS."
@@ -1574,33 +1619,36 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
             # return [*XlrdReader(None, file_contents=response.content)]
             return [*XlrdReader(None, file_contents=b''.join(response.streaming_content))]
 
-        self._aux_test_dl_errors(self._build_xls_doc,
-                                 result_builder=result_builder,
-                                 ext='xls',
-                                 header=True,
-                                 # follow=True,
-                                )
+        self._aux_test_dl_errors(
+            self._build_xls_doc,
+            result_builder=result_builder,
+            ext='xls',
+            header=True,
+            # follow=True,
+        )
 
     def test_dl_errors04(self):
         "Bad Job type."
         user = self.login()
-        job = Job.objects.create(user=user,
-                                 type_id=batch_process_type.id,
-                                 language='en',
-                                 status=Job.STATUS_WAIT,
-                                 # raw_data='',
-                                )
+        job = Job.objects.create(
+            user=user,
+            type_id=batch_process_type.id,
+            language='en',
+            status=Job.STATUS_WAIT,
+            # raw_data='',
+        )
 
         self.assertGET404(self._build_dl_errors_url(job))
 
     def test_dl_errors05(self):
         "Bad user."
         self.login(is_superuser=False)
-        job = Job.objects.create(user=self.other_user,
-                                 type_id=mass_import_type.id,
-                                 language='en',
-                                 status=Job.STATUS_WAIT,
-                                 # raw_data='',
-                                )
+        job = Job.objects.create(
+            user=self.other_user,
+            type_id=mass_import_type.id,
+            language='en',
+            status=Job.STATUS_WAIT,
+            # raw_data='',
+        )
 
         self.assertGET403(self._build_dl_errors_url(job))

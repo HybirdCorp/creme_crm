@@ -152,15 +152,14 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertSetEqual(keys_set, {*ckm.keys()})
 
         self.assertSetEqual({1, 2, None}, {*ckm.values()})
-        self.assertSetEqual({(Klass1, 1), (Klass2, 2), (Klass3, None)},
-                            {*ckm.items()}
-                           )
+        self.assertSetEqual(
+            {(Klass1, 1), (Klass2, 2), (Klass3, None)}, {*ckm.items()}
+        )
 
-        r = repr(ckm)
-        self.assertTrue(r.startswith('ClassKeyedMap('))
+        self.assertStartsWith(repr(ckm), 'ClassKeyedMap(')
 
     def test_setitem(self):
-        "Other default value + __setitem__"
+        "Other default value + __setitem__."
         class Klass1:
             pass
 
@@ -184,7 +183,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertEqual(3, len(ckm))
 
     def test_inheritage01(self):
-        "Inheriting values"
+        "Inheriting values."
         class Klass1:
             pass
 
@@ -208,7 +207,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertEqual(3, ckm[Klass4])  # Cache must be updated
 
     def test_inheritage02(self):
-        "Inheriting values: more complex case (the nearest parent should be found)"
+        "Inheriting values: more complex case (the nearest parent should be found)."
         class Klass1:
             pass
 
@@ -232,7 +231,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertEqual(4, ckm[Klass5])
 
     def test_inheritage03(self):
-        "Inheritance order must be kept when cache is filled too"
+        "Inheritance order must be kept when cache is filled too."
         class Klass1:
             pass
 
@@ -254,7 +253,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertEqual(3, ckm[Klass4])
 
     def test_nearest_parent_class(self):
-        "Inheritance order must be kept when new value are added explicitly"
+        "Inheritance order must be kept when new value are added explicitly."
         class Klass1:
             pass
 
@@ -358,19 +357,20 @@ class InheritedDataChainTestCase(CremeTestCase):
         idc = InheritedDataChain(InnerClass)
         instance1 = idc[Klass1]; instance1.data = Klass1.__name__
         instance2 = idc[Klass2]; instance2.data = Klass2.__name__
-        self.assertListEqual([instance1, instance2],
-                             [*idc.chain(Klass2)]
-                            )
+        self.assertListEqual(
+            [instance1, instance2], [*idc.chain(Klass2)],
+        )
 
         instance3 = idc[Klass3]; instance3.data = Klass3.__name__
-        self.assertListEqual([instance1, instance2, instance3],
-                             [*idc.chain(Klass3)]
-                            )
+        self.assertListEqual(
+            [instance1, instance2, instance3], [*idc.chain(Klass3)],
+        )
 
         # Reversed
-        self.assertListEqual([instance3, instance2, instance1],
-                             [*idc.chain(Klass3, parent_first=False)]
-                            )
+        self.assertListEqual(
+            [instance3, instance2, instance1],
+            [*idc.chain(Klass3, parent_first=False)],
+        )
 
     def test_get(self):
         class Klass1:
@@ -452,9 +452,9 @@ class OrderedSetTestCase(CremeTestCase):
         "- operator."
         s3 = OrderedSet('Groening') | OrderedSet('Simpsons')
         self.assertIsInstance(s3, OrderedSet)
-        self.assertListEqual(['G', 'r', 'o', 'e', 'n', 'i', 'g', 'S', 'm', 'p', 's'],
-                             [*s3]
-                            )
+        self.assertListEqual(
+            ['G', 'r', 'o', 'e', 'n', 'i', 'g', 'S', 'm', 'p', 's'], [*s3]
+        )
 
     def test_eq(self):
         "__eq__ with a list"

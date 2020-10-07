@@ -511,6 +511,10 @@ class _CremeTestCase:
         self.assertSameProperties(entity1, entity2)
         self.assertSameRelations(entity1, entity2, exclude_internal)
 
+    def assertStartsWith(self, s, prefix):
+        if not s.startswith(prefix):
+            raise self.failureException(f'The string {s!r} does not starts with {prefix!r}')
+
     def assertXMLEqualv2(self, expected, actual):
         """Compare 2 strings representing XML document, with the XML semantic.
         @param expected XML string ;
