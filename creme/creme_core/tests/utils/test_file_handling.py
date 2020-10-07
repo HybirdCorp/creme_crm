@@ -26,11 +26,12 @@ class FileHandlingTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        utils_dir_path = join(settings.MEDIA_ROOT,
-                              'upload',
-                              'creme_core-tests',
-                              'utils',
-                             )
+        utils_dir_path = join(
+            settings.MEDIA_ROOT,
+            'upload',
+            'creme_core-tests',
+            'utils',
+        )
 
         if not exists(utils_dir_path):
             makedirs(utils_dir_path, 0o755)
@@ -72,7 +73,7 @@ class FileHandlingTestCase(CremeTestCase):
         with self.assertNoException():
             name1 = next(it)
 
-        self.assertTrue(name1.startswith('_'))
+        self.assertStartsWith(name1, '_')
 
         with self.assertNoException():
             int(name1[1:], base=16)
@@ -103,7 +104,7 @@ class FileHandlingTestCase(CremeTestCase):
         with self.assertNoException():
             name1 = next(it)
 
-        self.assertTrue(name1.startswith('_'))
+        self.assertStartsWith(name1, '_')
 
         dt_str = name1[1:]
 
@@ -113,14 +114,14 @@ class FileHandlingTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(datetime.now(), dt)
 
     def test_file_creator01(self):
-        "With 1 generator (IncrFileNameGenerator)"
+        "With 1 generator (IncrFileNameGenerator)."
         dir_path = self.dir_path
 
         name1 = 'foobar.txt'
         fcreator = FileCreator(dir_path, name1, generators=[IncrFileNameSuffixGenerator])
         path1 = fcreator.create()
         self.assertTrue(exists(dir_path))
-        self.assertEqual([name1], listdir(dir_path))
+        self.assertListEqual([name1], listdir(dir_path))
         self.assertEqual(join(dir_path, name1), path1)
 
         path2 = fcreator.create()
@@ -133,9 +134,9 @@ class FileHandlingTestCase(CremeTestCase):
         dir_path = self.dir_path
 
         name1 = 'stuff.txt'
-        fcreator = FileCreator(dir_path, name1,
-                               generators=[DateFileNameSuffixGenerator],
-                              )
+        fcreator = FileCreator(
+            dir_path, name1, generators=[DateFileNameSuffixGenerator],
+        )
         fcreator.create()
         self.assertEqual([name1], listdir(dir_path))
 
@@ -151,11 +152,13 @@ class FileHandlingTestCase(CremeTestCase):
         dir_path = self.dir_path
 
         name1 = 'stuff.txt'
-        fcreator = FileCreator(dir_path, name1,
-                               generators=(DateFileNameSuffixGenerator,
-                                           IncrFileNameSuffixGenerator,
-                                          ),
-                              )
+        fcreator = FileCreator(
+            dir_path, name1,
+            generators=(
+                DateFileNameSuffixGenerator,
+                IncrFileNameSuffixGenerator,
+            ),
+        )
 
         fcreator.create()
         self.assertEqual([name1], listdir(dir_path))
@@ -184,7 +187,7 @@ class FileHandlingTestCase(CremeTestCase):
             fcreator.create()
 
     def test_file_creator05(self):
-        "Max length"
+        "Max length."
         dir_path = self.dir_path
 
         name = 'foobar.txt'  # len == 10
@@ -194,14 +197,16 @@ class FileHandlingTestCase(CremeTestCase):
         fcreator.create()
 
         fcreator.create()
-        self.assertSetEqual({name,
-                             'fo_{}.txt'.format(date.today().strftime('%d%m%Y')),
-                            },
-                            {*listdir(dir_path)}
-                           )
+        self.assertSetEqual(
+            {
+                name,
+                'fo_{}.txt'.format(date.today().strftime('%d%m%Y')),
+            },
+            {*listdir(dir_path)},
+        )
 
     def test_file_creator06(self):
-        "Max length (suffix is too long even alone)"
+        "Max length (suffix is too long even alone)."
         dir_path = self.dir_path
 
         name = 'foobar.txt'  # len == 10
@@ -214,7 +219,7 @@ class FileHandlingTestCase(CremeTestCase):
             fcreator.create()
 
     def test_file_creator07(self):
-        "Max length (length too short for extension...)"
+        "Max length (length too short for extension...)."
         dir_path = self.dir_path
 
         fcreator = FileCreator(
@@ -225,7 +230,7 @@ class FileHandlingTestCase(CremeTestCase):
             fcreator.create()
 
     def test_file_creator08(self):
-        "Secure filename"
+        "Secure filename."
         dir_path = self.dir_path
 
         fcreator = FileCreator(
@@ -235,7 +240,7 @@ class FileHandlingTestCase(CremeTestCase):
         self.assertEqual(join(dir_path, 'foo_bar.txt'), path1)
 
     def test_file_creator09(self):
-        "Default 'generators' argument"
+        "Default 'generators' argument."
         dir_path = self.dir_path
 
         fcreator = FileCreator(dir_path, 'foobar.txt')

@@ -428,7 +428,7 @@ class ListViewTestCase(ViewsTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                force_text(response.content)
+                force_text(response.content),
             )
 
         post('none')
@@ -449,7 +449,7 @@ class ListViewTestCase(ViewsTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                force_text(response.content)
+                force_text(response.content),
             )
 
         get('none')
@@ -1173,19 +1173,13 @@ class ListViewTestCase(ViewsTestCase):
         ]
         dl_url = '{}?ct_id={}'.format(reverse('creme_core__mass_export'), ct_id)
         dl_uri = data_hrefs[1]
-        self.assertTrue(
-            dl_uri.startswith(dl_url),
-            f'URI <{dl_uri}> does not starts with <{dl_url}>'
-        )
+        self.assertStartsWith(dl_uri, dl_url)
         self.assertIn(f'hfilter={hf.id}', dl_uri)
         self.assertIn(f'&extra_q={urlquote(q_filter)}', dl_uri)
         self.assertIn(f'&search-regular_field-phone={urlquote(searched_phone)}', dl_uri)
 
         dl_header_uri = data_hrefs[2]
-        self.assertTrue(
-            dl_header_uri.startswith(dl_url),
-            f'URI <{dl_header_uri}> does not starts with <{dl_url}>'
-        )
+        self.assertStartsWith(dl_header_uri, dl_url)
         self.assertIn('&header=true', dl_header_uri)
 
         self.assertEqual(reverse('creme_core__mass_import',   args=(ct_id,)), hrefs[3])
@@ -2718,7 +2712,7 @@ class ListViewTestCase(ViewsTestCase):
         DEFAULT_PAGE_SIZE_IDX=0,
     )
     def test_pagination_slow02(self):
-        "Page is saved"
+        "Page is saved."
         self.login()
         organisations = self._build_orgas()
         hf = self._build_hf()

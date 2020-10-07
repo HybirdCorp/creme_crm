@@ -138,9 +138,11 @@ class MiscTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             update_model_instance(pupun, last_name=last_name)
 
-        self.assertRaises(AttributeError, update_model_instance,
-                          pupun, first_name=first_name, unknown_field='??'
-                         )
+        self.assertRaises(
+            AttributeError,
+            update_model_instance,
+            pupun, first_name=first_name, unknown_field='??',
+        )
 
     def test_update_model_instance02(self):
         self.login()
@@ -207,11 +209,13 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(d, date_2_dict(date(**d)))
 
     def test_int_2_roman(self):
-        self.assertEqual(['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
-                          'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX'
-                         ],
-                         [int_2_roman(i) for i in range(1, 21)]
-                        )
+        self.assertListEqual(
+            [
+                'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
+                'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX'
+            ],
+            [int_2_roman(i) for i in range(1, 21)],
+        )
         self.assertEqual('MM',      int_2_roman(2000))
         self.assertEqual('MCMXCIX', int_2_roman(1999))
 
@@ -220,28 +224,29 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('1234567…',  ellipsis('123456789', 8))
 
     def test_ellipsis_multi(self):
-        self.assertEqual(['a', 'b'],
-                         ellipsis_multi(['a', 'b'], 10)
-                        )
-        self.assertEqual(['123456789', 'b'],
-                         ellipsis_multi(['123456789', 'b'], 10)
-                        )
-        self.assertEqual(['1234567…', 'b'],
-                         ellipsis_multi(['123456789', 'b'], 9)
-                        )
-        self.assertEqual(['1234…', '12', '12'],
-                         ellipsis_multi(['123456', '12', '12'], 9)
-                        )
-        self.assertEqual(['12…', '12', '123…'],  # ['123…', '12', '12…'] would be better...
-                         ellipsis_multi(['123456', '12', '12345'], 9)
-                        )
+        self.assertListEqual(
+            ['a', 'b'], ellipsis_multi(['a', 'b'], 10),
+        )
+        self.assertListEqual(
+            ['123456789', 'b'], ellipsis_multi(['123456789', 'b'], 10),
+        )
+        self.assertListEqual(
+            ['1234567…', 'b'], ellipsis_multi(['123456789', 'b'], 9),
+        )
+        self.assertListEqual(
+            ['1234…', '12', '12'], ellipsis_multi(['123456', '12', '12'], 9),
+        )
+        self.assertListEqual(
+            ['12…', '12', '123…'],  # ['123…', '12', '12…'] would be better...
+            ellipsis_multi(['123456', '12', '12345'], 9),
+        )
 
     def test_prefixed_truncate(self):
         s = 'Supercalifragilis Ticexpialidocious'
         self.assertEqual(s, prefixed_truncate(s, '(My prefix)', 49))
         self.assertEqual(
             '(My prefix)Supercalifragilis Tic',
-            prefixed_truncate(s, '(My prefix)', 32)
+            prefixed_truncate(s, '(My prefix)', 32),
         )
 
         with self.assertRaises(ValueError):
@@ -249,7 +254,7 @@ class MiscTestCase(CremeTestCase):
 
         self.assertEqual(
             '(My unlocated prefix)Supercalif',
-            prefixed_truncate(s, gettext_lazy('(My unlocated prefix)'), 31)
+            prefixed_truncate(s, gettext_lazy('(My unlocated prefix)'), 31),
         )
 
     def test_log_exception(self):
@@ -279,34 +284,36 @@ class MiscTestCase(CremeTestCase):
             error_paluzza()
 
         self.assertEqual(1, len(my_logger.data))
-        self.assertTrue(
-            my_logger.data[0].startswith('An exception occurred in <error_paluzza>.\n')
+        self.assertStartsWith(
+            my_logger.data[0], 'An exception occurred in <error_paluzza>.\n',
         )
 
     # TODO: add test for Windows
     def test_secure_filename(self):
         self.assertEqual('My_cool_movie.mov', secure_filename('My cool movie.mov'))
         self.assertEqual('etc_passwd',        secure_filename('../../../etc/passwd'))
-        self.assertEqual('i_contain_cool_umlauts.txt',
-                         secure_filename('i contain cool \xfcml\xe4uts.txt')
-                        )
-        self.assertEqual('i_contain_weird_characters.txt',
-                         secure_filename('i contain weird châräctérs.txt')
-                        )
+        self.assertEqual(
+            'i_contain_cool_umlauts.txt',
+            secure_filename('i contain cool \xfcml\xe4uts.txt'),
+        )
+        self.assertEqual(
+            'i_contain_weird_characters.txt',
+            secure_filename('i contain weird châräctérs.txt'),
+        )
 
         with self.assertNoException():
-            size = open_img(join(settings.CREME_ROOT, 'static', 'common', 'images',
-                                 secure_filename('500_200.png')
-                                )
-                           ).size
+            size = open_img(join(
+                settings.CREME_ROOT, 'static', 'common', 'images', secure_filename('500_200.png'),
+            )).size
         self.assertEqual((200, 200), size)
 
     def test_escapejson(self):
         self.assertEqual(escapejson('&'), '\\u0026')
         self.assertEqual(escapejson('\\'), '\\u005C')
-        self.assertEqual(escapejson('{"a": 12, "b": "-->alert();<script/>"}'),
-                         '{"a": 12, "b": "--\\u003Ealert();\\u003Cscript/\\u003E"}'
-                        )
+        self.assertEqual(
+            escapejson('{"a": 12, "b": "-->alert();<script/>"}'),
+            '{"a": 12, "b": "--\\u003Ealert();\\u003Cscript/\\u003E"}',
+        )
 
     def test_string_smart_split(self):
         from creme.creme_core.utils.string import smart_split
@@ -339,10 +346,9 @@ class MiscTestCase(CremeTestCase):
     def test_entities2unicode(self):
         user = self.login(is_superuser=False)
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
+        )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Acme#1')
@@ -352,20 +358,21 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('', entities2unicode([], user))
         self.assertEqual(orga1.name, entities2unicode([orga1], user))
         self.assertEqual(orga2.name, entities2unicode([orga2], user))
-        self.assertEqual(gettext('Entity #{id} (not viewable)').format(id=orga3.id),
-                         entities2unicode([orga3], user)
-                        )
-        self.assertEqual(f'{orga1.name}, {orga2.name}',
-                         entities2unicode([orga1, orga2], user)
-                        )
+        self.assertEqual(
+            gettext('Entity #{id} (not viewable)').format(id=orga3.id),
+            entities2unicode([orga3], user),
+        )
+        self.assertEqual(
+            f'{orga1.name}, {orga2.name}',
+            entities2unicode([orga1, orga2], user),
+        )
 
     def test_entities_to_str(self):
         user = self.login(is_superuser=False)
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
+        )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Acme#1')
@@ -375,12 +382,14 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('', entities_to_str([], user))
         self.assertEqual(orga1.name, entities_to_str([orga1], user))
         self.assertEqual(orga2.name, entities_to_str([orga2], user))
-        self.assertEqual(gettext('Entity #{id} (not viewable)').format(id=orga3.id),
-                         entities_to_str([orga3], user)
-                        )
-        self.assertEqual(f'{orga1.name}, {orga2.name}',
-                         entities_to_str([orga1, orga2], user)
-                        )
+        self.assertEqual(
+            gettext('Entity #{id} (not viewable)').format(id=orga3.id),
+            entities_to_str([orga3], user),
+        )
+        self.assertEqual(
+            f'{orga1.name}, {orga2.name}',
+            entities_to_str([orga1, orga2], user),
+        )
 
 
 class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
@@ -399,22 +408,26 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
             return self.dependencies
 
     def test_dependence_sort01(self):
-        self.assertEqual([], dependence_sort([], lambda ds: ds.name, lambda ds: ds.dependencies))
+        self.assertListEqual(
+            [],
+            dependence_sort([], lambda ds: ds.name, lambda ds: ds.dependencies),
+        )
 
     def test_dependence_sort02(self):
         A = self.DepSortable('A')
         B = self.DepSortable('B')
-        self.assertEqual([A, B],
-                         dependence_sort([A, B], lambda ds: ds.name, lambda ds: ds.dependencies)
-                        )
+        self.assertListEqual(
+            [A, B],
+            dependence_sort([A, B], lambda ds: ds.name, lambda ds: ds.dependencies),
+        )
 
     def test_dependence_sort03(self):
         DS = self.DepSortable
         A = DS('A', ['B'])
         B = DS('B')
-        self.assertEqual([B, A],
-                         dependence_sort([A, B], DS.key, DS.deps)
-                        )
+        self.assertListEqual(
+            [B, A], dependence_sort([A, B], DS.key, DS.deps),
+        )
 
     def test_dependence_sort04(self):
         DS = self.DepSortable
@@ -429,12 +442,14 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
         B = DS('B')
         C = DS('C', ['B'])
         D = DS('D')
-        self.assertIn(dependence_sort([A, B, C, D], DS.key, DS.deps),
-                      ([B, D, C, A],
-                       [B, C, D, A],
-                       [D, B, C, A],
-                      )
-                     )
+        self.assertIn(
+            dependence_sort([A, B, C, D], DS.key, DS.deps),
+            (
+                [B, D, C, A],
+                [B, C, D, A],
+                [D, B, C, A],
+            ),
+        )
 
     def test_dependence_sort06(self):
         DS = self.DepSortable
@@ -442,32 +457,38 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
         B = DS('B')
         C = DS('C', ['A'])
 
-        self.assertRaises(DependenciesLoopError, dependence_sort,
-                          [A, B, C], DS.key, DS.deps,
-                         )
+        self.assertRaises(
+            DependenciesLoopError,
+            dependence_sort,
+            [A, B, C], DS.key, DS.deps,
+        )
 
     def test_dependence_sort07(self):
         DS = self.DepSortable
         A = DS('End', ['Middle'])
         B = DS('Start')
         C = DS('Middle', ['Start'])
-        self.assertEqual([B, C, A], dependence_sort([A, B, C], DS.key, DS.deps))
+        self.assertListEqual([B, C, A], dependence_sort([A, B, C], DS.key, DS.deps))
 
 
 class DatesTestCase(CremeTestCase):
     def test_dt_from_ISO8601(self):
-        self.assertEqual(self.create_datetime(year=2014, month=3, day=17, hour=15,
-                                              minute=22, second=3, microsecond=357000,
-                                              utc=True,
-                                             ),
-                         dt_from_ISO8601('2014-03-17T15:22:03.357Z')
-                        )
-        self.assertEqual(self.create_datetime(year=2015, month=1, day=16, hour=15,
-                                              minute=22, second=3, microsecond=123456,
-                                              utc=True,
-                                             ),
-                         dt_from_ISO8601('2015-01-16T15:22:03.123456Z')
-                        )
+        self.assertEqual(
+            self.create_datetime(
+                year=2014, month=3, day=17, hour=15,
+                minute=22, second=3, microsecond=357000,
+                utc=True,
+            ),
+            dt_from_ISO8601('2014-03-17T15:22:03.357Z'),
+        )
+        self.assertEqual(
+            self.create_datetime(
+                year=2015, month=1, day=16, hour=15,
+                minute=22, second=3, microsecond=123456,
+                utc=True,
+            ),
+            dt_from_ISO8601('2015-01-16T15:22:03.123456Z'),
+        )
 
     def test_dt_to_ISO8601(self):
         self.assertEqual(
@@ -476,7 +497,7 @@ class DatesTestCase(CremeTestCase):
                 year=2015, month=1, day=16, hour=15,
                 minute=22, second=3, microsecond=357000,
                 utc=True,
-            ))
+            )),
         )
         self.assertEqual(
             '2018-02-04T18:41:25.123000Z',
@@ -486,24 +507,26 @@ class DatesTestCase(CremeTestCase):
                     minute=41, second=25, microsecond=123000,
                 ),
                 timezone=timezone('Europe/Paris'),  # DST: +1h
-            ))
+            )),
         )
         self.assertEqual(
             '2018-03-05T19:41:25.123000Z',
             dt_to_ISO8601(datetime(
                 year=2018, month=3, day=5, hour=19,
                 minute=41, second=25, microsecond=123000,
-            ))
+            )),
         )
 
     def test_dt_from_str(self):
         create_dt = self.create_datetime
-        self.assertEqual(create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
-                         dt_from_str('2013-07-25 12:28:45')
-                        )
-        self.assertEqual(create_dt(year=2013, month=7, day=25, hour=8, utc=True),
-                         dt_from_str('2013-07-25 11:00:00+03:00')
-                        )
+        self.assertEqual(
+            create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
+            dt_from_str('2013-07-25 12:28:45'),
+        )
+        self.assertEqual(
+            create_dt(year=2013, month=7, day=25, hour=8, utc=True),
+            dt_from_str('2013-07-25 11:00:00+03:00'),
+        )
 
         DATETIME_INPUT_FORMATS = settings.DATETIME_INPUT_FORMATS
 
@@ -516,9 +539,10 @@ class DatesTestCase(CremeTestCase):
         check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
         check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
 
-        check('%Y-%m-%dT%H:%M:%S.%fZ', '2013-07-25 12:28:45',
-              year=2013, month=7, day=25, hour=12, minute=28, second=45
-             )
+        check(
+            '%Y-%m-%dT%H:%M:%S.%fZ', '2013-07-25 12:28:45',
+            year=2013, month=7, day=25, hour=12, minute=28, second=45,
+        )
 
     def test_date_from_str(self):
         DATE_INPUT_FORMATS = settings.DATE_INPUT_FORMATS
@@ -540,7 +564,7 @@ class DatesTestCase(CremeTestCase):
             ),
             round_hour(create_dt(
                 year=2013, month=7, day=25, hour=12, minute=28, second=45, microsecond=516,
-            ))
+            )),
         )
 
     def test_to_utc(self):
@@ -555,14 +579,16 @@ class DatesTestCase(CremeTestCase):
         )
 
     def test_date_from_ISO8601(self):
-        self.assertEqual(date(year=2016, month=11, day=23),
-                         date_from_ISO8601('2016-11-23')
-                        )
+        self.assertEqual(
+            date(year=2016, month=11, day=23),
+            date_from_ISO8601('2016-11-23'),
+        )
 
     def test_date_to_ISO8601(self):
-        self.assertEqual('2016-11-23',
-                         date_to_ISO8601(date(year=2016, month=11, day=23))
-                        )
+        self.assertEqual(
+            '2016-11-23',
+            date_to_ISO8601(date(year=2016, month=11, day=23)),
+        )
 
     @override_tz('Europe/London')
     def test_make_aware_dt01(self):
@@ -610,15 +636,17 @@ class UnicodeCollationTestCase(CremeTestCase):
 
         sort = partial(sorted, key=collator.sort_key)
         words = ['Caff', 'Cafe', 'Cafard', 'Café']
-        self.assertEqual(['Cafard', 'Cafe', 'Caff', 'Café'], sorted(words))  # Standard sort
-        self.assertEqual(['Cafard', 'Cafe', 'Café', 'Caff'], sort(words))
+        self.assertListEqual(['Cafard', 'Cafe', 'Caff', 'Café'], sorted(words))  # Standard sort
+        self.assertListEqual(['Cafard', 'Cafe', 'Café', 'Caff'], sort(words))
 
-        self.assertEqual(['La', 'Là', 'Lä', 'Las', 'Le'],
-                         sort(['La', 'Là', 'Le', 'Lä', 'Las'])
-                        )
-        self.assertEqual(['gloves', 'ĝloves', 'hats', 'shoes'],
-                         sort(['hats', 'gloves', 'shoes', 'ĝloves']),
-                        )
+        self.assertListEqual(
+            ['La', 'Là', 'Lä', 'Las', 'Le'],
+            sort(['La', 'Là', 'Le', 'Lä', 'Las']),
+        )
+        self.assertListEqual(
+            ['gloves', 'ĝloves', 'hats', 'shoes'],
+            sort(['hats', 'gloves', 'shoes', 'ĝloves']),
+        )
 
     # NB: keep this comment (until we use the real 'pyuca' lib)
     # def test_uca02(self):
@@ -690,21 +718,21 @@ class CurrencyFormatTestCase(CremeTestCase):
 
 class TemplateURLBuilderTestCase(CremeTestCase):
     def test_place_holder01(self):
-        "Word"
+        "Word."
         ph = TemplateURLBuilder.Word('$name', 'name')
         self.assertEqual('__placeholder0__', ph.tmp_name(0, 0))
         self.assertEqual('__placeholder1__', ph.tmp_name(1, 0))
         self.assertEqual('__PLACEHOLDER0__', ph.tmp_name(0, 1))
 
     def test_place_holder02(self):
-        "Int"
+        "Int."
         ph = TemplateURLBuilder.Int('$ct_id', 'ctype_id')
         self.assertEqual('1234567890', ph.tmp_name(0, 0))
         self.assertEqual('1234567891', ph.tmp_name(1, 0))
         self.assertEqual('9876543210', ph.tmp_name(0, 1))
 
     def test_one_place_holder01(self):
-        "Word place holder"
+        "Word place holder."
         vname = 'creme_core__batch_process_ops'
         placeholder = 'XXXXXX'
         final_value = '${name}'  # This string does not match with (?P<field>[\w]+)
@@ -713,11 +741,11 @@ class TemplateURLBuilderTestCase(CremeTestCase):
 
         self.assertEqual(
             reverse(vname, args=(65, placeholder)).replace(placeholder, final_value),
-            tub.resolve(vname, kwargs={'ct_id': 65})
+            tub.resolve(vname, kwargs={'ct_id': 65}),
         )
 
     def test_one_place_holder02(self):
-        "Int place holder"
+        "Int place holder."
         vname = 'creme_core__batch_process_ops'
         placeholder = '123456'
         final_value = '${ct}'  # This string does not match with (?P<ct_id>\d+)
@@ -726,11 +754,11 @@ class TemplateURLBuilderTestCase(CremeTestCase):
 
         self.assertEqual(
             reverse(vname, args=(placeholder, 'name')).replace(placeholder, final_value),
-            tub.resolve(vname, kwargs={'field': 'name'})
+            tub.resolve(vname, kwargs={'field': 'name'}),
         )
 
     def test_two_place_holders01(self):
-        "1 word & 1 int place holders"
+        "1 word & 1 int place holders."
         vname = 'creme_core__batch_process_ops'
         placeholder1 = '123456'; final_value1 = '${ct}'
         placeholder2 = 'XXXXXX'; final_value2 = '${name}'
@@ -745,26 +773,27 @@ class TemplateURLBuilderTestCase(CremeTestCase):
                 vname, args=(placeholder1, placeholder2),
             ).replace(placeholder1, final_value1)
              .replace(placeholder2, final_value2),
-            tub.resolve(vname)
+            tub.resolve(vname),
         )
 
     def test_two_place_holders02(self):
-        "2 int & 1 word place holders"
+        "2 int & 1 word place holders."
         vname = 'creme_core__inner_edition'
 
         placeholder1 = '123456'; final_value1 = '${id1}'
         placeholder2 = '789456'; final_value2 = '${id2}'
         placeholder3 = 'fobbar'; final_value3 = '${fname}'
 
-        tub = TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, final_value1),
-                                 id=(TemplateURLBuilder.Int, final_value2),
-                                 field_name=(TemplateURLBuilder.Word, final_value3),
-                                )
+        tub = TemplateURLBuilder(
+            ct_id=(TemplateURLBuilder.Int, final_value1),
+            id=(TemplateURLBuilder.Int, final_value2),
+            field_name=(TemplateURLBuilder.Word, final_value3),
+        )
         self.assertEqual(
             reverse(
                 vname, args=(placeholder1, placeholder2, placeholder3)
             ).replace(placeholder1, final_value1)
              .replace(placeholder2, final_value2)
              .replace(placeholder3, final_value3),
-            tub.resolve(vname)
+            tub.resolve(vname),
         )

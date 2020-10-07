@@ -137,6 +137,17 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm.exception)
         )
 
+    def test_assertStartsWith(self):
+        self.assertStartsWith('Hello world', 'Hello')
+        self.assertStartsWith('foobar', 'foo')
+
+        with self.assertRaises(self.failureException) as cm:
+            self.assertStartsWith('Hello world', 'foo')
+        self.assertEqual(
+            "The string 'Hello world' does not starts with 'foo'",
+            str(cm.exception),
+        )
+
 # TODO: complete
 #   assertDatetimesAlmostEqual
 #   assertDoesNotExist

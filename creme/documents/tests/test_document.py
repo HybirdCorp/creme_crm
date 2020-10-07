@@ -499,7 +499,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = entity_folder.title
         self.assertEqual(100, len(title))
-        self.assertTrue(title.startswith(f'{entity.id}_AAAAAAA'))
+        self.assertStartsWith(title, f'{entity.id}_AAAAAAA')
         self.assertTrue(title.endswith('…'))
 
     def test_add_related_document07(self):
@@ -846,7 +846,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         doc = docs[0]
         title = doc.title
-        self.assertTrue(title.startswith('creme_22'))
+        self.assertStartsWith(title, 'creme_22')
         self.assertTrue(title.endswith('.png'))
 
         self.assertEqual('',         doc.description)

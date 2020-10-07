@@ -109,7 +109,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET(400, reverse('creme_core__entity_as_json', args=(nerv.id,)))
 
     def test_json_entity_get03(self):
-        "No credentials for the basic CremeEntity, but real entity is viewable"
+        "No credentials for the basic CremeEntity, but real entity is viewable."
         user = self.login(
             is_superuser=False, allowed_apps=['creme_config'],  # Not 'creme_core'
             creatable_models=[FakeConfigEntity],
@@ -230,7 +230,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     1
                 ).format(count=1),
             ]),
-            dep_2_str(dependencies=[entity01, entity03, entity02], user=user)
+            dep_2_str(dependencies=[entity01, entity03, entity02], user=user),
         )
 
         entity04 = create_orga(user=self.other_user, name='Acme#2')
@@ -243,7 +243,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     2
                 ).format(count=2),
             ]),
-            dep_2_str(dependencies=[entity01, entity03, entity02, entity04], user=user)
+            dep_2_str(dependencies=[entity01, entity03, entity02, entity04], user=user),
         )
 
         rtype = RelationType.objects.first()
@@ -251,26 +251,26 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         rel01 = create_rel(subject_entity=entity01, object_entity=entity02)
         self.assertEqual(
             f'{rtype.predicate} «{entity02.name}»',
-            dep_2_str(dependencies=[rel01], user=user)
+            dep_2_str(dependencies=[rel01], user=user),
         )
 
         rel02 = create_rel(subject_entity=entity01, object_entity=entity03)
         self.assertEqual(
             f'{rtype.predicate} «{entity02.name}», '
             f'{rtype.predicate} «{settings.HIDDEN_VALUE}»',
-            dep_2_str(dependencies=[rel02, rel01], user=user)
+            dep_2_str(dependencies=[rel02, rel01], user=user),
         )
 
         sector1, sector2 = FakeSector.objects.all()[:2]
         self.assertEqual(
             f'{sector1}, {sector2}',
-            dep_2_str(dependencies=[sector1, sector2], user=user)
+            dep_2_str(dependencies=[sector1, sector2], user=user),
         )
 
         TestMixin.dependencies_limit = 2
         self.assertEqual(
             f'{entity01.name}, {entity02.name}…',
-            dep_2_str(dependencies=[entity01, entity03, entity02], user=user)
+            dep_2_str(dependencies=[entity01, entity03, entity02], user=user),
         )
 
     def test_delete_entity01(self):
@@ -420,7 +420,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                 entity=entity01.name,
                 dependencies=f'is a daughter of «{entity02.name}»',
             ),
-            msg
+            msg,
         )
 
     def test_delete_entity_ajax01(self):
@@ -441,7 +441,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual('text/plain', response['Content-Type'])
         self.assertEqual(
             FakeOrganisation.get_lv_absolute_url().encode(),
-            response.content
+            response.content,
         )
 
     def test_delete_entity_ajax02(self):
@@ -460,7 +460,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual('text/plain', response['Content-Type'])
         self.assertEqual(
             FakeOrganisation.get_lv_absolute_url().encode(),
-            response.content
+            response.content,
         )
 
     def test_delete_entities01(self):
@@ -514,7 +514,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     ).format(count=1),
                 ],
             },
-            response.json()
+            response.json(),
         )
 
         entity01 = self.get_object_or_fail(CremeEntity, pk=entity01.id)
@@ -543,7 +543,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     ),
                 ],
             },
-            response.json()
+            response.json(),
         )
 
         allowed = self.get_object_or_fail(CremeEntity, pk=allowed.id)
@@ -649,7 +649,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                 'Are you sure you want to delete definitely '
                 'all the entities in the trash?'
             ),
-            ctxt.get('message')
+            ctxt.get('message'),
         )
 
         # self.assertPOST200(url)
@@ -678,7 +678,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             ngettext(
                 '{count} entity deleted.', '{count} entities deleted.', 0,
             ).format(count=0),
-            progress1.label
+            progress1.label,
         )
 
         trash_cleaner_type.execute(job)
@@ -694,28 +694,28 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     '{count} entity deleted.', '{count} entities deleted.', 2,
                 ).format(count=2),
             ],
-            trash_cleaner_type.get_stats(job)
+            trash_cleaner_type.get_stats(job),
         )
 
         progress2 = trash_cleaner_type.progress(job)
         self.assertIsNone(progress2.percentage)
         self.assertEqual(
-            ngettext('{count} entity deleted.',
-                     '{count} entities deleted.',
-                     2
-                    ).format(count=2),
-            progress2.label
+            ngettext(
+                '{count} entity deleted.',
+                '{count} entities deleted.',
+                2
+            ).format(count=2),
+            progress2.label,
         )
 
     def test_empty_trash02(self):
         "Dependencies problem."
         user = self.login()
 
-        create_contact = partial(FakeContact.objects.create,
-                                 user=user,
-                                 last_name='Doe',
-                                 is_deleted=True,
-                                )
+        create_contact = partial(
+            FakeContact.objects.create,
+            user=user, last_name='Doe', is_deleted=True,
+        )
         entity01 = create_contact(first_name='#1')
         entity02 = create_contact(first_name='#2')
         entity03 = create_contact(first_name='#3')  # Not linked => can be deleted
@@ -770,7 +770,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIsNotNone(jresult1)
         self.assertListEqual(
             [_('Can not be deleted because of its dependencies.')],
-            jresult1.messages
+            jresult1.messages,
         )
 
         self.assertIn(entity02.id, jresults)
@@ -788,8 +788,11 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
             ctype=FakeOrganisation,
@@ -950,7 +953,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('First name'), json_dict['first_name'])
         self.assertEqual(
             _('{field} [CREATION]').format(field=_('Last name')),
-            json_dict['last_name']
+            json_dict['last_name'],
         )
 
     def test_get_info_fields02(self):
@@ -970,7 +973,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Description'), json_dict['description'])
         self.assertEqual(
             _('{field} [CREATION]').format(field=_('Name')),
-            json_dict['name']
+            json_dict['name'],
         )
 
     def test_get_info_fields03(self):
@@ -1280,10 +1283,10 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(reverse(settings.LOGIN_URL), parsed_url.path)
 
         next_param = parsed_url.query
-        self.assertTrue(next_param.startswith('next='), next_param)
+        self.assertStartsWith(next_param, 'next=')
         self.assertURLEqual(
             f'{url}?models={models}&fields={fields}&value={value}',
-            unquote(next_param[len('next='):])
+            unquote(next_param[len('next='):]),
         )
 
     def test_restrict_entity_2_superusers01(self):
@@ -1422,7 +1425,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_error02(self):
-        "Not entities"
+        "Not entities."
         self.login()
         self.assertGET409(self.build_bulkupdate_url(FakeSector))
         self.assertGET409(self.build_bulkupdate_url(FakeSector, 'title'))
@@ -1449,7 +1452,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                     count='%s', model='Test Contacts',
                 )
             ),
-            context.get('help_message')
+            context.get('help_message'),
         )
 
         with self.assertNoException():
@@ -1460,7 +1463,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         baddr_choices = dict(choices)[_('Billing address')]
         self.assertInChoices(
-            value=build_url(field='address__city'), label=_('City'), choices=baddr_choices
+            value=build_url(field='address__city'), label=_('City'), choices=baddr_choices,
         )
 
         # ---
@@ -1485,7 +1488,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                 '{success} «{model}» have been successfully modified.',
                 1,
             ).format(success=1, model='Test Contact'),
-            context.get('summary')
+            context.get('summary'),
         )
 
     def test_regular_field_not_super_user01(self):
@@ -1508,7 +1511,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(first_name, self.refresh(mario).first_name)
 
     def test_regular_field_not_super_user02(self):
-        "No entity is allowed to be changed"
+        "No entity is allowed to be changed."
         user = self.login(is_superuser=False)
 
         old_first_name = 'Mario'
@@ -1710,7 +1713,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             response, 'form', 'field_value',
             _('You are not allowed to link this entity: {}').format(
                 _('Entity #{id} (not viewable)').format(id=forbidden.id),
-            )
+            ),
         )
 
         response = self.client.post(
@@ -1740,7 +1743,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                     1,
                 ).format(forbidden=1),
             ),
-            response.context.get('summary')
+            response.context.get('summary'),
         )
 
     def test_regular_field_custom_edit_form(self):
@@ -1758,7 +1761,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'field_value': '31-01-2000',
-                'entities': [mario.id, luigi.id]
+                'entities': [mario.id, luigi.id],
             },
         )
         self.assertNoFormError(response)
@@ -1873,7 +1876,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             data={
                 'field_value': [categories[0].pk, invalid_pk],
                 'entities': [image1.id, image2.id],
-            }
+            },
         )
         self.assertFormError(
             response, 'form', 'field_value',
@@ -1896,10 +1899,13 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
         # Int
-        response = self.client.post(url, data={'field_value': 10,
-                                               'entities': [mario.pk, luigi.pk],
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'field_value': 10,
+                'entities': [mario.pk, luigi.pk],
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(10, self.get_cf_values(cf_int, self.refresh(mario)).value)
         self.assertEqual(10, self.get_cf_values(cf_int, self.refresh(luigi)).value)
@@ -2020,7 +2026,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'field_value': 'str',
-                'entities': [mario.pk, luigi.pk]
+                'entities': [mario.pk, luigi.pk],
             },
         )
         self.assertNoFormError(response)
@@ -2032,7 +2038,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'field_value': '',
-                'entities': [mario.pk, luigi.pk]
+                'entities': [mario.pk, luigi.pk],
             },
         )
         self.assertNoFormError(response)
@@ -2062,7 +2068,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'field_value': '-31T01U2000-',
-                'entities': [mario.pk, luigi.pk]
+                'entities': [mario.pk, luigi.pk],
             },
         )
         self.assertNoFormError(response)
@@ -2076,7 +2082,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'field_value': '',
-                'entities': [mario.pk, luigi.pk]
+                'entities': [mario.pk, luigi.pk],
             },
         )
         self.assertNoFormError(response)
@@ -2115,7 +2121,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'field_value': enum1.id,
-                'entities': [mario.pk, luigi.pk]
+                'entities': [mario.pk, luigi.pk],
             },
         )
         self.assertNoFormError(response)
@@ -2192,9 +2198,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_other_field_validation_error(self):
         user = self.login()
-        create_empty_user = partial(get_user_model().objects.create_user,
-                                    first_name='', last_name='', email='',
-                                   )
+        create_empty_user = partial(
+            get_user_model().objects.create_user,
+            first_name='', last_name='', email='',
+        )
         empty_user1 = create_empty_user(username='empty1')
         empty_user2 = create_empty_user(username='empty2')
 
@@ -2219,7 +2226,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertContains(
             response,
             _('This Contact is related to a user and must have a first name.'),
-            2
+            count=2,
         )
 
 
@@ -2364,11 +2371,11 @@ class InnerEditTestCase(_BulkEditTestCase):
             response, 'form', 'field_value',
             _('Select a valid choice. %(value)s is not one of the available choices.') % {
                 'value': invalid_pk,
-            }
+            },
         )
 
         image = self.refresh(image)
-        self.assertEqual({*image.categories.all()}, {*categories})
+        self.assertSetEqual({*image.categories.all()}, {*categories})
 
     def test_regular_field_invalid_model(self):
         "Neither an entity & neither related to an entity."
@@ -2565,7 +2572,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         response = self.client.post(url, data={'field_value': 'Bros'})
         self.assertFormError(
             response, 'form', None,
-            _('This Contact is related to a user and must have a first name.')
+            _('This Contact is related to a user and must have a first name.'),
         )
 
     def test_both_edited_field_and_field_validation_error(self):
@@ -2582,5 +2589,5 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         response = self.client.post(url, data={'field_value': ''})
         self.assertFormError(
-            response, 'form', 'field_value', _('This field is required.')
+            response, 'form', 'field_value', _('This field is required.'),
         )

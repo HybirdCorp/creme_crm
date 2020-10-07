@@ -188,11 +188,12 @@ class ExportingTestCase(CremeTestCase):
 
     def test_roles(self):
         "Roles."
-        self.login(is_staff=True,
-                   allowed_apps=('creme_core', 'persons'),
-                   admin_4_apps=('persons',),
-                   creatable_models=(FakeContact, FakeOrganisation),
-                  )
+        self.login(
+            is_staff=True,
+            allowed_apps=('creme_core', 'persons'),
+            admin_4_apps=('persons',),
+            creatable_models=(FakeContact, FakeOrganisation),
+        )
         role = self.role
         role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeContact)])
 
@@ -253,7 +254,7 @@ class ExportingTestCase(CremeTestCase):
             cd = response['Content-Disposition']
 
         # TODO: better test for name (regex ?)
-        self.assertTrue(cd.startswith('attachment; filename=config-'))
+        self.assertStartsWith(cd, 'attachment; filename=config-')
         self.assertTrue(cd.endswith('.json'))
 
         with self.assertNoException():
@@ -393,9 +394,10 @@ class ExportingTestCase(CremeTestCase):
         LEFT  = BrickDetailviewLocation.LEFT
         RIGHT = BrickDetailviewLocation.RIGHT
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
-                             model=FakeContact, zone=LEFT,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            model=FakeContact, zone=LEFT,
+        )
         BrickDetailviewLocation.objects.create_for_model_brick(
             model=FakeContact, order=5, zone=LEFT,
         )
@@ -462,7 +464,7 @@ class ExportingTestCase(CremeTestCase):
         RIGHT = BrickDetailviewLocation.RIGHT
 
         BrickDetailviewLocation.objects.create_for_model_brick(
-            model=FakeContact, order=5,  zone=LEFT,  role=role
+            model=FakeContact, order=5,  zone=LEFT,  role=role,
         )
         BrickDetailviewLocation.objects.create_if_needed(
             model=FakeContact, brick=bricks.HistoryBrick, order=10, zone=RIGHT, role=role,
@@ -558,7 +560,7 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertListEqual(
             [{'id': loc.brick_id, 'order': loc.order} for loc in existing_locs],
-            content.get('home_bricks')
+            content.get('home_bricks'),
         )
 
     def test_home_bricks02(self):
@@ -763,7 +765,7 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertSetEqual(
             {'creme_core.fakecontact', 'creme_core.fakeorganisation'},
-            subject_ctypes
+            subject_ctypes,
         )
 
     def test_relations_types(self):
@@ -893,7 +895,7 @@ class ExportingTestCase(CremeTestCase):
                     'choices': [eval3.value, eval4.value],
                 },
             ],
-            loaded_cfields
+            loaded_cfields,
         )
 
     def test_headerfilters(self):
@@ -1167,5 +1169,5 @@ class ExportingTestCase(CremeTestCase):
                     },
                 ],
             },
-            loaded_efilters.get(ef3.id)
+            loaded_efilters.get(ef3.id),
         )

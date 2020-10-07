@@ -150,14 +150,7 @@ class TemplateBaseTestCase(_BillingTestCase):
             invoice = tpl.create_entity()
 
         self.assertIsInstance(invoice, Invoice)
-
-        # TODO: assertStartsWith
-        number = invoice.number
-        prefix = settings.INVOICE_NUMBER_PREFIX
-        self.assertTrue(
-            number.startswith(prefix),
-            '{} does not start with {}.'.format(number, prefix)
-        )
+        self.assertStartsWith(invoice.number, settings.INVOICE_NUMBER_PREFIX)
 
     @skipIfCustomInvoice
     def test_create_invoice04(self):

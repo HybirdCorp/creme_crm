@@ -147,7 +147,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(url, item.url)
 
     def test_url_item02(self):
-        "For list-view"
+        "For list-view."
         id_ = 'add_contact'
         item = URLItem.list_view(id_, model=FakeContact)
         self.assertIsInstance(item, URLItem)
@@ -168,7 +168,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(perm,  item.perm)
 
     def test_url_item03(self):
-        "For creation view"
+        "For creation view."
         id_ = 'add_contact'
         item = URLItem.creation_view(id_, model=FakeContact)
         self.assertIsInstance(item, URLItem)
@@ -199,7 +199,7 @@ class MenuTestCase(CremeTestCase):
         self.assertListEqual([item1, item2], [*group])
 
     def test_add_items_to_group02(self):
-        "Priority"
+        "Priority."
         group = ItemGroup('persons')
         item1 = ViewableItem('add_contact')
         item2 = ViewableItem('add_orga')
@@ -397,7 +397,8 @@ class MenuTestCase(CremeTestCase):
             'persons', 'Directory',
         ).add_link(
             'add_orga', label='Organisation', url='/tests/organisation/add',
-            perm='creme_core.add_fakeorganisation')
+            perm='creme_core.add_fakeorganisation',
+        )
         self.assertListEqual(
             [
                 [
@@ -610,7 +611,7 @@ class MenuTestCase(CremeTestCase):
                     },
                 ],
             ],
-            cfi.as_grid(user)
+            cfi.as_grid(user),
         )
 
     def test_creation_forms_item02(self):
@@ -628,7 +629,7 @@ class MenuTestCase(CremeTestCase):
                     },
                 ],
             ],
-            cfi.as_grid(user)
+            cfi.as_grid(user),
         )
 
         # ----
@@ -636,8 +637,9 @@ class MenuTestCase(CremeTestCase):
 
         label = 'Contact'
         url = '/tests/customer/add'
-        cfi.get_or_create_group('persons', 'Directory')\
-           .add_link('add_contact', FakeContact, label=label, url=url)
+        cfi.get_or_create_group(
+            'persons', 'Directory',
+        ).add_link('add_contact', FakeContact, label=label, url=url)
         self.assertListEqual(
             [
                 [
@@ -647,7 +649,7 @@ class MenuTestCase(CremeTestCase):
                     },
                 ],
             ],
-            cfi.as_grid(user)
+            cfi.as_grid(user),
         )
 
         # ----
@@ -773,7 +775,7 @@ class MenuTestCase(CremeTestCase):
                     },
                 ],
             ],
-            cfi.as_grid(user)
+            cfi.as_grid(user),
         )
 
     def test_creation_forms_item05(self):
@@ -802,7 +804,7 @@ class MenuTestCase(CremeTestCase):
                     },
                 ],
             ],
-            cfi.as_grid(user)
+            cfi.as_grid(user),
         )
 
         cfi.change_priority(1, 'persons')
@@ -820,7 +822,7 @@ class MenuTestCase(CremeTestCase):
                     },
                 ],
             ],
-            cfi.as_grid(user)
+            cfi.as_grid(user),
         )
 
     def test_creation_forms_item06(self):
@@ -842,7 +844,7 @@ class MenuTestCase(CremeTestCase):
                     },
                 ],
             ],
-            cfi.as_grid(user)
+            cfi.as_grid(user),
         )
 
     def test_creation_forms_item07(self):
@@ -869,7 +871,7 @@ class MenuTestCase(CremeTestCase):
                     },
                 ],
             ],
-            cfi.as_grid(user)
+            cfi.as_grid(user),
         )
 
     def test_creation_forms_item08(self):
@@ -920,7 +922,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(my_label,           img_node.tail)
 
     def test_render_url_item03(self):
-        "Not allowed (string perm)"
+        "Not allowed (string perm)."
         self.login(is_superuser=False, allowed_apps=['creme_core'])
 
         icon = 'creme'
@@ -949,7 +951,7 @@ class MenuTestCase(CremeTestCase):
         url = '/creme/add_contact'
         item = URLItem(
             'home',
-            url=url, label='Create contact', perm=lambda user: user.is_superuser
+            url=url, label='Create contact', perm=lambda user: user.is_superuser,
         )
 
         tree1 = self.get_html_tree(item.render(self.build_context()))
@@ -974,7 +976,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertHTMLEqual(
             f'<span class="ui-creme-navigation-text-entry">{label}</span>',
-            item.render(self.build_context())
+            item.render(self.build_context()),
         )
 
 #     def test_render_onclick_item01(self):
@@ -1038,7 +1040,7 @@ class MenuTestCase(CremeTestCase):
         )
 
         render = container.render(context)
-        self.assertTrue(render.startswith(label))
+        self.assertStartsWith(render, label)
         self.assertHTMLEqual(
             '<ul>'
             '  <li class="ui-creme-navigation-item-id_contacts ui-creme-navigation-item-level1">'
@@ -1048,7 +1050,7 @@ class MenuTestCase(CremeTestCase):
             '    <a href="/persons/organisations">List of organisations</a>'
             '  </li>'
             '</ul>',
-            render[len(label):]
+            render[len(label):],
         )
 
     def test_render_container_item02(self):
@@ -1059,7 +1061,7 @@ class MenuTestCase(CremeTestCase):
         icon = 'contact'
         icon_label = 'Contact'
         parent = ContainerItem(
-            'persons', label=label, icon=icon, icon_label=icon_label
+            'persons', label=label, icon=icon, icon_label=icon_label,
         ).add(
             URLItem('home', url='/persons/contacts', label='List of contacts'),
         )
@@ -1095,7 +1097,7 @@ class MenuTestCase(CremeTestCase):
             '    <a href="/persons/contacts">List of contacts</a>'
             '  </li>'
             '</ul>',
-            ElementTree.tostring(ul_node).decode()
+            ElementTree.tostring(ul_node).decode(),
         )
 
     def test_render_menu(self):
@@ -1112,7 +1114,7 @@ class MenuTestCase(CremeTestCase):
             '    <a href="/persons/organisations">List of organisations</a>'
             '  </li>'
             '</ul>',
-            menu.render(self.build_context())
+            menu.render(self.build_context()),
         )
 
 # TODO: rendering of group => test separator (2 following group, at start, at end)
