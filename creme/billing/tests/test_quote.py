@@ -4,6 +4,7 @@ from datetime import date
 from decimal import Decimal
 from functools import partial
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -510,9 +511,106 @@ class QuoteTestCase(_BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import(self):
+    def test_mass_import01(self):
         self.login()
         self._aux_test_csv_import(Quote, QuoteStatus)
+
+    def test_mass_import02(self):
+        "Source is managed."
+        user = self.login()
+
+        count = Quote.objects.count()
+        create_orga = partial(Organisation.objects.create, user=user)
+
+        source = create_orga(name='Nerv')
+        self._set_managed(source)
+
+        target1 = create_orga(name='Acme')
+        target2 = create_orga(name='NHK')
+
+        lines_count = 2
+        names = [f'Billdoc #{i:04}' for i in range(1, lines_count + 1)]
+        numbers = [f'INV{i:04}' for i in range(1, lines_count + 1)]  # Should not be used
+        lines = [
+            (names[0], numbers[0], source.name, target1.name),
+            (names[1], numbers[1], source.name, target2.name),
+        ]
+
+        doc = self._build_csv_doc(lines)
+        url = self._build_import_url(Quote)
+        self.assertGET200(url)
+
+        def_status = QuoteStatus.objects.all()[0]
+        def_currency = Currency.objects.all()[0]
+        response = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                'step':     1,
+                'document': doc.id,
+                # has_header
+
+                'user': self.user.id,
+                'key_fields': [],
+
+                'name_colselect':   1,
+                'number_colselect': 2,
+
+                'issuing_date_colselect':    0,
+                'expiration_date_colselect': 0,
+
+                'status_colselect': 0,
+                'status_defval':    def_status.pk,
+
+                'discount_colselect': 0,
+                'discount_defval':    '0',
+
+                'currency_colselect': 0,
+                'currency_defval':    def_currency.pk,
+
+                'acceptation_date_colselect': 0,
+
+                'comment_colselect':         0,
+                'additional_info_colselect': 0,
+                'payment_terms_colselect':   0,
+                'payment_type_colselect':    0,
+
+                'description_colselect':         0,
+                'buyers_order_number_colselect': 0,  # Invoice only...
+
+                'source_persons_organisation_colselect': 3,
+                'source_persons_organisation_create':    False,
+
+                'target_persons_organisation_colselect': 4,
+                'target_persons_organisation_create':    False,
+
+                'target_persons_contact_colselect': 0,
+                'target_persons_contact_create':    False,
+
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+            },
+        )
+
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+        self.assertEqual(count + len(lines), Quote.objects.count())
+
+        quote1 = self.get_object_or_fail(Quote, name=names[0])
+        self.assertEqual(source, quote1.source)
+        self.assertEqual(target1, quote1.target)
+        number1 = quote1.number
+        self.assertTrue(number1.startswith(settings.QUOTE_NUMBER_PREFIX), number1)
+
+        quote2 = self.get_object_or_fail(Quote, name=names[1])
+        self.assertEqual(source, quote2.source)
+        self.assertEqual(target2, quote2.target)
+        number2 = quote2.number
+        self.assertTrue(number2.startswith(settings.QUOTE_NUMBER_PREFIX), number2)
+
+        self.assertNotEqual(number1, number2)
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine

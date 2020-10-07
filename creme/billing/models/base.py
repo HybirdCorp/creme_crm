@@ -25,14 +25,8 @@ from functools import partial
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.models import (
-    PROTECT,
-    SET_NULL,
-    CharField,
-    DateField,
-    ForeignKey,
-    TextField,
-)
+from django.db import models
+from django.db.transaction import atomic
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -66,11 +60,13 @@ logger = logging.getLogger(__name__)
 
 
 class Base(CremeEntity):
-    name = CharField(_('Name'), max_length=100)
-    number = CharField(_('Number'), max_length=100, blank=True)
+    name = models.CharField(_('Name'), max_length=100)
+    number = models.CharField(_('Number'), max_length=100, blank=True)
 
-    issuing_date = DateField(_('Issuing date'), blank=True, null=True).set_tags(optional=True)
-    expiration_date = DateField(
+    issuing_date = models.DateField(
+        _('Issuing date'), blank=True, null=True,
+    ).set_tags(optional=True)
+    expiration_date = models.DateField(
         _('Expiration date'), blank=True, null=True,
     ).set_tags(optional=True)
 
@@ -78,23 +74,23 @@ class Base(CremeEntity):
         _('Overall discount'), default=DEFAULT_DECIMAL, max_digits=10, decimal_places=2,
     )
 
-    billing_address = ForeignKey(
+    billing_address = models.ForeignKey(
         settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Billing address'),
         blank=True, null=True, editable=False,
-        related_name='+', on_delete=SET_NULL,
+        related_name='+', on_delete=models.SET_NULL,
     ).set_tags(enumerable=False)
-    shipping_address = ForeignKey(
+    shipping_address = models.ForeignKey(
         settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Shipping address'),
         blank=True, null=True, editable=False,
-        related_name='+', on_delete=SET_NULL,
+        related_name='+', on_delete=models.SET_NULL,
     ).set_tags(enumerable=False)
 
-    currency = ForeignKey(
+    currency = models.ForeignKey(
         Currency, verbose_name=_('Currency'), related_name='+',
-        default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
+        default=DEFAULT_CURRENCY_PK, on_delete=models.PROTECT,
     )
 
-    comment = TextField(_('Comment'), blank=True).set_tags(optional=True)
+    comment = models.TextField(_('Comment'), blank=True).set_tags(optional=True)
 
     total_vat = MoneyField(
         _('Total with VAT'), default=0,
@@ -107,21 +103,21 @@ class Base(CremeEntity):
         blank=True, null=True, editable=False,
     )
 
-    additional_info = ForeignKey(
+    additional_info = models.ForeignKey(
         AdditionalInformation,
         verbose_name=_('Additional Information'),
         related_name='+',
         blank=True, null=True,
         on_delete=CREME_REPLACE_NULL,
     ).set_tags(clonable=False, optional=True)
-    payment_terms = ForeignKey(
+    payment_terms = models.ForeignKey(
         PaymentTerms, verbose_name=_('Payment Terms'),
         blank=True, null=True,
         related_name='+', on_delete=CREME_REPLACE_NULL,
     ).set_tags(clonable=False, optional=True)
-    payment_info = ForeignKey(
+    payment_info = models.ForeignKey(
         PaymentInformation, verbose_name=_('Payment information'),
-        blank=True, null=True, editable=False, on_delete=SET_NULL,
+        blank=True, null=True, editable=False, on_delete=models.SET_NULL,
     ).set_tags(optional=True)
 
     creation_label = _('Create an accounting document')
@@ -434,7 +430,7 @@ class Base(CremeEntity):
         logger.debug('=> Clone properties')
         self._copy_properties(template)
 
-    # TODO: @atomic ??
+    @atomic
     def save(self, *args, **kwargs):
         # if self.pk:
         #     self.invalidate_cache()
@@ -452,6 +448,9 @@ class Base(CremeEntity):
         if not self.pk:   # Creation
             self._clean_source_n_target()
 
+            if self.generate_number_in_create:
+                self.generate_number(source)
+
             super().save(*args, **kwargs)
 
             self._source_rel = create_relation(
@@ -460,7 +459,6 @@ class Base(CremeEntity):
             self._target_rel = create_relation(
                 type_id=REL_SUB_BILL_RECEIVED, object_entity=target,
             )
-
         else:  # Edition
             self.invalidate_cache()
 

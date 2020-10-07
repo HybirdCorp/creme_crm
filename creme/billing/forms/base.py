@@ -199,8 +199,8 @@ class BaseCreateForm(BaseEditForm):
         cleaned_data = self.cleaned_data
         target = cleaned_data['target']
 
-        if instance.generate_number_in_create:
-            instance.generate_number(cleaned_data['source'])
+        # if instance.generate_number_in_create:
+        #     instance.generate_number(cleaned_data['source'])
 
         super().save(*args, **kwargs)
 

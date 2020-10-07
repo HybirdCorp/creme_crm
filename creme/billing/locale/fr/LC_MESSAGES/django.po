@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-07 13:56+0200\n"
+"POT-Creation-Date: 2020-10-07 19:43+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -157,7 +157,7 @@ msgstr "{count} Avoirs reçus"
 msgid "No received credit note for the moment"
 msgstr "Aucun avoir reçu pour le moment"
 
-#: bricks.py:321 models/base.py:123
+#: bricks.py:321 models/base.py:119
 #: templates/billing/bricks/billing-payment-information.html:7
 #: templates/billing/bricks/orga-payment-information.html:7
 msgid "Payment information"
@@ -321,15 +321,15 @@ msgid ""
 "organisation, a number will be automatically generated."
 msgstr ""
 "Si vous choisissez une société gérée par Creme (comme «{}») en tant "
-"qu'émettrice,un nombre sera automatiquement généré."
+"qu'émettrice, un nombre sera automatiquement généré."
 
-#: forms/base.py:208 forms/mass_import.py:120 forms/mass_import.py:159
-#: forms/templatebase.py:82 models/base.py:82
+#: forms/base.py:208 forms/mass_import.py:130 forms/mass_import.py:169
+#: forms/templatebase.py:82 models/base.py:78
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:211 forms/mass_import.py:124 forms/mass_import.py:164
-#: forms/templatebase.py:85 models/base.py:87
+#: forms/base.py:211 forms/mass_import.py:134 forms/mass_import.py:174
+#: forms/templatebase.py:85 models/base.py:83
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
@@ -439,6 +439,14 @@ msgid "In update mode, update the shipping address from the target."
 msgstr ""
 "En mode mise-à-jour, mettre à jour l'adresse de livraison depuis la cible."
 
+#: forms/mass_import.py:89
+msgid ""
+"If you chose an organisation managed by Creme as source organisation, a "
+"number will be automatically generated for created «{}»."
+msgstr ""
+"Si vous choisissez une société gérée par Creme en tant qu'émettrice, un "
+"nombre sera automatiquement généré for les «{}» créé(e)s."
+
 #: forms/templatebase.py:30 function_fields.py:50
 #: templates/billing/bricks/credit-notes.html:19
 #: templates/billing/bricks/received-billing-documents.html:17
@@ -475,74 +483,74 @@ msgstr "Total des Devis remportés cette année"
 msgid "Total Won Quote Last Year"
 msgstr "Total des Devis remportés l'année dernière"
 
-#: models/algo.py:37 models/algo.py:58
+#: models/algo.py:32 models/algo.py:54
 msgid "Organisation"
 msgstr "Société"
 
-#: models/algo.py:39
+#: models/algo.py:34
 msgid "Algo name"
 msgstr "Nom de l'algo"
 
-#: models/algo.py:61
+#: models/algo.py:57
 msgid "Invoice prefix"
 msgstr "Préfixe de la facture"
 
-#: models/base.py:69 models/other_models.py:54 models/other_models.py:102
+#: models/base.py:63 models/other_models.py:54 models/other_models.py:102
 #: models/other_models.py:136 templates/billing/bricks/credit-notes.html:17
 msgid "Name"
 msgstr "Nom"
 
-#: models/base.py:70 templates/billing/bricks/credit-notes.html:18
+#: models/base.py:64 templates/billing/bricks/credit-notes.html:18
 msgid "Number"
 msgstr "Numéro"
 
-#: models/base.py:72 templates/billing/bricks/credit-notes.html:26
+#: models/base.py:67 templates/billing/bricks/credit-notes.html:26
 msgid "Issuing date"
 msgstr "Émission"
 
-#: models/base.py:74 templates/billing/bricks/credit-notes.html:30
+#: models/base.py:70 templates/billing/bricks/credit-notes.html:30
 msgid "Expiration date"
 msgstr "Échéance"
 
-#: models/base.py:78
+#: models/base.py:74
 msgid "Overall discount"
 msgstr "Remise globale"
 
-#: models/base.py:93
+#: models/base.py:89
 msgid "Currency"
 msgstr "Devise"
 
-#: models/base.py:97 models/line.py:45
+#: models/base.py:93 models/line.py:45
 #: templates/billing/bricks/credit-notes.html:22
 #: templates/billing/bricks/frags/line-fields.html:44
 msgid "Comment"
 msgstr "Remarques"
 
-#: models/base.py:100
+#: models/base.py:96
 msgid "Total with VAT"
 msgstr "Total avec TVA"
 
-#: models/base.py:105
+#: models/base.py:101
 msgid "Total without VAT"
 msgstr "Total HT"
 
-#: models/base.py:112
+#: models/base.py:108
 msgid "Additional Information"
 msgstr "Informations supplémentaires"
 
-#: models/base.py:118
+#: models/base.py:114
 msgid "Payment Terms"
 msgstr "Conditions de règlement"
 
-#: models/base.py:127
+#: models/base.py:123
 msgid "Create an accounting document"
 msgstr "Créer un document comptable"
 
-#: models/base.py:154
+#: models/base.py:150
 msgid "Source organisation is required."
 msgstr "La société émettrice est obligatoire"
 
-#: models/base.py:157
+#: models/base.py:153
 msgid "Target is required."
 msgstr "La cible est obligatoire"
 
@@ -906,12 +914,12 @@ msgctxt "billing"
 msgid "Save the template"
 msgstr "Enregistrer le patron"
 
-#: models/templatebase.py:47
+#: models/templatebase.py:49
 msgctxt "billing"
 msgid "Template"
 msgstr "Patron de document"
 
-#: models/templatebase.py:48
+#: models/templatebase.py:50
 msgctxt "billing"
 msgid "Templates"
 msgstr "Patrons de document"
@@ -1462,10 +1470,6 @@ msgid "Link the credit notes"
 msgstr "Lier les avoirs"
 
 #: views/export.py:170
-#, fuzzy
-#| msgid ""
-#| "The exporter is not configured ; go to the configuration of the app "
-#| "«Billing»."
 msgid ""
 "The engine is not configured ; go to the configuration of the app «Billing»."
 msgstr ""

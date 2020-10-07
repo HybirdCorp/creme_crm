@@ -80,6 +80,16 @@ def get_import_form_builder(header_dict, choices):
             help_text=_('In update mode, update the shipping address from the target.'),
         )
 
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            model = self._meta.model
+            if model.generate_number_in_create:
+                self.fields['number'].help_text = _(
+                    'If you chose an organisation managed by Creme as source organisation, '
+                    'a number will be automatically generated for created «{}».'
+                ).format(model._meta.verbose_name_plural)
+
         def _pre_instance_save(self, instance, line):
             cdata = self.cleaned_data
             append_error = self.append_error
