@@ -33,12 +33,14 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractTemplateBase(Base):
-    ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
+    ct = CTypeForeignKey(editable=False).set_tags(viewable=False)
     # TODO: avoid deletion of status
     status_id = PositiveIntegerField(editable=False).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('billing', 'Create a template')
     save_label     = pgettext_lazy('billing', 'Save the template')
+
+    generate_number_in_create = False
 
     _verbose_status_cache = None
 
@@ -79,7 +81,7 @@ class AbstractTemplateBase(Base):
         instance.expiration_date = instance.issuing_date + timedelta(days=30)
 
         instance.additional_info = self.additional_info
-        instance.payment_terms   = self.payment_terms
+        instance.payment_terms = self.payment_terms
 
         instance.save()
 

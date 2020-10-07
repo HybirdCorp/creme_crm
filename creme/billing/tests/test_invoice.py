@@ -1249,7 +1249,7 @@ class InvoiceTestCase(_BillingTestCase):
     @skipIfCustomAddress
     def test_mass_import(self):
         self.login()
-        self._aux_test_csv_import(Invoice, InvoiceStatus)
+        self._aux_test_csv_import(Invoice, InvoiceStatus, number_help_text=False)
 
     @skipIfCustomAddress
     def test_mass_import_update01(self):
@@ -1281,7 +1281,9 @@ class InvoiceTestCase(_BillingTestCase):
     @skipIfCustomAddress
     def test_mass_import_update04(self):
         self.login()
-        self._aux_test_csv_import(Invoice, InvoiceStatus, update=True)
+        self._aux_test_csv_import(
+            Invoice, InvoiceStatus, update=True, number_help_text=False,
+        )
 
 
 @skipIfCustomOrganisation

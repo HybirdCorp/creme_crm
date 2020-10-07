@@ -307,7 +307,7 @@ class _BillingTestCase(_BillingTestCaseMixin,
                        base.ButtonTestCaseMixin,
                        base.MassImportBaseTestCaseMixin,
                        CremeTestCase):
-    def _aux_test_csv_import(self, model, status_model, update=False):
+    def _aux_test_csv_import(self, model, status_model, update=False, number_help_text=True):
         count = model.objects.count()
         create_orga = partial(Organisation.objects.create, user=self.user)
         create_contact = partial(Contact.objects.create, user=self.user)
@@ -345,8 +345,8 @@ class _BillingTestCase(_BillingTestCaseMixin,
         # ----------------------------------------------------------------------
 
         lines_count = 4
-        names   = ['Billdoc #%04i' % i for i in range(1, lines_count + 1)]
-        numbers = ['B%04i' % i for i in range(1, lines_count + 1)]
+        names = [f'Billdoc #{i:04}' for i in range(1, lines_count + 1)]
+        numbers = [f'B{i:04}' for i in range(1, lines_count + 1)]
         issuing_dates = [
             date(year=2013, month=6 + i, day=24 + i)
             for i in range(lines_count)
@@ -378,8 +378,35 @@ class _BillingTestCase(_BillingTestCaseMixin,
 
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(model)
+
+        # STEP 1 ---
         self.assertGET200(url)
 
+        response1 = self.client.post(
+            url,
+            data={
+                'step': 0,
+                'document': doc.id,
+                # has_header
+            }
+        )
+        self.assertNoFormError(response1)
+
+        with self.assertNoException():
+            number_f = response1.context['form'].fields['number']
+
+        if number_help_text:
+            self.assertEqual(
+                _(
+                    'If you chose an organisation managed by Creme as source organisation, '
+                    'a number will be automatically generated for created «{}».'
+                ).format(model._meta.verbose_name_plural),
+                number_f.help_text,
+            )
+        else:
+            self.assertFalse(number_f.help_text)
+
+        # STEP 2 ---
         def_status = status_model.objects.all()[0]
         def_currency = Currency.objects.all()[0]
         data = {
@@ -419,10 +446,10 @@ class _BillingTestCase(_BillingTestCaseMixin,
             # 'fixed_relations',
             # 'dyn_relations',
         }
-        response = self.assertPOST200(url, data=data)
-        self.assertFormError(response, 'form', 'source', _('Enter a valid value.'))
+        response2 = self.assertPOST200(url, data=data)
+        self.assertFormError(response2, 'form', 'source', _('Enter a valid value.'))
 
-        response = self.assertPOST200(
+        response3 = self.assertPOST200(
             url,
             data={
                 **data,
@@ -436,9 +463,9 @@ class _BillingTestCase(_BillingTestCaseMixin,
                 'target_persons_contact_create':    True,
             },
         )
-        self.assertFormError(response, 'form', 'source', _('This field is required.'))
+        self.assertFormError(response3, 'form', 'source', _('This field is required.'))
 
-        response = self.client.post(
+        response4 = self.client.post(
             url, follow=True,
             data={
                 **data,
@@ -452,9 +479,9 @@ class _BillingTestCase(_BillingTestCaseMixin,
                 'target_persons_contact_create':    True,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response4)
 
-        self._execute_job(response)
+        self._execute_job(response4)
         self.assertEqual(count + len(lines), model.objects.count())
 
         billing_docs = []

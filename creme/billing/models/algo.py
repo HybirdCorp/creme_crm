@@ -19,13 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import (
-    CASCADE,
-    CharField,
-    ForeignKey,
-    IntegerField,
-    Model,
-)
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeModel
@@ -33,10 +27,11 @@ from creme.creme_core.models.fields import CTypeForeignKey
 
 
 class ConfigBillingAlgo(CremeModel):
-    organisation = ForeignKey(
-        settings.PERSONS_ORGANISATION_MODEL, verbose_name=_('Organisation'), on_delete=CASCADE,
+    organisation = models.ForeignKey(
+        settings.PERSONS_ORGANISATION_MODEL,
+        verbose_name=_('Organisation'), on_delete=models.CASCADE,
     )
-    name_algo = CharField(_('Algo name'), max_length=400)
+    name_algo = models.CharField(_('Algo name'), max_length=400)
     ct = CTypeForeignKey()
 
     class Meta:
@@ -53,12 +48,13 @@ class ConfigBillingAlgo(CremeModel):
         )
 
 
-class SimpleBillingAlgo(Model):
-    organisation = ForeignKey(
-        settings.PERSONS_ORGANISATION_MODEL, verbose_name=_('Organisation'), on_delete=CASCADE,
+class SimpleBillingAlgo(models.Model):
+    organisation = models.ForeignKey(
+        settings.PERSONS_ORGANISATION_MODEL,
+        verbose_name=_('Organisation'), on_delete=models.CASCADE,
     )
-    last_number = IntegerField()
-    prefix = CharField(_('Invoice prefix'), max_length=400)
+    last_number = models.IntegerField()
+    prefix = models.CharField(_('Invoice prefix'), max_length=400)
     ct = CTypeForeignKey()
 
     ALGO_NAME = 'SIMPLE_ALGO'  # TODO: prefix with app name
@@ -68,4 +64,11 @@ class SimpleBillingAlgo(Model):
         unique_together = ('organisation', 'last_number', 'ct')
 
     def __str__(self):
-        return f'SimpleBillingAlgo(organisation="{self.organisation}", ct="{self.ct}")'
+        return (
+            f'SimpleBillingAlgo('
+            f'organisation="{self.organisation}", '
+            f'ct="{self.ct}", '
+            f'last_number={self.last_number}, '
+            f'prefix="{self.prefix}"'
+            f')'
+        )

@@ -1558,7 +1558,8 @@ class ImportForm4CremeEntity(ImportForm):
         Relation.objects.safe_multi_save(relations)
 
 
-def extractorfield_factory(modelfield, header_dict, choices):
+# def extractorfield_factory(modelfield, header_dict, choices):
+def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
     formfield = modelfield.formfield()
 
     if not formfield:  # Happens for crementity_ptr (OneToOneField)
@@ -1586,6 +1587,7 @@ def extractorfield_factory(modelfield, header_dict, choices):
             'selected_column': selected_column,
             'default_value':   formfield.initial,
         },
+        **kwargs,
     )
 
 
