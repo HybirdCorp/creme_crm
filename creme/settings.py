@@ -1265,10 +1265,14 @@ GEOLOCATION_TOWNS = [
     (join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'), {'country': 'France'}),
 ]
 
+# Url for address geolocation search (nominatim is the only supported backend for now)
 GEOLOCATION_OSM_NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
+# Url pattern for tiles of the geolocation
 GEOLOCATION_OSM_TILEMAP_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-GEOLOCATION_OSM_TILEMAP_COPYRIGHT = 'https://www.openstreetmap.org/copyright'
 
+# Copyright link href & title (appears in the bottom-right of the maps)
+GEOLOCATION_OSM_COPYRIGHT_URL = 'https://www.openstreetmap.org/copyright'
+GEOLOCATION_OSM_COPYRIGHT_TITLE = 'OpenStreetMap contributors'
 
 # APPS CONFIGURATION [END]######################################################
 

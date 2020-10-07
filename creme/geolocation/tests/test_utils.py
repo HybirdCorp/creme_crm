@@ -251,7 +251,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         self.assertEqual(get_openstreetmap_settings(), {
             'nominatim_url': settings.GEOLOCATION_OSM_NOMINATIM_URL,
             'tilemap_url': settings.GEOLOCATION_OSM_TILEMAP_URL,
-            'tilemap_copyright': settings.GEOLOCATION_OSM_TILEMAP_COPYRIGHT,
+            'copyright_url': settings.GEOLOCATION_OSM_COPYRIGHT_URL,
+            'copyright_title': settings.GEOLOCATION_OSM_COPYRIGHT_TITLE,
         })
 
         tilemap_url = '{s}othermap.com/{x}/{y}/{z}.jpeg'
@@ -260,11 +261,12 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         with override_settings(
                 GEOLOCATION_OSM_NOMINATIM_URL='',
                 GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
-                GEOLOCATION_OSM_TILEMAP_COPYRIGHT=copyright_url):
+                GEOLOCATION_OSM_COPYRIGHT_URL=copyright_url):
             self.assertEqual(get_openstreetmap_settings(), {
                 'nominatim_url': '',
                 'tilemap_url': tilemap_url,
-                'tilemap_copyright': copyright_url,
+                'copyright_url': copyright_url,
+                'copyright_title': settings.GEOLOCATION_OSM_COPYRIGHT_TITLE,
             })
 
     def test_location_bounding_box(self):

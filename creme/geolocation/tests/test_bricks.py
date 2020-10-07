@@ -56,7 +56,8 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.assertEqual(OpenStreetMapDetailMapBrick().get_map_settings(), {
             'nominatim_url': settings.GEOLOCATION_OSM_NOMINATIM_URL,
             'tilemap_url': settings.GEOLOCATION_OSM_TILEMAP_URL,
-            'tilemap_copyright': settings.GEOLOCATION_OSM_TILEMAP_COPYRIGHT,
+            'copyright_url': settings.GEOLOCATION_OSM_COPYRIGHT_URL,
+            'copyright_title': settings.GEOLOCATION_OSM_COPYRIGHT_TITLE,
         })
         self.assertEqual(GoogleDetailMapBrick().get_map_settings(), {})
 
