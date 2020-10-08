@@ -500,7 +500,7 @@ class DocumentTestCase(_DocumentsTestCase):
         title = entity_folder.title
         self.assertEqual(100, len(title))
         self.assertStartsWith(title, f'{entity.id}_AAAAAAA')
-        self.assertTrue(title.endswith('…'))
+        self.assertEndsWith(title, '…')
 
     def test_add_related_document07(self):
         "Collision with Folder titles."
@@ -847,7 +847,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         doc = docs[0]
         title = doc.title
         self.assertStartsWith(title, 'creme_22')
-        self.assertTrue(title.endswith('.png'))
+        self.assertEndsWith(title, '.png')
 
         self.assertEqual('',         doc.description)
         self.assertEqual(folder,     doc.linked_folder)

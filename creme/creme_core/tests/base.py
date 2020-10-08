@@ -513,7 +513,11 @@ class _CremeTestCase:
 
     def assertStartsWith(self, s, prefix):
         if not s.startswith(prefix):
-            raise self.failureException(f'The string {s!r} does not starts with {prefix!r}')
+            raise self.failureException(f'The string {s!r} does not start with {prefix!r}')
+
+    def assertEndsWith(self, s, prefix):
+        if not s.endswith(prefix):
+            raise self.failureException(f'The string {s!r} does not end with {prefix!r}')
 
     def assertXMLEqualv2(self, expected, actual):
         """Compare 2 strings representing XML document, with the XML semantic.
