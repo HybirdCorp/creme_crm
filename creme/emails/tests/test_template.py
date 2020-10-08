@@ -104,10 +104,12 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
 
         error_msg = _('The following variables are invalid: %(vars)s')
         self.assertFormError(
-            response, 'form', 'body', error_msg % {'vars': ['unexisting_var']},
+            # response, 'form', 'body', error_msg % {'vars': ['unexisting_var']},
+            response, 'form', 'body', error_msg % {'vars': 'unexisting_var'},
         )
         self.assertFormError(
-            response, 'form', 'body_html', error_msg % {'vars': ['foobar_var']}
+            # response, 'form', 'body_html', error_msg % {'vars': ['foobar_var']},
+            response, 'form', 'body_html', error_msg % {'vars': 'foobar_var'},
         )
 
     def test_editview01(self):
@@ -172,10 +174,12 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         )
         error_msg = _('The following variables are invalid: %(vars)s')
         self.assertFormError(
-            response, 'form', 'body', error_msg % {'vars': ['unexisting_var']},
+            # response, 'form', 'body', error_msg % {'vars': ['unexisting_var']},
+            response, 'form', 'body', error_msg % {'vars': 'unexisting_var'},
         )
         self.assertFormError(
-            response, 'form', 'body_html', error_msg % {'vars': ['foobar_var']}
+            # response, 'form', 'body_html', error_msg % {'vars': ['foobar_var']}
+            response, 'form', 'body_html', error_msg % {'vars': 'foobar_var'},
         )
 
     def test_listview(self):

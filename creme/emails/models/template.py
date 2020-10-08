@@ -19,31 +19,42 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import (
-    SET_NULL,
-    CharField,
-    ForeignKey,
-    ManyToManyField,
-    TextField,
-)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import UnsafeHTMLField
 
+from ..core.validators import TemplateVariablesValidator
 from .signature import EmailSignature
+
+body_validator = TemplateVariablesValidator(
+    allowed_variables=('last_name', 'first_name', 'civility', 'name'),
+)
 
 
 class AbstractEmailTemplate(CremeEntity):
-    name        = CharField(_('Name'), max_length=100)
-    subject     = CharField(_('Subject'), max_length=100)
-    body        = TextField(_('Body'))
-    body_html   = UnsafeHTMLField(_('Body (HTML)'))
-    signature   = ForeignKey(EmailSignature, verbose_name=_('Signature'),
-                             blank=True, null=True, on_delete=SET_NULL,
-                            )
-    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_('Attachments'))
+    name = models.CharField(_('Name'), max_length=100)
+    subject = models.CharField(_('Subject'), max_length=100)
+
+    body = models.TextField(
+        _('Body'),
+        validators=[body_validator], help_text=body_validator.help_text,
+    )
+    body_html = UnsafeHTMLField(
+        _('Body (HTML)'),
+        blank=True, validators=[body_validator], help_text=body_validator.help_text,
+    )
+
+    signature = models.ForeignKey(
+        EmailSignature, verbose_name=_('Signature'),
+        blank=True, null=True, on_delete=models.SET_NULL,
+    )
+
+    attachments = models.ManyToManyField(
+        settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_('Attachments'), blank=True,
+    )
 
     creation_label = _('Create an email template')
     save_label     = _('Save the email template')
