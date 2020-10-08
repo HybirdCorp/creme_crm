@@ -90,6 +90,7 @@ class EmailsConfig(CremeAppConfig):
         register(self.EmailCampaign, exclude=('mailing_lists',))
         # TODO: tags modifiable=False ??
         register(models.EmailSending, exclude=('sender', 'type', 'sending_date'))
+        register(self.EmailTemplate, exclude=('body', 'body_html'))
         register(self.EntityEmail, exclude=('sender', 'recipient', 'subject',
                                             'body', 'body_html', 'signature', 'attachments',
                                            )  # TODO: idem
