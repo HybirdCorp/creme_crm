@@ -58,7 +58,7 @@ class DownloadViewTestCase(ViewsTestCase):
             cdisp,
             'attachment; filename="DownloadViewTestCase_test_download_filefield',
         )
-        self.assertTrue(cdisp.endswith('.txt"'))
+        self.assertEndsWith(cdisp, '.txt"')
         self.assertEqual(
             file_content.encode(),
             b''.join(response.streaming_content)

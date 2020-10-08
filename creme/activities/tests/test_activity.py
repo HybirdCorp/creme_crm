@@ -2068,7 +2068,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             content,
         )
         self.assertIn('SUMMARY:Act#1\n', content)
-        self.assertTrue(content.endswith('END:VCALENDAR'))
+        self.assertEndsWith(content, 'END:VCALENDAR')
 
     def test_clone01(self):
         self.login()

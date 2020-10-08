@@ -1579,7 +1579,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         # self.assertTrue(cdisp.startswith(f'attachment; filename={slugify(doc.title)}-errors'))
         self.assertStartsWith(cdisp, f'attachment; filename="{slugify(doc.title)}-errors')
         # self.assertTrue(cdisp.endswith('.' + ext))
-        self.assertTrue(cdisp.endswith(f'.{ext}"'))
+        self.assertEndsWith(cdisp, f'.{ext}"')
 
         result_lines = [['First name',   'Last name', 'Birthday', _('Errors')]] if header else []
         result_lines.append([first_name, last_name,   birthday,   _('Enter a valid date.')])
