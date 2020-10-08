@@ -40,11 +40,12 @@ class EmailsConfig(CremeAppConfig):
         from . import signals  # NOQA
 
     def register_entity_models(self, creme_registry):
-        creme_registry.register_entity_models(self.EmailCampaign,
-                                              self.MailingList,
-                                              self.EmailTemplate,
-                                              self.EntityEmail,
-                                             )
+        creme_registry.register_entity_models(
+            self.EmailCampaign,
+            self.MailingList,
+            self.EmailTemplate,
+            self.EntityEmail,
+        )
 
     def register_actions(self, actions_registry):
         from . import actions
@@ -90,13 +91,22 @@ class EmailsConfig(CremeAppConfig):
         register(self.EmailCampaign, exclude=('mailing_lists',))
         # TODO: tags modifiable=False ??
         register(models.EmailSending, exclude=('sender', 'type', 'sending_date'))
-        register(self.EmailTemplate, exclude=('body', 'body_html'))
-        register(self.EntityEmail, exclude=('sender', 'recipient', 'subject',
-                                            'body', 'body_html', 'signature', 'attachments',
-                                           )  # TODO: idem
-                )
+        # TODO: inner-form for body_html when RichTextEditor is ok in inner-popup
+        # register(self.EmailTemplate, exclude=('body', 'body_html'))
+        register(self.EmailTemplate, exclude=('body_html',))
+        register(
+            self.EntityEmail,
+            exclude=(
+                'sender', 'recipient',
+                'subject', 'body', 'body_html',
+                'signature', 'attachments',
+            ),  # TODO: idem
+        )
         # TODO: idem
-        register(models.LightWeightEmail, exclude=('sender', 'recipient', 'subject', 'body'))
+        register(
+            models.LightWeightEmail,
+            exclude=('sender', 'recipient', 'subject', 'body'),
+        )
 
     def register_buttons(self, button_registry):
         from . import buttons
@@ -106,14 +116,11 @@ class EmailsConfig(CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 
-        fields_config_registry.register_needed_fields('emails',
-                                                      persons.get_contact_model(),
-                                                      'email',
-                                                     ) \
-                              .register_needed_fields('emails',
-                                                      persons.get_organisation_model(),
-                                                      'email',
-                                                     )
+        fields_config_registry.register_needed_fields(
+            'emails', persons.get_contact_model(), 'email',
+        ).register_needed_fields(
+            'emails', persons.get_organisation_model(), 'email',
+        )
 
     def register_creme_config(self, config_registry):
         from . import bricks
@@ -123,12 +130,19 @@ class EmailsConfig(CremeAppConfig):
     def register_icons(self, icon_registry):
         from . import models
 
-        icon_registry.register(self.EntityEmail,        'images/email_%(size)s.png') \
-                     .register(models.LightWeightEmail, 'images/email_%(size)s.png') \
-                     .register(models.EmailSending,     'images/email_%(size)s.png') \
-                     .register(self.MailingList,        'images/email_%(size)s.png') \
-                     .register(self.EmailCampaign,      'images/email_%(size)s.png') \
-                     .register(self.EmailTemplate,      'images/email_%(size)s.png')
+        icon_registry.register(
+            self.EntityEmail,        'images/email_%(size)s.png',
+        ).register(
+            models.LightWeightEmail, 'images/email_%(size)s.png',
+        ).register(
+            models.EmailSending,     'images/email_%(size)s.png',
+        ).register(
+            self.MailingList,        'images/email_%(size)s.png',
+        ).register(
+            self.EmailCampaign,      'images/email_%(size)s.png',
+        ).register(
+            self.EmailTemplate,      'images/email_%(size)s.png',
+        )
 
     def register_menu(self, creme_menu):
         from django.apps import apps
@@ -138,11 +152,13 @@ class EmailsConfig(CremeAppConfig):
         MList     = self.MailingList
         ETemplate = self.EmailTemplate
 
-        group = creme_menu.get('features') \
-                          .get_or_create(creme_menu.ContainerItem, 'marketing', priority=200,
-                                         defaults={'label': _('Marketing')},
-                                        ) \
-                          .get_or_create(creme_menu.ItemGroup, 'emails', priority=10)
+        group = creme_menu.get(
+            'features'
+        ).get_or_create(
+            creme_menu.ContainerItem, 'marketing',
+            priority=200, defaults={'label': _('Marketing')},
+        ).get_or_create(creme_menu.ItemGroup, 'emails', priority=10)
+
         LvURLItem = creme_menu.URLItem.list_view
 
         group.add(LvURLItem('emails-campaigns', model=ECampaign),        priority=10) \
@@ -156,12 +172,15 @@ class EmailsConfig(CremeAppConfig):
                   .add_link('emails-create_template', ETemplate, priority=20)
 
         if apps.is_installed('creme.crudity'):
-            group.add(creme_menu.URLItem('emails-sync', url=reverse('emails__crudity_sync'),
-                                         label=_('Synchronization of incoming emails'),
-                                         perm='emails',
-                                        ),
-                      priority=100,
-                     )
+            group.add(
+                creme_menu.URLItem(
+                    'emails-sync',
+                    url=reverse('emails__crudity_sync'),
+                    label=_('Synchronization of incoming emails'),
+                    perm='emails',
+                ),
+                priority=100,
+            )
 
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys

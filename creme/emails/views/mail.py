@@ -41,8 +41,9 @@ from creme.creme_core.views.relation import RelationsAdding
 
 from .. import bricks, constants, get_entityemail_model
 from ..forms import mail as mail_forms
-from ..forms.template import TEMPLATES_VARS
+# from ..forms.template import TEMPLATES_VARS
 from ..models import LightWeightEmail
+from ..models.template import body_validator
 
 EntityEmail = get_entityemail_model()
 
@@ -107,7 +108,8 @@ class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
             email_template = self.get_cleaned_data_for_step('0')['template']
             ctx = {
                 var_name: getattr(self.get_related_entity(), var_name, '')
-                for var_name in TEMPLATES_VARS
+                # for var_name in TEMPLATES_VARS
+                for var_name in body_validator.allowed_variables
             }
             initial['subject'] = email_template.subject
             initial['body'] = Template(email_template.body).render(Context(ctx))

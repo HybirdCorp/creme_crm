@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-20 18:15+0200\n"
+"POT-Creation-Date: 2020-10-09 10:40+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -31,11 +31,11 @@ msgstr "Ré-envoyer les e-mails"
 msgid "Emails"
 msgstr "E-mails"
 
-#: apps.py:142 apps.py:152
+#: apps.py:159 apps.py:169
 msgid "Marketing"
 msgstr "Marketing"
 
-#: apps.py:159
+#: apps.py:179
 msgid "Synchronization of incoming emails"
 msgstr "Synchronisation des e-mails externes"
 
@@ -70,9 +70,9 @@ msgstr "Listes de diffusion filles"
 msgid "Parent mailing lists"
 msgstr "Listes de diffusion parentes"
 
-#: bricks.py:192 forms/template.py:55 forms/template.py:97
-#: forms/template.py:100 models/mail.py:91 models/sending.py:104
-#: models/template.py:46 templates/emails/bricks/attachments.html:7
+#: bricks.py:192 forms/template.py:98 forms/template.py:101 models/mail.py:91
+#: models/sending.py:104 models/template.py:56
+#: templates/emails/bricks/attachments.html:7
 msgid "Attachments"
 msgstr "Fichiers attachés"
 
@@ -134,6 +134,15 @@ msgstr "Synchronisé - Marqué comme SPAM"
 #: constants.py:33
 msgid "Synchronized - Untreated"
 msgstr "Synchronisé - Non traité"
+
+#: core/validators.py:39
+#, python-format
+msgid "The following variables are invalid: %(vars)s"
+msgstr "Les variables suivantes sont invalides: %(vars)s"
+
+#: core/validators.py:52
+msgid "You can use variables: {}"
+msgstr "Vous pouvez utiliser les variables : {}"
 
 #: creme_jobs/campaign_emails_send.py:38
 msgid "Send emails from campaigns"
@@ -278,7 +287,7 @@ msgstr "Fichier CSV"
 msgid "Sender address"
 msgstr "Adresse e-mail de l'expéditeur"
 
-#: forms/sending.py:52 models/template.py:55
+#: forms/sending.py:52 models/template.py:66
 msgid "Email template"
 msgstr "Patron d'e-mail"
 
@@ -327,25 +336,6 @@ msgstr "Date d'envoi obligatoire pour un envoi différé"
 msgid "Sending date must be is the future"
 msgstr "La date d'envoi doit être dans le futur"
 
-#: forms/template.py:45
-msgid "You can use variables: {}"
-msgstr "Vous pouvez utiliser les variables : {}"
-
-#: forms/template.py:51 models/mail.py:54 models/sending.py:98
-#: models/signature.py:34 models/template.py:41
-msgid "Body"
-msgstr "Corps"
-
-#: forms/template.py:53 models/mail.py:85 models/sending.py:99
-#: models/template.py:42
-msgid "Body (HTML)"
-msgstr "Corps (HTML)"
-
-#: forms/template.py:58
-#, python-format
-msgid "The following variables are invalid: %(vars)s"
-msgstr "Les variables suivantes sont invalides: %(vars)s"
-
 #: models/campaign.py:32
 msgid "Name of the campaign"
 msgstr "Nom de la campagne"
@@ -383,10 +373,15 @@ msgstr "Statut"
 msgid "Recipient"
 msgstr "Destinataire"
 
-#: models/mail.py:53 models/sending.py:97 models/template.py:40
+#: models/mail.py:53 models/sending.py:97 models/template.py:39
 #: templates/emails/bricks/base/synchronization.html:20
 msgid "Subject"
 msgstr "Sujet"
+
+#: models/mail.py:54 models/sending.py:98 models/signature.py:34
+#: models/template.py:42
+msgid "Body"
+msgstr "Corps"
 
 #: models/mail.py:56
 msgid "Reception date"
@@ -396,7 +391,11 @@ msgstr "Date de réception"
 msgid "Email ID"
 msgstr "Identifiant de l'e-mail"
 
-#: models/mail.py:86 models/sending.py:100 models/template.py:43
+#: models/mail.py:85 models/sending.py:99 models/template.py:46
+msgid "Body (HTML)"
+msgstr "Corps (HTML)"
+
+#: models/mail.py:86 models/sending.py:100 models/template.py:51
 msgid "Signature"
 msgstr "Signature"
 
@@ -408,7 +407,7 @@ msgstr "Créer un e-mail"
 msgid "Save the email"
 msgstr "Enregister l'e-mail"
 
-#: models/mail.py:96 views/mail.py:93
+#: models/mail.py:96 views/mail.py:94
 msgid "Send the email"
 msgstr "Envoyer l'e-mail"
 
@@ -566,7 +565,7 @@ msgstr "E-mail de campagne"
 msgid "Emails of campaign"
 msgstr "E-mails  de campagne"
 
-#: models/signature.py:32 models/template.py:39
+#: models/signature.py:32 models/template.py:38
 msgid "Name"
 msgstr "Nom"
 
@@ -600,15 +599,15 @@ msgstr "Signature d'e-mail"
 msgid "Email signatures"
 msgstr "Signatures d'e-mail"
 
-#: models/template.py:48
+#: models/template.py:59
 msgid "Create an email template"
 msgstr "Créer un patron d'e-mail"
 
-#: models/template.py:49
+#: models/template.py:60
 msgid "Save the email template"
 msgstr "Enregistrer le patron d'e-mail"
 
-#: models/template.py:56
+#: models/template.py:67
 msgid "Email templates"
 msgstr "Patrons d'e-mail"
 
@@ -1170,21 +1169,21 @@ msgstr "Lier les listes de diffusion"
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
-#: views/mail.py:79 views/mail.py:92
+#: views/mail.py:80 views/mail.py:93
 #, python-brace-format
 msgid "Sending an email to «{entity}»"
 msgstr "Envoi d'un e-mail à «{entity}»"
 
-#: views/mail.py:147 views/mail.py:226
+#: views/mail.py:149 views/mail.py:228
 msgid "Details of the email"
 msgstr "Détails de l'e-mail"
 
-#: views/mail.py:161
+#: views/mail.py:163
 #, python-brace-format
 msgid "Link «{entity}» to emails"
 msgstr "Lier «{entity}» à des e-mails"
 
-#: views/mail.py:191
+#: views/mail.py:193
 msgid "No type of relationship is compatible."
 msgstr "Aucun type de relation n'est compatible"
 
