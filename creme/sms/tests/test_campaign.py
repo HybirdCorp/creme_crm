@@ -22,7 +22,7 @@ class SMSCampaignTestCase(CremeTestCase):
     def _build_remove_list(self, campaign):
         return reverse('sms__remove_mlist_from_campaign', args=(campaign.id,))
 
-    def test_createview(self):
+    def test_createview01(self):
         user = self.login()
 
         url = reverse('sms__create_campaign')
@@ -45,8 +45,37 @@ class SMSCampaignTestCase(CremeTestCase):
         response = self.assertGET200(camp.get_absolute_url())
         self.assertTemplateUsed(response, 'sms/view_campaign.html')
 
+    @skipIfCustomMessagingList
+    def test_createview02(self):
+        "With list."
+        user = self.login()
+
+        create_ml = partial(MessagingList.objects.create, user=user)
+        mlists = [
+            create_ml(name='Ml01'),
+            create_ml(name='Ml02'),
+        ]
+
+        name = 'My Camp'
+        response = self.client.post(
+            reverse('sms__create_campaign'),
+            follow=True,
+            data={
+                'user': user.id,
+                'name': name,
+                'lists': self.formfield_value_multi_creator_entity(*mlists),
+            },
+        )
+        self.assertNoFormError(response)
+
+        camp = self.get_object_or_fail(SMSCampaign, name=name)
+        self.assertCountEqual(mlists, [*camp.lists.all()])
+
+    @skipIfCustomMessagingList
     def test_edit(self):
         user = self.login()
+
+        mlist = MessagingList.objects.create(user=user, name='Ml01')
 
         camp = SMSCampaign.objects.create(user=user, name='My campaign')
 
@@ -59,10 +88,16 @@ class SMSCampaignTestCase(CremeTestCase):
             data={
                 'user': user.id,
                 'name': name,
-            }
+
+                # Should be ignored
+                'lists': self.formfield_value_multi_creator_entity(mlist),
+            },
         )
         self.assertNoFormError(response)
-        self.assertEqual(name, self.refresh(camp).name)
+
+        camp = self.refresh(camp)
+        self.assertEqual(name, camp.name)
+        self.assertFalse([*camp.lists.all()])
 
     def test_listview(self):
         user = self.login()

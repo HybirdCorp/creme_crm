@@ -42,7 +42,7 @@ class CampaignCreateForm(CremeEntityForm):
 class CampaignEditForm(CremeEntityForm):
     class Meta:
         model   = SMSCampaign
-        exclude = (*CremeEntityForm.Meta.exclude, 'messaging_lists')
+        exclude = (*CremeEntityForm.Meta.exclude, 'lists')
 
 
 class CampaignAddListForm(CremeForm):
