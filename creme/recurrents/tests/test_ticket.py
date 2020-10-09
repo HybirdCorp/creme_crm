@@ -14,15 +14,28 @@ from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.models import HeaderFilter, Job
 from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 from creme.creme_core.utils.date_period import DatePeriod, date_period_registry
-from creme.tickets import get_ticket_model, get_tickettemplate_model
-from creme.tickets.models import Criticity, Priority, Status
-from creme.tickets.tests import skipIfCustomTicket, skipIfCustomTicketTemplate
 
 from ..creme_jobs import recurrents_gendocs_type
 from .base import RecurrentGenerator, skipIfCustomGenerator
 
-Ticket = get_ticket_model()
-TicketTemplate = get_tickettemplate_model()
+if apps.is_installed('creme.tickets'):
+    from creme.tickets import get_ticket_model, get_tickettemplate_model
+    from creme.tickets.models import Criticity, Priority, Status
+    from creme.tickets.tests import (
+        skipIfCustomTicket,
+        skipIfCustomTicketTemplate,
+    )
+
+    Ticket = get_ticket_model()
+    TicketTemplate = get_tickettemplate_model()
+else:
+    from unittest import skip
+
+    def skipIfCustomTicket(test_func):
+        return skip('App "tickets" not installed')(test_func)
+
+    def skipIfCustomTicketTemplate(test_func):
+        return skip('App "tickets" not installed')(test_func)
 
 
 @skipIfCustomGenerator
@@ -50,12 +63,13 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         ))
 
     def _create_ticket_template(self, title='Support ticket'):
-        return TicketTemplate.objects.create(user=self.user,
-                                             title=title,
-                                             status=Status.objects.all()[0],
-                                             priority=Priority.objects.all()[0],
-                                             criticity=Criticity.objects.all()[0],
-                                            )
+        return TicketTemplate.objects.create(
+            user=self.user,
+            title=title,
+            status=Status.objects.all()[0],
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
     def _get_weekly(self):
         return date_period_registry.get_period('weeks', 1)
@@ -71,17 +85,19 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         queue.clear()
 
         name = 'Recurrent tickets'
-        response = self.client.post(url,
-                                    data={'recurrent_generator_wizard-current_step': 0,
+        response = self.client.post(
+            url,
+            data={
+                'recurrent_generator_wizard-current_step': 0,
 
-                                          '0-user':             user.id,
-                                          '0-name':             name,
-                                          '0-ct':               self.ct.id,
-                                          '0-first_generation': '11-06-2014 09:00',
-                                          '0-periodicity_0':    'days',
-                                          '0-periodicity_1':    '4',
-                                         },
-                                    )
+                '0-user':             user.id,
+                '0-name':             name,
+                '0-ct':               self.ct.id,
+                '0-first_generation': '11-06-2014 09:00',
+                '0-periodicity_0':    'days',
+                '0-periodicity_1':    '4',
+            },
+        )
         self.assertNoWizardFormError(response)
 
         with self.assertNoException():
@@ -94,22 +110,25 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(2, count)
         self.assertEqual('1', current)
 
-        title     = 'Support ticket'
-        desc      = "blablabla"
-        status    = Status.objects.all()[0]
-        priority  = Priority.objects.all()[0]
+        title = 'Support ticket'
+        desc = "blablabla"
+        status = Status.objects.all()[0]
+        priority = Priority.objects.all()[0]
         criticity = Criticity.objects.all()[0]
-        response = self.client.post(url, follow=True,
-                                    data={'recurrent_generator_wizard-current_step': 1,
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'recurrent_generator_wizard-current_step': 1,
 
-                                          '1-user':        user.id,
-                                          '1-title':       title,
-                                          '1-description': desc,
-                                          '1-status':      status.id,
-                                          '1-priority':    priority.id,
-                                          '1-criticity':   criticity.id,
-                                         },
-                                   )
+                '1-user':        user.id,
+                '1-title':       title,
+                '1-description': desc,
+                '1-status':      status.id,
+                '1-priority':    priority.id,
+                '1-criticity':   criticity.id,
+            },
+        )
         self.assertNoWizardFormError(response)
 
         gen = self.get_object_or_fail(RecurrentGenerator, name=name)
@@ -123,9 +142,10 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertIsInstance(periodicity, DatePeriod)
         self.assertEqual({'type': 'days', 'value': 4}, periodicity.as_dict())
 
-        self.assertEqual(self.create_datetime(year=2014, month=6, day=11, hour=9),
-                         gen.first_generation
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2014, month=6, day=11, hour=9),
+            gen.first_generation
+        )
         self.assertIsNone(gen.last_generation)
         self.assertEqual(tpl, gen.template.get_real_entity())
         self.assertTrue(gen.is_working)
@@ -164,28 +184,32 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         queue.clear()
 
         name = gen.name.upper()
-        response = self.client.post(url, follow=True,
-                                    data={'user':             user.id,
-                                          'name':             name,
-                                          'first_generation': '12-06-2014 10:00',
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':             user.id,
+                'name':             name,
+                'first_generation': '12-06-2014 10:00',
 
-                                          'periodicity_0':      'months',
-                                          'periodicity_1':      '1',
+                'periodicity_0':      'months',
+                'periodicity_1':      '1',
 
-                                          # should not be used
-                                          'ct': ContentType.objects.get_for_model(Priority).id,
-                                          'template': tpl2.id,
-                                         }
-                                   )
+                # should not be used
+                'ct': ContentType.objects.get_for_model(Priority).id,
+                'template': tpl2.id,
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, gen.get_absolute_url())
         self.assertTemplateUsed(response, 'recurrents/view_generator.html')
 
         gen = self.refresh(gen)
         self.assertEqual(name, gen.name)
-        self.assertEqual(self.create_datetime(year=2014, month=6, day=12, hour=10),
-                         gen.first_generation
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2014, month=6, day=12, hour=10),
+            gen.first_generation,
+        )
         self.assertEqual(self.ct, gen.ct)
         self.assertEqual(tpl1, gen.template.get_real_entity())
         self.assertEqual({'type': 'months', 'value': 1}, gen.periodicity.as_dict())
@@ -231,12 +255,15 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     def test_listview(self):
         tpl = self._create_ticket_template()
         now_value = now()
-        create_gen = partial(RecurrentGenerator.objects.create, user=self.user,
-                             first_generation=now_value,
-                             last_generation=now_value,
-                             periodicity=self._get_weekly(),
-                             ct=self.ct, template=tpl,
-                            )
+        create_gen = partial(
+            RecurrentGenerator.objects.create,
+            user=self.user,
+            first_generation=now_value,
+            last_generation=now_value,
+            periodicity=self._get_weekly(),
+            ct=self.ct,
+            template=tpl,
+        )
         gen1 = create_gen(name='Gen1')
         gen2 = create_gen(name='Gen2')
 
@@ -262,12 +289,14 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
         tpl = self._create_ticket_template()
         start = now_value - timedelta(days=5)
-        gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
-                                                periodicity=self._get_weekly(),
-                                                ct=self.ct, template=tpl,
-                                                first_generation=start,
-                                                last_generation=None,
-                                               )
+        gen = RecurrentGenerator.objects.create(
+            name='Gen1',
+            user=self.user,
+            periodicity=self._get_weekly(),
+            ct=self.ct, template=tpl,
+            first_generation=start,
+            last_generation=None,
+        )
         self.assertDatetimesAlmostEqual(now(), job.type.next_wakeup(job, now_value))
 
         queue = JobSchedulerQueue.get_main_queue()
@@ -297,12 +326,14 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         "last_generation is not far enough"
         tpl = self._create_ticket_template()
         now_value = now()
-        RecurrentGenerator.objects.create(name='Gen1', user=self.user,
-                                          periodicity=self._get_weekly(),
-                                          ct=self.ct, template=tpl,
-                                          first_generation=now_value - timedelta(days=13),
-                                          last_generation=now_value - timedelta(days=6),
-                                         )
+        RecurrentGenerator.objects.create(
+            name='Gen1',
+            user=self.user,
+            periodicity=self._get_weekly(),
+            ct=self.ct, template=tpl,
+            first_generation=now_value - timedelta(days=13),
+            last_generation=now_value - timedelta(days=6),
+        )
 
         job = self._get_job()
         wakeup = job.type.next_wakeup(job, now_value)
@@ -319,12 +350,15 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         "last_generation is far enough"
         tpl = self._create_ticket_template()
         now_value = now().replace(microsecond=0)  # MySQL does not record microseconds...
-        gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
-                                                periodicity=self._get_weekly(),
-                                                ct=self.ct, template=tpl,
-                                                first_generation=now_value - timedelta(days=15),
-                                                last_generation=now_value - timedelta(days=7),
-                                               )
+        gen = RecurrentGenerator.objects.create(
+            name='Gen1',
+            user=self.user,
+            periodicity=self._get_weekly(),
+            ct=self.ct,
+            template=tpl,
+            first_generation=now_value - timedelta(days=15),
+            last_generation=now_value - timedelta(days=7),
+        )
 
         job = self._get_job()
         self.assertDatetimesAlmostEqual(now(), job.type.next_wakeup(job, now()))
@@ -340,21 +374,25 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     def test_next_wakeup(self):
         "Minimum of the future generations"
         now_value = now()
-        create_gen = partial(RecurrentGenerator.objects.create, user=self.user,
-                             ct=self.ct, template=self._create_ticket_template(),
-                            )
-        create_gen(name='Gen1', periodicity=self._get_weekly(),
-                   first_generation=now_value - timedelta(days=8),
-                   last_generation=now_value - timedelta(days=1),
-                  )  # In 6 days
-        create_gen(name='Gen2', periodicity=date_period_registry.get_period('days', 1),
-                   first_generation=now_value - timedelta(hours=34),
-                   last_generation=now_value - timedelta(hours=10),
-                  )  # In 14 hours ==> that's the one !
-        create_gen(name='Gen3', periodicity=date_period_registry.get_period('months', 1),
-                   first_generation=now_value - timedelta(weeks=5),
-                   last_generation=now_value - timedelta(weeks=1),
-                  )  # In ~3 weeks
+        create_gen = partial(
+            RecurrentGenerator.objects.create,
+            user=self.user, ct=self.ct, template=self._create_ticket_template(),
+        )
+        create_gen(
+            name='Gen1', periodicity=self._get_weekly(),
+            first_generation=now_value - timedelta(days=8),
+            last_generation=now_value - timedelta(days=1),
+        )  # In 6 days
+        create_gen(
+            name='Gen2', periodicity=date_period_registry.get_period('days', 1),
+            first_generation=now_value - timedelta(hours=34),
+            last_generation=now_value - timedelta(hours=10),
+        )  # In 14 hours ==> that's the one !
+        create_gen(
+            name='Gen3', periodicity=date_period_registry.get_period('months', 1),
+            first_generation=now_value - timedelta(weeks=5),
+            last_generation=now_value - timedelta(weeks=1),
+        )  # In ~3 weeks
 
         job = self._get_job()
         wakeup = job.type.next_wakeup(job, now_value)

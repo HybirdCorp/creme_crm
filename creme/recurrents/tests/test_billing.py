@@ -2,29 +2,11 @@
 
 from functools import partial
 
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.billing import (
-    get_credit_note_model,
-    get_invoice_model,
-    get_quote_model,
-    get_sales_order_model,
-    get_template_base_model,
-)
-from creme.billing.models import (
-    CreditNoteStatus,
-    InvoiceStatus,
-    QuoteStatus,
-    SalesOrderStatus,
-)
-from creme.billing.tests.base import (
-    skipIfCustomCreditNote,
-    skipIfCustomInvoice,
-    skipIfCustomQuote,
-    skipIfCustomSalesOrder,
-)
 from creme.creme_core.constants import DEFAULT_VAT
 from creme.creme_core.models import Currency, Vat
 from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
@@ -35,11 +17,46 @@ from .base import RecurrentGenerator, skipIfCustomGenerator
 Address = get_address_model()
 Organisation = get_organisation_model()
 
-CreditNote = get_credit_note_model()
-Invoice = get_invoice_model()
-Quote = get_quote_model()
-SalesOrder = get_sales_order_model()
-TemplateBase = get_template_base_model()
+if apps.is_installed('creme.billing'):
+    from creme.billing import (
+        get_credit_note_model,
+        get_invoice_model,
+        get_quote_model,
+        get_sales_order_model,
+        get_template_base_model,
+    )
+    from creme.billing.models import (
+        CreditNoteStatus,
+        InvoiceStatus,
+        QuoteStatus,
+        SalesOrderStatus,
+    )
+    from creme.billing.tests.base import (
+        skipIfCustomCreditNote,
+        skipIfCustomInvoice,
+        skipIfCustomQuote,
+        skipIfCustomSalesOrder,
+    )
+
+    CreditNote = get_credit_note_model()
+    Invoice = get_invoice_model()
+    Quote = get_quote_model()
+    SalesOrder = get_sales_order_model()
+    TemplateBase = get_template_base_model()
+else:
+    from unittest import skip
+
+    def skipIfCustomCreditNote(test_func):
+        return skip('App "billing" not installed')(test_func)
+
+    def skipIfCustomInvoice(test_func):
+        return skip('App "billing" not installed')(test_func)
+
+    def skipIfCustomQuote(test_func):
+        return skip('App "billing" not installed')(test_func)
+
+    def skipIfCustomSalesOrder(test_func):
+        return skip('App "billing" not installed')(test_func)
 
 
 @skipIfCustomGenerator
@@ -252,6 +269,8 @@ class RecurrentsBillingTestCase(CremeTestCase):
         response = post(Quote)
         self.assertNoWizardFormError(response)
 
+    @skipIfNotInstalled('creme.billing')
+    @skipIfCustomQuote
     def test_create_credentials02(self):
         "App credentials."
         self.login(
@@ -262,6 +281,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
         self.assertGET403(self.ADD_URL)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomQuote
     def test_create_credentials03(self):
         "Creation credentials for generator."
         self.login(
