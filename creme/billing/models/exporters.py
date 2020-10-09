@@ -29,5 +29,8 @@ class ExporterConfigItem(models.Model):
     engine_id = models.CharField(max_length=80)
     flavour_id = models.CharField(max_length=80, blank=True)
 
+    class Meta:
+        app_label = 'billing'
+
     def __str__(self):
         return _('Export configuration of: {}').format(self.content_type)
