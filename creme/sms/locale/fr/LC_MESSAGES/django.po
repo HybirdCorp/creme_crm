@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme SMS 2.1\n"
+"Project-Id-Version: Creme SMS 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-25 15:49+0200\n"
+"POT-Creation-Date: 2020-10-12 12:36+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "SMS"
 msgstr "SMS"
 
-#: apps.py:86 apps.py:93
+#: apps.py:88 apps.py:95
 msgid "Marketing"
 msgstr "Marketing"
 
@@ -32,8 +32,8 @@ msgstr "Listes de diffusion"
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: bricks.py:77 forms/messaging_list.py:51 forms/messaging_list.py:100
-#: models/messaging_list.py:32 templates/sms/bricks/contacts.html:7
+#: bricks.py:77 forms/messaging_list.py:52 forms/messaging_list.py:101
+#: models/messaging_list.py:33 templates/sms/bricks/contacts.html:7
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
@@ -53,15 +53,15 @@ msgstr "Listes"
 msgid "Message template"
 msgstr "Patron de message"
 
-#: forms/messaging_list.py:48
+#: forms/messaging_list.py:49
 msgid "Contacts"
 msgstr "Contacts"
 
-#: forms/messaging_list.py:67
+#: forms/messaging_list.py:68
 msgid "Filters"
 msgstr "Filtres"
 
-#: forms/messaging_list.py:68
+#: forms/messaging_list.py:69
 msgid "All"
 msgstr "Tout"
 
@@ -86,27 +86,7 @@ msgstr ""
 "Seul les chiffres seront pris en compte et les lignes vides ignorées.\n"
 "Exemples: '00 56 87 56 45' => '0056875645'; 'abc56def' => '56'"
 
-#: forms/template.py:36 models/message.py:135
-msgctxt "sms"
-msgid "Message"
-msgstr "Message"
-
-#: forms/template.py:39
-#, python-format
-msgid "Message is too long (%(length)s > %(max_length)s)"
-msgstr "Message trop long (%(length)s > %(max_length)s)"
-
-#: forms/template.py:48
-msgid ""
-"Message with a maximum of 160 characters.\n"
-"Beware, the header matters (+ 3 characters) and the following characters "
-"count double: {}"
-msgstr ""
-"Message de 160 caractères maximum.\n"
-"Attention, l'en-tête compte (+ 3 caractères) et les caractères suivant "
-"comptent double: {}"
-
-#: models/account.py:31 models/template.py:30
+#: models/account.py:31 models/template.py:37
 msgid "Name"
 msgstr "Nom"
 
@@ -246,6 +226,11 @@ msgstr "État"
 msgid "Full state"
 msgstr "État détaillé"
 
+#: models/message.py:135
+msgctxt "sms"
+msgid "Message"
+msgstr "Message"
+
 #: models/message.py:136
 msgctxt "sms"
 msgid "Messages"
@@ -259,19 +244,19 @@ msgstr "Inconnu"
 msgid "Name of the messaging list"
 msgstr "Nom de la liste de diffusion"
 
-#: models/messaging_list.py:35
+#: models/messaging_list.py:36
 msgid "Create a messaging list"
 msgstr "Créer une liste de diffusion"
 
-#: models/messaging_list.py:36
+#: models/messaging_list.py:37
 msgid "Save the messaging list"
 msgstr "Enregistrer la liste de diffusion"
 
-#: models/messaging_list.py:42
+#: models/messaging_list.py:43
 msgid "SMS messaging list"
 msgstr "Liste de diffusion SMS"
 
-#: models/messaging_list.py:43
+#: models/messaging_list.py:44
 msgid "SMS messaging lists"
 msgstr "Listes de diffusion SMS"
 
@@ -295,29 +280,45 @@ msgstr "Enregistrer les destinataires"
 msgid "Recipient"
 msgstr "Destinataire"
 
-#: models/template.py:31
+#: models/template.py:38
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/template.py:32
-msgid "Body"
-msgstr "Corps"
+#: models/template.py:41
+msgctxt "sms"
+msgid "Message body"
+msgstr "Corps du message"
 
-#: models/template.py:34
+#: models/template.py:44
+msgid ""
+"Message with a maximum of 160 characters.\n"
+"Beware, the header matters (+ 3 characters) and the following characters "
+"count double: {}"
+msgstr ""
+"Message de 160 caractères maximum.\n"
+"Attention, l'en-tête compte (+ 3 caractères) et les caractères suivant "
+"comptent double: {}"
+
+#: models/template.py:53
+#, python-format
+msgid "Message is too long (%(length)s > %(max_length)s)"
+msgstr "Message trop long (%(length)s > %(max_length)s)"
+
+#: models/template.py:56
 msgctxt "sms-template"
 msgid "Create a template"
 msgstr "Créer un patron"
 
-#: models/template.py:35
+#: models/template.py:57
 msgctxt "sms-template"
 msgid "Save the template"
 msgstr "Enregistrer le patron"
 
-#: models/template.py:41
+#: models/template.py:63
 msgid "SMS Message template"
 msgstr "Patron de message SMS"
 
-#: models/template.py:42
+#: models/template.py:64
 msgid "SMS Messages templates"
 msgstr "Patrons de message SMS"
 
@@ -530,6 +531,9 @@ msgstr "Nouveaux destinataires pour «{entity}»"
 #, python-brace-format
 msgid "New sending for «{entity}»"
 msgstr "Nouvel envoi pour «{entity}»"
+
+#~ msgid "Body"
+#~ msgstr "Corps"
 
 #~ msgid "Following lists are already related to this campaign: %(lists)s"
 #~ msgstr ""

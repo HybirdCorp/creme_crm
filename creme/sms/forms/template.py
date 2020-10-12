@@ -18,58 +18,60 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import CharField, Textarea, ValidationError
-from django.utils.translation import gettext
-from django.utils.translation import gettext_lazy as _
-from django.utils.translation import pgettext_lazy
+# from django.forms import  CharField ValidationError
+# from django.utils.translation import gettext
+# from django.utils.translation import gettext_lazy as _
+# from django.utils.translation import pgettext_lazy
+from django.forms import Textarea
 
 from creme.creme_core.forms import CremeEntityForm
 
+# from ..encoding import SMS_MAX_LENGTH, gsm_encoded_content
 from .. import get_messagetemplate_model
-from ..encoding import SMS_MAX_LENGTH, gsm_encoded_content
 
-_FORBIDDEN = '^ { } \\ [ ~ ] | €'  # TODO: given by the backend ??
+# _FORBIDDEN = '^ { } \\ [ ~ ] | €'
 MessageTemplate = get_messagetemplate_model()
 
 
 class TemplateCreateForm(CremeEntityForm):
-    body = CharField(label=pgettext_lazy('sms', 'Message'), widget=Textarea)
+    # body = CharField(label=pgettext_lazy('sms', 'Message'), widget=Textarea)
 
-    error_messages = {
-        'too_long': _('Message is too long (%(length)s > %(max_length)s)'),
-    }
+    # error_messages = {
+    #     'too_long': _('Message is too long (%(length)s > %(max_length)s)'),
+    # }
 
     class Meta(CremeEntityForm.Meta):
         model = MessageTemplate
+        widgets = {
+            'body': Textarea,
+        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['body'].help_text = gettext(
-            'Message with a maximum of 160 characters.\n'
-            'Beware, the header matters (+ 3 characters) '
-            'and the following characters count double: {}'
-        ).format(_FORBIDDEN)
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['body'].help_text = gettext(
+    #         'Message with a maximum of 160 characters.\n'
+    #         'Beware, the header matters (+ 3 characters) '
+    #         'and the following characters count double: {}'
+    #     ).format(_FORBIDDEN)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        subject = cleaned_data.get('subject', '')
-        body = cleaned_data.get('body', '')
-        # TODO: factorise
-        content = f'{subject} : {body}' if subject else body
-
-        encoded_length = len(gsm_encoded_content(content))
-
-        if encoded_length > SMS_MAX_LENGTH:
-            raise ValidationError(
-                self.error_messages['too_long'],
-                params={
-                    'length':     encoded_length,
-                    'max_length': SMS_MAX_LENGTH,
-                },
-                code='too_long',
-            )
-
-        return cleaned_data
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     subject = cleaned_data.get('subject', '')
+    #     body = cleaned_data.get('body', '')
+    #     content = f'{subject} : {body}' if subject else body
+    #     encoded_length = len(gsm_encoded_content(content))
+    #
+    #     if encoded_length > SMS_MAX_LENGTH:
+    #         raise ValidationError(
+    #             self.error_messages['too_long'],
+    #             params={
+    #                 'length':     encoded_length,
+    #                 'max_length': SMS_MAX_LENGTH,
+    #             },
+    #             code='too_long',
+    #         )
+    #
+    #     return cleaned_data
 
 
 class TemplateEditForm(TemplateCreateForm):
