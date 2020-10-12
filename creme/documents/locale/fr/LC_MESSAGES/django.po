@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'DOCUMENTS' APP
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2020 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,42 +8,42 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-20 14:34+0100\n"
+"POT-Creation-Date: 2020-10-13 11:38+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: actions.py:38
+#: actions.py:37
 msgid "Explore"
 msgstr "Explorer"
 
-#: actions.py:41
+#: actions.py:40
 msgid "List sub-folders of «{}»"
 msgstr "Liste des sous-dossiers de «{}»"
 
-#: actions.py:63
+#: actions.py:62 templates/documents/bricks/linked-docs.html:37
 msgid "Download"
 msgstr "Télécharger"
 
-#: actions.py:66 templates/documents/bricks/document-hat-bar.html:7
+#: actions.py:65 templates/documents/bricks/document-hat-bar.html:8
 msgid "Download the file"
 msgstr "Télécharger le fichier"
 
-#: apps.py:31 models/document.py:64
+#: apps.py:28 models/document.py:61
 msgid "Documents"
 msgstr "Documents"
 
-#: apps.py:130
+#: apps.py:113
 msgid "Tools"
 msgstr "Outils"
 
-#: bricks.py:43
+#: bricks.py:42
 msgid "Information on the document"
 msgstr "Informations sur le document"
 
-#: bricks.py:58
+#: bricks.py:57
 msgid "Folder documents"
 msgstr "Documents du classeur"
 
@@ -63,165 +63,165 @@ msgstr "Documents crées à partir des fiches"
 msgid "Documents received by email"
 msgstr "Documents reçus par e-mail"
 
-#: forms/fields.py:88 forms/fields.py:114 views/quick_forms.py:108
+#: forms/fields.py:86 forms/fields.py:110 views/quick_forms.py:48
 msgid "Create an image"
 msgstr "Créer une image"
-
-#: forms/folder.py:37
-msgid "The parent's category will be copied if you do not select one."
-msgstr "La catégorie du parent sera copiée si vous n'en choisissez aucune."
-
-#: forms/folder.py:50 forms/folder.py:84
-#, python-format
-msgid "This folder is one of the child folders of «%(folder)s»"
-msgstr "Ce classeur est un des classeurs enfant de «%(folder)s»"
-
-#: forms/folder.py:83
-#, python-format
-msgid "«%(folder)s» cannot be its own parent"
-msgstr "«%(folder)s» ne peut pas être son propre parent"
 
 #: forms/quick.py:103
 msgid "Image file"
 msgstr "Fichier image"
 
-#: gui.py:37 views/folder.py:151 views/folder.py:177
+#: gui.py:42 views/folder.py:50 views/folder.py:75
 #, python-brace-format
 msgid "Create a sub-folder for «{entity}»"
 msgstr "Créer un sous-dossier pour «{entity}»"
 
-#: models/document.py:37 models/other_models.py:48 models/other_models.py:65
+#: models/document.py:38 models/other_models.py:49 models/other_models.py:66
 #: templates/documents/bricks/linked-docs.html:23
 msgid "Name"
 msgstr "Nom"
 
-#: models/document.py:39
+#: models/document.py:40
 msgid "File"
 msgstr "Fichier"
 
-#: models/document.py:43 models/folder.py:70
+#: models/document.py:43 models/folder.py:79
 msgid "Folder"
 msgstr "Classeur"
 
-#: models/document.py:47 models/other_models.py:69
+#: models/document.py:47 models/other_models.py:70
 msgid "MIME type"
 msgstr "Type MIME"
 
-#: models/document.py:52
+#: models/document.py:50
 msgid "Categories"
 msgstr "Catégories"
 
-#: models/document.py:56 templates/documents/bricks/linked-docs.html:17
+#: models/document.py:53 templates/documents/bricks/linked-docs.html:17
 msgid "Create a document"
 msgstr "Créer un document"
 
-#: models/document.py:57
+#: models/document.py:54
 msgid "Save the document"
 msgstr "Enregistrer le document"
 
-#: models/document.py:63
+#: models/document.py:60
 msgid "Document"
 msgstr "Document"
 
-#: models/folder.py:40
+#: models/folder.py:41
 msgid "Title"
 msgstr "Titre"
 
-#: models/folder.py:42
+#: models/folder.py:44
 msgid "Parent folder"
 msgstr "Classeur parent"
 
-#: models/folder.py:48
+#: models/folder.py:52
 msgid "Category"
 msgstr "Catégorie"
 
-#: models/folder.py:62
+#: models/folder.py:56
+msgid "The parent's category will be copied if you do not select one."
+msgstr "La catégorie du parent sera copiée si vous n'en choisissez aucune."
+
+#: models/folder.py:66
 msgid "Create a folder"
 msgstr "Créer un classeur"
 
-#: models/folder.py:63
+#: models/folder.py:67
 msgid "Save the folder"
 msgstr "Enregistrer le classeur"
 
+#: models/folder.py:70
+#, python-format
+msgid "«%(folder)s» cannot be its own parent"
+msgstr "«%(folder)s» ne peut pas être son propre parent"
+
 #: models/folder.py:71
+#, python-format
+msgid "This folder is one of the child folders of «%(folder)s»"
+msgstr "Ce classeur est un des classeurs enfant de «%(folder)s»"
+
+#: models/folder.py:80
 msgid "Folders"
 msgstr "Classeurs"
 
-#: models/folder.py:79
+#: models/folder.py:88
 msgid "This folder is a system folder."
 msgstr "Ce classeur est un classeur système."
 
-#: models/folder.py:98
+#: models/folder.py:136
 msgid "Copy"
 msgstr "Copie"
 
-#: models/other_models.py:32
+#: models/other_models.py:33
 msgid "Category name"
 msgstr "Nom de la catégorie"
 
-#: models/other_models.py:35
+#: models/other_models.py:36
 msgctxt "documents-folder_category"
 msgid "Create a category"
 msgstr "Créer une catégorie"
 
-#: models/other_models.py:39
+#: models/other_models.py:40
 msgid "Folder category"
 msgstr "Catégorie de classeur"
 
-#: models/other_models.py:40
+#: models/other_models.py:41
 msgid "Folder categories"
 msgstr "Catégories de classeur"
 
-#: models/other_models.py:52
+#: models/other_models.py:53
 msgctxt "documents-doc_category"
 msgid "Create a category"
 msgstr "Créer une catégorie"
 
-#: models/other_models.py:56
+#: models/other_models.py:57
 msgid "Document category"
 msgstr "Catégorie de document"
 
-#: models/other_models.py:57
+#: models/other_models.py:58
 msgid "Document categories"
 msgstr "Catégories de document"
 
-#: models/other_models.py:70
+#: models/other_models.py:71
 msgid "MIME types"
 msgstr "Types MIME"
 
-#: populate.py:62
+#: populate.py:64
 msgid "related to the document"
 msgstr "concerne le document"
 
-#: populate.py:63
+#: populate.py:65
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:74
+#: populate.py:86
 msgid "Product image"
 msgstr "Image de produit"
 
-#: populate.py:79
+#: populate.py:93
 msgid "Organisation logo"
 msgstr "Logo de société"
 
-#: populate.py:84
+#: populate.py:100
 msgid "Contact photograph"
 msgstr "Photo de contact"
 
-#: populate.py:102
+#: populate.py:116
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:108 populate.py:130
+#: populate.py:123 populate.py:150
 msgid "Images"
 msgstr "Images"
 
-#: populate.py:114
+#: populate.py:131
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:121
+#: populate.py:140
 msgid "Folder view"
 msgstr "Vue de Classeur"
 
@@ -296,11 +296,11 @@ msgstr "{count} Documents liés"
 msgid "Link to an existing document"
 msgstr "Lier à un document existant"
 
-#: templates/documents/bricks/linked-docs.html:40
+#: templates/documents/bricks/linked-docs.html:41
 msgid "Unlink this document"
 msgstr "Délier à un document"
 
-#: templates/documents/bricks/linked-docs.html:48
+#: templates/documents/bricks/linked-docs.html:49
 msgid "No linked document"
 msgstr "Aucun document lié"
 
@@ -308,27 +308,27 @@ msgstr "Aucun document lié"
 msgid "Previous folder"
 msgstr "Classeur parent"
 
-#: utils.py:30
+#: utils.py:29
 msgid "CSV Documents"
 msgstr "Documents CSV"
 
-#: utils.py:32
+#: utils.py:31
 msgid "Folder containing all the CSV documents used when importing data"
 msgstr ""
 "Classeur contenant tous les documents CSV utilisés lors des imports de "
 "données"
 
-#: views/document.py:115
+#: views/document.py:48
 #, python-brace-format
 msgid "New document for «{entity}»"
 msgstr "Ajout de document à «{entity}»"
 
-#: views/folder.py:202
+#: views/folder.py:100
 #, python-brace-format
 msgid "List of sub-folders for «{parent}»"
 msgstr "Liste des sous-dossiers pour «{parent}»"
 
-#: views/quick_forms.py:109
+#: views/quick_forms.py:49
 msgid "Save the image"
 msgstr "Enregistrer l'image"
 
