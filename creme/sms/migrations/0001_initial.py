@@ -16,13 +16,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MessageTemplate',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    ),
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('subject', models.CharField(max_length=100, verbose_name='Subject')),
-                ('body', models.TextField(verbose_name='Body')),
+                # ('body', models.TextField(verbose_name='Body')),
+                (
+                    'body',
+                    models.TextField(
+                        verbose_name='Message body',
+                        help_text=(
+                            'Message with a maximum of 160 characters.\n'
+                            'Beware, the header matters (+ 3 characters) and the '
+                            'following characters count double: ^ { } \\ [ ~ ] | €'
+                        ),
+                    ),
+                ),
             ],
             options={
                 'swappable': 'SMS_TEMPLATE_MODEL',
@@ -35,12 +49,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MessagingList',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    ),
                 ),
                 ('name', models.CharField(max_length=80, verbose_name='Name of the messaging list')),
-                ('contacts', models.ManyToManyField(to=settings.PERSONS_CONTACT_MODEL, verbose_name='Contacts recipients', editable=False,)),
+                (
+                    'contacts',
+                    models.ManyToManyField(
+                        to=settings.PERSONS_CONTACT_MODEL,
+                        verbose_name='Contacts recipients', editable=False,
+                    )
+                ),
             ],
             options={
                 'swappable': 'SMS_MLIST_MODEL',
@@ -55,7 +78,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('phone', models.CharField(max_length=100, verbose_name='Number', blank=True)),
-                ('messaging_list', models.ForeignKey(verbose_name='Related messaging list', to=settings.SMS_MLIST_MODEL, on_delete=CASCADE)),
+                (
+                    'messaging_list',
+                    models.ForeignKey(
+                        to=settings.SMS_MLIST_MODEL,  on_delete=CASCADE,
+                        verbose_name='Related messaging list',
+                    )
+                ),
             ],
             options={
                 'ordering': ('phone',),
@@ -81,12 +110,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SMSCampaign',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    ),
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the campaign')),
-                ('lists', models.ManyToManyField(to=settings.SMS_MLIST_MODEL, verbose_name='Related messaging lists', blank=True)),
+                (
+                    'lists',
+                    models.ManyToManyField(
+                        to=settings.SMS_MLIST_MODEL, blank=True,
+                        verbose_name='Related messaging lists',
+                    )
+                ),
             ],
             options={
                 'swappable': 'SMS_CAMPAIGN_MODEL',
@@ -102,8 +140,20 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('date', models.DateField(verbose_name='Date', editable=False)),
                 ('content', models.TextField(max_length=160, verbose_name='Generated message', editable=False)),
-                ('campaign', models.ForeignKey(related_name='sendings', verbose_name='Related campaign', to=settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE, editable=False)),
-                ('template', models.ForeignKey(verbose_name='Message template', to=settings.SMS_TEMPLATE_MODEL, on_delete=CASCADE, editable=False)),
+                (
+                    'campaign',
+                    models.ForeignKey(
+                        to=settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE, editable=False,
+                        related_name='sendings', verbose_name='Related campaign',
+                    )
+                ),
+                (
+                    'template',
+                    models.ForeignKey(
+                        to=settings.SMS_TEMPLATE_MODEL, on_delete=CASCADE,
+                        verbose_name='Message template', editable=False,
+                    )
+                ),
             ],
             options={
                 'verbose_name': 'Sending',
@@ -118,7 +168,13 @@ class Migration(migrations.Migration):
                 ('phone', models.CharField(max_length=100, verbose_name='Number')),
                 ('status', models.CharField(max_length=10, verbose_name='State')),
                 ('status_message', models.CharField(max_length=100, verbose_name='Full state', blank=True)),
-                ('sending', models.ForeignKey(related_name='messages', verbose_name='Sending', to='sms.Sending', on_delete=CASCADE)),
+                (
+                    'sending',
+                    models.ForeignKey(
+                        to='sms.Sending',  on_delete=CASCADE,
+                        verbose_name='Sending', related_name='messages',
+                    )
+                ),
             ],
             options={
                 'verbose_name': 'Message',
