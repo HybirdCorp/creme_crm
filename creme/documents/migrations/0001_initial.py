@@ -26,7 +26,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FolderCategory',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    ),
+                ),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Category name')),
                 ('is_custom', models.BooleanField(default=True)),
             ],
@@ -40,22 +45,33 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Folder',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    ),
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 # ('description', models.TextField(verbose_name='Description', blank=True)),
-                ('category', models.ForeignKey(to='documents.FolderCategory',
-                                               on_delete=CREME_REPLACE_NULL, null=True, blank=True,
-                                               related_name='folder_category_set',
-                                               verbose_name='Category',
-                                              )
+                (
+                    'category',
+                    models.ForeignKey(
+                        to='documents.FolderCategory',
+                        verbose_name='Category',
+                        on_delete=CREME_REPLACE_NULL, null=True, blank=True,
+                        related_name='folder_category_set',
+                        help_text="The parent's category will be copied if you do not select one.",
+                    ),
                 ),
-                ('parent_folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, null=True,
-                                                    blank=True, related_name='children', verbose_name='Parent folder',
-                                                    on_delete=PROTECT,
-                                                   )
+                (
+                    'parent_folder',
+                    models.ForeignKey(
+                        to=settings.DOCUMENTS_FOLDER_MODEL,
+                        verbose_name='Parent folder',
+                        null=True, blank=True,
+                        related_name='children', on_delete=PROTECT,
+                    ),
                 ),
             ],
             options={
@@ -70,7 +86,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DocumentCategory',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('uuid', models.UUIDField(default=uuid.uuid4, unique=True, editable=False)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
@@ -84,7 +105,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MimeType',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
+                    )
+                ),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
             ],
             options={
@@ -96,18 +122,40 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Document',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    ),
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Name')),
                 # ('description', models.TextField(verbose_name='Description', blank=True)),
-                ('filedata', models.FileField(upload_to='upload/documents', max_length=500, verbose_name='File')),
-                ('linked_folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, on_delete=PROTECT, verbose_name='Folder')),
-                ('categories', models.ManyToManyField(to='documents.DocumentCategory', verbose_name='Categories', blank=True)),
-                ('mime_type', models.ForeignKey(to='documents.MimeType', null=True, on_delete=PROTECT,
-                                                editable=False, verbose_name='MIME type',
-                                               )
+                (
+                    'filedata',
+                    models.FileField(
+                        upload_to='upload/documents', max_length=500, verbose_name='File',
+                    ),
+                ),
+                (
+                    'linked_folder',
+                    models.ForeignKey(
+                        to=settings.DOCUMENTS_FOLDER_MODEL,
+                        on_delete=PROTECT, verbose_name='Folder',
+                    ),
+                ),
+                (
+                    'categories',
+                    models.ManyToManyField(
+                        to='documents.DocumentCategory', verbose_name='Categories', blank=True,
+                    ),
+                ),
+                (
+                    'mime_type',
+                    models.ForeignKey(
+                        to='documents.MimeType', null=True, on_delete=PROTECT,
+                        editable=False, verbose_name='MIME type',
+                    ),
                 ),
             ],
             options={

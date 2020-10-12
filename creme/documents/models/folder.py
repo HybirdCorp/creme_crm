@@ -20,6 +20,7 @@
 
 from random import randint
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
@@ -37,18 +38,23 @@ MAXINT = 100000
 
 class AbstractFolder(CremeEntity):
     """Folder: contains Documents."""
-    title         = models.CharField(_('Title'), max_length=100)
-    parent_folder = models.ForeignKey('self', verbose_name=_('Parent folder'),
-                                      blank=True, null=True,
-                                      related_name='children',
-                                      on_delete=models.PROTECT,
-                                     )
+    title = models.CharField(_('Title'), max_length=100)
+    parent_folder = models.ForeignKey(
+        'self',
+        verbose_name=_('Parent folder'),
+        blank=True, null=True,
+        related_name='children',
+        on_delete=models.PROTECT,
+    )
 
-    category = models.ForeignKey(FolderCategory, verbose_name=_('Category'),
-                                 blank=True, null=True,
-                                 on_delete=CREME_REPLACE_NULL,
-                                 related_name='folder_category_set',
-                                )
+    category = models.ForeignKey(
+        FolderCategory,
+        verbose_name=_('Category'),
+        blank=True, null=True,
+        on_delete=CREME_REPLACE_NULL,
+        related_name='folder_category_set',
+        help_text=_("The parent's category will be copied if you do not select one."),
+    )
 
     allowed_related = CremeEntity.allowed_related | {'document'}
 
@@ -59,6 +65,11 @@ class AbstractFolder(CremeEntity):
 
     creation_label = _('Create a folder')
     save_label     = _('Save the folder')
+
+    error_messages = {
+        'itself': _('«%(folder)s» cannot be its own parent'),
+        'loop': _('This folder is one of the child folders of «%(folder)s»'),
+    }
 
     class Meta:
         abstract = True
@@ -76,6 +87,34 @@ class AbstractFolder(CremeEntity):
         if str(self.uuid) in self.not_deletable_UUIDs:
             raise SpecificProtectedError(gettext('This folder is a system folder.'), [self])
 
+    def clean(self):
+        if self.pk:
+            parent_folder = self.parent_folder
+            if parent_folder:
+                if parent_folder == self:
+                    # TODO
+                    raise ValidationError(
+                        self.error_messages['itself'],
+                        params={'folder': self},
+                        code='itself',
+                    )
+
+                if self.already_in_children(parent_folder.id):
+                    # raise ValidationError(
+                    #     self.error_messages['loop'],
+                    #     params={'folder': self},
+                    #     code='loop',
+                    # )
+                    raise ValidationError(
+                        {
+                            'parent_folder': ValidationError(
+                                self.error_messages['loop'],
+                                params={'folder': self},
+                                code='loop',
+                            ),
+                        },
+                    )
+
     def get_absolute_url(self):
         return reverse('documents__view_folder', args=(self.id,))
 
@@ -92,11 +131,10 @@ class AbstractFolder(CremeEntity):
 
     def _pre_save_clone(self, source):
         max_length = self._meta.get_field('title').max_length
-        self.title = truncate_str(source.title, max_length,
-                                  suffix=' ({} {:08x})'.format(gettext('Copy'),
-                                                               randint(0, MAXINT),
-                                                              ),
-                                 )
+        self.title = truncate_str(
+            source.title, max_length,
+            suffix=' ({} {:08x})'.format(gettext('Copy'), randint(0, MAXINT)),
+        )
 
         # TODO: atomic
         while Folder.objects.filter(title=self.title).exists():
@@ -128,6 +166,12 @@ class AbstractFolder(CremeEntity):
             parents.extend(parent.get_parents())
 
         return parents
+
+    def save(self, *args, **kwargs):
+        if not self.category and self.parent_folder:
+            self.category = self.parent_folder.category
+
+        super().save(*args, **kwargs)
 
     def trash(self):
         self._check_deletion()
