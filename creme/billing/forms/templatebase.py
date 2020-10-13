@@ -23,7 +23,8 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from .. import get_template_base_model
-from .base import BaseEditForm, copy_or_create_address, first_managed_orga_id
+# from .base import copy_or_create_address
+from .base import BaseEditForm, first_managed_orga_id
 
 
 class _TemplateBaseForm(BaseEditForm):
@@ -74,17 +75,17 @@ class TemplateBaseCreateForm(_TemplateBaseForm):
         self.instance.ct = ct
         self.fields['source'].initial = first_managed_orga_id()
 
-    def save(self, *args, **kwargs):
-        instance = super().save(*args, **kwargs)
-
-        target = self.cleaned_data['target']
-        instance.billing_address = copy_or_create_address(
-            target.billing_address,  owner=instance, name=_('Billing address'),
-        )
-        instance.shipping_address = copy_or_create_address(
-            target.shipping_address, owner=instance, name=_('Shipping address'),
-        )
-
-        instance.save()
-
-        return instance
+    # def save(self, *args, **kwargs):
+    #     instance = super().save(*args, **kwargs)
+    #
+    #     target = self.cleaned_data['target']
+    #     instance.billing_address = copy_or_create_address(
+    #         target.billing_address,  owner=instance, name=_('Billing address'),
+    #     )
+    #     instance.shipping_address = copy_or_create_address(
+    #         target.shipping_address, owner=instance, name=_('Shipping address'),
+    #     )
+    #
+    #     instance.save()
+    #
+    #     return instance

@@ -35,12 +35,17 @@ if apps.is_installed('creme.billing'):
     Quote = get_quote_model()
 
     def update_sales(opp):
-        quotes = Quote.objects.filter(id__in=opp.get_current_quote_ids(),
-                                      total_no_vat__isnull=False,
-                                     )
-        opp.estimated_sales = quotes.aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
-        opp.made_sales      = quotes.filter(status__won=True) \
-                                    .aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
+        quotes = Quote.objects.filter(
+            id__in=opp.get_current_quote_ids(), total_no_vat__isnull=False,
+        )
+        opp.estimated_sales = quotes.aggregate(
+            Sum('total_no_vat'),
+        )['total_no_vat__sum'] or 0
+        opp.made_sales = quotes.filter(
+            status__won=True,
+        ).aggregate(
+            Sum('total_no_vat'),
+        )['total_no_vat__sum'] or 0
         opp.save()
 
     def use_current_quote():
@@ -51,7 +56,10 @@ if apps.is_installed('creme.billing'):
     # If one day it does we will only have to add senders to the signal
     @receiver(post_save, sender=Quote)
     def _handle_current_quote_change(sender, instance, created, **kwargs):
-        if not created and use_current_quote():
+        # if not created and use_current_quote():
+        # NB: at creation Quote double-save() fot its address ;
+        #     the second save() uses the argument <update_fields>.
+        if not created and not kwargs.get('update_fields') and use_current_quote():
             for r in instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True):
                 update_sales(r.object_entity.get_real_entity())
 

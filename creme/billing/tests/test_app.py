@@ -91,9 +91,9 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(SimpleAlgo, registry.get_algo(SimpleBillingAlgo.ALGO_NAME))
         self.assertIsNone(registry.get_algo('billing-unknown'))
 
-        self.assertListEqual([(SimpleBillingAlgo.ALGO_NAME, SimpleAlgo)],
-                             [*registry]
-                            )
+        self.assertListEqual(
+            [(SimpleBillingAlgo.ALGO_NAME, SimpleAlgo)], [*registry]
+        )
         self.assertListEqual([SimpleAlgo], [*registry.algorithms])
 
         # ---
@@ -113,7 +113,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         algoconfs = ConfigBillingAlgo.objects.filter(organisation=orga)
         self.assertListEqual(
             ['SIMPLE_ALGO'] * 3,
-            [algoconf.name_algo for algoconf in algoconfs]
+            [algoconf.name_algo for algoconf in algoconfs],
         )
         self.assertSetEqual(
             {Quote, Invoice, SalesOrder},
@@ -315,7 +315,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomOrganisation
     def test_brick_orga02(self):
-        "Managed organisation"
+        "Managed organisation."
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='NERV')

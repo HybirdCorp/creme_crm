@@ -235,7 +235,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertPOST200(url, follow=True)
 
     @skipIfCustomOrganisation
-    def test_current_quote_1(self):
+    def test_current_quote_01(self):
         self.login()
 
         opportunity, target, emitter = self._create_opportunity_n_organisations()
@@ -267,8 +267,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
     @skipIfCustomOrganisation
-    def test_current_quote_2(self):
-        "Refresh the estimated_sales when we change which quote is the current"
+    def test_current_quote_02(self):
+        "Refresh the estimated_sales when we change which quote is the current."
         user = self.login()
 
         opportunity = self._create_opportunity_n_organisations()[0]
@@ -328,7 +328,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(opportunity.made_sales, quote2.total_no_vat)  # 300
 
     @skipIfCustomOrganisation
-    def test_current_quote_3(self):
+    def test_current_quote_03(self):
         user = self.login()
 
         opportunity = self._create_opportunity_n_organisations()[0]
@@ -342,7 +342,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         quote1 = Quote.objects.all()[0]
         ServiceLine.objects.create(
             user=user, related_document=quote1,
-            on_the_fly_item='Foobar', unit_price=Decimal("300")
+            on_the_fly_item='Foobar', unit_price=Decimal('300'),
         )
 
         self.assertPOST200(self._build_currentquote_url(opportunity, quote1), follow=True)
@@ -352,7 +352,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(opportunity.estimated_sales, estimated_sales)  # 69
 
     @skipIfCustomOrganisation
-    def test_current_quote_4(self):
+    def test_current_quote_04(self):
         user = self.login()
         self._set_quote_config(True)
 
@@ -371,7 +371,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(300, self.refresh(opportunity).estimated_sales)
 
     @skipIfCustomOrganisation
-    def test_current_quote_5(self):
+    def test_current_quote_05(self):
         user = self.login()
         self._set_quote_config(True)
 
@@ -401,7 +401,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         self.assertEqual(0, self.refresh(opportunity).estimated_sales)
 
-    def test_current_quote_6(self):
+    def test_current_quote_06(self):
         "Avoid queries when the billing instance has just been created."
         if billing.quote_model_is_custom():
             return
@@ -537,7 +537,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         self.assertEqual(
             _('List of {models}').format(models=_('Quotes')),
-            context.get('list_title')
+            context.get('list_title'),
         )
 
         # Other CT ---
@@ -551,7 +551,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
         self.assertEqual(
             _('List of {models}').format(models=_('Invoices')),
-            response.context.get('list_title')
+            response.context.get('list_title'),
         )
 
     @skipIfCustomOrganisation
@@ -594,7 +594,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         url = self.SELECTION_URL
         get_ct = ContentType.objects.get_for_model
-        response = self.assertGET200(
+        response1 = self.assertGET200(
             url,
             data={
                 'subject_id': opp.id,
@@ -602,22 +602,22 @@ class BillingTestCase(OpportunitiesBaseTestCase):
                 'objects_ct_id': get_ct(Quote).id,
             },
         )
-        context = response.context
+        context = response1.context
 
         try:
             entities = context['page_obj']
         except KeyError:
-            self.fail(response.content)
+            self.fail(response1.content)
 
         self.assertSetEqual({quote1, quote4}, {*entities.object_list})
 
         fmt = _('List of {models} received by {target}').format
-        self.assertEqual(fmt(models=_('Quotes'), target=target1),
-                         context.get('list_title')
-                        )
+        self.assertEqual(
+            fmt(models=_('Quotes'), target=target1), context.get('list_title'),
+        )
 
         # Other CT ---
-        response = self.assertGET200(
+        response2 = self.assertGET200(
             url,
             data={
                 'subject_id': opp.id,
@@ -627,7 +627,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
         self.assertEqual(
             fmt(models=_('Invoices'), target=target1),
-            response.context.get('list_title')
+            response2.context.get('list_title'),
         )
 
     @skipIfCustomOrganisation
@@ -690,7 +690,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         fmt = _('List of {models} issued by {emitter}').format
         self.assertEqual(
             fmt(models=_('Quotes'), emitter=emitter1),
-            context.get('list_title')
+            context.get('list_title'),
         )
 
         # Other CT ---
@@ -704,7 +704,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
         self.assertEqual(
             fmt(models=_('Invoices'), emitter=emitter1),
-            response.context.get('list_title')
+            response.context.get('list_title'),
         )
 
     @skipIfCustomOrganisation
@@ -732,7 +732,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         fmt = _('List of {models} issued by {emitter} and received by {target}').format
         self.assertEqual(
             fmt(models=_('Quotes'), emitter=emitter, target=target),
-            response.context.get('list_title')
+            response.context.get('list_title'),
         )
 
         # Other CT ---
@@ -746,5 +746,5 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
         self.assertEqual(
             fmt(models=_('Invoices'), emitter=emitter, target=target),
-            response.context.get('list_title')
+            response.context.get('list_title'),
         )

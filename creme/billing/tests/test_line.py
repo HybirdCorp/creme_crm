@@ -81,25 +81,28 @@ class LineTestCase(_BillingTestCase):
         }
 
         with self.assertRaises(ValidationError):
-            ProductLine(discount=Decimal('101'),
-                        unit_price=Decimal('100.00'),
-                        quantity=1,
-                        ** kwargs
-                       ).clean()
+            ProductLine(
+                discount=Decimal('101'),
+                unit_price=Decimal('100.00'),
+                quantity=1,
+                ** kwargs
+            ).clean()
 
         with self.assertRaises(ValidationError):
-            ProductLine(discount=Decimal('81'),
-                        unit_price=Decimal('40.00'),
-                        quantity=2,
-                        ** kwargs
-                       ).clean()
+            ProductLine(
+                discount=Decimal('81'),
+                unit_price=Decimal('40.00'),
+                quantity=2,
+                ** kwargs
+            ).clean()
 
         with self.assertNoException():
-            ProductLine(discount=Decimal('99'),
-                        unit_price=Decimal('100.00'),
-                        quantity=1,
-                        **kwargs
-                       ).clean()
+            ProductLine(
+                discount=Decimal('99'),
+                unit_price=Decimal('100.00'),
+                quantity=1,
+                **kwargs
+            ).clean()
 
     def test_clean03(self):
         "DISCOUNT_ITEM_AMOUNT."
@@ -117,25 +120,28 @@ class LineTestCase(_BillingTestCase):
         }
 
         with self.assertRaises(ValidationError):
-            ProductLine(discount=Decimal('101'),
-                        unit_price=Decimal('100.00'),
-                        quantity=1,
-                        ** kwargs
-                       ).clean()
+            ProductLine(
+                discount=Decimal('101'),
+                unit_price=Decimal('100.00'),
+                quantity=1,
+                ** kwargs
+            ).clean()
 
         with self.assertRaises(ValidationError):
-            ProductLine(discount=Decimal('41'),
-                        unit_price=Decimal('40.00'),
-                        quantity=2,
-                        ** kwargs
-                       ).clean()
+            ProductLine(
+                discount=Decimal('41'),
+                unit_price=Decimal('40.00'),
+                quantity=2,
+                ** kwargs
+            ).clean()
 
         with self.assertNoException():
-            ProductLine(discount=Decimal('99'),
-                        unit_price=Decimal('100.00'),
-                        quantity=1,
-                        **kwargs
-                       ).clean()
+            ProductLine(
+                discount=Decimal('99'),
+                unit_price=Decimal('100.00'),
+                quantity=1,
+                **kwargs
+            ).clean()
 
     def test_clean04(self):
         "With related item."
@@ -155,7 +161,7 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual('useless_name', exception.code)
         self.assertEqual(
             _('You cannot set an on the fly name to a line with a related item'),
-            exception.message
+            exception.message,
         )
 
         with self.assertNoException():
@@ -175,9 +181,10 @@ class LineTestCase(_BillingTestCase):
 
         exception = cm.exception
         self.assertEqual('required_name', exception.code)
-        self.assertEqual(_('You must define a name for an on the fly item'),
-                         exception.message
-                        )
+        self.assertEqual(
+            _('You must define a name for an on the fly item'),
+            exception.message,
+        )
 
         with self.assertNoException():
             ProductLine(on_the_fly_item='Flyyy product', **kwargs).clean()
@@ -193,9 +200,10 @@ class LineTestCase(_BillingTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        self.assertEqual(_('Add one or more product to «{entity}»').format(entity=invoice),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Add one or more product to «{entity}»').format(entity=invoice),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the lines'), context.get('submit_label'))
 
         # ---
@@ -243,8 +251,11 @@ class LineTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -259,20 +270,26 @@ class LineTestCase(_BillingTestCase):
                    allowed_apps=['persons', 'billing'],
                    creatable_models=[Invoice],
                   )
-        create_sc = partial(SetCredentials.objects.create, role=self.role,
-                            set_type=SetCredentials.ESET_ALL,
-                           )
+        create_sc = partial(
+            SetCredentials.objects.create, role=self.role, set_type=SetCredentials.ESET_ALL,
+        )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             ctype=Organisation,
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK  # Not LINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
+                # Not LINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -282,7 +299,7 @@ class LineTestCase(_BillingTestCase):
         self.assertGET403(reverse('billing__create_service_lines', args=(invoice.id,)))
 
     def test_addlines_bad_related(self):
-        "Related is not a billing entity"
+        "Related is not a billing entity."
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -296,9 +313,11 @@ class LineTestCase(_BillingTestCase):
         quote = self.create_quote_n_orgas('Quote001')[0]
         unit_price = Decimal('-50.0')
         product_name = 'on the fly product'
-        create_pline = partial(ProductLine.objects.create, user=user, on_the_fly_item=product_name,
-                               unit_price=unit_price, unit=''
-                              )
+        create_pline = partial(
+            ProductLine.objects.create,
+            user=user, on_the_fly_item=product_name,
+            unit_price=unit_price, unit=''
+        )
         create_pline(related_document=quote)
         create_pline(related_document=invoice)
         self.assertEqual(Decimal('-50.0'), invoice.total_vat)
@@ -346,14 +365,16 @@ class LineTestCase(_BillingTestCase):
     def test_delete_product_line01(self):
         self.login()
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        product_line = ProductLine.objects.create(user=self.user, related_document=invoice,
-                                                  on_the_fly_item='Flyyyyy',
-                                                 )
-        self.assertPOST409(reverse('creme_core__delete_related_to_entity',
-                                   args=(product_line.entity_type_id,),
-                                  ),
-                           data={'id': product_line.id},
-                          )
+        product_line = ProductLine.objects.create(
+            user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy',
+        )
+        self.assertPOST409(
+            reverse(
+                'creme_core__delete_related_to_entity',
+                args=(product_line.entity_type_id,),
+            ),
+            data={'id': product_line.id},
+        )
         self.assertPOST200(product_line.get_delete_absolute_url(), follow=True)
         self.assertFalse(self.refresh(invoice).get_lines(ProductLine))
         self.assertFalse(ProductLine.objects.exists())
@@ -370,9 +391,10 @@ class LineTestCase(_BillingTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        self.assertEqual(_('Add one or more service to «{entity}»').format(entity=invoice),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Add one or more service to «{entity}»').format(entity=invoice),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the lines'), context.get('submit_label'))
 
         # ---
@@ -491,16 +513,16 @@ class LineTestCase(_BillingTestCase):
             [
                 *rel_filter(
                     type=REL_SUB_HAS_LINE, subject_entity=invoice2,
-                ).values_list('object_entity', flat=True)
-            ]
+                ).values_list('object_entity', flat=True),
+            ],
         )
         self.assertSetEqual(
             {product_line.pk, product_line2.pk},
             {
                 *rel_filter(
                     type=REL_SUB_LINE_RELATED_ITEM, object_entity=product,
-                ).values_list('subject_entity', flat=True)
-            }
+                ).values_list('subject_entity', flat=True),
+            },
         )
 
     @skipIfCustomServiceLine
@@ -511,9 +533,9 @@ class LineTestCase(_BillingTestCase):
         invoice1 = self.create_invoice_n_orgas('Invoice001')[0]
         invoice2 = self.create_invoice_n_orgas('Invoice002')[0]
 
-        service_line1 = ServiceLine.objects.create(user=user, related_document=invoice1,
-                                                   related_item=service,
-                                                  )
+        service_line1 = ServiceLine.objects.create(
+            user=user, related_document=invoice1, related_item=service,
+        )
 
         service_line2 = service_line1.clone(invoice2)
         service_line2 = self.refresh(service_line2)
@@ -528,7 +550,7 @@ class LineTestCase(_BillingTestCase):
                 *rel_filter(
                     type=REL_SUB_HAS_LINE, subject_entity=invoice1,
                 ).values_list('object_entity', flat=True)
-            ]
+            ],
         )
         self.assertListEqual(
             [service_line2.pk],
@@ -536,7 +558,7 @@ class LineTestCase(_BillingTestCase):
                 *rel_filter(
                     type=REL_SUB_HAS_LINE, subject_entity=invoice2,
                 ).values_list('object_entity', flat=True)
-            ]
+            ],
         )
         self.assertSetEqual(
             {service_line1.pk, service_line2.pk},
@@ -544,7 +566,7 @@ class LineTestCase(_BillingTestCase):
                 *rel_filter(
                     type=REL_SUB_LINE_RELATED_ITEM, object_entity=service,
                 ).values_list('subject_entity', flat=True)
-            }
+            },
         )
 
     @skipIfCustomProductLine
@@ -554,10 +576,10 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user, related_document=invoice)
-        ids = tuple(create_line(on_the_fly_item='Fly ' + price,
-                                unit_price=Decimal(price)
-                               ).id for price in ('10', '20')
-                   )
+        ids = tuple(
+            create_line(on_the_fly_item=f'Fly {price}', unit_price=Decimal(price)).id
+            for price in ('10', '20')
+        )
 
         invoice.save()  # Updates totals
 
@@ -566,9 +588,10 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
 
-        self.assertPOST200(reverse('creme_core__delete_entities'), follow=True,
-                           data={'ids': '{},{}'.format(*ids)}
-                          )
+        self.assertPOST200(
+            reverse('creme_core__delete_entities'),
+            follow=True, data={'ids': '{},{}'.format(*ids)},
+        )
         self.assertFalse(ProductLine.objects.filter(pk__in=ids))
 
         invoice = self.refresh(invoice)
@@ -580,15 +603,19 @@ class LineTestCase(_BillingTestCase):
 
     @skipIfCustomProductLine
     def test_multiple_delete02(self):
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
-                          creatable_models=[Invoice, Organisation]
-                         )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice, Organisation]
+        )
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),  # Not CHANGE
             set_type=SetCredentials.ESET_OWN,
         )
@@ -596,27 +623,27 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
         self.assertFalse(user.has_perm_to_change(invoice))
 
-        create_line = partial(ProductLine.objects.create, user=user,
-                              related_document=invoice
-                             )
-        ids = tuple(create_line(on_the_fly_item='Fly ' + price,
-                                unit_price=Decimal(price)
-                               ).id for price in ('10', '20')
-                   )
+        create_line = partial(
+            ProductLine.objects.create, user=user, related_document=invoice
+        )
+        ids = tuple(
+            create_line(on_the_fly_item=f'Fly {price}', unit_price=Decimal(price)).id
+            for price in ('10', '20')
+        )
 
-        self.assertPOST403(reverse('creme_core__delete_entities'), follow=True,
-                           data={'ids': '{},{}'.format(*ids)}
-                          )
+        self.assertPOST403(
+            reverse('creme_core__delete_entities'),
+            follow=True, data={'ids': '{},{}'.format(*ids)}
+        )
         self.assertEqual(2, ProductLine.objects.filter(pk__in=ids).count())
 
     def test_delete_vat01(self):
         self.login()
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('creme_core', 'vat_value', vat.id)
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance', args=('creme_core', 'vat_value', vat.id),
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(Vat).job
@@ -629,14 +656,13 @@ class LineTestCase(_BillingTestCase):
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
         invoice = self.create_invoice_n_orgas('Nerv')[0]
-        ProductLine.objects.create(user=user, related_document=invoice,
-                                   on_the_fly_item='Flyyyyy', vat_value=vat,
-                                  )
+        ProductLine.objects.create(
+            user=user, related_document=invoice, on_the_fly_item='Flyyyyy', vat_value=vat,
+        )
 
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('creme_core', 'vat_value', vat.id)
-                                             ),
-                                     )
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance', args=('creme_core', 'vat_value', vat.id)
+        ))
         self.assertFormError(
             response, 'form',
             'replace_billing__productline_vat_value',
@@ -657,22 +683,22 @@ class LineTestCase(_BillingTestCase):
         return {'sub_category': json_dump({'category': cat.id, 'subcategory': subcat.id})}
 
     def test_convert_on_the_fly_line_to_real_item_error(self):
-        "Entity is not a line"
+        "Entity is not a line."
         user = self.login()
         self.assertGET404(self._build_add2catalog_url(user.linked_contact))
 
     @skipIfCustomProductLine
     def test_convert_on_the_fly_line_to_real_item01(self):
-        "Convert on the fly product"
+        "Convert on the fly product."
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         unit_price = Decimal('50.0')
         product_name = 'on the fly product'
-        product_line = ProductLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item=product_name,
-                                                  unit_price=unit_price, unit='',
-                                                 )
+        product_line = ProductLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item=product_name, unit_price=unit_price, unit='',
+        )
         cat, subcat = self.create_cat_n_subcat()
 
         url = self._build_add2catalog_url(product_line)
@@ -682,12 +708,9 @@ class LineTestCase(_BillingTestCase):
         context = response.context
         self.assertEqual(
             _('Add this on the fly item to your catalog'),
-            context.get('title')
+            context.get('title'),
         )
-        self.assertEqual(
-            _('Add to the catalog'),
-            context.get('submit_label')
-        )
+        self.assertEqual(_('Add to the catalog'), context.get('submit_label'))
 
         # ---
         response = self.client.post(url, data=self._build_dict_cat_subcat(cat, subcat))
@@ -704,10 +727,10 @@ class LineTestCase(_BillingTestCase):
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
         unit_price = Decimal('50.0')
         service_name = 'on the fly service'
-        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item=service_name,
-                                                  unit_price=unit_price, unit='',
-                                                 )
+        service_line = ServiceLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item=service_name, unit_price=unit_price, unit='',
+        )
         cat, subcat = self.create_cat_n_subcat()
 
         response = self.client.post(
@@ -722,56 +745,66 @@ class LineTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_convert_on_the_fly_line_to_real_item03(self):
         "On-the-fly + product creation + no creation creds."
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
-                          creatable_models=[Invoice, Contact, Organisation],  # Not 'Product'
-                         )
+        user = self.login(
+            is_superuser=False, allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice, Contact, Organisation],  # Not 'Product'
+        )
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        product_line = ProductLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='on the fly service',
-                                                  unit_price=Decimal('50.0')
-                                                 )
+        product_line = ProductLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item='on the fly service', unit_price=Decimal('50.0')
+        )
         cat, subcat = self.create_cat_n_subcat()
-        self.assertPOST403(self._build_add2catalog_url(product_line),
-                           data=self._build_dict_cat_subcat(cat, subcat))
+        self.assertPOST403(
+            self._build_add2catalog_url(product_line),
+            data=self._build_dict_cat_subcat(cat, subcat),
+        )
 
         self.assertFalse(Product.objects.exists())
 
     @skipIfCustomServiceLine
     def test_convert_on_the_fly_line_to_real_item04(self):
         "On-the-fly + service creation + no creation creds."
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
-                          creatable_models=[Invoice, Contact, Organisation],  # Not 'Service'
-                         )
+        user = self.login(
+            is_superuser=False, allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice, Contact, Organisation],  # Not 'Service'
+        )
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='on the fly service',
-                                                  unit_price=Decimal('50.0'),
-                                                 )
+        service_line = ServiceLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
+        )
         cat, subcat = self.create_cat_n_subcat()
-        self.assertPOST403(self._build_add2catalog_url(service_line),
-                           data=self._build_dict_cat_subcat(cat, subcat))
+        self.assertPOST403(
+            self._build_add2catalog_url(service_line),
+            data=self._build_dict_cat_subcat(cat, subcat),
+        )
 
         self.assertFalse(Service.objects.exists())
 
@@ -782,10 +815,10 @@ class LineTestCase(_BillingTestCase):
 
         product = self.create_product()
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        product_line = ProductLine.objects.create(user=user, related_document=invoice,
-                                                  related_item=product,
-                                                  unit_price=Decimal('50.0')
-                                                 )
+        product_line = ProductLine.objects.create(
+            user=user, related_document=invoice,
+            related_item=product, unit_price=Decimal('50.0')
+        )
         cat, subcat = self.create_cat_n_subcat()
         response = self.assertPOST200(
             self._build_add2catalog_url(product_line),
@@ -794,7 +827,10 @@ class LineTestCase(_BillingTestCase):
 
         self.assertFormError(
             response, 'form', None,
-            _('You are not allowed to add this item to the catalog because it is not on the fly')
+            _(
+                'You are not allowed to add this item to the catalog '
+                'because it is not on the fly'
+            ),
         )
         self.assertEqual(1, Product.objects.count())
 
@@ -805,10 +841,10 @@ class LineTestCase(_BillingTestCase):
 
         service = self.create_service()
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  related_item=service,
-                                                  unit_price=Decimal('50.0'),
-                                                 )
+        service_line = ServiceLine.objects.create(
+            user=user, related_document=invoice,
+            related_item=service, unit_price=Decimal('50.0'),
+        )
         cat, subcat = self.create_cat_n_subcat()
         response = self.assertPOST200(
             self._build_add2catalog_url(service_line),
@@ -817,7 +853,10 @@ class LineTestCase(_BillingTestCase):
 
         self.assertFormError(
             response, 'form', None,
-            _('You are not allowed to add this item to the catalog because it is not on the fly')
+            _(
+                'You are not allowed to add this item to the catalog '
+                'because it is not on the fly'
+            ),
         )
         self.assertEqual(1, Service.objects.count())
 
@@ -827,10 +866,10 @@ class LineTestCase(_BillingTestCase):
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='on the fly service',
-                                                  unit_price=Decimal('50.0'),
-                                                 )
+        service_line = ServiceLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
+        )
 
         url = self._build_msave_url(invoice)
         # self.assertGET404(url)
@@ -879,10 +918,10 @@ class LineTestCase(_BillingTestCase):
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        product_line = ProductLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='on the fly service',
-                                                  unit_price=Decimal('50.0'),
-                                                 )
+        product_line = ProductLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
+        )
         name = 'new on the fly product'
         unit_price = '69.0'
         quantity = '2'
@@ -927,26 +966,29 @@ class LineTestCase(_BillingTestCase):
 
     @skipIfCustomServiceLine
     def test_multi_save_lines03(self):
-        "No creds"
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
-                          creatable_models=[Invoice, Contact, Organisation],
-                         )
+        "No creds."
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice, Contact, Organisation],
+        )
 
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   |
-                EntityCredentials.DELETE | EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='on the fly service',
-                                                  unit_price=Decimal('50.0'),
-                                                 )
+        service_line = ServiceLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
+        )
 
         self.assertPOST403(
             self._build_msave_url(invoice),
@@ -974,10 +1016,10 @@ class LineTestCase(_BillingTestCase):
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='on the fly service',
-                                                  unit_price=Decimal('50.0')
-                                                 )
+        service_line = ServiceLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
+        )
 
         discount_unit = DISCOUNT_LINE_AMOUNT
         response = self.client.post(
@@ -1012,10 +1054,10 @@ class LineTestCase(_BillingTestCase):
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='on the fly service',
-                                                  unit_price=Decimal('50.0'),
-                                                 )
+        service_line = ServiceLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
+        )
 
         discount_unit = DISCOUNT_ITEM_AMOUNT
         response = self.client.post(
@@ -1051,18 +1093,20 @@ class LineTestCase(_BillingTestCase):
         user = self.login()
 
         sub_cat = SubCategory.objects.all()[0]
-        shipping = Service.objects.create(user=user, name='Shipping',
-                                          category=sub_cat.category,
-                                          sub_category=sub_cat,
-                                          unit_price=Decimal('60.0'),
-                                         )
+        shipping = Service.objects.create(
+            user=user, name='Shipping',
+            category=sub_cat.category,
+            sub_category=sub_cat,
+            unit_price=Decimal('60.0'),
+        )
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                          related_item=shipping,
-                                          unit_price=Decimal('50.0'),
-                                          vat_value=Vat.objects.all()[0],
-                                         )
+        line = ServiceLine.objects.create(
+            user=user, related_document=invoice,
+            related_item=shipping,
+            unit_price=Decimal('50.0'),
+            vat_value=Vat.objects.all()[0],
+        )
 
         response = self.client.post(
             self._build_msave_url(invoice),
@@ -1090,7 +1134,7 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(Decimal('51'), line.unit_price)
 
     def test_multi_save_lines07(self):
-        "Bad related model"
+        "Bad related model."
         user = self.login()
         orga = FakeOrganisation.objects.create(user=user, name='Foxhound')
         ct_id = ContentType.objects.get_for_model(ProductLine).id
@@ -1119,11 +1163,12 @@ class LineTestCase(_BillingTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
 
-        ProductLine.objects.create(user=user, unit_price=Decimal('10'),
-                                   vat_value=Vat.get_default_vat(),
-                                   related_document=invoice,
-                                   on_the_fly_item='Flyyyyy',
-                                  )
+        ProductLine.objects.create(
+            user=user, unit_price=Decimal('10'),
+            vat_value=Vat.get_default_vat(),
+            related_document=invoice,
+            on_the_fly_item='Flyyyyy',
+        )
 
         discount_zero = Decimal('0.0')
         full_discount = Decimal('100.0')
@@ -1308,27 +1353,30 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice0001')[0]
 
         kwargs = {'user': user, 'related_document': invoice}
-        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
-                                                  unit_price=Decimal('0.014'), quantity=1,
-                                                  # total_discount=False,
-                                                  **kwargs
-                                                 )
+        product_line = ProductLine.objects.create(
+            on_the_fly_item='Flyyy product',
+            unit_price=Decimal('0.014'), quantity=1,
+            # total_discount=False,
+            **kwargs
+        )
         # 0.014 rounded down to 0.01
         self.assertEqual(Decimal('0.01'), product_line.get_price_exclusive_of_tax())
 
-        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
-                                                  unit_price=Decimal('0.015'), quantity=1,
-                                                  # total_discount=False,
-                                                  **kwargs
-                                                 )
+        product_line = ProductLine.objects.create(
+            on_the_fly_item='Flyyy product',
+            unit_price=Decimal('0.015'), quantity=1,
+            # total_discount=False,
+            **kwargs
+        )
         # 0.015 rounded up to 0.02
         self.assertEqual(Decimal('0.02'), product_line.get_price_exclusive_of_tax())
 
-        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
-                                                  unit_price=Decimal('0.016'), quantity=1,
-                                                  # total_discount=False,
-                                                  **kwargs
-                                                 )
+        product_line = ProductLine.objects.create(
+            on_the_fly_item='Flyyy product',
+            unit_price=Decimal('0.016'), quantity=1,
+            # total_discount=False,
+            **kwargs
+        )
         # 0.016 rounded up to 0.02
         self.assertEqual(Decimal('0.02'), product_line.get_price_exclusive_of_tax())
 
@@ -1337,22 +1385,26 @@ class LineTestCase(_BillingTestCase):
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
-        pline = ProductLine.objects.create(user=user, unit_price=Decimal('10'),
-                                           vat_value=Vat.get_default_vat(),
-                                           related_document=invoice,
-                                           on_the_fly_item='Flyyyyy',
-                                           comment='I believe',
-                                          )
+        pline = ProductLine.objects.create(
+            user=user, unit_price=Decimal('10'),
+            vat_value=Vat.get_default_vat(),
+            related_document=invoice,
+            on_the_fly_item='Flyyyyy',
+            comment='I believe',
+        )
 
         build_url = self.build_inneredit_url
         url = build_url(pline, 'comment')
         self.assertGET200(url)
 
         comment = pline.comment + ' I can flyyy'
-        response = self.client.post(url, data={'entities_lbl': [str(pline)],
-                                               'field_value':  comment,
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'entities_lbl': [str(pline)],
+                'field_value':  comment,
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(comment, self.refresh(pline).comment)
 

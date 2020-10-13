@@ -30,11 +30,8 @@ from creme.creme_core.forms import (
 )
 # from creme.creme_core.models import Relation
 # from creme.creme_core.utils import find_first
-from creme.persons import (
-    get_address_model,
-    get_contact_model,
-    get_organisation_model,
-)
+# from creme.persons import get_address_model
+from creme.persons import get_contact_model, get_organisation_model
 
 # from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..models import PaymentInformation
@@ -42,13 +39,12 @@ from ..models import PaymentInformation
 logger = logging.getLogger(__name__)
 
 
-# TODO: move to persons ??
-def copy_or_create_address(address, owner, name):
-    if address is None:
-        name = str(name)
-        return get_address_model().objects.create(name=name, owner=owner, address=name)
-
-    return address.clone(owner)
+# def copy_or_create_address(address, owner, name):
+#     if address is None:
+#         name = str(name)
+#         return get_address_model().objects.create(name=name, owner=owner, address=name)
+#
+#     return address.clone(owner)
 
 
 def first_managed_orga_id():
@@ -194,23 +190,23 @@ class BaseCreateForm(BaseEditForm):
                     'as source organisation, a number will be automatically generated.'
                 ).format(managed_orga)
 
-    def save(self, *args, **kwargs):
-        instance = self.instance
-        cleaned_data = self.cleaned_data
-        target = cleaned_data['target']
-
-        # if instance.generate_number_in_create:
-        #     instance.generate_number(cleaned_data['source'])
-
-        super().save(*args, **kwargs)
-
-        instance.billing_address = copy_or_create_address(
-            target.billing_address, owner=instance, name=_('Billing address'),
-        )
-        instance.shipping_address = copy_or_create_address(
-            target.shipping_address, owner=instance, name=_('Shipping address'),
-        )
-
-        instance.save()
-
-        return instance
+    # def save(self, *args, **kwargs):
+    #     instance = self.instance
+    #     cleaned_data = self.cleaned_data
+    #     target = cleaned_data['target']
+    #
+    #     if instance.generate_number_in_create:
+    #         instance.generate_number(cleaned_data['source'])
+    #
+    #     super().save(*args, **kwargs)
+    #
+    #     instance.billing_address = copy_or_create_address(
+    #         target.billing_address, owner=instance, name=_('Billing address'),
+    #     )
+    #     instance.shipping_address = copy_or_create_address(
+    #         target.shipping_address, owner=instance, name=_('Shipping address'),
+    #     )
+    #
+    #     instance.save()
+    #
+    #     return instance
