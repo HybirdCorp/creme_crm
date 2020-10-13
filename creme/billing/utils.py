@@ -24,6 +24,8 @@ from decimal import Decimal, InvalidOperation
 from django.utils.formats import number_format
 from django.utils.translation import gettext as _
 
+from creme.persons import get_address_model
+
 from .constants import ROUND_POLICY
 
 logger = logging.getLogger(__name__)
@@ -40,3 +42,12 @@ def round_to_2(decimal_instance):
 def print_discount(entity, fval, user, field):
     # TODO: print 'None' only on detail views => we need this info in printers
     return _('{} %').format(number_format(fval, use_l10n=True))
+
+
+# TODO: move to persons ??
+def copy_or_create_address(address, owner, name):
+    if address is None:
+        name = str(name)
+        return get_address_model().objects.create(name=name, owner=owner, address=name)
+
+    return address.clone(owner)
