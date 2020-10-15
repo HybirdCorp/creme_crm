@@ -634,7 +634,6 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/extensions/wait.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
     'creme_core/js/jquery/extensions/jquery.form-3.51.js',
-    'creme_core/js/jquery/extensions/jquery.tinymce.js',
     'creme_core/js/jquery/extensions/jquery.debounce.js',
     'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
     'creme_core/js/jquery/extensions/jquery.bind-first.js',
@@ -643,6 +642,7 @@ CREME_LIB_JS = [
     'creme_core/js/lib/momentjs/moment-2.24.0.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
+    'creme_core/js/lib/editor/tinymce.3.4.9.js',
 ]
 
 CREME_CORE_JS = [
@@ -734,6 +734,7 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/plotselector.js',
     'creme_core/js/widgets/scrollactivator.js',
     'creme_core/js/widgets/container.js',
+    'creme_core/js/widgets/editor.js',
 
     'creme_core/js/menu.js',
     'creme_core/js/search.js',

@@ -28,6 +28,7 @@
     /* External libraries */
     "jQuery": true,
     "moment": true,
+    "tinymce": true,
     "FullCalendar": true,
     "google": true,
 

@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>{#style_dlg.title}</title>
-	<script type="text/javascript" src="../../tiny_mce_popup.js"></script>
-	<script type="text/javascript" src="../../utils/mctabs.js"></script>
-	<script type="text/javascript" src="../../utils/editable_selects.js"></script>
-	<script type="text/javascript" src="../../utils/form_utils.js"></script>
-	<script type="text/javascript" src="js/props.js"></script>
-	<link href="css/props.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="../../tiny_mce_popup.js?v={tinymce_version}"></script>
+	<script type="text/javascript" src="../../utils/mctabs.js?v={tinymce_version}"></script>
+	<script type="text/javascript" src="../../utils/editable_selects.js?v={tinymce_version}"></script>
+	<script type="text/javascript" src="../../utils/form_utils.js?v={tinymce_version}"></script>
+	<script type="text/javascript" src="js/props.js?v={tinymce_version}"></script>
+	<link href="css/props.css?v={tinymce_version}" rel="stylesheet" type="text/css" />
 </head>
 
 <body id="styleprops" style="display: none" role="application" aria-labelledby="app_title">
@@ -118,7 +118,7 @@
 							<td><label for="text_blink">{#style_dlg.text_blink}</label></td>
 						</tr>
 						<tr>
-							<td><input id="text_none" name="text_none" class="checkbox" type="checkbox" /></td>
+							<td><input id="text_none" name="text_none" class="checkbox" type="checkbox" onclick="updateTextDecorations();"/></td>
 							<td><label for="text_none">{#style_dlg.text_none}</label></td>
 						</tr>
 					</table>
@@ -316,6 +316,8 @@
 				<td><select id="box_clear" name="box_clear" class="mceEditableSelect"></select></td>
 			</tr>
 		</table>
+	</fieldset>
+
 <div style="float: left; width: 49%">
 	<fieldset>
 		<legend>{#style_dlg.padding}</legend>
@@ -672,6 +674,7 @@
 		<td><select id="positioning_overflow" name="positioning_overflow" class="mceEditableSelect"></select></td>
 	</tr>
 </table>
+</fieldset>
 
 <div style="float: left; width: 49%">
 	<fieldset>
@@ -820,7 +823,11 @@
 </div>
 <br style="clear: both" />
 </div>
-</fieldset>
+</div>
+
+<div class="panel_toggle_insert_span">
+	<input type="checkbox" class="checkbox" id="toggle_insert_span" name="toggle_insert_span" onClick="toggleApplyAction();" />
+	<label for="toggle_insert_span">{#style_dlg.toggle_insert_span}</label>
 </div>
 
 <div class="mceActionPanel">
