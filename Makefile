@@ -37,6 +37,12 @@ update: update-requirements
 	python creme/manage.py generatemedia
 
 
+## Install or upgrade nodejs requirements
+.PHONY: node-update
+node-update:
+	npm install --no-save
+
+
 ## Generate the media files
 .PHONY: media
 media:
@@ -117,8 +123,9 @@ eslint-diff:
 	git diff --name-only origin/master creme/ | { grep -E '.html$$' || true; } | xargs --no-run-if-empty \
 		node_modules/.bin/eslint \
 			--config .eslintrc \
-			--plugin template \
 			--ignore-path .eslintignore \
+			--plugin template \
+			--rule 'template/no-template-branch: 2' \
 			--global '____' \
 			--format stylish \
 			--quiet
