@@ -36,7 +36,7 @@ class SettingsTestCase(CremeTestCase):
         setting_key_registry.unregister(cls.SETTING_KEY)
 
     def test_get_setting_value_empty(self):
-        self.assertEqual(None, get_setting_value('creme_core-test_setting'))
+        self.assertIsNone(get_setting_value('creme_core-test_setting'))
 
     def test_get_setting_value_default(self):
         self.assertEqual(
@@ -67,13 +67,17 @@ class SettingsTestCase(CremeTestCase):
         )
 
     def test_get_setting_value_invalid_key(self):
-        self.assertEqual(None, get_setting_value(None))
+        with self.assertRaises(KeyError):
+            get_setting_value(None)
+
         self.assertEqual(None, get_setting_value('creme_core-unknown_setting'))
 
     def test_has_setting_value(self):
         self.assertFalse(has_setting_value('creme_core-test_setting'))
         self.assertFalse(has_setting_value('creme_core-unknown_setting'))
-        self.assertFalse(has_setting_value(None))
+
+        with self.assertRaises(KeyError):
+            has_setting_value(None)
 
         SettingValue.objects.get_or_create(
             key_id='creme_core-test_setting',
@@ -148,6 +152,10 @@ class SettingsTestCase(CremeTestCase):
     def test_temporary_setting_value_invalid_key(self):
         with self.assertRaises(KeyError):
             with OverrideSettingValueContext('creme_core-unknown_setting', 'T'):
+                pass
+
+        with self.assertRaises(KeyError):
+            with OverrideSettingValueContext(None, 'T'):
                 pass
 
     def test_fake_setting_value_invalid_cast(self):
