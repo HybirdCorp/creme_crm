@@ -28,7 +28,7 @@ from creme.creme_core.models.setting_value import SettingValue
 
 def get_setting_value(key: Union[SettingKey, str], default=None):
     if not key:
-        return
+        raise KeyError('Empty setting key')
 
     try:
         return SettingValue.objects.get_4_key(key, default=default).value
@@ -38,7 +38,7 @@ def get_setting_value(key: Union[SettingKey, str], default=None):
 
 def has_setting_value(key: Union[SettingKey, str]):
     if not key:
-        return False
+        raise KeyError('Empty setting key')
 
     key_id = key if isinstance(key, str) else key.id
     return SettingValue.objects.filter(key_id=key_id).exists()
