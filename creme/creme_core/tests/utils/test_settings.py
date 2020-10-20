@@ -3,13 +3,12 @@
 from creme.creme_core.core.setting_key import SettingKey, setting_key_registry
 from creme.creme_core.models.setting_value import SettingValue
 from creme.creme_core.utils.settings import (
-    TemporarySettingValueContext,
     get_setting_value,
     has_setting_value,
     set_setting_value,
 )
 
-from ..base import CremeTestCase
+from ..base import CremeTestCase, OverrideSettingValueContext
 
 
 class SettingsTestCase(CremeTestCase):
@@ -128,11 +127,11 @@ class SettingsTestCase(CremeTestCase):
         self.assertFalse(SettingValue.objects.filter(key_id='creme_core-test_setting').exists())
         self.assertEqual(None, get_setting_value('creme_core-test_setting'))
 
-        with TemporarySettingValueContext('creme_core-test_setting', 'T'):
+        with OverrideSettingValueContext('creme_core-test_setting', 'T'):
             self.assertEqual('T', SettingValue.objects.get(key_id='creme_core-test_setting').value)
             self.assertEqual('T', get_setting_value('creme_core-test_setting'))
 
-            with TemporarySettingValueContext('creme_core-test_setting', 'U'):
+            with OverrideSettingValueContext('creme_core-test_setting', 'U'):
                 self.assertEqual(
                     'U', SettingValue.objects.get(key_id='creme_core-test_setting').value
                 )
@@ -148,12 +147,12 @@ class SettingsTestCase(CremeTestCase):
 
     def test_temporary_setting_value_invalid_key(self):
         with self.assertRaises(KeyError):
-            with TemporarySettingValueContext('creme_core-unknown_setting', 'T'):
+            with OverrideSettingValueContext('creme_core-unknown_setting', 'T'):
                 pass
 
     def test_fake_setting_value_invalid_cast(self):
         with self.assertRaises(Exception):
-            with TemporarySettingValueContext('creme_core-test_setting_int', 'T'):
+            with OverrideSettingValueContext('creme_core-test_setting_int', 'T'):
                 pass
 
         self.assertFalse(

@@ -2,6 +2,7 @@
 
 import sys
 import warnings
+from contextlib import ContextDecorator
 from datetime import datetime, timedelta
 from json import dumps as json_dump
 from os.path import basename
@@ -20,6 +21,11 @@ from django.forms.formsets import BaseFormSet
 from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils.timezone import get_current_timezone, make_aware, utc
+
+from creme.creme_core.utils.settings import (
+    get_setting_value,
+    set_setting_value,
+)
 
 from ..global_info import clear_global_info
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -47,6 +53,19 @@ def skipIfNotInstalled(app_name):
         not apps.is_installed(app_name),
         f"Skip this test which is related to the uninstalled app '{app_name}'"
     )
+
+
+class OverrideSettingValueContext(ContextDecorator):
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+    def __enter__(self):
+        self._previous = get_setting_value(self.key)
+        set_setting_value(self.key, self.value)
+
+    def __exit__(self, *exc):
+        set_setting_value(self.key, self._previous)
 
 
 class _AssertNoExceptionContext:

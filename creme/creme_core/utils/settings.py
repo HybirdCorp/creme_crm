@@ -64,16 +64,3 @@ def set_setting_value(key: Union[SettingKey, str], value):
                 setting.save()
 
         SettingValue.objects.clear_cache_of(key_id)
-
-
-class TemporarySettingValueContext:
-    def __init__(self, key, value):
-        self.key = key
-        self.value = value
-
-    def __enter__(self):
-        self._previous = get_setting_value(self.key)
-        set_setting_value(self.key, self.value)
-
-    def __exit__(self, exc_type, exc_value, tb):
-        set_setting_value(self.key, self._previous)

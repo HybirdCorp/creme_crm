@@ -5,8 +5,10 @@ from django.test.client import RequestFactory
 from django.urls.base import reverse
 from parameterized import parameterized
 
-from creme.creme_core.tests.base import skipIfNotInstalled
-from creme.creme_core.utils.settings import TemporarySettingValueContext
+from creme.creme_core.tests.base import (
+    OverrideSettingValueContext,
+    skipIfNotInstalled,
+)
 from creme.mobile import setting_keys
 from creme.mobile.templatetags.mobile_tags import (
     document_class,
@@ -46,7 +48,7 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         user = self.login()
         address = self.create_address(user)
 
-        with TemporarySettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
+        with OverrideSettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
             self.assertEqual(mobile_location_map_url(Context({}), address), expected)
 
     @skipIfNotInstalled('creme.geolocation')
@@ -69,7 +71,7 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         address.geoaddress.longitude = 5.28
         address.geoaddress.save()
 
-        with TemporarySettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
+        with OverrideSettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
             self.assertEqual(mobile_location_map_url(Context({}), address), expected)
 
     @parameterized.expand([
