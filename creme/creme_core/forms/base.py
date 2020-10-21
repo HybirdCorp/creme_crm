@@ -75,7 +75,8 @@ logger = logging.getLogger(__name__)
 # TODO: use Litteral for '*' case ?
 FieldNamesOrWildcard = Union[Sequence[str], str]
 
-_CUSTOM_NAME = 'custom_field_{}'
+# _CUSTOM_NAME = 'custom_field_{}'
+_CUSTOM_NAME = 'custom_field-{}'
 
 LayoutType = str
 LAYOUT_REGULAR: LayoutType = 'regular'

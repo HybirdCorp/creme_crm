@@ -39,9 +39,10 @@ class QuickFormTestCase(CremeTestCase):
         })
 
     def _build_quickform_url(self, model):
-        return reverse('creme_core__quick_form',
-                       args=(ContentType.objects.get_for_model(model).pk,),
-                      )
+        return reverse(
+            'creme_core__quick_form',
+            args=(ContentType.objects.get_for_model(model).pk,),
+        )
 
     def test_ok01(self):
         user = self.login()
@@ -58,20 +59,23 @@ class QuickFormTestCase(CremeTestCase):
         # ---
         last_name = 'Kirika'
         email = 'admin@hello.com'
-        response = self.assertPOST200(url,
-                                      data={'last_name': last_name,
-                                            'email':     email,
-                                            'user':      user.id,
-                                           },
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={
+                'last_name': last_name,
+                'email':     email,
+                'user':      user.id,
+            },
+        )
         self.assertEqual(count + 1, FakeContact.objects.count())
 
         contact = self.get_object_or_fail(FakeContact, last_name=last_name, email=email)
         self.assertDictEqual(
-            {'added': [[contact.id, str(contact)]],
-             'value': contact.id,
+            {
+                'added': [[contact.id, str(contact)]],
+                'value': contact.id,
             },
-            response.json()
+            response.json(),
         )
 
     def test_ok02(self):
@@ -105,34 +109,34 @@ class QuickFormTestCase(CremeTestCase):
         with self.assertNoException():
             fields = response.context['form'].fields
 
-        self.assertNotIn(f'custom_field_{cf1.id}', fields)
+        self.assertNotIn(f'custom_field-{cf1.id}', fields)
 
-        cf2_f = fields.get(f'custom_field_{cf2.id}')
+        cf2_f = fields.get(f'custom_field-{cf2.id}')
         self.assertIsInstance(cf2_f, IntegerField)
         self.assertTrue(cf2_f.required)
 
         # ---
         first_name = 'Rei'
         last_name = 'Ayanami'
-        response = self.client.post(url,
-                                    data={
-                                        'last_name':  last_name,
-                                        'first_name': first_name,
-                                        'user':       user.id,
-                                        f'custom_field_{cf2.id}': 3,
-                                    },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'last_name':  last_name,
+                'first_name': first_name,
+                'user':       user.id,
+                f'custom_field-{cf2.id}': 3,
+            },
+        )
         self.assertNoFormError(response)
 
-        contact = self.get_object_or_fail(FakeContact,
-                                          last_name=last_name,
-                                          first_name=first_name,
-                                         )
+        contact = self.get_object_or_fail(
+            FakeContact, last_name=last_name, first_name=first_name,
+        )
 
         with self.assertNoException():
-            cf_value = cf2.value_class.objects.get(custom_field=cf2,
-                                                   entity=contact,
-                                                  ).value
+            cf_value = cf2.value_class.objects.get(
+                custom_field=cf2, entity=contact,
+            ).value
 
         self.assertEqual(3, cf_value)
 

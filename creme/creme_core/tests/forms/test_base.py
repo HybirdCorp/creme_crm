@@ -301,10 +301,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             # cf_f1 = fields['custom_field_0']
             # cf_f2 = fields['custom_field_1']
-            cf_f1 = fields[f'custom_field_{cfield1.id}']
-            cf_f2 = fields[f'custom_field_{cfield2.id}']
-            cf_f3 = fields[f'custom_field_{cfield3.id}']
-            cf_f4 = fields[f'custom_field_{cfield4.id}']
+            cf_f1 = fields[f'custom_field-{cfield1.id}']
+            cf_f2 = fields[f'custom_field-{cfield2.id}']
+            cf_f3 = fields[f'custom_field-{cfield3.id}']
+            cf_f4 = fields[f'custom_field-{cfield4.id}']
 
         self.assertIsInstance(cf_f1, forms.IntegerField)
         self.assertEqual(cfield1.name, cf_f1.label)
@@ -337,7 +337,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             cf_f4.choices,
         )
 
-        self.assertNotIn(f'custom_field_{deleted.id}', fields)
+        self.assertNotIn(f'custom_field-{deleted.id}', fields)
 
         # ---
         first_name = 'Karen'
@@ -351,9 +351,9 @@ class CremeEntityFormTestCase(CremeTestCase):
 
                 # 'custom_field_0': '150',
                 # 'custom_field_1': '',
-                f'custom_field_{cfield1.id}': '150',
-                f'custom_field_{cfield2.id}': '',
-                f'custom_field_{cfield3.id}': '',
+                f'custom_field-{cfield1.id}': '150',
+                f'custom_field-{cfield2.id}': '',
+                f'custom_field-{cfield3.id}': '',
             },
         )
         self.assertFalse(form.errors)
@@ -382,7 +382,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         fields = FakeContactForm(user=user).fields
 
         with self.assertNoException():
-            cfield_f = fields[f'custom_field_{cfield.id}']
+            cfield_f = fields[f'custom_field-{cfield.id}']
 
         self.assertIsInstance(cfield_f, forms.IntegerField)
         self.assertTrue(cfield_f.required)
@@ -401,7 +401,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         fields = FakeContactForm(user=user).fields
 
         with self.assertNoException():
-            cfield_f = fields[f'custom_field_{cfield.id}']
+            cfield_f = fields[f'custom_field-{cfield.id}']
 
         self.assertIsInstance(cfield_f, forms.BooleanField)
         self.assertNotIsInstance(cfield_f, forms.NullBooleanField)
