@@ -185,9 +185,11 @@ class MergeEntitiesBaseForm(CremeForm):
             ) for cfield in cfields
         ]
 
-        for i, (cfield, cvalue1, cvalue2) in enumerate(customs):
+        # for i, (cfield, cvalue1, cvalue2) in enumerate(customs):
+        for cfield, cvalue1, cvalue2 in customs:
             formfield1 = cfield.get_formfield(cvalue1)
-            fields[_CUSTOM_NAME.format(i)] = merge_field = MergeField(
+            # fields[_CUSTOM_NAME.format(i)] = merge_field = MergeField(
+            fields[_CUSTOM_NAME.format(cfield.id)] = merge_field = MergeField(
                 modelform_field=formfield1,
                 model_field=None,
                 label=cfield.name,
@@ -205,8 +207,11 @@ class MergeEntitiesBaseForm(CremeForm):
         return model_to_dict(entity)
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
-        for i, (custom_field, cvalue1, cvalue2) in enumerate(self._customs):
-            value = cleaned_data[_CUSTOM_NAME.format(i)]  # TODO: factorize with __init__() ?
+        # TODO: factorize with __init__() ? CustomFieldsMixin ?
+        # for i, (custom_field, cvalue1, cvalue2) in enumerate(self._customs):
+        for custom_field, cvalue1, cvalue2 in self._customs:
+            # value = cleaned_data[_CUSTOM_NAME.format(i)]
+            value = cleaned_data[_CUSTOM_NAME.format(custom_field.id)]
             CustomFieldValue.save_values_for_entities(custom_field, [entity1], value)
 
             if cvalue2 is not None:

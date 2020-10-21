@@ -161,18 +161,18 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            cfield_f2 = fields[f'custom_field_{cfield2.id}']
+            cfield_f2 = fields[f'custom_field-{cfield2.id}']
 
-        self.assertNotIn(f'custom_field_{cfield1.id}', fields)
+        self.assertNotIn(f'custom_field-{cfield1.id}', fields)
         self.assertIsInstance(cfield_f2, IntegerField)
 
         self.assertContains(
             response,
-            f'id="id_custom_field_{cfield2.id}"'
+            f'id="id_custom_field-{cfield2.id}"',
         )
         self.assertContains(
             response,
-            f'<label class="field-label" for="id_custom_field_{cfield2.id}">{name}',
+            f'<label class="field-label" for="id_custom_field-{cfield2.id}">{name}',
         )
 
         first_name = 'May'
@@ -183,7 +183,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             data={
                 'first_name': first_name,
                 'last_name': last_name,
-                f'custom_field_{cfield2.id}': 150,
+                f'custom_field-{cfield2.id}': 150,
             },
         )
         self.assertNoFormError(response)
@@ -281,18 +281,18 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            cfield_f2 = fields[f'custom_field_{cfield2.id}']
+            cfield_f2 = fields[f'custom_field-{cfield2.id}']
 
-        self.assertNotIn(f'custom_field_{cfield1.id}', fields)
+        self.assertNotIn(f'custom_field-{cfield1.id}', fields)
         self.assertIsInstance(cfield_f2, IntegerField)
 
         self.assertContains(
             response,
-            f'id="id_custom_field_{cfield2.id}"'
+            f'id="id_custom_field-{cfield2.id}"'
         )
         self.assertContains(
             response,
-            f'<label class="field-label" for="id_custom_field_{cfield2.id}">{cfield2.name}'
+            f'<label class="field-label" for="id_custom_field-{cfield2.id}">{cfield2.name}'
         )
 
         name = 'Fatal Fury Inc.'
@@ -301,7 +301,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             follow=True,
             data={
                 'name': name,
-                f'custom_field_{cfield2.id}': 150,
+                f'custom_field-{cfield2.id}': 150,
             },
         )
         self.assertNoFormError(response)
@@ -309,7 +309,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         ffinc = self.get_object_or_fail(Organisation, name=name)
         self.assertEqual(
             150,
-            cfield2.value_class.objects.get(custom_field=cfield2.id, entity=ffinc.id).value
+            cfield2.value_class.objects.get(custom_field=cfield2.id, entity=ffinc.id).value,
         )
 
     def test_create_orga_error01(self):

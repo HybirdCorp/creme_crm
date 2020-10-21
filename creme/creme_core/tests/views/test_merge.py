@@ -535,9 +535,12 @@ class MergeViewsTestCase(ViewsTestCase):
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            f_cf_01 = fields['custom_field_0']
-            f_cf_02 = fields['custom_field_1']
-            f_cf_03 = fields['custom_field_2']
+            # f_cf_01 = fields['custom_field_0']
+            # f_cf_02 = fields['custom_field_1']
+            # f_cf_03 = fields['custom_field_2']
+            f_cf_01 = fields[f'custom_field-{cf_01.id}']
+            f_cf_02 = fields[f'custom_field-{cf_02.id}']
+            f_cf_03 = fields[f'custom_field-{cf_03.id}']
 
         self.assertFalse(f_cf_01.required)
         self.assertEqual([500,  510,  500],  f_cf_01.initial)
@@ -563,21 +566,36 @@ class MergeViewsTestCase(ViewsTestCase):
                 'last_name_2':      contact02.last_name,
                 'last_name_merged': contact01.last_name,
 
-                'custom_field_0_1':      500,
-                'custom_field_0_2':      510,
-                'custom_field_0_merged': 510,
+                # 'custom_field_0_1':      500,
+                # 'custom_field_0_2':      510,
+                # 'custom_field_0_merged': 510,
+                #
+                # 'custom_field_1_1':      100,
+                # 'custom_field_1_2':      '',
+                # 'custom_field_1_merged': '',
+                #
+                # 'custom_field_2_1':      '',
+                # 'custom_field_2_2':      enum_val1_1.id,
+                # 'custom_field_2_merged': enum_val1_1.id,
+                #
+                # 'custom_field_3_1':      '',
+                # 'custom_field_3_2':      '',
+                # 'custom_field_3_merged': '',
+                f'custom_field-{cf_01.id}_1': 500,
+                f'custom_field-{cf_01.id}_2': 510,
+                f'custom_field-{cf_01.id}_merged': 510,
 
-                'custom_field_1_1':      100,
-                'custom_field_1_2':      '',
-                'custom_field_1_merged': '',
+                f'custom_field-{cf_02.id}_1': 100,
+                f'custom_field-{cf_02.id}_2': '',
+                f'custom_field-{cf_02.id}_merged': '',
 
-                'custom_field_2_1':      '',
-                'custom_field_2_2':      enum_val1_1.id,
-                'custom_field_2_merged': enum_val1_1.id,
+                f'custom_field-{cf_03.id}_1': '',
+                f'custom_field-{cf_03.id}_2': enum_val1_1.id,
+                f'custom_field-{cf_03.id}_merged': enum_val1_1.id,
 
-                'custom_field_3_1':      '',
-                'custom_field_3_2':      '',
-                'custom_field_3_merged': '',
+                f'custom_field-{cf_04.id}_1': '',
+                f'custom_field-{cf_04.id}_2': '',
+                f'custom_field-{cf_04.id}_merged': '',
             },
         )
         self.assertNoFormError(response)

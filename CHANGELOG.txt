@@ -601,12 +601,14 @@
             - The method 'function_field.FunctionFieldDecimal._format_decimal()' has been removed.
         # In 'creme_core.forms' :
             - Some rework has been done in 'base' :
+                - The global variable '_CUSTOM_NAME' changed from "custom_field_{}" to "custom_field-{}".
                 - In the class '_FieldBlock' :
                     - The attribute "name" has been renamed "label".
                     - The constructor takes now keyword arguments only ; the new argument "id" is mandatory, the argument "verbose_mane" is now "label".
                 - The class 'HookableForm' has been renamed 'HookableFormMixin'.
                 - The order of the parent classes of 'CremeForm' & 'CremeModelForm' has changed.
             - In 'fields.RelationEntityField', the default value of the attribute "allowed_rtypes" has changed (empty queryset now).
+            - In 'merge.MergeEntitiesBaseForm', the name of form-fields for 'CustomFields' have changed.
         # In 'creme_core.gui' :
             - The attribute 'field_printers._FieldPrintersRegistry._printers' has been renamed '_html_printers'.
         # In 'creme_core.models' :

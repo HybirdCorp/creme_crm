@@ -596,9 +596,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 'user': user.id,
                 'key_fields': ['first_name', 'last_name'],
 
-                f'custom_field_{cf_int.id}_colselect': 3,
-                f'custom_field_{cf_str.id}_colselect': 0,
-                f'custom_field_{cf_dec.id}_colselect': 4,
+                f'custom_field-{cf_int.id}_colselect': 3,
+                f'custom_field-{cf_str.id}_colselect': 0,
+                f'custom_field-{cf_dec.id}_colselect': 4,
             },
         )
         self.assertNoFormError(response)
@@ -680,9 +680,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 'has_header': True,
                 'user': user.id,
 
-                f'custom_field_{cf_enum.id}_colselect':  3,
-                f'custom_field_{cf_enum2.id}_colselect': 0,
-                f'custom_field_{cf_menum.id}_colselect': 4,
+                f'custom_field-{cf_enum.id}_colselect':  3,
+                f'custom_field-{cf_enum2.id}_colselect': 0,
+                f'custom_field-{cf_menum.id}_colselect': 4,
             },
         )
         self.assertNoFormError(response)
@@ -769,11 +769,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 'has_header': True,
                 'user': user.id,
 
-                f'custom_field_{cf_enum.id}_colselect': 3,
-                f'custom_field_{cf_enum.id}_create':    True,
+                f'custom_field-{cf_enum.id}_colselect': 3,
+                f'custom_field-{cf_enum.id}_create':    True,
 
-                f'custom_field_{cf_menum.id}_colselect': 4,
-                f'custom_field_{cf_menum.id}_create':    True,
+                f'custom_field-{cf_menum.id}_colselect': 4,
+                f'custom_field-{cf_menum.id}_create':    True,
             },
         )
         self.assertNoFormError(response)
@@ -843,20 +843,20 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                     'has_header': True,
                     'user': user.id,
 
-                    f'custom_field_{cf_enum.id}_colselect': 3,
-                    f'custom_field_{cf_enum.id}_create':    True,
+                    f'custom_field-{cf_enum.id}_colselect': 3,
+                    f'custom_field-{cf_enum.id}_create':    True,
 
-                    f'custom_field_{cf_menum.id}_colselect': 4,
-                    f'custom_field_{cf_menum.id}_create':    True,
+                    f'custom_field-{cf_menum.id}_colselect': 4,
+                    f'custom_field-{cf_menum.id}_create':    True,
                 },
             )
 
         response = post()
         self.assertFormError(
-            response, 'form', f'custom_field_{cf_enum.id}', 'You can not create choices',
+            response, 'form', f'custom_field-{cf_enum.id}', 'You can not create choices',
         )
         self.assertFormError(
-            response, 'form', f'custom_field_{cf_menum.id}', 'You can not create choices',
+            response, 'form', f'custom_field-{cf_menum.id}', 'You can not create choices',
         )
 
         role = self.role
@@ -906,20 +906,20 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                     'user': user.id,
                     'key_fields': ['first_name', 'last_name'],
 
-                    f'custom_field_{cf_int.id}_colselect': 3,
-                    f'custom_field_{cf_int.id}_defval':    defint,
+                    f'custom_field-{cf_int.id}_colselect': 3,
+                    f'custom_field-{cf_int.id}_defval':    defint,
 
-                    f'custom_field_{cf_enum.id}_colselect': 4,
-                    f'custom_field_{cf_enum.id}_defval':    str(punch.id),
+                    f'custom_field-{cf_enum.id}_colselect': 4,
+                    f'custom_field-{cf_enum.id}_defval':    str(punch.id),
 
-                    f'custom_field_{cf_menum.id}_colselect': 5,
-                    f'custom_field_{cf_menum.id}_defval':    str(sword.id),
+                    f'custom_field-{cf_menum.id}_colselect': 5,
+                    f'custom_field-{cf_menum.id}_defval':    str(sword.id),
                 },
             )
 
         response = post('notint')
         self.assertFormError(
-            response, 'form', f'custom_field_{cf_int.id}', _('Enter a whole number.')
+            response, 'form', f'custom_field-{cf_int.id}', _('Enter a whole number.')
         )
 
         response = post('180')
@@ -1021,17 +1021,17 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 'document': doc.id,
                 'user': user.id,
 
-                f'custom_field_{cf1.id}_colselect': 0,
+                f'custom_field-{cf1.id}_colselect': 0,
 
-                f'custom_field_{cf2.id}_colselect': 0,
-                # f'custom_field_{cf2.id}_defval': 1,
+                f'custom_field-{cf2.id}_colselect': 0,
+                # f'custom_field-{cf2.id}_defval': 1,
             },
         )
         self.assertFormError(
-            response, 'form', f'custom_field_{cf2.id}',
+            response, 'form', f'custom_field-{cf2.id}',
             _('This field is required.')
         )
-        self.assertNotIn(f'custom_field_{cf1.id}', response.context['form'].errors)
+        self.assertNotIn(f'custom_field-{cf1.id}', response.context['form'].errors)
 
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_import_error05(self):

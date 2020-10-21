@@ -277,9 +277,9 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertGET200(self._build_create_entitymail_url(contact))
 
         fields = response.context['form'].fields
-        self.assertNotIn(f'custom_field_{cf1.id}', fields)
+        self.assertNotIn(f'custom_field-{cf1.id}', fields)
 
-        cf2_f = fields.get(f'custom_field_{cf2.id}')
+        cf2_f = fields.get(f'custom_field-{cf2.id}')
         self.assertIsInstance(cf2_f, IntegerField)
         self.assertTrue(cf2_f.required)
 
