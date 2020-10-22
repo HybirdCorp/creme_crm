@@ -27,10 +27,7 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickMypageLocation,
-)
-from creme.creme_core.utils.settings import (
-    has_setting_value,
-    set_setting_value,
+    SettingValue,
 )
 
 from . import bricks, constants, setting_keys
@@ -43,17 +40,17 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = has_setting_value(setting_keys.NEIGHBOURHOOD_DISTANCE)
+        already_populated = SettingValue.objects.exists_4_key(setting_keys.NEIGHBOURHOOD_DISTANCE)
 
         if already_populated:
             return
 
-        set_setting_value(
+        SettingValue.objects.set_4_key(
             setting_keys.NEIGHBOURHOOD_DISTANCE,
             constants.DEFAULT_SEPARATING_NEIGHBOURS
         )
 
-        set_setting_value(setting_keys.GOOGLE_API_KEY, '')
+        SettingValue.objects.set_4_key(setting_keys.GOOGLE_API_KEY, '')
 
         if self.verbosity:
             self.stdout.write('\n ', ending='')

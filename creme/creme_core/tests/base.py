@@ -22,10 +22,7 @@ from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils.timezone import get_current_timezone, make_aware, utc
 
-from creme.creme_core.utils.settings import (
-    get_setting_value,
-    set_setting_value,
-)
+from creme.creme_core.models.setting_value import SettingValue
 
 from ..global_info import clear_global_info
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -57,15 +54,18 @@ def skipIfNotInstalled(app_name):
 
 class OverrideSettingValueContext(ContextDecorator):
     def __init__(self, key, value):
+        if not key:
+            raise KeyError('Empty setting key')
+
         self.key = key
         self.value = value
 
     def __enter__(self):
-        self._previous = get_setting_value(self.key)
-        set_setting_value(self.key, self.value)
+        self._previous = SettingValue.objects.get_4_key(self.key).value
+        SettingValue.objects.set_4_key(self.key, self.value)
 
     def __exit__(self, *exc):
-        set_setting_value(self.key, self._previous)
+        SettingValue.objects.set_4_key(self.key, self._previous)
 
 
 class _AssertNoExceptionContext:

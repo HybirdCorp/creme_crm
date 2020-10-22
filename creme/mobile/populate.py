@@ -21,10 +21,7 @@
 import logging
 
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.utils.settings import (
-    has_setting_value,
-    set_setting_value,
-)
+from creme.creme_core.models import SettingValue
 
 from . import setting_keys
 
@@ -35,10 +32,10 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = has_setting_value(setting_keys.LOCATION_MAP_URL)
+        already_populated = SettingValue.objects.exists_4_key(setting_keys.LOCATION_MAP_URL)
 
         if not already_populated:
-            set_setting_value(
+            SettingValue.objects.set_4_key(
                 setting_keys.LOCATION_MAP_URL,
                 'https://www.google.com/maps/?q={search}'
             )

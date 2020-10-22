@@ -21,7 +21,7 @@
 import logging
 from typing import Dict, Union
 
-from django.db import models
+from django.db import models, transaction
 
 from ..core.setting_key import (
     SettingKey,
@@ -48,13 +48,46 @@ class SettingValueManager(models.Manager):
         super().__init__(**kwargs)
         self.key_registry = skey_registry
 
-    def clear_cache_of(self, key: Union[SettingKey, str]):
-        cache = get_per_request_cache()
-        cache_key = self.cache_key_fmt.format(
-            key if isinstance(key, str) else key.key_id
-        )
+    def exists_4_key(self, key: Union[SettingKey, str]):
+        if not key:
+            raise KeyError('Empty setting key')
 
-        cache.pop(cache_key, None)
+        key_id = key if isinstance(key, str) else key.id
+        return self.filter(key_id=key_id).exists()
+
+    def set_4_key(self, key: Union[SettingKey, str], value):
+        """Set the SettingValue corresponding to a SettingKey. The cache will be cleared."""
+        if not key:
+            raise KeyError('Empty setting key')
+
+        key_id = key if isinstance(key, str) else key.id
+
+        with transaction.atomic():
+            if value is None:
+                self.filter(key_id=key_id).delete()
+            else:
+                setting, created = self.get_or_create(
+                    key_id=key_id,
+                    defaults={'value': value}
+                )
+
+                if not created:
+                    setting.value = value
+                    setting.save()
+
+            # Clear setting key cache
+            cache = get_per_request_cache()
+            cache_key = self.cache_key_fmt.format(key_id)
+            cache.pop(cache_key, None)
+
+    def value_4_key(self, key: Union[SettingKey, str], default=None):
+        if not key:
+            raise KeyError('Empty setting key')
+
+        try:
+            return self.get_4_key(key, default=default).value
+        except KeyError:
+            return default
 
     def get_4_key(self, key: Union[SettingKey, str], **kwargs) -> 'SettingValue':
         """Get the SettingValue corresponding to a SettingKey. Results are cached (per request).
