@@ -12,7 +12,10 @@ from creme.creme_core.core.setting_key import (
     user_setting_key_registry,
 )
 from creme.creme_core.models import SettingValue
-from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import (
+    CremeTestCase,
+    OverrideSettingValueContext,
+)
 from creme.creme_core.utils import bool_as_html
 
 
@@ -343,6 +346,164 @@ class SettingValueTestCase(CremeTestCase):
         sv = svalues.get(sk.id)
         self.assertEqual(sk.id, sv.key_id)
         self.assertIs(False, sv.value)
+
+
+class SettingValueHelpersTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(SettingValueHelpersTestCase, cls).setUpClass()
+        cls.SETTING_KEY = SettingKey(
+            id='creme_core-test_setting',
+            description='',
+            app_label='creme_core',
+        )
+        cls.INTEGER_SETTING_KEY = SettingKey(
+            id='creme_core-test_setting_int',
+            description='',
+            app_label='creme_core',
+            type=SettingKey.INT,
+        )
+
+        setting_key_registry.register(cls.SETTING_KEY)
+        setting_key_registry.register(cls.INTEGER_SETTING_KEY)
+
+    @classmethod
+    def tearDownClass(cls):
+        super(SettingValueHelpersTestCase, cls).tearDownClass()
+        setting_key_registry.unregister(cls.SETTING_KEY)
+
+    def test_value_4_key_empty(self):
+        self.assertIsNone(SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+    def test_value_4_key_default(self):
+        self.assertEqual(
+            'Default',
+            SettingValue.objects.value_4_key('creme_core-test_setting', default='Default')
+        )
+        self.assertEqual(
+            'Default',
+            SettingValue.objects.value_4_key(self.SETTING_KEY, default='Default')
+        )
+        self.assertEqual(
+            'Default',
+            SettingValue.objects.value_4_key(self.INTEGER_SETTING_KEY, default='Default')
+        )
+
+    def test_value_4_key_filled(self):
+        SettingValue.objects.get_or_create(
+            key_id='creme_core-test_setting',
+            defaults={'value': 'A'}
+        )
+        self.assertEqual(
+            'A',
+            SettingValue.objects.value_4_key('creme_core-test_setting', default='Default')
+        )
+        self.assertEqual(
+            'A',
+            SettingValue.objects.value_4_key(self.SETTING_KEY, default='Default')
+        )
+
+    def test_value_4_key_invalid_key(self):
+        with self.assertRaises(KeyError):
+            SettingValue.objects.value_4_key(None)
+
+        self.assertEqual(None, SettingValue.objects.value_4_key('creme_core-unknown_setting'))
+
+    def test_has_exists_4_key(self):
+        self.assertFalse(SettingValue.objects.exists_4_key('creme_core-test_setting'))
+        self.assertFalse(SettingValue.objects.exists_4_key('creme_core-unknown_setting'))
+
+        with self.assertRaises(KeyError):
+            SettingValue.objects.exists_4_key(None)
+
+        SettingValue.objects.get_or_create(
+            key_id='creme_core-test_setting',
+            defaults={'value': 'A'}
+        )
+
+        self.assertTrue(SettingValue.objects.exists_4_key('creme_core-test_setting'))
+
+    def test_set_4_key(self):
+        self.assertEqual(None, SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+        # create a new value
+        SettingValue.objects.set_4_key('creme_core-test_setting', 'A')
+        self.assertEqual('A', SettingValue.objects.get(key_id='creme_core-test_setting').value)
+        self.assertEqual('A', SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+        # replace value and flush the cache
+        SettingValue.objects.set_4_key('creme_core-test_setting', 'B')
+        self.assertEqual('B', SettingValue.objects.get(key_id='creme_core-test_setting').value)
+        self.assertEqual('B', SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+        # remove the value in database
+        SettingValue.objects.set_4_key('creme_core-test_setting', None)
+        self.assertFalse(SettingValue.objects.filter(key_id='creme_core-test_setting').exists())
+        self.assertEqual(None, SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+    def test_set_4_key_cast(self):
+        SettingValue.objects.set_4_key('creme_core-test_setting_int', 12)
+        self.assertEqual(12, SettingValue.objects.get(key_id='creme_core-test_setting_int').value)
+        self.assertEqual(12, SettingValue.objects.value_4_key('creme_core-test_setting_int'))
+
+    def test_set_4_key_invalid_key(self):
+        with self.assertRaises(KeyError):
+            SettingValue.objects.set_4_key(None, 'A')
+
+        with self.assertRaises(KeyError):
+            SettingValue.objects.set_4_key('creme_core-unknown_setting', 'A')
+
+    def test_set_4_key_invalid_cast(self):
+        with self.assertRaises(Exception):
+            SettingValue.objects.set_4_key('creme_core-test_setting_int', 'B')
+
+        self.assertFalse(SettingValue.objects.filter(key_id='creme_core-test_setting').exists())
+        self.assertEqual(None, SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+        # integer can be cast a str
+        SettingValue.objects.set_4_key('creme_core-test_setting', 12)
+        self.assertEqual('12', SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+    def test_override_setting_value(self):
+        self.assertFalse(SettingValue.objects.filter(key_id='creme_core-test_setting').exists())
+        self.assertEqual(None, SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+        with OverrideSettingValueContext('creme_core-test_setting', 'T'):
+            self.assertEqual('T', SettingValue.objects.get(key_id='creme_core-test_setting').value)
+            self.assertEqual('T', SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+            with OverrideSettingValueContext('creme_core-test_setting', 'U'):
+                self.assertEqual(
+                    'U', SettingValue.objects.get(key_id='creme_core-test_setting').value
+                )
+                self.assertEqual('U', SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+            self.assertEqual(
+                'T', SettingValue.objects.get(key_id='creme_core-test_setting').value
+            )
+            self.assertEqual('T', SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+        self.assertFalse(SettingValue.objects.filter(key_id='creme_core-test_setting').exists())
+        self.assertEqual(None, SettingValue.objects.value_4_key('creme_core-test_setting'))
+
+    def test_override_setting_value_invalid_key(self):
+        with self.assertRaises(KeyError):
+            with OverrideSettingValueContext('creme_core-unknown_setting', 'T'):
+                pass
+
+        with self.assertRaises(KeyError):
+            with OverrideSettingValueContext(None, 'T'):
+                pass
+
+    def test_override_setting_value_invalid_cast(self):
+        with self.assertRaises(Exception):
+            with OverrideSettingValueContext('creme_core-test_setting_int', 'T'):
+                pass
+
+        self.assertFalse(
+            SettingValue.objects.filter(key_id='creme_core-test_setting_int').exists()
+        )
+        self.assertEqual(None, SettingValue.objects.value_4_key('creme_core-test_setting_int'))
 
 
 class UserSettingValueTestCase(CremeTestCase):

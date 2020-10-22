@@ -1268,6 +1268,10 @@ GEOLOCATION_TOWNS = [
 # Url for address geolocation search (nominatim is the only supported backend for now)
 GEOLOCATION_OSM_NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
 # Url pattern for tiles of the geolocation
+# {s} − one of the available subdomains
+# {z} — zoom level
+# {x} and {y} — tile coordinates
+# see https://leafletjs.com/reference-1.7.1.html#tilelayer
 GEOLOCATION_OSM_TILEMAP_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
 # Copyright link href & title (appears in the bottom-right of the maps)

@@ -31,18 +31,18 @@ from creme.activities.constants import (
     REL_SUB_ACTIVITY_SUBJECT,
     STATUS_IN_PROGRESS,
 )
-from creme.creme_core.utils.settings import get_setting_value
+# from creme.persons import constants as persons_constants
+from creme.creme_core.models import SettingValue
 from creme.mobile import setting_keys
 from creme.persons import get_organisation_model
 
-# from creme.persons import constants as persons_constants
 register = Library()
 Organisation = get_organisation_model()
 
 
 @register.simple_tag(takes_context=True)
 def mobile_location_map_url(context, address):
-    url = get_setting_value(setting_keys.LOCATION_MAP_URL)
+    url = SettingValue.objects.value_4_key(setting_keys.LOCATION_MAP_URL)
     geoaddress = getattr(address, 'geoaddress', None)
     data = {
         'search': str(address).replace(' ', '+'),

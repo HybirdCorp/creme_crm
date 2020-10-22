@@ -26,7 +26,7 @@ from django.db.models.query_utils import Q
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.utils.settings import get_setting_value
+from creme.creme_core.models import SettingValue
 from creme.persons import get_address_model
 
 from . import constants, setting_keys
@@ -113,14 +113,14 @@ def addresses_from_persons(queryset, user):
 
 
 def get_radius():
-    return get_setting_value(
+    return SettingValue.objects.value_4_key(
         setting_keys.NEIGHBOURHOOD_DISTANCE,
         default=constants.DEFAULT_SEPARATING_NEIGHBOURS,
     )
 
 
 def get_google_api_key():
-    return get_setting_value(setting_keys.GOOGLE_API_KEY, default='') or ''
+    return SettingValue.objects.value_4_key(setting_keys.GOOGLE_API_KEY, default='') or ''
 
 
 def get_openstreetmap_settings():

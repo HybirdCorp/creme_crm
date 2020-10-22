@@ -205,9 +205,11 @@
             - A builtin method 'instance' has been added in 'creme.utils.newJQueryPlugin'.
         # Apps :
             * CremeCore :
-                - Helpers have been added to handle SettingValue in database and cache :
-                    - set_setting_value(), get_setting_value() & has_setting_value() in 'creme_core.utils.settings' module
-                    - New with-statement TemporarySettingValueContext that allows local changes in settings for tests
+                - Helpers have been added SettingValue manager:
+                    - SettingValue.objects.exists_4_key()
+                    - SettingValue.objects.value_4_key()
+                    - SettingValue.objects.set_4_key()
+                - New with-statement OverrideSettingValueContext in 'creme_core.tests.base' that allows local changes in settings for tests
             * Reports :
                 - A property 'models.AbstractReportGraph.abscissa_info' has been added.
             * Emails :
