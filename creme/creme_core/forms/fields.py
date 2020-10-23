@@ -624,10 +624,16 @@ class ChoiceModelIterator:
 class RelationEntityField(EntityCredsJSONField):
     widget = core_widgets.RelationSelector
     default_error_messages = {
-        'rtypedoesnotexist': _('This type of relationship does not exist.'),
-        'rtypenotallowed': _('This type of relationship causes a constraint error.'),
+        'rtypedoesnotexist': _(
+            'This type of relationship does not exist (id=%(rtype_id)s).'
+        ),
+        'rtypenotallowed': _(
+            'This type of relationship causes a constraint error '
+            '(id="%(rtype_id)s").'
+        ),
         'ctypenotallowed': _(
-            'This content type cause constraint error with the type of relationship.'
+            'This content type cause constraint error with the type of relationship '
+            '(id="%(ctype_id)s").'
         ),
         'nopropertymatch': _(
             'This entity has no property that matches the constraints of the type of relationship.'
@@ -706,7 +712,8 @@ class RelationEntityField(EntityCredsJSONField):
         if ctype_ids and ctype_pk not in ctype_ids:
             raise ValidationError(
                 self.error_messages['ctypenotallowed'],
-                params={'ctype': ctype_pk},
+                # params={'ctype': ctype_pk},
+                params={'ctype_id': ctype_pk},
                 code='ctypenotallowed',
             )
 
@@ -730,17 +737,19 @@ class RelationEntityField(EntityCredsJSONField):
         if rtype_pk not in self._get_allowed_rtypes_ids():
             raise ValidationError(
                 self.error_messages['rtypenotallowed'],
-                params={'rtype': rtype_pk}, code='rtypenotallowed',
+                params={'rtype_id': rtype_pk}, code='rtypenotallowed',
             )
 
-        try:
-            return RelationType.objects.get(pk=rtype_pk)
-        except RelationType.DoesNotExist as e:
-            raise ValidationError(
-                self.error_messages['rtypedoesnotexist'],
-                params={'rtype': rtype_pk},
-                code='rtypedoesnotexist',
-            ) from e
+        # try:
+        #     return RelationType.objects.get(pk=rtype_pk)
+        # except RelationType.DoesNotExist as e:
+        #     raise ValidationError(
+        #         self.error_messages['rtypedoesnotexist'],
+        #         params={'rtype_id': rtype_pk},
+        #         code='rtypedoesnotexist',
+        #     ) from e
+        # NB: we are sure the RelationType exists here
+        return RelationType.objects.get(pk=rtype_pk)
 
     def _get_options(self):  # TODO: inline
         return ChoiceModelIterator(self._allowed_rtypes)
@@ -765,7 +774,8 @@ class MultiRelationEntityField(RelationEntityField):
         except RelationType.DoesNotExist as e:
             raise ValidationError(
                 self.error_messages['rtypedoesnotexist'],
-                params={'rtype': rtype_pk},
+                # params={'rtype': rtype_pk},
+                params={'rtype_id': rtype_pk},
                 code='rtypedoesnotexist',
             ) from e
 
@@ -780,7 +790,7 @@ class MultiRelationEntityField(RelationEntityField):
         except ContentType.DoesNotExist as e:
             raise ValidationError(
                 self.error_messages['ctypedoesnotexist'],
-                params={'ctype': ctype_pk},
+                # params={'ctype': ctype_pk},
                 code='ctypedoesnotexist',
             ) from e
 
@@ -824,8 +834,9 @@ class MultiRelationEntityField(RelationEntityField):
                 raise ValidationError(
                     self.error_messages['rtypenotallowed'],
                     params={
-                        'rtype': rtype_pk,
-                        'ctype': ctype_pk,
+                        # 'rtype': rtype_pk,
+                        # 'ctype': ctype_pk,
+                        'rtype_id': rtype_pk,
                     },
                     code='rtypenotallowed',
                 )
@@ -841,7 +852,8 @@ class MultiRelationEntityField(RelationEntityField):
             if allowed_ctype_ids and ctype_pk not in allowed_ctype_ids:
                 raise ValidationError(
                     self.error_messages['ctypenotallowed'],
-                    params={'ctype': ctype_pk},
+                    # params={'ctype': ctype_pk},
+                    params={'ctype_id': ctype_pk},
                     code='ctypenotallowed',
                 )
 

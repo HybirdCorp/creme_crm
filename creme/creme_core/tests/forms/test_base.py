@@ -1063,7 +1063,14 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         self.assertFormInstanceErrors(
             form2,
-            ('relation_types', _('This type of relationship causes a constraint error.')),
+            # ('relation_types', _('This type of relationship causes a constraint error.')),
+            (
+                'relation_types',
+                _(
+                    'This type of relationship causes a constraint error '
+                    '(id="%(rtype_id)s").'
+                ) % {'rtype_id': rtype.id},
+            ),
         )
 
     @override_settings(FORMS_RELATION_FIELDS=True)
