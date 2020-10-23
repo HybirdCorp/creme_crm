@@ -119,14 +119,14 @@ eslint:
 ## Validates the Python imports with isort
 .PHONY: isort-check
 isort-check:
-	isort -rc creme/ --check --diff --atomic
+	isort creme/ --check --diff --atomic
 
 
 
 ## Sort the Python imports with isort
 .PHONY: isort-fix
 isort-fix:
-	isort -rc creme/ --atomic
+	isort creme/ --atomic
 
 
 ## Validates the Python code with flake8
