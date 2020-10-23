@@ -282,6 +282,7 @@ INSTALLED_DJANGO_APPS = [
 
     # EXTERNAL APPS
     'formtools',
+    'pipeline'
 ]
 
 INSTALLED_CREME_APPS = [
