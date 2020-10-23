@@ -449,6 +449,21 @@ class Base(CremeEntity):
             }
         )
 
+    def _set_basic_payment_info(self):
+        source = self._source
+
+        if source:
+            payment_info = self.payment_info
+            pinfo_orga_id = payment_info.organisation_id if payment_info else None
+
+            if source.id != pinfo_orga_id:
+                self.payment_info = None
+
+            if self.payment_info is None:  # Optimization
+                source_pis = PaymentInformation.objects.filter(organisation=source.id)[:2]
+                if len(source_pis) == 1:
+                    self.payment_info = source_pis[0]
+
     @atomic
     def save(self, *args, **kwargs):
         # if self.pk:
@@ -463,6 +478,8 @@ class Base(CremeEntity):
         )
         source = self._source
         target = self._target
+
+        self._set_basic_payment_info()
 
         if not self.pk:   # Creation
             self._clean_source_n_target()
