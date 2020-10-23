@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-20 17:54+0200\n"
+"POT-Creation-Date: 2020-10-23 13:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -85,7 +85,7 @@ msgstr "Cœur"
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:418 models/auth.py:921 models/job.py:85
+#: apps.py:418 models/auth.py:926 models/job.py:85
 #: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:59
 msgid "User"
@@ -1074,7 +1074,7 @@ msgstr "Ce type de resource n'est pas autorisé."
 msgid "This entity is invalid."
 msgstr "Cette fiche est invalide."
 
-#: forms/entity_filter/fields.py:857 forms/fields.py:1105
+#: forms/entity_filter/fields.py:857 forms/fields.py:1125
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
@@ -1094,7 +1094,7 @@ msgstr "Un filtre privé doit vous être attribué (ou à une des vos équipes).
 msgid "Conditions"
 msgstr "Conditions"
 
-#: forms/entity_filter/forms.py:55 forms/header_filter.py:784
+#: forms/entity_filter/forms.py:55 forms/header_filter.py:785
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
@@ -1167,21 +1167,28 @@ msgstr "Le type de resource est obligatoire."
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:619
-msgid "This type of relationship does not exist."
-msgstr "Ce type de relation n'existe pas."
+#: forms/fields.py:628
+#, python-format
+msgid "This type of relationship does not exist (id=%(rtype_id)s)."
+msgstr "Ce type de relation n'existe pas (id=%(rtype_id)s)."
 
-#: forms/fields.py:620
-msgid "This type of relationship causes a constraint error."
-msgstr "Ce type de relation provoque une erreur de contrainte."
+#: forms/fields.py:631
+#, python-format
+msgid ""
+"This type of relationship causes a constraint error (id=\"%(rtype_id)s\")."
+msgstr ""
+"Ce type de relation provoque une erreur de contrainte (id=\"%(rtype_id)s\")."
 
-#: forms/fields.py:622
-msgid "This content type cause constraint error with the type of relationship."
+#: forms/fields.py:635
+#, python-format
+msgid ""
+"This content type cause constraint error with the type of relationship (id="
+"\"%(ctype_id)s\")."
 msgstr ""
 "Ce type de resource provoque une erreur de contrainte avec le type de "
-"relation"
+"relation (id=\"%(ctype_id)s\")."
 
-#: forms/fields.py:625
+#: forms/fields.py:639
 msgid ""
 "This entity has no property that matches the constraints of the type of "
 "relationship."
@@ -1189,11 +1196,11 @@ msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:1204
+#: forms/fields.py:1224
 msgid "Enter a value if you check the box."
 msgstr "Entrez une valeur si vous cochez la case."
 
-#: forms/fields.py:1484
+#: forms/fields.py:1504
 msgid ""
 "If you select «customized» you have to specify a start date and/or an end "
 "date."
@@ -1201,39 +1208,39 @@ msgstr ""
 "Si vous sélectionnez «Personnalisé» vous devez spécifier une date de début "
 "et/ou une date de fin."
 
-#: forms/fields.py:1486
+#: forms/fields.py:1506
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:1494 forms/widgets.py:305 forms/widgets.py:334
+#: forms/fields.py:1514 forms/widgets.py:305 forms/widgets.py:334
 msgctxt "creme_core-date_range"
 msgid "Customized"
 msgstr "Personnalisé"
 
-#: forms/fields.py:1543
+#: forms/fields.py:1563
 msgid "Enter a valid value (eg: DF8177)."
 msgstr "Saisissez une valeur valide (ex: DF8177)."
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1556
+#: forms/fields.py:1576
 msgid "Enter a whole number."
 msgstr ""
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1557
+#: forms/fields.py:1577
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
 
-#: forms/fields.py:1580
+#: forms/fields.py:1600
 msgid "Enter a value for \"Other\" choice."
 msgstr "Entrez une valeur pour le choix \"Autre\""
 
-#: forms/fields.py:1603
+#: forms/fields.py:1623
 msgid "Other"
 msgstr "Autre"
 
-#: forms/fields.py:1638
+#: forms/fields.py:1658
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
@@ -1243,31 +1250,31 @@ msgstr ""
 msgid "This value is invalid: %(value)s"
 msgstr "Cette valeur est invalide : %(value)s"
 
-#: forms/header_filter.py:445
+#: forms/header_filter.py:446
 #, python-format
 msgid "This type of relationship is not compatible with «%(model)s»."
 msgstr "Ce type de relation n'est pas compatible avec «%(model)s»."
 
-#: forms/header_filter.py:764
+#: forms/header_filter.py:765
 msgid "A private view of list must be assigned to a user/team."
 msgstr "Une vue de liste privée doit être attribuée à un utilisateur/équipe."
 
-#: forms/header_filter.py:765
+#: forms/header_filter.py:766
 msgid "A private view of list must belong to you (or one of your teams)."
 msgstr ""
 "Une vue de liste privée doit vous être attribuée (ou à une des vos équipe)."
 
-#: forms/header_filter.py:768 forms/header_filter.py:780
+#: forms/header_filter.py:769 forms/header_filter.py:781
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/header_filter.py:773
+#: forms/header_filter.py:774
 msgid "All users can see the view, but only the owner can edit or delete it"
 msgstr ""
 "Cette vue sera visible par tous les utilisateurs, mais seul le propriétaire "
 "pourra la modifier ou la supprimer"
 
-#: forms/header_filter.py:775
+#: forms/header_filter.py:776
 msgid ""
 "A private view of list can only be used by its owner (or the teammates if "
 "the owner is a team)"
@@ -1542,16 +1549,16 @@ msgstr "Propriétés associées"
 msgid "Associated relationships"
 msgstr "Relations associées"
 
-#: forms/mass_import.py:1596
+#: forms/mass_import.py:1598
 msgid "Not in the file"
 msgstr "Pas dans le fichier"
 
-#: forms/mass_import.py:1600
+#: forms/mass_import.py:1602
 #, python-brace-format
 msgid "Column {index} - {name}"
 msgstr "Colonne {index} - {name}"
 
-#: forms/mass_import.py:1607
+#: forms/mass_import.py:1609
 msgid "Column {}"
 msgstr "Colonne {}"
 
@@ -1778,7 +1785,7 @@ msgstr "À la première page"
 msgid "Next page"
 msgstr "Page suivante"
 
-#: models/auth.py:73 models/bricks.py:887 models/entity_filter.py:314
+#: models/auth.py:73 models/bricks.py:885 models/entity_filter.py:314
 #: models/i18n.py:28 templates/creme_core/bricks/relations.html:17
 #: templates/creme_core/bricks/trash.html:18
 msgid "Name"
@@ -1800,7 +1807,7 @@ msgstr "Créer un rôle"
 msgid "Save the role"
 msgstr "Enregistrer le rôle"
 
-#: models/auth.py:92 models/auth.py:884
+#: models/auth.py:92 models/auth.py:889
 msgid "Role"
 msgstr "Rôle"
 
@@ -1849,7 +1856,7 @@ msgid "The users are NOT allowed to perform the selected actions"
 msgstr ""
 "les utilisateurs NE sont PAS autorisés à effectuer les actions sélectionnées"
 
-#: models/auth.py:357
+#: models/auth.py:358
 msgid ""
 "Notice that actions which are forbidden & allowed at the same time are "
 "considered as forbidden when final permissions are computed."
@@ -1857,183 +1864,183 @@ msgstr ""
 "Remarquez que les actions qui sont à la fois interdites et autorisées sont "
 "considérées comme interdites quand les permissions finales sont calculées."
 
-#: models/auth.py:377
+#: models/auth.py:378
 msgid "view"
 msgstr "voir"
 
-#: models/auth.py:380
+#: models/auth.py:381
 msgid "change"
 msgstr "modifier"
 
-#: models/auth.py:383
+#: models/auth.py:384
 msgid "delete"
 msgstr "supprimer"
 
-#: models/auth.py:386
+#: models/auth.py:387
 msgid "link"
 msgstr "délier"
 
-#: models/auth.py:389
+#: models/auth.py:390
 msgid "unlink"
 msgstr "délier"
 
-#: models/auth.py:393
+#: models/auth.py:394
 msgid "nothing forbidden"
 msgstr "rien d'interdit"
 
-#: models/auth.py:394
+#: models/auth.py:395
 msgid "nothing allowed"
 msgstr "rien d'autorisé"
 
-#: models/auth.py:406
+#: models/auth.py:407
 #, python-brace-format
 msgid "For “{set}“ of type “{type}” it is forbidden to: {perms}"
 msgstr "Pour “{set}“ du type “{type}” interdit de : {perms}"
 
-#: models/auth.py:408
+#: models/auth.py:409
 #, python-brace-format
 msgid "For “{set}“ of type “{type}” it is allowed to: {perms}"
 msgstr "Pour “{set}“ du type “{type}” autorisé à : {perms}"
 
-#: models/auth.py:412
+#: models/auth.py:413
 #, python-brace-format
 msgid "For “{set}“ it is forbidden to: {perms}"
 msgstr "Pour “{set}“ interdit de : {perms}"
 
-#: models/auth.py:414
+#: models/auth.py:415
 #, python-brace-format
 msgid "For “{set}“ it is allowed to: {perms}"
 msgstr "Pour “{set}“ autorisé à : {perms}"
 
-#: models/auth.py:849
+#: models/auth.py:852
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: models/auth.py:850
+#: models/auth.py:854
 msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
 msgstr ""
 "Requis. 30 caractères maximum. Uniquement des lettres, nombres et les "
 "caractères « @ », « . », « + », « - » et « _ »."
 
 # Already in django.auth
-#: models/auth.py:855
+#: models/auth.py:860
 msgid ""
 "Enter a valid username. This value may contain only letters, numbers, and "
 "@/./+/-/_ characters."
 msgstr ""
 
 # Already in django.auth
-#: models/auth.py:863
+#: models/auth.py:868
 msgid "A user with that username already exists."
 msgstr ""
 
-#: models/auth.py:867
+#: models/auth.py:872
 msgid "Last name"
 msgstr "Nom"
 
-#: models/auth.py:869
+#: models/auth.py:874
 msgid "First name"
 msgstr "Prénom"
 
-#: models/auth.py:871
+#: models/auth.py:876
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/auth.py:873
+#: models/auth.py:878
 msgid "Date joined"
 msgstr "Date d'inscription"
 
-#: models/auth.py:875
+#: models/auth.py:880
 msgid "Active?"
 msgstr "Actif ?"
 
-#: models/auth.py:878
+#: models/auth.py:883
 msgid "Is staff?"
 msgstr "Est administrateur ?"
 
-#: models/auth.py:881
+#: models/auth.py:886
 msgid "Is a superuser?"
 msgstr "Est un super-utilisateur ?"
 
-#: models/auth.py:888
+#: models/auth.py:893
 msgid "Is a team?"
 msgstr "Est une équipe ?"
 
-#: models/auth.py:891
+#: models/auth.py:896
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: models/auth.py:895
+#: models/auth.py:900
 msgid "Time zone"
 msgstr "Fuseau horaire"
 
-#: models/auth.py:899
+#: models/auth.py:904
 msgid "Theme"
 msgstr "Thème"
 
-#: models/auth.py:911
+#: models/auth.py:916
 msgid "Create a user"
 msgstr "Créer un utilisateur"
 
-#: models/auth.py:912
+#: models/auth.py:917
 msgid "Save the user"
 msgstr "Enregistrer l'utilisateur"
 
-#: models/auth.py:922
+#: models/auth.py:927
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: models/auth.py:930
+#: models/auth.py:935
 #, python-brace-format
 msgid "{user} (team)"
 msgstr "{user} (équipe)"
 
-#: models/auth.py:937
+#: models/auth.py:942
 #, python-brace-format
 msgid "{first_name} {last_name}."
 msgstr "{first_name} {last_name}."
 
-#: models/auth.py:1072
+#: models/auth.py:1077
 msgid "Invalid app \"{}\""
 msgstr "App invalide \"{}\""
 
-#: models/auth.py:1077
+#: models/auth.py:1082
 msgid "You are not allowed to access to the app: {}"
 msgstr "Vous n'avez pas accés à cette application: {}"
 
-#: models/auth.py:1090
+#: models/auth.py:1095
 msgid "You are not allowed to configure this app: {}"
 msgstr "Vous n'êtes pas autorisé à configurer cette app: {}"
 
-#: models/auth.py:1110
+#: models/auth.py:1115
 msgid "You are not allowed to edit this entity: {}"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: {}"
 
-#: models/auth.py:1125
+#: models/auth.py:1130
 msgid "You are not allowed to create: {}"
 msgstr "Vous n'avez pas la permission de créer : {}"
 
-#: models/auth.py:1141 views/entity.py:1004
+#: models/auth.py:1146 views/entity.py:1004
 msgid "You are not allowed to delete this entity: {}"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: {}"
 
-#: models/auth.py:1159
+#: models/auth.py:1164
 msgid "You are not allowed to export: {}"
 msgstr "Vous n'avez pas la permission d'exporter: {}"
 
-#: models/auth.py:1195
+#: models/auth.py:1200
 msgid "You are not allowed to link this entity: {}"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: {}"
 
-#: models/auth.py:1199
+#: models/auth.py:1204
 msgid "You are not allowed to link: {}"
 msgstr "Vous n'avez pas la permission de lier: {}"
 
-#: models/auth.py:1212
+#: models/auth.py:1217
 msgid "You are not allowed to unlink this entity: {}"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: {}"
 
-#: models/auth.py:1224
+#: models/auth.py:1229
 msgid "You are not allowed to view this entity: {}"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 
@@ -2047,7 +2054,7 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: models/bricks.py:169 models/bricks.py:886 models/button_menu.py:68
+#: models/bricks.py:169 models/bricks.py:884 models/button_menu.py:68
 #: models/custom_field.py:82
 msgid "Related type"
 msgstr "Type associé"
@@ -2169,7 +2176,7 @@ msgstr "Ce bloc est utilisé dans la configuration par défaut de \"Ma page\""
 msgid "This block is used in the configuration of «{}» for \"My page\""
 msgstr "Ce bloc est utilisé dans la configuration de «{}» pour \"Ma page\""
 
-#: models/bricks.py:602 models/bricks.py:1031
+#: models/bricks.py:602 models/bricks.py:1029
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
@@ -2181,15 +2188,15 @@ msgstr "Type de relation associé"
 msgid "Create a type of block"
 msgstr "Créer un type de bloc"
 
-#: models/bricks.py:613 models/bricks.py:748
+#: models/bricks.py:613 models/bricks.py:746
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: models/bricks.py:734
+#: models/bricks.py:732
 msgid "Block related entity"
 msgstr "Fiche associée au bloc"
 
-#: models/bricks.py:747
+#: models/bricks.py:745
 msgid "Create a block"
 msgstr "Créer un bloc"
 
@@ -4188,7 +4195,7 @@ msgstr "Enregistrer le filtre modifié"
 msgid "The filter can not be deleted because of its dependencies."
 msgstr "Le filtre ne peut être supprimé à cause de ses dépendances."
 
-#: views/file_handling.py:115
+#: views/file_handling.py:121
 msgid "Invalid file"
 msgstr "Fichier invalide"
 

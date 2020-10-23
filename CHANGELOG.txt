@@ -1586,11 +1586,13 @@
                 - relation : add_relations(), add_relations_bulk()
                 - search.search()
         # In 'creme_core.forms' :
+            - In 'fields' :
+                - The method 'CreatorEntityField._check_qfilter()' has been removed.
+                - Some error messages in 'RelationEntityField' get an argument.
             - The class 'header_filter.HeaderFilterForm' has been removed ; use the 'HeaderFilterCreationForm' & 'HeaderFilterEditForm' instead.
             - In 'entity_filter' :
                 - The constructor of 'EntityFilterCreateForm' takes a additional mandatory argument "ctype" (& it does not use the initial data to get the content type).
                 - The constructors of 'FieldConditionWidget' & 'RegularFieldsConditionsWidget' take now an additional first argument "model" (default: CremeEntity).
-            - The method 'fields.CreatorEntityField._check_qfilter()' has been removed.
         # In 'creme_core.gui' :
             - With the method 'quick_forms.QuickFormsRegistry.register()' : if a form is already registered for the given model, an exception is raised (there was just a log).
             - The method 'button_menu.ButtonsRegistry.get_buttons()' is now a generator.
