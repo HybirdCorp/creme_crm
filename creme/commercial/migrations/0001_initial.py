@@ -25,6 +25,7 @@ class Migration(migrations.Migration):
                 ('property_type', models.ForeignKey(editable=False, to='creme_core.CremePropertyType', null=True, on_delete=CASCADE)),
             ],
             options={
+                'ordering': ('name',),
                 'verbose_name': 'Market segment',
                 'verbose_name_plural': 'Market segments',
             },
@@ -47,9 +48,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Act',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the commercial action')),
                 ('expected_sales', models.PositiveIntegerField(verbose_name='Expected sales')),
@@ -75,14 +79,23 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('counter', models.PositiveIntegerField(default=0, verbose_name='Counter', editable=False)),
                 ('counter_goal', models.PositiveIntegerField(default=1, verbose_name='Value to reach')),
-                ('act', models.ForeignKey(related_name='objectives', editable=False, to=settings.COMMERCIAL_ACT_MODEL, on_delete=CASCADE)),
-                ('ctype', creme_fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType',
-                                                       null=True, verbose_name='Counted type',
-                                                      )
+                (
+                    'act',
+                    models.ForeignKey(related_name='objectives', editable=False, to=settings.COMMERCIAL_ACT_MODEL, on_delete=CASCADE),
                 ),
-                ('filter', models.ForeignKey(on_delete=PROTECT, blank=True, editable=False, to='creme_core.EntityFilter',
-                                             null=True, verbose_name='Filter on counted entities',
-                                            )
+                (
+                    'ctype',
+                    creme_fields.CTypeForeignKey(
+                        blank=True, editable=False, to='contenttypes.ContentType',
+                        null=True, verbose_name='Counted type',
+                    ),
+                ),
+                (
+                    'filter',
+                    models.ForeignKey(
+                        on_delete=PROTECT, blank=True, editable=False, to='creme_core.EntityFilter',
+                        null=True, verbose_name='Filter on counted entities',
+                    ),
                 ),
             ],
             options={
@@ -94,13 +107,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ActObjectivePattern',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    ),
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('average_sales', models.PositiveIntegerField(verbose_name='Average sales')),
-                ('segment', models.ForeignKey(verbose_name='Related segment', to='commercial.MarketSegment', on_delete=CASCADE)),
+                (
+                    'segment',
+                    models.ForeignKey(verbose_name='Related segment', to='commercial.MarketSegment', on_delete=CASCADE),
+                ),
             ],
             options={
                 'swappable': 'COMMERCIAL_PATTERN_MODEL',
@@ -117,15 +136,26 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('success_rate', models.PositiveIntegerField(verbose_name='Success rate')),
                 ('ctype', creme_fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
-                ('filter', models.ForeignKey(on_delete=PROTECT, blank=True, editable=False, to='creme_core.EntityFilter',
-                                             null=True, verbose_name='Filter on counted entities',
-                                            )
+                (
+                    'filter',
+                    models.ForeignKey(
+                        on_delete=PROTECT, blank=True, editable=False, to='creme_core.EntityFilter',
+                        null=True, verbose_name='Filter on counted entities',
+                    )
                 ),
-                ('parent', models.ForeignKey(related_name='children', editable=False,
-                                             to='commercial.ActObjectivePatternComponent', null=True, on_delete=CASCADE,
-                                            )
+                (
+                    'parent',
+                    models.ForeignKey(
+                        related_name='children', editable=False,
+                        to='commercial.ActObjectivePatternComponent', null=True, on_delete=CASCADE,
+                    ),
                 ),
-                ('pattern', models.ForeignKey(related_name='components', editable=False, to=settings.COMMERCIAL_PATTERN_MODEL, on_delete=CASCADE)),
+                (
+                    'pattern',
+                    models.ForeignKey(
+                        related_name='components', editable=False, to=settings.COMMERCIAL_PATTERN_MODEL, on_delete=CASCADE,
+                    )
+                ),
             ],
             options={},
             bases=(models.Model,),
@@ -136,17 +166,29 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
-                ('creation_date', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                (
+                    'creation_date',
+                    creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True),
+                ),
                 # ('entity_id', models.PositiveIntegerField(editable=False)),
-                ('entity', models.ForeignKey(editable=False, on_delete=CASCADE,
-                                             to='creme_core.CremeEntity', related_name='commercial_approaches',
-                                            )
+                (
+                    'entity',
+                    models.ForeignKey(
+                        editable=False, on_delete=CASCADE, to='creme_core.CremeEntity', related_name='commercial_approaches',
+                    ),
                 ),
-                ('entity_content_type', creme_fields.EntityCTypeForeignKey(editable=False, on_delete=CASCADE, related_name='+',
-                                                                           to='contenttypes.ContentType',
-                                                                          )
+                (
+                    'entity_content_type',
+                    creme_fields.EntityCTypeForeignKey(
+                        editable=False, on_delete=CASCADE, related_name='+', to='contenttypes.ContentType',
+                    )
                 ),
-                ('related_activity', models.ForeignKey(editable=False, to=settings.ACTIVITIES_ACTIVITY_MODEL, null=True, on_delete=CASCADE)),
+                (
+                    'related_activity',
+                    models.ForeignKey(
+                        editable=False, to=settings.ACTIVITIES_ACTIVITY_MODEL, null=True, on_delete=CASCADE,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Commercial approach',
@@ -157,14 +199,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Strategy',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('evaluated_orgas', models.ManyToManyField(verbose_name='Evaluated organisation(s)', editable=False,
-                                                           to=settings.PERSONS_ORGANISATION_MODEL,
-                                                          )
+                (
+                    'evaluated_orgas',
+                    models.ManyToManyField(
+                        verbose_name='Evaluated organisation(s)', editable=False, to=settings.PERSONS_ORGANISATION_MODEL,
+                    ),
                 ),
             ],
             options={
@@ -184,9 +231,12 @@ class Migration(migrations.Migration):
                 ('price',     models.TextField(verbose_name='Price',     blank=True)),
                 ('promotion', models.TextField(verbose_name='Promotion', blank=True)),
                 ('segment',   models.ForeignKey(to='commercial.MarketSegment', on_delete=CASCADE)),
-                ('strategy',  models.ForeignKey(related_name='segment_info', editable=False,
-                                                to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE,
-                                               )
+                (
+                    'strategy',
+                    models.ForeignKey(
+                        related_name='segment_info', editable=False,
+                        to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE,
+                    ),
                 ),
             ],
             options={
@@ -200,7 +250,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('strategy', models.ForeignKey(related_name='assets', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE)),
+                (
+                    'strategy',
+                    models.ForeignKey(
+                        related_name='assets', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Commercial asset',
@@ -237,7 +292,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('strategy', models.ForeignKey(related_name='charms', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE)),
+                (
+                    'strategy',
+                    models.ForeignKey(
+                        related_name='charms', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Segment charm',
