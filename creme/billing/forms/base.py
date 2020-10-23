@@ -34,7 +34,7 @@ from creme.creme_core.forms import (
 from creme.persons import get_contact_model, get_organisation_model
 
 # from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from ..models import PaymentInformation
+# from ..models import PaymentInformation
 
 logger = logging.getLogger(__name__)
 
@@ -138,22 +138,22 @@ class BaseEditForm(CremeEntityForm):
         return target
 
     def save(self, *args, **kwargs):
-        instance = self.instance
+        # instance = self.instance
 
         cleaned_data = self.cleaned_data
-        source = cleaned_data['source']
+        # source = cleaned_data['source']
         # target = cleaned_data['target']
 
-        payment_info = instance.payment_info
-        pinfo_orga_id = payment_info.organisation_id if payment_info else None
-
-        if source.id != pinfo_orga_id:
-            instance.payment_info = None
-
-        if instance.payment_info is None:  # Optimization
-            source_pis = PaymentInformation.objects.filter(organisation=source.id)[:2]
-            if len(source_pis) == 1:
-                instance.payment_info = source_pis[0]
+        # payment_info = instance.payment_info
+        # pinfo_orga_id = payment_info.organisation_id if payment_info else None
+        #
+        # if source.id != pinfo_orga_id:
+        #     instance.payment_info = None
+        #
+        # if instance.payment_info is None:  # Optimization
+        #     source_pis = PaymentInformation.objects.filter(organisation=source.id)[:2]
+        #     if len(source_pis) == 1:
+        #         instance.payment_info = source_pis[0]
 
         instance = super().save(*args, **kwargs)
 
