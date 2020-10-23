@@ -122,7 +122,6 @@ isort-check:
 	isort creme/ --check --diff --atomic
 
 
-
 ## Sort the Python imports with isort
 .PHONY: isort-fix
 isort-fix:
@@ -135,9 +134,14 @@ flake8:
 	flake8 creme
 
 
-## Run all the Python linters
+## Run all the Python linter checks
 .PHONY: lint
 lint: isort-check flake8
+
+
+## Run all the Python linter fixes
+.PHONY: format
+format: isort-fix
 
 
 ## Print some Django settings
