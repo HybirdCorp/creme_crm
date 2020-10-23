@@ -30,7 +30,7 @@ commands:
             - creme_crm
 
       - create-virtualenv
-      - run: pip install -e .[dev,mysql,pgsql,graphs]
+      - run: pip install -U -e .[dev,mysql,pgsql,graphs]
       - run: pip list --outdated
 
       - save_cache:
