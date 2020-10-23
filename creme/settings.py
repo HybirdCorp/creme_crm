@@ -282,7 +282,6 @@ INSTALLED_DJANGO_APPS = [
 
     # EXTERNAL APPS
     'formtools',
-    'creme.creme_core.apps.MediaGeneratorConfig',  # It manages js/css/images
 ]
 
 INSTALLED_CREME_APPS = [
