@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CASCADE, CharField, ForeignKey
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -27,9 +27,9 @@ from creme.creme_core.models import CremeModel, CremePropertyType
 
 
 class MarketSegment(CremeModel):
-    name          = CharField(_('Name'), max_length=100)  # TODO: unique ?
-    property_type = ForeignKey(
-        CremePropertyType, null=True, editable=False, on_delete=CASCADE,
+    name = models.CharField(_('Name'), max_length=100)  # TODO: unique ?
+    property_type = models.ForeignKey(
+        CremePropertyType, null=True, editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
 
     creation_label = _('Create a market segment')
@@ -39,6 +39,7 @@ class MarketSegment(CremeModel):
         app_label = 'commercial'
         verbose_name = _('Market segment')
         verbose_name_plural = _('Market segments')
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
