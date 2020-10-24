@@ -4,6 +4,7 @@ import logging
 from os.path import join
 
 from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.shortcuts import render
 from django.urls import include, re_path
@@ -33,21 +34,11 @@ urlpatterns = [
         name='creme_about',
     ),
 
-    # re_path(r'^site_media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-
     # TODO: remove this line when the Rich Text Editor is generated like other static media
     re_path(
-        r'^tiny_mce/(?P<path>.*)$', serve, {'document_root': join(settings.MEDIA_ROOT, 'tiny_mce')}
+        r'^tiny_mce/(?P<path>.*)$', serve, {'document_root': join(settings.STATIC_ROOT, 'tiny_mce')}
     ),
 
-    # NB: in production, you can configure your web server to statically serve
-    #     the files in the directory 'media/static/' (and so the following line is never used).
-    # TODO: use settings PRODUCTION_MEDIA_URL in URL regex ??
-    re_path(
-        r'^static_media/(?P<path>.*)$',
-        serve,
-        {'document_root': settings.GENERATED_MEDIA_DIR},
-    ),
 ]
 
 for app_config in creme_app_configs():
@@ -62,3 +53,7 @@ for app_config in creme_app_configs():
             raise
     else:
         urlpatterns.append(re_path(r'^' + app_config.url_root, included))
+
+# Serve static and media files in debug mode
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT, show_indexes=True)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)

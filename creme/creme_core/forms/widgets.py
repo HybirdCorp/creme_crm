@@ -968,7 +968,7 @@ class TinyMCEEditor(widgets.Textarea):
         final_attrs['plugin'] = 'tinymce'
         final_attrs['plugin_options'] = json_dump({
             'mode':                            'textareas',
-            # 'script_url':                      f'{settings.MEDIA_URL}tiny_mce/tiny_mce.js',
+            # 'script_url':                      f'{settings.STATIC_URL}tiny_mce/tiny_mce.js',
             'script_url':                      '/tiny_mce/tiny_mce.js',  # See root urls.py
             'convert_urls':                    False,
             'theme':                           'advanced',

@@ -19,18 +19,13 @@
 ################################################################################
 
 from django.conf import settings
-
-from mediagenerator.utils import media_url
+from django.templatetags.static import static
 
 from ..global_info import get_global_info
 
 
 def get_creme_media_url(theme: str, url: str) -> str:
-    return media_url(f'{theme}/{url}')
-
-
-def creme_media_themed_url(url: str) -> str:
-    return get_creme_media_url(get_current_theme(), url)
+    return static(f'{theme}/{url}')
 
 
 def get_current_theme() -> str:
