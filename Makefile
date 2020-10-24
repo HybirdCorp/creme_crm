@@ -251,6 +251,7 @@ gettext-collect:
 .PHONY: gettext-compile
 gettext-compile:
 	django-admin.py compilemessages -l ${CREME_LANGUAGE}
+	django-admin.py i18n_javascript_catalog
 
 
 ## Print this message

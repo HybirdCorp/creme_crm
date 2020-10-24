@@ -49,7 +49,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 /*----------------------------------*/
 .ui-creme-selectorlist > div.add {
     background-repeat: no-repeat;
-    background-image: url("chantilly/images/add_16.png");
+    background-image: url("../../images/add_16.png");
     padding-left: 20px;
     min-height: 16px;
     margin: 4px 0px 4px 0px;
@@ -76,7 +76,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 }
 
 .ui-creme-selectorlist button[type="button"].ui-creme-actionbutton {
-    background-image: url("chantilly/images/add_16.png");
+    background-image: url("../../images/add_16.png");
     padding-left: 20px;
 }
 
@@ -174,7 +174,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     vertical-align: middle;
 }
 
-.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("chantilly/images/wait.gif"); }
+.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("../../images/wait.gif"); }
 
 /*----------------------------------*/
 .ui-dialog-scrollbackground {
@@ -187,14 +187,14 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 
 /*----------------------------------*/
 .ui-creme-jqueryplot[widget="ui-creme-jqueryplot"] {
-    background-image: url("chantilly/images/image_64.png");
+    background-image: url("../../images/image_64.png");
     background-repeat: no-repeat;
     background-position: 50% 50%;
     background-color: white;
 }
 
 .ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="wait"] {
-    background-image: url("chantilly/images/wait.gif");
+    background-image: url("../../images/wait.gif");
 }
 
 .ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="valid"] {
@@ -247,7 +247,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 }
 
 .ui-creme-jqueryplot .jqplot-target .jqplot-actions button[name="capture"] {
-    background-image: url("chantilly/images/image_22.png");
+    background-image: url("../../images/image_22.png");
 }
 
 /*----------------------------------*/
@@ -294,22 +294,22 @@ button[type="button"].ui-creme-actionbutton[disabled]:hover {
 }
 
 button[type="button"].ui-creme-actionbutton[name=create] {
-    background-image: url("chantilly/images/add_16.png");
+    background-image: url("../../images/add_16.png");
     padding-left: 20px;
 }
 
 button[type="button"].ui-creme-actionbutton[name=delete] {
-    background-image: url("chantilly/images/delete_16.png");
+    background-image: url("../../images/delete_16.png");
     padding-left: 20px;
 }
 
 button[type="button"].ui-creme-actionbutton[name=reset] {
-    background-image: url("chantilly/images/delete_16.png");
+    background-image: url("../../images/delete_16.png");
     padding-left: 20px;
 }
 
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=edit] {
-    background-image: url("chantilly/images/edit_16.png");
+    background-image: url("../../images/edit_16.png");
     padding-left: 20px;
 }
 
@@ -332,13 +332,13 @@ span.ui-creme-datepicker-trigger {
 }
 
 .toggle-icon {
-    background-image: url("chantilly/images/expanded.gif");
+    background-image: url("../../images/expanded.gif");
     background-repeat: no-repeat;
     background-position: center;
 }
 
 .toggle-icon.toggle-collapsed, .toggle-collapsed .toggle-icon {
-    background-image: url("chantilly/images/expandme.gif");
+    background-image: url("../../images/expandme.gif");
     background-repeat: no-repeat;
     background-position: center;
 }

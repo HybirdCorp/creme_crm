@@ -123,7 +123,7 @@ ul.ui-layout.vbox li {
 /*----------------------------------*/
 .ui-creme-selectorlist > div.add {
     background-repeat: no-repeat;
-    background-image: url("icecream/images/add_16.png");
+    background-image: url("../../images/add_16.png");
     padding-left: 20px;
     min-height: 16px;
     margin: 4px 0px 4px 0px;
@@ -152,7 +152,7 @@ ul.ui-layout.vbox li {
 }
 
 .ui-creme-selectorlist button[type="button"].ui-creme-actionbutton {
-    background-image: url("icecream/images/add_16.png");
+    background-image: url("../../images/add_16.png");
     padding-left: 20px;
 }
 
@@ -280,7 +280,7 @@ ul.ui-layout.vbox li {
     margin-left: 5px;
 }
 
-.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("icecream/images/wait.gif"); }
+.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("../../images/wait.gif"); }
 
 /*----------------------------------*/
 .ui-dialog-scrollbackground {
@@ -293,14 +293,14 @@ ul.ui-layout.vbox li {
 
 /*----------------------------------*/
 .ui-creme-jqueryplot[widget="ui-creme-jqueryplot"] {
-    background-image: url("icecream/images/image_64.png");  /* TODO: image_48 ?? (+ delete image_64.png) */
+    background-image: url("../../images/image_64.png");  /* TODO: image_48 ?? (+ delete image_64.png) */
     background-repeat: no-repeat;
     background-position: 50% 50%;
     background-color: white;
 }
 
 .ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="wait"] {
-    background-image: url("icecream/images/wait.gif");
+    background-image: url("../../images/wait.gif");
 }
 
 .ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="valid"] {
@@ -356,7 +356,7 @@ ul.ui-layout.vbox li {
 }
 
 .ui-creme-jqueryplot .jqplot-target .jqplot-actions button[name="capture"] {
-    background-image: url("icecream/images/image_22.png");
+    background-image: url("../../images/image_22.png");
 }
 
 /*----------------------------------*/
@@ -396,22 +396,22 @@ button[type="button"].ui-creme-actionbutton[disabled]:hover {
 }
 
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=create] {
-    background-image: url("icecream/images/add_16.png");
+    background-image: url("../../images/add_16.png");
     padding-left: 20px;
 }
 
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=delete] {
-    background-image: url("icecream/images/delete_16.png");
+    background-image: url("../../images/delete_16.png");
     padding-left: 20px;
 }
 
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=reset] {
-    background-image: url("icecream/images/delete_16.png");
+    background-image: url("../../images/delete_16.png");
     padding-left: 20px;
 }
 
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=edit] {
-    background-image: url("icecream/images/edit_16.png");
+    background-image: url("../../images/edit_16.png");
     padding-left: 20px;
 }
 
@@ -434,14 +434,14 @@ span.ui-creme-datepicker-trigger {
 }
 
 .toggle-icon {
-    background-image: url("icecream/images/expanded.gif");
+    background-image: url("../../images/expanded.gif");
     background-repeat: no-repeat;
     background-position: center;
 }
 
 .toggle-icon.toggle-collapsed,
 .toggle-collapsed .toggle-icon {
-    background-image: url("icecream/images/expandme.gif");
+    background-image: url("../../images/expandme.gif");
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -872,7 +872,7 @@ span.ui-creme-datepicker-trigger {
     display: block;
     text-decoration: none;
     border: 0;
-    background-image: url("icecream/images/pin.png");
+    background-image: url("../../images/pin.png");
     background-size: contain;
 }
 
@@ -887,7 +887,7 @@ span.ui-creme-datepicker-trigger {
     margin-left: 5px;
     text-decoration: none;
     border: 0;
-    background-image: url("icecream/images/unpin.png");
+    background-image: url("../../images/unpin.png");
     background-size: contain;
 }
 

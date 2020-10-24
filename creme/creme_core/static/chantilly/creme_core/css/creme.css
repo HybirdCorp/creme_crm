@@ -197,7 +197,7 @@ td p {
 }
 
 .wait {
-    list-style-image : url(chantilly/images/wait.gif);
+    list-style-image : url("../../images/wait.gif");
 }
 
 .main-content {
@@ -241,7 +241,7 @@ td p {
 }
 
 .errorlist li {
-    list-style-image: url(chantilly/images/cancel_16.png);
+    list-style-image: url("../../images/cancel_16.png");
     padding-top: 3px;
 }
 
@@ -268,7 +268,7 @@ td p {
 }
 
 .successlist li {
-    list-style-image: url(chantilly/images/ok_16.png);
+    list-style-image: url("../../images/ok_16.png");
     padding-top: 3px;
 }
 
@@ -283,7 +283,7 @@ td p {
 }
 
 .infolist li {
-    list-style-image: url(chantilly/images/info_16.png);
+    list-style-image: url("../../images/info_16.png");
     padding-top: 3px;
 }
 
@@ -469,7 +469,7 @@ a[data-action] details {
     font-weight: 600;
 
     background-color: hsl(197, 24%, 27%);
-    background-image: url(common/images/creme-pattern.png);
+    background-image: url("../../../common/images/creme-pattern.png");
     background-position: left -30px;
 }
 

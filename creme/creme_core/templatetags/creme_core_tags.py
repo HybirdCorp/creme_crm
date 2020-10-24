@@ -35,8 +35,6 @@ from django.utils.encoding import force_text
 from django.utils.html import escape, format_html_join
 from django.utils.safestring import mark_safe
 
-from mediagenerator.generators.bundles.utils import _render_include_media
-
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
 from ..utils import bool_as_html

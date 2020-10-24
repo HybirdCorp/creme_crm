@@ -1,4 +1,4 @@
-{% load media creme_core_tags %}
+{% load static pipeline creme_core_tags %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
@@ -7,10 +7,17 @@
     <title>{% block page_title %}{% endblock %}Creme CRM</title>
     <script type='text/javascript'>
         var THEME_NAME = "{{THEME_NAME}}";
+        var STATIC_URL = "{% get_static_prefix %}";
     </script>
-    {% include_creme_media 'main.css' %}
-    {% include 'creme_core/frags/js_header.html' %}
-    <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" />
+    {% with main_bundle="main."|add:THEME_NAME %}
+        {% stylesheet main_bundle %}
+    {% endwith %}
+    {% with i18nlib="i18n."|add:LANGUAGE_CODE %}
+        {% javascript i18nlib %}
+    {% endwith %}
+    {% javascript "libs" %}
+    {% javascript "main" %}
+    <link rel="shortcut icon" href="{% static 'common/images/favicon.ico' %}" type="image/x-icon" />
     {% block extrahead %}{% endblock %}
 </head>
 <body class="{% block body_classes %}{% endblock %}"
