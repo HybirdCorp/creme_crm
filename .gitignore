@@ -12,7 +12,7 @@ django.wsgi
 
 creme/media/upload/*/*
 creme/media/static/*
-_generated_media_names.py
+creme/collected_statics/*
 *.sqlite
 *.db
 

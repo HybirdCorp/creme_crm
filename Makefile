@@ -30,18 +30,11 @@ update-requirements:
 	pip install --upgrade -e .[dev]
 
 
-## Upgrade the Python requirements, run the migrations, the creme_populate and generatemedia commands
+## Upgrade the Python requirements, run the migrations and the creme_populate command
 .PHONY: update
 update: update-requirements
 	python creme/manage.py migrate
 	python creme/manage.py creme_populate
-	python creme/manage.py generatemedia
-
-
-## Generate the media files
-.PHONY: media
-media:
-	python creme/manage.py generatemedia
 
 
 ## Run the Django test suite
@@ -74,11 +67,11 @@ karma-clean:
 
 ## Run the Javascript test suite
 .PHONY: karma
-karma: media karma-clean
+karma: karma-clean
 	node_modules/.bin/karma start .karma.conf.js --browsers=FirefoxHeadless --targets=$(filter-out $@,$(MAKECMDGOALS))
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
-karma-browsers: media karma-clean
+karma-browsers: karma-clean
 	CHROME_BIN=/usr/bin/google-chrome \
 		node_modules/.bin/karma start .karma.conf.js \
 			--browsers=FirefoxHeadless,ChromiumHeadless,ChromeHeadless \
@@ -87,7 +80,7 @@ karma-browsers: media karma-clean
 
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
-## Run the Javascript test suite in CI (generatemedia is supposed to be already done)
+## Run the Javascript test suite in CI
 .PHONY: karma-ci
 karma-ci:
 	node_modules/.bin/karma start .circleci/.karma.conf.js --targets=$(filter-out $@,$(MAKECMDGOALS))
@@ -95,7 +88,7 @@ karma-ci:
 
 ## Run the application
 .PHONY: serve
-serve: media
+serve:
 	python creme/manage.py runserver
 
 
@@ -251,6 +244,7 @@ gettext-collect:
 .PHONY: gettext-compile
 gettext-compile:
 	django-admin.py compilemessages -l ${CREME_LANGUAGE}
+	python creme/manage.py i18n_javascript_catalog
 
 
 ## Print this message

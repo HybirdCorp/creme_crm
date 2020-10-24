@@ -29,6 +29,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.forms import widgets
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, pgettext, pgettext_lazy
@@ -968,8 +969,7 @@ class TinyMCEEditor(widgets.Textarea):
         final_attrs['plugin'] = 'tinymce'
         final_attrs['plugin_options'] = json_dump({
             'mode':                            'textareas',
-            # 'script_url':                      f'{settings.MEDIA_URL}tiny_mce/tiny_mce.js',
-            'script_url':                      '/tiny_mce/tiny_mce.js',  # See root urls.py
+            'script_url':                      static('/tiny_mce/tiny_mce.js'),
             'convert_urls':                    False,
             'theme':                           'advanced',
             'height':                          300,

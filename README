@@ -139,7 +139,6 @@ For an upgrade from Creme 1.8 :
 Filling the DB tables:
 Run the following commands in the root directory:
     >> python creme/manage.py migrate
-    >> python creme/manage.py generatemedia
     >> python creme/manage.py creme_populate
 
 If you are upgrading from Creme 2.0, clean all existing sessions, for example like this:

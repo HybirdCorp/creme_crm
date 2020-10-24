@@ -105,6 +105,7 @@ class CremeDiscoverRunner(DiscoverRunner):
         super().setup_test_environment(**kwargs)
         print('Creating mock media directory...')
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
+        settings.PIPELINE['PIPELINE_ENABLED'] = False
         print(f' ... {self._mock_media_path} created.')
         self._http_server = python_subprocess(
             'import http.server;'

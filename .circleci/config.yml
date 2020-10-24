@@ -114,7 +114,6 @@ jobs:
       - run: cp ~/project/.circleci/mysql_settings.py creme/local_settings.py
       - run: python creme/manage.py migrate
       - run: python creme/manage.py creme_populate
-      - run: python creme/manage.py generatemedia
       - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=6
       - run: coverage combine
       - run: coverage html
@@ -146,7 +145,6 @@ jobs:
       - run: cp ~/project/.circleci/pgsql_settings.py creme/local_settings.py
       - run: python creme/manage.py migrate
       - run: python creme/manage.py creme_populate
-      - run: python creme/manage.py generatemedia
       - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
       - run: coverage combine
       - run: coverage html
@@ -169,7 +167,6 @@ jobs:
       - run: cp ~/project/.circleci/sqlite3_settings.py creme/local_settings.py
       - run: python creme/manage.py migrate
       - run: python creme/manage.py creme_populate
-      - run: python creme/manage.py generatemedia
       - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
       - run: coverage combine
       - run: coverage html
@@ -197,7 +194,6 @@ jobs:
       - install-creme-system-packages
       - install-py-dev-env
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
-      - run: python creme/manage.py generatemedia
       - install-node-env
       - run:
           name: Run javascript tests

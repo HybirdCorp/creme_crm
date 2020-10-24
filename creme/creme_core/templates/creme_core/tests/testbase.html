@@ -1,7 +1,5 @@
 {% if not TEST_HEADLESS %}
-{% load i18n %}
-{% load media %}
-{% load creme_core_tags %}
+{% load i18n pipeline creme_core_tags %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
@@ -18,8 +16,13 @@
                 - add debug="true" to <html> tag
         -->
         <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
-        {% include_creme_media "main.css" %}
-        {% include "creme_core/frags/js_header.html" %}
+
+        {% with main_bundle="main."|add:THEME_NAME %}
+            {% stylesheet main_bundle %}
+        {% endwith %}
+        {% javascript "l10n.js" %}
+        {% javascript "lib.js" %}
+        {% javascript "main.js" %}
 
         <style type="text/css">
             h1.creme-test-header {

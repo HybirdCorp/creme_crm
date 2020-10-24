@@ -5,6 +5,7 @@ from io import BytesIO
 from django.conf import settings
 from django.http import Http404
 from django.test.client import RequestFactory
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from PIL import Image
@@ -20,31 +21,13 @@ from creme.creme_core.models import (
     Language,
     UserRole,
 )
-from creme.creme_core.utils.media import get_creme_media_url
-from creme.creme_core.views.testjs import js_testview_or_404
 
+from creme.creme_core.views.testjs import js_testview_or_404
 from .base import ViewsTestCase
 
 
+@override_settings(FORCE_JS_TESTVIEW=False)
 class MiscViewsTestCase(ViewsTestCase):
-    def setUp(self):
-        super().setUp()
-        self.FORCE_JS_TESTVIEW = settings.FORCE_JS_TESTVIEW
-        settings.FORCE_JS_TESTVIEW = False
-
-    def tearDown(self):
-        super().tearDown()
-        settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
-
-    def test_static_media(self):
-        response = self.assertGET200(
-            get_creme_media_url('chantilly', 'images/add_16.png')
-        )
-
-        f = BytesIO(b''.join(response.streaming_content))
-        img = Image.open(f)
-        self.assertEqual('PNG', img.format)
-
     def test_home01(self):
         self.login()
         response = self.assertGET200(reverse('creme_core__home'))

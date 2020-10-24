@@ -35,8 +35,6 @@ from django.utils.encoding import force_text
 from django.utils.html import escape, format_html_join
 from django.utils.safestring import mark_safe
 
-from mediagenerator.generators.bundles.utils import _render_include_media
-
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
 from ..utils import bool_as_html
@@ -567,29 +565,6 @@ def creme_media_url(context, url):
                   DeprecationWarning
                  )
     return get_creme_media_url(context.get('THEME_NAME') or settings.THEMES[0][0], url)
-
-
-@register.tag(name='include_creme_media')
-def do_include_creme_media(parser, token):
-    try:
-        # Splitting by None == splitting by spaces.
-        tag_name, arg = token.contents.split(None, 1)
-    except ValueError as e:
-        raise TemplateSyntaxError(
-            '{!r} tag requires arguments'.format(token.contents.split()[0])
-        ) from e
-
-    return MediaNode(TemplateLiteral(parser.compile_filter(arg), arg))
-
-
-class MediaNode(TemplateNode):
-    def __init__(self, bundle_var):
-        self.bundle_var = bundle_var
-
-    def render(self, context):
-        bundle = self.bundle_var.eval(context)
-
-        return _render_include_media(context['THEME_NAME'] + bundle, variation={})
 
 
 # @register.simple_tag

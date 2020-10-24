@@ -32,10 +32,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
+from django.templatetags.static import StaticNode
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
-
-from mediagenerator.utils import media_url
 
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
@@ -139,7 +138,7 @@ class DummyListBrick(PaginatedBrick):
             data.append(Dummy(
                 'Dummy ({}) - {}'.format(item_id + 1, image_name),
                 user,
-                media_url(image_url),
+                StaticNode.handle_simple(image_url),
             ))
 
         return self._render(self.get_template_context(
