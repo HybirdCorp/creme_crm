@@ -78,3 +78,35 @@ class SettingKeyTestCase(CremeTestCase):
 
         with self.assertRaises(registry.RegistrationError):
             registry.register(sk2)
+
+    def test_description(self):
+        sk = SettingKey('creme_core-test_sk_string',
+                        description='Short description',
+                        app_label='creme_core',
+                        type=SettingKey.STRING)
+
+        self.assertEqual('Short description', sk.description)
+        self.assertEqual('Short description', sk.description_html)
+
+        sk = SettingKey('creme_core-test_sk_string',
+                        description=(
+                            'This is a long,\n'
+                            'multiline,\n'
+                            '<a href="">escaped</a>\n'
+                            'and boring description\n'
+                        ),
+                        app_label='creme_core',
+                        type=SettingKey.STRING)
+
+        self.assertEqual((
+            'This is a long,\n'
+            'multiline,\n'
+            '<a href="">escaped</a>\n'
+            'and boring description\n'
+        ), sk.description)
+        self.assertEqual((
+            'This is a long,<br/>'
+            'multiline,<br/>'
+            '&lt;a href=&quot;&quot;&gt;escaped&lt;/a&gt;<br/>'
+            'and boring description<br/>'
+        ), sk.description_html)

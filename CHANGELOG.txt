@@ -210,6 +210,7 @@
                     - SettingValue.objects.value_4_key()
                     - SettingValue.objects.set_4_key()
                 - New with-statement OverrideSettingValueContext in 'creme_core.tests.base' that allows local changes in settings for tests
+                - Allow multiline for the description of a SettingKey
             * Reports :
                 - A property 'models.AbstractReportGraph.abscissa_info' has been added.
             * Emails :

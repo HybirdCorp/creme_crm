@@ -760,7 +760,7 @@ class UserSettingValuesBrick(Brick):
                 continue
 
             info = {
-                'description': skey.description,
+                'description': skey.description_html,
                 'key_id':      skey.id,
             }
 
