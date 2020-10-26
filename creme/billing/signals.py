@@ -27,7 +27,7 @@ from django.dispatch import receiver
 from creme import billing, persons
 from creme.creme_core import signals as core_signals
 from creme.creme_core.models import Relation
-from creme.persons.workflow import transform_target_into_customer
+from creme.persons import workflow
 
 from . import constants
 from .models import ConfigBillingAlgo, SimpleBillingAlgo
@@ -35,6 +35,7 @@ from .models import ConfigBillingAlgo, SimpleBillingAlgo
 Organisation = persons.get_organisation_model()
 
 Invoice = billing.get_invoice_model()
+Quote = billing.get_quote_model()
 
 
 @receiver(signals.post_save, sender=Organisation)
@@ -48,8 +49,8 @@ def set_simple_conf_billing(sender, instance, **kwargs):
     get_ct = ContentType.objects.get_for_model
 
     for model, prefix in [
-        (billing.get_quote_model(),       settings.QUOTE_NUMBER_PREFIX),
-        (billing.get_invoice_model(),     settings.INVOICE_NUMBER_PREFIX),
+        (Quote,                           settings.QUOTE_NUMBER_PREFIX),
+        (Invoice,                         settings.INVOICE_NUMBER_PREFIX),
         (billing.get_sales_order_model(), settings.SALESORDER_NUMBER_PREFIX),
     ]:
         ct = get_ct(model)
@@ -131,20 +132,23 @@ def manage_line_deletion(sender, instance, **kwargs):
         instance.object_entity.get_real_entity().save()
 
 
+_WORKFLOWS = {
+    Invoice: workflow.transform_target_into_customer,
+    Quote: workflow.transform_target_into_prospect,
+}
+
+
 # NB: in Base.save(), target relationship is created after source relationships
 #     so we trigger this code target relationship creation, as the source should be OK too.
 @receiver(signals.post_save, sender=Relation)
-def manage_invoice_deletion(sender, instance, **kwargs):
-    if instance.type_id != constants.REL_SUB_BILL_RECEIVED:
-        return
+def manage_creation_workflows(sender, instance, **kwargs):
+    if instance.type_id == constants.REL_SUB_BILL_RECEIVED:
+        billing_doc = instance.subject_entity
+        workflow_func = _WORKFLOWS.get(type(billing_doc))
 
-    billing_doc = instance.subject_entity
-
-    if not isinstance(billing_doc, Invoice):
-        return
-
-    transform_target_into_customer(
-        billing_doc.source,
-        instance.object_entity,
-        instance.user,
-    )
+        if workflow_func:
+            workflow_func(
+                source=billing_doc.source,
+                target=instance.object_entity,
+                user=instance.user,
+            )
