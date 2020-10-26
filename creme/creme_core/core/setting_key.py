@@ -23,6 +23,8 @@ from json import loads as json_load
 from typing import Any, Callable, Dict, Iterator, Type
 
 from django.db.models import Model, TextField
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from ..utils import bool_as_html, bool_from_str
@@ -100,6 +102,12 @@ class _SettingKey:
 
     def cast(self, value_str: str):
         return self._castor(value_str)
+
+    @property
+    def description_html(self):
+        return mark_safe('<br/>'.join(
+            escape(d) for d in self.description.split('\n')
+        ))
 
     def value_as_html(self, value) -> str:
         printer = self.HTML_PRINTERS.get(self.type)
