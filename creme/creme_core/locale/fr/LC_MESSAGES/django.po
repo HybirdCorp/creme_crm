@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-23 13:01+0200\n"
+"POT-Creation-Date: 2020-10-27 06:37+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -725,7 +725,7 @@ msgstr ""
 msgid "Original error: {}"
 msgstr "Erreur originale : {}"
 
-#: core/setting_key.py:36
+#: core/setting_key.py:38
 #, python-brace-format
 msgid "{hour}h"
 msgstr "{hour}h"

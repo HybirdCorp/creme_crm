@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-29 14:42+0200\n"
+"POT-Creation-Date: 2020-10-27 06:37+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,104 +16,104 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:31 apps.py:157
+#: apps.py:31 apps.py:176
 msgid "General configuration"
 msgstr "Configuration générale"
 
-#: apps.py:151
+#: apps.py:163
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: apps.py:163 templates/creme_config/bricks_portal.html:8
+#: apps.py:185 templates/creme_config/bricks_portal.html:8
 msgid "Blocks"
 msgstr "Blocs"
 
-#: apps.py:175 templates/creme_config/bricks/custombricks-configs.html:18
+#: apps.py:199 templates/creme_config/bricks/custombricks-configs.html:18
 msgid "Fields"
 msgstr "Champs"
 
-#: apps.py:180 templates/creme_config/history_portal.html:8
+#: apps.py:205 templates/creme_config/history_portal.html:8
 msgid "History"
 msgstr "Historique"
 
-#: apps.py:185 templates/creme_config/button_menu_portal.html:8
+#: apps.py:211 templates/creme_config/button_menu_portal.html:8
 msgid "Button menu"
 msgstr "Menu bouton"
 
-#: apps.py:190
+#: apps.py:217
 msgid "Search"
 msgstr "Recherche"
 
-#: apps.py:195
+#: apps.py:223
 msgid "Roles and credentials"
 msgstr "Rôles et droits"
 
-#: apps.py:212 forms/user.py:219 templates/creme_config/bricks/users.html:13
+#: apps.py:243 forms/user.py:223 templates/creme_config/bricks/users.html:13
 #: templates/creme_config/user_portal.html:7
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: bricks.py:155
+#: bricks.py:174
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: bricks.py:168
+#: bricks.py:187
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: bricks.py:185
+#: bricks.py:204
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: bricks.py:202
+#: bricks.py:221
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:433 bricks.py:664 forms/bricks.py:238 forms/bricks.py:299
-#: forms/search.py:71 forms/user.py:77 forms/user.py:118
+#: bricks.py:459 bricks.py:701 forms/bricks.py:249 forms/bricks.py:310
+#: forms/search.py:73 forms/user.py:78 forms/user.py:120
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
 #: templates/creme_config/bricks/users.html:39
 msgid "Superuser"
 msgstr "Super-utilisateur"
 
-#: core/importers.py:262
+#: core/importers.py:275
 msgid "This filter PK is invalid: «{}»."
 msgstr "Cette clé primaire de filtre est invalide : «{}»."
 
-#: core/importers.py:314
+#: core/importers.py:327
 msgid "The brick zone «{}» is not valid."
 msgstr "La zone de bloc «{}» n'est pas valide."
 
-#: core/importers.py:475
+#: core/importers.py:488
 msgid "This property type cannot be overridden: «{}»."
 msgstr "Ce type de propriété ne peut pas être écrasé : «{}»."
 
-#: core/importers.py:527
+#: core/importers.py:540
 msgid "This property type PKs are invalid: {}."
 msgstr "Ces clés primaires de type de propriété sont invalides : {}."
 
-#: core/importers.py:541
+#: core/importers.py:554
 msgid "This relation type PK is invalid: «{}»."
 msgstr "Cette clé primaire de type de relation est invalide : «{}»."
 
-#: core/importers.py:547
+#: core/importers.py:560
 msgid "This relation type cannot be overridden: «{}»."
 msgstr "Ce type de relation ne peut pas être écrasé : «{}»."
 
-#: core/importers.py:604
+#: core/importers.py:627
 msgid "This custom-field type is invalid: {}."
 msgstr "Ce type de champ personnalisé est invalide: {}."
 
-#: core/importers.py:610
+#: core/importers.py:633
 msgid "There is already a custom-field with the same UUID: {}."
 msgstr "Il y a déjà un champ personnalisé avec le même UUID : {}."
 
-#: core/importers.py:617
+#: core/importers.py:640
 msgid "There is already a custom-field with the same name: {}."
 msgstr "Il y a déjà un champ personnalisé avec le même nom : {}."
 
-#: core/importers.py:725
+#: core/importers.py:750
 #, python-brace-format
 msgid ""
 "The column with field=\"{field}\" is invalid in the view of list id=\"{id}\"."
@@ -121,7 +121,7 @@ msgstr ""
 "La colonne avec le champ=\"{field}\" est invalide dans la vue de liste avec "
 "id=\"{id}\"."
 
-#: core/importers.py:742
+#: core/importers.py:767
 #, python-brace-format
 msgid ""
 "The column with custom-field=\"{uuid}\" is invalid in the view of list id="
@@ -130,7 +130,7 @@ msgstr ""
 "La colonne avec le champ=\"{uuid}\" est invalide dans la vue de liste avec "
 "id=\"{id}\"."
 
-#: core/importers.py:762
+#: core/importers.py:787
 #, python-brace-format
 msgid ""
 "The column with function-field=\"{ffield}\" is invalid in the view of list "
@@ -139,7 +139,7 @@ msgstr ""
 "La colonne avec le champ calculé=\"{ffield}\" est invalide dans la vue de "
 "liste avec id=\"{id}\"."
 
-#: core/importers.py:778
+#: core/importers.py:803
 #, python-brace-format
 msgid ""
 "The column with relation-type=\"{rtype}\" is invalid in the view of list id="
@@ -148,11 +148,11 @@ msgstr ""
 "La colonne avec le type de relation=\"{rtype}\" est invalide dans la vue de "
 "liste avec id=\"{id}\"."
 
-#: core/importers.py:799
+#: core/importers.py:824
 msgid "This view of list cannot be overridden: «{}»."
 msgstr "Cette vue de liste ne peut pas être écrasé: «{}»."
 
-#: core/importers.py:813
+#: core/importers.py:838
 #, python-brace-format
 msgid ""
 "The column with type=\"{type}\" is invalid in the view of list id=\"{id}\"."
@@ -160,7 +160,7 @@ msgstr ""
 "La colonne avec le type=\"{type}\" est invalide dans la vue de liste avec id="
 "\"{id}\"."
 
-#: core/importers.py:1008
+#: core/importers.py:1034
 #, python-brace-format
 msgid ""
 "The condition on sub-filter=\"{subfilter}\" is invalid in the filter id="
@@ -169,7 +169,7 @@ msgstr ""
 "La condition sur le sous-filtre=\"{subfilter}\" est invalide dans le filtre "
 "avec id=\"{id}\"."
 
-#: core/importers.py:1067
+#: core/importers.py:1094
 #, python-brace-format
 msgid ""
 "The condition on relation-type is invalid in the filter id=\"{id}\" (unknown "
@@ -178,7 +178,7 @@ msgstr ""
 "La condition sur type de relation est invalide dans le filtre id="
 "\"{id}\" (uuid={uuid} inconnu)."
 
-#: core/importers.py:1084
+#: core/importers.py:1112
 #, python-brace-format
 msgid ""
 "The condition on relation-type is invalid in the filter id=\"{id}\" (unknown "
@@ -187,7 +187,7 @@ msgstr ""
 "La condition sur type de relation= est invalide dans le filtre id="
 "\"{id}\"(type-de-relation={rtype} inconnu)."
 
-#: core/importers.py:1119
+#: core/importers.py:1147
 #, python-brace-format
 msgid ""
 "The condition on related sub-filter=\"{subfilter}\" is invalid in the filter "
@@ -196,7 +196,7 @@ msgstr ""
 "La condition sur le sous-filtre relié \"{subfilter}\"  est invalide dans le "
 "filtre id=\"{id}\" (ID de type de relation inconnu)."
 
-#: core/importers.py:1150
+#: core/importers.py:1178
 #, python-brace-format
 msgid ""
 "The condition on related sub-filter=\"{subfilter}\" is invalid in the filter "
@@ -205,7 +205,7 @@ msgstr ""
 "La condition sur le sous-filtre relié \"{subfilter}\" est invalide dans le "
 "filtre id=\"{id}\" (ID de filtre inconnu)."
 
-#: core/importers.py:1172
+#: core/importers.py:1200
 #, python-brace-format
 msgid ""
 "The condition on property-type=\"{ptype}\" is invalid in the filter id="
@@ -214,7 +214,7 @@ msgstr ""
 "La condition sur le type de propriété=\"{ptype}\" est invalide dans le "
 "filtre id=\"{id}\"."
 
-#: core/importers.py:1193
+#: core/importers.py:1221
 #, python-brace-format
 msgid ""
 "The condition on custom-field=\"{cfield}\" is invalid in the filter id="
@@ -223,67 +223,67 @@ msgstr ""
 "La condition sur le champ personnalisé=\"{cfield}\" est invalide dans le "
 "filtreid=\"{id}\"."
 
-#: core/importers.py:1250
+#: core/importers.py:1278
 msgid "This filter cannot be overridden: «{}»."
 msgstr "Ce filtre ne peut pas être écrasé: «{}»."
 
-#: core/importers.py:1264
+#: core/importers.py:1292
 #, python-brace-format
 msgid ""
 "The condition with type=\"{type}\" is invalid in the filter id=\"{id}\"."
 msgstr ""
 "La condition avec le type=\"{type}\" est invalide dans le filtre id=\"{id}\"."
 
-#: core/importers.py:1278
+#: core/importers.py:1306
 #, python-brace-format
 msgid "A condition is invalid in the filter id=\"{id}\" [{error}]."
 msgstr "Une condition est invalide dans le filtre id=\"{id}\" [{error}]."
 
-#: core/importers.py:1339
+#: core/importers.py:1370
 msgid "There is a cycle between the filters [{}]."
 msgstr "Il y a un cycle entre les filtres [{}]."
 
-#: core/importers.py:1356
+#: core/importers.py:1387
 #, python-brace-format
 msgid "The filter with id=\"{id}\" already exists."
 msgstr "Le filtre avec id=\"{id}\" existe déjà."
 
-#: forms/bricks.py:119
+#: forms/bricks.py:125
 msgid "Header block"
 msgstr "Bloc entête"
 
-#: forms/bricks.py:120
+#: forms/bricks.py:126
 msgid "Blocks to display on top"
 msgstr "Blocs à afficher en haut"
 
-#: forms/bricks.py:121
+#: forms/bricks.py:127
 msgid "Blocks to display on left side"
 msgstr "Blocs à afficher à gauche"
 
-#: forms/bricks.py:122
+#: forms/bricks.py:128
 msgid "Blocks to display on right side"
 msgstr "Blocs à afficher à droite"
 
-#: forms/bricks.py:123
+#: forms/bricks.py:129
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/bricks.py:126
+#: forms/bricks.py:132
 #, python-format
 msgid "The following block should be displayed only once: «%(block)s»"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s»"
 
-#: forms/bricks.py:127
+#: forms/bricks.py:133
 msgid "Your configuration is empty !"
 msgstr "Votre configuration est vide !"
 
-#: forms/bricks.py:214 forms/bricks.py:278 forms/search.py:47 forms/user.py:65
-#: forms/user.py:108 templates/creme_config/bricks/bricklocations-home.html:17
+#: forms/bricks.py:224 forms/bricks.py:288 forms/search.py:48 forms/user.py:66
+#: forms/user.py:110 templates/creme_config/bricks/bricklocations-home.html:17
 #: templates/creme_config/bricks/users.html:25
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/bricks.py:220 templates/creme_config/bricks_portal.html:8
+#: forms/bricks.py:230 templates/creme_config/bricks_portal.html:8
 #: templates/creme_config/button_menu_portal.html:8
 #: templates/creme_config/custom_field/enums.html:8
 #: templates/creme_config/custom_field/portal.html:8
@@ -303,36 +303,36 @@ msgstr "Rôle"
 msgid "Configuration"
 msgstr "Configuration"
 
-#: forms/bricks.py:282 forms/bricks.py:315
+#: forms/bricks.py:292 forms/bricks.py:327
 msgid "Blocks to display on the home"
 msgstr "Blocs à afficher sur l'accueil"
 
-#: forms/bricks.py:336
+#: forms/bricks.py:351
 msgid "Blocks to display on the «My Page» of the users"
 msgstr "Blocs à afficher sur le «Ma page» des utilisateurs"
 
-#: forms/bricks.py:381
+#: forms/bricks.py:397
 msgid "Customised resource"
 msgstr "Ressource personnalisée"
 
-#: forms/bricks.py:410
+#: forms/bricks.py:427
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/bricks.py:417
+#: forms/bricks.py:434
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:482 forms/button_menu.py:37 forms/custom_fields.py:122
-#: forms/fields_config.py:34 forms/fields_config.py:73
+#: forms/bricks.py:506 forms/button_menu.py:37 forms/custom_fields.py:123
+#: forms/fields_config.py:34 forms/fields_config.py:76
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/bricks.py:507
+#: forms/bricks.py:531
 msgid "Lines"
 msgstr "Lignes"
 
-#: forms/button_menu.py:60
+#: forms/button_menu.py:62
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
 
@@ -344,37 +344,37 @@ msgstr "Texte"
 msgid "For example: 'is pretty'"
 msgstr "Par exemple: 'est joli'"
 
-#: forms/creme_property_type.py:30
+#: forms/creme_property_type.py:31
 msgid "Is copiable"
 msgstr "Est copiable"
 
-#: forms/creme_property_type.py:31
+#: forms/creme_property_type.py:33
 msgid "Are the properties with this type copied when an entity is cloned?"
 msgstr ""
 "Est-ce que les propriétés avec ce type sont copiées quand une fiche est "
 "clonée ?"
 
-#: forms/creme_property_type.py:33
+#: forms/creme_property_type.py:37
 msgid "Related to types of entities"
 msgstr "S'applique aux types de fiches"
 
-#: forms/creme_property_type.py:34
+#: forms/creme_property_type.py:38
 msgid "No selected type means that all types are accepted"
 msgstr "Aucun type séléctionné signifiera que tous les types sont acceptés"
 
-#: forms/creme_property_type.py:45
+#: forms/creme_property_type.py:49
 msgid "A property type with this name already exists."
 msgstr "Un type de propriété avec ce nom existe déjà."
 
-#: forms/custom_fields.py:51
+#: forms/custom_fields.py:52
 msgid "Type of field"
 msgstr "Type du champ"
 
-#: forms/custom_fields.py:56
+#: forms/custom_fields.py:57
 msgid "Available choices"
 msgstr "Choix disponibles"
 
-#: forms/custom_fields.py:58
+#: forms/custom_fields.py:59
 msgid ""
 "Give the possible choices (one per line) if you choose the type \"Choice list"
 "\"."
@@ -382,18 +382,18 @@ msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
 
-#: forms/custom_fields.py:64
+#: forms/custom_fields.py:65
 msgid ""
 "The choices list must not be empty if you choose the type \"Choice list\"."
 msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_fields.py:67 forms/custom_fields.py:285
+#: forms/custom_fields.py:68 forms/custom_fields.py:286
 msgid "The choice «{}» is duplicated."
 msgstr "le choix «{}» est en double."
 
-#: forms/custom_fields.py:124
+#: forms/custom_fields.py:125
 msgid ""
 "The other custom fields for this type of resource will be chosen by editing "
 "the configuration"
@@ -401,47 +401,47 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
-#: forms/custom_fields.py:157 forms/custom_fields.py:194
-#: forms/custom_fields.py:261
+#: forms/custom_fields.py:158 forms/custom_fields.py:195
+#: forms/custom_fields.py:262
 msgid "There is already a custom field with this name."
 msgstr "Il y a déjà un champ personnalisé avec ce nom."
 
-#: forms/custom_fields.py:216
+#: forms/custom_fields.py:217
 msgid "Existing choices of the list"
 msgstr "Choix existants de la liste"
 
-#: forms/custom_fields.py:217
+#: forms/custom_fields.py:218
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_fields.py:221 forms/custom_fields.py:326
+#: forms/custom_fields.py:222 forms/custom_fields.py:327
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_fields.py:222 forms/custom_fields.py:327
+#: forms/custom_fields.py:223 forms/custom_fields.py:328
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/custom_fields.py:300
+#: forms/custom_fields.py:301
 msgid "New choice"
 msgstr "Nouveau choix"
 
-#: forms/custom_fields.py:379
+#: forms/custom_fields.py:382
 msgid "Choose a choice to transfer to"
 msgstr "Choisissez un choice auquel transférer"
 
-#: forms/custom_fields.py:380
+#: forms/custom_fields.py:384
 msgid ""
 "The selected choice will replace the deleted one in entities which use it."
 msgstr ""
 "Le choix sélectionné remplacera le choix supprimé dans les fiches qui lui "
 "sont associés."
 
-#: forms/custom_fields.py:388 forms/user_role.py:322 forms/user_role.py:355
+#: forms/custom_fields.py:394 forms/user_role.py:336 forms/user_role.py:371
 msgid "Information"
 msgstr "Informations"
 
-#: forms/custom_fields.py:391
+#: forms/custom_fields.py:398
 msgid "This choice is not used by any entity, you can delete it safely."
 msgstr ""
 "Ce choix n'est utilisé par aucune fiche, vous pouvez le supprimer en toute "
@@ -451,46 +451,46 @@ msgstr ""
 msgid "Create a choice"
 msgstr "Créer un choix"
 
-#: forms/fields_config.py:35
+#: forms/fields_config.py:36
 msgid ""
 "The proposed types of resource have at least a field which can be hidden."
 msgstr ""
 "Les types de ressource proposés ont au moins un champ qui peut être caché."
 
-#: forms/fields_config.py:75 views/fields_config.py:61
+#: forms/fields_config.py:78 views/fields_config.py:62
 msgid "All configurable types of resource are already configured."
 msgstr "Tous les types de ressource configurables sont déjà configurés."
 
-#: forms/fields_config.py:97
+#: forms/fields_config.py:100
 #: templates/creme_config/bricks/fields-configs.html:18
 msgid "Hidden fields"
 msgstr "Champs cachés"
 
-#: forms/generics.py:117
+#: forms/generics.py:123
 #, python-brace-format
 msgid "OK: no instance of «{model}»."
 msgstr "Ok : aucune instance de «{model}»"
 
-#: forms/generics.py:119
+#: forms/generics.py:125
 #, python-brace-format
 msgid "BEWARE: {count} instance of «{model}»."
 msgid_plural "BEWARE: {count} instances of «{model}»."
 msgstr[0] "ATTENTION : {count} instance de «{model}»."
 msgstr[1] "ATTENTION : {count} instances de «{model}»."
 
-#: forms/generics.py:171
+#: forms/generics.py:177
 #, python-brace-format
 msgid "OK: no instance of «{model}» have to be deleted."
 msgstr "OK : aucune instance de «{model}» n'a à être supprimé."
 
-#: forms/generics.py:173
+#: forms/generics.py:179
 #, python-brace-format
 msgid "BEWARE: {count} instance of «{model}» will be deleted."
 msgid_plural "BEWARE: {count} instances of «{model}» will be deleted."
 msgstr[0] "ATTENTION : {count} instance de «{model}» va être supprimé."
 msgstr[1] "ATTENTION : {count} instances de «{model}» vont être supprimées."
 
-#: forms/generics.py:185
+#: forms/generics.py:191
 #, python-brace-format
 msgid ""
 "OK: there is no related instance of «{model}», the deletion can be done."
@@ -498,7 +498,7 @@ msgstr ""
 "OK : il n'y aucune instance de «{model}» liée, la suppression peut avoir "
 "lieu."
 
-#: forms/generics.py:189
+#: forms/generics.py:195
 #, python-brace-format
 msgid ""
 "ERROR: {count} instance of «{model}» uses «{instance}» so the deletion is "
@@ -513,12 +513,12 @@ msgstr[1] ""
 "ERREUR : {count} instances de «{model}» utilisent «{instance}» donc la "
 "suppression est impossible."
 
-#: forms/generics.py:207 forms/generics.py:220 forms/generics.py:269
+#: forms/generics.py:213 forms/generics.py:226 forms/generics.py:275
 #, python-brace-format
 msgid "OK: no instance of «{model}» have to be updated."
 msgstr "OK : aucune instance de «{model}» ne doit être mise à jour."
 
-#: forms/generics.py:209
+#: forms/generics.py:215
 #, python-brace-format
 msgid ""
 "BEWARE: {count} instance of «{model}» uses «{instance}» & will be updated "
@@ -533,7 +533,7 @@ msgstr[1] ""
 "ATTENTION : {count} instances de «{model}» utilisent «{instance}» & vont "
 "être mises à jour (le champ va être vidé)."
 
-#: forms/generics.py:222
+#: forms/generics.py:228
 #, python-brace-format
 msgid ""
 "BEWARE: {count} instance of «{model}» uses «{instance}» & will be updated "
@@ -548,13 +548,13 @@ msgstr[1] ""
 "ATTENTION : {count} instances de «{model}» utilisent «{instance}» & vont "
 "être mises à jour (le champ va être mis à «{fallback}»)."
 
-#: forms/generics.py:252
+#: forms/generics.py:258
 msgid "ERROR: the default value is invalid. Please contact your administrator."
 msgstr ""
 "ERREUR : la valeur par défaut est invalide. Veuillez contacter votre "
 "administrateur."
 
-#: forms/generics.py:271
+#: forms/generics.py:277
 #, python-brace-format
 msgid ""
 "BEWARE: {count} instance of «{model}» uses «{instance}» & will be updated "
@@ -569,11 +569,11 @@ msgstr[1] ""
 "ATTENTION : {count} instances de «{model}» utilisent «{instance}» & vont "
 "être mise à jour (le champ va recevoir une valeur de secours)."
 
-#: forms/generics.py:330
+#: forms/generics.py:336
 msgid "Replacement"
 msgstr "Remplacement"
 
-#: forms/generics.py:412
+#: forms/generics.py:419
 msgid ""
 "The field \"{}.{}\" cannot be deleted because its \"on_delete\" constraint "
 "is not managed. Please contact your administrator."
@@ -581,50 +581,50 @@ msgstr ""
 "Le champ \"{}.{}\" ne peut pas être supprimé car sa contrainte \"on_delete\" "
 "n'est pas gérée. Veuillez contacter votre administrateur."
 
-#: forms/generics.py:430
+#: forms/generics.py:437
 msgid "Deletion is not possible."
 msgstr "La suppression n'est pas possible."
 
 #: forms/history.py:29
 msgid ""
-"If an entity is linked to other entities by a relationship of this type,\n"
-" the history lines that are about the edition of this entity will appear in "
-"the history of the others entities."
+"If an entity is linked to other entities by a relationship of this type, the "
+"history lines that are about the edition of this entity will appear in the "
+"history of the others entities."
 msgstr ""
 "Si une fiche est liée à d'autres fiches par une relation de ce type,\n"
 " les lignes d'historique à propos des modifications de cette fiche "
 "apparaitront dans l'historique des autres fiches."
 
-#: forms/history.py:34 templates/creme_config/bricks/relation-types.html:8
+#: forms/history.py:37 templates/creme_config/bricks/relation-types.html:8
 #: templates/creme_config/bricks/relation-types.html:10
 msgid "Relation types"
 msgstr "Types de relation"
 
-#: forms/relation_type.py:34
+#: forms/relation_type.py:42
 msgid "Type constraint"
 msgstr "Contrainte sur le type"
 
-#: forms/relation_type.py:35
+#: forms/relation_type.py:43
 msgid "No constraint means that all types are accepted."
 msgstr "Aucune contrainte signifiera que tous les types sont acceptés."
 
-#: forms/relation_type.py:38
+#: forms/relation_type.py:46
 msgid "Properties constraint"
 msgstr "Contrainte sur les propriétés"
 
-#: forms/relation_type.py:45
+#: forms/relation_type.py:54
 msgid "The subject must have all the selected properties."
 msgstr "Le sujet doit avoir toutes les propriétés sélectionnées."
 
-#: forms/relation_type.py:47
+#: forms/relation_type.py:57
 msgid "Subject => object"
 msgstr "Sujet => objet"
 
-#: forms/relation_type.py:48
+#: forms/relation_type.py:59
 msgid "Direct relationship is copiable"
 msgstr "La relation directe est copiable"
 
-#: forms/relation_type.py:49
+#: forms/relation_type.py:61
 msgid ""
 "Are the relationships with this type copied when the subject entity is "
 "cloned?"
@@ -632,11 +632,11 @@ msgstr ""
 "Est-ce que les relations avec ce type sont copiées quand la fiche sujet est "
 "clonée ?"
 
-#: forms/relation_type.py:53 forms/relation_type.py:65
+#: forms/relation_type.py:65 forms/relation_type.py:80
 msgid "Display once on the subject's page"
 msgstr "Afficher une seule fois sur la page du sujet"
 
-#: forms/relation_type.py:54
+#: forms/relation_type.py:67
 msgid ""
 "Do not display in the «Relationships» block (detail-view of subject) when it "
 "is already displayed by another block."
@@ -644,22 +644,22 @@ msgstr ""
 "Ne pas afficher dans le bloc «Relations» (vue détaillée du sujet) quand "
 "c'est déjà affiché par un autre bloc"
 
-#: forms/relation_type.py:59
+#: forms/relation_type.py:72
 msgid "Object => subject"
 msgstr "Objet => sujet"
 
-#: forms/relation_type.py:60
+#: forms/relation_type.py:74
 msgid "Symmetrical relationship is copiable"
 msgstr "La relation symétrique est copiable"
 
-#: forms/relation_type.py:61
+#: forms/relation_type.py:76
 msgid ""
 "Are the relationships with this type copied when the object entity is cloned?"
 msgstr ""
 "Est-ce que les relations avec ce type sont copiées quand la fiche objet est "
 "clonée ?"
 
-#: forms/relation_type.py:66
+#: forms/relation_type.py:82
 msgid ""
 "Do not display in the «Relationships» block (detail-view of object) when it "
 "is already displayed by another block."
@@ -667,34 +667,34 @@ msgstr ""
 "Ne pas afficher dans le bloc «Relations» (vue détaillée de l'objet) quand "
 "c'est déjà affiché par un autre bloc"
 
-#: forms/relation_type.py:72
+#: forms/relation_type.py:89
 msgid "The object must have all the selected properties."
 msgstr "L'objet doit avoir toutes les propriétés sélectionnées."
 
-#: forms/relation_type.py:75
+#: forms/relation_type.py:93
 msgid "Subject"
 msgstr "Sujet"
 
-#: forms/relation_type.py:76
+#: forms/relation_type.py:96
 msgid "Verb/Predicate"
 msgstr "Verbe/Prédicat"
 
-#: forms/relation_type.py:80
+#: forms/relation_type.py:102
 #: templates/creme_config/bricks/semi-fixed-relation-types.html:17
 msgid "Object"
 msgstr "Objet"
 
-#: forms/relation_type.py:136
+#: forms/relation_type.py:176
 msgid "Type and object"
 msgstr "Type et objet"
 
-#: forms/relation_type.py:152
+#: forms/relation_type.py:196
 msgid ""
 "A semi-fixed type of relationship with this type and this object already "
 "exists."
 msgstr "Un type de relation semi-fixé avec ce type et cet objet existe déjà."
 
-#: forms/search.py:33
+#: forms/search.py:34
 msgid "Concerned fields"
 msgstr "Champs concernés"
 
@@ -705,11 +705,11 @@ msgstr "Champs concernés"
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/transfer.py:37 forms/transfer.py:50
+#: forms/transfer.py:38 forms/transfer.py:51
 msgid "Configuration file"
 msgstr "Fichier de configuration"
 
-#: forms/transfer.py:38
+#: forms/transfer.py:39
 msgid ""
 "A JSON file created with the export button (generally in another Creme "
 "instance)."
@@ -717,81 +717,81 @@ msgstr ""
 "Un fichier JSON  créé avec le bouton d'export (généralement dans une autre "
 "instance de Creme)."
 
-#: forms/transfer.py:45
+#: forms/transfer.py:46
 msgid "File content is not valid JSON."
 msgstr "Le contenu du fichier n'est pas du JSON valide."
 
-#: forms/transfer.py:46
+#: forms/transfer.py:47
 #, python-format
 msgid "File content is not valid (%(error)s)."
 msgstr "Le contenu du fichier n'est pas valide (%(error)s)."
 
-#: forms/transfer.py:47
+#: forms/transfer.py:48
 msgid "The file has an unsupported version."
 msgstr "Le fichier a une version qui n'est pas gérée."
 
-#: forms/transfer.py:70
+#: forms/transfer.py:71
 msgid "main content must be a dictionary"
 msgstr "le contenu principal doit être un dictionnaire"
 
 # Already in django.contrib.auth
-#: forms/user.py:55 forms/user.py:133
+#: forms/user.py:56 forms/user.py:136
 msgid "The two password fields didn't match."
 msgstr ""
 
-#: forms/user.py:58 forms/user.py:136
+#: forms/user.py:59 forms/user.py:139
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user.py:61
+#: forms/user.py:62
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
 
 # Already in django.contrib.auth
-#: forms/user.py:63 forms/user.py:142
+#: forms/user.py:64 forms/user.py:145
 msgid "Enter the same password as before, for verification."
 msgstr ""
 
 # Already in django.contrib.auth
-#: forms/user.py:140
+#: forms/user.py:143
 msgid "Password (again)"
 msgstr ""
 
-#: forms/user.py:170 templates/creme_config/bricks/teams.html:25
+#: forms/user.py:174 templates/creme_config/bricks/teams.html:25
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: forms/user.py:179
+#: forms/user.py:183
 msgid "Team name"
 msgstr "Nom de l'équipe"
 
-#: forms/user.py:198
+#: forms/user.py:202
 msgid "Choose a user to transfer to"
 msgstr "Choisissez un utilisateur auquel transférer"
 
-#: forms/user.py:220 templates/creme_config/bricks/teams.html:7
+#: forms/user.py:224 templates/creme_config/bricks/teams.html:7
 msgid "Teams"
 msgstr "Équipes"
 
-#: forms/user_role.py:69
+#: forms/user_role.py:78
 msgid "View"
 msgstr "Voir"
 
-#: forms/user_role.py:70
+#: forms/user_role.py:79
 msgid "Change"
 msgstr "Changer"
 
-#: forms/user_role.py:71
+#: forms/user_role.py:80
 #: templates/creme_config/bricks/configurable-model.html:61
-#: templates/creme_config/bricks/user-roles.html:77
+#: templates/creme_config/bricks/user-roles.html:66
 msgid "Delete"
 msgstr "Supprimer"
 
-#: forms/user_role.py:74
+#: forms/user_role.py:83
 msgid "Link"
 msgstr "Lier"
 
-#: forms/user_role.py:75
+#: forms/user_role.py:84
 msgid ""
 "You must have the permission to link on 2 entities to create a relationship "
 "between them. Beware: if you use «Filtered entities», you won't be able to "
@@ -802,11 +802,11 @@ msgstr ""
 "pas ajouter de relations dans les formulaires de création (vous devrez les "
 "ajouter plus tard)."
 
-#: forms/user_role.py:83
+#: forms/user_role.py:92
 msgid "Unlink"
 msgstr "Délier"
 
-#: forms/user_role.py:84
+#: forms/user_role.py:93
 msgid ""
 "You must have the permission to unlink on 2 entities to delete a "
 "relationship between them."
@@ -815,11 +815,11 @@ msgstr ""
 "entre elles."
 
 # Already in creme_core
-#: forms/user_role.py:99
+#: forms/user_role.py:108
 msgid "General information"
 msgstr ""
 
-#: forms/user_role.py:100
+#: forms/user_role.py:109
 #: templates/creme_config/bricks/configurable-model.html:31
 #: templates/creme_config/bricks/custombricks-configs.html:19
 #: templates/creme_config/bricks/fields-configs.html:19
@@ -832,70 +832,70 @@ msgstr ""
 msgid "Actions"
 msgstr "Actions"
 
-#: forms/user_role.py:117
+#: forms/user_role.py:127
 msgctxt "content_type"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/user_role.py:132
+#: forms/user_role.py:142
 msgid "No action has been selected."
 msgstr "Aucune action n'a été sélectionnée."
 
-#: forms/user_role.py:147
+#: forms/user_role.py:157
 msgid "Name of the filter"
 msgstr "Nom du filtre"
 
 # Already in creme_core
-#: forms/user_role.py:155
+#: forms/user_role.py:167
 msgid "The filter must have at least one condition."
 msgstr ""
 
 # Already in creme_core
-#: forms/user_role.py:159
+#: forms/user_role.py:171
 msgid "Filter"
 msgstr ""
 
 # Already in creme_core
-#: forms/user_role.py:160 forms/user_role.py:225
+#: forms/user_role.py:172 forms/user_role.py:240
 msgid "Conditions"
 msgstr ""
 
-#: forms/user_role.py:163
+#: forms/user_role.py:176
 msgid ""
 "Beware to performances with conditions on custom fields or relationships."
 msgstr ""
 "Attention aux performances avec les conditions sur les champs personnalisés "
 "ou sur les relations."
 
-#: forms/user_role.py:227
+#: forms/user_role.py:242
 msgid "No filter, no condition."
 msgstr "Pas de filtre, pas de condition."
 
-#: forms/user_role.py:317 forms/user_role.py:349
+#: forms/user_role.py:331 forms/user_role.py:363
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"
 
-#: forms/user_role.py:324 forms/user_role.py:357
+#: forms/user_role.py:338 forms/user_role.py:374
 msgid "This role is not used by any user, you can delete it safely."
 msgstr ""
 "Ce rôle n'est utilisé par aucun utilisateur, vous pouvez le supprimer en "
 "toute sécurité."
 
-#: forms/user_role.py:350
+#: forms/user_role.py:365
 msgid "The chosen role will replace the deleted one in users which use it."
 msgstr ""
 "Le rôle choisi remplacera le role supprimé dans les utilisateurs qui lui "
 "sont associés."
 
-#: forms/user_role.py:404 templates/creme_config/bricks/user-roles.html:24
+#: forms/user_role.py:421 templates/creme_config/bricks/user-roles.html:24
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
-#: forms/user_role.py:432 templates/creme_config/bricks/user-roles.html:25
+#: forms/user_role.py:448 templates/creme_config/bricks/user-roles.html:25
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:433
+#: forms/user_role.py:449
 msgid ""
 "These applications can be configured. For example, the concerned users can "
 "create new choices available in forms (eg: position for contacts)."
@@ -904,15 +904,15 @@ msgstr ""
 "concernés peuvent créer de nouveaux choix disponibles dans les formulaires "
 "(ex: la fonction pour les contacts)."
 
-#: forms/user_role.py:467
+#: forms/user_role.py:484
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: forms/user_role.py:488
+#: forms/user_role.py:507
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: forms/user_role.py:489
+#: forms/user_role.py:508
 msgid ""
 "This types of entities can be downloaded as CSV/XLS files (in the "
 "corresponding list-views)."
@@ -920,39 +920,39 @@ msgstr ""
 "Ces types de fiches peuvent être téléchargés en tant que fichiers CSV/XLS "
 "(dans les vues en liste correspondantes)."
 
-#: forms/user_role.py:513
+#: forms/user_role.py:534
 msgid "First credentials: main information"
 msgstr "Premiers droits : informations principales"
 
-#: forms/user_role.py:514
+#: forms/user_role.py:535
 msgid "First credentials: actions"
 msgstr "Premiers droits : actions"
 
-#: forms/user_role.py:527
+#: forms/user_role.py:548
 msgid "Yes"
 msgstr "Oui"
 
-#: forms/user_role.py:543
+#: forms/user_role.py:564
 msgid "First credentials: filter"
 msgstr "Premiers droits : filtre"
 
-#: forms/user_role.py:544
+#: forms/user_role.py:565
 msgid "First credentials: conditions"
 msgstr "Premiers droits : conditions"
 
-#: forms/user_settings.py:43
+#: forms/user_settings.py:47
 msgid "Choose your theme"
 msgstr "Choisissez votre thème"
 
-#: forms/user_settings.py:51
+#: forms/user_settings.py:55
 msgid "Choose your time zone"
 msgstr "Choisissez votre fuseau horaire"
 
-#: forms/widgets.py:32
+#: forms/widgets.py:37
 msgid "Create"
 msgstr "Créer"
 
-#: forms/widgets.py:55
+#: forms/widgets.py:61
 msgid "Cannot create"
 msgstr "Création interdite"
 
@@ -1135,7 +1135,7 @@ msgstr "Supprimer la configuration"
 msgid "Configured types of resource"
 msgstr "Types de ressource configurés"
 
-#: templates/creme_config/bricks/button-menu.html:12 views/button_menu.py:49
+#: templates/creme_config/bricks/button-menu.html:12 views/button_menu.py:50
 msgid "New buttons configuration"
 msgstr "Nouvelle configuration de boutons"
 
@@ -1206,7 +1206,7 @@ msgid "No choice for this custom field"
 msgstr "Aucun choix pour ce champ personnalisé"
 
 #: templates/creme_config/bricks/custom-fields.html:18
-#: views/custom_fields.py:58
+#: views/custom_fields.py:57
 msgid "New custom field configuration"
 msgstr "Nouvelle configuration de champ personnalisé"
 
@@ -1263,7 +1263,7 @@ msgid "Custom blocks"
 msgstr "Blocs personnalisés"
 
 #: templates/creme_config/bricks/custombricks-configs.html:12
-#: views/bricks.py:95
+#: views/bricks.py:97
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
@@ -1639,7 +1639,7 @@ msgstr "{count} Équipe"
 msgid "{count} Teams"
 msgstr "{count} Équipes"
 
-#: templates/creme_config/bricks/teams.html:12 views/user.py:62
+#: templates/creme_config/bricks/teams.html:12 views/user.py:63
 msgid "New team"
 msgstr "Nouvelle équipe"
 
@@ -1735,7 +1735,7 @@ msgstr "Exporter"
 msgid "Export the configuration"
 msgstr "Exporter la configuration"
 
-#: templates/creme_config/bricks/transfer-buttons.html:34 views/transfer.py:71
+#: templates/creme_config/bricks/transfer-buttons.html:34 views/transfer.py:72
 msgid "Import a configuration"
 msgstr "Importer une configuration"
 
@@ -1809,35 +1809,19 @@ msgid "Filter «%(efilter)s»"
 msgstr "Filtre «%(efilter)s»"
 
 # Already in creme_core
-#: templates/creme_config/bricks/user-roles.html:51
-#, python-format
-msgid "Conditions of «%(efilter)s»"
-msgstr ""
-
-# Already in creme_core
-#: templates/creme_config/bricks/user-roles.html:54
+#: templates/creme_config/bricks/user-roles.html:52
 msgid "Information on the current filter"
 msgstr ""
 
-# Already in creme_core
-#: templates/creme_config/bricks/user-roles.html:57
-msgid "Any condition is met:"
-msgstr ""
-
-# Already in creme_core
-#: templates/creme_config/bricks/user-roles.html:57
-msgid "All these conditions are met:"
-msgstr ""
-
-#: templates/creme_config/bricks/user-roles.html:71
+#: templates/creme_config/bricks/user-roles.html:60
 msgid "New credentials"
 msgstr "Nouveaux droits"
 
-#: templates/creme_config/bricks/user-roles.html:74
+#: templates/creme_config/bricks/user-roles.html:63
 msgid "Edit this role"
 msgstr "Modifier ce rôle"
 
-#: templates/creme_config/bricks/user-roles.html:84
+#: templates/creme_config/bricks/user-roles.html:73
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
 
@@ -2058,93 +2042,93 @@ msgstr "Accueil"
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
-#: templatetags/creme_config_tags.py:56
+#: templatetags/creme_config_tags.py:57
 msgid "Hide inactive users"
 msgstr "Cacher les utilisateurs désactivés"
 
-#: templatetags/creme_config_tags.py:57
+#: templatetags/creme_config_tags.py:58
 msgid "Show inactive users"
 msgstr "Montrer les utilisateurs désactivés"
 
-#: templatetags/creme_config_tags.py:70
+#: templatetags/creme_config_tags.py:71
 msgid "Hide deleted custom fields"
 msgstr "Cacher les champ personnalisés supprimés"
 
-#: templatetags/creme_config_tags.py:71
+#: templatetags/creme_config_tags.py:72
 msgid "Show deleted custom fields"
 msgstr "Montrer les champ personnalisés supprimés"
 
-#: views/base.py:33 views/bricks.py:149 views/bricks.py:247
-#: views/button_menu.py:50
+#: views/base.py:33 views/bricks.py:151 views/bricks.py:249
+#: views/button_menu.py:51
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
-#: views/bricks.py:70
+#: views/bricks.py:72
 #, python-brace-format
 msgid "New block configuration for «{model}»"
 msgstr "Nouvelle configuration de bloc pour «{model}»"
 
-#: views/bricks.py:82 views/bricks.py:240 views/button_menu.py:40
+#: views/bricks.py:84 views/bricks.py:242 views/button_menu.py:41
 #: views/fields_config.py:56
 msgctxt "creme_config-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
-#: views/bricks.py:96
+#: views/bricks.py:98
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: views/bricks.py:178
+#: views/bricks.py:180
 #, python-brace-format
 msgid "Edit configuration of super-users for «{model}»"
 msgstr "Modifier la configuration des super-utilisateurs pour «{model}»"
 
-#: views/bricks.py:182
+#: views/bricks.py:184
 #, python-brace-format
 msgid "Edit configuration of «{role}» for «{model}»"
 msgstr "Modifier la configuration de «{role}» pour «{model}»"
 
-#: views/bricks.py:189
+#: views/bricks.py:191
 #, python-brace-format
 msgid "Edit default configuration for «{model}»"
 msgstr "Modifier la configuration par défaut pour «{model}»"
 
-#: views/bricks.py:192 views/button_menu.py:100
+#: views/bricks.py:194 views/button_menu.py:102
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
-#: views/bricks.py:200
+#: views/bricks.py:202
 msgid "Create home configuration for a role"
 msgstr "Créer la configuration de l'accueil d'un rôle"
 
-#: views/bricks.py:206
+#: views/bricks.py:208
 msgid "Edit home configuration"
 msgstr "Modifier la configuration de l'accueil"
 
-#: views/bricks.py:221
+#: views/bricks.py:223
 msgid "Edit default \"My page\""
 msgstr "Modifier le \"Ma page\" par défaut"
 
-#: views/bricks.py:226
+#: views/bricks.py:228
 msgid "Edit \"My page\""
 msgstr "Modifier \"Ma page\""
 
-#: views/bricks.py:246
+#: views/bricks.py:248
 #, python-brace-format
 msgid "New customised type for «{object}»"
 msgstr "Nouveau type personnalisé pour «{object}»"
 
-#: views/bricks.py:262
+#: views/bricks.py:264
 #, python-brace-format
 msgid "Edit «{model}» configuration"
 msgstr "Modifier la configuration de «{model}»"
 
-#: views/bricks.py:307
+#: views/bricks.py:309
 #, python-brace-format
 msgid "Edit the block «{object}»"
 msgstr "Modifier le bloc «{object}»"
 
-#: views/button_menu.py:98
+#: views/button_menu.py:100
 #, python-brace-format
 msgid "Edit configuration for «{model}»"
 msgstr "Modifier la configuration pour «{model}»"
@@ -2155,17 +2139,17 @@ msgctxt "creme_config-property"
 msgid "Edit the type «{object}»"
 msgstr "Modifier le type «{object}»"
 
-#: views/custom_fields.py:75
+#: views/custom_fields.py:74
 #, python-brace-format
 msgid "New custom field for «{model}»"
 msgstr "Nouveau champ personnalisé pour «{model}»"
 
-#: views/custom_fields.py:93 views/custom_fields.py:170
-#: views/custom_fields.py:195 views/custom_fields.py:210
+#: views/custom_fields.py:92 views/custom_fields.py:171
+#: views/custom_fields.py:196 views/custom_fields.py:211
 msgid "This custom field is deleted."
 msgstr "Ce champ personnalisé est supprimé."
 
-#: views/custom_fields.py:124
+#: views/custom_fields.py:123
 #, python-brace-format
 msgid ""
 "This custom field is still used by {count} entity, so it cannot be deleted."
@@ -2178,38 +2162,38 @@ msgstr[1] ""
 "Ce champ personnalisé est encore utilisé par {count} fiches, donc il ne peut "
 "pas être supprimé."
 
-#: views/custom_fields.py:175
+#: views/custom_fields.py:176
 msgid "Add this new choice"
 msgstr "Ajouter ce nouveau choix"
 
-#: views/custom_fields.py:185
+#: views/custom_fields.py:186
 msgid "Add these new choices"
 msgstr "Ajouter ces nouveaux choix"
 
-#: views/custom_fields.py:204 views/generics_views.py:219
+#: views/custom_fields.py:205 views/generics_views.py:226
 #, python-brace-format
 msgid "Replace & delete «{object}»"
 msgstr "Remplacer & supprimer «{object}»"
 
-#: views/custom_fields.py:205
+#: views/custom_fields.py:206
 msgid "Delete the choice"
 msgstr "Supprimer le choix"
 
-#: views/custom_fields.py:222
+#: views/custom_fields.py:223
 msgid "A deletion process for a choice already exists."
 msgstr "Il y a déjà un processus de suppression pour un choix."
 
 # Already in creme_core
-#: views/generics_views.py:108
+#: views/generics_views.py:110
 msgid "Save"
 msgstr ""
 
-#: views/generics_views.py:126
+#: views/generics_views.py:130
 #, python-brace-format
 msgid "New value: {model}"
 msgstr "Nouvelle valeur : {model}"
 
-#: views/generics_views.py:224
+#: views/generics_views.py:231
 msgid ""
 "The deleted value can be replaced in existing entities by another value. If "
 "a field cannot be empty, you must chose a replacing value."
@@ -2218,17 +2202,17 @@ msgstr ""
 "autre valeur. Si un champ ne peut être vide, vous devez choisir une valeur "
 "de remplacement."
 
-#: views/generics_views.py:244
+#: views/generics_views.py:252
 #, python-brace-format
 msgid "A deletion process for an instance of «{model}» already exists."
 msgstr ""
 "Il y a déjà un processus de suppression pour une instance de «{model}»."
 
-#: views/generics_views.py:300
+#: views/generics_views.py:310
 msgid "Error. Please contact your administrator."
 msgstr "Erreur. Veuillez contacter votre administrateur."
 
-#: views/history.py:36
+#: views/history.py:35
 msgid "New relation types"
 msgstr "Nouveaux types de relation"
 
@@ -2238,82 +2222,82 @@ msgctxt "creme_config-relationship"
 msgid "Edit the type «{object}»"
 msgstr "Modifier le type «{object}»"
 
-#: views/search.py:52
+#: views/search.py:51
 #, python-brace-format
 msgid "New search configuration for «{model}»"
 msgstr "Nouvelle configuration de recherche pour «{model}»"
 
-#: views/setting.py:36 views/user_settings.py:98
+#: views/setting.py:35 views/user_settings.py:98
 #, python-brace-format
 msgid "Edit «{key}»"
 msgstr "Modifier «{key}»"
 
-#: views/transfer.py:72
+#: views/transfer.py:73
 msgid "Import"
 msgstr "Importer"
 
-#: views/user.py:48
+#: views/user.py:49
 #, python-brace-format
 msgid "Change password for «{object}»"
 msgstr "Changer le mot de passe pour «{object}»"
 
-#: views/user.py:63
+#: views/user.py:64
 msgid "Save the team"
 msgstr "Enregistrer l'équipe"
 
-#: views/user.py:99
+#: views/user.py:100
 #, python-brace-format
 msgid "Delete «{object}» and assign his entities to user"
 msgstr "Supprimer «{object}» et réassigner ses fiches"
 
-#: views/user.py:100
+#: views/user.py:101
 msgid "Delete the user"
 msgstr "Supprimer l'utilisateur"
 
-#: views/user.py:106
+#: views/user.py:107
 msgid "You can't delete the current user."
 msgstr "Vous ne pouvez pas supprimer l'utilisateur courant."
 
-#: views/user.py:119
+#: views/user.py:120
 msgid "You cannot delete this user. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer cet utilisateur. [erreur d'origine : {}]"
 
-#: views/user.py:133
+#: views/user.py:134
 msgid "You can't deactivate the current user."
 msgstr "Vous ne pouvez pas désactiver l'utilisateur courant."
 
-#: views/user.py:139
+#: views/user.py:142
 msgid "You can't deactivate a staff user."
 msgstr "Vous ne pouvez pas désactiver un super administrateur."
 
-#: views/user.py:159
+#: views/user.py:164
 msgid "You can't activate a staff user."
 msgstr "Vous ne pouvez pas activer un super administrateur."
 
-#: views/user_role.py:120
+#: views/user_role.py:124
 #, python-brace-format
 msgid "Add credentials to «{object}»"
 msgstr "Ajouter des droits à «{object}»"
 
-#: views/user_role.py:123
+#: views/user_role.py:127
 msgid "Add the credentials"
 msgstr "Ajouter les droits"
 
-#: views/user_role.py:149
+#: views/user_role.py:153
 #, python-brace-format
 msgid "Edit credentials for «{role}»"
 msgstr "Modifier les droits de «{role}»"
 
-#: views/user_role.py:208
+#: views/user_role.py:212
 #, python-brace-format
 msgid "Delete role «{object}»"
 msgstr "Supprimer le rôle «{object}»"
 
-#: views/user_role.py:209
+#: views/user_role.py:213
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
 
-#: views/user_role.py:222
+#: views/user_role.py:226
 msgid "A deletion process for a role already exists."
 msgstr "Il y a déjà un processus de suppression pour un rôle."
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-07 17:17+0200\n"
+"POT-Creation-Date: 2020-11-04 17:49+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -34,11 +34,11 @@ msgctxt "mobile-orga"
 msgid "Is favorite"
 msgstr "Est favorite"
 
-#: setting_keys.py:10
+#: setting_keys.py:16
 #, python-brace-format
 msgid ""
-"Url pattern to map & geolocation services.Use {search} placeholder for the "
-"address (e.g: 'www.google.com/maps?q={search}').If geolocation is enabled, "
+"Url pattern to map & geolocation services.\n"
+"Use {search} placeholder for the address and if geolocation is enabled, "
 "{lat} & {lng} coordinates can be used too."
 msgstr ""
 
@@ -458,40 +458,30 @@ msgid "Call in progress"
 msgstr "Appel en cours"
 
 #: templates/mobile/workflow_panel.html:14
-#, fuzzy, python-format
-#| msgid ""
-#| "You left the application to call <span class='call-target'><span "
-#| "class='contact-first-name'>%(first_name)s</span> <span class='contact-"
-#| "last-name'>%(last_name)s</span></span> to <a class='phone-number' "
-#| "href='tel:%(number)s'>%(number)s</a>, you can save the result if this "
-#| "call."
+#, python-format
 msgid ""
 "You left the application to call <span class=\"call-target\"><span class="
 "\"contact-first-name\">%(first_name)s</span> <span class=\"contact-last-name"
 "\">%(last_name)s</span></span> to <a class=\"phone-number\" href=\"tel:"
 "%(number)s\">%(number)s</a>, you can save the result if this call."
 msgstr ""
-"Vous avez quitté l'application pour appeler <span class='call-target'><span "
-"class='contact-first-name'>%(first_name)s</span> <span class='contact-last-"
-"name'>%(last_name)s</span></span> au <a class='phone-number' href='tel:"
-"%(number)s'>%(number)s</a>, vous pouvez sauvegarder le résultat de cet appel."
+"Vous avez quitté l'application pour appeler <span class=\"call-target"
+"\"><span class=\"contact-first-name\">%(first_name)s</span> <span class="
+"\"contact-last-name\">%(last_name)s</span></span> au <a class=\"phone-number"
+"\" href=\"tel:%(number)s\">%(number)s</a>, vous pouvez sauvegarder le "
+"résultat de cet appel."
 
 #: templates/mobile/workflow_panel.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "You left the application to call <span class='call-target'><span "
-#| "class='orga-name'>%(name)s</span></span> to <a class='phone-number' "
-#| "href='tel:%(number)s'>%(number)s</a>, you can save the result if this "
-#| "call."
+#, python-format
 msgid ""
 "You left the application to call <span class=\"call-target\"><span class="
 "\"orga-name\">%(name)s</span></span> to <a class=\"phone-number\" href=\"tel:"
 "%(number)s\">%(number)s</a>, you can save the result if this call."
 msgstr ""
-"Vous avez quitté l'application pour appeler <span class='call-target'><span "
-"class='orga-name'>%(name)s</span></span> au <a class='phone-number' "
-"href='tel:%(number)s'>%(number)s</a>, vous pouvez sauvegarder le résultat de "
-"cet appel."
+"Vous avez quitté l'application pour appeler <span class=\"call-target"
+"\"><span class=\"orga-name\">%(name)s</span></span> au <a class=\"phone-"
+"number\" href=\"tel:%(number)s\">%(number)s</a>, vous pouvez sauvegarder le "
+"résultat de cet appel."
 
 #: templates/mobile/workflow_panel.html:26
 msgid "Add call minutes"
