@@ -42,6 +42,7 @@
                 - The fields for abscissa & ordinate have been replaced by 2 composite/chained fields.
                 - The new widget for abscissa does not perform AJAX requests & has autocompletion.
             - A new ReportGraph fetcher specific to Contact has been added : "belows to the Contact/User".
+            - The volatile link is now used to narrow the related list-view (when you click of a ReportGraph's brick).
             - The report graph bricks set now the compatible entities types (attribute "target_ctypes") ;
               so they are only proposed for detail-view's brick configuration which are relevant.
         * Billing :
@@ -467,6 +468,10 @@
                     - The ReportGraph fetchers' code ('graph.fetcher') has been reworked to be configurable/extensible :
                         - The attribute 'GraphFetcher.verbose_volatile_column' has been removed.
                         - The arguments of the constructors for 'RegularFieldLinkedGraphFetcher'/'RelationLinkedGraphFetcher' have changed (see 'GraphFetcher.__init__()').
+                    - The 'ReportGraphHand' classes have been reworked to manage an extra 'Q' argument :
+                       - The methods '_fetch()' take now only keyword arguments, and a mandatory argument "extra_q" has been added.
+                       - The methods '_RGHRegularField._get_dates_values()' & '_RGHCustomField._get_custom_dates_values()' changed in the same way.
+                       - In the classes 'RGHRange' & 'RGHCustomRange', the method '_fetch_with_group_by()' & 'fetch_fallback()' take an mandatory argument "extra_q".
                 - In 'forms' :
                     - The only field of 'bricks.GraphInstanceBrickForm' has changed ; the protected method '_get_volatile_choices()' has been removed.
                     - In 'graph' :
