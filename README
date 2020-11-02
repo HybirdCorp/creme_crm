@@ -127,7 +127,7 @@ The information from the section "EMAILS [internal]" of 'settings.py' should be 
 your 'local_settings.py' if you want that your users receive e-mails from Creme (ToDos, Alerts...).
 But these information can be filled/changed later.
 
-For an upgrade from Creme 1.8 :
+For an upgrade from the previous version of Creme :
  - Copy the file local_settings.py of your existing install :
    - do not forget to change NAME in order to use your duplicated DB.
    - do not remove apps in INSTALLED_CREME_APPS now (because they are installed in your DB) ;
@@ -142,7 +142,7 @@ Run the following commands in the root directory:
     >> python creme/manage.py generatemedia
     >> python creme/manage.py creme_populate
 
-If you are upgrading from Creme 2.0, clean all existing sessions, for example like this:
+If you are upgrading the version, clean all existing sessions, for example like this:
     >> python creme/manage.py shell
     > from django.contrib.sessions.models import Session
     > Session.objects.all().delete()
