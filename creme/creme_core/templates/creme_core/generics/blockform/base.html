@@ -17,11 +17,15 @@
         if (!$('span.required-mark').first().length) {
             $('.required-help').attr('style', 'display:none');
         }
-{% if not is_inner_popup %}
-        creme.forms.initialize($('#editforms form'));
-{% endif %}
     });
 </script>
+{% if not is_inner_popup %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        creme.forms.initialize($('#editforms form'));
+    });
+</script>
+{% endif %}
 
 <p class="required-help">{% trans 'Fields marked with * are required.' %}</p>
 

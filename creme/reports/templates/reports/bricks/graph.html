@@ -8,11 +8,7 @@
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
              var properties = {
-                 charts: {
-                     {% for name, chart in report_charts %}
-                     '{{name}}': '{{chart.label}}'{% if not forloop.last %},{% endif %}
-                     {% endfor %}
-                 },
+                 charts: {{report_charts|report_chart_labels|jsonify|safe}},
                  sorts: {
                      'ASC':  "{% trans 'Ascending' %}",
                      'DESC': "{% trans 'Descending' %}"
@@ -20,8 +16,8 @@
              };
 
              var initial = {
-                 chart: {% if graph.chart %}'{{graph.chart}}'{% else %}Object.keys(properties.charts)[0]{% endif %},
-                 sort:  '{% if graph.asc %}ASC{% else %}DESC{% endif %}'
+                 chart: '{{graph.chart}}' || Object.keys(properties.charts)[0],
+                 sort:  '{{graph.asc|yesno:"ASC,DESC"}}'
              };
 
              var controller = new creme.reports.ChartController(properties);
