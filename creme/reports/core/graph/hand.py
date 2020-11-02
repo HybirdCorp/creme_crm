@@ -33,7 +33,7 @@ from typing import (
 )
 
 from django.db import connection
-from django.db.models import Max, Min, QuerySet  # Count FieldDoesNotExist
+from django.db.models import Max, Min, Q, QuerySet  # Count FieldDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
@@ -85,34 +85,49 @@ class ReportGraphHand:
         self.abscissa_error: Optional[str] = None
         self.ordinate_error: Optional[str] = y_calculator.error
 
-    def _listview_url_builder(self):
+    # def _listview_url_builder(self):
+    def _listview_url_builder(self, extra_q: Optional[Q] = None):
         graph = self._graph
-        return ListViewURLBuilder(graph.model, graph.linked_report.filter)
+        return ListViewURLBuilder(
+            model=graph.model,
+            filter=graph.linked_report.filter,
+            common_q=extra_q,
+        )
 
+    # def _fetch(self, entities, order, user):
     def _fetch(self,
+               *,
                entities: QuerySet,
                order: str,
-               user) -> Iterator[Tuple[str, Any]]:
+               user,
+               extra_q: Optional[Q]) -> Iterator[Tuple[str, Any]]:
         yield from ()
 
     def fetch(self,
               entities: QuerySet,
               order: str,
-              user) -> Tuple[List[str], list]:
+              user,
+              extra_q: Optional[Q] = None) -> Tuple[List[str], list]:
         """Returns the X & Y values.
         @param entities: Queryset of CremeEntities.
         @param order: 'ASC' or 'DESC'.
+        @param extra_q: instance of Q, or None ; applied to narrow <entities>.
         @return A tuple (X, Y). X is a list of string labels.
                 Y is a list of numerics, or of tuple (numeric, URL).
         """
         x_values: List[str] = []
         y_values: list = []
 
+        if extra_q is not None:
+            entities = entities.filter(extra_q)
+
         if not self.abscissa_error:
             x_append = x_values.append
             y_append = y_values.append
 
-            for x, y in self._fetch(entities, order, user):
+            for x, y in self._fetch(
+                entities=entities, order=order, user=user, extra_q=extra_q,
+            ):
                 x_append(x)
                 y_append(y)
 
@@ -240,13 +255,16 @@ class _RGHRegularField(ReportGraphHand):
         aggregates = self._aggregate_by_key(entities, key, order).exclude(**x_value_filter)
         return aggregates
 
-    def _get_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
+    # def _get_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
+    def _get_dates_values(self, *,
+                          entities, abscissa, kind, qdict_builder,
+                          date_format, order, extra_q):
         """
-        @param kind 'day', 'month' or 'year'
-        @param order 'ASC' or 'DESC'
-        @param date_format Format compatible with strftime()
+        @param kind: 'day', 'month' or 'year'.
+        @param order: 'ASC' or 'DESC'.
+        @param date_format: Format compatible with strftime().
         """
-        build_url = self._listview_url_builder()
+        build_url = self._listview_url_builder(extra_q=extra_q)
 
         field_name = _physical_field_name(self._field.model._meta.db_table, abscissa)
         x_value_key = connection.ops.date_trunc_sql(kind, field_name)
@@ -275,7 +293,8 @@ class _RGHRegularField(ReportGraphHand):
 class RGHDay(_RGHRegularField):
     verbose_name = _('By days')
 
-    def _fetch(self, entities, order, user):
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
         # abscissa = self._graph.abscissa
         abscissa = self._field.name
         year_key  = f'{abscissa}__year'
@@ -283,13 +302,15 @@ class RGHDay(_RGHRegularField):
         day_key   = f'{abscissa}__day'
 
         return self._get_dates_values(
-            entities, abscissa, 'day',
+            entities=entities,
+            abscissa=abscissa, kind='day',
             qdict_builder=lambda date: {
                 year_key:  date.year,
                 month_key: date.month,
                 day_key:   date.day,
             },
             date_format='%d/%m/%Y', order=order,
+            extra_q=extra_q,
         )
 
 
@@ -297,19 +318,22 @@ class RGHDay(_RGHRegularField):
 class RGHMonth(_RGHRegularField):
     verbose_name = _('By months')
 
-    def _fetch(self, entities, order, user):
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
         # abscissa = self._graph.abscissa
         abscissa = self._field.name
         year_key  = f'{abscissa}__year'
         month_key = f'{abscissa}__month'
 
         return self._get_dates_values(
-            entities, abscissa, 'month',
+            entities=entities,
+            abscissa=abscissa, kind='month',
             qdict_builder=lambda date: {
                 year_key:  date.year,
                 month_key: date.month,
             },
             date_format='%m/%Y', order=order,
+            extra_q=extra_q,
         )
 
 
@@ -317,14 +341,17 @@ class RGHMonth(_RGHRegularField):
 class RGHYear(_RGHRegularField):
     verbose_name = _('By years')
 
-    def _fetch(self, entities, order, user):
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
         # abscissa = self._graph.abscissa
         abscissa = self._field.name
 
         return self._get_dates_values(
-            entities, abscissa, 'year',
+            entities=entities,
+            abscissa=abscissa, kind='year',
             qdict_builder=lambda date: {f'{abscissa}__year': date.year},
             date_format='%Y', order=order,
+            extra_q=extra_q,
         )
 
 
@@ -387,10 +414,13 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
 
         self._days = self.get_days(graph)
 
-    def _fetch(self, entities, order, user):
-        return self._fetch_method(entities, order)
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
+        # return self._fetch_method(entities, order)
+        return self._fetch_method(entities, order, extra_q)
 
-    def _fetch_with_group_by(self, entities, order):
+    # def _fetch_with_group_by(self, entities, order):
+    def _fetch_with_group_by(self, entities, order, extra_q):
         # graph = self._graph
         # abscissa = graph.abscissa
         abscissa = self._field.name
@@ -408,7 +438,8 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            build_url = self._listview_url_builder()
+            # build_url = self._listview_url_builder()
+            build_url = self._listview_url_builder(extra_q=extra_q)
             query_cmd = f'{abscissa}__range'
             # days = graph.days or 1
             days = self._days
@@ -443,7 +474,8 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
 
                 yield range_label, [value, url]
 
-    def _fetch_fallback(self, entities, order):
+    # def _fetch_fallback(self, entities, order):
+    def _fetch_fallback(self, entities, order, extra_q):
         """Aggregate values with 'manual group by' by iterating over group
         values and executing an aggregate query per group.
         """
@@ -455,7 +487,8 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            build_url = self._listview_url_builder()
+            # build_url = self._listview_url_builder()
+            build_url = self._listview_url_builder(extra_q=extra_q)
             query_cmd = f'{abscissa}__range'
             entities_filter = entities.filter
             # y_value_func = self._y_calculator
@@ -503,10 +536,12 @@ class RGHForeignKey(_RGHRegularField):
 
         self._abscissa_enumerator = enumerator
 
-    def _fetch(self, entities, order, user):
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
         # abscissa = self._graph.abscissa
         abscissa = self._field.name
-        build_url = self._listview_url_builder()
+        # build_url = self._listview_url_builder()
+        build_url = self._listview_url_builder(extra_q=extra_q)
         entities_filter = entities.filter
         # y_value_func = self._y_calculator
         y_value_func = self._y_calculator.aggregrate
@@ -547,12 +582,14 @@ class RGHRelation(ReportGraphHand):
 
         self._rtype = rtype
 
-    def _fetch(self, entities, order, user):
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
         # TODO: Optimize ! (populate real entities)
         # TODO: sort alphabetically (with header_filter_search_field ?
         #       Queryset is not paginated so we can sort the "list") ?
         # TODO: make listview url for this case
-        build_url = self._listview_url_builder()
+        # build_url = self._listview_url_builder()
+        build_url = self._listview_url_builder(extra_q=extra_q)
         relations = Relation.objects.filter(
             type=self._rtype, subject_entity__entity_type=self._graph.linked_report.ct,
         )
@@ -563,8 +600,9 @@ class RGHRelation(ReportGraphHand):
         y_value_func = self._y_calculator.aggregrate
 
         for obj_id in relations.values_list('object_entity', flat=True).distinct():
-            subj_ids = rel_filter(object_entity=obj_id).order_by('subject_entity__id')\
-                                                       .values_list('subject_entity')
+            subj_ids = rel_filter(
+                object_entity=obj_id,
+            ).order_by('subject_entity__id').values_list('subject_entity')
 
             yield (
                 str(ce_objects_get(pk=obj_id).get_real_entity()),
@@ -629,14 +667,16 @@ class _RGHCustomField(ReportGraphHand):
     #       3: the qdicts have an additional value) and could be factored together
     # def _get_custom_dates_values(self, entities, abscissa, kind, qdict_builder,
     #                              date_format, order):
-    def _get_custom_dates_values(self, *, entities, kind, qdict_builder, date_format, order):
+    def _get_custom_dates_values(self, *,
+                                 entities, kind, qdict_builder, date_format, order, extra_q):
         """
-        @param kind 'day', 'month' or 'year'
-        @param order 'ASC' or 'DESC'
-        @param date_format Format compatible with strftime()
+        @param kind: 'day', 'month' or 'year'.
+        @param order: 'ASC' or 'DESC'.
+        @param date_format: Format compatible with strftime().
         """
         cfield = self._cfield
-        build_url = self._listview_url_builder()
+        # build_url = self._listview_url_builder()
+        build_url = self._listview_url_builder(extra_q=extra_q)
 
         entities = entities.filter(customfielddatetime__custom_field=cfield)
 
@@ -668,7 +708,8 @@ class _RGHCustomField(ReportGraphHand):
 class RGHCustomDay(_RGHCustomField):
     verbose_name = _('By days')
 
-    def _fetch(self, entities, order, user):
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
         return self._get_custom_dates_values(
             entities=entities,
             # abscissa=self._graph.abscissa,
@@ -678,8 +719,9 @@ class RGHCustomDay(_RGHCustomField):
                 'customfielddatetime__value__month': date.month,
                 'customfielddatetime__value__day':   date.day,
             },
-            date_format="%d/%m/%Y",
+            date_format='%d/%m/%Y',
             order=order,
+            extra_q=extra_q,
         )
 
 
@@ -687,7 +729,8 @@ class RGHCustomDay(_RGHCustomField):
 class RGHCustomMonth(_RGHCustomField):
     verbose_name = _('By months')
 
-    def _fetch(self, entities, order, user):
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
         return self._get_custom_dates_values(
             entities=entities,
             # abscissa=self._graph.abscissa,
@@ -698,6 +741,7 @@ class RGHCustomMonth(_RGHCustomField):
             },
             date_format='%m/%Y',
             order=order,
+            extra_q=extra_q,
         )
 
 
@@ -705,7 +749,8 @@ class RGHCustomMonth(_RGHCustomField):
 class RGHCustomYear(_RGHCustomField):
     verbose_name = _('By years')
 
-    def _fetch(self, entities, order, user):
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
         return self._get_custom_dates_values(
             entities=entities,
             # abscissa=self._graph.abscissa,
@@ -715,6 +760,7 @@ class RGHCustomYear(_RGHCustomField):
             },
             date_format='%Y',
             order=order,
+            extra_q=extra_q
         )
 
 
@@ -737,11 +783,14 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
 
         self._days = self.get_days(graph)
 
-    def _fetch(self, entities, order, user):
-        return self._fetch_method(entities, order)
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
+        # return self._fetch_method(entities, order)
+        return self._fetch_method(entities, order, extra_q)
 
     # TODO: This is almost identical to RGHRange and most of it could be factored together
-    def _fetch_with_group_by(self, entities, order):
+    # def _fetch_with_group_by(self, entities, order):
+    def _fetch_with_group_by(self, entities, order, extra_q):
         cfield = self._cfield
         entities = entities.filter(customfielddatetime__custom_field=cfield)
 
@@ -753,7 +802,8 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            build_url = self._listview_url_builder()
+            # build_url = self._listview_url_builder()
+            build_url = self._listview_url_builder(extra_q=extra_q)
             # days = self._graph.days or 1
             days = self._days
 
@@ -785,7 +835,8 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
 
                 yield range_label, [value, url]
 
-    def _fetch_fallback(self, entities, order):
+    # def _fetch_fallback(self, entities, order):
+    def _fetch_fallback(self, entities, order, extra_q):
         cfield = self._cfield
         entities_filter = entities.filter
         date_aggregates = entities_filter(
@@ -800,7 +851,8 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         if min_date is not None and max_date is not None:
             # y_value_func = self._y_calculator
             y_value_func = self._y_calculator.aggregrate
-            build_url = self._listview_url_builder()
+            # build_url = self._listview_url_builder()
+            build_url = self._listview_url_builder(extra_q=extra_q)
 
             for interval in DateInterval.generate(
                 (self._graph.days or 1) - 1, min_date, max_date, order,
@@ -834,11 +886,13 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
 class RGHCustomFK(_RGHCustomField):
     verbose_name = _('By values (of custom choices)')
 
-    def _fetch(self, entities, order, user):
+    # def _fetch(self, entities, order, user):
+    def _fetch(self, *, entities, order, user, extra_q):
         entities_filter = entities.filter
         # y_value_func = self._y_calculator
         y_value_func = self._y_calculator.aggregrate
-        build_url = self._listview_url_builder()
+        # build_url = self._listview_url_builder()
+        build_url = self._listview_url_builder(extra_q=extra_q)
         related_instances = [
             *CustomFieldEnumValue.objects.filter(custom_field=self._cfield),
         ]

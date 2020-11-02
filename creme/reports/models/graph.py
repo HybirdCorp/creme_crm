@@ -204,10 +204,10 @@ class AbstractReportGraph(CremeEntity):
         if report.filter is not None:
             entities = report.filter.filter(entities)
 
-        if extra_q is not None:
-            entities = entities.filter(extra_q)
+        # if extra_q is not None:
+        #     entities = entities.filter(extra_q)
 
-        return self.hand.fetch(entities=entities, order=order, user=user)
+        return self.hand.fetch(entities=entities, order=order, user=user, extra_q=extra_q)
 
     # @staticmethod
     # def get_fetcher_from_instance_brick(instance_brick_config):

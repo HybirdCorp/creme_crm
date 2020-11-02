@@ -67,7 +67,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         brick = ReportGraphBrick(ibci)
         self.assertEqual(
             f'{graph.name} - {vname}',
-            brick.verbose_name
+            brick.verbose_name,
         )
         self.assertListEqual([Contact], brick.target_ctypes)
 
@@ -94,7 +94,10 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         def build_url(year):
             return '{}?q_filter={}'.format(
                 lv_url,
-                qfilter_serializer.dumps(Q(creation_date__year=year)),
+                # qfilter_serializer.dumps(Q(creation_date__year=year)),
+                qfilter_serializer.dumps(
+                    Q(user=user.id) & Q(creation_date__year=year)
+                ),
             )
 
         self.assertListEqual([[2, build_url(2015)], [1, build_url(2016)]], y)

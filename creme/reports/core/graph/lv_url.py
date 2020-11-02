@@ -34,7 +34,8 @@ class ListViewURLBuilder:
 
     def __init__(self,
                  model: Type[CremeEntity],
-                 filter: Optional[EntityFilter] = None):
+                 filter: Optional[EntityFilter] = None,
+                 common_q: Optional[Q] = None):
         fmt = getattr(model, 'get_lv_absolute_url', None)
 
         if fmt:
@@ -48,10 +49,16 @@ class ListViewURLBuilder:
                 fmt += f'&{self.entity_filter_id_arg}={filter.id}'
 
         self._fmt = fmt
+        self._common_q = common_q or Q()
 
     def __call__(self, q_filter: Optional[dict] = None) -> Optional[str]:
         fmt = self._fmt
 
+        if not fmt:
+            return None
+
+        final_q = self._common_q & Q(**q_filter) if q_filter else self._common_q
+
         return fmt.format(
-            QSerializer().dumps(Q(**q_filter)) if q_filter is not None else ''
-        ) if fmt else None
+            QSerializer().dumps(final_q) if final_q else ''
+        )

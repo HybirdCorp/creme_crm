@@ -115,7 +115,7 @@ class GraphFetcher:
                             entity: CremeEntity,
                             user,
                             order: str):
-        "To be overload in child classes."
+        "To be overridden in child classes."
         return self.fetch(user=user, order=order)
 
     def fetch_4_entity(self,
