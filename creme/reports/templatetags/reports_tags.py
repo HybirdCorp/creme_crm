@@ -37,6 +37,11 @@ def report_chart_selector(context, rgraph):  # TODO: reportS
     return context
 
 
+@register.filter
+def report_chart_labels(charts):
+    return {name: chart.label for name, chart in charts}
+
+
 @register.simple_tag
 def reports_graph_ordinate(rgraph):
     aggregator = rgraph.hand.ordinate
