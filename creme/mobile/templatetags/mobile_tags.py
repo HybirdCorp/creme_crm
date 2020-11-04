@@ -40,8 +40,8 @@ register = Library()
 Organisation = get_organisation_model()
 
 
-@register.simple_tag(takes_context=True)
-def mobile_location_map_url(context, address):
+@register.simple_tag
+def mobile_location_map_url(address):
     url = SettingValue.objects.value_4_key(setting_keys.LOCATION_MAP_URL)
     geoaddress = getattr(address, 'geoaddress', None)
     data = {
@@ -49,10 +49,10 @@ def mobile_location_map_url(context, address):
     }
 
     if geoaddress is not None:
-        data.update({
-            'lat': geoaddress.latitude or '',
-            'lng': geoaddress.longitude or '',
-        })
+        data.update(
+            lat=geoaddress.latitude or '',
+            lng=geoaddress.longitude or '',
+        )
 
     return url.format(**data)
 

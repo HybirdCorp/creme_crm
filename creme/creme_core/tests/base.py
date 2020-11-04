@@ -22,8 +22,6 @@ from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils.timezone import get_current_timezone, make_aware, utc
 
-from creme.creme_core.models.setting_value import SettingValue
-
 from ..global_info import clear_global_info
 from ..management.commands.creme_populate import Command as PopulateCommand
 from ..models import (
@@ -32,6 +30,7 @@ from ..models import (
     DeletionCommand,
     Relation,
     RelationType,
+    SettingValue,
     UserRole,
 )
 from ..utils import print_traceback
@@ -53,10 +52,8 @@ def skipIfNotInstalled(app_name):
 
 
 class OverrideSettingValueContext(ContextDecorator):
+    """Overrides SettingKey value for tests"""
     def __init__(self, key, value):
-        if not key:
-            raise KeyError('Empty setting key')
-
         self.key = key
         self.value = value
 
