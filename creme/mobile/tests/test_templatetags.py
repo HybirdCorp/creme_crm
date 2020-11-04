@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.template.context import Context
 from django.test.client import RequestFactory
 from django.urls.base import reverse
 from parameterized import parameterized
@@ -49,7 +48,7 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         address = self.create_address(user)
 
         with OverrideSettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
-            self.assertEqual(mobile_location_map_url(Context({}), address), expected)
+            self.assertEqual(mobile_location_map_url(address), expected)
 
     @skipIfNotInstalled('creme.geolocation')
     @parameterized.expand([
@@ -72,7 +71,7 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         address.geoaddress.save()
 
         with OverrideSettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
-            self.assertEqual(mobile_location_map_url(Context({}), address), expected)
+            self.assertEqual(mobile_location_map_url(address), expected)
 
     @parameterized.expand([
         ('Android', 'android'),

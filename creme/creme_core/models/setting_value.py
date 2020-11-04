@@ -49,17 +49,18 @@ class SettingValueManager(models.Manager):
         self.key_registry = skey_registry
 
     def exists_4_key(self, key: Union[SettingKey, str]):
-        if not key:
-            raise KeyError('Empty setting key')
+        """Check if a SettingValue exists
 
+        @param key: A SettingKey instance, or an ID of SettingKey (string).
+        """
         key_id = key if isinstance(key, str) else key.id
         return self.filter(key_id=key_id).exists()
 
     def set_4_key(self, key: Union[SettingKey, str], value):
-        """Set the SettingValue corresponding to a SettingKey. The cache will be cleared."""
-        if not key:
-            raise KeyError('Empty setting key')
+        """Set the SettingValue corresponding to a SettingKey. The cache will be cleared.
 
+        @param key: A SettingKey instance, or an ID of SettingKey (string).
+        """
         key_id = key if isinstance(key, str) else key.id
 
         with transaction.atomic():
@@ -75,15 +76,17 @@ class SettingValueManager(models.Manager):
                     setting.value = value
                     setting.save()
 
-            # Clear setting key cache
-            cache = get_per_request_cache()
-            cache_key = self.cache_key_fmt.format(key_id)
-            cache.pop(cache_key, None)
+        # Clear setting key cache
+        cache = get_per_request_cache()
+        cache_key = self.cache_key_fmt.format(key_id)
+        cache.pop(cache_key, None)
 
     def value_4_key(self, key: Union[SettingKey, str], default=None):
-        if not key:
-            raise KeyError('Empty setting key')
+        """Get the SettingValue value or default if not filled.
 
+        @param key: A SettingKey instance, or an ID of SettingKey (string).
+        @param default: (optional) If given & the SettingValue does not exist,
+        """
         try:
             return self.get_4_key(key, default=default).value
         except KeyError:

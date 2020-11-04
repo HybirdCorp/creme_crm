@@ -53,7 +53,7 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
 
     def test_map_settings(self):
         self.assertEqual(_MapBrick().get_map_settings(), {})
-        self.assertEqual(OpenStreetMapDetailMapBrick().get_map_settings(), {
+        self.assertDictEqual(OpenStreetMapDetailMapBrick().get_map_settings(), {
             'nominatim_url': settings.GEOLOCATION_OSM_NOMINATIM_URL,
             'tilemap_url': settings.GEOLOCATION_OSM_TILEMAP_URL,
             'copyright_url': settings.GEOLOCATION_OSM_COPYRIGHT_URL,

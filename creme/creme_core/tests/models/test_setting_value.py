@@ -370,7 +370,9 @@ class SettingValueHelpersTestCase(CremeTestCase):
     @classmethod
     def tearDownClass(cls):
         super(SettingValueHelpersTestCase, cls).tearDownClass()
+
         setting_key_registry.unregister(cls.SETTING_KEY)
+        setting_key_registry.unregister(cls.INTEGER_SETTING_KEY)
 
     def test_value_4_key_empty(self):
         self.assertIsNone(SettingValue.objects.value_4_key('creme_core-test_setting'))
@@ -404,17 +406,11 @@ class SettingValueHelpersTestCase(CremeTestCase):
         )
 
     def test_value_4_key_invalid_key(self):
-        with self.assertRaises(KeyError):
-            SettingValue.objects.value_4_key(None)
-
         self.assertEqual(None, SettingValue.objects.value_4_key('creme_core-unknown_setting'))
 
     def test_has_exists_4_key(self):
         self.assertFalse(SettingValue.objects.exists_4_key('creme_core-test_setting'))
         self.assertFalse(SettingValue.objects.exists_4_key('creme_core-unknown_setting'))
-
-        with self.assertRaises(KeyError):
-            SettingValue.objects.exists_4_key(None)
 
         SettingValue.objects.get_or_create(
             key_id='creme_core-test_setting',
@@ -447,9 +443,6 @@ class SettingValueHelpersTestCase(CremeTestCase):
         self.assertEqual(12, SettingValue.objects.value_4_key('creme_core-test_setting_int'))
 
     def test_set_4_key_invalid_key(self):
-        with self.assertRaises(KeyError):
-            SettingValue.objects.set_4_key(None, 'A')
-
         with self.assertRaises(KeyError):
             SettingValue.objects.set_4_key('creme_core-unknown_setting', 'A')
 
@@ -489,10 +482,6 @@ class SettingValueHelpersTestCase(CremeTestCase):
     def test_override_setting_value_invalid_key(self):
         with self.assertRaises(KeyError):
             with OverrideSettingValueContext('creme_core-unknown_setting', 'T'):
-                pass
-
-        with self.assertRaises(KeyError):
-            with OverrideSettingValueContext(None, 'T'):
                 pass
 
     def test_override_setting_value_invalid_cast(self):
