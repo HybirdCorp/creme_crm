@@ -73,7 +73,7 @@
                  - OpenStreetMapFilteredMapBrick
                  - OpenStreetMapNeighboursMapBrick
         * Mobile :
-            - Add a new setting to configure the redirection links to "Google Maps" or "Open Street Map". here's some examples
+            - Add a new SettingKey to configure the redirection links to "Google Maps" or "Open Street Map". here's some examples
                  - https://www.openstreetmap.org/search?query={search}
                  - https://www.openstreetmap.org#map=18/{lat}/{lng}
                  - https://www.google.com/maps/?q={search}
@@ -190,27 +190,28 @@
         # In 'creme_core.core.entity_cell.EntityCell' :
             - A class attribute "verbose_name" has been added.
             - An attribute "is_excluded" has been added.
+        # In "creme_core.core.setting_key', the description of a SettingKey can now be multiline.
         # In 'creme_core.forms' :
             - In 'base', the calls to class-methods "add_post_*_callback()" can be chained.
             - A new field has been added in 'fields': 'ReadonlyMessageField'. It can be used to replace 'CharField(widget=Label)'
-        # In the class 'creme_core.gui.bricks.Brick', the attribute "permission" has been clearly added (it was dynamiccaly checked by the views).
+        # In the class 'creme_core.gui.bricks.Brick', the attribute "permission" has been clearly added (it was dynamically checked by the views).
           If you set it, you should use an empty string instead of <None>.
+        # In 'creme_core.models':
+            - A custom manager has been added to CustomField ; some queries are now cached.
+            - Helpers have been added SettingValue manager:
+                - SettingValue.objects.exists_4_key()
+                - SettingValue.objects.value_4_key()
+                - SettingValue.objects.set_4_key()
         # A custom manager has been added to CustomField ; some queries are now cached.
         # A new templatetag for bricks has been added : {% brick_get_by_ids ... %}.
         # In unit tests :
             - 2 new assertions: assertInChoices(), assertNotInChoices()
             - 2 new methods : get_choices_group_or_fail(), create_user()
+            - New with-statement OverrideSettingValueContext which allows local changes in SettingValues.
         # In JavaScript :
             - A class 'Assert()', which factorizes some validation code, has been added.
             - A builtin method 'instance' has been added in 'creme.utils.newJQueryPlugin'.
         # Apps :
-            * CremeCore :
-                - Helpers have been added SettingValue manager:
-                    - SettingValue.objects.exists_4_key()
-                    - SettingValue.objects.value_4_key()
-                    - SettingValue.objects.set_4_key()
-                - New with-statement OverrideSettingValueContext in 'creme_core.tests.base' that allows local changes in settings for tests
-                - Allow multiline for the description of a SettingKey
             * Reports :
                 - A property 'models.AbstractReportGraph.abscissa_info' has been added.
             * Emails :
