@@ -11,7 +11,6 @@ clean:
 	find . -name '*.pyo' -delete
 	find . -name '__pycache__' -delete
 	rm -rf *.egg
-	rm -rf *.egg-info
 	rm -rf ./build
 	rm -rf ./package
 	rm -rf ./dist
