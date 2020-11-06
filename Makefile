@@ -68,7 +68,7 @@ test-cov:
 	@echo "file://$(shell pwd)/artifacts/coverage_html/index.html"
 
 ## Cleanup karma coverage html output
-.PHONY: karma
+.PHONY: karma-clean
 karma-clean:
 	rm -f artifacts/karma_coverage/html/static/*.html
 
