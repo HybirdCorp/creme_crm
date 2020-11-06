@@ -97,6 +97,7 @@ jobs:
         environment:
           MYSQL_ROOT_PASSWORD: creme
           MYSQL_DATABASE: cremecrm
+    resource_class: large
     steps:
       - checkout
 
@@ -115,7 +116,7 @@ jobs:
       - run: python creme/manage.py migrate
       - run: python creme/manage.py creme_populate
       - run: python creme/manage.py generatemedia
-      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=6
+      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
       - run: coverage combine
       - run: coverage html
       - store_artifacts:
@@ -130,6 +131,7 @@ jobs:
           POSTGRES_USER: creme
           POSTGRES_PASSWORD: creme
           POSTGRES_DB: cremecrm
+    resource_class: large
     steps:
       - checkout
 
@@ -156,6 +158,7 @@ jobs:
   tests-sqlite3:
     docker:
       - image: circleci/python:3.7-browsers
+    resource_class: large
     steps:
       - checkout
 
