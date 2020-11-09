@@ -246,7 +246,9 @@
                     - These methods of 'models.Calendar' have been removed :
                         - _create_default_calendar(), get_user_calendars(), get_user_default_calendar()
                         - new_color()
-                    - The form-field 'UserParticipationField' now checks the LINK credentials.
+                    - In 'forms' :
+                        - The form-field 'UserParticipationField' now checks the LINK credentials.
+                        - The constructor of 'CalendarActivityCreateForm' does not take special arguments to initialize fields any more.
                 * Persons :
                     - The method 'models.AbstractOrganisation.get_all_managed_by_creme()' has been removed.
                     - The attributes "what" & "url_name" of the button 'buttons.CrmButton' (& so its children) have been removed.

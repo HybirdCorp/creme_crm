@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import time
 from functools import partial
 from typing import Type
 
@@ -112,33 +113,57 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
     form_class = act_forms.CalendarActivityCreateForm
     template_name = 'activities/forms/add-activity-popup.html'
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
+    # def get_form_kwargs(self):
+    #     kwargs = super().get_form_kwargs()
+    #     request = self.request
+    #
+    #     if request.method == 'GET':
+    #         get = partial(get_from_GET_or_404, GET=request.GET, cast=int)
+    #         today = datetime.today()
+    #         kwargs['start'] = datetime(
+    #               year=get(key='year',   default=today.year),
+    #              month=get(key='month',  default=today.month),
+    #                day=get(key='day',    default=today.day),
+    #               hour=get(key='hour',   default=today.hour),
+    #             minute=get(key='minute', default=today.minute),
+    #         )
+    #
+    #     return kwargs
+    def get_initial(self):
+        initial = super().get_initial()
         request = self.request
-        tz = get_current_timezone()
-
-        def isoparse_naive(value):
-            if value is not None:
-                value = isoparse(value)
-
-                if not is_naive(value):
-                    value = make_naive(value, tz)
-
-            return value
 
         if request.method == 'GET':
+            tz = get_current_timezone()
             get = partial(get_from_GET_or_404, GET=request.GET)
-            allDay = get(key='allDay', default='0', cast=bool_from_str_extended)
-            start = get(key='start', cast=isoparse_naive)
-            end = get(key='end', default=None, cast=isoparse_naive)
-
-            kwargs.update(
-                start=start,
-                end=end,
-                is_all_day=allDay
+            initial['is_all_day'] = get(
+                key='allDay', default='0', cast=bool_from_str_extended,
             )
 
-        return kwargs
+            def isoparse_naive(value):
+                if value is not None:
+                    value = isoparse(value)
+
+                    if not is_naive(value):
+                        value = make_naive(value, tz)
+
+                return value
+
+            def _set_datefield(key, **kwargs):
+                value = get(key=key, cast=isoparse_naive, **kwargs)
+
+                if value:
+                    initial[key] = value
+
+                    if value.hour or value.minute:
+                        initial[f'{key}_time'] = time(
+                            hour=value.hour, minute=value.minute,
+                        )
+
+            _set_datefield('start')
+            _set_datefield('end', default=None)
+
+        return initial
 
 
 class UnavailabilityCreation(ActivityCreation):
