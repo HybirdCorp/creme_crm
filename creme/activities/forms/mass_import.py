@@ -86,9 +86,9 @@ class RelatedExtractor:
 
         # TODO: filter with link credentials too (because here we limit
         #       _before_ filtering not linkable...)
-        contacts = EntityCredentials.filter(user,
-                                            Contact.objects.filter(**query_dict),
-                                           )[:MAX_RELATIONSHIPS + 1]
+        contacts = EntityCredentials.filter(
+            user, Contact.objects.filter(**query_dict),
+        )[:MAX_RELATIONSHIPS + 1]
 
         if contacts:
             has_perm = user.has_perm_to_link
@@ -185,7 +185,7 @@ def _pattern_CLF(contact_as_str):
 
 @_contact_pattern(gettext_lazy('FirstName LastName'))
 def _pattern_FL(contact_as_str):
-    names      = contact_as_str.split(None, 1)
+    names = contact_as_str.split(None, 1)
     last_name  = names[-1].strip()
     first_name = names[0] if len(names) > 1 else None
 
@@ -194,19 +194,19 @@ def _pattern_FL(contact_as_str):
 
 @_contact_pattern(gettext_lazy('LastName FirstName'))
 def _pattern_LF(contact_as_str):
-    names      = contact_as_str.rsplit(None, 1)
+    names = contact_as_str.rsplit(None, 1)
     last_name  = names[0].strip()
     first_name = names[1] if len(names) == 2 else None
 
     return None, first_name, last_name
 
 
-_PATTERNS = OrderedDict([('1', _pattern_CFL),
-                         ('2', _pattern_CLF),
-                         ('3', _pattern_FL),
-                         ('4', _pattern_LF),
-                        ]
-                       )
+_PATTERNS = OrderedDict([
+    ('1', _pattern_CFL),
+    ('2', _pattern_CLF),
+    ('3', _pattern_FL),
+    ('4', _pattern_LF),
+])
 
 
 class MultiColumnsParticipantsExtractor(RelatedExtractor):
@@ -271,12 +271,14 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
         id_attr = widget_cxt['attrs']['id']
 
         def column_select_context(name_fmt, selected_key):
-            return self.column_select.get_context(name=name_fmt.format(name),
-                                                  value=value.get(selected_key),
-                                                  attrs={'id': name_fmt.format(id_attr),
-                                                         'class': 'csv_col_select',
-                                                        },
-                                                 )['widget']
+            return self.column_select.get_context(
+                name=name_fmt.format(name),
+                value=value.get(selected_key),
+                attrs={
+                    'id': name_fmt.format(id_attr),
+                    'class': 'csv_col_select',
+                },
+            )['widget']
 
         # Mode MULTICOLUMNS
         widget_cxt['firstname_column_select'] = column_select_context(
@@ -378,10 +380,9 @@ class ParticipantsExtractorField(Field):
             if not last_name_index:
                 return self._manage_empty()
 
-            return MultiColumnsParticipantsExtractor(first_name_index,
-                                                     last_name_index,
-                                                     create_if_unfound,
-                                                    )
+            return MultiColumnsParticipantsExtractor(
+                first_name_index, last_name_index, create_if_unfound,
+            )
         elif mode == MODE_SPLITTEDCOLUMN:
             index = clean_index('pattern_column_index')
 
@@ -392,9 +393,9 @@ class ParticipantsExtractorField(Field):
             if not pattern_func:
                 raise ValidationError('Invalid pattern')
 
-            return SplitColumnParticipantsExtractor(index, value['separator'],
-                                                    pattern_func, create_if_unfound,
-                                                   )
+            return SplitColumnParticipantsExtractor(
+                index, value['separator'], pattern_func, create_if_unfound,
+            )
         else:
             raise ValidationError('Invalid mode')
 
@@ -571,9 +572,9 @@ class SubjectsExtractorField(Field):
 
             return RelatedExtractor()  # Empty extractor
 
-        return SubjectsExtractor(index, value['separator'],
-                                 value['create'] and self._can_create
-                                )
+        return SubjectsExtractor(
+            index, value['separator'], value['create'] and self._can_create,
+        )
 
 
 # Main -------------------------------------------------------------------------
@@ -620,15 +621,14 @@ def get_massimport_form_builder(header_dict, choices):
 
             self.user_participants = []
 
-        # TODO: factorise with ActivityCreateForm
-        def clean_my_participation(self):
-            my_participation = self.cleaned_data['my_participation']
-
-            if my_participation[0]:
-                user = self.user
-                validators.validate_linkable_entity(user.linked_contact, user)
-
-            return my_participation
+        # def clean_my_participation(self):
+        #     my_participation = self.cleaned_data['my_participation']
+        #
+        #     if my_participation[0]:
+        #         user = self.user
+        #         validators.validate_linkable_entity(user.linked_contact, user)
+        #
+        #     return my_participation
 
         def clean_participating_users(self):
             users = self.cleaned_data['participating_users']
@@ -725,11 +725,12 @@ def get_massimport_form_builder(header_dict, choices):
                 self.append_error(err_msg)
 
             Relation.objects.safe_multi_save(
-                Relation(subject_entity=subject,
-                         type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-                         object_entity=instance,
-                         user=user,
-                        ) for subject in subjects
+                Relation(
+                    subject_entity=subject,
+                    type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
+                    object_entity=instance,
+                    user=user,
+                ) for subject in subjects
             )
 
     return ActivityMassImportForm

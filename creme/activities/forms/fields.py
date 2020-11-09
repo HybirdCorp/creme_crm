@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2019  Hybird
+#    Copyright (C) 2017-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,16 +21,18 @@
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.fields import OptionalModelChoiceField
+from creme.creme_core.forms.validators import validate_linkable_entity
 
 from ..models import Calendar
 
 
 class UserParticipationField(OptionalModelChoiceField):
     def __init__(self, *, user=None, sub_label=_('Appears on the calendar:'), **kwargs):
-        super().__init__(sub_label=sub_label,
-                         queryset=Calendar.objects.none(),
-                         **kwargs
-                        )
+        super().__init__(
+            sub_label=sub_label,
+            queryset=Calendar.objects.none(),
+            **kwargs
+        )
         self.user = user
 
     @property
@@ -46,3 +48,12 @@ class UserParticipationField(OptionalModelChoiceField):
             calendars_field.queryset = Calendar.objects.filter(user=user)
 
             self.widget.sub_widget.choices = calendars_field.choices
+
+    def clean(self, value):
+        user = self._user
+        assert user is not None
+
+        value = super().clean(value=value)
+        validate_linkable_entity(user.linked_contact, user)
+
+        return value

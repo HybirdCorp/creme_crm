@@ -84,11 +84,11 @@ class _ActivityForm(CremeEntityForm):
         super().__init__(*args, **kwargs)
         self.participants = set()  # All Contacts who participate: me, other users, other contacts
 
-        duration_field = self.fields.get('duration')
-        if duration_field:
-            duration_field.help_text = _(
-                'It is only informative and is not used to compute the end time.'
-            )
+        # duration_field = self.fields.get('duration')
+        # if duration_field:
+        #     duration_field.help_text = _(
+        #         'It is only informative and is not used to compute the end time.'
+        #     )
 
     def clean(self):
         cdata = super().clean()
@@ -332,8 +332,9 @@ class ActivityCreateForm(_ActivityCreateForm):
                 'The organisations of the participants will be automatically added as subjects'
             )
 
-        fields['participating_users'].queryset = get_user_model().objects.filter(is_staff=False) \
-                                                                         .exclude(pk=user.id)
+        fields['participating_users'].queryset = get_user_model().objects.filter(
+            is_staff=False,
+        ).exclude(pk=user.id)
 
         other_f = fields['other_participants']
         other_f.q_filter = {'is_user__isnull': True}
@@ -374,9 +375,9 @@ class ActivityCreateForm(_ActivityCreateForm):
         alert_period = cdata['alert_period']
 
         if alert_period and not cdata.get('start'):
-            raise ValidationError(self.error_messages['alert_on_floating'],
-                                  code='alert_on_floating',
-                                 )
+            raise ValidationError(
+                self.error_messages['alert_on_floating'], code='alert_on_floating',
+            )
 
         return alert_period
 
@@ -384,8 +385,9 @@ class ActivityCreateForm(_ActivityCreateForm):
         my_participation = self.cleaned_data['my_participation']
 
         if my_participation[0]:
-            user = self.user
-            self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
+            # user = self.user
+            # self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
+            self.participants.add(self.user.linked_contact)
 
         return my_participation
 
@@ -399,7 +401,9 @@ class ActivityCreateForm(_ActivityCreateForm):
             cdata = self.cleaned_data
 
             if not cdata['my_participation'][0] and not cdata['participating_users']:
-                raise ValidationError(self.error_messages['no_participant'], code='no_participant')
+                raise ValidationError(
+                    self.error_messages['no_participant'], code='no_participant',
+                )
 
         return super().clean()
 
@@ -507,11 +511,12 @@ class CalendarActivityCreateForm(ActivityCreateForm):
     class Meta(ActivityCreateForm.Meta):
         exclude = (*ActivityCreateForm.Meta.exclude, 'minutes')
 
-    def __init__(self, start=None, end=None, is_all_day=False, *args, **kwargs):
+    # def __init__(self, start=None, end=None, is_all_day=False, *args, **kwargs):
+    def __init__(self, start=None, end=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         fields = self.fields
-        fields['is_all_day'].initial = is_all_day
+        # fields['is_all_day'].initial = is_all_day
 
         def _set_datefield(key, value):
             if value:

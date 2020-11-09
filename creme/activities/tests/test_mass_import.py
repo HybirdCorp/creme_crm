@@ -87,10 +87,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         ]
 
         doc = self._build_csv_doc(lines)
-        response = self.client.post(url, data={'step':     0,
-                                               'document': doc.id,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'step':     0,
+                'document': doc.id,
+            },
+        )
         self.assertNoFormError(response)
 
         response = self.client.post(
@@ -133,57 +136,68 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual(constants.NARROW, act2.floating_type)
 
         act3 = self.get_object_or_fail(Activity, title=title3)
-        self.assertEqual(create_dt(year=2014, month=5, day=28, hour=19, minute=0),
-                         act3.start
-                        )
-        self.assertEqual(create_dt(year=2014, month=5, day=28, hour=19, minute=15),
-                         act3.end
-                        )
+        self.assertEqual(
+            create_dt(year=2014, month=5, day=28, hour=19, minute=0),
+            act3.start,
+        )
+        self.assertEqual(
+            create_dt(year=2014, month=5, day=28, hour=19, minute=15),
+            act3.end,
+        )
         self.assertEqual(constants.NARROW, act3.floating_type)
 
         act4 = self.get_object_or_fail(Activity, title=title4)
-        self.assertEqual(create_dt(year=2014, month=5, day=29, hour=12, minute=0),
-                         act4.start
-                        )
-        self.assertEqual(create_dt(year=2014, month=5, day=29, hour=12, minute=15),
-                         act4.end
-                        )
+        self.assertEqual(
+            create_dt(year=2014, month=5, day=29, hour=12, minute=0),
+            act4.start,
+        )
+        self.assertEqual(
+            create_dt(year=2014, month=5, day=29, hour=12, minute=15),
+            act4.end,
+        )
         self.assertEqual(constants.NARROW, act4.floating_type)
 
         act5 = self.get_object_or_fail(Activity, title=title5)
-        self.assertEqual(create_dt(year=2014, month=5, day=30, hour=0, minute=0),
-                         act5.start
-                        )
-        self.assertEqual(create_dt(year=2014, month=5, day=30, hour=23, minute=59),
-                         act5.end
-                        )
+        self.assertEqual(
+            create_dt(year=2014, month=5, day=30, hour=0, minute=0),
+            act5.start,
+        )
+        self.assertEqual(
+            create_dt(year=2014, month=5, day=30, hour=23, minute=59),
+            act5.end,
+        )
         self.assertEqual(constants.FLOATING_TIME, act5.floating_type)
 
         act6 = self.get_object_or_fail(Activity, title=title6)
-        self.assertEqual(create_dt(year=2014, month=6, day=1, hour=0, minute=0),
-                         act6.start
-                        )
-        self.assertEqual(create_dt(year=2014, month=6, day=1, hour=23, minute=59),
-                         act6.end
-                        )
+        self.assertEqual(
+            create_dt(year=2014, month=6, day=1, hour=0, minute=0),
+            act6.start,
+        )
+        self.assertEqual(
+            create_dt(year=2014, month=6, day=1, hour=23, minute=59),
+            act6.end,
+        )
         self.assertEqual(constants.FLOATING_TIME, act6.floating_type)
 
         act7 = self.get_object_or_fail(Activity, title=title7)
-        self.assertEqual(create_dt(year=2014, month=6, day=2, hour=0, minute=0),
-                         act7.start
-                        )
-        self.assertEqual(create_dt(year=2014, month=6, day=2, hour=18, minute=00),
-                         act7.end
-                        )
+        self.assertEqual(
+            create_dt(year=2014, month=6, day=2, hour=0, minute=0),
+            act7.start,
+        )
+        self.assertEqual(
+            create_dt(year=2014, month=6, day=2, hour=18, minute=00),
+            act7.end,
+        )
         self.assertEqual(constants.NARROW, act7.floating_type)
 
         jr_errors = [r for r in results if r.messages]
         self.assertEqual(1, len(jr_errors))
 
         jr_error = jr_errors[0]
-        self.assertEqual([_('End time is before start time')],
-                         jr_error.messages
-                        )
+        self.assertListEqual(
+            [_('End time is before start time')],
+            jr_error.messages,
+        )
         self.assertEqual(act3, jr_error.entity.get_real_entity())
 
     @skipIfCustomContact
@@ -222,9 +236,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         ]
 
         Calendar.objects.get_default_calendar(user)
-        my_calendar = Calendar.objects.create(user=user, is_default=False,
-                                              name='Imported activities',
-                                             )
+        my_calendar = Calendar.objects.create(
+            user=user, is_default=False, name='Imported activities',
+        )
 
         doc = self._build_csv_doc(lines)
         data = {
@@ -255,9 +269,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         response = self.assertPOST200(
             self._build_import_url(Activity), follow=True,
-            data={**data,
-                  'participants_first_name_colselect': 100,  # Invalid choice
-                 },
+            data={
+                **data,
+                'participants_first_name_colselect': 100,  # Invalid choice
+            },
         )
         self.assertFormError(response, 'form', 'participants', 'Invalid index')
 
@@ -276,9 +291,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)
         self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
-        self.assertSetEqual({my_calendar, Calendar.objects.get_default_calendar(other_user)},
-                            {*act1.calendars.all()}
-                           )
+        self.assertSetEqual(
+            {my_calendar, Calendar.objects.get_default_calendar(other_user)},
+            {*act1.calendars.all()},
+        )
 
         self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
         self.assertRelationCount(0, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
@@ -302,9 +318,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual(1, len(jr_errors))
 
         jr_error = jr_errors[0]
-        self.assertEqual([_('The participant «{}» is unfoundable').format(unfoundable)],
-                         jr_error.messages
-                        )
+        self.assertEqual(
+            [_('The participant «{}» is unfoundable').format(unfoundable)],
+            jr_error.messages,
+        )
         self.assertEqual(act3, jr_error.entity.get_real_entity())
 
         # ---------
@@ -323,14 +340,15 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         create_contact = partial(Contact.objects.create, user=user)
         participant1 = create_contact(first_name='Tatsumi', last_name='Oga')
         participant2 = create_contact(first_name='Aoi',     last_name='Kunieda')
-        participant3 = create_contact(first_name='Kaiser',
-                                      last_name='de Emperana Beelzebub',  # Spaces in last name
-                                     )
+        participant3 = create_contact(
+            first_name='Kaiser',
+            last_name='de Emperana Beelzebub',  # Spaces in last name
+        )
 
-        unfoundable  = 'Behemoth'
+        unfoundable1 = 'Behemoth'
         unfoundable2 = "En'Ô"
         self.assertFalse(
-            Contact.objects.filter(last_name__in=(unfoundable, unfoundable2)).exists()
+            Contact.objects.filter(last_name__in=(unfoundable1, unfoundable2)).exists()
         )
 
         title1 = 'Meeting#1'
@@ -348,7 +366,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             (title3, f' {participant2.last_name} {participant2.first_name} '),  # Trailing spaces
             (
                 title4,
-                f'{unfoundable} {unfoundable}/'
+                f'{unfoundable1} {unfoundable1}/'
                 f'{participant2.last_name} {participant2.first_name}/'
                 f'{unfoundable2}/',
             ),
@@ -391,9 +409,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertRelationCount(0, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
 
         self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
-        self.assertListEqual([Calendar.objects.get_default_calendar(other_user)],
-                             [*act2.calendars.all()]
-                            )
+        self.assertListEqual(
+            [Calendar.objects.get_default_calendar(other_user)],
+            [*act2.calendars.all()],
+        )
 
         # ---------
         act3 = self.get_object_or_fail(Activity, title=title3)
@@ -405,7 +424,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertRelationCount(0, act4, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
         self.assertRelationCount(1, act4, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
-        self.assertFalse(Contact.objects.filter(last_name=unfoundable).exists())
+        self.assertFalse(Contact.objects.filter(last_name=unfoundable1).exists())
 
         results = self._get_job_results(job)
         self.assertEqual(len(lines), len(results))
@@ -415,11 +434,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         jr_error = jr_errors[0]
         err_fmt = _('The participant «{}» is unfoundable').format
-        self.assertEqual([err_fmt(f'{unfoundable} {unfoundable}'),
-                          err_fmt(unfoundable2),
-                         ],
-                         jr_error.messages
-                        )
+        self.assertListEqual(
+            [
+                err_fmt(f'{unfoundable1} {unfoundable1}'),
+                err_fmt(unfoundable2),
+            ],
+            jr_error.messages,
+        )
 
         # ---------
         act5 = self.get_object_or_fail(Activity, title=title5)
@@ -446,9 +467,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             **self.lv_import_data,
             'document': doc.id,
             'user': user.id,
-            'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                       constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                      ),
+            'type_selector': self._acttype_field_value(
+                constants.ACTIVITYTYPE_MEETING,
+                constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            ),
 
             'participants_mode': 2,  # Search with pattern
             'participants_separator': '/',
@@ -470,7 +492,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomOrganisation
     def test_import05(self):
-        "Dynamic participants with search on first_name/last_name + creation"
+        "Dynamic participants with search on first_name/last_name + creation."
         user = self.login()
 
         title = 'Task#1'
@@ -507,7 +529,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     def test_import06(self):
-        "Dynamic participants with cell splitting + creation"
+        "Dynamic participants with cell splitting + creation."
         user = self.login()
 
         aoi = Contact.objects.create(user=user, first_name='Aoi', last_name='Kunieda')
@@ -545,14 +567,16 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertRelationCount(1, task, constants.REL_OBJ_PART_2_ACTIVITY, oga)
 
     def test_import07(self):
-        "Search on first_name/last_name + not creation credentials"
-        self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
-                   creatable_models=[Activity, Document],  # Not Contact
-                  )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        "Search on first_name/last_name + not creation credentials."
+        self.login(
+            is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
+            creatable_models=[Activity, Document],  # Not Contact
+        )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         title = 'Task#1'
         first_name = 'Aoi'
@@ -680,14 +704,14 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         clan1 = create_orga(name='Clan')
         clan2 = create_orga(name='Clan')
 
-        doc = self._build_csv_doc([(title1, str(aoi)),
-                                   (title2, f' {aoi} '.upper()),
-                                   (title3, f' {name} '),
-                                   (title4, clan1.name),
-                                   (title5, furyo1.last_name),
-                                   (title6, f'{aoi}/{clan1.name}'),
-                                  ]
-                                 )
+        doc = self._build_csv_doc([
+            (title1, str(aoi)),
+            (title2, f' {aoi} '.upper()),
+            (title3, f' {name} '),
+            (title4, clan1.name),
+            (title5, furyo1.last_name),
+            (title6, f'{aoi}/{clan1.name}'),
+        ])
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -727,44 +751,39 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, clan1)
         self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, clan2)
 
-        job = self._execute_job(response)
+        # job = self._execute_job(response)
         results = self._get_job_results(job)
         jr_errors = [r for r in results if r.messages]
         self.assertEqual(4, len(jr_errors))
 
         jr_error = jr_errors[0]
         self.assertEqual(task3, jr_error.entity.get_real_entity())
-        self.assertEqual([_('The subject «{}» is unfoundable').format(name)],
-                         jr_error.messages
-                        )
+        self.assertListEqual(
+            [_('The subject «{}» is unfoundable').format(name)],
+            jr_error.messages,
+        )
 
         err_fmt = _('Several «{models}» were found for the search «{search}»').format
         jr_error = jr_errors[1]
         self.assertEqual(task4, jr_error.entity.get_real_entity())
-        self.assertEqual([err_fmt(models=_('Organisations'),
-                                  search=clan1.name,
-                                 ),
-                         ],
-                         jr_error.messages
-                        )
+        self.assertListEqual(
+            [err_fmt(models=_('Organisations'), search=clan1.name)],
+            jr_error.messages,
+        )
 
         jr_error = jr_errors[2]
         self.assertEqual(task5, jr_error.entity.get_real_entity())
-        self.assertEqual([err_fmt(models=_('Contacts'),
-                                  search=furyo1.last_name,
-                                 ),
-                         ],
-                         jr_error.messages
-                        )
+        self.assertListEqual(
+            [err_fmt(models=_('Contacts'), search=furyo1.last_name)],
+            jr_error.messages
+        )
 
         jr_error = jr_errors[3]
         self.assertEqual(task6, jr_error.entity.get_real_entity())
-        self.assertEqual([err_fmt(models=_('Organisations'),
-                                  search=clan1.name,
-                                 ),
-                         ],
-                         jr_error.messages
-                        )
+        self.assertListEqual(
+            [err_fmt(models=_('Organisations'), search=clan1.name)],
+            jr_error.messages,
+        )
 
     def test_import_subjects02(self):
         "Subject: creation."
@@ -795,14 +814,16 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     def test_import_subjects03(self):
         "Subject: creation credentials."
-        user = self.login(is_superuser=False,
-                          allowed_apps=('activities', 'persons', 'documents'),
-                          creatable_models=[Activity, Document],  # Not Organisation
-                         )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('activities', 'persons', 'documents'),
+            creatable_models=[Activity, Document],  # Not Organisation
+        )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         title = 'Task#1'
         name = 'Ishiyama'
@@ -828,14 +849,16 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomOrganisation
     def test_import_subjects04(self):
         "Subject: view credentials."
-        user = self.login(is_superuser=False,
-                          allowed_apps=('activities', 'persons', 'documents'),
-                          creatable_models=[Activity, Document],
-                         )
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('activities', 'persons', 'documents'),
+            creatable_models=[Activity, Document],
+        )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         title = 'My Task'
         name = 'Ishiyama'
@@ -868,7 +891,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_import_with_update(self):
-        "No duplicated Subjects/participants"
+        "No duplicated Subjects/participants."
         user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -877,10 +900,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         subject = Organisation.objects.create(user=user, name='Ishiyama')
 
-        create_act = partial(Activity.objects.create, user=user,
-                             type_id=constants.ACTIVITYTYPE_MEETING,
-                             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                            )
+        create_act = partial(
+            Activity.objects.create,
+            user=user,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+        )
         act1 = create_act(title='Fight against demons#1')
         act2 = create_act(title='Fight against demons#2')
 
@@ -953,9 +978,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         subject = Organisation.objects.create(user=user, name='Ishiyama')
 
         title = 'My Meeting'
-        doc = self._build_csv_doc(
-            [(title, participant.first_name, participant.last_name, subject.name)]
-        )
+        doc = self._build_csv_doc([
+            (title, participant.first_name, participant.last_name, subject.name),
+        ])
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -964,7 +989,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'user': user.id,
 
                 'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [constants.REL_OBJ_ACTIVITY_SUBJECT, subject]
+                    [constants.REL_OBJ_ACTIVITY_SUBJECT, subject],
                 ),
 
                 'type_selector': self._acttype_field_value(
@@ -994,28 +1019,30 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             result = pattern_func('Ms. Aoi Kunieda')
 
         expected = ('Ms.', 'Aoi', 'Kunieda')
-        self.assertEqual(expected, result)
-        self.assertEqual((None, 'Aoi', 'Kunieda'), pattern_func('Aoi Kunieda'))
-        self.assertEqual((None, None, 'Kunieda'), pattern_func('Kunieda'))
-        self.assertEqual(('Mr.', 'Kaiser', 'de Emperana Beelzebub'),
-                         pattern_func('Mr. Kaiser de Emperana Beelzebub')
-                        )
-        self.assertEqual(expected, pattern_func(' Ms. Aoi Kunieda '))
+        self.assertTupleEqual(expected, result)
+        self.assertTupleEqual((None, 'Aoi', 'Kunieda'), pattern_func('Aoi Kunieda'))
+        self.assertTupleEqual((None, None, 'Kunieda'), pattern_func('Kunieda'))
+        self.assertTupleEqual(
+            ('Mr.', 'Kaiser', 'de Emperana Beelzebub'),
+            pattern_func('Mr. Kaiser de Emperana Beelzebub'),
+        )
+        self.assertTupleEqual(expected, pattern_func(' Ms. Aoi Kunieda '))
 
     def test_pattern2(self):
-        "Pattern #2: 'Civility LastName FirstName'"
+        "Pattern #2: 'Civility LastName FirstName'."
         with self.assertNoException():
             pattern_func = _PATTERNS['2']
             result = pattern_func('Ms. Kunieda Aoi')
 
         expected = ('Ms.', 'Aoi', 'Kunieda')
-        self.assertEqual(expected, result)
-        self.assertEqual(expected, pattern_func(' Ms.  Kunieda  Aoi '))
-        self.assertEqual((None, 'Aoi', 'Kunieda'), pattern_func(' Kunieda  Aoi '))
-        self.assertEqual(('Mr.', 'Kaiser', 'de Emperana Beelzebub'),
-                         pattern_func('Mr. de Emperana Beelzebub Kaiser')
-                        )
-        self.assertEqual((None, None, 'Kunieda'), pattern_func('Kunieda'))
+        self.assertTupleEqual(expected, result)
+        self.assertTupleEqual(expected, pattern_func(' Ms.  Kunieda  Aoi '))
+        self.assertTupleEqual((None, 'Aoi', 'Kunieda'), pattern_func(' Kunieda  Aoi '))
+        self.assertTupleEqual(
+            ('Mr.', 'Kaiser', 'de Emperana Beelzebub'),
+            pattern_func('Mr. de Emperana Beelzebub Kaiser'),
+        )
+        self.assertTupleEqual((None, None, 'Kunieda'), pattern_func('Kunieda'))
 
     def test_pattern3(self):
         "Pattern #3: 'FirstName LastName'"
@@ -1024,23 +1051,25 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             result = pattern_func('Aoi Kunieda')
 
         expected = (None, 'Aoi', 'Kunieda')
-        self.assertEqual(expected, result)
-        self.assertEqual(expected, pattern_func('  Aoi  Kunieda '))
-        self.assertEqual((None, None, 'Kunieda'), pattern_func('Kunieda'))
-        self.assertEqual((None, 'Kaiser', 'de Emperana Beelzebub'),
-                         pattern_func('Kaiser de Emperana Beelzebub ')
-                        )
+        self.assertTupleEqual(expected, result)
+        self.assertTupleEqual(expected, pattern_func('  Aoi  Kunieda '))
+        self.assertTupleEqual((None, None, 'Kunieda'), pattern_func('Kunieda'))
+        self.assertTupleEqual(
+            (None, 'Kaiser', 'de Emperana Beelzebub'),
+            pattern_func('Kaiser de Emperana Beelzebub '),
+        )
 
     def test_pattern4(self):
-        "Pattern #4: 'LastName FirstName'"
+        "Pattern #4: 'LastName FirstName'."
         with self.assertNoException():
             pattern_func = _PATTERNS['4']
             result = pattern_func('Kunieda Aoi')
 
-        self.assertEqual((None, 'Aoi', 'Kunieda'), result)
-        self.assertEqual((None, 'Kaiser', 'de Emperana Beelzebub'),
-                         pattern_func('de Emperana Beelzebub Kaiser ')
-                        )
+        self.assertTupleEqual((None, 'Aoi', 'Kunieda'), result)
+        self.assertTupleEqual(
+            (None, 'Kaiser', 'de Emperana Beelzebub'),
+            pattern_func('de Emperana Beelzebub Kaiser ')
+        )
 
     @skipIfCustomContact
     def test_participants_multicol_extractor01(self):
@@ -1053,8 +1082,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         first_name = 'Aoi'
         last_name = 'Kunieda'
         contacts, err_msg = ext.extract_value([first_name, last_name], user)
-        self.assertEqual((), contacts)
-        self.assertEqual(
+        self.assertTupleEqual((), contacts)
+        self.assertTupleEqual(
             tuple([
                 _('The participant «{}» is unfoundable').format(
                     _('{first_name} {last_name}').format(
@@ -1063,7 +1092,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                     ),
                 ),
             ]),
-            err_msg
+            err_msg,
         )
 
         create_contact = partial(Contact.objects.create, user=user, last_name=last_name)
@@ -1081,9 +1110,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         ittosai = create_contact(first_name='Ittôsai')
         contacts, err_msg = ext.extract_value([last_name], user)
         self.assertSetEqual({aoi, ittosai}, {*contacts})
-        self.assertEqual((_('Several contacts were found for the search «{}»').format(last_name),),
-                         err_msg
-                        )
+        self.assertEqual(
+            (_('Several contacts were found for the search «{}»').format(last_name),),
+            err_msg,
+        )
 
         create_contact(first_name='Shinobu')
         create_contact(first_name='Kôta')
@@ -1091,9 +1121,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         create_contact(first_name='Tatsumi')
         contacts, err_msg = ext.extract_value([last_name], user)
         self.assertFalse(contacts)
-        self.assertEqual(
-            tuple([_('Too many contacts were found for the search «{}»').format(last_name)]),
-            err_msg
+        self.assertTupleEqual(
+            (_('Too many contacts were found for the search «{}»').format(last_name), ),
+            err_msg,
         )
 
     @skipIfCustomContact
@@ -1101,10 +1131,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         "View credentials"
         self.login(is_superuser=False)
         user = self.user
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         last_name = 'Kunieda'
         create_contact = partial(Contact.objects.create, last_name=last_name)
@@ -1122,9 +1153,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.login(is_superuser=False)
         user = self.user
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                  set_type=SetCredentials.ESET_OWN,
-                 )
+        create_sc(
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         ext = MultiColumnsParticipantsExtractor(0, 1)
@@ -1135,18 +1167,20 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
-        self.assertEqual((_('The participant «{}» is unfoundable').format(last_name),),
-                         err_msg
-                        )
+        self.assertTupleEqual(
+            (_('The participant «{}» is unfoundable').format(last_name),),
+            err_msg,
+        )
 
         create_contact = partial(Contact.objects.create, last_name=last_name)
         create_contact(user=self.other_user, first_name='Ittôsai')
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
-        self.assertEqual((_('No linkable contact found for the search «{}»').format(last_name),),
-                         err_msg
-                        )
+        self.assertTupleEqual(
+            (_('No linkable contact found for the search «{}»').format(last_name),),
+            err_msg
+        )
 
         aoi = create_contact(user=user, first_name='Aoi')
         contacts, err_msg = extract()
@@ -1154,7 +1188,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertFalse(err_msg)
 
     def test_participants_multicol_extractor04(self):
-        "Creation if not found"
+        "Creation if not found."
         self.login()
 
         ext = MultiColumnsParticipantsExtractor(1, 2, create_if_unfound=True)
@@ -1172,7 +1206,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         extract()
         self.assertEqual(
-            1, Contact.objects.filter(first_name=first_name, last_name=last_name).count()
+            1, Contact.objects.filter(first_name=first_name, last_name=last_name).count(),
         )
 
     @skipIfCustomContact
@@ -1188,7 +1222,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertFalse(contacts)
         self.assertEqual(
             [_('The participant «{}» is unfoundable').format(searched)],
-            err_msg
+            err_msg,
         )
 
         aoi = create_contact(first_name='Aoi')
@@ -1205,9 +1239,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         ittosai = create_contact(first_name='Ittôsai')
         contacts, err_msg = ext.extract_value([searched], user)
         self.assertSetEqual({aoi, ittosai}, {*contacts})
-        self.assertEqual([_('Several contacts were found for the search «{}»').format(searched)],
-                         err_msg
-                        )
+        self.assertListEqual(
+            [_('Several contacts were found for the search «{}»').format(searched)],
+            err_msg,
+        )
 
         create_contact(first_name='Shinobu')
         create_contact(first_name='Kôta')
@@ -1215,19 +1250,21 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         create_contact(first_name='Tatsumi')
         contacts, err_msg = ext.extract_value([searched], user)
         self.assertFalse(contacts)
-        self.assertEqual([_('Too many contacts were found for the search «{}»').format(searched)],
-                         err_msg
-                        )
+        self.assertListEqual(
+            [_('Too many contacts were found for the search «{}»').format(searched)],
+            err_msg,
+        )
 
     @skipIfCustomContact
     def test_participants_singlecol_extractor02(self):
         "SplittedColumnParticipantsExtractor + credentials"
         self.login(is_superuser=False)
         user = self.user
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         create_contact = partial(Contact.objects.create, last_name='Kunieda')
         aoi = create_contact(user=user, first_name='Aoi')
@@ -1235,7 +1272,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         ext = SplitColumnParticipantsExtractor(1, '#', _pattern_FL)
         contacts, err_msg = ext.extract_value(['Kunieda'], user)
-        self.assertEqual([aoi], contacts)
+        self.assertListEqual([aoi], contacts)
         self.assertFalse(err_msg)
 
     @skipIfCustomContact
@@ -1283,13 +1320,16 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_subjects_extractor01(self):
         "Link credentials."
-        user = self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
-                          creatable_models=[Activity, Document],
-                         )
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('activities', 'persons', 'documents'),
+            creatable_models=[Activity, Document],
+        )
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                  set_type=SetCredentials.ESET_OWN,
-                 )
+        create_sc(
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         ext = SubjectsExtractor(1, '/')
@@ -1300,18 +1340,20 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
-        self.assertEqual([_('The subject «{}» is unfoundable').format(last_name)],
-                         err_msg
-                        )
+        self.assertListEqual(
+            [_('The subject «{}» is unfoundable').format(last_name)],
+            err_msg,
+        )
 
         create_contact = partial(Contact.objects.create, last_name=last_name)
         create_contact(user=self.other_user, first_name='Ittôsai')
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
-        self.assertEqual([_('No linkable entity found for the search «{}»').format(last_name)],
-                         err_msg
-                        )
+        self.assertListEqual(
+            [_('No linkable entity found for the search «{}»').format(last_name)],
+            err_msg
+        )
 
         aoi = create_contact(user=user, first_name='Aoi')
         contacts, err_msg = extract()
@@ -1320,7 +1362,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     def test_subjects_extractor02(self):
-        "Limit"
+        "Limit."
         user = self.login()
         ext = SubjectsExtractor(1, '#')
 
@@ -1343,12 +1385,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                     search=last_name,
                 )
             ],
-            err_msg
+            err_msg,
         )
 
     @skipIfNotInstalled('creme.tickets')
     def test_subjects_extractor03(self):
-        "Other ContentType"
+        "Other ContentType."
         from creme.tickets.models import Criticity, Priority, Ticket
 
         rtype = self.get_object_or_fail(RelationType, pk=constants.REL_OBJ_ACTIVITY_SUBJECT)
@@ -1356,10 +1398,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         user = self.login()
         last_name = 'Kunieda'
-        ticket = Ticket.objects.create(user=user, title=f"{last_name}'s ticket",
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0],
-                                      )
+        ticket = Ticket.objects.create(
+            user=user, title=f"{last_name}'s ticket",
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
 
         ext = SubjectsExtractor(1, '/')
         extracted, err_msg = ext.extract_value([last_name], user)
