@@ -39,27 +39,34 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
     def test_render_invalid_param(self, data, status_code):
         self.login()
 
-        response = self.client.get(reverse('activities__create_activity_popup'),
-                                   data=data)
+        response = self.client.get(
+            reverse('activities__create_activity_popup'), data=data,
+        )
         self.assertEqual(response.status_code, status_code)
 
     def test_render_not_superuser(self):
-        "Not super-user"
+        "Not super-user."
         self.login(is_superuser=False, creatable_models=[Activity])
-        self.assertGET200(reverse('activities__create_activity_popup'),
-                          data={'start': '2010-01-01T16:35:00'})
+        self.assertGET200(
+            reverse('activities__create_activity_popup'),
+            data={'start': '2010-01-01T16:35:00'},
+        )
 
     def test_render_not_allowed(self):
-        "Creation perm is needed"
+        "Creation perm is needed."
         self.login(is_superuser=False)
-        self.assertGET403(reverse('activities__create_activity_popup'),
-                          data={'start': '2010-01-01T16:35:00'})
+        self.assertGET403(
+            reverse('activities__create_activity_popup'),
+            data={'start': '2010-01-01T16:35:00'},
+        )
 
     def test_render(self):
         self.login()
 
-        response = self.assertGET200(reverse('activities__create_activity_popup'),
-                                     data={'start': '2010-01-01T16:35:00'})
+        response = self.assertGET200(
+            reverse('activities__create_activity_popup'),
+            data={'start': '2010-01-01T16:35:00'},
+        )
 
         self.assertTemplateUsed(response, 'activities/forms/add-activity-popup.html')
 
@@ -71,11 +78,14 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         # It seems TemplateDoesNotExists is not raised in unit tests
         self.assertContains(response, 'name="title"')
 
-        fields = context['form'].fields
-
-        self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
-        self.assertIsNone(fields['end'].initial)
-        self.assertFalse(fields['is_all_day'].initial)
+        # fields = context['form'].fields
+        # self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
+        # self.assertIsNone(fields['end'].initial)
+        # self.assertFalse(fields['is_all_day'].initial)
+        get_initial = context['form'].initial.get
+        self.assertEqual(datetime(2010, 1, 1, 16, 35), get_initial('start'))
+        self.assertIsNone(get_initial('end'))
+        self.assertFalse(get_initial('is_all_day'))
 
     @parameterized.expand([
         ('2010-01-01T16:35:00', datetime(2010, 1, 1, 16, 35), time(16, 35)),
@@ -86,16 +96,23 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
     def test_render_start_only(self, start_iso, start_datetime, start_time):
         self.login()
 
-        response = self.assertGET200(reverse('activities__create_activity_popup'),
-                                     data={'start': start_iso})
+        response = self.assertGET200(
+            reverse('activities__create_activity_popup'),
+            data={'start': start_iso},
+        )
 
-        fields = response.context['form'].fields
-
-        self.assertEqual(fields['start'].initial, start_datetime)
-        self.assertEqual(fields['start_time'].initial, start_time)
-        self.assertEqual(fields['end'].initial, None)
-        self.assertEqual(fields['end_time'].initial, None)
-        self.assertFalse(fields['is_all_day'].initial)
+        # fields = response.context['form'].fields
+        # self.assertEqual(fields['start'].initial, start_datetime)
+        # self.assertEqual(fields['start_time'].initial, start_time)
+        # self.assertEqual(fields['end'].initial, None)
+        # self.assertEqual(fields['end_time'].initial, None)
+        # self.assertFalse(fields['is_all_day'].initial)
+        get_initial = response.context['form'].initial.get
+        self.assertEqual(get_initial('start'),      start_datetime)
+        self.assertEqual(get_initial('start_time'), start_time)
+        self.assertIsNone(get_initial('end'))
+        self.assertIsNone(get_initial('end_time'))
+        self.assertFalse(get_initial('is_all_day'))
 
     def test_render_start_n_end(self):
         self.login()
@@ -108,12 +125,18 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             },
         )
 
-        fields = response.context['form'].fields
-        self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
-        self.assertEqual(fields['start_time'].initial, time(16, 35))
-        self.assertEqual(fields['end'].initial, datetime(2010, 1, 1, 18, 35))
-        self.assertEqual(fields['end_time'].initial, time(18, 35))
-        self.assertFalse(fields['is_all_day'].initial)
+        # fields = response.context['form'].fields
+        # self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
+        # self.assertEqual(fields['start_time'].initial, time(16, 35))
+        # self.assertEqual(fields['end'].initial, datetime(2010, 1, 1, 18, 35))
+        # self.assertEqual(fields['end_time'].initial, time(18, 35))
+        # self.assertFalse(fields['is_all_day'].initial)
+        get_initial = response.context['form'].initial.get
+        self.assertEqual(datetime(2010, 1, 1, 16, 35), get_initial('start'))
+        self.assertEqual(time(16, 35),                 get_initial('start_time'))
+        self.assertEqual(datetime(2010, 1, 1, 18, 35), get_initial('end'))
+        self.assertEqual(time(18, 35),                 get_initial('end_time'))
+        self.assertFalse(get_initial('is_all_day'))
 
     def test_render_start_all_day(self):
         self.login()
@@ -126,12 +149,18 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             },
         )
 
-        fields = response.context['form'].fields
-        self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
-        self.assertEqual(fields['start_time'].initial, time(16, 35))
-        self.assertEqual(fields['end'].initial, None)
-        self.assertEqual(fields['end_time'].initial, None)
-        self.assertTrue(fields['is_all_day'].initial)
+        # fields = response.context['form'].fields
+        # self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
+        # self.assertEqual(fields['start_time'].initial, time(16, 35))
+        # self.assertEqual(fields['end'].initial, None)
+        # self.assertEqual(fields['end_time'].initial, None)
+        # self.assertTrue(fields['is_all_day'].initial)
+        get_initial = response.context['form'].initial.get
+        self.assertEqual(get_initial('start'), datetime(2010, 1, 1, 16, 35))
+        self.assertEqual(get_initial('start_time'), time(16, 35))
+        self.assertIsNone(get_initial('end'))
+        self.assertIsNone(get_initial('end_time'))
+        self.assertTrue(get_initial('is_all_day'))
 
     def test_error_no_participant(self):
         "No participant given"
@@ -148,7 +177,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertFormError(response, 'form', None, _('No participant'))
 
     def test_error_my_participation_no_calendar(self):
-        "Selected myself as participant without calendar"
+        "Selected myself as participant without calendar."
         "No participant given"
         user = self.login()
         data = self.build_submit_data(
@@ -161,9 +190,10 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         )
 
         response = self.assertPOST200(reverse('activities__create_activity_popup'), data)
-        self.assertFormError(response, 'form', 'my_participation',
-                             _('Enter a value if you check the box.')
-                            )
+        self.assertFormError(
+            response, 'form', 'my_participation',
+            _('Enter a value if you check the box.'),
+        )
 
     def test_my_participation(self):
         user = self.login()
@@ -205,7 +235,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             start_time='09:30:00',
             type_selector=self._acttype_field_value(custom_type.id),
             my_participation_0=True,
-            my_participation_1=Calendar.objects.get_default_calendar(user).pk
+            my_participation_1=Calendar.objects.get_default_calendar(user).pk,
         )
 
         response = self.assertPOST200(reverse('activities__create_activity_popup'), data)
@@ -218,23 +248,25 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=9, minute=30), activity.start)
         self.assertEqual(create_dt(hour=9, minute=45), activity.end)
         self.assertEqual(custom_type.id, activity.type_id)
-        self.assertEqual(None, activity.sub_type_id)
+        self.assertIsNone(activity.sub_type_id)
 
     @parameterized.expand([
         (CremeTestCase.create_datetime(2013, 10, 27),),  # Timezone DST change for Europe/Paris
         (CremeTestCase.create_datetime(2013, 10, 28),),  # No DST change for Europe/Paris
     ])
     def test_DST_transition_allday(self, today):
-        "Check that the DST transition works for allday meetings"
+        "Check that the DST transition works for all-day meetings."
         user = self.login()
-        data = self.build_submit_data(
-            user,
-            start=date_format(today),
-            my_participation_0=True,
-            my_participation_1=Calendar.objects.get_default_calendar(user).pk
-        )
 
-        response = self.assertPOST200(reverse('activities__create_activity_popup'), data)
+        response = self.assertPOST200(
+            reverse('activities__create_activity_popup'),
+            data=self.build_submit_data(
+                user,
+                start=date_format(today),
+                my_participation_0=True,
+                my_participation_1=Calendar.objects.get_default_calendar(user).pk,
+            ),
+        )
         self.assertNoFormError(response)
 
         activity = self.get_object_or_fail(Activity, title='meeting activity')
@@ -247,7 +279,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
 
     @skipIfNotInstalled('creme.assistants')
     def test_disabled_informed_users_field(self):
-        "Setting: no 'informed_users' field"
+        "Setting: no 'informed_users' field."
         self.login()
 
         sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_FORM_USERS_MSG)

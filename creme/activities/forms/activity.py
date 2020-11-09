@@ -512,23 +512,23 @@ class CalendarActivityCreateForm(ActivityCreateForm):
         exclude = (*ActivityCreateForm.Meta.exclude, 'minutes')
 
     # def __init__(self, start=None, end=None, is_all_day=False, *args, **kwargs):
-    def __init__(self, start=None, end=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        fields = self.fields
+        # fields = self.fields
         # fields['is_all_day'].initial = is_all_day
-
-        def _set_datefield(key, value):
-            if value:
-                fields[key].initial = value
-
-                if value.hour or value.minute:
-                    fields[f'{key}_time'].initial = time(
-                        hour=value.hour, minute=value.minute
-                    )
-
-        _set_datefield('start', start)
-        _set_datefield('end', end)
+        #
+        # def _set_datefield(key, value):
+        #     if value:
+        #         fields[key].initial = value
+        #
+        #         if value.hour or value.minute:
+        #             fields[f'{key}_time'].initial = time(
+        #                 hour=value.hour, minute=value.minute
+        #             )
+        #
+        # _set_datefield('start', start)
+        # _set_datefield('end', end)
 
 
 class IndisponibilityCreateForm(_ActivityCreateForm):
