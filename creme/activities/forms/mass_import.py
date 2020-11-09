@@ -32,11 +32,11 @@ from django.utils.translation import gettext_lazy
 
 from creme import persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.forms import validators
 from creme.creme_core.forms.mass_import import (
     BaseExtractorWidget,
     ImportForm4CremeEntity,
 )
-from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons.models import Civility
@@ -620,11 +620,21 @@ def get_massimport_form_builder(header_dict, choices):
 
             self.user_participants = []
 
+        # TODO: factorise with ActivityCreateForm
+        def clean_my_participation(self):
+            my_participation = self.cleaned_data['my_participation']
+
+            if my_participation[0]:
+                user = self.user
+                validators.validate_linkable_entity(user.linked_contact, user)
+
+            return my_participation
+
         def clean_participating_users(self):
             users = self.cleaned_data['participating_users']
-            self.user_participants.extend(
-                validate_linkable_entities(Contact.objects.filter(is_user__in=users), self.user)
-            )
+            self.user_participants.extend(validators.validate_linkable_entities(
+                Contact.objects.filter(is_user__in=users), self.user,
+            ))
             return users
 
         def _pre_instance_save(self, instance, line):

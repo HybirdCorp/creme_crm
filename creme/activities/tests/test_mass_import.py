@@ -604,6 +604,61 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.get_object_or_fail(CremeProperty, type=ptype, creme_entity=act.id)
 
     @skipIfCustomContact
+    def test_import_errors(self):
+        "Link credentials for user's Contact."
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=('activities', 'persons', 'documents'),
+            creatable_models=[Activity, Document],
+        )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+            ctype=Contact,
+            forbidden=True,
+        )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        other_user = self.other_user
+        my_calendar = Calendar.objects.get_default_calendar(user)
+        doc = self._build_csv_doc([('Meeting#1',)])
+        response = self.assertPOST200(
+            self._build_import_url(Activity),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'type_selector': self._acttype_field_value(
+                    constants.ACTIVITYTYPE_MEETING,
+                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                ),
+
+                'my_participation_0': True,
+                'my_participation_1': my_calendar.pk,
+
+                'participating_users': other_user.pk,
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'my_participation',
+            _('You are not allowed to link this entity: {}').format(
+                user.linked_contact,
+            )
+        )
+        self.assertFormError(
+            response, 'form', 'participating_users',
+            _('Some entities are not linkable: {}').format(
+                other_user.linked_contact,
+            )
+        )
+
+    @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_import_subjects01(self):
         """Subject: Contact is searched if Organisation is not found.
