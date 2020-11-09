@@ -68,9 +68,10 @@ class ParticipantCreateForm(CremeForm):
         user_pk = user.pk
         fields = self.fields
 
-        existing = Contact.objects.filter(relations__type=constants.REL_SUB_PART_2_ACTIVITY,
-                                          relations__object_entity=entity.id,
-                                         )
+        existing = Contact.objects.filter(
+            relations__type=constants.REL_SUB_PART_2_ACTIVITY,
+            relations__object_entity=entity.id,
+        )
 
         participants_field = fields['participants']
         participants_field.q_filter = (
@@ -79,9 +80,10 @@ class ParticipantCreateForm(CremeForm):
         participants_field.force_creation = True  # TODO: in constructor ?
 
         if is_auto_orga_subject_enabled():
-            participants_field.help_text = _('The organisations of the participants will '
-                                             'be automatically added as subjects'
-                                            )
+            participants_field.help_text = _(
+                'The organisations of the participants will '
+                'be automatically added as subjects'
+            )
 
         existing_users = [c.is_user.pk for c in existing if c.is_user]
         user_qs = get_user_model().objects.filter(is_staff=False) \
@@ -104,17 +106,18 @@ class ParticipantCreateForm(CremeForm):
             else:
                 users.update(user.teammates.values())
 
-        return validators.validate_linkable_entities(Contact.objects.filter(is_user__in=users),
-                                                     self.user,
-                                                    )
+        return validators.validate_linkable_entities(
+            Contact.objects.filter(is_user__in=users), self.user,
+        )
 
     # TODO: factorise with ActivityCreateForm
     def clean_my_participation(self):
         my_participation = self.cleaned_data['my_participation']
 
         if my_participation[0]:
-            user = self.user
-            self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
+            # user = self.user
+            # self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
+            self.participants.add(self.user.linked_contact)
 
         return my_participation
 
@@ -127,10 +130,12 @@ class ParticipantCreateForm(CremeForm):
             extend_participants(cleaned_data['participating_users'])
             extend_participants(cleaned_data['participants'])
 
-            collisions = check_activity_collisions(activity.start, activity.end,
-                                                   self.participants, busy=activity.busy,
-                                                   exclude_activity_id=activity.id,
-                                                  )
+            collisions = check_activity_collisions(
+                activity.start, activity.end,
+                self.participants,
+                busy=activity.busy,
+                exclude_activity_id=activity.id,
+            )
             if collisions:
                 raise ValidationError(collisions)
 
@@ -138,18 +143,22 @@ class ParticipantCreateForm(CremeForm):
 
     def save(self):
         activity = self.activity
-        create_relation = partial(Relation.objects.safe_create, object_entity=activity,
-                                  type_id=constants.REL_SUB_PART_2_ACTIVITY, user=activity.user,
-                                 )
+        create_relation = partial(
+            Relation.objects.safe_create,
+            object_entity=activity,
+            type_id=constants.REL_SUB_PART_2_ACTIVITY,
+            user=activity.user,
+        )
         me = self.user
 
         for participant in self.participants:
             user = participant.is_user
             if user:
-                activity.calendars.add(self.cleaned_data['my_participation'][1]
-                                       if user == me else
-                                       Calendar.objects.get_default_calendar(user)
-                                      )
+                activity.calendars.add(
+                    self.cleaned_data['my_participation'][1]
+                    if user == me else
+                    Calendar.objects.get_default_calendar(user)
+                )
 
             create_relation(subject_entity=participant)
 
@@ -179,19 +188,21 @@ class SubjectCreateForm(CremeForm):
 
         if duplicates:
             raise ValidationError(
-                ngettext('This entity is already a subject: %(duplicates)s',
-                         'These entities are already subjects: %(duplicates)s',
-                         len(duplicates)
-                        ),
+                ngettext(
+                    'This entity is already a subject: %(duplicates)s',
+                    'These entities are already subjects: %(duplicates)s',
+                    len(duplicates),
+                ),
                 params={'duplicates': ', '.join(str(e) for e in duplicates)},
             )
 
         return subjects
 
     def save(self):
-        create_relation = partial(Relation.objects.safe_create, type=self.rtype,
-                                  object_entity=self.activity, user=self.user,
-                                 )
+        create_relation = partial(
+            Relation.objects.safe_create,
+            type=self.rtype, object_entity=self.activity, user=self.user,
+        )
 
         for entity in self.cleaned_data['subjects']:
             create_relation(subject_entity=entity)
