@@ -631,10 +631,19 @@ def get_massimport_form_builder(header_dict, choices):
         #     return my_participation
 
         def clean_participating_users(self):
-            users = self.cleaned_data['participating_users']
+            # users = self.cleaned_data['participating_users']
+            users = set()
+
+            for user in self.cleaned_data['participating_users']:
+                if not user.is_team:
+                    users.add(user)
+                else:
+                    users.update(user.teammates.values())
+
             self.user_participants.extend(validators.validate_linkable_entities(
                 Contact.objects.filter(is_user__in=users), self.user,
             ))
+
             return users
 
         def _pre_instance_save(self, instance, line):
