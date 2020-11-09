@@ -2,6 +2,7 @@
 
 from functools import partial
 
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -217,6 +218,19 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         participant1 = create_contact(first_name='Tatsumi', last_name='Oga')
         participant2 = create_contact(first_name='Aoi',     last_name='Kunieda')
 
+        create_user = get_user_model().objects.create
+        furuichi = create_user(
+            username='furuichi', first_name='Furuichi',
+            last_name='Takayuki', email='furuichi@ishiyama.jp',
+        )
+        chiaki = create_user(
+            username='chiaki', first_name='Chiaki',
+            last_name='Tanimura', email='chiaki@ishiyama.jp',
+        )
+
+        team = create_user(username='Samurais', is_team=True, role=None)
+        team.teammates = [furuichi, chiaki]
+
         unfoundable = 'Behemoth'
         self.assertFalse(Contact.objects.filter(last_name=unfoundable).exists())
 
@@ -251,7 +265,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             ),
 
             'my_participation_0': True,
-            'participating_users': other_user.pk,
+            'participating_users': [other_user.id, team.id],
 
             'participants_mode': 1,  # Search with 1 or 2 columns
             'participants_first_name_colselect': 2,
@@ -289,23 +303,33 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual(constants.ACTIVITYTYPE_MEETING, act1.type_id)
         self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, act1.sub_type_id)
 
-        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)
-        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
+        REL_OBJ_PART_2_ACTIVITY = constants.REL_OBJ_PART_2_ACTIVITY
+        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, user_contact)
+        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, other_contact)
+        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, furuichi.linked_contact)
+        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, chiaki.linked_contact)
+
+        get_def_calendar = Calendar.objects.get_default_calendar
         self.assertSetEqual(
-            {my_calendar, Calendar.objects.get_default_calendar(other_user)},
+            {
+                my_calendar,
+                get_def_calendar(other_user),
+                get_def_calendar(furuichi),
+                get_def_calendar(chiaki),
+            },
             {*act1.calendars.all()},
         )
 
-        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
-        self.assertRelationCount(0, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertRelationCount(0, act1, REL_OBJ_PART_2_ACTIVITY, participant2)
 
         self.assertRelationCount(1, act1, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
 
         # ---------
         act2 = self.get_object_or_fail(Activity, title=title2)
-        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)
-        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
-        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, user_contact)
+        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, other_contact)
+        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, participant2)
 
         # ---------
         act3 = self.get_object_or_fail(Activity, title=title3)
