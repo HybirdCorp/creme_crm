@@ -24,15 +24,15 @@ from functools import partial
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
-from django.forms import ModelMultipleChoiceField
+# from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
+# from creme.creme_core.forms import validators
 from creme.creme_core.forms import (
     CremeForm,
     MultiCreatorEntityField,
     MultiGenericEntityField,
-    validators,
 )
 from creme.creme_core.models import Relation, RelationType
 from creme.persons import get_contact_model
@@ -40,20 +40,23 @@ from creme.persons import get_contact_model
 from .. import constants
 from ..models import Calendar
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
-from .fields import UserParticipationField
+from . import fields as act_fields
 
 logger = logging.getLogger(__name__)
 Contact = get_contact_model()
 
 
 class ParticipantCreateForm(CremeForm):
-    my_participation = UserParticipationField(
+    my_participation = act_fields.UserParticipationField(
         label=_('Do I participate to this activity?'), empty_label=None,
     )
-    participating_users = ModelMultipleChoiceField(
-        label=_('Other participating users'),
-        queryset=get_user_model().objects.filter(is_staff=False),
-        required=False,
+    # participating_users = ModelMultipleChoiceField(
+    #     label=_('Other participating users'),
+    #     queryset=get_user_model().objects.filter(is_staff=False),
+    #     required=False,
+    # )
+    participating_users = act_fields.ParticipatingUsersField(
+        label=_('Other participating users'), required=False,
     )
     participants = MultiCreatorEntityField(
         label=_('Participants'), model=Contact, required=False,
@@ -97,18 +100,18 @@ class ParticipantCreateForm(CremeForm):
         if user_pk in existing_users:
             del fields['my_participation']
 
-    def clean_participating_users(self):
-        users = set()
-
-        for user in self.cleaned_data['participating_users']:
-            if not user.is_team:
-                users.add(user)
-            else:
-                users.update(user.teammates.values())
-
-        return validators.validate_linkable_entities(
-            Contact.objects.filter(is_user__in=users), self.user,
-        )
+    # def clean_participating_users(self):
+    #     users = set()
+    #
+    #     for user in self.cleaned_data['participating_users']:
+    #         if not user.is_team:
+    #             users.add(user)
+    #         else:
+    #             users.update(user.teammates.values())
+    #
+    #     return validators.validate_linkable_entities(
+    #         Contact.objects.filter(is_user__in=users), self.user,
+    #     )
 
     # TODO: factorise with ActivityCreateForm
     def clean_my_participation(self):

@@ -514,7 +514,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         sv.save()
 
     def test_createview12(self):
-        "Teams are not allowed as participants."
+        "Teams as participants are replaced by their teammates."
         user = self.login()
 
         create_user = get_user_model().objects.create

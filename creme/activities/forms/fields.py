@@ -18,10 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.auth import get_user_model
+from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.forms import validators
 from creme.creme_core.forms.fields import OptionalModelChoiceField
-from creme.creme_core.forms.validators import validate_linkable_entity
+from creme.persons import get_contact_model
 
 from ..models import Calendar
 
@@ -54,6 +57,32 @@ class UserParticipationField(OptionalModelChoiceField):
         assert user is not None
 
         value = super().clean(value=value)
-        validate_linkable_entity(user.linked_contact, user)
+        validators.validate_linkable_entity(user.linked_contact, user)
 
         return value
+
+
+class ParticipatingUsersField(ModelMultipleChoiceField):
+    def __init__(self, *,
+                 user=None,
+                 queryset=get_user_model().objects.filter(is_staff=False),
+                 **kwargs):
+        super().__init__(queryset=queryset, **kwargs)
+        self.user = user
+
+    def clean(self, value):
+        user = self.user
+        assert user is not None
+
+        users = set()
+
+        for part_user in super().clean(value=value):
+            if not part_user.is_team:
+                users.add(part_user)
+            else:
+                users.update(part_user.teammates.values())
+
+        return validators.validate_linkable_entities(
+            get_contact_model().objects.filter(is_user__in=users).select_related('is_user'),
+            self.user,
+        )
