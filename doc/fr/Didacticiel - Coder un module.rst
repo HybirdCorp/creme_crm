@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 02-11-2020 pour la version 2.2 de Creme
+:Version: 10-11-2020 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -553,6 +553,8 @@ et nous créons tout d'abord une nouvelle entrée de niveau 2 dans l'entrée de 
         [...]
 
         def register_menu(self, creme_menu):
+            from .models import Beaver
+
             creme_menu.get('features', 'persons-directory') \
                       .add(creme_menu.URLItem.list_view('beavers-beavers', model=Beaver))
 
