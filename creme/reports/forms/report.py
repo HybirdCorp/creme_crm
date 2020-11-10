@@ -28,7 +28,8 @@ from django.core.exceptions import FieldDoesNotExist, ValidationError
 # from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
-from django.forms.fields import CharField, ChoiceField
+# from django.forms.fields import CharField
+from django.forms.fields import ChoiceField
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -48,8 +49,9 @@ from creme.creme_core.forms.fields import (
     AjaxModelChoiceField,
     CreatorEntityField,
     DateRangeField,
+    ReadonlyMessageField,
 )
-from creme.creme_core.forms.widgets import Label
+# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import (
     CremeEntity,
     CustomField,
@@ -345,9 +347,10 @@ class ReportEditForm(CremeEntityForm):
         efilter = self.instance.filter
 
         if efilter and not efilter.can_view(self.user)[0]:
-            fields['filter_label'] = CharField(
+            # fields['filter_label'] = CharField(
+            fields['filter_label'] = ReadonlyMessageField(
                 label=fields['filter'].label,
-                required=False, widget=Label,
+                # required=False, widget=Label,
                 initial=_('The filter cannot be changed because it is private.'),
             )
             del fields['filter']

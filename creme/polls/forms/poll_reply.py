@@ -20,14 +20,9 @@
 
 from itertools import repeat
 
+from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.forms import (
-    BooleanField,
-    CharField,
-    IntegerField,
-    ModelChoiceField,
-)
 from django.http import Http404
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -35,16 +30,10 @@ from django.utils.translation import pgettext_lazy
 
 from creme import persons, polls
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.forms import (
-    CreatorEntityField,
-    CremeEntityForm,
-    CremeForm,
-    GenericEntityField,
-    MultiCreatorEntityField,
-    MultiGenericEntityField,
-)
+from creme.creme_core.forms import base as base_forms
+from creme.creme_core.forms import fields as core_fields
+# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
-from creme.creme_core.forms.widgets import Label
 
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
@@ -53,22 +42,29 @@ PollForm     = polls.get_pollform_model()
 PollReply    = polls.get_pollreply_model()
 
 
-class PollRepliesCreateForm(CremeForm):
-    user     = ModelChoiceField(label=_('User'), required=True,
-                                queryset=get_user_model().objects.filter(is_staff=False),
-                                )
-    name     = CharField(label=_('Name'), required=True)
-    campaign = CreatorEntityField(label=pgettext_lazy('polls', 'Related campaign'),
-                                  model=PollCampaign, required=False,
-                                  )
-    number   = IntegerField(label=_('Number of replies'), initial=1, min_value=1, required=False)
-    persons  = MultiGenericEntityField(label=_('Persons who filled'), required=False,
-                                       models=[Organisation, Contact],
-                                       help_text=_('Each reply will be linked to a person '
-                                                   '(and "Number of replies" will be ignored)'
-                                                   ),
-                                       )
-    pform    = CreatorEntityField(label=_('Related form'), model=polls.get_pollform_model())
+class PollRepliesCreateForm(base_forms.CremeForm):
+    user = forms.ModelChoiceField(
+        label=_('User'), queryset=get_user_model().objects.filter(is_staff=False),
+    )
+    name = forms.CharField(label=_('Name'))
+    campaign = core_fields.CreatorEntityField(
+        label=pgettext_lazy('polls', 'Related campaign'),
+        model=PollCampaign, required=False,
+    )
+    number = forms.IntegerField(
+        label=_('Number of replies'), initial=1, min_value=1, required=False,
+    )
+    persons = core_fields.MultiGenericEntityField(
+        label=_('Persons who filled'), required=False,
+        models=[Organisation, Contact],
+        help_text=_(
+            'Each reply will be linked to a person '
+            '(and "Number of replies" will be ignored)'
+        ),
+    )
+    pform = core_fields.CreatorEntityField(
+        label=_('Related form'), model=polls.get_pollform_model(),
+    )
 
     def __init__(self, entity=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -124,10 +120,11 @@ class PollRepliesCreateForm(CremeForm):
         if total_number != 1:
             name += f'#{index}'
 
-        return PollReply(user=cleaned_data['user'], pform=self.pform,
-                         type=self.pform.type, name=name,
-                         campaign=self.campaign, person=person,
-                         )
+        return PollReply(
+            user=cleaned_data['user'], pform=self.pform,
+            type=self.pform.type, name=name,
+            campaign=self.campaign, person=person,
+        )
 
     def save(self, *args, **kwargs):
         linked_persons = self.persons
@@ -148,12 +145,13 @@ class PollRepliesCreateForm(CremeForm):
             self.preplies.append(instance)
 
 
-class PollReplyEditForm(CremeEntityForm):
+class PollReplyEditForm(base_forms.CremeEntityForm):
     # TODO: rename it 'person' when initial works well + remove from exclude + remove save()
-    related_person = GenericEntityField(label=_('Person who filled'),
-                                        required=False,
-                                        models=[Organisation, Contact],
-                                       )
+    related_person = core_fields.GenericEntityField(
+        label=_('Person who filled'),
+        required=False,
+        models=[Organisation, Contact],
+    )
 
     class Meta:
         model = PollReply
@@ -168,11 +166,12 @@ class PollReplyEditForm(CremeEntityForm):
         return super().save(*args, **kwargs)
 
 
-class PersonAddRepliesForm(CremeForm):
+class PersonAddRepliesForm(base_forms.CremeForm):
     # TODO: qfilter to exclude linked replies ??
-    replies = MultiCreatorEntityField(label=_('Replies'), model=polls.get_pollreply_model(),
-                                      credentials=EntityCredentials.CHANGE,
-                                     )
+    replies = core_fields.MultiCreatorEntityField(
+        label=_('Replies'), model=polls.get_pollreply_model(),
+        credentials=EntityCredentials.CHANGE,
+    )
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -184,8 +183,9 @@ class PersonAddRepliesForm(CremeForm):
             reply.save()
 
 
-class PollReplyFillForm(CremeForm):
-    question = CharField(label=_('Question'), required=False, initial='??', widget=Label)
+class PollReplyFillForm(base_forms.CremeForm):
+    # question = CharField(label=_('Question'), required=False, initial='??', widget=Label)
+    question = core_fields.ReadonlyMessageField(label=_('Question'), initial='??')
 
     def __init__(self, line_node, instance=None, *args, **kwargs):
         "@param line_node Node (see ReplySectionTree) related to a PollReplyLine."
@@ -195,19 +195,19 @@ class PollReplyFillForm(CremeForm):
 
         fields = self.fields
         number = line_node.number
-        question = fields['question']
+        question_f = fields['question']
 
         if number:
             # TODO: use NodeStyle ??
-            question.initial = f'{number} - {line_node.question}'
-            fields['not_applicable'] = BooleanField(
+            question_f.initial = f'{number} - {line_node.question}'
+            fields['not_applicable'] = forms.BooleanField(
                 label=gettext('Not applicable'),
                 required=False,
                 initial=not line_node.applicable,
             )
         else:
-            question.label = _('Comment')
-            question.initial = line_node.question
+            question_f.label = _('Comment')
+            question_f.initial = line_node.question
 
         answer_field = line_node.answer_formfield
         if answer_field is not None:
@@ -219,8 +219,12 @@ class PollReplyFillForm(CremeForm):
         cdata = super().clean()
         errors = self._errors
 
-        if not errors and not cdata.get('not_applicable', False) and \
-           self.line_node.poll_line_type.editable and cdata.get('answer') is None:
+        if (
+            not errors
+            and not cdata.get('not_applicable', False)
+            and self.line_node.poll_line_type.editable
+            and cdata.get('answer') is None
+        ):
             errors['answer'] = self.error_class([gettext('The answer is required.')])
 
         return cdata
@@ -248,11 +252,12 @@ class PollReplyFillForm(CremeForm):
 class InnerEditPersonForm(BulkDefaultEditForm):
     def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
         super().__init__(model, field, user, entities, is_bulk, **kwargs)
-        person_field = GenericEntityField(label=_('Person who filled'),
-                                          required=False,
-                                          models=[Organisation, Contact],
-                                          user=user,
-                                         )
+        person_field = core_fields.GenericEntityField(
+            label=_('Person who filled'),
+            required=False,
+            models=[Organisation, Contact],
+            user=user,
+        )
 
         if not is_bulk:
             person_field.initial = entities[0].person

@@ -25,7 +25,7 @@ from itertools import chain
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.transaction import atomic
-from django.forms.fields import BooleanField, CharField, EmailField
+from django.forms import fields
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -33,11 +33,8 @@ from django.utils.translation import pgettext_lazy
 from creme import emails, persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import base as base_forms
-from creme.creme_core.forms.fields import (
-    CreatorEntityField,
-    MultiCreatorEntityField,
-)
-from creme.creme_core.forms.widgets import Label
+from creme.creme_core.forms import fields as core_fields
+# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import FieldsConfig, Relation
 from creme.documents import get_document_model
 
@@ -49,9 +46,9 @@ from ..constants import (
 from ..creme_jobs import entity_emails_send_type
 
 logger = logging.getLogger(__name__)
-Document      = get_document_model()
-Contact       = persons.get_contact_model()
-Organisation  = persons.get_organisation_model()
+Document = get_document_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 EntityEmail   = emails.get_entityemail_model()
 EmailTemplate = emails.get_emailtemplate_model()
 
@@ -62,16 +59,16 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
     """
-    sender = EmailField(label=_('Sender'))
+    sender = fields.EmailField(label=_('Sender'))
 
-    c_recipients = MultiCreatorEntityField(
+    c_recipients = core_fields.MultiCreatorEntityField(
         label=_('Contacts'), required=False, model=Contact, q_filter={'email__gt': ''},
     )
-    o_recipients = MultiCreatorEntityField(
+    o_recipients = core_fields.MultiCreatorEntityField(
         label=_('Organisations'), required=False, model=Organisation, q_filter={'email__gt': ''},
     )
 
-    send_me = BooleanField(label=_('Send me a copy of this mail'), required=False)
+    send_me = fields.BooleanField(label=_('Send me a copy of this mail'), required=False)
 
     error_messages = {
         'no_person': _('Select at least a Contact or an Organisation'),
@@ -112,20 +109,22 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
 
         def finalize_recipient_field(name, model):
             if FieldsConfig.objects.get_for_model(model).is_fieldname_hidden('email'):
-                self.fields[name] = CharField(
+                # self.fields[name] = CharField(
+                self.fields[name] = core_fields.ReadonlyMessageField(
                     label=self.fields[name].label,
-                    required=False, widget=Label,
-                    initial=gettext('Beware: the field «Email address» is hidden ;'
-                                    ' please contact your administrator.'
-                                   ),
+                    # required=False, widget=Label,
+                    initial=gettext(
+                        'Beware: the field «Email address» is hidden ;'
+                        ' please contact your administrator.'
+                    ),
                 )
 
         finalize_recipient_field('c_recipients', Contact)
         finalize_recipient_field('o_recipients', Organisation)
 
     def _clean_recipients(self, field_name):
-        if isinstance(self.fields[field_name].widget, Label):
-            return []
+        # if isinstance(self.fields[field_name].widget, Label):
+        #     return []
 
         recipients = self.cleaned_data.get(field_name) or []
         bad_entities = []
@@ -210,10 +209,11 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
 
 
 class TemplateSelectionFormStep(base_forms.CremeForm):
-    template = CreatorEntityField(label=pgettext_lazy('emails', 'Template'),
-                                  model=EmailTemplate,
-                                  credentials=EntityCredentials.VIEW,
-                                 )
+    template = core_fields.CreatorEntityField(
+        label=pgettext_lazy('emails', 'Template'),
+        model=EmailTemplate,
+        credentials=EntityCredentials.VIEW,
+    )
 
     step_submit_label = _('Select this template')
 

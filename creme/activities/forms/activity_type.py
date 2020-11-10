@@ -21,14 +21,16 @@
 from functools import partial
 
 from django.core.exceptions import ValidationError
-from django.forms.fields import CallableChoiceIterator, CharField
+# from django.forms.fields import CharField
+from django.forms.fields import CallableChoiceIterator
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
-from creme.creme_core.forms.fields import DurationField, JSONField
-from creme.creme_core.forms.widgets import ChainedInput, Label
+# from creme.creme_core.forms.widgets import Label
+from creme.creme_core.forms.widgets import ChainedInput
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.url import TemplateURLBuilder
 
@@ -37,7 +39,7 @@ from ..models import ActivitySubType, ActivityType
 
 
 class ActivityTypeForm(CremeModelForm):
-    default_hour_duration = DurationField(label=_('Duration'))
+    default_hour_duration = core_fields.DurationField(label=_('Duration'))
 
     class Meta(CremeModelForm.Meta):
         model = ActivityType
@@ -47,9 +49,9 @@ class ActivityTypeForm(CremeModelForm):
 
         if not instance.id:
             super().save(commit=False)
-            generate_string_id_and_save(ActivityType, [instance],
-                                        'creme_config-useractivitytype',
-                                       )
+            generate_string_id_and_save(
+                ActivityType, [instance], 'creme_config-useractivitytype',
+            )
         else:
             super().save()
 
@@ -65,9 +67,10 @@ class ActivitySubTypeForm(CremeModelForm):
 
         if not instance.id:
             super().save(commit=False, *args, **kwargs)
-            generate_string_id_and_save(ActivitySubType, [instance],
-                                        'creme_config-useractivitydetailesubtype',
-                                       )
+            generate_string_id_and_save(
+                ActivitySubType, [instance],
+                'creme_config-useractivitydetailesubtype',
+            )
         else:
             super().save(*args, **kwargs)
 
@@ -93,7 +96,7 @@ class ActivityTypeWidget(ChainedInput):
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
-class ActivityTypeField(JSONField):
+class ActivityTypeField(core_fields.JSONField):
     widget = ActivityTypeWidget  # Should have a 'types' attribute
     default_error_messages = {
         'typenotallowed':  _('This type causes constraint error.'),
@@ -101,7 +104,10 @@ class ActivityTypeField(JSONField):
     }
     value_type = dict
 
-    def __init__(self, *, types=ActivityType.objects.all(), empty_label='---------', **kwargs):
+    def __init__(self, *,
+                 types=ActivityType.objects.all(),
+                 empty_label='---------',
+                 **kwargs):
         self.empty_label = empty_label
 
         # super().__init__(*args, **kwargs)
@@ -151,15 +157,17 @@ class ActivityTypeField(JSONField):
             try:
                 subtype = related_types.get(pk=subtype_pk)
             except ActivitySubType.DoesNotExist as e:
-                raise ValidationError(self.error_messages['subtyperequired'],
-                                      code='subtyperequired',
-                                     ) from e
+                raise ValidationError(
+                    self.error_messages['subtyperequired'],
+                    code='subtyperequired',
+                ) from e
         elif self.required and related_types.exists():
-            raise ValidationError(self.error_messages['subtyperequired'],
-                                  code='subtyperequired',
-                                 )
+            raise ValidationError(
+                self.error_messages['subtyperequired'],
+                code='subtyperequired',
+            )
 
-        return (atype, subtype)
+        return atype, subtype
 
     @property
     def types(self):
@@ -201,9 +209,10 @@ class BulkEditTypeForm(BulkDefaultEditForm):
             else:
                 self._mixed_indispo = True
                 # TODO: remove when old view entity.bulk_edit_field() has been removed
-                self.fields['beware'] = CharField(
+                # self.fields['beware'] = CharField(
+                self.fields['beware'] = core_fields.ReadonlyMessageField(
                     label=_('Beware !'),
-                    required=False, widget=Label,
+                    # required=False, widget=Label,
                     initial=ngettext(
                         'The type of {count} activity cannot be changed because'
                         ' it is an indisponibility.',
@@ -219,9 +228,10 @@ class BulkEditTypeForm(BulkDefaultEditForm):
 
     def _bulk_clean_entity(self, entity, values):
         if self._mixed_indispo and entity.type_id == ACTIVITYTYPE_INDISPO:
-            raise ValidationError(self.error_messages['immutable_indispo'],
-                                  code='immutable_indispo',
-                                 )
+            raise ValidationError(
+                self.error_messages['immutable_indispo'],
+                code='immutable_indispo',
+            )
 
         entity.type, entity.sub_type = values.get(self.field_name)
 

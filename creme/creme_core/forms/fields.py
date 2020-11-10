@@ -67,6 +67,7 @@ __all__ = (
     'CTypeChoiceField', 'EntityCTypeChoiceField',
     'MultiCTypeChoiceField', 'MultiEntityCTypeChoiceField',
     'EnhancedMultipleChoiceField', 'EnhancedModelMultipleChoiceField',
+    'ReadonlyMessageField',
 )
 
 
@@ -1973,3 +1974,18 @@ class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
     @initial.setter
     def initial(self, value):
         self._initial = value
+
+
+class ReadonlyMessageField(fields.CharField):
+    widget = core_widgets.Label
+
+    def __init__(self, *, label, initial='', widget=None):
+        super().__init__(
+            label=label,
+            widget=widget,
+            initial=initial,
+            required=False,
+        )
+
+    def clean(self, value):
+        return None

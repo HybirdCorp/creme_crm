@@ -19,12 +19,13 @@
 ################################################################################
 
 from django.core.exceptions import ValidationError
-from django.forms.fields import CharField
+# from django.forms.fields import CharField
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
-from creme.creme_core.forms.widgets import Label
+from creme.creme_core.forms.fields import ReadonlyMessageField
+# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import EntityFilter
 
 
@@ -55,34 +56,43 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                 length = len(uneditable_ids)
 
                 if length == len(entities):
-                    self.fields['field_value'] = CharField(
+                    # self.fields['field_value'] = CharField(
+                    self.fields['field_value'] = ReadonlyMessageField(
                         label=filter_field.label,
-                        required=False, widget=Label,
+                        # required=False, widget=Label,
                         initial=ngettext(
                             'The filter cannot be changed because it is private.',
                             'The filters cannot be changed because they are private.',
-                            length
+                            length,
                         ),
                     )
                 else:
-                    self.fields['beware'] = CharField(
+                    # self.fields['beware'] = CharField(
+                    self.fields['beware'] = ReadonlyMessageField(
                         label=_('Beware !'),
-                        required=False, widget=Label,
+                        # required=False, widget=Label,
                         initial=ngettext(
                             'The filter of {count} report cannot be changed '
                             'because it is private.',
                             'The filters of {count} reports cannot be changed '
                             'because they are private.',
-                            length
+                            length,
                         ).format(count=length),
                     )
         else:
-            filter_field.help_text = _(
-                'Filter field can only be updated when '
-                'reports target the same type of entities (e.g: only contacts).'
+            # filter_field.help_text = _(
+            #     'Filter field can only be updated when '
+            #     'reports target the same type of entities (e.g: only contacts).'
+            # )
+            # filter_field.widget = Label(empty_label='')
+            # filter_field.value = None
+            self.fields['field_value'] = ReadonlyMessageField(
+                label=filter_field.label,
+                initial=_(
+                    'Filter field can only be updated when '
+                    'reports target the same type of entities (e.g: only contacts).'
+                ),
             )
-            filter_field.widget = Label(empty_label='')
-            filter_field.value = None
 
     def clean(self):
         if not self._has_same_report_ct:

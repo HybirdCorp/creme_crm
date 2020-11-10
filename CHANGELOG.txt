@@ -176,12 +176,14 @@
         # Some static typing has been made in 'creme_core' with the help of mypy (& pyCharm).
         # A configuration for CircleCI has been added ; many checks have been added (isort, flake8, ...).
         # A string permission for staff users has been added : creme_core.auth.STAFF_PERM
-        # In 'creme_core.core.entity_cell.EntityCell'
+        # In 'creme_core.core.entity_cell.EntityCell' :
             - A class attribute "verbose_name" has been added.
             - An attribute "is_excluded" has been added.
-        # In 'creme_core.forms.base', the calls to class-methods "add_post_*_callback()" can be chained.
+        # In 'creme_core.forms' :
+            - In 'base', the calls to class-methods "add_post_*_callback()" can be chained.
+            - A new field has been added in 'fields': 'ReadonlyMessageField'. It can be used to replace 'CharField(widget=Label)'
         # In the class 'creme_core.gui.bricks.Brick', the attribute "permission" has been clearly added (it was dynamiccaly checked by the views).
-          If you set it, youy should use an empty string isntead of <None>.
+          If you set it, you should use an empty string instead of <None>.
         # A custom manager has been added to CustomField ; some queries are now cached.
         # A new templatetag for bricks has been added : {% brick_get_by_ids ... %}.
         # In unit tests :
