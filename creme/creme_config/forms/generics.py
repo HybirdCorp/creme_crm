@@ -30,7 +30,8 @@ from django.utils.translation import ngettext_lazy
 from creme.creme_core.core import deletion
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms.base import CremeModelForm, FieldBlockManager
-from creme.creme_core.forms.widgets import Label
+# from creme.creme_core.forms.widgets import Label
+from creme.creme_core.forms.fields import ReadonlyMessageField
 from creme.creme_core.models import DeletionCommand, FieldsConfig, Job
 from creme.creme_core.utils.translation import get_model_verbose_name
 
@@ -99,10 +100,9 @@ class ReplacingHandler:
     def _count_related_instances(self):
         field = self.field
 
-        return field.model \
-                    ._default_manager \
-                    .filter(**{field.name: self.instance_to_delete}) \
-                    .count()
+        return field.model._default_manager.filter(
+            **{field.name: self.instance_to_delete}
+        ).count()
 
     def get_form_field(self):
         "@return A <django.forms.Field> instance, or <None>."
@@ -127,11 +127,12 @@ class LabelReplacingHandler(ReplacingHandler):
     )
 
     def _build_message_formfield(self, message):
-        return forms.CharField(
+        # return forms.CharField(
+        return ReadonlyMessageField(
             label=self._build_formfield_label(),
-            widget=Label,
+            # widget=Label,
             initial=message,
-            required=False,
+            # required=False,
         )
 
     def _get_message_context(self):

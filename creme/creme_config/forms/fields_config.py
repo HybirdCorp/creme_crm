@@ -24,13 +24,14 @@ from django.forms import fields
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.fields import CTypeChoiceField
-from creme.creme_core.forms.widgets import DynamicSelect, Label
+from creme.creme_core.forms import fields as core_fields
+# from creme.creme_core.forms.widgets import Label
+from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import CremeEntity, FieldsConfig
 
 
 class FieldsConfigAddForm(CremeModelForm):
-    ctype = CTypeChoiceField(
+    ctype = core_fields.CTypeChoiceField(
         label=_('Related resource'),
         help_text=_(
             'The proposed types of resource have at least a field which can be hidden.'
@@ -72,10 +73,13 @@ class FieldsConfigAddForm(CremeModelForm):
             self.fields['ctype'].ctypes = ctypes
         else:
             # TODO: remove the 'submit' button ?
-            self.fields['ctype'] = fields.CharField(
+            # self.fields['ctype'] = fields.CharField(
+            self.fields['ctype'] = core_fields.ReadonlyMessageField(
                 label=_('Related resource'),
-                required=False, widget=Label,
-                initial=_('All configurable types of resource are already configured.'),
+                # required=False, widget=Label,
+                initial=_(
+                    'All configurable types of resource are already configured.'
+                ),
             )
 
     def clean(self, *args, **kwargs):

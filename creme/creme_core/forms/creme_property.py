@@ -18,20 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import CharField, ModelMultipleChoiceField
+# from django.forms import CharField
+from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..models import CremeProperty, CremePropertyType
 from ..utils import entities_to_str
+# from .widgets import Label
 from .base import CremeForm
-from .widgets import Label
+from .fields import ReadonlyMessageField
 
 
 class _AddPropertiesForm(CremeForm):
-    types = ModelMultipleChoiceField(label=_('Type of property'),
-                                     queryset=CremePropertyType.objects.none(),
-                                    )
+    types = ModelMultipleChoiceField(
+        label=_('Type of property'),
+        queryset=CremePropertyType.objects.none(),
+    )
 
 
 class AddPropertiesForm(_AddPropertiesForm):
@@ -41,11 +44,12 @@ class AddPropertiesForm(_AddPropertiesForm):
         self.entity = entity
         super().__init__(*args, **kwargs)
 
-        excluded = CremeProperty.objects.filter(creme_entity=entity.id) \
-                                        .values_list('type', flat=True)
-        self.fields['types'].queryset = CremePropertyType.objects\
-                                                         .compatible(type(entity))\
-                                                         .exclude(pk__in=excluded)
+        excluded = CremeProperty.objects.filter(
+            creme_entity=entity.id,
+        ).values_list('type', flat=True)
+        self.fields['types'].queryset = CremePropertyType.objects.compatible(
+            type(entity)
+        ).exclude(pk__in=excluded)
 
     def save(self):
         create = CremeProperty.objects.safe_create
@@ -55,7 +59,8 @@ class AddPropertiesForm(_AddPropertiesForm):
 
 
 class AddPropertiesBulkForm(_AddPropertiesForm):
-    entities_lbl = CharField(label=_('Related entities'), widget=Label(), required=False)
+    # entities_lbl = CharField(label=_('Related entities'), widget=Label(), required=False)
+    entities_lbl = ReadonlyMessageField(label=_('Related entities'))
 
     def __init__(self, model, entities, forbidden_entities, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,9 +75,10 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         )
 
         if forbidden_entities:
-            fields['bad_entities_lbl'] = CharField(
+            # fields['bad_entities_lbl'] = CharField(
+            fields['bad_entities_lbl'] = ReadonlyMessageField(
                 label=gettext('Uneditable entities'),
-                widget=Label, required=False,
+                # widget=Label, required=False,
                 initial=entities_to_str(forbidden_entities, self.user),
             )
 

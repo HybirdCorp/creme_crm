@@ -20,30 +20,30 @@
 
 from math import ceil
 
-from django.forms import CharField, IntegerField, ModelChoiceField
+from django import forms
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm, CremeForm, CremeModelForm
-from creme.creme_core.forms.fields import FilteredEntityTypeField
-from creme.creme_core.forms.widgets import Label
+from creme import commercial
+from creme.creme_core.forms import base as base_forms
+from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.models import EntityFilter
 
-from .. import get_act_model, get_pattern_model
 from ..models import ActObjective, ActObjectivePatternComponent
 
-ActObjectivePattern = get_pattern_model()
+ActObjectivePattern = commercial.get_pattern_model()
 
 
-class ActForm(CremeEntityForm):
-    class Meta(CremeEntityForm.Meta):
-        model = get_act_model()
+class ActForm(base_forms.CremeEntityForm):
+    class Meta(base_forms.CremeEntityForm.Meta):
+        model = commercial.get_act_model()
 
 
-class ObjectiveForm(CremeModelForm):
-    entity_counting = FilteredEntityTypeField(label=_('Entity counting'), required=False,
-                                              empty_label=_('Do not count entity'),
-                                             )  # TODO: help text ???
+class ObjectiveForm(base_forms.CremeModelForm):
+    entity_counting = core_fields.FilteredEntityTypeField(
+        label=_('Entity counting'), required=False,
+        empty_label=_('Do not count entity'),
+    )  # TODO: help text ???
 
     class Meta:
         model = ActObjective
@@ -64,15 +64,19 @@ class ObjectiveForm(CremeModelForm):
             # TODO: add a method EntityFilter.can_list(self.user) to avoid a query
             # if efilter and not EntityFilter.get_for_user(self.user, content_type=instance.ctype)\
             #                                .filter(id=efilter.id).exists():
-            if efilter and not EntityFilter.objects\
-                                           .filter_by_user(self.user)\
-                                           .filter(entity_type=instance.ctype,
-                                                   id=efilter.id,
-                                                  )\
-                                           .exists():
-                fields['ec_label'] = CharField(
+            if (
+                efilter
+                and not EntityFilter.objects
+                                    .filter_by_user(self.user)
+                                    .filter(
+                                        entity_type=instance.ctype,
+                                        id=efilter.id,
+                                    ).exists()
+            ):
+                # fields['ec_label'] = CharField(
+                fields['ec_label'] = core_fields.ReadonlyMessageField(
                     label=fields['entity_counting'].label,
-                    required=False, widget=Label,
+                    # required=False, widget=Label,
                     initial=_('The filter cannot be changed because it is private.'),
                 )
                 del fields['entity_counting']
@@ -90,10 +94,11 @@ class ObjectiveForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class ObjectivesFromPatternForm(CremeForm):
-    pattern = ModelChoiceField(label=_('Pattern'), empty_label=None,
-                               queryset=ActObjectivePattern.objects.all()
-                              )
+class ObjectivesFromPatternForm(base_forms.CremeForm):
+    pattern = forms.ModelChoiceField(
+        label=_('Pattern'), empty_label=None,
+        queryset=ActObjectivePattern.objects.all(),
+    )
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -116,26 +121,29 @@ class ObjectivesFromPatternForm(CremeForm):
         def create_objectives_from_components(comps, parent_goal):
             for comp in comps:
                 counter_goal = int(ceil(parent_goal * (100.0 / comp.success_rate)))
-                create_objective(act=act, name=comp.name, counter_goal=counter_goal,
-                                 ctype_id=comp.ctype_id, filter_id=comp.filter_id
-                                )
+                create_objective(
+                    act=act, name=comp.name, counter_goal=counter_goal,
+                    ctype_id=comp.ctype_id, filter_id=comp.filter_id,
+                )
                 create_objectives_from_components(comp.get_children(), counter_goal)
 
         create_objectives_from_components(pattern.get_components_tree(), won_opps)
 
 
-class ObjectivePatternForm(CremeEntityForm):
-    class Meta(CremeEntityForm.Meta):
+class ObjectivePatternForm(base_forms.CremeEntityForm):
+    class Meta(base_forms.CremeEntityForm.Meta):
         model = ActObjectivePattern
 
 
-class _PatternComponentForm(CremeModelForm):
-    entity_counting = FilteredEntityTypeField(label=_('Entity counting'), required=False,
-                                              empty_label=_('Do not count entity'),
-                                             )  # TODO: help text ???
-    success_rate    = IntegerField(label=_('Success rate'), min_value=1, max_value=100,
-                                   help_text=_('Percentage of success')
-                                  )
+class _PatternComponentForm(base_forms.CremeModelForm):
+    entity_counting = core_fields.FilteredEntityTypeField(
+        label=_('Entity counting'), required=False,
+        empty_label=_('Do not count entity'),
+    )  # TODO: help text ???
+    success_rate = forms.IntegerField(
+        label=_('Success rate'), min_value=1, max_value=100,
+        help_text=_('Percentage of success'),
+    )
 
     class Meta:
         model = ActObjectivePatternComponent

@@ -20,20 +20,22 @@
 
 from collections import OrderedDict
 
+from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.forms import CharField, ModelMultipleChoiceField, ValidationError
+# from django.forms import CharField
+from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType
 from ..utils import entities_to_str
+from . import fields as core_fields
+# from .widgets import Label
 from .base import CremeForm, FieldBlockManager
-from .fields import MultiRelationEntityField
-from .widgets import Label
 
 
 class _RelationsCreateForm(CremeForm):
-    relations = MultiRelationEntityField(
+    relations = core_fields.MultiRelationEntityField(
         label=_('Relationships'), required=False, autocomplete=True,
     )
     semifixed_rtypes = ModelMultipleChoiceField(
@@ -248,14 +250,16 @@ class _RelationsCreateForm(CremeForm):
 
 class RelationCreateForm(_RelationsCreateForm):
     def __init__(self, subject, relations_types=None, *args, **kwargs):
-        super().__init__([subject], subject.entity_type,
-                         relations_types=relations_types,
-                         *args, **kwargs
-                        )
+        super().__init__(
+            [subject], subject.entity_type,
+            relations_types=relations_types,
+            *args, **kwargs
+        )
 
 
 class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
-    entities_lbl = CharField(label=_('Related entities'), widget=Label())
+    # entities_lbl = CharField(label=_('Related entities'), widget=Label())
+    entities_lbl = core_fields.ReadonlyMessageField(label=_('Related entities'))
 
     # TODO: use Meta.fields ?? (beware to bad_entities_lbl)
     blocks = FieldBlockManager(
@@ -268,10 +272,11 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
 
     def __init__(self, subjects, forbidden_subjects, relations_types=None, *args, **kwargs):
         first_subject = subjects[0] if subjects else forbidden_subjects[0]
-        super().__init__(subjects, first_subject.entity_type,
-                         relations_types=relations_types,
-                         *args, **kwargs
-                        )
+        super().__init__(
+            subjects, first_subject.entity_type,
+            relations_types=relations_types,
+            *args, **kwargs
+        )
 
         user = self.user
         fields = self.fields
@@ -280,8 +285,9 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
         ) if subjects else gettext('NONE !')
 
         if forbidden_subjects:
-            fields['bad_entities_lbl'] = CharField(
+            # fields['bad_entities_lbl'] = CharField(
+            fields['bad_entities_lbl'] = core_fields.ReadonlyMessageField(
                 label=gettext('Unlinkable entities'),
-                widget=Label,
+                # widget=Label,
                 initial=entities_to_str(forbidden_subjects, user),
             )

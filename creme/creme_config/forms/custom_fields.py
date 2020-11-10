@@ -31,11 +31,9 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.core.deletion import FixedValueReplacer
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.fields import (
-    EntityCTypeChoiceField,
-    ListEditionField,
-)
-from creme.creme_core.forms.widgets import DynamicSelect, Label
+from creme.creme_core.forms import fields as core_fields
+# from creme.creme_core.forms.widgets import Label
+from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import DeletionCommand, Job
 from creme.creme_core.models.custom_field import (
     _TABLES,
@@ -56,15 +54,17 @@ class CustomFieldBaseForm(CremeModelForm):
         widget=Textarea(),
         label=_('Available choices'),
         required=False,
-        help_text=_('Give the possible choices (one per line) '
-                    'if you choose the type "Choice list".'
-                   ),
+        help_text=_(
+            'Give the possible choices (one per line) '
+            'if you choose the type "Choice list".'
+        ),
     )
 
     error_messages = {
-        'empty_list': _('The choices list must not be empty '
-                        'if you choose the type "Choice list".'
-                       ),
+        'empty_list': _(
+            'The choices list must not be empty '
+            'if you choose the type "Choice list".'
+        ),
         'duplicated_choice': _('The choice «{}» is duplicated.'),
     }
 
@@ -82,9 +82,9 @@ class CustomFieldBaseForm(CremeModelForm):
             str_choices = cdata['enum_values'].strip()
 
             if not str_choices:
-                raise ValidationError(self.error_messages['empty_list'],
-                                      code='empty_list',
-                                     )
+                raise ValidationError(
+                    self.error_messages['empty_list'], code='empty_list',
+                )
 
             choices = str_choices.splitlines()
 
@@ -92,7 +92,7 @@ class CustomFieldBaseForm(CremeModelForm):
             if max_count > 1:
                 self.add_error(
                     'enum_values',
-                    self.error_messages['duplicated_choice'].format(max_choice)
+                    self.error_messages['duplicated_choice'].format(max_choice),
                 )
 
             self._choices = choices
@@ -104,9 +104,9 @@ class CustomFieldBaseForm(CremeModelForm):
         choices = self._choices
 
         if choices:
-            create_enum_value = partial(CustomFieldEnumValue.objects.create,
-                                        custom_field=instance,
-                                       )
+            create_enum_value = partial(
+                CustomFieldEnumValue.objects.create, custom_field=instance,
+            )
 
             for enum_value in choices:
                 create_enum_value(value=enum_value)
@@ -119,7 +119,7 @@ CustomFieldsBaseForm = CustomFieldBaseForm  # DEPRECATED
 
 # class CustomFieldsCTAddForm(CustomFieldsBaseForm):
 class FirstCustomFieldCreationForm(CustomFieldBaseForm):
-    content_type = EntityCTypeChoiceField(
+    content_type = core_fields.EntityCTypeChoiceField(
         label=_('Related resource'),
         help_text=_(
             'The other custom fields for this type of resource will be chosen '
@@ -169,9 +169,9 @@ class CustomFieldCreationForm(CustomFieldBaseForm):
         name = self.cleaned_data['name']
 
         if CustomField.objects.filter(content_type=self.ct, name=name).exists():
-            raise ValidationError(self.error_messages['duplicated_name'],
-                                  code='duplicated_name',
-                                 )
+            raise ValidationError(
+                self.error_messages['duplicated_name'], code='duplicated_name',
+            )
 
         return name
 
@@ -212,7 +212,7 @@ class CustomFieldsEditForm(CremeModelForm):
             self._enum_values = CustomFieldEnumValue.objects.filter(custom_field=self.instance)
 
             fields = self.fields
-            fields['old_choices'] = ListEditionField(
+            fields['old_choices'] = core_fields.ListEditionField(
                 content=[enum.value for enum in self._enum_values],
                 label=gettext('Existing choices of the list'),
                 help_text=gettext('Uncheck the choices you want to delete.'),
@@ -230,9 +230,9 @@ class CustomFieldsEditForm(CremeModelForm):
         if CustomField.objects.filter(content_type=instance.content_type, name=name)\
                               .exclude(id=instance.id)\
                               .exists():
-            raise ValidationError(self.error_messages['duplicated_name'],
-                                  code='duplicated_name',
-                                 )
+            raise ValidationError(
+                self.error_messages['duplicated_name'], code='duplicated_name',
+            )
 
         return name
 
@@ -273,9 +273,9 @@ class CustomFieldEditionForm(CremeModelForm):
         if CustomField.objects.filter(content_type=instance.content_type, name=name)\
                               .exclude(id=instance.id)\
                               .exists():
-            raise ValidationError(self.error_messages['duplicated_name'],
-                                  code='duplicated_name',
-                                 )
+            raise ValidationError(
+                self.error_messages['duplicated_name'], code='duplicated_name',
+            )
 
         return name
 
@@ -315,7 +315,7 @@ class CustomEnumAddingForm(BaseCustomEnumAddingForm):
         # cfield = super().save()  NOPE
         enum_value = CustomFieldEnumValue.objects.create(
             custom_field=self.instance,
-            value=self.cleaned_data['choice']
+            value=self.cleaned_data['choice'],
         )
 
         return enum_value
@@ -390,10 +390,11 @@ class CustomEnumDeletionForm(CremeModelForm):
                 ).exclude(id=choice_to_delete.id),
             )
         else:
-            self.fields['info'] = forms.CharField(
+            # self.fields['info'] = forms.CharField(
+            self.fields['info'] = core_fields.ReadonlyMessageField(
                 label=gettext('Information'),
-                required=False,
-                widget=Label,
+                # required=False,
+                # widget=Label,
                 initial=gettext(
                     'This choice is not used by any entity, you can delete it safely.'
                 ),
