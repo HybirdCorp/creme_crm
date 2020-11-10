@@ -35,12 +35,12 @@ from django.utils.timezone import localtime
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+# from creme.creme_core.forms import validators
 from creme.creme_core.forms import (
     CremeEntityForm,
     DatePeriodField,
     MultiCreatorEntityField,
     MultiGenericEntityField,
-    validators,
 )
 from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.models import Relation, RelationType, SettingValue
@@ -51,8 +51,8 @@ from .. import constants, get_activity_model
 from ..models import ActivitySubType, ActivityType, Calendar
 from ..setting_keys import form_user_messages_key
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
+from . import fields as act_fields
 from .activity_type import ActivityTypeField
-from .fields import UserParticipationField
 
 logger = logging.getLogger(__name__)
 Contact = get_contact_model()
@@ -234,30 +234,37 @@ class ActivityEditForm(_ActivityForm):
 
 
 class _ActivityCreateForm(_ActivityForm):
-    participating_users = ModelMultipleChoiceField(
+    # participating_users = ModelMultipleChoiceField(
+    #     label=_('Other participating users'),
+    #     queryset=get_user_model().objects.filter(is_staff=False),
+    #     required=False,
+    # )
+    participating_users = act_fields.ParticipatingUsersField(
         label=_('Other participating users'),
-        queryset=get_user_model().objects.filter(is_staff=False),
         required=False,
     )
 
-    # TODO: factorise with ParticipantCreateForm
     def clean_participating_users(self):
-        users = set()
+        # users = set()
+        #
+        # for user in self.cleaned_data['participating_users']:
+        #     if not user.is_team:
+        #         users.add(user)
+        #     else:
+        #         users.update(user.teammates.values())
+        #
+        # self.participants.update(
+        #     validators.validate_linkable_entities(
+        #         Contact.objects.filter(is_user__in=users),
+        #         self.user,
+        #     )
+        # )
+        #
+        # return users
+        user_contacts = self.cleaned_data['participating_users']
+        self.participants.update(user_contacts)
 
-        for user in self.cleaned_data['participating_users']:
-            if not user.is_team:
-                users.add(user)
-            else:
-                users.update(user.teammates.values())
-
-        self.participants.update(
-            validators.validate_linkable_entities(
-                Contact.objects.filter(is_user__in=users),
-                self.user,
-            )
-        )
-
-        return users
+        return {contact.is_user for contact in user_contacts}
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
@@ -270,7 +277,7 @@ class _ActivityCreateForm(_ActivityForm):
 
 
 class ActivityCreateForm(_ActivityCreateForm):
-    my_participation = UserParticipationField(
+    my_participation = act_fields.UserParticipationField(
         label=_('Do I participate to this activity?'), empty_label=None,
     )
 
@@ -332,9 +339,11 @@ class ActivityCreateForm(_ActivityCreateForm):
                 'The organisations of the participants will be automatically added as subjects'
             )
 
-        fields['participating_users'].queryset = get_user_model().objects.filter(
-            is_staff=False,
-        ).exclude(pk=user.id)
+        # fields['participating_users'].queryset = get_user_model().objects.filter(
+        #     is_staff=False,
+        # ).exclude(pk=user.id)
+        part_users_f = fields['participating_users']
+        part_users_f.queryset = part_users_f.queryset.exclude(pk=user.id)
 
         other_f = fields['other_participants']
         other_f.q_filter = {'is_user__isnull': True}

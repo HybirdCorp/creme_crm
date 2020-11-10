@@ -23,16 +23,18 @@ from collections import OrderedDict
 from datetime import datetime, time
 from functools import partial
 
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
-from django.forms import Field, ModelMultipleChoiceField, ValidationError
+# from django.forms import ModelMultipleChoiceField
+from django.forms import Field
 from django.forms.widgets import Select
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
 from creme import persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms import validators
+# from creme.creme_core.forms import validators
 from creme.creme_core.forms.mass_import import (
     BaseExtractorWidget,
     ImportForm4CremeEntity,
@@ -43,8 +45,8 @@ from creme.persons.models import Civility
 
 from .. import constants
 from ..models import ActivityType, Calendar
+from . import fields as act_fields
 from .activity_type import ActivityTypeField
-from .fields import UserParticipationField
 
 logger = logging.getLogger(__name__)
 Contact      = persons.get_contact_model()
@@ -149,9 +151,9 @@ def _contact_pattern(verbose_name):
 #     'L' means Last name
 @_contact_pattern(gettext_lazy('Civility FirstName LastName'))
 def _pattern_CFL(contact_as_str):
-    names     = contact_as_str.split(None, 2)
-    last_name =  names[-1].strip()
-    length    = len(names)
+    names = contact_as_str.split(None, 2)
+    last_name = names[-1].strip()
+    length = len(names)
 
     if length > 1:
         civ        = names[0] if length > 2 else None
@@ -585,13 +587,17 @@ def get_massimport_form_builder(header_dict, choices):
             types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
         )
 
-        my_participation = UserParticipationField(
+        my_participation = act_fields.UserParticipationField(
             label=_('Do I participate to this activity?'), empty_label=None,
         )
 
-        participating_users = ModelMultipleChoiceField(
+        # participating_users = ModelMultipleChoiceField(
+        #     label=_('Other participating users'),
+        #     queryset=get_user_model().objects.filter(is_staff=False),
+        #     required=False,
+        # )
+        participating_users = act_fields.ParticipatingUsersField(
             label=_('Other participating users'),
-            queryset=get_user_model().objects.filter(is_staff=False),
             required=False,
         )
         participants = ParticipantsExtractorField(
@@ -631,20 +637,24 @@ def get_massimport_form_builder(header_dict, choices):
         #     return my_participation
 
         def clean_participating_users(self):
-            # users = self.cleaned_data['participating_users']
-            users = set()
+            # # users = self.cleaned_data['participating_users']
+            # users = set()
+            #
+            # for user in self.cleaned_data['participating_users']:
+            #     if not user.is_team:
+            #         users.add(user)
+            #     else:
+            #         users.update(user.teammates.values())
+            #
+            # self.user_participants.extend(validators.validate_linkable_entities(
+            #     Contact.objects.filter(is_user__in=users), self.user,
+            # ))
+            #
+            # return users
+            user_contacts = self.cleaned_data['participating_users']
+            self.user_participants.extend(user_contacts)
 
-            for user in self.cleaned_data['participating_users']:
-                if not user.is_team:
-                    users.add(user)
-                else:
-                    users.update(user.teammates.values())
-
-            self.user_participants.extend(validators.validate_linkable_entities(
-                Contact.objects.filter(is_user__in=users), self.user,
-            ))
-
-            return users
+            return {contact.is_user for contact in user_contacts}
 
         def _pre_instance_save(self, instance, line):
             instance.type, instance.sub_type = self.cleaned_data['type_selector']
