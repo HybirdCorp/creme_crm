@@ -175,17 +175,18 @@ class UnavailabilityCreation(ActivityCreation):
 
 
 class RelatedActivityCreation(ActivityCreation):
-    form_class = act_forms.RelatedActivityCreateForm
+    # form_class = act_forms.RelatedActivityCreateForm
+    form_class = act_forms.ActivityCreateForm
     entity_pk_url_kwargs = 'entity_id'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.related_entity = None
-        self.rtype_id       = None
+        self.rtype_id = None
 
     def get(self, request, *args, **kwargs):
         self.related_entity = self.get_related_entity()
-        self.rtype_id       = self.get_rtype_id()
+        self.rtype_id = self.get_rtype_id()
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -193,17 +194,35 @@ class RelatedActivityCreation(ActivityCreation):
         self.rtype_id = self.get_rtype_id()
         return super().post(request, *args, **kwargs)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['related_entity']   = self.related_entity
-        kwargs['relation_type_id'] = self.rtype_id
+    # def get_form_kwargs(self):
+    #     kwargs = super().get_form_kwargs()
+    #     kwargs['related_entity']   = self.related_entity
+    #     kwargs['relation_type_id'] = self.rtype_id
+    #
+    #     return kwargs
+    def get_initial(self):
+        initial = super(RelatedActivityCreation, self).get_initial()
 
-        return kwargs
+        related_entity = self.related_entity
+        rtype_id = self.rtype_id
+
+        if rtype_id == constants.REL_SUB_PART_2_ACTIVITY:
+            if related_entity.is_user:
+                initial['participating_users'] = [related_entity.is_user]
+            else:
+                initial['other_participants'] = [related_entity]
+        elif rtype_id == constants.REL_SUB_ACTIVITY_SUBJECT:
+            initial['subjects'] = [related_entity]
+        else:
+            initial['linked_entities'] = [related_entity]
+
+        return initial
 
     def get_related_entity(self):
-        entity = get_object_or_404(CremeEntity,
-                                   pk=self.kwargs[self.entity_pk_url_kwargs],
-                                  ).get_real_entity()
+        entity = get_object_or_404(
+            CremeEntity,
+            pk=self.kwargs[self.entity_pk_url_kwargs],
+        ).get_real_entity()
         self.request.user.has_perm_to_link_or_die(entity)
 
         return entity

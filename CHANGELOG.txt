@@ -410,7 +410,9 @@
                 - The method 'models.Document.get_dl_url()' has been removed ; use the method 'get_download_absolute_url()' instead.
             * Activities :
                 - The view named "activities__create_activity_popup" now accepts "start" & "end" arguments in ISO8601.
-                - The ending date returned by the view named "activities__calendars_activities" has changed : "end day + 1 at 00:00" instead of "end day at 23:59"
+                - The ending date returned by the view named "activities__calendars_activities" has changed : "end day + 1 at 00:00" instead of "end day at 23:59".
+                - The class-based view 'views.activity.RelatedActivityCreation' does not pass special 'kwargs' arguments to its form any more
+                  (classical 'get_initial()' method is used instead).
                 - In JavaScript, all methods of 'creme.activities.calendar' have been removed & replaced by 'creme.activities.CalendarController'.
             * Emails :
                 - 'In 'models' :

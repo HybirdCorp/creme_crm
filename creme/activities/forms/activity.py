@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 from datetime import datetime, time, timedelta
 from functools import partial
 
@@ -500,6 +501,8 @@ class ActivityCreateForm(_ActivityCreateForm):
 
 class RelatedActivityCreateForm(ActivityCreateForm):
     def __init__(self, related_entity, relation_type_id, *args, **kwargs):
+        warnings.warn('RelatedActivityCreateForm is deprecated.', DeprecationWarning)
+
         super().__init__(*args, **kwargs)
 
         if relation_type_id == constants.REL_SUB_PART_2_ACTIVITY:
