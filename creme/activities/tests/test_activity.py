@@ -983,15 +983,17 @@ class ActivityTestCase(_ActivitiesTestCase):
         contact02 = other_user.linked_contact
 
         uri = self._build_add_related_uri(contact01)
-        response = self.assertGET200(uri)
+        response1 = self.assertGET200(uri)
 
         with self.assertNoException():
-            other_participants = response.context['form'].fields['other_participants']
+            # other_participants = response1.context['form'].fields['other_participants']
+            form = response1.context['form']
 
-        self.assertEqual([contact01], other_participants.initial)
+        # self.assertEqual([contact01], other_participants.initial)
+        self.assertListEqual([contact01], form.initial.get('other_participants'))
 
         title = 'My meeting'
-        response = self.client.post(
+        response2 = self.client.post(
             uri, follow=True,
             data={
                 'user':  user.id,
@@ -1008,8 +1010,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'participating_users': [other_user.pk],
             },
         )
-        self.assertNoFormError(response)
-        self.assertRedirects(response, contact01.get_absolute_url())
+        self.assertNoFormError(response2)
+        self.assertRedirects(response2, contact01.get_absolute_url())
 
         meeting = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(
@@ -1029,7 +1031,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(meeting.id,   relation.object_entity_id)
 
     def test_createview_related02(self):
-        "Link to a user-Contact => selected a participating user"
+        "Link to a user-Contact => selected a participating user."
         self.login()
 
         response = self.assertGET200(self._build_add_related_uri(
@@ -1037,40 +1039,50 @@ class ActivityTestCase(_ActivitiesTestCase):
         ))
 
         with self.assertNoException():
-            users = response.context['form'].fields['participating_users']
+            # users = response.context['form'].fields['participating_users']
+            form = response.context['form']
 
-        self.assertEqual([self.other_user.id], [e.id for e in users.initial])
+        # self.assertEqual([self.other_user.id], [e.id for e in users.initial])
+        self.assertListEqual([self.other_user], form.initial.get('participating_users'))
 
     @skipIfCustomOrganisation
     def test_createview_related03(self):
         "Link to an Entity which can be a subject."
-        self.login()
+        user = self.login()
 
-        dojo = Organisation.objects.create(user=self.user, name='Tendo no dojo')
+        dojo = Organisation.objects.create(user=user, name='Tendo no dojo')
         response = self.assertGET200(
             self._build_add_related_uri(dojo, constants.ACTIVITYTYPE_MEETING),
         )
 
-        with self.assertNoException():
-            subjects = response.context['form'].fields['subjects']
-
-        self.assertEqual([dojo.id], [e.id for e in subjects.initial])
+        # with self.assertNoException():
+        #     subjects = response.context['form'].fields['subjects']
+        #
+        # self.assertEqual([dojo.id], [e.id for e in subjects.initial])
+        self.assertListEqual(
+            [dojo.id],
+            [e.id for e in response.context['form'].initial.get('subjects', ())],
+        )
 
     def test_createview_related04(self):
         "Link to an Entity which cannot be a participant/subject."
-        self.login()
+        user = self.login()
 
         linked = Activity.objects.create(
-            user=self.user, title='Meet01', type_id=constants.ACTIVITYTYPE_MEETING,
+            user=user, title='Meet01', type_id=constants.ACTIVITYTYPE_MEETING,
         )
         response = self.assertGET200(
             self._build_add_related_uri(linked, constants.ACTIVITYTYPE_PHONECALL)
         )
 
-        with self.assertNoException():
-            linked_entities = response.context['form'].fields['linked_entities']
-
-        self.assertEqual([linked.id], [e.id for e in linked_entities.initial])
+        # with self.assertNoException():
+        #     linked_entities = response.context['form'].fields['linked_entities']
+        #
+        # self.assertEqual([linked.id], [e.id for e in linked_entities.initial])
+        self.assertListEqual(
+            [linked.id],
+            [e.id for e in response.context['form'].initial.get('linked_entities', ())],
+        )
 
     def test_createview_related05(self):
         "Not allowed to LINK"
@@ -1088,7 +1100,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertGET403(self._build_add_related_uri(linked, constants.ACTIVITYTYPE_PHONECALL))
 
     @skipIfCustomContact
-    def test_createview_related_meeting01(self):
+    def test_createview_related_meeting(self):
         "Meeting forced."
         user = self.login()
 
@@ -1144,7 +1156,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
     @skipIfCustomContact
-    def test_createview_related_other01(self):
+    def test_createview_related_other(self):
         user = self.login()
 
         ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
