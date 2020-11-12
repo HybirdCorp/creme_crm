@@ -6,14 +6,14 @@
 {% block brick_geolocation_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function(event, brick) {
-             var controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
+             return new creme.geolocation.PersonsNeighborhoodBrick(brick, {
                  mapController: new creme.geolocation.LeafletMapController({
                      nominatimUrl: '{{nominatim_url}}',
                      tileMapUrl: '{{tilemap_url}}',
                      tileMapAttribution: '&copy; <a href="{{copyright_url}}">{{copyright_title}}</a>'
                  }),
                  radius: {{radius}},
-                 neighboursUrl: '{% url 'geolocation__neighbours' %}',
+                 neighboursUrl: '{% url 'geolocation__neighbours' %}'
              });
          });
     </script>
