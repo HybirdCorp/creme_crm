@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-11-2020 pour la version 2.2 de Creme
+:Version: 13-11-2020 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -578,7 +578,7 @@ d'entité : ::
 
         creme_menu.get('creation', 'any_forms') \
                   .get_or_create_group('persons-directory', _('Directory'), priority=10) \
-                  .add('create_beaver', Beaver)  # <- vous pouvez utiliser un paramètre 'priority'
+                  .add_link('create_beaver', Beaver)  # <- vous pouvez utiliser un paramètre 'priority'
 
 
 Puisque dans notre exemple, nous souhaitons insérer notre entrée dans le groupe "Annuaire",
