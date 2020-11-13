@@ -184,6 +184,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomOrganisation
     def test_createview01(self):
         user = self.login()
+        other_user = self.other_user
 
         create_contact = partial(Contact.objects.create, user=user)
         ranma = create_contact(first_name='Ranma', last_name='Saotome')
@@ -191,7 +192,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
-        my_calendar = Calendar.objects.get_default_calendar(user)
+        def_calendar = Calendar.objects.get_default_calendar(user)
+        my_calendar = Calendar.objects.create(
+            user=user, name='My main Calendar', is_public=True,
+        )
 
         # GET ---
         url = self.ACTIVITY_CREATION_URL
@@ -206,9 +210,15 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(lv_url,                  context.get('cancel_url'))
 
         with self.assertNoException():
-            my_part_f = context['form'].fields['my_participation']
+            fields = context['form'].fields
+            end_f = fields['end']
+            my_part_f = fields['my_participation']
 
-        self.assertEqual((True, my_calendar.id), my_part_f.initial)
+        self.assertEqual(
+            _('Default duration of the type will be used if you leave blank.'),
+            end_f.help_text,
+        )
+        self.assertTupleEqual((True, def_calendar.id), my_part_f.initial)
 
         # POST ---
         title = 'My task'
@@ -230,6 +240,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'my_participation_0': True,
                 'my_participation_1': my_calendar.pk,
                 'other_participants': self.formfield_value_multi_creator_entity(genma),
+                'participating_users': [other_user.id],
                 'subjects':           self.formfield_value_multi_generic_entity(ranma),
                 'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
             },
@@ -248,14 +259,21 @@ class ActivityTestCase(_ActivitiesTestCase):
             self.create_datetime(year=2010, month=1, day=10, hour=18, minute=45),
             act.end,
         )
+        # self.assertListEqual([my_calendar], [*act.calendars.all()])
+        self.assertCountEqual(
+            [my_calendar, Calendar.objects.get_default_calendar(other_user)],
+            [*act.calendars.all()],
+        )
+
+        REL_SUB_PART_2_ACTIVITY = constants.REL_SUB_PART_2_ACTIVITY
+        self.assertRelationCount(1, user.linked_contact,       REL_SUB_PART_2_ACTIVITY, act)
+        self.assertRelationCount(1, genma,                     REL_SUB_PART_2_ACTIVITY, act)
+        self.assertRelationCount(1, other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, act)
+        self.assertRelationCount(1, ranma, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
+        self.assertRelationCount(1, dojo,  constants.REL_SUB_LINKED_2_ACTIVITY, act)
 
         # * 2: relations have their symmetric ones
-        self.assertEqual(4 * 2, Relation.objects.count())
-
-        self.assertRelationCount(1, user.linked_contact, constants.REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, genma,               constants.REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, ranma,               constants.REL_SUB_ACTIVITY_SUBJECT,  act)
-        self.assertRelationCount(1, dojo,                constants.REL_SUB_LINKED_2_ACTIVITY, act)
+        self.assertEqual(5 * 2, Relation.objects.count())
 
         self.assertRedirects(response, act.get_absolute_url())
         self.assertTemplateUsed(response, 'activities/view_activity.html')
@@ -321,6 +339,17 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
         me = user.linked_contact
 
+        response1 = self.assertGET200(self.ACTIVITY_CREATION_URL)
+
+        with self.assertNoException():
+            subjects_f = response1.context['form'].fields['subjects']
+
+        self.assertEqual(
+            _('The organisations of the participants will be automatically added as subjects'),
+            subjects_f.help_text,
+        )
+
+        # ---
         create_contact = partial(Contact.objects.create, user=user)
         ranma = create_contact(first_name='Ranma', last_name='Saotome')
         genma = create_contact(first_name='Genma', last_name='Saotome')
@@ -353,8 +382,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             default_hour_duration='00:15:00',
             is_custom=True,
         )
-        response = self.client.post(
-            self.ACTIVITY_CREATION_URL, follow=True,
+        response2 = self.client.post(
+            self.ACTIVITY_CREATION_URL,
+            follow=True,
             data={
                 'user':               user.id,
                 'title':              title,
@@ -370,7 +400,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'type_selector':      self._acttype_field_value(type_id),
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         act = self.get_object_or_fail(Activity, type=type_id, title=title)
         self.assertEqual(status, act.status)
@@ -484,6 +514,14 @@ class ActivityTestCase(_ActivitiesTestCase):
         sv.value = False  # We disable the auto subjects feature
         sv.save()
 
+        response1 = self.assertGET200(self.ACTIVITY_CREATION_URL)
+
+        with self.assertNoException():
+            subjects_f = response1.context['form'].fields['subjects']
+
+        self.assertFalse(subjects_f.help_text)
+
+        # ---
         dojo = Organisation.objects.create(user=user, name='Tendo Dojo')
         Relation.objects.create(
             subject_entity=me, type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo, user=user,
@@ -491,7 +529,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title = 'My task'
         my_calendar = Calendar.objects.get_default_calendar(user)
-        response = self.client.post(
+        response2 = self.client.post(
             self.ACTIVITY_CREATION_URL,
             follow=True,
             data={
@@ -503,7 +541,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'my_participation_1': my_calendar.pk,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         act = self.get_object_or_fail(Activity, title=title)
         self.assertRelationCount(1, me,   constants.REL_SUB_PART_2_ACTIVITY,  act)
@@ -633,6 +671,29 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
         self.assertFormError(
             response, 'form', 'other_participants', _('This entity does not exist.')
+        )
+
+    def test_createview_errors04(self):
+        "participating_users contains request.user."
+        user = self.login()
+
+        response = self.assertPOST200(
+            self.ACTIVITY_CREATION_URL,
+            follow=True,
+            data={
+                'user':               user.id,
+                'title':              'My task',
+                'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'my_participation_0': True,
+                'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
+                'participating_users': [user.pk],
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'participating_users',
+            _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                'value': user.id,
+            }
         )
 
     @skipIfNotInstalled('creme.assistants')
@@ -1899,13 +1960,23 @@ class ActivityTestCase(_ActivitiesTestCase):
         other_user = self.other_user
 
         url = self.ADD_INDISPO_URL
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'activities/add_activity_form.html')
-        self.assertTemplateUsed(response, 'activities/frags/indispo_form_content.html')
-        self.assertEqual(_('Create an unavailability'), response.context.get('title'))
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'activities/add_activity_form.html')
+        self.assertTemplateUsed(response1, 'activities/frags/indispo_form_content.html')
+        self.assertEqual(_('Create an unavailability'), response1.context.get('title'))
 
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            end_f = fields['end']
+            p_user_f = fields['participating_users']
+
+        self.assertFalse(end_f.help_text)
+        self.assertEqual(_('Unavailable users'), p_user_f.label)
+        self.assertTrue(p_user_f.required)
+
+        # ---
         title = 'Away'
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'user':               user.pk,
@@ -1917,7 +1988,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'participating_users': [user.id, other_user.id],
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         act = self.get_object_or_fail(Activity, type=constants.ACTIVITYTYPE_INDISPO, title=title)
         self.assertIsNone(act.sub_type)
