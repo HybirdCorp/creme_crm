@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import date
 from decimal import Decimal
 from functools import partial
 
@@ -16,7 +17,11 @@ from creme.creme_core.models import (
 )
 from creme.persons.tests.base import skipIfCustomOrganisation
 
-from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
+from ..constants import (
+    REL_SUB_BILL_ISSUED,
+    REL_SUB_BILL_RECEIVED,
+    REL_SUB_CREDIT_NOTE_APPLIED,
+)
 from ..models import CreditNoteStatus
 from .base import (
     CreditNote,
@@ -142,7 +147,7 @@ class CreditNoteTestCase(_BillingTestCase):
     def test_unlink_from_invoice(self):
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
-        self.assertEqual([], invoice.get_credit_notes())
+        self.assertListEqual([], invoice.get_credit_notes())
 
         create_line = partial(ProductLine.objects.create, user=user)
         create_line(
@@ -313,18 +318,17 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post(
-            url, follow=True,
+            url,
+            follow=True,
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
             response, 'form', 'credit_notes', _('This entity does not exist.'),
         )
 
-        self.assertFalse(
-            Relation.objects.filter(
-                object_entity=invoice, subject_entity=credit_note,
-            ),
-        )
+        self.assertFalse(Relation.objects.filter(
+            object_entity=invoice, subject_entity=credit_note,
+        ))
         self.assertInvoiceTotalToPay(invoice, 300)
 
         # Check invoice view (bug in block_credit_note.html)
@@ -393,7 +397,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_addrelated_view_already_not_same_target(self):
-        "Cannot attach credit note in US Dollar to invoice in Euro"
+        "Cannot attach credit note in US Dollar to invoice in Euro."
         user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
 
@@ -441,11 +445,11 @@ class CreditNoteTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -471,16 +475,66 @@ class CreditNoteTestCase(_BillingTestCase):
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                # EntityCredentials.LINK |   # <==
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                # | EntityCredentials.LINK   # <==
+                | EntityCredentials.UNLINK
             ),
         )
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
         self.assertGET403(reverse('billing__link_to_cnotes', args=(invoice.id,)))
+
+    def test_editview(self):
+        user = self.login()
+
+        credit_note, source, target  = self.create_credit_note_n_orgas('credit Note 001')
+
+        url = credit_note.get_edit_absolute_url()
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            number_f = response1.context['form'].fields['number']
+
+        self.assertFalse(number_f.help_text)
+
+        name = credit_note.name.title()
+        currency = Currency.objects.create(
+            name='Martian dollar', local_symbol='M$',
+            international_symbol='MUSD', is_custom=True,
+        )
+        status = CreditNoteStatus.objects.exclude(id=credit_note.status_id)[0]
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': name,
+
+                'issuing_date':     '2020-2-12',
+                'expiration_date':  '2020-3-14',
+
+                'status': status.id,
+
+                'currency': currency.id,
+                'discount': Decimal(),
+
+                'source': source.id,
+                'target': self.formfield_value_generic_entity(target),
+            },
+        )
+        self.assertNoFormError(response2)
+
+        credit_note = self.refresh(credit_note)
+        self.assertEqual(name,                             credit_note.name)
+        self.assertEqual(date(year=2020, month=2, day=12), credit_note.issuing_date)
+        self.assertEqual(date(year=2020, month=3, day=14), credit_note.expiration_date)
+        self.assertEqual(currency,                         credit_note.currency)
+        self.assertEqual(status,                           credit_note.status)
+
+        self.assertRelationCount(1, credit_note, REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, credit_note, REL_SUB_BILL_RECEIVED, target)
 
     @skipIfCustomInvoice
     def test_addrelated_view_badrelated(self):
@@ -632,7 +686,7 @@ class CreditNoteTestCase(_BillingTestCase):
         )
         self.assertEqual(
             _('Edit «{object}»').format(object=credit_note),
-            response.context.get('title')
+            response.context.get('title'),
         )
 
         # ---
