@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 13-11-2020 pour la version 2.2 de Creme
+:Version: 16-11-2020 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -479,7 +479,7 @@ Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette URL : ::
 
     urlpatterns = [
         re_path(r'^beavers[/]?$',                   beaver.listview,                 name='beavers__list_beavers'),
-        re_path(r'^beaver/add[/]?$',                beaver.EntityCreation.as_view(), name='beavers__create_beaver'),
+        re_path(r'^beaver/add[/]?$',                beaver.BeaverCreation.as_view(), name='beavers__create_beaver'),
         re_path(r'^beaver/(?P<beaver_id>\d+)[/]?$', beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),  # < -- NEW
     ]
 
@@ -519,7 +519,7 @@ Rajoutons l'URL associée : ::
 
     urlpatterns = [
         re_path(r'^beavers[/]?$',                        beaver.listview,                 name='beavers__list_beavers'),
-        re_path(r'^beaver/add[/]?$',                     beaver.EntityCreation.as_view(), name='beavers__create_beaver'),
+        re_path(r'^beaver/add[/]?$',                     beaver.BeaverCreation.as_view(), name='beavers__create_beaver'),
         re_path(r'^beaver/edit/(?P<beaver_id>\d+)[/]?$', beaver.BeaverEdition.as_view(),  name='beavers__edit_beaver'),  # < -- NEW
         re_path(r'^beaver/(?P<beaver_id>\d+)[/]?$',      beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),
     ]
