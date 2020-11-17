@@ -100,7 +100,13 @@ class Migration(migrations.Migration):
                 # ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('minutes', models.TextField(verbose_name='Minutes', blank=True)),
                 ('place', models.CharField(max_length=500, verbose_name='Activity place', blank=True)),
-                ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hour)', blank=True)),
+                (
+                    'duration',
+                    models.PositiveIntegerField(
+                        null=True, verbose_name='Duration (in hour)', blank=True,
+                        help_text='It is only informative and is not used to compute the end time.',
+                    )
+                ),
                 ('is_all_day', models.BooleanField(blank=True, default=False, verbose_name='All day?')),
                 ('busy', models.BooleanField(default=False, verbose_name='Busy?')),
                 ('floating_type', models.PositiveIntegerField(default=1, verbose_name='Floating type', editable=False)),
