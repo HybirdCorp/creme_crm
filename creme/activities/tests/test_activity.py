@@ -213,12 +213,14 @@ class ActivityTestCase(_ActivitiesTestCase):
             fields = context['form'].fields
             end_f = fields['end']
             my_part_f = fields['my_participation']
+            allday_f = fields['is_all_day']
 
         self.assertEqual(
             _('Default duration of the type will be used if you leave blank.'),
             end_f.help_text,
         )
         self.assertTupleEqual((True, def_calendar.id), my_part_f.initial)
+        self.assertFalse(allday_f.help_text)
 
         # POST ---
         title = 'My task'
@@ -1969,10 +1971,18 @@ class ActivityTestCase(_ActivitiesTestCase):
             fields = response1.context['form'].fields
             end_f = fields['end']
             p_user_f = fields['participating_users']
+            allday_f = fields['is_all_day']
 
         self.assertFalse(end_f.help_text)
         self.assertEqual(_('Unavailable users'), p_user_f.label)
         self.assertTrue(p_user_f.required)
+        self.assertEqual(
+            _(
+                'An unavailability always busies its participants ; mark it as '
+                '«all day» if you do not set the start/end times.'
+            ),
+            allday_f.help_text,
+        )
 
         # ---
         title = 'Away'

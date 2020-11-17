@@ -555,6 +555,12 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
             'place', 'description', 'minutes', 'busy', 'status',
             'duration',
         )  # TODO: test
+        help_texts = {
+            'is_all_day': _(
+                'An unavailability always busies its participants ; mark it as '
+                '«all day» if you do not set the start/end times.'
+            ),
+        }
 
     blocks = _ActivityCreateForm.blocks.new(
         (
