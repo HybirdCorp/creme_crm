@@ -964,24 +964,7 @@ class TinyMCEEditor(widgets.Textarea):
             'ui-creme-input ui-creme-widget ')
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type
-#         final_attrs['plugin'] = 'tinymce'
-#         final_attrs['plugin_options'] = json_dump({
-#             'mode':                            'textareas',
-#             # 'script_url':                      f'{settings.MEDIA_URL}tiny_mce/tiny_mce.js',
-#             'script_url':                      '/tiny_mce/tiny_mce.js',  # See root urls.py
-#             'convert_urls':                    False,
-#             'theme':                           'advanced',
-#             'height':                          300,
-#             'plugins':                         "spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,fullpage",  # NOQA
-#             'theme_advanced_buttons1':         "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",  # NOQA
-#             'theme_advanced_buttons2':         "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",  # NOQA
-#             'theme_advanced_buttons3':         "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",  # NOQA
-#             'theme_advanced_buttons4':         "insertlayer,moveforward,movebackward,absolute,|,styleprops,spellchecker,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,blockquote,pagebreak,|,insertfile,insertimage",  # NOQA
-#             'theme_advanced_toolbar_location': 'top',
-#             'theme_advanced_toolbar_align':    'left',
-#             'theme_advanced_path_location':    'bottom',
-#             'theme_advanced_resizing':         True,
-#         })
+        final_attrs['basepath'] = 'tiny_mce/'  # See root urls.py
 
         return context
 

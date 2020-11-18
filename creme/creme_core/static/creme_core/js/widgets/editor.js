@@ -20,21 +20,27 @@
 "use strict";
 
 // HACK : force the right urls in tinymce globals
-function setUpTinymce() {
-    var location = '${protocol}//${host}'.template(
-        creme.ajax.parseUrl(window.location.href)
-    );
+function setUpTinymce(url) {
+    var base;
 
-    tinymce.documentBaseURL = location + '/tiny_mce';
+    if (!url.match(/^(http|https):\/\//)) {
+        base = '${protocol}//${host}/'.template(creme.ajax.parseUrl(window.location.href));
+        url = base + url;
+    } else {
+        base = '${protocol}//${host}/'.template(creme.ajax.parseUrl(url));
+    }
+
+    tinymce.documentBaseURL = url;
     tinymce.baseURL = tinymce.documentBaseURL;
     tinymce.baseURI = new tinymce.util.URI(tinymce.documentBaseURL, {
-        base_uri: location
+        base_uri: base
     });
 }
 
 creme.widget.Editor = creme.widget.declare('ui-creme-editor', {
     options: {
-        datatype: 'string'
+        datatype: 'string',
+        basepath: '/tiny_mce'
     },
 
     _create: function(element, options, cb, sync) {
@@ -47,7 +53,7 @@ creme.widget.Editor = creme.widget.declare('ui-creme-editor', {
         var id = element.attr('id') || creme.object.uuid();
         element.attr('id', id);
 
-        setUpTinymce();
+        setUpTinymce(options.basepath);
 
         var editor = this._editor = new tinymce.Editor(id, {
             mode: 'textareas',
@@ -122,7 +128,6 @@ creme.widget.Editor = creme.widget.declare('ui-creme-editor', {
             theme_advanced_resizing: true
         });
 
-        editor.onInit.add(this._onEditorInit.bind(this));
         editor.render();
 
         creme.object.invoke(cb, element);
@@ -130,9 +135,9 @@ creme.widget.Editor = creme.widget.declare('ui-creme-editor', {
     },
 
     _destroy: function(element) {
-    },
-
-    _onEditorInit: function() {
+        if (this._editor) {
+            this._editor.remove();
+        }
     },
 
     editor: function(element) {
