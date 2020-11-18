@@ -3,18 +3,11 @@
 {% load creme_core_tags %}
 
 {% block test_title %}JQuery Color picker{% endblock %}
-{% block test_header %}
-    <style type="text/css">
-    </style>
-
-    <script type="text/javascript">
-    </script>
-{% endblock %}
 {% block test_content %}
 <ul>
     <li>
         <h4>Tiny MCE</h4>
-        <textarea widget="ui-creme-editor" class="ui-creme-editor ui-creme-widget widget-auto"></textarea>
+        <textarea widget="ui-creme-editor" class="ui-creme-editor ui-creme-widget widget-auto" basepath="tiny_mce"></textarea>
     </li>
 </ul>
 {% endblock %}
