@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-20 20:07+0200\n"
+"POT-Creation-Date: 2020-11-20 16:28+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -198,11 +198,11 @@ msgstr "Adresse de facturation"
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/contact.py:47 populate.py:381
+#: forms/contact.py:46 populate.py:381
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
-#: forms/contact.py:89
+#: forms/contact.py:91 views/contact.py:100
 #, python-brace-format
 msgid "Status in «{organisation}»"
 msgstr "Statut dans «{organisation}»"
@@ -211,31 +211,31 @@ msgstr "Statut dans «{organisation}»"
 msgid "Can not merge 2 Contacts which represent some users."
 msgstr "Impossible de fusionner 2 Contacts représentant des utilisateurs"
 
-#: forms/organisation.py:47
+#: forms/organisation.py:46 views/organisation.py:71
 msgid "Related managed organisation"
 msgstr "Société gérée liée"
 
-#: forms/organisation.py:52
+#: forms/organisation.py:51 views/organisation.py:76
 msgid "Relationships"
 msgstr "Relations"
 
-#: forms/organisation.py:54
+#: forms/organisation.py:53 views/organisation.py:78
 msgid "Is a customer"
 msgstr "Est un client"
 
-#: forms/organisation.py:55
+#: forms/organisation.py:54 views/organisation.py:79
 msgid "Is a prospect"
 msgstr "Est un prospect"
 
-#: forms/organisation.py:56
+#: forms/organisation.py:55 views/organisation.py:80
 msgid "Is a suspect"
 msgstr "Est un suspect"
 
-#: forms/organisation.py:61
+#: forms/organisation.py:60 views/organisation.py:86
 msgid "Suspect / prospect / customer"
 msgstr "Suspect / prospect / client"
 
-#: forms/organisation.py:93
+#: forms/organisation.py:102
 msgid "Set as managed"
 msgstr "Marquer comme géré"
 
@@ -1021,6 +1021,11 @@ msgstr "Créer un contact lié"
 msgid "forbidden"
 msgstr ""
 
+# Already in creme_core
+#: templates/persons/buttons/become.html:4
+msgid "Relationship"
+msgstr ""
+
 #: templates/persons/frags/billing_block.html:12
 msgid "Copy the address to right side"
 msgstr "Copier l'adresse à droite"
@@ -1086,29 +1091,29 @@ msgstr "Modifier l'adresse de facturation pour «{entity}»"
 msgid "Edit shipping address for «{entity}»"
 msgstr "Modifier l'adresse de livraison pour «{entity}»"
 
-#: views/contact.py:51
+#: views/contact.py:55
 #, python-brace-format
 msgid "Create a contact related to «{organisation}»"
 msgstr "Créer un contact lié à «{organisation}»"
 
-#: views/organisation.py:56
+#: views/organisation.py:59
 msgid "Create a suspect / prospect / customer"
 msgstr "Créer un suspect / prospect / client"
 
-#: views/organisation.py:83
+#: views/organisation.py:139
 msgid "List of my suspects / prospects / customers"
 msgstr "Liste de mes suspects / prospects / clients"
 
-#: views/organisation.py:114
+#: views/organisation.py:170
 msgid "Add some managed organisations"
 msgstr "Ajouter des sociétés gérées"
 
 # Already in creme_core
-#: views/organisation.py:115
+#: views/organisation.py:171
 msgid "Save the modifications"
 msgstr ""
 
-#: views/organisation.py:171
+#: views/organisation.py:227
 msgid "You must have at least one managed organisation."
 msgstr "Vous devez avoir au moins une société gérée."
 

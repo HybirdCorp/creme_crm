@@ -18,14 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
+import warnings
+
 from django.forms import ModelChoiceField
-from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.models import Relation, RelationType
 
 from .base import _BasePersonForm
@@ -65,14 +64,14 @@ class ContactForm(_BasePersonForm):
 
 
 class RelatedContactForm(ContactForm):
-    # TODO: move the block "relationships" ? (need to improve the block-manager
-    #       in order to avoid duplicating all the list of fields here)
     rtype_for_organisation = ModelChoiceField(
         label='Status in the organisation',  # NB: updated in __init__
         queryset=RelationType.objects.none(),
     )
 
     def __init__(self, linked_orga, rtype=None, *args, **kwargs):
+        warnings.warn('RelatedContactForm is deprecated.', DeprecationWarning)
+
         if rtype:
             kwargs['forced_relations'] = [
                 Relation(type=rtype, object_entity=linked_orga),
@@ -85,11 +84,13 @@ class RelatedContactForm(ContactForm):
         if rtype:
             del self.fields['rtype_for_organisation']
         else:
+            from django.contrib.contenttypes.models import ContentType
+            from django.utils.translation import gettext
+
             rtype_f = self.fields['rtype_for_organisation']
             rtype_f.label = gettext('Status in «{organisation}»').format(
                 organisation=linked_orga,
             )
-            # TODO: factorise (see User form hooking)
             get_ct = ContentType.objects.get_for_model
             rtype_f.queryset = RelationType.objects.filter(
                 subject_ctypes=get_ct(Contact),
@@ -99,6 +100,7 @@ class RelatedContactForm(ContactForm):
             )
 
     def clean_user(self):
+        from creme.creme_core.forms.validators import validate_linkable_model
         return validate_linkable_model(Contact, self.user, owner=self.cleaned_data['user'])
 
     def _get_relations_to_create(self):

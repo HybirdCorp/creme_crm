@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import forms as core_corms
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms import validators
-from creme.creme_core.models import Relation
 
 from .. import constants, get_organisation_model
 from .base import _BasePersonForm
@@ -42,7 +42,6 @@ class OrganisationForm(_OrganisationBaseForm):
 
 
 class CustomerForm(_OrganisationBaseForm):
-    # TODO: manage not viewable organisations (should not be very useful anyway)
     customers_managed_orga = forms.ModelChoiceField(
         label=_('Related managed organisation'),
         queryset=Organisation.objects.filter_managed_by_creme(),
@@ -63,7 +62,13 @@ class CustomerForm(_OrganisationBaseForm):
         ),
     )
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn('CustomerForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
     def _get_relations_to_create(self):
+        from creme.creme_core.models import Relation
+
         instance = self.instance
         cdata = self.cleaned_data
 
@@ -77,13 +82,17 @@ class CustomerForm(_OrganisationBaseForm):
         )
 
     def clean_customers_managed_orga(self):
-        return validators.validate_linkable_entity(
+        from creme.creme_core.forms.validators import validate_linkable_entity
+
+        return validate_linkable_entity(
             entity=self.cleaned_data['customers_managed_orga'],
             user=self.user,
         )
 
     def clean_user(self):
-        return validators.validate_linkable_model(
+        from creme.creme_core.forms.validators import validate_linkable_model
+
+        return validate_linkable_model(
             model=Organisation, user=self.user, owner=self.cleaned_data['user'],
         )
 
