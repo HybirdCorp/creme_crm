@@ -20,25 +20,29 @@
 
 from typing import Optional, Type
 
-from django.forms.forms import BaseForm
+from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from creme import persons
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import RelationType
+from creme.creme_core.forms.validators import validate_linkable_model
+from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.views import generic
 
-from .. import get_contact_model, get_organisation_model
 from ..constants import DEFAULT_HFILTER_CONTACT
 from ..forms import contact as c_forms
 from ..models import AbstractOrganisation
 
-Contact = get_contact_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 
 class _ContactBaseCreation(generic.EntityCreation):
     model = Contact
-    form_class: Type[BaseForm] = c_forms.ContactForm
+    form_class: Type[forms.BaseForm] = c_forms.ContactForm
     template_name = 'persons/add_contact_form.html'
 
 
@@ -47,7 +51,7 @@ class ContactCreation(_ContactBaseCreation):
 
 
 class RelatedContactCreation(_ContactBaseCreation):
-    form_class: Type[BaseForm] = c_forms.RelatedContactForm
+    # form_class = c_forms.RelatedContactForm
     title = _('Create a contact related to «{organisation}»')
     orga_id_url_kwarg = 'orga_id'
     rtype_id_url_kwarg = 'rtype_id'
@@ -70,16 +74,70 @@ class RelatedContactCreation(_ContactBaseCreation):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['linked_orga'] = self.linked_orga
-        kwargs['rtype'] = self.get_rtype()
+        # kwargs['linked_orga'] = self.linked_orga
+        # kwargs['rtype'] = self.get_rtype()
+
+        rtype = self.get_rtype()
+        if rtype:
+            kwargs['forced_relations'] = [
+                Relation(object_entity=self.linked_orga, type=rtype),
+            ]
 
         return kwargs
 
+    def get_form_class(self):
+        form_cls = super().get_form_class()
+        rtype = self.get_rtype()
+
+        if rtype:
+            return form_cls
+
+        linked_orga = self.linked_orga
+        get_ct = ContentType.objects.get_for_model
+
+        class RelatedContactForm(form_cls):
+            rtype_for_organisation = forms.ModelChoiceField(
+                label=gettext('Status in «{organisation}»').format(
+                    organisation=linked_orga,
+                ),
+                # TODO: factorise (see User form hooking)
+                queryset=RelationType.objects.filter(
+                    subject_ctypes=get_ct(Contact),
+                    symmetric_type__subject_ctypes=get_ct(Organisation),
+                    is_internal=False,
+                ),
+            )
+
+            blocks = form_cls.blocks.new(
+                ('relation_to_orga', 'Status in organisation', ('rtype_for_organisation',)),
+            )
+
+            def clean_user(this):
+                super().clean_user()
+
+                return validate_linkable_model(
+                    Contact, this.user, owner=this.cleaned_data['user'],
+                )
+
+            def _get_relations_to_create(this):
+                relations = super()._get_relations_to_create()
+                rtype = this.cleaned_data.get('rtype_for_organisation')
+                instance = this.instance
+
+                if rtype:
+                    relations.append(Relation(
+                        subject_entity=instance,
+                        type=rtype,
+                        object_entity=self.linked_orga,
+                        user=instance.user,
+                    ))
+
+                return relations
+
+        return RelatedContactForm
+
     def get_linked_orga(self) -> AbstractOrganisation:
-        orga = get_object_or_404(
-            get_organisation_model(),
-            id=self.kwargs[self.orga_id_url_kwarg],
-        )
+        orga = get_object_or_404(Organisation, id=self.kwargs[self.orga_id_url_kwarg])
 
         user = self.request.user
         user.has_perm_to_view_or_die(orga)  # Displayed in the form....
@@ -130,7 +188,7 @@ class ContactDetail(generic.EntityDetail):
 
 class ContactEdition(generic.EntityEdition):
     model = Contact
-    form_class: Type[BaseForm] = c_forms.ContactForm
+    form_class: Type[forms.BaseForm] = c_forms.ContactForm
     template_name = 'persons/edit_contact_form.html'
     pk_url_kwarg = 'contact_id'
 

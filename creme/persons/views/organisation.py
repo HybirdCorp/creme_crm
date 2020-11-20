@@ -20,9 +20,9 @@
 
 from typing import Type
 
+from django import forms
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
-from django.forms.forms import BaseForm
 from django.http import HttpResponse
 # from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -31,7 +31,9 @@ from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.forms import validators
 from creme.creme_core.gui.listview import CreationButton
+from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic  # decorators
 
@@ -43,21 +45,75 @@ Organisation = get_organisation_model()
 
 class OrganisationCreationBase(generic.EntityCreation):
     model = Organisation
-    form_class: Type[BaseForm] = orga_forms.OrganisationForm
+    form_class: Type[forms.BaseForm] = orga_forms.OrganisationForm
     template_name = 'persons/add_organisation_form.html'
 
 
+# TODO: merge with OrganisationCreationBase
 class OrganisationCreation(OrganisationCreationBase):
     pass
 
 
 class CustomerCreation(OrganisationCreationBase):
-    form_class = orga_forms.CustomerForm
+    # form_class = orga_forms.CustomerForm
     title = _('Create a suspect / prospect / customer')
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
         user.has_perm_to_link_or_die(Organisation)
+
+    def get_form_class(self):
+        form_cls = super().get_form_class()
+
+        class CustomerForm(form_cls):
+            # TODO: manage not viewable organisations (should not be very useful anyway)
+            customers_managed_orga = forms.ModelChoiceField(
+                label=_('Related managed organisation'),
+                queryset=Organisation.objects.filter_managed_by_creme(),
+                empty_label=None,
+            )
+            customers_rtypes = forms.MultipleChoiceField(
+                label=_('Relationships'),
+                choices=(
+                    (constants.REL_SUB_CUSTOMER_SUPPLIER, _('Is a customer')),
+                    (constants.REL_SUB_PROSPECT, _('Is a prospect')),
+                    (constants.REL_SUB_SUSPECT, _('Is a suspect')),
+                ),
+            )
+
+            blocks = form_cls.blocks.new((
+                'customer_relation',
+                _('Suspect / prospect / customer'),
+                ('customers_managed_orga', 'customers_rtypes'),
+            ))
+
+            def _get_relations_to_create(this):
+                instance = this.instance
+                cdata = this.cleaned_data
+
+                return super()._get_relations_to_create().extend(
+                    Relation(
+                        user=instance.user,
+                        subject_entity=instance,
+                        type_id=rtype_id,
+                        object_entity=cdata['customers_managed_orga'],
+                    ) for rtype_id in cdata['customers_rtypes']
+                )
+
+            def clean_customers_managed_orga(this):
+                return validators.validate_linkable_entity(
+                    entity=this.cleaned_data['customers_managed_orga'],
+                    user=this.user,
+                )
+
+            def clean_user(this):
+                super().clean_user()
+
+                return validators.validate_linkable_model(
+                    model=Organisation, user=this.user, owner=this.cleaned_data['user'],
+                )
+
+        return CustomerForm
 
 
 class OrganisationDetail(generic.EntityDetail):
@@ -68,7 +124,7 @@ class OrganisationDetail(generic.EntityDetail):
 
 class OrganisationEdition(generic.EntityEdition):
     model = Organisation
-    form_class: Type[BaseForm] = orga_forms.OrganisationForm
+    form_class: Type[forms.BaseForm] = orga_forms.OrganisationForm
     template_name = 'persons/edit_organisation_form.html'
     pk_url_kwarg = 'orga_id'
 

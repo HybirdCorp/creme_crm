@@ -117,12 +117,15 @@ class ContactTestCase(_BaseTestCase):
         count = Contact.objects.count()
         first_name = 'Spike'
         last_name  = 'Spiegel'
-        response = self.client.post(url, follow=True,
-                                    data={'user':       user.pk,
-                                          'first_name': first_name,
-                                          'last_name':  last_name,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':       user.pk,
+                'first_name': first_name,
+                'last_name':  last_name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(count + 1, Contact.objects.count())
 
@@ -135,7 +138,7 @@ class ContactTestCase(_BaseTestCase):
 
     @skipIfCustomAddress
     def test_createview02(self):
-        "With addresses"
+        "With addresses."
         user = self.login()
 
         first_name = 'Spike'
@@ -153,14 +156,17 @@ class ContactTestCase(_BaseTestCase):
         self.assertNotIn('billing_address-name', fields)
         self.assertNotIn('shipping_address-name', fields)
 
-        response = self.client.post(url, follow=True,
-                                    data={'user':                     user.pk,
-                                          'first_name':               first_name,
-                                          'last_name':                'Spiegel',
-                                          'billing_address-address':  b_address,
-                                          'shipping_address-address': s_address,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':                     user.pk,
+                'first_name':               first_name,
+                'last_name':                'Spiegel',
+                'billing_address-address':  b_address,
+                'shipping_address-address': s_address,
+            },
+        )
         self.assertNoFormError(response)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name)
@@ -180,19 +186,24 @@ class ContactTestCase(_BaseTestCase):
     def test_editview01(self):
         user = self.login()
         first_name = 'Faye'
-        contact = Contact.objects.create(user=user, first_name=first_name, last_name='Valentine')
+        contact = Contact.objects.create(
+            user=user, first_name=first_name, last_name='Valentine',
+        )
 
         url = contact.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'persons/edit_contact_form.html')
 
         last_name = 'Spiegel'
-        response = self.assertPOST200(url, follow=True,
-                                      data={'user':       user.pk,
-                                            'first_name': first_name,
-                                            'last_name':  last_name,
-                                           },
-                                     )
+        response = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                'user':       user.pk,
+                'first_name': first_name,
+                'last_name':  last_name,
+            },
+        )
 
         contact = self.refresh(contact)
         self.assertEqual(last_name, contact.last_name)
@@ -203,34 +214,39 @@ class ContactTestCase(_BaseTestCase):
 
     @skipIfCustomAddress
     def test_editview02(self):
-        "Edit addresses"
+        "Edit addresses."
         user = self.login()
 
         first_name = 'Faye'
-        last_name  = 'Valentine'
-        self.assertPOST200(reverse('persons__create_contact'), follow=True,
-                           data={'user':                     user.pk,
-                                 'first_name':               first_name,
-                                 'last_name':                last_name,
-                                 'billing_address-address':  'In the Bebop.',
-                                 'shipping_address-address': 'In the Bebop. (bis)',
-                                },
-                          )
+        last_name = 'Valentine'
+        self.assertPOST200(
+            reverse('persons__create_contact'),
+            follow=True,
+            data={
+                'user':                     user.pk,
+                'first_name':               first_name,
+                'last_name':                last_name,
+                'billing_address-address':  'In the Bebop.',
+                'shipping_address-address': 'In the Bebop. (bis)',
+            },
+        )
         contact = Contact.objects.get(first_name=first_name)
         billing_address_id  = contact.billing_address_id
         shipping_address_id = contact.shipping_address_id
 
-        state   = 'Solar system'
+        state = 'Solar system'
         country = 'Mars'
-        self.assertNoFormError(self.client.post(contact.get_edit_absolute_url(), follow=True,
-                                                data={'user':                     user.pk,
-                                                      'first_name':               first_name,
-                                                      'last_name':                last_name,
-                                                      'billing_address-state':    state,
-                                                      'shipping_address-country': country,
-                                                     },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            contact.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user':                     user.pk,
+                'first_name':               first_name,
+                'last_name':                last_name,
+                'billing_address-state':    state,
+                'shipping_address-country': country,
+            },
+        ))
 
         contact = self.refresh(contact)
         self.assertEqual(billing_address_id,  contact.billing_address_id)
@@ -240,32 +256,38 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(country, contact.shipping_address.country)
 
     def test_editview03(self):
-        "Contact is a user => sync"
+        "Contact is a user => sync."
         user = self.login()
         contact = self.get_object_or_fail(Contact, is_user=user)
 
         url = contact.get_edit_absolute_url()
-        response = self.assertPOST200(url, follow=True,
-                                      data={'user':      user.id,
-                                            'last_name': contact.last_name,
-                                           },
-                                     )
+        response = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                'user':      user.id,
+                'last_name': contact.last_name,
+            },
+        )
         msg = _('This field is required.')
         self.assertFormError(response, 'form', 'first_name', msg)
         self.assertFormError(response, 'form', 'email',      msg)
 
         first_name = contact.first_name.lower(); self.assertNotEqual(first_name, user.first_name)
         last_name  = contact.last_name.upper();  self.assertNotEqual(last_name,  user.last_name)
-        email      = f'{user.first_name}.{user.last_name}@noir.org'
+        email = f'{user.first_name}.{user.last_name}@noir.org'
         self.assertNotEqual(email, user.email)
 
-        response = self.client.post(url, follow=True,
-                                    data={'user':       user.id,
-                                          'last_name':  last_name,
-                                          'first_name': first_name,
-                                          'email':      email,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':       user.id,
+                'last_name':  last_name,
+                'first_name': first_name,
+                'email':      email,
+            },
+        )
         self.assertNoFormError(response)
 
         contact = self.refresh(contact)
@@ -279,7 +301,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(email,      user.email)
 
     def test_editview04(self):
-        "Contact is a user + emails is hidden (crashed)"
+        "Contact is a user + emails is hidden (crashed)."
         user = self.login()
         contact = self.get_object_or_fail(Contact, is_user=user)
 
@@ -296,18 +318,21 @@ class ContactTestCase(_BaseTestCase):
 
         self.assertNotIn('email', fields)
 
-        last_name  = user.last_name
+        last_name = user.last_name
         first_name = user.first_name
         email = user.email
         description = 'First contact user'
-        response = self.client.post(url, follow=True,
-                                    data={'user':        user.id,
-                                          'last_name':   last_name,
-                                          'first_name':  first_name,
-                                          'email':       'useless@dontcare.org',
-                                          'description': description,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':        user.id,
+                'last_name':   last_name,
+                'first_name':  first_name,
+                'email':       'useless@dontcare.org',
+                'description': description,
+            },
+        )
         self.assertNoFormError(response)
 
         contact = self.refresh(contact)
@@ -322,7 +347,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(email,      user.email)  # <= no change
 
     def test_is_user01(self):
-        "Property 'linked_contact'"
+        "Property 'linked_contact'."
         user = self.login()
 
         with self.assertNumQueries(0):
@@ -361,18 +386,20 @@ class ContactTestCase(_BaseTestCase):
         with self.assertRaises(ValidationError) as cm:
             contact.full_clean()
 
-        self.assertEqual([_('This Contact is related to a user and must have a first name.')],
-                         cm.exception.messages
-                        )
+        self.assertListEqual(
+            [_('This Contact is related to a user and must have a first name.')],
+            cm.exception.messages,
+        )
 
         contact.first_name = first_name
 
         with self.assertRaises(ValidationError) as cm:
             contact.full_clean()
 
-        self.assertEqual([_('This Contact is related to a user and must have an e-mail address.')],
-                         cm.exception.messages
-                        )
+        self.assertListEqual(
+            [_('This Contact is related to a user and must have an e-mail address.')],
+            cm.exception.messages,
+        )
 
     def test_listview(self):
         user = self.login()
@@ -387,7 +414,6 @@ class ContactTestCase(_BaseTestCase):
         response = self.assertGET200(Contact.get_lv_absolute_url())
 
         with self.assertNoException():
-            # contacts_page = response.context['entities']
             contacts_page = response.context['page_obj']
 
         self.assertEqual(count + 2, contacts_page.paginator.count)
@@ -408,21 +434,22 @@ class ContactTestCase(_BaseTestCase):
             _('Create a contact related to «{organisation}»').format(
                 organisation=orga,
             ),
-            response.context.get('title')
+            response.context.get('title'),
         )
 
         # ---
         first_name = 'Bugs'
         last_name = 'Bunny'
-        response = self.client.post(url, follow=True,
-                                    data={'user':          user.pk,
-                                          # 'orga_overview': 'dontcare',
-                                          # 'relation':      'dontcare',
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user': user.pk,
 
-                                          'first_name':    first_name,
-                                          'last_name':     last_name,
-                                         },
-                                   )
+                'first_name':    first_name,
+                'last_name':     last_name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertRedirects(response, orga.get_absolute_url())
 
@@ -470,13 +497,16 @@ class ContactTestCase(_BaseTestCase):
         "No LINK credentials."
         user = self.login(is_superuser=False, creatable_models=[Contact])
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role,
-                            set_type=SetCredentials.ESET_OWN,
-                           )
+        create_sc = partial(
+            SetCredentials.objects.create,
+            role=self.role, set_type=SetCredentials.ESET_OWN,
+        )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # Not 'LINK'
         )
 
@@ -484,27 +514,42 @@ class ContactTestCase(_BaseTestCase):
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_link(orga))
 
-        url = self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY)
-        self.assertGET403(url)
+        url1 = self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY)
+        url2 = self._build_addrelated_url(orga.id)
+        self.assertGET403(url1)
+        self.assertGET403(url2)
 
+        # --
         create_sc(value=EntityCredentials.LINK, ctype=Organisation)
-        self.assertGET403(url)
+        self.assertGET403(url1)
+        self.assertGET403(url2)
 
+        # --
         create_sc(value=EntityCredentials.LINK, ctype=Contact)
-        self.assertGET200(url)
+        self.assertGET200(url1)
+        self.assertGET200(url2)
 
-        response = self.assertPOST200(url, follow=True,
-                                      data={'user':       self.other_user.pk,
-                                            'first_name': 'Bugs',
-                                            'last_name':  'Bunny',
-                                           },
-                                     )
-        self.assertFormError(
-            response, 'form', 'user',
-            _('You are not allowed to link with the «{models}» of this user.').format(
-                models=_('Contacts'),
-            )
+        # --
+        data = {
+            'user': self.other_user.pk,
+            'first_name': 'Bugs',
+            'last_name': 'Bunny',
+        }
+        response1 = self.assertPOST200(url1, follow=True, data=data)
+        msg = _(
+            'You are not allowed to link with the «{models}» of this user.'
+        ).format(models=_('Contacts'))
+        self.assertFormError(response1, 'form', 'user', msg)
+
+        response2 = self.assertPOST200(
+            url2,
+            follow=True,
+            data={
+                **data,
+                'rtype_for_organisation': REL_SUB_EMPLOYED_BY,
+            },
         )
+        self.assertFormError(response2, 'form', 'user', msg)
 
     @skipIfCustomOrganisation
     def test_create_linked_contact04(self):
@@ -515,9 +560,11 @@ class ContactTestCase(_BaseTestCase):
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE | EntityCredentials.LINK |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.LINK
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),
             ctype=Contact,  # Not Organisation
         )
@@ -533,7 +580,7 @@ class ContactTestCase(_BaseTestCase):
                     _('Entity #{id} (not viewable)').format(id=orga.id),
                 )
             ),
-            status_code=403
+            status_code=403,
         )
 
     @skipIfCustomOrganisation
@@ -547,15 +594,20 @@ class ContactTestCase(_BaseTestCase):
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.LINK
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),
             ctype=Contact,  # Not Organisation
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # Not LINK
             ctype=Organisation,
         )
@@ -568,44 +620,39 @@ class ContactTestCase(_BaseTestCase):
 
     @skipIfCustomOrganisation
     def test_create_linked_contact06(self):
-        "Misc errors"
+        "Misc errors."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Acme')
 
-        self.assertGET404(self._build_addrelated_url(self.UNUSED_PK,
-                                                     REL_OBJ_EMPLOYED_BY,
-                                                    )
-                         )
-        self.assertGET404(self._build_addrelated_url(orga.id,
-                                                     'IDONOTEXIST',
-                                                    )
-                        )
+        build_url = self._build_addrelated_url
+        self.assertGET404(build_url(self.UNUSED_PK, REL_OBJ_EMPLOYED_BY))
+        self.assertGET404(build_url(orga.id, 'IDONOTEXIST'))
 
         create_rtype = RelationType.create
         rtype1 = create_rtype(
             ('persons-subject_test_rtype1', 'RType #1',     [Organisation]),
             ('persons-object_test_rtype1',  'Rtype sym #1', [Contact]),
         )[0]
-        self.assertGET200(self._build_addrelated_url(orga.id, rtype1.id))
+        self.assertGET200(build_url(orga.id, rtype1.id))
 
         rtype2 = create_rtype(
             ('persons-subject_test_badrtype1', 'Bad RType #1',     [Organisation]),
             ('persons-object_test_badrtype1',  'Bad RType sym #1', [Document]),  # <==
         )[0]
-        self.assertGET409(self._build_addrelated_url(orga.id, rtype2.id))
+        self.assertGET409(build_url(orga.id, rtype2.id))
 
         rtype3 = create_rtype(
             ('persons-subject_test_badrtype2', 'Bad RType #2',     [Document]),  # <==
             ('persons-object_test_badrtype2',  'Bad RType sym #2', [Contact]),
         )[0]
-        self.assertGET409(self._build_addrelated_url(orga.id, rtype3.id))
+        self.assertGET409(build_url(orga.id, rtype3.id))
 
         rtype4 = create_rtype(
             ('persons-subject_test_badrtype3', 'Bad RType #3',     [Organisation]),
             ('persons-object_test_badrtype3',  'Bad RType sym #3', [Contact]),
             is_internal=True,  # <==
         )[0]
-        self.assertGET409(self._build_addrelated_url(orga.id, rtype4.id))
+        self.assertGET409(build_url(orga.id, rtype4.id))
 
     @skipIfCustomOrganisation
     def test_create_linked_contact07(self):
@@ -619,19 +666,21 @@ class ContactTestCase(_BaseTestCase):
             is_internal=True,
         )[0]
 
-        response = self.assertPOST200(self._build_addrelated_url(orga.id),
-                                      follow=True,
-                                      data={'user': user.pk,
+        response = self.assertPOST200(
+            self._build_addrelated_url(orga.id),
+            follow=True,
+            data={
+                'user': user.pk,
 
-                                            'first_name': 'Bugs',
-                                            'last_name':  'Bunny',
+                'first_name': 'Bugs',
+                'last_name':  'Bunny',
 
-                                            'rtype_for_organisation': rtype.id,
-                                           },
-                                      )
+                'rtype_for_organisation': rtype.id,
+            },
+        )
         self.assertFormError(
             response, 'form', 'rtype_for_organisation',
-            _('Select a valid choice. That choice is not one of the available choices.')
+            _('Select a valid choice. That choice is not one of the available choices.'),
         )
 
     @skipIfCustomAddress
@@ -699,7 +748,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertDoesNotExist(naruto)
 
     def test_delete02(self):
-        "Can not delete if the Contact corresponds to an user"
+        "Can not delete if the Contact corresponds to an user."
         user = self.login()
         contact = user.linked_contact
         # self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
@@ -716,14 +765,13 @@ class ContactTestCase(_BaseTestCase):
         "Set to NULL."
         user = self.login()
         captain = Civility.objects.create(title='Captain')
-        harlock = Contact.objects.create(user=user, first_name='Harlock',
-                                         last_name='Matsumoto', civility=captain,
-                                        )
+        harlock = Contact.objects.create(
+            user=user, first_name='Harlock', last_name='Matsumoto', civility=captain,
+        )
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('persons', 'civility', captain.id)
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance', args=('persons', 'civility', captain.id),
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(Civility).job
@@ -738,14 +786,15 @@ class ContactTestCase(_BaseTestCase):
         user = self.login()
         civ2 = Civility.objects.first()
         captain = Civility.objects.create(title='Captain')
-        harlock = Contact.objects.create(user=user, first_name='Harlock',
-                                         last_name='Matsumoto', civility=captain,
-                                        )
+        harlock = Contact.objects.create(
+            user=user, first_name='Harlock', last_name='Matsumoto', civility=captain,
+        )
 
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('persons', 'civility', captain.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('persons', 'civility', captain.id)
+            ),
             data={'replace_persons__contact_civility': civ2.id},
         )
         self.assertNoFormError(response)
@@ -761,14 +810,14 @@ class ContactTestCase(_BaseTestCase):
         "Set to NULL."
         user = self.login()
         captain = Position.objects.create(title='Captain')
-        harlock = Contact.objects.create(user=user, first_name='Harlock',
-                                         last_name='Matsumoto', position=captain,
-                                        )
+        harlock = Contact.objects.create(
+            user=user, first_name='Harlock', last_name='Matsumoto', position=captain,
+        )
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('persons', 'position', captain.id)
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('persons', 'position', captain.id),
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(Position).job
@@ -783,14 +832,15 @@ class ContactTestCase(_BaseTestCase):
         user = self.login()
         pos2 = Position.objects.first()
         captain = Position.objects.create(title='Captain')
-        harlock = Contact.objects.create(user=user, first_name='Harlock',
-                                         last_name='Matsumoto', position=captain,
-                                        )
+        harlock = Contact.objects.create(
+            user=user, first_name='Harlock', last_name='Matsumoto', position=captain,
+        )
 
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('persons', 'position', captain.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('persons', 'position', captain.id),
+            ),
             data={'replace_persons__contact_position': pos2.id},
         )
         self.assertNoFormError(response)
@@ -806,14 +856,14 @@ class ContactTestCase(_BaseTestCase):
         "Set to NULL."
         user = self.login()
         piracy = Sector.objects.create(title='Piracy')
-        harlock = Contact.objects.create(user=user, first_name='Harlock',
-                                         last_name='Matsumoto', sector=piracy,
-                                        )
+        harlock = Contact.objects.create(
+            user=user, first_name='Harlock', last_name='Matsumoto', sector=piracy,
+        )
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('persons', 'sector', piracy.id)
-                                           ),
-                                   )
+        response = self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('persons', 'sector', piracy.id),
+        ))
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(Sector).job
@@ -828,14 +878,15 @@ class ContactTestCase(_BaseTestCase):
         user = self.login()
         sector2 = Sector.objects.first()
         piracy = Sector.objects.create(title='Piracy')
-        harlock = Contact.objects.create(user=user, first_name='Harlock',
-                                         last_name='Matsumoto', sector=piracy,
-                                        )
+        harlock = Contact.objects.create(
+            user=user, first_name='Harlock', last_name='Matsumoto', sector=piracy,
+        )
 
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('persons', 'sector', piracy.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('persons', 'sector', piracy.id)
+            ),
             data={'replace_persons__contact_sector': sector2.id},
         )
         self.assertNoFormError(response)
@@ -874,9 +925,9 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(last_name,  contact.last_name)
 
     def test_user_linked_contact02(self):
-        user = CremeUser.objects.create(username='dknut', is_team=True,
-                                        last_name='Knut', first_name='Deunan',
-                                       )
+        user = CremeUser.objects.create(
+            username='dknut', is_team=True, last_name='Knut', first_name='Deunan',
+        )
 
         with self.assertNoException():
             contact = user.linked_contact
@@ -920,20 +971,22 @@ class ContactTestCase(_BaseTestCase):
         kirika = user.linked_contact
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(f'<a href="{kirika.get_absolute_url()}">{kirika}</a>',
-                         get_html_val(deunan, 'user', user)
-                        )
-        self.assertEqual('<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
-                         get_html_val(deunan, 'is_user', user)
-                        )
+        self.assertEqual(
+            f'<a href="{kirika.get_absolute_url()}">{kirika}</a>',
+            get_html_val(deunan, 'user', user),
+        )
+        self.assertEqual(
+            '<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
+            get_html_val(deunan, 'is_user', user)
+        )
 
         self.assertEqual(
             str(user),
-            field_printers_registry.get_csv_field_value(deunan, 'user', user)
+            field_printers_registry.get_csv_field_value(deunan, 'user', user),
         )
 
     def test_fk_user_printer02(self):
-        "Team"
+        "Team."
         user = self.login()
 
         eswat = CremeUser.objects.create(username='eswat', is_team=True)
@@ -941,7 +994,7 @@ class ContactTestCase(_BaseTestCase):
 
         self.assertEqual(
             str(eswat),
-            field_printers_registry.get_html_field_value(deunan, 'user', user)
+            field_printers_registry.get_html_field_value(deunan, 'user', user),
         )
 
     @skipIfCustomOrganisation
@@ -966,7 +1019,7 @@ class ContactTestCase(_BaseTestCase):
 
         self.assertListEqual(
             [eswat, olympus],
-            [*deunan.get_employers()]
+            [*deunan.get_employers()],
         )
 
     @skipIfCustomUser
@@ -997,13 +1050,15 @@ class ContactTestCase(_BaseTestCase):
         email = 'staffman@acme.com'
 
         with self.assertNoException():
-            call_command(StaffCommand(),
-                         verbosity=0, interactive=False,
-                         username=username,
-                         first_name=first_name,
-                         last_name=last_name,
-                         email=email,
-                        )
+            call_command(
+                StaffCommand(),
+                verbosity=0,
+                interactive=False,
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+            )
 
         user = self.get_object_or_fail(CremeUser, username=username)
         self.assertEqual(first_name, user.first_name)
