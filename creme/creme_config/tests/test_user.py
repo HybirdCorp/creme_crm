@@ -383,6 +383,51 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
+    @override_settings(
+        AUTH_PASSWORD_VALIDATORS=[{
+            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        }],
+    )
+    def test_create09(self):
+        "Similarity errors"
+        user = self.login()
+        url = self.ADD_URL
+        orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
+
+        data = {
+            'username':     'agent123',
+            'first_name':   'Deunan',
+            'last_name':    'Knut',
+            'email':        'd.knut@eswat.ol',
+
+            'organisation': orga.id,
+            'relation':     REL_SUB_EMPLOYED_BY,
+        }
+
+        def post(field_name, field_verbose_name):
+            password = data[field_name]
+            response = self.assertPOST200(
+                url,
+                follow=True,
+                data={
+                    **data,
+                    'password_1': password,
+                    'password_2': password,
+                },
+            )
+            self.assertFormError(
+                response, 'form', 'password_2',
+                _("The password is too similar to the %(verbose_name)s.") % {
+                    'verbose_name': field_verbose_name,
+                },
+            )
+
+        post('username', _('Username'))
+        post('first_name', _('First name'))
+        post('last_name', _('Last name'))
+        post('email', _('Email address'))
+
+    @skipIfNotCremeUser
     @skipIfCustomContact
     def test_edit01(self):
         user = self.login()

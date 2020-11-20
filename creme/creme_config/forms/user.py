@@ -89,12 +89,24 @@ class UserAddForm(CremeModelForm):
                 code='password_mismatch',
             )
 
-        user = self.instance
-        user.username = get_data('username')
-
-        password_validation.validate_password(password2, user)
+        # user = self.instance
+        # user.username = get_data('username')
+        #
+        # password_validation.validate_password(password2, user)
 
         return password2
+
+    def _post_clean(self):
+        super()._post_clean()
+        # NB: some validators (like the "similarity" one) need 'self.instance' to
+        #     be updated with POSTed data, so we do not call 'validate_password()'
+        #     in 'clean_password_2()'
+        password = self.cleaned_data.get('password_2')
+        if password:
+            try:
+                password_validation.validate_password(password, self.instance)
+            except ValidationError as e:
+                self.add_error('password_2', e)
 
     def save(self, *args, **kwargs):
         instance = self.instance
