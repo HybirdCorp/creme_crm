@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-11-2020 pour la version 2.2 de Creme
+:Version: 20-11-2020 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -432,7 +432,7 @@ ramener les ``import`` au début, avec les autres directives ``import`` bien sû
 Rajoutons l'entrée qui référence ``beaver.BeaverCreation`` dans ``beavers/urls.py`` : ::
 
     urlpatterns = [
-        re_path(r'^beavers[/]?$',    beaver.listview,                 name='beavers__list_beavers'),
+        re_path(r'^beavers[/]?$',    beaver.BeaversList.as_view(),    name='beavers__list_beavers'),
         re_path(r'^beaver/add[/]?$', beaver.BeaverCreation.as_view(), name='beavers__create_beaver'),
     ]
 
@@ -478,7 +478,7 @@ Ajoutons cette classe de vue (dans ``views/beaver.py`` donc, si vous suivez) : :
 Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette URL : ::
 
     urlpatterns = [
-        re_path(r'^beavers[/]?$',                   beaver.listview,                 name='beavers__list_beavers'),
+        re_path(r'^beavers[/]?$',                   beaver.BeaversList.as_view(),    name='beavers__list_beavers'),
         re_path(r'^beaver/add[/]?$',                beaver.BeaverCreation.as_view(), name='beavers__create_beaver'),
         re_path(r'^beaver/(?P<beaver_id>\d+)[/]?$', beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),  # < -- NEW
     ]
@@ -518,7 +518,7 @@ Ajoutons cette vue dans ``views/beaver.py`` : ::
 Rajoutons l'URL associée : ::
 
     urlpatterns = [
-        re_path(r'^beavers[/]?$',                        beaver.listview,                 name='beavers__list_beavers'),
+        re_path(r'^beavers[/]?$',                        beaver.BeaversList.as_view(),    name='beavers__list_beavers'),
         re_path(r'^beaver/add[/]?$',                     beaver.BeaverCreation.as_view(), name='beavers__create_beaver'),
         re_path(r'^beaver/edit/(?P<beaver_id>\d+)[/]?$', beaver.BeaverEdition.as_view(),  name='beavers__edit_beaver'),  # < -- NEW
         re_path(r'^beaver/(?P<beaver_id>\d+)[/]?$',      beaver.BeaverDetail.as_view(),   name='beavers__view_beaver'),
@@ -662,12 +662,9 @@ défaut est utilisée (sinon c'est la première par ordre alphabétique): ::
 
     [...]
 
-    @login_required
-    @permission_required('beavers')
-    def listview(request):
-        return generic.list_view(request, Beaver,
-                                 hf_pk=DEFAULT_HFILTER_BEAVER,  # <- NEW
-                                )
+    class BeaversList(generic.EntitiesList):
+        model = Beaver
+        default_headerfilter_id = DEFAULT_HFILTER_BEAVER  # <- NEW
 
 
 
@@ -2261,7 +2258,7 @@ Par exemple : ::
 
     urlpatterns += swap_manager.add_group(
         tickets.ticket_model_is_custom,
-        Swappable(re_path(r'^tickets[/]?$',                        ticket.listview,                 name='tickets__list_tickets')),
+        Swappable(re_path(r'^tickets[/]?$',                        ticket.TicketsList.as_view(),    name='tickets__list_tickets')),
         Swappable(re_path(r'^ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket')),
         Swappable(re_path(r'^ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.TicketEdition.as_view(),  name='tickets__edit_ticket'), check_args=Swappable.INT_ID),
         Swappable(re_path(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(),   name='tickets__view_ticket'), check_args=Swappable.INT_ID),
@@ -2292,7 +2289,7 @@ pouvons définir ``my_tickets/urls.py`` tel que : ::
 
 
     urlpatterns += [
-        re_path(r'^my_tickets[/]?$',                        ticket.listview,                 name='tickets__list_tickets'),
+        re_path(r'^my_tickets[/]?$',                        ticket.TicketsList.as_view(),    name='tickets__list_tickets'),
         re_path(r'^my_ticket/add[/]?$',                     ticket.TicketCreation.as_view(), name='tickets__create_ticket'),
         re_path(r'^my_ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.TicketEdition.as_view(),  name='tickets__edit_ticket'),
         re_path(r'^my_ticket/(?P<ticket_id>\d+)[/]?$',      ticket.TicketDetail.as_view(),   name='tickets__view_ticket'),
