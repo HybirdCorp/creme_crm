@@ -306,21 +306,23 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertEqual(user,    cf_f3.user)
         self.assertEqual(cfield3, cf_f3.custom_field)
         self.assertListEqual(
-            [('', '-------'),
-             (eval1_01.id, eval1_01.value),
-             (eval1_02.id, eval1_02.value),
+            [
+                ('', '-------'),
+                (eval1_01.id, eval1_01.value),
+                (eval1_02.id, eval1_02.value),
             ],
-            cf_f3.choices
+            cf_f3.choices,
         )
 
         self.assertIsInstance(cf_f4, CustomMultiEnumChoiceField)
         self.assertEqual(user,    cf_f4.user)
         self.assertEqual(cfield4, cf_f4.custom_field)
         self.assertListEqual(
-            [(eval2_01.id, eval2_01.value),
-             (eval2_02.id, eval2_02.value),
+            [
+                (eval2_01.id, eval2_01.value),
+                (eval2_02.id, eval2_02.value),
             ],
-            cf_f4.choices
+            cf_f4.choices,
         )
 
         self.assertNotIn(f'custom_field_{deleted.id}', fields)
@@ -349,10 +351,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertEqual(first_name, contact.first_name)
         self.assertEqual(last_name,  contact.last_name)
 
-        cf_value = self.get_object_or_fail(CustomFieldInteger,
-                                           custom_field=cfield1,
-                                           entity=contact,
-                                          )
+        cf_value = self.get_object_or_fail(
+            CustomFieldInteger, custom_field=cfield1, entity=contact,
+        )
         self.assertEqual(150, cf_value.value)
 
     def test_customfields02(self):
@@ -400,12 +401,12 @@ class CremeEntityFormTestCase(CremeTestCase):
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_spirit',   text='Haunted by a spirit')
         ptype02 = create_ptype(str_pk='test-prop_bakemono', text='Cursed by a bakemono')
-        ptype03 = create_ptype(str_pk='test-prop_see',      text='See the yokai',
-                               subject_ctypes=[FakeContact],
-                              )
-        ptype04 = create_ptype(str_pk='test-prop_license', text='Has a license',
-                               subject_ctypes=[FakeOrganisation],
-                              )
+        ptype03 = create_ptype(
+            str_pk='test-prop_see', text='See the yokai', subject_ctypes=[FakeContact],
+        )
+        ptype04 = create_ptype(
+            str_pk='test-prop_license', text='Has a license', subject_ctypes=[FakeOrganisation],
+        )
 
         form = FakeContactForm(user=user)
 
@@ -448,9 +449,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertFalse(form.errors)
 
         contact = form.save()
-        self.assertSetEqual({ptype01, ptype03},
-                            {p.type for p in contact.properties.all()}
-                           )
+        self.assertSetEqual(
+            {ptype01, ptype03}, {p.type for p in contact.properties.all()}
+        )
 
     def test_properties02(self):
         "Forced CremePropertyTypes (IDs)."
@@ -459,9 +460,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_spirit',   text='Haunted by a spirit')
         ptype02 = create_ptype(str_pk='test-prop_bakemono', text='Cursed by a bakemono')
-        ptype03 = create_ptype(str_pk='test-prop_see',      text='See the yokai',
-                               subject_ctypes=[FakeContact],
-                              )
+        ptype03 = create_ptype(
+            str_pk='test-prop_see', text='See the yokai', subject_ctypes=[FakeContact],
+        )
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02.id])
 
@@ -483,9 +484,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_spirit',   text='Haunted by a spirit')
         ptype02 = create_ptype(str_pk='test-prop_bakemono', text='Cursed by a bakemono')
-        ptype03 = create_ptype(str_pk='test-prop_see',      text='See the yokai',
-                               subject_ctypes=[FakeContact],
-                              )
+        ptype03 = create_ptype(
+            str_pk='test-prop_see', text='See the yokai', subject_ctypes=[FakeContact],
+        )
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02])
 
@@ -518,17 +519,16 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertFalse(form.errors)
 
         contact = form.save()
-        self.assertListEqual([ptype],
-                             [p.type for p in contact.properties.all()]
-                            )
+        self.assertListEqual(
+            [ptype], [p.type for p in contact.properties.all()]
+        )
 
     def test_relations01(self):
         user = self.create_user()
 
-        contact = FakeContact.objects.create(user=user,
-                                             first_name='Hitagi',
-                                             last_name='Senjyogahara',
-                                            )
+        contact = FakeContact.objects.create(
+            user=user, first_name='Hitagi', last_name='Senjyogahara',
+        )
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
         create_rtype = RelationType.create
@@ -585,10 +585,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Semi-fixed."
         user = self.create_user()
 
-        contact = FakeContact.objects.create(user=user,
-                                             first_name='Hitagi',
-                                             last_name='Senjyogahara',
-                                            )
+        contact = FakeContact.objects.create(
+            user=user, first_name='Hitagi', last_name='Senjyogahara',
+        )
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
         create_rtype = RelationType.create
@@ -602,14 +601,12 @@ class CremeEntityFormTestCase(CremeTestCase):
         )[1]
 
         create_strt = SemiFixedRelationType.objects.create
-        sfrt1 = create_strt(predicate='Healed by Oshino',
-                            relation_type=rtype2,
-                            object_entity=orga,
-                           )
-        sfrt2 = create_strt(predicate='Loves Hitagi',
-                            relation_type=rtype1,
-                            object_entity=contact,
-                           )
+        sfrt1 = create_strt(
+            predicate='Healed by Oshino', relation_type=rtype2, object_entity=orga,
+        )
+        sfrt2 = create_strt(
+            predicate='Loves Hitagi', relation_type=rtype1, object_entity=contact,
+        )
 
         form = FakeContactForm(user=user)
         fields = form.fields
@@ -658,29 +655,28 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Fixed & semi-fixed."
         user = self.create_user()
 
-        contact = FakeContact.objects.create(user=user,
-                                             first_name='Hitagi',
-                                             last_name='Senjyogahara',
-                                            )
+        contact = FakeContact.objects.create(
+            user=user, first_name='Hitagi', last_name='Senjyogahara',
+        )
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
         create_rtype = RelationType.create
-        rtype1 = create_rtype(('test-subject_loves', 'loves'),
-                              ('test-object_loves',  'is loved'),
-                             )[0]
-        rtype2 = create_rtype(('test-subject_heals', 'has healed', [FakeOrganisation]),
-                              ('test-object_heals',  'healed by',  [FakeContact]),
-                             )[1]
+        rtype1 = create_rtype(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loves',  'is loved'),
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_heals', 'has healed', [FakeOrganisation]),
+            ('test-object_heals',  'healed by',  [FakeContact]),
+        )[1]
 
         create_strt = SemiFixedRelationType.objects.create
-        sfrt1 = create_strt(predicate='Healed by Oshino',
-                            relation_type=rtype2,
-                            object_entity=orga,
-                           )
-        sfrt2 = create_strt(predicate='Loves Hitagi',
-                            relation_type=rtype1,
-                            object_entity=contact,
-                           )
+        sfrt1 = create_strt(
+            predicate='Healed by Oshino', relation_type=rtype2, object_entity=orga,
+        )
+        sfrt2 = create_strt(
+            predicate='Loves Hitagi', relation_type=rtype1, object_entity=contact,
+        )
 
         form = FakeContactForm(
             user=user,
@@ -713,12 +709,14 @@ class CremeEntityFormTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
         create_rtype = RelationType.create
-        rtype1 = create_rtype(('test-subject_loves', 'loves'),
-                              ('test-object_loves',  'is loved'),
-                             )[0]
-        rtype2 = create_rtype(('test-subject_heals', 'has healed', [FakeOrganisation]),
-                              ('test-object_heals',  'healed by',  [FakeContact]),
-                             )[1]
+        rtype1 = create_rtype(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loves',  'is loved'),
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_heals', 'has healed', [FakeOrganisation]),
+            ('test-object_heals',  'healed by',  [FakeContact]),
+        )[1]
 
         fields1 = FakeContactForm(
             user=user,
@@ -738,9 +736,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
 
         # ---
-        forced_relations = [Relation(type=rtype2, object_entity=orga),
-                            Relation(type=rtype1, object_entity=contact1),
-                           ]
+        forced_relations = [
+            Relation(type=rtype2, object_entity=orga),
+            Relation(type=rtype1, object_entity=contact1),
+        ]
         fields2 = FakeContactForm(user=user, forced_relations=forced_relations).fields
 
         self.assertIn('relation_types', fields2)
@@ -749,7 +748,7 @@ class CremeEntityFormTestCase(CremeTestCase):
                 f'<ul><li>{rtype2.predicate} «{orga}»</li>'
                 f'<li>{rtype1.predicate} «{contact1}»</li></ul>'
             ),
-            fields2['rtypes_info'].initial
+            fields2['rtypes_info'].initial,
         )
 
         # ---
@@ -779,9 +778,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.create_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
-        rtype = RelationType.create(('test-subject_heals', 'has healed'),
-                                    ('test-object_heals',  'healed by'),
-                                   )[1]
+        rtype = RelationType.create(
+            ('test-subject_heals', 'has healed'),
+            ('test-object_heals',  'healed by'),
+        )[1]
 
         form = FakeContactForm(
             user=user,
@@ -819,11 +819,11 @@ class CremeEntityFormTestCase(CremeTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW   |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK   |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -832,24 +832,23 @@ class CremeEntityFormTestCase(CremeTestCase):
         contact1 = create_contact(user=user, first_name='Kanbaru', last_name='Suruga')
         self.assertTrue(user.has_perm_to_link(contact1))
 
-        contact2 = create_contact(user=self.other_user,
-                                  first_name='Hitagi', last_name='Senjyogahara',
-                                 )
+        contact2 = create_contact(
+            user=self.other_user, first_name='Hitagi', last_name='Senjyogahara',
+        )
         self.assertFalse(user.has_perm_to_link(contact2))
 
-        rtype = RelationType.create(('test-subject_loves', 'loves'),
-                                    ('test-object_loves',  'is loved'),
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loves',  'is loved'),
+        )[0]
 
         create_strt = SemiFixedRelationType.objects.create
-        sfrt1 = create_strt(predicate='Loves Kanbaru',
-                            relation_type=rtype,
-                            object_entity=contact1,
-                           )
-        sfrt2 = create_strt(predicate='Loves Hitagi',
-                            relation_type=rtype,
-                            object_entity=contact2,
-                           )
+        sfrt1 = create_strt(
+            predicate='Loves Kanbaru', relation_type=rtype, object_entity=contact1,
+        )
+        sfrt2 = create_strt(
+            predicate='Loves Hitagi', relation_type=rtype, object_entity=contact2,
+        )
 
         form = FakeContactForm(user=user)
         fields = form.fields
@@ -877,14 +876,14 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.create(('test-subject_heals', 'heals'),
-                                    ('test-object_heals',  'is healed by'),
-                                   )[1]
+        rtype = RelationType.create(
+            ('test-subject_heals', 'heals'),
+            ('test-object_heals',  'is healed by'),
+        )[1]
 
-        sfrt = SemiFixedRelationType.objects.create(predicate='Healed by Oshino',
-                                                    relation_type=rtype,
-                                                    object_entity=orga,
-                                                   )
+        sfrt = SemiFixedRelationType.objects.create(
+            predicate='Healed by Oshino', relation_type=rtype, object_entity=orga,
+        )
 
         fields = FakeContactForm(user=user).fields
 
@@ -896,7 +895,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertIsInstance(info_field.widget, Label)
         self.assertEqual(
             _('You are not allowed to link this kind of entity.'),
-            info_field.initial
+            info_field.initial,
         )
 
         # ---
@@ -923,18 +922,18 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                     set_type=SetCredentials.ESET_OWN,
-                    )
-        create_creds(value=EntityCredentials.VIEW,
-                     set_type=SetCredentials.ESET_ALL,
-                    )
+        create_creds(
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.create(('test-subject_heals', 'heals'),
-                                    ('test-object_heals',  'is healed by'),
-                                   )[1]
+        rtype = RelationType.create(
+            ('test-subject_heals', 'heals'),
+            ('test-object_heals',  'is healed by'),
+        )[1]
 
         data = {
             'first_name': 'Kanbaru',
@@ -966,22 +965,21 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                     set_type=SetCredentials.ESET_OWN,
-                    )
-        create_creds(value=EntityCredentials.VIEW,
-                     set_type=SetCredentials.ESET_ALL,
-                    )
+        create_creds(
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.create(('test-subject_heals', 'heals'),
-                                    ('test-object_heals',  'is healed by'),
-                                   )[1]
-        sfrt = SemiFixedRelationType.objects.create(predicate='Healed by Oshino',
-                                                    relation_type=rtype,
-                                                    object_entity=orga,
-                                                   )
+        rtype = RelationType.create(
+            ('test-subject_heals', 'heals'),
+            ('test-object_heals',  'is healed by'),
+        )[1]
+        sfrt = SemiFixedRelationType.objects.create(
+            predicate='Healed by Oshino', relation_type=rtype, object_entity=orga,
+        )
 
         data = {
             'first_name': 'Kanbaru',
@@ -1011,12 +1009,11 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                     set_type=SetCredentials.ESET_OWN,
-                    )
-        create_creds(value=EntityCredentials.VIEW,
-                     set_type=SetCredentials.ESET_ALL,
-                    )
+        create_creds(
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         form = FakeContactForm(
             user=user,
@@ -1027,6 +1024,57 @@ class CremeEntityFormTestCase(CremeTestCase):
             },
         )
         self.assertFalse(form.errors)
+
+    def test_relations_credentials06(self):
+        "Link credentials on the created entity + forced relationships."
+        user = self.login(is_superuser=False, creatable_models=[FakeContact])
+
+        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        create_creds(
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+
+        orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
+
+        rtype = RelationType.create(
+            ('test-subject_heals', 'heals'),
+            ('test-object_heals',  'is healed by'),
+        )[1]
+
+        data = {
+            'first_name': 'Kanbaru',
+            'last_name': 'Suruga',
+        }
+        forced_relations = [Relation(type=rtype, object_entity=orga)]
+
+        # KO ---
+        form1 = FakeContactForm(
+            user=user,
+            data={**data, 'user': self.other_user.id},
+            forced_relations=forced_relations,
+        )
+        self.assertFormInstanceErrors(
+            form1,
+            (
+                'user',
+                _('You are not allowed to link with the «{models}» of this user.').format(
+                    models='Test Contacts',
+                ),
+            ),
+        )
+
+        # OK ---
+        form2 = FakeContactForm(
+            user=user,
+            data={**data, 'user': user.id},
+            forced_relations=forced_relations,
+        )
+        self.assertFalse(form2.errors)
+
+        subject = form2.save()
+        self.assertRelationCount(1, subject, rtype, orga)
 
     def test_relations_error01(self):
         "ContentType constraint error."
@@ -1167,12 +1215,16 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         self.assertFormInstanceErrors(
             form4,
-            ('relation_types',
-             _('These properties are mandatory in order to use '
-               'the relationship «%(predicate)s»: %(properties)s'
-              ) % {'properties': f'{ptype1.text}, {ptype2.text}',
-                   'predicate': rtype2.predicate,
-            }),
+            (
+                'relation_types',
+                _(
+                    'These properties are mandatory in order to use '
+                    'the relationship «%(predicate)s»: %(properties)s'
+                ) % {
+                    'properties': f'{ptype1.text}, {ptype2.text}',
+                    'predicate': rtype2.predicate,
+                },
+            ),
         )
 
         # --

@@ -59,6 +59,7 @@ from ..models import (
 )
 from ..utils.collections import FluentList
 from . import fields, widgets
+from .validators import validate_linkable_model
 
 __all__ = (
     'FieldBlockManager', 'CremeForm', 'CremeModelForm',
@@ -642,6 +643,14 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         self._check_subject_linkable(rtypes)
 
         return sf_rtypes
+
+    def clean_user(self):
+        owner = self.cleaned_data['user']
+
+        if self.forced_relations_info:
+            validate_linkable_model(self._meta.model, self.user, owner=owner)
+
+        return owner
 
     # TODO: -> FluentList[Relation]
     def _get_relations_to_create(self):
