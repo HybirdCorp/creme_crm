@@ -3,6 +3,7 @@
 from datetime import date
 from functools import partial
 
+from django.apps import apps
 from django.db.models.query_utils import Q
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -17,17 +18,26 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.queries import QSerializer
 from creme.persons.constants import RGF_OWNED
 from creme.persons.reports import OwnedGraphFetcher
-from creme.reports.bricks import ReportGraphBrick
-from creme.reports.constants import RGA_COUNT, RGT_YEAR
-from creme.reports.core.graph.fetcher import GraphFetcher
-from creme.reports.tests.base import (
-    Report,
-    ReportGraph,
-    skipIfCustomReport,
-    skipIfCustomRGraph,
-)
 
 from .base import Contact, Organisation
+
+if apps.is_installed('creme.reports'):
+    from creme.reports.bricks import ReportGraphBrick
+    from creme.reports.constants import RGA_COUNT, RGT_YEAR
+    from creme.reports.core.graph.fetcher import GraphFetcher
+    from creme.reports.tests.base import (
+        Report,
+        ReportGraph,
+        skipIfCustomReport,
+        skipIfCustomRGraph,
+    )
+else:
+    from unittest import skipIf
+
+    def skipIfCustomReport(test_func):
+        return skipIf(True, 'Reports app not installed')(test_func)
+
+    skipIfCustomRGraph = skipIfCustomReport
 
 
 @skipIfNotInstalled('creme.reports')
