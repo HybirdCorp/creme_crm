@@ -273,6 +273,11 @@ class FieldBlockManager:
                     block_id, block_label, field_names = e
                     yield block_id, {'label': block_label, 'field_names': field_names}
                 elif isinstance(e, dict):
+                    if 'order' in e:
+                        raise ValueError(
+                            'Do not pass <order> information in FieldBlockManager constructor.'
+                        )
+
                     yield (
                         e['id'],
                         {
@@ -295,24 +300,29 @@ class FieldBlockManager:
             *blocks: Union[Tuple[str, str, FieldNamesOrWildcard], dict]) -> 'FieldBlockManager':
         """Create a clone of self, updated with new blocks.
         @param blocks: see __init__(). New blocks are merged with self's blocks.
+               If you use the dictionary format, you can use an extra key "order"
+               associated to an integer value, which indicates the index where to
+               insert the block (only for new blocks for now).
         """
         merged_blocks = OrderedDict([
             (block_id, copy(block))
             for block_id, block in self.__blocks.items()
         ])
-        # to_add = []
         blocks_to_add: List[_FieldBlock] = []
+        blocks_to_insert: List[Tuple[int, _FieldBlock]] = []
 
-        # for block_id, block_label, block_field_names in blocks:
         for e in blocks:
             if isinstance(e, tuple):
                 block_id, block_label, block_field_names = e
                 block_layout = None
+                block_order = None
             elif isinstance(e, dict):
                 block_id = e['id']
                 block_label = e['label']
                 block_field_names = e['fields']
                 block_layout = e.get('layout')
+                block_order = e.get('order')
+                assert (block_order is None) or (isinstance(block_order, int) and block_order >= 0)
             else:
                 raise TypeError('Arguments <blocks> must be tuples or dicts')
 
@@ -329,35 +339,50 @@ class FieldBlockManager:
                         f'You cannot extend a wildcard '
                         f'(see the form-block with category "{block_id}")'
                     )
-                else:
-                    if isinstance(block_field_names, str):
-                        assert block_field_names == '*'
 
-                        # TODO: idem
-                        raise ValueError(
-                            f'You cannot extend with a wildcard '
-                            f'(see the form-block with category "{block_id}")'
-                        )
-                    else:
-                        field_block.field_names.extend(block_field_names)
-                        # if block_layout: # TODO ?
-                        field_block.layout = block_layout
+                if isinstance(block_field_names, str):
+                    assert block_field_names == '*'
+
+                    # TODO: idem
+                    raise ValueError(
+                        f'You cannot extend with a wildcard '
+                        f'(see the form-block with category "{block_id}")'
+                    )
+
+                field_block.field_names.extend(block_field_names)
+                # if block_layout: # TODO ?
+                field_block.layout = block_layout
             else:
-                # NB: cannot add during iteration
-                # to_add.append((block_id, _FieldBlock(block_label, block_field_names)))
-                blocks_to_add.append(_FieldBlock(
+                field_block = _FieldBlock(
                     id=block_id, label=block_label,
                     field_names=block_field_names,
                     layout=block_layout,
-                ))
+                )
 
-        # for block_id, field_block in to_add:
-        #     merged_blocks[block_id] = field_block
+                if block_order is None:
+                    blocks_to_add.append(field_block)
+                else:
+                    blocks_to_insert.append((block_order, field_block))
+
+        final_blocks = OrderedDict()
+
+        blocks_to_insert.sort(key=lambda t: t[0], reverse=True)
+
+        for merged_block in merged_blocks.values():
+            while blocks_to_insert and blocks_to_insert[-1][0] <= len(final_blocks):
+                field_block = blocks_to_insert.pop()[1]
+                final_blocks[field_block.id] = field_block
+
+            final_blocks[merged_block.id] = merged_block
+
+        for __, field_block in reversed(blocks_to_insert):
+            final_blocks[field_block.id] = field_block
+
         for field_block in blocks_to_add:
-            merged_blocks[field_block.id] = field_block
+            final_blocks[field_block.id] = field_block
 
         fbm = FieldBlockManager()
-        fbm.__blocks = merged_blocks  # Yerk....
+        fbm.__blocks = final_blocks  # Yerk....
 
         return fbm
 
