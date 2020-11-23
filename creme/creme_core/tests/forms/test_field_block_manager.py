@@ -310,16 +310,18 @@ class FieldBlockManagerTestCase(CremeTestCase):
     def test_new01(self):
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name')
-            last_name  = forms.CharField(label='Last name')
+            last_name = forms.CharField(label='Last name')
             phone = forms.CharField(label='Phone')
-            cell  = forms.CharField(label='Cell')
-            fax   = forms.CharField(label='Fax')
+            cell = forms.CharField(label='Cell')
+            fax = forms.CharField(label='Fax')
 
+        names_id = 'names'
+        details_id = 'details'
         fbm1 = FieldBlockManager(
-            ('names',   'Names', ('last_name', 'first_name')),
+            (names_id,   'Names', ('last_name', 'first_name')),
         )
         fbm2 = fbm1.new(
-            ('details', 'Details', ('cell', 'phone', 'fax')),
+            (details_id, 'Details', ('cell', 'phone', 'fax')),
         )
         self.assertIsInstance(fbm2, FieldBlockManager)
         self.assertIsNot(fbm2, fbm1)
@@ -328,7 +330,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
 
         blocks = fbm2.build(form)
         with self.assertNoException():
-            names_group = blocks['names']
+            names_group = blocks[names_id]
 
         # self.assertEqual('Names', names_group[0])
         self.assertEqual('Names', names_group.label)
@@ -339,7 +341,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         )
 
         with self.assertNoException():
-            details_group = blocks['details']
+            details_group = blocks[details_id]
 
         # self.assertEqual('Details', details_group[0])
         self.assertEqual('Details',      details_group.label)
@@ -350,7 +352,12 @@ class FieldBlockManagerTestCase(CremeTestCase):
             [bfield.name for bfield in details_group.bound_fields]
         )
 
-    def test_new02(self):
+        self.assertListEqual(
+            [names_id, details_id],
+            [fb.id for fb in fbm2.build(form)],
+        )
+
+    def test_new_merge(self):
         "Block merge."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name')
@@ -394,7 +401,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             [bfield.name for bfield in details_group.bound_fields]
         )
 
-    def test_new03(self):
+    def test_new_wildcard01(self):
         "Extend parent wildcard => error."
         fbm1 = FieldBlockManager(
             ('names', 'Names', '*'),
@@ -411,7 +418,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_new04(self):
+    def test_new_wildcard02(self):
         "Extend with wildcard => error."
         fbm1 = FieldBlockManager(
             ('names', 'Names', ('first_name', 'last_name')),
@@ -428,7 +435,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
             str(cm.exception)
         )
 
-    def test_new05(self):
+    def test_new_dictarg(self):
         "Dicts arguments."
         class TestForm(forms.Form):
             first_name = forms.CharField(label='First name')
@@ -490,6 +497,127 @@ class FieldBlockManagerTestCase(CremeTestCase):
 
         self.assertEqual(LAYOUT_REGULAR,    blocks['address'].layout)
         self.assertEqual(LAYOUT_DUAL_FIRST, blocks['other'].layout)
+
+    def test_new_order01(self):
+        "<order> argument."
+        class TestForm(forms.Form):
+            first_name = forms.CharField(label='First name')
+            last_name = forms.CharField(label='Last name')
+            phone = forms.CharField(label='Phone')
+            cell = forms.CharField(label='Cell')
+            fax = forms.CharField(label='Fax')
+            address = forms.CharField(label='Address')
+            sector = forms.CharField(label='Sector')
+            position = forms.CharField(label='Position')
+            birthday = forms.DateField(label='Birthday')
+
+        misc_id = 'misc'
+        corporate_id = 'corporate'
+        names_id = 'names'
+        details_id = 'details'
+        address_id = 'address'
+        fbm1 = FieldBlockManager(
+            {
+                'id': misc_id,
+                'label': 'Misc',
+                'fields': ['birthday'],
+            },
+            {
+                'id': details_id,
+                'label': 'Details',
+                'fields': ['cell'],
+            },
+            {
+                'id': corporate_id,
+                'label': 'Corporate',
+                'fields': ['sector', 'position'],
+            },
+        )
+        fbm2 = fbm1.new(
+            {
+                'id': address_id,
+                'label': 'Address',
+                'fields': ['address'],
+                'order': 2,
+            },
+            {
+                'id': details_id,  # We extend this one
+                'label': 'Details extended',
+                'fields': ['phone', 'fax'],
+            },
+            {
+                'id': names_id,
+                'label': 'Names',
+                'fields': ('last_name', 'first_name'),
+                'order': 0,
+            },
+        )
+        self.assertListEqual(
+            [
+                names_id,  # order = 0
+                misc_id,
+                address_id,  # order = 2
+                details_id,
+                corporate_id,
+            ],
+            [fb.id for fb in fbm2.build(TestForm())],
+        )
+
+    def test_new_order02(self):
+        "Big <order> argument."
+        class TestForm(forms.Form):
+            first_name = forms.CharField(label='First name')
+            last_name = forms.CharField(label='Last name')
+            phone = forms.CharField(label='Phone')
+            cell = forms.CharField(label='Cell')
+            sector = forms.CharField(label='Sector')
+            position = forms.CharField(label='Position')
+
+        corporate_id = 'corporate'
+        names_id = 'names'
+        details_id = 'details'
+        fbm1 = FieldBlockManager(
+            {
+                'id': names_id,
+                'label': 'Names',
+                'fields': ('last_name', 'first_name'),
+            },
+        )
+        fbm2 = fbm1.new(
+            {
+                'id': corporate_id,
+                'label': 'Corporate',
+                'fields': ['sector', 'position'],
+                'order': 888,  # <====
+            },
+            {
+                'id': details_id,
+                'label': 'Details extended',
+                'fields': ['phone', 'cell'],
+                'order': 999,  # <====
+            },
+        )
+        self.assertListEqual(
+            [names_id, corporate_id, details_id],
+            [fb.id for fb in fbm2.build(TestForm())],
+        )
+
+    def test_new_order03(self):
+        "No <order> in __init__."
+        with self.assertRaises(ValueError) as cm:
+            FieldBlockManager(
+                {
+                    'id': 'names',
+                    'label': 'Names',
+                    'fields': ('last_name', 'first_name'),
+                    'order': 0,  # <===
+                },
+            )
+
+        self.assertEqual(
+            'Do not pass <order> information in FieldBlockManager constructor.',
+            str(cm.exception),
+        )
 
     def test_new_error(self):
         fbm1 = FieldBlockManager(
