@@ -195,8 +195,11 @@
         # In 'creme_core.forms' :
             - In 'base' :
                 - In 'FieldBlockManager', the constructor & 'new()' accepts now a dictionary format.
-                  This new format accepts a key "layout" to customize the blocks layout directly from the form class ;
-                  valid layout values are: LAYOUT_REGULAR, LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND.
+                  This new format accepts some new keys:
+                    - "layout" to customize the blocks layout directly from the form class ;
+                      valid layout values are: LAYOUT_REGULAR, LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND.
+                    - "template" to pass the path of the template file used to render the block.
+                    - "context" to pass some information to the template during the rendering.
                   In 'new()', you can also pass an "order" in the dictionaries.
                 - The calls to class-methods "add_post_*_callback()" can be chained.
             - A new field has been added in 'fields': 'ReadonlyMessageField'. It can be used to replace 'CharField(widget=Label)'
