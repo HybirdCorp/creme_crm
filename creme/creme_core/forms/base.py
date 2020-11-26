@@ -90,11 +90,14 @@ LAYOUTS = {
 }
 
 
-# TODO: add a render method with a template_name attribute ?
-#      (see Contact/Organisation form)
 class _FieldBlock:
     # __slots__ = ('name', 'field_names', 'layout')
-    __slots__ = ('id', 'label', 'field_names', 'layout')
+    __slots__ = (
+        'id', 'label', 'field_names',
+        'layout', 'template_name', 'template_context',
+    )
+
+    default_template_name = 'creme_core/generics/blockform/field-block.html'
 
     def __init__(self,
                  *,
@@ -102,18 +105,27 @@ class _FieldBlock:
                  # verbose_name: str,
                  label: str,
                  field_names: FieldNamesOrWildcard,
-                 layout: Optional[LayoutType] = None):
+                 layout: Optional[LayoutType] = None,
+                 template_name: Optional[str] = None,
+                 template_context: Optional[dict] = None,
+                 ):
         """Constructor.
         @param id: String identifying this block among the group.
         @param label: Title of the block (displayed in the output).
         @param field_names: Sequence of strings (fields names in the form)
                or string '*' (wildcard->all remaining fields).
         @param layout: Layout types (see LAYOUTS) or None ; LAYOUT_REGULAR by default.
+        @param template_name: path to the template to use for render, or None ;
+               The attribute "default_template_name" is used by default.
+       @param template_context: dictionary intended to be used during the
+              template rendering, or None.
         """
         self.id = id
         # self.name = verbose_name
         self.label = label
         self.layout: LayoutType = layout or LAYOUT_REGULAR
+        self.template_name = template_name or self.default_template_name
+        self.template_context = template_context
 
         if self.layout not in LAYOUTS:
             raise ValueError(f'The layout "{layout}" is invalid.')
@@ -130,7 +142,10 @@ class _FieldBlock:
             f'id="{self.id}", '
             f'label="{self.label}", '
             f'layout="{self.layout}", '
-            f'field_names={self.field_names!r})'
+            f'template_name="{self.template_name}", '
+            f'template_context={self.template_context!r}, '
+            f'field_names={self.field_names!r}'
+            f')'
         )
 
 
@@ -140,18 +155,26 @@ class BoundFieldBlocks:
     Hint: you should not build them directly ; use FieldBlockManager.build() instead.
     """
     class BoundFieldBlock:
-        __slots__ = ('id', 'label', 'bound_fields', 'layout')
+        __slots__ = (
+            'id', 'label', 'bound_fields',
+            'layout', 'template_name', 'template_context',
+        )
 
         def __init__(self,
                      *,
                      id: str,
                      label: str,
                      bound_fields: List[BoundField],
-                     layout: LayoutType):
+                     layout: LayoutType,
+                     template_name: str,
+                     template_context: Optional[dict],
+                     ):
             self.id = id
             self.label = label
             self.bound_fields = bound_fields
             self.layout = layout
+            self.template_name = template_name
+            self.template_context = template_context
 
     _blocks_data: Dict[
         str,  # Block ID
@@ -192,6 +215,8 @@ class BoundFieldBlocks:
                     label=block.label,
                     layout=block.layout,
                     bound_fields=[],
+                    template_name=block.template_name,
+                    template_context=block.template_context,
                 )
                 wildcard_id = block_id
             else:
@@ -214,6 +239,8 @@ class BoundFieldBlocks:
                     label=block.label,
                     bound_fields=bound_fields,
                     layout=block.layout,
+                    template_name=block.template_name,
+                    template_context=block.template_context,
                 )
 
         if wildcard_id is not None:
@@ -263,6 +290,13 @@ class FieldBlockManager:
                   "label": i18n string.
                   "fields": a sequence of field names, or the wildcard.
                   "layout": see LAYOUTS ; optional. Hint: cannot be passed with the tuple format.
+                  "template": path to the template to use for render ; optional
+                              (default template is
+                              "creme_core/generics/blockform/field-block.html").
+                              Hint: cannot be passed with the tuple format.
+                  "context": dictionary used by the template
+                             (see <BoundFieldBlock.template_context>).
+                             Hint: cannot be passed with the tuple format.
                Only zero or one wildcard is allowed.
         """
         # Beware: use a list comprehension instead of a generator expression with this constructor
@@ -284,6 +318,8 @@ class FieldBlockManager:
                             'label': e['label'],
                             'field_names': e['fields'],
                             'layout': e.get('layout'),
+                            'template_name': e.get('template'),
+                            'template_context': e.get('context'),
                         },
                     )
                 else:

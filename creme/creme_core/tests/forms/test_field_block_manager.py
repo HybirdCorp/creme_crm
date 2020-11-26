@@ -111,6 +111,8 @@ class FieldBlockManagerTestCase(CremeTestCase):
             cell  = forms.CharField(label='Cell')
             fax   = forms.CharField(label='Fax')
 
+        template_details = 'creme_core/generics/blockform/field-block-IMPROVED.html'
+        ctxt_details = {'some': 'info'}
         fbm = FieldBlockManager(
             {
                 'id': 'names',
@@ -121,6 +123,8 @@ class FieldBlockManagerTestCase(CremeTestCase):
                 'label': 'Details',
                 'fields': ['cell', 'phone', 'fax'],
                 'layout': LAYOUT_DUAL_FIRST,
+                'template': template_details,
+                'context': ctxt_details,
             },
         )
         form = TestForm()
@@ -132,6 +136,11 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertIsInstance(names_group, BoundFieldBlocks.BoundFieldBlock)
         self.assertEqual('Names', names_group.label)
         self.assertEqual(LAYOUT_REGULAR, names_group.layout)
+        self.assertEqual(
+            'creme_core/generics/blockform/field-block.html',
+            names_group.template_name,
+        )
+        self.assertIsNone(names_group.template_context)
 
         bfields = names_group.bound_fields
         self.assertEqual(2, len(bfields))
@@ -146,6 +155,8 @@ class FieldBlockManagerTestCase(CremeTestCase):
         details_group = blocks['details']
         self.assertEqual('Details', details_group.label)
         self.assertEqual(LAYOUT_DUAL_FIRST, details_group.layout)
+        self.assertEqual(template_details, details_group.template_name)
+        self.assertDictEqual(ctxt_details, details_group.template_context)
 
     def test_basic_iter(self):
         class TestForm(forms.Form):
