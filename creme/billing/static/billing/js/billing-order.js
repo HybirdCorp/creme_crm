@@ -7,17 +7,61 @@ var __DiscountType = {
     ITEM_AMOUNT: 3
 };
 
-function __assertDiscountType(value) {
-    Assert.in(value, Object.values(__DiscountType), "${value} is not a discount type");
+function __checkDecimalRange(fieldname, value, min, max) {
+    if (value < min) {
+        throw new creme.form.ValidationError({
+            field: fieldname,
+            code: 'rangeUnderflow',
+            message: gettext('This value must be superior or equal to ${min}'),
+            min: min
+        });
+    } else if (!isNaN(max) && value > max) {
+        throw new creme.form.ValidationError({
+            field: fieldname,
+            code: 'rangeOverflow',
+            message: gettext('This value must be inferior or equal to ${max}'),
+            max: max
+        });
+    }
 }
 
-function __decimalConstraint(min, max) {
-    return function(value) {
-        if (value < min) {
-            throw new creme.form.ValidationError('rangeUnderflow');
-        } else if (!isNaN(max) && value > max) {
-            throw new creme.form.ValidationError('rangeOverflow');
-        }
+function __discountValueConstraint(form, output) {
+    var quantity = output.cleanedData.quantity;
+    var unitPrice = output.cleanedData.unit_price;
+    var discountUnit = output.cleanedData.discount_unit;
+    var value = output.cleanedData.discount;
+
+    switch (discountUnit) {
+        case __DiscountType.LINE_AMOUNT:
+            __checkDecimalRange('discount', value, 0, quantity * unitPrice);
+            break;
+        case __DiscountType.ITEM_PERCENT:
+            __checkDecimalRange('discount', value, 0, 100);
+            break;
+        case __DiscountType.ITEM_AMOUNT:
+            __checkDecimalRange('discount', value, 0, unitPrice);
+            break;
+        default:
+            __checkDecimalRange('discount', value, 0);
+    }
+}
+
+function __discountTypeConstraint(form, output) {
+    var value = output.cleanedData.discount_unit;
+
+    if (Object.values(__DiscountType).indexOf(value) === -1) {
+        throw new creme.form.ValidationError({
+            code: 'cleanMismatch',
+            field: 'discount_unit',
+            message: gettext('"${value}" is not a valid discount type'),
+            value: value
+        });
+    }
+}
+
+function __decimalConstraint(field, min, max) {
+    return function(form, data) {
+        __checkDecimalRange(field, data[field], min, max);
     };
 }
 
@@ -41,39 +85,40 @@ creme.billing.OrderLine = creme.component.Component.sub({
             currencyFormat: '${amount} €'
         }, options || {});
 
-        this.currency(options.currency);
+        this.currencyFormat(options.currencyFormat);
 
         this._element = $(element);
         this._form = element.flyform({
-            responsive: true,
             fields: {
                 quantity: {
                     dataType: 'decimal',
                     required: true,
-                    constraints: __decimalConstraint(0),
                     parser: __fixed(2)
                 },
                 unit_price: {
                     dataType: 'decimal',
                     required: true,
-                    constraints: __decimalConstraint(0),
                     parser: __fixed(3)
                 },
                 discount: {
                     dataType: 'decimal',
-                    constraints: __decimalConstraint(0),
                     parser: __fixed(2)
                 },
                 discount_unit: {
-                    dataType: 'integer',
-                    constraints: __assertDiscountType
+                    dataType: 'integer'
                 },
                 vat_value: {
                     dataType: 'decimal',
-                    constraints: __decimalConstraint(0, 1),
                     parser: __fixed(3)
                 }
-            }
+            },
+            constraints: [
+                __decimalConstraint('quantity', 0),
+                __decimalConstraint('unit_price', 0),
+                __decimalConstraint('vat_value', 0, 1),
+                __discountTypeConstraint,
+                __discountValueConstraint
+            ]
         });
 
         this._element.on('form-clean', this._onFormClean.bind(this));
@@ -92,7 +137,7 @@ creme.billing.OrderLine = creme.component.Component.sub({
     },
 
     _formatAmount: function(value) {
-        return Object.isEmpty(value) ? '−' : (this.currencyFormat() || '').template({
+        return Object.isEmpty(value) ? '−' : (this.currencyFormat() || '${amount}').template({
             amount: value.toFixed(2)
         });
     },
@@ -119,12 +164,11 @@ creme.billing.OrderLine = creme.component.Component.sub({
     },
 
     clean: function() {
-        this._form.clean({noThrow: true});
-        return this;
+        return this._form.clean({noThrow: true});
     },
 
     currencyFormat: function(format) {
-        Object.property(this, '_currencyFormat', format);
+        return Object.property(this, '_currencyFormat', format);
     },
 
     field: function(name) {
@@ -156,6 +200,10 @@ creme.billing.OrderLine = creme.component.Component.sub({
         return this.field('vat_value').clean({noThrow: true}) || 0.0;
     },
 
+    isValid: function() {
+        return this._form.isValid();
+    },
+
     totalNoTax: function() {
         var quantity = this.quantity();
         var unitPrice = this.unitPrice();
@@ -181,7 +229,7 @@ creme.billing.OrderLine = creme.component.Component.sub({
                 total = quantity * (unitPrice - discount);
                 break;
             default:
-                throw new Error('Invalid discount type "' + discountUnit + '"');
+                total = quantity * unitPrice;
         }
 
         return Math.scaleRound(total, 2);

@@ -66,6 +66,7 @@ data-type-global-discount="{{object.discount}}"
 
     {% has_perm_to change object as change_perm %}{% if change_perm %}
     <script type="text/javascript">
+        /* globals OrderController */
         $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
             brick.orderController = new OrderController(brick);
         });
