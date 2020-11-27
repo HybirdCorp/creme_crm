@@ -292,9 +292,10 @@ creme.form.Form = creme.component.Component.sub({
         if (output.isValid || options.noThrow) {
             return output;
         } else {
-            var error = new Error('Form data is invalid');
-            error.output = output;
-            throw error;
+            throw new creme.form.ValidationError({
+                message: 'Form data is invalid',
+                output: output
+            });
         }
     },
 
@@ -305,9 +306,15 @@ creme.form.Form = creme.component.Component.sub({
 
         this.constraints().forEach(function(constraint) {
             try {
-                $.extend(output, constraint(this, data));
+                constraint(this, output);
             } catch (e) {
-                __addRawEntry(output, 'errors', e.message);
+                if (e.field) {
+                    __addRawEntry(output.fieldErrors, e.field, {
+                        code: e.code, message: e.message
+                    });
+                } else {
+                    __addRawEntry(output, 'errors', e.message);
+                }
             }
         }.bind(this));
 
