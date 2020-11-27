@@ -10,7 +10,7 @@
     <div id="swagger-ui"></div>
     <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
     <script>
-    const ui = SwaggerUIBundle({
+    var ui = SwaggerUIBundle({
         url: "{% url schema_url %}",
         dom_id: '#swagger-ui',
         presets: [
@@ -18,7 +18,7 @@
           SwaggerUIBundle.SwaggerUIStandalonePreset
         ],
         layout: "BaseLayout",
-        requestInterceptor: (request) => {
+        requestInterceptor: function(request) {
           request.headers['X-CSRFToken'] = "{{ csrf_token }}"
           return request;
         }

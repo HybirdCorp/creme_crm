@@ -26,17 +26,6 @@ from rest_framework import serializers
 from creme.creme_core.models import CremeEntity
 
 
-def field_is_valid(field):
-    if field.name in {'id', 'is_deleted'}:
-        return True
-    return field.concrete and field.get_tag('viewable')
-
-
-def list_model_fields(model_class):
-    fields = model_class._meta.get_fields()
-    return [f.name for f in fields if field_is_valid(f)]
-
-
 class CremeEntityRelatedField(serializers.RelatedField):
     queryset = CremeEntity.objects.all()
     default_error_messages = {

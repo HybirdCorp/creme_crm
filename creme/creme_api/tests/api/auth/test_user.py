@@ -73,3 +73,15 @@ class CremeUserTestCase(CremeAPITestCase):
         contact1.refresh_from_db()
         self.assertEqual(contact1.is_user, None)
         self.assertEqual(contact1.user, user2)
+
+    def test_set_password_user(self):
+        self.assertEqual(CremeUser.objects.count(), 1)
+        user = CremeUser.objects.get()
+
+        url = reverse('creme_api-users-set-password', args=[user.id])
+        data = {'password': "StrongPassword"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 200, response.data)
+
+        user.refresh_from_db()
+        self.assertTrue(user.check_password("StrongPassword"))

@@ -18,13 +18,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, password_validation
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from creme.creme_core.models import Sandbox, SetCredentials, UserRole
 from creme.creme_core.models.fields import CremeUserForeignKey
 
 CremeUser = get_user_model()
+
+
+class PasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        label=_('Password'), trim_whitespace=False, write_only=True, required=False)
+
+    def validate_password(self, password):
+        password_validation.validate_password(password, self.instance)
+        return password
+
+    def save(self):
+        self.instance.set_password(self.validated_data['password'])
+        self.instance.save()
+        return self.instance
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -34,7 +49,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'last_name',
-            # 'first_name',
+            'first_name',
             'email',
 
             'date_joined',
@@ -50,6 +65,12 @@ class UserSerializer(serializers.ModelSerializer):
             # 'settings',
         ]
     # TODO forbid role + superuser
+
+    def validate(self, attrs):
+        # TODO: handle partial update
+        if attrs.get('is_superuser') and attrs.get('role'):
+            raise serializers.ValidationError(code='is_superuser_xor_role')
+        return attrs
 
 
 class TeamSerializer(serializers.ModelSerializer):

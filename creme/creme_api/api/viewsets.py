@@ -62,6 +62,7 @@ class CremeEntityViewSet(CremeModelViewSet):
     @action(detail=True, methods=['post'])
     def trash(self, request, pk):
         instance = self.get_object()
+
         try:
             instance.trash()
         except SpecificProtectedError as exc:
@@ -73,6 +74,7 @@ class CremeEntityViewSet(CremeModelViewSet):
     @action(detail=True, methods=['post'])
     def restore(self, request, pk):
         instance = self.get_object()
+
         try:
             instance.restore()
         except SpecificProtectedError as exc:

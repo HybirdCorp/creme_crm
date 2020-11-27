@@ -20,6 +20,7 @@
 
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.schemas.openapi import AutoSchema
 from rest_framework.status import HTTP_204_NO_CONTENT
@@ -29,6 +30,7 @@ from creme.creme_core.models import Sandbox, SetCredentials, UserRole
 from ..viewsets import CremeApiMixin
 from .schemas import UserAutoSchema
 from .serializers import (
+    PasswordSerializer,
     SandboxSerializer,
     SetCredentialsSerializer,
     TeamSerializer,
@@ -61,6 +63,16 @@ class UserViewSet(CremeApiMixin, AssignOnDeleteMixin, viewsets.ModelViewSet):
     queryset = CremeUser.objects.filter(is_team=False, is_staff=False)
     serializer_class = UserSerializer
     schema = UserAutoSchema(tags=['Auth'], operation_id_base="User")
+
+    @action(detail=True, methods=['post'])
+    def set_password(self, request, pk):
+        instance = self.get_object()
+        serializer = PasswordSerializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class TeamViewSet(CremeApiMixin, AssignOnDeleteMixin, viewsets.ModelViewSet):
