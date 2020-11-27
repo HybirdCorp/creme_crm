@@ -806,7 +806,7 @@ QUnit.parametrize('creme.form.Field (clean, invalid)', [
 
     this.assertRaises(function() {
         field.clean();
-    }, Error, 'Error: ${expected}'.template({expected: message}));
+    }, creme.form.ValidationError, 'ValidationError : ${expected}'.template({expected: message}));
 
     equal(field.isValidHtml(), false);
     equal(field.isValid(), false);

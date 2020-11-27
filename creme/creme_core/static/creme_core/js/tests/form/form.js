@@ -380,9 +380,9 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors)', [
 
     var error = this.assertRaises(function() {
         form.clean();
-    }, Error, 'Error: Form data is invalid');
+    }, creme.form.ValidationError, 'ValidationError : Form data is invalid');
 
-    deepEqual(expected, error.output);
+    deepEqual(expected, error.data.output);
 });
 
 QUnit.parametrize('creme.form.Form (clean, html5 errors, custom messages)', [
@@ -510,14 +510,11 @@ QUnit.parametrize('creme.form.Form (clean, constraints, field errors)', [
     var form = new creme.form.Form(element, {
         constraints: function(form, data) {
             if (Object.isEmpty(data.cleanedData.field_a)) {
-                return {
-                    fieldErrors: {
-                        field_a: {
-                            code: 'cleanMismatch',
-                            message: 'The form said Not here !'
-                        }
-                    }
-                };
+                throw new creme.form.ValidationError({
+                    field: 'field_a',
+                    code: 'cleanMismatch',
+                    message: 'The form said Not here !'
+                });
             }
         }
     });

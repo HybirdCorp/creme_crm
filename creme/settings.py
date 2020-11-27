@@ -708,6 +708,7 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/model/controller.js',
     'creme_core/js/widgets/model/choice.js',
 
+    'creme_core/js/widgets/form/validation.js',
     'creme_core/js/widgets/form/field.js',
     'creme_core/js/widgets/form/form.js',
 

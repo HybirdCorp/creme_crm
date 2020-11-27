@@ -71,8 +71,6 @@ function __htmlDataType(element) {
     return __DEFAULT_DATA_TYPES[htmlType] || htmlType;
 }
 
-creme.form = creme.form || {};
-
 creme.form.Field = creme.component.Component.sub({
     _init_: function(element, options) {
         Assert.isAnyOf(element, ['string', $], 'DOM element "${e}" is not a string nor a jQuery element', {e: String(element)});
@@ -478,9 +476,11 @@ creme.form.Field = creme.component.Component.sub({
         try {
             return this._parseValue(value);
         } catch (e) {
-            var error = new Error(this._formatErrorMessage('cleanMismatch'));
-            error.code = 'cleanMismatch';
-            throw error;
+            throw new creme.form.ValidationError({
+                field: this.name(),
+                code: 'cleanMismatch',
+                message: this._formatErrorMessage('cleanMismatch')
+            });
         }
     },
 
@@ -503,8 +503,11 @@ creme.form.Field = creme.component.Component.sub({
                     error = e;
                 }
             } else {
-                error = new Error(this.errorMessage());
-                error.code = this.errorCode();
+                error = new creme.form.ValidationError({
+                    field: this.name(),
+                    code: this.errorCode(),
+                    message: this.errorMessage()
+                });
             }
         } finally {
             this.trigger('clean', cleaned, value);

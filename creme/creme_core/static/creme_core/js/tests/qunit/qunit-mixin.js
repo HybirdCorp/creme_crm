@@ -190,7 +190,7 @@
             QUnit.assert.raises(
                 block,
                 function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
+                    ok(error instanceof expected, 'error is not ' + expected);
 
                     if (message !== undefined) {
                         equal(message, '' + error, 'expected message');
