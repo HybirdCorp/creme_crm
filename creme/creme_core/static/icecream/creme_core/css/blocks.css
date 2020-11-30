@@ -133,7 +133,7 @@ div.dual_column-container + table.table_detail_view {
     margin: 0;
 }
 
-th_info {
+.th_info {
     max-width: 30%;
     width: 30%;
     text-align: left;

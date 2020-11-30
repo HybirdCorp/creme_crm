@@ -150,7 +150,8 @@ button {
     display: inline-block;
 }
 
-.research_box span, .quickform_box span {
+.research_box span,
+.quickform_box span {
     padding: 7px;
 
     color: #2c596c;
@@ -285,13 +286,16 @@ button {
 
 /* Page header and top areas - [end] */
 
-.forbidden, .faded {
+.forbidden,
+.faded {
     opacity: 0.5;
 }
 
-.spacer {  /* TODO: move to forms.css */
+/*
+.spacer {
   clear: both;
 }
+*/
 
 .wait {
     list-style-image : url(icecream/images/wait.gif);
@@ -377,19 +381,6 @@ button {
 /* Buttons (for example: 'validate') in the blocks */
 .table_detail_view td button {
     padding: 0px;
-}
-
-/* This seems duplicated/overridden in blocks.css */
-.th_info {
-    max-width: 30%;
-    width: 30%;
-    text-align: left;
-}
-
-.td_info {
-    max-width: 70%;
-    width: 70%;
-    text-align: left;
 }
 
 /* This seems duplicated/overridden in blocks.css - [end] */
