@@ -1,4 +1,5 @@
-.forbidden, .faded {
+.forbidden,
+.faded {
     opacity: 0.5;
 }
 
@@ -192,9 +193,11 @@ td p {
 
 /* Page header and top areas - end */
 
+/*
 .spacer {
   clear: both;
 }
+*/
 
 .wait {
     list-style-image : url(chantilly/images/wait.gif);
@@ -301,7 +304,8 @@ a img:hover {
     opacity: 0.8;
 }
 
-.ui-state-default, .ui-widget-content .ui-state-default {
+.ui-state-default,
+.ui-widget-content .ui-state-default {
     font-size: 1.1em;
 }
 
