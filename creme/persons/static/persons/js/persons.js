@@ -25,13 +25,17 @@
 
 creme.persons = creme.persons || {};
 
-// TODO : move this creme_core
+// Copy inputs from a form to another in the SAME order.
+// WARNING : Extremely weak function, if any field is missing or moved on the
+// other side, it will fall apart.
 creme.persons.copyTo = function (source, target) {
     source = Object.isString(source) ? $('#' + source) : $(source);
     target = Object.isString(target) ? $('#' + target) : $(target);
 
-    source.find('input, textarea, select').each(function() {
-        target.find('[name="' + $(this).attr('name') + '"]').val($(this).val());
+    var targetInputs = target.find('input, textarea, select');
+
+    source.find('input, textarea, select').each(function(index) {
+        $(targetInputs[index]).val($(this).val());
     });
 
     /*

@@ -76,6 +76,7 @@ test-cov:
 .PHONY: karma-clean
 karma-clean:
 	rm -f artifacts/karma_coverage/html/static/*.html
+	rm -f artifacts/karma_coverage/html/*.html
 
 ## Run the Javascript test suite
 .PHONY: karma
