@@ -1272,7 +1272,7 @@ GEOLOCATION_TOWNS = [
 
 # Url for address geolocation search (nominatim is the only supported backend for now)
 GEOLOCATION_OSM_NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
-# Url pattern for tiles of the geolocation
+# URL pattern for tiles of the geolocation
 # {s} − one of the available subdomains
 # {z} — zoom level
 # {x} and {y} — tile coordinates

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-01 09:55+0200\n"
+"POT-Creation-Date: 2020-12-04 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: apps.py:116 apps.py:127
+#: apps.py:117 apps.py:128
 msgid "Management"
 msgstr "Gestion"
 
@@ -27,32 +27,32 @@ msgstr "Gestion"
 msgid "Images of product/service"
 msgstr "Images du produit/service"
 
-#: custom_forms.py:16
+#: custom_forms.py:15
 msgid "Creation form for product"
 msgstr "Formulaire de création de produit"
 
-#: custom_forms.py:24
+#: custom_forms.py:23
 msgid "Edition form for product"
 msgstr "Formulaire de modification de produit"
 
-#: custom_forms.py:32
+#: custom_forms.py:30
 msgid "Creation form for service"
 msgstr "Formulaire de création de service"
 
-#: custom_forms.py:40
+#: custom_forms.py:38
 msgid "Edition form for service"
 msgstr "Formulaire de modification de service"
 
-#: forms/base.py:38
+#: forms/base.py:35
 msgid "Category & sub-category"
 msgstr "Catégorie & sous-catégorie"
 
-#: forms/base.py:63 forms/fields.py:73 forms/product.py:53 models/product.py:39
+#: forms/base.py:52 forms/fields.py:73 forms/product.py:53 models/product.py:39
 #: models/service.py:40
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/base.py:95 models/product.py:54 models/service.py:51
+#: forms/base.py:84 models/product.py:54 models/service.py:51
 #: templates/products/bricks/images.html:7
 msgid "Images"
 msgstr "Images"
@@ -114,8 +114,7 @@ msgstr "Catégories"
 msgid "Name of the category"
 msgstr "Nom de la catégorie"
 
-#: models/other_models.py:30 models/other_models.py:46 populate.py:108
-#: populate.py:137 populate.py:164 populate.py:192
+#: models/other_models.py:30 models/other_models.py:46 populate.py:90
 msgid "Description"
 msgstr "Description"
 
@@ -239,144 +238,156 @@ msgstr "Vue de Produit"
 msgid "Service view"
 msgstr "Vue de Service"
 
+#: populate.py:95
+msgid "Custom fields"
+msgstr ""
+
 # Already in creme_core
-#: populate.py:92 populate.py:121 populate.py:149 populate.py:177
+#: populate.py:110 populate.py:145
 msgid "General information"
 msgstr ""
 
-#: populate.py:212
+#: populate.py:121
+msgid "Properties"
+msgstr ""
+
+#: populate.py:129
+msgid "Relationships"
+msgstr ""
+
+#: populate.py:216
 msgid "Jewelry"
 msgstr "Bijoux"
 
-#: populate.py:213
+#: populate.py:217
 msgid "Ring"
 msgstr "Bague"
 
-#: populate.py:214
+#: populate.py:218
 msgid "Bracelet"
 msgstr "Bracelet"
 
-#: populate.py:215
+#: populate.py:219
 msgid "Necklace"
 msgstr "Collier"
 
-#: populate.py:216
+#: populate.py:220
 msgid "Earrings"
 msgstr "Boucles d'oreille"
 
-#: populate.py:218
+#: populate.py:222
 msgid "Mobile"
 msgstr "Mobile"
 
-#: populate.py:219
+#: populate.py:223
 msgid "Iphone"
 msgstr "Iphone"
 
-#: populate.py:220
+#: populate.py:224
 msgid "Blackberry"
 msgstr "Blackberry"
 
-#: populate.py:221
+#: populate.py:225
 msgid "Samsung"
 msgstr "Samsung"
 
-#: populate.py:222
+#: populate.py:226
 msgid "Android"
 msgstr "Android"
 
-#: populate.py:224
+#: populate.py:228
 msgid "Electronics"
 msgstr "Materiel informatique"
 
-#: populate.py:225
+#: populate.py:229
 msgid "Laptops"
 msgstr "Portables"
 
-#: populate.py:226
+#: populate.py:230
 msgid "Desktops"
 msgstr "Bureau"
 
-#: populate.py:227
+#: populate.py:231
 msgid "Tablet"
 msgstr "Tablette"
 
-#: populate.py:228
+#: populate.py:232
 msgid "Notebook"
 msgstr "Netbook"
 
-#: populate.py:230
+#: populate.py:234
 msgid "Travels"
 msgstr "Voyages"
 
-#: populate.py:231
+#: populate.py:235
 msgid "Fly"
 msgstr "Vol"
 
-#: populate.py:232
+#: populate.py:236
 msgid "Hotel"
 msgstr "Hôtel"
 
-#: populate.py:233
+#: populate.py:237
 msgid "Week-end"
 msgstr "Week-end"
 
-#: populate.py:234
+#: populate.py:238
 msgid "Rent"
 msgstr "Location"
 
-#: populate.py:236
+#: populate.py:240
 msgid "Vehicle"
 msgstr "Véhicule"
 
-#: populate.py:237
+#: populate.py:241
 msgid "Car"
 msgstr "Voiture"
 
-#: populate.py:238
+#: populate.py:242
 msgid "Moto"
 msgstr "Moto"
 
-#: populate.py:239
+#: populate.py:243
 msgid "Boat"
 msgstr "Bateau"
 
-#: populate.py:240
+#: populate.py:244
 msgid "Plane"
 msgstr "Avion"
 
-#: populate.py:242
+#: populate.py:246
 msgid "Games & Toys"
 msgstr "Jeux & jouets"
 
-#: populate.py:243
+#: populate.py:247
 msgid "Boys"
 msgstr "Garçons"
 
-#: populate.py:244
+#: populate.py:248
 msgid "Girls"
 msgstr "Filles"
 
-#: populate.py:245
+#: populate.py:249
 msgid "Teens"
 msgstr "Adolescents"
 
-#: populate.py:246 populate.py:252
+#: populate.py:250 populate.py:256
 msgid "Babies"
 msgstr "Bébés"
 
-#: populate.py:248
+#: populate.py:252
 msgid "Clothes"
 msgstr "Vêtements"
 
-#: populate.py:249
+#: populate.py:253
 msgid "Men"
 msgstr "Hommes"
 
-#: populate.py:250
+#: populate.py:254
 msgid "Women"
 msgstr "Femmes"
 
-#: populate.py:251
+#: populate.py:255
 msgid "Kids"
 msgstr "Enfants"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-02 11:30+0100\n"
+"POT-Creation-Date: 2020-12-04 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -58,35 +58,35 @@ msgstr "Rôles et droits"
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: bricks.py:177
+#: bricks.py:180
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: bricks.py:190
+#: bricks.py:193
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: bricks.py:207
+#: bricks.py:210
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: bricks.py:224
+#: bricks.py:227
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:400
+#: bricks.py:368
 msgid "Missing required field: {}"
 msgstr "Champ obligatoire manquant : {}"
 
-#: bricks.py:411
+#: bricks.py:369
 msgid "Missing required custom field: {}"
 msgstr "Champ personnalisé obligatoire manquant : {}"
 
-#: bricks.py:422
+#: bricks.py:370
 msgid "Missing required special field: {}"
 msgstr "Champ spécial obligatoire manquant : {}"
 
-#: bricks.py:578 bricks.py:820 forms/bricks.py:249 forms/bricks.py:310
+#: bricks.py:564 bricks.py:806 forms/bricks.py:249 forms/bricks.py:310
 #: forms/search.py:73 forms/user.py:78 forms/user.py:132
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
@@ -473,11 +473,11 @@ msgstr ""
 msgid "Name"
 msgstr "Nom"
 
-#: forms/custom_form.py:272
+#: forms/custom_form.py:271
 msgid "Group"
 msgstr "Groupe"
 
-#: forms/custom_form.py:296
+#: forms/custom_form.py:295
 msgid "Sorry no extra group is available any more."
 msgstr "Désolé il n'y a plus aucun groupe spécial de disponible."
 
@@ -1012,7 +1012,7 @@ msgstr "Aucun bloc pour le moment"
 #: templates/creme_config/bricks/bricklocations-detailviews.html:7
 #: templates/creme_config/bricks/button-menu.html:7
 #: templates/creme_config/bricks/custom-fields.html:13
-#: templates/creme_config/bricks/custom-forms.html:49
+#: templates/creme_config/bricks/custom-forms.html:15
 #: templates/creme_config/bricks/fields-configs.html:7
 #: templates/creme_config/bricks/search-config.html:7
 #, python-brace-format
@@ -1022,7 +1022,7 @@ msgstr "{count} Type de ressource configuré"
 #: templates/creme_config/bricks/bricklocations-detailviews.html:7
 #: templates/creme_config/bricks/button-menu.html:7
 #: templates/creme_config/bricks/custom-fields.html:13
-#: templates/creme_config/bricks/custom-forms.html:49
+#: templates/creme_config/bricks/custom-forms.html:15
 #: templates/creme_config/bricks/fields-configs.html:7
 #: templates/creme_config/bricks/search-config.html:7
 #, python-brace-format
@@ -1277,45 +1277,44 @@ msgstr "Supprimer ce champ personnalisé"
 msgid "No type of entity has custom field for the moment"
 msgstr "Aucun type de fiche n'a de champ personnalisé pour le moment"
 
-#: templates/creme_config/bricks/custom-forms.html:67
-#| msgid "Drag and drop to re-order this «%(type)s»"
+#: templates/creme_config/bricks/custom-forms.html:33
 msgid "Drag and drop the groups to order them."
 msgstr "Glissez-déposez les groupes pour les réordonner."
 
-#: templates/creme_config/bricks/custom-forms.html:77
+#: templates/creme_config/bricks/custom-forms.html:43
 msgid "Display this group on the second half only"
 msgstr "Afficher ce groupe sur la seconde moitié seulement"
 
-#: templates/creme_config/bricks/custom-forms.html:79
-#: templates/creme_config/bricks/custom-forms.html:88
+#: templates/creme_config/bricks/custom-forms.html:45
+#: templates/creme_config/bricks/custom-forms.html:54
 msgid "Display this group on the whole width"
 msgstr "Afficher ce groupe sur la toute la largueur"
 
-#: templates/creme_config/bricks/custom-forms.html:83
+#: templates/creme_config/bricks/custom-forms.html:49
 msgid "Edit this group"
 msgstr "Modifier ce groupe"
 
-#: templates/creme_config/bricks/custom-forms.html:84
+#: templates/creme_config/bricks/custom-forms.html:50
 msgid "Delete this group"
 msgstr "Supprimer ce groupe"
 
-#: templates/creme_config/bricks/custom-forms.html:86
+#: templates/creme_config/bricks/custom-forms.html:52
 msgid "Display this group on the first half only"
 msgstr "Afficher ce groupe sur la première moitié seulement"
 
-#: templates/creme_config/bricks/custom-forms.html:98
+#: templates/creme_config/bricks/custom-forms.html:64
 msgid "Delete this field"
 msgstr "Supprimer ce champ"
 
-#: templates/creme_config/bricks/custom-forms.html:113
+#: templates/creme_config/bricks/custom-forms.html:79
 msgid "Add a group"
 msgstr "Ajouter un groupe"
 
-#: templates/creme_config/bricks/custom-forms.html:115
+#: templates/creme_config/bricks/custom-forms.html:81
 msgid "Add a special group"
 msgstr "Ajouter un groupe spécial"
 
-#: templates/creme_config/bricks/custom-forms.html:135
+#: templates/creme_config/bricks/custom-forms.html:101
 msgid "No custom form"
 msgstr "Pas de formulaire personnalisé"
 
@@ -2150,7 +2149,7 @@ msgid "Show deleted custom fields"
 msgstr "Montrer les champ personnalisés supprimés"
 
 #: views/base.py:33 views/bricks.py:151 views/bricks.py:249
-#: views/button_menu.py:51 views/custom_form.py:94 views/custom_form.py:133
+#: views/button_menu.py:51 views/custom_form.py:92 views/custom_form.py:131
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
@@ -2274,17 +2273,17 @@ msgstr "Supprimer le choix"
 msgid "A deletion process for a choice already exists."
 msgstr "Il y a déjà un processus de suppression pour un choix."
 
-#: views/custom_form.py:112
+#: views/custom_form.py:110
 #, python-brace-format
 msgid "Add a group to «{form}»"
 msgstr "Ajouter un groupe à «{form}»"
 
-#: views/custom_form.py:117
+#: views/custom_form.py:115
 #, python-brace-format
 msgid "Add an extra group to «{form}»"
 msgstr "Ajouter un groupe spécial à «{form}»"
 
-#: views/custom_form.py:132
+#: views/custom_form.py:130
 #, python-brace-format
 msgid "Edit the group «{group}»"
 msgstr "Modifier le groupe «{group}»"

@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Documents 2.1\n"
+"Project-Id-Version: Creme Documents 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-13 11:38+0200\n"
+"POT-Creation-Date: 2020-12-04 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -35,7 +35,7 @@ msgstr "Télécharger le fichier"
 msgid "Documents"
 msgstr "Documents"
 
-#: apps.py:113
+#: apps.py:124
 msgid "Tools"
 msgstr "Outils"
 
@@ -63,6 +63,22 @@ msgstr "Documents crées à partir des fiches"
 msgid "Documents received by email"
 msgstr "Documents reçus par e-mail"
 
+#: custom_forms.py:17
+msgid "Creation form for folder"
+msgstr "Formulaire de création de classeur"
+
+#: custom_forms.py:24
+msgid "Edition form for folder"
+msgstr "Formulaire de modification de classeur"
+
+#: custom_forms.py:30
+msgid "Creation form for document"
+msgstr "Formulaire de création de document"
+
+#: custom_forms.py:37
+msgid "Edition form for document"
+msgstr "Formulaire de modification de document"
+
 #: forms/fields.py:86 forms/fields.py:110 views/quick_forms.py:48
 msgid "Create an image"
 msgstr "Créer une image"
@@ -71,7 +87,7 @@ msgstr "Créer une image"
 msgid "Image file"
 msgstr "Fichier image"
 
-#: gui.py:42 views/folder.py:50 views/folder.py:75
+#: gui.py:42 views/folder.py:52 views/folder.py:89
 #, python-brace-format
 msgid "Create a sub-folder for «{entity}»"
 msgstr "Créer un sous-dossier pour «{entity}»"
@@ -151,7 +167,7 @@ msgstr "Classeurs"
 msgid "This folder is a system folder."
 msgstr "Ce classeur est un classeur système."
 
-#: models/folder.py:136
+#: models/folder.py:130
 msgid "Copy"
 msgstr "Copie"
 
@@ -189,41 +205,66 @@ msgstr "Catégories de document"
 msgid "MIME types"
 msgstr "Types MIME"
 
-#: populate.py:64
+#: populate.py:67
 msgid "related to the document"
 msgstr "concerne le document"
 
-#: populate.py:65
+#: populate.py:68
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:86
+#: populate.py:89
 msgid "Product image"
 msgstr "Image de produit"
 
-#: populate.py:93
+#: populate.py:96
 msgid "Organisation logo"
 msgstr "Logo de société"
 
-#: populate.py:100
+#: populate.py:103
 msgid "Contact photograph"
 msgstr "Photo de contact"
 
-#: populate.py:116
+#: populate.py:119
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:123 populate.py:150
+#: populate.py:126 populate.py:153
 msgid "Images"
 msgstr "Images"
 
-#: populate.py:131
+#: populate.py:134
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:140
+#: populate.py:143
 msgid "Folder view"
 msgstr "Vue de Classeur"
+
+# Already in creme_core
+#: populate.py:168
+msgid "Description"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:173
+msgid "Custom fields"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:184
+msgid "Properties"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:192
+msgid "Relationships"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:203 populate.py:234 populate.py:255
+msgid "General information"
+msgstr ""
 
 #: templates/documents/bricks/child-folders.html:7
 #, python-brace-format
@@ -318,12 +359,12 @@ msgstr ""
 "Classeur contenant tous les documents CSV utilisés lors des imports de "
 "données"
 
-#: views/document.py:48
+#: views/document.py:59
 #, python-brace-format
 msgid "New document for «{entity}»"
 msgstr "Ajout de document à «{entity}»"
 
-#: views/folder.py:100
+#: views/folder.py:127
 #, python-brace-format
 msgid "List of sub-folders for «{parent}»"
 msgstr "Liste des sous-dossiers pour «{parent}»"
@@ -331,9 +372,6 @@ msgstr "Liste des sous-dossiers pour «{parent}»"
 #: views/quick_forms.py:49
 msgid "Save the image"
 msgstr "Enregistrer l'image"
-
-#~ msgid "Description"
-#~ msgstr "Description"
 
 #~ msgid "Portal of documents"
 #~ msgstr "Portail des documents"

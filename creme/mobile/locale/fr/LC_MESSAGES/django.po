@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'MOBILE' APP
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2020 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -i tests.py
+# > django-admin.py makemessages -l fr -i "tests/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Mobile 2.1\n"
+"Project-Id-Version: Creme Mobile 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-04 17:49+0100\n"
+"POT-Creation-Date: 2020-12-04 22:12+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -34,13 +34,16 @@ msgctxt "mobile-orga"
 msgid "Is favorite"
 msgstr "Est favorite"
 
-#: setting_keys.py:16
+#: setting_keys.py:17
 #, python-brace-format
 msgid ""
-"Url pattern to map & geolocation services.\n"
+"URL pattern to map & geolocation services.\n"
 "Use {search} placeholder for the address and if geolocation is enabled, "
 "{lat} & {lng} coordinates can be used too."
 msgstr ""
+"Motif d'URL pour les services de carte & de géolocation.\n"
+"Utilisez le paramètre fictif {search} pour l'adresse et si la géolocation "
+"est activée, les coordonnées {lat} & {lng} peuvent être utilisées aussi."
 
 # Already in activities
 #: templates/mobile/activities.html:10 templates/mobile/activities.html:29
@@ -325,8 +328,8 @@ msgstr "fonction"
 msgid "organisation"
 msgstr "société"
 
-#: templates/mobile/frags/phonecall_script.html:99
-#: templates/mobile/frags/phonecall_script.html:143
+#: templates/mobile/frags/phonecall_script.html:101
+#: templates/mobile/frags/phonecall_script.html:146
 msgid "Error"
 msgstr "Erreur"
 

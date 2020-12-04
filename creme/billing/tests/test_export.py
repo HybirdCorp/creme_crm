@@ -13,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import date_format
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 
 from creme.billing.bricks import BillingExportersBrick
@@ -789,10 +790,10 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.client.get(url, follow=True)
         self.assertContains(
             response,
-            _(
+            escape(_(
                 'The engine is not configured ; '
                 'go to the configuration of the app «Billing».'
-            ),
+            )),
             status_code=409,
         )
 
@@ -811,10 +812,10 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.client.get(url, follow=True)
         self.assertContains(
             response,
-            _(
+            escape(_(
                 'The configured exporter is invalid ; '
                 'go to the configuration of the app «Billing».'
-            ),
+            )),
             status_code=409,
         )
 
@@ -838,10 +839,10 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.client.get(url, follow=True)
         self.assertContains(
             response,
-            _(
+            escape(_(
                 'The configured exporter is invalid ; '
                 'go to the configuration of the app «Billing».'
-            ),
+            )),
             status_code=409,
         )
 

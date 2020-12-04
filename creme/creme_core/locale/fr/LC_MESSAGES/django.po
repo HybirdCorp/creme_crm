@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-02 17:38+0100\n"
+"POT-Creation-Date: 2020-12-04 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1479,7 +1479,7 @@ msgid ""
 "import to create new choices."
 msgstr ""
 "Erreur lors de l'extraction de valeur: le choix «{value}» n'a pas été trouvé "
-"dans les choix existants (colonne {column}).Suggestion : corrigez votre "
+"dans les choix existants (colonne {column}). Suggestion : corrigez votre "
 "fichier importé, ou configurer l'import pour créer les nouveaux choix."
 
 #: forms/mass_import.py:1178
@@ -1713,17 +1713,20 @@ msgstr "*Champs personnalisés restants*"
 msgid "*Relationships*"
 msgstr "*Relations*"
 
-#: gui/custom_form.py:695
+#: gui/custom_form.py:323
 msgid "Missing required fields (update your configuration)"
 msgstr "Champs obligatoires manquants (mettez à jour votre configuration)"
 
-#: gui/custom_form.py:706
+#: gui/custom_form.py:326
 msgid "Missing required custom fields (update your configuration)"
-msgstr "Champs personnlaisés obligatoires manquants (mettez à jour votre configuration)"
+msgstr ""
+"Champs personnlaisés obligatoires manquants (mettez à jour votre "
+"configuration)"
 
-#: gui/custom_form.py:716
+#: gui/custom_form.py:329
 msgid "Missing required special fields (update your configuration)"
-msgstr "Champs spéciaux obligatoires manquants (mettez à jour votre configuration)"
+msgstr ""
+"Champs spéciaux obligatoires manquants (mettez à jour votre configuration)"
 
 #: gui/field_printers.py:164 gui/field_printers.py:171
 #, python-brace-format
@@ -2074,7 +2077,7 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 #: templates/creme_core/generics/blockform/base.html:69
 #: templates/creme_core/generics/blockform/base.html:73
 #: templates/creme_core/generics/form/base.html:69
-#: templates/creme_core/generics/form/base.html:73 views/generic/base.py:394
+#: templates/creme_core/generics/form/base.html:73 views/generic/base.py:397
 msgid "Save"
 msgstr "Enregistrer"
 

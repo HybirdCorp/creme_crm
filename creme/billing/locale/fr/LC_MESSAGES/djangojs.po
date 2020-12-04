@@ -4,47 +4,42 @@
 #
 # > django-admin.py makemessages -d djangojs -l fr
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing(JS) 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-20 14:23+0100\n"
+"POT-Creation-Date: 2020-12-04 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/billing/js/billing-actions.js:45
-msgid "Select the export format of your billing document"
-msgstr "Sélectionnez le format d'export de votre document comptable"
-
-#: static/billing/js/billing-actions.js:59
-#: static/billing/js/tests/billing-listview.js:25
-msgid "No such export format for billing documents."
-msgstr "Le document comptable n'a aucun format d'export."
-
-#: static/billing/js/billing-actions.js:70
-msgid "Pdf file (PDF)"
-msgstr "Fichier Pdf (PDF)"
-
-#: static/billing/js/billing-actions.js:209
+#: static/billing/js/billing-actions.js:202
 #: static/billing/js/tests/billing-actions.js:114
 msgid "There are some errors in your lines."
 msgstr "Il y a des erreurs dans vos lignes."
 
-#: static/billing/js/billing-actions.js:226
+#: static/billing/js/billing-actions.js:219
 msgid "Errors report"
 msgstr "Rapport d'erreurs"
 
-#: static/billing/js/billing.js:238
+#: static/billing/js/billing.js:253
 msgid "Do you really want to restore initial values of this line ?"
 msgstr "Voulez vous vraiment réinitialiser les valeurs de cette ligne ?"
 
-#: static/billing/js/billing.js:326
+#: static/billing/js/billing.js:341
 msgid "You modified your lines."
 msgstr "Vous avez modifié vos lignes."
+
+#~ msgid "Select the export format of your billing document"
+#~ msgstr "Sélectionnez le format d'export de votre document comptable"
+
+#~ msgid "No such export format for billing documents."
+#~ msgstr "Le document comptable n'a aucun format d'export."
+
+#~ msgid "Pdf file (PDF)"
+#~ msgstr "Fichier Pdf (PDF)"
 
 #~ msgid ""
 #~ "Do you really want to save all the modifications done on the lines of "
