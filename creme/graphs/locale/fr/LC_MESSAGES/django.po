@@ -1,38 +1,48 @@
 # FR LOCALISATION OF 'GRAPHS' APP
-# Copyright (C) 2018 Hybird
+# Copyright (C) 2020 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Graphs 2.1\n"
+"Project-Id-Version: Creme Graphs 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-20 14:41+0100\n"
+"POT-Creation-Date: 2020-12-04 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 models/graph.py:53
+#: apps.py:29 models/graph.py:61
 msgctxt "graphs"
 msgid "Graphs"
 msgstr "Graphes"
 
-#: apps.py:62 apps.py:66
+#: apps.py:73 apps.py:80
 msgid "Analysis"
 msgstr "Analyse"
 
-#: bricks.py:55
+#: bricks.py:56
 msgid "Roots nodes of a graph"
 msgstr "Nœuds racines d'un graphe"
 
-#: bricks.py:71
+#: bricks.py:72
 msgid "Peripheral types of relation of a graph"
 msgstr "Types de relation périphériques d'un graphe"
 
-#: forms/graph.py:39 models/graph.py:39
+#: custom_forms.py:13
+msgctxt "graphs"
+msgid "Creation form for graph"
+msgstr "Formulaire de création de graphe"
+
+#: custom_forms.py:19
+msgctxt "graphs"
+msgid "Edition form for graph"
+msgstr "Formulaire de modification de graphe"
+
+#: forms/graph.py:45 models/graph.py:46
 msgid "Types of the peripheral relations"
 msgstr "Types des relations périphériques"
 
@@ -44,29 +54,54 @@ msgstr "Fiches racines"
 msgid "Related types of relations"
 msgstr "Types de relation associés"
 
-#: models/graph.py:36
+#: models/graph.py:43
 msgctxt "graphs"
 msgid "Name of the graph"
 msgstr "Nom du graphe"
 
-#: models/graph.py:42
+#: models/graph.py:50
 msgctxt "graphs"
 msgid "Create a graph"
 msgstr "Créer un graphe"
 
-#: models/graph.py:43
+#: models/graph.py:51
 msgctxt "graphs"
 msgid "Save the graph"
 msgstr "Enregistrer le graphe"
 
-#: models/graph.py:52 templates/graphs/portal.html:4
+#: models/graph.py:60
 msgctxt "graphs"
 msgid "Graph"
 msgstr "Graphe"
 
-#: populate.py:45
+#: populate.py:50
 msgid "Graph view"
 msgstr "Vue de Graphe"
+
+# Already in creme_core
+#: populate.py:57
+msgid "General information"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:67
+msgid "Description"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:72
+msgid "Custom fields"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:87
+msgid "Properties"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:95
+msgid "Relationships"
+msgstr ""
 
 #: templates/graphs/bricks/graph-hat-bar.html:8
 msgid "Download as PNG file"
@@ -152,16 +187,7 @@ msgstr "Enlever ce nœuds"
 msgid "No root node for the moment"
 msgstr "Pas de nœud racine pour le moment"
 
-#: templates/graphs/portal.html:5
-msgid "Graphs portal"
-msgstr "Portail Graphes"
-
-#: templates/graphs/portal.html:7
-msgctxt "graphs"
-msgid "List of Graphs"
-msgstr "Liste des Graphes"
-
-#: views/graph.py:90
+#: views/graph.py:55
 msgid ""
 "The package \"pygraphviz\" is not installed ; please contact your "
 "administrator."
@@ -169,24 +195,31 @@ msgstr ""
 "Le paquet \"pygraphviz\" n'est pas installé ; veuillez contacter votre "
 "administrateur."
 
-#: views/graph.py:98
+#: views/graph.py:63
 msgid "This graph is too big!"
 msgstr "Ce graphe est trop gros !"
 
-#: views/graph.py:172
+#: views/graph.py:106
 #, python-brace-format
 msgid "Add relation types to «{entity}»"
 msgstr "Ajouter des types de relation à «{entity}»"
 
-#: views/root_node.py:37
+#: views/root_node.py:33
 #, python-brace-format
 msgid "Add root nodes to «{entity}»"
 msgstr "Ajouter des nœuds racines à «{entity}»"
 
-#: views/root_node.py:48
+#: views/root_node.py:44
 #, python-brace-format
 msgid "Edit root node for «{entity}»"
 msgstr "Modifier le nœud racine pour «{entity}»"
+
+#~ msgid "Graphs portal"
+#~ msgstr "Portail Graphes"
+
+#~ msgctxt "graphs"
+#~ msgid "List of Graphs"
+#~ msgstr "Liste des Graphes"
 
 #~ msgid "Portal of graphs"
 #~ msgstr "Portail des graphes"

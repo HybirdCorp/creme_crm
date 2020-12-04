@@ -14,7 +14,7 @@ LOCATION_MAP_URL = SettingKey(
         ' − https://www.google.com/maps/?q={{search}}\n'
         ' − https://maps.google.com/maps/place/{{lat}},{{lng}}'
     ), title=_(
-        "Url pattern to map & geolocation services.\n"
+        "URL pattern to map & geolocation services.\n"
         "Use {search} placeholder for the address and if geolocation is enabled, "
         "{lat} & {lng} coordinates can be used too."
     )),

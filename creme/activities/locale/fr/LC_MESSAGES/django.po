@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-18 18:56+0100\n"
+"POT-Creation-Date: 2020-12-04 21:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -247,6 +247,8 @@ msgid ""
 "This field needs the app «Assistants» to be installed. Hint: install it or "
 "remove this field in the form configuration."
 msgstr ""
+"Ce champ nécessite que l'app «Assistants» soit installée. Suggestion: "
+"installez- la ou enlevez ce champ dans la configuration de formulaire."
 
 #: forms/activity.py:283 forms/activity.py:849 forms/activity.py:899
 #: populate.py:241

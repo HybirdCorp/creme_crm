@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-28 16:15+0100\n"
+"POT-Creation-Date: 2020-12-04 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -498,7 +498,7 @@ msgstr "Statut"
 msgid "Status of {}"
 msgstr "Statut de {}"
 
-#: forms/templatebase.py:61 forms/templatebase.py:90
+#: forms/templatebase.py:63 forms/templatebase.py:90
 msgid ""
 "If a number is given, it will be only used as fallback value when generating "
 "a number in the final recurring entities."
@@ -1070,7 +1070,7 @@ msgstr "Recouvrement soldé"
 #: populate.py:195
 msgctxt "billing-invoice"
 msgid "Canceled"
-msgstr ""
+msgstr "Annulée"
 
 #: populate.py:202
 msgctxt "billing-creditnote"
@@ -1489,7 +1489,7 @@ msgid "Totals"
 msgstr "Totaux"
 
 # Already in creme_core
-#: templates/billing/forms/add-popup.html:5
+#: templates/billing/forms/add-popup.html:8
 msgid "Add"
 msgstr ""
 
@@ -1521,12 +1521,12 @@ msgstr "{} %"
 msgid "{src} (converted into {dest._meta.verbose_name})"
 msgstr "{src} (converti en {dest._meta.verbose_name})"
 
-#: views/credit_note.py:67
+#: views/credit_note.py:68
 #, python-brace-format
 msgid "Credit notes for «{entity}»"
 msgstr "Avoirs consommables par «{entity}»"
 
-#: views/credit_note.py:68
+#: views/credit_note.py:69
 msgid "Link the credit notes"
 msgstr "Lier les avoirs"
 

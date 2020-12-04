@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-28 13:27+0100\n"
+"POT-Creation-Date: 2020-12-04 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,19 +16,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: settings.py:127
+#: settings.py:145
 msgid "Format: Day-Month-Year (Ex:31-12-2017)"
 msgstr "Format : Jour-Mois-Année (Ex:31-12-2017)"
 
-#: settings.py:141
+#: settings.py:160
 msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)"
 msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2017 23:59:59)"
 
-#: settings.py:485
+#: settings.py:533
 msgid "Ice cream"
 msgstr "Crème glacée"
 
-#: settings.py:486
+#: settings.py:534
 msgid "Chantilly"
 msgstr "Chantilly"
 

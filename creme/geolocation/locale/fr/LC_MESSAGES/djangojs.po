@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'GEOLOCATION' APP (JavaScript only)
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2020 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -d djangojs -l fr
+# > django-admin.py makemessages -d djangojs -l fr -i "static/geolocation/js/tests/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Geolocation 2.1\n"
+"Project-Id-Version: Creme Geolocation 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-18 15:49+0200\n"
+"POT-Creation-Date: 2020-12-04 19:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -59,6 +59,11 @@ msgstr "Localisation manuelle"
 #: static/geolocation/js/geolocation.js:38
 msgid "Partially matching location"
 msgstr "Localisation incomplète"
+
+#~| msgid "%0$d address from"
+#~| msgid_plural "%0$d addresses from"
+#~ msgid "%0$d addresses from"
+#~ msgstr "%0$d adresse de"
 
 #~ msgid "is neighbour of"
 #~ msgid_plural "are neighbours of"

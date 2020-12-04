@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-12 12:36+0200\n"
+"POT-Creation-Date: 2020-12-04 18:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,11 +19,11 @@ msgstr ""
 msgid "SMS"
 msgstr "SMS"
 
-#: apps.py:88 apps.py:95
+#: apps.py:109 apps.py:122
 msgid "Marketing"
 msgstr "Marketing"
 
-#: bricks.py:50 forms/campaign.py:57
+#: bricks.py:50 forms/campaign.py:67
 #: templates/sms/bricks/messaging-lists.html:7
 msgid "Messaging lists"
 msgstr "Listes de diffusion"
@@ -32,7 +32,7 @@ msgstr "Listes de diffusion"
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: bricks.py:77 forms/messaging_list.py:52 forms/messaging_list.py:101
+#: bricks.py:77 forms/messaging_list.py:58 forms/messaging_list.py:107
 #: models/messaging_list.py:33 templates/sms/bricks/contacts.html:7
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
@@ -45,7 +45,35 @@ msgstr "Messages envoyés"
 msgid "Sendings"
 msgstr "Envois"
 
-#: forms/campaign.py:50
+#: custom_forms.py:16
+msgctxt "sms"
+msgid "Creation form for campaign"
+msgstr "Formulaire de création de campagne"
+
+#: custom_forms.py:22
+msgctxt "sms"
+msgid "Edition form for campaign"
+msgstr "Formulaire de modification de campagne"
+
+#: custom_forms.py:28
+msgctxt "emails"
+msgid "Creation form for template"
+msgstr "Formulaire de création de patron"
+
+#: custom_forms.py:34
+msgctxt "emails"
+msgid "Edition form for template"
+msgstr "Formulaire de modification de patron"
+
+#: custom_forms.py:39
+msgid "Creation form for messaging list"
+msgstr "Formulaire de création de liste de diffusion"
+
+#: custom_forms.py:45
+msgid "Edition form for messaging list"
+msgstr "Formulaire de modification de liste de diffusion"
+
+#: forms/campaign.py:60
 msgid "Lists"
 msgstr "Listes"
 
@@ -53,15 +81,15 @@ msgstr "Listes"
 msgid "Message template"
 msgstr "Patron de message"
 
-#: forms/messaging_list.py:49
+#: forms/messaging_list.py:55
 msgid "Contacts"
 msgstr "Contacts"
 
-#: forms/messaging_list.py:68
+#: forms/messaging_list.py:74
 msgid "Filters"
 msgstr "Filtres"
 
-#: forms/messaging_list.py:69
+#: forms/messaging_list.py:75
 msgid "All"
 msgstr "Tout"
 
@@ -322,17 +350,42 @@ msgstr "Patron de message SMS"
 msgid "SMS Messages templates"
 msgstr "Patrons de message SMS"
 
-#: populate.py:52
+#: populate.py:55
 msgid "Messaging list view"
 msgstr "Vue de Liste de Diffusion"
 
-#: populate.py:57
+#: populate.py:61
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-#: populate.py:62
+#: populate.py:67
 msgid "Message template view"
 msgstr "Vue de patron de message"
+
+# Already in creme_core
+#: populate.py:74
+msgid "Description"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:79
+msgid "Custom fields"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:94 populate.py:132
+msgid "General information"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:108
+msgid "Properties"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:116
+msgid "Relationships"
+msgstr ""
 
 #: templates/sms/bricks/contacts.html:7
 #, python-brace-format
@@ -504,21 +557,21 @@ msgstr "Supprimer cet envoi"
 msgid "No sending for the moment"
 msgstr "Aucun envoi pour le moment"
 
-#: views/campaign.py:67
+#: views/campaign.py:69
 #, python-brace-format
 msgid "New messaging lists for «{entity}»"
 msgstr "Nouvelles listes de diffusion pour «{entity}»"
 
-#: views/campaign.py:68
+#: views/campaign.py:70
 msgid "Link the messaging lists"
 msgstr "Lier les listes de diffusion"
 
-#: views/messaging_list.py:81
+#: views/messaging_list.py:83
 #, python-brace-format
 msgid "New contacts for «{entity}»"
 msgstr "Nouveaux contacts pour «{entity}»"
 
-#: views/messaging_list.py:82
+#: views/messaging_list.py:84
 msgid "Link the contacts"
 msgstr "Lier les contacts"
 
@@ -553,9 +606,6 @@ msgstr "Nouvel envoi pour «{entity}»"
 
 #~ msgid "SMS Campaigns portal"
 #~ msgstr "Portail Campagnes de SMS"
-
-#~ msgid "List of campaigns"
-#~ msgstr "Liste des campagnes"
 
 #~ msgid "Number of campaigns"
 #~ msgstr "Nombre de campagne(s)"

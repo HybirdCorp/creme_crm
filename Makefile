@@ -188,7 +188,7 @@ settings:
 	@python creme/manage.py print_settings INSTALLED_APPS MIDDLEWARE DATABASES LOGGING --format pprint
 
 
-## Collect the messages to translate for the entire projet or the given app directories
+## Collect the messages to translate for the entire project or the given app directories
 .PHONY: gettext-collect
 gettext-collect:
 	$(eval appdirs := $(filter-out $@,$(MAKECMDGOALS)))
@@ -210,7 +210,7 @@ gettext-collect:
 			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/mobile && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i tests.py && \
+			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/reports && \
 			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
@@ -257,7 +257,7 @@ gettext-collect:
 			popd; \
 		pushd ./creme/activities && \
 			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} && \
+			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/activities/js/tests/*" && \
 			popd; \
 		pushd ./creme/creme_config && \
 			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
@@ -272,16 +272,16 @@ gettext-collect:
 			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/cti && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} && \
+			django-admin.py makemessages -l ${CREME_LANGUAGE}  -i "tests.py" && \
+			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/cti/js/tests/*" && \
 			popd; \
 		pushd ./creme/persons && \
 			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} && \
+			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/persons/js/tests/*" && \
 			popd; \
 		pushd ./creme/geolocation && \
 			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} && \
+			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/geolocation/js/tests/*" && \
 			popd; \
 		pushd ./creme/billing && \
 			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
