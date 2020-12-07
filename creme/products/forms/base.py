@@ -35,8 +35,7 @@ class SubCategorySubCell(CustomFormExtraSubCell):
     verbose_name = _('Category & sub-category')
 
     def formfield(self, instance, user, **kwargs):
-        field = CategoryField(label=self.verbose_name, **kwargs)
-        field.user = user  # TODO: fix constructor
+        field = CategoryField(label=self.verbose_name, user=user, **kwargs)
 
         if instance.sub_category_id:
             field.initial = instance.sub_category

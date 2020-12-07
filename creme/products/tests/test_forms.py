@@ -43,11 +43,22 @@ class CategoryFieldTestCase(FieldTestCase):
         self.assertFalse(field.widget.creation_allowed)
         self.assertEqual('', field.widget.creation_url)
 
-    def test_user(self):
+    def test_user01(self):
+        "In property."
         user = self.login()
 
         field = CategoryField()
         field.user = user
+
+        url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
+        self.assertEqual(user, field.user)
+        self.assertTrue(field.widget.creation_allowed)
+        self.assertEqual(url, field.widget.creation_url)
+
+    def test_user02(self):
+        "In constructor."
+        user = self.login()
+        field = CategoryField(user=user)
 
         url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
         self.assertEqual(user, field.user)
