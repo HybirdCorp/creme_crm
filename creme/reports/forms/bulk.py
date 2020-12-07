@@ -20,7 +20,8 @@
 
 from django.core.exceptions import ValidationError
 # from django.forms.fields import CharField
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
@@ -30,6 +31,13 @@ from creme.creme_core.models import EntityFilter
 
 
 class ReportFilterBulkForm(BulkDefaultEditForm):
+    error_messages = {
+        'different_ctypes': _(
+            'Filter field can only be updated when reports '
+            'target the same type of entities (e.g: only contacts).'
+        ),
+    }
+
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
 
@@ -88,7 +96,7 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
             # filter_field.value = None
             self.fields['field_value'] = ReadonlyMessageField(
                 label=filter_field.label,
-                initial=_(
+                initial=gettext(
                     'Filter field can only be updated when '
                     'reports target the same type of entities (e.g: only contacts).'
                 ),
@@ -96,12 +104,8 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
 
     def clean(self):
         if not self._has_same_report_ct:
-            # TODO: error_messages
             raise ValidationError(
-                _(
-                    'Filter field can only be updated when reports '
-                    'target the same type of entities (e.g: only contacts).'
-                ),
+                self.error_messages['different_ctypes'],
                 code='different_ctypes',
             )
 
@@ -110,7 +114,7 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
     def _bulk_clean_entity(self, entity, values):
         if entity.id in self._uneditable_ids:
             raise ValidationError(
-                _('The filter cannot be changed because it is private.'),
+                gettext('The filter cannot be changed because it is private.'),
                 code='private',
             )
 
