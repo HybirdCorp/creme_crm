@@ -35,6 +35,7 @@ from creme.creme_core.forms import (
     MultiGenericEntityField,
 )
 from creme.creme_core.models import Relation, RelationType
+from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.persons import get_contact_model
 
 from .. import constants
@@ -153,17 +154,22 @@ class ParticipantCreateForm(CremeForm):
             user=activity.user,
         )
         me = self.user
+        other_users = []
+        calendars = []
 
         for participant in self.participants:
             user = participant.is_user
             if user:
-                activity.calendars.add(
-                    self.cleaned_data['my_participation'][1]
-                    if user == me else
-                    Calendar.objects.get_default_calendar(user)
-                )
+                if user == me:
+                    calendars.append(self.cleaned_data['my_participation'][1])
+                else:
+                    other_users.append(user)
 
             create_relation(subject_entity=participant)
+
+        calendars.extend(Calendar.objects.get_default_calendars(other_users).values())
+        for calendars_chunk in iter_as_chunk(calendars, 256):
+            activity.calendars.add(*calendars_chunk)
 
 
 class SubjectCreateForm(CremeForm):

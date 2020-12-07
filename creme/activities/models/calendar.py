@@ -19,6 +19,7 @@
 ################################################################################
 
 # import warnings
+from collections import defaultdict
 
 from django.db import models
 from django.utils.translation import gettext
@@ -87,6 +88,45 @@ class CalendarManager(models.Manager):
                     self.filter(user=user).exclude(id=cal.id).update(is_default=False)
 
         return cal
+
+    def get_default_calendars(self, users):
+        default_calendars = {}
+        calendar_ids_to_set = []
+        calendar_ids_to_unset = []
+        users_per_id = {user.id: user for user in users}
+
+        calendars_per_users = defaultdict(list)
+        # NB: on order_by:
+        #   '-is_default': to get default calendars as first element in list.
+        #   '-is_public': to pass as default a public calendar if there is one.
+        #   'id': to get stable ordering (to avoid race conditions).
+        for cal in self.filter(user__in=users_per_id.keys()).order_by(
+            '-is_default', '-is_public', 'id',
+        ):
+            calendars_per_users[cal.user_id].append(cal)
+
+        for user_id, user_calendars in calendars_per_users.items():
+            calendar = user_calendars[0]
+            default_calendars[user_id] = calendar
+
+            if not calendar.is_default:
+                calendar_ids_to_set.append(calendar.id)
+
+            calendar_ids_to_unset.extend(
+                cal.id for cal in user_calendars[1:] if cal.is_default
+            )
+
+        self.filter(id__in=calendar_ids_to_set).update(is_default=True)
+        self.filter(id__in=calendar_ids_to_unset).update(is_default=False)
+
+        for user_id, user in users_per_id.items():
+            if user_id not in calendars_per_users:
+                default_calendars[user_id] = self.create_default_calendar(
+                    user,
+                    color=COLOR_POOL[(len(default_calendars) + user_id) % len(COLOR_POOL)],
+                )
+
+        return default_calendars
 
 
 class Calendar(CremeModel):
@@ -201,8 +241,11 @@ class Calendar(CremeModel):
 
         check = self._enable_default_checking
 
-        if check and not self.is_default and \
-           not mngr.filter(user=self.user, is_default=True).exists():
+        if (
+            check
+            and not self.is_default
+            and not mngr.filter(user=self.user, is_default=True).exists()
+        ):
             self.is_default = True
 
         super().save(*args, **kwargs)
