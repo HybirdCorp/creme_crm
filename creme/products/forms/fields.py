@@ -91,6 +91,7 @@ class CategoryField(JSONField):
     def __init__(self, *, categories=Category.objects.all(), **kwargs):
         super().__init__(**kwargs)
         self.categories = categories
+        self._update_creation_info()
 
     def __deepcopy__(self, memo):
         result = super().__deepcopy__(memo)
@@ -157,8 +158,11 @@ class CategoryField(JSONField):
 
     def _update_creation_info(self):
         widget = self.widget
-        widget.creation_url, widget.creation_allowed = \
-            config_registry.get_model_creation_info(SubCategory, self.user)
+        user = self._user
+        widget.creation_url, widget.creation_allowed = (
+            ('', False) if user is None else
+            config_registry.get_model_creation_info(SubCategory, user)
+        )
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, SubCategory):
@@ -172,6 +176,7 @@ class CategoryField(JSONField):
     def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
 
-        return self._clean_subcategory(clean_value(data, 'category', int),
-                                       clean_value(data, 'subcategory', int),
-                                      )
+        return self._clean_subcategory(
+            clean_value(data, 'category', int),
+            clean_value(data, 'subcategory', int),
+        )
