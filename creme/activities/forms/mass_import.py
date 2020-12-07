@@ -692,14 +692,14 @@ def get_massimport_form_builder(header_dict, choices):
                     ).values_list('subject_entity', flat=True)
                 )
 
-            def add_participant(participant):
-                if participant.id not in participant_ids:
+            def add_participant(participating_contact):
+                if participating_contact.id not in participant_ids:
                     Relation.objects.safe_create(
-                        subject_entity=participant,
+                        subject_entity=participating_contact,
                         type_id=constants.REL_SUB_PART_2_ACTIVITY,
                         object_entity=instance, user=user,
                     )
-                    participant_ids.add(participant.id)
+                    participant_ids.add(participating_contact.id)
 
             # We could create a cache in self (or even put a cache-per-request
             # in Calendar.get_user_default_calendar() but the import can take a
@@ -707,12 +707,12 @@ def get_massimport_form_builder(header_dict, choices):
             #  => TODO: use a time based cache ?
             default_calendars_cache = {}
 
-            def add_to_default_calendar(part_user):
-                calendar = default_calendars_cache.get(part_user.id)
+            def add_to_default_calendar(participating_user):
+                calendar = default_calendars_cache.get(participating_user.id)
 
                 if calendar is None:
-                    default_calendars_cache[part_user.id] = calendar = \
-                        Calendar.objects.get_default_calendar(part_user)
+                    default_calendars_cache[participating_user.id] = calendar = \
+                        Calendar.objects.get_default_calendar(participating_user)
 
                 instance.calendars.add(calendar)
 
@@ -735,7 +735,7 @@ def get_massimport_form_builder(header_dict, choices):
 
                 part_user = participant.is_user
                 if part_user is not None:
-                    instance.calendars.add(Calendar.objects.get_default_calendar(part_user))
+                    add_to_default_calendar(part_user)
 
             # Subjects ----
             subjects, err_messages = cdata['subjects'].extract_value(line, self.user)

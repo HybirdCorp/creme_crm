@@ -36,6 +36,7 @@ from creme.creme_core import forms as core_forms
 from creme.creme_core.forms import widgets as core_widgets
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation, RelationType, SettingValue
+from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons import get_contact_model
 
@@ -553,14 +554,21 @@ class BaseCreationCustomForm(BaseCustomForm):
         instance = super().save(*args, **kwargs)
         cdata = self.cleaned_data
         get_key = self.subcell_key
+        calendars = [
+            *Calendar.objects.get_default_calendars(
+                part_user.is_user
+                for part_user in cdata.get(get_key(UsersSubCell), ())
+            ).values()
+        ]
 
-        i_participate, my_calendar = cdata.get(get_key(MyParticipationSubCell), (False, None))
+        i_participate, my_calendar = cdata.get(
+            get_key(MyParticipationSubCell), (False, None)
+        )
         if i_participate:
-            instance.calendars.add(my_calendar)
+            calendars.append(my_calendar)
 
-        for part_user in cdata.get(get_key(UsersSubCell), ()):
-            # TODO: regroup queries ??
-            instance.calendars.add(Calendar.objects.get_default_calendar(part_user.is_user))
+        for calendars_chunk in iter_as_chunk(calendars, 256):
+            instance.calendars.add(*calendars_chunk)
 
         return instance
 

@@ -36,14 +36,162 @@ from .base import _ActivitiesTestCase, skipIfCustomActivity
 Activity = get_activity_model()
 
 
+class CalendarManagerTestCase(_ActivitiesTestCase):
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendar01(self):
+        user = self.create_user()
+        self.assertFalse(Calendar.objects.filter(user=user))
+
+        with self.assertNumQueries(3):
+            def_cal = Calendar.objects.get_default_calendar(user)
+
+        self.assertEqual(_("{user}'s calendar").format(user=user), def_cal.name)
+
+        def_cal2 = self.assertUserHasDefaultCalendar(user)
+        self.assertEqual(def_cal, def_cal2)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendar02(self):
+        "Default already exists."
+        user = self.create_user()
+
+        cal1 = Calendar.objects.create(is_default=True, user=user)
+
+        with self.assertNumQueries(1):
+            def_cal = Calendar.objects.get_default_calendar(user)
+
+        self.assertEqual(cal1, def_cal)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendar03(self):
+        "There are several default calendars."
+        user = self.create_user()
+        cal1 = Calendar.objects.create(is_default=True, user=user, name='Cal#1')
+        cal2 = Calendar.objects.create(user=user, name='Cal#2')
+        Calendar.objects.filter(id=cal2.id).update(is_default=True)
+
+        # Be sure that we well managed the automatic save() behaviour
+        self.assertEqual(2, Calendar.objects.filter(is_default=True, user=user).count())
+
+        self.assertEqual(cal1, Calendar.objects.get_default_calendar(user))
+        self.assertFalse(self.refresh(cal2).is_default)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendar04(self):
+        "No default Calendar in existing ones."
+        user = self.create_user()
+        cal = Calendar.objects.create(user=user, name='Cal #1')
+        Calendar.objects.filter(id=cal.id).update(is_default=False)
+
+        # Be sure that we well managed the automatic save() behaviour
+        self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
+
+        with self.assertNumQueries(2):
+            def_cal = Calendar.objects.get_default_calendar(user)
+
+        self.assertEqual(cal, def_cal)
+        self.assertTrue(def_cal.is_default)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
+    def test_mngr_default_calendars01(self):
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
+
+        def_cal1 = self.assertUserHasDefaultCalendar(user1)
+        def_cal2 = self.assertUserHasDefaultCalendar(user2)
+
+        with self.assertNumQueries(1):
+            calendars = Calendar.objects.get_default_calendars([user1, user2])
+
+        self.assertDictEqual(
+            {
+                user1.id: def_cal1,
+                user2.id: def_cal2,
+            },
+            calendars,
+        )
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendars02(self):
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
+
+        self.assertFalse(Calendar.objects.filter(user__in=[user1, user2]))
+
+        with self.assertNumQueries(3):
+            calendars = Calendar.objects.get_default_calendars([user1, user2])
+
+        def_cal1 = self.assertUserHasDefaultCalendar(user1)
+        def_cal2 = self.assertUserHasDefaultCalendar(user2)
+
+        self.assertDictEqual(
+            {
+                user1.id: def_cal1,
+                user2.id: def_cal2,
+            },
+            calendars,
+        )
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
+    def test_mngr_default_calendars03(self):
+        "No default Calendar in existing ones."
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
+
+        def_cal1 = self.assertUserHasDefaultCalendar(user1)
+        def_cal2 = self.assertUserHasDefaultCalendar(user2)
+
+        Calendar.objects.filter(id__in=[def_cal1.id, def_cal2.id]).update(is_default=False)
+
+        # Be sure that we well managed the automatic save() behaviour
+        self.assertFalse(Calendar.objects.filter(is_default=True, user=user1))
+
+        with self.assertNumQueries(2):
+            calendars = Calendar.objects.get_default_calendars([user1, user2])
+
+        self.assertDictEqual(
+            {
+                user1.id: def_cal1,
+                user2.id: def_cal2,
+            },
+            calendars,
+        )
+        self.assertTrue(self.refresh(def_cal1).is_default)
+        self.assertTrue(self.refresh(def_cal2).is_default)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendars04(self):
+        "No users."
+        with self.assertNumQueries(0):
+            Calendar.objects.get_default_calendars([])
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_default_calendars05(self):
+        "There are several default calendars."
+        user = self.create_user()
+        cal1 = Calendar.objects.create(is_default=True, user=user, name='Cal#1')
+        cal2 = Calendar.objects.create(user=user, name='Cal#2')
+        Calendar.objects.filter(id=cal2.id).update(is_default=True)
+
+        # Be sure that we well managed the automatic save() behaviour
+        self.assertEqual(2, Calendar.objects.filter(is_default=True, user=user).count())
+
+        with self.assertNumQueries(2):
+            calendars = Calendar.objects.get_default_calendars([user])
+
+        self.assertDictEqual(
+            {user.id: cal1},
+            calendars,
+        )
+        self.assertTrue(self.refresh(cal1).is_default)
+        self.assertFalse(self.refresh(cal2).is_default)
+
+
 class CalendarTestCase(_ActivitiesTestCase):
     ADD_URL = reverse('activities__create_calendar')
     CONF_ADD_URL = reverse('creme_config__create_instance', args=('activities', 'calendar'))
     CALENDAR_URL = reverse('activities__calendar')
     UPDATE_URL = reverse('activities__set_activity_dates')
-
-    def assertUserHasDefaultCalendar(self, user):
-        return self.get_object_or_fail(Calendar, is_default=True, user=user)
 
     def _build_ts(self, dt):
         return float(dt.strftime('%s')) * 1000  # Simulates JS that sends milliseconds
@@ -134,61 +282,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     #
     #     self.assertEqual(cal, def_cal)
     #     self.assertTrue(def_cal.is_default)
-
-    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    def test_mngr_default_calendar01(self):
-        user = self.create_user()
-        self.assertFalse(Calendar.objects.filter(user=user))
-
-        with self.assertNumQueries(3):
-            def_cal = Calendar.objects.get_default_calendar(user)
-
-        self.assertEqual(_("{user}'s calendar").format(user=user), def_cal.name)
-
-        def_cal2 = self.assertUserHasDefaultCalendar(user)
-        self.assertEqual(def_cal, def_cal2)
-
-    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    def test_mngr_default_calendar02(self):
-        "Default already exists."
-        user = self.create_user()
-
-        cal1 = Calendar.objects.create(is_default=True, user=user)
-
-        with self.assertNumQueries(1):
-            def_cal = Calendar.objects.get_default_calendar(user)
-
-        self.assertEqual(cal1, def_cal)
-
-    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    def test_mngr_default_calendar03(self):
-        "There are several default calendars."
-        user = self.create_user()
-        cal1 = Calendar.objects.create(is_default=True, user=user, name='Cal#1')
-        cal2 = Calendar.objects.create(user=user, name='Cal#2')
-        Calendar.objects.filter(id=cal2.id).update(is_default=True)
-
-        # Be sure that we well managed the automatic save() behaviour
-        self.assertEqual(2, Calendar.objects.filter(is_default=True, user=user).count())
-
-        self.assertEqual(cal1, Calendar.objects.get_default_calendar(user))
-        self.assertFalse(self.refresh(cal2).is_default)
-
-    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    def test_mngr_default_calendar04(self):
-        "No default Calendar in existing ones."
-        user = self.create_user()
-        cal = Calendar.objects.create(user=user, name='Cal #1')
-        Calendar.objects.filter(id=cal.id).update(is_default=False)
-
-        # Be sure that we well managed the automatic save() behaviour
-        self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
-
-        with self.assertNumQueries(2):
-            def_cal = Calendar.objects.get_default_calendar(user)
-
-        self.assertEqual(cal, def_cal)
-        self.assertTrue(def_cal.is_default)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
     def test_user_default_calendar_auto01(self):
@@ -548,12 +641,12 @@ class CalendarTestCase(_ActivitiesTestCase):
             replace_field = context['form'].fields[fname]
 
         self.assertEqual(
-            '{} - {}'.format(_('Activity'), _('Calendars')),
+            f'{_("Activity")} - {_("Calendars")}',
             replace_field.label,
         )
         self.assertListEqual(
             [(def_cal.id, str(def_cal))],
-            [*replace_field.choices]
+            [*replace_field.choices],
         )
 
         # POST ---
@@ -609,7 +702,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         response = self.assertGET403(self.build_delete_calendar_url(cal))
         self.assertIn(
             escape(_('You are not allowed to delete this calendar.')),
-            response.content.decode()
+            response.content.decode(),
         )
 
     def test_delete_calendar05(self):
@@ -683,7 +776,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Change calendar of «{object}»').format(object=act),
-            response.context.get('title')
+            response.context.get('title'),
         )
 
         response = self.assertPOST200(url, data={'calendar': cal.id})
@@ -763,12 +856,12 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertGET403(self.build_link_url(act.id))
 
     def test_activities_data_one_user_empty(self):
-        "One user, no Activity"
+        "One user, no Activity."
         user = self.login()
 
         response = self._get_cal_activities([Calendar.objects.get_default_calendar(user)])
         self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual([], response.json())
+        self.assertListEqual([], response.json())
 
     @skipIfCustomActivity
     @parameterized.expand([
@@ -919,7 +1012,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                 'editable':   True,
                 'type':       _('Meeting'),
             },
-            data[0]
+            data[0],
         )
         self.assertDictEqual(
             {
@@ -934,7 +1027,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                 'editable':   True,
                 'type':       _('Task'),
             },
-            data[1]
+            data[1],
         )
         self.assertDictEqual(
             {
@@ -949,7 +1042,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                 'editable':   True,
                 'type':       _('Task'),
             },
-            data[2]
+            data[2],
         )
         self.assertEqual(act4.id, data[3]['id'])
 
@@ -1029,7 +1122,7 @@ class CalendarTestCase(_ActivitiesTestCase):
             '{} != {} (id map: {})'.format(
                 expected_ids, retrieved_ids,
                 ['{} -> {}'.format(act.id, act.title) for act in expected],
-            )
+            ),
         )
 
     @skipIfCustomActivity
@@ -1144,7 +1237,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(1, len(sessions2))
         self.assertCountEqual(
             [cal1.id, cal2.id],
-            sessions2[0]['activities__calendars']
+            sessions2[0]['activities__calendars'],
         )
 
         # Ignore other not-public Calendars
@@ -1393,11 +1486,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         )
         self.assertEqual(
             _('The activities on the deleted calendar will be moved to the selected one.'),
-            replace_field.help_text
+            replace_field.help_text,
         )
         self.assertCountEqual(
             [(cal1.id, str(cal1)), (cal2.id, str(cal2))],
-            [*replace_field.choices]
+            [*replace_field.choices],
         )
 
         # POST ---
@@ -1417,7 +1510,7 @@ class CalendarTestCase(_ActivitiesTestCase):
             [
                 (r.type_id, r.model_field.model, r.model_field.name, r.get_value())
                 for r in dcom.replacers
-            ]
+            ],
         )
         self.assertEqual(1, dcom.total_count)
 
@@ -1433,7 +1526,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                     new=cal2,
                 ),
             ],
-            deletor_type.get_description(job)
+            deletor_type.get_description(job),
         )
 
         deletor_type.execute(job)
@@ -1475,7 +1568,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertSetEqual(
             {cal11.id, cal12.id, cal21.id, cal22.id},
-            {*Calendar.objects.filter(user=user).values_list('id', flat=True)}
+            {*Calendar.objects.filter(user=user).values_list('id', flat=True)},
         )
         self.assertTrue(self.refresh(cal11).is_default)
         self.assertFalse(self.refresh(cal12).is_default)
@@ -1563,7 +1656,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertSetEqual(
             {cal4_1, cal4_2},
-            {*Calendar.objects.filter(user=user5)}
+            {*Calendar.objects.filter(user=user5)},
         )
 
     @parameterized.expand([

@@ -60,6 +60,9 @@ class _ActivitiesTestCase(CremeTestCase):
     def _acttype_field_value(self, atype_id, subtype_id=None):
         return json_dump({'type': atype_id, 'sub_type': subtype_id})
 
+    def assertUserHasDefaultCalendar(self, user):
+        return self.get_object_or_fail(Calendar, is_default=True, user=user)
+
     def _build_nolink_setcreds(self):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)

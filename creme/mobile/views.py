@@ -48,6 +48,7 @@ from creme.creme_core.utils import (
     get_from_POST_or_404,
     split_filter,
 )
+from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.creme_core.utils.dates import dt_from_ISO8601, make_aware_dt
 from creme.creme_core.views.decorators import jsonify  # POST_only
 from creme.creme_core.views.utils import build_cancel_path
@@ -533,21 +534,29 @@ def _get_participants(user, POST):
 
 # TODO: factorise with activities.form
 def _add_participants(activity, persons):
-    create_relation = partial(Relation.objects.create,
-                              subject_entity=activity, user=activity.user,
-                              # type_id=REL_OBJ_PART_2_ACTIVITY TODO: when orga can participate
-                             )
+    create_relation = partial(
+        Relation.objects.create,
+        subject_entity=activity, user=activity.user,
+        # type_id=REL_OBJ_PART_2_ACTIVITY TODO: when orga can participate
+    )
+
+    users = []
 
     # TODO: when orga can participate
     for person in persons:
         if isinstance(person, Contact):
             create_relation(object_entity=person, type_id=act_constants.REL_OBJ_PART_2_ACTIVITY)
 
-            # TODO: we should move this in a signal in activities
             if person.is_user:
-                activity.calendars.add(Calendar.objects.get_default_calendar(person.is_user))
+                users.append(person.is_user)
         else:
             create_relation(object_entity=person, type_id=act_constants.REL_OBJ_ACTIVITY_SUBJECT)
+
+    for calendars_chunk in iter_as_chunk(
+        Calendar.objects.get_default_calendars(users).values(),
+        256,
+    ):
+        activity.calendars.add(*calendars_chunk)
 
 
 def _improve_minutes(pcall, minutes):

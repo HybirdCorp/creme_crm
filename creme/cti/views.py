@@ -230,15 +230,17 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 
     def create_related_phonecall(self):
         user = self.request.user
+        users = [user]
         entity = self.get_related_entity()
 
         pcall = self.build_phonecall()
         pcall.save()
-        pcall.calendars.add(Calendar.objects.get_default_calendar(user))
 
         # If the entity is a contact with related user, should add the phone call to his calendar
         if isinstance(entity, Contact) and entity.is_user:
-            pcall.calendars.add(Calendar.objects.get_default_calendar(entity.is_user))
+            users.append(entity.is_user)
+
+        pcall.calendars.add(*Calendar.objects.get_default_calendars(users).values())
 
         # TODO: link credentials
         caller_rtype = act_constants.REL_SUB_PART_2_ACTIVITY
@@ -285,10 +287,11 @@ class AsCallerPhoneCallCreation(PhoneCallCreation):
         pcall = self.create_related_phonecall()
 
         return self.response_class(  # TODO: useful ??
-            format_html('{msg}<br/><a href="{url}">{pcall}</a>',
-                        msg=_('Phone call successfully created.'),
-                        url=pcall.get_absolute_url(),
-                        pcall=pcall,
-                       ),
+            format_html(
+                '{msg}<br/><a href="{url}">{pcall}</a>',
+                msg=_('Phone call successfully created.'),
+                url=pcall.get_absolute_url(),
+                pcall=pcall,
+            ),
             safe=False,  # Result is not a dictionary
         )
