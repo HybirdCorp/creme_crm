@@ -91,7 +91,9 @@ class ContactsBrick(_RelatedEntitesBrick):
 class MessagesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('sms', 'messages')
     dependencies  = (Message,)
-    page_size     = 12
+    order_by = 'id'
+    # page_size     = 12
+    page_size     = QuerysetBrick.page_size * 3
     verbose_name  = _('Sent messages')
     template_name = 'sms/bricks/messages.html'
 
