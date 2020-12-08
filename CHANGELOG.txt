@@ -196,7 +196,7 @@
                     - In 'views.base' :
                         - The class 'BaseEdition' is deprecated.
                         - The key "target" in the dictionary returned by 'RelatedBaseCreation.get_initial()' is deprecated.
-                    - The template files "creme/billing/templates/billing/forms/*" are deprecated.
+                    - The template files "creme/billing/templates/billing/form/*" are deprecated.
                 * Commercial :
                     - These constants are deprecated : REL_SUB_SOLD_BY REL_OBJ_SOLD_BY. Use REL_SUB_SOLD & REL_OBJ_SOLD instead.
                 * Emails :
@@ -508,7 +508,6 @@
                     - The method '_get_document_lines()' has been removed.
                     - These class attributes have been removed: related_item_model & related_item_label
                 - In 'templates/billing/' :
-                    - The template directory 'form' has been renamed 'forms' ; class-views have been updated.
                     - The files 'templates/*.tex' has changed :
                         - 'invoice.tex' has moved to 'export/latex/FR/fr_FR/clear/', and now extends 'export/latex/FR/fr_FR/clear/base.tex'.
                         - 'billings.tex' has been removed (see other files in 'export/latex/FR/fr_FR/clear/').
