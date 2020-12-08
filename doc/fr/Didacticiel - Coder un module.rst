@@ -419,6 +419,13 @@ Dans ``forms/``, nous créons alors le fichier ``beaver.py`` : ::
 
 Il s'agit d'un formulaire lié à notre modèle tout simple.
 
+**Note** : la plupart des vues de création d'entité que vous trouverez dans les
+apps fournies de base par Creme n'utilisent pas de formulaire classique façon
+Django. À la place ils utilisent le système de formulaire personnalisé
+(CustomForm) de Creme qui permet aux utilisateurs finaux de configurer les
+champs eux-mêmes. Les CustomForms sont abordés plus loin, et on utilisera dans
+un premier temps les formulaires classiques, par simplicité.
+
 Puis nous modifions ``views/beaver.py``, en ajoutant ceci à la fin (vous pouvez
 ramener les ``import`` au début, avec les autres directives ``import`` bien sûr) : ::
 
@@ -627,7 +634,7 @@ Puis créons un fichier : ``beavers/populate.py``. ::
 
         def populate(self):
             HeaderFilter.create(
-                pk=DEFAULT_HFILTER_CONTACT, name=_('Beaver view'), model=Beaver,
+                pk=DEFAULT_HFILTER_BEAVER, name=_('Beaver view'), model=Beaver,
                 cells_desc=[
                     (EntityCellRegularField, {'name': 'name'}),
                     (EntityCellRegularField, {'name': 'birthday'}),
@@ -1599,6 +1606,138 @@ l'implémentation, cela pourrait donc changer à l'avenir, mais en l'état il en
 est ainsi.
 
 
+Formulaires personnalisés (CustomForms)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Comme évoqué lors de la création de nos premières vues avec formulaire, Creme
+utilise généralement pour ses propres entités des formulaires que les utilisateurs
+finaux peuvent configurer graphiquement : les champs personnalisés.
+
+Nous allons ici faire un CustomForm simple pour créer nos castors. Tout d'abord, à la
+racine de notre app (``beavers/`` donc), nous créons le fichier ``custom_forms.py`` : ::
+
+    # -*- coding: utf-8 -*-
+
+    from django.utils.translation import gettext_lazy as _
+
+    from creme.creme_core.gui.custom_form import CustomFormDescriptor
+
+    from .models import Beaver
+
+    BEAVER_CREATION_CFORM = CustomFormDescriptor(
+        id='beavers-beaver_creation',
+        model=Beaver,
+        verbose_name=_('Creation form for beaver'),
+    )
+
+Attention a bien lui donner un identifiant unique ; en préfixant par
+le nom de notre app on est tranquille.
+Dans notre fichier ``populate.py``, nous allons indiquer les champs
+utilisés de base dans notre formulaire personnalisé : ::
+
+    [...]
+
+    from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+    from creme.creme_core.models import CustomFormConfigItem
+
+    from . import custom forms
+
+
+    class Populator(BasePopulator):
+        [...]
+
+        def populate(self):
+            [...]
+
+            CustomFormConfigItem.objects.create_if_needed(
+                descriptor=custom_forms.TICKET_CREATION_CFORM,
+                groups_desc=[
+                    {
+                        'name': _('General information'),
+                        'cells': [
+                            # NB: Adaptez en fonction des champs de votre modèle évidemment
+                            (EntityCellRegularField, {'name': 'user'}),
+                            (EntityCellRegularField, {'name': 'name'}),
+                            (EntityCellRegularField, {'name': 'birthday'}),
+                            (EntityCellRegularField, {'name': 'status'}),
+                            (EntityCellRegularField, {'name': 'description'}),
+                        ],
+                    }, {
+                        'name': _('Properties'),
+                        'cells': [
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                            ),
+                        ],
+                    }, {
+                        'name': _('Relationships'),
+                        'cells': [
+                            (
+                                EntityCellCustomFormSpecial,
+                                {'name': EntityCellCustomFormSpecial.RELATIONS},
+                            ),
+                        ],
+                    },
+                ],
+        )
+
+Déclarons ensuite notre descripteur de formulaire ; dans notre fichier
+``beavers/apps.py``, ajoutons une nouvelle méthode : ::
+
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_custom_forms(self, cform_registry):
+            from . import custom_forms
+
+            cform_registry.register(custom_forms.BEAVER_CREATION_CFORM)
+
+
+Si vous avez lancé la commande ``creme_populate``, vous devriez retouver
+votre formulaire dans la liste des formulaires configurables
+(Menu > Configuration > Formulaires personnalisés), associé à votre modèle.
+
+Il reste à faire que notre vue de création utilise effectivement notre
+formulaire personnalisées ; modifions ``views/beaver.py`` : ::
+
+    [...]
+
+    from .. import custom_forms
+
+    class BeaverCreation(generic.EntityCreation):
+        model = Beaver
+        form_class = custom_forms.BEAVER_CREATION_CFORM  # <== NEW
+
+
+Maintenant votre vue de création devrait réfléter la configuration que vous
+donnez à votre formulaire.
+
+**Un peu plus loin** : il y a plusieurs moyens de faire des traitements un peu
+plus spécifiques dans un formulaire personnalisé, gràce à certains attributs
+de ``CustomFormDescriptor`` :
+
+- vous pouvez exclure des champs via l'attribut ``excluded_fields``.
+- vous pouvez spécifier la classe de base que le formulaire généré utilisera
+  avec l'attribut ``base_form_class``. Attention la classe que vous passez
+  doit hériter de la classe ``creme_core.forms.base.CremeEntityForm``, et vous
+  devriez éviter de définir des champs dedans (l'intérêt est plutôt de mettre
+  du code dans les méthodes ``clean()`` ou ``save()``).
+- il est possible d'ajouter des champs spéciaux, ne correspondant pas
+  forcément à des champs de modèle, avec l'attribut ``extra_sub_cells``.
+  L'app ``products``, par exemple, s'en sert pour générer un champ qui gère les
+  catégories/sous-catégories.
+- il est même possible de déclarer des blocs entier de champs spéciaux (qui
+  ne seront pas configurables, et seront juste présents ou absents selon la
+  configuration) avec l'attribut ``extra_group_classes``. Il vaut mieux se
+  servir de cette solution en dernier recours (et préférér les solutions
+  précédentes). Mais si vous en avez vraiment besoin, vous pouvez regarder
+  l'app ``persons`` qui s'en sert pour le bloc "Adresses".
+
+
 Champs fonctions
 ~~~~~~~~~~~~~~~~
 
@@ -1608,7 +1747,7 @@ utiles aux utilisateurs. Ils sont être disponibles dans les vues en liste et
 les blocs personnalisés.
 
 Dans notre exemple le champ fonction affichera l'age dun castor. Créez un
-fichier ``function_fields.py`` ::
+fichier ``function_fields.py`` : ::
 
     from datetime import date
 
