@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 20-11-2020 pour la version 2.2 de Creme
+:Version: 08-12-2020 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -626,11 +626,13 @@ Puis créons un fichier : ``beavers/populate.py``. ::
         dependencies = ['creme_core']
 
         def populate(self):
-            HeaderFilter.create(pk=DEFAULT_HFILTER_CONTACT, name=_('Beaver view'), model=Beaver,
-                                cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                            (EntityCellRegularField, {'name': 'birthday'}),
-                                           ],
-                               )
+            HeaderFilter.create(
+                pk=DEFAULT_HFILTER_CONTACT, name=_('Beaver view'), model=Beaver,
+                cells_desc=[
+                    (EntityCellRegularField, {'name': 'name'}),
+                    (EntityCellRegularField, {'name': 'birthday'}),
+                ],
+            )
 
             SearchConfigItem.create_if_needed(Beaver, ['name'])
 
@@ -700,7 +702,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2019-10-30 18:24+0100\n"
+    "POT-Creation-Date: 2020-12-08 11:10+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -752,7 +754,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2019-10-30 18:24+0100\n"
+    "POT-Creation-Date: 2020-12-08 11:10+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -839,8 +841,8 @@ Créez un fichier ``models/status.py`` : ::
 
         class Meta:
             app_label = 'beavers'
-            verbose_name = _(u'Beaver status')
-            verbose_name_plural = _(u'Beaver status')
+            verbose_name = _('Beaver status')
+            verbose_name_plural = _('Beaver status')
             ordering = ('name',)
 
 
@@ -1163,18 +1165,20 @@ Puis ``beavers/populate.py`` : ::
 
         Contact = persons.get_contact_model()
 
-        RelationType.create((constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-                            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
-                           )
+        RelationType.create(
+            (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
+            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
+        )
 
 
 **Notes** : nous avons mis des contraintes sur les types de fiche que l'ont peut relier
 (Beaver et Contact en l'occurrence). Nous pourrions aussi, si on créait un type de propriété
 «est un vétérinaire» (pour les Contacts), mettre une contrainte supplémentaire : ::
 
-        RelationType.create((constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-                            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact], [VeterinaryPType]),
-                           )
+        RelationType.create(
+            (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
+            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact], [VeterinaryPType]),
+        )
 
 Les types de relations créés ne sont pas supprimables via l'interface de configuration
 (l'argument ``is_custom`` de ``RelationType.create()`` étant par défaut à ``False``), ce qui est
@@ -1186,10 +1190,11 @@ qu'une des fiches à relier ait telle valeur pour un champ, ou que seuls certain
 puissent supprimer ces relations là. La solution consiste à déclarer ces types comme internes ;
 les vues de création et de suppression génériques des relations ignorent alors ces types : ::
 
-        RelationType.create((constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
-                            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
-                            is_internal=True,
-                           )
+        RelationType.create(
+            (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
+            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
+            is_internal=True,
+        )
 
 C'est alors à vous d'écrire le code de création et de suppression de ces types. Pour la création,
 classiquement, on créera la relation dans le formulaire de création d'une fiche (ex: on assigne
@@ -1415,17 +1420,12 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
     from django.shortcuts import get_object_or_404
     from django.utils.translation import gettext as _
 
-    from creme.creme_core.views.generic import EntityCreation
-
-    from creme.tickets.forms.ticket import TicketCreateForm
+    from creme.tickets.views.ticket import TicketCreation
 
     from ..models import Beaver
 
 
-    class VeterinaryTicketCreation(EntityCreation):
-        model = Beaver
-        form_class = TicketCreateForm
-
+    class VeterinaryTicketCreation(TicketCreation):
         def get_initial(self):
             initial = super().get_initial()
             initial['title'] = _('Need a veterinary')
@@ -1448,7 +1448,7 @@ Dans ``beavers/urls.py`` : ::
         re_path(r'^ticket/add/(?P<beaver_id>\d+)[/]?$',
                 ticket.VeterinaryTicketCreation.as_view(),
                 name='beavers__create_ticket',
-               ),  # <- NEW
+                ),  # <- NEW
 
     [...]
 
@@ -2226,10 +2226,9 @@ afin d'éviter tout un tas de petits désagréments/bugs : ::
 
 
     class Ticket(AbstractTicket):
-        estimated_cost = DecimalField(_('Estimated cost (€)'),
-                                      blank=True, null=True,
-                                      max_digits=10, decimal_places=2,
-                                     )  # <= CHAMP SUPPLÉMENTAIRE
+        estimated_cost = DecimalField(
+            _('Estimated cost (€)'), blank=True, null=True, max_digits=10, decimal_places=2,
+        )  # <= CHAMP SUPPLÉMENTAIRE
 
         class Meta(AbstractTicket.Meta):
             app_label = 'my_tickets'
@@ -2562,9 +2561,10 @@ détaillée : ::
         [...]
 
         def register_bulk_update(self, bulk_update_registry):
-            bulk_update_registry.register(Beaver,
-                                          exclude=['my_field1','my_field2'],
-                                         )
+            bulk_update_registry.register(
+                Beaver,
+                exclude=['my_field1','my_field2'],
+            )
 
 Vous pouvez aussi vouloir personnaliser le formulaire d'édition pour un champ
 en particulier, parce qu'il est associé à des règles métiers par exemple : ::
@@ -2578,9 +2578,10 @@ en particulier, parce qu'il est associé à des règles métiers par exemple : :
         def register_bulk_update(self, bulk_update_registry):
             from .forms.my_field import MyBulkEditForm
 
-            bulk_update_registry.register(Beaver,
-                                          innerforms={'my_field3': MyBulkEditForm},
-                                         )
+            bulk_update_registry.register(
+                Beaver,
+                innerforms={'my_field3': MyBulkEditForm},
+            )
 
 
 Les formulaires donnés en paramètre doivent hériter de
@@ -2693,11 +2694,12 @@ Dans un fichier ``setting_keys.py`` à la racine de votre app mettez : ::
     from .constants import BEAVER_KEY_ID
 
 
-    beaver_key = SettingKey(id=BEAVER_KEY_ID,
-                            description=_('*Set a description here*'),
-                            app_label='beavers',
-                            type=SettingKey.BOOL,
-                           )
+    beaver_key = SettingKey(
+        id=BEAVER_KEY_ID,
+        description=_('*Set a description here*'),
+        app_label='beavers',
+        type=SettingKey.BOOL,
+    )
 
 Ici on a créé une valeur de type booléen. Les types actuellement disponibles
 étant :
@@ -2782,11 +2784,12 @@ Dans le fichier ``setting_keys.py`` à la racine de l'app mettez : ::
     from .constants import BEAVER_USER_KEY_ID
 
 
-    beaver_user_key = UserSettingKey(id=BEAVER_USER_KEY_ID,
-                                     description=_('*Set a description here*'),
-                                     app_label='beavers',
-                                     type=UserSettingKey.BOOL,
-                                    )
+    beaver_user_key = UserSettingKey(
+        id=BEAVER_USER_KEY_ID,
+        description=_('*Set a description here*'),
+        app_label='beavers',
+        type=UserSettingKey.BOOL,
+    )
 
 
 On ne crée pas de valeur initiale dans notre ``populate.py``, puisque
@@ -2854,12 +2857,13 @@ fonction qui les génèrent de cette manière dans votre ``apps.py`` : ::
         [...]
 
         def register_statistics(self, statistics_registry):  # <- NEW
-            statistics_registry.register(id='beavers-beavers',
-                                         label=Beaver._meta.verbose_name_plural,
-                                         func=lambda: [Beaver.objects.count()],
-                                         perm='beavers',
-                                         priority=10,
-                                        )
+            statistics_registry.register(
+                id='beavers-beavers',
+                label=Beaver._meta.verbose_name_plural,
+                func=lambda: [Beaver.objects.count()],
+                perm='beavers',
+                priority=10,
+            )
 
 Quelques explications sur les paramètres :
 
@@ -2985,13 +2989,15 @@ dans notre ``populate.py`` : ::
         def populate(self):
             [...]
 
-            Job.objects.get_or_create(type_id=beavers_health_type.id,
-                                      defaults={'language':    settings.LANGUAGE_CODE,
-                                                # ATTENTION: nous devons définir une periode
-                                                'periodicity': date_period_registry.get_period('days', 1),
-                                                'status':      Job.STATUS_OK,
-                                               }
-                                     )
+            Job.objects.get_or_create(
+                type_id=beavers_health_type.id,
+                defaults={
+                    'language':    settings.LANGUAGE_CODE,
+                    # ATTENTION: nous devons définir une periode
+                    'periodicity': date_period_registry.get_period('days', 1),
+                    'status':      Job.STATUS_OK,
+               },
+            )
 
 **Gestion des erreurs** : il est très probable que vos jobs puissent rencontrer
 des soucis ; dans notre exemple le service Web distant pourrait être indisponible.
@@ -3058,9 +3064,10 @@ Voici par exemple ce qu'on peut trouver dans le fichier ``creme_core/apps.py`` :
     def register_enumerable(self, enumerable_registry):
         from . import enumerators, models
 
-        enumerable_registry.register_related_model(models.EntityFilter,
-                                                   enumerators.EntityFilterEnumerator,
-                                                  )
+        enumerable_registry.register_related_model(
+            models.EntityFilter,
+            enumerators.EntityFilterEnumerator,
+        )
 
 
 Liste des différents services
@@ -3124,13 +3131,16 @@ Créez un fichier ``beavers/tests.py`` : ::
 
             name   = 'Hector'
             status = Status.objects.all()[0]
-            response = self.client.post(url, follow=True,
-                                        data={'user':     user.pk,
-                                              'name':     name,
-                                              'birthday': '2015-12-3',
-                                              'status':   status.id,
-                                             }
-                                       )
+            response = self.client.post(
+                url,
+                follow=True,
+                data={
+                    'user':     user.pk,
+                    'name':     name,
+                    'birthday': '2015-12-3',
+                    'status':   status.id,
+                },
+            )
             self.assertNoFormError(response)
 
             beavers = Beaver.objects.all()
@@ -3139,9 +3149,10 @@ Créez un fichier ``beavers/tests.py`` : ::
             beaver = beavers[0]
             self.assertEqual(name,   beaver.name)
             self.assertEqual(status, beaver.status)
-            self.assertEqual(datetime.date(year=2015, month=12, day=3),
-                             beaver.birthday
-                            )
+            self.assertEqual(
+                datetime.date(year=2015, month=12, day=3),
+                beaver.birthday
+            )
 
 
 Remarques:
