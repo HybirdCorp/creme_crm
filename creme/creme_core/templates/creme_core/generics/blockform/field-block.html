@@ -29,7 +29,8 @@
                 </tr>
             </thead>
             <tbody class="collapsable">
-                {% block extra_buttons %}{% endblock %}
+                {% block extra_buttons %}{% endblock %}{# NB: To be deprecated ; use block "TTTTTT" instead #}
+              {% block content_fields %}
 {#                {% for field, is_required in fields %} #}
                 {% for field in fields %}
                     {% if not field.is_hidden %}
@@ -45,6 +46,7 @@
                         </tr>
                     {% endif %}
                 {% endfor %}
+              {% endblock %}
             </tbody>
         {% endif %}
     </table>
