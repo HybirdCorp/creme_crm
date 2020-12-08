@@ -300,41 +300,17 @@
                     - These methods of 'models.Calendar' have been removed :
                         - _create_default_calendar(), get_user_calendars(), get_user_default_calendar()
                         - new_color()
-                    - In 'forms' :
-                        - The form-field 'UserParticipationField' now checks the LINK credentials.
-                        - The constructor of 'CalendarActivityCreateForm' does not take special arguments to initialize fields any more.
-                    - With the custom-forms, the creation/edition POST names for several fields have changed :
-                      'start', 'end', 'type', 'sub_type', 'my_participation', 'participating_users'...
-                    - The creation views do not use specific templates any more.
                 * Persons :
                     - The method 'models.AbstractOrganisation.get_all_managed_by_creme()' has been removed.
-                    - The attributes "what" & "url_name" of the button 'buttons.CrmButton' (& so its children) have been removed.
-                    - The creation/edition views do not use specific templates any more.
-                    - JavaScript:
-                        - The function 'creme.persons.become()' has been removed and replaced by 'creme.persons.BecomeAction'.
                 * Billing :
                     - These constants have been removed: DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA, PERCENT_PK & AMOUNT_PK.
-                    - There were some changes in 'bricks._LinesBrick' (and child classes):
-                        - The method '_get_document_lines()' has been removed.
-                        - These class attributes have been removed: related_item_model & related_item_label
-                    - With the custom-forms, the creation/edition POST names for source & target have changed.
-                    - About templates :
-                        - The creation/edition views do not use specific templates any more.
-                        - The ones in 'billing/frags/' have been removed : button_convert2invoice.html, button_convert2order.html
                     - The JavaScript function 'creme.billing.generateInvoiceNumber()' has been removed.
                 * Opportunities :
                     - 'constants.SETTING_USE_CURRENT_QUOTE' has been removed.
                     - These methods of 'models.AbstractOpportunity' have been removed: 'get_contacts()', 'get_products()', 'get_responsibles()', 'get_services()'.
-                    - With the custom-forms, the creation/edition POST names for emitter & target have changed.
                 * Reports :
                     - The view 'views.graph.cast_order()' has been removed.
                     - The JavaScript function 'creme.reports.exportReport()' has been removed.
-                * Products :
-                    - With the custom-forms, the creation/edition POST names for category/sub-category have changed.
-                * Projects :
-                    - The model 'Resource' does not inherit 'CremeEntity' any more. Beware the "pure" 'CremeEntity' fields (like "description") are dropped.
-                    - In 'forms.task.RelatedActivityEditForm', the field "resource" is now related to 'persons.models.Contact'.
-                    - With the custom-forms, the creation/edition POST names for project leaders & parent task have changed.
                 * Commercial :
                     - The template filter "|has_quickform" (from the lib "commercial_tags") has been removed.
                 * Tickets :
@@ -345,10 +321,6 @@
                     - The template filter "|truncate" (from the lib "crudity_tags") has been removed.
                 * Events :
                     - The template file "creme/events/templates/events/lv_button_link_contacts.html" has been removed.
-                * Graphs :
-                    - The model-field 'Graph.orbital_relation_types' is not editable (it was manually excluded from forms).
-                * Recurrents :
-                    - With the custom-forms, the creation POST name for "ct" has changed.
         # The root URL 'site_media/*' has been removed.
         # The URL named "creme_core__dl_file" has been removed ; use the URL named "creme_core__download" instead (beware: the arguments are different).
         # In 'creme_core.core' :
@@ -473,13 +445,24 @@
                     - There were many changes in the class 'RoleDeletion' (mainly: it does not delete the role any more).
             * Persons :
                 - The function-view 'views.organisation.unset_managed()' has been replaced by the class 'OrganisationUnmanage'.
+                - The creation/edition views do not use specific templates any more.
+                - The attributes "what" & "url_name" of the button 'buttons.CrmButton' (& so its children) have been removed.
+                - JavaScript :
+                    - The function 'creme.persons.become()' has been removed and replaced by 'creme.persons.BecomeAction'.
             * Documents :
                 - The method 'models.Document.get_dl_url()' has been removed ; use the method 'get_download_absolute_url()' instead.
             * Activities :
-                - The view named "activities__create_activity_popup" now accepts "start" & "end" arguments in ISO8601.
-                - The ending date returned by the view named "activities__calendars_activities" has changed : "end day + 1 at 00:00" instead of "end day at 23:59".
-                - The class-based view 'views.activity.RelatedActivityCreation' does not pass special 'kwargs' arguments to its form any more
-                  (classical 'get_initial()' method is used instead).
+                - In 'views' :
+                    - The view named "activities__create_activity_popup" now accepts "start" & "end" arguments in ISO8601.
+                    - The ending date returned by the view named "activities__calendars_activities" has changed : "end day + 1 at 00:00" instead of "end day at 23:59".
+                    - The class-based view 'views.activity.RelatedActivityCreation' does not pass special 'kwargs' arguments to its form any more
+                      (classical 'get_initial()' method is used instead).
+                    - With the custom-forms, the Activity creation/edition POST names for several fields have changed :
+                      'start', 'end', 'type', 'sub_type', 'my_participation', 'participating_users'...
+                    - The creation views for Activity do not use specific templates any more.
+                - In 'forms' :
+                    - The form-field 'UserParticipationField' now checks the LINK credentials.
+                    - The constructor of 'CalendarActivityCreateForm' does not take special arguments to initialize fields any more.
                 - In JavaScript, all methods of 'creme.activities.calendar' have been removed & replaced by 'creme.activities.CalendarController'.
             * Emails :
                 - 'In 'models' :
@@ -517,15 +500,22 @@
                     - The function-view 'export.export_as_pdf()' has been replaced by the class 'Export'.
                       Notice that the context injected in '.tex' files (if you still use this backend) has changed (only "object" is injected).
                     - The variable 'export.TEMPLATE_PATHS' has been removed.
+                    - With the custom-forms, the creation/edition views have changed :
+                        - POST names for source & target have changed.
+                        - they do not use specific templates any more.
                 - The URL named "billing__export" has changed ("/generate_pdf/" became "/export/" ) ; no problem if you use the name.
+                - There were some changes in 'bricks._LinesBrick' (and child classes):
+                    - The method '_get_document_lines()' has been removed.
+                    - These class attributes have been removed: related_item_model & related_item_label
                 - In 'templates/billing/' :
                     - The template directory 'form' has been renamed 'forms' ; class-views have been updated.
                     - The files 'templates/*.tex' has changed :
                         - 'invoice.tex' has moved to 'export/latex/FR/fr_FR/clear/', and now extends 'export/latex/FR/fr_FR/clear/base.tex'.
                         - 'billings.tex' has been removed (see other files in 'export/latex/FR/fr_FR/clear/').
+                    - The templates in 'frags/' have been removed : button_convert2invoice.html, button_convert2order.html
                 - In Javascript :
-                    - Remove creme.billing.ExportDocumentAction
-                    - Remove the hatbar action 'billing-export' and use a simple link instead : the export output format is selected on server side.
+                    - The component 'creme.billing.ExportDocumentAction' has been removed.
+                    - The hatbar action 'billing-export' has ben removed (a simple link is used instead) : the export output format is selected on server side.
             * Commercial :
                 - These function-views of 'views.strategy' have been replaced by classes.
                     - 'reload_matrix_brick()' by 'MatrixBricksReloading'.
@@ -535,6 +525,9 @@
                     - '_set_score()' (abstract view) by 'BaseScoreSetting'.
             * Products :
                 - The method 'forms.mass_import.CategoriesExtractor.extract_value()' takes an additional argument "user".
+                - With the custom-forms, the creation/edition POST names for category/sub-category have changed.
+            * Opportunities :
+                - With the custom-forms, the creation/edition POST names for emitter & target have changed.
             * Reports :
                 - In the class 'bricks.ReportGraphBrick', the attribute "instance_brick_id" has been removed.
                 - In 'core' :
@@ -594,11 +587,19 @@
                     - The function '_get_event_n_contact()' has been removed.
             * Projects :
                 - In 'models' :
+                    - The model 'Resource' does not inherit 'CremeEntity' any more. Beware the "pure" 'CremeEntity' fields (like "description") are dropped.
                     - The model-field 'AbstractProject.effective_end_date' is not editable any more.
                     - These model-fields of 'AbstractProjectTask' are not null/blank anymore: start, end, duration.
-                - The function-view 'views.project.close()' has been replaced by the class 'ProjectClosure'.
+                - In 'forms.task.RelatedActivityEditForm', the field "resource" is now related to 'persons.models.Contact'.
+                - In 'views' :
+                    - The function-view 'views.project.close()' has been replaced by the class 'ProjectClosure'.
+                    - With the custom-forms, the creation/edition POST names for project leaders & parent task have changed.
             * Polls :
                 - The function-view 'views.poll_reply.clean()' has been replaced by the class 'PollReplyCleaning'.
+            * Graphs :
+                - The model-field 'Graph.orbital_relation_types' is not editable (it was manually excluded from forms).
+            * Recurrents :
+                - With the custom-forms, the creation POST name for "ct" has changed.
             * Crudity :
                 - These properties have been remove (use 'utils.is_sandbox_by_user()' instead) :
                     - backends.models.CrudityBackend.is_sandbox_by_user
