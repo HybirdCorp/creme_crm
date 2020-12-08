@@ -901,7 +901,6 @@ celui-ci rénommé en ``0003_populate_default_status.py``, ouvrez le.
 Il devrait ressembler à ça: ::
 
     # -*- coding: utf-8 -*-
-    from __future__ import unicode_literals
 
     from django.db import migrations, models
 
@@ -919,7 +918,6 @@ Il devrait ressembler à ça: ::
 Éditez le pour obtenir : ::
 
     # -*- coding: utf-8 -*-
-    from __future__ import unicode_literals
 
     from django.db import migrations, models
 
@@ -1047,7 +1045,7 @@ Il va encore une fois falloir ajouter une méthode dans notre fichier
         def register_creme_config(self, config_registry):
             from . import models
 
-            register_model(models.Status)
+            config_registry.register_model(models.Status)
 
 
 Si vous allez sur le portail de la 'Configuration générale', dans le
@@ -1062,8 +1060,13 @@ modèles (comme ``nullable``) : ::
 
     [...]
 
-    register_model(models.Status).creation(form_class=MyStatusCreationForm) \
-                                 .edition(form_class=MyStatusEditionForm)
+    config_registry.register_model(
+        models.Status,
+    ).creation(
+        form_class=MyStatusCreationForm,
+    ).edition(
+        form_class=MyStatusEditionForm,
+    )
 
 
 Vous pouvez aussi personnaliser les URLs de création/modification (argument
