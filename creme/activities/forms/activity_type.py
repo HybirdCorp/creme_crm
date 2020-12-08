@@ -18,11 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
-
 from django.core.exceptions import ValidationError
 # from django.forms.fields import CharField
-from django.forms.fields import CallableChoiceIterator
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
@@ -30,12 +27,11 @@ from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 # from creme.creme_core.forms.widgets import Label
-from creme.creme_core.forms.widgets import ChainedInput
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
-from creme.creme_core.utils.url import TemplateURLBuilder
 
 from ..constants import ACTIVITYTYPE_INDISPO
 from ..models import ActivitySubType, ActivityType
+from .fields import ActivityTypeField
 
 
 class ActivityTypeForm(CremeModelForm):
@@ -75,117 +71,6 @@ class ActivitySubTypeForm(CremeModelForm):
             super().save(*args, **kwargs)
 
         return instance
-
-
-class ActivityTypeWidget(ChainedInput):
-    def __init__(self, types=(), attrs=None, creation_allowed=True):
-        super().__init__(attrs)
-        self.creation_allowed = creation_allowed  # TODO: useless at the moment ...
-        self.types = types
-
-    def get_context(self, name, value, attrs):
-        add_dselect = partial(self.add_dselect, attrs={'auto': False})
-        add_dselect('type', options=self.types)
-        add_dselect(
-            'sub_type',
-            options=TemplateURLBuilder(
-                type_id=(TemplateURLBuilder.Word, '${type}'),
-            ).resolve('activities__get_types'),
-        )
-
-        return super().get_context(name=name, value=value, attrs=attrs)
-
-
-class ActivityTypeField(core_fields.JSONField):
-    widget = ActivityTypeWidget  # Should have a 'types' attribute
-    default_error_messages = {
-        'typenotallowed':  _('This type causes constraint error.'),
-        'subtyperequired': _('Sub-type is required.'),
-    }
-    value_type = dict
-
-    def __init__(self, *,
-                 types=ActivityType.objects.all(),
-                 empty_label='---------',
-                 **kwargs):
-        self.empty_label = empty_label
-
-        # super().__init__(*args, **kwargs)
-        super().__init__(**kwargs)
-        self.types = types
-
-    def __deepcopy__(self, memo):
-        result = super().__deepcopy__(memo)
-
-        # Need to force a fresh iterator to be created.
-        result.types = result.types
-
-        return result
-
-    def widget_attrs(self, widget):  # See Field.widget_attrs()
-        return {'reset': not self.required}
-
-    def _value_to_jsonifiable(self, value):
-        if isinstance(value, ActivitySubType):
-            type_id = value.type_id
-            subtype_id = value.id
-        else:
-            type_id, subtype_id = value
-
-        return {'type': type_id, 'sub_type': subtype_id}
-
-    def _value_from_unjsonfied(self, data):
-        clean = self.clean_value
-        type_pk  = clean(data, 'type', str)
-        subtype_pk = clean(data, 'sub_type', str, required=False)
-
-        if not type_pk and self.required:
-            raise ValidationError(self.error_messages['required'], code='required')
-
-        try:
-            atype = self.types.get(pk=type_pk)
-        except ActivityType.DoesNotExist as e:
-            raise ValidationError(
-                self.error_messages['typenotallowed'],
-                code='typenotallowed',
-            ) from e
-
-        related_types = ActivitySubType.objects.filter(type=atype)
-        subtype = None
-
-        if subtype_pk:
-            try:
-                subtype = related_types.get(pk=subtype_pk)
-            except ActivitySubType.DoesNotExist as e:
-                raise ValidationError(
-                    self.error_messages['subtyperequired'],
-                    code='subtyperequired',
-                ) from e
-        elif self.required and related_types.exists():
-            raise ValidationError(
-                self.error_messages['subtyperequired'],
-                code='subtyperequired',
-            )
-
-        return atype, subtype
-
-    @property
-    def types(self):
-        return self._types.all()
-
-    @types.setter
-    def types(self, types):
-        self._types = types
-        self.widget.types = CallableChoiceIterator(self._get_types_options)
-
-    def _get_types_options(self):
-        types = self._types  # TODO: self.types ??
-
-        if len(types) > 1 or not self.required:
-            yield None, self.empty_label
-
-        for instance in types:
-            yield instance.id, str(instance)
 
 
 class BulkEditTypeForm(BulkDefaultEditForm):

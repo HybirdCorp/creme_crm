@@ -33,7 +33,7 @@ Organisation = persons.get_organisation_model()
 
 class CrmButton(Button):
     __managed_orga = False
-    relation_type_id = 'OVERLOADME'
+    relation_type_id = 'OVERRIDE'
     template_name    = 'persons/buttons/become.html'
     # what             = 'OVERLOADME'
     # url_name         = 'OVERLOADME'
