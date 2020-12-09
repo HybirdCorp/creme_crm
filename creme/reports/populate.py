@@ -25,14 +25,17 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
+    CustomFormConfigItem,
     HeaderFilter,
     SearchConfigItem,
 )
 
-from . import bricks, constants, get_report_model
+from . import bricks, constants, custom_forms, get_report_model
+from .forms.report import FilteredCTypeSubCell, FilterSubCell
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +52,78 @@ class Populator(BasePopulator):
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
                 (EntityCellRegularField, {'name': 'ct'}),
+            ],
+        )
+
+        # ---------------------------
+        common_groups_desc = [
+            {
+                'name': _('Description'),
+                'cells': [
+                    (EntityCellRegularField, {'name': 'description'}),
+                ],
+            }, {
+                'name': _('Custom fields'),
+                'cells': [
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                    ),
+                ],
+            },
+        ]
+
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.REPORT_CREATION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        FilteredCTypeSubCell(model=Report).into_cell(),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
+                {
+                    'name': _('Properties'),
+                    'cells': [
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                        ),
+                    ],
+                }, {
+                    'name': _('Relationships'),
+                    'cells': [
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.RELATIONS},
+                        ),
+                    ],
+                },
+            ],
+        )
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=custom_forms.REPORT_EDITION_CFORM,
+            groups_desc=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        FilterSubCell(model=Report).into_cell(),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                *common_groups_desc,
             ],
         )
 

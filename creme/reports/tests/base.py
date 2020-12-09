@@ -12,16 +12,16 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from creme.creme_core.constants import REL_SUB_HAS
-from creme.creme_core.core.entity_cell import (
-    EntityCellFunctionField,
-    EntityCellRegularField,
-    EntityCellRelation,
-)
+# from creme.creme_core.core.entity_cell import (
+#     EntityCellFunctionField,
+#     EntityCellRegularField,
+#     EntityCellRelation,
+# )
+# from creme.creme_core.models import HeaderFilter
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
     CustomField,
-    HeaderFilter,
     Relation,
     RelationType,
 )
@@ -41,12 +41,12 @@ from creme.creme_core.tests.fake_models import (
 )
 
 from .. import (
+    constants,
     get_report_model,
     get_rgraph_model,
     report_model_is_custom,
     rgraph_model_is_custom,
 )
-from ..constants import RFT_FIELD, RGA_COUNT, RGT_YEAR
 from ..models import Field
 from .fake_models import FakeReportsDocument, FakeReportsFolder
 
@@ -122,36 +122,36 @@ class BaseReportsTestCase(CremeTestCase):
 
         cls.ADD_URL = reverse('reports__create_report')
 
-    def _create_report(self, name='Report #1', efilter=None, extra_cells=()):
-        cells = [
-            EntityCellRegularField.build(model=FakeContact, name='last_name'),
-            EntityCellRegularField.build(model=FakeContact, name='user'),
-            EntityCellRelation(
-                model=FakeContact, rtype=RelationType.objects.get(pk=REL_SUB_HAS),
-            ),
-            EntityCellFunctionField.build(
-                model=FakeContact, func_field_name='get_pretty_properties',
-            ),
-            *extra_cells,
-        ]
-
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test_hf', name='name', model=FakeContact, cells_desc=cells,
-        )
-
-        response = self.client.post(
-            self.ADD_URL, follow=True,
-            data={
-                'user':   self.user.pk,
-                'name':   name,
-                'ct':     self.ct_contact.id,
-                'hf':     hf.id,
-                'filter': efilter.id if efilter else '',
-            },
-        )
-        self.assertNoFormError(response)
-
-        return self.get_object_or_fail(Report, name=name)
+    # def _create_report(self, name='Report #1', efilter=None, extra_cells=()):
+    #     cells = [
+    #         EntityCellRegularField.build(model=FakeContact, name='last_name'),
+    #         EntityCellRegularField.build(model=FakeContact, name='user'),
+    #         EntityCellRelation(
+    #             model=FakeContact, rtype=RelationType.objects.get(pk=REL_SUB_HAS),
+    #         ),
+    #         EntityCellFunctionField.build(
+    #             model=FakeContact, func_field_name='get_pretty_properties',
+    #         ),
+    #         *extra_cells,
+    #     ]
+    #
+    #     hf = HeaderFilter.objects.create_if_needed(
+    #         pk='test_hf', name='name', model=FakeContact, cells_desc=cells,
+    #     )
+    #
+    #     response = self.client.post(
+    #         self.ADD_URL, follow=True,
+    #         data={
+    #             'user':   self.user.pk,
+    #             'name':   name,
+    #             'ct':     self.ct_contact.id,
+    #             'hf':     hf.id,
+    #             'filter': efilter.id if efilter else '',
+    #         },
+    #     )
+    #     self.assertNoFormError(response)
+    #
+    #     return self.get_object_or_fail(Report, name=name)
 
     def _create_simple_contacts_report(self, name='Contact report', efilter=None, user=None):
         report = Report.objects.create(
@@ -160,7 +160,19 @@ class BaseReportsTestCase(CremeTestCase):
             ct=FakeContact,
             filter=efilter,
         )
-        Field.objects.create(report=report, name='last_name', type=RFT_FIELD, order=1)
+        Field.objects.create(
+            report=report, name='last_name', type=constants.RFT_FIELD, order=1,
+        )
+
+        return report
+
+    def _create_contacts_report(self, name='Report #1', efilter=None, user=None):
+        report = self._create_simple_contacts_report(name=name, efilter=efilter, user=user)
+
+        create_field = partial(Field.objects.create, report=report)
+        create_field(name='user',                  type=constants.RFT_FIELD,    order=2)
+        create_field(name=REL_SUB_HAS,             type=constants.RFT_RELATION, order=3)
+        create_field(name='get_pretty_properties', type=constants.RFT_FUNCTION, order=4)
 
         return report
 
@@ -171,7 +183,7 @@ class BaseReportsTestCase(CremeTestCase):
             ct=FakeReportsDocument,
         )
 
-        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
+        create_field = partial(Field.objects.create, report=report, type=constants.RFT_FIELD)
         create_field(name='title',       order=1)
         create_field(name="description", order=2)
 
@@ -181,7 +193,7 @@ class BaseReportsTestCase(CremeTestCase):
         report = Report.objects.create(
             user=self.user, name=name, ct=FakeOrganisation, filter=efilter,
         )
-        Field.objects.create(report=report, name='name', type=RFT_FIELD, order=1)
+        Field.objects.create(report=report, name='name', type=constants.RFT_FIELD, order=1)
 
         return report
 
@@ -251,6 +263,6 @@ class BaseReportsTestCase(CremeTestCase):
         return ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of created documents / year',
-            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_COUNT,
+            abscissa_cell_value='created', abscissa_type=constants.RGT_YEAR,
+            ordinate_type=constants.RGA_COUNT,
         )

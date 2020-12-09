@@ -19,39 +19,29 @@
 ################################################################################
 
 import logging
+import warnings
 from copy import deepcopy
 from functools import partial
 from itertools import chain
 from typing import Optional, Type
 
+from django import forms
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 # from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 # from django.forms.fields import CharField
-from django.forms.fields import ChoiceField
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.backends import export_backend_registry
-from creme.creme_core.core.entity_cell import (
-    CELLS_MAP,
-    EntityCell,
-    EntityCellCustomField,
-    EntityCellFunctionField,
-    EntityCellRegularField,
-    EntityCellRelation,
-)
+from creme.creme_core.core import entity_cell
 from creme.creme_core.forms import CremeEntityForm, CremeForm
+from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms import header_filter as hf_form
-from creme.creme_core.forms.fields import (
-    AjaxModelChoiceField,
-    CreatorEntityField,
-    DateRangeField,
-    ReadonlyMessageField,
-)
 # from creme.creme_core.forms.widgets import Label
+from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import (
     CremeEntity,
     CustomField,
@@ -68,7 +58,62 @@ from ..report_aggregation_registry import field_aggregation_registry
 
 logger = logging.getLogger(__name__)
 Report = get_report_model()
-reports_cells_registry = deepcopy(CELLS_MAP)
+reports_cells_registry = deepcopy(entity_cell.CELLS_MAP)
+
+
+class FilteredCTypeSubCell(CustomFormExtraSubCell):
+    sub_type_id = 'reports_filtered_ctype'
+    verbose_name = _('Entity type & filter')
+
+    def formfield(self, instance, user, **kwargs):
+        return core_fields.FilteredEntityTypeField(label=self.verbose_name, user=user)
+
+    def post_clean_instance(self, *, instance, value, form):
+        # print('post_clean_instance !!', id(instance))
+        if value:
+            instance.ct, instance.filter = value
+
+
+class FilterSubCell(CustomFormExtraSubCell):
+    sub_type_id = 'reports_filter'
+    verbose_name = _('Filter')
+
+    filter_field_name = 'filter'
+    ctype_field_name = 'ct'
+
+    not_editable_flag = 'NOT EDITABLE'
+
+    def formfield(self, instance, user, **kwargs):
+        field_name = self.filter_field_name
+        efilter = getattr(instance, field_name)
+
+        if efilter and not efilter.can_view(user)[0]:
+            return core_fields.ReadonlyMessageField(
+                label=self.verbose_name,
+                initial=_('The filter cannot be changed because it is private.'),
+                return_value=self.not_editable_flag,
+            )
+
+        mfield = type(instance)._meta.get_field(field_name)
+
+        choice_field = mfield.formfield()
+        choice_field.empty_label = _('All')  # TODO: context
+        choice_field.queryset = choice_field.queryset.filter(
+            entity_type=getattr(instance, self.ctype_field_name),
+        )
+        choice_field.initial = efilter
+
+        if hasattr(choice_field, 'get_limit_choices_to'):
+            q_filter = choice_field.get_limit_choices_to()
+
+            if q_filter is not None:
+                choice_field.queryset = choice_field.queryset.complex_filter(q_filter)
+
+        return choice_field
+
+    def post_clean_instance(self, *, instance, value, form):
+        if value != self.not_editable_flag:
+            setattr(instance, self.filter_field_name, value)
 
 
 # class _EntityCellRelated(EntityCell):
@@ -90,7 +135,7 @@ reports_cells_registry = deepcopy(CELLS_MAP)
 #
 #     def __init__(self, model, agg_id):
 #         super().__init__(model=model, value=agg_id, title='Custom Aggregate')
-class _ReportOnlyEntityCell(EntityCell):
+class _ReportOnlyEntityCell(entity_cell.EntityCell):
     def render_html(self, entity, user):
         return _('(preview not available)')
 
@@ -109,7 +154,8 @@ class ReportEntityCellRelated(_ReportOnlyEntityCell):
     @classmethod
     def build(cls,
               model: Type[CremeEntity],
-              related_name: str) -> Optional['ReportEntityCellRelated']:
+              related_name: str,
+              ) -> Optional['ReportEntityCellRelated']:
         rel_field = RHRelated._get_related_field(model, related_name)  # TODO: make public ?
 
         if rel_field is None:
@@ -257,10 +303,10 @@ class ReportEntityCellCustomAggregate(_ReportEntityCellAggregate):
 
 
 _CELL_2_HAND_MAP = {
-    EntityCellRegularField.type_id:             constants.RFT_FIELD,
-    EntityCellCustomField.type_id:              constants.RFT_CUSTOM,
-    EntityCellFunctionField.type_id:            constants.RFT_FUNCTION,
-    EntityCellRelation.type_id:                 constants.RFT_RELATION,
+    entity_cell.EntityCellRegularField.type_id:     constants.RFT_FIELD,
+    entity_cell.EntityCellCustomField.type_id:      constants.RFT_CUSTOM,
+    entity_cell.EntityCellFunctionField.type_id:    constants.RFT_FUNCTION,
+    entity_cell.EntityCellRelation.type_id:         constants.RFT_RELATION,
     # _EntityCellRelated.type_id:             constants.RFT_RELATED,
     # _EntityCellAggregate.type_id:           constants.RFT_AGG_FIELD,
     # _EntityCellCustomAggregate.type_id:     constants.RFT_AGG_CUSTOM,
@@ -275,21 +321,27 @@ _HAND_2_CELL_MAP = {v: k for k, v in _CELL_2_HAND_MAP.items()}
 # _CUSTOM_AGG_PREFIX  = _EntityCellCustomAggregate.type_id + '-'
 
 
+# TODO: deprecated AjaxModelChoiceField when removed
 class ReportCreateForm(CremeEntityForm):
-    hf = AjaxModelChoiceField(
+    hf = core_fields.AjaxModelChoiceField(
         label=_('Existing view'),
         queryset=HeaderFilter.objects.none(),
         required=False,
         help_text=_(
-            'If you select a view of list, the columns of the report will be copied from it.'
+            'If you select a view of list, '
+            'the columns of the report will be copied from it.'
         ),
     )
-    filter = AjaxModelChoiceField(
+    filter = core_fields.AjaxModelChoiceField(
         label=_('Filter'), queryset=EntityFilter.objects.none(), required=False,
     )
 
     class Meta(CremeEntityForm.Meta):
         model = Report
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('ReportCreateForm is deprecated.', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -302,14 +354,20 @@ class ReportCreateForm(CremeEntityForm):
             if hf and not hf.can_view(self.user, ct)[0]:
                 self.add_error(
                     'hf',
-                    _('Select a valid choice. That choice is not one of the available choices.')
+                    _(
+                        'Select a valid choice. '
+                        'That choice is not one of the available choices.'
+                    )
                 )
 
             efilter = get_data('filter')
             if efilter and not efilter.can_view(self.user, ct)[0]:
                 self.add_error(
                     'filter',
-                    _('Select a valid choice. That choice is not one of the available choices.'),
+                    _(
+                        'Select a valid choice. '
+                        'That choice is not one of the available choices.'
+                    ),
                 )
 
         return cleaned_data
@@ -338,17 +396,19 @@ class ReportEditForm(CremeEntityForm):
         exclude = (*CremeEntityForm.Meta.exclude, 'ct')
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('ReportEditForm is deprecated.', DeprecationWarning)
+
         super().__init__(*args, **kwargs)
         fields = self.fields
         filter_f = fields['filter']
-        filter_f.empty_label = _('All')  # TODO: context
+        filter_f.empty_label = _('All')
         filter_f.queryset = filter_f.queryset.filter(entity_type=self.instance.ct)
 
         efilter = self.instance.filter
 
         if efilter and not efilter.can_view(self.user)[0]:
             # fields['filter_label'] = CharField(
-            fields['filter_label'] = ReadonlyMessageField(
+            fields['filter_label'] = core_fields.ReadonlyMessageField(
                 label=fields['filter'].label,
                 # required=False, widget=Label,
                 initial=_('The filter cannot be changed because it is private.'),
@@ -357,7 +417,9 @@ class ReportEditForm(CremeEntityForm):
 
 
 class LinkFieldToReportForm(CremeForm):
-    report = CreatorEntityField(label=_('Sub-report linked to the column'), model=Report)
+    report = core_fields.CreatorEntityField(
+        label=_('Sub-report linked to the column'), model=Report,
+    )
 
     def __init__(self, instance, ctypes, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -724,15 +786,64 @@ class ReportFieldsForm(CremeForm):
 # Fields form [end] ------------------------------------------------------------
 
 
+class HeaderFilterStep(CremeForm):
+    header_filter = forms.ModelChoiceField(
+        label=_('Existing view'),
+        queryset=HeaderFilter.objects.none(),
+        required=False,
+        help_text=_(
+            'If you select a view of list, '
+            'the columns of the report will be copied from it.'
+        ),
+    )
+
+    def __init__(self, report, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['header_filter'].queryset = HeaderFilter.objects.filter_by_user(
+            user=self.user,
+        ).filter(
+            entity_type=report.ct,
+        )
+
+
+# TODO: factorise with ReportFieldsForm ??
+class ReportFieldsStep(CremeForm):
+    columns = ReportHandsField(label=_('Columns'))
+
+    def __init__(self, report, cells=(), *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.report = report
+
+        columns_f = self.fields['columns']
+        columns_f.model = report.ct.model_class()
+        columns_f.initial = cells
+
+    # TODO: @atomic  ?
+    def save(self):
+        report = self.report
+        assert report.pk
+
+        Field.objects.bulk_create([
+            Field(
+                report=report,
+                name=cell.value,
+                type=_CELL_2_HAND_MAP[cell.type_id],
+                order=i,
+            ) for i, cell in enumerate(self.cleaned_data['columns'], start=1)
+        ])
+
+
 class ReportExportPreviewFilterForm(CremeForm):
-    doc_type    = ChoiceField(label=_('Extension'), required=False, choices=())
-    date_field  = ChoiceField(label=_('Date field'), required=False, choices=())
-    date_filter = DateRangeField(label=_('Date filter'), required=False)
+    doc_type = forms.ChoiceField(label=_('Extension'), required=False, choices=())
+    date_field = forms.ChoiceField(label=_('Date field'), required=False, choices=())
+    date_filter = core_fields.DateRangeField(label=_('Date filter'), required=False)
 
     error_messages = {
-        'custom_start': _('If you chose a Date field, and select «customized» '
-                          'you have to specify a start date and/or an end date.'
-                         ),
+        'custom_start': _(
+            'If you chose a Date field, and select «customized» '
+            'you have to specify a start date and/or an end date.'
+        ),
     }
 
     # TODO: rename "report" to "instance" to be consistent ?

@@ -185,9 +185,13 @@
                             - The method 'create_instance_brick_config_item() is deprecated ; use 'GraphFetcher.create_brick_config_item()' instead.
                             - The method 'get_fetcher_from_instance_brick()' is deprecated ; use "ReportGraphBrick(...).fetcher" instead.
                             - The inner-class 'InstanceBrickConfigItemError' is deprecated.
-                    - In 'views.graph':
-                        - The function-view 'get_available_report_graph_types()' is deprecated.
-                        - The function '_get_available_report_graph_types()' is deprecated.
+                    - In 'forms.report', 'ReportCreateForm' & 'ReportEditForm' are deprecated.
+                    - In 'views':
+                        - The class 'report.ReportCreation' is deprecated ; use 'report.ReportCreationWizard' instead.
+                        - The function-view 'graph.get_available_report_graph_types()' is deprecated.
+                        - The function 'graph._get_available_report_graph_types()' is deprecated.
+                    - The template file "creme/reports/templates/reports/add_report.html" is deprecated.
+                    - The JavaScript component 'creme.reports.ReportFormController' is deprecated.
                 * Documents :
                     - The method 'models.AbstractDocument.get_linkeddoc_relations()' is deprecated.
                 * Billing :
@@ -528,6 +532,8 @@
             * Opportunities :
                 - With the custom-forms, the creation/edition POST names for emitter & target have changed.
             * Reports :
+                - The creation URL for Report uses now a wizard.
+                - With the custom-forms, the edition POST name for the filter has changed.
                 - In the class 'bricks.ReportGraphBrick', the attribute "instance_brick_id" has been removed.
                 - In 'core' :
                     - The class 'graph.ReportGraphYCalculator' (& child classes) has been replaced by 'ReportGraphAggregator/ReportGraphAggregatorRegistry'.
