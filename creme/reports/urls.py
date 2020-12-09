@@ -96,7 +96,8 @@ urlpatterns = [
         Swappable(
             re_path(
                 r'^report/add[/]?$',
-                report.ReportCreation.as_view(),
+                # report.ReportCreation.as_view(),
+                report.ReportCreationWizard.as_view(),
                 name='reports__create_report',
             ),
         ),

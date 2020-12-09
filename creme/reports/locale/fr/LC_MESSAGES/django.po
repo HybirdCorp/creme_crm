@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2020-12-11 13:52+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -30,35 +30,35 @@ msgstr "Exporter «{object}»"
 msgid "Reports"
 msgstr "Rapports"
 
-#: apps.py:96 apps.py:104
+#: apps.py:104 apps.py:112
 msgid "Analysis"
 msgstr "Analyse"
 
-#: apps.py:118 constants.py:57
+#: apps.py:126 constants.py:57
 msgid "Average"
 msgstr "Moyenne"
 
-#: apps.py:120 constants.py:59
+#: apps.py:128 constants.py:59
 msgid "Minimum"
 msgstr "Minimum"
 
-#: apps.py:122 constants.py:58
+#: apps.py:130 constants.py:58
 msgid "Maximum"
 msgstr "Maximum"
 
-#: apps.py:124 constants.py:60
+#: apps.py:132 constants.py:60
 msgid "Sum"
 msgstr "Somme"
 
-#: apps.py:132 templates/reports/bricks/graphs.html:111
+#: apps.py:140 templates/reports/bricks/graphs.html:111
 msgid "Histogram"
 msgstr "Histogramme"
 
-#: apps.py:134
+#: apps.py:142
 msgid "Pie"
 msgstr "Camembert"
 
-#: apps.py:136
+#: apps.py:144
 msgid "Tube"
 msgstr "Barres empilées 100%"
 
@@ -180,7 +180,7 @@ msgstr "Le champ est invalide (pas une clé étrangère vers CremeEntity)."
 msgid "The field is hidden."
 msgstr "Le champ est caché."
 
-#: core/graph/fetcher.py:309
+#: core/graph/fetcher.py:309 populate.py:101
 msgid "Relationships"
 msgstr "Relations"
 
@@ -245,6 +245,14 @@ msgstr "Valeur agrégée (champ personnalisé)"
 msgid "Related field"
 msgstr "Champ relatif"
 
+#: custom_forms.py:15
+msgid "Creation form for report (step 1)"
+msgstr "Formulaire de création de rapport (étape 1)"
+
+#: custom_forms.py:23
+msgid "Edition form for report"
+msgstr "Formulaire de modification de rapport"
+
 # Already in Django
 #: forms/bricks.py:97
 #, python-format
@@ -278,21 +286,29 @@ msgstr ""
 msgid "The instance block for «{graph}» with these parameters already exists!"
 msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"
 
-#: forms/bulk.py:37 forms/report.py:344
+#: forms/bulk.py:36 forms/bulk.py:100
+msgid ""
+"Filter field can only be updated when reports target the same type of "
+"entities (e.g: only contacts)."
+msgstr ""
+"Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
+"type de fiche (ex: seulement les contacts)."
+
+#: forms/bulk.py:45 forms/report.py:100 forms/report.py:404
 msgid "All"
 msgstr "Tout"
 
-#: forms/bulk.py:64 forms/bulk.py:113 forms/report.py:354
+#: forms/bulk.py:72 forms/bulk.py:117 forms/report.py:93 forms/report.py:414
 msgid "The filter cannot be changed because it is private."
 msgid_plural "The filters cannot be changed because they are private."
 msgstr[0] "Le filtre ne peut pas être changé car il est privé."
 msgstr[1] "Les filtres ne peuvent pas être changés car ils sont privés."
 
-#: forms/bulk.py:72
+#: forms/bulk.py:80
 msgid "Beware !"
 msgstr "Attention !"
 
-#: forms/bulk.py:75
+#: forms/bulk.py:83
 #, python-brace-format
 msgid "The filter of {count} report cannot be changed because it is private."
 msgid_plural ""
@@ -302,14 +318,6 @@ msgstr[0] ""
 msgstr[1] ""
 "Les filtres de {count} rapports ne peuvent pas être changés car ils sont "
 "privés."
-
-#: forms/bulk.py:92 forms/bulk.py:102
-msgid ""
-"Filter field can only be updated when reports target the same type of "
-"entities (e.g: only contacts)."
-msgstr ""
-"Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
-"type de fiche (ex: seulement les contacts)."
 
 #: forms/graph.py:234
 msgid "The parameter is invalid. {}"
@@ -336,15 +344,23 @@ msgstr ""
 "utiliser la même monnaie, ou alors le résultat sera faux.  Les champs "
 "concernés sont : {}"
 
-#: forms/report.py:95
+#: forms/report.py:66
+msgid "Entity type & filter"
+msgstr "Type de fiche & filtre"
+
+#: forms/report.py:79 forms/report.py:336 models/report.py:62
+msgid "Filter"
+msgstr "Filtre"
+
+#: forms/report.py:140
 msgid "(preview not available)"
 msgstr "(aperçu non disponible)"
 
-#: forms/report.py:280
+#: forms/report.py:327 forms/report.py:791
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:284
+#: forms/report.py:331 forms/report.py:795
 msgid ""
 "If you select a view of list, the columns of the report will be copied from "
 "it."
@@ -352,36 +368,32 @@ msgstr ""
 "Si vous sélectionnez une vue de liste, les colonnes du rapport seront "
 "copiées depuis celle-ci."
 
-#: forms/report.py:288 models/report.py:62
-msgid "Filter"
-msgstr "Filtre"
-
 # Already in creme_core
-#: forms/report.py:305 forms/report.py:312
+#: forms/report.py:358 forms/report.py:368
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 
-#: forms/report.py:360
+#: forms/report.py:421
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:657
+#: forms/report.py:719 forms/report.py:812
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/report.py:728
+#: forms/report.py:838
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:729
+#: forms/report.py:839
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:730
+#: forms/report.py:840
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:733
+#: forms/report.py:844
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
@@ -389,7 +401,7 @@ msgstr ""
 "Si vous choisisser un Champ date et sélectionnez «Personnalisé» vous devez "
 "spécifier une date de début et/ou une date de fin."
 
-#: forms/report.py:750
+#: forms/report.py:861
 msgctxt "reports-date_filter"
 msgid "None"
 msgstr "Aucun"
@@ -472,9 +484,30 @@ msgstr "Colonne de rapport"
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
-#: populate.py:48
+#: populate.py:51
 msgid "Report view"
 msgstr "Vue de Rapport"
+
+# Already in creme_core
+#: populate.py:61
+msgid "Description"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:66
+#: templates/reports/forms/widgets/report-hands/custom-aggregates.html:3
+msgid "Custom fields"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:80 populate.py:115
+msgid "General information"
+msgstr ""
+
+# Already in creme_core
+#: populate.py:93
+msgid "Properties"
+msgstr ""
 
 #: templates/reports/bricks/fields.html:33
 msgid "Edit the columns"
@@ -695,10 +728,6 @@ msgstr "Aperçu des {count} premières lignes"
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
-#: templates/reports/forms/widgets/report-hands/custom-aggregates.html:3
-msgid "Custom fields"
-msgstr "Champs personnalisés"
-
 #: templates/reports/forms/widgets/report-hands/custom-aggregates.html:11
 msgid "No custom field is usable for aggregation."
 msgstr "Aucun champ personnalisé n'est utilisable pour une agrégation."
@@ -821,16 +850,16 @@ msgstr "Créer un graphique pour «{entity}»"
 msgid "Edit a graph for «{entity}»"
 msgstr "Modifier un graphique pour «{entity}»"
 
-#: views/report.py:119
+#: views/report.py:120
 #, python-brace-format
 msgid "Link of the column «{object}»"
 msgstr "Liaison de la colonne «{object}»"
 
-#: views/report.py:120
+#: views/report.py:121
 msgid "Link"
 msgstr "Lier"
 
-#: views/report.py:149
+#: views/report.py:150
 #, python-brace-format
 msgid "Edit columns of «{object}»"
 msgstr "Modifier les colonnes de «{object}»"
@@ -903,9 +932,6 @@ msgstr "Modifier les colonnes de «{object}»"
 #~ msgid "Reports portal"
 #~ msgstr "Portail Rapports"
 
-#~ msgid "List of reports"
-#~ msgstr "Liste des rapports"
-
 #~ msgid "Can't edit"
 #~ msgstr "Modification interdite"
 
@@ -941,9 +967,6 @@ msgstr "Modifier les colonnes de «{object}»"
 
 #~ msgid "Abscissa informations"
 #~ msgstr "Informations sur les abscisses"
-
-#~ msgid "Ordinates informations"
-#~ msgstr "Informations sur les ordonnées"
 
 #~ msgid "Abscissa field"
 #~ msgstr "Champ d'abscisse"

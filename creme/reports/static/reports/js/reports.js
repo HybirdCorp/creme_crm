@@ -27,6 +27,8 @@ creme.reports = creme.reports || {};
 
 creme.reports.ReportFormController = creme.component.Component.sub({
     _init_: function(options) {
+        console.warn('creme.reports.ReportFormController is deprecated.');
+
         options = options || {};
 
         this._backend = options.backend || creme.ajax.defaultCacheBackend();

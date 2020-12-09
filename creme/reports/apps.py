@@ -79,6 +79,14 @@ class ReportsConfig(CremeAppConfig):
             exclude=['chart'],
         )  # TODO: chart -> innerform
 
+    def register_custom_forms(self, cform_registry):
+        from . import custom_forms
+
+        cform_registry.register(
+            custom_forms.REPORT_CREATION_CFORM,
+            custom_forms.REPORT_EDITION_CFORM,
+        )
+
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Report, 'images/report_%(size)s.png',

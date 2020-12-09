@@ -1123,15 +1123,15 @@ class MultiCreatorEntityField(CreatorEntityField):
 class FilteredEntityTypeField(JSONField):
     widget = core_widgets.FilteredEntityTypeWidget
     default_error_messages = {
-        'invalidefilter':  _('This filter is invalid.'),
+        'invalidefilter': _('This filter is invalid.'),
     }
     value_type = dict
 
     def __init__(self, *, ctypes=entity_ctypes, empty_label=None, **kwargs):
         """Constructor.
-        @param ctypes: Allowed types.
-                        - A callable which returns an iterable of ContentType IDs / instances.
-                        - Sequence of ContentType IDs / instances.
+        @param ctypes: Allowed content types.
+               - A callable which returns an iterable of ContentType IDs / instances.
+               - Sequence of ContentType IDs / instances.
         """
         super().__init__(**kwargs)
         self._empty_label = empty_label

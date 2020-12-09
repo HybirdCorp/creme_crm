@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 from typing import Type
 
 from django.db.transaction import atomic
@@ -33,7 +34,7 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.order import ReorderInstances
 
-from .. import get_report_model
+from .. import custom_forms, get_report_model
 from ..constants import DEFAULT_HFILTER_REPORT
 from ..forms import report as report_forms
 from ..models import Field
@@ -252,7 +253,54 @@ class FieldSelection(generic.base.EntityRelatedMixin, generic.CheckedView):
 class ReportCreation(generic.EntityCreation):
     model = Report
     form_class = report_forms.ReportCreateForm
-    template_name = 'reports/add_report.html'  # TODO: improve widgets & drop this template
+    template_name = 'reports/add_report.html'
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            'ReportCreation is deprecated ; use ReportCreationWizard instead.',
+            DeprecationWarning,
+        )
+        super().__init__(*args, **kwargs)
+
+
+class ReportCreationWizard(generic.EntityCreationWizard):
+    form_list = [
+        custom_forms.REPORT_CREATION_CFORM,
+        report_forms.HeaderFilterStep,
+        report_forms.ReportFieldsStep,
+    ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.report = Report()
+
+    def done_save(self, form_list):
+        for form in form_list:
+            form.save()
+
+    def get_form_kwargs(self, step=None):
+        kwargs = super().get_form_kwargs()
+        form = self.form_list.get(step)
+
+        try:
+            form._meta.model
+        except AttributeError:
+            kwargs['report'] = self.report
+        else:
+            kwargs['instance'] = self.report
+
+        if step == '2':
+            hfilter = self.get_cleaned_data_for_step('1')['header_filter']
+            if hfilter:
+                kwargs['cells'] = hfilter.filtered_cells
+
+        self.validate_previous_steps(step)
+
+        return kwargs
+
+    def get_success_url(self, form_list):
+        # TODO: return instance in last form instead ??
+        return next(iter(form_list)).instance.get_absolute_url()
 
 
 class ReportDetail(generic.EntityDetail):
@@ -263,7 +311,8 @@ class ReportDetail(generic.EntityDetail):
 
 class ReportEdition(generic.EntityEdition):
     model = Report
-    form_class = report_forms.ReportEditForm
+    # form_class = report_forms.ReportEditForm
+    form_class = custom_forms.REPORT_EDITION_CFORM
     pk_url_kwarg = 'report_id'
 
 
