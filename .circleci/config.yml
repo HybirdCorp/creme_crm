@@ -90,6 +90,19 @@ jobs:
       - run: flake8 creme/
 
 
+  checks:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - install-creme-system-packages
+      - install-py-dev-env
+      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
+      - run: creme check
+      - run: sudo apt-get update -y && sudo apt-get install python-enchant hunspell hunspell-fr -y
+      - run: creme i18n_spellcheck --allow-failures
+
+
   tests-mysql:
     docker:
       - image: circleci/python:3.7-browsers
@@ -219,15 +232,19 @@ workflows:
 
       - lint-isort
       - lint-flake8
+      - checks
       - tests-sqlite3:
           requires:
+            - checks
             - lint-isort
             - lint-flake8
       - tests-mysql:
           requires:
+            - checks
             - lint-isort
             - lint-flake8
       - tests-pgsql:
           requires:
+            - checks
             - lint-isort
             - lint-flake8
