@@ -264,6 +264,15 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     color: hsla(197,15%,50%,1);
 }
 
+.creme_config-customforms-brick .customform-config-block-container .brick-action {
+    visibility: hidden;
+}
+
+.creme_config-customforms-brick .customform-config-block-container:hover .customform-config-block-header .brick-action,
+.creme_config-customforms-brick .customform-config-block-container .customform-config-block-content tr:hover .brick-action {
+    visibility: visible;
+}
+
 /* Buttons brick */
 
 .creme_config-buttonmenu-brick .brick-content {
