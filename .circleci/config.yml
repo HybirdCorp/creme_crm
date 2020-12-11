@@ -93,6 +93,18 @@ jobs:
           python: "python3.6"
       - run: flake8 creme/
 
+  python36-checks:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - install-creme-system-packages
+      - install-py-dev-env:
+          python: "python3.6"
+      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
+      - run: creme check
+      - run: sudo apt-get update -y && sudo apt-get install python-enchant hunspell hunspell-fr -y
+      - run: creme i18n_spellcheck --allow-failures
 
   python36-tests-mysql:
     docker:
