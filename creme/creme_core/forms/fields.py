@@ -1979,13 +1979,14 @@ class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
 class ReadonlyMessageField(fields.CharField):
     widget = core_widgets.Label
 
-    def __init__(self, *, label, initial='', widget=None):
+    def __init__(self, *, label, initial='', widget=None, return_value=None):
         super().__init__(
             label=label,
             widget=widget,
             initial=initial,
             required=False,
         )
+        self.return_value = return_value
 
     def clean(self, value):
-        return None
+        return self.return_value

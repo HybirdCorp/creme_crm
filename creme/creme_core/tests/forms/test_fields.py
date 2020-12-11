@@ -1255,6 +1255,15 @@ class ReadonlyMessageFieldTestCase(FieldTestCase):
         self.assertIsNone(field.clean(''))
         self.assertIsNone(field.clean('ignore me'))
 
+    def test_clean_return_value(self):
+        return_value = 'NO VALUE'
+        field = ReadonlyMessageField(
+            label='Beware !', initial='Blabla', return_value=return_value,
+        )
+
+        self.assertEqual(return_value, field.clean(''))
+        self.assertEqual(return_value, field.clean('ignore me'))
+
     def test_widget(self):
         class MyLabel(core_widgets.Label):
             pass
