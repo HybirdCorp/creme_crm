@@ -65,7 +65,8 @@ class TeamCreation(BaseUserCreation):
 
 
 class Portal(generic.BricksView):
-    template_name = 'creme_config/user_portal.html'
+    # template_name = 'creme_config/user_portal.html'
+    template_name = 'creme_config/portals/user.html'
 
 
 class BaseUserEdition(generic.CremeModelEditionPopup):
@@ -139,7 +140,9 @@ class UserDeactivation(generic.CheckedView):
             )
 
             if user_to_deactivate.is_staff and not user.is_staff:
-                return HttpResponse(gettext("You can't deactivate a staff user."), status=400)
+                return HttpResponse(
+                    gettext("You can't deactivate a staff user."), status=400,
+                )
 
             if user_to_deactivate.is_active:
                 user_to_deactivate.is_active = False
@@ -161,7 +164,9 @@ class UserActivation(generic.CheckedView):
             )
 
             if user_to_activate.is_staff and not request.user.is_staff:
-                return HttpResponse(gettext("You can't activate a staff user."), status=400)
+                return HttpResponse(
+                    gettext("You can't activate a staff user."), status=400,
+                )
 
             if not user_to_activate.is_active:
                 user_to_activate.is_active = True
@@ -175,17 +180,19 @@ class HideInactiveUsers(generic.CheckedView):
     brick_cls = UsersBrick
 
     def post(self, request, **kwargs):
-        value = utils.get_from_POST_or_404(request.POST, key=self.value_arg,
-                                           cast=utils.bool_from_str_extended,
-                                          )
+        value = utils.get_from_POST_or_404(
+            request.POST,
+            key=self.value_arg,
+            cast=utils.bool_from_str_extended,
+        )
 
         # NB: we can still have a race condition because we do not use
         #     select_for_update ; but it's a state related one user & one brick,
         #     so it would not be a real world problem.
         for _i in range(10):
-            state = BrickState.objects.get_for_brick_id(brick_id=self.brick_cls.id_,
-                                                        user=request.user,
-                                                       )
+            state = BrickState.objects.get_for_brick_id(
+                brick_id=self.brick_cls.id_, user=request.user,
+            )
 
             try:
                 if state.set_extra_data(key=BRICK_STATE_HIDE_INACTIVE_USERS, value=value):

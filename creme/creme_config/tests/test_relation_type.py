@@ -28,10 +28,12 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_portal(self):
         response = self.assertGET200(reverse('creme_config__rtypes'))
-        self.assertTemplateUsed(response, 'creme_config/relation_type_portal.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        # self.assertTemplateUsed(response, 'creme_config/relation_type_portal.html')
+        self.assertTemplateUsed(response, 'creme_config/portals/relation-type.html')
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url'),
+        )
 
     def test_create01(self):
         url = self.ADD_URL
@@ -77,26 +79,28 @@ class RelationTypeTestCase(CremeTestCase):
         pt_sub = create_pt('test-pt_sub', 'has cash', [FakeOrganisation])
         pt_obj = create_pt('test-pt_obj', 'need cash', [FakeContact])
 
-        get_ct     = ContentType.objects.get_for_model
-        ct_orga    = get_ct(FakeOrganisation)
+        get_ct = ContentType.objects.get_for_model
+        ct_orga = get_ct(FakeOrganisation)
         ct_contact = get_ct(FakeContact)
 
         subject_pred = 'employs (test version)'
         self.assertFalse(RelationType.objects.filter(predicate=subject_pred))
 
-        response = self.client.post(self.ADD_URL,
-                                    data={'subject_predicate':  subject_pred,
-                                          'object_predicate':   'is employed by (test version)',
+        response = self.client.post(
+            self.ADD_URL,
+            data={
+                'subject_predicate':  subject_pred,
+                'object_predicate':   'is employed by (test version)',
 
-                                          'subject_ctypes':     [ct_orga.id],
-                                          'object_ctypes':      [ct_contact.id],
+                'subject_ctypes':     [ct_orga.id],
+                'object_ctypes':      [ct_contact.id],
 
-                                          'subject_properties': [pt_sub.id],
-                                          'object_properties':  [pt_obj.id],
+                'subject_properties': [pt_sub.id],
+                'object_properties':  [pt_obj.id],
 
-                                          'object_is_copiable': 'on',
-                                         }
-                                   )
+                'object_is_copiable': 'on',
+            },
+        )
         self.assertNoFormError(response)
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
@@ -117,13 +121,15 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_create03(self):
         subject_pred = 'loves'
-        response = self.client.post(self.ADD_URL,
-                                    data={'subject_predicate': subject_pred,
-                                          'object_predicate':  'is loved by',
+        response = self.client.post(
+            self.ADD_URL,
+            data={
+                'subject_predicate': subject_pred,
+                'object_predicate':  'is loved by',
 
-                                          'subject_min_display': 'on',
-                                         },
-                                   )
+                'subject_min_display': 'on',
+            },
+        )
         self.assertNoFormError(response)
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
@@ -137,13 +143,15 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_create04(self):
         subject_pred = 'loves'
-        response = self.client.post(self.ADD_URL,
-                                    data={'subject_predicate': subject_pred,
-                                          'object_predicate':  'is loved by',
+        response = self.client.post(
+            self.ADD_URL,
+            data={
+                'subject_predicate': subject_pred,
+                'object_predicate':  'is loved by',
 
-                                          'object_min_display': 'on',
-                                         },
-                                   )
+                'object_min_display': 'on',
+            },
+        )
         self.assertNoFormError(response)
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
@@ -156,38 +164,44 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertTrue(sym_type.minimal_display)
 
     def test_edit01(self):
-        "Edit a not custom type => error"
-        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                 ('test-objfoo', 'object_predicate'),
-                                 is_custom=False
-                                )[0]
+        "Edit a not custom type => error."
+        rt = RelationType.create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+            is_custom=False
+        )[0]
         self.assertGET404(self._build_edit_url(rt))
 
     def test_edit02(self):
-        "Edit a custom type"
-        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                 ('test-objfoo', 'object_predicate'),
-                                 is_custom=True
-                                )[0]
+        "Edit a custom type."
+        rt = RelationType.create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+            is_custom=True,
+        )[0]
         url = self._build_edit_url(rt)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(pgettext('creme_config-relationship',
-                                  'Edit the type «{object}»'
-                                 ).format(object=rt),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            pgettext(
+                'creme_config-relationship', 'Edit the type «{object}»'
+            ).format(object=rt),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         # ---
         subject_pred = 'loves'
         object_pred  = 'is loved by'
-        response = self.client.post(url, data={'subject_predicate': subject_pred,
-                                               'object_predicate':  object_pred,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'subject_predicate': subject_pred,
+                'object_predicate':  object_pred,
+            },
+        )
         self.assertNoFormError(response)
 
         rel_type = RelationType.objects.get(pk=rt.id)
@@ -195,17 +209,19 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertEqual(object_pred,  rel_type.symmetric_type.predicate)
 
     def test_delete01(self):
-        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                 ('test-subfoo', 'object_predicate'),
-                                 is_custom=False
-                                )[0]
+        rt = RelationType.create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-subfoo', 'object_predicate'),
+            is_custom=False,
+        )[0]
         self.assertGET405(self.DEL_URL, data={'id': rt.id})
 
     def test_delete02(self):
-        rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                      ('test-subfoo', 'object_predicate'),
-                                      is_custom=True
-                                     )
+        rt, srt = RelationType.create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-subfoo', 'object_predicate'),
+            is_custom=True,
+        )
         self.assertPOST200(self.DEL_URL, data={'id': rt.id})
         self.assertDoesNotExist(rt)
         self.assertDoesNotExist(srt)
@@ -220,7 +236,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
 
         self.loves = RelationType.create(
             ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by')
+            ('test-object_foobar',  'is loved by'),
         )[0]
 
         self.iori = FakeContact.objects.create(
@@ -254,10 +270,11 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
     def test_create02(self):
         "Predicate is unique"
         predicate = 'Is loving Iori'
-        SemiFixedRelationType.objects.create(predicate=predicate,
-                                             relation_type=self.loves,
-                                             object_entity=self.iori,
-                                            )
+        SemiFixedRelationType.objects.create(
+            predicate=predicate,
+            relation_type=self.loves,
+            object_entity=self.iori,
+        )
 
         itsuki = FakeContact.objects.create(user=self.user, first_name='Itsuki', last_name='Akiba')
         response = self.assertPOST200(
@@ -276,35 +293,39 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         )
 
     def test_create03(self):
-        "('relation_type', 'object_entity') => unique together"
+        "('relation_type', 'object_entity') => unique together."
         predicate = 'Is loving Iori'
-        SemiFixedRelationType.objects.create(predicate=predicate,
-                                             relation_type=self.loves,
-                                             object_entity=self.iori,
-                                            )
+        SemiFixedRelationType.objects.create(
+            predicate=predicate,
+            relation_type=self.loves,
+            object_entity=self.iori,
+        )
 
         url = self.ADD_URL
         predicate += ' (other)'
         response = self.assertPOST200(url, data={'predicate': predicate})
-        self.assertFormError(response, 'form', 'semi_relation', [_('This field is required.')])
+        self.assertFormError(response, 'form', 'semi_relation', _('This field is required.'))
 
         response = self.assertPOST200(
             url,
-            data={'predicate':     predicate,
-                  'semi_relation': self.formfield_value_relation_entity(self.loves.id, self.iori),
-                 },
+            data={
+                'predicate':     predicate,
+                'semi_relation': self.formfield_value_relation_entity(self.loves.id, self.iori),
+            },
         )
         self.assertFormError(
             response, 'form', None,
-            _('A semi-fixed type of relationship with this type and this object already exists.')
+            _('A semi-fixed type of relationship with this type and this object already exists.'),
         )
 
     def test_delete(self):
-        sfrt = SemiFixedRelationType.objects.create(predicate='Is loving Iori',
-                                                    relation_type=self.loves,
-                                                    object_entity=self.iori,
-                                                   )
-        self.assertPOST200(reverse('creme_config__delete_semifixed_rtype'),
-                           data={'id': sfrt.id}
-                          )
+        sfrt = SemiFixedRelationType.objects.create(
+            predicate='Is loving Iori',
+            relation_type=self.loves,
+            object_entity=self.iori,
+        )
+        self.assertPOST200(
+            reverse('creme_config__delete_semifixed_rtype'),
+            data={'id': sfrt.id},
+        )
         self.assertDoesNotExist(sfrt)

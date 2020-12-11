@@ -66,10 +66,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login(is_superuser=superuser, admin_4_apps=['creme_config'])
 
         response = self.assertGET200(reverse('creme_config__roles'))
-        self.assertTemplateUsed(response, 'creme_config/user_role_portal.html')
+        # self.assertTemplateUsed(response, 'creme_config/user_role_portal.html')
+        self.assertTemplateUsed(response, 'creme_config/portals/user-role.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
-            response.context.get('bricks_reload_url')
+            response.context.get('bricks_reload_url'),
         )
         self.get_brick_node(self.get_html_tree(response.content), UserRolesBrick.id_)
 
@@ -784,7 +785,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertEqual(
             _('Beware to performances with conditions on custom fields or relationships.'),
-            help_message
+            help_message,
         )
 
         self.assertIsInstance(name_f, CharField)
@@ -793,7 +794,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 (False, _('All the conditions are met')),
                 (True,  _('Any condition is met')),
             ],
-            use_or_choices
+            use_or_choices,
         )
 
         self.assertIn('customfieldcondition', fields)
@@ -814,9 +815,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 '1-name': name,
                 '1-use_or': 'False',
                 '1-regularfieldcondition': json_dump([
-                    {'field':    {'name': field_name},
-                     'operator': {'id': str(operator)},
-                     'value':    value,
+                    {
+                        'field':    {'name': field_name},
+                        'operator': {'id': str(operator)},
+                        'value':    value,
                     },
                 ]),
             },
@@ -850,7 +852,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(field_name, condition.name)
         self.assertDictEqual(
             {'operator': operator, 'values': [value]},
-            condition.value
+            condition.value,
         )
 
     def test_add_credentials_with_filter02(self):
@@ -945,7 +947,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 'rname':    'customfieldinteger',
                 'values':   [str(cfield_value)],
             },
-            condition1.value
+            condition1.value,
         )
 
         condition2 = conditions[1]
@@ -1258,9 +1260,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 '1-name': name,
                 '1-use_or': 'True',
                 '1-regularfieldcondition': json_dump([
-                    {'field':    {'name': field_name},
-                     'operator': {'id': str(operator)},
-                     'value':    value,
+                    {
+                        'field':    {'name': field_name},
+                        'operator': {'id': str(operator)},
+                        'value':    value,
                     },
                 ]),
             },
@@ -1276,7 +1279,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(efilter.use_or)
         self.assertEqual(
             f'creme_core-credentials_{role.id}-1',
-            efilter.id
+            efilter.id,
         )
         self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
 
@@ -1291,7 +1294,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual('last_name', condition.name)
         self.assertDictEqual(
             {'operator': operator, 'values': [value]},
-            condition.value
+            condition.value,
         )
 
     def test_edit_credentials_with_filter02(self):
@@ -1419,9 +1422,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(3, len(conditions))
 
         condition1 = conditions[0]
-        self.assertEqual(condition_handler.CustomFieldConditionHandler.type_id,
-                         condition1.type
-                        )
+        self.assertEqual(
+            condition_handler.CustomFieldConditionHandler.type_id,
+            condition1.type
+        )
         self.assertEqual(str(custom_field.id), condition1.name)
         self.assertDictEqual(
             {
@@ -1551,7 +1555,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         condition = conditions[0]
         self.assertEqual(
             condition_handler.PropertyConditionHandler.type_id,
-            condition.type
+            condition.type,
         )
         self.assertEqual(ptype.id, condition.name)
         self.assertIs(condition.value, True)
@@ -1700,7 +1704,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'True',
-                '1-propertycondition': json_dump([{'has': True, 'ptype': ptype.id}])
+                '1-propertycondition': json_dump([{'has': True, 'ptype': ptype.id}]),
             },
         )
         self.assertNoFormError(response)

@@ -46,7 +46,8 @@ logger = logging.getLogger(__name__)
 
 
 class Portal(generic.BricksView):
-    template_name = 'creme_config/user_role_portal.html'
+    # template_name = 'creme_config/user_role_portal.html'
+    template_name = 'creme_config/portals/user-role.html'
 
 
 class RoleCreationWizard(generic.CremeModelCreationWizardPopup):

@@ -41,7 +41,8 @@ from . import base
 
 
 class Portal(generic.BricksView):
-    template_name = 'creme_config/custom_form_portal.html'
+    # template_name = 'creme_config/custom_form_portal.html'
+    template_name = 'creme_config/portals/custom-form.html'
 
 
 class CustomFormMixin:

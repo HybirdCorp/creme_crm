@@ -36,13 +36,15 @@ class HistoryConfigCreation(base.ConfigCreation):
 
 
 class Portal(BricksView):
-    template_name = 'creme_config/history_portal.html'
+    # template_name = 'creme_config/history_portal.html'
+    template_name = 'creme_config/portals/history.html'
 
 
 class HistoryItemDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
     def perform_deletion(self, request):
-        get_object_or_404(HistoryConfigItem,
-                          pk=get_from_POST_or_404(request.POST, self.id_arg),
-                         ).delete()
+        get_object_or_404(
+            HistoryConfigItem,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+        ).delete()

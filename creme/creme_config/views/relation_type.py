@@ -32,7 +32,8 @@ from . import base
 
 
 class Portal(BricksView):
-    template_name = 'creme_config/relation_type_portal.html'
+    # template_name = 'creme_config/relation_type_portal.html'
+    template_name = 'creme_config/portals/relation-type.html'
 
 
 class RelationTypeCreation(base.ConfigModelCreation):

@@ -180,7 +180,8 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         response = self.assertGET200(reverse('creme_config__custom_forms'))
-        self.assertTemplateUsed(response, 'creme_config/custom_form_portal.html')
+        # self.assertTemplateUsed(response, 'creme_config/custom_form_portal.html')
+        self.assertTemplateUsed(response, 'creme_config/portals/custom-form.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
             response.context.get('bricks_reload_url')

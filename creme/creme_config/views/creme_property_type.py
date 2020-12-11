@@ -35,7 +35,8 @@ from . import base
 
 
 class Portal(BricksView):
-    template_name = 'creme_config/property_type_portal.html'
+    # template_name = 'creme_config/property_type_portal.html'
+    template_name = 'creme_config/portals/property-type.html'
 
 
 class PropertyTypeCreation(base.ConfigModelCreation):

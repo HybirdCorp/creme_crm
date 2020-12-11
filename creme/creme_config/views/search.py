@@ -32,7 +32,8 @@ from . import base
 
 
 class Portal(BricksView):
-    template_name = 'creme_config/search_portal.html'
+    # template_name = 'creme_config/search_portal.html'
+    template_name = 'creme_config/portals/search.html'
 
 
 class SearchConfigCreation(EntityCTypeRelatedMixin,

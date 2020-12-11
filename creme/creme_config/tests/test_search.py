@@ -53,11 +53,13 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ctype))
 
         response = self.assertGET200(self.PORTAL_URL)
-        self.assertTemplateUsed(response, 'creme_config/search_portal.html')
+        # self.assertTemplateUsed(response, 'creme_config/search_portal.html')
+        self.assertTemplateUsed(response, 'creme_config/portals/search.html')
         self.assertTemplateUsed(response, 'creme_config/bricks/search-config.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url'),
+        )
 
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
@@ -81,9 +83,10 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         SearchConfigItem.objects.create(content_type=ctype, superuser=True)
 
         self.assertGET200(self.PORTAL_URL)
-        self.get_object_or_fail(SearchConfigItem, content_type=ctype,
-                                role=None, superuser=False,
-                               )
+        self.get_object_or_fail(
+            SearchConfigItem,
+            content_type=ctype, role=None, superuser=False,
+        )
 
     def test_add01(self):
         role = self.role
@@ -96,7 +99,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         context = self.assertGET200(url).context
         self.assertEqual(
             _('New search configuration for «{model}»').format(model='Test Contact'),
-            context.get('title')
+            context.get('title'),
         )
 
         with self.assertNoException():
@@ -111,7 +114,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertInChoices(value='first_name', label=_('First name'), choices=choices)
         self.assertInChoices(
             value='civility__title',
-            label='[{}] - {}'.format(_('Civility'), _('Title')),
+            label=f"[{_('Civility')}] - {_('Title')}",
             choices=choices,
         )
         self.assertNotInChoices(value='birthday', choices=choices)
@@ -137,17 +140,16 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual([fname], [sf.name for sf in sc_item.searchfields])
 
     def test_add02(self):
-        "Other CT, super users"
+        "Other CT, super users."
         ct = self.ct_orga
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, superuser=True))
 
-        self.assertNoFormError(self.client.post(self._build_add_url(ct),
-                                                data={'role': ''},
-                                               )
-                              )
-        sc_item = self.get_object_or_fail(SearchConfigItem, content_type=ct,
-                                          superuser=True, role=None,
-                                         )
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(ct), data={'role': ''}),
+        )
+        sc_item = self.get_object_or_fail(
+            SearchConfigItem, content_type=ct, superuser=True, role=None,
+        )
         self.assertTrue(sc_item.all_fields)
 
     def test_add03(self):
@@ -164,13 +166,13 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             role_f = response.context['form'].fields['role']
             choices = role_f.choices
 
-        self.assertEqual('*{}*'.format(_('Superuser')), role_f.empty_label)
+        self.assertEqual(f"*{_('Superuser')}*", role_f.empty_label)
 
         self.assertInChoices(value=role2.id, label=str(role2), choices=choices)
         self.assertNotInChoices(value=role.id, choices=choices)
 
     def test_add04(self):
-        "Unique configuration (super-user)"
+        "Unique configuration (super-user)."
         ct = self.ct_contact
         SearchConfigItem.objects.create_if_needed(
             FakeContact, role='superuser',
@@ -305,7 +307,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             descriptions=[
                 (hidden_fname1, {FieldsConfig.HIDDEN: True}),
                 (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-            ]
+            ],
         )
         sci = SearchConfigItem.objects.create_if_needed(model, fields=['first_name'])
 
@@ -320,7 +322,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertInChoices(value='first_name', label=_('First name'), choices=choices)
         self.assertInChoices(
             value='civility__title',
-            label='[{}] - {}'.format(_('Civility'), _('Title')),
+            label=f"[{_('Civility')}] - {_('Title')}",
             choices=choices,
         )
 
@@ -352,15 +354,16 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             fields_f = response.context['form'].fields['fields']
             choices = fields_f.choices
 
-        self.assertEqual(['first_name', hidden_fname1, hidden_sub_fname2],
-                         fields_f.initial
-                        )
+        self.assertListEqual(
+            ['first_name', hidden_fname1, hidden_sub_fname2],
+            fields_f.initial,
+        )
 
         self.assertInChoices(value='first_name',  label=_('First name'),  choices=choices)
         self.assertInChoices(value=hidden_fname1, label=_('Description'), choices=choices)
         self.assertInChoices(
             value=hidden_sub_fname2,
-            label='[{}] - {}'.format(_('Position'), _('Title')),
+            label=f"[{_('Position')}] - {_('Title')}",
             choices=choices,
         )
 
@@ -372,7 +375,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(sci)
 
     def test_delete02(self):
-        "Super users"
+        "Super users."
         sci = SearchConfigItem.objects.create_if_needed(
             FakeContact, role='superuser', fields=['first_name', 'last_name'],
         )
@@ -380,7 +383,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(sci)
 
     def test_delete03(self):
-        "Cannot delete the default configuration"
+        "Cannot delete the default configuration."
         sci = SearchConfigItem.objects.create_if_needed(FakeContact, ['first_name', 'last_name'])
         self.assertPOST409(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertStillExists(sci)

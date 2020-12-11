@@ -47,7 +47,8 @@ from . import base
 
 
 class Portal(BricksView):
-    template_name = 'creme_config/bricks_portal.html'
+    # template_name = 'creme_config/bricks_portal.html'
+    template_name = 'creme_config/portals/bricks.html'
 
 
 class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,

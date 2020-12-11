@@ -46,7 +46,8 @@ class FieldsConfigTestCase(CremeTestCase):
         self.login()
 
         response = self.assertGET200(reverse('creme_config__fields'))
-        self.assertTemplateUsed(response, 'creme_config/fields_config_portal.html')
+        # self.assertTemplateUsed(response, 'creme_config/fields_config_portal.html')
+        self.assertTemplateUsed(response, 'creme_config/portals/fields-config.html')
         self.assertContains(response, self.WIZARD_URL)
 
     def test_portal02(self):
@@ -92,7 +93,7 @@ class FieldsConfigTestCase(CremeTestCase):
         fconf = self.refresh(fconf)
         self.assertListEqual(
             [['phone', {'hidden': True}], ['birthday', {'hidden': True}]],
-            json_load(fconf.raw_descriptions)
+            json_load(fconf.raw_descriptions),
         )  # TODO: meh
 
         # test initial ------
@@ -171,7 +172,7 @@ class FieldsConfigTestCase(CremeTestCase):
         )
         self.assertFormError(
             response, 'form', 'ctype',
-            _('Select a valid choice. That choice is not one of the available choices.')
+            _('Select a valid choice. That choice is not one of the available choices.'),
         )
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
@@ -210,11 +211,13 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         config = FieldsConfig.objects.get(content_type=ctype)
-        self.assertListEqual(config.descriptions,
-                             [('phone', {'hidden': True}),
-                              ('birthday', {'hidden': True})
-                             ],
-                            )
+        self.assertListEqual(
+            [
+                ('phone', {'hidden': True}),
+                ('birthday', {'hidden': True}),
+            ],
+            config.descriptions,
+        )
 
     def test_wizard_go_back(self):
         self.login()

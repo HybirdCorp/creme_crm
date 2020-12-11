@@ -38,14 +38,16 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_portal(self):
         response = self.assertGET200(reverse('creme_config__buttons'))
-        self.assertTemplateUsed(response, 'creme_config/button_menu_portal.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        # self.assertTemplateUsed(response, 'creme_config/button_menu_portal.html')
+        self.assertTemplateUsed(response, 'creme_config/portals/button-menu.html')
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url')
+        )
 
     def test_wizard(self):
         class TestButton(Button):
-            id_          = Button.generate_id('creme_config', 'test_wizard')
+            id_ = Button.generate_id('creme_config', 'test_wizard')
             verbose_name = 'Testing purpose'
 
         button_registry.register(TestButton)
@@ -89,10 +91,11 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             [(TestButton.id_, 1000)],
-            [*ButtonMenuItem.objects
-                            .filter(content_type=ct)
-                            .values_list('button_id', 'order')
-            ]
+            [
+                *ButtonMenuItem.objects
+                               .filter(content_type=ct)
+                               .values_list('button_id', 'order'),
+            ],
         )
 
     def test_edit01(self):
@@ -103,7 +106,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
     def test_edit02(self):
         "Edit the default configuration."
         class TestButton(Button):
-            id_          = Button.generate_id('creme_config', 'test_edit02')
+            id_ = Button.generate_id('creme_config', 'test_edit02')
             verbose_name = 'Testing purpose'
 
         button_registry.register(TestButton)
@@ -136,27 +139,29 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             [(TestButton.id_, 1)],
-            [*ButtonMenuItem.objects.filter(content_type=None)
-                                    .values_list('button_id', 'order')
-            ]
+            [
+                *ButtonMenuItem.objects
+                               .filter(content_type=None)
+                               .values_list('button_id', 'order'),
+            ],
         )
 
     def test_edit03(self):
         ct = self.contact_ct
 
         class TestButton01(Button):
-            id_          = Button.generate_id('creme_config', 'test_edit03_1')
+            id_ = Button.generate_id('creme_config', 'test_edit03_1')
             verbose_name = 'Test button #1'
 
         class TestButton02(Button):
-            id_          = Button.generate_id('creme_config', 'test_edit03_2')
+            id_ = Button.generate_id('creme_config', 'test_edit03_2')
             verbose_name = 'Test button #2'
 
             def get_ctypes(self):
                 return [FakeContact, FakeOrganisation]
 
         class TestButton03(Button):
-            id_          = Button.generate_id('creme_config', 'test_edit03_3')
+            id_ = Button.generate_id('creme_config', 'test_edit03_3')
             verbose_name = 'Test button #3'
 
             def get_ctypes(self):
@@ -170,7 +175,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         context = self.assertGET200(url).context
         self.assertEqual(
             _('Edit configuration for «{model}»').format(model=ct),
-            context.get('title')
+            context.get('title'),
         )
 
         with self.assertNoException():
@@ -205,10 +210,12 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertListEqual(
             [(TestButton01.id_, 1000), (TestButton02.id_, 1001)],
-            [*ButtonMenuItem.objects.filter(content_type=ct)
-                                    .order_by('order')
-                                    .values_list('button_id', 'order')
-            ]
+            [
+                *ButtonMenuItem.objects
+                               .filter(content_type=ct)
+                               .order_by('order')
+                               .values_list('button_id', 'order'),
+            ],
         )
 
     def test_delete01(self):
