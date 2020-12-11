@@ -1,11 +1,9 @@
-from hashlib import sha1
-
 import os
-# import sys
+from hashlib import sha1
 
 from django.utils.encoding import smart_str
 
-from mediagenerator.utils import load_backend, find_file, read_text_file
+from mediagenerator.utils import find_file, load_backend, read_text_file
 
 from .settings import DEFAULT_MEDIA_FILTERS
 
@@ -15,8 +13,9 @@ class Filter:
 
     def __init__(self, **kwargs):
         self.file_filter = FileFilter
-        self.config(kwargs, filetype=None, filter=None,
-                            bundle=None, _from_default=None)
+        self.config(kwargs,
+                    filetype=None, filter=None,
+                    bundle=None, _from_default=None)
 
         # We assume that if this is e.g. a 'js' backend then all input must
         # also be 'js'. Subclasses must override this if they expect a special
@@ -79,9 +78,10 @@ class Filter:
     def get_input_filters(self):
         """Returns a Filter instance for each input item."""
         if not self.takes_input:
-            raise ValueError("The {} media filter doesn't take any input".format(
-                                self.__class__.__name__,
-            ))
+            raise ValueError(
+                "The {} media filter doesn't take any input".format(
+                    self.__class__.__name__,
+                ))
 
         if self._input_filters is not None:
             return self._input_filters
@@ -137,7 +137,7 @@ class Filter:
                     raise ValueError(
                         'Conflicting variations for "{}": {!r} != {!r}'.format(
                             k, v, variations[k],
-                    ))
+                        ))
             variations.update(subvariations)
         return variations
 
@@ -208,9 +208,16 @@ class RawFileFilter(FileFilter):
 
 
 class SubProcessFilter(Filter):
+    class ProcessError(Exception):
+        def __init__(self, message, stderr='', stdout='', retcode=0):
+            super().__init__(message)
+            self.stderr = stderr
+            self.stdout = stdout
+            self.retcode = retcode
+
     def run_process(self, command, input=None):
         # We import this here, so App Engine Helper users don't get import errors.
-        from subprocess import Popen, PIPE
+        from subprocess import PIPE, Popen
 
         # universal_newlines enables text mode for stdin. That cause an issue
         # in windows which use cp1252 as default for western europe.
@@ -234,7 +241,35 @@ class SubProcessFilter(Filter):
                     universal_newlines=True,
                    )
         output, error = cmd.communicate(input)
+        retcode = cmd.wait()
 
-        assert cmd.wait() == 0, f'Command returned bad result:\n{error}'
+        if retcode != 0:
+            raise self.ProcessError(
+                'Command returned bad result',
+                stderr=error,
+                stdout=output,
+                retcode=retcode
+            )
 
         return output
+
+    def format_lint_errors(self, errors, source, context=2):
+        lines = source.splitlines()
+        count = len(lines)
+        output = []
+
+        for index, col, message in errors:
+            start = max(0, index - context - 1)
+            end = min(index + context, count)
+
+            output.append('______________________________________________')
+            output.extend(f'{num:>6d}: {line}' for num, line in enumerate(
+                lines[start:index], start + 1
+            ))
+            output.append(f'        {col*" "}^__ {message}\n')
+            output.extend(f'{num:>6d}: {line}' for num, line in enumerate(
+                lines[index:end], index + 1
+            ))
+            output.append('')
+
+        return '\n'.join(output)
