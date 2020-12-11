@@ -6,7 +6,7 @@ from .views import (
     bricks,
     button_menu,
     creme_property_type,
-    custom_fields,
+    custom_field,
     custom_form,
     fields_config,
     generics_views,
@@ -221,13 +221,13 @@ fields_config_patterns = [
 custom_fields_patterns = [
     re_path(
         r'^portal[/]?$',
-        custom_fields.Portal.as_view(),
+        custom_field.Portal.as_view(),
         name='creme_config__custom_fields',
     ),
 
     re_path(
         r'^ct/add[/]?$',
-        custom_fields.FirstCTypeCustomFieldCreation.as_view(),
+        custom_field.FirstCTypeCustomFieldCreation.as_view(),
         name='creme_config__create_first_ctype_custom_field',
     ),
     # re_path(
@@ -238,60 +238,60 @@ custom_fields_patterns = [
 
     re_path(
         r'^add/(?P<ct_id>\d+)[/]?$',
-        custom_fields.CustomFieldCreation.as_view(),
+        custom_field.CustomFieldCreation.as_view(),
         name='creme_config__create_custom_field',
     ),
     re_path(
         r'^edit/(?P<field_id>\d+)[/]?$',
-        custom_fields.CustomFieldEdition.as_view(),
+        custom_field.CustomFieldEdition.as_view(),
         name='creme_config__edit_custom_field',
     ),
     re_path(
         r'^delete[/]?$',
-        custom_fields.CustomFieldDeletion.as_view(),
+        custom_field.CustomFieldDeletion.as_view(),
         name='creme_config__delete_custom_field',
     ),
     re_path(
         r'^restore[/]?$',
-        custom_fields.CustomFieldRestoration.as_view(),
+        custom_field.CustomFieldRestoration.as_view(),
         name='creme_config__restore_custom_field',
     ),
 
     re_path(
         r'^bricks/hide_deleted[/]?$',
-        custom_fields.HideDeletedCustomFields.as_view(),
+        custom_field.HideDeletedCustomFields.as_view(),
         name='creme_config__custom_fields_brick_hide_deleted',
     ),
 
     # Enums
     re_path(
         r'^enum/(?P<field_id>\d+)[/]?$',
-        custom_fields.CustomEnumsDetail.as_view(),
+        custom_field.CustomEnumsDetail.as_view(),
         name='creme_config__custom_enums',
     ),
     re_path(
         r'^enum/add/widget/(?P<field_id>\d+)[/]?$',
-        custom_fields.FromWidgetCustomEnumAdding.as_view(),
+        custom_field.FromWidgetCustomEnumAdding.as_view(),
         name='creme_config__add_custom_enum',
     ),
     re_path(
         r'^enum/add/multi/(?P<field_id>\d+)[/]?$',
-        custom_fields.CustomEnumsAdding.as_view(),
+        custom_field.CustomEnumsAdding.as_view(),
         name='creme_config__add_custom_enums',
     ),
     re_path(
         r'^enum/edit/(?P<enum_id>\d+)[/]?$',
-        custom_fields.CustomEnumEdition.as_view(),
+        custom_field.CustomEnumEdition.as_view(),
         name='creme_config__edit_custom_enum',
     ),
     re_path(
         r'^enum/delete/(?P<enum_id>\d+)[/]?$',
-        custom_fields.CustomEnumDeletion.as_view(),
+        custom_field.CustomEnumDeletion.as_view(),
         name='creme_config__delete_custom_enum',
     ),
     re_path(
         r'^enum/reload/(?P<field_id>\d+)[/]?$',
-        custom_fields.CustomEnumBrickReloading.as_view(),
+        custom_field.CustomEnumBrickReloading.as_view(),
         name='creme_config__reload_custom_enum_brick',
     ),
 ]

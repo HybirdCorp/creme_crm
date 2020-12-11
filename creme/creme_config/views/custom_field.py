@@ -44,7 +44,7 @@ from creme.creme_core.views.utils import json_update_from_widget_response
 
 from .. import bricks
 from ..constants import BRICK_STATE_HIDE_DELETED_CFIELDS
-from ..forms import custom_fields as cf_forms
+from ..forms import custom_field as cf_forms
 from . import base
 
 logger = logging.getLogger(__name__)
