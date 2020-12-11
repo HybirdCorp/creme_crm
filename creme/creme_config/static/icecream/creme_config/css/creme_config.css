@@ -222,7 +222,7 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 .creme_config-customforms-brick .brick-table-content .customform-config-block-header {
     border-bottom: 1px solid #dedede;
 
-    background-color: hsl(197deg 69% 97%);
+    background-color: #f7f7f7;
 
     text-align: center;
     text-transform: uppercase;
@@ -259,6 +259,15 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 
     font-size: 12px;
     color: #777;
+}
+
+.creme_config-customforms-brick .customform-config-block-container .brick-action {
+    visibility: hidden;
+}
+
+.creme_config-customforms-brick .customform-config-block-container:hover .customform-config-block-header .brick-action,
+.creme_config-customforms-brick .customform-config-block-container .customform-config-block-content tr:hover .brick-action {
+    visibility: visible;
 }
 
 /* Buttons brick */
