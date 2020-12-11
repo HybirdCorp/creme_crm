@@ -32,7 +32,8 @@ from . import base
 
 
 class Portal(BricksView):
-    template_name = 'creme_config/fields_config_portal.html'
+    # template_name = 'creme_config/fields_config_portal.html'
+    template_name = 'creme_config/portals/fields-config.html'
 
 
 class FieldsConfigEdition(base.ConfigModelEdition):

@@ -448,6 +448,7 @@
                 - In 'views.user_role' :
                     - The class 'BaseRoleEdition' has been removed.
                     - There were many changes in the class 'RoleDeletion' (mainly: it does not delete the role any more).
+                - The template files "creme_config/*_portal.html" were moved to "creme_config/portals/" & renamed.
             * Persons :
                 - The function-view 'views.organisation.unset_managed()' has been replaced by the class 'OrganisationUnmanage'.
                 - The creation/edition views do not use specific templates any more.

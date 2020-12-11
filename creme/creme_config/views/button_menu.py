@@ -33,7 +33,8 @@ from . import base
 
 
 class Portal(generic.BricksView):
-    template_name = 'creme_config/button_menu_portal.html'
+    # template_name = 'creme_config/button_menu_portal.html'
+    template_name = 'creme_config/portals/button-menu.html'
 
 
 class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):

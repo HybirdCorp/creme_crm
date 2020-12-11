@@ -78,7 +78,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login(is_superuser=superuser, admin_4_apps=['creme_config'])
 
         response = self.assertGET200(reverse('creme_config__users'))
-        self.assertTemplateUsed(response, 'creme_config/user_portal.html')
+        # self.assertTemplateUsed(response, 'creme_config/user_portal.html')
+        self.assertTemplateUsed(response, 'creme_config/portals/user.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
             response.context.get('bricks_reload_url')

@@ -28,10 +28,12 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertEqual(reverse('creme_config__ptypes'), url)
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_config/property_type_portal.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        # self.assertTemplateUsed(response, 'creme_config/property_type_portal.html')
+        self.assertTemplateUsed(response, 'creme_config/portals/property-type.html')
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url')
+        )
 
         self.assertContains(response, str(ptype1))
         self.assertContains(response, str(ptype2))
@@ -68,12 +70,14 @@ class PropertyTypeTestCase(CremeTestCase):
 
         get_ct = ContentType.objects.get_for_model
         ct_ids = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
-        text   = 'is beautiful'
-        response = self.client.post(self.ADD_URL,
-                                    data={'text':           text,
-                                          'subject_ctypes': ct_ids,
-                                         },
-                                   )
+        text = 'is beautiful'
+        response = self.client.post(
+            self.ADD_URL,
+            data={
+                'text':           text,
+                'subject_ctypes': ct_ids,
+            },
+        )
         self.assertNoFormError(response)
 
         prop_type = self.get_object_or_fail(CremePropertyType, text=text)
@@ -112,17 +116,20 @@ class PropertyTypeTestCase(CremeTestCase):
         context = response.context
         self.assertEqual(
             pgettext('creme_config-property', 'Edit the type «{object}»').format(object=pt),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         # ---
         ct_orga = get_ct(FakeOrganisation)
         text = 'is very beautiful'
-        response = self.client.post(url, data={'text':           text,
-                                               'subject_ctypes': [ct_orga.id],
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'text':           text,
+                'subject_ctypes': [ct_orga.id],
+            },
+        )
         self.assertNoFormError(response)
 
         pt = self.refresh(pt)

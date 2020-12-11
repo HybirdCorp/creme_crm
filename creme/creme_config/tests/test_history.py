@@ -16,10 +16,12 @@ class HistoryConfigTestCase(CremeTestCase):
 
     def test_portal(self):
         response = self.assertGET200(reverse('creme_config__history'))
-        self.assertTemplateUsed(response, 'creme_config/history_portal.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        # self.assertTemplateUsed(response, 'creme_config/history_portal.html')
+        self.assertTemplateUsed(response, 'creme_config/portals/history.html')
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url'),
+        )
 
     def test_add01(self):
         self.assertFalse(HistoryConfigItem.objects.exists())
@@ -39,7 +41,7 @@ class HistoryConfigTestCase(CremeTestCase):
         self.assertEqual(2, len(hc_items))
         self.assertSetEqual(
             {*rtype_ids},
-            {hc_item.relation_type.id for hc_item in hc_items}
+            {hc_item.relation_type.id for hc_item in hc_items},
         )
 
     def test_add02(self):
