@@ -440,6 +440,7 @@
                 - The function 'creme.utils.converter()' has been removed.
         # Apps :
             * Creme_config :
+                - The modules "custom_fields" in 'views/forms' have been renamed "custom_field".
                 - The attributes "form_list" of wizard views are now lists (ie: not tuples anymore).
                 - These function-views of 'views.generics_views' have by replaced by classes :
                     - 'reload_model_brick()' by 'ModelBrickReloading'.
