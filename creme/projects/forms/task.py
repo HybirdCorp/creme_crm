@@ -73,7 +73,9 @@ class ParentTasksSubCell(CustomFormExtraSubCell):
             required=False,
             model=ProjectTask,
             user=user,
-            q_filter={'linked_project': instance.linked_project.id},
+            # NB: not <linked_project.id> because <linked_project> can be None
+            #     in creme_config brick.
+            q_filter={'linked_project': instance.linked_project_id},
         )
 
 

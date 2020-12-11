@@ -621,7 +621,7 @@ class ReportTestCase(BaseReportsTestCase):
         )
         system_efilter = EntityFilter.objects.create(
             id='test-filter02',
-            name='Agences',
+            name='Agencies',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
