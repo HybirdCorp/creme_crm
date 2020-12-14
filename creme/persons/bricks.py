@@ -194,18 +194,20 @@ class OrganisationBarHatBrick(SimpleBrick):
 
 class ContactCardHatBrick(Brick):
     id_ = SimpleBrick._generate_hat_id('persons', 'contact_card')
-    dependencies = [Contact, Organisation, Relation,
-                    *Activities4Card.dependencies,
-                    *Opportunities4Card.dependencies,
-                    *CommercialActs4Card.dependencies
-                   ]
-    relation_type_deps = [constants.REL_SUB_EMPLOYED_BY,
-                          constants.REL_SUB_MANAGES,
-                          *Activities4Card.relation_type_deps,
-                          *Opportunities4Card.relation_type_deps,
-                          *CommercialActs4Card.relation_type_deps,
-                         ]
-    verbose_name  = _('Card header block')
+    dependencies = [
+        Contact, Organisation, Relation,
+        *Activities4Card.dependencies,
+        *Opportunities4Card.dependencies,
+        *CommercialActs4Card.dependencies
+    ]
+    relation_type_deps = [
+        constants.REL_SUB_EMPLOYED_BY,
+        constants.REL_SUB_MANAGES,
+        *Activities4Card.relation_type_deps,
+        *Opportunities4Card.relation_type_deps,
+        *CommercialActs4Card.relation_type_deps,
+    ]
+    verbose_name = _('Card header block')
     template_name = 'persons/bricks/contact-hat-card.html'
 
     def detailview_display(self, context):
@@ -228,18 +230,20 @@ class ContactCardHatBrick(Brick):
 
 class OrganisationCardHatBrick(Brick):
     id_ = SimpleBrick._generate_hat_id('persons', 'organisation_card')
-    dependencies = [Organisation, Contact, Address, Relation,
-                    *Activities4Card.dependencies,
-                    *Opportunities4Card.dependencies,
-                    *CommercialActs4Card.dependencies,
-                   ]
-    relation_type_deps = [constants.REL_OBJ_CUSTOMER_SUPPLIER, constants.REL_SUB_CUSTOMER_SUPPLIER,
-                          constants.REL_OBJ_MANAGES, constants.REL_OBJ_EMPLOYED_BY,
-                          *Activities4Card.relation_type_deps,
-                          *Opportunities4Card.relation_type_deps,
-                          *CommercialActs4Card.relation_type_deps,
-                         ]
-    verbose_name  = _('Card header block')
+    dependencies = [
+        Organisation, Contact, Address, Relation,
+        *Activities4Card.dependencies,
+        *Opportunities4Card.dependencies,
+        *CommercialActs4Card.dependencies,
+    ]
+    relation_type_deps = [
+        constants.REL_OBJ_CUSTOMER_SUPPLIER, constants.REL_SUB_CUSTOMER_SUPPLIER,
+        constants.REL_OBJ_MANAGES, constants.REL_OBJ_EMPLOYED_BY,
+        *Activities4Card.relation_type_deps,
+        *Opportunities4Card.relation_type_deps,
+        *CommercialActs4Card.relation_type_deps,
+    ]
+    verbose_name = _('Card header block')
     template_name = 'persons/bricks/organisation-hat-card.html'
 
     def detailview_display(self, context):
@@ -259,14 +263,14 @@ class OrganisationCardHatBrick(Brick):
             },
             position_is_hidden=get_fconfigs(Contact).is_fieldname_hidden('position'),
 
-            is_customer=managed_orgas.filter(relations__type=constants.REL_OBJ_CUSTOMER_SUPPLIER,
-                                             relations__object_entity=organisation.id,
-                                            )
-                                     .exists(),
-            is_supplier=managed_orgas.filter(relations__type=constants.REL_SUB_CUSTOMER_SUPPLIER,
-                                             relations__object_entity=organisation.id,
-                                            )
-                                     .exists(),
+            is_customer=managed_orgas.filter(
+                relations__type=constants.REL_OBJ_CUSTOMER_SUPPLIER,
+                relations__object_entity=organisation.id,
+            ).exists(),
+            is_supplier=managed_orgas.filter(
+                relations__type=constants.REL_SUB_CUSTOMER_SUPPLIER,
+                relations__object_entity=organisation.id,
+            ).exists(),
 
             managers=EntityCredentials.filter(user, organisation.get_managers())[:16],
             employees=EntityCredentials.filter(user, organisation.get_employees())[:16],
@@ -278,10 +282,10 @@ class OrganisationCardHatBrick(Brick):
 
 
 class ManagersBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('persons', 'managers')
-    dependencies  = (Relation, Contact)
+    id_ = QuerysetBrick.generate_id('persons', 'managers')
+    dependencies = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_MANAGES, )
-    verbose_name  = _('Organisation managers')
+    verbose_name = _('Organisation managers')
     template_name = 'persons/bricks/managers.html'
     target_ctypes = (Organisation,)
 
@@ -309,9 +313,9 @@ class ManagersBrick(QuerysetBrick):
 
 
 class EmployeesBrick(ManagersBrick):
-    id_           = QuerysetBrick.generate_id('persons', 'employees')
+    id_ = QuerysetBrick.generate_id('persons', 'employees')
     relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
-    verbose_name  = _('Organisation employees')
+    verbose_name = _('Organisation employees')
     template_name = 'persons/bricks/employees.html'
 
     def _get_people_qs(self, orga):
@@ -334,13 +338,14 @@ def _get_address_field_names():
 
 
 class _AddressesBrick(Brick):
-    dependencies  = (Address,)
-    verbose_name  = 'Addresses'
+    dependencies = (Address,)
+    verbose_name = 'Addresses'
     target_ctypes: Sequence[Type[CremeEntity]] = (Contact, Organisation)
 
     def get_template_context(self, context, **kwargs):
         person = context['object']
-        model = person.__class__
+        # model = person.__class__
+        model = type(person)
         is_hidden = context['fields_configs'].get_4_model(model).is_field_hidden
 
         def prepare_address(attr_name):
@@ -360,7 +365,7 @@ class _AddressesBrick(Brick):
                 else:
                     display_content = True
 
-            addr.display_button  = display_button
+            addr.display_button = display_button
             addr.display_content = display_content
 
             addr.owner = person  # NB: avoids a query (per address) for credentials.
@@ -387,20 +392,20 @@ class _AddressesBrick(Brick):
 
 
 class DetailedAddressesBrick(_AddressesBrick):
-    id_           = Brick.generate_id('persons', 'address')  # TODO: rename 'addresses'
-    verbose_name  = _('Addresses (detailed)')
+    id_ = Brick.generate_id('persons', 'address')  # TODO: rename 'addresses'
+    verbose_name = _('Addresses (detailed)')
     template_name = 'persons/bricks/addresses-detailed.html'
 
 
 class PrettyAddressesBrick(_AddressesBrick):
-    id_           = Brick.generate_id('persons', 'addresses_pretty')
-    verbose_name  = _('Addresses (pretty)')
+    id_ = Brick.generate_id('persons', 'addresses_pretty')
+    verbose_name = _('Addresses (pretty)')
     template_name = 'persons/bricks/addresses-pretty.html'
 
 
 class _OtherAddressesBrick(QuerysetBrick):
-    dependencies  = (Address,)
-    verbose_name  = 'Other addresses'
+    dependencies = (Address,)
+    verbose_name = 'Other addresses'
     target_ctypes = (Contact, Organisation)
 
     def get_template_context(self, context, **kwargs):
@@ -421,25 +426,25 @@ class _OtherAddressesBrick(QuerysetBrick):
 
 class DetailedOtherAddressesBrick(_OtherAddressesBrick):
     # TODO: rename 'other_addresses'
-    id_           = QuerysetBrick.generate_id('persons', 'other_address')
-    dependencies  = (Address,)
-    verbose_name  = _('Other addresses (detailed)')
+    id_ = QuerysetBrick.generate_id('persons', 'other_address')
+    dependencies = (Address,)
+    verbose_name = _('Other addresses (detailed)')
     template_name = 'persons/bricks/other-addresses-detailed.html'
     target_ctypes = (Contact, Organisation)
 
 
 class PrettyOtherAddressesBrick(_OtherAddressesBrick):
-    id_           = QuerysetBrick.generate_id('persons', 'other_addresses_pretty')
-    verbose_name  = _('Other addresses (pretty)')
+    id_ = QuerysetBrick.generate_id('persons', 'other_addresses_pretty')
+    verbose_name = _('Other addresses (pretty)')
     template_name = 'persons/bricks/other-addresses-pretty.html'
 
 
 class ManagedOrganisationsBrick(PaginatedBrick):
-    id_           = Brick.generate_id('persons', 'managed_organisations')
-    dependencies  = (Organisation,)
-    verbose_name  = 'Managed organisations'
+    id_ = Brick.generate_id('persons', 'managed_organisations')
+    dependencies = (Organisation,)
+    verbose_name = 'Managed organisations'
     template_name = 'persons/bricks/managed-organisations.html'
-    configurable  = False
+    configurable = False
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -462,9 +467,9 @@ bricks_list: Tuple[Type[Brick], ...] = (
 if apps.is_installed('creme.activities'):
     class NeglectedOrganisationsBrick(PaginatedBrick):
         """Customers/prospects organisations that have no Activity in the future."""
-        id_           = PaginatedBrick.generate_id('persons', 'neglected_orgas')
-        dependencies  = (Activity,)
-        verbose_name  = _('Neglected organisations')
+        id_ = PaginatedBrick.generate_id('persons', 'neglected_orgas')
+        dependencies = (Activity,)
+        verbose_name = _('Neglected organisations')
         template_name = 'persons/bricks/neglected-organisations.html'
 
         _RTYPE_IDS_CUSTOMERS = (
@@ -494,7 +499,7 @@ if apps.is_installed('creme.activities'):
                     start__gte=now,
                     relations__type=activities_constants.REL_OBJ_PART_2_ACTIVITY,
                     relations__object_entity__in=user_contacts,
-                ).values_list('id', flat=True)
+                ).values_list('id', flat=True),
             ]
             neglected_orgas_qs = Organisation.objects.filter(
                 is_deleted=False,
@@ -510,7 +515,7 @@ if apps.is_installed('creme.activities'):
                 *neglected_orgas_qs.exclude(
                     relations__object_entity__in=future_activities,
                     relations__type__in=self._RTYPE_IDS_ORGA_N_ACT,
-                )
+                ),
             ]
 
             if neglected_orgas:
@@ -518,7 +523,7 @@ if apps.is_installed('creme.activities'):
                     Relation.objects.filter(
                         type__in=self._RTYPE_IDS_EMPLOYEES,
                         object_entity__in=[o.id for o in neglected_orgas],
-                    ).values_list('subject_entity_id', 'object_entity_id')
+                    ).values_list('subject_entity_id', 'object_entity_id'),
                 )
                 activity_links = Relation.objects.filter(
                     type__in=self._RTYPE_IDS_CONTACT_N_ACT,

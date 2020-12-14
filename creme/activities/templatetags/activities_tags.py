@@ -20,9 +20,16 @@
 
 from django.template import Library
 
+from ..constants import NARROW
+
 register = Library()
 
 
 @register.filter
 def activities_user_key(user):
     return f'{user.username} {user.first_name} {user.last_name}'
+
+
+@register.filter
+def activities_narrow(activity):
+    return activity.floating_type == NARROW
