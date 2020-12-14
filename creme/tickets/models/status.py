@@ -50,7 +50,14 @@ BASE_STATUS = (
 class Status(CremeModel):
     """Status of a ticket: open, closed, invalid..."""
     name = models.CharField(_('Name'), max_length=100, unique=True)
-    is_closed = models.BooleanField(_('Is a "closed" status?'), default=False)
+    is_closed = models.BooleanField(
+        _('Is a "closed" status?'),
+        default=False,
+        help_text=_(
+            'If you set as closed, existing tickets which use this status will '
+            'not be updated automatically (ie: closing dates will not be set).'
+        ),
+    )
     is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
     order = BasicAutoField(_('Order'))  # Used by creme_config
 

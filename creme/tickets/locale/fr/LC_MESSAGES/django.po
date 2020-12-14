@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Tickets 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2020-12-14 19:09+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -68,7 +68,7 @@ msgstr "Temps de résolution"
 msgid "Name"
 msgstr "Nom"
 
-#: models/criticity.py:32 models/priority.py:32 models/status.py:55
+#: models/criticity.py:32 models/priority.py:32 models/status.py:62
 msgid "Order"
 msgstr "Ordre"
 
@@ -122,20 +122,29 @@ msgstr "Dupliqué"
 msgid "Won't fix"
 msgstr "Ne sera pas corrigé"
 
-#: models/status.py:53
+#: models/status.py:54
 msgid "Is a \"closed\" status?"
 msgstr "Est un statut \"fermé\" ?"
 
 #: models/status.py:57
+msgid ""
+"If you set as closed, existing tickets which use this status will not be "
+"updated automatically (ie: closing dates will not be set)."
+msgstr ""
+"Si vous marquez comme fermé, les tickets existants qui utilisent ce status "
+"ne seront pasautomatiquement mis à jour (c-à-d: les date de clôture ne "
+"seront pas renseignées)."
+
+#: models/status.py:64
 msgctxt "tickets-status"
 msgid "Create a status"
 msgstr "Créer un statut"
 
-#: models/status.py:64
+#: models/status.py:71
 msgid "Ticket status"
 msgstr "Statut de ticket"
 
-#: models/status.py:65
+#: models/status.py:72
 msgid "Ticket statuses"
 msgstr "Statuts de ticket"
 
