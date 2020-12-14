@@ -43,6 +43,7 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
          'osm/place?q=154+hopper+avenue+61045+Fair+Lawn&mlat=&mlng='),
         ('google/maps', 'google/maps'),
     ])
+    @skipIfNotInstalled('creme.geolocation')
     def test_mobile_location_map_url(self, pattern, expected):
         user = self.login()
         address = self.create_address(user)
@@ -50,7 +51,6 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         with OverrideSettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
             self.assertEqual(mobile_location_map_url(address), expected)
 
-    @skipIfNotInstalled('creme.geolocation')
     @parameterized.expand([
         ('google/maps?q={search}',
          'google/maps?q=154+hopper+avenue+61045+Fair+Lawn'),
@@ -59,6 +59,7 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
          'osm/place?q=154+hopper+avenue+61045+Fair+Lawn&mlat=42.33&mlng=5.28'),
         ('google/maps', 'google/maps'),
     ])
+    @skipIfNotInstalled('creme.geolocation')
     def test_mobile_location_map_url_geoaddress(self, pattern, expected):
         from creme.geolocation.models import GeoAddress
 
