@@ -440,7 +440,7 @@ class FieldGroupList:
                    model: Type[Model],
                    data: List[dict],
                    cell_registry: EntityCellsRegistry,
-                   extra_group_classes: Sequence[Type[ExtraFieldGroup]] = (),
+                   allowed_extra_group_classes: Sequence[Type[ExtraFieldGroup]] = (),
                    ) -> 'FieldGroupList':
         """Builder of FieldGroupList and contained AbstractFieldGroups
         from de-serialized dicts.
@@ -451,7 +451,7 @@ class FieldGroupList:
                 if 'group_id' in group_data:
                     group_id = group_data['group_id']
 
-                    for group_class in extra_group_classes:
+                    for group_class in allowed_extra_group_classes:
                         if group_id == group_class.extra_group_id:
                             yield group_class(
                                 model=model,
@@ -937,7 +937,7 @@ class CustomFormDescriptor:
             model=self.model,
             data=item.groups_as_dicts(),
             cell_registry=self.build_cell_registry(),
-            extra_group_classes=self._extra_groups,
+            allowed_extra_group_classes=self._extra_groups,
         )
 
     def build_form_class(self,

@@ -500,7 +500,7 @@ class FieldGroupListTestCase(CremeTestCase):
         fields_groups1 = FieldGroupList.from_dicts(
             model=FakeContact,
             cell_registry=base_cell_registry,
-            extra_group_classes=[AddressGroup, CorporateGroup],
+            allowed_extra_group_classes=[AddressGroup, CorporateGroup],
             data=[
                 {'group_id': AddressGroup.extra_group_id},
                 {
@@ -524,7 +524,7 @@ class FieldGroupListTestCase(CremeTestCase):
             fields_groups2 = FieldGroupList.from_dicts(
                 model=FakeContact,
                 cell_registry=base_cell_registry,
-                extra_group_classes=[AddressGroup],
+                allowed_extra_group_classes=[AddressGroup],
                 data=[
                     {'group_id': AddressGroup.extra_group_id},
                     {'group_id': CorporateGroup.extra_group_id},  # <===
