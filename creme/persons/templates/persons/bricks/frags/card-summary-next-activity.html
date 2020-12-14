@@ -1,4 +1,4 @@
-{% load i18n creme_widgets %}
+{% load i18n creme_widgets activities_tags %}
 {% if activities %}
     <div class="card-info-field">
         <span class='card-info-key'>{% trans 'Next action' %}</span>
@@ -7,7 +7,7 @@
             {% if next_activity %}
             {% widget_icon instance=next_activity size='brick-hat-card-summary' %}
             <span class="next-action-type">{{next_activity.type}}</span>
-            <a href="{{next_activity.get_absolute_url}}"><span class="history-info-value">{{next_activity.start|date:'DATE_FORMAT'}}</span> {% trans 'at' %} <span class="history-info-value">{{next_activity.start|time:'H:i'}}</span></a>
+            <a href="{{next_activity.get_absolute_url}}"><span class="history-info-value">{{next_activity.start|date:'DATE_FORMAT'}}</span>{% if next_activity|activities_narrow %} {% trans 'at' %} <span class="history-info-value">{{next_activity.start|time:'H:i'}}</span>{% endif %}</a>
             {% else %}
             —
             {% endif %}
