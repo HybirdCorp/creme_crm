@@ -44,6 +44,10 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     SubFilterConditionHandler,
 )
 from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.gui.custom_form import (
+    FieldGroupList,
+    customform_descriptor_registry,
+)
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -53,6 +57,7 @@ from creme.creme_core.models import (
     CremePropertyType,
     CustomField,
     CustomFieldEnumValue,
+    CustomFormConfigItem,
     EntityFilter,
     EntityFilterCondition,
     HeaderFilter,
@@ -280,16 +285,21 @@ class UserRolesImporter(Importer):
             return data
 
         self._data = [
-            {'name': role_info['name'],
+            {
+                'name': role_info['name'],
 
-             # TODO: validate these info
-             'allowed_apps': role_info.get('allowed_apps', ()),
-             'admin_4_apps': role_info.get('admin_4_apps', ()),
+                # TODO: validate these info
+                'allowed_apps': role_info.get('allowed_apps', ()),
+                'admin_4_apps': role_info.get('admin_4_apps', ()),
 
-             'creatable_ctypes':  [*map(load_ct, role_info.get('creatable_ctypes', ()))],
-             'exportable_ctypes': [*map(load_ct, role_info.get('exportable_ctypes', ()))],
+                'creatable_ctypes':  [
+                    *map(load_ct, role_info.get('creatable_ctypes', ())),
+                ],
+                'exportable_ctypes': [
+                    *map(load_ct, role_info.get('exportable_ctypes', ())),
+                ],
 
-             'credentials': [*map(load_creds, role_info.get('credentials', ()))],
+                'credentials': [*map(load_creds, role_info.get('credentials', ()))],
             } for role_info in deserialized_section
         ]
         validated_data[UserRole].update(d['name'] for d in self._data)
@@ -520,10 +530,13 @@ class RelationTypesImporter(Importer):
             if not isinstance(ptype_ids, list) or \
                not all(isinstance(pt_id, str) for pt_id in ptype_ids):
                 raise ValueError(
-                    f'RelationTypesImporter: *_ptypes values must be list of strings: {ptype_ids}'
+                    f'RelationTypesImporter: '
+                    f'*_ptypes values must be list of strings: {ptype_ids}'
                 )
 
-            ptypes = [*CremePropertyType.objects.filter(pk__in=ptype_ids)] if ptype_ids else []
+            ptypes = [
+                *CremePropertyType.objects.filter(pk__in=ptype_ids),
+            ] if ptype_ids else []
 
             if len(ptypes) != len(ptype_ids):
                 non_existings_ids = {*ptype_ids} - {pt.id for pt in ptypes}
@@ -764,8 +777,9 @@ class CellProxyCustomField(CellProxy):
         if value not in validated_data[CustomField] and \
            not CustomField.objects.filter(uuid=value).exists():
             raise ValidationError(
-                _('The column with custom-field="{uuid}" is invalid '
-                  'in the view of list id="{id}".'
+                _(
+                    'The column with custom-field="{uuid}" is invalid '
+                    'in the view of list id="{id}".'
                 ).format(uuid=value, id=self.hfilter_id)
             )
 
@@ -784,8 +798,9 @@ class CellProxyFunctionField(CellProxy):
 
         if func_field is None:
             raise ValidationError(
-                _('The column with function-field="{ffield}" is invalid '
-                  'in the view of list id="{id}".'
+                _(
+                    'The column with function-field="{ffield}" is invalid '
+                    'in the view of list id="{id}".'
                 ).format(ffield=self.value, id=self.hfilter_id)
             )
 
@@ -800,8 +815,9 @@ class CellProxyRelation(CellProxy):
         if value not in validated_data[RelationType] and \
            not RelationType.objects.filter(pk=value).exists():
             raise ValidationError(
-                _('The column with relation-type="{rtype}" is invalid '
-                  'in the view of list id="{id}".'
+                _(
+                    'The column with relation-type="{rtype}" is invalid '
+                    'in the view of list id="{id}".'
                 ).format(rtype=value, id=self.hfilter_id)
             )
 
@@ -835,19 +851,18 @@ class HeaderFiltersImporter(Importer):
 
                 if cell_proxy_cls is None:
                     raise ValidationError(
-                        _('The column with type="{type}" is invalid '
-                          'in the view of list id="{id}".').format(
-                            type=cell_type, id=hfilter_id,
-                        )
+                        _(
+                            'The column with type="{type}" is invalid '
+                            'in the view of list id="{id}".'
+                        ).format(type=cell_type, id=hfilter_id)
                     )
 
-                cells_proxies.append(
-                    cell_proxy_cls(hfilter_id=hfilter_id,
-                                   model=model,
-                                   value=cell_value,
-                                   validated_data=validated_data,
-                                  )
-                )
+                cells_proxies.append(cell_proxy_cls(
+                    hfilter_id=hfilter_id,
+                    model=model,
+                    value=cell_value,
+                    validated_data=validated_data,
+                ))
 
             data = {
                 'id':         hfilter_id,
@@ -919,12 +934,12 @@ class ConditionProxy:
         """Constructor.
 
         @param efilter_id: ID of related EntityFilter instance
-               (used by error messages)
+               (used by error messages).
         @param model: model related to the EntityFilter.
         @param name: deserialized name.
         @param value: deserialized value.
         @param validated_data: IDs of validated (future) instances ;
-               dictionary <key=model ; values=set of IDs>
+               dictionary <key=model ; values=set of IDs>.
         """
         self.efilter_id = efilter_id
         self.model = model
@@ -1031,10 +1046,10 @@ class ConditionProxySubFilter(ConditionProxy):
 
             if sub_filter is None:
                 raise ValidationError(
-                    _('The condition on sub-filter="{subfilter}" is invalid '
-                      'in the filter id="{id}".').format(
-                        subfilter=sub_filter_id, id=self.efilter_id,
-                    )
+                    _(
+                        'The condition on sub-filter="{subfilter}" is invalid '
+                        'in the filter id="{id}".'
+                    ).format(subfilter=sub_filter_id, id=self.efilter_id)
                 )
 
         self.sub_filter = sub_filter
@@ -1093,9 +1108,7 @@ class ConditionProxyRelation(ConditionProxy):
                     _(
                         'The condition on relation-type is invalid in the '
                         'filter id="{id}" (unknown uuid={uuid}).'
-                    ).format(
-                        id=self.efilter_id, uuid=entity_uuid,
-                    )
+                    ).format(id=self.efilter_id, uuid=entity_uuid)
                 )
 
         ct_str = value.get('ct')
@@ -1109,8 +1122,9 @@ class ConditionProxyRelation(ConditionProxy):
 
             if rtype is None:
                 raise ValidationError(
-                    _('The condition on relation-type is invalid in the filter '
-                      'id="{id}" (unknown relation-type={rtype}).'
+                    _(
+                        'The condition on relation-type is invalid in the filter '
+                        'id="{id}" (unknown relation-type={rtype}).'
                     ).format(rtype=rtype_id, id=self.efilter_id)
                 )
 
@@ -1144,10 +1158,11 @@ class ConditionProxyRelationSubFilter(ConditionProxy):
 
             if rtype is None:
                 raise ValidationError(
-                    _('The condition on related sub-filter="{subfilter}" is invalid '
-                      'in the filter id="{id}" (unknown relation-type ID).').format(
-                        subfilter=self.sub_filter_id, id=self.efilter_id,
-                    )
+                    _(
+                        'The condition on related sub-filter="{subfilter}" is '
+                        'invalid in the filter id="{id}" '
+                        '(unknown relation-type ID).'
+                    ).format(subfilter=self.sub_filter_id, id=self.efilter_id)
                 )
 
     def build_condition(self):
@@ -1175,8 +1190,9 @@ class ConditionProxyRelationSubFilter(ConditionProxy):
 
             if sub_filter is None:
                 raise ValidationError(
-                    _('The condition on related sub-filter="{subfilter}" is '
-                      'invalid in the filter id="{id}" (unknown filter ID).'
+                    _(
+                        'The condition on related sub-filter="{subfilter}" is '
+                        'invalid in the filter id="{id}" (unknown filter ID).'
                     ).format(subfilter=sub_filter_id, id=self.efilter_id)
                 )
 
@@ -1197,8 +1213,9 @@ class ConditionProxyProperty(ConditionProxy):
 
             if ptype is None:
                 raise ValidationError(
-                    _('The condition on property-type="{ptype}" is invalid in '
-                      'the filter id="{id}".'
+                    _(
+                        'The condition on property-type="{ptype}" is invalid in '
+                        'the filter id="{id}".'
                     ).format(ptype=ptype_id, id=self.efilter_id)
                 )
 
@@ -1218,10 +1235,10 @@ class BaseConditionProxyCustomField(ConditionProxy):
         if cf_id not in validated_data[CustomField]:
             # TODO: search in existing Customfield ??
             raise ValidationError(
-                _('The condition on custom-field="{cfield}" is invalid in the '
-                  'filter id="{id}".').format(
-                    cfield=cf_id, id=self.efilter_id,
-                )
+                _(
+                    'The condition on custom-field="{cfield}" is invalid in the '
+                    'filter id="{id}".'
+                ).format(cfield=cf_id, id=self.efilter_id)
             )
 
 
@@ -1295,15 +1312,18 @@ class EntityFiltersImporter(Importer):
                         )
                     )
                 try:
-                    cond_proxy = cond_proxy_cls(efilter_id=efilter_id,
-                                                model=model,
-                                                name=cond_name,
-                                                value=cond_dict.get('value'),
-                                                validated_data=validated_data,
-                                               )
+                    cond_proxy = cond_proxy_cls(
+                        efilter_id=efilter_id,
+                        model=model,
+                        name=cond_name,
+                        value=cond_dict.get('value'),
+                        validated_data=validated_data,
+                    )
                 except FilterConditionHandler.ValueError as e:
                     raise ValidationError(
-                        _('A condition is invalid in the filter id="{id}" [{error}].').format(
+                        _(
+                            'A condition is invalid in the filter id="{id}" [{error}].'
+                        ).format(
                             id=efilter_id, error=e,
                         )
                     )
@@ -1365,13 +1385,11 @@ class EntityFiltersImporter(Importer):
                 get_dependencies=lambda filter_data: filter_data['deps'],
             )
         except DependenciesLoopError as e:
-            raise ValidationError(
-                mark_safe(
-                    _('There is a cycle between the filters [{}].').format(
-                        str(e).replace('\n', '<br>')
-                    )
+            raise ValidationError(mark_safe(
+                _('There is a cycle between the filters [{}].').format(
+                    str(e).replace('\n', '<br>'),
                 )
-            )
+            ))
 
     def save(self):
         # NB: EntityFilter.objects.smart_update_or_create() :
@@ -1406,3 +1424,48 @@ class EntityFiltersImporter(Importer):
                 conditions.append(cond)
 
             ef.set_conditions(conditions)
+
+
+@IMPORTERS.register(data_id=constants.ID_CUSTOM_FORMS)
+class CustomFormsImporter(Importer):
+    registry = customform_descriptor_registry
+
+    def load_cform_item(self, cform_item_info: dict) -> dict:
+        data = {}
+
+        cform_id = cform_item_info.get('id')
+        desc = self.registry.get(cform_id)
+        if desc is None:
+            raise ValidationError(f'The custom-form ID is invalid: {cform_id}')
+
+        data['descriptor'] = desc
+        data['groups'] = cform_item_info['groups']
+
+        return data
+
+    def _validate_section(self, deserialized_section, validated_data):
+        self._data = [*map(self.load_cform_item, deserialized_section)]
+
+    def save(self):
+        instances = CustomFormConfigItem.objects.in_bulk()
+
+        for data in self._data:
+            # TODO: is this a problem that if instance does not exist there is an error ?
+            descriptor = data['descriptor']
+            instance = instances[descriptor.id]
+            model = descriptor.model
+            cell_registry = descriptor.build_cell_registry()
+
+            instance.store_groups(FieldGroupList(
+                model=model,
+                cell_registry=cell_registry,
+                groups=[
+                    *FieldGroupList.from_dicts(
+                        model=model,
+                        data=data['groups'],
+                        cell_registry=cell_registry,
+                        extra_group_classes=(*descriptor.extra_group_classes,)
+                    ),
+                ],
+            ))
+            instance.save()

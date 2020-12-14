@@ -29,7 +29,13 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RelationSubFilterConditionHandler,
     SubFilterConditionHandler,
 )
+from creme.creme_core.forms import (
+    LAYOUT_DUAL_FIRST,
+    LAYOUT_DUAL_SECOND,
+    LAYOUT_REGULAR,
+)
 from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -38,6 +44,7 @@ from creme.creme_core.models import (
     CremePropertyType,
     CustomField,
     CustomFieldEnumValue,
+    CustomFormConfigItem,
     EntityFilter,
     FakeContact,
     FakeDocument,
@@ -47,7 +54,9 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SetCredentials,
 )
+from creme.creme_core.tests import fake_custom_forms
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_forms import FakeAddressGroup
 
 
 class ExportingTestCase(CremeTestCase):
@@ -167,7 +176,7 @@ class ExportingTestCase(CremeTestCase):
         self.assertEqual(data_id2, exporters[0][0])
 
     def test_unregister02(self):
-        "Un-register before"
+        "Un-register before."
         registry = ExportersRegistry()
         data_id1 = 'exp1'
         data_id2 = 'exp2'
@@ -437,7 +446,7 @@ class ExportingTestCase(CremeTestCase):
                     'ctype': 'creme_core.fakecontact',
                 }
             ],
-            [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT]
+            [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT],
         )
         self.assertListEqual(
             [
@@ -452,7 +461,7 @@ class ExportingTestCase(CremeTestCase):
                     'ctype': 'creme_core.fakecontact',
                 },
             ],
-            [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT]
+            [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT],
         )
 
     def test_detail_bricks03(self):
@@ -514,7 +523,7 @@ class ExportingTestCase(CremeTestCase):
                     'ctype': 'creme_core.fakecontact', 'role': role.name,
                 },
             ],
-            [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT]
+            [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT],
         )
 
     def test_detail_bricks04(self):
@@ -546,7 +555,7 @@ class ExportingTestCase(CremeTestCase):
                     'ctype': 'creme_core.fakecontact', 'superuser': True,
                 },
             ],
-            [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT]
+            [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT],
         )
 
     def test_home_bricks01(self):
@@ -708,14 +717,14 @@ class ExportingTestCase(CremeTestCase):
             [
                 d for d in loaded_search
                 if d.get('ctype') == 'creme_core.fakecontact' and 'role' not in d
-            ]
+            ],
         )
         self.assertListEqual(
             [{'ctype': 'creme_core.fakecontact', 'fields': 'last_name', 'role': role.name}],
             [
                 d for d in loaded_search
                 if d.get('ctype') == 'creme_core.fakecontact' and 'role' in d
-            ]
+            ],
         )
         self.assertListEqual(
             [{'ctype': 'creme_core.fakeorganisation', 'fields': 'name', 'superuser': True}],
@@ -723,7 +732,7 @@ class ExportingTestCase(CremeTestCase):
         )
         self.assertListEqual(
             [{'ctype': 'creme_core.fakedocument', 'fields': 'title', 'disabled': True}],
-            [d for d in loaded_search if d.get('ctype') == 'creme_core.fakedocument']
+            [d for d in loaded_search if d.get('ctype') == 'creme_core.fakedocument'],
         )
 
     def test_property_types(self):
@@ -741,7 +750,7 @@ class ExportingTestCase(CremeTestCase):
         ptype2 = create_ptype(pk_fmt(2), 'Is funny',     is_custom=True, is_copiable=False)
         ptype3 = create_ptype(
             pk_fmt(3), 'Is cool', is_custom=True,
-            subject_ctypes=[FakeContact, FakeOrganisation]
+            subject_ctypes=[FakeContact, FakeOrganisation],
         )
 
         response = self.assertGET200(self.URL)
@@ -753,11 +762,11 @@ class ExportingTestCase(CremeTestCase):
         self.assertEqual(3, len(loaded_ptypes))
         self.assertDictEqual(
             {'id': ptype1.id, 'text': ptype1.text, 'is_copiable': True},
-            loaded_ptypes.get(ptype1.id)
+            loaded_ptypes.get(ptype1.id),
         )
         self.assertDictEqual(
             {'id': ptype2.id, 'text': ptype2.text, 'is_copiable': False},
-            loaded_ptypes.get(ptype2.id)
+            loaded_ptypes.get(ptype2.id),
         )
 
         with self.assertNoException():
@@ -777,7 +786,8 @@ class ExportingTestCase(CremeTestCase):
             pk='creme_config_export-test_export_relation_types', text='Sugoi !',
         )
         ptype2 = CremePropertyType.create(
-            'creme_config_export-test_export_relation_types_1', 'Is important', is_custom=True,
+            'creme_config_export-test_export_relation_types_1', 'Is important',
+            is_custom=True,
         )
 
         s_pk_fmt = 'creme_config_export-subject_test_export_relations_types_{}'.format
@@ -822,7 +832,7 @@ class ExportingTestCase(CremeTestCase):
                     'is_copiable': False,      'minimal_display': True,
                 },
             },
-            rtype1_data
+            rtype1_data,
         )
         self.assertEqual([ptype1.id], subject_ptypes1a)
         self.assertEqual([ptype2.id], object_ptypes1a)
@@ -843,10 +853,11 @@ class ExportingTestCase(CremeTestCase):
                     'is_copiable': True,       'minimal_display': False,
                 },
             },
-            rtype2_data
+            rtype2_data,
         )
         self.assertSetEqual(
-            {'creme_core.fakecontact', 'creme_core.fakeorganisation'}, subject_ctypes2a
+            {'creme_core.fakecontact', 'creme_core.fakeorganisation'},
+            subject_ctypes2a,
         )
         self.assertEqual(['creme_core.fakedocument'], object_ctypes2a)
 
@@ -971,7 +982,7 @@ class ExportingTestCase(CremeTestCase):
                     {'type': EntityCellRegularField.type_id, 'value': 'description'},
                 ],
             },
-            loaded_hfilters.get(hf2.id)
+            loaded_hfilters.get(hf2.id),
         )
         self.assertDictEqual(
             {
@@ -984,7 +995,7 @@ class ExportingTestCase(CremeTestCase):
                     {'type': EntityCellRegularField.type_id, 'value': 'name'},
                 ],
             },
-            loaded_hfilters.get(hf3.id)
+            loaded_hfilters.get(hf3.id),
         )
 
     def test_entityfilters(self):
@@ -1139,7 +1150,7 @@ class ExportingTestCase(CremeTestCase):
                     },
                 ],
             },
-            loaded_efilters.get(ef2.id)
+            loaded_efilters.get(ef2.id),
         )
         self.assertDictEqual(
             {
@@ -1170,4 +1181,93 @@ class ExportingTestCase(CremeTestCase):
                 ],
             },
             loaded_efilters.get(ef3.id),
+        )
+
+    def test_customforms01(self):
+        self.login(is_staff=True)
+
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        with self.assertNoException():
+            loaded_cforms = {d['id']: d for d in content.get('custom_forms')}
+
+        # self.maxDiff = None
+
+        cform_id = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM.id
+        self.assertDictEqual(
+            {
+                'id': cform_id,
+                'groups': [
+                    {
+                        'name':  'General',
+                        'layout':  LAYOUT_REGULAR,
+                        'cells': [
+                            {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                            {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                            {'type': EntityCellRegularField.type_id, 'value': 'sector'},
+                        ],
+                    },
+                ],
+            },
+            loaded_cforms.get(cform_id),
+        )
+
+    def test_customforms02(self):
+        self.login(is_staff=True)
+
+        desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
+        cform_id = desc.id
+        CustomFormConfigItem.objects.filter(cform_id=cform_id).delete()
+
+        gname1 = 'Main'
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=desc,
+            groups_desc=[
+                {
+                    'name': gname1,
+                    'layout': LAYOUT_DUAL_FIRST,
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        (
+                            EntityCellCustomFormSpecial,
+                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        ),
+                    ],
+                },
+                FakeAddressGroup(model=FakeOrganisation, layout=LAYOUT_DUAL_SECOND),
+            ],
+        )
+
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        with self.assertNoException():
+            loaded_cforms = {d['id']: d for d in content.get('custom_forms')}
+
+        # self.maxDiff = None
+        self.assertDictEqual(
+            {
+                'id': cform_id,
+                'groups': [
+                    {
+                        'name':  gname1,
+                        'layout':  LAYOUT_DUAL_FIRST,
+                        'cells': [
+                            {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                            {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                            {
+                                'type': EntityCellCustomFormSpecial.type_id,
+                                'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
+                            },
+                        ],
+                    },
+                    {
+                        'group_id': FakeAddressGroup.extra_group_id,
+                        'layout': LAYOUT_DUAL_SECOND,
+                    },
+                ],
+            },
+            loaded_cforms.get(cform_id),
         )

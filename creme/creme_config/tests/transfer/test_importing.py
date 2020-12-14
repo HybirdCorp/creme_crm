@@ -35,8 +35,10 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RelationSubFilterConditionHandler,
     SubFilterConditionHandler,
 )
+from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.function_fields import PropertiesField
 from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -57,8 +59,10 @@ from creme.creme_core.models import (
     SetCredentials,
     UserRole,
 )
+from creme.creme_core.tests import fake_custom_forms
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_constants import DEFAULT_HFILTER_FAKE_CONTACT
+from creme.creme_core.tests.fake_forms import FakeAddressGroup
 
 
 class ImportingTestCase(CremeTestCase):
@@ -94,7 +98,7 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual(data_id2, importer2.data_id)
 
     def test_register02(self):
-        "Collision"
+        "Collision."
         registry = ImportersRegistry()
         data_id = 'my_importer'
 
@@ -293,7 +297,7 @@ class ImportingTestCase(CremeTestCase):
                         'ctype': 'creme_core.fakeorganisation',
                         'forbidden': True,
                     },
-                ]
+                ],
             }],
         }
 
@@ -355,10 +359,11 @@ class ImportingTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
 
-        role = UserRole.objects.create(name='Superhero',
-                                       allowed_apps=['creme_core', 'persons'],
-                                       admin_4_apps=['persons'],
-                                      )
+        role = UserRole.objects.create(
+            name='Superhero',
+            allowed_apps=['creme_core', 'persons'],
+            admin_4_apps=['persons'],
+        )
         role.creatable_ctypes.set([contact_ct])
         role.exportable_ctypes.set([contact_ct])
 
@@ -413,7 +418,7 @@ class ImportingTestCase(CremeTestCase):
         credentials = all_credentials[0]
         self.assertEqual(
             EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-            credentials.value
+            credentials.value,
         )
         self.assertEqual(SetCredentials.ESET_ALL, credentials.set_type)
         self.assertFalse(credentials.ctype)
@@ -508,7 +513,7 @@ class ImportingTestCase(CremeTestCase):
         credentials = all_credentials[0]
         self.assertEqual(
             EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            credentials.value
+            credentials.value,
         )
         self.assertEqual(SetCredentials.ESET_FILTER, credentials.set_type)
         self.assertEqual(ct_contact, credentials.ctype)
@@ -544,7 +549,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('This filter PK is invalid: «{}».').format(efilter_id)
+            _('This filter PK is invalid: «{}».').format(efilter_id),
         )
 
     def test_detailview_bricks01(self):
@@ -631,10 +636,11 @@ class ImportingTestCase(CremeTestCase):
         # --
         contact_bricks_data = defaultdict(list)
         contact_ct = ContentType.objects.get_for_model(FakeContact)
-        for bdl in BrickDetailviewLocation.objects.filter(content_type=contact_ct,
-                                                          role=None,
-                                                          superuser=False,
-                                                         ):
+        for bdl in BrickDetailviewLocation.objects.filter(
+                content_type=contact_ct,
+                role=None,
+                superuser=False,
+        ):
             contact_bricks_data[bdl.zone].append({
                 'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone, 'ctype': ct_str,
             })
@@ -647,10 +653,11 @@ class ImportingTestCase(CremeTestCase):
 
         # --
         role_contact_bricks_data = defaultdict(list)
-        for bdl in BrickDetailviewLocation.objects.filter(content_type=contact_ct,
-                                                          role=role,
-                                                          superuser=False,
-                                                         ):
+        for bdl in BrickDetailviewLocation.objects.filter(
+                content_type=contact_ct,
+                role=role,
+                superuser=False,
+        ):
             role_contact_bricks_data[bdl.zone].append({
                 'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
                 'ctype': ct_str, 'role': role.name,
@@ -783,7 +790,7 @@ class ImportingTestCase(CremeTestCase):
             [
                 {'id': loc.brick_id, 'order': loc.order}
                 for loc in BrickHomeLocation.objects.all()
-            ]
+            ],
         )
 
     def test_home_bricks02(self):
@@ -854,7 +861,7 @@ class ImportingTestCase(CremeTestCase):
             [
                 {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
                 for loc in BrickHomeLocation.objects.filter(role__isnull=False, superuser=False)
-            ]
+            ],
         )
 
     def test_home_bricks04(self):
@@ -1086,7 +1093,7 @@ class ImportingTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertSetEqual(
             {get_ct(FakeContact), get_ct(FakeOrganisation)},
-            {*ptype3.subject_ctypes.all()}
+            {*ptype3.subject_ctypes.all()},
         )
 
     def test_property_types02(self):
@@ -1124,7 +1131,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('This property type cannot be overridden: «{}».').format(ptype)
+            _('This property type cannot be overridden: «{}».').format(ptype),
         )
 
     def test_relations_types01(self):
@@ -1210,7 +1217,7 @@ class ImportingTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertSetEqual(
             {get_ct(FakeContact), get_ct(FakeOrganisation)},
-            {*rtype2.subject_ctypes.all()}
+            {*rtype2.subject_ctypes.all()},
         )
         self.assertListEqual([get_ct(FakeDocument)], [*rtype2.object_ctypes.all()])
 
@@ -1224,17 +1231,16 @@ class ImportingTestCase(CremeTestCase):
 
         pka = 'creme_config-test_import_relations_types02'  # not '-subject_'
 
-        rtypes_data = [
-            {'id':          pka,  'predicate':       'loves',
-             'is_copiable': True, 'minimal_display': False,
+        rtypes_data = [{
+            'id':          pka,  'predicate':       'loves',
+            'is_copiable': True, 'minimal_display': False,
 
-             'symmetric': {
-                 'id': 'creme_config-object_test_import_relations_types02',
-                 'predicate': 'is loved by',
-                 'is_copiable': False, 'minimal_display': True,
-             },
+            'symmetric': {
+                'id': 'creme_config-object_test_import_relations_types02',
+                'predicate': 'is loved by',
+                'is_copiable': False, 'minimal_display': True,
             },
-        ]
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'relation_types': rtypes_data}))
         json_file.name = 'config-26-10-2017.csv'
@@ -1242,7 +1248,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('This relation type PK is invalid: «{}».').format(pka)
+            _('This relation type PK is invalid: «{}».').format(pka),
         )
 
     def test_relations_types03(self):
@@ -1266,11 +1272,11 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('This relation type cannot be overridden: «{}».').format(rtype)
+            _('This relation type cannot be overridden: «{}».').format(rtype),
         )
 
     def test_relations_types04(self):
-        "Invalid property types"
+        "Invalid property types."
         self.login(is_staff=True)
 
         ptype_pk = 'creme_config-test_import_relation_types_04_doesnotexist'
@@ -1293,7 +1299,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('This property type PKs are invalid: {}.').format(ptype_pk)
+            _('This property type PKs are invalid: {}.').format(ptype_pk),
         )
 
     def test_relations_types05(self):
@@ -1391,14 +1397,14 @@ class ImportingTestCase(CremeTestCase):
         cfield3 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
         self.assertSetEqual(
             {*cfield_data['choices']},
-            {*cfield3.customfieldenumvalue_set.values_list('value', flat=True)}
+            {*cfield3.customfieldenumvalue_set.values_list('value', flat=True)},
         )
 
         cfield_data = cfields_data[3]
         cfield4 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
         self.assertSetEqual(
             {*cfield_data['choices']},
-            {*cfield4.customfieldenumvalue_set.values_list('value', flat=True)}
+            {*cfield4.customfieldenumvalue_set.values_list('value', flat=True)},
         )
 
     def test_customfields02(self):
@@ -1406,12 +1412,10 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         unknown_cfield_type = 1024
-        cfields_data = [
-            {
-                'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact',
-                'name': 'Rating', 'type': unknown_cfield_type,
-            },
-        ]
+        cfields_data = [{
+            'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact',
+            'name': 'Rating', 'type': unknown_cfield_type,
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'custom_fields': cfields_data}))
         json_file.name = 'config-27-10-2017.csv'
@@ -1419,7 +1423,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('This custom-field type is invalid: {}.').format(unknown_cfield_type)
+            _('This custom-field type is invalid: {}.').format(unknown_cfield_type),
         )
 
     def test_customfields03(self):
@@ -1432,12 +1436,10 @@ class ImportingTestCase(CremeTestCase):
             content_type=FakeContact, name=name, field_type=CustomField.FLOAT,
         )
 
-        cfields_data = [
-            {
-                'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact',
-                'name': name, 'type': CustomField.INT,
-            },
-        ]
+        cfields_data = [{
+            'uuid': str(uuid4()), 'ctype': 'creme_core.fakecontact',
+            'name': name, 'type': CustomField.INT,
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'custom_fields': cfields_data}))
         json_file.name = 'config-01-11-2017.csv'
@@ -1445,7 +1447,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('There is already a custom-field with the same name: {}.').format(name)
+            _('There is already a custom-field with the same name: {}.').format(name),
         )
 
     def test_customfields04(self):
@@ -1458,12 +1460,10 @@ class ImportingTestCase(CremeTestCase):
             content_type=FakeContact, name='Rating', field_type=CustomField.FLOAT,
         )
 
-        cfields_data = [
-            {
-                'uuid': str(cfield.uuid), 'ctype': 'creme_core.fakecontact',
-                'name': 'Rank', 'type': CustomField.INT,
-            },
-        ]
+        cfields_data = [{
+            'uuid': str(cfield.uuid), 'ctype': 'creme_core.fakecontact',
+            'name': 'Rank', 'type': CustomField.INT,
+        }]
 
         json_file = StringIO(json_dump({'version': '1.0', 'custom_fields': cfields_data}))
         json_file.name = 'config-06-11-2017.csv'
@@ -1471,7 +1471,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('There is already a custom-field with the same UUID: {}.').format(cfield.uuid)
+            _('There is already a custom-field with the same UUID: {}.').format(cfield.uuid),
         )
 
     def test_headerfilters01(self):
@@ -1598,7 +1598,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('This view of list cannot be overridden: «{}».').format(hf.name)
+            _('This view of list cannot be overridden: «{}».').format(hf.name),
         )
 
     def test_headerfilters03(self):
@@ -1750,8 +1750,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('The column with type="{type}" is invalid in the view of list '
-              'id="{id}".').format(type=cell_type, id=hf_id)
+            _(
+                'The column with type="{type}" is invalid in the view of list '
+                'id="{id}".'
+            ).format(type=cell_type, id=hf_id),
         )
 
     def test_headerfilters_error02(self):
@@ -1773,8 +1775,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('The column with field="{field}" is invalid in the view of list '
-              'id="{id}".').format(field=fname, id=hf_id)
+            _(
+                'The column with field="{field}" is invalid in the view of '
+                'list id="{id}".'
+            ).format(field=fname, id=hf_id),
         )
 
     def test_headerfilters_error03(self):
@@ -2039,14 +2043,14 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual('first_name', condition1_1.name)
         self.assertDictEqual(
             {'operator': operators.EQUALS, 'values': ['Spike']},
-            condition1_1.value
+            condition1_1.value,
         )
 
         condition1_2 = conditions1[1]
         self.assertEqual('last_name', condition1_2.name)
-        self.assertEqual(
+        self.assertDictEqual(
             {'operator': operators.STARTSWITH, 'values': ['Spi']},
-            condition1_2.value
+            condition1_2.value,
         )
 
         condition1_3 = conditions1[2]
@@ -2055,9 +2059,7 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual({'has': True}, condition1_3.value)
 
         condition1_4 = conditions1[3]
-        self.assertEqual(PropertyConditionHandler.type_id,
-                         condition1_4.type
-                        )
+        self.assertEqual(PropertyConditionHandler.type_id, condition1_4.type)
         self.assertEqual(ptype_id1, condition1_4.name)
         self.assertEqual(True, condition1_4.value)
 
@@ -2083,12 +2085,12 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition2_1.type)
         self.assertDictEqual(
             {'start': {'day': 1, 'month': 4, 'year': 2015}},
-            condition2_1.value
+            condition2_1.value,
         )
 
         self.assertDictEqual(
             {'end': {'day': 1, 'month': 5, 'year': 2015}},
-            conditions2[1].value
+            conditions2[1].value,
         )
         self.assertEqual({'name': 'current_quarter'}, conditions2[2].value)
 
@@ -2096,14 +2098,14 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual(rtype2.id, condition2_4.name)
         self.assertDictEqual(
             {'has': False, 'ct_id': ct_contact.id},
-            condition2_4.value
+            condition2_4.value,
         )
 
         condition2_5 = conditions2[4]
         self.assertEqual(rtype2.id, condition2_5.name)
         self.assertDictEqual(
             {'has': True, 'entity_id': contact.id},
-            condition2_5.value
+            condition2_5.value,
         )
 
         # --
@@ -2128,14 +2130,14 @@ class ImportingTestCase(CremeTestCase):
                 'rname': 'customfieldinteger',
                 'values': ['100'],
             },
-            condition3_1.value
+            condition3_1.value,
         )
 
         cfield2 = self.get_object_or_fail(CustomField, uuid=cf_uuid2)
         condition3_2 = conditions3[1]
         self.assertEqual(
             DateCustomFieldConditionHandler.type_id,
-            condition3_2.type
+            condition3_2.type,
         )
         self.assertEqual(str(cfield2.id), condition3_2.name)
         self.assertDictEqual(
@@ -2143,7 +2145,7 @@ class ImportingTestCase(CremeTestCase):
                 'rname': 'customfielddatetime',
                 'start': {'day': 7, 'month': 11, 'year': 2017}
             },
-            condition3_2.value
+            condition3_2.value,
         )
 
         # --
@@ -2165,12 +2167,12 @@ class ImportingTestCase(CremeTestCase):
         condition5_2 = conditions5[1]
         self.assertEqual(
             RelationSubFilterConditionHandler.type_id,
-            condition5_2.type
+            condition5_2.type,
         )
         self.assertEqual(rtype_id1, condition5_2.name)
         self.assertDictEqual(
             {'has': True, 'filter_id': ef1.id},
-            condition5_2.value
+            condition5_2.value,
         )
 
     def test_entityfilters02(self):
@@ -2212,7 +2214,7 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('This filter cannot be overridden: «{}».').format(efilter.name)
+            _('This filter cannot be overridden: «{}».').format(efilter.name),
         )
 
     def test_entityfilters03(self):
@@ -2474,8 +2476,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('The condition on property-type="{ptype}" is invalid '
-              'in the filter id="{id}".').format(ptype=ptype_id, id=ef_id)
+            _(
+                'The condition on property-type="{ptype}" is invalid '
+                'in the filter id="{id}".'
+            ).format(ptype=ptype_id, id=ef_id),
         )
 
     def test_entityfilters_error04_a(self):
@@ -2539,7 +2543,7 @@ class ImportingTestCase(CremeTestCase):
             _('The condition on relation-type is invalid '
               'in the filter id="{id}" (unknown uuid={uuid}).').format(
                 rtype=rtype.id, id=ef_id, uuid=uuid_str,
-            )
+            ),
         )
 
     def test_entityfilters_error05(self):
@@ -2566,8 +2570,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('The condition on custom-field="{cfield}" is invalid in the filter '
-              'id="{id}".').format(cfield=cf_uuid, id=ef_id)
+            _(
+                'The condition on custom-field="{cfield}" is invalid in the '
+                'filter id="{id}".'
+            ).format(cfield=cf_uuid, id=ef_id),
         )
 
     def test_entityfilters_error06(self):
@@ -2594,8 +2600,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('The condition on custom-field="{cfield}" is invalid in the filter '
-              'id="{id}".').format(cfield=cf_uuid, id=ef_id)
+            _(
+                'The condition on custom-field="{cfield}" is invalid in the '
+                'filter id="{id}".'
+            ).format(cfield=cf_uuid, id=ef_id),
         )
 
     def test_entityfilters_error07(self):
@@ -2658,10 +2666,10 @@ class ImportingTestCase(CremeTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('The condition on related sub-filter="{subfilter}" is invalid '
-              'in the filter id="{id}" (unknown filter ID).').format(
-                subfilter=ef_id2, id=ef_id1,
-            )
+            _(
+                'The condition on related sub-filter="{subfilter}" is invalid '
+                'in the filter id="{id}" (unknown filter ID).'
+            ).format(subfilter=ef_id2, id=ef_id1),
         )
 
     def test_entityfilters_error09(self):
@@ -2707,8 +2715,86 @@ class ImportingTestCase(CremeTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            _('The condition on related sub-filter="{subfilter}" is invalid '
-              'in the filter id="{id}" (unknown relation-type ID).').format(
-                subfilter=ef_id1, id=ef_id2,
-            )
+            _(
+                'The condition on related sub-filter="{subfilter}" is invalid '
+                'in the filter id="{id}" (unknown relation-type ID).'
+            ).format(subfilter=ef_id1, id=ef_id2),
+        )
+
+    def test_customforms(self):
+        self.login(is_staff=True)
+
+        desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
+
+        gname1 = 'Main'
+        data = {
+            'version': '1.0',
+            'custom_forms': [{
+
+                'id': desc.id,
+                'groups': [
+                    {
+                        'name': gname1,
+                        'layout': LAYOUT_DUAL_FIRST,
+                        'cells': [
+                            {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                            {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                            {
+                                'type': EntityCellCustomFormSpecial.type_id,
+                                'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
+                            },
+                        ],
+                    }, {
+                        'group_id': FakeAddressGroup.extra_group_id,
+                        'layout': LAYOUT_DUAL_SECOND,
+                    },
+                ],
+            }],
+        }
+
+        json_file = StringIO(json_dump(data))
+        json_file.name = 'config-14-12-2020.csv'  # Django uses this
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        groups = desc.groups()
+        self.assertEqual(2, len(groups))
+
+        group1 = groups[0]
+        self.assertEqual(gname1,            group1.name)
+        self.assertEqual(LAYOUT_DUAL_FIRST, group1.layout)
+
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(model=FakeOrganisation, name='user'),
+                EntityCellRegularField.build(model=FakeOrganisation, name='name'),
+                EntityCellCustomFormSpecial(
+                    model=FakeOrganisation,
+                    name=EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
+                ),
+            ],
+            [*group1.cells],
+        )
+
+        group2 = groups[1]
+        self.assertIsInstance(group2, FakeAddressGroup)
+        self.assertEqual(LAYOUT_DUAL_SECOND, group2.layout)
+
+    def test_customforms_error(self):
+        self.login(is_staff=True)
+
+        cform_id = 'INVALID'
+        cforms_data = [{
+            'id': cform_id,
+            'groups': [],
+        }]
+
+        json_file = StringIO(json_dump({'version': '1.0', 'custom_forms': cforms_data}))
+        json_file.name = 'config-14-12-2020.csv'
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertFormError(
+            response, 'form', 'config',
+            f'The custom-form ID is invalid: {cform_id}'
         )

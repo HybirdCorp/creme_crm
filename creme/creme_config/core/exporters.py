@@ -532,3 +532,16 @@ class EntityFilterExporter(Exporter):
                 data['is_private'] = True
 
         return data
+
+
+@EXPORTERS.register(data_id=constants.ID_CUSTOM_FORMS)
+class CustomFormsExporter(Exporter):
+    model = models.CustomFormConfigItem
+
+    def dump_instance(self, instance):
+        assert isinstance(instance, models.CustomFormConfigItem)
+
+        return {
+            'id': instance.cform_id,
+            'groups': instance.groups_as_dicts(),
+        }
