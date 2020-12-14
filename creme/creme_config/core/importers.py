@@ -1464,7 +1464,7 @@ class CustomFormsImporter(Importer):
                         model=model,
                         data=data['groups'],
                         cell_registry=cell_registry,
-                        extra_group_classes=(*descriptor.extra_group_classes,)
+                        allowed_extra_group_classes=(*descriptor.extra_group_classes,)
                     ),
                 ],
             ))
