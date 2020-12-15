@@ -242,6 +242,7 @@ TYPE_AUX_CREATION = 10
 TYPE_AUX_EDITION  = 11
 TYPE_AUX_DELETION = 12
 TYPE_PROP_DEL     = 13
+TYPE_TRASH        = 14
 TYPE_EXPORT       = 20
 
 
@@ -353,9 +354,9 @@ class _HistoryLineType:
                               modifications: List[tuple],
                               entity_ctype: ContentType,
                               user) -> Iterator[str]:
-        for m in self._verbose_modifications_4_fields(entity_ctype.model_class(),
-                                                      modifications, user,
-                                                     ):
+        for m in self._verbose_modifications_4_fields(
+            entity_ctype.model_class(), modifications, user,
+        ):
             yield m
 
 
@@ -381,10 +382,9 @@ class _HLTEntityEdition(_HistoryLineType):
         modifs = _HistoryLineType._build_fields_modifs(entity)
 
         if modifs:
-            hline = HistoryLine._create_line_4_instance(entity, cls.type_id,
-                                                        date=entity.modified,
-                                                        modifs=modifs,
-                                                       )
+            hline = HistoryLine._create_line_4_instance(
+                entity, cls.type_id, date=entity.modified, modifs=modifs,
+            )
             _HLTRelatedEntity.create_lines(entity, hline)
             cls._create_entity_backup(entity)
 
@@ -395,30 +395,58 @@ class _HLTEntityDeletion(_HistoryLineType):
 
     @classmethod
     def create_line(cls, entity: CremeEntity) -> None:
-        HistoryLine.objects.create(entity_ctype=entity.entity_type,
-                                   entity_owner=entity.user,
-                                   type=cls.type_id,
-                                   value=HistoryLine._encode_attrs(entity),
-                                  )
+        HistoryLine.objects.create(
+            entity_ctype=entity.entity_type,
+            entity_owner=entity.user,
+            type=cls.type_id,
+            value=HistoryLine._encode_attrs(entity),
+        )
+
+
+@TYPES_MAP(TYPE_TRASH)
+class _HLTEntityTrash(_HistoryLineType):
+    verbose_name = _('Trash')
+
+    @classmethod
+    def create_line(cls, entity: CremeEntity) -> None:
+        backup = getattr(entity, '_instance_backup', None)
+
+        if backup and backup['is_deleted'] != entity.is_deleted:
+            HistoryLine.objects.create(
+                entity=entity,
+                entity_ctype=entity.entity_type,
+                entity_owner=entity.user,
+                type=cls.type_id,
+                value=HistoryLine._encode_attrs(
+                    entity, modifs=[entity.is_deleted],
+                ),
+            )
+
+    def verbose_modifications(self, modifications, entity_ctype, user):
+        if modifications[0]:
+            yield gettext('Sent to the trash')
+        else:
+            yield gettext('Restored')
 
 
 @TYPES_MAP(TYPE_RELATED)
 class _HLTRelatedEntity(_HistoryLineType):
-    verbose_name     = _('Related modification')
+    verbose_name = _('Related modification')
     has_related_line = True
 
     @classmethod
     def create_lines(cls, entity: CremeEntity, related_line: 'HistoryLine'):
         items = HistoryConfigItem.objects.values_list('relation_type', flat=True)  # TODO: cache ??
-        relations = Relation.objects.filter(subject_entity=entity.id, type__in=items) \
-                                    .select_related('object_entity')
+        relations = Relation.objects.filter(
+            subject_entity=entity.id, type__in=items,
+        ).select_related('object_entity')
 
         if relations:
             object_entities = [r.object_entity for r in relations]
-            create_line = partial(HistoryLine._create_line_4_instance,
-                                  ltype=cls.type_id, date=entity.modified,
-                                  related_line_id=related_line.id,
-                                 )
+            create_line = partial(
+                HistoryLine._create_line_4_instance,
+                ltype=cls.type_id, date=entity.modified, related_line_id=related_line.id,
+            )
 
             CremeEntity.populate_real_entities(object_entities)  # Optimisation
 
@@ -433,9 +461,9 @@ class _HLTPropertyCreation(_HistoryLineType):
 
     @classmethod
     def create_line(cls, prop: CremeProperty):
-        HistoryLine._create_line_4_instance(prop.creme_entity, cls.type_id,
-                                            modifs=[prop.type_id],
-                                           )
+        HistoryLine._create_line_4_instance(
+            prop.creme_entity, cls.type_id, modifs=[prop.type_id],
+        )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
         ptype_id = modifications[0]
@@ -455,15 +483,15 @@ class _HLTPropertyDeletion(_HLTPropertyCreation):
 
     @classmethod
     def create_line(cls, prop: CremeProperty) -> None:
-        HistoryLine._create_line_4_instance(prop.creme_entity, cls.type_id,
-                                            modifs=[prop.type_id],
-                                           )
+        HistoryLine._create_line_4_instance(
+            prop.creme_entity, cls.type_id, modifs=[prop.type_id],
+        )
 
 
 @TYPES_MAP(TYPE_RELATION)
 class _HLTRelation(_HistoryLineType):
-    verbose_name      = _('Relationship')
-    has_related_line  = True
+    verbose_name = _('Relationship')
+    has_related_line = True
     is_about_relation = True
     _fmt = _('Add a relationship “{}”')
 
@@ -474,13 +502,14 @@ class _HLTRelation(_HistoryLineType):
                       date=None) -> None:
         create_line = partial(HistoryLine._create_line_4_instance, date=date)
         hline     = create_line(relation.subject_entity, cls.type_id)
-        hline_sym = create_line(relation.object_entity, sym_cls.type_id,
-                                modifs=[relation.type.symmetric_type_id],
-                                related_line_id=hline.id,
-                               )
-        hline.value = HistoryLine._encode_attrs(hline.entity, modifs=[relation.type_id],
-                                                related_line_id=hline_sym.id
-                                               )
+        hline_sym = create_line(
+            relation.object_entity, sym_cls.type_id,
+            modifs=[relation.type.symmetric_type_id],
+            related_line_id=hline.id,
+        )
+        hline.value = HistoryLine._encode_attrs(
+            hline.entity, modifs=[relation.type_id], related_line_id=hline_sym.id
+        )
         hline.save()
 
     @classmethod
@@ -539,18 +568,17 @@ class _HLTAuxCreation(_HistoryLineType):
 
     @classmethod
     def create_line(cls, related: Model) -> None:
-        HistoryLine._create_line_4_instance(related.get_related_entity(),
-                                            cls.type_id,
-                                            modifs=cls._build_modifs(related),
-                                           )
+        HistoryLine._create_line_4_instance(
+            related.get_related_entity(), cls.type_id,
+            modifs=cls._build_modifs(related),
+        )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
         # TODO: use aux_id to display an up-to-date value ??
         ct_id, aux_id, str_obj = modifications
 
         yield gettext('Add <{type}>: “{value}”').format(
-            type=self._model_info(ct_id)[1],
-            value=str_obj,
+            type=self._model_info(ct_id)[1], value=str_obj,
         )
 
 
@@ -577,8 +605,7 @@ class _HLTAuxEdition(_HLTAuxCreation):
         model_class, verbose_name = self._model_info(ct_id)
 
         yield gettext('Edit <{type}>: “{value}”').format(
-            type=verbose_name,
-            value=str_obj,
+            type=verbose_name, value=str_obj,
         )
 
         for m in self._verbose_modifications_4_fields(model_class, modifications[1:], user):
@@ -597,8 +624,7 @@ class _HLTAuxDeletion(_HLTAuxCreation):
         ct_id, str_obj = modifications
 
         yield gettext('Delete <{type}>: “{value}”').format(
-            type=self._model_info(ct_id)[1],
-            value=str_obj,
+            type=self._model_info(ct_id)[1], value=str_obj,
         )
 
 
@@ -698,9 +724,9 @@ class HistoryLine(Model):
         from ..core.paginator import FlowPaginator
 
         deleted_ids = set()
-        paginator = FlowPaginator(queryset=line_qs.order_by('id'),
-                                  key='id', per_page=1024,
-                                 )
+        paginator = FlowPaginator(
+            queryset=line_qs.order_by('id'), key='id', per_page=1024,
+        )
 
         for hlines_page in paginator.pages():
             for hline in hlines_page.object_list:
@@ -713,9 +739,9 @@ class HistoryLine(Model):
         while True:
             progress = False
             qs = HistoryLine.objects.filter(type__in=related_types)
-            paginator = FlowPaginator(queryset=qs.order_by('id'),
-                                      key='id', per_page=1024,
-                                     )
+            paginator = FlowPaginator(
+                queryset=qs.order_by('id'), key='id', per_page=1024,
+            )
 
             for hlines_page in paginator.pages():
                 for hline in hlines_page.object_list:
@@ -806,11 +832,11 @@ class HistoryLine(Model):
 
     def get_verbose_modifications(self, user):
         try:
-            return [*self.line_type.verbose_modifications(self.modifications,
-                                                          self.entity_ctype,
-                                                          user,
-                                                         )
-                   ]
+            return [
+                *self.line_type.verbose_modifications(
+                    self.modifications, self.entity_ctype, user,
+                ),
+            ]
         except Exception:
             logger.exception('Error in %s', self.__class__.__name__)
             return ['??']
@@ -966,6 +992,7 @@ def _log_creation_edition(sender, instance, created, **kwargs):
                 _HLTEntityCreation.create_line(instance)
             else:
                 _HLTEntityEdition.create_lines(instance)
+                _HLTEntityTrash.create_line(instance)
     except Exception:
         logger.exception(
             'Error in _log_creation_edition() ; HistoryLine may not be created.'
@@ -1002,10 +1029,11 @@ def _log_deletion(sender, instance, **kwargs):
                 entity = instance.get_related_entity()
 
                 if entity is None:
-                    logger.debug('_log_deletion(): an auxiliary entity seems orphan (id=%s)'
-                                 ' -> can not create HistoryLine',
-                                 instance.id,
-                                )
+                    logger.debug(
+                        '_log_deletion(): an auxiliary entity seems orphan (id=%s)'
+                        ' -> can not create HistoryLine',
+                        instance.id,
+                    )
                 elif entity.id not in _get_deleted_entity_ids():
                     _HLTAuxDeletion.create_line(instance)
         elif isinstance(instance, CremeEntity) and _final_entity(instance):

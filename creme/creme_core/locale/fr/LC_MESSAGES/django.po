@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2020-12-15 15:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -203,8 +203,8 @@ msgstr "Historique"
 msgid "History of consultation"
 msgstr "Historique de consultation"
 
-#: bricks.py:280 gui/menu.py:605 templates/creme_core/trash.html:4
-#: templates/creme_core/trash.html:8
+#: bricks.py:280 gui/menu.py:605 models/history.py:408
+#: templates/creme_core/trash.html:4 templates/creme_core/trash.html:8
 msgid "Trash"
 msgstr "Corbeille"
 
@@ -1006,7 +1006,7 @@ msgid "Filter"
 msgstr "Filtre"
 
 #: forms/batch_process.py:195 forms/listview.py:361 forms/listview.py:516
-#: models/history.py:642
+#: models/history.py:668
 #: templates/creme_core/listview/search-widgets/boolean.html:3
 #: templates/creme_core/templatetags/listview/entity-filters.html:7
 #: templates/creme_core/templatetags/search-form.html:7
@@ -2355,7 +2355,7 @@ msgstr "Nombre à virgule"
 msgid "Date and time"
 msgstr "Date et heure"
 
-#: models/custom_field.py:396 models/history.py:659
+#: models/custom_field.py:396 models/history.py:685
 #: templates/creme_core/bricks/history.html:13
 #: templates/creme_core/bricks/imprints.html:11
 msgid "Date"
@@ -2627,26 +2627,26 @@ msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 msgid "N/A"
 msgstr "NC"
 
-#: models/history.py:330 models/history.py:336
+#: models/history.py:331 models/history.py:337
 #, python-brace-format
 msgid "Set field “{field}”"
 msgstr "Champ “{field}” modifié"
 
-#: models/history.py:338
+#: models/history.py:339
 #, python-brace-format
 msgid "Set field “{field}” to “{value}”"
 msgstr "Champ “{field}” mis à “{value}”"
 
-#: models/history.py:344
+#: models/history.py:345
 #, python-brace-format
 msgid "Set field “{field}” from “{oldvalue}” to “{value}”"
 msgstr "Champ “{field}” passe de “{oldvalue}” à “{value}”"
 
-#: models/history.py:364
+#: models/history.py:365
 msgid "Creation"
 msgstr "Création"
 
-#: models/history.py:377
+#: models/history.py:378
 msgid "Edition"
 msgstr "Modification"
 
@@ -2654,90 +2654,98 @@ msgstr "Modification"
 msgid "Deletion"
 msgstr "Suppression"
 
-#: models/history.py:407
+#: models/history.py:427
+msgid "Sent to the trash"
+msgstr "Envoyé dans la corbeille"
+
+#: models/history.py:429
+msgid "Restored"
+msgstr "Restauré"
+
+#: models/history.py:434
 msgid "Related modification"
 msgstr "Modification liée"
 
-#: models/history.py:431
+#: models/history.py:459
 msgid "Property creation"
 msgstr "Création de propriété"
 
-#: models/history.py:432
+#: models/history.py:460
 msgid "Add property “{}”"
 msgstr "Ajout de la propriété “{}”"
 
-#: models/history.py:453
+#: models/history.py:481
 msgid "Property deletion"
 msgstr "Suppression de propriété"
 
-#: models/history.py:454
+#: models/history.py:482
 msgid "Delete property “{}”"
 msgstr "Suppression de la propriété “{}”"
 
-#: models/history.py:465 models/relation.py:448
+#: models/history.py:493 models/relation.py:448
 msgid "Relationship"
 msgstr "Relation"
 
-#: models/history.py:468
+#: models/history.py:496
 msgid "Add a relationship “{}”"
 msgstr "Ajout de la relation: “{}”"
 
-#: models/history.py:513
+#: models/history.py:542
 msgid "Relationship deletion"
 msgstr "Suppression de Relation"
 
-#: models/history.py:514
+#: models/history.py:543
 msgid "Delete a relationship “{}”"
 msgstr "Suppression de la relation “{}”"
 
-#: models/history.py:529
+#: models/history.py:558
 msgid "Auxiliary (creation)"
 msgstr "Auxiliaire (création)"
 
-#: models/history.py:551
+#: models/history.py:580
 #, python-brace-format
 msgid "Add <{type}>: “{value}”"
 msgstr "Ajout de <{type}>: “{value}”"
 
-#: models/history.py:559
+#: models/history.py:587
 msgid "Auxiliary (edition)"
 msgstr "Auxiliaire (modification)"
 
-#: models/history.py:579
+#: models/history.py:607
 #, python-brace-format
 msgid "Edit <{type}>: “{value}”"
 msgstr "Modification de <{type}>: “{value}”"
 
-#: models/history.py:590
+#: models/history.py:617
 msgid "Auxiliary (deletion)"
 msgstr "Auxiliaire (suppression)"
 
-#: models/history.py:599
+#: models/history.py:626
 #, python-brace-format
 msgid "Delete <{type}>: “{value}”"
 msgstr "Suppression de <{type}>: “{value}”"
 
-#: models/history.py:607
+#: models/history.py:633
 msgid "Mass export"
 msgstr "Export en masse"
 
-#: models/history.py:638
+#: models/history.py:664
 #, python-brace-format
 msgid "Export of {count} «{model}» (view «{view}» & filter «{filter}»)"
 msgstr "Export de {count} «{model}» (vue «{view}» & filtre «{filter}»)"
 
-#: models/history.py:661 templates/creme_core/bricks/job.html:50
+#: models/history.py:687 templates/creme_core/bricks/job.html:50
 #: templates/creme_core/bricks/jobs-all.html:22
 #: templates/creme_core/bricks/jobs-mine.html:12
 #: templates/creme_core/bricks/trash.html:17
 msgid "Type"
 msgstr "Type"
 
-#: models/history.py:674
+#: models/history.py:700
 msgid "Line of history"
 msgstr "Ligne d'historique"
 
-#: models/history.py:675
+#: models/history.py:701
 msgid "Lines of history"
 msgstr "Lignes d'historique"
 
