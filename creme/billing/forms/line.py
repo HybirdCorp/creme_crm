@@ -30,6 +30,7 @@ from django.utils.translation import gettext_lazy as _
 from creme import billing, products
 from creme.creme_core import forms as core_forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
+from creme.creme_core.forms.widgets import CremeTextarea
 from creme.creme_core.models import Relation, Vat
 from creme.products.forms.fields import CategoryField
 
@@ -137,7 +138,8 @@ class LineEditForm(core_forms.CremeModelForm):
             ),
             'unit': forms.TextInput(attrs={'class': 'line-unit'}),
             'discount': forms.TextInput(attrs={'class': 'line-quantity_discount bound'}),
-            'comment': forms.Textarea(attrs={'class': 'line-comment', 'rows': 2}),
+            # 'comment': forms.Textarea(attrs={'class': 'line-comment', 'rows': 2}),
+            'comment': CremeTextarea(attrs={'class': 'line-comment', 'rows': 2}),
         }
 
     # TODO: related_document=None ??

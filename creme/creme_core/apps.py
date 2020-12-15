@@ -105,21 +105,22 @@ class MediaGeneratorConfig(AppConfig):
 
         MEDIA_BUNDLES = [
             settings.CREME_I18N_JS,
-            [*settings.CREME_LIB_JS,
-             *(js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)),
+            [
+                *settings.CREME_LIB_JS,
+                *(js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)),
             ],
-            [*settings.CREME_CORE_JS,
-             *(js for app, js in settings.CREME_OPT_JS if is_installed(app)),
+            [
+                *settings.CREME_CORE_JS,
+                *(js for app, js in settings.CREME_OPT_JS if is_installed(app)),
             ],
         ]
 
         if settings.FORCE_JS_TESTVIEW:
             MEDIA_BUNDLES.append(settings.TEST_CREME_LIB_JS)
-            MEDIA_BUNDLES.append(
-                [*settings.TEST_CREME_CORE_JS,
-                 *(js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app)),
-                ]
-            )
+            MEDIA_BUNDLES.append([
+                *settings.TEST_CREME_CORE_JS,
+                *(js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app)),
+            ])
 
         MEDIA_BUNDLES += settings.CREME_OPT_MEDIA_BUNDLES
 
@@ -146,7 +147,9 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         super().ready()
 
         from django.contrib.contenttypes.models import ContentType
-        assert not ContentType._meta.ordering, 'It seems ContentType has an ordering policy now ?!'
+        assert not ContentType._meta.ordering, \
+            'It seems ContentType has an ordering policy now ?!'
+
         ContentType._meta.ordering = ('id', )
 
 
@@ -388,6 +391,7 @@ class CremeCoreConfig(CremeAppConfig):
         self.hook_fk_formfield()
         self.hook_fk_check()
         self.hook_m2m_formfield()
+        self.hook_textfield_formfield()
         self.hook_datetime_widgets()
         self.hook_multiselection_widgets()
 
@@ -713,16 +717,35 @@ class CremeCoreConfig(CremeAppConfig):
             model = self.remote_field.model
 
             if issubclass(model, CremeEntity):
-                return MultiCreatorEntityField(label=self.verbose_name,
-                                               model=model,
-                                               required=not self.blank,
-                                               q_filter=self.remote_field.limit_choices_to,
-                                              )
+                return MultiCreatorEntityField(
+                    label=self.verbose_name,
+                    model=model,
+                    required=not self.blank,
+                    q_filter=self.remote_field.limit_choices_to,
+                )
 
             return original_m2m_formfield(
                 self, **{'form_class': CreatorModelMultipleChoiceField, **kwargs})
 
         ManyToManyField.formfield = new_m2m_formfield
+
+    @staticmethod
+    def hook_textfield_formfield():
+        from django.db.models import TextField
+
+        from creme.creme_core.forms.widgets import CremeTextarea
+
+        # NB: we want CremeTextarea as often as possible, but the widget is
+        #     given by TextField.formfield() with Textarea hard-coded,
+        #     so we override it.
+        def formfield(this, **kwargs):
+            return super(TextField, this).formfield(**{
+                'max_length': this.max_length,
+                **({} if this.choices else {'widget': CremeTextarea}),
+                **kwargs,
+            })
+
+        TextField.formfield = formfield
 
     @staticmethod
     def hook_datetime_widgets():
