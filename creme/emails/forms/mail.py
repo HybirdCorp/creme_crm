@@ -35,6 +35,7 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import base as base_forms
 from creme.creme_core.forms import fields as core_fields
 # from creme.creme_core.forms.widgets import Label
+from creme.creme_core.forms.widgets import CremeTextarea
 from creme.creme_core.models import FieldsConfig, Relation
 from creme.documents import get_document_model
 
@@ -82,8 +83,12 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
     )
 
     class Meta:
-        model  = EntityEmail
+        model = EntityEmail
         fields = ('user', 'sender', 'subject', 'body', 'body_html', 'signature', 'attachments')
+        widgets = {
+            'body': CremeTextarea(attrs={'rows': 8}),
+            'body_html': CremeTextarea(attrs={'rows': 8}),
+        }
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)

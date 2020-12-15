@@ -720,6 +720,7 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/toggle.js',
     'creme_core/js/widgets/pluginlauncher.js',
     'creme_core/js/widgets/dinput.js',
+    'creme_core/js/widgets/autosizedarea.js',
     'creme_core/js/widgets/dselect.js',
     'creme_core/js/widgets/checklistselect.js',
     'creme_core/js/widgets/datetime.js',

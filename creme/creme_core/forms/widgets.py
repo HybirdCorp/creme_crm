@@ -1322,3 +1322,40 @@ class CremeRadioSelect(widgets.RadioSelect):
         ).strip()
 
         return context
+
+
+class CremeTextarea(widgets.Widget):
+    template_name = 'django/forms/widgets/textarea.html'
+
+    # Default HTML: 20 x 2
+    default_cols = 40
+    default_rows = 3
+    widget_type = 'ui-creme-autosizedarea'
+
+    # TODO: manage a max ?
+    def __init__(self, attrs=None):
+        default_attrs = {
+            'cols': self.default_cols,
+            'rows': self.default_rows,
+        }
+        if attrs:
+            default_attrs.update(attrs)
+
+        super().__init__(default_attrs)
+
+    def get_context(self, name, value, attrs):
+        widget_type = self.widget_type
+
+        context = super().get_context(name=name, value=value, attrs=attrs)
+
+        final_attrs = context['widget']['attrs']
+        final_attrs['class'] = ' '.join(filter(
+            None,
+            [
+                final_attrs.get('class', ''),
+                f'ui-creme-widget widget-auto {widget_type}',
+            ],
+        ))
+        final_attrs['widget'] = widget_type
+
+        return context
