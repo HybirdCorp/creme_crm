@@ -7,6 +7,8 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.gui.menu import ContainerItem, ViewableItem
 
+from .registry import config_registry
+
 
 # TODO: js widget instead of URL
 class TimezoneItem(ViewableItem):
@@ -14,11 +16,67 @@ class TimezoneItem(ViewableItem):
         super().__init__(id=id, icon=icon, icon_label=icon_label)
 
     def render(self, context, level=0):
-        return format_html('<a href="{url}">{icon}{label}</a>',
-                           url=reverse('creme_config__user_settings'),
-                           icon=self.render_icon(context),
-                           label=_('Time zone: {}').format(context['TIME_ZONE']),
-                          )
+        return format_html(
+            '<a href="{url}">{icon}{label}</a>',
+            url=reverse('creme_config__user_settings'),
+            icon=self.render_icon(context),
+            label=_('Time zone: {}').format(context['TIME_ZONE']),
+        )
+
+
+class CurrentAppConfigItem(ViewableItem):
+    config_registry = config_registry
+
+    @staticmethod
+    def guess_current_app_label(context):
+        instance = context.get('object')
+        if instance is not None:
+            return type(instance)._meta.app_label
+
+        view = context.get('view')
+        if view:
+            model = getattr(view, 'model', None)
+            if model is not None:
+                return model._meta.app_label
+
+            permissions = getattr(view, 'permissions', None)
+            if isinstance(permissions, str):
+                return permissions
+            # TODO: check is prefix of all permissions are equal?
+
+        # TODO: parse URL ?
+
+        return None
+
+    def guess_current_app_config(self, context):
+        label = self.guess_current_app_label(context)
+        if label:
+            try:
+                return self.config_registry.get_app_registry(label)
+            except LookupError:
+                pass
+
+        return None
+
+    def render(self, context, level=0):
+        app_config = self.guess_current_app_config(context)
+
+        if app_config is None:
+            return ''
+
+        icon = self.render_icon(context)
+        label = _('Configuration of «{app}»').format(app=app_config.verbose_name)
+
+        if not context['user'].has_perm_to_admin(app_config.name):
+            return format_html(
+                '<span class="ui-creme-navigation-text-entry forbidden">{}{}</span>',
+                icon, label,
+            )
+
+        return format_html(
+            '<a href="{url}">{icon}{label}</a>',
+            url=app_config.portal_url, icon=icon, label=label,
+        )
 
 
 class ConfigContainerItem(ContainerItem):
