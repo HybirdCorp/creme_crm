@@ -151,13 +151,13 @@ class CremeConfigConfig(CremeAppConfig):
 
         from creme.creme_core import models as core_models
 
-        from .gui import ConfigContainerItem, TimezoneItem
+        from . import gui
 
         URLItem = creme_menu.URLItem
         creme_menu.get(
             'creme', 'user',
         ).add(
-            TimezoneItem('creme_config-timezone'),
+            gui.TimezoneItem('creme_config-timezone'),
             priority=5,
         ).add(
             URLItem(
@@ -169,7 +169,7 @@ class CremeConfigConfig(CremeAppConfig):
         creme_menu.get(
             'features',
         ).add(
-            ConfigContainerItem(
+            gui.ConfigContainerItem(
                 'creme_config',
             ).add(
                 URLItem(
@@ -177,6 +177,9 @@ class CremeConfigConfig(CremeAppConfig):
                     label=_('General configuration'), perm='creme_config',
                 ),
                 priority=10,
+            ).add(
+                gui.CurrentAppConfigItem('creme_config-current_app'),
+                priority=13,
             ).add(
                 creme_menu.ItemGroup(
                     'creme_config-portals',
