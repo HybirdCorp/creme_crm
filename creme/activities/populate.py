@@ -350,10 +350,11 @@ class Populator(BasePopulator):
                         (EntityCellRegularField, {'name': 'busy'}),
                         act_forms.ActivitySubTypeSubCell(model=Activity).into_cell(),
                         # act_forms.CommercialApproachSubCell(model=Activity).into_cell(),
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                        ),
+                        # NB: we do not want 'minutes' in the default form
+                        # (
+                        #     EntityCellCustomFormSpecial,
+                        #     {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                        # ),
                     ],
                 },
                 when_group,
