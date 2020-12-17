@@ -646,15 +646,19 @@ class _FieldPrintersRegistry:
             self,
             field: Type[models.Field],
             css_class: str,
-            header_css_class: str):
+            header_css_class: str) -> '_FieldPrintersRegistry':
         """Register CSS classes used in list-views to display field's value and column header.
         @param field: A class inheriting <django.models.Field>.
         @param css_class: CSS class for table cell.
         @param header_css_class: CSS class for table header.
+        @return Self to chain calls.
         """
         self._listview_css_printers[field] = css_class
         self._header_listview_css_printers[field] = header_css_class
 
+        return self
+
+    # NB: see EntityCell._get_listview_css_class()
     def get_listview_css_class_for_field(self, field_class: Type[models.Field]) -> str:
         return self._listview_css_printers[field_class]
 
