@@ -66,9 +66,8 @@ data-type-global-discount="{{object.discount}}"
 
     {% has_perm_to change object as change_perm %}{% if change_perm %}
     <script type="text/javascript">
-        /* globals OrderController */
         $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
-            brick.orderController = new OrderController(brick);
+            brick.orderController = new creme.billing.OrderController(brick);
         });
     </script>
     {% endif %}
@@ -81,17 +80,19 @@ data-type-global-discount="{{object.discount}}"
     {% csrf_token %}
     {{formset.management_form}}
 
+    <div class="brick-orderlines">
     {% for form in formset %}
         <div class="brick-orderline">
             {% include 'billing/bricks/frags/order-line.html' with order=object line=form.instance number=forloop.counter user=user %}
             {% if change_perm %}
             <div class="brick-orderline-actions">
                 {% brick_action id='delete-orderline' display='text' label=_('Delete') confirm=_('Are you sure ?') __prefix=form.prefix __lineid=form.instance.id %}
-                {% brick_action id='reset-orderline' display='text' label=reset_label __prefix=form.prefix __lineid=form.instance.id %}
+                {% brick_action id='update-orderline' display='text' label=_('Edit') __prefix=form.prefix __lineid=form.instance.id %}
             </div>
             {% endif %}
         </div>
     {% endfor %}
+    </div>
 
     <div class="brick-tiles order-summary brick-orderline-tiles" data-order-summary>
         <div class="brick-tile">
@@ -111,7 +112,7 @@ data-type-global-discount="{{object.discount}}"
     {% if change_perm %}
     <script type="text/html" data-orderline-template>
         <div class="brick-orderline">
-            {% include 'billing/bricks/frags/order-line-edit.html' with order=object form=formset.empty_form number='${number}' user=user %}
+            {% include 'billing/bricks/frags/order-line-edit.html' with order=object form=formset.empty_form user=user %}
         </div>
     </script>
     {% endif %}

@@ -1,5 +1,5 @@
 {% load i18n creme_core_tags creme_widgets creme_bricks %}
-<div class="brick-tiles brick-orderline-tiles">
+<div class="brick-tiles brick-orderline-tiles" data-orderline-index="{{number}}">
     <div class="brick-tile">
         <span class="brick-tile-name">{% trans "Product" %}</span>
         {% widget_entity_hyperlink line.related_item user %}

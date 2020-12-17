@@ -73,7 +73,7 @@ function __fixed(precision) {
 
         value = Object.isString(value) ? parseFloat(value) : value;
         Assert.not(isNaN(value), "${value} is not a number", {value: value});
-        return value ? Math.scaleRound(value, precision) : value;
+        return value ? _.scaleRound(value, precision) : value;
     };
 }
 
@@ -89,6 +89,7 @@ creme.billing.OrderLine = creme.component.Component.sub({
 
         this._element = $(element);
         this._form = element.flyform({
+            prefix: options.prefix,
             fields: {
                 quantity: {
                     dataType: 'decimal',
@@ -136,6 +137,10 @@ creme.billing.OrderLine = creme.component.Component.sub({
         return this._form;
     },
 
+    number: function() {
+        return this._element.data('orderline-number');
+    },
+
     _formatAmount: function(value) {
         return Object.isEmpty(value) ? '−' : (this.currencyFormat() || '${amount}').template({
             amount: value.toFixed(2)
@@ -154,9 +159,9 @@ creme.billing.OrderLine = creme.component.Component.sub({
         }
 
         var data = output.cleanedData;
-        element.find('[name="discounted"]').text(this._formatAmount(data.discountedNoTax));
-        element.find('[name="inclusive_of_tax"]').text(this._formatAmount(data.total));
-        element.find('[name="exclusive_of_tax"]').text(this._formatAmount(data.totalNoTax));
+        element.find('[data-name="discount-notax"]').text(this._formatAmount(data.discountedNoTax));
+        element.find('[data-name="total"]').text(this._formatAmount(data.total));
+        element.find('[data-name="total-notax"]').text(this._formatAmount(data.totalNoTax));
 
         if (output.isValid) {
             element.trigger('orderline-change', data);
@@ -208,7 +213,7 @@ creme.billing.OrderLine = creme.component.Component.sub({
         var quantity = this.quantity();
         var unitPrice = this.unitPrice();
 
-        return Math.scaleRound(quantity * unitPrice, 2);
+        return _.scaleRound(quantity * unitPrice, 2);
     },
 
     discountedTotalNoTax: function() {
@@ -232,7 +237,7 @@ creme.billing.OrderLine = creme.component.Component.sub({
                 total = quantity * unitPrice;
         }
 
-        return Math.scaleRound(total, 2);
+        return _.scaleRound(total, 2);
     },
 
     discountedTotal: function() {
@@ -241,6 +246,104 @@ creme.billing.OrderLine = creme.component.Component.sub({
 
     total: function() {
         return this.totalNoTax() * (1.0 + this.taxRatio());
+    }
+});
+
+
+creme.billing.OrderController = creme.component.Component.sub({
+    _init_: function(brick, options) {
+        options = options || {};
+
+        this._brick = brick;
+
+        brick.element().find('[data-orderline]')
+                       .on('orderline-change', this._updateTotals.bind(this));
+    },
+
+    _updateTotals: function() {
+        var total = this.total();
+        var totalNoTax = this.totalNoTax();
+        var totalDiscount = totalNoTax - this.discountedTotalNoTax();
+
+        this._brick.element().find('[data-name="order-discount"]').text(totalDiscount);
+        this._brick.element().find('[data-name="order-total-notax"]').text(totalNoTax);
+        this._brick.element().find('[data-name="order-total"]').text(total);
+    },
+
+    _assignLineController: function(item) {
+        item = $(item);
+
+        var instance = item.data('OrderLineInstance');
+
+        if (Object.isNone(instance)) {
+            instance = new creme.billing.OrderLine(item, {
+                prefix: 'form-${orderline-index}'.template(item.data())
+            });
+
+            item.data('OrderLineInstance', instance);
+        }
+
+        return instance;
+    },
+
+    appendLine: function(data) {
+        var element = this._brick.element();
+        var html = element.find('script[data-orderline-template]').text();
+        var count = this.lineItems().size();
+
+        element.find('<div class="brick-orderlines">').append(
+            $(html.template({number: count + 1}))
+        );
+
+        this._updateTotals();
+    },
+
+    deleteLine: function(index) {
+        this._brick.element().find(
+            '[data-orderline-index="${index}"]'.template({index: index})
+        ).remove();
+
+        this._updateTotals();
+    },
+
+    lineItems: function() {
+        return this._brick.element().find('[data-orderline-index]');
+    },
+
+    lines: function() {
+        return this.lineItems().map(this._assignLineController.bind(this));
+    },
+
+    discountedTotalNoTax: function() {
+        var total = _.sum(this.lines().map(function(line) {
+            return line.discountedTotalNoTax();
+        }));
+
+        return _.scaleRound(total, 2);
+    },
+
+    discountedTotal: function() {
+        var total = _.sum(this.lines().map(function(line) {
+            return line.discountedTotal();
+        }));
+
+        return _.scaleRound(total, 2);
+    },
+
+    totalNoTax: function() {
+        var total = _.sum(this.lines().map(function(line) {
+            return line.totalNoTax();
+        }));
+
+        return _.scaleRound(total, 2);
+    },
+
+    total: function() {
+        var total = _.sum(this.lines().map(function(line) {
+            return line.total();
+        }));
+
+        return _.scaleRound(total, 2);
     }
 });
 

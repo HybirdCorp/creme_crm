@@ -1,0 +1,67 @@
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+<div class="brick-tiles brick-orderline-tiles" data-orderline-index="${number}">
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans "Product" %}</span>
+        {% widget_entity_hyperlink line.related_item user %}
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans "Quantity" %}</span>
+        <span class="brick-tile-value">
+            <input name="form-${number}-quantity" data-type="decimal" min="0" />
+            <span data-name="quantity" class="tile-input-error"></span>
+        </span>
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans "Unit price" %}</span>
+        <span class="brick-tile-value">
+            <input name="form-${number}-unit_price" data-type="decimal" min="0" />
+            <span class="tile-input-suffix">{{form.instance.currency.local_symbol}}</span>
+            <span data-name="unit_price" class="tile-input-error"></span>
+        </span>
+        <span class="brick-tile-value">
+            <input name="form-${number}-discount" data-type="decimal" min="0" />
+            <span data-name="discount" class="tile-input-error"></span>
+        </span>
+        <span class="brick-tile-value">
+            <select name="form-${number}-discount_unit">
+            {% for value, label in form.discount_unit.widget.choices %}
+                <option value="{{value}}">{{label}}</option>
+            {% endfor %}
+            </select>
+        </span>
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans "VAT" %}</span>
+        <span class="brick-tile-value">
+            <input name="form-${number}-unit_price" data-type="decimal" min="0" />
+            <span class="tile-input-suffix">%</span>
+            <span data-name="unit_price" class="tile-input-error"></span>
+        </span>
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans 'Total (exclusive of tax)' %}</span>
+        <span class="brick-tile-value tile-subtotal">
+            <span data-name="total-notax">${totalNoTax}</span>
+            <span class="tile-input-suffix">{{form.instance.currency.local_symbol}}</span>
+        </span>
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans 'Total (without tax) discounted' %}</span>
+        <span class="brick-tile-value tile-total">
+            <span data-name="total-notax">${totalDiscountedNoTax}</span>
+            <span class="tile-input-suffix">{{form.instance.currency.local_symbol}}</span>
+        </span>
+    </div>
+    <div class="brick-tile">
+        <span class="brick-tile-name">{% trans 'Total (inclusive of tax)' %}</span>
+        <span class="brick-tile-value tile-total">
+            <span data-name="total-notax">${discountedTotal}</span>
+            <span class="tile-input-suffix">{{form.instance.currency.local_symbol}}</span>
+        </span>
+    </div>
+    <div class="brick-tile tile-multiline">
+        <span class="brick-tile-value">
+            <textarea name="form-${number}-comment">${comment}</textarea>
+        </span>
+    </div>
+</div>

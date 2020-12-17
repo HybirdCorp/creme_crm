@@ -22,9 +22,9 @@ QUnit.module("creme.billing.orderline", new QUnitMixin(QUnitEventMixin,
                     '<option value="3">On item amount</option>' +
                 '</select>' +
                 '<input name="vat_value" value="${taxRatio}"/>' +
-                '<span name="discounted"></span>' +
-                '<span name="inclusive_of_tax"></span>' +
-                '<span name="exclusive_of_tax"></span>' +
+                '<span data-name="discount-notax"></span>' +
+                '<span data-name="total"></span>' +
+                '<span data-name="total-notax"></span>' +
             '</form>'
         ).template(function(key) {
             return options[key] || '';
@@ -48,9 +48,9 @@ QUnit.test('creme.billing.OrderLine (defaults)', function(assert) {
     line.clean();
     equal(false, line.isValid());
 
-    equal('−', element.find('[name="discounted"]').text());
-    equal('−', element.find('[name="inclusive_of_tax"]').text());
-    equal('−', element.find('[name="exclusive_of_tax"]').text());
+    equal('−', element.find('[data-name="discount-notax"]').text());
+    equal('−', element.find('[data-name="total"]').text());
+    equal('−', element.find('[data-name="total-notax"]').text());
 });
 
 QUnit.test('creme.billing.OrderLine (no discount)', function(assert) {
@@ -76,9 +76,9 @@ QUnit.test('creme.billing.OrderLine (no discount)', function(assert) {
 
     equal(true, line.isValid());
 
-    equal('50.00 €', element.find('[name="discounted"]').text());
-    equal('60.00 €', element.find('[name="inclusive_of_tax"]').text());
-    equal('50.00 €', element.find('[name="exclusive_of_tax"]').text());
+    equal('50.00 €', element.find('[data-name="discount-notax"]').text());
+    equal('60.00 €', element.find('[data-name="total"]').text());
+    equal('50.00 €', element.find('[data-name="total-notax"]').text());
 });
 
 QUnit.parametrize('creme.billing.OrderLine (discount)', [
@@ -113,9 +113,9 @@ QUnit.parametrize('creme.billing.OrderLine (discount)', [
     equal(50.00, line.totalNoTax());
     equal(60.00, line.total());
 
-    equal(totalNoTax.toFixed(2) + ' €', element.find('[name="discounted"]').text());
-    equal('60.00 €', element.find('[name="inclusive_of_tax"]').text());
-    equal('50.00 €', element.find('[name="exclusive_of_tax"]').text());
+    equal(totalNoTax.toFixed(2) + ' €', element.find('[data-name="discount-notax"]').text());
+    equal('60.00 €', element.find('[data-name="total"]').text());
+    equal('50.00 €', element.find('[data-name="total-notax"]').text());
 });
 
 QUnit.parametrize('creme.billing.OrderLine (invalid discounts)', [
