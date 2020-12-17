@@ -5,18 +5,21 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 }
 
 .theme_picker,
-.tz_picker {
+.tz_picker,
+.language_picker {
     display: inline-block;
     margin-bottom: 15px;
     margin-top: 5px;
 }
 
-.tz_picker {
+.tz_picker,
+.language_picker {
     margin-left: 20px;
 }
 
 .theme_picker label,
-.tz_picker label {
+.tz_picker label,
+.language_picker label {
     font-weight: bolder;
 }
 

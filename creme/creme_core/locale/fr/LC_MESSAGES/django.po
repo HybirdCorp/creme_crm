@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-15 15:58+0100\n"
+"POT-Creation-Date: 2020-12-17 15:20+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -75,57 +75,57 @@ msgstr "Ajout de relation multiple"
 msgid "Merge 2 entities"
 msgstr "Fusionner 2 fiches"
 
-#: apps.py:368
+#: apps.py:371
 msgid "Core"
 msgstr "Cœur"
 
-#: apps.py:419 templates/creme_core/header/menu-base.html:4
+#: apps.py:423 templates/creme_core/header/menu-base.html:4
 #: templates/creme_core/header/menu-base.html:9
 #: templates/creme_core/home.html:4 templates/creme_core/home.html:10
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:424 models/auth.py:926 models/job.py:85
+#: apps.py:428 models/auth.py:931 models/job.py:85
 #: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:59
 msgid "User"
 msgstr "Utilisateur"
 
-#: apps.py:426 templates/creme_core/my_page.html:4
+#: apps.py:430 templates/creme_core/my_page.html:4
 #: templates/creme_core/my_page.html:10
 msgid "My page"
 msgstr "Ma page"
 
-#: apps.py:429 templates/creme_core/bricks/jobs-mine.html:7
+#: apps.py:433 templates/creme_core/bricks/jobs-mine.html:7
 #: templates/creme_core/job/list-mine.html:4
 msgid "My jobs"
 msgstr "Mes jobs"
 
-#: apps.py:434
+#: apps.py:438
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: apps.py:442
+#: apps.py:446
 msgid "Tools"
 msgstr "Outils"
 
-#: apps.py:446 models/job.py:115 templates/creme_core/bricks/jobs-all.html:17
+#: apps.py:450 models/job.py:115 templates/creme_core/bricks/jobs-all.html:17
 msgid "Jobs"
 msgstr "Jobs"
 
-#: apps.py:455
+#: apps.py:459
 msgid "+ Creation"
 msgstr "+ Création"
 
-#: apps.py:457
+#: apps.py:461
 msgid "Main entities"
 msgstr "Fiches principales"
 
-#: apps.py:463
+#: apps.py:467
 msgid "Other type of entity"
 msgstr "Autre type de fiche"
 
-#: apps.py:468
+#: apps.py:472
 msgid "Recent entities"
 msgstr "Fiches récentes"
 
@@ -2005,69 +2005,77 @@ msgstr "Fuseau horaire"
 msgid "Theme"
 msgstr "Thème"
 
-#: models/auth.py:916
+#: models/auth.py:907 models/i18n.py:36 models/job.py:87
+msgid "Language"
+msgstr "Langue"
+
+#: models/auth.py:909
+msgid "Language of your browser"
+msgstr "Langue de notre navigateur"
+
+#: models/auth.py:921
 msgid "Create a user"
 msgstr "Créer un utilisateur"
 
-#: models/auth.py:917
+#: models/auth.py:922
 msgid "Save the user"
 msgstr "Enregistrer l'utilisateur"
 
-#: models/auth.py:927
+#: models/auth.py:932
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: models/auth.py:935
+#: models/auth.py:940
 #, python-brace-format
 msgid "{user} (team)"
 msgstr "{user} (équipe)"
 
-#: models/auth.py:942
+#: models/auth.py:947
 #, python-brace-format
 msgid "{first_name} {last_name}."
 msgstr "{first_name} {last_name}."
 
-#: models/auth.py:1077
+#: models/auth.py:1082
 msgid "Invalid app \"{}\""
 msgstr "App invalide \"{}\""
 
-#: models/auth.py:1082
+#: models/auth.py:1087
 msgid "You are not allowed to access to the app: {}"
 msgstr "Vous n'avez pas accés à cette application: {}"
 
-#: models/auth.py:1095
+#: models/auth.py:1100
 msgid "You are not allowed to configure this app: {}"
 msgstr "Vous n'êtes pas autorisé à configurer cette app: {}"
 
-#: models/auth.py:1115
+#: models/auth.py:1120
 msgid "You are not allowed to edit this entity: {}"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: {}"
 
-#: models/auth.py:1130
+#: models/auth.py:1135
 msgid "You are not allowed to create: {}"
 msgstr "Vous n'avez pas la permission de créer : {}"
 
-#: models/auth.py:1146 views/entity.py:1004
+#: models/auth.py:1151 views/entity.py:1004
 msgid "You are not allowed to delete this entity: {}"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: {}"
 
-#: models/auth.py:1164
+#: models/auth.py:1169
 msgid "You are not allowed to export: {}"
 msgstr "Vous n'avez pas la permission d'exporter: {}"
 
-#: models/auth.py:1200
+#: models/auth.py:1205
 msgid "You are not allowed to link this entity: {}"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: {}"
 
-#: models/auth.py:1204
+#: models/auth.py:1209
 msgid "You are not allowed to link: {}"
 msgstr "Vous n'avez pas la permission de lier: {}"
 
-#: models/auth.py:1217
+#: models/auth.py:1222
 msgid "You are not allowed to unlink this entity: {}"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: {}"
 
-#: models/auth.py:1229
+#: models/auth.py:1234
 msgid "You are not allowed to view this entity: {}"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 
@@ -2752,10 +2760,6 @@ msgstr "Lignes d'historique"
 #: models/i18n.py:29
 msgid "Code"
 msgstr "Code"
-
-#: models/i18n.py:36 models/job.py:87
-msgid "Language"
-msgstr "Langue"
 
 #: models/i18n.py:37
 msgid "Languages"

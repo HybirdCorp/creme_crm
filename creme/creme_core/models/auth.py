@@ -903,6 +903,11 @@ class CremeUser(AbstractBaseUser):
     theme = models.CharField(
         _('Theme'), max_length=50, default=settings.THEMES[0][0], choices=settings.THEMES,
     ).set_tags(viewable=False)
+    language = models.CharField(
+        _('Language'), max_length=10,
+        default='', blank=True,
+        choices=[('', _('Language of your browser')), *settings.LANGUAGES],
+    ).set_tags(viewable=False)
 
     # NB: do not use directly ; use the property 'settings'
     # TODO: JSONField ?

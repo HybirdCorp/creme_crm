@@ -23,6 +23,12 @@
         </form>
     </div>
 
+    <div class="language_picker">
+        <form action="{% url 'creme_config__set_user_language' %}" method="POST">
+            <span>{% csrf_token %}{{language_form}}</span>
+        </form>
+    </div>
+
     {% brick_import app='creme_config' name='blocks_mypage_locations' as blocks_mypage_locations_brick %}
     {% brick_import app='creme_config' name='user_setting_values' as user_setting_values_brick %}
     {% brick_declare apps_usersettings_bricks %}

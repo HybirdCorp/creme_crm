@@ -17,12 +17,12 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
 #: settings.py:145
-msgid "Format: Day-Month-Year (Ex:31-12-2017)"
-msgstr "Format : Jour-Mois-Année (Ex:31-12-2017)"
+msgid "Format: Day-Month-Year (Ex:31-12-2021)"
+msgstr "Format : Jour-Mois-Année (Ex:31-12-2021)"
 
 #: settings.py:160
-msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)"
-msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2017 23:59:59)"
+msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2021 23:59:59)"
+msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2021 23:59:59)"
 
 #: settings.py:533
 msgid "Ice cream"
