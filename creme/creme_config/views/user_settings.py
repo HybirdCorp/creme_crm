@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2020  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,8 +43,15 @@ class UserSettings(generic.BricksView):
         user = self.request.user
 
         context = super().get_context_data(**kwargs)
-        context['theme_form'] = settings_forms.UserThemeForm(user=user, instance=user).as_span()
-        context['tz_form'] = settings_forms.UserTimeZoneForm(user=user, instance=user).as_span()
+        context['theme_form'] = settings_forms.UserThemeForm(
+            user=user, instance=user,
+        ).as_span()
+        context['tz_form'] = settings_forms.UserTimeZoneForm(
+            user=user, instance=user,
+        ).as_span()
+        context['language_form'] = settings_forms.UserLanguageForm(
+            user=user, instance=user,
+        ).as_span()
         context['apps_usersettings_bricks'] = [*self.config_registry.user_bricks]
 
         return context
@@ -90,6 +97,10 @@ class ThemeSetting(_UserFieldSetting):
 
 class TimeZoneSetting(_UserFieldSetting):
     form_class = settings_forms.UserTimeZoneForm
+
+
+class LanguageSetting(_UserFieldSetting):
+    form_class = settings_forms.UserLanguageForm
 
 
 class UserSettingValueEdition(generic.CremeEditionPopup):

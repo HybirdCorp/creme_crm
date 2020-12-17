@@ -211,7 +211,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_create04(self):
-        "Not super-user => forbidden"
+        "Not super-user => forbidden."
         user = self.login_not_as_superuser()
 
         url = self.ADD_URL
@@ -270,7 +270,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     )
     # def test_create07(self):
     def test_create06(self):
-        "Password errors"
+        "Password errors."
         user = self.login()
         url = self.ADD_URL
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -454,7 +454,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Edit «{object}»').format(object=other_user),
-            response.context.get('title')
+            response.context.get('title'),
         )
 
         # ----
@@ -508,7 +508,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     @skipIfCustomContact
     def test_edit03(self):
-        "Logged as regular user"
+        "Logged as regular user."
         user = self.login_not_as_superuser()
 
         role1 = UserRole(name='Master')
@@ -590,7 +590,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Change password for «{object}»').format(object=other_user),
-            response.context.get('title')
+            response.context.get('title'),
         )
 
         # ---
@@ -628,10 +628,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(
             url,
             follow=True,
-            data={'password_1': password, 'password_2': password + '42'}
+            data={'password_1': password, 'password_2': password + '42'},
         )
         self.assertFormError(
-            response, 'form', 'password_2', _("The two password fields didn't match.")
+            response, 'form', 'password_2', _("The two password fields didn't match."),
         )
 
     @skipIfNotCremeUser
@@ -655,7 +655,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                 'This password is too short. It must contain at least %(min_length)d character.',
                 'This password is too short. It must contain at least %(min_length)d characters.',
                 8
-            ) % {'min_length': 8}
+            ) % {'min_length': 8},
         )
 
     @skipIfNotCremeUser
@@ -767,7 +767,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         role.allowed_apps = ['creme_core']
         role.save()
         SetCredentials.objects.create(
-            role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN
+            role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
         )
 
         def create_user(name, email):
@@ -871,15 +871,15 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             first_name='Choji', last_name='Ochiai',
             email='shogun@century.jp', password='uselesspw',
         )
-        team  = self._create_team('Teamee', [user])
+        team1 = self._create_team('Teamee', [user])
         team2 = self._create_team('Teamee2', [user])
 
-        ce = CremeEntity.objects.create(user=team)
+        ce = CremeEntity.objects.create(user=team1)
 
-        url = self._build_delete_url(team)
+        url = self._build_delete_url(team1)
         self.assertGET200(url)
         self.assertPOST200(url, data={'to_user': team2.id})
-        self.assertDoesNotExist(team)
+        self.assertDoesNotExist(team1)
 
         ce = self.assertStillExists(ce)
         self.assertEqual(team2, ce.user)
@@ -925,7 +925,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         context = response.context
         self.assertEqual(
             _('Delete «{object}» and assign his entities to user').format(object=root),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(_('Delete the user'), context.get('submit_label'))
 
@@ -972,7 +972,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_user_cannot_delete_staff_user(self):
-        "Delete view can not delete the staff user"
+        "Delete view can not delete the staff user."
         user = self.login()
         hybird = User.objects.create(username='hybird', is_staff=True)
 
@@ -982,7 +982,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_user_cannot_delete_during_transfert(self):
-        "Delete view is protected by a lock"
+        "Delete view is protected by a lock."
         user = self.login()
         root = self.get_object_or_fail(User, username='root')
 
@@ -1020,7 +1020,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertPOST200(url, {'to_user': root.id})
         self.assertFormError(
             response, 'form', 'to_user',
-            _('Select a valid choice. That choice is not one of the available choices.')
+            _('Select a valid choice. That choice is not one of the available choices.'),
         )
         self.assertStillExists(user)
 
@@ -1101,17 +1101,19 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         ('icecream',  'Ice cream'),
         ('chantilly', 'Chantilly'),
     ])
-    def test_change_theme01(self):
+    def test_change_theme(self):
         user = self.user
         self.assertEqual(settings.THEMES[0][0], user.theme)
 
-        def change_theme(theme):
-            self.assertPOST200(reverse('creme_config__set_user_theme'), data={'theme': theme})
+        url = reverse('creme_config__set_user_theme')
+
+        def post(theme):
+            self.assertPOST200(url, data={'theme': theme})
 
             self.assertEqual(theme, self.refresh(user).theme)
 
-        change_theme('chantilly')
-        change_theme('icecream')
+        post('chantilly')
+        post('icecream')
 
     def test_change_timezone(self):
         user = self.user
@@ -1180,6 +1182,36 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         finally:
             django_tz.activate = original_activate
 
+    @override_settings(LANGUAGES=[
+        ('en', 'English'),
+        ('fr', 'Français'),
+    ])
+    def test_change_language(self):
+        user = self.user
+        self.assertEqual('', user.language)
+
+        post_url = reverse('creme_config__set_user_language')
+        content_url = reverse('creme_config__user_settings')
+
+        def post(language, test_content=True):
+            self.assertPOST200(post_url, data={'language': language})
+            self.assertEqual(language, self.refresh(user).language)
+
+            if test_content:
+                response = self.assertGET200(content_url)
+                self.assertEqual(language, response['Content-Language'])
+
+        # Fixed language ---
+        post('en')
+        post('fr')
+
+        # From browser ----
+        post('', False)
+
+        for language in ('en', 'fr'):
+            response = self.assertGET200(content_url, HTTP_ACCEPT_LANGUAGE=language)
+            self.assertEqual(language, response['Content-Language'])
+
     def _build_edit_user_svalue_url(self, setting_key):
         return reverse('creme_config__edit_user_setting', args=(setting_key.id,))
 
@@ -1238,7 +1270,7 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFormError(response, 'form', 'value', _('This field is required.'))
 
     def test_edit_user_setting_value04(self):
-        "Blank + STRING"
+        "Blank + STRING."
         user = self.user
         sk = UserSettingKey(
             'creme_config-test_edit_user_setting_value04',
@@ -1263,7 +1295,7 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
     def test_edit_user_setting_value05(self):
-        "Blank + INT"
+        "Blank + INT."
         user = self.user
         sk = UserSettingKey(
             'creme_config-test_edit_user_setting_value05',

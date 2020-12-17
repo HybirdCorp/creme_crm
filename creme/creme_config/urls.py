@@ -95,6 +95,11 @@ user_settings_patterns = [
         name='creme_config__set_user_timezone',
     ),
     re_path(
+        r'^set_language[/]?$',
+        user_settings.LanguageSetting.as_view(),
+        name='creme_config__set_user_language',
+    ),
+    re_path(
         r'^edit_value/(?P<skey_id>[\w-]+)[/]?$',
         user_settings.UserSettingValueEdition.as_view(),
         name='creme_config__edit_user_setting',

@@ -44,7 +44,7 @@ class UserThemeForm(CremeModelForm):
         model = User
         fields = ('theme',)
         widgets = {'theme': _build_select()}
-        labels = {'theme': _('Choose your theme')}
+        labels = {'theme': _('Your theme')}
 
 
 class UserTimeZoneForm(CremeModelForm):
@@ -52,4 +52,12 @@ class UserTimeZoneForm(CremeModelForm):
         model = User
         fields = ('time_zone',)
         widgets = {'time_zone': _build_select()}
-        labels = {'time_zone': _('Choose your time zone')}
+        labels = {'time_zone': _('Your time zone')}
+
+
+class UserLanguageForm(CremeModelForm):
+    class Meta:
+        model = User
+        fields = ('language',)
+        widgets = {'language': _build_select()}
+        labels = {'language': _('Your language')}

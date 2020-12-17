@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-16 18:17+0100\n"
+"POT-Creation-Date: 2020-12-17 15:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -975,12 +975,16 @@ msgid "First credentials: conditions"
 msgstr "Premiers droits : conditions"
 
 #: forms/user_settings.py:47
-msgid "Choose your theme"
-msgstr "Choisissez votre thème"
+msgid "Your theme"
+msgstr "Votre thème"
 
 #: forms/user_settings.py:55
-msgid "Choose your time zone"
-msgstr "Choisissez votre fuseau horaire"
+msgid "Your time zone"
+msgstr "Votre fuseau horaire"
+
+#: forms/user_settings.py:63
+msgid "Your language"
+msgstr "Votre langue"
 
 #: forms/widgets.py:37
 msgid "Create"
@@ -2336,7 +2340,7 @@ msgstr "Modifier le type «{object}»"
 msgid "New search configuration for «{model}»"
 msgstr "Nouvelle configuration de recherche pour «{model}»"
 
-#: views/setting.py:35 views/user_settings.py:98
+#: views/setting.py:35 views/user_settings.py:109
 #, python-brace-format
 msgid "Edit «{key}»"
 msgstr "Modifier «{key}»"

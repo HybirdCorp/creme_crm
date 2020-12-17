@@ -23,6 +23,7 @@
     # The buttons got descriptions, which are displayed as tool-tips.
     # Apps :
         * Creme_config :
+            - Each user can now fix the language to use in the interface ; by default the language asked by the browser is used (like before).
             - The possibility to export & import some configured models has been added.
               It's useful to deploy a test/prototype server, & re-use their data on the production server.
               The transferred models are : UserRole, HeaderFilter, EntityFilter, CremePropertyTypes, RelationTypes, Bricks configuration, Buttons configuration, Search configuration.
