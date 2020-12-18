@@ -17,7 +17,7 @@
 
     @bottom-right {
         color: #a9a;
-        {% listify source.email source.phone source.url_site as details %}content: '{{details|filter_empty|join:" | "}}';
+        {% listify source.email|escapecss source.phone|escapecss source.url_site|escapecss as details %}content: '{{details|filter_empty|join:" | "}}';
 {#        font-family: Pacifico;  #}
         font-size: 9pt;
     }

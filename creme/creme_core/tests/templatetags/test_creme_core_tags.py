@@ -691,3 +691,22 @@ class CremeCoreTagsTestCase(CremeTestCase):
             '<a href="{}?value={}">Link</a>'.format(url, 'orange+%26+lemons'),
             render.strip()
         )
+
+    def test_escapecss(self):
+        with self.assertNoException():
+            template = Template(
+                '{% load creme_core_tags %}'
+                '.foo .bar-label:before {'
+                '   content: "{{value|escapecss}}";'
+                '}'
+            )
+            render = template.render(Context({
+                'value': '''foo© '" 2020><''',
+            }))
+
+        self.assertEqual(
+            r'''.foo .bar-label:before {'''
+            r'''   content: "foo© \0027 \0022  2020\003E \003C";'''
+            r'''}''',
+            render.strip(),
+        )
