@@ -300,6 +300,21 @@ def filter_empty(iterable):
     return [x for x in iterable if x]
 
 
+_css_escapes = {
+    ord('>'): r'\003E ',
+    ord('<'): r'\003C ',
+    ord('&'): r'\0026 ',
+    ord('"'): r'\0022 ',
+    ord("'"): r'\0027 ',
+}
+
+
+@register.filter('escapecss')
+def escape_css(value):
+    """Escape a value used in a CSS "content" property."""
+    return mark_safe(str(value).translate(_css_escapes).strip())
+
+
 @register.simple_tag
 def listify(*args):
     return [*args]
