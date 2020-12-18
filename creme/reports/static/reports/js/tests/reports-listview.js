@@ -121,7 +121,13 @@ QUnit.test('creme.reports.ExportReportAction (csv, none)', function(assert) {
 
     var download_url = 'mock/reports/download?' + $.param({doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''});
 
-    deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
+    deepEqual([['done', {
+        content: download_url,
+        data: download_url,
+        type: 'text/plain'
+    }]], this.mockListenerCalls('action-done', function(e) {
+        return [e[0], this.frameContentDataAsDict(e[1])];
+    }.bind(this)));
 
     deepEqual([
         ['GET', {}],
@@ -160,7 +166,13 @@ QUnit.test('creme.reports.ExportReportAction (xls, created, previous_year)', fun
 
     var download_url = 'mock/reports/download?' + $.param({doc_type: 'xls', date_field: 'created', date_filter_0: 'previous_year', date_filter_2: ''});
 
-    deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
+    deepEqual([['done', {
+        content: download_url,
+        data: download_url,
+        type: 'text/plain'
+    }]], this.mockListenerCalls('action-done', function(e) {
+        return [e[0], this.frameContentDataAsDict(e[1])];
+    }.bind(this)));
 
     deepEqual([
         ['GET', {}],

@@ -10,30 +10,56 @@
             this._eventListenerCalls = {};
         },
 
-        mockListenerCalls: function(name) {
-            if (name === undefined) {
-                return $.extend({}, this._eventListenerCalls);
-            }
+        mockSummarizeObject: function(data) {
+            var dump = data;
 
-            if (this._eventListenerCalls[name] === undefined) {
-                this._eventListenerCalls[name] = [];
-            }
+            if (Object.isSubClassOf(data, creme.component.Component)) {
+                dump = {__class__: 'Component'};
 
-            return this._eventListenerCalls[name];
-        },
+                for (var key in data) {
+                    var value = data[key];
 
-        mockListenerJQueryCalls: function(name) {
-            if (name === undefined) {
-                var calls = {};
-
-                for (var key in this._eventListenerCalls) {
-                    calls[key] = this.mockListenerJQueryCalls(key);
+                    if (!Object.isFunc(value)) {
+                        dump[key] = this.mockSummarizeObject(value);
+                    }
                 }
 
-                return calls;
+                return dump;
+            } else if (Object.getPrototypeOf(data).jquery) {
+                if (data.length === 1) {
+                    return $('<div>').append(data).html();
+                } else {
+                    return {__class__: 'jQuery', selector: data.selector};
+                }
+            } else {
+                return data;
             }
+        },
 
-            return this.mockListenerCalls(name).map(function(e) {
+        mockListenerCalls: function(key, summarize) {
+            var filtered = {};
+            var calls = this._eventListenerCalls;
+            var nokey = Object.isEmpty(key);
+
+            var names = nokey ? Object.keys(calls) : key.split(' ');
+
+            names.forEach(function(name) {
+                if (Object.isFunc(summarize)) {
+                    filtered[name] = (calls[name] || []).map(summarize);
+                } else {
+                    filtered[name] = calls[name] || [];
+                }
+            });
+
+            if (!nokey && names.length === 1) {
+                return filtered[names[0]];
+            } else {
+                return filtered;
+            }
+        },
+
+        mockListenerJQueryCalls: function(key) {
+            return this.mockListenerCalls(key, function(e) {
                 var event = e[0];
                 var data = e.slice(1);
                 return Object.isEmpty(data) === false ? [event.type, data] : [event.type];
@@ -42,9 +68,14 @@
 
         mockListener: function(name) {
             var self = this;
+
             return (function(name) {
                 return function() {
-                    self.mockListenerCalls(name).push(Array.copy(arguments));
+                    var calls = self._eventListenerCalls;
+                    var listenerCalls = calls[name] || [];
+
+                    listenerCalls.push(Array.copy(arguments));
+                    calls[name] = listenerCalls;
                 };
             }(name));
         },

@@ -27,12 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.db.models.query import QuerySet
 from django.db.transaction import atomic
-from django.http import (
-    Http404,
-    HttpRequest,
-    HttpResponse,
-    HttpResponseRedirect,
-)
+from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext
@@ -43,6 +38,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.gui.bricks import Brick, brick_registry
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
+from creme.creme_core.gui.feedback import UIFeedbackResponse, UIRedirect
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.content_type import get_ctype_or_404
 
@@ -400,6 +396,26 @@ class SubmittableMixin:
         return self.submit_label
 
 
+class UIFeedbackViewMixin:
+    def get_feedback_redirect_url(self):
+        return ''
+
+    def get_feedback_response(self):
+        feedbacks = []
+
+        url = self.get_feedback_redirect_url()
+
+        if url:
+            feedbacks.append(UIRedirect(url))
+
+        # TODO : Enable this code when notifications were done on client side.
+        # message = self.get_feedback_notify_message()
+        # if message:
+        #     feedbacks.append(UINotify(message))
+
+        return UIFeedbackResponse(*feedbacks)
+
+
 class CremeFormView(CancellableMixin,
                     PermissionsMixin,
                     TitleMixin,
@@ -462,7 +478,7 @@ class CremeFormView(CancellableMixin,
             return super().post(*args, **kwargs)
 
 
-class CremeFormPopup(CremeFormView):
+class CremeFormPopup(UIFeedbackViewMixin, CremeFormView):
     """  Base class for view with a simple form in Creme within an Inner-Popup.
     See CremeFormView.
     """
@@ -470,12 +486,9 @@ class CremeFormPopup(CremeFormView):
     # template_name = 'creme_core/generics/blockform/add_popup.html'
     template_name = 'creme_core/generics/blockform/add-popup.html'
 
-    def get_success_url(self):
-        return ''
-
     def form_valid(self, form):
         form.save()
-        return HttpResponse(self.get_success_url(), content_type='text/plain')
+        return self.get_feedback_response()
 
 
 class RelatedToEntityFormPopup(EntityRelatedMixin, CremeFormPopup):

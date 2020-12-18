@@ -988,7 +988,7 @@ QUnit.test('creme.dialog.FormDialog (<json>JSON</json> response)', function(asse
             content: $.toJSON({value: 1, added: [1, 'John Doe']}),
             data: {value: 1, added: [1, 'John Doe']},
             type: 'text/json'
-        }, 'text/json']
+        }]
     ], this.mockFormSubmitCalls('form-success'));
 });
 
@@ -1013,7 +1013,7 @@ QUnit.test('creme.dialog.FormDialog (<pre>JSON</pre> response)', function(assert
             content: $.toJSON({value: 2, added: [5, 'John Pre']}),
             data: {value: 2, added: [5, 'John Pre']},
             type: 'text/json'
-        }, 'text/json']
+        }]
     ], this.mockFormSubmitCalls('form-success'));
 });
 
@@ -1040,7 +1040,7 @@ QUnit.test('creme.dialog.FormDialog (<pre></pre> response)', function(assert) {
             content: '',
             data: '',
             type: 'text/plain'
-         }, 'text/plain']
+        }]
     ], this.mockFormSubmitCalls('form-success'));
 });
 
@@ -1067,7 +1067,7 @@ QUnit.test('creme.dialog.FormDialog (<pre>url</pre> response)', function(assert)
             content: '/mock/redirect',
             data: '/mock/redirect',
             type: 'text/plain'
-         }, 'text/plain']
+        }]
     ], this.mockFormSubmitCalls('form-success'));
 });
 
@@ -1094,7 +1094,7 @@ QUnit.test('creme.dialog.FormDialog (JSON response)', function(assert) {
             content: $.toJSON({value: 3, added: [-8, 'John NoTag']}),
             data: {value: 3, added: [-8, 'John NoTag']},
             type: 'text/json'
-        }, 'text/json']
+        }]
     ], this.mockFormSubmitCalls('form-success'));
 });
 
@@ -1119,7 +1119,7 @@ QUnit.test('creme.dialog.FormDialog (invalid JSON response)', function(assert) {
             content: '<json>{"value":1, added:[1, "John Doe"}</json>',
             data: '<json>{"value":1, added:[1, "John Doe"}</json>',
             type: 'text/html'
-         }, 'text/html']
+         }]
     ], this.mockFormSubmitCalls('form-success'));
 });
 
@@ -1140,8 +1140,311 @@ QUnit.test('creme.dialog.FormDialog (empty response)', function(assert) {
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
     deepEqual([
-        ['form-success', {content: '', data: '', type: 'text/html'}, 'text/html']
+        ['form-success', {content: '', data: '', type: 'text/html'}]
     ], this.mockFormSubmitCalls('form-success'));
+});
+
+QUnit.test('creme.dialog.FormDialog (postSubmitActionBuilders)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+    var registry = this.mockPostSubmitRegistry;
+
+    ok(Object.isNone(dialog.postSubmitActionBuilders()));
+
+    this.assertRaises(function() {
+        dialog.postSubmitActionBuilders("not a registry");
+    }, Error, 'Error: FormDialog post-submit action builder is not a creme.component.FactoryRegistry instance');
+
+    ok(Object.isNone(dialog.postSubmitActionBuilders()));
+
+    this.assertRaises(function() {
+        dialog.postSubmitActionBuilders(new creme.dialog.Dialog());
+    }, Error, 'Error: FormDialog post-submit action builder is not a creme.component.FactoryRegistry instance');
+
+    ok(Object.isNone(dialog.postSubmitActionBuilders()));
+
+    dialog.postSubmitActionBuilders(registry);
+    deepEqual(registry, dialog.postSubmitActionBuilders());
+});
+
+QUnit.test('creme.dialog.FormDialog (post-submit, no registry)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+
+    dialog.onFormSuccess(this.mockListener('form-success'));
+    dialog.on('form-post-submit-done', this.mockListener('form-post-done'));
+    dialog.on('form-post-submit-fail', this.mockListener('form-post-fail'));
+
+    dialog.open();
+
+    dialog.submit({}, {
+        responseData: $.toJSON({command: 'redirect', data: {url: 'mock/submit/redirect'}})
+    });
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            responseType: [''],
+            responseData: [$.toJSON({command: 'redirect', data: {url: 'mock/submit/redirect'}})]
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/json'));
+
+    deepEqual([
+        ['form-success',  {
+            content: $.toJSON({command: 'redirect', data: {url: 'mock/submit/redirect'}}),
+            data: {command: 'redirect', data: {url: 'mock/submit/redirect'}},
+            type: 'text/json'
+        }]
+    ], this.mockFormSubmitCalls('form-success'));
+
+    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockListenerCalls('form-post-done'));
+    deepEqual([], this.mockListenerCalls('form-post-fail'));
+});
+
+QUnit.test('creme.dialog.FormDialog (post-submit, unknown action)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+    var registry = this.mockPostSubmitRegistry;
+
+    ok(!Object.isNone(registry));
+    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
+
+    dialog.postSubmitActionBuilders(registry);
+
+    dialog.onFormSuccess(this.mockListener('form-success'));
+    dialog.on('form-post-submit-done', this.mockListener('form-post-done'));
+    dialog.on('form-post-submit-fail', this.mockListener('form-post-fail'));
+
+    dialog.open();
+
+    dialog.form().find('[name="responseType"]').val('');
+    dialog.submit({}, {
+        responseData: $.toJSON({command: 'unknown', data: {url: 'mock/submit/redirect'}})
+    });
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            responseType: [''],
+            responseData: [$.toJSON({command: 'unknown', data: {url: 'mock/submit/redirect'}})]
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/json'));
+
+    deepEqual([
+        ['form-success', {
+            content: $.toJSON({command: 'unknown', data: {url: 'mock/submit/redirect'}}),
+            data: {command: 'unknown', data: {url: 'mock/submit/redirect'}},
+            type: 'text/json'
+        }]
+    ], this.mockFormSubmitCalls('form-success'));
+
+    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockListenerCalls('form-post-done'));
+    deepEqual([['form-post-submit-fail', {
+        command: 'unknown', data: {url: 'mock/submit/redirect'}
+    }]], this.mockListenerCalls('form-post-fail'));
+});
+
+QUnit.test('creme.dialog.FormDialog (post-submit, action, failed)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+    var registry = this.mockPostSubmitRegistry;
+
+    ok(!Object.isNone(registry));
+    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
+
+    dialog.postSubmitActionBuilders(registry);
+
+    dialog.onFormSuccess(this.mockListener('form-success'));
+    dialog.on('form-post-submit-done', this.mockListener('form-post-done'));
+    dialog.on('form-post-submit-fail', this.mockListener('form-post-fail'));
+
+    dialog.open();
+
+    dialog.form().find('[name="responseType"]').val('');
+    dialog.submit({}, {
+        responseData: $.toJSON({command: 'fail-it'})
+    });
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            responseType: [''],
+            responseData: [$.toJSON({command: 'fail-it'})]
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/json'));
+
+    deepEqual([
+        ['form-success', {
+            content: $.toJSON({command: 'fail-it'}),
+            data: {command: 'fail-it'},
+            type: 'text/json'
+        }]
+    ], this.mockFormSubmitCalls('form-success'));
+
+    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockListenerCalls('form-post-done'));
+    deepEqual([['form-post-submit-fail']], this.mockListenerCalls('form-post-fail'));
+});
+
+QUnit.test('creme.dialog.FormDialog (post-submit, action, canceled)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+    var registry = this.mockPostSubmitRegistry;
+
+    ok(!Object.isNone(registry));
+    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
+
+    dialog.postSubmitActionBuilders(registry);
+
+    dialog.onFormSuccess(this.mockListener('form-success'));
+    dialog.on('form-post-submit-done', this.mockListener('form-post-done'));
+    dialog.on('form-post-submit-cancel', this.mockListener('form-post-cancel'));
+
+    dialog.open();
+
+    dialog.form().find('[name="responseType"]').val('');
+    dialog.submit({}, {
+        responseData: $.toJSON({command: 'cancel-it'})
+    });
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            responseType: [''],
+            responseData: [$.toJSON({command: 'cancel-it'})]
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/json'));
+
+    deepEqual([
+        ['form-success', {
+            content: $.toJSON({command: 'cancel-it'}),
+            data: {command: 'cancel-it'},
+            type: 'text/json'
+        }]
+    ], this.mockFormSubmitCalls('form-success'));
+
+    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockListenerCalls('form-post-done'));
+    deepEqual([['form-post-submit-cancel']], this.mockListenerCalls('form-post-cancel'));
+});
+
+QUnit.test('creme.dialog.FormDialog (post-submit, action, invalid builder)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+    var registry = this.mockPostSubmitRegistry;
+
+    ok(!Object.isNone(registry));
+    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
+
+    dialog.postSubmitActionBuilders(registry);
+
+    dialog.onFormSuccess(this.mockListener('form-success'));
+    dialog.on('form-post-submit-done', this.mockListener('form-post-done'));
+    dialog.on('form-post-submit-fail', this.mockListener('form-post-fail'));
+
+    dialog.open();
+
+    dialog.form().find('[name="responseType"]').val('');
+    dialog.submit({}, {
+        responseData: $.toJSON({command: 'raise-it'})
+    });
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            responseType: [''],
+            responseData: [$.toJSON({command: 'raise-it'})]
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/json'));
+
+    deepEqual([
+        ['form-success', {
+            content: $.toJSON({command: 'raise-it'}),
+            data: {command: 'raise-it'},
+            type: 'text/json'
+        }]
+    ], this.mockFormSubmitCalls('form-success'));
+
+    deepEqual([], this.mockRedirectCalls());
+    deepEqual([], this.mockListenerCalls('form-post-done'));
+    deepEqual([
+        ['form-post-submit-fail', {command: 'raise-it'}, Error('invalid action !')]
+    ], this.mockListenerCalls('form-post-fail'));
+});
+
+QUnit.test('creme.dialog.FormDialog (post-submit, action, ok)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+    var registry = this.mockPostSubmitRegistry;
+
+    ok(!Object.isNone(registry));
+    ok(Object.isSubClassOf(registry, creme.component.FactoryRegistry));
+
+    dialog.postSubmitActionBuilders(registry);
+
+    dialog.onFormSuccess(this.mockListener('form-success'));
+    dialog.on('form-post-submit-done', this.mockListener('form-post-done'));
+    dialog.on('form-post-submit-fail', this.mockListener('form-post-fail'));
+
+    dialog.open();
+
+    dialog.form().find('[name="responseType"]').val('');
+    dialog.submit({}, {
+        responseData: $.toJSON({command: 'redirect', data: {url: 'mock/submit/redirect'}})
+    });
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            responseType: [''],
+            responseData: [$.toJSON({command: 'redirect', data: {url: 'mock/submit/redirect'}})]
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/json'));
+
+    deepEqual([
+        ['form-success', {
+            content: $.toJSON({command: 'redirect', data: {url: 'mock/submit/redirect'}}),
+            data: {command: 'redirect', data: {url: 'mock/submit/redirect'}},
+            type: 'text/json'
+        }]
+    ], this.mockFormSubmitCalls('form-success'));
+
+    deepEqual(['mock/submit/redirect'], this.mockRedirectCalls());
+    deepEqual([['form-post-submit-done']], this.mockListenerCalls('form-post-done'));
+    deepEqual([], this.mockListenerCalls('form-post-fail'));
+});
+
+QUnit.test('creme.action.FeedbackAction (redirect)', function(assert) {
+    var action = new creme.action.FeedbackAction({
+        command: 'redirect',
+        data: {url: 'mock/submit/redirect'}
+    });
+
+    action.onDone(this.mockListener('action-done'));
+    action.onFail(this.mockListener('action-fail'));
+    action.onCancel(this.mockListener('action-cancel'));
+
+    action.start();
+
+    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    deepEqual([], this.mockListenerCalls('action-fail'));
+    deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    deepEqual(['mock/submit/redirect'], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.action.FeedbackAction (reload)', function(assert) {
+    var current_url = window.location.href;
+    var action = new creme.action.FeedbackAction({
+        command: 'reload'
+    });
+
+    action.onDone(this.mockListener('action-done'));
+    action.onFail(this.mockListener('action-fail'));
+    action.onCancel(this.mockListener('action-cancel'));
+
+    action.start();
+
+    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    deepEqual([], this.mockListenerCalls('action-fail'));
+    deepEqual([], this.mockListenerCalls('action-cancel'));
+
+    deepEqual([current_url], this.mockReloadCalls());
 });
 
 }(jQuery));

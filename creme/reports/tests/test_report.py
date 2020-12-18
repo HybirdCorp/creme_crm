@@ -1169,7 +1169,8 @@ class ReportTestCase(BaseReportsTestCase):
             },
         )
         self.assertNoFormError(response)
-        self.assertEqual(
+
+        redirect_url = (
             '{url}?doc_type=csv'
             '&date_field={date}'
             '&date_filter_0='
@@ -1177,9 +1178,11 @@ class ReportTestCase(BaseReportsTestCase):
             '&date_filter_2=31-12-1990'.format(
                 url=reverse('reports__export_report', args=(report.id,)),
                 date=date_field,
-            ),
-            response.content.decode(),
+            )
         )
+        self.assertJSONResponse(response, [
+            {'command': 'redirect', 'data': {'url': redirect_url}},
+        ])
 
     def test_export_filter_not_superuser01(self):
         user = self.login(is_superuser=False, allowed_apps=['reports'])
@@ -1285,13 +1288,14 @@ class ReportTestCase(BaseReportsTestCase):
             },
         )
         self.assertNoFormError(response)
-        self.assertEqual(
-            '{url}?doc_type={type}&date_field='.format(
-                url=reverse('reports__export_report', args=(report.id,)),
-                type=doc_type,
-            ),
-            response.content.decode(),
+
+        redirect_url = '{url}?doc_type={type}&date_field='.format(
+            url=reverse('reports__export_report', args=(report.id,)),
+            type=doc_type,
         )
+        self.assertJSONResponse(response, [
+            {'command': 'redirect', 'data': {'url': redirect_url}},
+        ])
 
     def test_report_csv01(self):
         "Empty report."

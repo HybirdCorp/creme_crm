@@ -120,7 +120,7 @@ class ExportFilterURL(generic.EntityEditionPopup):
         )
         return super().form_valid(form=form)
 
-    def get_success_url(self):
+    def get_feedback_redirect_url(self):
         return self.export_url
 
 

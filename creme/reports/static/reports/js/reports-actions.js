@@ -40,11 +40,14 @@ creme.reports.ExportReportAction = creme.component.Action.sub({
         // TODO : filterform should be used as select and redirection url build in js.
         creme.dialogs.form(options.filterUrl)
                      .on('frame-activated', function(event, frame) {
-                         new creme.reports.PreviewController(options).bind(frame.delegate());
+                          new creme.reports.PreviewController(options).bind(frame.delegate());
                       })
-                     .onFormSuccess(function(event, response, dataType) {
-                          self.done(response.content);
-                          creme.utils.goTo(response.content);
+                     .onFormSuccess(function(event, response) {
+                         self.done(response);
+
+                         if (response.isPlainText() && !Object.isEmpty(response.content)) {
+                             creme.utils.goTo(response.content);
+                         }
                       })
                      .onClose(function() {
                           self.cancel();

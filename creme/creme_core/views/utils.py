@@ -48,6 +48,7 @@ def build_cancel_path(request) -> Optional[str]:
 
 
 # TODO: Find a better name
+# TODO: Patch/UpdateCollectionResponse class
 def json_update_from_widget_response(instance):
     """
     This function is designed for JavaScript selectors (list-view or combobox)

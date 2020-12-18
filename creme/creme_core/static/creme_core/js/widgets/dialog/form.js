@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2019  Hybird
+    Copyright (C) 2009-2020  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -163,11 +163,37 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         content.on('keypress', this._submitKeyCb);
     },
 
+    _buildPostSubmitAction: function(data) {
+        var self = this;
+
+        if (this._postSubmitActionBuilders) {
+            return new creme.action.FeedbackAction(data, {
+                builders: this._postSubmitActionBuilders
+            }).one('done cancel fail', function(e) {
+                self._events.trigger('form-post-submit-' + e, Array.copy(arguments).slice(1), self);
+            });
+        }
+    },
+
     _onSubmitDone: function(event, response, dataType) {
         if (this._validate(response, dataType)) {
             this._destroyDialog();
 
-            this._events.trigger('form-success', [response, dataType], this);
+            var self = this;
+            var action;
+
+            if (response.isJSONOrObject()) {
+                action = this._buildPostSubmitAction(response.data());
+            }
+
+            if (Object.isNone(action)) {
+                this._events.trigger('form-success', [response], this);
+            } else {
+                action.one('done cancel fail', function() {
+                           self._events.trigger('form-success', [response].concat(Array.copy(arguments).slice(1)), this);
+                       })
+                      .start();
+            }
         } else {
             this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, response.content, dataType, 'submit');
             this._updateButtonState("send", true, 'auto');
@@ -279,6 +305,19 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
     submitKey: function(value) {
         return Object.property(this, '_submitKey', value);
+    },
+
+    postSubmitActionBuilders: function(builders) {
+        if (builders === undefined) {
+            return this._postSubmitActionBuilders;
+        }
+
+        if (Object.isSubClassOf(builders, creme.component.FactoryRegistry) === false) {
+            throw new Error('FormDialog post-submit action builder is not a creme.component.FactoryRegistry instance');
+        }
+
+        this._postSubmitActionBuilders = builders;
+        return this;
     }
 });
 
@@ -288,8 +327,8 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
         this._listeners = listeners || {};
     },
 
-    _onSubmit: function(event, response, dataType) {
-        this.done(response, dataType);
+    _onSubmit: function(event, response) {
+        this.done(response);
     },
 
     _buildPopup: function(options) {
@@ -301,6 +340,10 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
                                                            self.cancel();
                                                        })
                                                        .on(this._listeners);
+
+        if (options.postSubmitActionBuilders) {
+            form.postSubmitActionBuilders(options.postSubmitActionBuilders);
+        }
 
         return form;
     },

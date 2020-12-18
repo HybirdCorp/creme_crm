@@ -547,6 +547,7 @@ QUnit.test('creme.search.SearchBox.keys (up/down)', function() {
 QUnit.test('creme.search.SearchBox.keys (escape => close popover)', function() {
     var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
     var search = new creme.search.SearchBox({
+        debounceDelay: 0,
         searchUrl: 'mock/search',
         advancedSearchUrl: 'mock/advancedsearch'
     }).bind(element);

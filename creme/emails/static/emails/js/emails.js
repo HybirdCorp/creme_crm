@@ -41,7 +41,7 @@ creme.emails.LinkEMailToAction = creme.component.Action.sub({
 
         var dialog = creme.dialogs.form(options.url, {submitData: formData}, formData);
 
-        dialog.onFormSuccess(function(event, data) {
+        dialog.onFormSuccess(function() {
                     var deps = ['creme_core.relation'].concat(options.rtypes.map(function(rtype) {
                                                                                      return 'creme_core.relation.' + rtype;
                                                                                  }));

@@ -142,11 +142,11 @@ QUnit.test('creme.bricks.Brick.bind (events)', function(assert) {
 
     deepEqual([['before-bind', element]], this.mockListenerCalls('before-bind'));
     deepEqual([['bind', element]], this.mockListenerCalls('bind'));
-    deepEqual([['setup-actions', brick._actionBuilders]], this.mockListenerCalls('setup-actions'));
+    deepEqual([['setup-actions', brick.getActionBuilders()]], this.mockListenerCalls('setup-actions'));
 
     deepEqual([['brick-before-bind', [brick, element]]], this.mockListenerJQueryCalls('brick-before-bind'));
     deepEqual([['brick-bind', [brick, element]]], this.mockListenerJQueryCalls('brick-bind'));
-    deepEqual([['brick-setup-actions', [brick, brick._actionBuilders]]], this.mockListenerJQueryCalls('brick-setup-actions'));
+    deepEqual([['brick-setup-actions', [brick, brick.getActionBuilders()]]], this.mockListenerJQueryCalls('brick-setup-actions'));
 });
 
 QUnit.test('creme.bricks.Brick.unbind', function(assert) {
@@ -171,7 +171,6 @@ QUnit.test('creme.bricks.Brick.unbind (not bound)', function(assert) {
         brick.unbind();
     }, Error, 'Error: brick component is not bound');
 });
-
 
 QUnit.test('creme.bricks.Brick.unbind (events)', function(assert) {
     var brick = new creme.bricks.Brick();

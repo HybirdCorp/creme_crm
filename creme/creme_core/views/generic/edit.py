@@ -22,7 +22,6 @@ from typing import Type, Union
 
 from django.db.transaction import atomic
 from django.forms.forms import BaseForm
-from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import UpdateView
 
@@ -149,7 +148,7 @@ class EntityEdition(CremeModelEdition):
 
 
 # TODO: factorise with CremeModelCreationPopup ?
-class CremeModelEditionPopup(CremeModelEdition):
+class CremeModelEditionPopup(base.UIFeedbackViewMixin, CremeModelEdition):
     """ Base class for edition view with a form in Creme within an Inner-Popup.
     See CremeModelEdition.
     """
@@ -159,13 +158,9 @@ class CremeModelEditionPopup(CremeModelEdition):
     # template_name = 'creme_core/generics/blockform/edit_popup.html'
     template_name = 'creme_core/generics/blockform/edit-popup.html'
 
-    def get_success_url(self):
-        return ''
-
     def form_valid(self, form):
         self.object = form.save()
-
-        return HttpResponse(self.get_success_url(), content_type='text/plain')
+        return self.get_feedback_response()
 
 
 class EntityEditionPopup(CremeModelEditionPopup):

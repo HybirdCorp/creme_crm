@@ -106,6 +106,7 @@ class FilterMixin:
 
         return None
 
+    # TODO : Do not override a view method in a mixin. Move it into views.
     def get_success_url(self):
         return self.build_lv_url() or reverse('creme_core__home')
 

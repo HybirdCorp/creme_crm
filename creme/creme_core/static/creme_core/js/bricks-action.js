@@ -47,6 +47,7 @@ creme.bricks.FormDialogAction = creme.dialog.FormDialogAction.sub({
         }, options || {});
 
         var popup = this._super_(creme.dialog.FormDialogAction, '_buildPopup', options);
+        popup.postSubmitActionBuilders(options.postSubmitActionBuilders);
 
         if (options.redirectOnSuccess) {
             popup.onFormSuccess(function(event, response) {
@@ -144,7 +145,9 @@ creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub
     },
 
     _build_form: function(url, options, data) {
-        options = $.extend({}, this._brick._defaultDialogOptions(url, data.title), options || {});
+        options = $.extend({
+            postSubmitActionBuilders: this
+        }, this._brick._defaultDialogOptions(url, data.title), options || {});
         return new creme.bricks.FormDialogAction(options);
     },
 

@@ -673,7 +673,11 @@ creme.dialogs = $.extend(creme.dialogs, {
     },
 
     form: function(url, options, data) {
-        options = $.extend({validator: 'innerpopup'}, options || {});
+        options = $.extend({
+            validator: 'innerpopup',
+            postSubmitActionBuilders: new creme.action.FeedbackActionBuilderRegistry()
+        }, options || {});
+
         var dialog = new creme.dialog.FormDialog(options);
 
         dialog.fetch(url, {}, data);
@@ -683,7 +687,7 @@ creme.dialogs = $.extend(creme.dialogs, {
                 creme.utils.reload();
             });
         } else if (options.redirectOnSuccess) {
-            dialog.onFormSuccess(function(event, response, dataType) {
+            dialog.onFormSuccess(function(event, response) {
                 if (options.redirectOnSuccess === true) {
                     if (response.isHTMLOrElement()) {
                         creme.utils.goTo(response.data().attr('redirect') || data);

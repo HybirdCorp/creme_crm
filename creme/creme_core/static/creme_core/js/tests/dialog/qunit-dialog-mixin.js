@@ -197,8 +197,8 @@
         mockFormSubmitCalls: function(name) {
             var frameContentDataAsDict = this.frameContentDataAsDict.bind(this);
 
-            return this.mockListenerCalls(name).map(function(e) {
-                return [e[0], frameContentDataAsDict(e[1]), e[2]];
+            return this.mockListenerCalls(name, function(e) {
+                return [e[0], frameContentDataAsDict(e[1])];
             });
         },
 

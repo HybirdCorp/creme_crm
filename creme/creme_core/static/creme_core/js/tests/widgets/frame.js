@@ -486,7 +486,7 @@ QUnit.test('creme.widget.Frame.submit', function(assert) {
             content: MOCK_FRAME_CONTENT_FORM,
             data: MOCK_FRAME_CONTENT_FORM,
             type: 'text/html'
-        }, 'text/html']
+        }]
     ], 'form html');
 });
 
@@ -545,7 +545,7 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
             content: $.toJSON({value: 1, added: [1, 'John Doe']}),
             data: {value: 1, added: [1, 'John Doe']},
             type: 'text/json'
-        }, 'text/json']
+        }]
     ], 'form json');
 
     // {...} response
@@ -561,7 +561,7 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
             content: $.toJSON({value: 1, added: [1, 'John Doe']}),
             data: {value: 1, added: [1, 'John Doe']},
             type: 'text/json'
-        }, 'text/json']
+        }]
     ], 'form json no tag');
 
     // {invalid json} response
@@ -577,7 +577,7 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
             content: MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID,
             data: MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID,
             type: 'text/html'
-        }, 'text/html']
+        }]
     ], 'form json invalid');
 });
 

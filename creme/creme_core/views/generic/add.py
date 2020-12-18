@@ -22,7 +22,6 @@ from typing import Type, Union
 
 from django.db.transaction import atomic
 from django.forms.forms import BaseForm
-from django.http import HttpResponse
 from django.views.generic import CreateView
 
 from creme.creme_core import forms, models
@@ -127,7 +126,7 @@ class EntityCreation(CremeModelCreation):
         user.has_perm_to_create_or_die(model)
 
 
-class CremeModelCreationPopup(CremeModelCreation):
+class CremeModelCreationPopup(base.UIFeedbackViewMixin, CremeModelCreation):
     """ Base class for creation view with a form in Creme within an Inner-Popup.
     See CremeModelCreation.
     """
@@ -137,13 +136,9 @@ class CremeModelCreationPopup(CremeModelCreation):
     # template_name = 'creme_core/generics/blockform/add_popup.html'
     template_name = 'creme_core/generics/blockform/add-popup.html'
 
-    def get_success_url(self):
-        return ''
-
     def form_valid(self, form):
         self.object = form.save()
-
-        return HttpResponse(self.get_success_url(), content_type='text/plain')
+        return self.get_feedback_response()
 
 
 class EntityCreationPopup(CremeModelCreationPopup):

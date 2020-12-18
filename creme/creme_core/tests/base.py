@@ -5,6 +5,7 @@ import warnings
 from contextlib import ContextDecorator
 from datetime import datetime, timedelta
 from json import dumps as json_dump
+from json import loads as json_load
 from os.path import basename
 from tempfile import NamedTemporaryFile
 from typing import List, Union
@@ -20,6 +21,7 @@ from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
+from django.utils.encoding import force_text
 from django.utils.timezone import get_current_timezone, make_aware, utc
 
 from ..global_info import clear_global_info
@@ -34,6 +36,7 @@ from ..models import (
     UserRole,
 )
 from ..utils import print_traceback
+from ..utils.serializers import json_encode
 from ..utils.xml_utils import XMLDiffError, xml_diff
 
 
@@ -565,6 +568,11 @@ class _CremeTestCase:
         tmpfile.base_name = basename(tmpfile.name)
 
         return tmpfile
+
+    def assertJSONResponse(self, response, expected):
+        self.assertEqual('application/json', response['Content-Type'])
+        self.assertEqual(json_load(force_text(response.content)),
+                         json_load(json_encode(expected, default=force_text)))
 
     def build_merge_url(self, entity1, entity2):
         return reverse('creme_core__merge_entities') + f'?id1={entity1.id}&id2={entity2.id}'

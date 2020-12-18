@@ -678,6 +678,7 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/component/action.js',
     'creme_core/js/widgets/component/action-registry.js',
     'creme_core/js/widgets/component/action-link.js',
+    'creme_core/js/widgets/component/action-feedback.js',
     'creme_core/js/widgets/component/chosen.js',
 
     'creme_core/js/widgets/utils/template.js',
@@ -821,6 +822,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/component/action.js',
     'creme_core/js/tests/component/actionregistry.js',
     'creme_core/js/tests/component/actionlink.js',
+    'creme_core/js/tests/component/actionfeedback.js',
     'creme_core/js/tests/component/chosen.js',
 
     'creme_core/js/tests/utils/template.js',

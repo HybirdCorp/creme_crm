@@ -14,6 +14,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     SetCredentials,
 )
+from creme.creme_core.utils.serializers import json_encode
 
 from ..base import CremeTestCase
 
@@ -141,9 +142,9 @@ class CremeQueryTagsTestCase(CremeTestCase):
             render = template.render(Context({'query': Q(name='Foobar')}))
 
         # self.assertEqual('{"op":"AND","val":[["name","Foobar"]]}', render.strip())
-        self.assertIn(
+        self.assertEquals(
             render.strip(),
-            (
+            json_encode(
                 '{"op":"AND","val":[["name","Foobar"]]}',
                 '{"val":[["name","Foobar"]],"op":"AND"}'
             )
