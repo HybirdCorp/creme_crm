@@ -11,7 +11,7 @@ from django.utils.timezone import now
 
 # Should be a test queue
 from creme.creme_core.core.job import JobSchedulerQueue
-from creme.creme_core.models import HeaderFilter, Job
+from creme.creme_core.models import Job
 from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 from creme.creme_core.utils.date_period import DatePeriod, date_period_registry
 
@@ -38,14 +38,14 @@ else:
         return skip('App "tickets" not installed')(test_func)
 
 
+@skipIfNotInstalled('creme.tickets')
 @skipIfCustomGenerator
 class RecurrentsTicketsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        if apps.is_installed('creme.tickets'):
-            cls.ct = ContentType.objects.get_for_model(Ticket)
+        cls.ct = ContentType.objects.get_for_model(Ticket)
 
     def setUp(self):
         super().setUp()
@@ -56,11 +56,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
     def _generate_docs(self, job=None):
         recurrents_gendocs_type.execute(job or self._get_job())
-
-    def test_populate(self):
-        self.assertTrue(HeaderFilter.objects.filter(
-            entity_type=ContentType.objects.get_for_model(RecurrentGenerator)
-        ))
 
     def _create_ticket_template(self, title='Support ticket'):
         return TicketTemplate.objects.create(
@@ -74,7 +69,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     def _get_weekly(self):
         return date_period_registry.get_period('weeks', 1)
 
-    @skipIfNotInstalled('creme.tickets')
     @skipIfCustomTicketTemplate
     def test_createview(self):
         user = self.user
@@ -163,7 +157,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(1, len(jobs))
         self.assertEqual(self._get_job(), jobs[0][0])
 
-    @skipIfNotInstalled('creme.tickets')
     def test_editview01(self):
         user = self.user
 
@@ -218,7 +211,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
         self.assertEqual(1, len(queue.refreshed_jobs))
 
-    @skipIfNotInstalled('creme.tickets')
     def test_editview02(self):
         "last_generation has been filled => cannot edit first_generation"
         user = self.user
@@ -253,7 +245,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         gen = self.refresh(gen)
         self.assertEqual(now_value, gen.first_generation)
 
-    @skipIfNotInstalled('creme.tickets')
     def test_listview(self):
         tpl = self._create_ticket_template()
         now_value = now()
@@ -277,11 +268,10 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(2, gens_page.paginator.count)
         self.assertSetEqual({gen1, gen2}, {*gens_page.object_list})
 
-    @skipIfNotInstalled('creme.tickets')
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
     def test_job01(self):
-        "first_generation in the past + (no generation yet (ie last_generation is None)"
+        "first_generation in the past + (no generation yet (ie last_generation is None)."
         self.assertFalse(Ticket.objects.all())
         now_value = now()
 
@@ -321,11 +311,10 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         # Job which edits generator should not cause REFRESH signal
         self.assertEqual([], queue.refreshed_jobs)
 
-    @skipIfNotInstalled('creme.tickets')
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
     def test_job02(self):
-        "last_generation is not far enough"
+        "last_generation is not far enough."
         tpl = self._create_ticket_template()
         now_value = now()
         RecurrentGenerator.objects.create(
@@ -345,11 +334,10 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self._generate_docs(job)
         self.assertFalse(Ticket.objects.all())
 
-    @skipIfNotInstalled('creme.tickets')
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
     def test_job03(self):
-        "last_generation is far enough"
+        "last_generation is far enough."
         tpl = self._create_ticket_template()
         now_value = now().replace(microsecond=0)  # MySQL does not record microseconds...
         gen = RecurrentGenerator.objects.create(
@@ -371,10 +359,9 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         gen = self.refresh(gen)
         self.assertEqual(now_value, gen.last_generation)
 
-    @skipIfNotInstalled('creme.tickets')
     @skipIfCustomTicketTemplate
     def test_next_wakeup(self):
-        "Minimum of the future generations"
+        "Minimum of the future generations."
         now_value = now()
         create_gen = partial(
             RecurrentGenerator.objects.create,
@@ -401,7 +388,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertIsNotNone(wakeup)
         self.assertDatetimesAlmostEqual(now_value + timedelta(hours=14), wakeup)
 
-    @skipIfNotInstalled('creme.tickets')
     def test_refresh_job(self):
         queue = JobSchedulerQueue.get_main_queue()
         job = self._get_job()

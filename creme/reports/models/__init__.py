@@ -7,3 +7,5 @@ from .report import AbstractReport, Field, Report  # NOQA
 
 if settings.TESTS_ON:
     from creme.reports.tests.fake_models import *  # NOQA
+
+del settings
