@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE
 
@@ -24,9 +25,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RecurrentGenerator',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the generator', blank=True)),
                 # ('description', models.TextField(verbose_name='Description', blank=True)),
@@ -35,10 +39,13 @@ class Migration(migrations.Migration):
                 ('periodicity', creme_fields.DatePeriodField(verbose_name='Periodicity of the generation')),
                 ('is_working', models.BooleanField(default=True, verbose_name='Active ?', editable=False)),
                 ('ct', creme_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType', verbose_name='Type of the recurrent resource')),
-                ('template', models.ForeignKey(to='creme_core.CremeEntity', on_delete=CASCADE,
-                                               related_name='template_set', editable=False,
-                                               verbose_name='Related model'
-                                              )
+                (
+                    'template',
+                    models.ForeignKey(
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                        related_name='template_set', editable=False,
+                        verbose_name='Related model'
+                    )
                 ),
             ],
             options={
@@ -50,3 +57,43 @@ class Migration(migrations.Migration):
             bases=('creme_core.cremeentity',),
         ),
     ]
+
+    if settings.TESTS_ON:
+        operations.extend([
+            migrations.CreateModel(
+                name='FakeRecurrentDoc',
+                fields=[
+                    (
+                        'cremeentity_ptr', models.OneToOneField(
+                            parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                            to='creme_core.CremeEntity', on_delete=CASCADE,
+                        )
+                    ),
+                    ('title', models.CharField(unique=True, max_length=50, verbose_name='Title')),
+                ],
+                options={
+                    'ordering': ('title',),
+                    'verbose_name': 'Test Recurrent Document',
+                    'verbose_name_plural': 'Test Recurrent Documents',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
+            migrations.CreateModel(
+                name='FakeRecurrentTemplate',
+                fields=[
+                    (
+                        'cremeentity_ptr', models.OneToOneField(
+                            parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                            to='creme_core.CremeEntity', on_delete=CASCADE,
+                        )
+                    ),
+                    ('title', models.CharField(unique=True, max_length=50, verbose_name='Title')),
+                ],
+                options={
+                    'ordering': ('title',),
+                    'verbose_name': 'Test Recurrent Template',
+                    'verbose_name_plural': 'Test Recurrent Templates',
+                },
+                bases=('creme_core.cremeentity',),
+            ),
+        ])

@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Iterator, Optional, Type
+
 from django.contrib.contenttypes.models import ContentType
+from django.forms import ModelForm
 
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.utils.imports import import_apps_sub_modules
@@ -48,10 +51,20 @@ class AppRecurrentRegistry:
 
 
 class RecurrentRegistry:
+    """Register groups containing:
+        - the model which will be recurrently instantiated (recurrent model).
+        - the model use to instantiate the previous model (template model).
+        - the model-form to create instances of template model (template form).
+    """
     def __init__(self):
         self._apps = {}
 
     def register(self, *to_register):
+        """
+        @param to_register: tuples (recurrent model, template model, template form class) ;
+               The form class can be a regular ModelForm class, or an instance of
+               CustomFormDescriptor.
+        """
         app_registries = self._apps
 
         for model, template_model, template_form in to_register:
@@ -64,7 +77,8 @@ class RecurrentRegistry:
             app_registry.add(model, template_model, template_form)
 
     @property
-    def ctypes(self):
+    def ctypes(self) -> Iterator[ContentType]:
+        """Generates the ContentTypes of recurrent models."""
         get_ct = ContentType.objects.get_for_model
 
         for app_registry in self._apps.values():
@@ -73,7 +87,8 @@ class RecurrentRegistry:
 
     # TODO: rename "form_class" ?
     # TODO: get model argument instead ?
-    def get_form_of_template(self, ct_template):
+    def get_form_of_template(self, ct_template: ContentType) -> Optional[Type[ModelForm]]:
+        "Get the form class from the ContentType of a template model."
         model = ct_template.model_class()
 
         for app_registry in self._apps.values():
