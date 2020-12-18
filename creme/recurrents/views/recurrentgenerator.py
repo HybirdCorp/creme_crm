@@ -26,6 +26,7 @@ from creme.creme_core.views import generic
 from .. import custom_forms, get_rgenerator_model
 from ..constants import DEFAULT_HFILTER_RGENERATOR
 from ..forms.recurrentgenerator import GeneratorCTypeSubCell
+from ..registry import recurrent_registry
 
 RecurrentGenerator = get_rgenerator_model()
 
@@ -39,6 +40,7 @@ class RecurrentGeneratorWizard(generic.EntityCreationWizard):
         ModelForm,
     ]
 
+    registry = recurrent_registry
     model = RecurrentGenerator
     ctype_form_data_key = GeneratorCTypeSubCell(model=RecurrentGenerator).into_cell().key
 
@@ -48,7 +50,7 @@ class RecurrentGeneratorWizard(generic.EntityCreationWizard):
         generator_form.save()
 
     def get_form(self, step=None, data=None, files=None):
-        from ..registry import recurrent_registry
+        # from ..registry import recurrent_registry
 
         form = None
 
@@ -61,7 +63,8 @@ class RecurrentGeneratorWizard(generic.EntityCreationWizard):
 
             # ctype = prev_data['ct']
             ctype = prev_data[self.ctype_form_data_key]
-            form_class = recurrent_registry.get_form_of_template(ctype)
+            # form_class = recurrent_registry.get_form_of_template(ctype)
+            form_class = self.registry.get_form_of_template(ctype)
 
             kwargs = self.get_form_kwargs(step)
             kwargs.update(

@@ -27,6 +27,7 @@ from creme.creme_core.forms.fields import EntityCTypeChoiceField
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 
 from .. import get_rgenerator_model
+from ..registry import recurrent_registry
 
 
 class RecurrentGeneratorEditForm(CremeEntityForm):
@@ -47,7 +48,7 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
     def __init__(self, *args, **kwargs):
         warnings.warn('RecurrentGeneratorCreateForm is deprecated.', DeprecationWarning)
 
-        from ..registry import recurrent_registry
+        # from ..registry import recurrent_registry
 
         super().__init__(*args, **kwargs)
 
@@ -66,16 +67,16 @@ class GeneratorCTypeSubCell(CustomFormExtraSubCell):
     sub_type_id = 'recurrents_ctype'
     verbose_name = _('Type of resource used as template')
 
-    def formfield(self, instance, user, **kwargs):
-        from ..registry import recurrent_registry
+    registry = recurrent_registry
 
+    def formfield(self, instance, user, **kwargs):
         has_perm = user.has_perm_to_create
 
         return EntityCTypeChoiceField(
             label=self.verbose_name,
             ctypes=[
                 ctype
-                for ctype in recurrent_registry.ctypes
+                for ctype in self.registry.ctypes
                 if has_perm(ctype.model_class())
             ],
         )
