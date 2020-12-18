@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-17 15:24+0100\n"
+"POT-Creation-Date: 2020-12-18 15:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -58,35 +58,35 @@ msgstr "Rôles et droits"
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: bricks.py:180
+#: bricks.py:181
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: bricks.py:193
+#: bricks.py:194
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: bricks.py:210
+#: bricks.py:211
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: bricks.py:227
+#: bricks.py:228
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:368
+#: bricks.py:369
 msgid "Missing required field: {}"
 msgstr "Champ obligatoire manquant : {}"
 
-#: bricks.py:369
+#: bricks.py:370
 msgid "Missing required custom field: {}"
 msgstr "Champ personnalisé obligatoire manquant : {}"
 
-#: bricks.py:370
+#: bricks.py:371
 msgid "Missing required special field: {}"
 msgstr "Champ spécial obligatoire manquant : {}"
 
-#: bricks.py:564 bricks.py:806 forms/bricks.py:249 forms/bricks.py:310
+#: bricks.py:565 bricks.py:817 forms/bricks.py:249 forms/bricks.py:310
 #: forms/search.py:73 forms/user.py:78 forms/user.py:132
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
@@ -341,7 +341,7 @@ msgstr "Colonnes"
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:506 forms/button_menu.py:37 forms/custom_field.py:123
+#: forms/bricks.py:506 forms/button_menu.py:38 forms/custom_field.py:123
 #: forms/fields_config.py:35 forms/fields_config.py:78
 msgid "Related resource"
 msgstr "Ressource associée"
@@ -350,9 +350,19 @@ msgstr "Ressource associée"
 msgid "Lines"
 msgstr "Lignes"
 
-#: forms/button_menu.py:62
+#: forms/button_menu.py:63
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
+
+#: forms/button_menu.py:65
+msgid ""
+"Drag and drop the buttons between the available buttons and the selected "
+"buttons sections to enable or disable the buttons, or within the selected "
+"buttons section to change the order."
+msgstr "Faites glisser et déposez les boutons entre la section des boutons "
+"disponibles et celle des boutons sélectionnés pour activer ou désactiver "
+"des boutons, ou au sein de la section des boutons sélectionnés afin d'en "
+"changer l'ordre."
 
 #: forms/creme_property_type.py:29
 msgid "Text"
@@ -1971,6 +1981,14 @@ msgstr "Statut"
 msgid "Finish"
 msgstr "Terminer"
 
+#: templates/creme_config/forms/widgets/buttonmenu-editor.html:5
+msgid "Available buttons"
+msgstr "Boutons disponibles"
+
+#: templates/creme_config/forms/widgets/buttonmenu-editor.html:9
+msgid "Selected buttons"
+msgstr "Boutons sélectionnés"
+
 #: templates/creme_config/forms/widgets/cform-cells/extra-fields.html:4
 msgid "Additional fields"
 msgstr "Champs supplémentaires"
@@ -2608,9 +2626,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "Edit default credentials"
 #~ msgstr "Modifier les droits par défaut"
-
-#~ msgid "No selected user."
-#~ msgstr "Aucun utilisateur sélectionné."
 
 #~ msgid "You have to select a team."
 #~ msgstr "Vous devez choisir une équipe."
