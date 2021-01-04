@@ -70,6 +70,17 @@ commands:
             echo "export LC_ALL=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
 
 jobs:
+  setup-py36:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - install-creme-system-packages
+      - create-virtualenv
+      - run: pip install -U pip setuptools
+      - run: pip install -U -e .[dev,mysql,pgsql,graphs]
+      - run: pip list --outdated
+
   lint-isort:
     docker:
       - image: circleci/python:3.7
@@ -212,6 +223,8 @@ workflows:
   version: 2
   build:
     jobs:
+      - setup-py36
+
       - lint-js
       - tests-js:
           requires:
