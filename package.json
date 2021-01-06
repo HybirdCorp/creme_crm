@@ -4,7 +4,7 @@
     "license": "AGPL-3.0",
     "dependencies": {
         "argparse": "1.0.9",
-        "axios": "^0.18.1",
+        "axios": "^0.21.1",
         "colors": "^1.4.0",
         "eslint": "7.1.0",
         "eslint-plugin-standard": "4.0.1",
