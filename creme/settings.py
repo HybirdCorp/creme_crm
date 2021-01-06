@@ -863,6 +863,7 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/form/validation.js',
     'creme_core/js/widgets/form/field.js',
     'creme_core/js/widgets/form/form.js',
+    'creme_core/js/widgets/form/formset.js',
 
     'creme_core/js/widgets/dialog/dialog.js',
     'creme_core/js/widgets/dialog/overlay.js',
@@ -1079,6 +1080,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/form/dropdown.js',
     'creme_core/js/tests/form/form-legacy.js',
     'creme_core/js/tests/form/form.js',
+    'creme_core/js/tests/form/formset.js',
     'creme_core/js/tests/form/field.js',
 
     'creme_core/js/tests/list/list-pager.js',
