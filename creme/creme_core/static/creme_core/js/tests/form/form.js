@@ -29,6 +29,7 @@ QUnit.test('creme.form.Form (empty, defaults)', function() {
     deepEqual({}, form.initialData());
     deepEqual({}, form.data());
     deepEqual({
+        prefix: '',
         cleanedData: {},
         data: {},
         errors: [],
@@ -99,6 +100,40 @@ QUnit.parametrize('creme.form.Form (fields)', [
        '</form>'), ['field_a', 'field_a', 'field_a']]
 ], function(element, expected, assert) {
     var form = new creme.form.Form(element);
+    deepEqual(expected, form.fields().map(function(field) {
+        return field.name();
+    }));
+});
+
+QUnit.parametrize('creme.form.Form (fields + prefix)', [
+    ['form-0-',
+     $('<form>' +
+           '<input name="form-0-field_a" type="text" value="a">' +
+           '<input name="field_b" type="text" value="a">' +
+       '</form>'),
+     ['form-0-field_a']
+    ],
+    ['form-0-',
+     $('<form>' +
+           '<input name="" type="text" value="a">' +
+           '<input type="text" value="a">' +
+           '<input name="form-0-" type="text" value="a">' +
+           '<input name="form-0-field_b" type="text" value="a">' +
+           '<input name="form-1-field_c" type="text" value="a">' +
+       '</form>'),
+     ['form-0-field_b']
+    ],
+    ['form-0-',
+     $('<form>' +
+            '<input type="checkbox" name="form-0-field_a" value="a" checked>A</input>' +
+            '<input type="checkbox" name="form-0-field_a" value="b">B</option>' +
+            '<input type="checkbox" name="form-0-field_a" value="c" checked>C</option>' +
+       '</form>'),
+     ['form-0-field_a', 'form-0-field_a', 'form-0-field_a']]
+], function(prefix, element, expected, assert) {
+    var form = new creme.form.Form(element, {
+        prefix: prefix
+    });
     deepEqual(expected, form.fields().map(function(field) {
         return field.name();
     }));
@@ -303,6 +338,7 @@ QUnit.parametrize('creme.form.Form (isValidHtml)', [
 
 QUnit.parametrize('creme.form.Form (clean)', [
     [$('<form><input name="field_a" type="number" value="12"></form>'), {
+        prefix: '',
         cleanedData: {field_a: 12},
         data: {field_a: '12'},
         isValid: true,
@@ -310,6 +346,7 @@ QUnit.parametrize('creme.form.Form (clean)', [
         fieldErrors: {}
     }],
     [$('<form><input name="field_a" type="text" data-type="json" value="{&quot;a&quot;:12}"></form>'), {
+        prefix: '',
         cleanedData: {field_a: {a: 12}},
         data: {field_a: '{\"a\":12}'},
         isValid: true,
@@ -324,6 +361,7 @@ QUnit.parametrize('creme.form.Form (clean)', [
 
 QUnit.parametrize('creme.form.Form (clean, datatype=date|datetime)', [
     [$('<form><input name="field_a" type="date" value="2018-12-08"></form>'), {
+        prefix: '',
         cleanedData: {field_a: moment([2018, 11, 8])},
         data: {field_a: '2018-12-08'},
         isValid: true,
@@ -331,6 +369,7 @@ QUnit.parametrize('creme.form.Form (clean, datatype=date|datetime)', [
         fieldErrors: {}
     }],
     [$('<form><input name="field_a" type="datetime" value="2018-12-08T08:15:32"></form>'), {
+        prefix: '',
         cleanedData: {field_a: moment([2018, 11, 8, 8, 15, 32])},
         data: {field_a: '2018-12-08T08:15:32'},
         isValid: true,
@@ -350,6 +389,7 @@ QUnit.parametrize('creme.form.Form (clean, datatype=date|datetime)', [
 
 QUnit.parametrize('creme.form.Form (clean, html5 errors)', [
     [$('<form><input name="field_a" type="number" required></form>'), {
+        prefix: '',
         cleanedData: {},
         data: {field_a: ''},
         isValid: false,
@@ -362,6 +402,7 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors)', [
         }
     }],
     [$('<form><input name="field_a" data-type="number" value="notnumber"></form>'), {
+        prefix: '',
         cleanedData: {},
         data: {field_a: 'notnumber'},
         isValid: false,
@@ -387,6 +428,7 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors)', [
 
 QUnit.parametrize('creme.form.Form (clean, html5 errors, custom messages)', [
     [$('<form><input name="field_a" type="number" required></form>'), {
+        prefix: '',
         cleanedData: {},
         data: {field_a: ''},
         isValid: false,
@@ -399,6 +441,7 @@ QUnit.parametrize('creme.form.Form (clean, html5 errors, custom messages)', [
         }
     }],
     [$('<form><input name="field_a" data-type="number" value="notnumber" data-err-clean-mismatch="Not a number"></form>'), {
+        prefix: '',
         cleanedData: {},
         data: {field_a: 'notnumber'},
         isValid: false,
@@ -437,6 +480,7 @@ QUnit.parametrize('creme.form.Form (clean, novalidate)', [
 
 QUnit.parametrize('creme.form.Form (clean, constraints)', [
     [{}, {
+        prefix: '',
         cleanedData: {clone: ''},
         data: {a: '', clone: ''},
         isValid: false,
@@ -446,6 +490,7 @@ QUnit.parametrize('creme.form.Form (clean, constraints)', [
         errors: []
     }],
     [{a: 'a'}, {
+        prefix: '',
         cleanedData: {a: 'a', clone: ''},
         data: {a: 'a', clone: ''},
         isValid: false,
@@ -453,6 +498,7 @@ QUnit.parametrize('creme.form.Form (clean, constraints)', [
         errors: ['The clone field is empty']
     }],
     [{a: 'a', clone: 'b'}, {
+        prefix: '',
         cleanedData: {a: 'a', clone: 'b'},
         data: {a: 'a', clone: 'b'},
         isValid: false,
@@ -460,6 +506,7 @@ QUnit.parametrize('creme.form.Form (clean, constraints)', [
         errors: ["The fields aren't the same !"]
     }],
     [{a: 'a', clone: 'a'}, {
+        prefix: '',
         cleanedData: {a: 'a', clone: 'a'},
         data: {a: 'a', clone: 'a'},
         isValid: true,
@@ -488,6 +535,7 @@ QUnit.parametrize('creme.form.Form (clean, constraints)', [
 
 QUnit.parametrize('creme.form.Form (clean, constraints, field errors)', [
     [$('<form><input name="field_a"></form>'), {
+        prefix: '',
         cleanedData: {field_a: ''},
         data: {field_a: ''},
         isValid: false,
@@ -500,6 +548,7 @@ QUnit.parametrize('creme.form.Form (clean, constraints, field errors)', [
         }
     }],
     [$('<form><input name="field_a" value="ok"></form>'), {
+        prefix: '',
         cleanedData: {field_a: 'ok'},
         data: {field_a: 'ok'},
         isValid: true,
@@ -688,7 +737,11 @@ QUnit.parametrize('creme.form.Form (ajaxSubmit)', [
     [$('<form action="mock/submit"><input name="a" value="1" /></form>'), {}, {a: '1'}],
     [$('<form action="mock/submit" novalidate><input name="a" required /></form>'), {}, {}],
     [$('<form action="mock/submit"><input name="a" required /></form>'), {noValidate: true}, {}],
-    [$('<form action="mock/submit"><input name="a" value="1" required /></form>'), {}, {a: '1'}]
+    [$('<form action="mock/submit"><input name="a" value="1" required /></form>'), {}, {a: '1'}],
+    [$('<form action="mock/submit">' +
+            '<input name="form-0-a" value="1" required />' +
+            '<input name="form-1-b" value="1" required />' +
+       '</form>'), {prefix: 'form-0-'}, {'form-0-a': '1'}]
 ], function(element, options, expected, assert) {
     var form = new creme.form.Form(element.appendTo(this.qunitFixture()), options);
 
@@ -711,6 +764,7 @@ QUnit.parametrize('creme.form.Form (ajaxSubmit)', [
 
 QUnit.parametrize('creme.form.Form (submit button)', [
     [$('<form action="mock/submit"><input name="a" value="1" /><button type="submit"></form>'), {}, {
+        prefix: '',
         cleanedData: {a: '1'},
         data: {a: '1'},
         isValid: true,
@@ -718,6 +772,7 @@ QUnit.parametrize('creme.form.Form (submit button)', [
         fieldErrors: {}
     }],
     [$('<form action="mock/submit"><input name="a" value="1" required/><button type="submit"></form>'), {}, {
+        prefix: '',
         cleanedData: {a: '1'},
         data: {a: '1'},
         isValid: true,
@@ -726,6 +781,7 @@ QUnit.parametrize('creme.form.Form (submit button)', [
     }],
 
     [$('<form action="mock/submit" novalidate><input name="a" required/><button type="submit"></form>'), {}, {
+        prefix: '',
         cleanedData: {},
         data: {a: ''},
         isValid: true,
@@ -733,6 +789,7 @@ QUnit.parametrize('creme.form.Form (submit button)', [
         fieldErrors: {}
     }],
     [$('<form action="mock/submit"><input name="a" required/><button type="submit"></form>'), {noValidate: true}, {
+        prefix: '',
         cleanedData: {},
         data: {a: ''},
         isValid: true,
@@ -740,6 +797,7 @@ QUnit.parametrize('creme.form.Form (submit button)', [
         fieldErrors: {}
     }],
     [$('<form action="mock/submit"><input name="a" required/><button type="submit" data-novalidate></form>'), {}, {
+        prefix: '',
         cleanedData: {},
         data: {a: ''},
         isValid: true,
@@ -806,6 +864,7 @@ QUnit.test('flyform (empty, defaults)', function() {
 
     equal(true, element.flyform('validateHtml'));
     deepEqual({
+        prefix: '',
         cleanedData: {},
         data: {},
         errors: [],
