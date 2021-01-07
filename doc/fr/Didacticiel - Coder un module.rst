@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07-01-2021 pour la version 2.2 de Creme
+:Version: 14-01-2021 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -23,7 +23,8 @@ Pré-requis
 ==========
 
 - Avoir des bases en programmation de manière générale ; connaître le langage Python_ est un gros plus.
-- Connaître un minimum le langage HTML
+- Connaître un minimum le langage HTML.
+- Connaître le logiciel git_.
 
 Creme est développé en utilisant un cadriciel (framework) Python spécialisé dans
 la création de sites et applications Web : Django_.
@@ -33,17 +34,17 @@ complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com
 Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/2.2/intro/overview/>`_
 devrait suffire.
 
-Creme utilise aussi la bibliothèque Javascript JQuery_ ; il se peut que pour
+Creme utilise aussi la bibliothèque JavaScript (JS) jQuery_ ; il se peut que pour
 programmer certaines fonctionnalités de vos modules vous deviez utiliser du
-Javascript (JS) du côté du client (navigateur Web) ; connaître JQuery serait
+(JS) du côté du client (navigateur Web) ; connaître jQuery serait
 alors un avantage. Cependant ce n'est pas obligatoire et nous utiliserons des
 exemples principalement sans JS dans le présent document.
 
-.. _Creme: http://cremecrm.com
-.. _Python: http://www.python.org
-.. _Django: http://www.djangoproject.com
-.. _JQuery: http://jquery.com
-
+.. _Creme: https://cremecrm.com
+.. _Python: https://www.python.org
+.. _git: https://git-scm.com
+.. _Django: https://www.djangoproject.com
+.. _jQuery: https://jquery.com
 
 Gestion d'un parc de castors
 ============================
@@ -65,7 +66,8 @@ Pour des raisons de brièveté, nous parlerons nous aussi d'"app" pour notre mod
 
 Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
 
- - Clone du dépôt *hg*.
+ - Fork du dépôt *git* officiel pour avoir votre dépôt.
+ - Clone de votre dépôt *git* (en se plaçant sur la branche "v2.2").
  - Configuration de votre SGBDR.
  - Configuration de votre serveur Web (le serveur de développement livré avec
    Django est un bon choix ici).
@@ -87,8 +89,8 @@ de template : ::
 Activer les *warnings* vous permettra par exemple de voir que vous utilisez
 du code obsolète (*deprecated*), ce qui vous sera utile lors vous mettrez à
 jour la version sous-jacente de Creme (ledit code obsolète étant en général
-supprimé dans la version suivante -- notez que le message vas souvent
-indiquer quelle fonction/classe utiloiser à la place). La configuration
+supprimé dans la version suivante -- notez que le message va souvent
+indiquer quelle fonction/classe utiliser à la place). La configuration
 suivante permet d'afficher les *warnings*, mais chacun une seule fois
 (ce qui évite de polluer votre terminal d'informations redondantes) : ::
 
@@ -102,6 +104,38 @@ Outils supplémentaires
 Nous vous conseillons d'utiliser l'app `django extensions <https://github.com/django-extensions/django-extensions>`_
 qui apporte des commandes supplémentaires intéressantes (``runserver_plus``,
 ``shell_plus``, ``clean_pyc``, …).
+
+
+Utilisation de git
+~~~~~~~~~~~~~~~~~~
+
+Bien que le code que vous écrirez résidera dans son propre répertoire, ce
+répertoire sera parmi les autres modules de Creme. Dans une future version de
+Creme, la séparation entre votre code et celui de Creme devrait être plus
+facile et sera documentée.
+
+Pour le moment on va se contenter de travailler dans une branche à part : ::
+
+    > git checkout -b beavers
+
+À chaque fois que vous aurez ajouté une nouvelle fonctionnalité, vous pourrez
+créer un *commit* : ::
+
+    > git commit -a
+
+À n'importe quel moment nous pouvez visualiser les modifications faites depuis
+le dernier *commit* : ::
+
+    > git diff
+
+À la fin de votre session de travail, vous pouvez sauvegarder votre travail
+dans votre  dépôt : ::
+
+    > git push origin beavers
+
+Lorsque vous voudrez resynchroniser votre code avec celui de Creme (pour
+avoir la dernière mise-à-jour mineure par exemple), il faudra passer par une
+classique phase de **rebase**.
 
 
 Création du répertoire parent
@@ -166,7 +200,7 @@ Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'ai
 
 
 Nous venons de créer notre première classe de modèle, ``Beaver``. Ce modèle correspondra
-à une table dans Système de Gestion de Base de Données (SGBD) : *beavers_beaver*.
+à une table dans notre Système de Gestion de Base de Données (SGBD) : *beavers_beaver*.
 Pour le moment, on ne stocke pour chaque castor que son nom et sa date de naissance.
 Notre modèle dérive de ``CremeEntity``, et non d'un simple ``DjangoModel`` : ceci
 permettra aux castors de disposer de Propriétés, de Relations, de pouvoir être affichés
@@ -189,15 +223,11 @@ un second fichier nommé ``__init__.py``, et qui contient : ::
 Ainsi, au démarrage de Creme, notre modèle sera importé automatiquement par Django, et
 sera notamment relié à sa table dans le SGDB.
 
-    **Note technique** : Django (et donc Creme) n'utilisant pas les imports absolus,
-    nommer notre app au pluriel, et notre fichier de modèle (et plus tard de formulaire
-    et de vue) au singulier, permet d'éviter des problèmes d'imports.
-
 
 Installer notre module
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Éditez le fichier ``creme/project_settings.py``  en y copiant depuis le fichier de
+Éditez le fichier ``creme/project_settings.py`` en y copiant depuis le fichier de
 configuration générale ``creme/settings.py`` le tuple INSTALLED_CREME_APPS. ::
 
     INSTALLED_CREME_APPS = (
@@ -358,7 +388,7 @@ fichier ``urls.py`` dans ``beaver/`` : ::
 Notez :
 
  - le dernier paramètre de ``re_path()``, qui permet de nommer notre URL. La
-   conventions Creme est de la forme 'mon_app' + '__list_' + 'mes_modeles' pour la
+   convention Creme est de la forme 'mon_app' + '__list_' + 'mes_modeles' pour la
    vue en liste.
  - le '/' final de notre URL qui est optionel (c'est la politique des URLs
    de Creme en général).
@@ -387,7 +417,7 @@ donné à la fonction ``re_path()`` utilisée dans notre ``urls.py``.
 
 Nous pouvons maintenant accéder depuis notre navigateur à la liste des castors
 en la tapant à la main dans la barre d'adresse… enfin presque. En effet on nous
-demande de créer une vue pour cette liste. Ceci fait, on arrive bien sur une
+demande de créer une vue pour cette liste. Ceci fait, on arrive bien sûr une
 liste des castors… vide. Forcément, aucun castor n'a encore été créé.
 
 
@@ -421,7 +451,7 @@ Il s'agit d'un formulaire lié à notre modèle tout simple.
 
 **Note** : la plupart des vues de création d'entité que vous trouverez dans les
 apps fournies de base par Creme n'utilisent pas de formulaire classique façon
-Django. À la place ils utilisent le système de formulaire personnalisé
+Django. À la place elles utilisent le système de formulaire personnalisé
 (CustomForm) de Creme qui permet aux utilisateurs finaux de configurer les
 champs eux-mêmes. Les CustomForms sont abordés plus loin, et on utilisera dans
 un premier temps les formulaires classiques, par simplicité.
@@ -445,7 +475,7 @@ Rajoutons l'entrée qui référence ``beaver.BeaverCreation`` dans ``beavers/url
 
 
 Il reste à mettre une méthode ``get_create_absolute_url()`` dans notre modèle,
-ainsi que les champ ``creation_label`` et  ``save_label``, qui permettent de
+ainsi que les attributs ``creation_label`` et ``save_label``, qui permettent de
 nommer correctement les éléments d'interface (bouton, menu etc…) : ::
 
     # -*- coding: utf-8 -*-
@@ -492,6 +522,9 @@ Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette URL : ::
 
 En rafraîchissant notre page dans le navigateur, nous obtenons bien la vue
 détaillée espérée.
+
+**Note** : l'icone de notre fiche ne fonctionne pas pour le moment ; ne vous
+inquiétez pas, ça sera réglé un peu plus tard.
 
 Pour que les prochaines créations de castor n'aboutissent pas sur une erreur 404,
 nous créons la méthode ``get_absolute_url()`` : ::
@@ -566,7 +599,7 @@ et nous créons tout d'abord une nouvelle entrée de niveau 2 dans l'entrée de 
                       .add(creme_menu.URLItem.list_view('beavers-beavers', model=Beaver))
 
 
-Le méthode ``get()`` permet de récupérer des éléments dans l'arborescence du menu.
+La méthode ``get()`` permet de récupérer des éléments dans l'arborescence du menu.
 Ici nous allons chercher le groupe avec l'identifiant 'features', puis dans ce
 dernier nous récupérons le conteneur avec l'identifiant 'persons-directory'.
 Si vous voulez connaître la structure du menu, il suffit de faire un
@@ -661,7 +694,6 @@ Le code est exécuté par la commande ``creme_populate``. La commande permet de 
 
 En réaffichant votre liste de castors, la deuxième vue est bien là.
 
-
 **Allons plus loin**: améliorons maintenant notre liste de castors afin de nous
 assurer que lorsqu'un utilisateur se connecte avec une session neuve, la vue par
 défaut est utilisée (sinon c'est la première par ordre alphabétique): ::
@@ -676,6 +708,41 @@ défaut est utilisée (sinon c'est la première par ordre alphabétique): ::
         default_headerfilter_id = DEFAULT_HFILTER_BEAVER  # <- NEW
 
 
+Gestion des icônes
+~~~~~~~~~~~~~~~~~~
+
+Le système d'icône va chercher dans les images du thème actif, en fonction du
+nom qu'on lui demande et en rajoutant la taille adaptée au contexte.
+
+Creme est livré avec les icônes pour les apps incluses de base. Par exemple,
+pour le thème "icecream", dans le répertoire ``creme/static/icecream/images``
+vous trouverez un fichier "alert_22.png" ; son nom d'icône est "alert" (ce nom
+est par exemple utilisé par certains *templatetags*), et le suffixe "_22" indique
+sa taille de 22 x 22 pixels.
+
+Vous pouvez ajouter vos propres icônes dans ``creme/beavers/static/THEME/images/`` ;
+(THEME est à remplacer par le nom du thème, "icecream" ou "chantilly" pour les
+thèmes fournis de base). N'oubliez pas de lancer la commande ``generatemedia``
+quand vous ajoutez des images.
+
+En plus des icônes nommées explicitement, Creme permet d'associer automatiquement
+une icône à un type de fiche. Ajoutons une méthode dans notre fichier
+``beavers/apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_icons(self, icon_registry):
+            from .models import Beaver
+
+            icon_registry.register(Beaver, 'images/contact_%(size)s.png')
+
+
+Ici on utilise l'icône des Contacts qui est fournie par défaut ; libre à vous
+d'utiliser une icône plus spécifique bien évidemment.
+
 
 Localisation (l10n)
 ~~~~~~~~~~~~~~~~~~~
@@ -683,7 +750,7 @@ Localisation (l10n)
 Jusqu'ici nous avons mis uniquement des labels en anglais. Donc même si votre
 navigateur est configuré pour récupérer les pages en français quand c'est possible,
 l'interface du module *beavers* reste en anglais. Mais nous avons toujours utilisé
-les méthodes ``gettext`` et ``gettext_lazy`` (importées en tant que '_') pour
+les fonctions ``gettext`` et ``gettext_lazy`` (importées en tant que '_') pour
 'wrapper' nos labels. Il va donc être facile de localiser notre module.
 Dans ``beavers/``, créez un répertoire ``locale``, puis lancez la commande qui
 construit le fichier de traduction (en français ici) : ::
@@ -811,9 +878,9 @@ suivante : ::
 
 Le fichier ``beavers/locale/fr/LC_MESSAGES/django.mo`` est bien généré. Si vous
 relancez le serveur Web, les différents labels apparaissent en français, pour peu
-que votre navigateur soit configuré pour, et que que le *middleware*
-'django.middleware.locale.LocaleMiddleware' soit bien dans votre ``settings.py``
-(ce qui est le cas par défaut).
+que votre navigateur et votre utilisateur soient configurés pour, et que que le
+*middleware* 'django.middleware.locale.LocaleMiddleware' soit bien dans votre
+``settings.py`` (ce qui est le cas par défaut).
 
 
 
@@ -853,7 +920,7 @@ Créez un fichier ``models/status.py`` : ::
             ordering = ('name',)
 
 
-**Notes** : l'attribut ``is_custom`` ; il sera utilisé par le module *creme_config*
+**Notes** : l'attribut ``is_custom`` sera utilisé par le module *creme_config*
 comme nous allons le voir plus tard. Il est important qu'il se nomme ainsi, et
 qu'il soit de type ``BooleanField``. Notez l'utilisation de ``set_tags()`` qui permet
 de cacher ce champ à l'utilisateur (nous reviendrons plus tard sur les tags).
@@ -862,12 +929,13 @@ pour l'utilisateur est important, puisque c'est cet ordre qui sera utilisé par
 exemple dans les formulaires (à moins que vous n'en précisiez un autre
 explicitement, évidemment).
 
-**Notes** : nous avons utilisé la fonction de traduction pgettext_lazy qui prend
-un paramètre de contexte. Cela va permettre d'éviter les éventuelles collisions
-avec des chaînes de texte dans autres applications. Le terme "status" étant vague,
-il se retroue dans d'autres apps, et ont pourraient imaginer que dans certaines langues
-(ou traductions personnalisées), la traduction soit différentes selon le cas.
-Dans Creme, nous préfixons les contextes avec le nom de l'app plus '-'.
+**Notes** : nous avons utilisé la fonction de traduction ``pgettext_lazy()``
+qui prend un paramètre de contexte. Cela va permettre d'éviter les éventuelles
+collisions avec des chaînes de texte dans autres applications. Le terme "status"
+étant vague, il se retrouve dans d'autres apps, et ont pourraient imaginer que
+dans certaines langues (ou traductions personnalisées), la traduction soit
+différente selon le cas. Dans Creme, nous préfixons les contextes avec le nom
+de l'app plus '-'.
 
 
 Modifiez *models/__init__.py* : ::
@@ -878,7 +946,7 @@ Modifiez *models/__init__.py* : ::
     from .beaver import Beaver
 
 
-Nous allons générer une première migration qui généré la table correspondante : ::
+Nous allons générer une première migration qui créé la table correspondante : ::
 
     > python creme/manage.py makemigrations beavers
 
@@ -896,9 +964,9 @@ Générer donc cette migration (notez le paramètre ``empty``) : ::
 
     > python creme/manage.py makemigrations beavers --empty
 
-Un fichier noméé en fonction de la date du jour vient d'être créé. Une fois
+Un fichier nommé en fonction de la date du jour vient d'être créé. Une fois
 celui-ci rénommé en ``0003_populate_default_status.py``, ouvrez le.
-Il devrait ressembler à ça: ::
+Il devrait ressembler à ça : ::
 
     # -*- coding: utf-8 -*-
 
@@ -1022,7 +1090,7 @@ supprimables. Les constantes créées juste avant sont les PK des 2 objets ``Sta
 que l'ont créés ; on pourra ainsi y accéder facilement plus tard.
 
 Avec la variable ``already_populated``, on s'assure que les statuts sont créés
-au premier lancement, mais que si les utilisateurs modifient le nom des statuts
+au premier déploiement, mais que si les utilisateurs modifient le nom des statuts
 dans l'interface de configuration, leurs modifications ne seront pas écrasées
 lors d'une mise à jour (et donc d'un lancement de la commande ``creme_populate``).
 
@@ -1052,7 +1120,7 @@ Si vous allez sur le portail de la 'Configuration générale', dans le
 'Portails des applications', la section 'Portail configuration Gestion des castors'
 est bien apparue : elle nous permet bien de créer des nouveaux ``Status``.
 
-**Allons un peu loin** : vous pouvez précisez les formulaire à utiliser pour
+**Allons un peu loin** : vous pouvez précisez les formulaires à utiliser pour
 créer ou modifier les statuts si ceux qui sont générés automatiquement ne vous
 conviennent pas. Ça pourrait être le cas s'il y a une contrainte métier à
 respecter, mais qui n'est pas exprimable via les contraintes habituelles des
@@ -1074,7 +1142,7 @@ Vous pouvez aussi personnaliser les URLs de création/modification (argument
 gère ce modèle (méthode ``brick_class()``).
 
 **Allons un peu loin** : si vous voulez que les **utilisateurs puissent choisir l'ordre**
-des statuts (dans les formulaire, dans la recherche rapide des vue de liste etc…),
+des statuts (dans les formulaires, dans la recherche rapide des vues de liste etc…),
 vous devez rajouter un champ ``order`` comme ceci : ::
 
     # -*- coding: utf-8 -*-
@@ -1107,17 +1175,19 @@ vous occuper de lui.
 Faire apparaître notre modèle dans la recherche rapide comme meilleur résultat
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Nous avons précédemment configuré les champs sur lesquels chercher dans nos instances de Beaver ;
-ainsi lorsqu'on fait une recherche globale (en haut à droite dans le menu), et que l'on va dans
-«Tous les résultats», les castors trouvés (s'il y en a) sont bien dans un bloc de résultat.
+Nous avons précédemment configuré les champs sur lesquels chercher dans nos
+instances de Beaver ; ainsi lorsqu'on fait une recherche globale (en haut à
+droite dans la barre de menu), et que l'on va dans «Tous les résultats», les
+castors trouvés (s'il y en a) sont bien dans un bloc de résultat.
 
-Si vous voulez que les castors apparaissent plus souvent dans les résultats rapides de recherche
-(la liste de résultats qui apparaît en temps réel quand vous tapez dans le champ de recherche)
-en tant que meilleur résultat, il vous faut mettre une valeur élevé à l'attribut ``search_score``
-de votre modèle ``Beaver``. Dans Creme, de base, le modèle ``Contact`` a une valeur de 101.
-Donc si vous mettez un score plus élevé, lorsqu'une chaîne recherchée va à la fois être trouvée
-dans (au moins) un contact et un castor, c'est le castor qui sera priviligié, et il apparaîtra
-donc en tant que meilleur résultat : ::
+Si vous voulez que les castors apparaissent plus souvent dans les résultats
+rapides de recherche (la liste de résultats qui apparaît en temps réel quand
+vous tapez dans le champ de recherche) en tant que meilleur résultat, il vous
+faut mettre une valeur élevé à l'attribut ``search_score`` de votre modèle
+``Beaver``. Dans Creme, de base, le modèle ``Contact`` a une valeur de 101.
+Donc si vous mettez un score plus élevé, lorsqu'une chaîne recherchée va à
+la fois être trouvée dans (au moins) un contact et un castor, c'est le castor
+qui sera privilégié, et il apparaîtra donc en tant que meilleur résultat : ::
 
     [...]
 
@@ -1136,12 +1206,14 @@ relier des fiches entre elles, filtrer dans les vues en liste, créer des blocs
 associés à ce type de relation…
 
 S'il est souhaitable que certains types soient disponibles immédiatement après
-le déploiement, alors on va plutôt créer ces types dans notre script ``beavers/populate.py``.
-Nous allons créer un type de relation reliant un vétérinaire (contact) et un castor ;
-en fait on va créer 2 types qui sont symétriques : «le castor a pour vétérinaire» et
+le déploiement, alors on va plutôt créer ces types dans notre script
+``beavers/populate.py``. Nous allons créer un type de relation reliant un
+vétérinaire (contact) et un castor ; en fait on va créer 2 types qui sont
+symétriques : «le castor a pour vétérinaire» et
 «le vétérinaire s'occupe du castor».
 
-Premièrement, modifions ``beavers/constants.py``, pour rajouter les 2 clés primaires : ::
+Premièrement, modifions ``beavers/constants.py``, pour rajouter les 2 clés
+primaires : ::
 
     [...]
 
@@ -1190,15 +1262,17 @@ Puis ``beavers/populate.py`` : ::
             (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact], [VeterinaryPType]),
         )
 
-Les types de relations créés ne sont pas supprimables via l'interface de configuration
-(l'argument ``is_custom`` de ``RelationType.create()`` étant par défaut à ``False``), ce qui est
-généralement ce qu'on veut.
+Les types de relations créés ne sont pas supprimables via l'interface de
+configuration (l'argument ``is_custom`` de ``RelationType.create()`` étant par
+défaut à ``False``), ce qui est généralement ce qu'on veut.
 
-**Allons un peu loin** : dans certain cas, on veut contrôler finement la création et la suppression
-des relations ayant un certain type, à cause de règles métiers particulières. Par exemple on veut
-qu'une des fiches à relier ait telle valeur pour un champ, ou que seuls certains utilisateurs
-puissent supprimer ces relations là. La solution consiste à déclarer ces types comme internes ;
-les vues de création et de suppression génériques des relations ignorent alors ces types : ::
+**Allons un peu loin** : dans certain cas, on veut contrôler finement la
+création et la suppression des relations ayant un certain type, à cause de
+règles métiers particulières. Par exemple on veut qu'une des fiches à relier
+ait telle valeur pour un champ, ou que seuls certains utilisateurs puissent
+supprimer ces relations là. La solution consiste à déclarer ces types comme
+internes ; les vues de création et de suppression génériques des relations
+ignorent alors ces types : ::
 
         RelationType.create(
             (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
@@ -1206,10 +1280,11 @@ les vues de création et de suppression génériques des relations ignorent alor
             is_internal=True,
         )
 
-C'est alors à vous d'écrire le code de création et de suppression de ces types. Pour la création,
-classiquement, on créera la relation dans le formulaire de création d'une fiche (ex: on assigne
-un vétérinaire à la création d'un castor), ou bien dans une vue spécifique (ex: un bloc qui
-affiche les vétérinaires associés, et qui permet d'en ajouter/enlever).
+C'est alors à vous d'écrire le code de création et de suppression de ces types.
+Pour la création, classiquement, on créera la relation dans le formulaire de
+création d'une fiche (ex: on assigne un vétérinaire à la création d'un castor),
+ou bien dans une vue spécifique (ex: un bloc qui affiche les vétérinaires
+associés, et qui permet d'en ajouter/enlever).
 
 
 Utilisation des blocs
@@ -1225,8 +1300,8 @@ Quelques explications générales
 ou sur l'accueil, alors le bloc devrait être configurable ; c'est-à-dire que dans
 la configuration des blocs (Menu > Configuration > Blocs), les utilisateurs pourront
 définir la présence et la position de votre bloc. Ce dernier doit donc fournir des
-des informations utiles à l'interface de configuration, comme son nom ou bien sur
-quels types de fiche le bloc peut être affiché (pour les vues détaillés).
+des informations utiles à l'interface de configuration, comme son nom ou bien sûr
+sur quels types de fiche le bloc peut être affiché (pour les vues détaillés).
 Dans le cas où votre bloc est situé sur une vue spécifique, c'est cette dernière
 qui fournira la liste des blocs à afficher ; la liste sera donc définie par le code
 (à moins que vous codiez un système de configuration "maison" de cette vue évidemment).
@@ -1262,7 +1337,6 @@ Nous allons faire un simple bloc qui affiche l'anniversaire et l'age d'un castor
 Notez que dans la section `Champs fonctions`_ on écrit un champ fonction
 qui fait la même chose (pour l'age), mais de manière réutilisable, notamment
 dans un bloc personnalisable ; c'est donc une meilleure approche dans l'absolu.
-
 
 Créez le fichier ``creme/beavers/bricks.py`` : ::
 
@@ -1410,8 +1484,8 @@ l'installation, il faut s'en occuper dans notre fichier ``beavers/populate.py`` 
 Utilisation des boutons
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Des boutons peuvent être disposés dans les vues détaillées, juste en dessous de
-la barre de titre, où se trouve le nom de la fiche visionnée. Ces boutons peuvent
+Des boutons peuvent être disposés dans les vues détaillées, juste en dessous du
+la bloc de titre, où se trouve le nom de la fiche visionnée. Ces boutons peuvent
 généralement être affichés ou non selon la configuration.
 
 Utilisons donc cette fonctionnalité pour créer un ``Ticket`` (venant de l'app
@@ -1544,7 +1618,6 @@ Il faut enregistrer notre bouton avec les autres boutons de Creme, afin que
 
 
 Si nous allons dans le menu de configuration (le petit rouage), puis 'Menu bouton',
-(note: 'Configuration générale' puis 'Gestion du menu bouton' dans le vieux menu)
 et que nous éditons la configuration d'un type autre que Castor, notre bouton
 n'est pas proposé (c'est ce que nous voulions). En revanche, il est bien proposé
 s'il l'on créé une configuration pour le type Castor. Ajoutons le sur cette
@@ -1569,8 +1642,8 @@ de création rapide des Sociétés n'a que 2 champs ("nom" et "propriétaire").
 Ces formulaires sont aussi utilisés dans certains *widgets* de sélection de fiche,
 qui permettent de créer des fiches à la volée.
 
-Dans ``forms/beaver.py``, ajoutons une classe de formulaire, elle doit dériver
-de la classe ``CremeEntityQuickForm``  : ::
+Dans ``forms/beaver.py``, ajoutons une classe de formulaire ; elle doit dériver
+de la classe ``CremeEntityQuickForm`` : ::
 
     [...]
 
@@ -1596,6 +1669,7 @@ telle que : ::
 
         def register_quickforms(self, quickforms_registry):  # <- NEW
             from .forms.beaver import BeaverQuickForm
+            from .models import Beaver
 
             quickforms_registry.register(Beaver, BeaverQuickForm)
 
@@ -1613,11 +1687,13 @@ Formulaires personnalisés (CustomForms)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Comme évoqué lors de la création de nos premières vues avec formulaire, Creme
-utilise généralement pour ses propres entités des formulaires que les utilisateurs
-finaux peuvent configurer graphiquement : les champs personnalisés.
+utilise généralement pour ses propres entités des formulaires que les
+utilisateurs finaux peuvent configurer graphiquement : les formulaires
+personnalisés.
 
-Nous allons ici faire un CustomForm simple pour créer nos castors. Tout d'abord, à la
-racine de notre app (``beavers/`` donc), nous créons le fichier ``custom_forms.py`` : ::
+Nous allons ici faire un CustomForm simple pour créer nos castors. Tout
+d'abord, à la racine de notre app (``beavers/`` donc), nous créons le fichier
+``custom_forms.py`` : ::
 
     # -*- coding: utf-8 -*-
 
@@ -1633,10 +1709,9 @@ racine de notre app (``beavers/`` donc), nous créons le fichier ``custom_forms.
         verbose_name=_('Creation form for beaver'),
     )
 
-Attention a bien lui donner un identifiant unique ; en préfixant par
-le nom de notre app on est tranquille.
-Dans notre fichier ``populate.py``, nous allons indiquer les champs
-utilisés de base dans notre formulaire personnalisé : ::
+Attention a bien lui donner un identifiant unique ; en préfixant par le nom de
+notre app on est tranquille. Dans notre fichier ``populate.py``, nous allons
+indiquer les champs utilisés de base dans notre formulaire personnalisé : ::
 
     [...]
 
@@ -1658,7 +1733,7 @@ utilisés de base dans notre formulaire personnalisé : ::
                     {
                         'name': _('General information'),
                         'cells': [
-                            # NB: Adaptez en fonction des champs de votre modèle évidemment
+                            # NB: adaptez en fonction des champs de votre modèle évidemment
                             (EntityCellRegularField, {'name': 'user'}),
                             (EntityCellRegularField, {'name': 'name'}),
                             (EntityCellRegularField, {'name': 'birthday'}),
@@ -1746,10 +1821,10 @@ Champs fonctions
 
 Ce sont des champs qui n'existent pas en base de données, et qui permettent
 d'effectuer des calculs ou des requêtes afin de présenter des informations
-utiles aux utilisateurs. Ils sont être disponibles dans les vues en liste et
-les blocs personnalisés.
+utiles aux utilisateurs. Ils sont disponibles dans les vues en liste et les
+blocs personnalisés.
 
-Dans notre exemple le champ fonction affichera l'age dun castor. Créez un
+Dans notre exemple, le champ fonction affichera l'âge d'un castor. Créez un
 fichier ``function_fields.py`` : ::
 
     from datetime import date
@@ -1773,14 +1848,14 @@ fichier ``function_fields.py`` : ::
             )
 
 
-L'attribut ``name`` sera utilisé comme identifiant ; L'attribut ``verbose_name``
+L'attribut ``name`` sera utilisé comme identifiant. L'attribut ``verbose_name``
 sera utilisé par exemple dans la vue de liste comme titre de colonne (comme
 l'attribut homonyme des champs classiques des modèles par exemple).
 
 **Note** : le resultat doit être du type ``FunctionFieldResult`` (ou d'une de ses
 classes filles, comme ``FunctionFieldDecimal`` ou ``FunctionFieldResultsList``),
 qui est la valeur par défaut de ``FunctionField.result_type`` ; ce type va
-permettre de formatter coorectement la valeur, selon qu'on affiche du HTML
+permettre de formatter correctement la valeur, selon qu'on affiche du HTML
 ou qu'on exporte du CSV.
 
 Puis dans votre ``apps.py``, ajoutez la méthode ``register_function_fields()``
@@ -1807,11 +1882,11 @@ colonne des vues en liste correspondant à votre ``FunctionField``. Pour cela,
 il faut renseigner l'attribut de classe ``search_field_builder`` avec une classe
 dérivant de ``creme.creme_core.forms.listview.ListViewSearchField``. Il s'agit
 globalement d'un champ de formulaire (qui possède notamment un widget associé)
-mais donc la méthode ``to_python()`` va renvoyer une instance de
+mais dont la méthode ``to_python()`` va renvoyer une instance de
 ``django.db.models.query_utils.Q``. Vous trouverez des exemples d'utilisation
 dans les fichiers suivants :
 
-- ``creme/creme_core/function_fields.py`` : on peut chercher  les entités ayant
+- ``creme/creme_core/function_fields.py`` : on peut chercher les entités ayant
   une Propriété parmi une liste de Propriétés disponibles.
 - ``creme/assistants/function_fields.py`` : on peut chercher les entités ayant
   une Alerte via son titre.
@@ -1820,7 +1895,7 @@ dans les fichiers suivants :
 Recherche dans la vue de liste
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Dans le pararaphe précédant, on a expliqué comment coder dans une vue en liste
+Dans le paragraphe précédant, on a expliqué comment coder dans une vue en liste
 une recherche relative à un champ fonction. Il est en fait possible de faire la
 même chose pour tout type de colonne. Des champs de recherche sont définis par
 défaut (voir ``creme/creme_core/gui/listview/search.py``), mais vous pouvez
@@ -1903,7 +1978,7 @@ Dans les vues de liste des fiches, il y a une colonne permettant de déclencher
 des actions (ex: cloner une fiche). Sur chaque ligne, on trouve un menu pour
 effectuer des actions relatifs à la fiche correspond à cette ligne ; et dans
 l'entête de la liste se trouve un menu avec les actions opérant sur plusieurs
-fiche en même temps.
+fiches en même temps.
 
 Il est possible de créer ses propres actions ; elles pourront être disponibles
 pour toutes les fiches (en les associant au modèle ``CremeEntity``) ou bien
@@ -1951,12 +2026,12 @@ Quelques explications :
   modèle specifique, car cela n'a pas de sens pour les autres types de fiches.
 - ``type`` : va déterminer le comportement de l'action dans l'interface ; créer
   de nouveaux type nécessite d'écrire du JavaScript (ce qui sort du périmètre de
-  cet exemple simple). Ici, le type "download" est fourni de base est permet de rediriger
+  cet exemple simple). Ici, le type "download" est fourni de base et permet de rediriger
   vers une URL (il est donc souvent utilisé).
-- ``icon`` :  nom de l'icone à utiliser à coté du ``label`` dans l'interface ;
+- ``icon`` :  nom de l'icône à utiliser à coté du ``label`` dans l'interface ;
   attention c'est bien Creme qui génère le nom du fichier final du genre
   "download_22.png".
-- ``is_enabled()`` : dans le as ou on retourne ``False``, l'entrée est désactivée.
+- ``is_enabled()`` : dans le cas ou on retourne ``False``, l'entrée est désactivée.
 
 **Notes** : la vue avec le nom "beavers__barcode" resterait à écrire évidemment,
 mais ce n'est pas l'objet de cet exemple.
@@ -1976,7 +2051,7 @@ Reste à déclarer notre action dans notre ``apps.py`` : ::
             )
 
 
-**Un peu plus loin** : pour faire une action qui s'éxcute sur plusieurs fiches,
+**Un peu plus loin** : pour faire une action qui s'exécute sur plusieurs fiches,
 une classe d'action doit dériver de ``creme.creme_core.gui.actions.UIAction``
 et s'enregistre avec ``actions_registry.register_bulk_actions``.
 
@@ -1984,7 +2059,7 @@ et s'enregistre avec ``actions_registry.register_bulk_actions``.
 Modifier les apps existantes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-C'est un besoin courant de vouloir modifier le comportement des apps existantes ;
+C'est un besoin courant de vouloir modifier le comportement des apps existantes.
 Si tant d'entreprises écrivent leur propre CRM c'est bien car il est difficile
 pour ce genre d'application de prendre en compte tous les besoins spécifiques
 possibles.
@@ -2030,7 +2105,7 @@ la méthode ``ForeignKey.formfield()`` (définie dans Django) : ::
 
             from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-            # Ici on stocke même la méthode originelle....
+            # Ici on stocke la méthode originelle....
             original_fk_formfield = ForeignKey.formfield
 
             def new_fk_formfield(self, **kwargs):
@@ -2124,7 +2199,8 @@ du menu, afin de connaître les différents identifiants et priorités des
     creme_menu.get('features', 'persons-directory', 'persons-contacts').label = _('List of contacts')
 
 
-**Modifier l'ordre** d'un ``Item`` (cela marche aussi si cet ``Item`` est un ``ContainerItem``) : ::
+**Modifier l'ordre** d'un ``Item`` (cela marche aussi si cet ``Item`` est un
+``ContainerItem``) : ::
 
     creme_menu.get('features', 'persons-directory').change_priority(1, 'persons-contacts')
 
@@ -2134,7 +2210,7 @@ du menu, afin de connaître les différents identifiants et priorités des
     creme_menu.get('features', 'persons-directory').remove('persons-contacts', 'commercial-salesmen')
 
 
-**Transférer une entrée** d'un container vers un autre. En fait, on combine
+**Transférer une entrée** d'un *container* vers un autre. En fait, on combine
 juste un ajout et une suppression : ::
 
     features = creme_menu.get('features')
@@ -2162,11 +2238,15 @@ le suggère, ces fonctions (*callbacks*) sont respectivement appelées après le
 appels à __init__(), clean() et save(). Ces *callbacks* doivent avoir un et un
 seul paramètre, l'instance du formulaire.
 
+**Notes** : avec les formulaires personnalisés et les classes de formulaire
+déclarées comme des attributs de classe des vues, le *hooking* de classes de
+formulaires classique est devenu beaucoup moins utile.
+
 Le plus simple est de *hooker* les formulaires voulus depuis le ``apps.py``,
 d'une de vos apps personnelles (comme *beavers*), dans la méthode
-``all_apps_ready()``. Ici un exemple qui rajoute un champ dans le formulaire des
-Contacts (notez qu'il faudrait aussi *hooker* la méthode ``save()`` pour
-utiliser ce champ ; cet exercice est laissé au lecteur) : ::
+``all_apps_ready()``. Ici un exemple qui rajoute un champ dans le formulaire
+de creation des utilisateurs (notez qu'il faudrait aussi *hooker* la méthode
+``save()`` pour utiliser ce champ ; cet exercice est laissé au lecteur) : ::
 
     # -*- coding: utf-8 -*-
 
@@ -2185,12 +2265,12 @@ utiliser ce champ ; cet exercice est laissé au lecteur) : ::
 
             # NB: on fait les import des autres apps ici pour éviter les
             #     problème d'ordre de chargement.
-            from creme.persons.forms.contact import ContactForm
+            from creme.creme_config.forms.user import UserAddForm
 
             def add_my_field(form):
                 form.fields['loves_beavers'] = BooleanField(required=False, label=_('Loves beavers?'))
 
-            ContactForm.add_post_init_callback(add_my_field)
+            UserAddForm.add_post_init_callback(add_my_field)
 
         [...]
 
@@ -2204,18 +2284,7 @@ qui est plus classique.
 **Note technique** : en raison du moment où les *callbacks* sont appelées, il
 est tout à fait possible, selon le formulaire qui vous préoccupe, que vous ne
 puissiez pas faire ce que vous voulez (par exemple avoir accès à un champ créé
-après l'appel à la *callbacks*. Cela reste donc un moyen simple mais limité ;
-pour des changements plus ambitieux vous devrez vous rabattre sur des méthodes
-plus avancées:
-
- - Utiliser le *monkey patching* sur le formulaire concerné
-   (comme vu précédemment).
- - Définir votre propre modèle personnalisé (Contact dans notre exemple), ce qui
-   oblige à définir les vues de base sur celui-ci. On peut alors aisément
-   définir notre propre vue et utiliser notre propre formulaire, quitte à ce
-   qu'il dérive du formulaire qu'ont veut améliorer. C'est plus propre mais
-   nécessite plus de travail. Nous verrons cela plus loin dans le chapitre
-   `Modification d'un modèle existant`_
+après l'appel à la *callbacks*).
 
 
 Surcharge des templates
@@ -2244,7 +2313,8 @@ variable suivante : ::
                 ...
 
                 'loaders': [
-                    ('django.template.loaders.cached.Loader', ( #Don't use cached loader when developping (in your local_settings.py)
+                    # Don't use cached loader when developing (in your local_settings.py)
+                    ('django.template.loaders.cached.Loader',
                         'django.template.loaders.filesystem.Loader',
                         'django.template.loaders.app_directories.Loader',
                     )),
@@ -2269,10 +2339,10 @@ Surcharge de label
 ******************
 
 Il est assez courant de vouloir personnaliser certains labels ; par exemple,
-vouloir remplacer les occurrences de 'Société' par 'Association'.
+vouloir remplacer les occurrences de 'Société' par 'Collectivité'.
 
-Dans le répertoire ``creme/``, il faut lancer la commande suivante (notez que
-'organisation' est le terme utilisé en anglais pour 'société') : ::
+Il faut lancer la commande suivante (notez que 'organisation' est le terme
+utilisé en anglais pour 'société') : ::
 
     > python creme/manage.py i18n_overload -l fr organisation Organisation
 
@@ -2293,7 +2363,7 @@ Modification d'un modèle existant
 Il arrive aussi régulièrement de vouloir modifier un modèle existant, fourni de
 base par Creme, par exemple ajouter des champs à Contact, ou bien en supprimer.
 
-Dans le cas où vous voulez ajouter des champs, la méthode la plus simple est
+Dans le cas où vous voulez **ajouter des champs**, la méthode la plus simple est
 d'utiliser des champs personnalisés (Custom fields), que vous pouvez ajouter
 depuis l'interface, dans la configuration générale. Le problème est qu'il n'est
 pas (encore) possible d'ajouter des règles métier à ces champs, comme calculer
@@ -2306,15 +2376,15 @@ de l'app ``persons`` avec des informations de localisation géographique. Il
 faudra sûrement utiliser en plus d'autres techniques afin d'obtenir le résultat
 escompté :
 
- - Utilisation de signaux django (``pre_save``, ``post_save`` …).
+ - Utilisation de signaux Django (``pre_save``, ``post_save`` …).
  - `Hooking des formulaires`_ (vu précédemment)
 
 
-Dans le cas où vous souhaitez cacher des champs, rappelez vous que bon nombre de
-champs sont marqués comme optionnel, et peuvent être cachés en allant dans la
-configuration générale ("Configuration des champs").
+Dans le cas où vous souhaitez **cacher des champs**, rappelez vous que bon
+nombre de champs sont marqués comme optionnel, et peuvent être cachés en allant
+dans la configuration.
 
-En dernier recours, si vous souhaitez vraiment pouvoir modifiez un modèle
+**En dernier recours**, si vous souhaitez vraiment pouvoir modifiez un modèle
 existant, il reste la possibilité de le *swapper*. Il faut cependant que le
 modèle soit *swappable* ; c'est le cas de toutes les classes dérivant de
 ``CremeEntity`` ( ``Contact``, ``Organisation``, ``Activity`` …) ainsi que
@@ -2323,7 +2393,7 @@ modèle soit *swappable* ; c'est le cas de toutes les classes dérivant de
 Dans un premier temps, considérons que vous voulez effectuez ce *swapping* en
 début de projet ; c'est-à-dire que vous n'avez pas une base de données en
 production utilisant le modèle de base que vous voulez modifier. En gros, vous
-êtres en début de développement et savez déjà que vous voulez modifiez ce modèle.
+êtes en début de développement et savez déjà que vous voulez modifiez ce modèle.
 
 Nous allons prendre comme exemple que vous voulez *swapper* ``tickets.Ticket``.
 
@@ -2351,7 +2421,7 @@ Notre ``AppConfig`` va déclarer que l'on étend ``tickets`` : ::
         credentials  = CremeAppConfig.CRED_NONE  # <= et ICI !!
 
 
-Dans le ``models.py``, il faut déclarer un modèle qui va se substituer à
+Dans ``models.py``, il faut déclarer un modèle qui va se substituer à
 ``tickets.models.Ticket``. Le plus facile étant de dériver de
 ``tickets.models.AbstractTicket`` (sachant que toutes les entités utilisent un
 schéma similaire). Il est important de garder ``Ticket`` comme nom de modèle,
@@ -2419,8 +2489,8 @@ définir votre modèle personnalisé, il faut fournir nos propres URLs qui sont
 sûres de fonctionner.
 
 Dans notre cas, les vues de base devraient tout à fait suffire (les formulaires
-seront assez intelligents pour utiliser votre nouveau champ), et donc nous
-pouvons définir ``my_tickets/urls.py`` tel que : ::
+seront assez intelligents pour utiliser les nouveaux champs éditables par
+exemple), et donc nous pouvons définir ``my_tickets/urls.py`` tel que : ::
 
     # -*- coding: utf-8 -*-
 
@@ -2441,14 +2511,14 @@ pouvons définir ``my_tickets/urls.py`` tel que : ::
 éviter de faire des erreurs, Creme vérifie au lancement que toutes les URLs
 *swappées* ont bien été définies ailleurs.
 
-Dans des cas plus complexes, vous voudrez sûrement utiliser vos propres formulaire
-ou template. Il en vous reste plus qu'à définir vos propres vues quand c'est
-nécessaire. Gardez à l'esprit qu'il vaut mieux copier/coller le moins de chose
-possible ; les apps de base fournissent des vues abstraites qui vous permettront
-en général de passer les arguments qui vous arrangent. Par exemple, si vous
-voulez définir la vue de création de ``my_tickets.Ticket`` avec votre propre formulaire
-(dont l'écriture n'est pas traité ici, vous savez déjà le faire), vous pourriez
-écrire quelque chose comme ça : ::
+Dans des cas plus complexes, vous voudrez sûrement utiliser vos propres
+formulaires ou templates. Il en vous reste plus qu'à définir vos propres vues
+quand c'est nécessaire. Gardez à l'esprit qu'il vaut mieux copier/coller le
+moins de chose possible ; les apps de base fournissent des vues sous la forme
+de classes qui peuvent être facilment étendues. Par exemple, si vous voulez
+définir la vue de création de ``my_tickets.Ticket`` avec votre propre
+formulaire (dont l'écriture n'est pas traité ici, vous savez déjà le faire),
+vous pourriez écrire quelque chose comme ça : ::
 
     # -*- coding: utf-8 -*-
 
@@ -2478,14 +2548,14 @@ de base n'ont aucune garantie de fonctionner correctement. Utilisez donc ces
 variables avec précaution.
 
 **Comment swapper un modèle à posteriori ?** c'est-à-dire que vous avez une
-installation en production, et vous vous apercevez  que pour faire ce que vous
+installation en production, et vous vous apercevez que pour faire ce que vous
 voulez, vous devez *swapper* un modèle (et donc c'est la version non *swappée*
 qui est utilisée dans votre code/base actuellement).
 
 Attention ! Vous devriez évidemment tester les étapes suivantes sur un duplicata
 de votre base de données de production, et toujours avoir une sauvegarde de votre
 base de production avant d'appliquer les modifications dessus (c'est valable de
-manière générale, mais 'est d'autant plus vrai que les manipulations suivantes
+manière générale, mais c'est d'autant plus vrai que les manipulations suivantes
 sont assez sensibles).
 
 
@@ -2522,10 +2592,6 @@ sont assez sensibles).
 #. Comme nous l'avons vu, il faut gérer les vues de notre nouveau modèle.
 
 
-À ce moment, votre installation devrait être fonctionnelle ; si vous étiez parti
-d'une installation 1.6, il vous reste encore à ajouter les nouveaux champs.
-
-
 Masquage des URLs existantes
 ****************************
 
@@ -2538,6 +2604,10 @@ un cas différent :
 - vous n'avez pas *swappé* le modèle concerné, et ne voulez pas le faire
   juste pour modifier une vue.
 - la vue en question n'est pas à re-définir en *swappant* un quelconque modèle.
+
+**Remarque**: avec les vues sous forme de classes, il y a, comme vu précédemment,
+divers moyens de modifier une vue existante depuis votre app, sans avoir besoin
+de la réécrire totalement.
 
 Dans la mesure où les URLs sont nommées dans les différents ``urls.py``, si votre
 app est avant (comprendre: dans ``settings.INSTALLED_CREME_APPS``) l'app qui
@@ -2552,41 +2622,50 @@ Par exemple, vous voulez modifier la vue de création d'un mémo. Dans
     [...]
 
     urlpatterns = [
-        re_path(r'^memo/', include([
-            re_path(r'^add/(?P<entity_id>\d+)[/]?$',
+        re_path(
+            r'^memo/',
+            include([
+                re_path(
+                    r'^add/(?P<entity_id>\d+)[/]?$',
                     memo.MemoCreation.as_view(),
                     name='assistants__create_memo',
-                   ),
-            [...]
-        ])),
+                ),
+                [...]
+            ])),
 
         [...]
     ]
 
 
 Dans votre app (qui doit être avant ``creme.assistants.py`` dans
-``settings.INSTALLED_CREME_APPS``, vous déclarez donc l'URL suivante : ::
+``settings.INSTALLED_CREME_APPS``), vous déclarez donc l'URL suivante : ::
 
     urlpatterns = [
-        re_path(r'^my_memo/add/(?P<entity_id>\d+)[/]?$', views.MyMemoCreation.as_view(), name='assistants__create_memo'),
+        re_path(
+            r'^my_memo/add/(?P<entity_id>\d+)[/]?$',
+            views.MyMemoCreation.as_view(),
+            name='assistants__create_memo',
+        ),
 
         [...]
     ]
 
-Cela fonctionnera très bien, mais il existe un problème potentiel : l'URL d'origine
-existe toujours (c'est juste que l'interface de Creme se servira de la vôtre). Ce qui veut
-dire qu'on peut toujours accéder à la vue qu'on veut masquer. On peut penser à une application
-externe dont le code n'aurait pas été modifié, ou bien un utilisateur malveillant. Donc
-si par exemple la vue masquée permet des actions qui devraient être interdites (votre vue fait
-des vérifications supplémentaires), et ne se contente pas de proposer une ergonomie
-améliorée, alors il faut aller un peu plus loin, en utilisant exactement la même URL (et pas
-seulement son nom dans Creme).
+Cela fonctionnera très bien, mais il existe un problème potentiel : l'URL
+d'origine existe toujours (c'est juste que l'interface de Creme se servira de
+la vôtre). Ce qui veut dire qu'on peut toujours accéder à la vue qu'on veut
+masquer. On peut penser à une application externe dont le code n'aurait pas été
+modifié, ou bien un utilisateur malveillant. Donc si par exemple la vue masquée
+permet des actions qui devraient être interdites (votre vue fait des
+vérifications supplémentaires), et ne se contente pas de proposer une ergonomie
+améliorée, alors il faut aller un peu plus loin, en utilisant exactement la
+même URL (et pas seulement son nom dans Creme).
 
-Par défaut, les URLs de votre app commencent par le nom de celle-ci. Mais nous pouvons préciser
-explicitement ce préfixe, pour utiliser le même que l'app ``assistants``. Comme cela va
-concerner l'ensemble des URLs de votre app, il va être plus propre de faire une app minimale
-qui ne fera que ça. Créez donc une app ``my_assistants`` ; dans son fichier ``my_assistants/apps.py``,
-nous allons préciser le préfixe des URLs de cette manière : ::
+Par défaut, les URLs de votre app commencent par le nom de celle-ci. Mais nous
+pouvons préciser explicitement ce préfixe, pour utiliser le même que l'app
+``assistants``. Comme cela va concerner l'ensemble des URLs de votre app, il va
+être plus propre de faire une app minimale qui ne fera que ça. Créez donc une
+app ``my_assistants`` ; dans son fichier ``my_assistants/apps.py``, nous allons
+préciser le préfixe des URLs de cette manière : ::
 
     [...]
 
@@ -2613,21 +2692,21 @@ Puis dans ``my_assistants/urls.py`` : ::
     ]
 
 
-Cette méthode reste fragile, puisque si l'URL masquée vient à changer lors d'une version (majeure)
-ultérieure de Creme, votre vue ne la masquera plus sans que cela ne déclenche d'erreur (les 2 URLs
-cohabiteront). Il faudra donc l'utiliser avec parcimonie et faire attention lors des mises à jour.
+Cette méthode reste fragile, puisque si l'URL masquée vient à changer lors
+d'une version (majeure) ultérieure de Creme, votre vue ne la masquera plus
+sans que cela ne déclenche d'erreur (les 2 URLs cohabiteront). Il faudra donc
+l'utiliser avec parcimonie et faire attention lors des mises à jour.
 
-
-**Cas spécifique: suppression d'une focntionnalité** : dans certains cas vous
+**Cas spécifique: suppression d'une fonctionnalité** : dans certains cas vous
 voudrez qu'une vue définie de base par Creme soit désactivée.
 Par exemple, vous voulez que les Mémos soient uniquement créées par un Job
 qui les importent depuis un ERP. Pour faire ça correctement il faut que les
 vues de création de Mémos ne puissent plus être accédées.
 
-Vous devriez en plus du masqauge d'URL enlever les éventuels entrées de menu
-et autres boutons qui envoient vers ces vues de création, afin de ne pas polluer
-l'interface utilisateur avec des choses inutiles ; mais c'est étudié dans
-d'autres parties de ce document.
+Vous devriez en plus du masquage d'URL enlever les éventuels entrées de menu
+et autres boutons qui envoient vers ces vues de création, afin de ne pas
+polluer l'interface utilisateur avec des choses inutiles ; mais c'est étudié
+dans d'autres parties de ce document.
 
 Creme vous fournit une vue générique qui va renvoyer à l'utilisateur une page
 d'erreur : ::
@@ -2637,12 +2716,11 @@ d'erreur : ::
     from creme.creme_core.views.generic.placeholder import ErrorView
 
     urlpatterns = [
-        # Notez que l'URL doit être la même que l'original.
-        # Dans notre cas, plus de 'my_memo/', remplacé par un 'memo/' comme dans "assistants"
-        re_path(r'^memo/add/(?P<entity_id>\d+)[/]?$',
-                ErrorView.as_view(message='Memo are only created by ERP.'),
-                name='assistants__create_memo',
-               ),
+        re_path(
+            r'^memo/add/(?P<entity_id>\d+)[/]?$',
+            ErrorView.as_view(message='Memo are only created by ERP.'),
+            name='assistants__create_memo',
+        ),
     ]
 
 
@@ -2663,24 +2741,24 @@ Exemple d'utilisation (avec 2 tags configurés en même temps) : ::
         internal_data = CharField('Data', max_length=100).set_tags(viewable=False, clonable=False)
 
 
-Listes des *tags* et leur utilité:
+Liste des *tags* et leur utilité :
 
  - ``viewable``: les champs d'informations classiques (``IntegerField``,
-   ``TextField``, …) sont visible par l'utilsateur. Or, parfois on souhaite
-   stocker des informations internes que l'utilisateurs ne devraient pas voir.
+   ``TextField``, …) sont visibles par l'utilisateur. Or, parfois on souhaite
+   stocker des informations internes que les utilisateurs ne devraient pas voir.
    Il suffit de mettre ce *tag* à ``False``, et il sera caché dans toute
    l'application.
  - ``clonable``: en mettant ce *tag* à ``False``, la valeur du champ n'est pas
    copiée lorsque l'entité est clonée.
  - ``optional``: en mettant ce *tag* à ``True``, le champ peut être caché par
-   l'utilisation dans la "Configuration des champs" de la "Configuration générale".
-   Le champs est alors enlevé des formulaires ; il est donc évident que le champ
-   doit supporter de ne pas être rempli par les formulaires sans provoquer
-   d'erreur ; par exemple en étant ``nullable`` ou avoir une valeur pour ``default``.
+   l'utilisateur dans la configuration des champs. Le champ est alors enlevé
+   des formulaires ; il est donc évident que le champ doit supporter de ne pas
+   être rempli par les formulaires sans provoquer d'erreur ; par exemple en
+   étant ``nullable`` ou avoir une valeur pour ``default``.
  - ``enumerable``: lorsqu'une ``ForeignKey`` a ce *tag* positionné à ``False``
    (la valeur par défaut étant ``True``), Creme considère que cette FK peut
    prendre une infinité de valeurs, et ces valeurs ne devraient donc jamais
-   être présentées en tant que choix, dans les filtres notamment.
+   être présentées en tant que choix, dans les filtres par exemple.
 
 
 Modification champ à champ
@@ -2762,8 +2840,8 @@ suivantes :
 Import de fichiers CSV
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Si vous souhaitez que votre modèle d'entité puisse être importé via des fichiers
-CSV/XLS, vous devez rajouter dans votre ``apps.py`` : ::
+Si vous souhaitez que votre modèle d'entité puisse être importé via des
+fichiers CSV/XLS, vous devez rajouter dans votre ``apps.py`` : ::
 
     [...]
 
@@ -2785,35 +2863,34 @@ Fusion de 2 fiches
 
 Si vous voulez rendre un type d'entité fusionnable, regardez comment les apps
 ``persons`` ou ``document`` s'y prennent, dans la méthode
-``register_merge_forms()`` de votre ``apps.py`` (cela sort du cadre de
-ce tutoriel).
+``register_merge_forms()`` de ``apps.py`` (cela sort du cadre de ce tutoriel).
 
-**Notes** : si vous avez créé un modèle relié un type d'entité fusionnable, vous
-pouvez gérer plus finement ce qui ce passe lors d'une fusion grâce aux signaux
-``creme.creme_core.signals.pre_merge_related`` et
+**Notes** : si vous avez créé un modèle relié à un type d'entité fusionnable,
+vous pouvez gérer plus finement ce qui ce passe lors d'une fusion grâce aux
+signaux ``creme.creme_core.signals.pre_merge_related`` et
 ``creme.creme_core.signals.pre_replace_related``. Et si votre modèle est relié
 par un OneToOneField, vous **devez** gérer la fusion, car Creme ne peut
-évidemment pas gérer le cas où chacune des entités est relié (il faut donc au
-moins supprimer une des instances reliées, en récupérant ou non des informations
-au passage etc…).
+évidemment pas gérer le cas où chacune des entités est reliée (il faut donc au
+moins supprimer une des instances reliées, en récupérant ou non des
+informations au passage etc…).
 
 
 Valeurs de réglages
 ~~~~~~~~~~~~~~~~~~~
 
-Il s'agit de proposer aux utilisateurs de rentrer des valeurs typées via ue interface
-de configuration (contrairement à une valeur dans ``settings.py`` que seul
-l'admnistrateur peut changer), afin que le code puisse adopter des comportements
-spécifiques différents.
+Il s'agit de proposer aux utilisateurs de rentrer des valeurs typées via une
+interface de configuration (contrairement à une valeur dans ``settings.py``
+que seul l'administrateur peut changer), afin que le code puisse adopter des
+comportements spécifiques différents.
 
 
 Réglages globaux
 ****************
 
-Le modèle ``SettingValue`` permet de récupérer des valeurs globales à l'application,
-c'est-à-dire valables pour tous les utilisateurs.
+Le modèle ``SettingValue`` permet de récupérer des valeurs globales à
+l'application, c'est-à-dire valables pour tous les utilisateurs.
 
-Dans votre fichier ``contants.py`` définissez l'identifiant de la clé de
+Dans votre fichier ``constants.py`` définissez l'identifiant de la clé de
 configuration : ::
 
     BEAVER_KEY_ID = 'beavers-my_key'
@@ -3028,8 +3105,7 @@ Quelques explications sur les paramètres :
 Jobs
 ~~~~
 
-Dans Creme1.7, un système de job a été introduit ; il va permettre de s'occuper
-de tâches :
+Le système de job permet de s'occuper de tâches :
 
  - qui mettent longtemps à s'exécuter, en fournissant à l'utilisateur une barre
    de progression, la possibilité de changer de page (ou de fermer le navigateur)
@@ -3099,7 +3175,7 @@ périodicité utilisée par ce type de job ; la valeur peut être :
 
  - ``JobType.NOT_PERIODIC`` : les instances de ``Job`` avec cette valeur sont
    créées à la volée, puis exécutées une seule fois dès que possible par le
-   gestionnaire de jobs. Par exemple, l import de fichier CSV de Creme
+   gestionnaire de jobs. Par exemple, l'import de fichier CSV de Creme
    fonctionne comme ça ; chaque import génère un ``Job`` qui contient toutes
    les données nécessaires (qui ont été rentrées via le formulaire d'import).
  - ``JobType.PERIODIC`` : une seul instance de ``Job`` possédera ce type et sera
@@ -3145,7 +3221,7 @@ dans notre ``populate.py`` : ::
 des soucis ; dans notre exemple le service Web distant pourrait être indisponible.
 Cela peut être une bonne idée de pouvoir indiquer dans l'interface ce qui s'est passé
 lors de la dernière exécution. La plupart des méthodes de ``JobType`` prennent un
-paramètre ``job`` qui est l'instance de ``Job`` associée. Et vous avez be base des
+paramètre ``job`` qui est l'instance de ``Job`` associée. Et vous avez de base des
 modèles qui permettent de créer des résultats associés à ce job (ils sont affichés
 dans le bloc d'erreurs de la vue détaillée du job). Voici un exemple : ::
 
@@ -3194,8 +3270,8 @@ Si on souhaite juste limiter les choix possibles pour une ``ForeignKey`` précis
 on préfèrera utiliser l'attribut "limit_choices_to" sur ladite ``ForeignKey``
 (puisque cela affectera automatiquement tous les formulaires du modèle en question).
 
-Mais outre la possibilité de limiter les choix, cela permet d'avoir des labels
-plus adaptés et aussi de regrouper certains choix entre eux. Par exemple
+Le système d'énumération de Creme va au delà ; il permet d'avoir des labels
+plus adaptés ou de regrouper certains choix entre eux. Par exemple
 Creme utilise ça pour personnaliser les énumération des ``ForeignKey`` pointant
 le modèle ``EntityFilter`` (ce qui n'arrive actuellement que dans le modèle
 ``reports.Report``) ; les filtres sont regroupés selon le type de fiche auxquel
@@ -3243,8 +3319,8 @@ aux développeurs, le code peut constamment être amélioré sans régression, o
 moins en les limitant considérablement.
 
 Une fois un peu à l'aise avec la programmation de code Creme, vous pourrez
-envisager de tester et déboguer votre code en rafraîchissant vos vues dans
-votre navigateur Web.
+envisager de tester et déboguer votre code sans rafraîchir constamment votre
+navigateur Web.
 
 Pour notre module *beavers*, voici un exemple qui teste la vue de création.
 Créez un fichier ``beavers/tests.py`` : ::
@@ -3259,11 +3335,6 @@ Créez un fichier ``beavers/tests.py`` : ::
 
 
     class BeaverTestCase(CremeTestCase):
-        @classmethod
-        def setUpClass(cls):
-            CremeTestCase.setUpClass()
-            cls.populate('creme_core', 'beavers')
-
         def test_createview(self):
             user = self.login()
 
@@ -3297,23 +3368,13 @@ Créez un fichier ``beavers/tests.py`` : ::
             )
 
 
-Remarques:
- - Les imports initiaux sont mis dans un bloc try/except, car si une erreur se
-   produit au moment de l'importation des modules, l'exception est capturée
-   silencieusement par l'infrastructure de test, et vos tests ne seront pas
-   exécutés (tout se passera comme s'il y avait 0 test).
- - La méthode ``setUpClass()`` est appelée une seule fois, avant que les tests soient
-   exécutés. Y lancer les commandes *populate* utiles permet d'être bien plus
-   rapide que si on les lance dans la méthode ``setUp()``, exécutée avant
-   chaque test de la classe.
-
 Vous pouvez alors lancer vos tests : ::
 
     > python creme/manage.py test beavers
 
 **Astuce** : travaillez avec SQLite lorsque vous écrivez le nouveau code.
 Vous pouvez même, lorsque vous êtes dans une passe de TDD (c'est-à-dire que
-vous ne cherchez pas à voir le résultat dans votre navigateur) vous passer de
+vous ne cherchez pas à voir le résultat dans votre navigateur), vous passer de
 l'écriture des migrations à chaque changement dans un modèle, avec les lignes
 suivantes dans votre ``local_settings.py`` : ::
 
@@ -3325,7 +3386,6 @@ suivantes dans votre ``local_settings.py`` : ::
             'auth':           None,
             'creme_core':     None,
             'creme_config':   None,
-            'media_managers': None,
             'documents':      None,
             'assistants':     None,
             'activities':     None,
@@ -3356,7 +3416,8 @@ Une fois votre code satisfaisant, prenez le temps de lancer les tests avec MySQL
 et/ou PostgreSQL ; il vous faut pour ça commenter les lignes données au dessus
 et avoir écrit les migrations.
 
-**Astuce** : si vous êtes amené à lancer plusieurs fois les tests avec MySQL/PostgreSQL
-pour corriger un test réfractaire par exemple, utilisez l'option ``--keepdb`` de
-la commande ``test`` afin de grandement réduire le temps que prend la commande
-(il ne faut en revanche pas modifier les modèles entre 2 exécutions des tests).
+**Astuce** : si vous êtes amené à lancer plusieurs fois les tests avec
+MySQL/PostgreSQL pour corriger un test réfractaire par exemple, utilisez
+l'option ``--keepdb`` de la commande ``test`` afin de grandement réduire le
+temps que prend la commande (il ne faut en revanche pas modifier les modèles
+entre 2 exécutions des tests).
