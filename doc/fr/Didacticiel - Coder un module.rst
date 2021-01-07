@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 08-12-2020 pour la version 2.2 de Creme
+:Version: 07-01-2021 pour la version 2.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -96,8 +96,8 @@ suivante permet d'afficher les *warnings*, mais chacun une seule fois
     warnings.simplefilter('once')
 
 
-Outils suppémentaires
-~~~~~~~~~~~~~~~~~~~~~
+Outils supplémentaires
+~~~~~~~~~~~~~~~~~~~~~~
 
 Nous vous conseillons d'utiliser l'app `django extensions <https://github.com/django-extensions/django-extensions>`_
 qui apporte des commandes supplémentaires intéressantes (``runserver_plus``,
@@ -1441,8 +1441,8 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
             initial['title'] = _('Need a veterinary')
 
             beaver = get_object_or_404(Beaver, id=self.kwargs['beaver_id'])
-            self.request.user.has_perm_to_view_or_die(beaver)  # On utilise le nom du ticket juste après
-            initial['description'] = _('{} is sick.').format(self.get_linked_beaver())
+            self.request.user.has_perm_to_view_or_die(beaver)  # On utilise le nom du castor juste après
+            initial['description'] = _('{} is sick.').format(beaver)
 
             return initial
 
