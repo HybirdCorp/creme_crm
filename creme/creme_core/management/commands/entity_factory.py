@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+# NB: works with factory_boy-3.2.0  TODO: in requirements ?
 
 try:
     import factory
@@ -67,9 +69,10 @@ class ProgressBar:
         length_diff = new_length - self._current_length
 
         if length_diff:
-            self._stdout.write(self._char * length_diff,
-                               ending='' if new_length != length else '\n'
-                              )
+            self._stdout.write(
+                self._char * length_diff,
+                ending='' if new_length != length else '\n',
+            )
             self._stdout.flush()
 
         self._current_length = new_length
@@ -139,19 +142,24 @@ def _get_contact_n_factory(locale):
 
     Contact = get_contact_model()
 
-    build_email_domain = partial(factory.Faker('free_email_domain', locale=locale).generate, {})
+    # build_email_domain = partial(factory.Faker('free_email_domain', locale=locale).generate, {})
+    build_email_domain = partial(
+        factory.Faker('free_email_domain', locale=locale).evaluate, step=None,
+    )
 
     def build_email(contact):
-        return f'{contact.first_name}.{contact.last_name}@{build_email_domain()}'.lower()
+        # return f'{contact.first_name}.{contact.last_name}@{build_email_domain()}'.lower()
+        domain = build_email_domain(contact, extra={'locale': locale})
+        return f'{contact.first_name}.{contact.last_name}@{domain}'.lower()
 
     class ContactFactory(DjangoModelFactory):
         class Meta:
             model = Contact
 
-        user       = factory.LazyAttribute(get_user)
+        user = factory.LazyAttribute(get_user)
         first_name = factory.Faker('first_name', locale=locale)
-        last_name  = factory.Faker('last_name', locale=locale)
-        email      = factory.LazyAttribute(or_blank(build_email))
+        last_name = factory.Faker('last_name', locale=locale)
+        email = factory.LazyAttribute(or_blank(build_email))
 
     return Contact, ContactFactory
 
@@ -161,17 +169,22 @@ def _get_organisation_n_factory(locale):
 
     Organisation = get_organisation_model()
 
-    build_email_domain = partial(factory.Faker('free_email_domain', locale=locale).generate, {})
+    # build_email_domain = partial(factory.Faker('free_email_domain', locale=locale).generate, {})
+    build_email_domain = partial(
+        factory.Faker('free_email_domain', locale=locale).evaluate, step=None,
+    )
 
     def build_email(orga):
-        return f'{orga.name}@{build_email_domain()}'.lower()
+        # return f'{orga.name}@{build_email_domain()}'.lower()
+        domain = build_email_domain(orga, extra={'locale': locale})
+        return f'{orga.name}@{domain}'.lower()
 
     class OrganisationFactory(DjangoModelFactory):
         class Meta:
             model = Organisation
 
-        user  = factory.LazyAttribute(get_user)
-        name  = factory.Faker('company', locale=locale)
+        user = factory.LazyAttribute(get_user)
+        name = factory.Faker('company', locale=locale)
         email = factory.LazyAttribute(or_blank(build_email))
 
     return Organisation, OrganisationFactory
@@ -263,9 +276,10 @@ class OptimizePGSQLContext(BaseOptimizeContext):
                 value *= 1000
 
             if value < 1000:
-                print('HINT: you could try the following optimisation: '
-                      '"ALTER SYSTEM SET wal_writer_delay=1000;"'
-                     )
+                print(
+                    'HINT: you could try the following optimisation: '
+                    '"ALTER SYSTEM SET wal_writer_delay=1000;"'
+                )
 
 
 # Command ----------------------------------------------------------------------
@@ -289,22 +303,26 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         add_argument = parser.add_argument
-        add_argument('-n', '--number',
-                     action='store', dest='number', type=int, default=100,
-                     help='How many entities are created. [default: %(default)s]',
-                    )
-        add_argument('-t', '--type',
-                     action='store', dest='type', default='contact',
-                     help='What type of entities are created. [default: %(default)s]',
-                    )
-        add_argument('-l', '--list',
-                     action='store_true', dest='list_types', default=False,
-                     help='List the available type of entities',
-                    )
-        add_argument('-c', '--language',
-                     action='store', dest='language_code', default='',
-                     help='Locale used for random data. [default: see settings.LANGUAGE_CODE]',
-                    )
+        add_argument(
+            '-n', '--number',
+            action='store', dest='number', type=int, default=100,
+            help='How many entities are created. [default: %(default)s]',
+        )
+        add_argument(
+            '-t', '--type',
+            action='store', dest='type', default='contact',
+            help='What type of entities are created. [default: %(default)s]',
+        )
+        add_argument(
+            '-l', '--list',
+            action='store_true', dest='list_types', default=False,
+            help='List the available type of entities',
+        )
+        add_argument(
+            '-c', '--language',
+            action='store', dest='language_code', default='',
+            help='Locale used for random data. [default: see settings.LANGUAGE_CODE]',
+        )
 
     def handle(self, *args, **options):
         get_opt = options.get
@@ -333,16 +351,22 @@ class Command(BaseCommand):
 
         cursor = connections[DEFAULT_DB_ALIAS].cursor()
 
+        db_settings = settings.DATABASES['default']
         # TODO: add an argument to avoid optimisations ?
-        optimiser_class = self.SQL_OPTIMISERS.get(settings.DATABASES['default']['ENGINE'],
-                                                  BaseOptimizeContext
-                                                 )
+        optimiser_class = self.SQL_OPTIMISERS.get(
+            # settings.DATABASES['default']['ENGINE'], BaseOptimizeContext,
+            db_settings['ENGINE'], BaseOptimizeContext,
+        )
 
         if verbosity:
-            if settings.CONN_MAX_AGE is not None:
-                self.stdout.write('You can try to set "CONN_MAX_AGE = None" in your '
-                                  'settings.py to improve the performances.'
-                                 )
+            # if settings.CONN_MAX_AGE is not None:
+            if db_settings['CONN_MAX_AGE'] != 0:
+                self.stdout.write(
+                    # 'You can try to set "CONN_MAX_AGE = None" in your '
+                    # 'settings.py to improve the performances.'
+                    'You can try to set <CONN_MAX_AGE": None> in your '
+                    'settings.py => DATABASES["default"] to improve the performances.'
+                )
 
             self.stdout.write(f'Locale: "{locale}" ')
             self.stdout.write(f'Original "{verbose_name}" count: {entity_model.objects.count()}')
