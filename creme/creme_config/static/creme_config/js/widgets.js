@@ -36,10 +36,12 @@
             widget.find(".widget-selected input").prop("disabled", false);
         }
 
+        var groupName = widget.attr("id");
+
         new Sortable(  // eslint-disable-line
             widget.find(".widget-available .widget-container").get(0),
             {
-            group: options.widgetAttrsId,
+            group: groupName,
             animation: 150,
             sort: false,
             onSort: onSortEventHandler
@@ -48,7 +50,7 @@
         new Sortable(  // eslint-disable-line
             widget.find(".widget-selected .widget-container").get(0),
             {
-            group: options.widgetAttrsId,
+            group: groupName,
             animation: 150,
             onSort: onSortEventHandler
         });
