@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -349,7 +349,7 @@ class CustomFormGroupEditionForm(CustomFormGroupForm):
                 cell
                 for i, group in enumerate(groups)
                 if i != group_id
-                for cell in group.cells
+                for cell in getattr(group, 'cells', ())
             ),
             *(
                 EntityCellRegularField.build(model=model, name=field_name)
