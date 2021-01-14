@@ -142,7 +142,9 @@ TIME_ZONE = 'Europe/Paris'  # See http://en.wikipedia.org/wiki/List_of_tz_zones_
 ```
 
 To generate the value of SECRET_KEY, run the following command in the root directory & copy its result:
-``` >> python creme/manage.py build_secret_key ```
+```sh
+>> python creme/manage.py build_secret_key
+ ```
 
 You can choose precisely the Creme apps you want, by copying INSTALLED_CREME_APPS & commenting the unwanted apps.
 Beware: comment only app which are in the 'optional' section, & respect the dependencies which are indicated.
@@ -162,14 +164,14 @@ For an upgrade from the previous version of Creme :
 
 Filling the DB tables:
 Run the following commands in the root directory:
-```
+```sh
 >> python creme/manage.py migrate
 >> python creme/manage.py generatemedia
 >> python creme/manage.py creme_populate
 ```
 
 If you are upgrading the version, clean all existing sessions, for example like this:
-```
+```sh
 >> python creme/manage.py shell
 > from django.contrib.sessions.models import Session
 > Session.objects.all().delete()
@@ -177,20 +179,26 @@ If you are upgrading the version, clean all existing sessions, for example like 
 
 Note for MySQL users: you should load the time zone tables.
  - On Unix servers, it can be done with:
-   ``` >> mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p mysql ```
+   ```sh
+   >> mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p mysql
+   ```
  - For Windows environment, see https://stackoverflow.com/questions/14454304/convert-tz-returns-null
 
 
 ### Launch
 
 To run the development server, you just have to run this command:
-``` >> python creme/manage.py runserver```
+```sh
+>> python creme/manage.py runserver
+```
 You can then go to http://localhost:8000 & log in with root/root.
 
 For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/1.11/howto/deployment/
 
 In order to use the job system (eg: sending emails campaign, CSV import...), run the job manager too:
-``` >> python creme/manage.py creme_job_manager ```
+```sh
+>> python creme/manage.py creme_job_manager
+```
 
 
 ### Uninstall apps
@@ -205,7 +213,9 @@ The repository is using CircleCI and launch some linting tests. To check them lo
 use the hooks in '.githooks'. There are two ways to configure them:
 
 Simply change git configuration (works with git 2.9+)
-``` >> git config core.hooksPath .githooks ```
+```sh
+>> git config core.hooksPath .githooks
+```
 
 Or create symlink in '.git/hooks/'. Make sure the old one are moved or removed.
 ```sh
