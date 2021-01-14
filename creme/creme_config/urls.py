@@ -344,6 +344,12 @@ custom_forms_patterns = [
         custom_form.CustomFormCellDeletion.as_view(),
         name='creme_config__delete_custom_form_cell',
     ),
+
+    re_path(
+        r'^brick/expand[/]?$',
+        custom_form.CustomFormShowDetails.as_view(),
+        name='creme_config__customforms_brick_show_details',
+    ),
 ]
 
 bricks_patterns = [

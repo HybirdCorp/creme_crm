@@ -6,7 +6,9 @@
 {% block brick_script %}
 <script type="text/javascript">
     $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
-        new creme.creme_config.FormGroupsController().bind(brick);
+        new creme.creme_config.FormGroupsController({
+            expandUrl: "{% url 'creme_config__customforms_brick_show_details' %}"
+        }).bind(brick);
     });
  </script>
 {% endblock %}
@@ -19,9 +21,12 @@
 {% has_perm_to admin 'creme_core' as admin_perm %}
     {% for ctw in page.object_list %}
     {% with ctype=ctw.ctype %}
-    <div class="brick-list-item customform-config-item">
+    <div class="brick-list-item customform-config-item {% if ctw.collapsed %}customform-config-collapsed{% else %}customform-config-expanded{% endif %}">
         <div class="customform-config-group-title">
             {% widget_icon ctype=ctype size='brick-list' class='customform-config-type-icon' %} {{ctype}}
+
+            <a class="customform-config-show-details" href="#" data-ct-id="{{ctype.id}}">{% trans 'Show details' %}</a>
+            <a class="customform-config-hide-details" href="#">{% trans 'Hide details' %}</a>
         </div>
         <div class="customform-config-group brick-table">
             <table class="brick-table-content">
@@ -82,7 +87,7 @@
                                 {% endif %}
                             </div>
                         </td>
-                        <td>
+                        <td class="customform-config-errors">
                         {% with errors=descriptor.errors %}
                             {% if errors %}<ul class="warninglist">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>{% endif %}
                         {% endwith %}

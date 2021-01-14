@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CONFIG' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-18 15:23+0100\n"
+"POT-Creation-Date: 2021-01-15 17:03+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -86,7 +86,7 @@ msgstr "Champ personnalisé obligatoire manquant : {}"
 msgid "Missing required special field: {}"
 msgstr "Champ spécial obligatoire manquant : {}"
 
-#: bricks.py:565 bricks.py:817 forms/bricks.py:249 forms/bricks.py:310
+#: bricks.py:572 bricks.py:824 forms/bricks.py:249 forms/bricks.py:310
 #: forms/search.py:73 forms/user.py:78 forms/user.py:132
 #: templates/creme_config/bricks/bricklocations-home.html:42
 #: templates/creme_config/bricks/search-config.html:31
@@ -359,10 +359,11 @@ msgid ""
 "Drag and drop the buttons between the available buttons and the selected "
 "buttons sections to enable or disable the buttons, or within the selected "
 "buttons section to change the order."
-msgstr "Faites glisser et déposez les boutons entre la section des boutons "
-"disponibles et celle des boutons sélectionnés pour activer ou désactiver "
-"des boutons, ou au sein de la section des boutons sélectionnés afin d'en "
-"changer l'ordre."
+msgstr ""
+"Faites glisser et déposez les boutons entre la section des boutons "
+"disponibles et celle des boutons sélectionnés pour activer ou désactiver des "
+"boutons, ou au sein de la section des boutons sélectionnés afin d'en changer "
+"l'ordre."
 
 #: forms/creme_property_type.py:29
 msgid "Text"
@@ -1031,7 +1032,7 @@ msgstr "Aucun bloc pour le moment"
 #: templates/creme_config/bricks/bricklocations-detailviews.html:7
 #: templates/creme_config/bricks/button-menu.html:7
 #: templates/creme_config/bricks/custom-fields.html:13
-#: templates/creme_config/bricks/custom-forms.html:15
+#: templates/creme_config/bricks/custom-forms.html:17
 #: templates/creme_config/bricks/fields-configs.html:7
 #: templates/creme_config/bricks/search-config.html:7
 #, python-brace-format
@@ -1041,7 +1042,7 @@ msgstr "{count} Type de ressource configuré"
 #: templates/creme_config/bricks/bricklocations-detailviews.html:7
 #: templates/creme_config/bricks/button-menu.html:7
 #: templates/creme_config/bricks/custom-fields.html:13
-#: templates/creme_config/bricks/custom-forms.html:15
+#: templates/creme_config/bricks/custom-forms.html:17
 #: templates/creme_config/bricks/fields-configs.html:7
 #: templates/creme_config/bricks/search-config.html:7
 #, python-brace-format
@@ -1295,44 +1296,52 @@ msgstr "Supprimer ce champ personnalisé"
 msgid "No type of entity has custom field for the moment"
 msgstr "Aucun type de fiche n'a de champ personnalisé pour le moment"
 
-#: templates/creme_config/bricks/custom-forms.html:33
+#: templates/creme_config/bricks/custom-forms.html:28
+msgid "Show details"
+msgstr "Montrer les détails"
+
+#: templates/creme_config/bricks/custom-forms.html:29
+msgid "Hide details"
+msgstr "Cacher les détails"
+
+#: templates/creme_config/bricks/custom-forms.html:38
 msgid "Drag and drop the groups to order them."
 msgstr "Glissez-déposez les groupes pour les réordonner."
 
-#: templates/creme_config/bricks/custom-forms.html:43
+#: templates/creme_config/bricks/custom-forms.html:48
 msgid "Display this group on the second half only"
 msgstr "Afficher ce groupe sur la seconde moitié seulement"
 
-#: templates/creme_config/bricks/custom-forms.html:45
-#: templates/creme_config/bricks/custom-forms.html:54
+#: templates/creme_config/bricks/custom-forms.html:50
+#: templates/creme_config/bricks/custom-forms.html:59
 msgid "Display this group on the whole width"
 msgstr "Afficher ce groupe sur la toute la largueur"
 
-#: templates/creme_config/bricks/custom-forms.html:49
+#: templates/creme_config/bricks/custom-forms.html:54
 msgid "Edit this group"
 msgstr "Modifier ce groupe"
 
-#: templates/creme_config/bricks/custom-forms.html:50
+#: templates/creme_config/bricks/custom-forms.html:55
 msgid "Delete this group"
 msgstr "Supprimer ce groupe"
 
-#: templates/creme_config/bricks/custom-forms.html:52
+#: templates/creme_config/bricks/custom-forms.html:57
 msgid "Display this group on the first half only"
 msgstr "Afficher ce groupe sur la première moitié seulement"
 
-#: templates/creme_config/bricks/custom-forms.html:64
+#: templates/creme_config/bricks/custom-forms.html:69
 msgid "Delete this field"
 msgstr "Supprimer ce champ"
 
-#: templates/creme_config/bricks/custom-forms.html:79
+#: templates/creme_config/bricks/custom-forms.html:84
 msgid "Add a group"
 msgstr "Ajouter un groupe"
 
-#: templates/creme_config/bricks/custom-forms.html:81
+#: templates/creme_config/bricks/custom-forms.html:86
 msgid "Add a special group"
 msgstr "Ajouter un groupe spécial"
 
-#: templates/creme_config/bricks/custom-forms.html:101
+#: templates/creme_config/bricks/custom-forms.html:106
 msgid "No custom form"
 msgstr "Pas de formulaire personnalisé"
 
@@ -2175,7 +2184,7 @@ msgid "Show deleted custom fields"
 msgstr "Montrer les champ personnalisés supprimés"
 
 #: views/base.py:33 views/bricks.py:152 views/bricks.py:250
-#: views/button_menu.py:52 views/custom_form.py:93 views/custom_form.py:132
+#: views/button_menu.py:52 views/custom_form.py:100 views/custom_form.py:139
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
@@ -2299,17 +2308,17 @@ msgstr "Supprimer le choix"
 msgid "A deletion process for a choice already exists."
 msgstr "Il y a déjà un processus de suppression pour un choix."
 
-#: views/custom_form.py:111
+#: views/custom_form.py:118
 #, python-brace-format
 msgid "Add a group to «{form}»"
 msgstr "Ajouter un groupe à «{form}»"
 
-#: views/custom_form.py:116
+#: views/custom_form.py:123
 #, python-brace-format
 msgid "Add an extra group to «{form}»"
 msgstr "Ajouter un groupe spécial à «{form}»"
 
-#: views/custom_form.py:131
+#: views/custom_form.py:138
 #, python-brace-format
 msgid "Edit the group «{group}»"
 msgstr "Modifier le groupe «{group}»"

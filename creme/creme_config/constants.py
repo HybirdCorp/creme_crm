@@ -1,5 +1,6 @@
 BRICK_STATE_HIDE_INACTIVE_USERS  = 'creme_config-hide_inactive_users'
 BRICK_STATE_HIDE_DELETED_CFIELDS = 'creme_config-hide_deleted_customfields'
+BRICK_STATE_SHOW_CFORMS_DETAILS  = 'creme_config-show_customforms_details'
 
 # Transfer IDs
 ID_VERSION = 'version'
