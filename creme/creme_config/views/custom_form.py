@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from abc import ABC
 
+from django.db import IntegrityError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -32,12 +34,17 @@ from creme.creme_core.gui.custom_form import (
     FieldGroupList,
     customform_descriptor_registry,
 )
-from creme.creme_core.models import CustomFormConfigItem
+from creme.creme_core.models import BrickState, CustomFormConfigItem
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
+from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
+from ..bricks import CustomFormsBrick
+from ..constants import BRICK_STATE_SHOW_CFORMS_DETAILS
 from ..forms import custom_form as forms
 from . import base
+
+logger = logging.getLogger(__name__)
 
 
 class Portal(generic.BricksView):
@@ -275,5 +282,46 @@ class CustomFormGroupReordering(CustomFormMixin, generic.CheckedView):
             model=desc.model, groups=groups, cell_registry=desc.build_cell_registry(),
         ))
         cfci.save()  # TODO: only if changed ?
+
+        return HttpResponse()
+
+
+# TODO: factorise with HideInactiveUsers ?
+class CustomFormShowDetails(EntityCTypeRelatedMixin, generic.CheckedView):
+    ctype_id_arg = 'ct_id'
+    ct_id_0_accepted = True
+    brick_cls = CustomFormsBrick
+
+    def get_ctype_id(self):
+        return get_from_POST_or_404(self.request.POST, key=self.ctype_id_arg)
+
+    def post(self, request, **kwargs):
+        ctype = self.get_ctype()
+        key = BRICK_STATE_SHOW_CFORMS_DETAILS  # TODO: attribute ?
+
+        # NB: we can still have a race condition because we do not use
+        #     select_for_update ; but it's a state related to one user & one brick,
+        #     so it would not be a real world problem.
+        for _i in range(10):
+            state = BrickState.objects.get_for_brick_id(
+                brick_id=self.brick_cls.id_, user=request.user,
+            )
+
+            try:
+                if ctype is None:
+                    try:
+                        state.del_extra_data(key)
+                    except KeyError:
+                        pass
+                    else:
+                        state.save()
+                else:
+                    if state.set_extra_data(key=key, value=ctype.id):
+                        state.save()
+            except IntegrityError:
+                logger.exception('Avoid a duplicate.')
+                continue
+            else:
+                break
 
         return HttpResponse()

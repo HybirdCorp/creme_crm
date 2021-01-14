@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2020  Hybird
+    Copyright (C) 2020-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,10 @@ creme.creme_config = creme.creme_config || {};
 creme.creme_config.FormGroupsController = creme.component.Component.sub({
     _init_: function(options) {
         this._options = options || {};
+
+        if (!this._options.expandUrl) {
+            throw new Error('FormGroupsController: expandUrl is not set');
+        }
     },
 
     bind: function(brick) {
@@ -32,7 +36,9 @@ creme.creme_config.FormGroupsController = creme.component.Component.sub({
             throw new Error('FormGroupsController is already bound');
         }
 
-        brick.element().find(".customform-config-blocks").sortable({
+        var brickElement = brick.element();
+
+        brickElement.find('.customform-config-blocks').sortable({
             update: function (e, ui) {
                 var url = ui.item.attr('data-reorderable-form-group-url');
 
@@ -44,6 +50,54 @@ creme.creme_config.FormGroupsController = creme.component.Component.sub({
                 brick.action('update', url, {}, {target: ui.item.index()})
                      .start();
             }
+        });
+
+        var expandUrl = this._options.expandUrl;
+
+        // TODO: real actions instead ?
+        brickElement.find('.customform-config-show-details').on('click', function(event) {
+            var aTag = $(this);
+            var parent = aTag.parents('.customform-config-item').first();
+            var oldTop = parent.position().top;
+
+            // Collapses the current expended CType, expands the clicked CType.
+            brickElement.find('.customform-config-item.customform-config-expanded')
+                        .removeClass('customform-config-expanded')
+                        .addClass('customform-config-collapsed');
+            aTag.parents('.customform-config-item')
+                .removeClass('customform-config-collapsed')
+                .addClass('customform-config-expanded');
+
+            // Save state
+            creme.ajax.post({
+                url: expandUrl,
+                data: {ct_id: aTag.attr('data-ct-id')}
+            });
+
+            // As we potentially collapse another CType which ban be before and higher, the newly
+            // expanded CType can be badly positioned ; we compute the offset between the old and
+            // the new positions of the expanded CType, and scroll by this offset.
+            window.scrollTo(window.scrollX, window.scrollY + parent.position().top - oldTop);
+
+            event.stopImmediatePropagation();
+            return false;
+        });
+
+        brickElement.find('.customform-config-hide-details').on('click', function(event) {
+            // Collapses the current expended CType
+            // TODO: factorise ?
+            brickElement.find('.customform-config-item.customform-config-expanded')
+                        .removeClass('customform-config-expanded')
+                        .addClass('customform-config-collapsed');
+
+            // Save state
+            creme.ajax.post({
+                url: expandUrl,
+                data: {ct_id: '0'}
+            });
+
+            event.stopImmediatePropagation();
+            return false;
         });
 
         this._brick = brick;

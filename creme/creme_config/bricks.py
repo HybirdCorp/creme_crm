@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -371,7 +371,7 @@ class CustomFormsBrick(PaginatedBrick):
         FieldGroupList.BLOCK_ID_MISSING_EXTRA_FIELD:  _('Missing required special field: {}'),
     }
 
-    def get_ctype_descriptors(self, user):
+    def get_ctype_descriptors(self, user, expanded_ctype_id):
         get_ct = ContentType.objects.get_for_model
 
         class _ExtendedDescriptor:
@@ -425,15 +425,16 @@ class CustomFormsBrick(PaginatedBrick):
         )
 
         class _ContentTypeWrapper:
-            __slots__ = ('ctype', 'descriptors')
+            __slots__ = ('ctype', 'descriptors', 'collapsed')
 
             def __init__(this, model, descriptors):
-                this.ctype = get_ct(model)
+                this.ctype = ctype = get_ct(model)
                 # TODO: manage item not created ?
                 this.descriptors = [
                     _ExtendedDescriptor(descriptor=desc, item=items[desc.id])
                     for desc in descriptors
                 ]
+                this.collapsed = (expanded_ctype_id != ctype.id)
 
         wrappers = [
             _ContentTypeWrapper(model=model, descriptors=descriptors)
@@ -445,9 +446,15 @@ class CustomFormsBrick(PaginatedBrick):
         return wrappers
 
     def detailview_display(self, context):
+        user = context['user']
+
+        expanded_ctype_id = BricksManager.get(context).get_state(
+            brick_id=self.id_, user=user,
+        ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS)
+
         return self._render(self.get_template_context(
             context,
-            self.get_ctype_descriptors(user=context['user']),
+            self.get_ctype_descriptors(user=user, expanded_ctype_id=expanded_ctype_id),
             LAYOUT_REGULAR=base_forms.LAYOUT_REGULAR,
             LAYOUT_DUAL_FIRST=base_forms.LAYOUT_DUAL_FIRST,
             LAYOUT_DUAL_SECOND=base_forms.LAYOUT_DUAL_SECOND,

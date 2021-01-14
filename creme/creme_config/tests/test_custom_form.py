@@ -36,6 +36,7 @@ from creme.creme_core.gui.custom_form import (
     FieldGroupList,
 )
 from creme.creme_core.models import (
+    BrickState,
     CustomField,
     CustomFormConfigItem,
     FakeActivity,
@@ -56,6 +57,8 @@ from creme.creme_core.tests.forms.test_entity_cell import (
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from .. import bricks
+from ..bricks import CustomFormsBrick
+from ..constants import BRICK_STATE_SHOW_CFORMS_DETAILS
 
 
 class CustomFormCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
@@ -1342,19 +1345,27 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick = bricks.CustomFormsBrick()
         brick.registry = registry
 
-        desc_data = brick.get_ctype_descriptors(user=user)
+        get_ct = ContentType.objects.get_for_model
+
+        desc_data = brick.get_ctype_descriptors(
+            user=user,
+            expanded_ctype_id=get_ct(FakeActivity).id,
+        )
         self.assertIsInstance(desc_data, list)
         self.assertEqual(2, len(desc_data))
 
-        def get_descriptors(model):
-            ct = ContentType.objects.get_for_model(model)
+        def get_ct_wrapper(model):
+            ct = get_ct(model)
             for ct_wrapper in desc_data:
                 if ct_wrapper.ctype == ct:
-                    return ct_wrapper.descriptors
+                    return ct_wrapper
 
             self.fail(f'No descriptor found for {ct}')
 
-        activity_descriptors = get_descriptors(FakeActivity)
+        activity_wrapper = get_ct_wrapper(FakeActivity)
+        self.assertFalse(activity_wrapper.collapsed)
+
+        activity_descriptors = activity_wrapper.descriptors
         self.assertEqual(2, len(activity_descriptors))
 
         act_desc1 = activity_descriptors[0]
@@ -1372,7 +1383,10 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual(['Misc'], [g.name for g in act_desc2.groups])
         self.assertListEqual([], act_desc2.errors)
 
-        orga_descriptors = get_descriptors(FakeOrganisation)
+        orga_wrapper = get_ct_wrapper(FakeOrganisation)
+        self.assertTrue(orga_wrapper.collapsed)
+
+        orga_descriptors = orga_wrapper.descriptors
         self.assertEqual(1, len(orga_descriptors))
 
         orga_desc = orga_descriptors[0]
@@ -1408,8 +1422,11 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick = bricks.CustomFormsBrick()
         brick.registry = registry
 
-        act_desc1 = brick.get_ctype_descriptors(user=user)[0].descriptors[0]
+        act_desc1 = brick.get_ctype_descriptors(
+            user=user, expanded_ctype_id=None,
+        )[0].descriptors[0]
         self.assertEqual(desc.id, act_desc1.id)
+
         fmt = _('Missing required field: {}').format
         self.assertListEqual(
             [fmt(_('Owner user')), fmt(_('Activity type'))],  # Not 'place'
@@ -1446,7 +1463,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick = bricks.CustomFormsBrick()
         brick.registry = registry
 
-        act_desc1 = brick.get_ctype_descriptors(user=user)[0].descriptors[0]
+        act_desc1 = brick.get_ctype_descriptors(
+            user=user, expanded_ctype_id=None,
+        )[0].descriptors[0]
         self.assertEqual(desc.id, act_desc1.id)
         self.assertListEqual(
             [_('Missing required custom field: {}').format(customfield.name)],
@@ -1484,7 +1503,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick = bricks.CustomFormsBrick()
         brick.registry = registry
 
-        act_desc1 = brick.get_ctype_descriptors(user=user)[0].descriptors[0]
+        act_desc1 = brick.get_ctype_descriptors(
+            user=user, expanded_ctype_id=None,
+        )[0].descriptors[0]
         self.assertEqual(desc.id, act_desc1.id)
         self.assertListEqual(
             [
@@ -1492,5 +1513,51 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
             act_desc1.errors,
         )
+
+    def test_brick_show_details(self):
+        user = self.login()
+
+        def get_state():
+            return BrickState.objects.get_for_brick_id(
+                user=user, brick_id=CustomFormsBrick.id_,
+            )
+
+        self.assertIsNone(get_state().pk)
+
+        url = reverse('creme_config__customforms_brick_show_details')
+        self.assertGET405(url)
+
+        # ---
+        key = 'ct_id'
+        get_ct = ContentType.objects.get_for_model
+        ct_id01 = get_ct(FakeActivity).id
+        self.assertPOST200(url, data={key: ct_id01})
+        state1 = get_state()
+        self.assertIsNotNone(state1.pk)
+        self.assertEqual(
+            state1.get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
+            ct_id01,
+        )
+
+        # ---
+        ct_id02 = get_ct(FakeOrganisation).id
+        self.assertPOST200(url, data={key: ct_id02})
+        self.assertEqual(
+            get_state().get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
+            ct_id02,
+        )
+
+        # Invalid ID
+        self.assertPOST404(url, data={key: 1024})
+
+        # ID==0 => clear
+        self.assertPOST200(url, data={key: '0'})
+        # TODO: has_extra_data() ??
+        self.assertIsNone(
+            get_state().get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
+        )
+
+        # Check does not crash
+        self.assertPOST200(url, data={key: '0'})
 
     # TODO: test credentials for views

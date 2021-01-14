@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -187,7 +187,7 @@ class HideInactiveUsers(generic.CheckedView):
         )
 
         # NB: we can still have a race condition because we do not use
-        #     select_for_update ; but it's a state related one user & one brick,
+        #     select_for_update ; but it's a state related to one user & one brick,
         #     so it would not be a real world problem.
         for _i in range(10):
             state = BrickState.objects.get_for_brick_id(
