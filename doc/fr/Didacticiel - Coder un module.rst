@@ -1120,7 +1120,7 @@ Si vous allez sur le portail de la 'Configuration générale', dans le
 'Portails des applications', la section 'Portail configuration Gestion des castors'
 est bien apparue : elle nous permet bien de créer des nouveaux ``Status``.
 
-**Allons un peu loin** : vous pouvez précisez les formulaires à utiliser pour
+**Allons un peu loin** : vous pouvez préciser les formulaires à utiliser pour
 créer ou modifier les statuts si ceux qui sont générés automatiquement ne vous
 conviennent pas. Ça pourrait être le cas s'il y a une contrainte métier à
 respecter, mais qui n'est pas exprimable via les contraintes habituelles des
