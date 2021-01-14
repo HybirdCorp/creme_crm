@@ -845,6 +845,33 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             _('This value is invalid: %(value)s') % {'value': 'customfields'},
         )
 
+    def test_group_edition_extra_group(self):
+        "Extra group has no cells => no error when computing ignored cells."
+        self.login()
+
+        # desc = FAKEORGANISATION_CREATION_CFORM
+        cform_id = FAKEORGANISATION_CREATION_CFORM.id
+        cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
+        build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
+        cfci.store_groups(
+            FieldGroupList(
+                model=FakeActivity,
+                cell_registry=FAKEACTIVITY_CREATION_CFORM.build_cell_registry(),
+                groups=[
+                    FieldGroup(
+                        name='General',
+                        cells=[build_cell(name='user'), build_cell(name='name')],
+                    ),
+                    FakeAddressGroup(model=FakeOrganisation),
+                ],
+            )
+        )
+        cfci.save()
+
+        self.assertGET200(reverse(
+            'creme_config__edit_custom_form_group', args=(cform_id, 0)
+        ))
+
     def test_group_creation_regularfields01(self):
         self.login()
 
