@@ -178,11 +178,11 @@ msgstr "Fermer"
 
 #: static/creme_core/js/lv_widget.js:234
 msgid "Please select 2 entities."
-msgstr "Veuillez sélectioner 2 fiches."
+msgstr "Veuillez sélectionner 2 fiches."
 
 #: static/creme_core/js/lv_widget.js:344
 msgid "Please select only one entity."
-msgstr "Veuillez sélectioner une seule fiche."
+msgstr "Veuillez sélectionner une seule fiche."
 
 #: static/creme_core/js/lv_widget.js:379
 msgid "Validate the selection"

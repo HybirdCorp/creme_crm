@@ -435,7 +435,7 @@ msgstr "Créer un e-mail"
 
 #: models/mail.py:95
 msgid "Save the email"
-msgstr "Enregister l'e-mail"
+msgstr "Enregistrer l'e-mail"
 
 #: models/mail.py:96 views/mail.py:94
 msgid "Send the email"

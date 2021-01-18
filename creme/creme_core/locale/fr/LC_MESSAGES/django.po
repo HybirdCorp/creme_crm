@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 16:22+0100\n"
+"POT-Creation-Date: 2021-01-18 17:25+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1049,7 +1049,7 @@ msgstr "Ce champ date n'existe pas dans ce type de fiche."
 
 #: forms/entity_filter/fields.py:315
 msgid "This date range is invalid."
-msgstr "Cet interval de date n'est pas valide."
+msgstr "Cet intervalle de date n'est pas valide."
 
 #: forms/entity_filter/fields.py:316
 msgid "Please enter a start date and/or a end date."
@@ -1069,7 +1069,7 @@ msgstr "Cette relation est invalide avec ce type de fiche."
 
 #: forms/entity_filter/fields.py:726
 msgid "This content type is invalid."
-msgstr "Ce type de resource n'est pas autorisé."
+msgstr "Ce type de ressource n'est pas autorisé."
 
 #: forms/entity_filter/fields.py:727
 msgid "This entity is invalid."
@@ -1162,11 +1162,11 @@ msgstr "La fiche est obligatoire."
 
 #: forms/fields.py:147
 msgid "The content type is required."
-msgstr "Le type de resource est obligatoire."
+msgstr "Le type de ressource est obligatoire."
 
 #: forms/fields.py:148
 msgid "This content type is not allowed."
-msgstr "Ce type de resource n'est pas autorisé'."
+msgstr "Ce type de ressource n'est pas autorisé'."
 
 #: forms/fields.py:629
 #, python-format
@@ -2042,7 +2042,7 @@ msgstr "App invalide \"{}\""
 
 #: models/auth.py:1087
 msgid "You are not allowed to access to the app: {}"
-msgstr "Vous n'avez pas accés à cette application: {}"
+msgstr "Vous n'avez pas accès à cette application: {}"
 
 #: models/auth.py:1100
 msgid "You are not allowed to configure this app: {}"
@@ -2294,7 +2294,7 @@ msgstr "Symbole local"
 
 #: models/currency.py:31
 msgid "International symbol"
-msgstr "Symbol international"
+msgstr "Symbole international"
 
 #: models/currency.py:36
 msgid "Create a currency"
@@ -2947,7 +2947,7 @@ msgstr "Réservé aux super-utilisateurs"
 
 #: setting_keys.py:10
 msgid "By default, are blocks open ?"
-msgstr "Par défaut, est-ce que les blocs apparaîssent ouverts ?"
+msgstr "Par défaut, est-ce que les blocs apparaissent ouverts ?"
 
 #: setting_keys.py:15
 msgid "By default, are empty fields displayed ?"
@@ -3595,7 +3595,7 @@ msgstr "Tout sélectionner"
 
 #: templates/creme_core/forms/widgets/unordered-multiple.html:13
 msgid "Check none"
-msgstr "Tout déselectionner"
+msgstr "Tout dé-sélectionner"
 
 #: templates/creme_core/forms/widgets/unordered-multiple.html:23
 #: templates/creme_core/search_results.html:47
@@ -4369,7 +4369,7 @@ msgstr "Recherche vide…"
 #~ msgstr[1] "(et {count} autres fiches)"
 
 #~ msgid "No selected entities"
-#~ msgstr "Aucune fiche séléctionnée"
+#~ msgstr "Aucune fiche sélectionnée"
 
 #~ msgid "Filter successfully deleted"
 #~ msgstr "Filtre supprimé avec succès"
@@ -4551,7 +4551,7 @@ msgstr "Recherche vide…"
 #~ msgstr "Etat de bloc"
 
 #~ msgid "Content type is not registered in config"
-#~ msgstr "Le type de resource n'est enregsitrée dans la configuration"
+#~ msgstr "Le type de ressource n'est enregistrée dans la configuration"
 
 #~ msgid "Drag and drop the columns to order them."
 #~ msgstr "Glissez-déposez les colonnes pour les ordonner."

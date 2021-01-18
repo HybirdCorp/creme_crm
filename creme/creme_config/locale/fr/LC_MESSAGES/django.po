@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-15 17:03+0100\n"
+"POT-Creation-Date: 2021-01-18 17:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -389,7 +389,7 @@ msgstr "S'applique aux types de fiches"
 
 #: forms/creme_property_type.py:38
 msgid "No selected type means that all types are accepted"
-msgstr "Aucun type séléctionné signifiera que tous les types sont acceptés"
+msgstr "Aucun type sélectionné signifiera que tous les types sont acceptés"
 
 #: forms/creme_property_type.py:49
 msgid "A property type with this name already exists."
@@ -1315,7 +1315,7 @@ msgstr "Afficher ce groupe sur la seconde moitié seulement"
 #: templates/creme_config/bricks/custom-forms.html:50
 #: templates/creme_config/bricks/custom-forms.html:59
 msgid "Display this group on the whole width"
-msgstr "Afficher ce groupe sur la toute la largueur"
+msgstr "Afficher ce groupe sur la toute la largeur"
 
 #: templates/creme_config/bricks/custom-forms.html:54
 msgid "Edit this group"
