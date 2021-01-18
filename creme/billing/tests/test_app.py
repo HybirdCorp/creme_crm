@@ -11,6 +11,7 @@ from creme.creme_core.models import (
     Vat,
 )
 # from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -72,6 +73,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertIs(True, sv.value)
 
+    @skipIfNotInstalled('creme.activities')
+    def test_populate_activities(self):
         # Contribution to activities
         from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 

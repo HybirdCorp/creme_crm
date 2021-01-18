@@ -23,6 +23,7 @@ from creme.creme_core.models import (
     SetCredentials,
     SettingValue,
 )
+from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.opportunities import constants, setting_keys
 from creme.opportunities.models import Origin, SalesPhase
 from creme.persons.constants import REL_SUB_PROSPECT
@@ -62,8 +63,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         )
 
     def test_populate(self):  # test get_compatible_ones() too
-        get_ct = ContentType.objects.get_for_model
-        ct = get_ct(Opportunity)
+        ct = ContentType.objects.get_for_model(Opportunity)
         relation_types = RelationType.objects.compatible(ct).in_bulk()
 
         Product = products.get_product_model()
@@ -116,11 +116,16 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         assertSVEqual(setting_keys.target_constraint_key, True)
         assertSVEqual(setting_keys.emitter_constraint_key, True)
 
-        # Contribution to activities
+    @skipIfNotInstalled('creme.activities')
+    def test_populate_activities(self):
+        "Contribution to activities."
+        get_ct = ContentType.objects.get_for_model
+        opp_ct = get_ct(Opportunity)
+
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)
-        self.assertTrue(rtype.subject_ctypes.filter(id=ct.id).exists())
+        self.assertTrue(rtype.subject_ctypes.filter(id=opp_ct.id).exists())
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
-        self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=ct.id).exists())
+        self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=opp_ct.id).exists())
 
     @skipIfCustomOrganisation
     def test_createview01(self):

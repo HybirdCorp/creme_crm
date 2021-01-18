@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,6 +50,7 @@ if apps.is_installed('creme.activities'):
 
     from creme.activities import constants as activities_constants
     from creme.activities import get_activity_model
+    from creme.activities.constants import NARROW
 
     Activity = get_activity_model()
 
@@ -76,6 +77,9 @@ if apps.is_installed('creme.activities'):
             return {
                 'last': EntityCredentials.filter(user, past(entity, now)).first(),
                 'next': EntityCredentials.filter(user, future(entity, now)).first(),
+                # NB: we avoid a templatetag from activities, because dynamic
+                #     {% load %} is not possible.
+                'NARROW': NARROW,
             }
 
     class NeglectedContactIndicator:
