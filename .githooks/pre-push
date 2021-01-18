@@ -3,7 +3,7 @@
 . .githooks/toolkit
 
 PRE_PUSH_CHECKS=${PRE_PUSH_CHECKS-"flake8 isort eslint signature"}
-GIT_PARENT_BRANCH="${GIT_PARENT_BRANCH:-master}"
+GIT_PARENT_BRANCH="${GIT_PARENT_BRANCH:-main}"
 
 hook_check_isort() {
     git diff $GIT_PARENT_BRANCH --name-only --diff-filter=MARC | { grep '.py$' || true; } | xargs --no-run-if-empty isort --check --diff --atomic
