@@ -50,7 +50,7 @@ class CurrentAppConfigItem(ViewableItem):
 
     def guess_current_app_config(self, context):
         label = self.guess_current_app_label(context)
-        if label:
+        if label and label != 'creme_config':
             try:
                 return self.config_registry.get_app_registry(label)
             except LookupError:
