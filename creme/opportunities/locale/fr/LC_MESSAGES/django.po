@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'OPPORTUNITIES' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-18 16:51+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -240,11 +240,11 @@ msgstr "Opportunité"
 
 #: models/opportunity.py:146
 msgid "Emitter is required."
-msgstr "Un émetteur est requis."
+msgstr "L'émetteur est requis."
 
 #: models/opportunity.py:149
 msgid "Target is required."
-msgstr "Une cible est requise."
+msgstr "La cible est requise."
 
 #: populate.py:81
 msgid "targets the organisation/contact"
