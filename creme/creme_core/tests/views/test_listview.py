@@ -16,6 +16,7 @@ from django.utils.encoding import force_text
 from django.utils.http import urlquote
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import (
@@ -1316,7 +1317,9 @@ class ListViewTestCase(ViewsTestCase):
         # self.assertEqual(_('Sector'), widget_node.attrib.get('title'))  TODO
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertInChoices(value='',                label=_('All'),        choices=options)
+        self.assertInChoices(
+            value='', label=pgettext('creme_core-filter', 'All'), choices=options,
+        )
         self.assertInChoices(value=str(mercenary.id), label=mercenary.title, choices=options)
         self.assertInChoices(value=str(robotics.id),  label=robotics.title,  choices=options)
 
@@ -1356,7 +1359,9 @@ class ListViewTestCase(ViewsTestCase):
         )[0]
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertInChoices(value='',  label=_('All'), choices=options)
+        self.assertInChoices(
+            value='',  label=pgettext('creme_core-filter', 'All'), choices=options,
+        )
         self.assertInChoices(value='1', label=_('Yes'), choices=options)
         self.assertInChoices(value='0', label=_('No'),  choices=options)
         self.assertEqual(3, len(options))
@@ -1513,7 +1518,9 @@ class ListViewTestCase(ViewsTestCase):
         )[0]
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertInChoices(value='', label=_('All'), choices=options)
+        self.assertInChoices(
+            value='', label=pgettext('creme_core-filter', 'All'), choices=options,
+        )
 
         # ---------------------------------------------------------------------
         response = self.assertPOST200(
@@ -2540,7 +2547,9 @@ class ListViewTestCase(ViewsTestCase):
         )[0]
 
         options = self._get_options_for_select_node(widget_node)
-        self.assertInChoices(value='',  label=_('All'), choices=options)
+        self.assertInChoices(
+            value='', label=pgettext('creme_core-filter', 'All'), choices=options,
+        )
         self.assertInChoices(value='1', label=_('Yes'), choices=options)
         self.assertInChoices(value='0', label=_('No'),  choices=options)
         self.assertEqual(3, len(options))

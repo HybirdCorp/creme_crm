@@ -14,6 +14,7 @@ from django.utils.encoding import force_text
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
@@ -272,7 +273,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                     count=count,
                     model='Test Contacts',
                     view=hf.name,
-                    filter=_('All'),
+                    filter=pgettext('creme_core-filter', 'All'),
                 ),
             ],
             hline.get_verbose_modifications(user),

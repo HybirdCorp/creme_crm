@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'REPORTS' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-11 13:52+0100\n"
+"POT-Creation-Date: 2021-01-18 16:25+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -294,9 +294,11 @@ msgstr ""
 "Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
 "type de fiche (ex: seulement les contacts)."
 
+# Already in creme_core
 #: forms/bulk.py:45 forms/report.py:100 forms/report.py:404
+msgctxt "creme_core-filter"
 msgid "All"
-msgstr "Tout"
+msgstr ""
 
 #: forms/bulk.py:72 forms/bulk.py:117 forms/report.py:93 forms/report.py:414
 msgid "The filter cannot be changed because it is private."

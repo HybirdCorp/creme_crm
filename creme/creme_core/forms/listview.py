@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020  Hybird
+#    Copyright (C) 2019-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,7 @@ from django.utils.formats import get_format
 from django.utils.functional import cached_property
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core import enumerable
 from creme.creme_core.forms.base import CremeForm
@@ -166,9 +167,10 @@ class SelectLVSWidget(ListViewSearchWidget):
 
             group_choices.append(
                 # TODO: use "help" ? (need to display entirely our widget, not a regular <select>)
-                {'value': value,
-                 'text': choice['label'],
-                 'selected': selected_value == value,
+                {
+                    'value': value,
+                    'text': choice['label'],
+                    'selected': selected_value == value,
                 }
             )
 
@@ -178,9 +180,9 @@ class SelectLVSWidget(ListViewSearchWidget):
         context = super().get_context(name, value, attrs)
 
         w_ctxt = context['widget']
-        w_ctxt['choices'] = self._build_groups(choices=self.choices,
-                                               selected_value=w_ctxt['value'],
-                                              )
+        w_ctxt['choices'] = self._build_groups(
+            choices=self.choices, selected_value=w_ctxt['value'],
+        )
         w_ctxt['NULL_FK'] = NULL
 
         return context
@@ -317,9 +319,10 @@ class BaseDecimalField(BaseIntegerField):
     def _sanitize_separators(value):
         # if isinstance(value, str):
         parts = []
-        decimal_separator = get_format('DECIMAL_SEPARATOR',
-                                       use_l10n=True,  # <=========
-                                      )
+        decimal_separator = get_format(
+            'DECIMAL_SEPARATOR',
+            use_l10n=True,  # <=========
+        )
         if decimal_separator in value:
             value, decimals = value.split(decimal_separator, 1)
             parts.append(decimals)
@@ -329,9 +332,10 @@ class BaseDecimalField(BaseIntegerField):
             if thousand_sep == '.' and value.count('.') == 1 and len(value.split('.')[-1]) != 3:
                 pass
             else:
-                for replacement in {thousand_sep,
-                                    unicodedata.normalize('NFKD', thousand_sep)
-                                   }:
+                for replacement in {
+                    thousand_sep,
+                    unicodedata.normalize('NFKD', thousand_sep)
+                }:
                     value = value.replace(replacement, '')
         parts.append(value)
         # value = '.'.join(reversed(parts))
@@ -358,7 +362,9 @@ class BaseChoiceField(ListViewSearchField):
         self.choices = self.widget.choices = self._build_choices()
 
     def _build_choices(self, null_label=None):
-        choices = [{'value': '', 'label': _('All')}]
+        choices = [
+            {'value': '', 'label': pgettext_lazy('creme_core-filter', 'All')},
+        ]
 
         if null_label is not None:
             choices.append({'value': NULL, 'label': null_label})
@@ -513,7 +519,7 @@ class RegularRelatedField(ListViewSearchField):
             enumerable_registry = self.enumerable_registry
 
         self.choices = self.widget.choices = choices = [
-            {'value': '', 'label': _('All')},
+            {'value': '', 'label': pgettext_lazy('creme_core-filter', 'All')},
         ]
 
         field = self.cell.field_info[-1]
@@ -694,11 +700,12 @@ class CustomChoiceField(BaseChoiceField):
         #            '{}__custom_field'.format(related_name): cfield.id,
         #           }
         #        )
-        return Q(pk__in=cfield.value_class
-                              .objects
-                              .filter(custom_field=cfield, value=choice_value)
-                              .values_list('entity_id', flat=True)
-                )
+        return Q(
+            pk__in=cfield.value_class
+                         .objects
+                         .filter(custom_field=cfield, value=choice_value)
+                         .values_list('entity_id', flat=True),
+        )
 
     def _get_q_for_null_choice(self):
         cfield = self.cell.custom_field
@@ -727,11 +734,10 @@ class RelationField(ListViewSearchField):
             #         relations__object_entity__header_filter_search_field__icontains=value,
             #        )
             return Q(
-                pk__in=Relation.objects
-                               .filter(type=self.cell.relation_type,
-                                       object_entity__header_filter_search_field__icontains=value,
-                                      )
-                               .values_list('subject_entity', flat=True)
+                pk__in=Relation.objects.filter(
+                    type=self.cell.relation_type,
+                    object_entity__header_filter_search_field__icontains=value,
+                ).values_list('subject_entity', flat=True),
             )
 
         return super().to_python(value=value)

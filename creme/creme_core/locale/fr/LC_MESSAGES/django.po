@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-17 15:20+0100\n"
+"POT-Creation-Date: 2021-01-18 16:22+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -203,7 +203,7 @@ msgstr "Historique"
 msgid "History of consultation"
 msgstr "Historique de consultation"
 
-#: bricks.py:280 gui/menu.py:605 models/history.py:408
+#: bricks.py:280 gui/menu.py:605 models/history.py:409
 #: templates/creme_core/trash.html:4 templates/creme_core/trash.html:8
 msgid "Trash"
 msgstr "Corbeille"
@@ -337,7 +337,7 @@ msgstr "Vider «{model}» - «{field}»"
 msgid "In «{model} - {field}», replace by a fallback value"
 msgstr "Dans «{model} - {field}», remplacer par une valeur de secours"
 
-#: core/entity_cell.py:283 core/entity_cell.py:341 forms/batch_process.py:197
+#: core/entity_cell.py:283 core/entity_cell.py:341 forms/batch_process.py:201
 #: templates/creme_core/bricks/jobs-all.html:27
 #: templates/creme_core/bricks/jobs-mine.html:14
 #: templates/creme_core/bricks/trash.html:19
@@ -997,7 +997,7 @@ msgstr "Cette opérateur est invalide."
 msgid "Invalid value => %(error)s"
 msgstr "Valeur invalide => %(error)s"
 
-#: forms/batch_process.py:193 templates/creme_core/forms/entity-filter.html:4
+#: forms/batch_process.py:196 templates/creme_core/forms/entity-filter.html:4
 #: templates/creme_core/forms/entity-filter.html:7
 #: templates/creme_core/forms/widgets/unordered-multiple.html:22
 #: templates/creme_core/templatetags/listview/entity-filters.html:4
@@ -1005,12 +1005,13 @@ msgctxt "creme_core-noun"
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/batch_process.py:195 forms/listview.py:361 forms/listview.py:516
-#: models/history.py:668
+#: forms/batch_process.py:198 forms/listview.py:366 forms/listview.py:522
+#: models/history.py:672
 #: templates/creme_core/listview/search-widgets/boolean.html:3
 #: templates/creme_core/templatetags/listview/entity-filters.html:7
 #: templates/creme_core/templatetags/search-form.html:7
-#: views/entity_filter.py:224 views/entity_filter.py:233
+#: views/entity_filter.py:225 views/entity_filter.py:234
+msgctxt "creme_core-filter"
 msgid "All"
 msgstr "Tout"
 
@@ -1282,7 +1283,7 @@ msgstr ""
 "Une vue de liste privée peut seulement être utilisée par son propriétaire "
 "(ou les coéquipiers si le propriétaire est une équipe)"
 
-#: forms/listview.py:63
+#: forms/listview.py:64
 msgid ""
 "You can use these operators: <, <=, >, >=\n"
 "Eg: < 100\n"
@@ -1296,7 +1297,7 @@ msgstr ""
 "Vous pouvez combiner plusieurs expressions avec le séparateur «;»\n"
 "Ex: > -100 ; <= 2000\n"
 
-#: forms/listview.py:76
+#: forms/listview.py:77
 msgid ""
 "You can use these operators: <, <=, >, >=\n"
 "Eg: < 100\n"
@@ -1310,7 +1311,7 @@ msgstr ""
 "Vous pouvez combiner plusieurs expressions avec le séparateur «;»\n"
 "Ex: > 100 ; <= 2000\n"
 
-#: forms/listview.py:85
+#: forms/listview.py:86
 msgid ""
 "You can use these operators: <, <=, >, >=\n"
 "Eg: < 100\n"
@@ -1324,7 +1325,7 @@ msgstr ""
 "Vous pouvez combiner plusieurs expressions avec le séparateur «;»\n"
 "Ex: > 10 ; <= 10,5\n"
 
-#: forms/listview.py:94
+#: forms/listview.py:95
 msgid ""
 "You must use these operators: <, <=, >, >=\n"
 "Eg: < 100\n"
@@ -1338,7 +1339,7 @@ msgstr ""
 "Vous pouvez combiner plusieurs expressions avec le séparateur «;»\n"
 "Ex: > 10 ; <= 10,5\n"
 
-#: forms/listview.py:461 forms/listview.py:507 forms/listview.py:677
+#: forms/listview.py:467 forms/listview.py:513 forms/listview.py:683
 msgid "* is empty *"
 msgstr "* est vide *"
 
@@ -1733,13 +1734,13 @@ msgstr ""
 msgid "Download «{file}»"
 msgstr "Télécharger «{file}»"
 
-#: gui/field_printers.py:242 models/custom_field.py:419 models/history.py:174
+#: gui/field_printers.py:242 models/custom_field.py:419 models/history.py:175
 #: templates/creme_core/listview/search-widgets/boolean.html:5
 #: utils/__init__.py:267
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:242 models/custom_field.py:419 models/history.py:175
+#: gui/field_printers.py:242 models/custom_field.py:419 models/history.py:176
 #: templates/creme_core/listview/search-widgets/boolean.html:6
 #: utils/__init__.py:270
 msgid "No"
@@ -2363,7 +2364,7 @@ msgstr "Nombre à virgule"
 msgid "Date and time"
 msgstr "Date et heure"
 
-#: models/custom_field.py:396 models/history.py:685
+#: models/custom_field.py:396 models/history.py:689
 #: templates/creme_core/bricks/history.html:13
 #: templates/creme_core/bricks/imprints.html:11
 msgid "Date"
@@ -2630,130 +2631,130 @@ msgstr "Cette vue ne peut être supprimée"
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
-#: models/history.py:176
+#: models/history.py:177
 #: templates/creme_core/listview/search-widgets/boolean.html:4
 msgid "N/A"
 msgstr "NC"
 
-#: models/history.py:331 models/history.py:337
+#: models/history.py:332 models/history.py:338
 #, python-brace-format
 msgid "Set field “{field}”"
 msgstr "Champ “{field}” modifié"
 
-#: models/history.py:339
+#: models/history.py:340
 #, python-brace-format
 msgid "Set field “{field}” to “{value}”"
 msgstr "Champ “{field}” mis à “{value}”"
 
-#: models/history.py:345
+#: models/history.py:346
 #, python-brace-format
 msgid "Set field “{field}” from “{oldvalue}” to “{value}”"
 msgstr "Champ “{field}” passe de “{oldvalue}” à “{value}”"
 
-#: models/history.py:365
+#: models/history.py:366
 msgid "Creation"
 msgstr "Création"
 
-#: models/history.py:378
+#: models/history.py:379
 msgid "Edition"
 msgstr "Modification"
 
-#: models/history.py:394
+#: models/history.py:395
 msgid "Deletion"
 msgstr "Suppression"
 
-#: models/history.py:427
+#: models/history.py:428
 msgid "Sent to the trash"
 msgstr "Envoyé dans la corbeille"
 
-#: models/history.py:429
+#: models/history.py:430
 msgid "Restored"
 msgstr "Restauré"
 
-#: models/history.py:434
+#: models/history.py:435
 msgid "Related modification"
 msgstr "Modification liée"
 
-#: models/history.py:459
+#: models/history.py:460
 msgid "Property creation"
 msgstr "Création de propriété"
 
-#: models/history.py:460
+#: models/history.py:461
 msgid "Add property “{}”"
 msgstr "Ajout de la propriété “{}”"
 
-#: models/history.py:481
+#: models/history.py:482
 msgid "Property deletion"
 msgstr "Suppression de propriété"
 
-#: models/history.py:482
+#: models/history.py:483
 msgid "Delete property “{}”"
 msgstr "Suppression de la propriété “{}”"
 
-#: models/history.py:493 models/relation.py:448
+#: models/history.py:494 models/relation.py:448
 msgid "Relationship"
 msgstr "Relation"
 
-#: models/history.py:496
+#: models/history.py:497
 msgid "Add a relationship “{}”"
 msgstr "Ajout de la relation: “{}”"
 
-#: models/history.py:542
+#: models/history.py:543
 msgid "Relationship deletion"
 msgstr "Suppression de Relation"
 
-#: models/history.py:543
+#: models/history.py:544
 msgid "Delete a relationship “{}”"
 msgstr "Suppression de la relation “{}”"
 
-#: models/history.py:558
+#: models/history.py:559
 msgid "Auxiliary (creation)"
 msgstr "Auxiliaire (création)"
 
-#: models/history.py:580
+#: models/history.py:581
 #, python-brace-format
 msgid "Add <{type}>: “{value}”"
 msgstr "Ajout de <{type}>: “{value}”"
 
-#: models/history.py:587
+#: models/history.py:588
 msgid "Auxiliary (edition)"
 msgstr "Auxiliaire (modification)"
 
-#: models/history.py:607
+#: models/history.py:608
 #, python-brace-format
 msgid "Edit <{type}>: “{value}”"
 msgstr "Modification de <{type}>: “{value}”"
 
-#: models/history.py:617
+#: models/history.py:618
 msgid "Auxiliary (deletion)"
 msgstr "Auxiliaire (suppression)"
 
-#: models/history.py:626
+#: models/history.py:627
 #, python-brace-format
 msgid "Delete <{type}>: “{value}”"
 msgstr "Suppression de <{type}>: “{value}”"
 
-#: models/history.py:633
+#: models/history.py:634
 msgid "Mass export"
 msgstr "Export en masse"
 
-#: models/history.py:664
+#: models/history.py:665
 #, python-brace-format
 msgid "Export of {count} «{model}» (view «{view}» & filter «{filter}»)"
 msgstr "Export de {count} «{model}» (vue «{view}» & filtre «{filter}»)"
 
-#: models/history.py:687 templates/creme_core/bricks/job.html:50
+#: models/history.py:691 templates/creme_core/bricks/job.html:50
 #: templates/creme_core/bricks/jobs-all.html:22
 #: templates/creme_core/bricks/jobs-mine.html:12
 #: templates/creme_core/bricks/trash.html:17
 msgid "Type"
 msgstr "Type"
 
-#: models/history.py:700
+#: models/history.py:704
 msgid "Line of history"
 msgstr "Ligne d'historique"
 
-#: models/history.py:701
+#: models/history.py:705
 msgid "Lines of history"
 msgstr "Lignes d'historique"
 
@@ -4199,7 +4200,7 @@ msgstr[1] "{count} fiches n'existent pas ou ont été supprimées."
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
-#: views/entity_filter.py:90
+#: views/entity_filter.py:91
 msgid ""
 "Notice: your database is not case sensitive, so the string operators which "
 "are case sensitive and the ones which are not will accept the same entities."
@@ -4208,7 +4209,7 @@ msgstr ""
 "opérateurs sur chaîne de caractères qui sont sensibles à la casse et ceux "
 "qui ne le sont pas accepteront les mêmes fiches."
 
-#: views/entity_filter.py:96
+#: views/entity_filter.py:97
 msgid ""
 "Notice: your database is not case sensitive for the \"equals\" operator, so "
 "the string equality operators which are case sensitive and the ones which "
@@ -4219,7 +4220,7 @@ msgstr ""
 "caractères qui sont sensibles à la casse et ceux qui ne le sont pas "
 "accepteront les mêmes fiches."
 
-#: views/entity_filter.py:102
+#: views/entity_filter.py:103
 msgid ""
 "Notice: your database is not case sensitive, so the string operators which "
 "are case sensitive and the ones which are not will accept the same entities "
@@ -4230,11 +4231,11 @@ msgstr ""
 "qui ne le sont pas accepteront les mêmes fiches (exceptés ceux d'égalité qui "
 "sont sensibles à la casse)."
 
-#: views/entity_filter.py:167
+#: views/entity_filter.py:168
 msgid "Save the modified filter"
 msgstr "Enregistrer le filtre modifié"
 
-#: views/entity_filter.py:206
+#: views/entity_filter.py:207
 msgid "The filter can not be deleted because of its dependencies."
 msgstr "Le filtre ne peut être supprimé à cause de ses dépendances."
 
@@ -4340,6 +4341,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 #: views/search.py:260
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "All"
+#~ msgstr "Tout"
 
 #~ msgid "Verbose"
 #~ msgstr "Verbeux"

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext, pgettext_lazy
 
 from .. import utils
 from ..auth.decorators import login_required
@@ -221,7 +222,7 @@ def get_content_types(request, rtype_id):
     ).object_ctypes.all() or entity_ctypes()
 
     return [
-        (0, gettext('All')),
+        (0, pgettext('creme_core-filter', 'All')),
         *((ct.id, str(ct)) for ct in content_types),
     ]
 
@@ -230,7 +231,7 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
     response_class = CremeJsonResponse
     ctype_id_arg = 'ct_id'
     include_all_arg = 'all'
-    all_label = _('All')  # TODO: pgettext_lazy (in other places too)
+    all_label = pgettext_lazy('creme_core-filter', 'All')
 
     def check_related_ctype(self, ctype):
         self.request.user.has_perm_to_access_or_die(ctype.app_label)

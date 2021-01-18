@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -97,7 +97,7 @@ class FilterSubCell(CustomFormExtraSubCell):
         mfield = type(instance)._meta.get_field(field_name)
 
         choice_field = mfield.formfield()
-        choice_field.empty_label = _('All')  # TODO: context
+        choice_field.empty_label = pgettext_lazy('creme_core-filter', 'All')
         choice_field.queryset = choice_field.queryset.filter(
             entity_type=getattr(instance, self.ctype_field_name),
         )
@@ -401,7 +401,7 @@ class ReportEditForm(CremeEntityForm):
         super().__init__(*args, **kwargs)
         fields = self.fields
         filter_f = fields['filter']
-        filter_f.empty_label = _('All')
+        filter_f.empty_label = pgettext_lazy('creme_core-filter', 'All')
         filter_f.queryset = filter_f.queryset.filter(entity_type=self.instance.ct)
 
         efilter = self.instance.filter

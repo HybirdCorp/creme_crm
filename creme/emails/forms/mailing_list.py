@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ import warnings
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme import persons
 from creme.creme_core.forms import (
@@ -95,7 +96,8 @@ class AddOrganisationsForm(CremeForm):  # TODO: factorise
 class _AddPersonsFromFilterForm(CremeForm):
     filters = ModelChoiceField(
         label=_('Filters'), queryset=EntityFilter.objects.none(),
-        empty_label=_('All'), required=False,
+        empty_label=pgettext_lazy('creme_core-filter', 'All'),
+        required=False,
     )
 
     person_model = None  # Contact/Organisation

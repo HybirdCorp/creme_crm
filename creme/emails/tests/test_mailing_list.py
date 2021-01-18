@@ -6,6 +6,7 @@ from io import StringIO
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 from parameterized import parameterized
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -420,7 +421,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         self.assertListEqual(
             [
-                ('', _('All')),
+                ('', pgettext('creme_core-filter', 'All')),
                 *(
                     (ef.id, ef.name)
                     for ef in EntityFilter.objects.filter(
