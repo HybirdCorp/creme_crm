@@ -439,7 +439,15 @@ Those templates need to be cleaned up */
 }
 
 .brick-table .brick-table-content > thead .brick-table-nowrap {
-    whitespace: no-wrap
+    whitespace: no-wrap;
+}
+
+.brick-table .brick-table-content tbody .brick-table-data-valid {
+    background-color: #90ee90;
+}
+
+.brick-table .brick-table-content tbody .brick-table-data-error {
+    background-color: #f08080;
 }
 
 /* brick types - table type - end */

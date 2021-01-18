@@ -82,13 +82,13 @@
     <tr class="graph-row-header graph-row-collapsed" data-graph-id="{{graph.id}}">
         <td>{{expand_icon.render}}{{collapse_icon.render}}</td>
         <td {% brick_table_data_status primary %}><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
-        <td {% if hand.abscissa_error != None %}class="td_error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>
+        <td {% if hand.abscissa_error != None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>
 {#        <td>{{hand.verbose_name}}{% if graph.days %} ({{graph.days}}){% endif %}</td> #}
-        <td {% if hand.abscissa_error != None %}class="td_error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
+        <td {% if hand.abscissa_error != None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
 {#        <td {% if hand.ordinate_error %}class="td_error"{% endif %}>{{hand.verbose_ordinate}}</td> #}
         {% with ordinate=hand.ordinate %}
-        <td {% if ordinate.error != None %}class="td_error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
-        <td {% if ordinate.error != None %}class="td_error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
+        <td {% if ordinate.error != None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
+        <td {% if ordinate.error != None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
         {% endwith %}
         <td {% brick_table_data_status action %}>
             {% has_perm_to change graph as graph_edit_perm %}{% url 'reports__edit_graph' graph.id as edition_url %}

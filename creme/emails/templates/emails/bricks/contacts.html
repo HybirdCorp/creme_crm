@@ -24,7 +24,7 @@
 {% block brick_table_rows %}
 {% if field_hidden %}
     <tr>
-        <td class="td_error">{% trans "The field «Email address» of Contact is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
+        <td class="brick-table-data-error">{% trans "The field «Email address» of Contact is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
     </tr>
 {% else %}{% has_perm_to change object as edit_perm %}{% url 'emails__remove_contact_from_mlist' object.id as rm_contact_url %}
     {% for contact in page.object_list %}
