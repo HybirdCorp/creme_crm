@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'EMAILS' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-18 16:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -52,12 +52,12 @@ msgstr "Listes de diffusion d'e-mails"
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: bricks.py:137 forms/mailing_list.py:62 forms/mailing_list.py:129
+#: bricks.py:137 forms/mailing_list.py:63 forms/mailing_list.py:131
 #: models/mailing_list.py:39 templates/emails/bricks/contacts.html:7
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
-#: bricks.py:153 forms/mailing_list.py:81 forms/mailing_list.py:138
+#: bricks.py:153 forms/mailing_list.py:82 forms/mailing_list.py:140
 #: models/mailing_list.py:44 templates/emails/bricks/organisations.html:7
 msgid "Organisations recipients"
 msgstr "Sociétés destinataires"
@@ -187,12 +187,10 @@ msgid "Edition form for template"
 msgstr "Formulaire de modification de patron"
 
 #: custom_forms.py:42
-#| msgid "Create a mailing list"
 msgid "Creation form for mailing list"
 msgstr "Formulaire de création de liste de diffusion"
 
 #: custom_forms.py:48
-#| msgid "Add existing mailing lists"
 msgid "Edition form for mailing list"
 msgstr "Formulaire de modification de liste de diffusion"
 
@@ -200,51 +198,51 @@ msgstr "Formulaire de modification de liste de diffusion"
 msgid "Lists"
 msgstr "Listes"
 
-#: forms/mail.py:62 models/mail.py:51
+#: forms/mail.py:63 models/mail.py:51
 msgid "Sender"
 msgstr "Émetteur"
 
-#: forms/mail.py:65 forms/mailing_list.py:59
+#: forms/mail.py:66 forms/mailing_list.py:60
 msgid "Contacts"
 msgstr "Contacts"
 
-#: forms/mail.py:68 forms/mailing_list.py:78
+#: forms/mail.py:69 forms/mailing_list.py:79
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: forms/mail.py:71
+#: forms/mail.py:72
 msgid "Send me a copy of this mail"
 msgstr "Envoyez moi une copie de cet e-mail"
 
-#: forms/mail.py:74
+#: forms/mail.py:75
 msgid "Select at least a Contact or an Organisation"
 msgstr "Sélectionnez au moins un Contact ou une Société"
 
-#: forms/mail.py:78
+#: forms/mail.py:79
 msgid "Who"
 msgstr "Qui"
 
-#: forms/mail.py:79
+#: forms/mail.py:80
 msgid "What"
 msgstr "Quoi"
 
-#: forms/mail.py:80
+#: forms/mail.py:81
 msgid "With"
 msgstr "Avec"
 
-#: forms/mail.py:81
+#: forms/mail.py:82
 msgid "Required custom fields"
 msgstr "Champs personnalisés obligatoires"
 
-#: forms/mail.py:94
+#: forms/mail.py:99
 msgid "Beware: the contact «{}» has no email address!"
 msgstr "Attention : le contact «{}» n'a pas d'adresse e-mail !"
 
-#: forms/mail.py:96
+#: forms/mail.py:101
 msgid "Beware: the organisation «{}» has no email address!"
 msgstr "Attention : la société «{}» n'a pas d'adresse e-mail !"
 
-#: forms/mail.py:117
+#: forms/mail.py:122
 msgid ""
 "Beware: the field «Email address» is hidden ; please contact your "
 "administrator."
@@ -252,44 +250,46 @@ msgstr ""
 "Attention : le champ «Adresse email» est caché ; veuillez contacter votre "
 "administrateur."
 
-#: forms/mail.py:139
+#: forms/mail.py:144
 msgid "The email address for {} is invalid"
 msgstr "L'adresse e-mail pour {} est invalide"
 
-#: forms/mail.py:213
+#: forms/mail.py:218
 msgctxt "emails"
 msgid "Template"
 msgstr "Patron d'e-mail"
 
-#: forms/mail.py:218
+#: forms/mail.py:223
 msgid "Select this template"
 msgstr "Sélectionner ce patron"
 
-#: forms/mailing_list.py:97
+#: forms/mailing_list.py:98
 msgid "Filters"
 msgstr "Filtres"
 
-#: forms/mailing_list.py:98
+# Already in creme_core
+#: forms/mailing_list.py:99
+msgctxt "creme_core-filter"
 msgid "All"
-msgstr "Tout"
+msgstr ""
 
-#: forms/mailing_list.py:147
+#: forms/mailing_list.py:149
 msgid "List"
 msgstr "Liste"
 
-#: forms/mailing_list.py:150
+#: forms/mailing_list.py:152
 msgid "A list can't be its own child"
 msgstr "Une liste ne peut pas être fille d'elle même"
 
-#: forms/mailing_list.py:151
+#: forms/mailing_list.py:153
 msgid "List already in the parents"
 msgstr "Liste déjà dans les parents"
 
-#: forms/mailing_list.py:152
+#: forms/mailing_list.py:154
 msgid "List already in the children"
 msgstr "Liste déjà dans les filles"
 
-#: forms/mailing_list.py:155
+#: forms/mailing_list.py:157
 msgid "Child mailing list"
 msgstr "Liste de diffusion fille"
 

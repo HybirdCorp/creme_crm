@@ -4,7 +4,7 @@
         {% trans 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
     </div>
     <select name="filter" class="lv-state-field list-filters-selector">
-        <option value="">{% trans 'All' %}</option>
+        <option value="">{% trans 'All' context 'creme_core-filter' %}</option>
         {% for efilter in entity_filters %}
             <option value="{{efilter.id}}"{% if efilter_id == efilter.id %} selected{% endif %}>{{efilter.name}}</option>
         {% endfor %}

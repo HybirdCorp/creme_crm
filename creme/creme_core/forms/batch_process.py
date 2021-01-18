@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -146,10 +146,11 @@ class BatchActionsField(JSONField):
             raise ValidationError(self.error_messages['invalidfield'], code='invalidfield')
 
         if fname in used_fields:
-            raise ValidationError(self.error_messages['reusedfield'],
-                                  params={'field': field.verbose_name},
-                                  code='reusedfield',
-                                 )
+            raise ValidationError(
+                self.error_messages['reusedfield'],
+                params={'field': field.verbose_name},
+                code='reusedfield',
+            )
 
         used_fields.add(fname)
 
@@ -171,18 +172,19 @@ class BatchActionsField(JSONField):
 
         for entry in data:
             try:
-                action = BatchAction(model, clean_fieldname(entry, used_fields),
-                                     *clean_operator_n_value(entry)
-                                    )
+                action = BatchAction(
+                    model, clean_fieldname(entry, used_fields),
+                    *clean_operator_n_value(entry),
+                )
             except BatchAction.InvalidOperator:
-                raise ValidationError(self.error_messages['invalidoperator'],
-                                      code='invalidoperator',
-                                     )
+                raise ValidationError(
+                    self.error_messages['invalidoperator'], code='invalidoperator',
+                )
             except BatchAction.ValueError as e:
-                raise ValidationError(self.error_messages['invalidvalue'],
-                                      params={'error': e},
-                                      code='invalidvalue',
-                                     )
+                raise ValidationError(
+                    self.error_messages['invalidvalue'],
+                    params={'error': e}, code='invalidvalue',
+                )
 
             actions.append(action)
 
@@ -190,10 +192,12 @@ class BatchActionsField(JSONField):
 
 
 class BatchProcessForm(CremeModelForm):
-    filter  = ModelChoiceField(label=pgettext_lazy('creme_core-noun', 'Filter'),
-                               queryset=EntityFilter.objects.none(),
-                               empty_label=_('All'), required=False,
-                              )
+    filter = ModelChoiceField(
+        label=pgettext_lazy('creme_core-noun', 'Filter'),
+        queryset=EntityFilter.objects.none(),
+        empty_label=pgettext_lazy('creme_core-filter', 'All'),
+        required=False,
+    )
     actions = BatchActionsField(label=_('Actions'))
 
     class Meta:

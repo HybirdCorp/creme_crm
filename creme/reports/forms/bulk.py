@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2020  Hybird
+#    Copyright (C) 2014-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.core.exceptions import ValidationError
 # from django.forms.fields import CharField
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
+from django.utils.translation import ngettext, pgettext_lazy
 
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.fields import ReadonlyMessageField
@@ -42,7 +42,7 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
 
         filter_field = self.fields['field_value']
-        filter_field.empty_label = _('All')
+        filter_field.empty_label = pgettext_lazy('creme_core-filter', 'All')
 
         first_ct = entities[0].ct if entities else None
         self._has_same_report_ct = all(e.ct == first_ct for e in entities)

@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'SMS' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-18 16:26+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -32,16 +32,16 @@ msgstr "Listes de diffusion"
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: bricks.py:77 forms/messaging_list.py:58 forms/messaging_list.py:107
+#: bricks.py:77 forms/messaging_list.py:59 forms/messaging_list.py:110
 #: models/messaging_list.py:33 templates/sms/bricks/contacts.html:7
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
-#: bricks.py:95
+#: bricks.py:97
 msgid "Sent messages"
 msgstr "Messages envoyés"
 
-#: bricks.py:107 models/message.py:90 templates/sms/bricks/sendings.html:20
+#: bricks.py:109 models/message.py:90 templates/sms/bricks/sendings.html:20
 msgid "Sendings"
 msgstr "Envois"
 
@@ -81,17 +81,19 @@ msgstr "Listes"
 msgid "Message template"
 msgstr "Patron de message"
 
-#: forms/messaging_list.py:55
+#: forms/messaging_list.py:56
 msgid "Contacts"
 msgstr "Contacts"
 
-#: forms/messaging_list.py:74
+#: forms/messaging_list.py:75
 msgid "Filters"
 msgstr "Filtres"
 
-#: forms/messaging_list.py:75
+# Already n creme_core
+#: forms/messaging_list.py:77
+msgctxt "creme_core-filter"
 msgid "All"
-msgstr "Tout"
+msgstr ""
 
 #: forms/recipient.py:35 forms/recipient.py:39 forms/recipient.py:64
 #: models/recipient.py:42

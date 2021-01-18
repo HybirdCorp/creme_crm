@@ -54,7 +54,7 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertHTMLEqual(
             f'<input class="lv-state-field" name="{name}" '
             f'type="text" data-lv-search-widget="text" value="{value}" />',
-            widget.render(name=name, value=value)
+            widget.render(name=name, value=value),
         )
 
     def test_booleanwidget01(self):
@@ -75,11 +75,11 @@ class SearchWidgetsTestCase(CremeTestCase):
             ' <option value="0">{no}</option>'
             '</select>'.format(
                 name=name,
-                all=_('All'),
+                all=pgettext('creme_core-filter', 'All'),
                 yes=_('Yes'),
                 no=_('No'),
             ),
-            widget.render(name=name, value='1')
+            widget.render(name=name, value='1'),
         )
 
     def test_booleanwidget02(self):
@@ -103,12 +103,12 @@ class SearchWidgetsTestCase(CremeTestCase):
             ' <option value="0">{no}</option>'
             '</select>'.format(
                 name=name,
-                all=_('All'),
+                all=pgettext('creme_core-filter', 'All'),
                 null=_('N/A'),
                 yes=_('Yes'),
                 no=_('No'),
             ),
-            widget2.render(name=name, value='NULL')
+            widget2.render(name=name, value='NULL'),
         )
 
     def test_selectwidget01(self):
@@ -126,7 +126,7 @@ class SearchWidgetsTestCase(CremeTestCase):
         self.assertHTMLEqual(
             f'<select class="lv-state-field" data-lv-search-widget="select" '
             f'name="{name}"></select>',
-            widget.render(name=name, value=value)
+            widget.render(name=name, value=value),
         )
 
     def test_selectwidget02(self):
@@ -148,7 +148,7 @@ class SearchWidgetsTestCase(CremeTestCase):
             '  <option value="2" selected>two</option>'
             '  <option value="3">three</option>'
             '</select>',
-            widget.render(name=name, value='2')
+            widget.render(name=name, value='2'),
         )
 
     def test_selectwidget03(self):
@@ -180,22 +180,25 @@ class SearchWidgetsTestCase(CremeTestCase):
             '       <option value="b">B</option>'
             '   </optgroup>'
             '</select>',
-            widget.render(name=name, value='a')
+            widget.render(name=name, value='a'),
         )
 
     def test_daterangewidget(self):
         widget = lv_form.DateRangeLVSWidget()
         get_value = partial(widget.value_from_datadict, files=None)
-        self.assertEqual(['', ''], get_value(data={}, name='foobar'))
-        self.assertEqual(['baz', ''], get_value(name='foobar', data={'foobar-start': 'baz'}))
-        self.assertEqual(['', 'bar'], get_value(name='foo',    data={'foo-end': 'bar'}))
-        self.assertEqual(['yipee', 'kay'],
-                         get_value(name='foob',
-                                   data={'foob-start': 'yipee',
-                                         'foob-end':   'kay',
-                                        },
-                                  )
-                        )
+        self.assertListEqual(['', ''], get_value(data={}, name='foobar'))
+        self.assertListEqual(['baz', ''], get_value(name='foobar', data={'foobar-start': 'baz'}))
+        self.assertListEqual(['', 'bar'], get_value(name='foo',    data={'foo-end': 'bar'}))
+        self.assertListEqual(
+            ['yipee', 'kay'],
+            get_value(
+                name='foob',
+                data={
+                    'foob-start': 'yipee',
+                    'foob-end':   'kay',
+                },
+            ),
+        )
 
         name = 'search-birthday'
         self.assertHTMLEqual(
@@ -305,12 +308,14 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(capital__gte=123), to_python(value='>=123'))
         self.assertEqual(Q(capital__lte=25),  to_python(value='<=25'))
 
-        self.assertEqual(Q(capital__gte=100, capital__lt=200),
-                         to_python(value='>=100; <200')
-                        )
-        self.assertEqual(Q(capital__gte=100),
-                         to_python(value='>=100; <notanint')
-                        )
+        self.assertEqual(
+            Q(capital__gte=100, capital__lt=200),
+            to_python(value='>=100; <200'),
+        )
+        self.assertEqual(
+            Q(capital__gte=100),
+            to_python(value='>=100; <notanint'),
+        )
 
     def test_regular_positiveintegerfield(self):
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='capital')
@@ -338,12 +343,14 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(capital__gte=123), to_python(value='>=123'))
         self.assertEqual(Q(capital__lte=25),  to_python(value='<=25'))
 
-        self.assertEqual(Q(capital__gte=100, capital__lt=200),
-                         to_python(value='>=100; <200')
-                        )
-        self.assertEqual(Q(capital__gte=100),
-                         to_python(value='>=100; <notanint')
-                        )
+        self.assertEqual(
+            Q(capital__gte=100, capital__lt=200),
+            to_python(value='>=100; <200'),
+        )
+        self.assertEqual(
+            Q(capital__gte=100),
+            to_python(value='>=100; <notanint')
+        )
 
     def test_regular_decimalfield(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount')
@@ -372,24 +379,27 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(discount__gte=Decimal('123')), to_python(value='>=123'))
         self.assertEqual(Q(discount__lte=Decimal('25')),  to_python(value='<=25'))
 
-        self.assertEqual(Q(discount__gte=Decimal('100'), discount__lt=Decimal('200')),
-                         to_python(value='>=100; <200')
-                        )
-        self.assertEqual(Q(discount__gte=Decimal('100')),
-                         to_python(value='>=100; <notanint')
-                        )
+        self.assertEqual(
+            Q(discount__gte=Decimal('100'), discount__lt=Decimal('200')),
+            to_python(value='>=100; <200'),
+        )
+        self.assertEqual(
+            Q(discount__gte=Decimal('100')),
+            to_python(value='>=100; <notanint'),
+        )
 
         # With decimal part ---
         # TODO: fix when 'settings.USE_L10N = True' is set by default
         dec_sep = get_format('DECIMAL_SEPARATOR', use_l10n=True)
         self.assertEqual(Q(), to_python(value=dec_sep))
-        self.assertEqual(Q(discount__exact=Decimal('10.5')),
-                         to_python(value=number_format(Decimal('10.5'), use_l10n=True))
-                        )
+        self.assertEqual(
+            Q(discount__exact=Decimal('10.5')),
+            to_python(value=number_format(Decimal('10.5'), use_l10n=True)),
+        )
         # No whole part
-        self.assertEqual(Q(discount__exact=Decimal('0.5')),
-                         to_python(value=dec_sep + '5')
-                        )
+        self.assertEqual(
+            Q(discount__exact=Decimal('0.5')), to_python(value=dec_sep + '5'),
+        )
 
     def test_regular_floatfield(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount')
@@ -414,7 +424,7 @@ class SearchFieldsTestCase(CremeTestCase):
         # TODO: fix when 'settings.USE_L10N = True' is set by default
         self.assertEqual(
             Q(discount__gt=10.5),
-            to_python(value='>' + number_format(10.5, use_l10n=True))
+            to_python(value='>' + number_format(10.5, use_l10n=True)),
         )
 
     def test_regular_datefield(self):
@@ -430,26 +440,26 @@ class SearchFieldsTestCase(CremeTestCase):
                 dt(day=22, month=2, year=2019),
                 dt(day=28, month=2, year=2019, hour=23, minute=59, second=59),
             )),
-            to_python(value=['22-02-2019', '28-02-2019'])
+            to_python(value=['22-02-2019', '28-02-2019']),
         )
         self.assertEqual(
             Q(created__gte=dt(day=21, month=2, year=2019)),
-            to_python(value=['21-02-2019', ''])
+            to_python(value=['21-02-2019', '']),
         )
         self.assertEqual(
             Q(created__lte=dt(day=25, month=2, year=2019, hour=23, minute=59, second=59)),
-            to_python(value=['', '25-02-2019'])
+            to_python(value=['', '25-02-2019']),
         )
 
         # Invalid dates
         self.assertEqual(Q(), to_python(value=['abc', 'def']))
         self.assertEqual(
             Q(created__gte=dt(day=22, month=2, year=2019)),
-            to_python(value=['22-02-2019', 'zblu'])
+            to_python(value=['22-02-2019', 'zblu']),
         )
         self.assertEqual(
             Q(created__lte=dt(day=26, month=2, year=2019, hour=23, minute=59, second=59)),
-            to_python(value=['123', '26-02-2019'])
+            to_python(value=['123', '26-02-2019']),
         )
 
     def test_regular_choicefield(self):
@@ -457,7 +467,7 @@ class SearchFieldsTestCase(CremeTestCase):
 
         field = lv_form.RegularChoiceField(cell=cell, user=self.user)  # TODO: choices=... ?
         expected_choices = [
-            {'value': '',                'label': _('All')},
+            {'value': '',                'label': pgettext('creme_core-filter', 'All')},
             {'value': lv_form.NULL,      'label': _('* is empty *')},
             {'value': FAKE_PERCENT_UNIT, 'label': _('Percent')},
             {'value': FAKE_AMOUNT_UNIT,  'label': _('Amount')},
@@ -471,12 +481,14 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=''))
         self.assertEqual(Q(), to_python(value='unknown'))
 
-        self.assertEqual(Q(discount_unit=FAKE_PERCENT_UNIT),
-                         to_python(value=str(FAKE_PERCENT_UNIT))
-                        )
-        self.assertEqual(Q(discount_unit=FAKE_AMOUNT_UNIT),
-                         to_python(value=str(FAKE_AMOUNT_UNIT))
-                        )
+        self.assertEqual(
+            Q(discount_unit=FAKE_PERCENT_UNIT),
+            to_python(value=str(FAKE_PERCENT_UNIT))
+        )
+        self.assertEqual(
+            Q(discount_unit=FAKE_AMOUNT_UNIT),
+            to_python(value=str(FAKE_AMOUNT_UNIT))
+        )
 
         self.assertEqual(Q(discount_unit__isnull=True), to_python(value=lv_form.NULL))
 
@@ -486,12 +498,12 @@ class SearchFieldsTestCase(CremeTestCase):
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
 
         expected_choices = [
-            {'value': '',           'label': _('All')},
+            {'value': '',           'label': pgettext('creme_core-filter', 'All')},
             {'value': lv_form.NULL, 'label': _('* is empty *')},
             *(
                 {'value': pk, 'label': title}
                 for pk, title in FakeSector.objects.values_list('id', 'title')
-            )
+            ),
         ]
         self.assertEqual(expected_choices, field.choices)
 
@@ -519,13 +531,13 @@ class SearchFieldsTestCase(CremeTestCase):
         field = lv_form.RegularRelatedField(cell=cell, user=self.user)
         self.assertListEqual(
             [
-                {'value': '', 'label': _('All')},
+                {'value': '', 'label': pgettext('creme_core-filter', 'All')},
                 *(
                     {'value': pk, 'label': name}
                     for pk, name in FakeActivityType.objects.values_list('id', 'name')
-                )
+                ),
             ],
-            field.choices
+            field.choices,
         )
 
     def test_regular_relatedfield03(self):
@@ -535,14 +547,14 @@ class SearchFieldsTestCase(CremeTestCase):
 
         self.assertListEqual(
             [
-                {'value': '',           'label': _('All')},
+                {'value': '',           'label': pgettext('creme_core-filter', 'All')},
                 {'value': lv_form.NULL, 'label': _('* is empty *')},
                 *(
                     {'value': pk, 'label': name}
                     for pk, name in FakeImageCategory.objects.values_list('id', 'name')
                 )
             ],
-            field.choices
+            field.choices,
         )
 
     def test_regular_relatedfield04(self):
@@ -550,12 +562,12 @@ class SearchFieldsTestCase(CremeTestCase):
         # NB: limit_choices_to = lambda: ~Q(title='[INVALID]')
         cell = EntityCellRegularField.build(model=FakeContact, name='sector')
         expected_choices = [
-            {'value': '',           'label': _('All')},
+            {'value': '',           'label': pgettext('creme_core-filter', 'All')},
             {'value': lv_form.NULL, 'label': _('* is empty *')},
             *(
                 {'value': pk, 'label': title}
                 for pk, title in FakeSector.objects.values_list('id', 'title')
-            )
+            ),
         ]
 
         FakeSector.objects.create(title='[INVALID]')  # Excluded
@@ -584,7 +596,7 @@ class SearchFieldsTestCase(CremeTestCase):
         )
         self.assertListEqual(
             [
-                {'value': '',           'label': _('All')},
+                {'value': '',           'label': pgettext('creme_core-filter', 'All')},
                 {'value': lv_form.NULL, 'label': _('* is empty *')},
                 *(
                     {'value': pk, 'label': title}
@@ -593,14 +605,14 @@ class SearchFieldsTestCase(CremeTestCase):
                                                .values_list('id', 'title')
                 )
             ],
-            field.choices
+            field.choices,
         )
 
     def test_regular_relatedfield06(self):
         "Not enumerable FK."
         cell = EntityCellRegularField.build(model=FakeContact, name='address')
         expected_choices = [
-            {'value': '',           'label': _('All')},
+            {'value': '',           'label': pgettext('creme_core-filter', 'All')},
             {'value': lv_form.NULL, 'label': _('* is empty *')},
         ]
 
@@ -611,7 +623,7 @@ class SearchFieldsTestCase(CremeTestCase):
         "Field has a null_label."
         cell = EntityCellRegularField.build(model=FakeContact, name='is_user')
         expected_choices = [
-            {'value': '',           'label': _('All')},
+            {'value': '',           'label': pgettext('creme_core-filter', 'All')},
             {'value': lv_form.NULL, 'label': '* {} *'.format(pgettext('persons-is_user', 'None'))},
         ]
 
@@ -628,9 +640,10 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=None))
 
         value = 'foobar2000'
-        self.assertEqual(Q(linked_invoice__header_filter_search_field__icontains=value),
-                         to_python(value=value)
-                        )
+        self.assertEqual(
+            Q(linked_invoice__header_filter_search_field__icontains=value),
+            to_python(value=value),
+        )
 
         # TODO: NULL (future field/widget) (needs a nullable FK)
         # self.assertEqual(Q(linked_invoice__isnull=True), to_python(value=...lv_form.NULL...))
@@ -958,7 +971,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(field.widget, lv_form.SelectLVSWidget)
 
         expected_choices = [
-            {'value': '',           'label': _('All')},
+            {'value': '',           'label': pgettext('creme_core-filter', 'All')},
             {'value': lv_form.NULL, 'label': _('* is empty *')},
             {'value': punch.id,     'label': punch.value},
             {'value': kick.id,      'label': kick.value},
@@ -1031,7 +1044,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(field.widget, lv_form.SelectLVSWidget)
 
         expected_choices = [
-            {'value': '',           'label': _('All')},
+            {'value': '',           'label': pgettext('creme_core-filter', 'All')},
             {'value': lv_form.NULL, 'label': _('* is empty *')},
             {'value': punch.id,     'label': punch.value},
             {'value': kick.id,      'label': kick.value},
@@ -1074,9 +1087,10 @@ class SearchFieldsTestCase(CremeTestCase):
 
     def test_relationfield(self):
         user = self.user
-        rtype = RelationType.create(('test-subject_trains', 'trains'),
-                                    ('test-object_trains',  'trained by')
-                                    )[1]
+        rtype = RelationType.create(
+            ('test-subject_trains', 'trains'),
+            ('test-object_trains',  'trained by')
+        )[1]
 
         create_contact = partial(FakeContact.objects.create, user=user)
         ryu   = create_contact(first_name='Ryu',   last_name='??')
@@ -1133,8 +1147,14 @@ class SearchFieldsTestCase(CremeTestCase):
         field = field_class(cell=cell, user=self.user)
         choices = field.choices
         self.assertGreaterEqual(len(choices), 2)
-        self.assertEqual({'value': '',           'label': _('All')},             choices[0])
-        self.assertEqual({'value': lv_form.NULL, 'label': _('* no property *')}, choices[1])
+        self.assertDictEqual(
+            {'value': '', 'label': pgettext('creme_core-filter', 'All')},
+            choices[0],
+        )
+        self.assertDictEqual(
+            {'value': lv_form.NULL, 'label': _('* no property *')},
+            choices[1],
+        )
         self.assertIn({'value': ptype1.id, 'label': str(ptype1)}, choices)
         self.assertIn({'value': ptype2.id, 'label': str(ptype2)}, choices)
         self.assertNotIn({'value': ptype3.id, 'label': str(ptype3)}, choices)
@@ -1157,9 +1177,10 @@ class SearchFormTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.user = CremeUser(username='yui', email='kawa.yui@kimengumi.jp',
-                             first_name='Yui', last_name='Kawa',
-                            )
+        cls.user = CremeUser(
+            username='yui', email='kawa.yui@kimengumi.jp',
+            first_name='Yui', last_name='Kawa',
+        )
 
     def test_search_form01(self):
         "Empty data."
@@ -1189,7 +1210,7 @@ class SearchFormTestCase(CremeTestCase):
             '       id="id_search-{key}" name="search-{key}" type="text" />'.format(
                 key=fname_cell.key,
             ),
-            str(form[fname_cell.key])
+            str(form[fname_cell.key]),
         )
 
         self.assertDictEqual({}, form.filtered_data)
@@ -1219,10 +1240,10 @@ class SearchFormTestCase(CremeTestCase):
         form.full_clean()
 
         self.assertEqual(
-            Q(first_name__icontains='yui') &
-            Q(is_a_nerd=True) &
-            Q(birthday__gte=self.create_datetime(day=25, month=2, year=2019)),
-            form.search_q
+            Q(first_name__icontains='yui')
+            & Q(is_a_nerd=True)
+            & Q(birthday__gte=self.create_datetime(day=25, month=2, year=2019)),
+            form.search_q,
         )
 
         self.assertIn('value="yui"',        str(form[fname_cell.key]))
