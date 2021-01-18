@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'MOBILE' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 22:12+0100\n"
+"POT-Creation-Date: 2021-01-18 17:28+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -194,30 +194,30 @@ msgstr "Contacts favoris"
 #: templates/mobile/bricks/favorite.html:10
 #, python-brace-format
 msgid "This organisation is a favorite for {count} user"
-msgstr "Cette société est une favorie pour {count} utilisateur"
+msgstr "Cette société est une favorite pour {count} utilisateur"
 
 #: templates/mobile/bricks/favorite.html:10
 #, python-brace-format
 msgid "This organisation is a favorite for {count} users"
-msgstr "Cette société est une favorie pour {count} utilisateurs"
+msgstr "Cette société est une favorite pour {count} utilisateurs"
 
 #: templates/mobile/bricks/favorite.html:10
 msgid "Favorite organisations"
-msgstr "Aucune société favorie"
+msgstr "Aucune société favorite"
 
 #: templates/mobile/bricks/favorite.html:12
 #, python-brace-format
 msgid "This entity is a favorite for {count} user"
-msgstr "Cette fiche est une favorie pour {count} utilisateur"
+msgstr "Cette fiche est une favorite pour {count} utilisateur"
 
 #: templates/mobile/bricks/favorite.html:12
 #, python-brace-format
 msgid "This entity is a favorite for {count} users"
-msgstr "Cette fiche est une favorie pour {count} utilisateurs"
+msgstr "Cette fiche est une favorite pour {count} utilisateurs"
 
 #: templates/mobile/bricks/favorite.html:12
 msgid "Favorite entities"
-msgstr "Fiches favories"
+msgstr "Fiches favorites"
 
 #: templates/mobile/bricks/favorite.html:18
 msgid "Mark as favorite"
@@ -233,11 +233,11 @@ msgstr "Ce contact n'est pas un favori pour le moment"
 
 #: templates/mobile/bricks/favorite.html:39
 msgid "This organisation is not a favorite for the moment"
-msgstr "Cette société n'est pas une favorie pour le moment"
+msgstr "Cette société n'est pas une favorite pour le moment"
 
 #: templates/mobile/bricks/favorite.html:41
 msgid "This entity is not a favorite for the moment"
-msgstr "Cette fiche n'est pas une favorie pour le moment"
+msgstr "Cette fiche n'est pas une favorite pour le moment"
 
 # Already in persons
 #: templates/mobile/directory.html:44 templates/mobile/search.html:44
@@ -561,13 +561,13 @@ msgstr "Appel vers {} depuis Creme Mobile"
 #~ msgstr "Ce contact est un favori pour %s utilisateurs"
 
 #~ msgid "This organisation is a favorite for %s user"
-#~ msgstr "Cette société est une favorie pour %s utilisateur"
+#~ msgstr "Cette société est une favorite pour %s utilisateur"
 
 #~ msgid "This organisation is a favorite for %s users"
-#~ msgstr "Cette société est une favorie pour %s utilisateurs"
+#~ msgstr "Cette société est une favorite pour %s utilisateurs"
 
 #~ msgid "This entity is a favorite for %s user"
-#~ msgstr "Cette fiche est une favorie pour %s utilisateur"
+#~ msgstr "Cette fiche est une favorite pour %s utilisateur"
 
 #~ msgid "This entity is a favorite for %s users"
-#~ msgstr "Cette fiche est une favorie pour %s utilisateurs"
+#~ msgstr "Cette fiche est une favorite pour %s utilisateurs"

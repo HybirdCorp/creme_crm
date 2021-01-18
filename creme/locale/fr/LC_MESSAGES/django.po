@@ -1,5 +1,5 @@
 # FR LOCALISATION OF ROOT TEMPLATES
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-18 17:25+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -46,7 +46,7 @@ msgstr "Creme — Erreur 403"
 
 #: templates/403.html:8
 msgid "Your are not allowed to access this page."
-msgstr "Vous n'êtes pas authorisé à accéder à cette page."
+msgstr "Vous n'êtes pas autorisé à accéder à cette page."
 
 #: templates/404.html:21
 msgid "Creme — 404 Error"

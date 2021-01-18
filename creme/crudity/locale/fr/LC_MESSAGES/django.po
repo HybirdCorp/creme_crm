@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'CRUDITY' APP
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -e py -e html -e xml
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Crudity 2.1\n"
+"Project-Id-Version: Creme Creme-Crudity 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-18 17:04+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -46,7 +46,7 @@ msgstr "Création de {entity}"
 
 #: bricks.py:41
 msgid "Error: you are not allowed to view this block: {}"
-msgstr "Erreur: vous n'êtes pas autorisé à voir ce block : {}"
+msgstr "Erreur: vous n'êtes pas autorisé à voir ce bloc : {}"
 
 #: builders/infopath.py:459 inputs/email.py:65 inputs/filesystem.py:40
 msgid "Create"
@@ -184,12 +184,12 @@ msgstr "Aucun historique pour «%(ctype)s»"
 #: templates/crudity/bricks/waiting-actions.html:9
 #, python-format
 msgid "%%s Action selected"
-msgstr "%%s Action selectionnée"
+msgstr "%%s Action sélectionnée"
 
 #: templates/crudity/bricks/waiting-actions.html:9
 #, python-format
 msgid "%%s Actions selected"
-msgstr "%%s Actions selectionnées"
+msgstr "%%s Actions sélectionnées"
 
 #: templates/crudity/bricks/waiting-actions.html:12
 #, python-format

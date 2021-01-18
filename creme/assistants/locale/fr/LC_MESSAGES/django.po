@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'ASSISTANTS' APP
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-18 17:25+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -157,7 +157,7 @@ msgstr "Validée"
 
 #: models/alert.py:40 models/todo.py:39
 msgid "Notification sent"
-msgstr "Notification envoyéé"
+msgstr "Notification envoyée"
 
 #: models/alert.py:42
 msgid "Trigger date"
@@ -189,7 +189,7 @@ msgstr "Créé un mémo"
 
 #: models/memo.py:53
 msgid "Save the memo"
-msgstr "Enregister le Mémo"
+msgstr "Enregistrer le Mémo"
 
 #: models/memo.py:57
 msgid "Memo"
@@ -246,7 +246,7 @@ msgstr "Créer un message"
 
 #: models/user_message.py:81
 msgid "Save the message"
-msgstr "Enregister le message"
+msgstr "Enregistrer le message"
 
 #: models/user_message.py:85
 msgid "User message"
