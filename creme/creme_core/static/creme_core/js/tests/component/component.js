@@ -86,13 +86,13 @@ var MockCollectionBC = MockCollectionB.sub({
 
 QUnit.module("creme.component.js", new QUnitMixin());
 
-QUnit.test('creme.component (Object)', function(assert) {
+QUnit.test('creme.component (inherits Object)', function(assert) {
     var Klass = creme.component.extend();
     var obj = new Klass();
 
     deepEqual(Klass.__super__, Object.prototype);
 
-    equal(Object.isFunc(obj._init_), true);
+    equal(Object.isFunc(obj._init_), false);
     equal(Object.isFunc(Klass.sub), true);
 
     equal(Object.isSubClassOf(obj, Object), true, 'is Object');
@@ -102,7 +102,7 @@ QUnit.test('creme.component (Object)', function(assert) {
     equal(Object.isSubClassOf(obj, MockComponentAB), false);
 });
 
-QUnit.test('creme.component (Component)', function(assert) {
+QUnit.test('creme.component (inherits Component)', function(assert) {
     var obj = new creme.component.Component();
 
     deepEqual(creme.component.Component.__super__, Object.prototype);
@@ -171,6 +171,94 @@ QUnit.test('creme.component (MockAC)', function(assert) {
     equal(ac.is(MockComponentAC), true);
 });
 
+QUnit.test('creme.component (no _init_)', function(assert) {
+    var MockDefaultInit = MockComponentA.sub();
+
+    var a = new MockDefaultInit(12);
+
+    deepEqual(MockDefaultInit.__super__, MockComponentA.prototype);
+    equal(a.get(), 12);
+    equal(a.add(485), 12 + 485);
+    equal(a.add(), 12);
+
+    equal(Object.isFunc(MockDefaultInit.sub), true);
+
+    equal(a.is(Object), true, 'is Object');
+    equal(a.is(creme.component.Component), true, 'is Component');
+    equal(a.is(MockComponentA), true, 'is MockComponentA');
+    equal(a.is(MockDefaultInit), true, 'is MockDefaultInit');
+    equal(a.is(MockComponentAB), false, 'not MockComponentAB');
+    equal(a.is(MockComponentAC), false, 'not MockComponentAC');
+});
+
+QUnit.test('creme.component (sub with mandatory arguments)', function(assert) {
+    var MockMandatoryBase = creme.component.Component.sub({
+        _init_: function(a, b) {
+            if (a === undefined) {
+                throw new Error('first argument is mandatory');
+            }
+            this.a = a;
+            this.b = b;
+        }
+    });
+
+    var MockMandatoryA = MockMandatoryBase.sub({
+        _init_: function(a) {
+            this._super_(MockMandatoryBase, '_init_', a);
+        }
+    });
+
+    var MockMandatoryMissing = MockMandatoryBase.sub({
+        _init_: function() {
+            this._super_(MockMandatoryBase, '_init_');
+        }
+    });
+
+    var mandatory_a = new MockMandatoryA(12);
+    equal(mandatory_a.a, 12);
+    equal(mandatory_a.is(Object), true, 'is Object');
+    equal(mandatory_a.is(creme.component.Component), true, 'is Component');
+    equal(mandatory_a.is(MockMandatoryBase), true, 'is MockMandatoryBase');
+    equal(mandatory_a.is(MockMandatoryA), true, 'is MockMandatoryA');
+    equal(mandatory_a.is(MockMandatoryMissing), false, 'not MockMandatoryMissing');
+
+    this.assertRaises(function() {
+        return new MockMandatoryA();
+    }, Error, 'Error: first argument is mandatory');
+
+    this.assertRaises(function() {
+        return new MockMandatoryMissing();
+    }, Error, 'Error: first argument is mandatory');
+});
+
+QUnit.test('creme.component (inherit statics)', function(assert) {
+    var MockStaticBase = creme.component.Component.sub({
+        _init_: function(options) {
+            this.options = options || {};
+        }
+    });
+
+    MockStaticBase.static_base = function() {
+        return 12;
+    };
+
+    var MockStaticA = MockStaticBase.sub({});
+    MockStaticA.static_name = function() {
+        return 'A';
+    };
+
+    var MockStaticAB = MockStaticA.sub({});
+    MockStaticAB.static_name = function() {
+        return 'AB';
+    };
+
+    equal(12, MockStaticA.static_base());
+    equal('A', MockStaticA.static_name());
+
+    equal(12, MockStaticAB.static_base());
+    equal('AB', MockStaticAB.static_name());
+});
+
 /* This test checks that an inherited collection is not shared between subclasses */
 QUnit.test('creme.component (Collection)', function(assert) {
     var collection = new MockCollection();
@@ -237,7 +325,7 @@ QUnit.test('creme.component (Collection)', function(assert) {
     deepEqual(bc._data, {'B_C_1': 875});
 });
 
-QUnit.test('creme.component._super', function(assert) {
+QUnit.test('creme.component._super_', function(assert) {
     var ab = new MockComponentAB(12, 8);
 
     deepEqual(ab.get(), [12, 8]);
