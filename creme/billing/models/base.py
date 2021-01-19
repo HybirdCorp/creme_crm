@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -267,9 +267,8 @@ class Base(CremeEntity):
         from creme.billing.registry import algo_registry
 
         if source is None:
-            # source = self.get_source()
             source = self.source
-        # self.number = 0
+
         if not self.number:
             self.number = '0'
 
@@ -342,7 +341,6 @@ class Base(CremeEntity):
         self.target = source.target
 
         if self.generate_number_in_create:
-            # self.generate_number(source.get_source())
             self.generate_number(source.source)
         else:
             self.number = ''
@@ -466,13 +464,6 @@ class Base(CremeEntity):
 
     @atomic
     def save(self, *args, **kwargs):
-        # if self.pk:
-        #     self.invalidate_cache()
-        #
-        #     self.total_vat    = self._get_total_with_tax()
-        #     self.total_no_vat = self._get_total()
-        #
-        # return super().save(*args, **kwargs)
         create_relation = partial(
             Relation.objects.create, subject_entity=self, user=self.user,
         )

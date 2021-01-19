@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from functools import partial
-
 from django.forms.fields import BooleanField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -29,11 +27,8 @@ from creme.creme_core.forms.mass_import import (
     EntityExtractorField,
     ImportForm4CremeEntity,
 )
-# from creme.creme_core.models import Relation
-from creme.creme_core.utils import update_model_instance  # find_first
+from creme.creme_core.utils import update_model_instance
 
-# from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-# from .base import copy_or_create_address
 from ..utils import copy_or_create_address
 
 Contact      = persons.get_contact_model()
@@ -105,65 +100,10 @@ def get_import_form_builder(header_dict, choices):
 
         def _post_instance_creation(self, instance, line, updated):
             super()._post_instance_creation(instance, line, updated)
-            cdata = self.cleaned_data
-            # user = self.user
 
-            # append_error = self.append_error
-            # source, err_msg = cdata['source'].extract_value(line, user)
-            # append_error(err_msg)
-
-            # target, err_msg = cdata['target'].extract_value(line, user)
-            # append_error(err_msg)
-            target = instance.target
-
-            # create_rel = partial(
-            #     Relation.objects.safe_create,
-            #     subject_entity=instance,
-            #     user=instance.user,
-            # )
-
-            # if not updated:
-            #     create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
-            #     create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
-            #
-            #     instance.billing_address = copy_or_create_address(
-            #         target.billing_address,
-            #         owner=instance, name=_('Billing address'),
-            #     )
-            #     instance.shipping_address = copy_or_create_address(
-            #         target.shipping_address,
-            #         owner=instance, name=_('Shipping address'),
-            #     )
-            #     instance.save()
-            # else:  # Update mode
             if updated:
-                # relations = Relation.objects.filter(
-                #     subject_entity=instance.pk,
-                #     type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED),
-                # )
-                #
-                # issued_relation = find_first(
-                #     relations,
-                #     (lambda r: r.type_id == REL_SUB_BILL_ISSUED),
-                #     None
-                # )
-                # received_relation = find_first(
-                #     relations,
-                #     (lambda r: r.type_id == REL_SUB_BILL_RECEIVED),
-                #     None
-                # )
-                #
-                # assert issued_relation is not None
-                # assert received_relation is not None
-                #
-                # if issued_relation.object_entity_id != source:
-                #     issued_relation.delete()
-                #     create_rel(type_id=REL_SUB_BILL_ISSUED, object_entity=source)
-                #
-                # if received_relation.object_entity_id != target:
-                #     received_relation.delete()
-                #     create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
-
+                cdata = self.cleaned_data
+                target = instance.target
                 b_change = s_change = False
 
                 if cdata['override_billing_addr']:

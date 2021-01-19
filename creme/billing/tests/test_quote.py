@@ -53,14 +53,6 @@ class QuoteTestCase(_BillingTestCase):
         quote = self.create_quote_n_orgas('My Quote')[0]
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
-
-        # self.assertContains(
-        #     response,
-        #     '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"'
-        # )
-        #
-        # self.assertContains(response, _('Convert to Salesorder'))
-        # self.assertContains(response, '"type": "sales_order"')
         self.assertConvertButtons(
             response,
             [
@@ -85,15 +77,6 @@ class QuoteTestCase(_BillingTestCase):
         quote = self.create_quote_n_orgas('My Quote')[0]
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
-
-        # self.assertContains(
-        #     response,
-        #     '<a class="menu_button menu-button-icon is-disabled" '
-        #     'data-action="billing-hatmenubar-convert"'
-        # )
-        #
-        # self.assertContains(response, _('Convert to Invoice'))
-        # self.assertContains(response, '"type": "invoice"')
         self.assertConvertButtons(
             response,
             [
@@ -114,8 +97,6 @@ class QuoteTestCase(_BillingTestCase):
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            # source_f = fields['source']
-            # number_f = fields['number']
             source_f = fields[self.SOURCE_KEY]
             number_f = fields['number']
 
@@ -190,7 +171,6 @@ class QuoteTestCase(_BillingTestCase):
         source, target = self.create_orgas()
         url = reverse('billing__create_related_quote', args=(target.id,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'billing/form/add-popup.html')
 
         context = response.context
         self.assertEqual(
@@ -226,8 +206,6 @@ class QuoteTestCase(_BillingTestCase):
                 'currency':        currency.id,
                 'discount':        Decimal(),
 
-                # 'source':          source.id,
-                # 'target':          self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
 
@@ -351,8 +329,6 @@ class QuoteTestCase(_BillingTestCase):
                 'currency': currency.id,
                 'discount': Decimal(),
 
-                # 'source': source.id,
-                # 'target': self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
@@ -407,8 +383,6 @@ class QuoteTestCase(_BillingTestCase):
                     'currency':   quote.currency_id,
                     'discount':   quote.discount,
 
-                    # 'source':     source.id,
-                    # 'target':     self.formfield_value_generic_entity(target),
                     self.SOURCE_KEY: source.id,
                     self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 },
@@ -417,8 +391,6 @@ class QuoteTestCase(_BillingTestCase):
         response = post(unlinkable_source, unlinkable_target)
         self.assertEqual(200, response.status_code)
         msg_fmt = _('You are not allowed to link this entity: {}').format
-        # self.assertFormError(response, 'form', 'source', msg_fmt(unlinkable_source))
-        # self.assertFormError(response, 'form', 'target', msg_fmt(unlinkable_target))
         self.assertFormError(response, 'form', self.SOURCE_KEY, msg_fmt(unlinkable_source))
         self.assertFormError(response, 'form', self.TARGET_KEY, msg_fmt(unlinkable_target))
 
@@ -470,8 +442,6 @@ class QuoteTestCase(_BillingTestCase):
                 'currency': quote.currency_id,
                 'discount': quote.discount,
 
-                # 'source':   source.id,
-                # 'target':   self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
@@ -490,7 +460,6 @@ class QuoteTestCase(_BillingTestCase):
         response = self.assertGET200(Quote.get_lv_absolute_url())
 
         with self.assertNoException():
-            # quotes_page = response.context['entities']
             quotes_page = response.context['page_obj']
 
         self.assertEqual(2, quotes_page.paginator.count)
@@ -665,8 +634,6 @@ class QuoteTestCase(_BillingTestCase):
         # self.assertTrue(cloned.status.is_default) TODO
 
         self.assertNotEqual(quote, cloned)  # Not the same pk
-        # self.assertEqual(source, cloned.get_source().get_real_entity())
-        # self.assertEqual(target, cloned.get_target().get_real_entity())
         self.assertEqual(source, cloned.source)
         self.assertEqual(target, cloned.target)
 

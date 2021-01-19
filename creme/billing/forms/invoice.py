@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 import warnings
 
-# from creme.persons.workflow import transform_target_into_customer
 from .. import get_invoice_model
 from .base import BaseCreateForm, BaseEditForm
 
@@ -34,16 +33,6 @@ class InvoiceCreateForm(BaseCreateForm):
     def __init__(self, *args, **kwargs):
         warnings.warn('InvoiceCreateForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
-
-    # def save(self, *args, **kwargs):
-    #     instance = super().save(*args, **kwargs)
-    #     cleaned_data = self.cleaned_data
-    #     transform_target_into_customer(cleaned_data['source'],
-    #                                    cleaned_data['target'],
-    #                                    instance.user,
-    #                                   )
-    #
-    #     return instance
 
 
 class InvoiceEditForm(BaseEditForm):

@@ -24,9 +24,7 @@ urlpatterns = [
         name='billing__edit_exporter_config',
     ),
     re_path(
-        # r'^generate_pdf/(?P<base_id>\d+)[/]?$',
         r'^export/(?P<entity_id>\d+)[/]?$',
-        # export.export_as_pdf,
         export.Export.as_view(),
         name='billing__export',
     ),
@@ -106,7 +104,6 @@ urlpatterns = [
         Swappable(
             re_path(
                 r'^invoice/generate_number/(?P<invoice_id>\d+)[/]?$',
-                # invoice.generate_number
                 invoice.InvoiceNumberGeneration.as_view(),
                 name='billing__generate_invoice_number',
             ),

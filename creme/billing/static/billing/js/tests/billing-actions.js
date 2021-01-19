@@ -289,17 +289,7 @@ QUnit.test('creme.billing.brick (billing-line-clearonfly)', function(assert) {
     equal(1, brick.element().find('.hidden-form').length);
     equal(false, addonflyLink.is('.forbidden'));
 });
-/*
-QUnit.test('creme.billing.hatmenubar.export', function(assert) {
-    var brick = this.createBrickWidget({
-        classes: ['brick-hat-bar']
-    }).brick();
 
-    brick.action('billing-export', '/mock/export/12').start();
-
-    deepEqual(['/mock/export/12?format=pdf'], this.mockRedirectCalls());
-});
-*/
 QUnit.test('creme.billing.hatmenubar.invoice-number (fail)', function(assert) {
     var widget = this.createHatMenuBar({
         buttons: [
@@ -409,18 +399,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, ok)', function(ass
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
     deepEqual([current_url], this.mockReloadCalls());
 });
-/*
-QUnit.test('creme.billing.generateInvoiceNumber', function(assert) {
-    var current_url = window.location.href;
 
-    creme.billing.generateInvoiceNumber('mock/invoice/generatenumber/12');
-
-    this.assertClosedDialog();
-
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
-    deepEqual([current_url], this.mockReloadCalls());
-});
-*/
 QUnit.test('creme.billing.hatmenubar.convert (fail)', function(assert) {
     var widget = this.createHatMenuBar({
         buttons: [
