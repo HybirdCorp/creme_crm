@@ -76,7 +76,6 @@ class Migration(migrations.Migration):
                 ('content', models.TextField(verbose_name='Content')),
                 ('on_homepage', models.BooleanField(default=False, blank=True, verbose_name='Displayed on homepage')),
                 ('creation_date', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
-                # ('entity_id', models.PositiveIntegerField(editable=False)),
                 ('entity', models.ForeignKey(editable=False, on_delete=CASCADE,
                                              to='creme_core.CremeEntity', related_name='assistants_memos',
                                             )
