@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -127,14 +127,6 @@ class LatexTheme:
 
 class LatexExportEngine(base.BillingExportEngine):
     id = base.BillingExportEngine.generate_id('billing', 'latex')
-
-    # TEMPLATE_PATHS = {
-    #     billing.get_invoice_model():        'billing/templates/invoice.tex',
-    #     billing.get_credit_note_model():    'billing/templates/billings.tex',
-    #     billing.get_quote_model():          'billing/templates/billings.tex',
-    #     billing.get_sales_order_model():    'billing/templates/billings.tex',
-    #     billing.get_template_base_model():  'billing/templates/billings.tex',
-    # }
 
     FLAVOURS_INFO = {
         l10n.FR: {

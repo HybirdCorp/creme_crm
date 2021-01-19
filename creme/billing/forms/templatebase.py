@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,6 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 
 from .. import get_template_base_model
-# from .base import copy_or_create_address
 from . import base
 
 
@@ -81,10 +80,8 @@ class BaseTemplateCreationCustomForm(base.BaseCustomForm):
 class _TemplateBaseForm(base.BaseEditForm):
     status = ChoiceField(label=_('Status'), choices=())
 
-    # class Meta:
     class Meta(base.BaseEditForm.Meta):
         model = get_template_base_model()
-        # exclude = (*BaseEditForm.Meta.exclude, 'ct', 'status_id')
         help_texts = {
             'number': _(
                 'If a number is given, it will be only used as fallback value '
@@ -131,18 +128,3 @@ class TemplateBaseCreateForm(_TemplateBaseForm):
         self._build_status_field(ct)
         self.instance.ct = ct
         self.fields['source'].initial = base.first_managed_orga_id()
-
-    # def save(self, *args, **kwargs):
-    #     instance = super().save(*args, **kwargs)
-    #
-    #     target = self.cleaned_data['target']
-    #     instance.billing_address = copy_or_create_address(
-    #         target.billing_address,  owner=instance, name=_('Billing address'),
-    #     )
-    #     instance.shipping_address = copy_or_create_address(
-    #         target.shipping_address, owner=instance, name=_('Shipping address'),
-    #     )
-    #
-    #     instance.save()
-    #
-    #     return instance

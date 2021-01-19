@@ -46,14 +46,6 @@ class SalesOrderTestCase(_BillingTestCase):
         order = self.create_salesorder_n_orgas('My order')[0]
         response = self.assertGET200(order.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_sales_order.html')
-
-        # self.assertContains(
-        #     response,
-        #     '<a class="menu_button menu-button-icon " data-action="billing-hatmenubar-convert"'
-        # )
-        #
-        # self.assertContains(response, _('Convert to Invoice'))
-        # self.assertContains(response, '"type": "invoice"')
         self.assertConvertButtons(
             response,
             [{'title': _('Convert to Invoice'), 'type': 'invoice', 'disabled': False}],
@@ -74,15 +66,6 @@ class SalesOrderTestCase(_BillingTestCase):
 
         order = self.create_salesorder_n_orgas('My order')[0]
         response = self.assertGET200(order.get_absolute_url())
-
-        # self.assertContains(
-        #     response,
-        #     '<a class="menu_button menu-button-icon is-disabled" '
-        #     'data-action="billing-hatmenubar-convert"'
-        # )
-        #
-        # self.assertContains(response, _('Convert to Invoice').encode())
-        # self.assertContains(response, '"type": "invoice"')
         self.assertConvertButtons(
             response,
             [{'title': _('Convert to Invoice'), 'type': 'invoice', 'disabled': True}],
@@ -109,8 +92,6 @@ class SalesOrderTestCase(_BillingTestCase):
         source, target = self.create_orgas()
         url = self._build_related_creation_url(target) + '?redirection=true'
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'billing/form/add-popup.html')
-
         context = response.context
         self.assertEqual(
             _('Create a salesorder for «{entity}»').format(entity=target),
@@ -144,8 +125,7 @@ class SalesOrderTestCase(_BillingTestCase):
                 'status':          status.id,
                 'currency':        currency.id,
                 'discount':        Decimal(),
-                # 'source':          source.id,
-                # 'target':          self.formfield_value_generic_entity(target),
+
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
@@ -183,8 +163,6 @@ class SalesOrderTestCase(_BillingTestCase):
                 'currency':        currency.id,
                 'discount':        Decimal(),
 
-                # 'source':          source.id,
-                # 'target':          self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
@@ -293,8 +271,6 @@ class SalesOrderTestCase(_BillingTestCase):
                 'currency':        currency.id,
                 'discount':        Decimal(),
 
-                # 'source':          source.id,
-                # 'target':          self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },

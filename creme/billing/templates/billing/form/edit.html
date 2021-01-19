@@ -1,9 +1,8 @@
 {% extends 'creme_core/generics/blockform/edit.html' %}
-{% load creme_core_tags %}{# {% load i18n %} #}
+{% load creme_core_tags %}
 
 {% log 'The template file "creme/billing/templates/billing/forms/edit.html" is deprecated.' level='WARN' %}
 
-{% block content %}{# {% blocktrans asvar form_title %}Edit «{{object}}»{% endblocktrans %} #}
-{#    {% include 'billing/form/base.html' with icon_name='edit' title=form_title %} #}
+{% block content %}
     {% include 'billing/forms/base.html' with icon_name='edit' %}
 {% endblock %}

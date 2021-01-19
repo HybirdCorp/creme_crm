@@ -885,7 +885,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists?!')
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
         self.assertEqual(
-            # f'attachment; filename={basename(fullpath)}',
             f'attachment; filename="{fileref.basename}"',
             response['Content-Disposition']
         )

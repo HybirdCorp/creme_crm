@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,6 @@ from creme.creme_core.auth.decorators import (
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.content_type import get_ctype_or_404
-# from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views import generic
 
 from .. import constants
@@ -50,8 +49,6 @@ ServiceLine = billing.get_service_line_model()
 
 # TODO: LINK credentials + link-popup.html ??
 class _LinesCreation(generic.RelatedToEntityFormPopup):
-    # model = Line
-    # form_class = line_forms._LineMultipleAddForm
     submit_label = _('Save the lines')
     entity_classes = BILLING_MODELS
 
@@ -122,7 +119,6 @@ LINE_FORMSET_PREFIX = {
 }
 
 
-# @POST_only
 @require_POST
 @login_required
 @permission_required('billing')

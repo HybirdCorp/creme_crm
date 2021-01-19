@@ -7,10 +7,8 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.function_field import function_field_registry
-# from creme.creme_core.models import Relation
 from creme.persons.tests.base import skipIfCustomOrganisation
 
-# from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..models import (
     AdditionalInformation,
     CreditNoteStatus,
@@ -47,11 +45,9 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.source = create_orga(name='Source')
         self.target = create_orga(name='Target')
 
-    # def _create_templatebase(self, model, status_id, comment=''):
     def _create_templatebase(self, model, status_id, comment='', **kwargs):
-        user = self.user
-        tpl = TemplateBase.objects.create(
-            user=user,
+        return TemplateBase.objects.create(
+            user=self.user,
             ct=model,
             status_id=status_id,
             comment=comment,
@@ -59,12 +55,6 @@ class TemplateBaseTestCase(_BillingTestCase):
             target=self.target,
             **kwargs
         )
-
-        # create_rel = partial(Relation.objects.create, user=user, subject_entity=tpl)
-        # create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=self.source)
-        # create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=self.target)
-
-        return tpl
 
     def test_detailview(self):
         invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
@@ -93,11 +83,6 @@ class TemplateBaseTestCase(_BillingTestCase):
     def test_create_invoice01(self):
         invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
         comment = '*Insert a comment here*'
-        # tpl = self._create_templatebase(Invoice, invoice_status.id, comment)
-        #
-        # tpl.additional_info = AdditionalInformation.objects.all()[0]
-        # tpl.payment_terms = PaymentTerms.objects.all()[0]
-        # tpl.save()
         tpl = self._create_templatebase(
             Invoice, invoice_status.id, comment,
             additional_info=AdditionalInformation.objects.all()[0],
@@ -114,8 +99,6 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(invoice_status, invoice.status)
         self.assertEqual(tpl.additional_info, invoice.additional_info)
         self.assertEqual(tpl.payment_terms,   invoice.payment_terms)
-        # self.assertEqual(self.source, invoice.get_source().get_real_entity())
-        # self.assertEqual(self.target, invoice.get_target().get_real_entity())
         self.assertEqual(self.source, invoice.source)
         self.assertEqual(self.target, invoice.target)
 
