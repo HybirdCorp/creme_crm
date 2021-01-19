@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -177,53 +177,6 @@ class CommercialConfig(CremeAppConfig):
         setting_key_registry.register(setting_keys.orga_approaches_key)
 
     def hook_activities(self):
-        # from functools import partial
-        #
-        # from django.forms import BooleanField
-        #
-        # from creme.activities.forms.activity import ActivityCreateForm
-        #
-        # from .models import CommercialApproach
-        #
-        # def add_commapp_field(form):
-        #     form.fields['is_comapp'] = BooleanField(
-        #         required=False, label=_('Is a commercial approach ?'),
-        #         help_text=_(
-        #             'All participants (excepted users), subjects and linked entities '
-        #             'will be linked to a commercial approach.'
-        #         ),
-        #         initial=True
-        #     )
-        #
-        # def save_commapp_field(form):
-        #     cleaned_data = form.cleaned_data
-        #
-        #     if not cleaned_data.get('is_comapp', False):
-        #         return
-        #
-        #     comapp_subjects = [
-        #         *cleaned_data['other_participants'],
-        #         *cleaned_data['subjects'],
-        #         *cleaned_data['linked_entities'],
-        #     ]
-        #
-        #     if not comapp_subjects:
-        #         return
-        #
-        #     instance = form.instance
-        #     create_comapp = partial(
-        #         CommercialApproach.objects.create,
-        #         title=instance.title,
-        #         description=instance.description,
-        #         related_activity=instance,
-        #     )
-        #
-        #     for entity in comapp_subjects:
-        #         create_comapp(creme_entity=entity)
-        #
-        # ActivityCreateForm.add_post_init_callback(add_commapp_field)
-        # ActivityCreateForm.add_post_save_callback(save_commapp_field)
-
         from creme.activities import custom_forms as act_cforms
         from creme.activities import get_activity_model
         from creme.commercial.forms.activity import IsCommercialApproachSubCell

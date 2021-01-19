@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,6 @@ from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.opportunities import get_opportunity_model
-# from creme.opportunities.forms.opportunity import OpportunityCreationForm
 from creme.opportunities.custom_forms import OPPORTUNITY_CREATION_CFORM
 
 from .. import constants, custom_forms
@@ -54,7 +53,6 @@ ActObjectivePattern = commercial.get_pattern_model()
 
 class ActCreation(generic.EntityCreation):
     model = Act
-    # form_class = forms.ActForm
     form_class = custom_forms.ACT_CREATION_CFORM
 
     def get_initial(self):
@@ -67,13 +65,11 @@ class ActCreation(generic.EntityCreation):
 
 class ActObjectivePatternCreation(generic.EntityCreation):
     model = ActObjectivePattern
-    # form_class = forms.ObjectivePatternForm
     form_class = custom_forms.PATTERN_CREATION_CFORM
 
 
 class RelatedOpportunityCreation(generic.AddingInstanceToEntityPopup):
     model = Opportunity
-    # form_class = OpportunityCreationForm
     form_class = OPPORTUNITY_CREATION_CFORM
     permissions = ['opportunities', cperm(Opportunity)]
     title = _('Create a linked opportunity')
@@ -114,14 +110,12 @@ class ActObjectivePatternDetail(generic.EntityDetail):
 
 class ActEdition(generic.EntityEdition):
     model = Act
-    # form_class = forms.ActForm
     form_class = custom_forms.ACT_EDITION_CFORM
     pk_url_kwarg = 'act_id'
 
 
 class ActObjectivePatternEdition(generic.EntityEdition):
     model = ActObjectivePattern
-    # form_class = forms.ObjectivePatternForm
     form_class = custom_forms.PATTERN_EDITION_CFORM
     pk_url_kwarg = 'objpattern_id'
 
