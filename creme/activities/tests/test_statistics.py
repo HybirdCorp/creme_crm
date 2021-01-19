@@ -22,12 +22,12 @@ from .base import Activity, skipIfCustomActivity
 class StatisticsTestCase(CremeTestCase):
     def test_average_per_month01(self):
         "Empty"
-        # self.login()
-        self.assertEqual(
-            [_('No meeting since one year'),
-             _('No phone call since one year'),
+        self.assertListEqual(
+            [
+                _('No meeting since one year'),
+                _('No phone call since one year'),
             ],
-            AveragePerMonthStatistics(Activity)()
+            AveragePerMonthStatistics(Activity)(),
         )
 
     @skipIfCustomActivity
@@ -76,21 +76,24 @@ class StatisticsTestCase(CremeTestCase):
         )
 
         for i in range(1, 13):
-            create_activity(title=f'Meeting #A-{i}',
-                            start=now_value - relativedelta(months=i),
-                           )
+            create_activity(
+                title=f'Meeting #A-{i}',
+                start=now_value - relativedelta(months=i),
+            )
 
         for i in range(1, 7):
-            create_activity(title=f'Meeting #B-{i}',
-                            start=now_value - relativedelta(months=i),
-                           )
+            create_activity(
+                title=f'Meeting #B-{i}',
+                start=now_value - relativedelta(months=i),
+            )
 
         # Should not be counted (not meeting)
         for i in range(1, 4):
-            create_activity(title=f'Task #{i}',
-                            start=now_value - relativedelta(months=i),
-                            type_id=ACTIVITYTYPE_TASK,
-                           )
+            create_activity(
+                title=f'Task #{i}',
+                start=now_value - relativedelta(months=i),
+                type_id=ACTIVITYTYPE_TASK,
+            )
 
         self.assertListEqual(
             [
@@ -103,7 +106,7 @@ class StatisticsTestCase(CremeTestCase):
                 ),
                 _('No phone call since one year'),
             ],
-            AveragePerMonthStatistics(Activity)()
+            AveragePerMonthStatistics(Activity)(),
         )
 
     @skipIfCustomActivity
@@ -116,14 +119,16 @@ class StatisticsTestCase(CremeTestCase):
             type_id=ACTIVITYTYPE_PHONECALL,
         )
 
-        create_activity(title='Task', start=now_value - relativedelta(months=1),
-                        type_id=ACTIVITYTYPE_TASK,
-                       )  # Should not be counted
+        create_activity(
+            title='Task', start=now_value - relativedelta(months=1),
+            type_id=ACTIVITYTYPE_TASK,
+        )  # Should not be counted
 
         for i in range(1, 7):
-            create_activity(title=f'Phone call#{i}',
-                            start=now_value - relativedelta(months=i),
-                           )
+            create_activity(
+                title=f'Phone call#{i}',
+                start=now_value - relativedelta(months=i),
+            )
 
         self.assertListEqual(
             [
@@ -136,5 +141,5 @@ class StatisticsTestCase(CremeTestCase):
                     count=number_format(0.5, decimal_pos=1, use_l10n=True),
                 ),
             ],
-            AveragePerMonthStatistics(Activity)()
+            AveragePerMonthStatistics(Activity)(),
         )

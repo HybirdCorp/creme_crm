@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,11 +63,8 @@ _TYPES_MAP = {
 
 class ActivityCreation(generic.EntityCreation):
     model = Activity
-    # form_class: Type[BaseForm] = act_forms.ActivityCreateForm
     form_class: Union[Type[BaseForm], CustomFormDescriptor] = custom_forms.ACTIVITY_CREATION_CFORM
-    # template_name = 'activities/add_activity_form.html'
     type_name_url_kwarg = 'act_type'
-    # form_template_name = 'activities/frags/activity_form_content.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -80,12 +77,6 @@ class ActivityCreation(generic.EntityCreation):
     def post(self, request, *args, **kwargs):
         self.type_id = self.get_type_id()
         return super().post(request, *args, **kwargs)
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['content_template'] = self.form_template_name
-    #
-    #     return context
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -112,26 +103,8 @@ class ActivityCreation(generic.EntityCreation):
 
 class ActivityCreationPopup(generic.EntityCreationPopup):
     model = Activity
-    # form_class = act_forms.CalendarActivityCreateForm
     form_class = custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM
-    # template_name = 'activities/forms/add-activity-popup.html'
 
-    # def get_form_kwargs(self):
-    #     kwargs = super().get_form_kwargs()
-    #     request = self.request
-    #
-    #     if request.method == 'GET':
-    #         get = partial(get_from_GET_or_404, GET=request.GET, cast=int)
-    #         today = datetime.today()
-    #         kwargs['start'] = datetime(
-    #               year=get(key='year',   default=today.year),
-    #              month=get(key='month',  default=today.month),
-    #                day=get(key='day',    default=today.day),
-    #               hour=get(key='hour',   default=today.hour),
-    #             minute=get(key='minute', default=today.minute),
-    #         )
-    #
-    #     return kwargs
     def get_initial(self):
         initial = super().get_initial()
         request = self.request
@@ -178,17 +151,13 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
 
 
 class UnavailabilityCreation(ActivityCreation):
-    # form_class = act_forms.IndisponibilityCreateForm
     form_class = custom_forms.UNAVAILABILITY_CREATION_FROM
-    # form_template_name = 'activities/frags/indispo_form_content.html'
 
     def get_type_id(self):
         return constants.ACTIVITYTYPE_INDISPO
 
 
 class RelatedActivityCreation(ActivityCreation):
-    # # form_class = act_forms.RelatedActivityCreateForm
-    # form_class = act_forms.ActivityCreateForm
     form_class = custom_forms.ACTIVITY_CREATION_CFORM
     entity_pk_url_kwargs = 'entity_id'
 
@@ -207,12 +176,6 @@ class RelatedActivityCreation(ActivityCreation):
         self.rtype_id = self.get_rtype_id()
         return super().post(request, *args, **kwargs)
 
-    # def get_form_kwargs(self):
-    #     kwargs = super().get_form_kwargs()
-    #     kwargs['related_entity']   = self.related_entity
-    #     kwargs['relation_type_id'] = self.rtype_id
-    #
-    #     return kwargs
     def get_initial(self):
         initial = super(RelatedActivityCreation, self).get_initial()
 
@@ -285,7 +248,6 @@ class ActivityPopup(generic.EntityDetailPopup):
 
 class ActivityEdition(generic.EntityEdition):
     model = Activity
-    # form_class = act_forms.ActivityEditForm
     form_class = custom_forms.ACTIVITY_EDITION_CFORM
     pk_url_kwarg = 'activity_id'
 

@@ -226,63 +226,6 @@ class CalendarTestCase(_ActivitiesTestCase):
             if d.get('_auth_user_id') == user_id
         ]
 
-    # @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    # def test_user_default_calendar01(self):
-    #     user = self.login()
-    #     self.assertFalse(Calendar.objects.filter(user=user))
-    #
-    #     with self.assertNumQueries(3):
-    #         def_cal = Calendar.get_user_default_calendar(user)
-    #
-    #     self.assertEqual(_("{user}'s calendar").format(user=user),
-    #                      def_cal.name,
-    #                     )
-    #
-    #     def_cal2 = self.assertUserHasDefaultCalendar(user)
-    #     self.assertEqual(def_cal, def_cal2)
-    #
-    # @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    # def test_user_default_calendar02(self):
-    #     "Default already exists."
-    #     user = self.login()
-    #
-    #     cal1 = Calendar.objects.create(is_default=True, user=user)
-    #
-    #     with self.assertNumQueries(1):
-    #         def_cal = Calendar.get_user_default_calendar(user)
-    #
-    #     self.assertEqual(cal1, def_cal)
-    #
-    # @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    # def test_user_default_calendar03(self):
-    #     "There are several default calendars."
-    #     user = self.login()
-    #     cal1 = Calendar.objects.create(is_default=True, user=user, name='Cal#1')
-    #     cal2 = Calendar.objects.create(user=user, name='Cal#2')
-    #     Calendar.objects.filter(id=cal2.id).update(is_default=True)
-    #
-    #     # Be sure that we well managed the automatic save() behaviour
-    #     self.assertEqual(2, Calendar.objects.filter(is_default=True, user=user).count())
-    #
-    #     self.assertEqual(cal1, Calendar.get_user_default_calendar(user))
-    #     self.assertFalse(self.refresh(cal2).is_default)
-    #
-    # @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    # def test_user_default_calendar04(self):
-    #     "No default Calendar in existing ones."
-    #     user = self.login()
-    #     cal = Calendar.objects.create(user=user, name='Cal #1')
-    #     Calendar.objects.filter(id=cal.id).update(is_default=False)
-    #
-    #     # Be sure that we well managed the automatic save() behaviour
-    #     self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
-    #
-    #     with self.assertNumQueries(2):
-    #         def_cal = Calendar.get_user_default_calendar(user)
-    #
-    #     self.assertEqual(cal, def_cal)
-    #     self.assertTrue(def_cal.is_default)
-
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
     def test_user_default_calendar_auto01(self):
         user = self.create_user()
@@ -315,29 +258,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         "Inactive user => no calendar."
         user = self.create_user(is_active=False)
         self.assertFalse(Calendar.objects.filter(user=user))
-
-    # @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    # def test_get_user_calendars01(self):
-    #     user = self.login()
-    #
-    #     with self.assertNumQueries(3):
-    #         cals = Calendar.get_user_calendars(user)
-    #
-    #     self.assertEqual(1, len(cals))
-    #
-    #     cal = cals[0]
-    #     self.assertIsInstance(cal, Calendar)
-    #     self.assertTrue(cal.is_default)
-    #
-    # def test_get_user_calendars02(self):
-    #     user = self.login()
-    #     Calendar.get_user_default_calendar(user)
-    #     Calendar.objects.create(user=user, name='Cal#2')
-    #
-    #     with self.assertNumQueries(1):
-    #         cals = Calendar.get_user_calendars(self.user)
-    #
-    #     self.assertEqual(2, len(cals))
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_calendar_view01(self):

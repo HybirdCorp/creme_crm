@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from datetime import datetime
 from datetime import date, time
 from functools import partial
 
@@ -26,7 +25,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         return {
             'user': user.pk,
             'title': self.TITLE,
-            # 'type_selector': self._acttype_field_value(
             self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                 constants.ACTIVITYTYPE_MEETING,
                 constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
@@ -71,20 +69,13 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             data={'start': '2010-01-01T16:35:00'},
         )
 
-        # self.assertTemplateUsed(response, 'activities/forms/add-activity-popup.html')
-
         context = response.context
         self.assertEqual(Activity.creation_label, context.get('title'))
         self.assertEqual(Activity.save_label,     context.get('submit_label'))
 
-        # self.assertTemplateUsed(response, 'activities/frags/activity_form_content.html')
         # It seems TemplateDoesNotExists is not raised in unit tests
         self.assertContains(response, 'name="title"')
 
-        # fields = context['form'].fields
-        # self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
-        # self.assertIsNone(fields['end'].initial)
-        # self.assertFalse(fields['is_all_day'].initial)
         get_initial = context['form'].initial.get
         self.assertTupleEqual(
             (date(2010, 1, 1), time(16, 35)),
@@ -94,16 +85,11 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertFalse(get_initial('is_all_day'))
 
     @parameterized.expand([
-        # ('2010-01-01T16:35:00', datetime(2010, 1, 1, 16, 35), time(16, 35)),
-        # # Beware when it's 23 o clock (bugfix)
-        # ('2010-01-01T23:16:00', datetime(2010, 1, 1, 23, 16), time(23, 16)),
-        # ('2010-01-01T00:00:00', datetime(2010, 1, 1, 0, 0), None),
         ('2010-01-01T16:35:12', date(2010, 1, 1), time(16, 35)),
         # Beware when it's 23 o clock (bugfix)
         ('2010-01-01T23:16:00', date(2010, 1, 1), time(23, 16)),
         ('2010-01-01T00:00:00', date(2010, 1, 1), None),
     ])
-    # def test_render_start_only(self, start_iso, start_datetime, start_time):
     def test_render_start_only(self, start_iso, start_date, start_time):
         self.login()
 
@@ -111,12 +97,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             self.ACTIVITY_POPUP_CREATION_URL,
             data={'start': start_iso},
         )
-        # fields = response.context['form'].fields
-        # self.assertEqual(fields['start'].initial, start_datetime)
-        # self.assertEqual(fields['start_time'].initial, start_time)
-        # self.assertEqual(fields['end'].initial, None)
-        # self.assertEqual(fields['end_time'].initial, None)
-        # self.assertFalse(fields['is_all_day'].initial)
+
         get_initial = response.context['form'].initial.get
         self.assertTupleEqual(
             (start_date, start_time),
@@ -136,12 +117,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             },
         )
 
-        # fields = response.context['form'].fields
-        # self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
-        # self.assertEqual(fields['start_time'].initial, time(16, 35))
-        # self.assertEqual(fields['end'].initial, datetime(2010, 1, 1, 18, 35))
-        # self.assertEqual(fields['end_time'].initial, time(18, 35))
-        # self.assertFalse(fields['is_all_day'].initial)
         get_initial = response.context['form'].initial.get
         self.assertTupleEqual(
             (date(2010, 1, 1), time(16, 35)),
@@ -164,12 +139,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             },
         )
 
-        # fields = response.context['form'].fields
-        # self.assertEqual(fields['start'].initial, datetime(2010, 1, 1, 16, 35))
-        # self.assertEqual(fields['start_time'].initial, time(16, 35))
-        # self.assertEqual(fields['end'].initial, None)
-        # self.assertEqual(fields['end_time'].initial, None)
-        # self.assertTrue(fields['is_all_day'].initial)
         get_initial = response.context['form'].initial.get
         self.assertEqual(
             (date(2010, 1, 1), time(16, 35)),
@@ -177,25 +146,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         )
         self.assertIsNone(get_initial(self.EXTRA_END_KEY))
         self.assertTrue(get_initial('is_all_day'))
-
-    # def test_render_start_all_day(self):
-    #     self.login()
-    #
-    #     response = self.assertGET200(
-    #         self.ACTIVITY_POPUP_CREATION_URL,
-    #         data={
-    #             'start': '2010-01-01T16:35:00',
-    #             'allDay': 'true',
-    #         },
-    #     )
-    #
-    #     get_initial = response.context['form'].initial.get
-    #     self.assertEqual(
-    #         (date(2010, 1, 1), time(16, 35)),
-    #         get_initial(self.EXTRA_START_KEY),
-    #     )
-    #     self.assertIsNone(get_initial(self.EXTRA_END_KEY))
-    #     self.assertTrue(get_initial('is_all_day'))
 
     def test_error_no_participant(self):
         "No participant given."
@@ -205,10 +155,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             self.ACTIVITY_POPUP_CREATION_URL,
             data=self.build_submit_data(
                 user,
-                # start='2010-1-10',
-                # start_time='09:30:00',
-                # end='2010-1-10',
-                # end_time='15:00:00',
                 **{
                     f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
@@ -227,11 +173,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             self.ACTIVITY_POPUP_CREATION_URL,
             data=self.build_submit_data(
                 user,
-                # start='2010-1-10',
-                # start_time='09:30:00',
-                # end='2010-1-10',
-                # end_time='15:00:00',
-                # my_participation_0=True,
                 **{
                     f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
@@ -244,7 +185,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             ),
         )
         self.assertFormError(
-            # response, 'form', 'my_participation',
             response, 'form', self.EXTRA_MYPART_KEY,
             _('Enter a value if you check the box.'),
         )
@@ -255,12 +195,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             self.ACTIVITY_POPUP_CREATION_URL,
             data=self.build_submit_data(
                 user,
-                # start='2010-1-10',
-                # start_time='09:30:00',
-                # end='2010-1-10',
-                # end_time='15:00:00',
-                # my_participation_0=True,
-                # my_participation_1=Calendar.objects.get_default_calendar(user).pk
                 **{
                     f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
@@ -299,11 +233,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             self.ACTIVITY_POPUP_CREATION_URL,
             data=self.build_submit_data(
                 user,
-                # start='2010-1-10',
-                # start_time='09:30:00',
-                # type_selector=self._acttype_field_value(custom_type.id),
-                # my_participation_0=True,
-                # my_participation_1=Calendar.objects.get_default_calendar(user).pk,
                 **{
                     f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
@@ -338,9 +267,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             self.ACTIVITY_POPUP_CREATION_URL,
             data=self.build_submit_data(
                 user,
-                # start=date_format(today),
-                # my_participation_0=True,
-                # my_participation_1=Calendar.objects.get_default_calendar(user).pk,
                 **{
                     f'{self.EXTRA_START_KEY}_0': date_format(today),
 

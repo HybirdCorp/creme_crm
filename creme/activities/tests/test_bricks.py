@@ -290,7 +290,6 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         )
 
         del_url = self.RM_PARTICIPANT_URL
-        # self.assertGET404(del_url)
         self.assertGET405(del_url)
         self.assertPOST404(del_url, data={'id': sym_rel.pk})
         self.get_object_or_fail(Relation, pk=sym_rel.pk)
@@ -300,7 +299,6 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         )
 
         for participant_rel in qs.all():
-            # self.assertGET404(del_url)
             self.assertGET405(del_url)
             response = self.client.post(del_url, data={'id': participant_rel.pk})
             self.assertRedirects(response, phone_call.get_absolute_url())
