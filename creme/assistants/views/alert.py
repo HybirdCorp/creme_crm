@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,35 +20,22 @@
 
 from django import shortcuts
 from django.db.transaction import atomic
-# from django.http import Http404
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from creme.creme_core.auth.decorators import login_required
-# from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views import generic
 
 from ..forms.alert import AlertForm
 from ..models import Alert
 
 
-# @login_required
-# def add(request, entity_id):
-#     return generic.add_to_entity(request, entity_id, AlertForm,
-#                                  _('New alert for «%s»'),
-#                                  submit_label=_('Save the alert'),
-#                                 )
 class AlertCreation(generic.AddingInstanceToEntityPopup):
     model = Alert
     form_class = AlertForm
     title = _('New alert for «{entity}»')
 
 
-# @login_required
-# def edit(request, alert_id):
-#     return generic.edit_related_to_entity(request, alert_id, Alert, AlertForm,
-#                                           _('Alert for «%s»'),
-#                                          )
 class AlertEdition(generic.RelatedToEntityEditionPopup):
     model = Alert
     form_class = AlertForm
@@ -58,13 +45,8 @@ class AlertEdition(generic.RelatedToEntityEditionPopup):
 
 @require_POST
 @login_required
-# @POST_only
 @atomic
 def validate(request, alert_id):
-    # try:
-    #     alert = Alert.objects.select_for_update().get(pk=alert_id)
-    # except Alert.DoesNotExist as e:
-    #     raise Http404(str(e)) from e
     alert = shortcuts.get_object_or_404(
         Alert.objects.select_for_update(),
         pk=alert_id,

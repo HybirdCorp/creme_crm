@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,27 +20,18 @@
 
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views import generic
 
 from ..forms.memo import MemoForm
 from ..models import Memo
 
 
-# @login_required
-# def add(request, entity_id):
-#     return generic.add_to_entity(request, entity_id, MemoForm, _('New Memo for «%s»'),
-#                                  submit_label=_('Save the memo'),
-#                                 )
 class MemoCreation(generic.AddingInstanceToEntityPopup):
     model = Memo
     form_class = MemoForm
     title = _('New memo for «{entity}»')
 
 
-# @login_required
-# def edit(request, memo_id):
-#     return generic.edit_related_to_entity(request, memo_id, Memo, MemoForm, _('Memo for «%s»'))
 class MemoEdition(generic.RelatedToEntityEditionPopup):
     model = Memo
     form_class = MemoForm
