@@ -32,7 +32,6 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import forms as core_forms
-# from creme.creme_core.forms import validators
 from creme.creme_core.forms import widgets as core_widgets
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation, RelationType, SettingValue
@@ -337,12 +336,7 @@ class UserMessagesSubCell(_AssistantSubCell):
             **kwargs
         )
 
-    # def _generate_user_messages(self):
     def post_save_instance(self, *, instance: Activity, value, form):
-        # cdata = self.cleaned_data
-        # get_key = self._subcell_key
-        # raw_users = cdata.get(get_key(UserMessagesSubCell))
-
         if value:
             from creme.assistants.constants import PRIO_NOT_IMP_PK
             from creme.assistants.models import UserMessage
@@ -626,12 +620,6 @@ class _ActivityForm(core_forms.CremeEntityForm):
         super().__init__(*args, **kwargs)
         self.participants = set()  # All Contacts who participate: me, other users, other contacts
 
-        # duration_field = self.fields.get('duration')
-        # if duration_field:
-        #     duration_field.help_text = _(
-        #         'It is only informative and is not used to compute the end time.'
-        #     )
-
     def clean(self):
         cdata = super().clean()
 
@@ -777,11 +765,6 @@ class ActivityEditForm(_ActivityForm):
 
 
 class _ActivityCreateForm(_ActivityForm):
-    # participating_users = ModelMultipleChoiceField(
-    #     label=_('Other participating users'),
-    #     queryset=get_user_model().objects.filter(is_staff=False),
-    #     required=False,
-    # )
     participating_users = act_fields.ParticipatingUsersField(
         label=_('Other participating users'),
         required=False,
@@ -792,22 +775,6 @@ class _ActivityCreateForm(_ActivityForm):
         super().__init__(*args, **kwargs)
 
     def clean_participating_users(self):
-        # users = set()
-        #
-        # for user in self.cleaned_data['participating_users']:
-        #     if not user.is_team:
-        #         users.add(user)
-        #     else:
-        #         users.update(user.teammates.values())
-        #
-        # self.participants.update(
-        #     validators.validate_linkable_entities(
-        #         Contact.objects.filter(is_user__in=users),
-        #         self.user,
-        #     )
-        # )
-        #
-        # return users
         user_contacts = self.cleaned_data['participating_users']
         self.participants.update(user_contacts)
 
@@ -887,9 +854,6 @@ class ActivityCreateForm(_ActivityCreateForm):
                 'The organisations of the participants will be automatically added as subjects'
             )
 
-        # fields['participating_users'].queryset = get_user_model().objects.filter(
-        #     is_staff=False,
-        # ).exclude(pk=user.id)
         part_users_f = fields['participating_users']
         part_users_f.queryset = part_users_f.queryset.exclude(pk=user.id)
 
@@ -942,8 +906,6 @@ class ActivityCreateForm(_ActivityCreateForm):
         my_participation = self.cleaned_data['my_participation']
 
         if my_participation[0]:
-            # user = self.user
-            # self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
             self.participants.add(self.user.linked_contact)
 
         return my_participation
@@ -1070,25 +1032,9 @@ class CalendarActivityCreateForm(ActivityCreateForm):
     class Meta(ActivityCreateForm.Meta):
         exclude = (*ActivityCreateForm.Meta.exclude, 'minutes')
 
-    # def __init__(self, start=None, end=None, is_all_day=False, *args, **kwargs):
     def __init__(self, *args, **kwargs):
         warnings.warn('CalendarActivityCreateForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
-
-        # fields = self.fields
-        # fields['is_all_day'].initial = is_all_day
-        #
-        # def _set_datefield(key, value):
-        #     if value:
-        #         fields[key].initial = value
-        #
-        #         if value.hour or value.minute:
-        #             fields[f'{key}_time'].initial = time(
-        #                 hour=value.hour, minute=value.minute
-        #             )
-        #
-        # _set_datefield('start', start)
-        # _set_datefield('end', end)
 
 
 class IndisponibilityCreateForm(_ActivityCreateForm):

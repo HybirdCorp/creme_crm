@@ -85,11 +85,8 @@ class _ActivitiesTestCase(CremeTestCase):
             'user': user.pk,
             'title': title,
 
-            # 'type_selector': self._acttype_field_value(atype_id, subtype_id),
             self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(atype_id, subtype_id),
 
-            # 'my_participation_0': True,
-            # 'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
             f'{self.EXTRA_MYPART_KEY}_0': True,
             f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
         }

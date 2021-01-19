@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -417,22 +417,6 @@ class Populator(BasePopulator):
         SearchConfigItem.objects.create_if_needed(
             Activity, ['title', 'description', 'type__name'],
         )
-
-        # ---------------------------
-        # cal_is_public = settings.ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC
-        #
-        # if cal_is_public is not None:
-        #     if isinstance(cal_is_public, bool):
-        #         users = get_user_model().objects.filter(is_staff=False, is_active=True,
-        #                                                 calendar__is_default__isnull=True,
-        #                                                )
-        #
-        #         for user in users:
-        #             Calendar.objects.create_default_calendar(user=user, is_public=cal_is_public)
-        #     else:
-        #         logger.error('ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC is invalid '
-        #                      '(not in {None, True, False}) '
-        #                     )
 
         # ---------------------------
         create_svalue = SettingValue.objects.get_or_create
