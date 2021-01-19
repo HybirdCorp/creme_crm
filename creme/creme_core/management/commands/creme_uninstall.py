@@ -42,6 +42,7 @@ from creme.creme_core.models import (
     ButtonMenuItem,
     CremeEntity,
     CremePropertyType,
+    CustomFormConfigItem,
     EntityFilter,
     HistoryLine,
     InstanceBrickConfigItem,
@@ -197,6 +198,14 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
                 )
 
             efilter.delete(check_orphan=False)
+
+
+@receiver(post_uninstall_flush)
+@uninstall_handler('Deleting custom forms...')
+def _uninstall_custom_forms(sender, **kwargs):
+    CustomFormConfigItem.objects.filter(
+        cform_id__startswith=f'{sender.label}-',
+    ).delete()
 
 
 @receiver(post_uninstall_flush)
