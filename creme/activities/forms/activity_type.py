@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,14 +19,12 @@
 ################################################################################
 
 from django.core.exceptions import ValidationError
-# from django.forms.fields import CharField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
-# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
 from ..constants import ACTIVITYTYPE_INDISPO
@@ -94,10 +92,8 @@ class BulkEditTypeForm(BulkDefaultEditForm):
             else:
                 self._mixed_indispo = True
                 # TODO: remove when old view entity.bulk_edit_field() has been removed
-                # self.fields['beware'] = CharField(
                 self.fields['beware'] = core_fields.ReadonlyMessageField(
                     label=_('Beware !'),
-                    # required=False, widget=Label,
                     initial=ngettext(
                         'The type of {count} activity cannot be changed because'
                         ' it is an indisponibility.',

@@ -218,8 +218,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         url = self.ACTIVITY_CREATION_URL
         lv_url = Activity.get_lv_absolute_url()
         response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
-        # self.assertTemplateUsed(response1, 'activities/add_activity_form.html')
-        # self.assertTemplateUsed(response1, 'activities/frags/activity_form_content.html')
 
         context = response1.context
         self.assertEqual(_('Create an activity'), context.get('title'))
@@ -228,9 +226,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         with self.assertNoException():
             fields = context['form'].fields
-            # end_f = fields['end']
             end_f = fields[self.EXTRA_END_KEY]
-            # my_part_f = fields['my_participation']
             my_part_f = fields[self.EXTRA_MYPART_KEY]
             allday_f = fields['is_all_day']
 
@@ -251,34 +247,20 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.pk,
                 'title': title,
 
-                # 'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                 'status':               status.pk,
 
-                # 'start':              '2010-1-10',
-                # 'start_time':         '17:30:00',
-                # 'end':                '2010-1-10',
-                # 'end_time':           '18:45:00',
                 f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                 f'{self.EXTRA_START_KEY}_1': '17:30:00',
                 f'{self.EXTRA_END_KEY}_0':   '2010-1-10',
                 f'{self.EXTRA_END_KEY}_1':   '18:45:00',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
 
-                # 'other_participants': self.formfield_value_multi_creator_entity(genma),
                 self.EXTRA_OTHERPART_KEY: self.formfield_value_multi_creator_entity(genma),
-
-                # 'participating_users': [other_user.id],
                 self.EXTRA_PARTUSERS_KEY: [other_user.id],
-
-                # 'subjects':           self.formfield_value_multi_generic_entity(ranma),
                 self.EXTRA_SUBJECTS_KEY:  self.formfield_value_multi_generic_entity(ranma),
-
-                # 'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
                 self.EXTRA_LINKED_KEY:    self.formfield_value_multi_generic_entity(dojo),
             },
         )
@@ -296,7 +278,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             self.create_datetime(year=2010, month=1, day=10, hour=18, minute=45),
             act.end,
         )
-        # self.assertListEqual([my_calendar], [*act.calendars.all()])
         self.assertCountEqual(
             [my_calendar, Calendar.objects.get_default_calendar(other_user)],
             [*act.calendars.all()],
@@ -344,48 +325,34 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.pk,
                 'title': 'Fight !!',
 
-                # 'type_selector':       self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 ),
 
-                # 'start':               '2011-2-22',
                 f'{self.EXTRA_START_KEY}_0': '2011-2-22',
 
-                # 'my_participation_0':  True,
-                # 'my_participation_1':  my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
 
-                # 'participating_users': [other_user.pk],
                 self.EXTRA_PARTUSERS_KEY: [other_user.pk],
-
-                # 'other_participants':  self.formfield_value_multi_creator_entity(genma),
-                self.EXTRA_OTHERPART_KEY:  self.formfield_value_multi_creator_entity(genma),
-                # 'subjects':            self.formfield_value_multi_generic_entity(akane),
-                self.EXTRA_SUBJECTS_KEY:   self.formfield_value_multi_generic_entity(akane),
-                # 'linked_entities':     self.formfield_value_multi_generic_entity(dojo),
-                self.EXTRA_LINKED_KEY:     self.formfield_value_multi_generic_entity(dojo),
+                self.EXTRA_OTHERPART_KEY: self.formfield_value_multi_creator_entity(genma),
+                self.EXTRA_SUBJECTS_KEY:  self.formfield_value_multi_generic_entity(akane),
+                self.EXTRA_LINKED_KEY:    self.formfield_value_multi_generic_entity(dojo),
             },
         )
         self.assertFormError(
-            # response, 'form', 'my_participation',
             response, 'form', self.EXTRA_MYPART_KEY,
             _('You are not allowed to link this entity: {}').format(mireille),
         )
 
         fmt = _('Some entities are not linkable: {}').format
         self.assertFormError(
-            # response, 'form', 'participating_users', fmt(other_user.linked_contact),
             response, 'form', self.EXTRA_PARTUSERS_KEY, fmt(other_user.linked_contact),
         )
-        # self.assertFormError(response, 'form', 'other_participants',  fmt(genma))
-        self.assertFormError(response, 'form', self.EXTRA_OTHERPART_KEY,  fmt(genma))
-        # self.assertFormError(response, 'form', 'subjects',            fmt(akane))
-        self.assertFormError(response, 'form', self.EXTRA_SUBJECTS_KEY,   fmt(akane))
-        # self.assertFormError(response, 'form', 'linked_entities',     fmt(dojo))
-        self.assertFormError(response, 'form', self.EXTRA_LINKED_KEY,     fmt(dojo))
+        self.assertFormError(response, 'form', self.EXTRA_OTHERPART_KEY, fmt(genma))
+        self.assertFormError(response, 'form', self.EXTRA_SUBJECTS_KEY,  fmt(akane))
+        self.assertFormError(response, 'form', self.EXTRA_LINKED_KEY,    fmt(dojo))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -397,7 +364,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         response1 = self.assertGET200(self.ACTIVITY_CREATION_URL)
 
         with self.assertNoException():
-            # subjects_f = response1.context['form'].fields['subjects']
             subjects_f = response1.context['form'].fields[self.EXTRA_SUBJECTS_KEY]
 
         self.assertEqual(
@@ -446,25 +412,17 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title':              title,
                 'status':             status.pk,
 
-                # 'start':              '2013-3-26',
-                # 'start_time':         '12:10:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-3-26',
                 f'{self.EXTRA_START_KEY}_1': '12:10:00',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
 
-                # 'other_participants': self.formfield_value_multi_creator_entity(genma, akane),
                 self.EXTRA_OTHERPART_KEY: self.formfield_value_multi_creator_entity(genma, akane),
-                # 'subjects':           self.formfield_value_multi_generic_entity(ranma, rest),
                 self.EXTRA_SUBJECTS_KEY:  self.formfield_value_multi_generic_entity(ranma, rest),
-                # 'linked_entities':    self.formfield_value_multi_generic_entity(dojo_s),
                 self.EXTRA_LINKED_KEY:    self.formfield_value_multi_generic_entity(dojo_s),
 
-                # 'type_selector':      self._acttype_field_value(type_id),
-                self.EXTRA_SUBTYPE_KEY:  self._acttype_field_value(type_id),
+                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id),
             },
         )
         self.assertNoFormError(response2)
@@ -496,7 +454,6 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview04(self):
         "No end but end time."
         act = self._create_activity_by_view(
-            # start='2013-3-29', start_time='14:30:00', end_time='15:45:00',
             **{
                 f'{self.EXTRA_START_KEY}_0': '2013-3-29',
                 f'{self.EXTRA_START_KEY}_1': '14:30:00',
@@ -517,7 +474,6 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview06(self):
         "FLOATING_TIME type."
         act = self._create_activity_by_view(
-            # start='2013-3-30', end='2013-3-30'
             **{
                 f'{self.EXTRA_START_KEY}_0': '2013-3-30',
                 f'{self.EXTRA_END_KEY}_0':   '2013-3-30',
@@ -534,7 +490,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(1,          atype.default_day_duration)
         self.assertEqual('00:00:00', atype.default_hour_duration)
 
-        # act = self._create_activity_by_view('TGS', atype.id, start='2013-7-3')
         act = self._create_activity_by_view(
             'TGS', atype.id, **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
         )
@@ -547,7 +502,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         "default_day_duration=1 + is_all_day."
         act = self._create_activity_by_view(
             'TGS', constants.ACTIVITYTYPE_SHOW, is_all_day=True,
-            # start='2013-7-3'
             **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
         )
 
@@ -565,7 +519,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             is_custom=True,
         )
 
-        # act = self._create_activity_by_view('TGS', atype.id, start='2013-7-3')
         act = self._create_activity_by_view(
             'TGS', atype.id, **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
         )
@@ -584,7 +537,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             is_custom=True,
         )
 
-        # act = self._create_activity_by_view('TGS', atype.id, start='2013-7-3')
         act = self._create_activity_by_view(
             'TGS', atype.id, **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
         )
@@ -605,7 +557,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         response1 = self.assertGET200(self.ACTIVITY_CREATION_URL)
 
         with self.assertNoException():
-            # subjects_f = response1.context['form'].fields['subjects']
             subjects_f = response1.context['form'].fields[self.EXTRA_SUBJECTS_KEY]
 
         self.assertFalse(subjects_f.help_text)
@@ -626,11 +577,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': title,
                 'status': Status.objects.all()[0].pk,
 
-                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
             },
@@ -669,18 +617,13 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.pk,
                 'title': title,
 
-                # 'start': '2015-03-10',
                 f'{self.EXTRA_START_KEY}_0': '2015-03-10',
 
-                # 'my_participation_0':  True,
-                # 'my_participation_1':  Calendar.objects.get_default_calendar(user).pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
 
-                # 'participating_users': [team.id],
                 self.EXTRA_PARTUSERS_KEY: [team.id],
 
-                # 'type_selector': self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
@@ -735,14 +678,10 @@ class ActivityTestCase(_ActivitiesTestCase):
             'user': user.pk,
             'title': 'My task',
 
-            # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
             self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-            # 'end':           '2013-3-29',
             f'{self.EXTRA_END_KEY}_0': '2013-3-29',
 
-            # 'my_participation_0': True,
-            # 'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
             f'{self.EXTRA_MYPART_KEY}_0': True,
             f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
         }
@@ -754,15 +693,12 @@ class ActivityTestCase(_ActivitiesTestCase):
             _("You can't set the end of your activity without setting its start"),
         )
 
-        # response2 = self.assertPOST200(url, follow=True, data={**data, 'start': '2013-3-30'})
         response2 = self.assertPOST200(
             url, follow=True, data={**data, f'{self.EXTRA_START_KEY}_0': '2013-3-30'},
         )
-        # self.assertFormError(response2, 'form', None, _('End time is before start time'))
         self.assertFormError(response2, 'form', None, _('End is before start'))
 
         response3 = self.assertPOST200(
-            # url, follow=True, data={**data, 'start': '2013-3-29', 'busy': True},
             url,
             follow=True,
             data={**data, f'{self.EXTRA_START_KEY}_0': '2013-3-29', 'busy': True},
@@ -783,20 +719,15 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user': user.pk,
                 'title': 'My task',
 
-                # 'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
 
-                # 'subjects':           self.formfield_value_multi_generic_entity(bad_subject),
                 self.EXTRA_SUBJECTS_KEY: self.formfield_value_multi_generic_entity(bad_subject),
             },
         )
         self.assertFormError(
-            # response, 'form', 'subjects',
             response, 'form', self.EXTRA_SUBJECTS_KEY,
             _('This content type is not allowed.'),
         )
@@ -814,25 +745,19 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':               user.id,
                 'title':              'My task',
 
-                # 'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                 self.EXTRA_SUBTYPE_KEY:  self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
 
-                # 'subjects':           self.formfield_value_multi_generic_entity(ranma),
                 self.EXTRA_SUBJECTS_KEY:  self.formfield_value_multi_generic_entity(ranma),
 
-                # 'other_participants': self.formfield_value_multi_creator_entity(
                 self.EXTRA_OTHERPART_KEY: self.formfield_value_multi_creator_entity(
                     self.other_user.linked_contact,
                 ),
             },
         )
         self.assertFormError(
-            # response, 'form', 'other_participants', _('This entity does not exist.'),
             response, 'form', self.EXTRA_OTHERPART_KEY, _('This entity does not exist.'),
         )
 
@@ -847,20 +772,15 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':               user.id,
                 'title':              'My task',
 
-                # 'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                 self.EXTRA_SUBTYPE_KEY:  self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': Calendar.objects.get_default_calendar(user).pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
 
-                # 'participating_users': [user.pk],
                 self.EXTRA_PARTUSERS_KEY: [user.pk],
             },
         )
         self.assertFormError(
-            # response, 'form', 'participating_users',
             response, 'form', self.EXTRA_PARTUSERS_KEY,
             _('Select a valid choice. %(value)s is not one of the available choices.') % {
                 'value': user.id,
@@ -879,24 +799,17 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                # 'type_selector': self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 ),
-                # 'start': '2010-1-10',
                 f'{self.EXTRA_START_KEY}_0': '2010-1-10',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
 
-                # 'alert_start': '2010-2-10 10:05',
                 self.EXTRA_ALERTDT_KEY: '2010-2-10 10:05',
 
-                # 'alert_period_0': 'days',
-                # 'alert_period_1': 2,
                 f'{self.EXTRA_ALERTPERIOD_KEY}_0': 'days',
                 f'{self.EXTRA_ALERTPERIOD_KEY}_1': 2,
             },
@@ -933,25 +846,20 @@ class ActivityTestCase(_ActivitiesTestCase):
             self.ACTIVITY_CREATION_URL,
             follow=True,
             data={
-                'user':          user.pk,
-                'title':         title,
-                # 'type_selector': self._acttype_field_value(
+                'user':  user.pk,
+                'title': title,
+
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 ),
 
-                # 'start':      '2013-3-28',
-                # 'start_time': '17:30:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-3-28',
                 f'{self.EXTRA_START_KEY}_1': '17:30:00',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
 
-                # 'alert_period_0': 'days',
                 f'{self.EXTRA_ALERTPERIOD_KEY}_0': 'days',
             },
         )
@@ -974,25 +882,19 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                # 'type_selector': self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 ),
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
 
-                # 'alert_period_0': 'days',
-                # 'alert_period_1': 1,
                 f'{self.EXTRA_ALERTPERIOD_KEY}_0': 'days',
                 f'{self.EXTRA_ALERTPERIOD_KEY}_1': 1,
             },
         )
         self.assertFormError(
-            # response, 'form', 'alert_period',
             response, 'form', self.EXTRA_ALERTPERIOD_KEY,
             _('You cannot set a relative alert on a floating activity'),
         )
@@ -1005,9 +907,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         other_user = self.other_user
         self.assertEqual(0, UserMessage.objects.count())
 
-        # sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_FORM_USERS_MSG)
-        # sv.value = True
-        # sv.save()
         # TODO: improve FieldGroupList API (eg .extend()) ?
         umsg_cell = UserMessagesSubCell(model=Activity).into_cell()
         cfci = CustomFormConfigItem.objects.get(cform_id=ACTIVITY_CREATION_CFORM.id)
@@ -1038,10 +937,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            # fields = response.context['form'].fields
             msg_f = response.context['form'].fields[umsg_cell.key]
 
-        # self.assertIn('informed_users', fields)
         self.assertIsInstance(msg_f, ModelMultipleChoiceField)
 
         title = 'Meeting dojo'
@@ -1052,27 +949,19 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                # 'type_selector': self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 ),
-                # 'start': '2010-1-10',
                 f'{self.EXTRA_START_KEY}_0': '2010-1-10',
 
-                # 'my_participation_0':  True,
-                # 'my_participation_1':  my_calendar.id,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.id,
 
-                # 'participating_users': other_user.pk,
-                self.EXTRA_PARTUSERS_KEY:  other_user.pk,
-                # 'other_participants':  self.formfield_value_multi_creator_entity(genma),
-                self.EXTRA_OTHERPART_KEY:  self.formfield_value_multi_creator_entity(genma),
-                # 'subjects':            self.formfield_value_multi_generic_entity(akane),
-                self.EXTRA_SUBJECTS_KEY:   self.formfield_value_multi_generic_entity(akane),
+                self.EXTRA_PARTUSERS_KEY: other_user.pk,
+                self.EXTRA_OTHERPART_KEY: self.formfield_value_multi_creator_entity(genma),
+                self.EXTRA_SUBJECTS_KEY:  self.formfield_value_multi_generic_entity(akane),
 
-                # 'informed_users': [user.id, other_user.id],
                 self.EXTRA_MESSAGES_KEY: [user.id, other_user.id],
             },
         )
@@ -1142,24 +1031,16 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title':  title,
                 'status': status.pk,
 
-                # 'type_selector':      self._acttype_field_value(atype.id, subtype.id),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(atype.id, subtype.id),
 
-                # 'start':              '2013-4-12',
-                # 'start_time':         '10:00:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-4-12',
                 f'{self.EXTRA_START_KEY}_1': '10:00:00',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
 
-                # 'other_participants': self.formfield_value_multi_creator_entity(genma),
                 self.EXTRA_OTHERPART_KEY: self.formfield_value_multi_creator_entity(genma),
-                # 'subjects':           self.formfield_value_multi_generic_entity(ranma),
                 self.EXTRA_SUBJECTS_KEY:  self.formfield_value_multi_generic_entity(ranma),
-                # 'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
                 self.EXTRA_LINKED_KEY:    self.formfield_value_multi_generic_entity(dojo),
             },
         )
@@ -1205,16 +1086,12 @@ class ActivityTestCase(_ActivitiesTestCase):
             data={
                 'user': user.pk,
                 'title': title,
-                # 'type_selector': self._acttype_field_value(type_id, subtype.id),
+
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, subtype.id),
 
-                # 'start': '2013-4-12',
-                # 'start_time': '10:00:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-4-12',
                 f'{self.EXTRA_START_KEY}_1': '10:00:00',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
             },
@@ -1236,20 +1113,16 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user': user.pk,
                 'title': 'My meeting',
 
-                # 'type_selector': self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 ),
 
-                # 'start':      '2013-4-12',
-                # 'start_time': '10:00:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-4-12',
                 f'{self.EXTRA_START_KEY}_1': '10:00:00',
             },
         )
         self.assertFormError(
-            # response, 'form', 'type_selector', _('This type causes constraint error.')
             response, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.'),
         )
 
@@ -1269,16 +1142,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user': user.pk,
                 'title': title,
 
-                # 'type_selector':      self._acttype_field_value(type_id),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id),
 
-                # 'start':              '2013-4-12',
-                # 'start_time':         '10:00:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-4-12',
                 f'{self.EXTRA_START_KEY}_1': '10:00:00',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
             },
@@ -1298,11 +1166,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         response1 = self.assertGET200(uri)
 
         with self.assertNoException():
-            # other_participants = response1.context['form'].fields['other_participants']
             form = response1.context['form']
 
-        # # self.assertEqual([contact01], other_participants.initial)
-        # self.assertListEqual([contact01], form.initial.get('other_participants'))
         self.assertListEqual([contact01], form.initial.get(self.EXTRA_OTHERPART_KEY))
 
         title = 'My meeting'
@@ -1312,18 +1177,14 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                # 'type_selector': self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
                 ),
 
-                # 'start':      '2010-1-10',
-                # 'start_time': '17:30:00',
                 f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                 f'{self.EXTRA_START_KEY}_1': '17:30:00',
 
-                # 'participating_users': [other_user.pk],
                 self.EXTRA_PARTUSERS_KEY: [other_user.pk],
             },
         )
@@ -1356,11 +1217,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         ))
 
         with self.assertNoException():
-            # users = response.context['form'].fields['participating_users']
             form = response.context['form']
 
-        # # self.assertEqual([self.other_user.id], [e.id for e in users.initial])
-        # self.assertListEqual([self.other_user], form.initial.get('participating_users'))
         self.assertListEqual([self.other_user], form.initial.get(self.EXTRA_PARTUSERS_KEY))
 
     @skipIfCustomOrganisation
@@ -1373,13 +1231,8 @@ class ActivityTestCase(_ActivitiesTestCase):
             self._build_add_related_uri(dojo, constants.ACTIVITYTYPE_MEETING),
         )
 
-        # with self.assertNoException():
-        #     subjects = response.context['form'].fields['subjects']
-        #
-        # self.assertEqual([dojo.id], [e.id for e in subjects.initial])
         self.assertListEqual(
             [dojo.id],
-            # [e.id for e in response.context['form'].initial.get('subjects', ())],
             [e.id for e in response.context['form'].initial.get(self.EXTRA_SUBJECTS_KEY, ())],
         )
 
@@ -1394,13 +1247,8 @@ class ActivityTestCase(_ActivitiesTestCase):
             self._build_add_related_uri(linked, constants.ACTIVITYTYPE_PHONECALL)
         )
 
-        # with self.assertNoException():
-        #     linked_entities = response.context['form'].fields['linked_entities']
-        #
-        # self.assertEqual([linked.id], [e.id for e in linked_entities.initial])
         self.assertListEqual(
             [linked.id],
-            # [e.id for e in response.context['form'].initial.get('linked_entities', ())],
             [e.id for e in response.context['form'].initial.get(self.EXTRA_LINKED_KEY, ())],
         )
 
@@ -1436,19 +1284,14 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user': user.pk,
                 'title': title,
 
-                # 'type_selector': self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
                 ),
 
-                # 'start':      '2013-5-21',
-                # 'start_time': '9:30:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-5-21',
                 f'{self.EXTRA_START_KEY}_1': '9:30:00',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
             },
@@ -1470,22 +1313,16 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.pk,
                 'title': 'Other meeting',
 
-                # 'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                # 'start':            '2013-5-21',
-                # 'start_time':       '9:30:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-5-21',
                 f'{self.EXTRA_START_KEY}_1': '9:30:00',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
             },
         )
         self.assertFormError(
-            # response, 'form', 'type_selector', _('This type causes constraint error.'),
             response, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.'),
         )
 
@@ -1539,14 +1376,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            # start_time_f = fields['start_time']
-            # end_time_f = fields['end_time']
             start_f = fields[self.EXTRA_START_KEY]
             end_f = fields[self.EXTRA_END_KEY]
             subtype_f = fields[self.EXTRA_SUBTYPE_KEY]
 
-        # self.assertEqual(22, start_time_f.initial.hour)
-        # self.assertEqual(23, end_time_f.initial.hour)
         self.assertEqual(1,  start_f.initial[0].day)
         self.assertEqual(22, start_f.initial[1].hour)
         self.assertEqual(1,  end_f.initial[0].day)
@@ -1562,9 +1395,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             data={
                 'user': self.user.pk,
                 'title': title,
-                # 'start': '2011-2-22',
                 f'{self.EXTRA_START_KEY}_0': '2011-2-22',
-                # 'type_selector': self._acttype_field_value(type_id, sub_type_id),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, sub_type_id),
             },
         ))
@@ -1600,9 +1431,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             data={
                 'user':  user.pk,
                 'title': title,
-                # 'start': '2011-2-22',
                 f'{self.EXTRA_START_KEY}_0': '2011-2-22',
-                # 'type_selector': self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
@@ -1653,17 +1482,12 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': task01.title,
                 'busy':  True,
 
-                # 'start':         '2013-4-17',
-                # 'start_time':    '14:30:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-4-17',
                 f'{self.EXTRA_START_KEY}_1': '14:30:00',
 
-                # 'end':           '2013-4-17',
-                # 'end_time':      '16:00:00',
                 f'{self.EXTRA_END_KEY}_0': '2013-4-17',
                 f'{self.EXTRA_END_KEY}_1': '16:00:00',
 
-                # 'type_selector': self._acttype_field_value(
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     task01.type_id,
                     task01.sub_type_id,
@@ -1685,9 +1509,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_editview04(self):
         "Edit FLOATING_TIME activity."
-        # task = self._create_activity_by_view(start='2013-7-25')
         task = self._create_activity_by_view(
-            # start='2013-7-25'
             **{f'{self.EXTRA_START_KEY}_0': '2013-7-25'}
         )
         self.assertEqual(constants.FLOATING_TIME, task.floating_type)
@@ -1696,15 +1518,11 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            # start_time_f = fields['start_time']
-            # end_time_f = fields['end_time']
             start_f = fields[self.EXTRA_START_KEY]
             end_f = fields[self.EXTRA_END_KEY]
 
-        # self.assertIsNone(start_time_f.initial)
         self.assertEqual(25, start_f.initial[0].day)
         self.assertIsNone(start_f.initial[1])
-        # self.assertIsNone(end_time_f.initial)
         self.assertEqual(25, end_f.initial[0].day)
         self.assertIsNone(end_f.initial[1])
 
@@ -1726,13 +1544,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             'user':       user.pk,
             'title':      activity.title,
 
-            # 'start':      '2015-1-1',
-            # 'start_time': '14:30:00',
             f'{self.EXTRA_START_KEY}_0':      '2015-1-1',
             f'{self.EXTRA_START_KEY}_1': '14:30:00',
 
-            # 'end':        '2015-1-1',
-            # 'end_time':   '16:00:00',
             f'{self.EXTRA_END_KEY}_0': '2015-1-1',
             f'{self.EXTRA_END_KEY}_1': '16:00:00',
         }
@@ -1742,7 +1556,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             follow=True,
             data={
                 **data,
-                # 'type_selector': fvalue(
                 self.EXTRA_SUBTYPE_KEY: fvalue(
                     constants.ACTIVITYTYPE_PHONECALL,
                     constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
@@ -1750,7 +1563,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            # response, 'form', 'type_selector', _('This type causes constraint error.')
             response, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.')
         )
 
@@ -1759,7 +1571,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
         response = self.client.post(
             url, follow=True,
-            # data={**data, 'type_selector': fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id)},
             data={
                 **data,
                 self.EXTRA_SUBTYPE_KEY: fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id),
@@ -1790,7 +1601,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             object_entity=activity,
         )
 
-        # self.assertPOST403(musashi.get_delete_absolute_url(), follow=True)
         self.assertPOST409(musashi.get_delete_absolute_url(), follow=True)
         self.assertStillExists(musashi)
         self.assertStillExists(activity)
@@ -2259,27 +2069,19 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': 'Away',
                 'status': status.pk,
 
-                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO),
 
-                # 'start':      '2013-3-27',
-                # 'start_time': '09:00:00',
                 f'{self.EXTRA_START_KEY}_0': '2013-3-27',
                 f'{self.EXTRA_START_KEY}_1': '09:00:00',
 
-                # 'end':        '2010-3-27',
-                # 'end_time':   '11:00:00',
                 f'{self.EXTRA_END_KEY}_0': '2010-3-27',
                 f'{self.EXTRA_END_KEY}_1': '11:00:00',
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.pk,
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
             },
         )
         self.assertFormError(
-            # response, 'form', 'type_selector', _('This type causes constraint error.'),
             response, 'form', self.EXTRA_SUBTYPE_KEY,
             _('This type causes constraint error.'),
         )
@@ -2290,15 +2092,11 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self.ADD_INDISPO_URL
         response1 = self.assertGET200(url)
-        # self.assertTemplateUsed(response1, 'activities/add_activity_form.html')
-        # self.assertTemplateUsed(response1, 'activities/frags/indispo_form_content.html')
         self.assertEqual(_('Create an unavailability'), response1.context.get('title'))
 
         with self.assertNoException():
             fields = response1.context['form'].fields
-            # end_f = fields['end']
             end_f = fields[self.EXTRA_END_KEY]
-            # p_user_f = fields['participating_users']
             p_user_f = fields[self.EXTRA_PARTUSERS_KEY]
             allday_f = fields['is_all_day']
 
@@ -2322,17 +2120,12 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.pk,
                 'title': title,
 
-                # 'start':      '2010-1-10',
-                # 'start_time': '09:08:07',
                 f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                 f'{self.EXTRA_START_KEY}_1': '09:08:07',
 
-                # 'end':      '2010-1-12',
-                # 'end_time': '06:05:04',
                 f'{self.EXTRA_END_KEY}_0':  '2010-1-12',
                 f'{self.EXTRA_END_KEY}_1': '06:05:04',
 
-                # 'participating_users': [user.id, other_user.id],
                 self.EXTRA_PARTUSERS_KEY: [user.id, other_user.id],
             },
         )
@@ -2378,15 +2171,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': title,
                 'is_all_day': True,
 
-                # 'type_selector':       subtype.id,
                 'cform_extra-activities_unavailability_subtype': subtype.id,
 
-                # 'start':               '2010-1-10',
-                # 'end':                 '2010-1-12',
                 f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                 f'{self.EXTRA_END_KEY}_0':   '2010-1-12',
 
-                # 'participating_users': [user.id],
                 self.EXTRA_PARTUSERS_KEY: [user.id],
             },
         )
@@ -2410,14 +2199,11 @@ class ActivityTestCase(_ActivitiesTestCase):
             data={
                 'user': user.pk,
                 'title': 'AFK',
-                # 'participating_users': [user.id],
                 self.EXTRA_PARTUSERS_KEY: [user.id],
             },
         )
         msg = _('This field is required.')
-        # self.assertFormError(response, 'form', 'start', msg)
         self.assertFormError(response, 'form', self.EXTRA_START_KEY, msg)
-        # self.assertFormError(response, 'form', 'end',   msg)
         self.assertFormError(response, 'form', self.EXTRA_END_KEY,   msg)
 
     def test_unavailability_createview05(self):
@@ -2608,130 +2394,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertNotEqual(activity1.busy, activity2.busy)
         self.assertSameRelationsNProperties(activity1, activity2, exclude_internal=False)
 
-    # def test_get_future_linked(self):
-    #     user = self.login()
-    #     create_dt = self.create_datetime
-    #     today = create_dt(year=2019, month=8, day=26, hour=8)
-    #
-    #     rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
-    #                                  ('test-object_foobar',  'is loved by')
-    #                                 )[0]
-    #
-    #     create_activity = partial(Activity.objects.create, user=user,
-    #                               type_id=constants.ACTIVITYTYPE_MEETING,
-    #                               start=today + timedelta(hours=3),
-    #                               end=today   + timedelta(hours=4),
-    #                              )
-    #     activity1 = create_activity(title='Meeting#1')
-    #     ___       = create_activity(title='Meeting#2')  # No relation
-    #     activity3 = create_activity(title='Meeting#3')  # Ignored type of relation
-    #     activity4 = create_activity(title='Meeting#4', is_deleted=True)
-    #     activity5 = create_activity(title='Meeting#5',
-    #                                 start=today - timedelta(hours=15),
-    #                                 end=today   - timedelta(hours=14),
-    #                                )  # In the past
-    #     activity6 = create_activity(title='Meeting#6',
-    #                                 start=today + timedelta(hours=1),
-    #                                 end=today   + timedelta(hours=2),
-    #                                )
-    #
-    #     create_contact = partial(Contact.objects.create, user=user)
-    #     c1 = create_contact(first_name='Ranma', last_name='Saotome')
-    #     c2 = create_contact(first_name='Genma', last_name='Saotome')
-    #
-    #     create_orga = partial(Organisation.objects.create, user=user)
-    #     o1 = create_orga(name='Saotome dojo')
-    #     o2 = create_orga(name='Tendou dojo')
-    #
-    #     create_rel = partial(Relation.objects.create, user=user, object_entity=activity1,
-    #                          type_id=constants.REL_SUB_PART_2_ACTIVITY,
-    #                         )
-    #
-    #     create_rel(subject_entity=c1)
-    #     create_rel(subject_entity=c1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
-    #     create_rel(subject_entity=o1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
-    #     create_rel(subject_entity=o2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY)
-    #     create_rel(subject_entity=c2, type_id=rtype1.id, object_entity=activity3)
-    #     create_rel(subject_entity=c1, object_entity=activity4)
-    #     create_rel(subject_entity=c1, object_entity=activity5)
-    #     create_rel(subject_entity=c1, object_entity=activity6)
-    #
-    #     self.assertEqual(
-    #         [activity6, activity1],
-    #         [*Activity.get_future_linked(entity=c1, today=today)]
-    #     )
-    #     self.assertEqual(
-    #         [activity1],
-    #         [*Activity.get_future_linked(entity=o1, today=today)]
-    #     )
-    #     self.assertEqual(
-    #         [activity1],
-    #         [*Activity.get_future_linked(entity=o2, today=today)]
-    #     )
-    #     self.assertFalse(Activity.get_future_linked(entity=c2, today=today))
-
-    # def test_get_past_linked(self):
-    #     user = self.login()
-    #     create_dt = self.create_datetime
-    #     today = create_dt(year=2019, month=8, day=26, hour=8)
-    #
-    #     rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
-    #                                  ('test-object_foobar',  'is loved by')
-    #                                 )[0]
-    #
-    #     create_activity = partial(Activity.objects.create, user=user,
-    #                               type_id=constants.ACTIVITYTYPE_MEETING,
-    #                               start=today - timedelta(hours=24),
-    #                               end=today   - timedelta(hours=23),
-    #                              )
-    #     activity1 = create_activity(title='Meeting#1')
-    #     ___       = create_activity(title='Meeting#2')  # No relation
-    #     activity3 = create_activity(title='Meeting#3')  # Ignored type of relation
-    #     activity4 = create_activity(title='Meeting#4', is_deleted=True)
-    #     activity5 = create_activity(title='Meeting#5',
-    #                                 start=today + timedelta(hours=4),
-    #                                 end=today   + timedelta(hours=5),
-    #                                )  # In the future
-    #     activity6 = create_activity(title='Meeting#6',
-    #                                 start=today - timedelta(hours=15),
-    #                                 end=today   - timedelta(hours=14),
-    #                                )
-    #
-    #     create_contact = partial(Contact.objects.create, user=user)
-    #     c1 = create_contact(first_name='Ranma', last_name='Saotome')
-    #     c2 = create_contact(first_name='Genma', last_name='Saotome')
-    #
-    #     create_orga = partial(Organisation.objects.create, user=user)
-    #     o1 = create_orga(name='Saotome dojo')
-    #     o2 = create_orga(name='Tendou dojo')
-    #
-    #     create_rel = partial(Relation.objects.create, user=user, object_entity=activity1,
-    #                          type_id=constants.REL_SUB_PART_2_ACTIVITY,
-    #                         )
-    #
-    #     create_rel(subject_entity=c1)
-    #     create_rel(subject_entity=c1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
-    #     create_rel(subject_entity=o1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
-    #     create_rel(subject_entity=o2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY)
-    #     create_rel(subject_entity=c2, type_id=rtype1.id, object_entity=activity3)
-    #     create_rel(subject_entity=c1, object_entity=activity4)
-    #     create_rel(subject_entity=c1, object_entity=activity5)
-    #     create_rel(subject_entity=c1, object_entity=activity6)
-    #
-    #     self.assertEqual(
-    #         [activity6, activity1],
-    #         [*Activity.get_past_linked(entity=c1, today=today)]
-    #     )
-    #     self.assertEqual(
-    #         [activity1],
-    #         [*Activity.get_past_linked(entity=o1, today=today)]
-    #     )
-    #     self.assertEqual(
-    #         [activity1],
-    #         [*Activity.get_past_linked(entity=o2, today=today)]
-    #     )
-    #     self.assertFalse(Activity.get_past_linked(entity=c2, today=today))
-
     def test_manager_future_linked(self):
         user = self.login()
         create_dt = self.create_datetime
@@ -2867,198 +2529,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             [*Activity.objects.past_linked(entity=o2, today=today)],
         )
         self.assertFalse(Activity.objects.past_linked(entity=c2, today=today))
-
-    # def test_get_future_linked_for_orga(self):
-    #     user = self.login()
-    #
-    #     sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
-    #     sv.value = False  # We disable the auto subjects feature
-    #     sv.save()
-    #
-    #     create_dt = self.create_datetime
-    #     today = create_dt(year=2019, month=8, day=26, hour=8)
-    #
-    #     rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
-    #                                  ('test-object_foobar',  'is loved by')
-    #                                 )[0]
-    #
-    #     create_activity = partial(Activity.objects.create, user=user,
-    #                               type_id=constants.ACTIVITYTYPE_MEETING,
-    #                               start=today + timedelta(hours=3),
-    #                               end=today   + timedelta(hours=4),
-    #                              )
-    #     activity1 = create_activity(title='Meeting#1')
-    #     activity2 = create_activity(title='Meeting#2')
-    #     activity3 = create_activity(title='Meeting#3')
-    #     activity4 = create_activity(title='Meeting#4', is_deleted=True)
-    #     activity5 = create_activity(title='Meeting#5',
-    #                                 start=today - timedelta(hours=15),
-    #                                 end=today   - timedelta(hours=14),
-    #                                )  # In the past => ignored
-    #     activity6 = create_activity(title='Meeting#6',
-    #                                 start=today + timedelta(hours=1),
-    #                                 end=today   + timedelta(hours=2),
-    #                                )  # Before <activity1> when ordering by 'start'
-    #     activity7 = create_activity(title='Meeting#2')
-    #
-    #     create_orga = partial(Organisation.objects.create, user=user)
-    #     orga1 = create_orga(name='Saotome dojo')
-    #     orga2 = create_orga(name='Tendou dojo')
-    #     orga3 = create_orga(name='Hibiki dojo')
-    #     orga4 = create_orga(name='Happosai dojo')
-    #
-    #     create_contact = partial(Contact.objects.create, user=user)
-    #     c1 = create_contact(first_name='Ranma', last_name='Saotome')
-    #     c2 = create_contact(first_name='Ryoga', last_name='Hibiki')
-    #     c3 = create_contact(first_name='Akane', last_name='Tendou')
-    #
-    #     create_rel = partial(Relation.objects.create, user=user)
-    #     create_rel(subject_entity=c1, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga2)
-    #     create_rel(subject_entity=c2, type_id=REL_SUB_MANAGES,     object_entity=orga3)
-    #     create_rel(subject_entity=c3, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga4)
-    #
-    #     # About <orga1>
-    #     create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity1)
-    #     create_rel(subject_entity=orga1, type_id=rtype1.id,
-    #                object_entity=activity3)  # Ignored type of relation
-    #     create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity4)
-    #     create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity5)
-    #     create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity6)
-    #
-    #     # About <orga2>
-    #     create_rel(subject_entity=c1, type_id=constants.REL_SUB_PART_2_ACTIVITY,
-    #                object_entity=activity2)
-    #
-    #     # About <orga3>
-    #     create_rel(subject_entity=c2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY,
-    #                object_entity=activity3)
-    #
-    #     # About <orga4> (2 relationships on the same activity => return only one)
-    #     create_rel(subject_entity=orga4, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity7)
-    #     create_rel(subject_entity=c3,    type_id=constants.REL_SUB_PART_2_ACTIVITY,
-    #                object_entity=activity7)
-    #
-    #     self.assertEqual(
-    #         [activity6, activity1],
-    #         [*Activity.get_future_linked_for_orga(orga1, today=today)]
-    #     )
-    #
-    #     self.assertFalse(Relation.objects.filter(subject_entity=activity2, object_entity=orga2))
-    #     self.assertEqual(
-    #         [activity2],
-    #         [*Activity.get_future_linked_for_orga(orga=orga2, today=today)]
-    #     )
-    #
-    #     self.assertEqual(
-    #         [activity3],
-    #         [*Activity.get_future_linked_for_orga(orga=orga3, today=today)]
-    #     )
-    #
-    #     self.assertEqual(
-    #         [activity7],
-    #         [*Activity.get_future_linked_for_orga(orga=orga4, today=today)]
-    #     )
-
-    # def test_get_past_linked_for_orga(self):
-    #     user = self.login()
-    #
-    #     sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
-    #     sv.value = False  # We disable the auto subjects feature
-    #     sv.save()
-    #
-    #     create_dt = self.create_datetime
-    #     today = create_dt(year=2019, month=8, day=26, hour=8)
-    #
-    #     rtype1 = RelationType.create(('test-subject_foobar', 'is loving'),
-    #                                  ('test-object_foobar',  'is loved by')
-    #                                 )[0]
-    #
-    #     create_activity = partial(Activity.objects.create, user=user,
-    #                               type_id=constants.ACTIVITYTYPE_MEETING,
-    #                               start=today - timedelta(hours=16),
-    #                               end=today   - timedelta(hours=15),
-    #                              )
-    #     activity1 = create_activity(title='Meeting#1')
-    #     activity2 = create_activity(title='Meeting#2')
-    #     activity3 = create_activity(title='Meeting#3')
-    #     activity4 = create_activity(title='Meeting#4', is_deleted=True)
-    #     activity5 = create_activity(title='Meeting#5',
-    #                                 start=today + timedelta(hours=1),
-    #                                 end=today   + timedelta(hours=2),
-    #                                )  # In the Future => ignored
-    #     activity6 = create_activity(title='Meeting#6',
-    #                                 start=today - timedelta(hours=15),
-    #                                 end=today   - timedelta(hours=14),
-    #                                )  # Before <activity1> when ordering by '-start'
-    #     activity7 = create_activity(title='Meeting#2')
-    #
-    #     create_orga = partial(Organisation.objects.create, user=user)
-    #     orga1 = create_orga(name='Saotome dojo')
-    #     orga2 = create_orga(name='Tendou dojo')
-    #     orga3 = create_orga(name='Hibiki dojo')
-    #     orga4 = create_orga(name='Happosai dojo')
-    #
-    #     create_contact = partial(Contact.objects.create, user=user)
-    #     c1 = create_contact(first_name='Ranma', last_name='Saotome')
-    #     c2 = create_contact(first_name='Ryoga', last_name='Hibiki')
-    #     c3 = create_contact(first_name='Akane', last_name='Tendou')
-    #
-    #     create_rel = partial(Relation.objects.create, user=user)
-    #     create_rel(subject_entity=c1, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga2)
-    #     create_rel(subject_entity=c2, type_id=REL_SUB_MANAGES,     object_entity=orga3)
-    #     create_rel(subject_entity=c3, type_id=REL_SUB_EMPLOYED_BY, object_entity=orga4)
-    #
-    #     # About <orga1>
-    #     create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity1)
-    #     create_rel(subject_entity=orga1, type_id=rtype1.id,
-    #                object_entity=activity3)  # Ignored type of relation
-    #     create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity4)
-    #     create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity5)
-    #     create_rel(subject_entity=orga1, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity6)
-    #
-    #     # About <orga2>
-    #     create_rel(subject_entity=c1, type_id=constants.REL_SUB_PART_2_ACTIVITY,
-    #                object_entity=activity2)
-    #
-    #     # About <orga3>
-    #     create_rel(subject_entity=c2, type_id=constants.REL_SUB_LINKED_2_ACTIVITY,
-    #                object_entity=activity3)
-    #
-    #     # About <orga4> (2 relationships on the same activity => return only one)
-    #     create_rel(subject_entity=orga4, type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
-    #                object_entity=activity7)
-    #     create_rel(subject_entity=c3,    type_id=constants.REL_SUB_PART_2_ACTIVITY,
-    #                object_entity=activity7)
-    #
-    #     self.assertEqual(
-    #         [activity6, activity1],
-    #         [*Activity.get_past_linked_for_orga(orga1, today=today)]
-    #     )
-    #
-    #     self.assertFalse(Relation.objects.filter(subject_entity=activity2, object_entity=orga2))
-    #     self.assertEqual(
-    #         [activity2],
-    #         [*Activity.get_past_linked_for_orga(orga=orga2, today=today)]
-    #     )
-    #
-    #     self.assertEqual(
-    #         [activity3],
-    #         [*Activity.get_past_linked_for_orga(orga=orga3, today=today)]
-    #     )
-    #
-    #     self.assertEqual(
-    #         [activity7],
-    #         [*Activity.get_past_linked_for_orga(orga=orga4, today=today)]
-    #     )
 
     def test_manager_future_linked_to_organisation(self):
         user = self.login()

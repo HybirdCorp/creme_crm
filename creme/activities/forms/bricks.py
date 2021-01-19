@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,11 +24,9 @@ from functools import partial
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
-# from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
-# from creme.creme_core.forms import validators
 from creme.creme_core.forms import (
     CremeForm,
     MultiCreatorEntityField,
@@ -51,11 +49,6 @@ class ParticipantCreateForm(CremeForm):
     my_participation = act_fields.UserParticipationField(
         label=_('Do I participate to this activity?'), empty_label=None,
     )
-    # participating_users = ModelMultipleChoiceField(
-    #     label=_('Other participating users'),
-    #     queryset=get_user_model().objects.filter(is_staff=False),
-    #     required=False,
-    # )
     participating_users = act_fields.ParticipatingUsersField(
         label=_('Other participating users'), required=False,
     )
@@ -101,26 +94,11 @@ class ParticipantCreateForm(CremeForm):
         if user_pk in existing_users:
             del fields['my_participation']
 
-    # def clean_participating_users(self):
-    #     users = set()
-    #
-    #     for user in self.cleaned_data['participating_users']:
-    #         if not user.is_team:
-    #             users.add(user)
-    #         else:
-    #             users.update(user.teammates.values())
-    #
-    #     return validators.validate_linkable_entities(
-    #         Contact.objects.filter(is_user__in=users), self.user,
-    #     )
-
     # TODO: factorise with ActivityCreateForm
     def clean_my_participation(self):
         my_participation = self.cleaned_data['my_participation']
 
         if my_participation[0]:
-            # user = self.user
-            # self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
             self.participants.add(self.user.linked_contact)
 
         return my_participation
