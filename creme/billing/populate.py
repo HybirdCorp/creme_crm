@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -787,9 +787,7 @@ class Populator(BasePopulator):
             create_field(name='issuing_date',          order=6)
             create_field(name='expiration_date',       order=7)
 
-        # create_report = partial(Report.objects.create, user=admin, ct=Invoice)
         create_report = partial(reports.get_report_model().objects.create, user=admin, ct=Invoice)
-        # create_graph = partial(ReportGraph.objects.create, user=admin)
         create_graph = partial(reports.get_rgraph_model().objects.create, user=admin)
 
         # Create current year invoices report ----------------------------------
@@ -803,22 +801,17 @@ class Populator(BasePopulator):
         rgraph1 = create_graph(
             name=_('Sum of current year invoices total without taxes / month'),
             linked_report=invoices_report1,
-            # abscissa='issuing_date', type=RGT_MONTH,
             abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
-            # ordinate='total_no_vat__sum', is_count=False,
             ordinate_type=RGA_SUM,
             ordinate_cell_key=cell_key,
         )
         create_graph(
             name=_('Sum of current year invoices total without taxes / invoices status'),
             linked_report=invoices_report1,
-            # abscissa='status', type=RGT_FK,
             abscissa_cell_value='status', abscissa_type=RGT_FK,
-            # ordinate='total_no_vat__sum', is_count=False,
             ordinate_type=RGA_SUM,
             ordinate_cell_key=cell_key,
         )
-        # ibci1 = rgraph1.create_instance_brick_config_item()
         ibci1 = SimpleGraphFetcher(graph=rgraph1).create_brick_config_item()
         BrickHomeLocation.objects.create(brick_id=ibci1.brick_id, order=11)
 
@@ -832,12 +825,9 @@ class Populator(BasePopulator):
         rgraph3 = create_graph(
             name=_('Sum of current year and unpaid invoices total without taxes / month'),
             linked_report=invoices_report2,
-            # abscissa='issuing_date', type=RGT_MONTH,
             abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
-            # ordinate='total_no_vat__sum', is_count=False,
             ordinate_type=RGA_SUM,
             ordinate_cell_key=cell_key,
         )
-        # ibci3 = rgraph3.create_instance_brick_config_item()
         ibci3 = SimpleGraphFetcher(rgraph3).create_brick_config_item()
         BrickHomeLocation.objects.create(brick_id=ibci3.brick_id, order=12)

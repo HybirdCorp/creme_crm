@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,6 @@ class PaymentInformationRelatedCreation(generic.AddingInstanceToEntityPopup):
 
     def get_title_format_data(self):
         data = super().get_title_format_data()
-        # data['entity'] = self.get_related_entity().allowed_str(self.request.user)
         data['entity'] = self.get_related_entity().source.allowed_str(self.request.user)
 
         return data
@@ -70,7 +69,6 @@ class PaymentInformationRelatedCreation(generic.AddingInstanceToEntityPopup):
         entity = self.get_related_entity()
 
         if self.entity_form_kwarg:
-            # form_kwargs[self.entity_form_kwarg] = entity
             form_kwargs[self.entity_form_kwarg] = entity.source
 
     def form_valid(self, form):
@@ -127,7 +125,6 @@ class PaymentInformationAsDefault(generic.base.EntityRelatedMixin, generic.Check
         user.has_perm_to_view_or_die(organisation)
         user.has_perm_to_link_or_die(organisation)
 
-        # source = billing_doc.get_source()
         source = billing_doc.source
         if not source or source.id != organisation.id:
             raise ConflictError('The related organisation does not match.')

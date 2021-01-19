@@ -128,7 +128,7 @@ class ConvertTestCase(_BillingTestCase):
             _('{src} (converted into {dest._meta.verbose_name})').format(
                 src=quote.name, dest=Invoice,
             ),
-            invoice.name
+            invoice.name,
         )
 
         today = date.today()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@ from creme.creme_core.views import generic
 from ... import billing
 from .. import custom_forms
 from ..constants import DEFAULT_HFILTER_ORDER
-# from ..forms import sales_order as order_forms
 from . import base
 
 SalesOrder = billing.get_sales_order_model()
@@ -35,13 +34,11 @@ Invoice = billing.get_invoice_model()
 
 class SalesOrderCreation(base.BaseCreation):
     model = SalesOrder
-    # form_class = order_forms.SalesOrderCreateForm
     form_class = custom_forms.ORDER_CREATION_CFORM
 
 
 class RelatedSalesOrderCreation(base.RelatedBaseCreation):
     model = SalesOrder
-    # form_class = order_forms.SalesOrderCreateForm
     form_class = custom_forms.ORDER_CREATION_CFORM
     permissions = ('billing', cperm(SalesOrder))
     title = _('Create a salesorder for «{entity}»')
@@ -53,10 +50,8 @@ class SalesOrderDetail(generic.EntityDetail):
     pk_url_kwarg = 'order_id'
 
 
-# class SalesOrderEdition(base.BaseEdition):
 class SalesOrderEdition(generic.EntityEdition):
     model = SalesOrder
-    # form_class = order_forms.SalesOrderEditForm
     form_class = custom_forms.ORDER_EDITION_CFORM
     pk_url_kwarg = 'order_id'
 

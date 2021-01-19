@@ -56,12 +56,6 @@ class Line(CremeEntity):
         _('Discount'), max_digits=10, decimal_places=2, default=constants.DEFAULT_DECIMAL,
     )
     # TODO: move constants in the model class
-    # discount_unit  = models.PositiveIntegerField(_('Discount Unit'),
-    #                                              blank=True, null=True, editable=False,
-    #                                              choices=constants.DISCOUNT_UNIT.items(),
-    #                                              default=constants.DISCOUNT_PERCENT,
-    #                                             )
-    # total_discount = models.BooleanField(_('Total discount ?'), editable=False, default=False)
     discount_unit = models.PositiveIntegerField(
         _('Discount Unit'),
         choices=constants.DISCOUNT_UNIT.items(),
@@ -69,7 +63,6 @@ class Line(CremeEntity):
     )
     vat_value = models.ForeignKey(
         Vat, verbose_name=_('VAT'), on_delete=models.PROTECT,
-        # null=True, blank=True,
         # NB: these VAT should exist (see creme_core.populate), and is normally 0.0%
         default=1,
     )
@@ -104,7 +97,6 @@ class Line(CremeEntity):
     def clean(self):
         discount_unit = self.discount_unit
 
-        # if self.discount_unit == constants.DISCOUNT_PERCENT:
         if discount_unit == constants.DISCOUNT_PERCENT:
             if not (0 <= self.discount <= 100):
                 raise ValidationError(
@@ -113,7 +105,6 @@ class Line(CremeEntity):
                            ),
                     code='invalid_percentage',
                 )
-        # elif self.total_discount:
         elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:  # Global discount
             if self.discount > self.unit_price * self.quantity:
                 raise ValidationError(
@@ -167,15 +158,12 @@ class Line(CremeEntity):
 
     def get_price_exclusive_of_tax(self, document=None):
         line_discount   = self.discount
-        # global_discount_line = self.total_discount
         unit_price_line = self.unit_price
         discount_unit   = self.discount_unit
 
-        # if self.discount_unit == constants.DISCOUNT_PERCENT:
         if discount_unit == constants.DISCOUNT_PERCENT:
             total_after_first_discount = \
                 self.quantity * (unit_price_line - (unit_price_line * line_discount / 100))
-        # elif global_discount_line:  # DISCOUNT_LINE_AMOUNT
         elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:
             total_after_first_discount = self.quantity * unit_price_line - line_discount
         else:  # DISCOUNT_ITEM_AMOUNT
