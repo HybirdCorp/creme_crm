@@ -222,3 +222,16 @@ Or create symlink in '.git/hooks/'. Make sure the old one are moved or removed.
 >> ln -s ../../.githooks/pre-commit .git/hooks/pre-commit
 >> ln -s ../../.githooks/pre-push .git/hooks/pre-push
 ```
+
+In order to run the JavaScript linter locally, you can install a NodeJS environment within your virtualenv thanks to the
+python package nodeenv. In your virtualenv (named "mycremeenv"):
+```sh
+>> pip install nodeenv
+>> nodeenv -n 12.16.3 -p    # to install nodejs 12.16.3 with "mycremeenv"
+>> deactivate
+>> workon mycremeenv
+>> nodejs --version  # to check the installation is OK
+>> make node-update  # Install nodejs requirements
+```
+
+Now you can run "make eslint" manually, and the pre-commit hook will check the new/modified files.
