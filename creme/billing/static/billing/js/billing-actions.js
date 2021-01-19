@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2018-2020  Hybird
+    Copyright (C) 2018-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -21,65 +21,6 @@
 "use strict";
 
 creme.billing = creme.billing || {};
-/*
-creme.billing.ExportDocumentAction = creme.component.Action.sub({
-    _init_: function(options) {
-        this._super_(creme.component.Action, '_init_', this._run, options);
-    },
-
-    _download: function(url, format) {
-        this.done();
-        creme.utils.goTo(url, {format: format});
-    },
-
-    _run: function(options) {
-        options = $.extend({
-            formats: []
-        }, this.options(), options || {});
-
-        var self = this;
-        var url = options.url;
-        var count = options.formats.length;
-
-        if (count > 1) {
-            creme.dialogs.choice(gettext("Select the export format of your billing document"), {
-                             required: true,
-                             choices: options.formats
-                          })
-                         .onOk(function(event, data) {
-                             self._download(url, data);
-                          })
-                         .onClose(function(event, data) {
-                             self.cancel();
-                          })
-                         .open();
-        } else if (count === 1) {
-            self._download(url, options.formats[0].value);
-        } else {
-            creme.dialogs.warning(gettext("No such export format for billing documents."))
-                         .onClose(function() {
-                             self.cancel();
-                         })
-                         .open();
-        }
-    }
-});
-
-creme.billing.EXPORT_FORMATS = [
-   // {value:'odt', label: gettext("Document open-office (ODT)")},
-   {value: 'pdf', label: gettext("Pdf file (PDF)")}
-];
-*/
-/*
-creme.billing.generateInvoiceNumber = function(url) {
-    console.warn('creme.billing.generateInvoiceNumber() is deprecated; use the action named "billing-hatmenubar-invoice-number" instead');
-    return creme.utils.ajaxQuery(url, {
-        action: 'post',
-        warnOnFail: true,
-        reloadOnSuccess: true
-    }).start();
-};
-*/
 
 creme.billing.AddDocumentAction = creme.component.Action.sub({
     _init_: function(options) {
@@ -167,21 +108,6 @@ $(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actio
         return action;
     });
 });
-
-/*
-var hatbarActions = {
-    'billing-export': function(url, options, data, e) {
-        return new creme.billing.ExportDocumentAction({
-            url: url,
-            formats: options.formats || creme.billing.EXPORT_FORMATS
-        });
-    }
-};
-
-$(document).on('brick-setup-actions', '.brick.brick-hat-bar', function(e, brick, actions) {
-    actions.registerAll(hatbarActions);
-});
-*/
 
 var billingLinesActions = {
     'billing-line-addonfly': function(url, options, data, e) {

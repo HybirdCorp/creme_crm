@@ -114,9 +114,7 @@ class LineTestCase(_BillingTestCase):
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
 
             'on_the_fly_item': 'Flyyy product',
-            # 'discount_unit': DISCOUNT_LINE_AMOUNT,
             'discount_unit': DISCOUNT_ITEM_AMOUNT,
-            # 'total_discount': False,
         }
 
         with self.assertRaises(ValidationError):
@@ -1198,7 +1196,6 @@ class LineTestCase(_BillingTestCase):
 
             'discount': Decimal('0'),
             'discount_unit': DISCOUNT_PERCENT,
-            # 'total_discount': False,
 
             'quantity': 2,
         }
@@ -1232,7 +1229,6 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('100.00'), quantity=2,
             discount=Decimal('10.00'), discount_unit=DISCOUNT_PERCENT,
-            # total_discount=False,
             **kwargs
         )
         self.assertEqual(Decimal('180.00'), product_line.get_price_exclusive_of_tax())
@@ -1263,7 +1259,6 @@ class LineTestCase(_BillingTestCase):
             unit_price=Decimal('100.00'), quantity=2,
             discount=Decimal('5.00'),
             discount_unit=DISCOUNT_LINE_AMOUNT,
-            # total_discount=True,
             **kwargs
         )
         self.assertEqual(Decimal('195.00'), product_line.get_price_exclusive_of_tax())
@@ -1273,7 +1268,6 @@ class LineTestCase(_BillingTestCase):
             unit_price=Decimal('20.00'), quantity=3,
             discount=Decimal('3.00'),
             discount_unit=DISCOUNT_LINE_AMOUNT,
-            # total_discount=True,
             **kwargs
         )
         self.assertEqual(Decimal('57.00'), service_line.get_price_exclusive_of_tax())
@@ -1294,7 +1288,6 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('100.00'), quantity=2,
             discount=Decimal('5.00'),
-            # discount_unit=DISCOUNT_LINE_AMOUNT, total_discount=False,
             discount_unit=DISCOUNT_ITEM_AMOUNT,
             **kwargs
         )
@@ -1304,7 +1297,6 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=3,
             discount=Decimal('3.00'),
-            # discount_unit=DISCOUNT_LINE_AMOUNT, total_discount=False,
             discount_unit=DISCOUNT_ITEM_AMOUNT,
             **kwargs
         )
@@ -1323,7 +1315,6 @@ class LineTestCase(_BillingTestCase):
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
             'discount': Decimal('0'),
             'discount_unit': DISCOUNT_PERCENT,
-            # 'total_discount': False,
         }
         product_line1 = ProductLine.objects.create(
             related_document=invoice1,
@@ -1356,7 +1347,6 @@ class LineTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('0.014'), quantity=1,
-            # total_discount=False,
             **kwargs
         )
         # 0.014 rounded down to 0.01
@@ -1365,7 +1355,6 @@ class LineTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('0.015'), quantity=1,
-            # total_discount=False,
             **kwargs
         )
         # 0.015 rounded up to 0.02
@@ -1374,7 +1363,6 @@ class LineTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('0.016'), quantity=1,
-            # total_discount=False,
             **kwargs
         )
         # 0.016 rounded up to 0.02
@@ -1409,5 +1397,3 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(comment, self.refresh(pline).comment)
 
         self.assertGET(400, build_url(pline, 'on_the_fly_item'))
-        # self.assertGET(400, build_url(pline, 'total_discount'))
-        # self.assertGET(400, build_url(pline, 'discount_unit'))

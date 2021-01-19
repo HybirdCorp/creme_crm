@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -87,13 +87,7 @@ class _LinesBrick(SimpleBrick):
     dependencies = (Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps = (constants.REL_SUB_HAS_LINE, )
     target_ctypes = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
-    # line_model          = 'OVERLOAD_ME'
     line_model = Line
-    # related_item_model  = 'OVERLOAD_ME'
-    # related_item_label  = 'OVERLOAD_ME'
-
-    # def _get_document_lines(self, document):
-    #     raise NotImplementedError
 
     # TODO: factorise with views.line.multi_save_lines() ?
     def detailview_display(self, context):
@@ -102,7 +96,6 @@ class _LinesBrick(SimpleBrick):
 
         document = context['object']
         user = context['user']
-        # lines = self._get_document_lines(document)
         line_model = self.line_model
         lines = document.get_lines(line_model)
 
@@ -110,13 +103,11 @@ class _LinesBrick(SimpleBrick):
             def __init__(self, *args, **kwargs):
                 self.empty_permitted = False
                 super().__init__(
-                    # user=context['user'],
                     user=user,
                     related_document=document,
                     *args, **kwargs
                 )
 
-        # line_model = self.line_model
         lineformset_class = modelformset_factory(
             line_model,
             can_delete=True,
@@ -135,9 +126,7 @@ class _LinesBrick(SimpleBrick):
             ct_id=get_ct(line_model).id,  # TODO: templatetag instead ?
             formset=lineformset,
             item_count=len(lines),
-            # related_item_ct=get_ct(self.related_item_model),
             related_item_ct=get_ct(related_item_model),  # TODO: templatetag instead ?
-            # related_item_label=self.related_item_label,
             related_item_label=related_item_model._meta.verbose_name,
         ))
 
@@ -147,11 +136,6 @@ class ProductLinesBrick(_LinesBrick):
     verbose_name = _('Product lines')
     template_name = 'billing/bricks/product-lines.html'
     line_model = ProductLine
-    # related_item_model = ProductLine.related_item_class()
-    # related_item_label = related_item_model._meta.verbose_name
-
-    # def _get_document_lines(self, document):
-    #     return document.get_lines(ProductLine)
 
 
 class ServiceLinesBrick(_LinesBrick):
@@ -159,11 +143,6 @@ class ServiceLinesBrick(_LinesBrick):
     verbose_name = _('Service lines')
     template_name = 'billing/bricks/service-lines.html'
     line_model = ServiceLine
-    # related_item_model = ServiceLine.related_item_class()
-    # related_item_label = related_item_model._meta.verbose_name
-
-    # def _get_document_lines(self, document):
-    #     return document.get_lines(ServiceLine)
 
 
 class CreditNotesBrick(PaginatedBrick):
@@ -346,7 +325,7 @@ class BillingPaymentInformationBrick(QuerysetBrick):
         constants.REL_OBJ_BILL_ISSUED, constants.REL_SUB_BILL_ISSUED,
         constants.REL_OBJ_BILL_RECEIVED, constants.REL_SUB_BILL_RECEIVED,
     )
-    order_by      = 'name'
+    order_by = 'name'
 
     def detailview_display(self, context):
         billing = context['object']
@@ -354,7 +333,6 @@ class BillingPaymentInformationBrick(QuerysetBrick):
         hidden = context['fields_configs'].get_4_model(
             billing.__class__,
         ).is_fieldname_hidden('payment_info')
-        # organisation = billing.get_source()
         organisation = billing.source
 
         if not hidden and organisation is not None:

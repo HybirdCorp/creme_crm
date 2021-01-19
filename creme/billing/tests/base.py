@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme import billing
-from creme.creme_core.models import Currency  # Relation
+from creme.creme_core.models import Currency
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views import base
 from creme.persons import (
@@ -115,8 +115,6 @@ class _BillingTestCaseMixin:
                 'currency': currency.id,
                 'discount': discount,
 
-                # 'source': source.id,
-                # 'target': self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
@@ -159,8 +157,6 @@ class _BillingTestCaseMixin:
                 'currency': currency.id,
                 'discount': discount,
 
-                # 'source': source.id,
-                # 'target': self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
 
@@ -209,8 +205,6 @@ class _BillingTestCaseMixin:
                 'currency': currency.id,
                 'discount': Decimal(),
 
-                # 'source': source.id,
-                # 'target': self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
 
@@ -273,8 +267,6 @@ class _BillingTestCaseMixin:
                 'currency': currency.id,
                 'discount': Decimal(),
 
-                # 'source': source.id,
-                # 'target': self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
@@ -313,7 +305,6 @@ class _BillingTestCaseMixin:
         orga.save()
 
 
-# class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, MassImportBaseTestCaseMixin):
 class _BillingTestCase(_BillingTestCaseMixin,
                        base.ButtonTestCaseMixin,
                        base.MassImportBaseTestCaseMixin,
@@ -515,12 +506,10 @@ class _BillingTestCase(_BillingTestCaseMixin,
 
         # Billing_doc1
         billing_doc1 = billing_docs[0]
-        # imp_source1 = billing_doc1.get_source()
         imp_source1 = billing_doc1.source
         self.assertIsNotNone(imp_source1)
         self.assertEqual(source1, imp_source1.get_real_entity())
 
-        # imp_target1 = billing_doc1.get_target()
         imp_target1 = billing_doc1.target
         self.assertIsNotNone(imp_target1)
         self.assertEqual(target1, imp_target1.get_real_entity())
@@ -535,13 +524,11 @@ class _BillingTestCase(_BillingTestCaseMixin,
 
         # Billing_doc2
         billing_doc2 = billing_docs[1]
-        # imp_source2 = billing_doc2.get_source()
         imp_source2 = billing_doc2.source
         self.assertIsNotNone(imp_source2)
         source2 = self.get_object_or_fail(Organisation, name=source2_name)
         self.assertEqual(imp_source2.get_real_entity(), source2)
 
-        # imp_target2 = billing_doc2.get_target()
         imp_target2 = billing_doc2.target
         self.assertIsNotNone(imp_target2)
         target2 = self.get_object_or_fail(Organisation, name=target2_name)
@@ -553,7 +540,6 @@ class _BillingTestCase(_BillingTestCaseMixin,
         self.assertEqual(target3, imp_target3.get_real_entity())
 
         # Billing_doc4
-        # imp_target4 = billing_docs[3].get_target()
         imp_target4 = billing_docs[3].target
         self.assertIsNotNone(imp_target4)
         target4 = self.get_object_or_fail(Contact, last_name=target4_last_name)
@@ -578,10 +564,6 @@ class _BillingTestCase(_BillingTestCaseMixin,
             source=source1,
             target=target1,
         )
-
-        # create_rel = partial(Relation.objects.create, subject_entity=bdoc, user=user)
-        # create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source1)
-        # create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target1)
 
         create_addr = Address.objects.create
         if target_billing_address:

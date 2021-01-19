@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -138,7 +138,6 @@ class LineEditForm(core_forms.CremeModelForm):
             ),
             'unit': forms.TextInput(attrs={'class': 'line-unit'}),
             'discount': forms.TextInput(attrs={'class': 'line-quantity_discount bound'}),
-            # 'comment': forms.Textarea(attrs={'class': 'line-comment', 'rows': 2}),
             'comment': CremeTextarea(attrs={'class': 'line-comment', 'rows': 2}),
         }
 
@@ -164,38 +163,11 @@ class LineEditForm(core_forms.CremeModelForm):
             ),
         ]
 
-        # line = self.instance
-        # fields['discount_unit'] = discount_unit_f = \
-        #     fields.TypedChoiceField(choices=discount_units, coerce=int)
-        # discount_unit_f.initial = \
-        #     constants.DISCOUNT_PERCENT \
-        #     if line.discount_unit == constants.DISCOUNT_PERCENT else \
-        #     (constants.DISCOUNT_LINE_AMOUNT
-        #      if line.total_discount else constants.DISCOUNT_ITEM_AMOUNT) #HACK: see below
-        # discount_unit_f.widget.attrs = {'class': 'bound'}
         discount_unit_f = fields['discount_unit']
         discount_unit_f.choices = discount_units
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
         fields['vat_value'].initial = Vat.get_default_vat()
-
-    # def clean(self):
-    #     cdata = super().clean()
-    #
-    #     if not self._errors:
-    #         discount_unit = cdata['discount_unit']
-    #         total_discount = False
-    #
-    #         if discount_unit == constants.DISCOUNT_LINE_AMOUNT:
-    #             total_discount = True
-    #         elif discount_unit == constants.DISCOUNT_ITEM_AMOUNT:
-    #             discount_unit = constants.DISCOUNT_LINE_AMOUNT
-    #
-    #         line = self.instance
-    #         line.total_discount = total_discount
-    #         line.discount_unit = discount_unit
-    #
-    #     return cdata
 
     def save(self, *args, **kwargs):
         instance = self.instance

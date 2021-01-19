@@ -33,18 +33,12 @@ DEFAULT_HFILTER_ORDER    = 'billing-hf_salesorder'
 DEFAULT_HFILTER_CNOTE    = 'billing-hf_creditnote'
 DEFAULT_HFILTER_TEMPLATE = 'billing-hf_template'
 
-# DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_orga'
-
 ############################################
-# PERCENT_PK = 1
-# AMOUNT_PK  = 2
 DISCOUNT_PERCENT     = 1
 DISCOUNT_LINE_AMOUNT = 2
 DISCOUNT_ITEM_AMOUNT = 3
 
 DISCOUNT_UNIT = {
-    # PERCENT_PK: _('Percent'),
-    # AMOUNT_PK:  _('Amount'),
     DISCOUNT_PERCENT:     _('Percent'),
     DISCOUNT_LINE_AMOUNT: _('Amount per line'),
     DISCOUNT_ITEM_AMOUNT: _('Amount per unit'),

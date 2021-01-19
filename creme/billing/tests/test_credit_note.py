@@ -295,7 +295,6 @@ class CreditNoteTestCase(_BillingTestCase):
         us_dollar = Currency.objects.all()[1]
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
-        # invoice_target = invoice.get_target()
         invoice_target = invoice.target
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200'))
@@ -343,7 +342,6 @@ class CreditNoteTestCase(_BillingTestCase):
         us_dollar = Currency.objects.all()[1]
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
-        # invoice_target = invoice.get_target()
         invoice_target = invoice.target
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200'))
@@ -520,8 +518,6 @@ class CreditNoteTestCase(_BillingTestCase):
                 'currency': currency.id,
                 'discount': Decimal(),
 
-                # 'source': source.id,
-                # 'target': self.formfield_value_generic_entity(target),
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
@@ -552,7 +548,6 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line = partial(ProductLine.objects.create, user=user)
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
-        # invoice_target = invoice.get_target()
         invoice_target = invoice.target
         create_line(
             related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
@@ -597,7 +592,6 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line = partial(ProductLine.objects.create, user=user)
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
-        # invoice_target = invoice.get_target()
         invoice_target = invoice.target
         create_line(
             related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
@@ -630,7 +624,6 @@ class CreditNoteTestCase(_BillingTestCase):
         create_line = partial(ProductLine.objects.create, user=user)
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
-        # invoice_target = invoice.get_target()
         invoice_target = invoice.target
         create_line(
             related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
