@@ -215,7 +215,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertFalse(todo.is_ok)
 
         url = reverse('assistants__validate_todo', args=(todo.id,))
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
