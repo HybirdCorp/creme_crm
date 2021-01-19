@@ -30,14 +30,11 @@ class CommercialTestCase(CremeTestCase):
         self.assertEqual(REL_SUB_SOLD, REL_SUB_SOLD_BY)
         self.assertEqual(REL_OBJ_SOLD, REL_OBJ_SOLD_BY)
 
-        # self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
-        # self.get_relationtype_or_fail(REL_OBJ_SOLD_BY)
         sold = self.get_relationtype_or_fail(
             REL_SUB_SOLD, [Contact, Organisation], [Product, Service],
         )
         self.assertEqual(REL_OBJ_SOLD, sold.symmetric_type_id)
 
-        # self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [Act])
         complete_goal = self.get_object_or_fail(RelationType, id=REL_SUB_COMPLETE_GOAL)
         self.assertEqual(REL_OBJ_COMPLETE_GOAL, complete_goal.symmetric_type_id)
         self.assertEqual([Act], [ct.model_class() for ct in complete_goal.object_ctypes.all()])
@@ -68,7 +65,6 @@ class CommercialTestCase(CremeTestCase):
 
         url = self.ADD_SALESMAN_URL
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'persons/add_contact_form.html')
 
         context = response.context
         self.assertEqual(_('Create a salesman'), context.get('title'))

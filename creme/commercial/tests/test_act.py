@@ -277,8 +277,6 @@ class ActTestCase(CommercialBaseTestCase):
                 'sales_phase': phase.id,
                 'currency':    DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(target),
-                # 'emitter': emitter.id,
                 'cform_extra-opportunities_target': self.formfield_value_generic_entity(target),
                 'cform_extra-opportunities_emitter': emitter.id,
             },
