@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2020  Hybird
+#    Copyright (C) 2014-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,9 +66,11 @@ def uninstall_handler(msg):
             if verbosity:
                 stdout_write(msg)
 
-            handler(sender=sender, verbosity=verbosity,
-                    stdout_write=stdout_write, style=style, **kwargs
-                   )
+            handler(
+                sender=sender, verbosity=verbosity,
+                stdout_write=stdout_write, style=style,
+                **kwargs
+            )
 
             if verbosity:
                 stdout_write(' [OK]', style.SUCCESS)
@@ -88,15 +90,15 @@ def _uninstall_buttons(sender, **kwargs):
 
 
 @receiver(pre_uninstall_flush)
-@uninstall_handler('Deleting blocks...')
-def _uninstall_blocks(sender, **kwargs):
+@uninstall_handler('Deleting bricks...')
+def _uninstall_bricks(sender, **kwargs):
     app_label = sender.label
     brick_ids = set()
 
     # RelationBrickItem --------------------------------------------------------
-    rbi_brick_ids = RelationBrickItem.objects \
-                                     .filter(relation_type__id__startswith=app_label + '-') \
-                                     .values_list('brick_id', flat=True)
+    rbi_brick_ids = RelationBrickItem.objects.filter(
+        relation_type__id__startswith=f'{app_label}-',
+    ).values_list('brick_id', flat=True)
 
     brick_ids.update(rbi_brick_ids)
     BrickDetailviewLocation.objects.filter(brick_id__in=rbi_brick_ids).delete()
@@ -104,7 +106,8 @@ def _uninstall_blocks(sender, **kwargs):
 
     # InstanceBrickConfigItem --------------------------------------------------
     ibc_items = InstanceBrickConfigItem.objects.filter(
-        brick_id__startswith=InstanceBrickConfigItem.generate_base_id(
+        # brick_id__startswith=InstanceBrickConfigItem.generate_base_id(
+        brick_class_id__startswith=InstanceBrickConfigItem.generate_base_id(
             app_name=app_label, name='',
         ),
     )
@@ -150,20 +153,20 @@ def _uninstall_setting_values(sender, **kwargs):
 @receiver(pre_uninstall_flush)
 @uninstall_handler('Deleting jobs...')
 def _uninstall_jobs(sender, **kwargs):
-    for job in Job.objects.filter(type_id__startswith=sender.label + '-'):
+    for job in Job.objects.filter(type_id__startswith=f'{sender.label}-'):
         job.delete()
 
 
 @receiver(post_uninstall_flush)
 @uninstall_handler('Deleting property types...')
 def _uninstall_property_types(sender, **kwargs):
-    CremePropertyType.objects.filter(id__startswith=sender.label + '-').delete()
+    CremePropertyType.objects.filter(id__startswith=f'{sender.label}-').delete()
 
 
 @receiver(post_uninstall_flush)
 @uninstall_handler('Deleting relationship types...')
 def _uninstall_relation_types(sender, **kwargs):
-    for rtype in RelationType.objects.filter(id__startswith=sender.label + '-subject_'):
+    for rtype in RelationType.objects.filter(id__startswith=f'{sender.label}-subject_'):
         rtype.delete()  # Symmetrical type is deleted too
 
 
@@ -318,9 +321,10 @@ class Command(AppCommand):
                 if local_errors:
                     next_models_info.append((model, False))
                 elif verbosity:
-                    self.stdout.write(' [OK] All instances have been deleted.',
-                                      self.style.SUCCESS,
-                                     )
+                    self.stdout.write(
+                        ' [OK] All instances have been deleted.',
+                        self.style.SUCCESS,
+                    )
 
             if not next_models_info:
                 return
@@ -396,9 +400,10 @@ class Command(AppCommand):
             )
 
         if verbosity > 1:
-            self.stdout.write(' [OK] All related ContentTypes have been deleted.',
-                              self.style.SUCCESS,
-                             )
+            self.stdout.write(
+                ' [OK] All related ContentTypes have been deleted.',
+                self.style.SUCCESS,
+            )
 
     def _delete_migrations(self, app_label, verbosity):
         if verbosity:
@@ -418,7 +423,9 @@ class Command(AppCommand):
         if dep_error:
             self.stderr.write(
                 ' [KO] Dependencies loop (cannot find a safe deletion order).\n'
-                'Tables:\n{}\n'.format('\n'.join(model._meta.db_table for model in models))
+                'Tables:\n{}\n'.format(
+                    '\n'.join(model._meta.db_table for model in models),
+                )
             )
 
             raise CommandError(
@@ -464,9 +471,9 @@ class Command(AppCommand):
                 )
 
             if verbosity > 1:
-                self.stdout.write(' [OK] All tables have been deleted',
-                                  self.style.SUCCESS,
-                                 )
+                self.stdout.write(
+                    ' [OK] All tables have been deleted', self.style.SUCCESS,
+                )
         elif verbosity:
             self.stdout.write('No table to delete.')
 
@@ -485,15 +492,19 @@ class Command(AppCommand):
         HistoryLine.ENABLED = False
         ctypes = ContentType.objects.filter(app_label=app_label)
 
-        pre_uninstall_flush.send(app_config, content_types=ctypes, verbosity=verbosity,
-                                 stdout_write=self.stdout.write,
-                                 stderr_write=self.stderr.write, style=self.style,
-                                )
+        pre_uninstall_flush.send(
+            app_config,
+            content_types=ctypes, verbosity=verbosity,
+            stdout_write=self.stdout.write,
+            stderr_write=self.stderr.write, style=self.style,
+        )
         self._delete_instances([ct.model_class() for ct in ctypes], verbosity)
-        post_uninstall_flush.send(app_config, content_types=ctypes, verbosity=verbosity,
-                                  stdout_write=self.stdout.write,
-                                  stderr_write=self.stderr.write, style=self.style,
-                                 )
+        post_uninstall_flush.send(
+            app_config,
+            content_types=ctypes, verbosity=verbosity,
+            stdout_write=self.stdout.write,
+            stderr_write=self.stderr.write, style=self.style,
+        )
 
         self._delete_ctypes(ctypes, verbosity)
         self._delete_migrations(app_label, verbosity)
@@ -509,7 +520,7 @@ class Command(AppCommand):
 
 ################################################################################
 # Copyright (c) Django Software Foundation and individual contributors.
-# Copyright (c) Hybird - 2018-2020
+# Copyright (c) Hybird - 2018-2021
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -591,19 +602,19 @@ def ordered_models_to_delete(app_config, connection):
                         if related_model is not model and related_model in app_models:
                             dependencies.add(related_model)
 
-                models_info.append(ModelInfo(model=model,
-                                             dependencies=dependencies,
-                                            )
-                                  )
+                models_info.append(
+                    ModelInfo(model=model, dependencies=dependencies)
+                )
     finally:
         cursor.close()
 
     dep_error = False
     try:
-        models_info = dependence_sort(models_info,
-                                      get_key=lambda mi: mi.model,
-                                      get_dependencies=lambda mi: mi.dependencies,
-                                     )
+        models_info = dependence_sort(
+            models_info,
+            get_key=lambda mi: mi.model,
+            get_dependencies=lambda mi: mi.dependencies,
+        )
     except DependenciesLoopError:
         dep_error = True
     else:
