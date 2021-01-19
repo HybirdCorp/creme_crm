@@ -152,19 +152,16 @@ urlpatterns = [
     # Scores & category
     re_path(
         r'^strategy/(?P<strategy_id>\d+)/set_asset_score[/]?$',
-        # strategy.set_asset_score,
         strategy.AssetScoreSetting.as_view(),
         name='commercial__set_asset_score',
     ),
     re_path(
         r'^strategy/(?P<strategy_id>\d+)/set_charm_score[/]?$',
-        # strategy.set_charm_score,
         strategy.CharmScoreSetting.as_view(),
         name='commercial__set_charm_score',
     ),
     re_path(
         r'^strategy/(?P<strategy_id>\d+)/set_segment_cat[/]?$',
-        # strategy.set_segment_category,
         strategy.SegmentCategorySetting.as_view(),
         name='commercial__set_segment_category',
     ),
@@ -172,7 +169,6 @@ urlpatterns = [
     # Bricks reloading
     re_path(
         r'^bricks/reload/matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$',
-        # strategy.reload_matrix_brick,
         strategy.MatrixBricksReloading.as_view(),
         name='commercial__reload_matrix_brick',
     ),

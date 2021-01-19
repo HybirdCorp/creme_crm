@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,16 +25,13 @@ from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import get_from_POST_or_404  # get_from_GET_or_404
-# from creme.creme_core.views.decorators import POST_only, jsonify
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import bricks as bricks_views
 from creme.creme_core.views import generic
 from creme.persons import get_organisation_model
 
 from .. import bricks as com_bricks
 from .. import custom_forms, get_strategy_model
-# from ..bricks import AssetsMatrixBrick, CharmsMatrixBrick, AssetsCharmsMatrixBrick
 from ..constants import DEFAULT_HFILTER_STRATEGY
 from ..forms import strategy as forms
 from ..models import (
@@ -51,7 +48,6 @@ Strategy = get_strategy_model()
 
 class StrategyCreation(generic.EntityCreation):
     model = Strategy
-    # form_class = forms.StrategyForm
     form_class = custom_forms.STRATEGY_CREATION_CFORM
 
 
@@ -63,7 +59,6 @@ class StrategyDetail(generic.EntityDetail):
 
 class StrategyEdition(generic.EntityEdition):
     model = Strategy
-    # form_class = forms.StrategyForm
     form_class = custom_forms.STRATEGY_EDITION_CFORM
     pk_url_kwarg = 'strategy_id'
 
@@ -156,17 +151,6 @@ class OrganisationRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletio
             ).delete()
 
 
-# def _get_strategy_n_orga(request, strategy_id, orga_id):
-#     strategy = get_object_or_404(Strategy, pk=strategy_id)
-#     has_perm = request.user.has_perm_to_view_or_die
-#     has_perm(strategy)
-#
-#     orga = get_object_or_404(get_organisation_model(), pk=orga_id)
-#     has_perm(orga)
-#
-#     return strategy, orga
-
-
 class BaseEvaluatedOrganisationView(generic.BricksView):
     permissions = 'commercial'
     bricks_reload_url_name = 'commercial__reload_matrix_brick'
@@ -227,27 +211,6 @@ class OrgaSynthesis(BaseEvaluatedOrganisationView):
     template_name = 'commercial/orga_synthesis.html'
 
 
-# @POST_only
-# @login_required
-# @permission_required('commercial')
-# @atomic
-# def _set_score(request, strategy_id, method_name):
-#     strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
-#
-#     request.user.has_perm_to_change_or_die(strategy)
-#
-#     POST = request.POST
-#     model_id   = get_from_POST_or_404(POST, 'model_id', int)
-#     segment_desc_id = get_from_POST_or_404(POST, 'segment_desc_id', int)
-#     orga_id    = get_from_POST_or_404(POST, 'orga_id', int)
-#     score      = get_from_POST_or_404(POST, 'score', int)
-#
-#     try:
-#         getattr(strategy, method_name)(model_id, segment_desc_id, orga_id, score)
-#     except Exception as e:
-#         raise Http404(str(e)) from e
-#
-#     return HttpResponse()
 class BaseScoreSetting(generic.base.EntityRelatedMixin, generic.CheckedView):
     permissions = 'commercial'
     entity_id_url_kwarg = 'strategy_id'
@@ -289,40 +252,16 @@ class BaseScoreSetting(generic.base.EntityRelatedMixin, generic.CheckedView):
         raise NotImplementedError
 
 
-# def set_asset_score(request, strategy_id):
-#     return _set_score(request, strategy_id, 'set_asset_score')
 class AssetScoreSetting(BaseScoreSetting):
     def update_stategy(self, *, strategy, model_id, **kwargs):
         strategy.set_asset_score(asset_id=model_id, **kwargs)
 
 
-# def set_charm_score(request, strategy_id):
-#     return _set_score(request, strategy_id, 'set_charm_score')
 class CharmScoreSetting(BaseScoreSetting):
     def update_stategy(self, *, strategy, model_id, **kwargs):
         strategy.set_charm_score(charm_id=model_id, **kwargs)
 
 
-# @POST_only
-# @login_required
-# @permission_required('commercial')
-# @atomic
-# def set_segment_category(request, strategy_id):
-#     strategy = get_object_or_404(Strategy.objects.select_for_update(), pk=strategy_id)
-#
-#     request.user.has_perm_to_change_or_die(strategy)
-#
-#     POST = request.POST
-#     segment_desc_id = get_from_POST_or_404(POST, 'segment_desc_id', int)
-#     orga_id         = get_from_POST_or_404(POST, 'orga_id', int)
-#     category        = get_from_POST_or_404(POST, 'category', int)
-#
-#     try:
-#         strategy.set_segment_category(segment_desc_id, orga_id, category)
-#     except Exception as e:
-#         raise Http404(str(e)) from e
-#
-#     return HttpResponse()
 class SegmentCategorySetting(generic.base.EntityRelatedMixin, generic.CheckedView):
     permissions = 'commercial'
     entity_id_url_kwarg = 'strategy_id'
@@ -350,27 +289,6 @@ class SegmentCategorySetting(generic.base.EntityRelatedMixin, generic.CheckedVie
         return HttpResponse()
 
 
-# @login_required
-# @permission_required('commercial')
-# @jsonify
-# def reload_matrix_brick(request, strategy_id, orga_id):
-#     brick_id = get_from_GET_or_404(request.GET, 'brick_id')
-#
-#     if brick_id == AssetsMatrixBrick.id_:
-#         brick = AssetsMatrixBrick()
-#     elif brick_id == CharmsMatrixBrick.id_:
-#         brick = CharmsMatrixBrick()
-#     elif brick_id == AssetsCharmsMatrixBrick.id_:
-#         brick = AssetsCharmsMatrixBrick()
-#     else:
-#         raise Http404('Invalid brick ID')
-#
-#     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
-#
-#     return bricks_views.bricks_render_info(
-#         request, bricks=[brick],
-#         context=bricks_views.build_context(request, orga=orga, strategy=strategy),
-#     )
 class MatrixBricksReloading(bricks_views.BricksReloading):
     check_bricks_permission = False
     strategy_id_url_kwarg = 'strategy_id'

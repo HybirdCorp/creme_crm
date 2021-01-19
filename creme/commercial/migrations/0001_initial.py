@@ -170,7 +170,6 @@ class Migration(migrations.Migration):
                     'creation_date',
                     creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True),
                 ),
-                # ('entity_id', models.PositiveIntegerField(editable=False)),
                 (
                     'entity',
                     models.ForeignKey(

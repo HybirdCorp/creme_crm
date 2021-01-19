@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,23 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.template import Library
 
 register = Library()
-
-
-# @register.filter
-# def has_quickform(ctype):
-#     warnings.warn('The template filter "|has_quickform" from the lib '
-#                   '"commercial_tags" is deprecated ; use "|ctype_has_quickform" '
-#                   'from the lib "creme_ctype" instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     from creme.creme_core.templatetags.creme_ctype import ctype_has_quickform
-#     return ctype_has_quickform(ctype)
 
 
 @register.simple_tag
