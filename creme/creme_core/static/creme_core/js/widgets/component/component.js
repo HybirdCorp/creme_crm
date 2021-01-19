@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Creme is a free/open-source Customer Relationship Management software
- * Copyright (C) 2009-2018 Hybird
+ * Copyright (C) 2009-2021 Hybird
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -19,34 +19,47 @@
 (function($) {
 "use strict";
 
+var __frozenStatics = ['prototype', '__super__', 'sub', 'create'];
+
 creme.component = {};
 
 creme.component.extend = function(Parent, content) {
     Parent = Parent || Object;
     content = content || {};
 
-    var constructor = function() {
-        this._init_.apply(this, arguments);
+    var prop;
+    var NewClass = function() {
+        if (this._init_) {
+            this._init_.apply(this, arguments);
+        } else if (Parent.prototype._init_) {
+            Parent.prototype._init_.apply(this, arguments);
+        }
     };
 
     // inherit parent prototype and add changes
-    constructor.prototype = new Parent();
+    NewClass.prototype = Object.create(Parent.prototype);
+    NewClass.prototype.constructor = NewClass;
 
     // store parent prototype and force constructor (needed by some browsers).
-    constructor.__super__ = Parent.prototype;
-    constructor.prototype.constructor = constructor;
-    constructor.prototype._init_ = Parent.prototype._init_ || function() {};
+    NewClass.__super__ = Parent.prototype;
 
     // convenient static method for subclass
-    constructor.sub = function(content) {
-        return creme.component.extend(constructor, content);
+    NewClass.sub = function(content) {
+        return creme.component.extend(NewClass, content);
     };
 
-    for (var key in content) {
-        constructor.prototype[key] = content[key];
+    // copy other static fields from parent class (Thx Leaflet :))
+    for (prop in Parent) {
+        if (Parent.hasOwnProperty(prop) && __frozenStatics.indexOf(prop) === -1) {
+            NewClass[prop] = Parent[prop];
+        }
     }
 
-    return constructor;
+    for (prop in content) {
+        NewClass.prototype[prop] = content[prop];
+    }
+
+    return NewClass;
 };
 
 creme.component.Component = creme.component.extend(Object, {
