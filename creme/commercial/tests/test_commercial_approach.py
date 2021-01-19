@@ -201,21 +201,16 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                 'title':  title,
                 'status': Status.objects.all()[0].pk,
 
-                # 'start':  '2011-5-18',
                 'cform_extra-activities_start_0': '2011-5-18',
 
-                # 'type_selector': json_dump({
                 'cform_extra-activities_subtype': json_dump({
                     'type':     ACTIVITYTYPE_MEETING,
                     'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 }),
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.id,
                 'cform_extra-activities_my_participation_0': True,
                 'cform_extra-activities_my_participation_1': my_calendar.id,
 
-                # 'is_comapp': True,
                 'cform_extra-commercial_is_commercial_approach': True,
             },
         )
@@ -249,31 +244,23 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                 'description': description,
                 'status':      Status.objects.all()[0].pk,
 
-                # 'start': '2011-5-18',
                 'cform_extra-activities_start_0': '2011-5-18',
 
-                # 'type_selector':    json_dump({
                 'cform_extra-activities_subtype': json_dump({
                     'type': ACTIVITYTYPE_MEETING,
                     'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 }),
 
-                # 'my_participation_0': True,
-                # 'my_participation_1': my_calendar.id,
                 'cform_extra-activities_my_participation_0': True,
                 'cform_extra-activities_my_participation_1': my_calendar.id,
 
-                # 'other_participants': self.formfield_value_multi_creator_entity(genma),
                 'cform_extra-activities_others_participants':
                     self.formfield_value_multi_creator_entity(genma),
-                # 'subjects':           self.formfield_value_multi_generic_entity(ranma),
                 'cform_extra-activities_subjects':
                     self.formfield_value_multi_generic_entity(ranma),
-                # 'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
                 'cform_extra-activities_linked':
                     self.formfield_value_multi_generic_entity(dojo),
 
-                # 'is_comapp': True,
                 'cform_extra-commercial_is_commercial_approach': True,
             },
         )

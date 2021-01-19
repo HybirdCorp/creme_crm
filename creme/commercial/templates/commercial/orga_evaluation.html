@@ -3,21 +3,6 @@
 
 {% block page_title %}{% blocktrans %}Evaluation of «{{orga}}»{% endblocktrans %} - {% endblock %}
 
-{% comment %}
-{% block before_content_1 %}
-    <div class="buttons-list global-buttons">
-        <ul>
-            <li>
-                <a class="menu_button menu-button-icon" href="{{strategy.get_absolute_url}}">{% trans 'Back to the strategy' as back_label %}
-                    {% widget_icon name='previous' size='global-button' label=back_label %}
-                    {{back_label}}
-                </a>
-            </li>
-        </ul>
-    </div>
-{% endblock %}
-{% endcomment %}
-
 {% block content %}
     {% block global_buttons_container %}
         <div class="buttons-list global-buttons">
