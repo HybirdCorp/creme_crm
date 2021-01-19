@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2017-2020 Hybird
+# Copyright (c) 2017-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,9 @@
 # SOFTWARE.
 #
 ################################################################################
+
+import re
+from urllib.parse import urlparse
 
 from django.urls import reverse
 
@@ -143,3 +146,9 @@ class TemplateURLBuilder:
             'Cannot generate a URL because of a collision '
             '(we tried these URLs -- with place holders --: {})'.format(' '.join(tried_urls))
         )
+
+
+def parse_path(path):
+    # handles C:/ usecase for windows
+    path = re.sub(r'^(?:file://)?[/]*([A-Za-z]):[\\/]', r'file://\1/', path)
+    return urlparse(path)
