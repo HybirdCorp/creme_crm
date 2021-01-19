@@ -1274,7 +1274,7 @@ NON_MOBILE_SITE_DOMAIN = ''
 # Files containing towns with their location.
 # It can be an URL or a local file ; zip files are also supported.
 GEOLOCATION_TOWNS = [
-    (join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'), {'country': 'France'}),
+    (join(CREME_ROOT, 'geolocation', 'data', 'towns.france.csv.zip'), {'country': 'France'}),
 ]
 
 # Url for address geolocation search (nominatim is the only supported backend for now)

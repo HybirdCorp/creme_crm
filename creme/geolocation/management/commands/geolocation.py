@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ import csv
 import io
 import logging
 from functools import partial
-from urllib.parse import urlparse
 from urllib.request import urlopen
 from zipfile import ZipFile
 
@@ -33,6 +32,7 @@ from django.template.defaultfilters import slugify
 
 from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.creme_core.utils.collections import OrderedSet
+from creme.creme_core.utils.url import parse_path
 from creme.persons import get_address_model
 
 from ...models import GeoAddress, Town
@@ -74,9 +74,10 @@ class CSVPopulator:
 
     def _get_source_file(self, url_info):
         if url_info.scheme in {'file', ''}:
+            self.info(f'Reading database from {url_info.geturl()}...')
             return open(url_info.path, 'rb')
         elif url_info.scheme in {'http', 'https'}:
-            self.info('Downloading database...')
+            self.info(f'Downloading database from {url_info.geturl()}...')
             return urlopen(url_info.geturl())
         else:
             raise self.ProtocolError(
@@ -138,7 +139,7 @@ class CSVPopulator:
     def populate(self, source):
         if isinstance(source, str):
             try:
-                url_info = urlparse(source)
+                url_info = parse_path(source)
 
                 with self._get_source_file(url_info) as bytes_input:
                     if url_info.path.endswith('.zip'):
