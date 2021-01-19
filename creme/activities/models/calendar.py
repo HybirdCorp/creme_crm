@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from collections import defaultdict
 
 from django.db import models
@@ -168,70 +167,6 @@ class Calendar(CremeModel):
                 def_cal.is_default = True
                 def_cal._enable_default_checking = False
                 def_cal.save()
-
-    # @classmethod
-    # def new_color(cls):
-    #     warnings.warn('Calendar.new_color() is deprecated ; '
-    #                   'use Calendar.objects.new_color() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return COLOR_POOL[cls.objects.count() % len(COLOR_POOL)]
-
-    # @classmethod
-    # def _create_default_calendar(cls, user, *, is_public=False):
-    #     warnings.warn('Calendar._create_default_calendar() is deprecated ; '
-    #                   'use Calendar.objects.create_default_calendar() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     cal = Calendar(name=gettext("{user}'s calendar").format(user=user),
-    #                    user=user, is_default=True, is_custom=False,
-    #                    is_public=is_public,
-    #                    color=cls.new_color(),
-    #                   )
-    #     cal._enable_default_checking = False
-    #     cal.save()
-    #
-    #     return cal
-
-    # @staticmethod
-    # def get_user_calendars(user):
-    #     warnings.warn('Calendar.get_user_calendars() is deprecated.', DeprecationWarning)
-    #
-    #     calendars = list(Calendar.objects.filter(user=user))
-    #
-    #     if not calendars:
-    #         calendars.append(Calendar._create_default_calendar(user))
-    #
-    #     return calendars
-
-    # @classmethod
-    # def get_user_default_calendar(cls, user):
-    #     "Returns the default user calendar ; creates it if necessary."
-    #     warnings.warn('Calendar.get_user_default_calendar() is deprecated ; '
-    #                   'use Calendar.objects.get_default_calendar() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     calendars = cls.objects.filter(user=user)
-    #
-    #     if not calendars:
-    #         cal = cls._create_default_calendar(user)
-    #     else:
-    #         defaults = [c for c in calendars if c.is_default]
-    #
-    #         if not defaults:
-    #             cal = calendars[0]
-    #             cal.is_default = True
-    #             cal._enable_default_checking = False
-    #             cal.save()
-    #         else:
-    #             cal = defaults[0]
-    #
-    #             if len(defaults) > 1:
-    #                 cls.objects.filter(user=user).exclude(id=cal.id).update(is_default=False)
-    #
-    #     return cal
 
     def save(self, *args, **kwargs):
         mngr = type(self).objects

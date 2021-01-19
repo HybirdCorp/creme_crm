@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2020  Hybird
+#    Copyright (C) 2014-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,10 +23,8 @@ from collections import OrderedDict
 from datetime import datetime, time
 from functools import partial
 
-# from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
-# from django.forms import ModelMultipleChoiceField
 from django.forms import Field
 from django.forms.widgets import Select
 from django.utils.translation import gettext as _
@@ -34,7 +32,6 @@ from django.utils.translation import gettext_lazy
 
 from creme import persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.forms import validators
 from creme.creme_core.forms.mass_import import (
     BaseExtractorWidget,
     ImportForm4CremeEntity,
@@ -590,12 +587,6 @@ def get_massimport_form_builder(header_dict, choices):
         my_participation = act_fields.UserParticipationField(
             label=_('Do I participate to this activity?'), empty_label=None,
         )
-
-        # participating_users = ModelMultipleChoiceField(
-        #     label=_('Other participating users'),
-        #     queryset=get_user_model().objects.filter(is_staff=False),
-        #     required=False,
-        # )
         participating_users = act_fields.ParticipatingUsersField(
             label=_('Other participating users'),
             required=False,
@@ -627,30 +618,7 @@ def get_massimport_form_builder(header_dict, choices):
 
             self.user_participants = []
 
-        # def clean_my_participation(self):
-        #     my_participation = self.cleaned_data['my_participation']
-        #
-        #     if my_participation[0]:
-        #         user = self.user
-        #         validators.validate_linkable_entity(user.linked_contact, user)
-        #
-        #     return my_participation
-
         def clean_participating_users(self):
-            # # users = self.cleaned_data['participating_users']
-            # users = set()
-            #
-            # for user in self.cleaned_data['participating_users']:
-            #     if not user.is_team:
-            #         users.add(user)
-            #     else:
-            #         users.update(user.teammates.values())
-            #
-            # self.user_participants.extend(validators.validate_linkable_entities(
-            #     Contact.objects.filter(is_user__in=users), self.user,
-            # ))
-            #
-            # return users
             user_contacts = self.cleaned_data['participating_users']
             self.user_participants.extend(user_contacts)
 
