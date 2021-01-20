@@ -199,7 +199,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         url = self._build_stop_url(meeting)
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
@@ -721,7 +720,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
                                   )
 
         url = self.WF_POSTPONED_URL
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         pcall_ids = self._existing_pcall_ids()
@@ -842,7 +840,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
                                   )
 
         url = self.WF_LASTED5MIN_URL
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertPOST200(
             url,
@@ -957,7 +954,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
                                   )
 
         url = self.WF_JUSTDONE_URL
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         start = now() - timedelta(minutes=5)

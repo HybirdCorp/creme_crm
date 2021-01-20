@@ -6,11 +6,7 @@ from django.db.models.deletion import CASCADE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('mobile', '0001_initial'),
-    #     ('mobile', '0003_v2_1__favorite_uniqueness01'),
-    #     ('mobile', '0004_v2_1__favorite_uniqueness02'),
-    # ]
+    # Memo: last migrations is '0004_v2_1__favorite_uniqueness02'
 
     initial = True
     dependencies = [
