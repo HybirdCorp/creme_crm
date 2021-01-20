@@ -68,7 +68,7 @@ class ProductTestCase(_ProductsTestCase):
                 'description':  description,
                 'unit_price':   unit_price,
                 'unit':         'anything',
-                # 'sub_category': self._cat_field(cat, sub_cat),
+
                 self.EXTRA_CATEGORY_KEY: self._cat_field(cat, sub_cat),
             },
         )
@@ -120,7 +120,6 @@ class ProductTestCase(_ProductsTestCase):
                     'unit':        'anything',
                     'images':      self.formfield_value_multi_creator_entity(*images),
 
-                    # 'sub_category': self._cat_field(sub_cat.category, sub_cat),
                     self.EXTRA_CATEGORY_KEY: self._cat_field(
                         sub_cat.category, sub_cat,
                     ),
@@ -175,7 +174,7 @@ class ProductTestCase(_ProductsTestCase):
                 'description':  product.description,
                 'unit_price':   unit_price,
                 'unit':         'anything',
-                # 'sub_category': self._cat_field(product.category, product.sub_category),
+
                 self.EXTRA_CATEGORY_KEY: self._cat_field(
                     product.category, product.sub_category,
                 ),
