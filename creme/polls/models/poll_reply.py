@@ -148,10 +148,6 @@ class PollReplyLine(CremeModel, _PollLine):
         ordering = ('order',)
 
     def __repr__(self):
-        # from django.utils.encoding import smart_str
-        # return smart_str('PollReplyLine(section={}, question="{}", answer="{}")'.format(
-        #                     self.section_id, self.question, self.answer
-        #                 ))
         return (
             f'PollReplyLine('
             f'section={self.section_id}, '

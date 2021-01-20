@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,6 @@ from creme import persons, polls
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import base as base_forms
 from creme.creme_core.forms import fields as core_fields
-# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 
 Contact      = persons.get_contact_model()
@@ -184,7 +183,6 @@ class PersonAddRepliesForm(base_forms.CremeForm):
 
 
 class PollReplyFillForm(base_forms.CremeForm):
-    # question = CharField(label=_('Question'), required=False, initial='??', widget=Label)
     question = core_fields.ReadonlyMessageField(label=_('Question'), initial='??')
 
     def __init__(self, line_node, instance=None, *args, **kwargs):
