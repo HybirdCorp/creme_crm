@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,7 @@ from django.db.models import (
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import CremeEntity  # SettingValue
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.utils.dates import date_from_str, dt_from_str
 from creme.creme_core.views.file_handling import handle_uploaded_file
@@ -58,8 +58,6 @@ from creme.documents import get_document_model, get_folder_model
 from ..bricks import BaseWaitingActionsBrick, WaitingActionsBrick
 from ..exceptions import ImproperlyConfiguredBackend
 from ..models import History, WaitingAction
-
-# from ..setting_keys import sandbox_key
 
 if TYPE_CHECKING:
     from ..inputs.base import CrudityInput
@@ -136,18 +134,6 @@ class CrudityBackend:
                             break
                     else:
                         raise ImproperlyConfiguredBackend(e) from e
-
-    # @property
-    # def is_sandbox_by_user(self) -> bool:
-    #     if self._sandbox_by_user is None:
-    #         self._sandbox_by_user = SettingValue.objects.get_4_key(
-    #         sandbox_key, default=False).value
-    #
-    #     return self._sandbox_by_user
-    #
-    # @is_sandbox_by_user.setter
-    # def is_sandbox_by_user(self, value: bool):
-    #     self._sandbox_by_user = value
 
     @staticmethod
     def normalize_subject(subject: str) -> str:

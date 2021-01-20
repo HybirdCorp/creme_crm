@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,11 +23,9 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.models import SettingValue
 from creme.creme_core.gui.bricks import QuerysetBrick
 
 from .models import History, WaitingAction
-# from .setting_keys import sandbox_key
 from .utils import is_sandbox_by_user
 
 
@@ -41,11 +39,6 @@ class CrudityQuerysetBrick(QuerysetBrick):
                 gettext('Error: you are not allowed to view this block: {}'.format(self.id_))
             )
 
-    # @property
-    # def is_sandbox_by_user(self) -> bool:
-    #     # No cache: we need to create sub-blocks on the fly
-    #     return SettingValue.objects.get_4_key(sandbox_key, default=False).value
-
 
 class BaseWaitingActionsBrick(CrudityQuerysetBrick):
     def __init__(self, backend):
@@ -53,17 +46,12 @@ class BaseWaitingActionsBrick(CrudityQuerysetBrick):
         self.backend = backend
 
 
-# class WaitingActionsBrick(CrudityQuerysetBrick):
 class WaitingActionsBrick(BaseWaitingActionsBrick):
     # dependencies  = ()
     verbose_name  = _('Waiting actions')
     template_name = 'crudity/bricks/waiting-actions.html'
     order_by      = 'id'
 
-    # def __init__(self, backend):
-    #     super().__init__()
-    #     self.backend = backend
-    #     self.id_     = self.generate_id()
     def __init__(self, backend):
         super().__init__(backend=backend)
         self.id_ = self.generate_id()
@@ -88,7 +76,6 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
             ct=ct, source=backend.source, subject=backend.subject,
         )
 
-        # if self.is_sandbox_by_user:
         if is_sandbox_by_user:
             waiting_actions = waiting_actions.filter(user=context['user'])
 

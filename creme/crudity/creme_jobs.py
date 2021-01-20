@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,9 +32,9 @@ CremeUser = get_user_model()
 
 
 class _CruditySynchronizeType(JobType):
-    id           = JobType.generate_id('crudity', 'synchronization')
+    id = JobType.generate_id('crudity', 'synchronization')
     verbose_name = _('Synchronize externals data sent to Creme')
-    periodic     = JobType.PERIODIC
+    periodic = JobType.PERIODIC
 
     crudity_registry = crudity_registry
 
@@ -45,25 +45,24 @@ class _CruditySynchronizeType(JobType):
             JobResult.objects.create(
                 job=job,
                 messages=[
-                    gettext("The configured default user is invalid. "
-                            "Edit the job's configuration to fix it."
-                           ),
+                    gettext(
+                        "The configured default user is invalid. "
+                        "Edit the job's configuration to fix it."
+                    ),
                 ],
             )
 
             user = CremeUser.objects.get_admin()
 
-        # from . import registry
-
-        # count = len(registry.crudity_registry.fetch(user))
         count = len(self.crudity_registry.fetch(user))
         JobResult.objects.create(
             job=job,
             messages=[
-                ngettext('There is {count} change',
-                         'There are {count} changes',
-                         count
-                        ).format(count=count),
+                ngettext(
+                    'There is {count} change',
+                    'There are {count} changes',
+                    count,
+                ).format(count=count),
             ],
         )
 

@@ -12,25 +12,21 @@ urlpatterns = [
     ),
     re_path(
         r'^waiting_actions/refresh[/]?$',
-        # actions.refresh,
         actions.ActionsRefreshing.as_view(),
         name='crudity__refresh_actions',
     ),
     re_path(
         r'^waiting_actions/delete[/]?$',
-        # actions.delete,
         actions.ActionsDeletion.as_view(),
         name='crudity__delete_actions',
     ),
     re_path(
         r'^waiting_actions/validate[/]?$',
-        # actions.validate,
         actions.ActionsValidation.as_view(),
         name='crudity__validate_actions',
     ),
     re_path(
         r'^waiting_actions/reload[/]?$',
-        # actions.reload_bricks,
         actions.ActionsBricksReloading.as_view(),
         name='crudity__reload_actions_bricks',
     ),
@@ -42,7 +38,6 @@ urlpatterns = [
     ),
     re_path(
         r'^history/reload[/]?$',
-        # history.reload_bricks,
         history.HistoryBricksReloading.as_view(),
         name='crudity__reload_history_bricks',
     ),

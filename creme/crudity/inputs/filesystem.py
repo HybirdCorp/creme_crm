@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -80,7 +80,6 @@ class IniFileInput(CrudityInput):
                         # Get owner
                         owner = None
                         CremeUser = get_user_model()
-                        # if backend.is_sandbox_by_user:
                         if is_sandbox_by_user():
                             try:
                                 username = config.get('head', 'username')
