@@ -111,8 +111,7 @@ class ContactTestCase(_BaseTestCase):
         user = self.login()
 
         url = reverse('persons__create_contact')
-        response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'persons/add_contact_form.html')
+        self.assertGET200(url)
 
         count = Contact.objects.count()
         first_name = 'Spike'
@@ -193,8 +192,7 @@ class ContactTestCase(_BaseTestCase):
         )
 
         url = contact.get_edit_absolute_url()
-        response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'persons/edit_contact_form.html')
+        self.assertGET200(url)
 
         last_name = 'Spiegel'
         response = self.assertPOST200(
@@ -764,14 +762,12 @@ class ContactTestCase(_BaseTestCase):
         "Can not delete if the Contact corresponds to an user."
         user = self.login()
         contact = user.linked_contact
-        # self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
         self.assertPOST409(contact.get_delete_absolute_url(), follow=True)
 
     def test_delete03(self):
-        "Can not trash if the Contact corresponds to an user"
+        "Can not trash if the Contact corresponds to an user."
         user = self.login()
         contact = user.linked_contact
-        # self.assertPOST403(contact.get_delete_absolute_url(), follow=True)
         self.assertPOST409(contact.get_delete_absolute_url(), follow=True)
 
     def test_delete_civility01(self):

@@ -10,12 +10,7 @@ from creme.documents.models.fields import ImageEntityForeignKey
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('persons', '0001_initial'),
-    #     ('persons', '0023_v2_1__move_description_to_entity_1'),
-    #     ('persons', '0024_v2_1__move_description_to_entity_2'),
-    #     ('persons', '0025_v2_1__move_description_to_entity_3'),
-    # ]
+    # Memo: last migration is '0025_v2_1__move_description_to_entity_3'
 
     initial = True
     dependencies = [
@@ -126,7 +121,6 @@ class Migration(migrations.Migration):
                 ('civility', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Civility', blank=True, to='persons.Civility', null=True)),
                 ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
                 ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('phone', creme_fields.PhoneField(max_length=100, verbose_name='Phone number', blank=True)),
                 ('mobile', creme_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
                 ('skype', models.CharField(max_length=100, verbose_name='Skype', blank=True)),
@@ -177,7 +171,6 @@ class Migration(migrations.Migration):
                 ('tvaintra', models.CharField(max_length=100, verbose_name='VAT number', blank=True)),
                 ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT')),
                 ('annual_revenue', models.CharField(max_length=100, verbose_name='Annual revenue', blank=True)),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('creation_date', models.DateField(null=True, verbose_name='Date of creation of the organisation', blank=True)),
                 ('billing_address',  models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
                 ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),

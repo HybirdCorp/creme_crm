@@ -64,9 +64,7 @@ class OrganisationTestCase(_BaseTestCase):
         user = self.login()
 
         url = reverse('persons__create_organisation')
-        # response = self.assertGET200(url)
         self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'persons/add_organisation_form.html')
 
         count = Organisation.objects.count()
         name = 'Spectre'
@@ -225,8 +223,7 @@ class OrganisationTestCase(_BaseTestCase):
         name = 'Bebop'
         orga = Organisation.objects.create(user=user, name=name)
         url = orga.get_edit_absolute_url()
-        response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'persons/edit_organisation_form.html')
+        self.assertGET200(url)
 
         name += '_edited'
         zipcode = '123456'
@@ -313,28 +310,6 @@ class OrganisationTestCase(_BaseTestCase):
 
     def _build_managed_orga(self, user=None, name='Bebop'):
         return Organisation.objects.create(user=user or self.user, name=name, is_managed=True)
-
-    # def test_get_all_managed_by_creme(self):
-    #     user = self.login()
-    #
-    #     mng_orga1 = self._build_managed_orga()
-    #     mng_orga2 = self._build_managed_orga(name='NERV')
-    #     orga = Organisation.objects.create(user=user, name='Seele')
-    #
-    #     with self.assertNumQueries(1):
-    #         qs1 = Organisation.get_all_managed_by_creme()
-    #         mng_orgas = {*qs1}
-    #
-    #     self.assertIn(mng_orga1, mng_orgas)
-    #     self.assertIn(mng_orga2, mng_orgas)
-    #     self.assertNotIn(orga,   mng_orgas)
-    #
-    #     # Test request-cache
-    #     with self.assertNumQueries(0):
-    #         qs2 = Organisation.get_all_managed_by_creme()
-    #         __ = [*qs2]
-    #
-    #     self.assertEqual(id(qs1), id(qs2))
 
     def test_manager_filter_managed_by_creme(self):
         user = self.login()
@@ -703,7 +678,6 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(1, len(managed_orgas))
 
         managed_orga = managed_orgas[0]
-        # self.assertPOST403(managed_orga.get_delete_absolute_url())  # follow=True
         self.assertPOST409(managed_orga.get_delete_absolute_url())  # follow=True
         self.assertStillExists(managed_orga)
 
@@ -911,9 +885,7 @@ class OrganisationTestCase(_BaseTestCase):
 
         url = reverse('persons__orga_unset_managed')
         data = {'id': orga2.id}
-        # self.assertGET404(url)
         self.assertGET405(url)
-        # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data)

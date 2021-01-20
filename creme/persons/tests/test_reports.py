@@ -104,7 +104,6 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         def build_url(year):
             return '{}?q_filter={}'.format(
                 lv_url,
-                # qfilter_serializer.dumps(Q(creation_date__year=year)),
                 qfilter_serializer.dumps(
                     Q(user=user.id) & Q(creation_date__year=year)
                 ),
@@ -222,14 +221,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertLogs(level='WARNING') as logs_manager:
             response1 = self.assertGET200(invoice.get_absolute_url())
-        # dom = self.get_html_tree(response1.content)
-        # brick_node = self.get_brick_node(dom, brick_id=ibci.brick_id)
-        #
-        # error_div = brick_node.find(
-        #     './/div[@class="brick-graph-container brick-empty brick-error"]'
-        # )
-        # self.assertIsNotNone(error_div)
-        # self.assertEqual(error_msg, error_div.text)
+
         self.assertNoBrick(self.get_html_tree(response1.content), brick_id=ibci.brick_id)
         self.assertIn(
             f'WARNING:creme.creme_core.views.generic.detailview:'

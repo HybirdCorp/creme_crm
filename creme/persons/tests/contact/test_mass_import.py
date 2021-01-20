@@ -53,20 +53,22 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         user = self.login()
 
         count = Contact.objects.count()
-        lines = [('Rei',   'Ayanami'),
-                 ('Asuka', 'Langley'),
-                ]
+        lines = [
+            ('Rei',   'Ayanami'),
+            ('Asuka', 'Langley'),
+        ]
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
-            data={**self.IMPORT_DATA,
-                  'document': doc.id,
-                  'user': user.id,
-                  'first_name_colselect': 1,
-                  'last_name_colselect': 2,
-                 },
+            data={
+                **self.IMPORT_DATA,
+                'document': doc.id,
+                'user': user.id,
+                'first_name_colselect': 1,
+                'last_name_colselect': 2,
+            },
         )
         self.assertNoFormError(response)
 
@@ -100,15 +102,16 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
-            data={**self.IMPORT_DATA,
-                  'document': doc.id,
-                  'has_header': True,
+            data={
+                **self.IMPORT_DATA,
+                'document': doc.id,
+                'has_header': True,
 
-                  'user': user.id,
-                  'first_name_colselect': 1,
-                  'last_name_colselect': 2,
-                  'billaddr_city_colselect': 3,
-                 },
+                'user': user.id,
+                'first_name_colselect': 1,
+                'last_name_colselect': 2,
+                'billaddr_city_colselect': 3,
+            },
         )
         self.assertNoFormError(response)
 
@@ -138,9 +141,9 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
         city1 = 'Kyoto'
         city2 = 'Tokyo'
-        create_address = partial(Address.objects.create, address='XXX', country='Japan',
-                                 owner=rei,
-                                )
+        create_address = partial(
+            Address.objects.create, address='XXX', country='Japan', owner=rei,
+        )
         rei.billing_address  = addr1 = create_address(name='Hideout #1', city=city1)
         rei.shipping_address = addr2 = create_address(name='Hideout #2', city=city2)
         rei.save()
@@ -154,14 +157,15 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
-            data={**self.IMPORT_DATA,
-                  'document': doc.id,
-                  'user': user.id,
-                  'key_fields': ['first_name', 'last_name'],
-                  'email_colselect': 5,
-                  'billaddr_address_colselect': 3,
-                  'shipaddr_address_colselect': 4,
-                 },
+            data={
+                **self.IMPORT_DATA,
+                'document': doc.id,
+                'user': user.id,
+                'key_fields': ['first_name', 'last_name'],
+                'email_colselect': 5,
+                'billaddr_address_colselect': 3,
+                'shipaddr_address_colselect': 4,
+            },
         )
         self.assertNoFormError(response)
 

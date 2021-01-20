@@ -348,7 +348,6 @@ class _AddressesBrick(Brick):
 
     def get_template_context(self, context, **kwargs):
         person = context['object']
-        # model = person.__class__
         model = type(person)
         is_hidden = context['fields_configs'].get_4_model(model).is_field_hidden
 

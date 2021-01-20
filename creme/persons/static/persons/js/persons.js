@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2020  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -39,16 +39,6 @@ creme.persons.copyTo = function(source, target) {
     source.find('input, textarea, select').each(function(index) {
         $(targetInputs[index]).val($(this).val());
     });
-
-    /*
-    if ($from.size() > 0 && $to.size() > 0) {
-        var $to_fill = $to.find('input, textarea, select');
-
-        $from.find('input, textarea, select').each(function(ind) {
-            $($to_fill[ind]).val($(this).val());
-        });
-    }
-    */
 };
 
 // TODO: unit test
@@ -63,23 +53,6 @@ creme.persons.copyAddressInputs = function(source_prefix, target_prefix, source_
         ).val($(this).val());
     });
 };
-
-// creme.persons.become = function(url, organisations) {
-//    if (Object.isEmpty(organisations)) {
-//        return;
-//    }
-//
-//    if (organisations && organisations.length > 1) {
-//        creme.dialogs.choice(gettext('Select the concerned organisation.'),
-//                             {choices: organisations, title: gettext('Organisation')})
-//                     .onOk(function(event, orga_id) {
-//                          creme.utils.ajaxQuery(url, {action: 'post', reloadOnSuccess: true, warnOnFail: true}, {id: orga_id}).start();
-//                      })
-//                     .open();
-//    } else {
-//        creme.utils.ajaxQuery(url, {action: 'post', reloadOnSuccess: true, warnOnFail: true}, {id: organisations[0].value}).start();
-//    }
-// };
 
 creme.persons.BecomeAction = creme.component.Action.sub({
     _init_: function(options) {
