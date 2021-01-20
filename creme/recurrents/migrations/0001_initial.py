@@ -8,12 +8,7 @@ from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('recurrents', '0001_initial'),
-    #     ('recurrents', '0006_v2_1__move_description_to_entity_1'),
-    #     ('recurrents', '0007_v2_1__move_description_to_entity_2'),
-    #     ('recurrents', '0008_v2_1__move_description_to_entity_3'),
-    # ]
+    # Memo: last migration is '0008_v2_1__move_description_to_entity_3'
 
     initial = True
     dependencies = [
@@ -33,7 +28,6 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the generator', blank=True)),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('first_generation', models.DateTimeField(verbose_name='Date of the first generation')),
                 ('last_generation', models.DateTimeField(verbose_name='Date of the last generation', null=True, editable=False)),
                 ('periodicity', creme_fields.DatePeriodField(verbose_name='Periodicity of the generation')),
