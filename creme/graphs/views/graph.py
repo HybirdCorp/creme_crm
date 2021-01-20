@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,6 @@ from creme.creme_core.views import generic
 
 from .. import custom_forms, get_graph_model
 from ..constants import DEFAULT_HFILTER_GRAPH
-# from ..forms import graph as g_forms
 from ..forms.graph import AddRelationTypesForm
 
 Graph = get_graph_model()
@@ -78,7 +77,6 @@ class RelationTypeRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletio
 
 class GraphCreation(generic.EntityCreation):
     model = Graph
-    # form_class = g_forms.GraphForm
     form_class = custom_forms.GRAPH_CREATION_CFORM
 
 
@@ -90,7 +88,6 @@ class GraphDetail(generic.EntityDetail):
 
 class GraphEdition(generic.EntityEdition):
     model = Graph
-    # form_class = g_forms.GraphForm
     form_class = custom_forms.GRAPH_EDITION_CFORM
     pk_url_kwarg = 'graph_id'
 
