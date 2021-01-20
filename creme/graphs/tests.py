@@ -90,7 +90,6 @@ class GraphsTestCase(CremeTestCase):
         response = self.assertGET200(Graph.get_lv_absolute_url())
 
         with self.assertNoException():
-            # graphs = response.context['entities'].object_list
             graphs = response.context['page_obj'].object_list
 
         self.assertIn(graph1, graphs)
@@ -213,7 +212,6 @@ class GraphsTestCase(CremeTestCase):
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'graphs'), dirname(fullpath))
-        # self.assertEqual(f'attachment; filename={basename(fullpath)}',
         self.assertEqual(f'attachment; filename="{basename(fullpath)}"',
                          response['Content-Disposition']
                         )
