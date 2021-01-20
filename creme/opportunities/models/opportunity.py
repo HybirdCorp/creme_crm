@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from functools import partial
 
 from django.apps import apps
@@ -189,55 +188,6 @@ class AbstractOpportunity(core_models.CremeEntity):
             return self.made_sales * tax
         else:
             return (self.estimated_sales or 0) * tax
-
-    # def get_products(self):
-    #     warnings.warn('AbstractOpportunity.get_products() is deprecated.', DeprecationWarning)
-    #
-    #     from creme.products import get_product_model
-    #
-    #     return get_product_model()\
-    #                 .objects\
-    #                 .filter(is_deleted=False,
-    #                         relations__object_entity=self.id,
-    #                         relations__type=constants.REL_SUB_LINKED_PRODUCT,
-    #                        )
-
-    # def get_services(self):
-    #     warnings.warn('AbstractOpportunity.get_services() is deprecated.', DeprecationWarning)
-    #
-    #     from creme.products import get_service_model
-    #
-    #     return get_service_model()\
-    #                 .objects\
-    #                 .filter(is_deleted=False,
-    #                         relations__object_entity=self.id,
-    #                         relations__type=constants.REL_SUB_LINKED_SERVICE,
-    #                        )
-
-    # def get_contacts(self):
-    #     warnings.warn('AbstractOpportunity.get_contacts() is deprecated.', DeprecationWarning)
-    #
-    #     from creme.persons import get_contact_model
-    #
-    #     return get_contact_model()\
-    #                 .objects\
-    #                 .filter(is_deleted=False,
-    #                         relations__object_entity=self.id,
-    #                         relations__type=constants.REL_SUB_LINKED_CONTACT,
-    #                        )
-
-    # def get_responsibles(self):
-    #     warnings.warn('AbstractOpportunity.get_responsibles() is deprecated.',
-    #     DeprecationWarning)
-    #
-    #     from creme.persons import get_contact_model
-    #
-    #     return get_contact_model()\
-    #                 .objects\
-    #                 .filter(is_deleted=False,
-    #                         relations__object_entity=self.id,
-    #                         relations__type=constants.REL_SUB_RESPONSIBLE,
-    #                        )
 
     @property
     def emitter(self):

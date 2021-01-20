@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -150,9 +150,7 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         create_relation = partial(
             Relation.objects.create, subject_entity=b_document, user=user,
         )
-        # create_relation(type_id=REL_SUB_BILL_ISSUED,   object_entity=opp.emitter)
-        # create_relation(type_id=REL_SUB_BILL_RECEIVED, object_entity=opp.target)
-        create_relation(type_id=rtype_id,              object_entity=opp)
+        create_relation(type_id=rtype_id, object_entity=opp)
 
         b_document.generate_number()  # Need the relationship with emitter organisation
         b_document.name = self.generated_name.format(document=b_document, opportunity=opp)
@@ -225,11 +223,10 @@ class RelatedObjectsSelectionPopup(RelationsObjectsSelectionPopup):
 
         if constraints['target']:
             extra_q &= Q(
-                pk__in=Relation.objects
-                               .filter(object_entity=self.get_related_entity().target.id,
-                                       type=REL_SUB_BILL_RECEIVED,
-                                      )
-                               .values_list('subject_entity_id', flat=True)
+                pk__in=Relation.objects.filter(
+                    object_entity=self.get_related_entity().target.id,
+                    type=REL_SUB_BILL_RECEIVED,
+                ).values_list('subject_entity_id', flat=True),
             )
 
         if constraints['emitter']:
@@ -237,7 +234,7 @@ class RelatedObjectsSelectionPopup(RelationsObjectsSelectionPopup):
                 pk__in=Relation.objects.filter(
                     object_entity=self.get_related_entity().emitter.id,
                     type=REL_SUB_BILL_ISSUED,
-                ).values_list('subject_entity_id', flat=True)
+                ).values_list('subject_entity_id', flat=True),
             )
 
         return extra_q

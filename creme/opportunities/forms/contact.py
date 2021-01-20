@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020  Hybird
+#    Copyright (C) 2019-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.forms.fields import BooleanField
 from django.utils.translation import gettext as _
 
 from creme import persons
-from creme.creme_core.forms.base import CremeEntityQuickForm  # CremeModelForm
+from creme.creme_core.forms.base import CremeEntityQuickForm
 from creme.creme_core.models import Relation
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
@@ -31,7 +31,6 @@ Contact = persons.get_contact_model()
 
 
 # NB: not CremeEntityForm to ignore custom fields, relations & properties
-# class RelatedContactForm(CremeModelForm):
 class RelatedContactForm(CremeEntityQuickForm):
     class Meta:
         model = Contact
