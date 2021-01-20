@@ -132,11 +132,9 @@ class DocumentTestCase(_DocumentsTestCase):
             self.assertEqual([content], f.readlines())
 
         # Download
-        # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
         self.assertEqual(
-            # 'attachment; filename=' + file_obj.base_name,
             f'attachment; filename="{file_obj.base_name}"',
             response['Content-Disposition'],
         )
@@ -158,11 +156,9 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
-        # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
         self.assertEqual(
-            # 'attachment; filename={}.txt'.format(file_obj.base_name),
             f'attachment; filename="{file_obj.base_name}.txt"',
             response['Content-Disposition'],
         )
@@ -183,11 +179,9 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
-        # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
         self.assertEqual(
-            # 'attachment; filename={}.txt'.format(file_obj.base_name),
             f'attachment; filename="{file_obj.base_name}.txt"',
             response['Content-Disposition'],
         )
@@ -204,11 +198,9 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
-        # response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         response = self.assertGET200(doc.get_download_absolute_url())
         self.assertEqual('text/plain', response['Content-Type'])
         self.assertEqual(
-            # f'attachment; filename={file_obj.base_name}.txt',
             f'attachment; filename="{file_obj.base_name}.txt"',
             response['Content-Disposition'],
         )
@@ -237,10 +229,6 @@ class DocumentTestCase(_DocumentsTestCase):
         file_name = file_obj.base_name
         self.assertEqual('upload/documents/' + file_name, doc.filedata.name)
         self.assertEqual(file_name, doc.title)
-
-    # def test_download_error(self):
-    #     self.login()
-    #     self.assertGET404(reverse('creme_core__dl_file', args=('tmpLz48vy.txt',)))
 
     def test_editview(self):
         user = self.login()
@@ -575,7 +563,6 @@ class DocumentTestCase(_DocumentsTestCase):
 
         download_action = dl_actions[0]
         self.assertEqual('redirect', download_action.type)
-        # self.assertEqual(reverse('creme_core__dl_file', args=(doc1.filedata,)),
         self.assertEqual(
             doc1.get_download_absolute_url(),
             download_action.url
@@ -625,7 +612,6 @@ class DocumentTestCase(_DocumentsTestCase):
             first_name='Casca', last_name='Mylove',
         )
         self.assertHTMLEqual(
-            # f'''<a onclick="creme.dialogs.image('{image.get_dl_url()}').open();">'''
             f'''<a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">'''
             f'''{summary}'''
             f'''</a>''',
@@ -671,8 +657,6 @@ class DocumentTestCase(_DocumentsTestCase):
         get_html_val = field_printers_registry.get_html_field_value
         url = judo_face.get_download_absolute_url()
         self.assertHTMLEqual(
-            # f'''<a onclick="creme.dialogs.image('{judo_face.get_dl_url()}').open();">
-            # {judo_face.get_entity_summary(other_user)}</a>''',
             f'''<a onclick="creme.dialogs.image('{url}').open();">
                 {judo_face.get_entity_summary(other_user)}
             </a>

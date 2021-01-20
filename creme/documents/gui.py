@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020  Hybird
+#    Copyright (C) 2019-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -80,7 +80,6 @@ def print_fk_image_html(entity, fval, user, field):
     if mime_type and mime_type.is_image:
         return format_html(
             '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
-            # url=fval.get_dl_url(),
             url=fval.get_download_absolute_url(),
             attrs=mark_safe(' class="is_deleted"' if fval.is_deleted else ''),
             content=fval.get_entity_summary(user),
@@ -98,7 +97,6 @@ def print_doc_summary_html(instance, related_entity, fval, user, field):
     if mime_type and mime_type.is_image:
         return format_html(
             '''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
-            # url=instance.get_dl_url(),
             url=instance.get_download_absolute_url(),
             attrs=mark_safe(' class="is_deleted"' if instance.is_deleted else ''),
             content=instance.get_entity_summary(user),

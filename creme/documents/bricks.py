@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -101,7 +101,6 @@ class LinkedDocsBrick(QuerysetBrick):
         entity = context['object']
         btc = self.get_template_context(
             context,
-            # Document.get_linkeddoc_relations(entity),
             Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC),
             predicate_id=REL_SUB_RELATED_2_DOC,
         )

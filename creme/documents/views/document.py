@@ -33,7 +33,6 @@ from creme.creme_core.views import generic
 
 from .. import constants, custom_forms
 from ..constants import DEFAULT_HFILTER_DOCUMENT
-# from ..forms import document as doc_forms
 from ..models import FolderCategory
 
 Folder = documents.get_folder_model()
@@ -42,7 +41,6 @@ Document = documents.get_document_model()
 
 class DocumentCreation(generic.EntityCreation):
     model = Document
-    # form_class = doc_forms.DocumentCreateForm
     form_class = custom_forms.DOCUMENT_CREATION_CFORM
 
     def get_initial(self):
@@ -54,7 +52,6 @@ class DocumentCreation(generic.EntityCreation):
 
 class RelatedDocumentCreation(generic.AddingInstanceToEntityPopup):
     model = Document
-    # form_class = doc_forms.RelatedDocumentCreateForm
     form_class = custom_forms.DOCUMENT_CREATION_CFORM
     permissions = ['documents', cperm(Document)]
     title = _('New document for «{entity}»')
@@ -159,7 +156,6 @@ class DocumentDetail(generic.EntityDetail):
 
 class DocumentEdition(generic.EntityEdition):
     model = Document
-    # form_class = doc_forms.DocumentEditForm
     form_class = custom_forms.DOCUMENT_EDITION_CFORM
     pk_url_kwarg = 'document_id'
 

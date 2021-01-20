@@ -12,7 +12,6 @@ from ..forms.fields import ImageEntityField, MultiImageEntityField
 from .base import Document, _DocumentsTestCase
 
 
-# class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
 class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
     def setUp(self):
         super().setUp()
@@ -190,7 +189,6 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(_('Create an image'), field.widget.creation_label)
 
 
-# class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
 class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
     def setUp(self):
         super().setUp()

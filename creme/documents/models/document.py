@@ -91,11 +91,6 @@ class AbstractDocument(CremeEntity):
 
         return Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC)
 
-    # def get_dl_url(self):
-    #     import os
-    #
-    #     return settings.MEDIA_URL + str(self.filedata).replace(os.sep, '/')
-
     def get_download_absolute_url(self):
         return reverse(
             'creme_core__download',
@@ -113,7 +108,6 @@ class AbstractDocument(CremeEntity):
         if self.mime_type.is_image:
             return format_html(
                 '<img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>',
-                # url=self.get_dl_url(),
                 url=self.get_download_absolute_url(),
                 name=self.title,
             )
