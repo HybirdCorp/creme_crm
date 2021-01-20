@@ -25,7 +25,6 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('subject', models.CharField(max_length=100, verbose_name='Subject')),
-                # ('body', models.TextField(verbose_name='Body')),
                 (
                     'body',
                     models.TextField(

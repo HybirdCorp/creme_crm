@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,6 @@ class MessagingListRemoving(generic.base.EntityRelatedMixin, generic.CremeDeleti
 
 class SMSCampaignCreation(generic.EntityCreation):
     model = SMSCampaign
-    # form_class = camp_forms.CampaignCreateForm
     form_class = custom_forms.CAMPAIGN_CREATION_CFORM
 
 
@@ -56,14 +55,11 @@ class SMSCampaignDetail(generic.EntityDetail):
 
 class SMSCampaignEdition(generic.EntityEdition):
     model = SMSCampaign
-    # form_class = camp_forms.CampaignEditForm
     form_class = custom_forms.CAMPAIGN_EDITION_CFORM
     pk_url_kwarg = 'campaign_id'
 
 
-# class MessagingListsAdding(generic.AddingInstanceToEntityPopup):
 class MessagingListsAdding(generic.RelatedToEntityFormPopup):
-    # model = MessagingList
     form_class = camp_forms.CampaignAddListForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('New messaging lists for «{entity}»')
