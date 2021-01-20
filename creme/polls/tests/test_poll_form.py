@@ -391,7 +391,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
         section = PollFormSection.objects.create(pform=pform, name='Introduction', order=1)
 
-        # self.assertGET404(self.build_deletesection_url())
         self.assertGET405(self.build_deletesection_url())
 
         self.assertEqual([False], [node.has_line for node in SectionTree(pform)])
@@ -1409,10 +1408,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         ptype = PollType.objects.create(name='Political poll')
         pform = PollForm.objects.create(user=user, name='Form#1', type=ptype)
 
-        # self.assertPOST200(reverse('creme_config__delete_instance', args=('polls', 'poll_type')),
-        #                    data={'id': ptype.pk}
-        #                   )
-        # self.assertDoesNotExist(ptype)
         response = self.client.post(reverse(
             'creme_config__delete_instance',
             args=('polls', 'poll_type', ptype.id),
@@ -2011,7 +2006,6 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             order=1, question='How old is this swallow ?',
         )
 
-        # self.assertGET404(self.build_deleteline_url())  # Only POST
         self.assertGET405(self.build_deleteline_url())  # Only POST
         self.assertRedirects(self.delete_line(line), pform.get_absolute_url())
         self.assertDoesNotExist(line)

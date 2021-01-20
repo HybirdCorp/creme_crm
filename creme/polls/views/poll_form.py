@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -124,7 +124,6 @@ class LineChoices(base.CheckedView):
 
 class PollFormCreation(generic.EntityCreation):
     model = PollForm
-    # form_class = pf_forms.PollFormForm
     form_class = custom_forms.PFORM_CREATION_CFORM
 
 
@@ -136,7 +135,6 @@ class PollFormDetail(generic.EntityDetail):
 
 class PollFormEdition(generic.EntityEdition):
     model = PollForm
-    # form_class = pf_forms.PollFormForm
     form_class = custom_forms.PFORM_EDITION_CFORM
     pk_url_kwarg = 'pform_id'
 
@@ -219,7 +217,6 @@ class ConditionsEdition(generic.RelatedToEntityFormPopup):
     form_class = pf_forms.PollFormLineConditionsForm
     title = _('Conditions for «{entity}»')
     submit_label = _('Save the conditions')
-    # entity_id_url_kwarg = 'pform_id'
     entity_classes = PollForm
     line_id_url_kwarg = 'line_id'
     line_form_kwarg = 'line'
