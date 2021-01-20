@@ -117,7 +117,6 @@ class ProjectsTestCase(CremeTestCase):
         response = self.client.post(
             self._build_add_activity_url(resource.task), follow=True,
             data={
-                # 'resource':      resource.id,
                 'resource':      resource.linked_contact_id,
                 'start':         start,
                 'end':           end,
@@ -162,7 +161,6 @@ class ProjectsTestCase(CremeTestCase):
                 'start_date':   start_date,
                 'end_date':     end_date,
 
-                # 'responsibles': self.formfield_value_multi_creator_entity(manager),
                 self.EXTRA_LEADERS_KEY: self.formfield_value_multi_creator_entity(manager),
             },
         )
@@ -252,12 +250,11 @@ class ProjectsTestCase(CremeTestCase):
                 'status':       ProjectStatus.objects.all()[0].id,
                 'start_date':   '2011-10-11',
                 'end_date':     '2011-12-31',
-                # 'responsibles': self.formfield_value_multi_creator_entity(manager),
+
                 self.EXTRA_LEADERS_KEY: self.formfield_value_multi_creator_entity(manager),
             },
         )
         self.assertFormError(
-            # response, 'form', 'responsibles',
             response, 'form', self.EXTRA_LEADERS_KEY,
             _('Some entities are not linkable: {}').format(
                 _('Entity #{id} (not viewable)').format(id=manager.id),
@@ -277,7 +274,7 @@ class ProjectsTestCase(CremeTestCase):
                 'status':       ProjectStatus.objects.all()[0].id,
                 'start_date':   '2012-2-16',
                 'end_date':     '2012-2-15',
-                # 'responsibles': self.formfield_value_multi_creator_entity(manager),
+
                 self.EXTRA_LEADERS_KEY: self.formfield_value_multi_creator_entity(manager),
             },
         )
@@ -445,13 +442,13 @@ class ProjectsTestCase(CremeTestCase):
             url,
             follow=True,
             data={
-                'user':         user.id,
-                'title':        'torso',
-                'start':        '2010-10-11 17:01',
-                'end':          '2010-10-11 17:30',
-                'duration':     duration_2,
-                'tstatus':      TaskStatus.objects.all()[0].id,
-                # 'parent_tasks': self.formfield_value_multi_creator_entity(task1),
+                'user':     user.id,
+                'title':    'torso',
+                'start':    '2010-10-11 17:01',
+                'end':      '2010-10-11 17:30',
+                'duration': duration_2,
+                'tstatus':  TaskStatus.objects.all()[0].id,
+
                 self.EXTRA_PARENTTASKS_KEY: self.formfield_value_multi_creator_entity(task1),
             },
         )
@@ -488,20 +485,19 @@ class ProjectsTestCase(CremeTestCase):
 
         task01 = self.create_task(project01, 'Title')
         response = self.client.post(
-            self._build_add_task_url(project02),  # follow=True,
+            self._build_add_task_url(project02),
             data={
-                'user':          user.id,
-                'title':         'head',
-                'start':         '2010-10-11',
-                'end':           '2010-10-30',
-                'duration':      50,
-                'tstatus':       TaskStatus.objects.all()[0].id,
-                # 'parent_tasks':  self.formfield_value_multi_creator_entity(task01),
+                'user':     user.id,
+                'title':    'head',
+                'start':    '2010-10-11',
+                'end':      '2010-10-30',
+                'duration': 50,
+                'tstatus':  TaskStatus.objects.all()[0].id,
+
                 self.EXTRA_PARENTTASKS_KEY: self.formfield_value_multi_creator_entity(task01),
             },
         )
         self.assertFormError(
-            # response, 'form', 'parent_tasks', _('This entity does not exist.')
             response, 'form', self.EXTRA_PARENTTASKS_KEY, _('This entity does not exist.'),
         )
 
@@ -829,7 +825,6 @@ class ProjectsTestCase(CremeTestCase):
         response = self.client.post(
             url, follow=True,
             data={
-                # 'resource':      resource.id,
                 'resource':      worker.id,
                 'start':         '2010-10-11',
                 'end':           '2010-10-12',
@@ -908,13 +903,9 @@ class ProjectsTestCase(CremeTestCase):
         worker2 = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
 
         self.create_resource(task, worker1)
-        # resource1 = task.resources_set.all()[0]
-
         self.create_resource(task, worker2)
-        # resource2 = task.resources_set.exclude(pk=resource1.id)[0]
 
         data = {
-            # 'resource':      resource1.id,
             'resource':      worker1.id,
             'start':         '2015-05-21',
             'end':           '2015-05-22',
@@ -935,7 +926,6 @@ class ProjectsTestCase(CremeTestCase):
         response = self.client.post(
             self._build_edit_activity_url(activity),
             follow=True,
-            # data={**data, 'resource': resource2.id},
             data={**data, 'resource': worker2.id},
         )
         self.assertNoFormError(response)
@@ -961,13 +951,9 @@ class ProjectsTestCase(CremeTestCase):
         worker2 = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
 
         self.create_resource(task, worker1)
-        # resource1 = task.resources_set.all()[0]
-
         self.create_resource(task, worker2)
-        # resource2 = task.resources_set.exclude(pk=resource1.id)[0]
 
         data = {
-            # 'resource':      resource1.id,
             'resource':      worker1.id,
             'start':         '2015-05-21',
             'end':           '2015-05-22',
@@ -985,7 +971,6 @@ class ProjectsTestCase(CremeTestCase):
             follow=True,
             data={
                 **data,
-                # 'resource': resource2.id,
                 'resource': worker2.id,
                 'keep_participating': 'on',
             },
@@ -1093,7 +1078,6 @@ class ProjectsTestCase(CremeTestCase):
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_ALL,
-            # ctype=ContentType.objects.get_for_model(ProjectTask),
             ctype=Project,
         )
 
@@ -1265,7 +1249,6 @@ class ProjectsTestCase(CremeTestCase):
         self.assertIsNone(project.effective_end_date)
 
         url = reverse('projects__close_project', args=(project.id,))
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
@@ -1276,7 +1259,6 @@ class ProjectsTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(now(), project.effective_end_date)
 
         # Already closed
-        # self.assertPOST404(url, follow=True)
         self.assertPOST409(url, follow=True)
 
     def _create_parented_task(self, title, project, parents=None):
@@ -1295,9 +1277,6 @@ class ProjectsTestCase(CremeTestCase):
             task.parent_tasks.set(parents)
 
         return task
-
-    # def _create_resource(self, contact, task):
-    #     return Resource.objects.create(linked_contact=contact, user=self.user, task=task)
 
     @staticmethod
     def _titles_collections(tasks_qs, constructor):
@@ -1364,15 +1343,11 @@ class ProjectsTestCase(CremeTestCase):
         create_resource = Resource.objects.create
 
         task1 = self._create_parented_task('1', project)
-        # self._create_resource(contact1, task1)
         create_resource(linked_contact=contact1, task=task1)
-        # self._create_resource(contact2, task1)
         create_resource(linked_contact=contact2, task=task1)
 
         task2 = self._create_parented_task('2', project)
-        # self._create_resource(contact1, task2)
         create_resource(linked_contact=contact1, task=task2)
-        # self._create_resource(contact2, task2)
         create_resource(linked_contact=contact2, task=task2)
 
         task3 = self._create_parented_task('3', project, [task1, task2])

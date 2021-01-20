@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -108,11 +108,6 @@ class _TaskForm(CremeEntityForm):
         warnings.warn('projects.forms.task._TaskForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
 
-        # fields = self.fields
-        # fields['duration'].required = True
-        # fields['start'].required = True
-        # fields['end'].required = True
-
 
 class TaskEditForm(_TaskForm):
     def __init__(self, entity, *args, **kwargs):
@@ -168,7 +163,6 @@ class TaskAddParentForm(CremeForm):
 
 
 class RelatedActivityEditForm(CremeEntityForm):
-    # resource = CreatorEntityField(label=_('Allocated resource'), model=Resource)
     resource = CreatorEntityField(label=_('Allocated resource'), model=Contact)
     type_selector = ActivityTypeField(label=_('Type'))
 
@@ -193,7 +187,6 @@ class RelatedActivityEditForm(CremeEntityForm):
         task = self._get_task()
 
         resource_f = fields['resource']
-        # resource_f.q_filter = {'task_id': task.id}
         resource_f.q_filter = {'resource__task_id': task.id}
 
         if pk:  # Edition
@@ -214,9 +207,6 @@ class RelatedActivityEditForm(CremeEntityForm):
                 raise ConflictError('This Activity is not related to a project task') from e
 
             self.old_participant = self.old_relation.subject_entity.get_real_entity()
-            # resource_f.initial = Resource.objects.get(
-            #     task=task, linked_contact=self.old_participant,
-            # )
             resource_f.initial = self.old_participant
 
             fields['type_selector'].initial = (instance.type_id, instance.sub_type_id)
@@ -235,7 +225,6 @@ class RelatedActivityEditForm(CremeEntityForm):
         if not self._errors:
             collisions = check_activity_collisions(
                 cdata['start'], cdata['end'],
-                # [cdata['resource'].linked_contact],
                 [cdata['resource']],
                 busy=cdata['busy'],
                 exclude_activity_id=self.instance.pk,
@@ -253,7 +242,6 @@ class RelatedActivityEditForm(CremeEntityForm):
 
         super().save(*args, **kwargs)
 
-        # participant = cdata['resource'].linked_contact
         participant = cdata['resource']
         old_participant = self.old_participant
 

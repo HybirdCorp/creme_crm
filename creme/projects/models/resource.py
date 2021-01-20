@@ -23,11 +23,9 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.models import CremeEntity
 from creme.creme_core.models import CremeModel
 
 
-# class Resource(CremeEntity):
 class Resource(CremeModel):
     # TODO: set a editable (& use automatic formfield()) + not bulk_editable ?
     linked_contact = models.ForeignKey(
@@ -54,13 +52,6 @@ class Resource(CremeModel):
     def __str__(self):
         return str(self.linked_contact)
 
-    # def get_absolute_url(self):
-    #     return self.linked_contact.get_absolute_url()
-
-    # @staticmethod
-    # def get_clone_absolute_url():
-    #     return ''
-
     def get_edit_absolute_url(self):
         return reverse('projects__edit_resource', args=(self.id,))
 
@@ -68,9 +59,6 @@ class Resource(CremeModel):
         return self.task
 
     def clone_for_task(self, task):
-        # new_resource = self.clone()
-        # new_resource.task = task
-        # new_resource.save()
         return type(self).objects.create(
             task=task,
             linked_contact=self.linked_contact,

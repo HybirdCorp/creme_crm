@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,6 @@ from . import (
     get_project_model,
     get_task_model,
 )
-# from .models import Resource
 from .forms.project import ProjectLeadersSubCell
 from .forms.task import ParentTasksSubCell
 from .models import ProjectStatus, TaskStatus
@@ -127,14 +126,6 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'description'}),
             ],
         )
-
-        # create_hf(
-        #     pk='projects-hf_resource', name=_('Resource view'), model=Resource,
-        #     cells_desc=[
-        #         (EntityCellRegularField, {'name': 'linked_contact'}),
-        #         (EntityCellRegularField, {'name': 'hourly_cost'}),
-        #     ],
-        # )
 
         # ---------------------------
         common_groups_desc = [
@@ -267,10 +258,6 @@ class Populator(BasePopulator):
             Project,
             ['name', 'description', 'status__name'],
         )
-        # create_searchconf(
-        #     Resource,
-        #     ['linked_contact__last_name', 'linked_contact__first_name', 'hourly_cost'],
-        # )
         create_searchconf(
             ProjectTask,
             ['linked_project__name', 'duration', 'tstatus__name'],
