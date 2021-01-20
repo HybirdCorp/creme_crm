@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,8 +28,6 @@ from creme.creme_core.auth.decorators import (
 )
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
-# from creme.creme_core.views.bricks import build_context, bricks_render_info,
-# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.bricks import BricksReloading
 
 from .. import get_smscampaign_model
@@ -122,18 +120,6 @@ def delete_message(request):
     return redirect(campaign)
 
 
-# @login_required
-# @permission_required('sms')
-# @jsonify
-# def reload_messages_brick(request, id):
-#     sending = get_object_or_404(Sending, id=id)
-#     request.user.has_perm_to_view_or_die(sending.campaign)
-#
-#     return bricks_render_info(
-#         request,
-#         bricks=[MessagesBrick()],
-#         context=build_context(request, object=sending),
-#     )
 class MessagesBrickReloading(BricksReloading):
     permissions = 'sms'
     check_bricks_permission = False

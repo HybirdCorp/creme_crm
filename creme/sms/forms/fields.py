@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,6 @@ class PhoneField(RegexField):
         if value and not self.regex.search(value):
             raise ValidationError(self.error_messages['invalid'])
 
-        # return PhoneField.filternumbers(value)
         return self.filternumbers(value)
 
     @staticmethod

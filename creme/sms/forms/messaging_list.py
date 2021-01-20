@@ -40,10 +40,8 @@ Contact = get_contact_model()
 
 
 class MessagingListForm(CremeEntityForm):
-    # class Meta:
     class Meta(CremeEntityForm.Meta):
         model = get_messaginglist_model()
-        # fields = ('user', 'name', 'description')
 
     def __init__(self, *args, **kwargs):
         warnings.warn('MessagingListForm is deprecated.', DeprecationWarning)
@@ -95,7 +93,6 @@ class AddPersonsFromFilterForm(CremeForm):  # private class ???
     def save(self):
         persons = self.get_persons_m2m()
         efilter = self.cleaned_data['filters']
-        # new_persons = self.person_model.objects.all()
         new_persons = self.person_model.objects.filter(is_deleted=False)
 
         if efilter:
