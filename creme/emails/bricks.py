@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -236,7 +236,6 @@ class MailsBrick(QuerysetBrick):
     def detailview_display(self, context):
         btc = self.get_template_context(
             context,
-            # context['object'].get_mails().select_related('recipient_entity'),
             context['object'].mails_set.select_related('recipient_entity'),
         )
 
@@ -338,19 +337,13 @@ class MySignaturesBrick(QuerysetBrick):
 
 
 if apps.is_installed('creme.crudity'):
-    # from creme.crudity.bricks import CrudityQuerysetBrick
     from creme.crudity.bricks import BaseWaitingActionsBrick
     from creme.crudity.utils import is_sandbox_by_user
 
-    # class _SynchronizationMailsBrick(CrudityQuerysetBrick):
     class _SynchronizationMailsBrick(BaseWaitingActionsBrick):
         dependencies = (EntityEmail,)
         order_by     = '-reception_date'
         configurable = False
-
-        # def __init__(self, backend):
-        #     super().__init__()
-        #     self.backend = backend
 
     class WaitingSynchronizationMailsBrick(_SynchronizationMailsBrick):
         id_           = _SynchronizationMailsBrick.generate_id('emails', 'waiting_synchronisation')
@@ -369,7 +362,6 @@ if apps.is_installed('creme.crudity'):
                 status=constants.MAIL_STATUS_SYNCHRONIZED_WAITING,
             )
 
-            # if self.is_sandbox_by_user:
             if is_sandbox_by_user():
                 waiting_mails = waiting_mails.filter(user=context['user'])
 
@@ -392,7 +384,6 @@ if apps.is_installed('creme.crudity'):
                 is_deleted=False,
                 status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM,
             )
-            # if self.is_sandbox_by_user:
             if is_sandbox_by_user():
                 waiting_mails = waiting_mails.filter(user=context['user'])
 
