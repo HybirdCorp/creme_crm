@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020  Hybird
+#    Copyright (C) 2019-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _  # gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellVolatile
 from creme.creme_core.gui.actions import ActionsRegistry
@@ -61,7 +61,6 @@ class _BaseEventEntityCellVolatile(EntityCellVolatile):
     )
 
     def __init__(self, event, **kwargs):
-        # super().__init__(model=Contact, render_func=None, **kwargs)
         super().__init__(model=Contact, **kwargs)
         self.event = event
 
@@ -100,9 +99,7 @@ class _BaseEventEntityCellVolatile(EntityCellVolatile):
 
 
 class EntityCellVolatileInvitation(_BaseEventEntityCellVolatile):
-    # def __init__(self, event, value='invitation_management', title=_('Invitation'), **kwargs):
     def __init__(self, event, value='invitation_management', **kwargs):
-        # super().__init__(event=event, value=value, title=title, **kwargs)
         super().__init__(event=event, value=value, **kwargs)
 
     def render_html(self, entity, user):
@@ -130,9 +127,7 @@ class EntityCellVolatileInvitation(_BaseEventEntityCellVolatile):
 
 
 class EntityCellVolatilePresence(_BaseEventEntityCellVolatile):
-    # def __init__(self, event, value='presence_management', title=_('Presence'), **kwargs):
     def __init__(self, event, value='presence_management', **kwargs):
-        # super().__init__(event=event, value=value, title=title, **kwargs)
         super().__init__(event=event, value=value, **kwargs)
 
     def render_html(self, entity, user):
