@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,6 @@ ProjectTask = projects.get_task_model()
 
 class TaskCreation(generic.AddingInstanceToEntityPopup):
     model = ProjectTask
-    # form_class = task_forms.TaskCreateForm
     form_class = custom_forms.TASK_CREATION_CFORM
     title = _('Create a task for «{entity}»')
     entity_id_url_kwarg = 'project_id'
@@ -62,14 +61,12 @@ class TaskDetail(generic.EntityDetail):
 
 class TaskEdition(generic.EntityEdition):
     model = ProjectTask
-    # form_class = task_forms.TaskEditForm
     form_class = custom_forms.TASK_EDITION_CFORM
     pk_url_kwarg = 'task_id'
 
 
 class TaskEditionPopup(generic.EntityEditionPopup):
     model = ProjectTask
-    # form_class = task_forms.TaskEditForm
     form_class = custom_forms.TASK_EDITION_CFORM
     pk_url_kwarg = 'task_id'
 

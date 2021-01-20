@@ -56,9 +56,8 @@ class AbstractProjectTask(CremeEntity):
         editable=False,
     )
 
-    start = models.DateTimeField(_('Start'))  # blank=True, null=True
-    end   = models.DateTimeField(_('End'))    # blank=True, null=True
-    # blank=True, null=True
+    start = models.DateTimeField(_('Start'))
+    end   = models.DateTimeField(_('End'))
     duration = models.PositiveIntegerField(_('Duration (in hours)'), default=0)
 
     # TODO: rename "status" (does not collide with activity's status anymore)
@@ -181,7 +180,6 @@ class AbstractProjectTask(CremeEntity):
         return self.effective_duration
 
     def get_delay(self):
-        # return self.get_effective_duration() - self.safe_duration
         return self.get_effective_duration() - self.duration
 
     def is_alive(self):
@@ -194,9 +192,7 @@ class AbstractProjectTask(CremeEntity):
         for resource in source.get_resources():
             resource.clone_for_task(self)
 
-    # @staticmethod
     @classmethod
-    # def clone_scope(tasks, project):
     def clone_scope(cls, tasks, project):
         """Clone each task in 'tasks', assign them to 'project',
         and restore links between each task.
@@ -205,7 +201,6 @@ class AbstractProjectTask(CremeEntity):
         """
         context = {}
 
-        # project_task_filter = ProjectTask.objects.filter
         project_task_filter = cls._default_manager.filter
 
         for task in tasks:
