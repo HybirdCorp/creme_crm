@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,19 +53,15 @@ class CallersBrick(PaginatedBrick):
     )
 
     def detailview_display(self, context):
-        # from .views import RESPOND_TO_A_CALL_MODELS, Contact, Organisation, Activity
-
         # Ensure that it will crash if we try to load it from a classic load view
         number = context['number']
 
         user = context['user']
         filter_viewable = EntityCredentials.filter
-        # fconfigs = FieldsConfig.objects.get_for_models(RESPOND_TO_A_CALL_MODELS)
         fconfigs = FieldsConfig.objects.get_for_models(self.caller_models)
         all_fields_hidden = True
         callers = []
 
-        # for model in RESPOND_TO_A_CALL_MODELS:
         for model in self.caller_models:
             is_hidden = fconfigs[model].is_field_hidden
             queries = [
