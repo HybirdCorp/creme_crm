@@ -409,7 +409,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         }
 
         for element_node in xml.findall(f'{xsd}element'):
-            # xsd_element_attrs = xsd_elements.get(element_node.get('name'))
             xsd_element_attrs = xsd_elements.pop(element_node.get('name'))
 
             if xsd_element_attrs is None:
@@ -452,7 +451,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             builder.get_namespace()
         )  # Can't be got with ElementTree, because it's a namespace
 
-        # d_ns = {'my': builder.namespace, 'xsi': '{http://www.w3.org/2001/XMLSchema-instance}'}
         xsi = '{http://www.w3.org/2001/XMLSchema-instance}'
         find = XML(content).find
 

@@ -61,7 +61,6 @@ class CrudityTestCase(CremeTestCase):
         cls.SwallowFetcher = SwallowFetcher
 
     def setUp(self):
-        # self.login()
         super().setUp()
 
         self.FakeContactBackend.calls_args.clear()

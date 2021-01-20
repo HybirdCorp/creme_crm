@@ -108,7 +108,6 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
         self.assertEqual(1, len(wactions))
         self.assertDictEqual(
             {'user_id': str(user.id), 'created': '01/02/2003'},
-            # wactions[0].get_data()
             wactions[0].data
         )
 

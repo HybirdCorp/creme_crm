@@ -580,7 +580,7 @@ CREME_OPT_CSS = [  # APPS
     ('creme.billing',          'billing/css/billing.css'),
     ('creme.opportunities',    'opportunities/css/opportunities.css'),
     ('creme.commercial',       'commercial/css/commercial.css'),
-    ('creme.crudity',          'crudity/css/crudity.css'),
+    # ('creme.crudity',          'crudity/css/crudity.css'),
     ('creme.emails',           'emails/css/emails.css'),
 
     ('creme.geolocation',      'geolocation/css/leaflet-1.6.0.css'),
