@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,29 +74,6 @@ class MessagingListAddCSVForm(CremeForm):
         super().__init__(*args, **kwargs)
         self.messaging_list = entity
 
-    # def save(self):
-    #     targets = chunktools.iter_splitchunks(self.cleaned_data['recipients'].chunks(),
-    #                                           '\n', PhoneField.filternumbers,
-    #                                          )
-    #
-    #     for numbers in chunktools.iter_as_chunk(targets, 256):
-    #         self._save_numbers(numbers)
-    #
-    # def _save_numbers(self, numbers):
-    #     if not numbers:
-    #         return
-    #
-    #     messaging_list = self.messaging_list
-    #     create = Recipient.objects.create
-    #     duplicates = frozenset(Recipient.objects.filter(phone__in=numbers,
-    #                                                     messaging_list=messaging_list,
-    #                                                    )
-    #                                             .values_list('phone', flat=True)
-    #                           )
-    #
-    #     for number in numbers:
-    #         if number not in duplicates and number:
-    #             create(messaging_list=messaging_list, phone=number)
     def save(self):
         mlist = self.messaging_list
         create = Recipient.objects.create

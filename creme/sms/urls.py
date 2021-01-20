@@ -55,7 +55,6 @@ urlpatterns = [
     ),
     re_path(
         r'^campaign/sending/(?P<sending_id>\d+)/messages/reload[/]?$',
-        # sending.reload_messages_brick,
         sending.MessagesBrickReloading.as_view(),
         name='sms__reload_messages_brick',
     ),

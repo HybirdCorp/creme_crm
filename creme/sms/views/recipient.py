@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.views.generic.add import AddingInstanceToEntityPopup
 from creme.creme_core.views.generic import RelatedToEntityFormPopup
 
 from .. import get_messaginglist_model
@@ -30,18 +29,15 @@ from ..models import Recipient
 
 class _RecipientsAddingBase(RelatedToEntityFormPopup):
     # model = Recipient
-    # form_class = forms.MessagingListAddRecipientsForm
     entity_id_url_kwarg = 'mlist_id'
     entity_classes = get_messaginglist_model()
     title = _('New recipients for «{entity}»')
     submit_label = Recipient.multi_save_label
 
 
-# class RecipientsAdding(AddingInstanceToEntityPopup):
 class RecipientsAdding(_RecipientsAddingBase):
     form_class = forms.MessagingListAddRecipientsForm
 
 
-# class RecipientsAddingFromCSV(RecipientsAdding):
 class RecipientsAddingFromCSV(_RecipientsAddingBase):
     form_class = forms.MessagingListAddCSVForm

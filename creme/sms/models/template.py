@@ -68,7 +68,6 @@ class AbstractMessageTemplate(CremeEntity):
         return self.name
 
     def clean(self):
-        # super().clean()
         subject = self.subject
         # TODO: factorise
         content = f'{subject} : {self.body}' if subject else self.body
