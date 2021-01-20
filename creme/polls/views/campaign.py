@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from creme.creme_core.views import generic
 
-# from ..forms.campaign import PollCampaignForm
 from .. import custom_forms, get_pollcampaign_model
 from ..constants import DEFAULT_HFILTER_PCAMPAIGN
 
@@ -29,7 +28,6 @@ PollCampaign = get_pollcampaign_model()
 
 class PollCampaignCreation(generic.EntityCreation):
     model = PollCampaign
-    # form_class = PollCampaignForm
     form_class = custom_forms.CAMPAIGN_CREATION_CFORM
 
 
@@ -41,7 +39,6 @@ class PollCampaignDetail(generic.EntityDetail):
 
 class PollCampaignEdition(generic.EntityEdition):
     model = PollCampaign
-    # form_class = PollCampaignForm
     form_class = custom_forms.CAMPAIGN_EDITION_CFORM
     pk_url_kwarg = 'campaign_id'
 

@@ -1769,7 +1769,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertTrue(self.refresh(preply).is_complete)
 
         response = self.assertGET200(self._build_edit_answer_url(preply, rline))
-        # self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit_popup.html')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
