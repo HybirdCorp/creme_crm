@@ -14,7 +14,6 @@ urlpatterns = [
     ),
     re_path(
         r'^bricks/reload/callers/(?P<number>\w+)[/]?$',
-        # views.reload_callers_brick,
         views.CallersBrickReloading.as_view(),
         name='cti__reload_callers_brick',
     ),
@@ -50,7 +49,6 @@ urlpatterns = [
         Swappable(
             re_path(
                 r'^add_phonecall[/]?$',
-                # views.create_phonecall_as_caller,
                 views.AsCallerPhoneCallCreation.as_view(),
                 name='cti__create_phonecall_as_caller',
             ),
@@ -58,7 +56,6 @@ urlpatterns = [
         Swappable(
             re_path(
                 r'^phonecall/add/(?P<entity_id>\d+)[/]?$',
-                # views.add_phonecall,
                 views.PhoneCallCreation.as_view(),
                 name='cti__create_phonecall',
             ),
