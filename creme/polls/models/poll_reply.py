@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -148,10 +148,6 @@ class PollReplyLine(CremeModel, _PollLine):
         ordering = ('order',)
 
     def __repr__(self):
-        # from django.utils.encoding import smart_str
-        # return smart_str('PollReplyLine(section={}, question="{}", answer="{}")'.format(
-        #                     self.section_id, self.question, self.answer
-        #                 ))
         return (
             f'PollReplyLine('
             f'section={self.section_id}, '

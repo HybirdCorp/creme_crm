@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,10 @@ def poll_line_condition(nodes, condition):
     lines_map = getattr(nodes, 'tags_lines_map', None)
 
     if lines_map is None:
-        nodes.tags_lines_map = lines_map = {node.id: node for node in nodes if not node.is_section}
+        nodes.tags_lines_map = lines_map = {
+            node.id: node
+            for node in nodes if not node.is_section
+        }
 
     source = lines_map[condition.source_id]
     answer = source.poll_line_type.decode_condition(condition.raw_answer)
@@ -48,9 +51,7 @@ def poll_line_condition(nodes, condition):
     else:
         msg_fmt = _('The answer to the question #{number} is «{answer}».')
 
-    return msg_fmt.format(number=source.number,
-                          answer=answer,
-                         )
+    return msg_fmt.format(number=source.number, answer=answer)
 
 
 @register.simple_tag
@@ -74,8 +75,9 @@ def poll_stats_chart(node):
             ]
         else:
             chartpath = 'polls/templatetags/plots/number.html'
-            data = [[[percent, str(answer)] for answer, _stat, percent in node.answer_stats]
-                   ]
+            data = [
+                [[percent, str(answer)] for answer, _stat, percent in node.answer_stats],
+            ]
 
         context = {
             'node': node,
