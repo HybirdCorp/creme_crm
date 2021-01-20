@@ -8,12 +8,7 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('products', '0001_initial'),
-    #     ('products', '0009_v2_1__move_description_to_entity_1'),
-    #     ('products', '0010_v2_1__move_description_to_entity_2'),
-    #     ('products', '0011_v2_1__move_description_to_entity_3'),
-    # ]
+    # Memo: last migration is '0011_v2_1__move_description_to_entity_3'
 
     initial = True
     dependencies = [
@@ -60,7 +55,6 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('code', models.IntegerField(default=0, verbose_name='Code')),
-                # ('description', models.CharField(max_length=200, verbose_name='Description')),
                 ('unit_price', models.DecimalField(verbose_name='Unit price', max_digits=8, decimal_places=2)),
                 ('unit', models.CharField(max_length=100, verbose_name='Unit', blank=True)),
                 ('quantity_per_unit', models.IntegerField(null=True, verbose_name='Quantity/Unit', blank=True)),
@@ -90,7 +84,6 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                # ('description', models.CharField(max_length=200, verbose_name='Description')),
                 ('reference', models.CharField(max_length=100, verbose_name='Reference')),
                 ('countable', models.BooleanField(default=False, verbose_name='Countable')),
                 ('unit', models.CharField(max_length=100, verbose_name='Unit', blank=True)),
