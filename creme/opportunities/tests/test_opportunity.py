@@ -148,8 +148,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'first_action_date':     '2010-7-13',
                 'currency':              DEFAULT_CURRENCY_PK,
 
-                # 'target':  self.formfield_value_generic_entity(target),
-                # 'emitter': emitter.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
@@ -192,8 +190,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'first_action_date':     '2010-7-13',
                 'currency':              DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(target),
-                # 'emitter': emitter.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
@@ -246,12 +242,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             },
         )
         self.assertFormError(
-            # response, 'form', 'target',
             response, 'form', self.TARGET_KEY,
             _('This content type is not allowed.')
         )
         self.assertFormError(
-            # response, 'form', 'emitter',
             response, 'form', self.EMITTER_KEY,
             _('Select a valid choice. That choice is not one of the available choices.')
         )
@@ -287,8 +281,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'closing_date': '2011-03-14',
                 'currency':     DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(target),
-                # 'emitter': emitter.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
@@ -297,11 +289,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         fmt1 = _('You are not allowed to link this entity: {}').format
         fmt2 = _('Entity #{id} (not viewable)').format
         self.assertFormError(
-            # response, 'form', 'target',  fmt1(fmt2(id=target.id))
             response, 'form', self.TARGET_KEY,  fmt1(fmt2(id=target.id))
         )
         self.assertFormError(
-            # response, 'form', 'emitter', fmt1(fmt2(id=emitter.id))
             response, 'form', self.EMITTER_KEY, fmt1(fmt2(id=emitter.id))
         )
 
@@ -319,14 +309,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'sales_phase':  SalesPhase.objects.all()[0].id,
                 'closing_date': '2011-03-14',
 
-                # 'target':       self.formfield_value_generic_entity(target),
-                # 'emitter':      emitter.id,
                 self.TARGET_KEY:  self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
         )
         self.assertFormError(
-            # response, 'form', 'emitter',
             response, 'form', self.EMITTER_KEY,
             _('Select a valid choice. That choice is not one of the available choices.')
         )
@@ -362,8 +349,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'closing_date': '2011-03-12',
                 'currency':     DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(target),
-                # 'emitter': emitter.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
@@ -387,8 +372,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'closing_date': '2011-03-12',
                 'currency':     DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(target),
-                # 'emitter': emitter.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
@@ -428,7 +411,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'closing_date': '2011-03-12',
                 'currency':     DEFAULT_CURRENCY_PK,
 
-                # 'emitter': emitter.id,
                 self.EMITTER_KEY: emitter.id,
             },
         )
@@ -509,8 +491,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'closing_date': '2011-03-12',
                 'currency':     DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(target),
-                # 'emitter': emitter.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
@@ -534,8 +514,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'closing_date': '2011-03-12',
                 'currency':     DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(target),
-                # 'emitter': emitter.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
@@ -564,7 +542,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'target':       self.formfield_value_generic_entity(target),
                 'currency':     DEFAULT_CURRENCY_PK,
 
-                # 'emitter': emitter.id,
                 self.EMITTER_KEY: emitter.id,
             },
         )
@@ -621,7 +598,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            # target_f = response.context['form'].fields['target']
             target_f = response.context['form'].fields[self.TARGET_KEY]
 
         self.assertEqual(target, target_f.initial)
@@ -647,7 +623,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'first_action_date':     '2011-5-1',
                 'currency':              currency.id,
 
-                # 'target': self.formfield_value_generic_entity(target),
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
         )
@@ -690,7 +665,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'first_action_date':     '2013-5-1',
                 'currency':              opp.currency_id,
 
-                # 'target': self.formfield_value_generic_entity(target2),
                 self.TARGET_KEY: self.formfield_value_generic_entity(target2),
             },
         )
@@ -723,13 +697,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         target.trash()
         emitter.trash()
 
-        # self.assertPOST403(target.get_delete_absolute_url(), follow=True)
         self.assertPOST409(target.get_delete_absolute_url(), follow=True)
         self.assertStillExists(target)
         self.assertStillExists(opp)
         self.assertEqual(target, self.refresh(opp).target)
 
-        # self.assertPOST403(emitter.get_delete_absolute_url(), follow=True)
         self.assertPOST409(emitter.get_delete_absolute_url(), follow=True)
         self.assertStillExists(emitter)
         self.assertStillExists(opp)
