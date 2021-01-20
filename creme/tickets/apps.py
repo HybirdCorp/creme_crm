@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -109,7 +109,6 @@ class TicketsConfig(CremeAppConfig):
         statistics_registry.register(
             id='tickets-not_closed',
             label=_('Tickets not closed'),
-            # func=lambda: [self.Ticket.objects.exclude(status_id=CLOSED_PK).count()],
             func=lambda: [self.Ticket.objects.exclude(status__is_closed=True).count()],
             perm='tickets', priority=50,
         )

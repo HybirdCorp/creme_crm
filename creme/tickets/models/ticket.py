@@ -32,7 +32,7 @@ from creme.creme_core.models import CREME_REPLACE, CremeEntity
 
 from .criticity import Criticity
 from .priority import Priority
-from .status import OPEN_PK, Status  # CLOSED_PK
+from .status import OPEN_PK, Status
 
 
 class TicketNumber(models.Model):
@@ -121,7 +121,6 @@ class AbstractTicket(TicketMixin):
     @atomic
     def save(self, *args, **kwargs):
         if self.pk:
-            # if (self.status_id == CLOSED_PK) and (self.old_status_id != CLOSED_PK):
             if self.status.is_closed and self.closing_date is None:
                 self.closing_date = now()
         else:  # Creation
@@ -189,7 +188,6 @@ class AbstractTicketTemplate(TicketMixin):
             priority_id=self.priority_id,
             criticity_id=self.criticity_id,
             solution=self.solution,
-            # closing_date=(now_value if self.status_id == CLOSED_PK else None),
             closing_date=(now_value if self.status.is_closed else None),
         )
 
