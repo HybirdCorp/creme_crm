@@ -13,8 +13,6 @@ urlpatterns = [
         organisation.ManagedOrganisationsAdding.as_view(),
         name='persons__orga_set_managed',
     ),
-    # re_path(r'^organisation/not_managed[/]?$',
-    #         organisation.unset_managed, name='persons__orga_unset_managed'),
     re_path(
         r'^organisation/not_managed[/]?$',
         organisation.OrganisationUnmanage.as_view(),
