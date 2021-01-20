@@ -164,8 +164,6 @@ class AbstractGraph(CremeEntity):
                     style='dashed',
                 )
 
-        # print graph.string()
-
         graph.layout(prog='dot')  # Algo: neato dot twopi circo fdp nop
 
         img_format = 'png'  # Format: pdf svg
@@ -192,7 +190,6 @@ class AbstractGraph(CremeEntity):
             basename=img_basename,
         )
 
-        # return HttpResponseRedirect(reverse('creme_core__dl_file', args=(fileref.filedata,)))
         return HttpResponseRedirect(fileref.get_download_absolute_url())
 
     def _post_save_clone(self, source):

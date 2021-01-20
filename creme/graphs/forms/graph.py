@@ -33,7 +33,6 @@ from .. import get_graph_model
 class GraphForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_graph_model()
-        # exclude = (*CremeEntityForm.Meta.exclude, 'orbital_relation_types')
 
     def __init__(self, *args, **kwargs):
         warnings.warn('GraphForm is deprecated.', DeprecationWarning)
