@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -143,9 +143,7 @@ class Message(CremeModel):
         status_desc = MESSAGE_STATUS.get(self.status)
         return status_desc[0] if status_desc else gettext('Unknown')
 
-    # @staticmethod
     @classmethod
-    # def _connect(sending):
     def _connect(cls, sending):
         ws = SamoussaBackEnd()
 
@@ -168,11 +166,8 @@ class Message(CremeModel):
         except WSException:
             pass
 
-    # @staticmethod
     @classmethod
-    # def _do_action(sending, request, action, step):
     def _do_action(cls, sending, request, action, step):
-        # ws = Message._connect(sending)
         ws = cls._connect(sending)
 
         if not ws:
@@ -182,7 +177,6 @@ class Message(CremeModel):
         for chunk in chunktools.iter_as_slices(request, 256):
             action(ws, sending, chunk)
 
-        # Message._disconnect(ws)
         cls._disconnect(ws)
 
     @classmethod
