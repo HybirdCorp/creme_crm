@@ -122,37 +122,6 @@ class BaseReportsTestCase(CremeTestCase):
 
         cls.ADD_URL = reverse('reports__create_report')
 
-    # def _create_report(self, name='Report #1', efilter=None, extra_cells=()):
-    #     cells = [
-    #         EntityCellRegularField.build(model=FakeContact, name='last_name'),
-    #         EntityCellRegularField.build(model=FakeContact, name='user'),
-    #         EntityCellRelation(
-    #             model=FakeContact, rtype=RelationType.objects.get(pk=REL_SUB_HAS),
-    #         ),
-    #         EntityCellFunctionField.build(
-    #             model=FakeContact, func_field_name='get_pretty_properties',
-    #         ),
-    #         *extra_cells,
-    #     ]
-    #
-    #     hf = HeaderFilter.objects.create_if_needed(
-    #         pk='test_hf', name='name', model=FakeContact, cells_desc=cells,
-    #     )
-    #
-    #     response = self.client.post(
-    #         self.ADD_URL, follow=True,
-    #         data={
-    #             'user':   self.user.pk,
-    #             'name':   name,
-    #             'ct':     self.ct_contact.id,
-    #             'hf':     hf.id,
-    #             'filter': efilter.id if efilter else '',
-    #         },
-    #     )
-    #     self.assertNoFormError(response)
-    #
-    #     return self.get_object_or_fail(Report, name=name)
-
     def _create_simple_contacts_report(self, name='Contact report', efilter=None, user=None):
         report = Report.objects.create(
             user=user or self.user,

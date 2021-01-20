@@ -36,10 +36,7 @@ from creme.creme_core.models import (
     RelationType,
 )
 
-from ..constants import (  # RFT_RELATION, RFT_FIELD,
-    AGGREGATOR_TYPES,
-    GROUP_TYPES,
-)
+from ..constants import AGGREGATOR_TYPES, GROUP_TYPES
 from ..core.graph import (
     AbscissaInfo,
     OrdinateInfo,
@@ -63,10 +60,6 @@ class AbstractReportGraph(CremeEntity):
         settings.REPORTS_REPORT_MODEL, editable=False, on_delete=models.CASCADE,
     )
 
-    # type     = models.PositiveIntegerField(_('Grouping'),
-    #     editable=False, choices=GROUP_TYPES.items())
-    # abscissa = models.CharField(_('X axis'), max_length=100, editable=False)
-    # days     = models.PositiveIntegerField(_('Days'), blank=True, null=True, editable=False)
     # TODO: string IDs instead of integer ?
     abscissa_type = models.PositiveIntegerField(
         _('X axis (grouping)'), editable=False, choices=GROUP_TYPES.items(),
@@ -78,8 +71,6 @@ class AbstractReportGraph(CremeEntity):
         _('X axis parameter'), null=True, editable=False,
     )
 
-    # ordinate = models.CharField(_('Y axis'), max_length=100, editable=False)
-    # is_count = models.BooleanField(_('Make a count instead of aggregate?'), default=False)
     ordinate_type = models.CharField(
         _('Y axis (type)'), max_length=100,
         choices=AGGREGATOR_TYPES.items(), default='',
@@ -204,37 +195,8 @@ class AbstractReportGraph(CremeEntity):
         if report.filter is not None:
             entities = report.filter.filter(entities)
 
-        # if extra_q is not None:
-        #     entities = entities.filter(extra_q)
-
         return self.hand.fetch(entities=entities, order=order, user=user, extra_q=extra_q)
 
-    # @staticmethod
-    # def get_fetcher_from_instance_brick(instance_brick_config):
-    #     from ..core.graph import fetcher as core_fetcher
-    #
-    #     data = instance_brick_config.data
-    #     volatile_column = rfield_type = None
-    #
-    #     if data:
-    #         try:
-    #             volatile_column, rfield_type = data.split('|', 1)
-    #             rfield_type = int(rfield_type)
-    #         except ValueError as e:
-    #             logger.warning('Instance block: invalid link type "%s" in block "%s" [%s].',
-    #                            data, instance_brick_config, e,
-    #                           )
-    #
-    #     graph = instance_brick_config.entity.get_real_entity()
-    #
-    #     if rfield_type == RFT_FIELD:
-    #         fetcher = core_fetcher.RegularFieldLinkedGraphFetcher(volatile_column, graph)
-    #     elif rfield_type == RFT_RELATION:
-    #         fetcher = core_fetcher.RelationLinkedGraphFetcher(volatile_column, graph)
-    #     else:
-    #         fetcher = core_fetcher.GraphFetcher(graph)
-    #
-    #     return fetcher
     @staticmethod
     def get_fetcher_from_instance_brick(
             instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
@@ -258,7 +220,6 @@ class AbstractReportGraph(CremeEntity):
         hand = self._hand
 
         if hand is None:
-            # self._hand = hand = RGRAPH_HANDS_MAP[self.type](self)
             self._hand = hand = RGRAPH_HANDS_MAP[self.abscissa_type](self)
 
         return hand
@@ -271,45 +232,6 @@ class AbstractReportGraph(CremeEntity):
                 DeprecationWarning
             )
 
-    # def create_instance_brick_config_item(self,
-    #                                       volatile_field=None,
-    #                                       volatile_rtype=None,
-    #                                       save=True):
-    #     from ..bricks import ReportGraphBrick
-    #     from ..core.graph.fetcher import RegularFieldLinkedGraphFetcher
-    #
-    #     if volatile_field:
-    #         assert volatile_rtype is None
-    #         error = RegularFieldLinkedGraphFetcher.validate_fieldname(self, volatile_field)
-    #
-    #         if error:
-    #             logger.info('ReportGraph.create_instance_brick_config_item(): '
-    #                         '%s -> InstanceBrickConfigItem not built.', error
-    #                        )
-    #
-    #             return None
-    #
-    #         key = f'{volatile_field}|{RFT_FIELD}'
-    #     elif volatile_rtype:
-    #         key = f'{volatile_rtype.id}|{RFT_RELATION}'
-    #     else:
-    #         key = ''
-    #
-    #     brick_id = InstanceBrickConfigItem.generate_id(ReportGraphBrick, self, key)
-    #
-    #     if InstanceBrickConfigItem.objects.filter(brick_id=brick_id).exists():
-    #         raise self.InstanceBrickConfigItemError(
-    #             gettext(
-    #                 'The instance block for «{graph}» with these parameters already exists!'
-    #             ).format(graph=self)
-    #         )
-    #
-    #     ibci = InstanceBrickConfigItem(entity=self, brick_id=brick_id, data=key)
-    #
-    #     if save:
-    #         ibci.save()
-    #
-    #     return ibci
     def create_instance_brick_config_item(self,
                                           volatile_field: Optional[str] = None,
                                           volatile_rtype: Optional[RelationType] = None,

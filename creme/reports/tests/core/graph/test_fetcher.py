@@ -147,7 +147,6 @@ class GraphFetcherTestCase(CremeTestCase):
         b_fetcher = brick.fetcher
         self.assertIsInstance(b_fetcher, RegularFieldLinkedGraphFetcher)
         self.assertIsNone(b_fetcher.error)
-        # self.assertEqual(fname, b_fetcher._field_name)
         self.assertEqual(fname, b_fetcher._field.name)
 
     def test_fk02(self):

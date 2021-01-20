@@ -58,13 +58,6 @@
 {% endblock %}
 
 {% block brick_table_columns %}
-{% comment %}
-    {% brick_table_column_for_field ctype=objects_ctype field='name' title=_('Name') status='primary nowrap' colspan=2 %}
-    {% brick_table_column_for_field ctype=objects_ctype field='abscissa' %}
-    {% brick_table_column_for_field ctype=objects_ctype field='ordinate' %}
-    {% brick_table_column_for_field ctype=objects_ctype field='type' title=_('Type') %}
-    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
-{% endcomment %}
     {% brick_table_column title=_('Name') status='primary nowrap' colspan=2 %}
     {% brick_table_column title=_('X axis (field)') %}
     {% brick_table_column title=_('X axis (grouping)') %}
@@ -74,7 +67,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'reports' as admin_perm %}{# {% url 'creme_core__delete_entities' as delete_multi_url %} #}
+{% has_perm_to admin 'reports' as admin_perm %}
 {% widget_icon name='expandme' label=_('Expand') size='brick-table-action' class='graph-row-toggle-icon graph-row-expand' as expand_icon %}
 {% widget_icon name='expanded' label=_('Close') size='brick-table-action' class='graph-row-toggle-icon graph-row-collapse' as collapse_icon %}
     {% for graph in page.object_list %}
@@ -83,9 +76,7 @@
         <td>{{expand_icon.render}}{{collapse_icon.render}}</td>
         <td {% brick_table_data_status primary %}><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
         <td {% if hand.abscissa_error != None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>
-{#        <td>{{hand.verbose_name}}{% if graph.days %} ({{graph.days}}){% endif %}</td> #}
         <td {% if hand.abscissa_error != None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
-{#        <td {% if hand.ordinate_error %}class="td_error"{% endif %}>{{hand.verbose_ordinate}}</td> #}
         {% with ordinate=hand.ordinate %}
         <td {% if ordinate.error != None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
         <td {% if ordinate.error != None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
@@ -96,12 +87,10 @@
         </td>
         <td {% brick_table_data_status action %}>
             {% has_perm_to delete graph as graph_delete_perm %}{% url 'creme_core__delete_entity' graph.id as delete_url %}
-{#            {% brick_table_action id='delete' url=delete_multi_url __ids=graph.id label=_('Delete this graph') enabled=graph_delete_perm %} #}
             {% brick_table_action id='delete' url=delete_url label=_('Delete this graph') enabled=graph_delete_perm %}
         </td>
     </tr>
     <tr data-graph-chart="{{graph.chart|default:''}}" data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed">
-{#        <td class="reports-graph-brick" colspan="7"> #}
         <td class="reports-graph-brick" colspan="8">
             <div class="brick-graph-header">
                 <div class="graph-controls">

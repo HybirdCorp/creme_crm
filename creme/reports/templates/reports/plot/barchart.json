@@ -31,7 +31,6 @@
                 "fontSize":   {% if is_small %}"8pt"{% else %}"9pt"{% endif %}
             },
             "pad": 1.0,
-{#            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.type %} - {{rgraph.hand.verbose_name}}{% if rgraph.days %} ({{rgraph.days}}){% endif %}{% endif %}", #}
             "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.abscissa_type %} - {{rgraph.hand.verbose_name}}{% if rgraph.abscissa_parameter %} ({{rgraph.abscissa_parameter}}){% endif %}{% endif %}",
             "labelOptions": {
                 "fontWeight": "bold",
@@ -60,7 +59,6 @@
                 "textColor":  "black",
                 "fontSize":   {% if is_small %}"8pt"{% else %}"9pt"{% endif %}
             },
-{#            "label": "{{rgraph.hand.verbose_ordinate}}", #}
             "label": "{% reports_graph_ordinate rgraph %}",
             "labelOptions": {
                 "fontWeight": "bold",
