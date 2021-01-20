@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -88,20 +88,8 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
     dependencies  = (InstanceBrickConfigItem,)
     verbose_name  = 'Instance bricks information'
     template_name = 'reports/bricks/instance-bricks-info.html'
-    # order_by      = 'verbose'
     configurable  = False
 
-    # def detailview_display(self, context):
-    #     btc = self.get_template_context(
-    #         context,
-    #         InstanceBrickConfigItem.objects.filter(entity=context['object'].id),
-    #     )
-    #     get_fetcher = ReportGraph.get_fetcher_from_instance_brick
-    #
-    #     for ibci in btc['page'].object_list:
-    #         ibci.fetcher = get_fetcher(ibci)
-    #
-    #     return self._render(btc)
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context,
@@ -112,23 +100,14 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
         ))
 
 
-# class ReportGraphBrick(Brick):
 class ReportGraphBrick(core_bricks.InstanceBrick):
     id_           = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
     verbose_name  = "Report's graph"  # Overloaded by __init__()
     template_name = 'reports/bricks/graph.html'
 
-    # def __init__(self, instance_brick_config):
-    #     super().__init__()
-    #     self.instance_brick_id = instance_brick_config.id
-    #     self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(
-    #           instance_brick_config)
     def __init__(self, instance_brick_config_item):
         super().__init__(instance_brick_config_item)
-        # self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(
-        #     instance_brick_config_item,
-        # )
         get_data = instance_brick_config_item.get_extra_data
         self.fetcher = fetcher = ReportGraph.fetcher_registry.get(
             graph=instance_brick_config_item.entity.get_real_entity(),
@@ -138,7 +117,6 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
             },
         )
 
-        # self.verbose_name = fetcher.verbose_name
         fetcher_vname = fetcher.verbose_name
         self.verbose_name = (
             f'{fetcher.graph} - {fetcher_vname}'
@@ -149,7 +127,6 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
         error = fetcher.error
         self.errors = [error] if error else None
 
-    # def _auxiliary_display(self, context, x, y):
     def _auxiliary_display(self, context, x, y, error=None, **extra_context):
         fetcher = self.fetcher
 
@@ -158,9 +135,7 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
             graph=fetcher.graph,
             x=x, y=y,
             error=fetcher.error or error,
-            # volatile_column=fetcher.verbose_volatile_column,
             volatile_column=fetcher.verbose_name,
-            # instance_brick_id=self.instance_brick_id,
             instance_brick_id=self.config_item.id,
             report_charts=report_chart_registry,
             **extra_context

@@ -21,7 +21,6 @@ urlpatterns = [
     ),
     re_path(
         r'^export/(?P<report_id>\d+)[/]?$',
-        # export.export,
         export.Export.as_view(),
         name='reports__export_report',
     ),
@@ -30,7 +29,6 @@ urlpatterns = [
     # TODO: put field_id even on POST urls (instead of POST arg) ?
     re_path(
         r'^report/field/unlink_report[/]?$',
-        # report.unlink_report,
         report.ReportUnlinking.as_view(),
         name='reports__unlink_report',
     ),
@@ -41,7 +39,6 @@ urlpatterns = [
     ),
     re_path(
         r'^report/field/set_selected[/]?$',
-        # report.set_selected,
         report.FieldSelection.as_view(),
         name='reports__set_selected_field',
     ),
@@ -96,7 +93,6 @@ urlpatterns = [
         Swappable(
             re_path(
                 r'^report/add[/]?$',
-                # report.ReportCreation.as_view(),
                 report.ReportCreationWizard.as_view(),
                 name='reports__create_report',
             ),

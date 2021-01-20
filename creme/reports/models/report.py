@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -258,7 +258,6 @@ class Field(CremeModel):
     # See RFT_* in constants
     type = models.PositiveSmallIntegerField().set_tags(viewable=False)
     # TODO: rename "value" ??
-    # name = models.CharField(_('Name of the column'), max_length=100).set_tags(viewable=False)
     name = models.CharField(max_length=100).set_tags(viewable=False)
 
     order = models.PositiveIntegerField().set_tags(viewable=False)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -67,14 +67,12 @@ class GraphFetcher:
     class UselessResult(Exception):
         pass
 
-    # def __init__(self, graph):
     def __init__(self,
                  graph: 'AbstractReportGraph',
                  value: Optional[str] = None):
         self.graph = graph
         self.value = value
         # self.error = None
-        # self.verbose_volatile_column: str = _('No volatile column')
 
     def as_dict_items(self):
         yield self.DICT_KEY_TYPE, self.type_id
@@ -140,10 +138,6 @@ class GraphFetcher:
             entity=entity, user=user, order=order,
         )
 
-    # @property
-    # def verbose_name(self) -> str:
-    #     return f'{self.graph} - {self.verbose_volatile_column}'
-
     @property
     def linked_models(self) -> List[Type[CremeEntity]]:
         """List of models which are compatible for the volatile link.
@@ -173,30 +167,6 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
     type_id = constants.RGF_FK
     choices_group_name = _('Fields')
 
-    # def __init__(self, field_name, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     model = self.graph.model
-    #     self.field_name = None
-    #     self.verbose_volatile_column = '??'
-    #
-    #     try:
-    #         field = model._meta.get_field(field_name)
-    #     except FieldDoesNotExist:
-    #         logger.warning('Instance block: invalid field %s.%s in block config.',
-    #                        model.__name__, field_name,
-    #                       )
-    #         self.error = _('The field is invalid.')
-    #     else:
-    #         if isinstance(field, ForeignKey):
-    #             self.verbose_volatile_column = gettext('{field} (Field)').format(
-    #                 field=field.verbose_name)
-    #             self._field_name = field_name
-    #             self._volatile_model = field.remote_field.model
-    #         else:
-    #             logger.warning('Instance block: field %s.%s in block config is not a FK.',
-    #                            model.__name__, field_name,
-    #                           )
-    #             self.error = _('The field is invalid (not a foreign key).')
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         model = self.graph.model
@@ -251,11 +221,6 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         field = self._field
         assert field is not None
 
-        # return self.graph.fetch(
-        #     extra_q=Q(**{self._field_name: entity.pk}), order=order, user=user,
-        # ) if isinstance(entity, self._volatile_model) else (
-        #     [], []
-        # )
         return self.graph.fetch(
             extra_q=Q(**{field.name: entity.pk}), order=order, user=user,
         ) if isinstance(entity, field.remote_field.model) else (
@@ -308,20 +273,6 @@ class RelationLinkedGraphFetcher(GraphFetcher):
     type_id = constants.RGF_RELATION
     choices_group_name = _('Relationships')
 
-    # def __init__(self, rtype_id, *args, **kwargs):
-    #         super().__init__(*args, **kwargs)
-    #         try:
-    #             rtype = RelationType.objects.get(pk=rtype_id)
-    #         except RelationType.DoesNotExist:
-    #             logger.warning('Instance block: invalid RelationType "%s" in block config.',
-    #                            rtype_id,
-    #                           )
-    #             self.error = _('The relationship type is invalid.')
-    #             self.verbose_volatile_column = '??'
-    #         else:
-    #             self.verbose_volatile_column = gettext(
-    #                  '{rtype} (Relationship)').format(rtype=rtype)
-    #             self._rtype = rtype
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.verbose_name = '??'

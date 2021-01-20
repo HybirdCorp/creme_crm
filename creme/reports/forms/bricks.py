@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,25 +21,19 @@
 from functools import partial
 from typing import TYPE_CHECKING, Type
 
-# from django.db.models import ForeignKey
-from django.forms import Field, ValidationError  # ChoiceField
-from django.utils.translation import gettext_lazy as _  # pgettext_lazy
+from django.forms import Field, ValidationError
+from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms.base import CremeModelForm  # CremeForm
+from creme.creme_core.forms.base import CremeModelForm
 from creme.creme_core.forms.widgets import DynamicSelect
-# from creme.creme_core.models import CremeEntity RelationType,
 from creme.creme_core.models import InstanceBrickConfigItem
-# from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
-# from .. import get_rgraph_model
 from ..bricks import ReportGraphBrick
 from ..core.graph.fetcher import GraphFetcher
 
 if TYPE_CHECKING:
     from ..models import AbstractReportGraph
-
-# InstanceBrickConfigItemError = get_rgraph_model().InstanceBrickConfigItemError
 
 
 class FetcherChoiceIterator:
@@ -156,16 +150,7 @@ class GraphFetcherField(Field):
         return fetcher
 
 
-# class GraphInstanceBrickForm(CremeForm):
 class GraphInstanceBrickForm(CremeModelForm):
-    # volatile_column = ChoiceField(
-    #     label=_('Volatile column'), choices=(), required=False,
-    #     widget=DynamicSelect(attrs={'autocomplete': True}),
-    #     help_text=_('When the graph is displayed on the detail-view of an entity, '
-    #                 'only the entities linked to this entity by the following link '
-    #                 'are used to compute the graph.'
-    #                ),
-    #     )
     fetcher = GraphFetcherField(
         label=_('Volatile column'),
         help_text=_(
@@ -187,67 +172,10 @@ class GraphInstanceBrickForm(CremeModelForm):
 
     brick_class = ReportGraphBrick
 
-    # def __init__(self, graph, instance=None, *args, **kwargs):
     def __init__(self, graph, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graph = graph
-        # self.fields['volatile_column'].choices = self._get_volatile_choices(
-        #       graph.linked_report.ct)
         self.fields['fetcher'].graph = graph
-
-    # def _get_volatile_choices(self, ct):
-    #     choices = []
-    #     fk_choices = [
-    #         ('fk-' + name, vname)
-    #         for name, vname in ModelFieldEnumerator(
-    #             ct.model_class(), deep=0, only_leafs=False
-    #         ).filter(
-    #             (lambda f, deep: isinstance(f, ForeignKey) and
-    #                 issubclass(f.remote_field.model, CremeEntity)
-    #             ),
-    #             viewable=True,
-    #         ).choices()
-    #     ]
-    #
-    #     self._rtypes = {}
-    #     rtype_choices = []
-    #
-    #     for rtype in RelationType.objects.compatible(ct, include_internals=True):
-    #         rtype_choices.append(('rtype-' + rtype.id, str(rtype)))
-    #         self._rtypes[rtype.id] = rtype
-    #
-    #     if fk_choices:
-    #         choices.append((_('Fields'), fk_choices))
-    #
-    #     if rtype_choices:
-    #         choices.append((_('Relationships'), rtype_choices))
-    #
-    #     if not choices:
-    #         choices.append(('', _('No available choice')))
-    #     else:
-    #         choices.insert(0, ('', pgettext_lazy('reports-volatile_choice', 'None')))
-    #
-    #     return choices
-
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     volatile_column = cleaned_data.get('volatile_column')
-    #     kwargs = {}
-    #
-    #     if volatile_column:
-    #         link_type, link_val = volatile_column.split('-', 1)
-    #
-    #         if link_type == 'fk':
-    #             kwargs['volatile_field'] = link_val
-    #         else:
-    #             kwargs['volatile_rtype'] = self._rtypes[link_val]
-    #
-    #     try:
-    #         self.ibci = self.graph.create_instance_brick_config_item(save=False, **kwargs)
-    #     except InstanceBrickConfigItemError as e:
-    #         raise ValidationError(str(e)) from e
-    #
-    #     return cleaned_data
 
     def clean_fetcher(self):
         fetcher: 'GraphFetcher' = self.cleaned_data['fetcher']
@@ -266,11 +194,6 @@ class GraphInstanceBrickForm(CremeModelForm):
 
         return fetcher
 
-    # def save(self):
-    #     ibci = self.ibci
-    #     ibci.save()
-    #
-    #     return ibci
     def save(self, *args, **kwargs):
         ibci: InstanceBrickConfigItem = self.instance
         ibci.brick_class_id = self.brick_class.id_

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2020  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -117,15 +117,6 @@ creme.reports.ReportFormController = creme.component.Component.sub({
     }
 });
 
-/*
-creme.reports.toggleDisableOthers = function(me, others) {
-    var is_checked = me.checked; // More generic with all node types ?
-    $.each(others, function(i, n) {
-        $(n).attr('disabled', is_checked);
-    });
-};
-*/
-
 creme.utils.converters().register('creme.graphael.BargraphData', 'jqplotData', function(data) {
     var ticks = data['x'] || [];
     var values = data['y'] || [];
@@ -218,20 +209,6 @@ creme.reports.PreviewController = creme.component.Component.sub({
         creme.utils.goTo(this._downloadUrl, $('form', this._header).serialize());
     }
 });
-
-// creme.reports.toggleDaysField = function(operator, types) {
-//    var initial_value = operator.attr('data-initial-value');
-//    if (initial_value) {
-//        operator.attr('data-initial-value', '');
-//        operator.val(initial_value);
-//    }
-//
-//    var val = operator.val();
-//    var is_visible = val && types && types.indexOf(val) !== -1;
-//    var days_field = operator.parents('.block-form:first').find('[name=\"days\"]');
-//
-//    days_field.parents('tr:first').toggleClass('hidden', !is_visible);
-// };
 
 creme.reports.ChartController = creme.component.Component.sub({
     _init_: function(properties) {
