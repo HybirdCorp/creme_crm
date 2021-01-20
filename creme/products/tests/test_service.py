@@ -42,7 +42,7 @@ class ServiceTestCase(_ProductsTestCase):
                 'description':  description,
                 'unit':         unit,
                 'unit_price':   unit_price,
-                # 'sub_category': self._cat_field(cat, sub_cat),
+
                 self.EXTRA_CATEGORY_KEY: self._cat_field(cat, sub_cat),
             },
         )
@@ -91,7 +91,6 @@ class ServiceTestCase(_ProductsTestCase):
                 'unit_price':   unit_price,
                 'unit':         service.unit,
 
-                # 'sub_category': self._cat_field(
                 self.EXTRA_CATEGORY_KEY: self._cat_field(
                     service.category, service.sub_category,
                 ),
