@@ -59,22 +59,18 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     email    = models.EmailField(_('Email address'), blank=True).set_tags(optional=True)
     url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
 
-    position      = models.ForeignKey(other_models.Position,
-                                      verbose_name=_('Position'),
-                                      blank=True, null=True,
-                                      # on_delete=SET_NULL,
-                                      on_delete=CREME_REPLACE_NULL,
-                                     ).set_tags(optional=True)
+    position = models.ForeignKey(
+        other_models.Position,
+        verbose_name=_('Position'), blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+    ).set_tags(optional=True)
     full_position = models.CharField(
         _('Detailed position'), max_length=500, blank=True,
     ).set_tags(optional=True)
 
-    sector = models.ForeignKey(other_models.Sector,
-                               verbose_name=_('Line of business'),
-                               blank=True, null=True,
-                               # on_delete=models.SET_NULL,
-                               on_delete=CREME_REPLACE_NULL,
-                              ).set_tags(optional=True)
+    sector = models.ForeignKey(
+        other_models.Sector,
+        verbose_name=_('Line of business'), blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+    ).set_tags(optional=True)
 
     language = models.ManyToManyField(Language, verbose_name=_('Spoken language(s)'),
                                       blank=True, editable=False,
@@ -88,9 +84,10 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     ).set_tags(clonable=False).set_null_label(pgettext_lazy('persons-is_user', 'None'))
 
     birthday = models.DateField(_('Birthday'), blank=True, null=True).set_tags(optional=True)
-    image    = ImageEntityForeignKey(verbose_name=_('Photograph'),
-                                     blank=True, null=True, on_delete=models.SET_NULL,
-                                    ).set_tags(optional=True)
+
+    image = ImageEntityForeignKey(
+        verbose_name=_('Photograph'), blank=True, null=True, on_delete=models.SET_NULL,
+    ).set_tags(optional=True)
 
     search_score = 101
 
@@ -179,11 +176,12 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         if rel_user:
             rel_user._disable_sync_with_contact = True
 
-            update_model_instance(rel_user,
-                                  last_name=self.last_name,
-                                  first_name=self.first_name or '',
-                                  email=self.email or '',
-                                 )
+            update_model_instance(
+                rel_user,
+                last_name=self.last_name,
+                first_name=self.first_name or '',
+                email=self.email or '',
+            )
 
     def trash(self):
         self._check_deletion()
@@ -210,13 +208,14 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
             else:
                 owner = superuser
 
-        return cls.objects.create(user=owner,
-                                  is_user=user,
-                                  last_name=user.last_name or user.username.title(),
-                                  first_name=user.first_name or _('N/A'),
-                                  email=user.email or _('complete@Me.com'),
-                                  **kwargs
-                                 )
+        return cls.objects.create(
+            user=owner,
+            is_user=user,
+            last_name=user.last_name or user.username.title(),
+            first_name=user.first_name or _('N/A'),
+            email=user.email or _('complete@Me.com'),
+            **kwargs
+        )
 
 
 class Contact(AbstractContact):
