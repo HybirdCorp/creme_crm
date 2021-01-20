@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,8 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils.content_type import get_ctype_or_404
-# from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_404
 from creme.creme_core.views.bricks import BricksReloading
-# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic import BricksView
 
 from .. import registry
@@ -47,26 +44,6 @@ class History(BricksView):
         ]
 
 
-# @login_required
-# @permission_required('crudity')
-# @jsonify
-# def reload_bricks(request):
-#     brick_ids = get_brick_ids_or_404(request)
-#     bricks = []
-#     models = {backend.model
-#     for backend in registry.crudity_registry.get_backends() if backend.model}
-#     prefix = 'block_crudity-'
-#
-#     for brick_id in brick_ids:
-#         if not brick_id.startswith(prefix):
-#             raise Http404('Invalid brick ID (bad prefix): ' + brick_id)
-#
-#         ct = get_ct_or_404(brick_id[len(prefix):])
-#
-#         if ct.model_class() in models:
-#             bricks.append(CrudityHistoryBrick(ct))
-#
-#     return bricks_render_info(request, bricks=bricks)
 class HistoryBricksReloading(BricksReloading):
     check_bricks_permission = False
     permissions = 'crudity'

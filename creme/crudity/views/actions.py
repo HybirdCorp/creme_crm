@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,25 +23,18 @@ from typing import Iterator, List
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
-# from django.shortcuts import get_list_or_404
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import BadRequestError
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.shortcuts import get_bulk_or_404
-# from creme.creme_core.views.decorators import jsonify, POST_only
 from creme.creme_core.views import generic
-# from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_404,
 from creme.creme_core.views.bricks import BricksReloading
 
 from .. import registry
 from ..backends.models import CrudityBackend
 from ..models import WaitingAction
-
-# def _retrieve_actions_ids(request):
-#     return request.POST.getlist('ids')
 
 
 class RegistryMixin:
@@ -66,13 +59,6 @@ class ActionsMixin:
         return iter(get_bulk_or_404(WaitingAction, self.get_action_ids(request)).values())
 
 
-# def _build_portal_bricks():
-#     return [
-#         brick_class(backend)
-#             for backend in registry.crudity_registry.get_configured_backends()
-#                 if backend.in_sandbox
-#                     for brick_class in backend.brick_classes
-#     ]
 class PortalBricksMixin(RegistryMixin):
     def get_portal_bricks(self) -> List[Brick]:
         return [
@@ -89,16 +75,9 @@ class Portal(PortalBricksMixin, generic.BricksView):
     bricks_reload_url_name = 'crudity__reload_actions_bricks'
 
     def get_bricks(self):
-        # return _build_portal_bricks()
         return self.get_portal_bricks()
 
 
-# @login_required
-# @permission_required('crudity')
-# @POST_only
-# @jsonify
-# def refresh(request):
-#     return [backend.get_id() for backend in registry.crudity_registry.fetch(request.user)]
 class ActionsRefreshing(RegistryMixin, generic.CheckedView):
     permissions = 'crudity'
     response_class = CremeJsonResponse
@@ -113,30 +92,6 @@ class ActionsRefreshing(RegistryMixin, generic.CheckedView):
         )
 
 
-# @login_required
-# @permission_required('crudity')
-# @POST_only
-# def delete(request):
-#     actions_ids = _retrieve_actions_ids(request)
-#     user = request.user
-#     errors = []
-#
-#     if actions_ids:
-#         for action in WaitingAction.objects.filter(id__in=actions_ids):
-#             allowed, message = action.can_validate_or_delete(user)
-#             if allowed:
-#                 action.delete()
-#             else:
-#                 errors.append(message)
-#
-#     if not errors:
-#         status = 200
-#         message = _('Operation successfully completed')
-#     else:
-#         status = 400
-#         message = ','.join(errors)
-#
-#     return HttpResponse(message, status=status)
 class ActionsDeletion(ActionsMixin, generic.CheckedView):
     permissions = 'crudity'
 
@@ -161,43 +116,6 @@ class ActionsDeletion(ActionsMixin, generic.CheckedView):
         return HttpResponse(message, status=status)
 
 
-# @jsonify
-# @login_required
-# @permission_required('crudity')
-# @POST_only
-# def validate(request):
-#     actions = get_list_or_404(WaitingAction, pk__in=_retrieve_actions_ids(request))
-#
-#     for action in actions:
-#         allowed, message = action.can_validate_or_delete(request.user)
-#
-#         if not allowed:
-#             raise PermissionDenied(message)
-#
-#         source_parts = action.source.split(' - ', 1)
-#
-#         try:
-#             if len(source_parts) == 1:
-#                 backend = registry.crudity_registry.get_default_backend(source_parts[0])
-#             elif len(source_parts) == 2:
-#                 backend = registry.crudity_registry.get_configured_backend(
-#                 *source_parts, norm_subject=action.subject)
-#             else:
-#                 raise ValueError('Malformed source')
-#         except (KeyError, ValueError) as e:
-#             raise Http404('Invalid backend for WaitingAction(id={}, source={}): {}'.format(
-#                                 action.id, action.source, e,
-#                             )
-#                          ) from e
-#
-#         with atomic():
-#             is_created = backend.create(action)
-#
-#             if is_created:
-#                 action.delete()
-#             # else: Add a message for the user
-#
-#     return {}
 class ActionsValidation(RegistryMixin, ActionsMixin, generic.CheckedView):
     permissions = 'crudity'
 
@@ -241,23 +159,6 @@ class ActionsValidation(RegistryMixin, ActionsMixin, generic.CheckedView):
         return HttpResponse()
 
 
-# @login_required
-# @permission_required('crudity')
-# @jsonify
-# def reload_bricks(request):
-#     brick_ids = get_brick_ids_or_404(request)
-#     bricks = []
-#     get_brick = {brick.id_: brick for brick in _build_portal_bricks()}.get
-#
-#     for brick_id in brick_ids:
-#         brick = get_brick(brick_id)
-#
-#         if not brick:
-#             raise Http404('Invalid brick ID: ' + brick_id)
-#
-#         bricks.append(brick)
-#
-#     return bricks_render_info(request, bricks=bricks)
 class ActionsBricksReloading(PortalBricksMixin, BricksReloading):
     check_bricks_permission = False
     permissions = 'crudity'
