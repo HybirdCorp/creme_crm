@@ -258,7 +258,6 @@ class Field(CremeModel):
     # See RFT_* in constants
     type = models.PositiveSmallIntegerField().set_tags(viewable=False)
     # TODO: rename "value" ??
-    # name = models.CharField(_('Name of the column'), max_length=100).set_tags(viewable=False)
     name = models.CharField(max_length=100).set_tags(viewable=False)
 
     order = models.PositiveIntegerField().set_tags(viewable=False)

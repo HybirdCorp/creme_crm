@@ -27,10 +27,8 @@ from typing import Optional, Type
 
 from django import forms
 from django.core.exceptions import FieldDoesNotExist, ValidationError
-# from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
-# from django.forms.fields import CharField
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -40,7 +38,6 @@ from creme.creme_core.core import entity_cell
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms import header_filter as hf_form
-# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import (
     CremeEntity,
@@ -69,7 +66,6 @@ class FilteredCTypeSubCell(CustomFormExtraSubCell):
         return core_fields.FilteredEntityTypeField(label=self.verbose_name, user=user)
 
     def post_clean_instance(self, *, instance, value, form):
-        # print('post_clean_instance !!', id(instance))
         if value:
             instance.ct, instance.filter = value
 
@@ -116,25 +112,6 @@ class FilterSubCell(CustomFormExtraSubCell):
             setattr(instance, self.filter_field_name, value)
 
 
-# class _EntityCellRelated(EntityCell):
-#     type_id = 'related'
-#
-#     def __init__(self, model, agg_id):
-#         super().__init__(model=model, value=agg_id, title='Related')
-#
-#
-# class _EntityCellAggregate(EntityCell):
-#     type_id = 'regular_aggregate'
-#
-#     def __init__(self, model, agg_id):
-#         super().__init__(model=model, value=agg_id, title='Aggregate')
-#
-#
-# class _EntityCellCustomAggregate(EntityCell):
-#     type_id = 'custom_aggregate'
-#
-#     def __init__(self, model, agg_id):
-#         super().__init__(model=model, value=agg_id, title='Custom Aggregate')
 class _ReportOnlyEntityCell(entity_cell.EntityCell):
     def render_html(self, entity, user):
         return _('(preview not available)')
@@ -307,18 +284,12 @@ _CELL_2_HAND_MAP = {
     entity_cell.EntityCellCustomField.type_id:      constants.RFT_CUSTOM,
     entity_cell.EntityCellFunctionField.type_id:    constants.RFT_FUNCTION,
     entity_cell.EntityCellRelation.type_id:         constants.RFT_RELATION,
-    # _EntityCellRelated.type_id:             constants.RFT_RELATED,
-    # _EntityCellAggregate.type_id:           constants.RFT_AGG_FIELD,
-    # _EntityCellCustomAggregate.type_id:     constants.RFT_AGG_CUSTOM,
+
     ReportEntityCellRelated.type_id:            constants.RFT_RELATED,
     ReportEntityCellRegularAggregate.type_id:   constants.RFT_AGG_FIELD,
     ReportEntityCellCustomAggregate.type_id:    constants.RFT_AGG_CUSTOM,
 }
 _HAND_2_CELL_MAP = {v: k for k, v in _CELL_2_HAND_MAP.items()}
-
-# _RELATED_PREFIX     = _EntityCellRelated.type_id + '-'
-# _REGULAR_AGG_PREFIX = _EntityCellAggregate.type_id + '-'
-# _CUSTOM_AGG_PREFIX  = _EntityCellCustomAggregate.type_id + '-'
 
 
 # TODO: deprecated AjaxModelChoiceField when removed
@@ -407,10 +378,8 @@ class ReportEditForm(CremeEntityForm):
         efilter = self.instance.filter
 
         if efilter and not efilter.can_view(self.user)[0]:
-            # fields['filter_label'] = CharField(
             fields['filter_label'] = core_fields.ReadonlyMessageField(
                 label=fields['filter'].label,
-                # required=False, widget=Label,
                 initial=_('The filter cannot be changed because it is private.'),
             )
             del fields['filter']
@@ -462,24 +431,7 @@ class ReportEntityCellCustomAggregatesWidget(hf_form.UniformEntityCellsWidget):
 
 
 class ReportHandsWidget(hf_form.EntityCellsWidget):
-    # template_name = 'reports/forms/widgets/report-hands.html'
     template_name = 'reports/forms/widgets/report-hands/widget.html'
-
-    # def __init__(self, related_entities=(), *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.related_entities = related_entities
-    #     self.regular_aggregates = ()
-    #     self.custom_aggregates = ()
-    #
-    # def get_context(self, name, value, attrs):
-    #     context = super().get_context(name=name, value=value, attrs=attrs)
-    #
-    #     widget_cxt = context['widget']
-    #     widget_cxt['related_entities']   = self.related_entities
-    #     widget_cxt['regular_aggregates'] = self.regular_aggregates
-    #     widget_cxt['custom_aggregates']  = self.custom_aggregates
-    #
-    #     return context
 
 
 class ReportEntityCellRegularFieldsField(hf_form.EntityCellRegularFieldsField):
@@ -617,103 +569,6 @@ class ReportHandsField(hf_form.EntityCellsField):
             **kwargs
         )
 
-    # def _build_4_custom_aggregate(self, model, name):
-    #     return _EntityCellCustomAggregate(model, name[len(_CUSTOM_AGG_PREFIX):])
-
-    # def _build_4_regular_aggregate(self, model, name):
-    #     return _EntityCellAggregate(model, name[len(_REGULAR_AGG_PREFIX):])
-
-    # def _build_4_related(self, model, name):
-    #     return _EntityCellRelated(model, name[len(_RELATED_PREFIX):])
-
-    # def _regular_fields_enum(self, model):
-    #     fields = super()._regular_fields_enum(model)
-    #     fields.filter(
-    #         lambda field, depth: not (
-    #             depth and isinstance(field, (ForeignKey, ManyToManyField))
-    #             and
-    #             issubclass(field.remote_field.model, CremeEntity)
-    #         )
-    #     )
-    #
-    #     return fields
-
-    # @EntityCellsField.content_type.setter
-    # def content_type(self, ct):
-    #     EntityCellsField.content_type.fset(self, ct)
-    #
-    #     if ct is not None:
-    #         builders = self._builders
-    #         widget = self.widget
-    #         model = ct.model_class()
-    #
-    #         # Related ----------------------------------------------------------
-    #         widget.related_entities = related_choices = []
-    #
-    #         for related_name, related_vname in Report.get_related_fields_choices(model):
-    #             rel_id = _RELATED_PREFIX + related_name
-    #             related_choices.append((rel_id, related_vname))
-    #             builders[rel_id] = ReportHandsField._build_4_related
-    #
-    #         # Aggregates -------------------------------------------------------
-    #         widget.regular_aggregates = reg_agg_choices = []
-    #         widget.custom_aggregates  = cust_agg_choices = []
-    #         authorized_fields       = field_aggregation_registry.authorized_fields
-    #         authorized_customfields = field_aggregation_registry.authorized_customfields
-    #
-    #         fconf = FieldsConfig.objects.get_for_model(model)
-    #         non_hiddable_aggnames = {
-    #             cell.value
-    #             for cell in self._non_hiddable_cells
-    #             if cell.type_id == _EntityCellAggregate.type_id
-    #         }
-    #
-    #         non_hiddable_custom_aggnames = {
-    #             cell.value
-    #             for cell in self._non_hiddable_cells
-    #             if isinstance(cell, _EntityCellCustomAggregate)
-    #         }
-    #         # todo: best use of cache with self._custom_fields would be cool...
-    #         agg_custom_fields = CustomField.objects.compatible(ct).filter(
-    #             field_type__in=authorized_customfields,
-    #         )
-    #
-    #         for aggregate in field_aggregation_registry.aggregations:
-    #             pattern = aggregate.pattern
-    #             title   = aggregate.title
-    #
-    #             for f_name, f_vname in ModelFieldEnumerator(
-    #                 model, deep=0,
-    #             ).filter(
-    #                 (lambda f, deep: isinstance(f, authorized_fields)),
-    #                 viewable=True,
-    #             ).choices():
-    #                 agg_name = pattern.format(f_name)
-    #
-    #                 if fconf.is_fieldname_hidden(f_name) and agg_name not
-    #                   in non_hiddable_aggnames:
-    #                     continue
-    #
-    #                 agg_id = _REGULAR_AGG_PREFIX + agg_name
-    #                 reg_agg_choices.append((agg_id, f'{title} - {f_vname}'))
-    #
-    #                 builders[agg_id] = ReportHandsField._build_4_regular_aggregate
-    #
-    #             # for cf in self._custom_fields:
-    #             #     if cf.field_type in authorized_customfields:
-    #             #         agg_id = _CUSTOM_AGG_PREFIX + pattern.format(cf.id)
-    #             #         cust_agg_choices.append((agg_id, f'{title} - {cf.name}'))
-    #             #         builders[agg_id] = ReportHandsField._build_4_custom_aggregate
-    #             for cf in agg_custom_fields:
-    #                 agg_name = pattern.format(cf.id)
-    #
-    #                 if cf.is_deleted and agg_name not in non_hiddable_custom_aggnames:
-    #                     continue
-    #
-    #                 agg_id = _CUSTOM_AGG_PREFIX + agg_name
-    #                 cust_agg_choices.append((agg_id, f'{title} - {cf.name}'))
-    #                 builders[agg_id] = ReportHandsField._build_4_custom_aggregate
-
 
 class ReportFieldsForm(CremeForm):
     columns = ReportHandsField(label=_('Columns'))
@@ -722,18 +577,6 @@ class ReportFieldsForm(CremeForm):
         self.report = instance
         super().__init__(*args, **kwargs)
 
-        # cells = []
-        # model = self.report.ct.model_class()
-        # for column in instance.columns:
-        #     if column.hand:  # Check validity
-        #         if column.type == constants.RFT_FIELD:
-        #             # Only the non_hiddable_cells with class EntityCellRegularField are used.
-        #             cell = EntityCellRegularField.build(model=model, name=column.name)
-        #         else:
-        #             cell = EntityCell(model=model, value=column.name)
-        #             cell.type_id = _HAND_2_CELL_MAP[column.type]
-        #
-        #         cells.append(cell)
         model = instance.ct.model_class()
         cells = reports_cells_registry.build_cells_from_dicts(
             model=model,
@@ -749,7 +592,6 @@ class ReportFieldsForm(CremeForm):
 
         columns_f = self.fields['columns']
         columns_f.non_hiddable_cells = cells
-        # columns_f.content_type = instance.ct
         columns_f.model = model
         columns_f.initial = cells
 
@@ -898,7 +740,6 @@ class ReportExportPreviewFilterForm(CremeForm):
 
     def get_backend(self):
         # TODO: registry in attribute
-        # return export_backend_registry.get_backend_class(self.cleaned_data['doc_type'])
         backend_cls = export_backend_registry.get_backend_class(self.cleaned_data['doc_type'])
         return backend_cls() if backend_cls else None
 

@@ -108,36 +108,5 @@ QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert)
     deepEqual([download_url], this.mockRedirectCalls());
 });
 
-/*
-QUnit.test('creme.reports.exportReport (deprecated)', function(assert) {
-    creme.reports.exportReport('mock/reports/filterform');
-
-    deepEqual([
-        ['GET', {}]
-    ], this.mockBackendUrlCalls('mock/reports/filterform'));
-
-    var dialog = this.assertOpenedDialog();
-
-    equal(2, dialog.find('.ui-dialog-buttonset button').length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Cancel')).length);
-    equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
-
-    dialog.find('[name="doc_type"]').val('csv');
-    dialog.find('[name="date_field"]').val('');
-
-    this.findDialogButtonsByLabel(gettext('Export')).click();
-
-    this.assertClosedDialog();
-
-    var download_url = 'mock/reports/download?' + $.param({doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''});
-
-    deepEqual([
-        ['GET', {}],
-        ['POST', {doc_type: ['csv'], date_field: [''], date_filter_0: [''], date_filter_2: ['']}]
-    ], this.mockBackendUrlCalls('mock/reports/filterform'));
-
-    deepEqual([download_url], this.mockRedirectCalls());
-});
-*/
 
 }(jQuery));

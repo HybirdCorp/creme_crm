@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,14 +22,11 @@ import logging
 from typing import Type
 
 from django.forms.forms import BaseForm
-# from django.http import Http404
-# from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic
@@ -39,7 +36,6 @@ from ..forms import report as report_forms
 
 logger = logging.getLogger(__name__)
 Report = get_report_model()
-# _PREVIEW_LIMIT_COUNT = 25
 
 
 class Preview(generic.EntityDetail):
@@ -59,7 +55,6 @@ class Preview(generic.EntityDetail):
 
         context['lines'] = lines
         context['form'] = form
-        # context['limit_to'] = _PREVIEW_LIMIT_COUNT
         context['limit_to'] = self.limit_count
         context['flat_columns'] = [*report.get_children_fields_flat()]
         context['empty_message'] = self.get_empty_message(form, lines)
@@ -91,7 +86,6 @@ class Preview(generic.EntityDetail):
 
     def get_lines(self, form):
         return self.object.fetch_all_lines(
-            # limit_to=_PREVIEW_LIMIT_COUNT,
             limit_to=self.limit_count,
             extra_q=form.get_q(),
             user=self.request.user,
@@ -124,37 +118,6 @@ class ExportFilterURL(generic.EntityEditionPopup):
         return self.export_url
 
 
-# @login_required
-# @permission_required('reports')
-# def export(request, report_id):
-#     user = request.user
-#     report = get_object_or_404(Report, pk=report_id)
-#
-#     user.has_perm_to_view_or_die(report)
-#
-#     form = report_forms.ReportExportFilterForm(instance=report, user=user, data=request.GET)
-#
-#     if not form.is_valid():
-#         logger.warning('Error in reports.export(): %s', form.errors)
-#         raise Http404('Invalid export filter')
-#
-#     q_filter = form.get_q()
-#     backend = form.get_backend()
-#
-#     if backend is None:
-#         raise Http404('Unknown extension')
-#
-#     writer = backend()
-#     writerow = writer.writerow
-#
-#     writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
-#
-#     for line in report.fetch_all_lines(extra_q=q_filter, user=user):
-#         writerow([smart_str(value) for value in line])
-#
-#     writer.save(smart_str(report.name))
-#
-#     return writer.response
 class Export(generic.base.EntityRelatedMixin, generic.CheckedView):
     permissions = 'reports'
     entity_id_url_kwarg = 'report_id'
@@ -179,14 +142,11 @@ class Export(generic.base.EntityRelatedMixin, generic.CheckedView):
         form = self.get_form(report=report, request=request)
 
         q_filter = form.get_q()
-        # backend = form.get_backend()
         writer = form.get_backend()
 
-        # if backend is None:
         if writer is None:
             raise ConflictError('Unknown extension')
 
-        # writer = backend()
         writerow = writer.writerow
 
         writerow([
@@ -196,7 +156,6 @@ class Export(generic.base.EntityRelatedMixin, generic.CheckedView):
         for line in report.fetch_all_lines(extra_q=q_filter, user=user):
             writerow([smart_str(value) for value in line])
 
-        # writer.save(smart_str(report.name))
         writer.save(smart_str(report.name), user)
 
         return writer.response
