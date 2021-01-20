@@ -755,7 +755,6 @@ class TicketTemplateTestCase(CremeTestCase):
 
         template01 = self.create_template('Title01')
         template02 = self.create_template('Title02')
-        # self.assertPOST404(reverse('creme_core__delete_entities'),
         self.assertPOST409(
             reverse('creme_core__delete_entities'),
             data={'ids': f'{template01.id},{template02.id},'}

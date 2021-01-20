@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ from creme.creme_core.views import generic
 
 from .. import custom_forms, get_ticket_model
 from ..constants import DEFAULT_HFILTER_TICKET
-# from ..forms import ticket as ticket_forms
 from ..models import Criticity, Priority
 
 Ticket = get_ticket_model()
@@ -30,7 +29,6 @@ Ticket = get_ticket_model()
 
 class TicketCreation(generic.EntityCreation):
     model = Ticket
-    # form_class = ticket_forms.TicketCreateForm
     form_class = custom_forms.TICKET_CREATION_CFORM
 
     def get_initial(self):
@@ -49,7 +47,6 @@ class TicketDetail(generic.EntityDetail):
 
 class TicketEdition(generic.EntityEdition):
     model = Ticket
-    # form_class = ticket_forms.TicketEditForm
     form_class = custom_forms.TICKET_EDITION_CFORM
     pk_url_kwarg = 'ticket_id'
 
