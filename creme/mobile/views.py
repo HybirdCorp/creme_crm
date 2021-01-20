@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2020  Hybird
+#    Copyright (C) 2014-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-from copy import deepcopy  # copy
+from copy import deepcopy
 from datetime import datetime, time, timedelta
 from functools import partial, wraps
 from typing import Optional
@@ -50,7 +50,7 @@ from creme.creme_core.utils import (
 )
 from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.creme_core.utils.dates import dt_from_ISO8601, make_aware_dt
-from creme.creme_core.views.decorators import jsonify  # POST_only
+from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.utils import build_cancel_path
 from creme.persons import constants as persons_constants
 from creme.persons.views.contact import ContactCreation
@@ -97,13 +97,15 @@ def lw_exceptions(view):
             error = e
             msg = _('You can not perform this action because of business constraints.')
 
-        return render(request, 'mobile/error.html',
-                      {'status':    status,
-                       'msg':       msg,
-                       'exception': smart_text(error),
-                      },
-                      status=status,
-                     )
+        return render(
+            request, 'mobile/error.html',
+            {
+                'status':    status,
+                'msg':       msg,
+                'exception': smart_text(error),
+            },
+            status=status,
+        )
 
     return _aux
 
@@ -312,7 +314,6 @@ def _get_page_url(request):
 
 @lw_exceptions
 @mobile_login_required
-# @POST_only
 @require_POST
 @atomic
 def start_activity(request, activity_id):
@@ -334,7 +335,6 @@ def start_activity(request, activity_id):
 
 @lw_exceptions
 @mobile_login_required
-# @POST_only
 @require_POST
 @atomic
 def stop_activity(request, activity_id):
@@ -490,7 +490,6 @@ def _get_pcall(request):
 
 
 @mobile_login_required
-# @POST_only
 @require_POST
 def phonecall_workflow_done(request, pcall_id):
     pcall = get_object_or_404(
@@ -566,7 +565,6 @@ def _improve_minutes(pcall, minutes):
 
 
 @mobile_login_required
-# @POST_only
 @require_POST
 @jsonify
 @atomic
@@ -610,9 +608,10 @@ def _phonecall_workflow_set_end(request, end_function):
 
 
 def phonecall_workflow_lasted_5_minutes(request):
-    return _phonecall_workflow_set_end(request,
-                                       lambda start: min(now(), start + timedelta(minutes=5))
-                                      )
+    return _phonecall_workflow_set_end(
+        request,
+        lambda start: min(now(), start + timedelta(minutes=5))
+    )
 
 
 def phonecall_workflow_just_done(request):
@@ -659,7 +658,6 @@ def _set_pcall_as_failed(pcall, request):
 
 
 @mobile_login_required
-# @POST_only
 @require_POST
 @jsonify
 @atomic
@@ -675,7 +673,6 @@ def phonecall_workflow_failed(request):
 
 
 @mobile_login_required
-# @POST_only
 @require_POST
 @jsonify
 @atomic
@@ -709,7 +706,6 @@ def phonecall_workflow_postponed(request):
 
 
 @mobile_login_required
-# @POST_only
 @require_POST
 def mark_as_favorite(request, entity_id):
     entity = get_object_or_404(CremeEntity, id=entity_id)
@@ -722,7 +718,6 @@ def mark_as_favorite(request, entity_id):
 
 
 @mobile_login_required
-# @POST_only
 @require_POST
 def unmark_favorite(request, entity_id):
     MobileFavorite.objects.filter(entity=entity_id, user=request.user).delete()
