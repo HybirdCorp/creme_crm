@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,15 +23,12 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.templatetags.creme_date import timedelta_pprint
 
-# from .models.status import CLOSED_PK
-
 
 class ResolvingDurationField(FunctionField):
     name         = 'get_resolving_duration'
     verbose_name = _('Resolving duration')
 
     def __call__(self, entity, user):
-        # if entity.status_id == CLOSED_PK:
         if entity.status.is_closed:
             closing_date = entity.closing_date
 

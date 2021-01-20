@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,13 +31,6 @@ INVALID_PK    = 3
 DUPLICATED_PK = 4
 WONTFIX_PK    = 5
 
-# BASE_STATUS = (
-#     (OPEN_PK,        pgettext_lazy('tickets-status', 'Open')),
-#     (CLOSED_PK,      pgettext_lazy('tickets-status', 'Closed')),
-#     (INVALID_PK,     pgettext_lazy('tickets-status', 'Invalid')),
-#     (DUPLICATED_PK,  pgettext_lazy('tickets-status', 'Duplicated')),
-#     (WONTFIX_PK,     _("Won't fix")),
-# )
 BASE_STATUS = (
     (OPEN_PK,        pgettext_lazy('tickets-status', 'Open'),       False),
     (CLOSED_PK,      pgettext_lazy('tickets-status', 'Closed'),     True),
