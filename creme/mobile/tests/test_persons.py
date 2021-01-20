@@ -428,7 +428,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         )
 
         url = reverse('mobile__mark_as_favorite', args=(may.id,))
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         self.assertPOST200(url)
