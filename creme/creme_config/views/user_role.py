@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-# from django.db import DatabaseError
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -30,7 +29,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import SUPERUSER_PERM
 from creme.creme_core.core.exceptions import ConflictError
-# from creme.creme_core.models import lock
 from creme.creme_core.models import (
     DeletionCommand,
     Job,
@@ -46,7 +44,6 @@ logger = logging.getLogger(__name__)
 
 
 class Portal(generic.BricksView):
-    # template_name = 'creme_config/user_role_portal.html'
     template_name = 'creme_config/portals/user-role.html'
 
 
@@ -110,12 +107,6 @@ class RoleEditionWizard(generic.CremeModelEditionWizardPopup):
     def done_save(self, form_list):
         for form in form_list:
             form.save()
-
-
-# class BaseRoleEdition(generic.CremeModelEditionPopup):
-#     model = UserRole
-#     pk_url_kwarg = 'role_id'
-#     permissions = SUPERUSER_PERM
 
 
 class CredentialsAddingWizard(generic.CremeModelEditionWizardPopup):
@@ -183,27 +174,7 @@ class CredentialsDeletion(generic.CheckedView):
         return HttpResponse()
 
 
-# class RoleDeletion(BaseRoleEdition):
 class RoleDeletion(generic.CremeModelEditionPopup):
-    # form_class = role_forms.UserRoleDeleteForm
-    # template_name = 'creme_core/generics/blockform/delete-popup.html'
-    # title = _('Delete role «{object}»')
-    # submit_label = _('Delete the role')
-    #
-    # lock_name = 'creme_config-role_transfer'
-    #
-    # def post(self, *args, **kwargs):
-    #     try:
-    #         # We create the lock out-of the super-post() transaction
-    #         with lock.MutexAutoLock(self.lock_name):
-    #             return super().post(*args, **kwargs)
-    #     except (DatabaseError, lock.MutexLockedException) as e:
-    #         logger.exception('RoleDeletion: an error occurred')
-    #
-    #         return HttpResponse(
-    #             _('You cannot delete this role. [original error: {}]').format(e),
-    #             status=400,
-    #         )
     model = UserRole
     pk_url_kwarg = 'role_id'
     permissions = SUPERUSER_PERM
@@ -229,10 +200,11 @@ class RoleDeletion(generic.CremeModelEditionPopup):
     def form_valid(self, form):
         self.object = form.save()
 
-        return render(request=self.request,
-                      template_name=self.job_template_name,
-                      context={'job': self.object.job},
-                     )
+        return render(
+            request=self.request,
+            template_name=self.job_template_name,
+            context={'job': self.object.job},
+        )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -88,11 +88,6 @@ class UserAddForm(CremeModelForm):
                 self.error_messages['password_mismatch'],
                 code='password_mismatch',
             )
-
-        # user = self.instance
-        # user.username = get_data('username')
-        #
-        # password_validation.validate_password(password2, user)
 
         return password2
 

@@ -28,7 +28,6 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_portal(self):
         response = self.assertGET200(reverse('creme_config__rtypes'))
-        # self.assertTemplateUsed(response, 'creme_config/relation_type_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/relation-type.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
@@ -63,9 +62,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertTrue(rel_type.is_copiable)
         self.assertFalse(rel_type.minimal_display)
         self.assertFalse(rel_type.subject_ctypes.all())
-        # self.assertFalse(rel_type.object_ctypes.all())
         self.assertFalse(rel_type.subject_properties.all())
-        # self.assertFalse(rel_type.object_properties.all())
 
         sym_type = rel_type.symmetric_type
         self.assertEqual(object_pred, sym_type.predicate)
@@ -104,11 +101,13 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
-        self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
-        # self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
+        self.assertListEqual(
+            [ct_orga.id], [ct.id for ct in rel_type.subject_ctypes.all()],
+        )
 
-        self.assertEqual([pt_sub.id], [pt.id for pt in rel_type.subject_properties.all()])
-        # self.assertEqual([pt_obj.id], [pt.id for pt in rel_type.object_properties.all()])
+        self.assertListEqual(
+            [pt_sub.id], [pt.id for pt in rel_type.subject_properties.all()],
+        )
 
         self.assertFalse(rel_type.is_copiable)
         self.assertFalse(rel_type.minimal_display)

@@ -38,7 +38,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_portal(self):
         response = self.assertGET200(reverse('creme_config__buttons'))
-        # self.assertTemplateUsed(response, 'creme_config/button_menu_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/button-menu.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),

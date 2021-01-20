@@ -65,7 +65,6 @@ class TeamCreation(BaseUserCreation):
 
 
 class Portal(generic.BricksView):
-    # template_name = 'creme_config/user_portal.html'
     template_name = 'creme_config/portals/user.html'
 
 

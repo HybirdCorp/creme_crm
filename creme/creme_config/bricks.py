@@ -293,7 +293,6 @@ class CustomFieldsBrick(Brick):
                 self.ctype = ctype
                 self.cfields = cfields
 
-        # cfields = CustomField.objects.all()
         cfields = CustomField.objects\
                              .order_by('id')\
                              .annotate(enum_count=Count('customfieldenumvalue_set'))
@@ -305,20 +304,6 @@ class CustomFieldsBrick(Brick):
         if hide_deleted:
             cfields = cfields.exclude(is_deleted=True)
 
-        # # Retrieve & cache Enum values (in order to display them of course)
-        # enums_types = {CustomField.ENUM, CustomField.MULTI_ENUM}
-        # enums_cfields = [
-        #     cfield
-        #         for cfield in cfields
-        #             if cfield.field_type in enums_types
-        # ]
-        # evalues_map = defaultdict(list)
-        #
-        # for enum_value in CustomFieldEnumValue.objects.filter(custom_field__in=enums_cfields):
-        #     evalues_map[enum_value.custom_field_id].append(enum_value.value)
-        #
-        # for enums_cfield in enums_cfields:
-        #     enums_cfield.enum_values = evalues_map[enums_cfield.id]
         enums_types = {CustomField.ENUM, CustomField.MULTI_ENUM}
         for cfield in cfields:
             cfield.is_enum = (cfield.field_type in enums_types)   # TODO: templatetag instead ?
