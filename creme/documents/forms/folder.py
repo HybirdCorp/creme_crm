@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,6 @@
 
 import warnings
 
-# from django.forms.utils import ValidationError
-# from django.utils.translation import gettext_lazy as _
 from django.db.models.query_utils import Q
 
 from creme.creme_core.forms import CremeEntityForm
@@ -35,27 +33,13 @@ Folder = get_folder_model()
 class _FolderForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Folder
-        # help_texts = {
-        #     'category': _("The parent's category will be copied if you do not select one."),
-        # }
 
     def __init__(self, *args, **kwargs):
         warnings.warn('_FolderForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
 
-    # def save(self, *args, **kwargs):
-    #     instance = self.instance
-    #     if not instance.category and instance.parent_folder:
-    #         instance.category = instance.parent_folder.category
-    #
-    #     return super().save(*args, **kwargs)
-
 
 class FolderForm(_FolderForm):
-    # error_messages = {
-    #     'loop': _('This folder is one of the child folders of «%(folder)s»'),
-    # }
-
     def __init__(self, *args, **kwargs):
         warnings.warn('FolderForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
@@ -63,18 +47,6 @@ class FolderForm(_FolderForm):
         if pk:
             # TODO: remove direct children too ??
             self.fields['parent_folder'].q_filter = ~Q(id=pk)
-
-    # def clean_parent_folder(self):
-    #     parent_folder = self.cleaned_data['parent_folder']
-    #     folder = self.instance
-    #
-    #     if folder.pk and parent_folder and folder.already_in_children(parent_folder.id):
-    #         raise ValidationError(
-    #             self.error_messages['loop'],
-    #             params={'folder': folder}, code='loop',
-    #         )
-    #
-    #     return parent_folder
 
 
 class ChildFolderForm(_FolderForm):
@@ -98,40 +70,12 @@ class BaseFolderCustomForm(CremeEntityForm):
 
 
 class ParentFolderBulkForm(BulkDefaultEditForm):
-    # error_messages = {
-    #     'itself': _('«%(folder)s» cannot be its own parent'),
-    #     'loop': _('This folder is one of the child folders of «%(folder)s»'),
-    # }
-
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
 
         if len(entities) == 1:
             # TODO: like above -> remove direct children too ??
             self.fields['field_value'].q_filter = ~Q(id__in=[entities[0].id])
-
-    # def _bulk_clean_entity(self, entity, values):
-    #     parent_folder = values.get('parent_folder')
-    #
-    #     if parent_folder:
-    #         if parent_folder == entity:
-    #             raise ValidationError(
-    #                 self.error_messages['itself'],
-    #                 params={'folder': entity},
-    #                 code='itself',
-    #             )
-    #
-    #         if entity.already_in_children(parent_folder.id):
-    #             raise ValidationError(
-    #                 self.error_messages['loop'],
-    #                 params={'folder': entity},
-    #                 code='loop',
-    #             )
-    #
-    #         if not entity.category:
-    #             entity.category = parent_folder.category
-    #
-    #     return super()._bulk_clean_entity(entity, values)
 
 
 def get_merge_form_builder():

@@ -420,9 +420,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         response = self.assertPOST200(url, data={'field_value': folder3.id})
         self.assertFormError(
             response, 'form', None,
-            # _('This folder is one of the child folders of «%(folder)s»') % {
-            #     'folder': folder1,
-            # },
             '{} : {}'.format(
                 _('Parent folder'),
                 _('This folder is one of the child folders of «%(folder)s»') % {
@@ -610,7 +607,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         folder.trash()
 
-        # self.assertPOST403(folder.get_delete_absolute_url())
         self.assertPOST409(folder.get_delete_absolute_url())
         self.assertStillExists(folder)
 
@@ -619,7 +615,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.login()
         folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_RELATED2ENTITIES)
 
-        # self.assertPOST403(folder.get_delete_absolute_url())
         self.assertPOST409(folder.get_delete_absolute_url())
 
     def test_deleteview04(self):
@@ -627,7 +622,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.login()
         folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_IMAGES)
 
-        # self.assertPOST403(folder.get_delete_absolute_url())
         self.assertPOST409(folder.get_delete_absolute_url())
 
     def test_brick(self):
