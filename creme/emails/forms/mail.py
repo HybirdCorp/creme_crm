@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,6 @@ from creme import emails, persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import base as base_forms
 from creme.creme_core.forms import fields as core_fields
-# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.forms.widgets import CremeTextarea
 from creme.creme_core.models import FieldsConfig, Relation
 from creme.documents import get_document_model
@@ -54,8 +53,6 @@ EntityEmail   = emails.get_entityemail_model()
 EmailTemplate = emails.get_emailtemplate_model()
 
 
-# NB: Not CremeEntityForm, to avoid CustomFields, Relations & CremeProperties
-# class EntityEmailForm(base_forms.CremeModelForm):
 class EntityEmailForm(base_forms.CremeEntityQuickForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
@@ -114,10 +111,8 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
 
         def finalize_recipient_field(name, model):
             if FieldsConfig.objects.get_for_model(model).is_fieldname_hidden('email'):
-                # self.fields[name] = CharField(
                 self.fields[name] = core_fields.ReadonlyMessageField(
                     label=self.fields[name].label,
-                    # required=False, widget=Label,
                     initial=gettext(
                         'Beware: the field «Email address» is hidden ;'
                         ' please contact your administrator.'
@@ -128,9 +123,6 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
         finalize_recipient_field('o_recipients', Organisation)
 
     def _clean_recipients(self, field_name):
-        # if isinstance(self.fields[field_name].widget, Label):
-        #     return []
-
         recipients = self.cleaned_data.get(field_name) or []
         bad_entities = []
 

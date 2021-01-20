@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,14 +22,11 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils.html import sanitize_html
-# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views import bricks as bricks_views
 from creme.creme_core.views import generic
 
 from .. import bricks, get_emailcampaign_model
-# from ..bricks import MailsBrick, SendingBrick, SendingHTMLBodyBrick
 from ..forms.sending import SendingCreateForm
 from ..models import EmailSending
 
@@ -58,41 +55,15 @@ class SendingBody(generic.RelatedToEntityDetail):
 
     def render_to_response(self, context, **response_kwargs):
         return HttpResponse(
-            sanitize_html(self.object.body_html,
-                          # TODO: ? allow_external_img=request.GET.get('external_img', False),
-                          allow_external_img=True,
-                         )
+            sanitize_html(
+                self.object.body_html,
+                # TODO: ? allow_external_img=request.GET.get('external_img', False),
+                allow_external_img=True,
+            )
         )
 
 
-# Useful method because EmailSending is not a CremeEntity (should be ?)
-# @login_required
-# @permission_required('emails')
-# @jsonify
-# def reload_sending_bricks(request, sending_id):
-#     sending = get_object_or_404(EmailSending, pk=sending_id)
-#     request.user.has_perm_to_view_or_die(sending.campaign)
-#
-#     bricks = []
-#     allowed_bricks = {
-#         SendingBrick.id_:         SendingBrick,
-#         SendingHTMLBodyBrick.id_: SendingHTMLBodyBrick,
-#         MailsBrick.id_:           MailsBrick,
-#     }
-#
-#     for brick_id in bricks_views.get_brick_ids_or_404(request):
-#         brick_cls = allowed_bricks.get(brick_id)
-#
-#         if brick_cls is not None:
-#             bricks.append(brick_cls())
-#         else:
-#             raise Http404('Invalid brick ID')
-#
-#     return bricks_views.bricks_render_info(
-#         request,
-#         bricks=bricks,
-#         context=bricks_views.build_context(request, object=sending),
-#     )
+# Useful because EmailSending is not a CremeEntity (should be ?)
 class SendingBricksReloading(bricks_views.BricksReloading):
     check_bricks_permission = False
     sending_id_url_kwarg = 'sending_id'

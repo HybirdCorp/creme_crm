@@ -9,13 +9,13 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% url 'emails__crudity_set_email_status' 'waiting' as waiting_url %}{# {% url 'emails__crudity_waiting' as waiting_url %} #}
+{% url 'emails__crudity_set_email_status' 'waiting' as waiting_url %}
     {% brick_header_action id='emailsync-action' url=waiting_url type='add' label=_('Mark the selection as «to be treated»') icon='email' %}
     {{block.super}}
 {% endblock %}
 
 {% block mail_sync_actions %}
-    <td {% brick_table_data_status action %}>{% url 'emails__crudity_set_email_status' 'waiting' as waiting_url %}{# {% url 'emails__crudity_waiting' as waiting_url %} #}
+    <td {% brick_table_data_status action %}>{% url 'emails__crudity_set_email_status' 'waiting' as waiting_url %}
         {% brick_table_action id='emailsync-action' url=waiting_url __id=mail.id label=_('Mark as «to be treated»') icon='email' %}
     </td>
     {{block.super}}
