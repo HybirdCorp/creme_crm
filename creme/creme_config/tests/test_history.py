@@ -16,7 +16,6 @@ class HistoryConfigTestCase(CremeTestCase):
 
     def test_portal(self):
         response = self.assertGET200(reverse('creme_config__history'))
-        # self.assertTemplateUsed(response, 'creme_config/history_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/history.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),

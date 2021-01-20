@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -441,7 +441,6 @@ class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
         cells_f = self.fields['cells']
         cells = self.instance.get_cells(ctype)
         cells_f.non_hiddable_cells = cells or ()
-        # cells_f.content_type = ctype
         cells_f.model = ctype.model_class()
         cells_f.initial = cells
 
@@ -541,7 +540,6 @@ class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
         cells_f = self.fields['cells']
         cells = instance.cells
         cells_f.non_hiddable_cells = cells
-        # cells_f.content_type = instance.content_type
         cells_f.model = instance.content_type.model_class()
         cells_f.initial = cells
 

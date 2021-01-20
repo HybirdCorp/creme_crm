@@ -78,7 +78,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login(is_superuser=superuser, admin_4_apps=['creme_config'])
 
         response = self.assertGET200(reverse('creme_config__users'))
-        # self.assertTemplateUsed(response, 'creme_config/user_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/user.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
@@ -352,7 +351,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    # def test_create09(self):
     def test_create08(self):
         "Internal relationships are forbidden."
         user = self.login()
@@ -1063,13 +1061,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
 class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
     def setUp(self):
-        # super(UserSettingsTestCase, self).setUp()
         super().setUp()
         self.login()
         self._registered_skey = []
 
     def tearDown(self):
-        # super(UserSettingsTestCase, self).tearDown()
         super().tearDown()
         user_setting_key_registry.unregister(*self._registered_skey)
 

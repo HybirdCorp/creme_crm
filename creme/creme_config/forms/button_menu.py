@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,12 +26,9 @@ from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
 from creme.creme_core.gui import button_menu
 from creme.creme_core.models import ButtonMenuItem
-# from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
 
 from .widgets import ButtonMenuEditionWidget
-
-# _PREFIX = 'creme_config-userbmi'
 
 
 class ButtonMenuAddForm(CremeForm):
@@ -51,7 +48,6 @@ class ButtonMenuAddForm(CremeForm):
     def save(self, commit=True):
         bmi = ButtonMenuItem(content_type=self.cleaned_data['ctype'], button_id='', order=1)
         if commit:
-            # generate_string_id_and_save(ButtonMenuItem, [bmi], _PREFIX)
             bmi.save()
 
         return bmi
@@ -112,13 +108,11 @@ class ButtonMenuEditForm(CremeForm):
         ct = self.ct
         BMI_objects = ButtonMenuItem.objects
         BMI_get = BMI_objects.get
-        # items_2_save = []
 
         if not button_ids:
             # No pk to BMI objects --> can delete() on queryset directly
             BMI_objects.filter(content_type=ct).delete()
             # No button for this content type -> fake button_id
-            # items_2_save.append(ButtonMenuItem(content_type=ct, button_id='', order=1))
             ButtonMenuItem.objects.create(content_type=ct, button_id='', order=1)
         else:
             old_ids = {bmi.button_id for bmi in self.set_buttons}
@@ -133,9 +127,6 @@ class ButtonMenuEditForm(CremeForm):
 
             for i, button_id in enumerate(button_ids):
                 if button_id in buttons_2_add:
-                    # items_2_save.append(
-                    #     ButtonMenuItem(content_type=ct, button_id=button_id, order=i + offset)
-                    # )
                     ButtonMenuItem.objects.create(
                         content_type=ct, button_id=button_id, order=i + offset,
                     )
@@ -145,5 +136,3 @@ class ButtonMenuEditForm(CremeForm):
                     if bmi.order != i + offset:
                         bmi.order = i + offset
                         bmi.save()
-
-        # generate_string_id_and_save(ButtonMenuItem, items_2_save, _PREFIX)

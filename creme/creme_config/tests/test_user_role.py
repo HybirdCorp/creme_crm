@@ -66,7 +66,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login(is_superuser=superuser, admin_4_apps=['creme_config'])
 
         response = self.assertGET200(reverse('creme_config__roles'))
-        # self.assertTemplateUsed(response, 'creme_config/user_role_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/user-role.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
@@ -375,7 +374,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition.value
         )
 
-    # @skipIfNotInstalled('creme.persons')
     def test_creation_wizard03(self):
         "With EntityFilter on CremeEntity."
         self.login()
@@ -383,8 +381,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         name = 'Only persons role'
 
         # Step 1 ---
-        # self.assertGET200(url)
-
         step_key = 'role_creation_wizard-current_step'
         response = self.client.post(
             url,
@@ -1655,7 +1651,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             role=role,
             set_type=SetCredentials.ESET_FILTER,
             value=EntityCredentials.VIEW,
-            # ctype=ctype,
             efilter=efilter1,
         )
 
@@ -2067,8 +2062,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.client.post(url)
         self.assertNoFormError(response)
-        # self.assertDoesNotExist(role)
-        # self.assertFalse(SetCredentials.objects.filter(role=role.id))
         self.assertTemplateUsed(response, 'creme_config/deletion-job-popup.html')
 
         dcom = self.get_deletion_command_or_fail(UserRole)
@@ -2110,9 +2103,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.client.post(url, data={'to_role': replacing_role.id})
         self.assertNoFormError(response)
-        # self.assertDoesNotExist(role_2_del)
-        # self.assertFalse(SetCredentials.objects.filter(role=role_2_del.id))
-        # self.assertEqual(replacing_role, self.refresh(user).role)
 
         dcom = self.get_deletion_command_or_fail(UserRole)
         self.assertEqual(role_2_del,      dcom.instance_to_delete)

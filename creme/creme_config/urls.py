@@ -197,7 +197,6 @@ property_type_patterns = [
         creme_property_type.PropertyTypeEdition.as_view(),
         name='creme_config__edit_ptype',
     ),
-    # re_path(r'^delete[/]?$', creme_property_type.delete, name='creme_config__delete_ptype'),
 ]
 
 fields_config_patterns = [
@@ -235,11 +234,6 @@ custom_fields_patterns = [
         custom_field.FirstCTypeCustomFieldCreation.as_view(),
         name='creme_config__create_first_ctype_custom_field',
     ),
-    # re_path(
-    #     r'^ct/delete[/]?$',
-    #     custom_fields.CTypeCustomFieldsDeletion.as_view(),
-    #     name='creme_config__delete_ctype_custom_fields',
-    # ),
 
     re_path(
         r'^add/(?P<ct_id>\d+)[/]?$',
@@ -572,7 +566,6 @@ urlpatterns = [
     ),
     re_path(
         r'^(?P<app_name>\w+)/reload[/]?$',
-        # generics_views.reload_app_bricks
         generics_views.AppBricksReloading.as_view(),
         name='creme_config__reload_app_bricks',
     ),
@@ -611,7 +604,6 @@ urlpatterns = [
             ),
             re_path(
                 r'^reload[/]?$',
-                # generics_views.reload_model_brick
                 generics_views.ModelBrickReloading.as_view(),
                 name='creme_config__reload_model_brick',
             ),

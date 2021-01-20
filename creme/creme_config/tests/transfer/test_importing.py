@@ -915,7 +915,6 @@ class ImportingTestCase(CremeTestCase):
     def test_buttons(self):
         self.login(is_staff=True)
 
-        # get_ct = ContentType.objects.get_for_model
         contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=contact_ct))
 
@@ -923,28 +922,19 @@ class ImportingTestCase(CremeTestCase):
             return Button.generate_id('creme_config_export', f'test_import_buttons{i}')
 
         create_bmi = partial(ButtonMenuItem.objects.create, content_type=contact_ct)
-        # id_fmt = 'creme_config-test_import_buttons-{}'.format
-        # create_bmi(id=id_fmt(1), order=1, button_id=gen_bid(1))
-        # create_bmi(id=id_fmt(2), order=2, button_id=gen_bid(2))
         create_bmi(order=1, button_id=gen_bid(1))
         create_bmi(order=2, button_id=gen_bid(2))
 
-        # orga_bmi = create_bmi(id=id_fmt(10), order=1, button_id=gen_bid(3),
-        #                       content_type=get_ct(FakeOrganisation))
         orga_bmi = create_bmi(
             order=1, button_id=gen_bid(3), content_type=FakeOrganisation,
         )
 
         ct_str = 'creme_core.fakecontact'
         buttons_data = [
-            # {'id': id_fmt(3), 'order': 1, 'button_id': gen_bid(3)},
             {'order': 1, 'button_id': gen_bid(3)},
-            # {'id': id_fmt(4), 'order': 2, 'button_id': gen_bid(4)},
             {'order': 2, 'button_id': gen_bid(4)},
 
-            # {'id': id_fmt(5), 'order': 1, 'button_id': gen_bid(5), 'ctype': ct_str},
             {'order': 1, 'button_id': gen_bid(5), 'ctype': ct_str},
-            # {'id': id_fmt(6), 'order': 2, 'button_id': gen_bid(6), 'ctype': ct_str},
             {'order': 2, 'button_id': gen_bid(6), 'ctype': ct_str},
         ]
 
@@ -956,18 +946,16 @@ class ImportingTestCase(CremeTestCase):
         self.assertListEqual(
             [buttons_data[0], buttons_data[1]],
             [
-                # {'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id}
                 {'order': bmi.order, 'button_id': bmi.button_id}
                 for bmi in ButtonMenuItem.objects.filter(content_type=None)
-            ]
+            ],
         )
         self.assertListEqual(
             [buttons_data[2], buttons_data[3]],
             [
-                # {'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
                 {'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
                 for bmi in ButtonMenuItem.objects.filter(content_type=contact_ct)
-            ]
+            ],
         )
         self.assertDoesNotExist(orga_bmi)
 
@@ -1118,8 +1106,6 @@ class ImportingTestCase(CremeTestCase):
         "Do no override a not custom ptype."
         self.login(is_staff=True)
 
-        # ptype = CremePropertyType.objects.filter(is_custom=False).first()
-        # self.assertIsNotNone(ptype)
         ptype = CremePropertyType.objects.create(
             pk='creme_config-test_import_property_types03', text='Sugoi !',
         )
@@ -1137,7 +1123,6 @@ class ImportingTestCase(CremeTestCase):
     def test_relations_types01(self):
         self.login(is_staff=True)
 
-        # ptype1 = CremePropertyType.objects.first(); self.assertIsNotNone(ptype1)
         ptype1 = CremePropertyType.create(
             'creme_config-test_import_relation_types01_1', 'Is very important',
         )
@@ -1306,7 +1291,6 @@ class ImportingTestCase(CremeTestCase):
         "A related property types is imported"
         self.login(is_staff=True)
 
-        # ptype1 = CremePropertyType.objects.first(); self.assertIsNotNone(ptype1)
         ptype1 = CremePropertyType.create(
             'creme_config-test_import_relation_types05_1', 'Is very important',
         )
@@ -1431,7 +1415,6 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         name = 'Rating'
-        # CustomField.objects.create(content_type=ContentType.objects.get_for_model(FakeContact),
         CustomField.objects.create(
             content_type=FakeContact, name=name, field_type=CustomField.FLOAT,
         )
@@ -1454,8 +1437,6 @@ class ImportingTestCase(CremeTestCase):
         "UUID uniqueness."
         self.login(is_staff=True)
 
-        # cfield = CustomField.objects.create(
-        #               content_type=ContentType.objects.get_for_model(FakeContact),
         cfield = CustomField.objects.create(
             content_type=FakeContact, name='Rating', field_type=CustomField.FLOAT,
         )

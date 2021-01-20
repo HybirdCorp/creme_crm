@@ -31,7 +31,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_portal(self):
         self.login()
         response = self.assertGET200(reverse('creme_config__custom_fields'))
-        # self.assertTemplateUsed(response, 'creme_config/custom_fields_portal.html')
         self.assertTemplateUsed(response, 'creme_config/custom_field/portal.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
@@ -158,36 +157,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
         self.assertGET403(reverse('creme_config__create_first_ctype_custom_field'))
 
-    # def test_delete_ct01(self):
-    #     self.login(is_superuser=False, admin_4_apps=('creme_core',))
-    #
-    #     get_ct = ContentType.objects.get_for_model
-    #     ct_contact = get_ct(FakeContact)
-    #     ct_orga    = get_ct(FakeOrganisation)
-    #
-    #     create_cf = CustomField.objects.create
-    #     cfield1 = create_cf(content_type=ct_contact, name='CF#1', field_type=CustomField.INT)
-    #     cfield2 = create_cf(content_type=ct_contact, name='CF#2', field_type=CustomField.FLOAT)
-    #     cfield3 = create_cf(content_type=ct_orga,    name='CF#3', field_type=CustomField.BOOL)
-    #     self.assertPOST200(
-    #       reverse('creme_config__delete_ctype_custom_fields'), data={'id': ct_contact.id})
-    #     self.assertFalse(CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]))
-    #     self.assertStillExists(cfield3)
-    #
-    # def test_delete_ct02(self):
-    #     self.login(is_superuser=False)
-    #
-    #     ct_contact = ContentType.objects.get_for_model(FakeContact)
-    #     CustomField.objects.create(
-    #         content_type=ct_contact,
-    #         name='Size',
-    #         field_type=CustomField.INT,
-    #     )
-    #     self.assertPOST403(
-    #         reverse('creme_config__delete_ctype_custom_fields'),
-    #         data={'id': ct_contact.id},
-    #     )
-
     def test_add01(self):
         self.login(is_superuser=False, admin_4_apps=('creme_core',))
 
@@ -203,9 +172,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         url = reverse('creme_config__create_custom_field', args=(contact_ct.id,))
         context = self.assertGET200(url).context
-        self.assertEqual(_('New custom field for «{model}»').format(model='Test Contact'),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New custom field for «{model}»').format(model='Test Contact'),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the custom field'), context.get('submit_label'))
 
         field_type = CustomField.ENUM
@@ -323,60 +293,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(name, cfield.name)
         self.assertTrue(cfield.is_required)
 
-    # def test_edit02(self):
-    #     "ENUM."
-    #     self.login()
-    #
-    #     ct = ContentType.objects.get_for_model(FakeContact)
-    #     create_cfield = partial(CustomField.objects.create,
-    #                             content_type=ct,
-    #                             field_type=CustomField.MULTI_ENUM,
-    #                            )
-    #     cfield1 = create_cfield(name='Programming languages')
-    #     cfield2 = create_cfield(name='Countries')
-    #
-    #     create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield1)
-    #     create_evalue(value='C')
-    #     create_evalue(value='ABC')
-    #     create_evalue(value='Java')
-    #     create_evalue(value='Haskell', custom_field=cfield2)  # Should be ignored as dupliacte
-    #
-    #     url = reverse('creme_config__edit_custom_field', args=(cfield1.id,))
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         fields = response.context['form'].fields
-    #         new_choices = fields['new_choices']
-    #         old_choices = fields['old_choices']
-    #
-    #     self.assertFalse(new_choices.initial)
-    #     self.assertEqual(['C', 'ABC', 'Java'], old_choices.content)
-    #
-    #     response = self.client.post(
-    #         url,
-    #         data={
-    #             'name': cfield1.name,
-    #             'new_choices': 'C++\nHaskell',
-    #
-    #             'old_choices_check_0': 'on',
-    #             'old_choices_value_0': 'C',
-    #
-    #             'old_choices_check_1': 'on',
-    #             'old_choices_value_1': 'Python',
-    #         },
-    #     )
-    #     self.assertNoFormError(response)
-    #
-    #     self.assertEqual(
-    #         ['C', 'Python', 'C++', 'Haskell'],
-    #         [cfev.value
-    #             for cfev in CustomFieldEnumValue.objects
-    #                                             .filter(custom_field=cfield1)
-    #                                             .order_by('id')
-    #         ]
-    #     )
-    #
-    # def test_edit03(self):
     def test_edit02(self):
         "content_type + name => unique together."
         self.login()
