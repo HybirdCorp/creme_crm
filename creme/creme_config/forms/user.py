@@ -26,7 +26,6 @@ from django.contrib.auth.forms import UsernameField
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.utils import ValidationError
 from django.forms.widgets import PasswordInput
-# from django.utils.functional import lazy
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -66,7 +65,6 @@ class UserAddForm(CremeModelForm):
 
     password_1 = CharField(
         label=_('Password'), strip=False, widget=PasswordInput,
-        # help_text=lazy(_password_validators_help_text_html, str),
         help_text=password_validation.password_validators_help_text_html(),
     )
     password_2 = CharField(
@@ -101,11 +99,6 @@ class UserAddForm(CremeModelForm):
                 self.error_messages['password_mismatch'],
                 code='password_mismatch',
             )
-
-        # user = self.instance
-        # user.username = get_data('username')
-        #
-        # password_validation.validate_password(password2, user)
 
         return password2
 
@@ -164,7 +157,6 @@ class UserChangePwForm(CremeForm):
     password_1 = CharField(
         label=_('Password'),
         widget=PasswordInput, strip=False,
-        # help_text=lazy(_password_validators_help_text_html, str),
         help_text=password_validation.password_validators_help_text_html(),
     )
     password_2 = CharField(

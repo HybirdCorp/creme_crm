@@ -36,13 +36,7 @@
                     <tr {% if cfield.is_deleted %}class="cfields-config-deleted"{% endif %}>
                         <td class="cfields-config-name">{{cfield.name}}</td>
                         <td class="cfields-config-type">
-{#                            {{cfield.type_verbose_name}} #}
                             {{cfield.value_class.verbose_name}}{% if cfield.is_required %}&nbsp;<span class="cfields-config-required">{% trans '(required)' %}</span>{% endif %}
-{% comment %}
-                            {% with values=cfield.enum_values %}
-                                {% if values %}({{values|join:' / '}}){% endif %}
-                            {% endwith %}
-{% endcomment %}
                           {% if cfield.is_enum %}
                             {% url 'creme_config__custom_enums' cfield.id as enums_url %}
                             {% if cfield.is_deleted %}

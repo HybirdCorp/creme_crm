@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
-# from django.http import HttpResponse, Http404
-# from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.auth import decorators
 from creme.creme_core.models import CremePropertyType
-# from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import BricksView
 
 from ..forms import creme_property_type as ptype_forms
@@ -35,7 +29,6 @@ from . import base
 
 
 class Portal(BricksView):
-    # template_name = 'creme_config/property_type_portal.html'
     template_name = 'creme_config/portals/property-type.html'
 
 
@@ -51,22 +44,3 @@ class PropertyTypeEdition(base.ConfigModelEdition):
     form_class = ptype_forms.CremePropertyTypeEditForm
     pk_url_kwarg = 'ptype_id'
     title = pgettext_lazy('creme_config-property', 'Edit the type «{object}»')
-
-
-# @decorators.login_required
-# @decorators.permission_required('creme_core.can_admin')
-# def delete(request):
-#     warnings.warn('creme_config.views.creme_property_type.delete() is deprecated ; '
-#                   'use creme_core.views.creme_property.PropertyTypeDeletion instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     property_type = get_object_or_404(CremePropertyType,
-#                                       pk=get_from_POST_or_404(request.POST, 'id'))
-#
-#     if not property_type.is_custom:
-#         raise Http404("Can't delete a standard PropertyType")
-#
-#     property_type.delete()
-#
-#     return HttpResponse()

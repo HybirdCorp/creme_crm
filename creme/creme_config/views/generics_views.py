@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,14 +29,12 @@ from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.creme_jobs.deletor import _DeletorType
 from creme.creme_core.models import DeletionCommand, Job, JobResult
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import bricks as bricks_views
 from creme.creme_core.views import generic
-# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.order import ReorderInstances
 from creme.creme_core.views.utils import json_update_from_widget_response
 
@@ -44,25 +42,6 @@ from ..bricks import SettingsBrick
 from ..registry import config_registry
 
 logger = logging.getLogger(__name__)
-
-
-# def _get_appconf(user, app_name):
-#     user.has_perm_to_admin_or_die(app_name)
-#
-#     try:
-#         app_config = config_registry.get_app_registry(app_name)
-#     except LookupError as e:
-#         raise Http404('Invalid app [{}]'.format(e)) from e
-#
-#     return app_config
-
-
-# def _get_modelconf(app_config, model_name):
-#     for modelconf in app_config.models():
-#         if modelconf.model_name == model_name:
-#             return modelconf
-#
-#     raise Http404('Unknown model')
 
 
 class AppRegistryMixin:
@@ -353,20 +332,6 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
         return model_configs
 
 
-# @login_required
-# @jsonify
-# def reload_model_brick(request, app_name, model_name):
-#     user = request.user
-#     app_registry = _get_appconf(user, app_name)
-#     model_config = _get_modelconf(app_registry, model_name)
-#
-#     user.has_perm_to_admin_or_die(app_name)
-#
-#     return bricks_views.bricks_render_info(
-#         request,
-#         context=bricks_views.build_context(request),
-#         bricks=[model_config.get_brick()],
-#     )
 class ModelBrickReloading(ModelConfMixin, bricks_views.BricksReloading):
     check_bricks_permission = False
 
@@ -374,31 +339,6 @@ class ModelBrickReloading(ModelConfMixin, bricks_views.BricksReloading):
         return [self.get_model_conf().get_brick()]
 
 
-# @login_required
-# @jsonify
-# def reload_app_bricks(request, app_name):
-#     brick_ids = bricks_views.get_brick_ids_or_404(request)
-#     app_registry = _get_appconf(request.user, app_name)
-#     bricks = []
-#
-#     for b_id in brick_ids:
-#         if b_id == SettingsBrick.id_:
-#             brick = SettingsBrick()
-#         else:
-#             for registered_brick in app_registry.bricks:
-#                 if b_id == registered_brick.id_:
-#                     brick = registered_brick
-#                     break
-#             else:
-#                 raise Http404('Invalid brick id "{}"'.format(b_id))
-#
-#         bricks.append(brick)
-#
-#     return bricks_views.bricks_render_info(
-#         request,
-#         bricks=bricks,
-#         context=bricks_views.build_context(request, app_name=app_name),
-#     )
 class AppBricksReloading(AppRegistryMixin, bricks_views.BricksReloading):
     check_bricks_permission = False
 

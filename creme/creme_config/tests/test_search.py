@@ -53,7 +53,6 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ctype))
 
         response = self.assertGET200(self.PORTAL_URL)
-        # self.assertTemplateUsed(response, 'creme_config/search_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/search.html')
         self.assertTemplateUsed(response, 'creme_config/bricks/search-config.html')
         self.assertEqual(

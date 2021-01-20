@@ -32,7 +32,6 @@ from creme.creme_core.core.deletion import FixedValueReplacer
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms import fields as core_fields
-# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import DeletionCommand, Job
 from creme.creme_core.models.custom_field import (
@@ -44,7 +43,6 @@ from creme.creme_core.models.custom_field import (
 # TODO: User friendly order in choices fields
 
 
-# class CustomFieldsBaseForm(CremeModelForm):
 class CustomFieldBaseForm(CremeModelForm):
     field_type = forms.TypedChoiceField(
         label=_('Type of field'), coerce=int,
@@ -117,7 +115,6 @@ class CustomFieldBaseForm(CremeModelForm):
 CustomFieldsBaseForm = CustomFieldBaseForm  # DEPRECATED
 
 
-# class CustomFieldsCTAddForm(CustomFieldsBaseForm):
 class FirstCustomFieldCreationForm(CustomFieldBaseForm):
     content_type = core_fields.EntityCTypeChoiceField(
         label=_('Related resource'),
@@ -151,7 +148,6 @@ class CustomFieldsCTAddForm(FirstCustomFieldCreationForm):
         super().__init__(*args, **kwargs)
 
 
-# class CustomFieldsAddForm(CustomFieldsBaseForm):
 class CustomFieldCreationForm(CustomFieldBaseForm):
     error_messages = {
         # **CustomFieldsBaseForm.error_messages,
@@ -392,11 +388,8 @@ class CustomEnumDeletionForm(CremeModelForm):
                 ).exclude(id=choice_to_delete.id),
             )
         else:
-            # self.fields['info'] = forms.CharField(
             self.fields['info'] = core_fields.ReadonlyMessageField(
                 label=_('Information'),
-                # required=False,
-                # widget=Label,
                 initial=gettext(
                     'This choice is not used by any entity, you can delete it safely.'
                 ),

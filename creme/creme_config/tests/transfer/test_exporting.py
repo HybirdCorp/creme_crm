@@ -250,25 +250,6 @@ class ExportingTestCase(CremeTestCase):
             filter_type=EF_CREDENTIALS,
             use_or=True,
         )
-        # efilter1.set_conditions(
-        #     [condition_handler.RegularFieldConditionHandler.build_condition(
-        #         model=FakeContact,
-        #         operator=operators.ISTARTSWITH,
-        #         field_name='last_name', values=['Agency of'],
-        #         filter_type=EF_CREDENTIALS,
-        #      ),
-        #     ],
-        #     check_cycles=False,   # There cannot be a cycle without sub-filter.
-        #     check_privacy=False,  # No sense here.
-        # )
-        #
-        # set_cred1 = SetCredentials.objects.create(
-        #     role=role,
-        #     set_type=SetCredentials.ESET_FILTER,
-        #     value=EntityCredentials.VIEW,
-        #     ctype=FakeContact,
-        #     efilter=efilter1,
-        # )
 
         create_sc = partial(SetCredentials.objects.create, role=role)
         sc1 = create_sc(
@@ -958,7 +939,6 @@ class ExportingTestCase(CremeTestCase):
         loaded_buttons = content.get('buttons')
         self.assertListEqual(
             [
-                # {'id': bconf.id, 'order': bconf.order, 'button_id': bconf.button_id}
                 {'order': bconf.order, 'button_id': bconf.button_id}
                 for bconf in default_buttons
             ],
@@ -967,11 +947,9 @@ class ExportingTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 {
-                    # 'id': bmi1.id, 'order': bmi1.order, 'button_id': bmi1.button_id,
                     'order': bmi1.order, 'button_id': bmi1.button_id,
                     'ctype': 'creme_core.fakecontact',
                 }, {
-                    # 'id': bmi2.id, 'order': bmi2.order, 'button_id': bmi2.button_id,
                     'order': bmi2.order, 'button_id': bmi2.button_id,
                     'ctype': 'creme_core.fakecontact',
                 },
