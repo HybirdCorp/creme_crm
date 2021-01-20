@@ -272,7 +272,6 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         phone = '987654'
         url = reverse('cti__create_organisation', args=(phone,))
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'persons/add_organisation_form.html')
 
         with self.assertNoException():
             form = response.context['form']
