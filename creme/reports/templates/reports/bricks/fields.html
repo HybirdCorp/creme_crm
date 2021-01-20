@@ -58,10 +58,7 @@
             <td data-reorderable-handle-column class="ui-sortable-handle" title="{% trans 'Drag and drop to re-order this column of report' %}">
                 {{reorder_icon.render}}
             </td>
-            <td {% brick_table_data_status primary %}>
-{#                {{column}}{% if column.hand.hidden %}<span class="hidden-report-field">{% trans '[hidden]' %}</span>{% endif %} #}
-                {{column}}
-            </td>
+            <td {% brick_table_data_status primary %}>{{column}}</td>
             <td>
             {% if sub_report %}
                 {% trans 'Columns of' %} <a href="{{sub_report.get_absolute_url}}">{{sub_report}}</a> ({{sub_report.columns|join:', '}})

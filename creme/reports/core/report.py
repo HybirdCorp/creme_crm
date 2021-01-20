@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -276,7 +276,6 @@ REPORT_HANDS_MAP = ReportHandRegistry()
 class RHRegularField(ReportHand):
     verbose_name = _('Regular field')
 
-    # _field_info = None  # Set by __new__()
     _field_info: FieldInfo
 
     def __new__(cls, report_field: 'ReportField'):
@@ -338,12 +337,7 @@ class RHRegularField(ReportHand):
 
     @cached_property
     def hidden(self):
-        rfield = self._report_field
-
-        return rfield.report._fields_configs.is_fieldinfo_hidden(
-            # rfield.model,
-            self._field_info,
-        )
+        return self._report_field.report._fields_configs.is_fieldinfo_hidden(self._field_info)
 
 
 class RHForeignKey(RHRegularField):
@@ -456,7 +450,6 @@ class RHCustomField(ReportHand):
 
     def _get_value_single_on_allowed(self, entity, user, scope):
         cvalue = entity.get_custom_value(self._cfield)
-        # return str(cvalue.value) if cvalue else ''
         # TODO: use a EntityCellCustomField & remove __str__ methods of CustomFieldValue models ?
         return str(cvalue) if cvalue else ''
 
@@ -592,7 +585,6 @@ class RHAggregateRegularField(RHAggregate):
         except FieldDoesNotExist as e:
             raise ReportHand.ValueError(f'Unknown field: "{field_name}"') from e
 
-        # if not isinstance(field, field_aggregation_registry.authorized_fields):
         if not field_aggregation_registry.is_regular_field_allowed(field):
             raise ReportHand.ValueError(
                 f'This type of field can not be aggregated: "{field_name}"'
@@ -626,7 +618,6 @@ class RHAggregateCustomField(RHAggregate):
                 f'Invalid custom field aggregation: "{field_name}"'
             ) from e
 
-        # if cfield.field_type not in field_aggregation_registry.authorized_customfields:
         if not field_aggregation_registry.is_custom_field_allowed(cfield):
             raise ReportHand.ValueError(
                 f'This type of custom field can not be aggregated: "{field_name}"'
@@ -672,14 +663,9 @@ class RHRelated(ReportHand):
             support_subreport=True,
         )
 
-    # def _get_related_field(self, model, related_field_name):
     @staticmethod
     def _get_related_field(model: Type[CremeEntity],
                            related_field_name: str) -> Optional['Field']:
-        # for f in model._meta.get_fields():
-        #     if (f.one_to_many or f.one_to_one) and f.name == related_field_name:
-        #         return f
-
         try:
             field = model._meta.get_field(related_field_name)
         except FieldDoesNotExist as e:

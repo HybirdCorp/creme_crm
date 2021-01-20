@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,19 +33,16 @@ from typing import (
 )
 
 from django.db import connection
-from django.db.models import Max, Min, Q, QuerySet  # Count FieldDoesNotExist
+from django.db.models import Max, Min, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
-# from creme.creme_core.models import CustomField, RelationType
 from creme.creme_core.models import CremeEntity, CustomFieldEnumValue, Relation
 from creme.reports import constants
 from creme.reports.utils import sparsezip
 
 from .aggregator import AGGREGATORS_MAP, ReportGraphAggregator
 from .lv_url import ListViewURLBuilder
-
-# from .y_calculator import ReportGraphYCalculator, RGYCAggregation
 
 if TYPE_CHECKING:
     from creme.reports.models import AbstractReportGraph
@@ -75,17 +72,14 @@ def _db_grouping_format() -> str:
 class ReportGraphHand:
     "Class that computes abscissa & ordinate values of a ReportGraph."
     verbose_name: str = 'OVERLOADME'
-    # hand_id = None  # Set by ReportGraphHandRegistry decorator
     hand_id: int  # Set by ReportGraphHandRegistry decorator
 
     def __init__(self, graph: 'AbstractReportGraph'):
         self._graph = graph
-        # self._y_calculator = y_calculator = ReportGraphYCalculator.build(graph)
         self._y_calculator = y_calculator = AGGREGATORS_MAP[graph]
         self.abscissa_error: Optional[str] = None
         self.ordinate_error: Optional[str] = y_calculator.error
 
-    # def _listview_url_builder(self):
     def _listview_url_builder(self, extra_q: Optional[Q] = None):
         graph = self._graph
         return ListViewURLBuilder(
@@ -94,7 +88,6 @@ class ReportGraphHand:
             common_q=extra_q,
         )
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self,
                *,
                entities: QuerySet,
@@ -144,7 +137,6 @@ class ReportGraphHand:
 
     @property
     def verbose_ordinate(self) -> str:
-        # return self._y_calculator.verbose_name
         warnings.warn(
             'The property "verbose_ordinate" is deprecated ; '
             'you can use the templatetag {% reports_graph_ordinate %} instead.',
@@ -158,16 +150,6 @@ class ReportGraphHand:
 
     # TODO: The 'group by' query could be extracted into a common Manager
     def _aggregate_by_key(self, entities, key, order):
-        # y_value_func = self._y_calculator
-        # if isinstance(y_value_func, RGYCAggregation):
-        #     y_value_aggregator = y_value_func._aggregate_value
-        # else:
-        #     y_value_aggregator = Count('pk')  # Is there a way to count(*) ?
-        #
-        # aggregates = entities.extra({'key': key}) \
-        #                      .values('key').order_by('key' if order == 'ASC' else '-key') \
-        #                      .annotate(value=y_value_aggregator) \
-        #                      .values_list('key', 'value')
         aggregates = entities.extra({'key': key}) \
                              .values('key').order_by('key' if order == 'ASC' else '-key') \
                              .annotate(value=self._y_calculator.annotate()) \
@@ -211,16 +193,7 @@ RGRAPH_HANDS_MAP = ReportGraphHandRegistry()
 class _RGHRegularField(ReportGraphHand):
     def __init__(self, graph):
         super().__init__(graph)
-        # model = graph.model
-        #
-        # try:
-        #     field = model._meta.get_field(graph.abscissa)
-        # except FieldDoesNotExist:
-        #     field = None
-        #     self.abscissa_error = _('the field does not exist any more.')
-        # else:
-        #     if graph.linked_report._fields_configs.get_4_model(model).is_field_hidden(field):
-        #         self.abscissa_error = _('this field should be hidden.')
+
         cell = graph.abscissa_info.cell
         if cell is None:
             field = None
@@ -255,7 +228,6 @@ class _RGHRegularField(ReportGraphHand):
         aggregates = self._aggregate_by_key(entities, key, order).exclude(**x_value_filter)
         return aggregates
 
-    # def _get_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
     def _get_dates_values(self, *,
                           entities, abscissa, kind, qdict_builder,
                           date_format, order, extra_q):
@@ -293,9 +265,7 @@ class _RGHRegularField(ReportGraphHand):
 class RGHDay(_RGHRegularField):
     verbose_name = _('By days')
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
-        # abscissa = self._graph.abscissa
         abscissa = self._field.name
         year_key  = f'{abscissa}__year'
         month_key = f'{abscissa}__month'
@@ -318,9 +288,7 @@ class RGHDay(_RGHRegularField):
 class RGHMonth(_RGHRegularField):
     verbose_name = _('By months')
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
-        # abscissa = self._graph.abscissa
         abscissa = self._field.name
         year_key  = f'{abscissa}__year'
         month_key = f'{abscissa}__month'
@@ -341,9 +309,7 @@ class RGHMonth(_RGHRegularField):
 class RGHYear(_RGHRegularField):
     verbose_name = _('By years')
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
-        # abscissa = self._graph.abscissa
         abscissa = self._field.name
 
         return self._get_dates_values(
@@ -414,15 +380,10 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
 
         self._days = self.get_days(graph)
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
-        # return self._fetch_method(entities, order)
         return self._fetch_method(entities, order, extra_q)
 
-    # def _fetch_with_group_by(self, entities, order):
     def _fetch_with_group_by(self, entities, order, extra_q):
-        # graph = self._graph
-        # abscissa = graph.abscissa
         abscissa = self._field.name
 
         # TODO: When migrating to Django 1.8 (with its support of expressions and sql functions)
@@ -438,10 +399,8 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            # build_url = self._listview_url_builder()
             build_url = self._listview_url_builder(extra_q=extra_q)
             query_cmd = f'{abscissa}__range'
-            # days = graph.days or 1
             days = self._days
 
             field_name = _physical_field_name(self._field.model._meta.db_table, abscissa)
@@ -474,7 +433,6 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
 
                 yield range_label, [value, url]
 
-    # def _fetch_fallback(self, entities, order):
     def _fetch_fallback(self, entities, order, extra_q):
         """Aggregate values with 'manual group by' by iterating over group
         values and executing an aggregate query per group.
@@ -487,11 +445,9 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            # build_url = self._listview_url_builder()
             build_url = self._listview_url_builder(extra_q=extra_q)
             query_cmd = f'{abscissa}__range'
             entities_filter = entities.filter
-            # y_value_func = self._y_calculator
             y_value_func = self._y_calculator.aggregrate
 
             for interval in DateInterval.generate(
@@ -536,14 +492,10 @@ class RGHForeignKey(_RGHRegularField):
 
         self._abscissa_enumerator = enumerator
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
-        # abscissa = self._graph.abscissa
         abscissa = self._field.name
-        # build_url = self._listview_url_builder()
         build_url = self._listview_url_builder(extra_q=extra_q)
         entities_filter = entities.filter
-        # y_value_func = self._y_calculator
         y_value_func = self._y_calculator.aggregrate
         choices = self._abscissa_enumerator.choices(user=user)
 
@@ -568,11 +520,6 @@ class RGHRelation(ReportGraphHand):
     def __init__(self, graph):
         super().__init__(graph)
 
-        # try:
-        #     rtype = RelationType.objects.get(pk=self._graph.abscissa)
-        # except RelationType.DoesNotExist:
-        #     rtype = None
-        #     self.abscissa_error = _('the relationship type does not exist any more.')
         cell = graph.abscissa_info.cell
         if cell is None:
             rtype = None
@@ -582,13 +529,11 @@ class RGHRelation(ReportGraphHand):
 
         self._rtype = rtype
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
         # TODO: Optimize ! (populate real entities)
         # TODO: sort alphabetically (with header_filter_search_field ?
         #       Queryset is not paginated so we can sort the "list") ?
         # TODO: make listview url for this case
-        # build_url = self._listview_url_builder()
         build_url = self._listview_url_builder(extra_q=extra_q)
         relations = Relation.objects.filter(
             type=self._rtype, subject_entity__entity_type=self._graph.linked_report.ct,
@@ -596,7 +541,6 @@ class RGHRelation(ReportGraphHand):
         rel_filter = relations.filter
         ce_objects_get = CremeEntity.objects.get
         entities_filter = entities.filter
-        # y_value_func = self._y_calculator
         y_value_func = self._y_calculator.aggregrate
 
         for obj_id in relations.values_list('object_entity', flat=True).distinct():
@@ -621,13 +565,7 @@ class RGHRelation(ReportGraphHand):
 class _RGHCustomField(ReportGraphHand):
     def __init__(self, graph):
         super().__init__(graph)
-        # abscissa = self._graph.abscissa
-        #
-        # try:
-        #     cfield = CustomField.objects.get(pk=abscissa)
-        # except CustomField.DoesNotExist:
-        #     cfield = None
-        #     self.abscissa_error = _('the custom field does not exist any more.')
+
         cell = graph.abscissa_info.cell
         if cell is None:
             cfield = None
@@ -665,8 +603,6 @@ class _RGHCustomField(ReportGraphHand):
     #       (differences here - 1: there is no need to exclude null values
     #       2: the entities have an additional filter,
     #       3: the qdicts have an additional value) and could be factored together
-    # def _get_custom_dates_values(self, entities, abscissa, kind, qdict_builder,
-    #                              date_format, order):
     def _get_custom_dates_values(self, *,
                                  entities, kind, qdict_builder, date_format, order, extra_q):
         """
@@ -675,7 +611,6 @@ class _RGHCustomField(ReportGraphHand):
         @param date_format: Format compatible with strftime().
         """
         cfield = self._cfield
-        # build_url = self._listview_url_builder()
         build_url = self._listview_url_builder(extra_q=extra_q)
 
         entities = entities.filter(customfielddatetime__custom_field=cfield)
@@ -712,7 +647,6 @@ class RGHCustomDay(_RGHCustomField):
     def _fetch(self, *, entities, order, user, extra_q):
         return self._get_custom_dates_values(
             entities=entities,
-            # abscissa=self._graph.abscissa,
             kind='day',
             qdict_builder=lambda date: {
                 'customfielddatetime__value__year':  date.year,
@@ -729,11 +663,9 @@ class RGHCustomDay(_RGHCustomField):
 class RGHCustomMonth(_RGHCustomField):
     verbose_name = _('By months')
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
         return self._get_custom_dates_values(
             entities=entities,
-            # abscissa=self._graph.abscissa,
             kind='month',
             qdict_builder=lambda date: {
                 'customfielddatetime__value__year':  date.year,
@@ -749,7 +681,6 @@ class RGHCustomMonth(_RGHCustomField):
 class RGHCustomYear(_RGHCustomField):
     verbose_name = _('By years')
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
         return self._get_custom_dates_values(
             entities=entities,
@@ -783,13 +714,10 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
 
         self._days = self.get_days(graph)
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
-        # return self._fetch_method(entities, order)
         return self._fetch_method(entities, order, extra_q)
 
     # TODO: This is almost identical to RGHRange and most of it could be factored together
-    # def _fetch_with_group_by(self, entities, order):
     def _fetch_with_group_by(self, entities, order, extra_q):
         cfield = self._cfield
         entities = entities.filter(customfielddatetime__custom_field=cfield)
@@ -802,9 +730,7 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            # build_url = self._listview_url_builder()
             build_url = self._listview_url_builder(extra_q=extra_q)
-            # days = self._graph.days or 1
             days = self._days
 
             field_name = _physical_field_name('creme_core_customfielddatetime', 'value')
@@ -835,7 +761,6 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
 
                 yield range_label, [value, url]
 
-    # def _fetch_fallback(self, entities, order):
     def _fetch_fallback(self, entities, order, extra_q):
         cfield = self._cfield
         entities_filter = entities.filter
@@ -849,9 +774,7 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            # y_value_func = self._y_calculator
             y_value_func = self._y_calculator.aggregrate
-            # build_url = self._listview_url_builder()
             build_url = self._listview_url_builder(extra_q=extra_q)
 
             for interval in DateInterval.generate(
@@ -886,12 +809,9 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
 class RGHCustomFK(_RGHCustomField):
     verbose_name = _('By values (of custom choices)')
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
         entities_filter = entities.filter
-        # y_value_func = self._y_calculator
         y_value_func = self._y_calculator.aggregrate
-        # build_url = self._listview_url_builder()
         build_url = self._listview_url_builder(extra_q=extra_q)
         related_instances = [
             *CustomFieldEnumValue.objects.filter(custom_field=self._cfield),

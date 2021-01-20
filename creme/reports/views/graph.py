@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -136,18 +136,6 @@ def get_available_report_graph_types(request, ct_id):
                  ]
 
     return {'result': result}
-
-
-# def cast_order(order):
-#     warnings.warn('reports.views.graph.cast_order() is deprecated ; '
-#                   'use creme_core.utils.meta.Order instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     if order not in {'ASC', 'DESC'}:
-#         raise ValueError('Order must be in {"ASC", "DESC"}')
-#
-#     return order
 
 
 # Class-based views  ----------------------------------------------------------
@@ -296,7 +284,6 @@ class GraphFetchingForInstance(base.EntityRelatedMixin, GraphFetchingBase):
     def get_graph_data(self, request, order):
         brick_item = self.get_instance_brick_item()
         entity = self.get_related_entity()
-        # fetcher = ReportGraph.get_fetcher_from_instance_brick(brick_item)
         brick = brick_registry.get_brick_4_instance(brick_item, entity=entity)
 
         try:

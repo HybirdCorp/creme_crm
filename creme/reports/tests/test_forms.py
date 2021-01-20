@@ -52,11 +52,6 @@ from creme.reports.forms.bricks import (
     GraphInstanceBrickForm,
 )
 from creme.reports.forms.graph import AbscissaField, OrdinateField
-# from creme.reports.forms.report import (
-#     _EntityCellAggregate,
-#     _EntityCellCustomAggregate,
-#     _EntityCellRelated,
-# )
 from creme.reports.forms.report import (
     ReportEntityCellCustomAggregate,
     ReportEntityCellRegularAggregate,
@@ -77,11 +72,6 @@ from .base import (
 
 
 class ReportHandsFieldTestCase(FieldTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     super().setUpClass()
-    #     cls.ct_orga = ContentType.objects.get_for_model(FakeOrganisation)
-
     # TODO: factorise with EntityCellsFieldTestCase
     def _find_sub_widget(self, field, cell_class_type_id):
         for sub_widget in field.widget.sub_widgets:
@@ -203,13 +193,11 @@ class ReportHandsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_empty_required(self):
-        # clean = ReportHandsField(required=True, content_type=self.ct_orga).clean
         clean = ReportHandsField(required=True, model=FakeOrganisation).clean
         self.assertFieldValidationError(ReportHandsField, 'required', clean, None)
         self.assertFieldValidationError(ReportHandsField, 'required', clean, '')
 
     def test_clean_empty_not_required(self):
-        # field = ReportHandsField(required=False, content_type=self.ct_orga)
         field = ReportHandsField(required=False, model=FakeOrganisation)
 
         with self.assertNoException():
@@ -217,44 +205,26 @@ class ReportHandsFieldTestCase(FieldTestCase):
 
         self.assertEqual([], value)
 
-    # def test_clean_invalid_choice(self):
-    #     field = ReportHandsField(content_type=self.ct_orga)
-    #     self.assertFieldValidationError(
-    #         ReportHandsField, 'invalid', field.clean,
-    #         'regular_field-fname,regular_field-unknown',
-    #     )
-
-    # def test_choices_regularfields02(self):
     def test_regularfields01(self):
-        # field = ReportHandsField(content_type=self.ct_orga)
         field = ReportHandsField(model=FakeOrganisation)
         self.assertListEqual([], field.non_hiddable_cells)
 
-        # widget = field.widget
-        # choices = widget.model_fields
         choices = self._find_sub_widget(field, 'regular_field').choices
-        # self.assertInChoices(
         self.assertCellInChoices(
-            # value='regular_field-name',
             'regular_field-name',
             label=_('Name'),
             choices=choices,
         )
-        # self.assertInChoices(
         self.assertCellInChoices(
-            # value='regular_field-sector',
             'regular_field-sector',
             label=_('Sector'),
             choices=choices,
         )
-        # self.assertInChoices(
         self.assertCellInChoices(
-            # value='regular_field-sector__title',
             'regular_field-sector__title',
-            # label=_('Title'),  # TODO: test that's the title in the render...
+            # TODO: test that's the title in the render...
             label=f"{_('Sector')} - {_('Title')}",
-            # choices=widget.model_subfields['regular_field-sector'],
-            choices=choices
+            choices=choices,
         )
 
         fname1 = 'name'
@@ -314,26 +284,13 @@ class ReportHandsFieldTestCase(FieldTestCase):
 
     def test_regular_aggregates01(self):
         field = ReportHandsField()
-        # widget = field.widget
-        # self.assertListEqual([], [*widget.regular_aggregates])
         self.assertListEqual(
             [],
-            # [*widget.regular_aggregates]
             [*self._find_sub_widget(field, 'regular_aggregate').choices]
         )
 
-        # field.content_type = self.ct_orga
         field.model = FakeOrganisation
         fvname = _('Capital')
-        # self.assertListEqual(
-        #     [
-        #         ('regular_aggregate-capital__avg', f"{_('Average')} - {fvname}"),
-        #         ('regular_aggregate-capital__min', f"{_('Minimum')} - {fvname}"),
-        #         ('regular_aggregate-capital__max', f"{_('Maximum')} - {fvname}"),
-        #         ('regular_aggregate-capital__sum', f"{_('Sum')} - {fvname}"),
-        #     ],
-        #     [*widget.regular_aggregates]
-        # )
         choices = self._find_sub_widget(field, 'regular_aggregate').choices
         self.assertCellInChoices(
             'regular_aggregate-capital__avg',
@@ -356,14 +313,6 @@ class ReportHandsFieldTestCase(FieldTestCase):
             choices=choices,
         )
 
-        # cells = field.clean(value)
-        # self.assertEqual(1, len(cells))
-        #
-        # cell = cells[0]
-        # self.assertIsInstance(cell, _EntityCellAggregate)
-        # self.assertEqual(FakeOrganisation, cell.model)
-        # self.assertEqual('capital__avg',   cell.value)
-
         agg_id1 = 'capital__avg'
         self.assertListEqual(
             [ReportEntityCellRegularAggregate.build(FakeOrganisation, agg_id1)],
@@ -385,17 +334,11 @@ class ReportHandsFieldTestCase(FieldTestCase):
             descriptions=[(field_name, {FieldsConfig.HIDDEN: True})],
         )
 
-        # field = ReportHandsField(content_type=self.ct_orga)
         field = ReportHandsField(model=FakeOrganisation)
         self.assertListEqual(
             [],
-            # [*field.widget.regular_aggregates]
             [*self._find_sub_widget(field, 'regular_aggregate').choices]
         )
-        # self.assertFieldValidationError(
-        #     ReportHandsField, 'invalid', field.clean,
-        #     'regular_aggregate-capital__avg',
-        # )
         self.assertFieldValidationError(
             UniformEntityCellsField, 'invalid_value', field.clean,
             'regular_aggregate-capital__avg',
@@ -410,28 +353,18 @@ class ReportHandsFieldTestCase(FieldTestCase):
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        # field = ReportHandsField(content_type=self.ct_orga)
         field = ReportHandsField(model=FakeOrganisation)
         field.non_hiddable_cells = [
-            # _EntityCellAggregate(FakeOrganisation, f'{hidden_fname}__avg'),
             ReportEntityCellRegularAggregate.build(FakeOrganisation, f'{hidden_fname}__avg'),
         ]
 
         self.assertListEqual(
             [('regular_aggregate-capital__avg', f"{_('Average')} - {_('Capital')}")],
-            # [*field.widget.regular_aggregates]
             [(choice_id, str(cell))
              for choice_id, cell in self._find_sub_widget(field, 'regular_aggregate').choices
             ]
         )
 
-        # cells = field.clean('regular_aggregate-capital__avg')
-        # self.assertEqual(1, len(cells))
-        #
-        # cell = cells[0]
-        # self.assertIsInstance(cell, _EntityCellAggregate)
-        # self.assertEqual(FakeOrganisation, cell.model)
-        # self.assertEqual('capital__avg',   cell.value)
         agg_id = 'capital__avg'
         self.assertListEqual(
             [ReportEntityCellRegularAggregate.build(FakeOrganisation, agg_id)],
@@ -441,7 +374,6 @@ class ReportHandsFieldTestCase(FieldTestCase):
     def test_custom_aggregates01(self):
         create_cf = partial(
             CustomField.objects.create,
-            # content_type=self.ct_orga,
             content_type=ContentType.objects.get_for_model(FakeOrganisation),
         )
         cf1 = create_cf(field_type=CustomField.INT, name='Rank')
@@ -452,24 +384,12 @@ class ReportHandsFieldTestCase(FieldTestCase):
         )
 
         field = ReportHandsField()
-        # widget = field.widget
         self.assertListEqual(
             [],
-            # [*widget.custom_aggregates]
             [*self._find_sub_widget(field, 'custom_aggregate').choices]
         )
 
-        # field.content_type = self.ct_orga
         field.model = FakeOrganisation
-        # self.assertListEqual(
-        #     [
-        #         (f'custom_aggregate-{cf1.id}__avg', f"{_('Average')} - {cf1.name}"),
-        #         (f'custom_aggregate-{cf1.id}__min', f"{_('Minimum')} - {cf1.name}"),
-        #         (f'custom_aggregate-{cf1.id}__max', f"{_('Maximum')} - {cf1.name}"),
-        #         (f'custom_aggregate-{cf1.id}__sum', f"{_('Sum')} - {cf1.name}"),
-        #     ],
-        #     [*widget.custom_aggregates]
-        # )
         choices = self._find_sub_widget(field, 'custom_aggregate').choices
         value = f'custom_aggregate-{cf1.id}__avg'
         self.assertCellInChoices(
@@ -494,7 +414,6 @@ class ReportHandsFieldTestCase(FieldTestCase):
         )
 
         self.assertListEqual(
-            # [_EntityCellCustomAggregate(FakeOrganisation, f'{cf1.id}__avg')],
             [ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cf1.id}__avg')],
             field.clean(value)
         )
@@ -502,23 +421,16 @@ class ReportHandsFieldTestCase(FieldTestCase):
     def test_custom_aggregates02(self):
         "Field is deleted."
         cfield = CustomField.objects.create(
-            # content_type=self.ct_orga,
             content_type=FakeOrganisation,
             field_type=CustomField.INT, name='Rank',
             is_deleted=True,
         )
 
-        # field = ReportHandsField(content_type=self.ct_orga)
         field = ReportHandsField(model=FakeOrganisation)
         self.assertListEqual(
             [],
-            # [*field.widget.custom_aggregates]
             [*self._find_sub_widget(field, 'custom_aggregate').choices]
         )
-        # self.assertFieldValidationError(
-        #     ReportHandsField, 'invalid', field.clean,
-        #     f'custom_aggregate-{cfield.id}__avg',
-        # )
         self.assertFieldValidationError(
             UniformEntityCellsField, 'invalid_value', field.clean,
             f'custom_aggregate-{cfield.id}__avg',
@@ -528,35 +440,24 @@ class ReportHandsFieldTestCase(FieldTestCase):
     def test_custom_aggregates03(self):
         "Field is deleted but already used => it is still proposed."
         cfield = CustomField.objects.create(
-            # content_type=self.ct_orga,
             content_type=FakeOrganisation,
             field_type=CustomField.INT, name='Rank',
             is_deleted=True,
         )
 
-        # field = ReportHandsField(content_type=self.ct_orga)
         field = ReportHandsField(model=FakeOrganisation)
         field.non_hiddable_cells = [
-            # _EntityCellCustomAggregate(FakeOrganisation, f'{cfield.id}__avg'),
             ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cfield.id}__avg'),
         ]
 
         agg_id = f'custom_aggregate-{cfield.id}__avg'
         self.assertListEqual(
             [(agg_id, f"{_('Average')} - {cfield.name}")],
-            # [*field.widget.custom_aggregates]
             [(choice_id, str(cell))
              for choice_id, cell in self._find_sub_widget(field, 'custom_aggregate').choices
             ]
         )
 
-        # cells = field.clean(agg_id)
-        # self.assertEqual(1, len(cells))
-        #
-        # cell = cells[0]
-        # self.assertIsInstance(cell, _EntityCellCustomAggregate)
-        # self.assertEqual(FakeOrganisation,    cell.model)
-        # self.assertEqual(f'{cfield.id}__avg', cell.value)
         self.assertListEqual(
             [ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cfield.id}__avg')],
             field.clean(agg_id)
@@ -564,34 +465,20 @@ class ReportHandsFieldTestCase(FieldTestCase):
 
     def test_related(self):
         field = ReportHandsField()
-        # widget = field.widget
-        # self.assertListEqual([], [*widget.related_entities])
         self.assertListEqual(
             [],
             [*self._find_sub_widget(field, 'related').choices]
         )
 
-        # field.content_type = ContentType.objects.get_for_model(FakeReportsFolder)
         field.model = FakeReportsFolder
         rname = 'fakereportsdocument'
         value = f'related-{rname}'
-        # self.assertListEqual(
-        #     [(value, 'Test (reports) Document')],
-        #     [*widget.related_entities]
-        # )
         self.assertCellInChoices(
             value,
             label='Test (reports) Document',
             choices=self._find_sub_widget(field, 'related').choices,
         )
 
-        # cells = field.clean(value)
-        # self.assertEqual(1, len(cells))
-        #
-        # cell = cells[0]
-        # self.assertIsInstance(cell, _EntityCellRelated)
-        # self.assertEqual(FakeReportsFolder,     cell.model)
-        # self.assertEqual('fakereportsdocument', cell.value)
         self.assertListEqual(
             [ReportEntityCellRelated.build(model=FakeReportsFolder, related_name=rname)],
             field.clean(value),
@@ -655,7 +542,6 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
         self.assertEqual(self.ct_orga, columns_f.content_type)
         self.assertEqual(FakeOrganisation, columns_f.model)
         self.assertEqual(
-            # [_EntityCellAggregate(model=FakeOrganisation, agg_id=agg_id)],
             [ReportEntityCellRegularAggregate.build(FakeOrganisation, agg_id)],
             columns_f.initial
         )
@@ -684,7 +570,6 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
 
         form = ReportFieldsForm(user=user, instance=report)
         self.assertEqual(
-            # [_EntityCellCustomAggregate(model=FakeContact, agg_id=agg_id)],
             [ReportEntityCellCustomAggregate.build(FakeContact, agg_id)],
             form.fields['columns'].initial
         )
@@ -707,7 +592,6 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
 
         form = ReportFieldsForm(user=user, instance=report)
         self.assertEqual(
-            # [_EntityCellRelated(model=FakeReportsFolder, related_name=name)],
             [ReportEntityCellRelated.build(FakeReportsFolder, name)],
             form.fields['columns'].initial
         )
@@ -2061,7 +1945,6 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
             ),
         )
         self.assertFieldValidationError(
-            # OrdinateField, 'ecellinvalid', field.clean,
             OrdinateField, 'ecellnotallowed', field.clean,
             json_dump({
                 'aggregator': {

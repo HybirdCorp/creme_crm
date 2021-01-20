@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,10 +28,10 @@ from creme.creme_core.models import CustomField
 
 class FieldAggregation:
     def __init__(self, name: str, func: Type[Aggregate], pattern: str, title: str):
-        self.name    = name
-        self.func    = func
+        self.name = name
+        self.func = func
         self.pattern = pattern
-        self.title   = title
+        self.title = title
 
 
 class FieldAggregationRegistry:
@@ -41,12 +41,7 @@ class FieldAggregationRegistry:
         models.IntegerField,
         models.DecimalField,
         models.FloatField,
-        # models.PositiveIntegerField, models.PositiveSmallIntegerField,  models.SmallIntegerField,
     )
-    # authorized_customfields: Tuple[int, ...] = (
-    #     CustomField.INT,
-    #     CustomField.FLOAT,
-    # )
 
     def __init__(self):
         self._aggregations: Dict[str, FieldAggregation] = {}
@@ -61,9 +56,6 @@ class FieldAggregationRegistry:
 
     def get(self, name: str) -> Optional[FieldAggregation]:
         return self._aggregations.get(name)
-
-    # def __iter__(self):
-    #     return self._aggregations.items()
 
     @property
     def aggregations(self) -> Iterator[FieldAggregation]:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -75,7 +75,6 @@ class ReportsConfig(CremeAppConfig):
         )
         register(
             self.ReportGraph,
-            # exclude=['days', 'is_count', 'chart'],
             exclude=['chart'],
         )  # TODO: chart -> innerform
 
