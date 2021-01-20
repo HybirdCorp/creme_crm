@@ -49,7 +49,6 @@ urlpatterns = [
     ),
     re_path(
         r'^sending/(?P<sending_id>\d+)/reload[/]?$',
-        # sending.reload_sending_bricks
         sending.SendingBricksReloading.as_view(),
         name='emails__reload_sending_bricks',
     ),
@@ -132,13 +131,11 @@ urlpatterns = [
     ),  # TODO: improve URL (lw_mail...)
     re_path(
         r'^mail/get_body/(?P<mail_id>\w+)[/]?$',
-        # mail.get_lightweight_mail_body,
         mail.LightWeightEmailBody.as_view(),
         name='emails__lw_mail_body',
     ),  # TODO: idem
     re_path(
         r'^mail/resend[/]?$',
-        # mail.resend_mails,
         mail.EntityEmailsResending.as_view(),
         name='emails__resend_emails',
     ),

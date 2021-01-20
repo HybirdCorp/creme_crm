@@ -268,7 +268,6 @@ class MailingListsTestCase(_EmailsTestCase):
         # TODO: it seems django validator does not manages address with unicode chars:
         #       is it a problem
         # recipients = ['spike.spiegel@bebop.com', 'jet.bläck@bebop.com']
-        # recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
         recipient1 = 'spike.spiegel@bebop.com'
         recipient2 = 'jet.black@bebop.com'
 

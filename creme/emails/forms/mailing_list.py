@@ -45,10 +45,8 @@ Organisation  = persons.get_organisation_model()
 
 
 class MailingListForm(CremeEntityForm):
-    # class Meta:
     class Meta(CremeEntityForm.Meta):
         model = MailingList
-        # fields = ('user', 'name', 'description')
 
     def __init__(self, *args, **kwargs):
         warnings.warn('MailingListForm is deprecated.', DeprecationWarning)
