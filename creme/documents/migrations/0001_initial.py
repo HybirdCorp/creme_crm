@@ -10,12 +10,7 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('documents', '0001_initial'),
-    #     ('documents', '0016_v2_1__move_description_to_entity_1.py'),
-    #     ('documents', '0017_v2_1__move_description_to_entity_2.py'),
-    #     ('documents', '0018_v2_1__move_description_to_entity_3.py'),
-    # ]
+    # Memo: last migration '0018_v2_1__move_description_to_entity_3.py'
 
     initial = True
     dependencies = [
@@ -53,7 +48,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
                 (
                     'category',
                     models.ForeignKey(
@@ -130,7 +124,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Name', blank=True)),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
                 (
                     'filedata',
                     models.FileField(
