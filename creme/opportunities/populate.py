@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -565,7 +565,6 @@ class Populator(BasePopulator):
         create_graph = partial(
             reports.get_rgraph_model().objects.create,
             linked_report=report, user=admin,
-            # is_count=False, ordinate='estimated_sales__sum',
             ordinate_type=rep_constants.RGA_SUM,
             ordinate_cell_key=sales_cell.key,
         )
@@ -575,7 +574,6 @@ class Populator(BasePopulator):
                 estimated_sales=esales_vname,
                 sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
             ),
-            # abscissa='sales_phase', type=rep_constants.RGT_FK,
             abscissa_type=rep_constants.RGT_FK,
             abscissa_cell_value='sales_phase',
         )
@@ -584,15 +582,12 @@ class Populator(BasePopulator):
                 estimated_sales=esales_vname,
                 closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
             ),
-            # abscissa='closing_date', type=rep_constants.RGT_RANGE, days=90,
             abscissa_type=rep_constants.RGT_RANGE,
             abscissa_cell_value='closing_date',
             abscissa_parameter='90',
         )
 
         # Create 2 instance block items for the 2 graphs -----------------------
-        # brick_id1 = rgraph1.create_instance_brick_config_item().brick_id
-        # brick_id2 = rgraph2.create_instance_brick_config_item().brick_id
         brick_id1 = SimpleGraphFetcher(rgraph1).create_brick_config_item().brick_id
         brick_id2 = SimpleGraphFetcher(rgraph2).create_brick_config_item().brick_id
 
