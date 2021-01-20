@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,20 +47,6 @@ class EventForm(CremeEntityForm):
     def __init__(self, *args, **kwargs):
         warnings.warn('EventForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
-
-    # def clean(self):
-    #     cdata = super().clean()
-    #
-    #     if not self._errors:
-    #         end = cdata.get('end_date')
-    #
-    #         if end and cdata['start_date'] > end:
-    #             self.add_error(
-    #                 'end_date',
-    #                 gettext('The end date must be after the start date.'),
-    #             )
-    #
-    #     return cdata
 
 
 # TODO: set as class attribute

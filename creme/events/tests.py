@@ -827,8 +827,6 @@ class EventsTestCase(CremeTestCase):
                 'sales_phase': phase.id,
                 'currency':    DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(casca),
-                # 'emitter': emitter.id,
                 'cform_extra-opportunities_target': self.formfield_value_generic_entity(casca),
                 'cform_extra-opportunities_emitter': emitter.id,
             },
@@ -867,7 +865,6 @@ class EventsTestCase(CremeTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            # target_f = response.context['form'].fields['target']
             target_f = response.context['form'].fields['cform_extra-opportunities_target']
 
         self.assertFalse(target_f.help_text)
@@ -879,20 +876,16 @@ class EventsTestCase(CremeTestCase):
             'sales_phase': SalesPhase.objects.all()[0].id,
             'currency':    DEFAULT_CURRENCY_PK,
 
-            # 'target': rhino.id,
-            # 'emitter': emitter.id,
             'cform_extra-opportunities_target': rhino.id,
             'cform_extra-opportunities_emitter': emitter.id,
         }
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            # response, 'form', 'target',
             response, 'form', 'cform_extra-opportunities_target',
             _('Select a valid choice. That choice is not one of the available choices.')
         )
 
-        # data['target'] = hawks.id,
         data['cform_extra-opportunities_target'] = hawks.id
         response = self.client.post(url, follow=True, data=data)
         self.assertNoFormError(response)
@@ -928,8 +921,6 @@ class EventsTestCase(CremeTestCase):
                 'sales_phase': SalesPhase.objects.first().id,
                 'currency':    DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(casca),
-                # 'emitter': emitter.id,
                 'cform_extra-opportunities_target': self.formfield_value_generic_entity(casca),
                 'cform_extra-opportunities_emitter': emitter.id,
             },
