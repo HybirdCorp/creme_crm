@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms import fields as core_fields
-# from creme.creme_core.forms.widgets import Label
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import CremeEntity, FieldsConfig
 
@@ -73,10 +72,8 @@ class FieldsConfigAddForm(CremeModelForm):
             self.fields['ctype'].ctypes = ctypes
         else:
             # TODO: remove the 'submit' button ?
-            # self.fields['ctype'] = fields.CharField(
             self.fields['ctype'] = core_fields.ReadonlyMessageField(
                 label=_('Related resource'),
-                # required=False, widget=Label,
                 initial=_(
                     'All configurable types of resource are already configured.'
                 ),

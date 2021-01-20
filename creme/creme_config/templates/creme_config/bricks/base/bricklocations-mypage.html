@@ -15,7 +15,6 @@
 {% block brick_table_rows %}
     {% for location in page.object_list %}
     <tr>
-{#        <td {% brick_table_data_status primary %}>{{location.brick_verbose_name}}</td> #}
         <td {% brick_table_data_status primary %}>{% brick_get_by_ids location.brick_id as bricks %}{% if bricks %}{{bricks.0.verbose_name}}{% else %}??{% endif %}</td>
         <td {% brick_table_data_status action %}>
             {% block brick_mypage_location_row_action %}{% endblock %}

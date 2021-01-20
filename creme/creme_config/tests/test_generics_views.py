@@ -426,9 +426,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         url = reverse('creme_config__delete_instance',
                       args=('creme_core', 'fake_sector', sector.pk),
                      )
-        # self.assertGET404(url)
         self.assertGET409(url)
-        # self.assertPOST404(url)
         self.assertPOST409(url)
         self.assertStillExists(sector)
 
@@ -954,11 +952,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         create_ing = FakeIngredient.objects.create
         ing1    = create_ing(name='Courgette')
         ing2    = create_ing(name='Onion')
-        # ing3    = create_ing(name='Chili pepper')
         ing2del = create_ing(name='Zucchini')
-
-        # recipe = FakeRecipe.objects.create(user=self.user, name='Ratatoo-ee')
-        # recipe.ingredients.set([ing2del, ing2, ing3])
 
         response = self.assertGET200(
             reverse('creme_config__delete_instance',

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,6 @@ class CustomFieldCreation(EntityCTypeRelatedMixin,
                           base.ConfigModelCreation,
                          ):
     model = CustomField
-    # form_class = cf_forms.CustomFieldsAddForm
     form_class = cf_forms.CustomFieldCreationForm
 
     def get_form_kwargs(self):
@@ -77,13 +76,11 @@ class CustomFieldCreation(EntityCTypeRelatedMixin,
 
 
 class Portal(generic.BricksView):
-    # template_name = 'creme_config/custom_fields_portal.html'
     template_name = 'creme_config/custom_field/portal.html'
 
 
 class CustomFieldEdition(base.ConfigModelEdition):
     model = CustomField
-    # form_class = cf_forms.CustomFieldsEditForm
     form_class = cf_forms.CustomFieldEditionForm
     pk_url_kwarg = 'field_id'
 
@@ -92,24 +89,10 @@ class CustomFieldEdition(base.ConfigModelEdition):
             raise ConflictError(gettext('This custom field is deleted.'))
 
 
-# class CTypeCustomFieldsDeletion(base.ConfigDeletion):
-#     ct_id_arg = 'id'
-#
-#     def perform_deletion(self, request):
-#         for field in CustomField.objects.filter(
-#             content_type=get_from_POST_or_404(request.POST, self.ct_id_arg),
-#         ):
-#             field.delete()
-
-
 class CustomFieldDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
     def perform_deletion(self, request):
-        # get_object_or_404(
-        #     CustomField,
-        #     id=get_from_POST_or_404(request.POST, self.id_arg),
-        # ).delete()
         cfield = get_object_or_404(
             CustomField,
             id=utils.get_from_POST_or_404(request.POST, self.id_arg),

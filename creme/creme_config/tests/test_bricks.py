@@ -86,16 +86,6 @@ class CompleteBrick4(_BaseCompleteBrick):
     verbose_name = 'Complete brick #4'
 
 
-# class HomePortalBrick(Brick):
-#     id_          = Brick.generate_id('creme_config', 'testbrickconfig_home_portal')
-#     verbose_name = 'Home/portal brick'
-#
-#     # def detailview_display(self, context): NO
-#
-#     def home_display(self, context):
-#         return f'<table id="{self.id_}"></table>'
-
-
 class HomeOnlyBrick1(Brick):
     id_          = Brick.generate_id('creme_config', 'testbrickconfig_home_only_1')
     verbose_name = 'Home only brick #1'
@@ -117,36 +107,26 @@ class HomeOnlyBrick2(Brick):
         return f'<table id="{self.id_}"></table>'
 
 
-# class DetailviewInstanceBrick(Brick):
 class DetailviewInstanceBrick(InstanceBrick):
     id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_detail_instance')
 
-    # def __init__(self, instance_block_config_item):
-    #     super().__init__()
-    #     self.ibci = instance_block_config_item
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.verbose_name = f'Instance brick #{self.id_} for detail-view'
 
     def detailview_display(self, context):
-        # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
         return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'
 
 
-# class HomeInstanceBrick(Brick):
 class HomeInstanceBrick(InstanceBrick):
     id_          = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_home_instance')
     verbose_name = 'Testing purpose'
 
-    # def __init__(self, instance_block_config_item):
-    #     super().__init__()
-    #     self.ibci = instance_block_config_item
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.verbose_name = f'Instance brick #{self.id_} for home'
 
     def home_display(self, context):
-        # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}</tr></thead></table>'
         return f'<table id="{self.id_}"><thead><tr>{self.config_item.entity}</tr></thead></table>'
 
 
@@ -183,7 +163,6 @@ class BricksConfigTestCase(CremeTestCase):
         cls.brick_registry = brick_registry = deepcopy(gui_bricks.brick_registry)
         brick_registry.register(
             CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
-            # HomePortalBrick,
             HomeOnlyBrick1,
             HomeOnlyBrick2,
         )
@@ -264,7 +243,6 @@ class BricksConfigTestCase(CremeTestCase):
     def test_portal(self):
         self.login()
         response = self.assertGET200(reverse('creme_config__bricks'))
-        # self.assertTemplateUsed(response, 'creme_config/bricks_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/bricks.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
@@ -588,7 +566,6 @@ class BricksConfigTestCase(CremeTestCase):
             choices=top_choices,
         )
 
-        # self.assertNotInChoices(value=HomePortalBrick.id_, choices=top_choices)
         self.assertNotInChoices(value=HomeOnlyBrick1.id_, choices=top_choices)
 
         brick_top1   = bricks[0]
@@ -925,24 +902,16 @@ class BricksConfigTestCase(CremeTestCase):
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
 
-        # instance_brick_id = InstanceBrickConfigItem.generate_id(
-        #     DetailviewInstanceBrick, naru, '')
         ibci = InstanceBrickConfigItem.objects.create(
-            # brick_id=instance_brick_id,
             brick_class_id=DetailviewInstanceBrick.id_,
             entity=naru,
-            # verbose='All stuffes',
         )
 
         response = self.assertGET200(self._build_editdetail_url(ct))
 
         with self.assertNoException():
-            # top_field = response.context['form'].fields['top']
             top_choices = response.context['form'].fields['top'].choices
 
-        # choices = [brick_id for brick_id, brick_vname in top_field.choices]
-        # self.assertIn(rtype_brick_id,    choices)
-        # self.assertIn(instance_brick_id, choices)
         self.assertInChoices(
             rtype_brick_id,
             label=_('Relationship block: «{predicate}»').format(predicate=rtype.predicate),
@@ -1190,7 +1159,6 @@ class BricksConfigTestCase(CremeTestCase):
             label=HomeOnlyBrick1.verbose_name,
             choices=choices,
         )
-        # self._find_field_index(bricks_field, HomePortalBrick.id_)
 
         # NB: No home_display()
         self.assertNotInChoices(value=RelationsBrick.id_, choices=choices)
@@ -1275,12 +1243,9 @@ class BricksConfigTestCase(CremeTestCase):
         BrickHomeLocation.objects.create(brick_id=not_already_chosen2.id_, order=8, superuser=True)
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
-        # instance_brick_id = InstanceBrickConfigItem.generate_id(HomeInstanceBrick, naru, '')
         ibci = InstanceBrickConfigItem.objects.create(
-            # brick_id=instance_brick_id,
             brick_class_id=HomeInstanceBrick.id_,
             entity=naru,
-            # verbose='All stuffes',
         )
 
         url = reverse('creme_config__edit_home_bricks', args=('default',))
@@ -1315,8 +1280,6 @@ class BricksConfigTestCase(CremeTestCase):
             label=not_already_chosen2.verbose_name,
             choices=choices,
         )
-        # self._find_field_index(bricks_field, HomePortalBrick.id_)
-        # self._find_field_index(bricks_field, instance_brick_id)
         self.assertInChoices(
             value=ibci.brick_id,
             label=f'Instance brick #{ibci.brick_id} for home',
@@ -2072,7 +2035,6 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertFormError(
             response, 'form', 'cells',
-            # _('Enter a valid value.')
             _('This value is invalid: %(value)s') % {'value': hidden_fname2},
         )
 
@@ -2120,11 +2082,6 @@ class BricksConfigTestCase(CremeTestCase):
         )[0]
         rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
 
-        # loc = BrickDetailviewLocation.objects.create_if_needed(
-        #     brick=rbi.brick_id, order=5,
-        #     zone=BrickDetailviewLocation.RIGHT,
-        #     model=FakeContact,
-        # )
         create_state = partial(BrickState.objects.create, user=user)
         state1 = create_state(brick_id=rbi.brick_id)
         state2 = create_state(brick_id=CompleteBrick1.id_)
@@ -2134,7 +2091,6 @@ class BricksConfigTestCase(CremeTestCase):
             data={'id': rbi.id},
         )
         self.assertDoesNotExist(rbi)
-        # self.assertDoesNotExist(loc)
         self.assertDoesNotExist(state1)
         self.assertStillExists(state2)
 
@@ -2174,30 +2130,12 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            # brick_id=InstanceBrickConfigItem.generate_id(DetailviewInstanceBrick, naru, ''),
             brick_class_id=DetailviewInstanceBrick.id_,
             entity=naru,
-            # verbose='All stuffes',
         )
 
-        # create_bdl = partial(
-        #     BrickDetailviewLocation.objects.create_if_needed,
-        #     zone=BrickDetailviewLocation.RIGHT, model=FakeContact,
-        # )
-        brick_id = ibi.brick_id
-        # dloc1 = create_bdl(brick=brick_id,           order=5)
-        # dloc2 = create_bdl(brick=CompleteBrick1.id_, order=6)
-        #
-        # create_bhl = BrickHomeLocation.objects.create
-        # hloc1 = create_bhl(brick_id=brick_id,           order=5)
-        # hloc2 = create_bhl(brick_id=CompleteBrick1.id_, order=6)
-        #
-        # create_bml = BrickMypageLocation.objects.create
-        # mloc1 = create_bml(brick_id=brick_id,           order=5)
-        # mloc2 = create_bml(brick_id=CompleteBrick1.id_, order=6)
-
         create_state = BrickState.objects.create
-        state1 = create_state(brick_id=brick_id,           user=user)
+        state1 = create_state(brick_id=ibi.brick_id,       user=user)
         state2 = create_state(brick_id=CompleteBrick1.id_, user=user)
 
         self.assertPOST200(
@@ -2205,12 +2143,6 @@ class BricksConfigTestCase(CremeTestCase):
             data={'id': ibi.id}
         )
         self.assertDoesNotExist(ibi)
-        # self.assertDoesNotExist(dloc1)
-        # self.assertStillExists(dloc2)
-        # self.assertDoesNotExist(hloc1)
-        # self.assertStillExists(hloc2)
-        # self.assertDoesNotExist(mloc1)
-        # self.assertStillExists(mloc2)
         self.assertDoesNotExist(state1)
         self.assertStillExists(state2)
 
@@ -2318,7 +2250,6 @@ class BricksConfigTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(FakeContact)
 
         valid_fname = 'last_name'
-        # valid_subfname = 'city'
         hidden_fname = 'phone'
         hidden_fkname = 'image'
         hidden_subfname = 'zipcode'
@@ -2343,15 +2274,6 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
         url = self._build_custombrick_edit_url(cbc_item)
-        # response = self.assertGET200(url)
-        #
-        # with self.assertNoException():
-        #     widget = response.context['form'].fields['cells'].widget
-        #     choices_keys = {c[0] for c in widget.model_fields}
-        #
-        # self.assertIn('regular_field-' + valid_fname,     choices_keys)
-        # self.assertIn('regular_field-address',            choices_keys)
-        # self.assertNotIn('regular_field-' + hidden_fname, choices_keys)
 
         response1 = self.assertPOST200(
             url, follow=True,
@@ -2363,19 +2285,11 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertFormError(
             response1, 'form', 'cells',
-            # _('Enter a valid value.')
             _('This value is invalid: %(value)s') % {'value': hidden_fname},
         )
 
         # ---------------------------
-        # with self.assertNoException():
-        #     address_choices_keys = {
-        #         c[0] for c in widget.model_subfields['regular_field-address']
-        #     }
-        #
         prefix = 'address__'
-        # self.assertIn('regular_field-' + prefix + valid_subfname, address_choices_keys)
-        # self.assertNotIn('regular_field-' + prefix + hidden_subfname, address_choices_keys)
 
         response2 = self.assertPOST200(
             url, follow=True,
@@ -2387,14 +2301,10 @@ class BricksConfigTestCase(CremeTestCase):
         )
         self.assertFormError(
             response2, 'form', 'cells',
-            # _('Enter a valid value.')
             _('This value is invalid: %(value)s') % {'value': prefix + hidden_subfname},
         )
 
         # ----------------------------
-        # self.assertNotIn('regular_field-' + hidden_fkname, choices_keys)
-        # self.assertFalse(widget.model_subfields['regular_field-image'])
-
         response3 = self.assertPOST200(
             url, follow=True,
             data={
@@ -2452,27 +2362,7 @@ class BricksConfigTestCase(CremeTestCase):
         )
 
         url = self._build_custombrick_edit_url(cbc_item)
-        # response = self.assertGET200(url)
-        #
-        # with self.assertNoException():
-        #     widget = response.context['form'].fields['cells'].widget
-        #     choices_keys = {c[0] for c in widget.model_fields}
-        #
-        #     subfields = widget.model_subfields
-        #     address_choices_keys = {c[0] for c in subfields['regular_field-address']}
-        #     image_choices_keys   = {c[0] for c in subfields['regular_field-image']}
-        #
         rf_prefix = 'regular_field-'
-        # self.assertIn(rf_prefix + valid_fname,   choices_keys)
-        # self.assertIn(rf_prefix + hidden_fname1, choices_keys)
-        # self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
-        #
-        # self.assertIn(rf_prefix + addr_prefix + hidden_subfname1, address_choices_keys) # idem
-        # self.assertNotIn(rf_prefix + addr_prefix + hidden_subfname2, address_choices_keys)
-        #
-        # self.assertIn(rf_prefix + hidden_fkname, image_choices_keys) # idem
-        # self.assertIn(rf_prefix + 'image',       choices_keys)
-
         response = self.client.post(
             url, follow=True,
             data={
@@ -2489,7 +2379,6 @@ class BricksConfigTestCase(CremeTestCase):
             },
         )
         self.assertNoFormError(response)
-        # self.assertEqual(4, len(self.refresh(cbc_item).cells))
         self.assertListEqual(
             [
                 build_cell(FakeContact, valid_fname),
@@ -2504,18 +2393,11 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
         cbci = CustomBrickConfigItem.objects.create(content_type=ct, name='Info')
-        # loc = BrickDetailviewLocation.objects.create_if_needed(
-        #     brick=cbci.generate_id(), order=5,
-        #     model=FakeContact,
-        #     zone=BrickDetailviewLocation.RIGHT,
-        # )
-
         self.assertPOST200(
             reverse('creme_config__delete_custom_brick'),
             data={'id': cbci.id},
         )
         self.assertDoesNotExist(cbci)
-        # self.assertDoesNotExist(loc)
 
     def test_delete_custombrick02(self):
         "Cannot delete because it is used."
@@ -2547,12 +2429,6 @@ class BricksConfigTestCase(CremeTestCase):
     def test_custombrick_wizard_model_step(self):
         self.login()
         contact_ct = ContentType.objects.get_for_model(FakeContact)
-        # contact_customfield = CustomField.objects.create(
-        #     name='Size (cm)',
-        #     field_type=CustomField.INT,
-        #     content_type=contact_ct,
-        # )
-
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
         response = self.assertGET200(self.CUSTOM_WIZARD_URL)
@@ -2567,14 +2443,7 @@ class BricksConfigTestCase(CremeTestCase):
             },
         )
 
-        # cells_widget = ].widget
         self.assertIn('cells', response.context['form'].fields)
-        # customfield_ids = [e[0] for e in cells_widget.custom_fields]
-        # regularfield_ids = [e[0] for e in cells_widget.model_fields]
-        #
-        # self.assertIn(f'custom_field-{contact_customfield.id}', customfield_ids)
-        # self.assertIn('regular_field-first_name', regularfield_ids)
-        # self.assertIn('regular_field-birthday', regularfield_ids)
 
         # last step is not submitted so nothing yet in database
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
@@ -2598,7 +2467,7 @@ class BricksConfigTestCase(CremeTestCase):
 
         self.assertFormError(
             response, 'form', 'ctype',
-            _('Select a valid choice. That choice is not one of the available choices.')
+            _('Select a valid choice. That choice is not one of the available choices.'),
         )
 
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
@@ -2616,8 +2485,6 @@ class BricksConfigTestCase(CremeTestCase):
 
         response = self.assertGET200(self.CUSTOM_WIZARD_URL)
         self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
-
-        # response = self.assertPOST200(
         self.assertPOST200(
             self.CUSTOM_WIZARD_URL,
             data={
@@ -2626,18 +2493,6 @@ class BricksConfigTestCase(CremeTestCase):
                 '0-name': 'foobar',
             },
         )
-        # cells_widget = response.context['form'].fields['cells'].widget
-        # customfield_ids = [e[0] for e in cells_widget.custom_fields]
-        # regularfield_ids = [e[0] for e in cells_widget.model_fields]
-        #
-        # # self.assertIn(f'custom_field-{contact_customfield.id}', customfield_ids)
-        # self.assertInChoices(
-        #     f'custom_field-{contact_customfield.id}',
-        #     label=contact_customfield.name,
-        #     choices=customfield_choices,
-        # )
-        # self.assertIn('regular_field-first_name', regularfield_ids)
-        # self.assertIn('regular_field-birthday', regularfield_ids)
 
         response = self.assertPOST200(
             self.CUSTOM_WIZARD_URL,
@@ -2661,12 +2516,6 @@ class BricksConfigTestCase(CremeTestCase):
     def test_custombrick_wizard_go_back(self):
         self.login()
         contact_ct = ContentType.objects.get_for_model(FakeContact)
-        # contact_customfield = CustomField.objects.create(
-        #     name='Size (cm)',
-        #     field_type=CustomField.INT,
-        #     content_type=contact_ct,
-        # )
-
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
         response = self.assertGET200(self.CUSTOM_WIZARD_URL)
@@ -2680,14 +2529,7 @@ class BricksConfigTestCase(CremeTestCase):
                 '0-name': 'foobar',
             },
         )
-        # cells_widget = response.context['form'].fields['cells'].widget
         self.assertIn('cells', response.context['form'].fields)
-        # customfield_ids = [e[0] for e in cells_widget.custom_fields]
-        # regularfield_ids = [e[0] for e in cells_widget.model_fields]
-        #
-        # self.assertIn(f'custom_field-{contact_customfield.id}', customfield_ids)
-        # self.assertIn('regular_field-first_name',               regularfield_ids)
-        # self.assertIn('regular_field-birthday',                 regularfield_ids)
 
         # Return to first step
         response = self.assertPOST200(

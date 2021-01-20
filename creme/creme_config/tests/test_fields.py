@@ -48,13 +48,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         'creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'),
     )
 
-    # def _create_superuser(self):
-    #     return get_user_model().objects.create_superuser(username='averagejoe',
-    #                                                      first_name='Joe',
-    #                                                      last_name='Average',
-    #                                                      email='averagejoe@company.com',
-    #                                                     )
-
     def test_actions_not_admin(self):
         with self.assertNumQueries(0):
             field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
@@ -130,7 +123,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
     def test_queryset02(self):
         "With action."
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
-        # field.user = self._create_superuser()
         field.user = create_user()
 
         with self.assertNoException():
@@ -216,7 +208,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.create_action_url = url = self.ADD_URL
         self.assertTupleEqual((url, False), field.creation_url_n_allowed)
 
-        # field.user = self._create_superuser()
         field.user = create_user()
         self.assertTupleEqual((url, True), field.creation_url_n_allowed)
 
@@ -225,7 +216,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
         self.assertTupleEqual(('', False), field.creation_url_n_allowed)
 
-        # field.user = self._create_superuser()
         field.user = create_user()
         self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
 
@@ -286,7 +276,6 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
     )
 
     def test_actions_not_admin(self):
-        # user = self.login(is_superuser=False, allowed_apps=('persons',))
         user = create_user(admin=False)
 
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
@@ -309,7 +298,6 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(label, str(field.widget.creation_label))
 
     def test_actions_admin(self):
-        # admin = self.login(is_superuser=False, admin_4_apps=('creme_core',))
         admin = create_user()
 
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
@@ -320,7 +308,6 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(FakeSector.creation_label, field.widget.creation_label)
 
     def test_actions_admin_not_creatable(self):
-        # admin = self.login(is_superuser=False, admin_4_apps=('creme_core',))
         admin = create_user()
 
         field = CreatorModelMultipleChoiceField(queryset=FakePosition.objects.all())
@@ -331,7 +318,6 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(FakePosition.creation_label, field.widget.creation_label)
 
     def test_actions_superuser(self):
-        # admin = self.login()
         admin = create_user()
 
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
@@ -353,7 +339,6 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
 
     def test_queryset(self):
         "With action."
-        # user = self.login()
         user = create_user()
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
         field.user = user

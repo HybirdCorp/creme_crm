@@ -46,7 +46,6 @@ class FieldsConfigTestCase(CremeTestCase):
         self.login()
 
         response = self.assertGET200(reverse('creme_config__fields'))
-        # self.assertTemplateUsed(response, 'creme_config/fields_config_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/fields-config.html')
         self.assertContains(response, self.WIZARD_URL)
 

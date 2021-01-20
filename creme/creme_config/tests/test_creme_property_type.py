@@ -12,7 +12,6 @@ from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
 
 class PropertyTypeTestCase(CremeTestCase):
     ADD_URL = reverse('creme_config__create_ptype')
-    # DELETE_URL = reverse('creme_config__delete_ptype')
 
     def _build_edit_url(self, ptype):
         return reverse('creme_config__edit_ptype', args=(ptype.id,))
@@ -28,7 +27,6 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertEqual(reverse('creme_config__ptypes'), url)
 
         response = self.assertGET200(url)
-        # self.assertTemplateUsed(response, 'creme_config/property_type_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/property-type.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
@@ -135,25 +133,3 @@ class PropertyTypeTestCase(CremeTestCase):
         pt = self.refresh(pt)
         self.assertEqual(text, pt.text)
         self.assertListEqual([ct_orga.id], [ct.id for ct in pt.subject_ctypes.all()])
-
-    # def test_delete01(self):
-    #     self.login()
-    #
-    #     pt = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=False)
-    #     self.assertPOST404(self.DELETE_URL, data={'id': pt.id})
-    #
-    # def test_delete02(self):
-    #     self.login()
-    #
-    #     create_ptype = CremePropertyType.create
-    #     pt1 = create_ptype('test-foo', 'is beautiful', [], is_custom=True)
-    #     pt2 = create_ptype('test-bar', 'is smart')
-    #
-    #     zap = FakeContact.objects.create(user=self.user, first_name='Zap', last_name='Brannigan')
-    #     prop = CremeProperty.objects.create(creme_entity=zap, type=pt1)
-    #
-    #     self.assertPOST200(self.DELETE_URL, data={'id': pt1.id})
-    #     self.assertDoesNotExist(pt1)
-    #     self.assertDoesNotExist(prop)
-    #
-    #     self.assertStillExists(pt2)
