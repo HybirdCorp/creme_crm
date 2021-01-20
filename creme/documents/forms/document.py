@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from os.path import basename
 import logging
 import warnings
 from functools import partial
@@ -30,7 +29,6 @@ from creme import documents
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.models import Relation
-# from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.utils import ellipsis
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
@@ -59,15 +57,11 @@ class _DocumentBaseForm(CremeEntityForm):
 
         file_data = self.cleaned_data['filedata']
         if file_data:
-            # instance.filedata = fpath = handle_uploaded_file(
             instance.filedata = handle_uploaded_file(
                 file_data,
                 path=['upload', 'documents'],
                 max_length=Document._meta.get_field('filedata').max_length,
             )
-
-        # if not instance.title:
-        #     assign_2_charfield(instance, 'title', basename(fpath))
 
         return super().save(*args, **kwargs)
 
