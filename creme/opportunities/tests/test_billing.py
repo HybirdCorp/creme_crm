@@ -111,7 +111,6 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         opportunity, target, emitter = self._create_opportunity_n_organisations()
         url = self._build_gendoc_url(opportunity)
 
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
@@ -494,11 +493,6 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         create_rel = partial(Relation.objects.create, user=user)
 
         def create_quote(name, emitter=emitter1, target=target1):
-            # quote = Quote.objects.create(user=user, name=name, status=qstatus)
-            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,  object_entity=emitter)
-            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
-            #
-            # return quote
             return Quote.objects.create(
                 user=user, name=name, status=qstatus, source=emitter, target=target,
             )
@@ -573,11 +567,6 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         create_rel = partial(Relation.objects.create, user=user)
 
         def create_quote(name, emitter=emitter1, target=target1):
-            # quote = Quote.objects.create(user=user, name=name, status=qstatus)
-            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,  object_entity=emitter)
-            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
-            #
-            # return quote
             return Quote.objects.create(
                 user=user, name=name, status=qstatus, source=emitter, target=target,
             )
@@ -649,11 +638,6 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         create_rel = partial(Relation.objects.create, user=user)
 
         def create_quote(name, emitter=emitter1, target=target1):
-            # quote = Quote.objects.create(user=user, name=name, status=qstatus)
-            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_ISSUED,  object_entity=emitter)
-            # create_rel(subject_entity=quote, type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
-            #
-            # return quote
             return Quote.objects.create(
                 user=user, name=name, status=qstatus, source=emitter, target=target,
             )

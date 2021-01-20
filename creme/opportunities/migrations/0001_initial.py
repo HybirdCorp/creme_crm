@@ -8,12 +8,7 @@ from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('opportunities', '0001_initial'),
-    #     ('opportunities', '0008_v2_1__move_description_to_entity_1'),
-    #     ('opportunities', '0009_v2_1__move_description_to_entity_2'),
-    #     ('opportunities', '0010_v2_1__move_description_to_entity_3'),
-    # ]
+    # Memo: last migration is '0010_v2_1__move_description_to_entity_3'
 
     initial = True
     dependencies = [

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,6 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 
-# from ..forms import opportunity as opp_forms
 from .. import custom_forms, get_opportunity_model
 from ..constants import DEFAULT_HFILTER_OPPORTUNITY
 from ..models import SalesPhase
@@ -35,7 +34,6 @@ Opportunity = get_opportunity_model()
 
 class _BaseOpportunityCreation(generic.EntityCreation):
     model = Opportunity
-    # form_class = opp_forms.OpportunityCreationForm
     form_class = custom_forms.OPPORTUNITY_CREATION_CFORM
 
     def get_initial(self):
@@ -72,7 +70,6 @@ class RelatedOpportunityCreation(EntityRelatedMixin, _BaseOpportunityCreation):
 # TODO: factorise ?
 class RelatedOpportunityCreationPopup(generic.AddingInstanceToEntityPopup):
     model = Opportunity
-    # form_class = opp_forms.TargetedOpportunityCreationForm
     form_class = custom_forms.OPPORTUNITY_CREATION_CFORM
     permissions = ['opportunities', cperm(Opportunity)]
     title = _('New opportunity targeting «{entity}»')
@@ -121,7 +118,6 @@ class OpportunityDetail(generic.EntityDetail):
 
 class OpportunityEdition(generic.EntityEdition):
     model = Opportunity
-    # form_class = opp_forms.OpportunityEditionForm
     form_class = custom_forms.OPPORTUNITY_EDITION_CFORM
     pk_url_kwarg = 'opp_id'
 
