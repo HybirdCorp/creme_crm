@@ -11,10 +11,7 @@ from creme.emails.core.validators import TemplateVariablesValidator
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('emails', '0001_initial'),
-    #     ('emails', '0015_v2_1__signature_fk_setnull'),
-    # ]
+    # Memo: last migration is '0015_v2_1__signature_fk_setnull'
 
     initial = True
     dependencies = [
@@ -152,7 +149,6 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('subject', models.CharField(max_length=100, verbose_name='Subject')),
-                # ('body', models.TextField(verbose_name='Body')),
                 (
                     'body',
                     models.TextField(
@@ -164,7 +160,6 @@ class Migration(migrations.Migration):
                         ],
                     ),
                 ),
-                # ('body_html', UnsafeHTMLField(verbose_name='Body (HTML)')),
                 (
                     'body_html',
                     UnsafeHTMLField(

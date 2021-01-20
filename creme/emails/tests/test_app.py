@@ -34,7 +34,6 @@ class EmailsTestCase(_EmailsTestCase):
         "If Contact/Organisation.email is hidden => warning."
         self.login()
 
-        # fconf = FieldsConfig.create(Contact)
         fconf = FieldsConfig.objects.create(content_type=Contact, descriptions=[])
         self.assertListEqual([], fconf.errors_on_hidden)
 

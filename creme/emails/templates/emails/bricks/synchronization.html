@@ -4,13 +4,11 @@
 {% block brick_extra_class %}{{block.super}} emails-sync-brick{% endblock %}
 
 {% block brick_header_title %}
-{#    {% brick_header_title title=_('{count} Incoming email to treat') plural=_('{count} Incoming emails to treat') empty=_('Emails') icon='email' selection_title=_('%s Email selected') selection_plural=_('%s Emails selected') %} #}
     {% trans '%s Email selected' as sel_fmt %}{% trans '%s Emails selected' as sel_plural_fmt %}
     {% brick_header_title title=_('{count} Incoming email to treat') plural=_('{count} Incoming emails to treat') empty=_('Emails') icon='email' selection_title=sel_fmt selection_plural=sel_plural_fmt %}
 {% endblock %}
 
 {% block brick_header_actions %}
-{# {% url 'creme_core__create_relations_bulk' objects_ctype.id as link_url %}{% url 'emails__crudity_validated' as validate_url %}{% url 'emails__crudity_spam' as spam_url %} #}
 {% url 'creme_core__create_relations_bulk' objects_ctype.id as link_url %}{% url 'emails__crudity_set_email_status' 'validated' as validate_url %}{% url 'emails__crudity_set_email_status' 'spam' as spam_url %}
     {% brick_header_action id='emailsync-link'   url=link_url     __rtypes=rtypes type='link' label=_('Link to') %}
     {% brick_header_action id='emailsync-action' url=validate_url type='add'  label=_('Mark as treated') icon='ok' %}
@@ -22,10 +20,10 @@
     <td {% brick_table_data_status action %}>{% url 'creme_core__create_relations_bulk' objects_ctype.id as link_url %}
         {% brick_table_action id='emailsync-link' url=link_url __rtypes=rtypes __id=mail.id label=_('Link to') icon='link' %}
     </td>
-    <td {% brick_table_data_status action %}>{% url 'emails__crudity_set_email_status' 'validated' as validate_url %}{# {% url 'emails__crudity_validated' as validated_url %} #}
+    <td {% brick_table_data_status action %}>{% url 'emails__crudity_set_email_status' 'validated' as validate_url %}
         {% brick_table_action id='emailsync-action' url=validated_url __id=mail.id label=_('Mark as treated') icon='ok' %}
     </td>
-    <td {% brick_table_data_status action %}>{% url 'emails__crudity_set_email_status' 'spam' as spam_url %}{# {% url 'emails__crudity_spam' as spam_url %} #}
+    <td {% brick_table_data_status action %}>{% url 'emails__crudity_set_email_status' 'spam' as spam_url %}
         {% brick_table_action id='emailsync-action' url=spam_url label=_('Mark as spam') __id=mail.id icon='spam' %}
     </td>
     {{block.super}}

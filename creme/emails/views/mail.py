@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,48 +28,21 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import RelationType
 from creme.creme_core.shortcuts import get_bulk_or_404
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic
-# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 from creme.creme_core.views.relation import RelationsAdding
 
 from .. import bricks, constants, get_entityemail_model
 from ..forms import mail as mail_forms
-# from ..forms.template import TEMPLATES_VARS
 from ..models import LightWeightEmail
 from ..models.template import body_validator
 
 EntityEmail = get_entityemail_model()
-
-
-# @login_required
-# @permission_required('emails')
-# def get_lightweight_mail_body(request, mail_id):
-#     """Used to show an html document in an iframe."""
-#     email = get_object_or_404(LightWeightEmail, pk=mail_id)
-#     request.user.has_perm_to_view_or_die(email.sending.campaign)
-#
-#     return HttpResponse(sanitize_html(email.rendered_body_html,
-#                                       allow_external_img=True,
-#                                      )
-#                        )
-
-# @login_required
-# @permission_required('emails')
-# @jsonify
-# def resend_mails(request):
-#     ids = get_from_POST_or_404(request.POST, 'ids').split(',')
-#
-#     for email in EntityEmail.objects.filter(pk__in=ids):
-#         email.send()
-#
-#     return {}
 
 
 class EntityEmailCreation(generic.AddingInstanceToEntityPopup):

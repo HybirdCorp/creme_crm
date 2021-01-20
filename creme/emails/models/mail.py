@@ -99,8 +99,6 @@ class AbstractEntityEmail(_Email, CremeEntity):
         abstract = True
         # manager_inheritance_from_future = True
         app_label = 'emails'
-        # verbose_name = _('Email')
-        # verbose_name_plural = _('Emails')
         verbose_name = pgettext_lazy('emails', 'Email')
         verbose_name_plural = pgettext_lazy('emails', 'Emails')
         ordering = ('-sending_date',)
