@@ -90,7 +90,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                 '0-periodicity_0':    'days',
                 '0-periodicity_1':    '4',
 
-                # '0-ct': self.ct.id,
                 CTYPE_KEY: self.ct.id,
             },
         )
