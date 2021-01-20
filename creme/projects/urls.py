@@ -14,7 +14,6 @@ urlpatterns = [
     # TODO: change url ?? project/close/(?P<project_id>\d+) ? 'id' as POST argument ?
     re_path(
         r'^project/(?P<project_id>\d+)/close[/]?$',
-        # project.close
         project.ProjectClosure.as_view(),
         name='projects__close_project',
     ),

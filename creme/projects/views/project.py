@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,16 +19,12 @@
 ################################################################################
 
 from django.db.transaction import atomic
-# from django.http import Http404
-from django.shortcuts import redirect  # get_object_or_404
+from django.shortcuts import redirect
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
-# from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views import generic
 
-# from ..forms import project as project_forms
 from .. import custom_forms, get_project_model
 from ..constants import DEFAULT_HFILTER_PROJECT
 from ..models import ProjectStatus
@@ -36,21 +32,6 @@ from ..models import ProjectStatus
 Project = get_project_model()
 
 
-# @login_required
-# @POST_only
-# @permission_required('projects')
-# @atomic
-# def close(request, project_id):
-#     project = get_object_or_404(Project.objects.select_for_update(), id=project_id)
-#
-#     request.user.has_perm_to_change_or_die(project)
-#
-#     if not project.close():
-#         raise Http404('Project is already closed: {}'.format(project))
-#
-#     project.save()
-#
-#     return redirect(project)
 class ProjectClosure(generic.base.EntityRelatedMixin, generic.CheckedView):
     permissions = 'projects'
     entity_id_url_kwarg = 'project_id'
@@ -72,7 +53,6 @@ class ProjectClosure(generic.base.EntityRelatedMixin, generic.CheckedView):
 
 class ProjectCreation(generic.EntityCreation):
     model = Project
-    # form_class = project_forms.ProjectCreateForm
     form_class = custom_forms.PROJECT_CREATION_CFORM
 
     def get_initial(self):
@@ -90,7 +70,6 @@ class ProjectDetail(generic.EntityDetail):
 
 class ProjectEdition(generic.EntityEdition):
     model = Project
-    # form_class = project_forms.ProjectEditForm
     form_class = custom_forms.PROJECT_EDITION_CFORM
     pk_url_kwarg = 'project_id'
 
