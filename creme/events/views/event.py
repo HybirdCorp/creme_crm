@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -81,58 +81,8 @@ class AddRelatedOpportunityAction(EntityAction):
         )
 
 
-# def _get_status(request, valid_status):
-#     status_str = get_from_POST_or_404(request.POST, 'status')
-#
-#     try:
-#         status = int(status_str)
-#     except Exception as e:
-#         raise Http404('Status is not an integer: {}'.format(status_str)) from e
-#
-#     if not status in valid_status:
-#         raise Http404('Unknown status: {}'.format(status))
-#
-#     return status
-#
-#
-# def _get_event_n_contact(event_id, contact_id, user):
-#     event   = get_object_or_404(Event, pk=event_id)
-#     contact = get_object_or_404(Contact, pk=contact_id)
-#
-#     has_perm_or_die = user.has_perm_to_link_or_die
-#     has_perm_or_die(event)
-#     has_perm_or_die(contact)
-#
-#     return event, contact
-#
-#
-# @login_required
-# @permission_required('events')
-# def set_invitation_status(request, event_id, contact_id):
-#     status = _get_status(request, constants.INV_STATUS_MAP)
-#     user = request.user
-#     event, contact = _get_event_n_contact(event_id, contact_id, user)
-#
-#     event.set_invitation_status(contact, status, user)
-#
-#     return HttpResponse()
-#
-#
-# @login_required
-# @permission_required('events')
-# def set_presence_status(request, event_id, contact_id):
-#     status = _get_status(request, constants.PRES_STATUS_MAP)
-#     user = request.user
-#     event, contact = _get_event_n_contact(event_id, contact_id, user)
-#
-#     event.set_presence_status(contact, status, user)
-#
-#     return HttpResponse()
-
-
 class EventCreation(generic.EntityCreation):
     model = Event
-    # form_class = event_forms.EventForm
     form_class = custom_forms.EVENT_CREATION_CFORM
 
     def get_initial(self):
@@ -150,7 +100,6 @@ class EventDetail(generic.EntityDetail):
 
 class EventEdition(generic.EntityEdition):
     model = Event
-    # form_class = event_forms.EventForm
     form_class = custom_forms.EVENT_EDITION_CFORM
     pk_url_kwarg = 'event_id'
 
@@ -252,7 +201,6 @@ class AddContactsToEvent(generic.EntityEdition):
 
 class RelatedOpportunityCreation(generic.EntityCreation):
     model = Opportunity
-    # form_class = event_forms.RelatedOpportunityCreateForm
     form_class = OPPORTUNITY_CREATION_CFORM
     permissions = 'events'
     title = _('Create an opportunity related to «{contact}»')
@@ -313,7 +261,6 @@ class RelatedOpportunityCreation(generic.EntityCreation):
                         '(The contact «{}» is not related to an organisation).'
                     ).format(contact)
                 else:
-                    # fields['target'] = ModelChoiceField(
                     fields[this.target_cell_key] = ModelChoiceField(
                         label=pgettext('events-opportunity', 'Target organisation'),
                         queryset=qs,

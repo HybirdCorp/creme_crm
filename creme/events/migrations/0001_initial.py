@@ -7,12 +7,7 @@ from creme.creme_core.models import CREME_REPLACE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('events', '0001_initial'),
-    #     ('events', '0002_v2_1__move_description_to_entity_1'),
-    #     ('events', '0003_v2_1__move_description_to_entity_2'),
-    #     ('events', '0004_v2_1__move_description_to_entity_3'),
-    # ]
+    # Memo: last migration is '0004_v2_1__move_description_to_entity_3'
 
     initial = True
     dependencies = [
@@ -36,12 +31,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Event',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                        to='creme_core.CremeEntity', on_delete=CASCADE,
+                    )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('place', models.CharField(max_length=100, verbose_name='Place', blank=True)),
                 ('start_date', models.DateTimeField(verbose_name='Start date')),
                 ('end_date', models.DateTimeField(null=True, verbose_name='End date', blank=True)),

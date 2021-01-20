@@ -25,13 +25,11 @@ urlpatterns = [
         include([
             re_path(
                 r'^set_invitation_status[/]?$',
-                # event.set_invitation_status,
                 event.InvitationStatusSetting.as_view(),
                 name='events__set_invitation_status',
             ),
             re_path(
                 r'^set_presence_status[/]?$',
-                # event.set_presence_status,
                 event.PresenceStatusSetting.as_view(),
                 name='events__set_presence_status',
             ),
