@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ from django.forms import ModelForm
 
 from creme.creme_core.views import generic
 
-# from ..forms import recurrentgenerator as generator_forms
 from .. import custom_forms, get_rgenerator_model
 from ..constants import DEFAULT_HFILTER_RGENERATOR
 from ..forms.recurrentgenerator import GeneratorCTypeSubCell
@@ -34,7 +33,6 @@ RecurrentGenerator = get_rgenerator_model()
 class RecurrentGeneratorWizard(generic.EntityCreationWizard):
     # NB: in deed, the second form is just a place holder ;
     #     it will be dynamically replaced by a form from 'recurrent_registry' (see get_form()).
-    # form_list = [generator_forms.RecurrentGeneratorCreateForm] * 2
     form_list = [
         custom_forms.GENERATOR_CREATION_CFORM,
         ModelForm,
@@ -50,8 +48,6 @@ class RecurrentGeneratorWizard(generic.EntityCreationWizard):
         generator_form.save()
 
     def get_form(self, step=None, data=None, files=None):
-        # from ..registry import recurrent_registry
-
         form = None
 
         # Step can be None (see WizardView doc)
@@ -61,9 +57,7 @@ class RecurrentGeneratorWizard(generic.EntityCreationWizard):
         if step == '1':
             prev_data = self.get_cleaned_data_for_step('0')
 
-            # ctype = prev_data['ct']
             ctype = prev_data[self.ctype_form_data_key]
-            # form_class = recurrent_registry.get_form_of_template(ctype)
             form_class = self.registry.get_form_of_template(ctype)
 
             kwargs = self.get_form_kwargs(step)
@@ -89,7 +83,6 @@ class RecurrentGeneratorDetail(generic.EntityDetail):
 
 class RecurrentGeneratorEdition(generic.EntityEdition):
     model = RecurrentGenerator
-    # form_class = generator_forms.RecurrentGeneratorEditForm
     form_class = custom_forms.GENERATOR_EDITION_CFORM
     pk_url_kwarg = 'generator_id'
 
