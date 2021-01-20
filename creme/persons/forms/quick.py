@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms import CremeEntityQuickForm  # CremeModelForm
+from creme.creme_core.forms import CremeEntityQuickForm
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation
@@ -36,7 +36,6 @@ Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 
-# class ContactQuickForm(CremeModelForm):
 class ContactQuickForm(CremeEntityQuickForm):
     organisation = CharField(
         label=_('Organisation'), required=False,
@@ -88,9 +87,10 @@ class ContactQuickForm(CremeEntityQuickForm):
 
                 if not orgas:
                     if not self.can_create():
-                        raise ValidationError(self.error_messages['forbidden_creation'],
-                                              code='forbidden_creation',
-                                             )
+                        raise ValidationError(
+                            self.error_messages['forbidden_creation'],
+                            code='forbidden_creation',
+                        )
 
                     orga = None
                 else:
@@ -99,14 +99,16 @@ class ContactQuickForm(CremeEntityQuickForm):
                     linkable_orgas = [o for o in orgas if has_perm(o)]
 
                     if not linkable_orgas:
-                        raise ValidationError(self.error_messages['no_linkable'],
-                                              code='no_linkable',
-                                             )
+                        raise ValidationError(
+                            self.error_messages['no_linkable'],
+                            code='no_linkable',
+                        )
 
                     if len(linkable_orgas) > 1:
-                        raise ValidationError(self.error_messages['several_found'],
-                                              code='several_found',
-                                             )
+                        raise ValidationError(
+                            self.error_messages['several_found'],
+                            code='several_found',
+                        )
 
                     orga = linkable_orgas[0]
 
@@ -157,7 +159,6 @@ class ContactQuickForm(CremeEntityQuickForm):
         return contact
 
 
-# class OrganisationQuickForm(CremeModelForm):
 class OrganisationQuickForm(CremeEntityQuickForm):
     class Meta:
         model = Organisation

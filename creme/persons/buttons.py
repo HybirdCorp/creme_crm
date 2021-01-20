@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,8 +35,6 @@ class CrmButton(Button):
     __managed_orga = False
     relation_type_id = 'OVERRIDE'
     template_name    = 'persons/buttons/become.html'
-    # what             = 'OVERLOADME'
-    # url_name         = 'OVERLOADME'
 
     def ok_4_display(self, entity):
         # TODO: only one query ??
@@ -54,9 +52,7 @@ class CrmButton(Button):
 
     def render(self, context):
         context['managed_orga'] = self.__managed_orga
-        # context['what'] = self.what
         context['verbose_name'] = self.verbose_name
-        # context['become_url'] = reverse(self.url_name, args=(context['object'].id,))
         context['rtype_id'] = self.relation_type_id
 
         return super().render(context)
@@ -71,8 +67,6 @@ class BecomeCustomerButton(CrmButton):
         'App: Accounts and Contacts'
     )
     relation_type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
-    # what = 'customer'
-    # url_name = 'persons__become_customer'
 
 
 class BecomeProspectButton(CrmButton):
@@ -84,8 +78,6 @@ class BecomeProspectButton(CrmButton):
         'App: Accounts and Contacts'
     )
     relation_type_id = constants.REL_SUB_PROSPECT
-    # what = 'prospect'
-    # url_name = 'persons__become_prospect'
 
 
 class BecomeSuspectButton(CrmButton):
@@ -97,8 +89,6 @@ class BecomeSuspectButton(CrmButton):
         'App: Accounts and Contacts'
     )
     relation_type_id = constants.REL_SUB_SUSPECT
-    # what = 'suspect'
-    # url_name = 'persons__become_suspect'
 
 
 class BecomeInactiveButton(CrmButton):
@@ -110,8 +100,6 @@ class BecomeInactiveButton(CrmButton):
         'App: Accounts and Contacts'
     )
     relation_type_id = constants.REL_SUB_INACTIVE
-    # what = 'inactive_customer'
-    # url_name = 'persons__become_inactive_customer'
 
 
 class BecomeSupplierButton(CrmButton):
@@ -123,8 +111,6 @@ class BecomeSupplierButton(CrmButton):
         'App: Accounts and Contacts'
     )
     relation_type_id = constants.REL_OBJ_CUSTOMER_SUPPLIER
-    # what = 'supplier'
-    # url_name = 'persons__become_supplier'
 
 
 class AddLinkedContactButton(Button):

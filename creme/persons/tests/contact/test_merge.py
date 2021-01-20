@@ -175,7 +175,7 @@ class ContactMergeTestCase(_BaseTestCase):
 
     @skipIfCustomAddress
     def test_merge02(self):
-        "Merging addresses -> empty addresses"
+        "Merging addresses -> empty addresses."
         user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -326,9 +326,9 @@ class ContactMergeTestCase(_BaseTestCase):
             _('This Contact is related to a user and must have an e-mail address.')
         )
 
-        response = self.client.post(url, follow=True,
-                                    data={**data, 'email_merged': contact01.email},
-                                   )
+        response = self.client.post(
+            url, follow=True, data={**data, 'email_merged': contact01.email},
+        )
         self.assertNoFormError(response)
 
         self.assertDoesNotExist(contact02)
@@ -364,7 +364,7 @@ class ContactMergeTestCase(_BaseTestCase):
                 contact01.first_name,
                 contact02.first_name,
             ],
-            first_name_f.initial
+            first_name_f.initial,
         )
 
         data = {
@@ -383,16 +383,19 @@ class ContactMergeTestCase(_BaseTestCase):
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
             response, 'form', None,
-            _('This Contact is related to a user and must have an e-mail address.')
+            _('This Contact is related to a user and must have an e-mail address.'),
         )
 
-        response = self.client.post(url, follow=True,
-                                    data={**data,
-                                          'email_1':      contact02.email,
-                                          'email_2':      contact01.email,
-                                          'email_merged': contact02.email,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                **data,
+                'email_1':      contact02.email,
+                'email_2':      contact01.email,
+                'email_merged': contact02.email,
+            },
+        )
         self.assertNoFormError(response)
 
         self.assertDoesNotExist(contact01)
@@ -404,7 +407,7 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertEqual(first_name1, contact02.first_name)
 
     def test_merge05(self):
-        "Cannot merge 2 Contacts that represent 2 users"
+        "Cannot merge 2 Contacts that represent 2 users."
         user = self.login()
 
         contact01 = user.linked_contact

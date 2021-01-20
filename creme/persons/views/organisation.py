@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,19 +24,17 @@ from django import forms
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import HttpResponse
-# from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import validators
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views import generic  # decorators
+from creme.creme_core.views import generic
 
 from .. import constants, custom_forms, get_organisation_model
 from ..forms import organisation as orga_forms
@@ -46,10 +44,8 @@ Organisation = get_organisation_model()
 
 class OrganisationCreationBase(generic.EntityCreation):
     model = Organisation
-    # form_class = orga_forms.OrganisationForm
     form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
         custom_forms.ORGANISATION_CREATION_CFORM
-    # template_name = 'persons/add_organisation_form.html'
 
 
 # TODO: merge with OrganisationCreationBase
@@ -58,7 +54,6 @@ class OrganisationCreation(OrganisationCreationBase):
 
 
 class CustomerCreation(OrganisationCreationBase):
-    # form_class = orga_forms.CustomerForm
     title = _('Create a suspect / prospect / customer')
 
     def check_view_permissions(self, user):
@@ -128,10 +123,8 @@ class OrganisationDetail(generic.EntityDetail):
 
 class OrganisationEdition(generic.EntityEdition):
     model = Organisation
-    # form_class: Type[BaseForm] = orga_forms.OrganisationForm
     form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
         custom_forms.ORGANISATION_EDITION_CFORM
-    # template_name = 'persons/edit_organisation_form.html'
     pk_url_kwarg = 'orga_id'
 
 
@@ -177,27 +170,6 @@ class ManagedOrganisationsAdding(generic.CremeFormPopup):
     submit_label = _('Save the modifications')
 
 
-# @decorators.POST_only
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def unset_managed(request):
-#     orga = get_object_or_404(Organisation,
-#     id=get_from_POST_or_404(request.POST, 'id'), is_managed=True)
-#
-#     request.user.has_perm_to_change_or_die(orga)
-#
-#     with atomic():
-#         ids = Organisation.objects.select_for_update().filter(is_managed=True)
-#                                   .values_list('id', flat=True)
-#
-#         if orga.id in ids:  # In case a concurrent call to this view has been done
-#             if len(ids) >= 2:
-#                 orga.is_managed = False
-#                 orga.save()
-#             else:
-#                 raise ConflictError(gettext('You must have at least one managed organisation.'))
-#
-#     return HttpResponse()
 class OrganisationUnmanage(generic.base.EntityRelatedMixin, generic.CheckedView):
     permissions = 'creme_core.can_admin'
     entity_classes = Organisation

@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
@@ -45,28 +43,25 @@ class OrganisationManager(CremeEntityManager):
 class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     name = models.CharField(_('Name'), max_length=200)
 
-    is_managed  = models.BooleanField(_('Managed by Creme'), default=False, editable=False)
+    is_managed = models.BooleanField(_('Managed by Creme'), default=False, editable=False)
 
     phone    = PhoneField(_('Phone number'), max_length=100, blank=True).set_tags(optional=True)
     fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
     email    = models.EmailField(_('Email address'), blank=True).set_tags(optional=True)
     url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
 
-    sector     = models.ForeignKey(other_models.Sector,
-                                   verbose_name=_('Sector'),
-                                   blank=True, null=True,
-                                   on_delete=CREME_REPLACE_NULL,
-                                  ).set_tags(optional=True)
-    legal_form = models.ForeignKey(other_models.LegalForm,
-                                   verbose_name=_('Legal form'),
-                                   blank=True, null=True,
-                                   on_delete=CREME_REPLACE_NULL,
-                                  ).set_tags(optional=True)
-    staff_size = models.ForeignKey(other_models.StaffSize,
-                                   verbose_name=_('Staff size'),
-                                   blank=True, null=True,
-                                   on_delete=CREME_REPLACE_NULL,
-                                  ).set_tags(optional=True)
+    sector = models.ForeignKey(
+        other_models.Sector,
+        verbose_name=_('Sector'), blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+    ).set_tags(optional=True)
+    legal_form = models.ForeignKey(
+        other_models.LegalForm,
+        verbose_name=_('Legal form'), blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+    ).set_tags(optional=True)
+    staff_size = models.ForeignKey(
+        other_models.StaffSize,
+        verbose_name=_('Staff size'), blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+    ).set_tags(optional=True)
 
     capital = models.PositiveIntegerField(
         _('Capital'), blank=True, null=True,
@@ -87,13 +82,13 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
         _('Subject to VAT'), default=True,
     ).set_tags(optional=True)
 
-    creation_date = models.DateField(_('Date of creation of the organisation'),
-                                     blank=True, null=True,
-                                   ).set_tags(optional=True)
-    image         = ImageEntityForeignKey(verbose_name=_('Logo'),
-                                          blank=True, null=True,
-                                          on_delete=models.SET_NULL,
-                                         ).set_tags(optional=True)
+    creation_date = models.DateField(
+        _('Date of creation of the organisation'), blank=True, null=True,
+    ).set_tags(optional=True)
+
+    image = ImageEntityForeignKey(
+        verbose_name=_('Logo'), blank=True, null=True, on_delete=models.SET_NULL,
+    ).set_tags(optional=True)
 
     objects = OrganisationManager()
 
@@ -141,28 +136,19 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     # TODO: use FilteredRelation ?
     def get_managers(self):
-        return get_contact_model().objects\
-                                  .filter(is_deleted=False,
-                                          relations__type=constants.REL_SUB_MANAGES,
-                                          relations__object_entity=self.id,
-                                         )
+        return get_contact_model().objects.filter(
+            is_deleted=False,
+            relations__type=constants.REL_SUB_MANAGES,
+            relations__object_entity=self.id,
+        )
 
     # TODO: use FilteredRelation ?
     def get_employees(self):
-        return get_contact_model().objects\
-                                  .filter(is_deleted=False,
-                                          relations__type=constants.REL_SUB_EMPLOYED_BY,
-                                          relations__object_entity=self.id,
-                                         )
-
-    # @classmethod
-    # def get_all_managed_by_creme(cls):
-    #     warnings.warn('AbstractOrganisation.get_all_managed_by_creme() is deprecated ; '
-    #                   'use .objects.filter_managed_by_creme() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return cls.objects.filter_managed_by_creme()
+        return get_contact_model().objects.filter(
+            is_deleted=False,
+            relations__type=constants.REL_SUB_EMPLOYED_BY,
+            relations__object_entity=self.id,
+        )
 
     def _post_save_clone(self, source):
         self._aux_post_save_clone(source)

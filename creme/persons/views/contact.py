@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,10 +44,8 @@ Organisation = persons.get_organisation_model()
 
 class _ContactBaseCreation(generic.EntityCreation):
     model = Contact
-    # form_class = c_forms.ContactForm
     form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
         custom_forms.CONTACT_CREATION_CFORM
-    # template_name = 'persons/add_contact_form.html'
 
 
 class ContactCreation(_ContactBaseCreation):
@@ -55,7 +53,6 @@ class ContactCreation(_ContactBaseCreation):
 
 
 class RelatedContactCreation(_ContactBaseCreation):
-    # form_class = c_forms.RelatedContactForm
     title = _('Create a contact related to «{organisation}»')
     orga_id_url_kwarg = 'orga_id'
     rtype_id_url_kwarg = 'rtype_id'
@@ -78,8 +75,6 @@ class RelatedContactCreation(_ContactBaseCreation):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        # kwargs['linked_orga'] = self.linked_orga
-        # kwargs['rtype'] = self.get_rtype()
 
         rtype = self.get_rtype()
         if rtype:
@@ -195,9 +190,7 @@ class ContactDetail(generic.EntityDetail):
 
 class ContactEdition(generic.EntityEdition):
     model = Contact
-    # form_class = c_forms.ContactForm
     form_class: Type[forms.BaseForm] = custom_forms.CONTACT_EDITION_CFORM
-    # template_name = 'persons/edit_contact_form.html'
     pk_url_kwarg = 'contact_id'
 
 
