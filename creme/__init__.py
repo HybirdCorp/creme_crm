@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = '2.2 beta'
+__version__ = '2.2 rc'
 
 # App registry hooking ---------------------------------------------------------
 
