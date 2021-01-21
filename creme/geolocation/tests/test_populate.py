@@ -139,7 +139,6 @@ class CSVPopulatorTestCase(CremeTestCase):
         name = 'unknown'
 
         with self.assertRaises(CSVPopulator.ReadError) as error:
-            # populator._open(name)
             populator.populate(name)
 
         self.assertIn(f'Unable to open CSV data from {name}', str(error.exception))
@@ -335,17 +334,17 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         self.assertEqual(0, GeoAddress.objects.count())
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
-        address = Address.objects.create(name='Addresse',
-                                         address='13 rue du yahourt',
-                                         po_box='',
-                                         zipcode='13008',
-                                         city='Marseille',
-                                         department='13',
-                                         # state=None,
-                                         state='',
-                                         country='FRANCE',
-                                         owner=orga,
-                                        )
+        address = Address.objects.create(
+            name='Addresse',
+            address='13 rue du yahourt',
+            po_box='',
+            zipcode='13008',
+            city='Marseille',
+            department='13',
+            state='',
+            country='FRANCE',
+            owner=orga,
+        )
 
         GeoAddress.objects.all().delete()
 
