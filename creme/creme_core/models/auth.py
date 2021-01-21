@@ -342,7 +342,6 @@ class SetCredentials(models.Model):
             'based on values of fields or relationships for example.'
         ),
     )
-    # ctype = CTypeForeignKey(
     ctype = EntityCTypeForeignKey(
         verbose_name=_('Apply to a specific type'),
         null=True, blank=True,  # NB: NULL means "No specific type" (ie: any kind of CremeEntity)
@@ -495,8 +494,6 @@ class SetCredentials(models.Model):
                     user,
                     queryset: QuerySet,
                     perm: int) -> QuerySet:
-        # get_ct = ContentType.objects.get_for_model
-        # allowed_ctype_ids = {None, get_ct(CremeEntity).id, get_ct(model).id}
         allowed_ctype_ids = {None, ContentType.objects.get_for_model(model).id}
         ESET_ALL = cls.ESET_ALL
         ESET_OWN = cls.ESET_OWN
@@ -605,7 +602,6 @@ class SetCredentials(models.Model):
         assert queryset.model is CremeEntity
 
         get_for_model = ContentType.objects.get_for_model
-        # entity_ct_id = get_for_model(CremeEntity).id
 
         def _check_efilters(sc_seq):
             if any(sc.efilter_id and not sc.efilter.applicable_on_entity_base for sc in sc_seq):
@@ -618,7 +614,6 @@ class SetCredentials(models.Model):
         if as_model is not None:
             assert issubclass(as_model, CremeEntity)
 
-            # narrowed_ct_ids = {None, entity_ct_id, get_for_model(as_model).id}
             narrowed_ct_ids = {None, get_for_model(as_model).id}
             narrowed_sc = [sc for sc in sc_sequence if sc.ctype_id in narrowed_ct_ids]
             _check_efilters(narrowed_sc)
@@ -630,13 +625,13 @@ class SetCredentials(models.Model):
 
         all_ct_ids = {
             None,
-            # entity_ct_id,
             *(get_for_model(model).id for model in models),
         }
-        sorted_sc = sorted((sc for sc in sc_sequence if sc.ctype_id in all_ct_ids),
-                           # NB: we sort to get ESET_ALL creds before ESET_OWN/ESET_FILTER ones.
-                           key=lambda sc: sc.set_type,
-                          )
+        sorted_sc = sorted(
+            (sc for sc in sc_sequence if sc.ctype_id in all_ct_ids),
+            # NB: we sort to get ESET_ALL creds before ESET_OWN/ESET_FILTER ones.
+            key=lambda sc: sc.set_type,
+        )
         _check_efilters(sorted_sc)
 
         # NB: some explanations on the algorithm :
@@ -673,7 +668,6 @@ class SetCredentials(models.Model):
 
         for model in models:
             ct_id = get_for_model(model).id
-            # model_ct_ids = (None, entity_ct_id, ct_id)   # <None> == CremeEntity too
             model_ct_ids = {None, ct_id}   # <None> means <CremeEntity>
 
             forbidden, allowed = split_filter(
@@ -767,7 +761,6 @@ class SetCredentials(models.Model):
 
         super().save(*args, **kwargs)
 
-    # def set_value(self, can_view, can_change, can_delete, can_link, can_unlink):
     def set_value(self, *,
                   can_view: bool,
                   can_change: bool,

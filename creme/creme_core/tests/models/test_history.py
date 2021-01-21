@@ -758,7 +758,6 @@ about this fantastic animation studio."""
         self.assertEqual(str(rei),          hline.entity_repr)
         self.assertEqual(TYPE_RELATION,     hline.type)
         self.assertEqual([rtype.id],        hline.modifications)
-        # self.assertEqual(relation.modified, hline.date)
         self.assertEqual(relation.created,  hline.date)
         self.assertEqual(True,              hline.line_type.is_about_relation)
 
@@ -767,7 +766,6 @@ about this fantastic animation studio."""
         self.assertEqual(str(nerv),         hline_sym.entity_repr)
         self.assertEqual(TYPE_SYM_RELATION, hline_sym.type)
         self.assertEqual([srtype.id],       hline_sym.modifications)
-        # self.assertEqual(relation.modified, hline_sym.date)
         self.assertEqual(relation.created,  hline_sym.date)
         self.assertIs(True,                 hline.line_type.is_about_relation)
 

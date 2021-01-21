@@ -338,9 +338,7 @@ class BaseDecimalField(BaseIntegerField):
                 }:
                     value = value.replace(replacement, '')
         parts.append(value)
-        # value = '.'.join(reversed(parts))
-        #
-        # return value
+
         return '.'.join(reversed(parts))
 
     def _str_to_number(self, number_str):

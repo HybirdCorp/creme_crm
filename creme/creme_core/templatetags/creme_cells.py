@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,7 +69,6 @@ class ModelRFieldCellNode(RFieldCellNode):
         self.model_var = model_var
 
     def _build_model(self, context):
-        # return self.model_var.resolve(context)
         return self.model_var.resolve(context).__class__
 
 
@@ -158,10 +157,11 @@ def do_cell_4_regularfield(parser, token):
             ' it must be "field".'
         )
 
-    return rf_cell_node_cls(field_var=parser.compile_filter(sa_value),
-                            asvar_name=asvar_name,
-                            **{first_arg_name: parser.compile_filter(fa_value)}
-                           )
+    return rf_cell_node_cls(
+        field_var=parser.compile_filter(sa_value),
+        asvar_name=asvar_name,
+        **{first_arg_name: parser.compile_filter(fa_value)}
+    )
 
 
 # {% cell_render %} ------------------------------------------------------------
@@ -253,9 +253,10 @@ class CellRenderNode(TemplateNode):
                             )
 
         try:
-            render = getattr(cell, method_name)(entity=self.instance_var.resolve(context),
-                                                user=self.user_var.resolve(context),
-                                               )
+            render = getattr(cell, method_name)(
+                entity=self.instance_var.resolve(context),
+                user=self.user_var.resolve(context),
+            )
         except Exception:
             logger.exception('Error in {% cell_render %}')
             render = ''

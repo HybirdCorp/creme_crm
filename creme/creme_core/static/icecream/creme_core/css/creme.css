@@ -291,12 +291,6 @@ button {
     opacity: 0.5;
 }
 
-/*
-.spacer {
-  clear: both;
-}
-*/
-
 .wait {
     list-style-image : url(icecream/images/wait.gif);
 }

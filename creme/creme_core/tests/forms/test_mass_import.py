@@ -50,7 +50,6 @@ class ExtractorTestCase(CremeTestCase):
             value_castor=str,
         )
         line1 = ['Claus', 'Valca']
-        # self.assertEqual((line1[0], None), extractor.extract_value(line1))
         self.assertEqual((line1[0], None), extractor.extract_value(line1, user))
 
         line2 = ['Lavie', 'Head']
@@ -257,9 +256,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
             content_type=FakeContact,
         )
 
-        create_evalue = CustomFieldEnumValue.objects.create
-        eval1 = create_evalue(custom_field=cfield, value='Piloting')
-        # eval2 = create_evalue(custom_field=cfield, value='Mechanic')
+        evalue = CustomFieldEnumValue.objects.create(custom_field=cfield, value='Piloting')
 
         default_value = ''
         extractor = CustomFieldExtractor(
@@ -270,8 +267,8 @@ class CustomFieldExtractorTestCase(CremeTestCase):
             create_if_unfound=False,
         )
 
-        line1 = ['Claus', 'Valca', eval1.value]
-        self.assertEqual((eval1.id, None), extractor.extract_value(line1, user))
+        line1 = ['Claus', 'Valca', evalue.value]
+        self.assertEqual((evalue.id, None), extractor.extract_value(line1, user))
 
         line2 = ['Alvis', 'Hamilton', 'Cooking']
         self.assertEqual(
@@ -347,7 +344,6 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         line = ['Claus', 'Valca', eval1.value]
         eval_id, err_msg = extractor.extract_value(line, user=self.user)
         self.assertIsNone(err_msg)
-        # self.assertEqual((eval1.id, None), extractor.extract_value(line1))
 
     def test_extract_menum01(self):
         user = self.user
@@ -386,7 +382,6 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         self.assertEqual(line3[2], eval3.value)
 
 
-# class ExtractorFieldTestCase(FieldTestCase):
 class ExtractorFieldTestCase(CremeTestCase):
     def test_attributes(self):
         user = self.login()
@@ -397,7 +392,6 @@ class ExtractorFieldTestCase(CremeTestCase):
             (1, 'Column 1'),
         ]
 
-        # field = ExtractorField(
         field = RegularFieldExtractorField(
             choices=choices,
             modelfield=first_name_field,
@@ -481,7 +475,6 @@ class ExtractorFieldTestCase(CremeTestCase):
 
         first_name = 'Claus'
         user = CremeUser(**self.USERS_DATA[0])
-        # value, err_msg = extractor.extract_value([first_name, 'Valca'])
         value, err_msg = extractor.extract_value(line=[first_name, 'Valca'], user=user)
         self.assertIsNone(err_msg)
         self.assertEqual(first_name, value)
@@ -572,17 +565,16 @@ class CustomfieldExtractorFieldTestCase(CremeTestCase):
 
         col = 3
         def_val = '??'
-        extractor = field.clean({'selected_column': str(col),
-                                 'default_value': def_val,
-                                 # 'can_create': '',
-                                }
-                               )
+        extractor = field.clean({
+            'selected_column': str(col),
+            'default_value': def_val,
+            # 'can_create': '',
+        })
         self.assertIsInstance(extractor, CustomFieldExtractor)
         self.assertEqual(col, extractor._column_index)
         self.assertEqual(def_val, extractor._default_value)
 
         line = ['Claus', 'Valca', 'Piloting']
-        # value, err_msg = extractor.extract_value(line)
         value, err_msg = extractor.extract_value(line, user)
         self.assertIsNone(err_msg)
         self.assertEqual(line[2], value)

@@ -529,14 +529,11 @@ class OperatorTestCase(CremeTestCase):
     def test_gte(self):
         op = self.get_operator(operators.GTE)
         self.assertIsInstance(op, operators.GTEOperator)
-        # self.assertEqual(_('>='), op.name)
         self.assertEqual(_('≥'), op.verbose_name)
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__gte', op.key_pattern)
         self.assertIs(op.accept_subpart, True)
-        self.assertEqual(operators.FIELDTYPES_ORDERABLE,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_ORDERABLE, op.allowed_fieldtypes)
 
         field = 'order'
         value1 = 6
@@ -590,14 +587,11 @@ class OperatorTestCase(CremeTestCase):
     def test_lte(self):
         op = self.get_operator(operators.LTE)
         self.assertIsInstance(op, operators.LTEOperator)
-        # self.assertEqual(_('<='), op.name)
         self.assertEqual(_('≤'), op.verbose_name)
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__lte', op.key_pattern)
         self.assertIs(op.accept_subpart, True)
-        self.assertEqual(operators.FIELDTYPES_ORDERABLE,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_ORDERABLE, op.allowed_fieldtypes)
 
         field = 'size'
         value = 68

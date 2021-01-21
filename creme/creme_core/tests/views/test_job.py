@@ -175,7 +175,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
-        # user = \
         self.login()
         self.assertEqual([], queue.refreshed_jobs)
 
@@ -517,35 +516,37 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual([], queue.refreshed_jobs)
 
         disable_url = self._build_disable_url(job)
-        # self.assertGET404(disable_url)
         self.assertGET405(disable_url)
 
         self.assertPOST200(disable_url)
         self.assertIs(self.refresh(job).enabled, False)
-        self.assertEqual([(job,
-                           {'enabled':       False,
-                            'reference_run': dt_to_ISO8601(job.reference_run),
-                           },
-                          ),
-                         ],
-                         queue.refreshed_jobs
-                        )
+        self.assertListEqual(
+            [(
+                job,
+                {
+                    'enabled':       False,
+                    'reference_run': dt_to_ISO8601(job.reference_run),
+                },
+            )],
+            queue.refreshed_jobs,
+        )
 
         enable_url = self._build_enable_url(job)
-        # self.assertGET404(enable_url)
         self.assertGET405(enable_url)
 
         queue.clear()
         self.assertPOST200(enable_url)
         self.assertIs(self.refresh(job).enabled, True)
-        self.assertEqual([(job,
-                           {'enabled':       True,
-                            'reference_run': dt_to_ISO8601(job.reference_run),
-                           },
-                          ),
-                         ],
-                         queue.refreshed_jobs
-                        )
+        self.assertListEqual(
+            [(
+                job,
+                {
+                    'enabled':       True,
+                    'reference_run': dt_to_ISO8601(job.reference_run),
+                },
+            )],
+            queue.refreshed_jobs
+        )
 
     def test_disable02(self):
         "Cannot disable a non-system job"

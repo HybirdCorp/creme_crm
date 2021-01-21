@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,9 +51,7 @@ class UIAction:
         - is_enabled: Boolean. If False, this UIAction cannot be activated by the user
             (not allowed, some business logic not OK...).
     """
-    # id = None
     id: str = ''
-    # model = None
     model: Type[Model] = Model
 
     type: str = ''
@@ -84,7 +82,6 @@ class UIAction:
         if model is not None:
             self.model = model
 
-        # assert self.model is not None
         assert self.model is not Model
 
     def _get_options(self):
@@ -230,7 +227,6 @@ class ActionsChain(InheritedDataChain):
                 f'{action_class} is not a <{self.base_class.__name__}>'
             )
 
-        # if getattr(action_class, 'model', None) is None:
         if action_class.model is Model:
             raise ActionRegistrationError(
                 f"Invalid action {action_class}: 'model' attribute must be defined"
@@ -241,7 +237,6 @@ class ActionsChain(InheritedDataChain):
                 f"Invalid action {action_class}: {action_class.model} is not a Django Model"
             )
 
-        # if getattr(action_class, 'id', None) is None:
         if not action_class.id:
             raise ActionRegistrationError(
                 f"Invalid action {action_class}: 'id' attribute must be defined"

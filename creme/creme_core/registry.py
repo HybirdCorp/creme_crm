@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,6 @@ class CremeRegistry:
     """Registry for Creme Applications and Entities."""
     def __init__(self):
         self._entity_models = OrderedSet()
-        # self._generic_registry = {}
 
     def register_entity_models(self, *models: Type['CremeEntity']) -> None:
         """Register CremeEntity models."""
@@ -43,9 +42,10 @@ class CremeRegistry:
 
         for model in models:
             if not issubclass(model, CremeEntity):
-                logger.critical('CremeRegistry.register_entity_models: "%s" is not'
-                                ' a subclass of CremeEntity, so we ignore it', model,
-                               )
+                logger.critical(
+                    'CremeRegistry.register_entity_models: "%s" is not'
+                    ' a subclass of CremeEntity, so we ignore it', model,
+                )
                 continue
 
             entity_models.add(model)

@@ -26,7 +26,6 @@ from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-# from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -187,7 +186,6 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
         return kwargs
 
 
-# class EntityFilterDeletion(generic.CremeModelDeletion):
 class EntityFilterDeletion(EntityDeletionMixin, generic.CremeModelDeletion):
     model = EntityFilter
 
@@ -206,13 +204,6 @@ class EntityFilterDeletion(EntityDeletionMixin, generic.CremeModelDeletion):
             raise ConflictError(e) from e
         # TODO: move in a middleware ??
         except ProtectedError as e:
-            # msg = gettext('The filter can not be deleted because of its dependencies.')
-            # msg += render_to_string(
-            #     'creme_core/templatetags/widgets/list_instances.html',
-            #     {'objects': e.args[1][:25], 'user': request.user},
-            #     request=request,
-            # )
-            # raise ConflictError(msg) from e
             raise ConflictError(
                 gettext(
                     'The filter can not be deleted because of its dependencies '
@@ -262,14 +253,12 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
 
     def get_choices(self):
         choices = [('', self.all_label)] if self.get_include_all() else []
-        # choices.extend(EntityFilter.get_for_user(self.request.user, self.get_ctype())
-        #                            .values_list('id', 'name')
-        #               )
-        choices.extend(EntityFilter.objects
-                                   .filter_by_user(self.request.user)
-                                   .filter(entity_type=self.get_ctype())
-                                   .values_list('id', 'name')
-                      )
+        choices.extend(
+            EntityFilter.objects
+                        .filter_by_user(self.request.user)
+                        .filter(entity_type=self.get_ctype())
+                        .values_list('id', 'name')
+        )
 
         return choices
 
@@ -313,12 +302,15 @@ class UserChoicesView(base.CheckedView):
         # TODO: return group for teams & inactive users (see UserEnumerator)
         #       => fix the JavaScript side (it concatenates the group label at the end)
         return self.response_class(
-            [*sorted(((op.type_id, op.verbose_name) for op in self.get_operands()),
-                     key=choice_key,
-                    ),
-             *sorted(((e.id, str(e)) for e in User.objects.all()),
-                     key=choice_key,
-                    )
+            [
+                *sorted(
+                    ((op.type_id, op.verbose_name) for op in self.get_operands()),
+                    key=choice_key,
+                ),
+                *sorted(
+                    ((e.id, str(e)) for e in User.objects.all()),
+                    key=choice_key,
+                ),
             ],
             safe=False,  # Result is not a dictionary
         )

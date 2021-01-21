@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,6 @@ from django.utils.translation import gettext_lazy as _
 # TODO: move them to creme_core ?
 from creme.creme_config.forms import creme_property_type as ptype_forms
 
-# from ..auth.decorators import login_required
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import Brick, QuerysetBrick
 from ..models import CremeEntity, CremeProperty, CremePropertyType
@@ -35,7 +34,6 @@ from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
 from . import bricks as bricks_views
 from . import generic
-# from .decorators import jsonify
 from .generic.base import EntityCTypeRelatedMixin
 
 # TODO: Factorise with views in creme_config
@@ -58,11 +56,14 @@ class PropertiesBulkAdding(EntityCTypeRelatedMixin, generic.CremeFormPopup):
 
     def get_entities(self, model):
         request = self.request
-        entities = get_list_or_404(model,
-                                   pk__in=request.POST.getlist('ids')
-                                   if request.method == 'POST' else
-                                   request.GET.getlist('ids'),
-                                  )
+        entities = get_list_or_404(
+            model,
+            pk__in=(
+                request.POST.getlist('ids')
+                if request.method == 'POST' else
+                request.GET.getlist('ids')
+            ),
+        )
 
         CremeEntity.populate_real_entities(entities)
 
@@ -126,9 +127,9 @@ class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
         ptype = self.property_type
 
         if ptype is None:
-            self.property_type = ptype = get_object_or_404(CremePropertyType,
-                                                           id=self.get_property_type_id(),
-                                                          )
+            self.property_type = ptype = get_object_or_404(
+                CremePropertyType, id=self.get_property_type_id(),
+            )
 
         return ptype
 
@@ -156,9 +157,9 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
 
 
 class PropertyTypeInfoBrick(Brick):
-    id_           = Brick.generate_id('creme_core', 'property_type_info')
-    dependencies  = '*'
-    read_only     = True
+    id_ = Brick.generate_id('creme_core', 'property_type_info')
+    dependencies = '*'
+    read_only = True
     template_name = 'creme_core/bricks/ptype-info.html'
 
     def __init__(self, ptype, ctypes):
@@ -220,8 +221,8 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
 
 class TaggedMiscEntitiesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'misc_tagged_entities')
-    dependencies  = (CremeEntity,)
+    id_ = QuerysetBrick.generate_id('creme_core', 'misc_tagged_entities')
+    dependencies = (CremeEntity,)
     template_name = 'creme_core/bricks/tagged-entities.html'
 
     def __init__(self, ptype, excluded_ctypes):
@@ -278,32 +279,6 @@ class PropertyTypeDetail(generic.CremeModelDetail):
         return reverse(self.bricks_reload_url_name, args=(self.object.id,))
 
 
-# @login_required
-# @jsonify
-# def reload_bricks(request, ptype_id):
-#     brick_ids = bricks_views.get_brick_ids_or_404(request)
-#     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
-#     bricks = []
-#     ctypes = ptype.subject_ctypes.all()
-#
-#     for b_id in brick_ids:
-#         if b_id == PropertyTypeInfoBrick.id_:
-#             brick = PropertyTypeInfoBrick(ptype, ctypes)
-#         elif b_id == TaggedMiscEntitiesBrick.id_:
-#             brick = TaggedMiscEntitiesBrick(ptype, ctypes)
-#         else:
-#             ctype = TaggedEntitiesBrick.parse_brick_id(b_id)
-#             if ctype is None:
-#                 raise Http404('Invalid brick id    "{}"'.format(b_id))
-#
-#             brick = TaggedEntitiesBrick(ptype, ctype)
-#
-#         bricks.append(brick)
-#
-#     return bricks_views.bricks_render_info(
-#       request, bricks=bricks,
-#       context=bricks_views.build_context(request, object=ptype),
-#     )
 class PropertyTypeBricksReloading(bricks_views.BricksReloading):
     check_bricks_permission = False
     ptype_id_url_kwarg = 'ptype_id'

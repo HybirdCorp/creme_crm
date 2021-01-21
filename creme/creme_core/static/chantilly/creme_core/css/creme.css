@@ -193,12 +193,6 @@ td p {
 
 /* Page header and top areas - end */
 
-/*
-.spacer {
-  clear: both;
-}
-*/
-
 .wait {
     list-style-image : url(chantilly/images/wait.gif);
 }

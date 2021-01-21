@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,13 +27,11 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..auth import SUPERUSER_PERM
-# from ..auth.decorators import login_required, superuser_required
 from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
 from ..core.job import JobSchedulerQueue
 from ..http import CremeJsonResponse
 from ..models import Job
-# from .decorators import jsonify, POST_only
 from . import bricks as bricks_views
 from . import generic
 
@@ -106,20 +104,6 @@ class JobEdition(generic.CremeModelEditionPopup):
         return config_form
 
 
-# @login_required
-# @superuser_required
-# @POST_only
-# @atomic
-# def enable(request, job_id, enabled=True):
-#     job = get_object_or_404(Job.objects.select_for_update(), id=job_id)
-#
-#     if job.user_id is not None:
-#         raise ConflictError('A non-system job cannot be disabled')
-#
-#     job.enabled = enabled
-#     job.save()
-#
-#     return HttpResponse()
 class JobEnabling(generic.CheckedView):
     permissions = SUPERUSER_PERM
     job_id_url_kwargs = 'job_id'
@@ -165,48 +149,6 @@ class JobDeletion(generic.CremeModelDeletion):
         return self.request.POST.get('back_url') or reverse('creme_core__my_jobs')
 
 
-# @login_required
-# @jsonify
-# def get_info(request):
-#     info = {}
-#     queue = JobManagerQueue.get_main_queue()
-#
-#     error = queue.ping()
-#     if error is not None:
-#         info['error'] = error
-#
-#     job_ids = [int(ji) for ji in request.GET.getlist('id') if ji.isdigit()]
-#
-#     if job_ids:
-#         user = request.user
-#         jobs = Job.objects.in_bulk(job_ids)
-#
-#         for job_id in job_ids:
-#             job = jobs.get(job_id)
-#             if job is None:
-#                 info[job_id] = 'Invalid job ID'
-#             else:
-#                 if not job.check_owner(user):
-#                     info[job_id] = 'Job is not allowed'
-#                 else:
-#                     ack_errors = job.ack_errors
-#
-#                     # NB: we check 'error' too, to avoid flooding queue/job_manager.
-#                     if ack_errors and not error:
-#                         queue_error = queue.start_job(job) if job.user else job.refresh()
-#                         if not queue_error:
-#                             job.forget_ack_errors()
-#                             ack_errors = 0
-#
-#                     progress = job.progress
-#
-#                     info[job_id] = {
-#                         'status':     job.status,
-#                         'ack_errors': ack_errors,
-#                         'progress':   progress.data,
-#                     }
-#
-#     return info
 class JobsInformation(generic.CheckedView):
     response_class = CremeJsonResponse
     job_ids_arg = 'id'
@@ -266,33 +208,6 @@ class JobsInformation(generic.CheckedView):
         return self.response_class(self.get_jobs_info())
 
 
-# @login_required
-# @jsonify
-# def reload_bricks(request, job_id):
-#     brick_ids = bricks_views.get_brick_ids_or_404(request)
-#     job = get_object_or_404(Job, id=job_id)
-#     bricks = []
-#     results_bricks = None
-#
-#     for brick_id in brick_ids:
-#         if brick_id == JobBrick.id_:
-#             bricks.append(JobBrick())
-#         else:
-#             if results_bricks is None:
-#                 results_bricks = job.type.results_bricks
-#
-#             for err_brick in results_bricks:
-#                 if brick_id == err_brick.id_:
-#                     bricks.append(err_brick)
-#                     break
-#             else:
-#                 raise Http404('Invalid brick ID')
-#
-#     job.check_owner_or_die(request.user)
-#
-#     return bricks_views.bricks_render_info(request, bricks=bricks,
-#                                            context=bricks_views.build_context(request, job=job),
-#                                           )
 class JobBricksReloading(bricks_views.BricksReloading):
     check_bricks_permission = False
     job_id_url_kwarg = 'job_id'

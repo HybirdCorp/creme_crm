@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,11 +70,9 @@ class EntityFilterList(list):
     Indeed, it's as a cache.
     """
     def __init__(self, content_type: ContentType, user):
-        # super().__init__(EntityFilter.get_for_user(user, content_type))
-        super().__init__(EntityFilter.objects
-                                     .filter_by_user(user)
-                                     .filter(entity_type=content_type)
-                        )
+        super().__init__(
+            EntityFilter.objects.filter_by_user(user).filter(entity_type=content_type)
+        )
         self._selected: Optional['EntityFilter'] = None
 
     @property
@@ -218,10 +216,11 @@ class EntityFilterManager(models.Manager):
             try:
                 ef = self.get(pk=pk)
             except EntityFilter.DoesNotExist:
-                ef = self.create(pk=pk, name=name, is_custom=is_custom,
-                                 user=user, use_or=use_or, entity_type=ct,
-                                 is_private=is_private,
-                                )
+                ef = self.create(
+                    pk=pk, name=name, is_custom=is_custom,
+                    user=user, use_or=use_or, entity_type=ct,
+                    is_private=is_private,
+                )
             else:
                 if ef.entity_type != ct:
                     # Changing the ContentType would create mess in related Report for example.
@@ -245,9 +244,10 @@ class EntityFilterManager(models.Manager):
             try:
                 ef = self.get_latest_version(pk)
             except self.model.DoesNotExist:
-                ef = self.create(pk=pk, name=name, is_custom=is_custom,
-                                 user=user, use_or=use_or, entity_type=ct,
-                                )
+                ef = self.create(
+                    pk=pk, name=name, is_custom=is_custom,
+                    user=user, use_or=use_or, entity_type=ct,
+                )
             else:
                 if ef.entity_type != ct:
                     raise ValueError(
@@ -285,10 +285,11 @@ class EntityFilterManager(models.Manager):
                             new_pk += str(copy_num)
                             new_name += f'({copy_num})'
 
-                    ef = self.create(pk=new_pk, name=new_name,
-                                     is_custom=is_custom,
-                                     user=user, use_or=use_or, entity_type=ct,
-                                    )
+                    ef = self.create(
+                        pk=new_pk, name=new_name,
+                        is_custom=is_custom,
+                        user=user, use_or=use_or, entity_type=ct,
+                    )
                 else:
                     update_model_instance(ef, name=name)
 
@@ -629,9 +630,10 @@ class EntityFilter(models.Model):  # CremeModel ???
 
             if parents:
                 raise self.DependenciesError(
-                    gettext('You can not delete this filter, '
-                            'because it is used as sub-filter by: {}'
-                           ).format(', '.join(parents))
+                    gettext(
+                        'You can not delete this filter, '
+                        'because it is used as sub-filter by: {}'
+                    ).format(', '.join(parents))
                 )
 
         super().delete(*args, **kwargs)
@@ -919,22 +921,12 @@ class EntityFilterCondition(models.Model):
             cond1 and cond2 and
             cond1.type == cond2.type and
             cond1.name == cond2.name and
-            # cond1.decoded_value == cond2.decoded_value
             cond1.value == cond2.value
             for cond1, cond2 in zip_longest(
                 sorted(conditions1, key=key),
                 sorted(conditions2, key=key),
             )
         )
-
-    # @property
-    # def decoded_value(self):
-    #     value = self.value
-    #     return json_load(value) if value else None
-    #
-    # @staticmethod
-    # def encode_value(value) -> str:
-    #     return json_encode(value)
 
     def description(self, user):
         "Human-readable string explaining the condition."
@@ -954,7 +946,6 @@ class EntityFilterCondition(models.Model):
                 type_id=self.type,
                 model=self.model,
                 name=self.name,
-                # data=self.decoded_value,
                 data=self.value,
             )
 
@@ -980,10 +971,6 @@ class EntityFilterCondition(models.Model):
 
     def _get_subfilter_id(self) -> Optional[str]:
         return self.handler.subfilter_id
-
-    # def _get_subfilter(self):
-    #     "@return An EntityFilter instance or 'False' is there is no valid sub-filter."
-    #     return self.handler.subfilter
 
     @property
     def model(self) -> Type[CremeEntity]:  # TODO: test

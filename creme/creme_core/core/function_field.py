@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,19 +58,13 @@ class FunctionFieldResult:
 
 
 class FunctionFieldDecimal(FunctionFieldResult):
-    # def _format_decimal(self):
-    #     val = self._data
-    #     return number_format(val, use_l10n=True)
-
     def for_html(self) -> str:
-        # return self._format_decimal()
         # TODO: escape() ?
         # TODO: remove 'use_l10n' when settings.USE_L10N == True
         # TODO: ?? "if self._data is not None else ''"
         return number_format(self._data, use_l10n=True, force_grouping=True)
 
     def for_csv(self) -> str:
-        # return self._format_decimal()
         return number_format(self._data, use_l10n=True)
 
 

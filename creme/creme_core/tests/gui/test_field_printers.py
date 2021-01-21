@@ -385,7 +385,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            # f'upload/creme_core-tests/gui/{file_name}',
             '<a href="{url}" alt="{label}">{label}</a>'.format(
                 url=reverse(
                     'creme_core__download',
@@ -439,11 +438,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            # """<a onclick="creme.dialogs.image('{url}').open();">
-            #     <img src="{url}" width="200.0" height="200.0" />
-            # </a>""".format(
-            #     url=doc1.filedata.url,
-            # ),
             """<a onclick="creme.dialogs.image('{url}').open();">
                 <img src="{url}" alt="{label}" width="200.0" height="200.0" />
             </a>""".format(
@@ -499,7 +493,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            # f'upload/creme_core-tests/gui/{os_path.basename(file_path)}',
             '<a href="{url}" alt="{label}">{label}</a>'.format(
                 url=reverse(
                     'creme_core__download',
@@ -561,11 +554,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            # """<a onclick="creme.dialogs.image('{url}').open();">
-            #     <img src="{url}" width="200.0" height="200.0" />
-            # </a>""".format(
-            #     url=doc1.filedata.url,
-            # ),
             """<a onclick="creme.dialogs.image('{url}').open();">
                 <img src="{url}" alt="{label}" width="200.0" height="200.0" />
             </a>""".format(
@@ -1201,12 +1189,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         registry = _FieldPrintersRegistry()
         theme1 = settings.THEMES[0][1]
         self.assertHTMLEqual(
-            # f'<ul><li>{user1.theme}</li></ul>',
             f'<ul><li>{theme1}</li></ul>',
             registry.get_html_field_value(team, 'teammates_set__theme', user1),
         )
         self.assertEqual(
-            # user1.theme,
             theme1,
             registry.get_csv_field_value(team, 'teammates_set__theme', user1)
         )

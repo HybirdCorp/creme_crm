@@ -13,7 +13,6 @@ def _format_stack():  # TODO: in utils ??
     return ''.join(format_exception(exc_type, exc_value, exc_traceback))
 
 
-# class FieldTestCase(CremeTestCase):
 class FieldTestCaseMixin(CremeTestCase):
     def assertFieldRaises(self, exception, func, *args, **kwargs):
         try:

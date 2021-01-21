@@ -357,14 +357,14 @@ class EntityTestCase(CremeTestCase):
         with self.assertNumQueries(1):
             result = pp_ff(entity, user)
 
-        # self.assertIsInstance(result, FunctionFieldResult)
         self.assertIsInstance(result, FunctionFieldResultsList)
-        self.assertEqual(f'<ul>'
-                         f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>'
-                         f'</li><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
-                         f'</ul>',
-                         result.for_html()
-                        )
+        self.assertEqual(
+            f'<ul>'
+            f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>'
+            f'</li><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
+            f'</ul>',
+            result.for_html()
+        )
         self.assertEqual('Awesome/Wonderful', result.for_csv())
 
     def test_properties_functionfield02(self):  # Prefetch with populate_entities()
@@ -423,16 +423,17 @@ class EntityTestCase(CremeTestCase):
         self.assertDictEqual(orga._cvalues_map, {field_A.pk: value_A})
 
         self.assertEqual(value_B, orga.get_custom_value(field_B))
-        self.assertDictEqual(orga._cvalues_map,
-                             {field_A.pk: value_A,
-                              field_B.pk: value_B,
-                             }
-                            )
+        self.assertDictEqual(
+            {field_A.pk: value_A, field_B.pk: value_B},
+            orga._cvalues_map,
+        )
 
         self.assertIsNone(orga.get_custom_value(field_C))
-        self.assertDictEqual(orga._cvalues_map,
-                             {field_A.pk: value_A,
-                              field_B.pk: value_B,
-                              field_C.pk: None,
-                             }
-                            )
+        self.assertDictEqual(
+            {
+                field_A.pk: value_A,
+                field_B.pk: value_B,
+                field_C.pk: None,
+            },
+            orga._cvalues_map,
+        )

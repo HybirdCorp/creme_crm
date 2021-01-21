@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.forms import CharField
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..models import CremeProperty, CremePropertyType
 from ..utils import entities_to_str
-# from .widgets import Label
 from .base import CremeForm
 from .fields import ReadonlyMessageField
 
@@ -59,7 +57,6 @@ class AddPropertiesForm(_AddPropertiesForm):
 
 
 class AddPropertiesBulkForm(_AddPropertiesForm):
-    # entities_lbl = CharField(label=_('Related entities'), widget=Label(), required=False)
     entities_lbl = ReadonlyMessageField(label=_('Related entities'))
 
     def __init__(self, model, entities, forbidden_entities, *args, **kwargs):
@@ -75,10 +72,8 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         )
 
         if forbidden_entities:
-            # fields['bad_entities_lbl'] = CharField(
             fields['bad_entities_lbl'] = ReadonlyMessageField(
                 label=gettext('Uneditable entities'),
-                # widget=Label, required=False,
                 initial=entities_to_str(forbidden_entities, self.user),
             )
 

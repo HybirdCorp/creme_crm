@@ -39,7 +39,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from ..auth.entity_credentials import EntityCredentials
-# from ..constants import REL_SUB_HAS
 from ..core import validators
 from ..gui import quick_forms
 from ..models import CremeEntity, EntityFilter, RelationType
@@ -647,7 +646,6 @@ class RelationEntityField(EntityCredsJSONField):
     }
     value_type: Type = dict
 
-    # def __init__(self, *, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, **kwargs):
     def __init__(
             self, *,
             allowed_rtypes=RelationType.objects.none(),
@@ -718,7 +716,6 @@ class RelationEntityField(EntityCredsJSONField):
         if ctype_ids and ctype_pk not in ctype_ids:
             raise ValidationError(
                 self.error_messages['ctypenotallowed'],
-                # params={'ctype': ctype_pk},
                 params={'ctype_id': ctype_pk},
                 code='ctypenotallowed',
             )
@@ -746,14 +743,6 @@ class RelationEntityField(EntityCredsJSONField):
                 params={'rtype_id': rtype_pk}, code='rtypenotallowed',
             )
 
-        # try:
-        #     return RelationType.objects.get(pk=rtype_pk)
-        # except RelationType.DoesNotExist as e:
-        #     raise ValidationError(
-        #         self.error_messages['rtypedoesnotexist'],
-        #         params={'rtype_id': rtype_pk},
-        #         code='rtypedoesnotexist',
-        #     ) from e
         # NB: we are sure the RelationType exists here
         return RelationType.objects.get(pk=rtype_pk)
 
@@ -780,7 +769,6 @@ class MultiRelationEntityField(RelationEntityField):
         except RelationType.DoesNotExist as e:
             raise ValidationError(
                 self.error_messages['rtypedoesnotexist'],
-                # params={'rtype': rtype_pk},
                 params={'rtype_id': rtype_pk},
                 code='rtypedoesnotexist',
             ) from e
@@ -796,7 +784,6 @@ class MultiRelationEntityField(RelationEntityField):
         except ContentType.DoesNotExist as e:
             raise ValidationError(
                 self.error_messages['ctypedoesnotexist'],
-                # params={'ctype': ctype_pk},
                 code='ctypedoesnotexist',
             ) from e
 
@@ -839,11 +826,7 @@ class MultiRelationEntityField(RelationEntityField):
             if rtype_pk not in allowed_rtypes_ids:
                 raise ValidationError(
                     self.error_messages['rtypenotallowed'],
-                    params={
-                        # 'rtype': rtype_pk,
-                        # 'ctype': ctype_pk,
-                        'rtype_id': rtype_pk,
-                    },
+                    params={'rtype_id': rtype_pk},
                     code='rtypenotallowed',
                 )
 
@@ -1206,7 +1189,6 @@ class FilteredEntityTypeField(JSONField):
             efilter = None
         else:
             try:
-                # efilter = EntityFilter.get_for_user(self._user, ct).get(pk=efilter_pk)
                 efilter = EntityFilter.objects.filter_by_user(self._user)\
                                               .filter(entity_type=ct)\
                                               .get(pk=efilter_pk)
@@ -1301,15 +1283,12 @@ class ListEditionField(fields.Field):
     * modified elements are replaced by the new value.
     """
     widget = core_widgets.ListEditionWidget
-    # default_error_messages = {}
 
-    # def __init__(self, content=(), only_delete=False, *args, **kwargs):
     def __init__(self, *, content=(), only_delete=False, **kwargs):
         """Constructor.
         @param content: Sequence of strings
         @param only_delete: Can only delete elements, not edit them.
         """
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.content = content
         self.only_delete = only_delete
