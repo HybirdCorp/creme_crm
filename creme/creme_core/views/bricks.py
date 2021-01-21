@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,17 +26,14 @@ from typing import Dict, List, Tuple, Type
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.http.response import Http404, HttpResponse, HttpResponseBase
-# from django.shortcuts import get_object_or_404
 from django.template.context import make_context
 from django.template.engine import Engine
 
 from .. import utils
-# from ..auth.decorators import login_required
 from ..gui.bricks import Brick, BricksManager, _BrickRegistry
 from ..gui.bricks import brick_registry as global_brick_registry
 from ..http import CremeJsonResponse
-from ..models import BrickState  # CremeEntity
-# from .decorators import jsonify
+from ..models import BrickState
 from . import generic
 
 logger = logging.getLogger(__name__)
@@ -191,15 +188,6 @@ def bricks_render_info(request, bricks, context=None,
     return brick_renders
 
 
-# @login_required
-# @jsonify
-# def reload_basic(request):
-#     brick_ids = get_brick_ids_or_404(request)
-#
-#     return bricks_render_info(request,
-#                               bricks=[*brick_registry.get_bricks(brick_ids)],
-#                               check_permission=True,
-#                              )
 class BricksReloading(generic.CheckedView):
     """Bricks that uses this reloading view must have an attribute 'permission',
     which contains the string corresponding to the permission to view this brick,
@@ -304,18 +292,6 @@ class BricksReloading(generic.CheckedView):
         )
 
 
-# @login_required
-# @jsonify
-# def reload_detailview(request, entity_id):
-#     brick_ids = get_brick_ids_or_404(request)
-#
-#     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-#     request.user.has_perm_to_view_or_die(entity)
-#
-#     return bricks_render_info(request,
-#                               bricks=[*brick_registry.get_bricks(brick_ids, entity=entity)],
-#                               context=build_context(request, object=entity),
-#                              )
 class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading):
     check_bricks_permission = False
 
@@ -336,13 +312,6 @@ class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading
         return context
 
 
-# @login_required
-# @jsonify
-# def reload_home(request):
-#     return bricks_render_info(request,
-#                               bricks=[*brick_registry.get_bricks(get_brick_ids_or_404(request))],
-#                               brick_render_function=render_home_brick,
-#                              )
 class HomeBricksReloading(BricksReloading):
     check_bricks_permission = False
     brick_render_method = 'home_display'

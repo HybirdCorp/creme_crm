@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -461,9 +461,6 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             model=model,
             type=cls.type_id,
             name=field_name,
-            # value=condition_cls.encode_value(
-            #     {'operator': operator_obj.type_id, 'values': values}
-            # ),
             value={'operator': operator_obj.type_id, 'values': values},
         )
 
@@ -548,10 +545,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         if isinstance(last_field, BooleanField):
             values = [*map(last_field.to_python, values)]
 
-        query = operator.get_q(model=self._model,
-                               field_name=self._field_name,
-                               values=values,
-                              )
+        query = operator.get_q(
+            model=self._model,
+            field_name=self._field_name,
+            values=values,
+        )
 
         if operator.exclude:
             query.negate()  # TODO: move more code in operator ?? (see CustomFieldConditionHandler)
@@ -625,10 +623,9 @@ class DateFieldHandlerMixin:
 
     def _get_date_range(self):
         "Get a <creme_core.utils.date_range.DateRange> instance from the attributes."
-        return date_range_registry.get_range(name=self._range_name,
-                                             start=self._start,
-                                             end=self._end,
-                                            )
+        return date_range_registry.get_range(
+            name=self._range_name, start=self._start, end=self._end,
+        )
 
     @classmethod
     def _load_daterange_kwargs(cls, data):
@@ -718,9 +715,6 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
             model=model,
             type=cls.type_id,
             name=field_name,
-            # value=condition_cls.encode_value(
-            #     cls._build_daterange_dict(date_range, start, end)
-            # ),
             value=cls._build_daterange_dict(date_range, start, end),
         )
 
@@ -789,9 +783,6 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
     def custom_field(self) -> Union[CustomField, bool]:
         cfield = self._custom_field
         if cfield is None:
-            # self._custom_field = cfield = CustomField.objects.filter(
-            #     id=self._custom_field_id,
-            # ).first() or False
             self._custom_field = cfield = CustomField.objects.get_for_model(
                 self.model
             ).get(self._custom_field_id, False)
@@ -965,7 +956,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
             name=str(custom_field.id),
-            # value=condition_cls.encode_value(value),
             value=value,
         )
 
@@ -1108,7 +1098,6 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
             name=str(custom_field.id),
-            # value=condition_cls.encode_value(value),
             value=value,
         )
 
@@ -1284,7 +1273,6 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             model=model,
             type=cls.type_id,
             name=rtype.id,
-            # value=condition_cls.encode_value(value),
             value=value,
         )
 
@@ -1353,10 +1341,9 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         elif self._ct_id:
             kwargs['object_entity__entity_type'] = self._ct_id
 
-        query = Q(pk__in=Relation.objects
-                                 .filter(**kwargs)
-                                 .values_list('subject_entity_id', flat=True)
-                 )
+        query = Q(
+            pk__in=Relation.objects.filter(**kwargs).values_list('subject_entity_id', flat=True)
+        )
 
         if self._exclude:
             query.negate()
@@ -1433,9 +1420,6 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
             model=model,
             type=cls.type_id,
             name=rtype.id,
-            # value=condition_cls.encode_value(
-            #     {'has': has, 'filter_id': subfilter.id}
-            # ),
             value={'has': has, 'filter_id': subfilter.id},
             # NB: avoid a query to retrieve again the sub-filter (in forms).
             # TODO: assert this class is available in the registry ?
@@ -1471,10 +1455,11 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         filtered = subfilter.filter(subfilter.entity_type.model_class().objects.all()) \
                             .values_list('id', flat=True)
 
-        query = Q(pk__in=Relation.objects
-                                 .filter(type=self._rtype_id, object_entity__in=filtered)
-                                 .values_list('subject_entity_id', flat=True)
-                 )
+        query = Q(
+            pk__in=Relation.objects
+                           .filter(type=self._rtype_id, object_entity__in=filtered)
+                           .values_list('subject_entity_id', flat=True),
+        )
 
         if self._exclude:
             query.negate()
@@ -1557,7 +1542,6 @@ class PropertyConditionHandler(FilterConditionHandler):
             model=model,
             type=cls.type_id,
             name=ptype.id,
-            # value=condition_cls.encode_value(bool(has)),
             value=bool(has),
         )
 
@@ -1573,10 +1557,11 @@ class PropertyConditionHandler(FilterConditionHandler):
 
     # TODO: see remark on RelationConditionHandler._get_q()
     def get_q(self, user):
-        query = Q(pk__in=CremeProperty.objects
-                                      .filter(type=self._ptype_id)
-                                      .values_list('creme_entity_id', flat=True)
-                 )
+        query = Q(
+            pk__in=CremeProperty.objects
+                                .filter(type=self._ptype_id)
+                                .values_list('creme_entity_id', flat=True),
+        )
 
         # Do we filter entities which has got or has not got the property type ?
         if self._exclude:

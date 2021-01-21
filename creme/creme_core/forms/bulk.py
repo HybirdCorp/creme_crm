@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -96,15 +96,16 @@ class BulkForm(CremeForm):
             )
 
     def _bulk_field_url(self, model, fieldname, entities):  # TODO: remove 'entities'
-        return reverse(self._bulk_viewname,
-                       kwargs={'ct_id': ContentType.objects.get_for_model(model).id,
-                               'field_name': fieldname,
-                              },
-                      )
+        return reverse(
+            self._bulk_viewname,
+            kwargs={
+                'ct_id': ContentType.objects.get_for_model(model).id,
+                'field_name': fieldname,
+            },
+        )
 
     def _bulk_formfield(self, user, instance=None):
         if self.is_custom:
-            # return self._bulk_custom_formfield(self.model_field, instance)
             return self._bulk_custom_formfield(self.model_field, user=user, instance=instance)
 
         return self._bulk_updatable_formfield(self.model_field, user=user, instance=instance)
@@ -148,16 +149,13 @@ class BulkForm(CremeForm):
         return choices + sub_choices
 
     # TODO: rename "model_field"
-    # def _bulk_custom_formfield(self, model_field, instance=None):
     def _bulk_custom_formfield(self, model_field, instance=None, user=None):
         if instance is not None:
-            # return model_field.get_formfield(instance.get_custom_value(model_field))
             return model_field.get_formfield(
                 instance.get_custom_value(model_field),
                 user=user,
             )
 
-        # return model_field.get_formfield(None)
         return model_field.get_formfield(None, user=user)
 
     def _bulk_updatable_formfield(self, model_field, user, instance=None):
@@ -251,10 +249,11 @@ class BulkForm(CremeForm):
         for key, value in error.message_dict.items():
             field = fields.get(key)
             message = ''.join(value) if isinstance(value, (list, tuple)) else value
-            messages.append(f'{field.verbose_name} : {message}'
-                            if field is not None else
-                            message
-                           )
+            messages.append(
+                f'{field.verbose_name} : {message}'
+                if field is not None else
+                message
+            )
 
         return {NON_FIELD_ERRORS: messages}
 

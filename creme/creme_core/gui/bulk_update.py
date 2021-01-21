@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -149,10 +149,6 @@ class _BulkUpdateRegistry:
             model = self._model
             custom_fields = {
                 f'customfield-{field.pk}': field
-                # for field in CustomField.objects.filter(
-                #                     content_type=ContentType.objects
-                #                                             .get_for_model(model)
-                #                 )
                 for field in CustomField.objects.compatible(model)
             }
 
@@ -378,15 +374,17 @@ class _BulkUpdateRegistry:
 
             return sorted(exp_fields, key=lambda f: sort_key(f[0].verbose_name))
 
-        return sorted(filter(is_updatable, fields),
-                      key=lambda f: sort_key(f.verbose_name)
-                     )
+        return sorted(
+            filter(is_updatable, fields),
+            key=lambda f: sort_key(f.verbose_name)
+        )
 
     def custom_fields(self, model: Type[Model]) -> List[CustomField]:
         sort_key = collator.sort_key
-        return sorted(self.status(model).custom_fields.values(),
-                      key=lambda f: sort_key(f.name)
-                     )
+        return sorted(
+            self.status(model).custom_fields.values(),
+            key=lambda f: sort_key(f.name)
+        )
 
     # TODO: we need a better system, so we could also inner edit other type of cells
     #      (maybe _BulkUpdateRegistry should only

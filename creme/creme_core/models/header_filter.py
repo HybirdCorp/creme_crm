@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from ..utils.serializers import json_encode
-# from .fields_config import FieldsConfig
 from . import CremeEntity
 from . import fields as core_fields
 
@@ -57,7 +56,6 @@ class HeaderFilterList(list):
     Indeed, it's a cache.
     """
     def __init__(self, content_type: ContentType, user):
-        # super().__init__(HeaderFilter.get_for_user(user, content_type))
         super().__init__(
             HeaderFilter.objects.filter_by_user(user)
                                 .filter(entity_type=content_type)
@@ -291,7 +289,6 @@ class HeaderFilter(models.Model):  # CremeModel ???
         """List of not excluded EntityCell instances.
         (eg: fields not hidden with FieldsConfig, CustomFields not deleted).
         """
-        # return [*FieldsConfig.filter_cells(self.entity_type.model_class(), self.cells)]
         return [cell for cell in self.cells if not cell.is_excluded]
 
     def get_edit_absolute_url(self):

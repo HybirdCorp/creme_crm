@@ -98,7 +98,6 @@ class CredentialsTestCase(CremeTestCase):
 
     def test_populate(self):
         sandbox = self.get_object_or_fail(Sandbox, uuid=constants.UUID_SANDBOX_SUPERUSERS)
-        # self.assertIs(sandbox.superuser, True)
         self.assertIsNone(sandbox.role)
         self.assertIsNone(sandbox.user)
         self.assertEqual(OnlySuperusersType.id, sandbox.type_id)
@@ -1932,10 +1931,9 @@ class CredentialsTestCase(CremeTestCase):
         with self.assertRaises(PermissionDenied) as cm:
             user.has_perm_to_admin_or_die(invalid_app)
 
-        # self.assertEqual(fmt % (_('Invalid app "%s"') % invalid_app),
-        self.assertEqual(fmt(apps.get_app_config('persons').verbose_name),
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            fmt(apps.get_app_config('persons').verbose_name), str(cm.exception),
+        )
 
         self.assertTrue(user.has_perm('creme_core'))
         self.assertTrue(user.has_perm('documents'))
@@ -2071,7 +2069,6 @@ class CredentialsTestCase(CremeTestCase):
         # Filtering ------------------------------------------------------------
         user = self.refresh(user)  # Refresh caches
 
-        # qs = CremeEntity.objects.filter(pk=entity.id)
         qs = FakeContact.objects.filter(pk=entity.id)
         efilter = EntityCredentials.filter
 
@@ -2191,7 +2188,6 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(can_change_einvoice)
 
         self.assertFalse(user.has_perm_to_delete(invoice))
-        # self.assertFalse(user.has_perm_to_delete(invoice_entity))
 
         with self.assertNumQueries(0):
             can_delete_einvoice = user.has_perm_to_delete(invoice_entity)
@@ -3093,7 +3089,6 @@ class CredentialsTestCase(CremeTestCase):
             ],
         )
 
-        # sandbox = Sandbox.objects.create(superuser=True)
         sandbox = Sandbox.objects.create()
         contact3 = FakeContact.objects.create(
             user=user, sandbox=sandbox,

@@ -141,7 +141,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 #        self.assertEqual(_('No date custom field at present.'), dcf_f.help_text)
 
         name = 'Filter 01'
-        # operator = EntityFilterCondition.IEQUALS
         operator = operators.IEQUALS
         field_name = 'last_name'
         value = 'Ikari'
@@ -177,7 +176,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                           condition.name)
         self.assertDictEqual(
             {'operator': operator, 'values': [value]},
-            # condition.decoded_value
             condition.value,
         )
 
@@ -297,14 +295,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                           condition.name)
         self.assertDictEqual(
             {'operator': field_operator, 'values': [field_value]},
-            # condition.decoded_value
             condition.value,
         )
 
         condition = next(iter_conds)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(date_field_name,                          condition.name)
-        # self.assertDictEqual({'name': daterange_type}, condition.decoded_value)
         self.assertDictEqual({'name': daterange_type}, condition.value)
 
         condition = next(iter_conds)
@@ -316,7 +312,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 'rname': 'customfieldinteger',
                 'values': [str(cfield_value)],
             },
-            # condition.decoded_value
             condition.value,
         )
 
@@ -325,14 +320,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(str(datecfield.id),                      condition.name)
         self.assertDictEqual(
             {'rname': 'customfielddatetime', 'name': datecfield_rtype},
-            # condition.decoded_value
             condition.value,
         )
 
         condition = next(iter_conds)
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(rtype.id,                         condition.name)
-        # self.assertDictEqual({'has': True}, condition.decoded_value)
         self.assertDictEqual({'has': True}, condition.value)
 
         condition = next(iter_conds)
@@ -340,14 +333,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(srtype.id,                                 condition.name)
         self.assertDictEqual(
             {'has': False, 'filter_id': relsubfilfer.id},
-            # condition.decoded_value
             condition.value,
         )
 
         condition = next(iter_conds)
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
         self.assertEqual(ptype.id,                         condition.name)
-        # self.assertIs(condition.decoded_value, True)
         self.assertIs(condition.value, True)
 
         condition = next(iter_conds)
@@ -441,7 +432,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = conditions[0]
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(field_name,                               condition.name)
-        # self.assertDictEqual({'name': daterange_type}, condition.decoded_value)
         self.assertDictEqual({'name': daterange_type}, condition.value)
 
         self.assertRedirects(response, callback_url)
@@ -635,8 +625,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 'operator': operators.EQUALS,
                 'values':   [str(folder.id)],
             },
-            # condition.decoded_value
-            condition.value
+            condition.value,
         )
 
     def test_create_currentuser_filter(self):
@@ -674,8 +663,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 'operator': operators.EQUALS,
                 'values':   [operand_id],
             },
-            # condition.decoded_value
-            condition.value
+            condition.value,
         )
 
     def test_edit_filter_with_integer_values(self):
@@ -1107,7 +1095,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                           condition.name)
         self.assertDictEqual(
             {'operator': field_operator, 'values': [field_value]},
-            # condition.decoded_value
             condition.value,
         )
 
@@ -1119,7 +1106,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 'start': {'year': 2011, 'month': 5, 'day': 23},
                 'end':   {'year': 2012, 'month': 6, 'day': 27},
             },
-            # condition.decoded_value
             condition.value,
         )
 
@@ -1132,7 +1118,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 'rname':    'customfieldstring',
                 'values':    [str(cfield_value)],
             },
-            # condition.decoded_value
             condition.value,
         )
 
@@ -1141,14 +1126,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(str(datecfield.id),                      condition.name)
         self.assertDictEqual(
             {'rname': 'customfielddatetime', 'name': datecfield_rtype},
-            # condition.decoded_value
             condition.value,
         )
 
         condition = next(iter_conds)
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(rtype.id,                         condition.name)
-        # self.assertDictEqual({'has': True}, condition.decoded_value)
         self.assertDictEqual({'has': True}, condition.value)
 
         condition = next(iter_conds)
@@ -1156,14 +1139,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(srtype.id,                                 condition.name)
         self.assertDictEqual(
             {'has': False, 'filter_id': relsubfilfer.id},
-            # condition.decoded_value
             condition.value,
         )
 
         condition = next(iter_conds)
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
         self.assertEqual(ptype.id,                         condition.name)
-        # self.assertIs(condition.decoded_value, False)
         self.assertIs(condition.value, False)
 
         condition = next(iter_conds)
@@ -1226,7 +1207,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                           condition.name)
         self.assertDictEqual(
             {'operator': field_operator, 'values': [field_value]},
-            # condition.decoded_value
             condition.value,
         )
 

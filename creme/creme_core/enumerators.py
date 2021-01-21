@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,8 +17,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
-# import warnings
 
 from django.utils.translation import gettext as _
 
@@ -54,14 +52,6 @@ class UserEnumerator(enumerable.QSEnumerator):
 
 
 class EntityFilterEnumerator(enumerable.QSEnumerator):
-    # @classmethod
-    # def efilter_as_dict(cls, efilter):
-    #     warnings.warn('EntityFilterEnumerator.efilter_as_dict() is deprecated ;'
-    #                   'use instance_as_dict() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return cls.instance_as_dict(efilter)
-
     @classmethod
     def instance_as_dict(cls, instance):
         d = super().instance_as_dict(instance)

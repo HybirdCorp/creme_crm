@@ -172,24 +172,6 @@ class FileFieldPrinterForHTML:
             )
 
 
-# def print_file_html(entity: Model, fval, user, field: Field) -> str:
-#     if fval:
-#         ext = splitext(fval.path)[1]
-#         if ext:
-#             ext = ext[1:]  # remove '.'
-#
-#         if ext in settings.ALLOWED_IMAGES_EXTENSIONS:
-#             return print_image_html(entity, fval, user, field)
-#
-#     return simple_print_html(entity, fval, user, field)
-#
-#
-# def print_image_html(entity: Model, fval, user, field: Field) -> str:
-#     return format_html(
-#         """<a onclick="creme.dialogs.image('{url}').open();"><img src="{url}" {size}/></a>""",
-#         url=fval.url,
-#         size=image_size(fval),
-#     ) if fval else ''
 print_file_html = print_image_html = FileFieldPrinterForHTML(registry=filefield_download_registry)
 
 
@@ -310,11 +292,6 @@ print_foreignkey_html = FKPrinter(
 )
 
 
-# def print_foreignkey_csv(entity, fval, user, field):
-#     if isinstance(fval, CremeEntity):
-#         return str(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
-#
-#     return str(fval) if fval else ''
 print_foreignkey_csv = FKPrinter(
     none_printer=lambda *args, **kwargs: '',
     default_printer=simple_print_html,
@@ -411,7 +388,6 @@ class M2MPrinter(M2MPrinterForHTML):
         super().__init__(*args, **kwargs)
 
 
-# print_many2many_html = M2MPrinter(
 print_many2many_html = M2MPrinterForHTML(
     # default_printer=M2MPrinter.printer_html,
     default_printer=M2MPrinterForHTML.printer_html,
@@ -462,14 +438,6 @@ class M2MPrinterForCSV(BaseM2MPrinter):
         )
 
 
-# def print_many2many_csv(entity, fval, user, field):
-#     if issubclass(fval.model, CremeEntity):
-#         return '/'.join(
-#             str(e) if user.has_perm_to_view(e) else settings.HIDDEN_VALUE
-#                 for e in fval.filter(is_deleted=False)
-#         )
-#
-#     return '/'.join(str(a) for a in fval.all())
 print_many2many_csv = M2MPrinterForCSV(
     default_printer=M2MPrinterForCSV.printer_csv,
     default_enumerator=M2MPrinterForCSV.enumerator_all,
@@ -508,7 +476,6 @@ def print_email_html(entity: Model, fval, user, field: Field) -> str:
 
 
 def print_text_html(entity: Model, fval, user, field: Field) -> str:
-    # return linebreaks(widget_urlize(fval, autoescape=True)) if fval else ''
     return mark_safe(linebreaks(widget_urlize(fval, autoescape=True))) if fval else ''
 
 
@@ -519,14 +486,10 @@ def print_unsafehtml_html(entity: Model, fval, user, field: Field) -> str:
 # TODO: Do more specific fields (i.e: currency field....) ?
 class _FieldPrintersRegistry:
     def __init__(self):
-        # self._printers = ClassKeyedMap(
         self._html_printers = ClassKeyedMap(
             [
-                # (models.IntegerField,       print_integer),
                 (models.IntegerField,       print_integer_html),
 
-                # (models.FloatField,         print_decimal),
-                # (models.DecimalField,       print_decimal),
                 (models.FloatField,         print_decimal_html),
                 (models.DecimalField,       print_decimal_html),
 
@@ -559,10 +522,6 @@ class _FieldPrintersRegistry:
 
         self._csv_printers = ClassKeyedMap(
             [
-                # (models.IntegerField,       print_integer),
-
-                # (models.FloatField,         print_decimal),
-                # (models.DecimalField,       print_decimal),
                 (models.FloatField,         print_decimal_csv),
                 (models.DecimalField,       print_decimal_csv),
 
@@ -583,7 +542,6 @@ class _FieldPrintersRegistry:
         )
 
         self._printers_maps = {
-            # 'html': self._printers,
             'html': self._html_printers,
             'csv':  self._csv_printers,
         }

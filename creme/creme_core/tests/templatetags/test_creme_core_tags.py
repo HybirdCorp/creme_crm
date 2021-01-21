@@ -344,19 +344,6 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    # def assertFieldEditorTag(self, render, entity, field_name, block=False):
-    #     url = reverse('creme_core__inner_edition',
-    #                   args=(entity.entity_type_id, entity.id, field_name))
-    #
-    #     if block:
-    #         expected = """<a onclick="creme.blocks.form('{}', {blockReloadUrl:""".format(url)
-    #     else:
-    #         expected = """<a onclick="creme.blocks.form('{}', {reloadOnSuccess:""".format(url)
-    #
-    #     self.assertTrue(render.strip().startswith(expected),
-    #                     "{}\n doesn't start with\n {}".format(render.strip(), expected)
-    #                    )
-
     def _assertJsonifyFilter(self, expected, data):
         with self.assertNoException():
             template = Template("{% load creme_core_tags %}{{data|jsonify|safe}}")

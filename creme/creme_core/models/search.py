@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -289,8 +289,6 @@ class SearchConfigItem(CremeModel):
         """
         return self._get_modelfields_choices(self.content_type.model_class())
 
-    # @staticmethod
-    # def create_if_needed(model, fields, role=None, disabled=False):
     @classmethod
     def create_if_needed(cls, model, fields, role=None, disabled=False):
         """Create a config item & its fields if one does not already exists.
@@ -307,8 +305,6 @@ class SearchConfigItem(CremeModel):
             model=model, fields=fields, role=role, disabled=disabled,
         )
 
-    # @staticmethod
-    # def get_4_models(models, user):
     @classmethod
     def get_4_models(cls, models, user):
         "Get the SearchConfigItem instances corresponding to the given models (generator)."

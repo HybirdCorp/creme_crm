@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
 from collections import OrderedDict
 from copy import copy
@@ -71,7 +70,6 @@ __all__ = (
     'LayoutType',
     'LAYOUT_REGULAR', 'LAYOUT_DUAL_FIRST', 'LAYOUT_DUAL_SECOND', 'LAYOUTS',
     'FieldBlockManager', 'CremeForm', 'CremeModelForm',
-    # 'CremeModelWithUserForm',
     'CremeEntityForm', 'CremeEntityQuickForm',
 )
 
@@ -81,7 +79,6 @@ logger = logging.getLogger(__name__)
 FieldNamesOrWildcard = Union[Sequence[str], str]
 
 # NB: we use a '-' to be sure that collision with a regular field is not possible
-# _CUSTOM_NAME = 'custom_field_{}'
 _CUSTOM_NAME = 'custom_field-{}'
 
 LayoutType = str
@@ -97,7 +94,6 @@ LAYOUTS = {
 
 
 class _FieldBlock:
-    # __slots__ = ('name', 'field_names', 'layout')
     __slots__ = (
         'id', 'label', 'field_names',
         'layout', 'template_name', 'template_context',
@@ -108,7 +104,6 @@ class _FieldBlock:
     def __init__(self,
                  *,
                  id: str,
-                 # verbose_name: str,
                  label: str,
                  field_names: FieldNamesOrWildcard,
                  layout: Optional[LayoutType] = None,
@@ -127,7 +122,6 @@ class _FieldBlock:
               template rendering, or None.
         """
         self.id = id
-        # self.name = verbose_name
         self.label = label
         self.layout: LayoutType = layout or LAYOUT_REGULAR
         self.template_name = template_name or self.default_template_name
@@ -184,15 +178,6 @@ class BoundFieldBlocks:
 
     _blocks_data: Dict[
         str,  # Block ID
-        # Tuple[
-        #     str,  # Block label
-        #     List[
-        #         Tuple[
-        #             BoundField,
-        #             bool  # Is field required ?
-        #         ]
-        #     ]
-        # ]
         BoundFieldBlock
     ]
 
@@ -215,7 +200,6 @@ class BoundFieldBlocks:
                     raise ValueError(f'Only one wildcard is allowed: {type(form)}')
 
                 # We fill the fields info list at the end
-                # blocks_data[block_id] = (block.name, [])
                 blocks_data[block_id] = BFB(
                     id=block_id,
                     label=block.label,
@@ -227,7 +211,6 @@ class BoundFieldBlocks:
                 wildcard_id = block_id
             else:
                 field_set |= {*field_names}
-                # block_data = []
                 bound_fields = []
 
                 for fn in field_names:
@@ -236,10 +219,8 @@ class BoundFieldBlocks:
                     except KeyError as e:
                         logger.debug('BoundFieldBlocks: %s', e)
                     else:
-                        # block_data.append((bound_field, form.fields[fn].required))
                         bound_fields.append(bound_field)
 
-                # blocks_data[block_id] = (block.name, block_data)
                 blocks_data[block_id] = BFB(
                     id=block_id,
                     label=block.label,
@@ -250,11 +231,6 @@ class BoundFieldBlocks:
                 )
 
         if wildcard_id is not None:
-            # blocks_data[wildcard_id][1].extend(
-            #     (form[name], field.required)
-            #     for name, field in form.fields.items()
-            #     if name not in field_set
-            # )
             blocks_data[wildcard_id].bound_fields.extend(
                 form[name]
                 for name in form.fields.keys()
@@ -332,8 +308,6 @@ class FieldBlockManager:
                     raise TypeError('Arguments <blocks> must be tuples or dicts.')
 
         self.__blocks = OrderedDict([
-            # (block_id, _FieldBlock(name, field_names))
-            # for block_id, name, field_names in blocks
             (block_id, _FieldBlock(id=block_id, **kwargs))
             for block_id, kwargs in block_kwargs()
         ])
@@ -440,7 +414,6 @@ class FieldBlockManager:
 _FormCallback = Callable[[forms.Form], None]
 
 
-# class HookableForm:
 class HookableFormMixin:
     # Beware: use related method to manipulate
     _creme_post_clean_callbacks: Sequence[_FormCallback] = ()  # ==> add_post_clean_callback()
@@ -490,7 +463,6 @@ class HookableFormMixin:
         )
 
 
-# class CremeForm(forms.Form, HookableForm):
 class CremeForm(HookableFormMixin, forms.Form):
     blocks = FieldBlockManager(('general', _('General information'), '*'))
 
@@ -520,7 +492,6 @@ class CremeForm(HookableFormMixin, forms.Form):
         self._creme_post_save()
 
 
-# class CremeModelForm(forms.ModelForm, HookableForm):
 class CremeModelForm(HookableFormMixin, forms.ModelForm):
     blocks = FieldBlockManager(('general', _('General information'), '*'))
 
@@ -544,7 +515,6 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
 
         self._creme_post_init()
 
-    # def clean(self, *args, **kwargs):
     def clean(self):
         res = super().clean()
         self._creme_post_clean()
@@ -559,29 +529,12 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
         return instance
 
 
-# class CremeModelWithUserForm(CremeModelForm):
-#     user = forms.ModelChoiceField(label=_('Owner user'), empty_label=None, queryset=None)
-#
-#     def __init__(self, user, *args, **kwargs):
-#         warnings.warn('CremeModelWithUserForm is deprecated ; '
-#                       'use CremeModelForm instead.',
-#                       DeprecationWarning
-#                      )
-#
-#         from django.contrib.auth import get_user_model
-#
-#         super().__init__(user=user, *args, **kwargs)
-#         user_f = self.fields['user']
-#         user_f.queryset = get_user_model().objects.filter(is_staff=False)
-#         user_f.initial = user.id
-
 class CustomFieldsMixin:
     @staticmethod
     def _build_customfield_name(cfield):
         return _CUSTOM_NAME.format(cfield.id)
 
     def _build_customfields(self, only_required=False) -> None:
-        # self._customs = self.instance.get_custom_fields_n_values(only_required=only_required)
         self._customs = self._get_customfields_n_values(only_required=only_required)
         fields = self.fields
         user = self.user
@@ -606,7 +559,6 @@ class CustomFieldsMixin:
                 CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 
 
-# class CremeEntityForm(CremeModelForm):
 class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
     property_types = core_fields.EnhancedModelMultipleChoiceField(
         queryset=CremePropertyType.objects.none(),
@@ -695,18 +647,9 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         ]
         self._build_relations_fields(forced_relations_info=forced_relations_info)
 
-    # def _build_customfields(self):
-    #     self._customs = self.instance.get_custom_fields_n_values()
-    #     fields = self.fields
-    #     user = self.user
-    #
-    #     for i, (cfield, cvalue) in enumerate(self._customs):
-    #         fields[_CUSTOM_NAME.format(i)] = cfield.get_formfield(cvalue)
-
     def _build_properties_field(self, forced_ptype_ids: Iterable[str]) -> None:
         instance = self.instance
 
-        # if settings.FORMS_RELATION_FIELDS and not instance.pk:
         if self._use_properties_fields() and not instance.pk:
             ptypes_f = self.fields['property_types']
             ptypes_f.queryset = CremePropertyType.objects.compatible(type(instance))
@@ -721,7 +664,6 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         instance = self.instance
         info: Optional[str] = None
 
-        # if settings.FORMS_RELATION_FIELDS and not instance.pk:
         if self._use_relations_fields() and not instance.pk:
             if forced_relations_info:
                 if len(forced_relations_info) == 1:
@@ -893,17 +835,6 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
             CremeProperty(creme_entity=instance, type_id=ptype_id)
             for ptype_id in ptype_ids
         )
-
-    # def _save_customfields(self):
-    #     cfields_n_values = self._customs
-    #
-    #     if cfields_n_values:
-    #         cleaned_data = self.cleaned_data
-    #         instance = self.instance
-    #
-    #         for i, (custom_field, custom_value) in enumerate(cfields_n_values):
-    #             value = cleaned_data[_CUSTOM_NAME.format(i)]
-    #             CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
 
     def _save_properties(self,
                          properties: Iterable[CremeProperty],

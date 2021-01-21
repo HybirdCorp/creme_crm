@@ -53,47 +53,29 @@ class FieldBlockManagerTestCase(CremeTestCase):
         with self.assertNoException():
             names_group = blocks['names']
 
-        # self.assertIsInstance(names_group, tuple)
-        # self.assertEqual(2, len(names_group))
-        # self.assertEqual('Names', names_group[0])
         self.assertIsInstance(names_group, BoundFieldBlocks.BoundFieldBlock)
         self.assertEqual('names', names_group.id)
         self.assertEqual('Names', names_group.label)
         self.assertEqual(LAYOUT_REGULAR, names_group.layout)
 
-        # items = names_group[1]
-        # self.assertIsInstance(items, list)
-        # self.assertEqual(2, len(items))
         names_bfields = names_group.bound_fields
         self.assertEqual(2, len(names_bfields))
 
-        # # --
-        # item1 = items[0]
-        # self.assertIsInstance(item1, tuple)
-        # self.assertEqual(2, len(item1))
-        # self.assertIs(item1[1], False)
-        #
-        # bound_field1 = item1[0]
         bound_field1 = names_bfields[0]
         self.assertIsInstance(bound_field1, BoundField)
         self.assertEqual('first_name', bound_field1.name)
         self.assertEqual('id_first_name', bound_field1.auto_id)
 
         # --
-        # bfield2, required2 = items[1]
-        # self.assertEqual('last_name', bfield2.name)
         self.assertEqual('last_name', names_bfields[1].name)
-        # self.assertIs(required2, True)
 
         # --
         with self.assertNoException():
             details_group = blocks['details']
 
-        # self.assertEqual('Details', details_group[0])
         self.assertEqual('Details', details_group.label)
         self.assertListEqual(
             ['cell', 'phone', 'fax'],  # The order of the block info is used
-            # [bfield.name for bfield, required in details_group[1]]
             [bfield.name for bfield in details_group.bound_fields]
         )
 
@@ -178,15 +160,10 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual(2, len(blocks_list))
 
         names_group = blocks_list[0]
-        # self.assertIsInstance(names_group, tuple)
-        # self.assertEqual(2, len(names_group))
-        # self.assertEqual('Names', names_group[0])
         self.assertIsInstance(names_group, BoundFieldBlocks.BoundFieldBlock)
         self.assertEqual('Names', names_group.label)
 
-        details_group = blocks_list[1]
-        # self.assertEqual('Details', details_group[0])
-        self.assertEqual('Details', details_group.label)
+        self.assertEqual('Details', blocks_list[1].label)
 
     def test_invalid_field01(self):
         class TestForm(forms.Form):
@@ -205,8 +182,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
 
         self.assertListEqual(
             ['last_name'],
-            # [bfield.name for bfield, required in group[1]]
-            [bfield.name for bfield in group.bound_fields]
+            [bfield.name for bfield in group.bound_fields],
         )
 
     def test_invalid_field02(self):
@@ -232,12 +208,8 @@ class FieldBlockManagerTestCase(CremeTestCase):
         with self.assertNoException():
             block = form.get_blocks()[block_id]
 
-        # self.assertEqual(block_vname, block[0])
         self.assertEqual(block_vname, block.label)
 
-        # fields = block[1]
-        # self.assertEqual(3, len(fields))
-        # self.assertEqual('id_email', fields[1][0].auto_id)
         bound_fields = block.bound_fields
         self.assertEqual(3, len(bound_fields))
         self.assertEqual('id_email', bound_fields[1].auto_id)
@@ -259,13 +231,11 @@ class FieldBlockManagerTestCase(CremeTestCase):
         blocks = fbm.build(TestForm())
         self.assertListEqual(
             ['first_name', 'last_name'],
-            # [bfield.name for bfield, required in blocks['names'][1]]
-            [bfield.name for bfield in blocks['names'].bound_fields]
+            [bfield.name for bfield in blocks['names'].bound_fields],
         )
         self.assertListEqual(
             ['phone', 'cell', 'fax'],  # The order of the form-fields is used
-            # [bfield.name for bfield, required in blocks['details'][1]]
-            [bfield.name for bfield in blocks['details'].bound_fields]
+            [bfield.name for bfield in blocks['details'].bound_fields],
         )
 
     def test_wildcard02(self):
@@ -278,7 +248,6 @@ class FieldBlockManagerTestCase(CremeTestCase):
             fax   = forms.CharField(label='Fax')
 
         fbm = FieldBlockManager(
-            # ('names',   'Names',   '*'),
             {'id': 'names', 'label': 'Names', 'fields': '*', 'layout': LAYOUT_DUAL_SECOND},
             ('details', 'Details', ('phone', 'fax', 'cell')),
         )
@@ -288,12 +257,10 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual(LAYOUT_DUAL_SECOND, name_block.layout)
         self.assertListEqual(
             ['first_name', 'last_name'],
-            # [bfield.name for bfield, required in blocks['names'][1]]
             [bfield.name for bfield in name_block.bound_fields]
         )
         self.assertListEqual(
             ['phone', 'fax', 'cell'],
-            # [bfield.name for bfield, required in blocks['details'][1]]
             [bfield.name for bfield in blocks['details'].bound_fields]
         )
 
@@ -343,24 +310,20 @@ class FieldBlockManagerTestCase(CremeTestCase):
         with self.assertNoException():
             names_group = blocks[names_id]
 
-        # self.assertEqual('Names', names_group[0])
         self.assertEqual('Names', names_group.label)
         self.assertListEqual(
             ['last_name', 'first_name'],
-            # [bfield.name for bfield, required in names_group[1]]
             [bfield.name for bfield in names_group.bound_fields]
         )
 
         with self.assertNoException():
             details_group = blocks[details_id]
 
-        # self.assertEqual('Details', details_group[0])
         self.assertEqual('Details',      details_group.label)
         self.assertEqual(LAYOUT_REGULAR, details_group.layout)
         self.assertListEqual(
             ['cell', 'phone', 'fax'],
-            # [bfield.name for bfield, required in details_group[1]]
-            [bfield.name for bfield in details_group.bound_fields]
+            [bfield.name for bfield in details_group.bound_fields],
         )
 
         self.assertListEqual(
@@ -393,23 +356,19 @@ class FieldBlockManagerTestCase(CremeTestCase):
         with self.assertNoException():
             names_group = blocks['names']
 
-        # self.assertEqual('Names', names_group[0])
         self.assertEqual('Names', names_group.label)
         self.assertListEqual(
             ['last_name', 'first_name'],
-            # [bfield.name for bfield, required in names_group[1]]
-            [bfield.name for bfield in names_group.bound_fields]
+            [bfield.name for bfield in names_group.bound_fields],
         )
 
         with self.assertNoException():
             details_group = blocks['details']
 
-        # self.assertEqual('Details extended', details_group[0])
         self.assertEqual('Details extended', details_group.label)
         self.assertListEqual(
             ['cell', 'phone', 'fax'],
-            # [bfield.name for bfield, required in details_group[1]]
-            [bfield.name for bfield in details_group.bound_fields]
+            [bfield.name for bfield in details_group.bound_fields],
         )
 
     def test_new_wildcard01(self):

@@ -27,15 +27,11 @@ from .base import ViewsTestCase
 
 
 class RelationViewsTestCase(ViewsTestCase):
-    # DELETE_ALL_URL    = reverse('creme_core__delete_all_relations')
     ADD_FROM_PRED_URL = reverse('creme_core__save_relations')
     SELECTION_URL     = reverse('creme_core__select_entities_to_link')
 
     def _build_get_ctypes_url(self, rtype_id):
         return reverse('creme_core__ctypes_compatible_with_rtype', args=(rtype_id,))
-
-    # def _build_predicates_json_url(self, entity):
-    #     return reverse('creme_core__rtypes_compatible_with_entity', args=(entity.id,))
 
     def test_get_ctypes_of_relation01(self):
         "No sort."
@@ -617,7 +613,6 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response, 'form', 'relations',
-            # _('This type of relationship causes a constraint error.')
             _(
                 'This type of relationship causes a constraint error '
                 '(id="%(rtype_id)s").'
@@ -1522,52 +1517,6 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertStillExists(relation)
 
-    # def _aux_test_delete_all(self):
-    #     self.assertEqual(0, Relation.objects.count())
-    #     create_entity = CremeEntity.objects.create
-    #     subject  = self.subject = create_entity(user=self.user)
-    #     object01 = create_entity(user=self.user)
-    #     object02 = create_entity(user=self.other_user)
-    #
-    #     create_rtype = lambda *args, **kwargs: RelationType.create(*args, **kwargs)[0]
-    #     rtypes = [create_rtype(('test-subject_foobar1', 'is loving'),
-    #                            ('test-object_foobar1',  'is loved by')
-    #                           ),
-    #               create_rtype(('test-subject_foobar2', 'is loving'),
-    #                            ('test-object_foobar2',  'is loved by')
-    #                           ),
-    #               create_rtype(('test-subject_foobar3', 'is loving'),
-    #                            ('test-object_foobar3',  'is loved by'),
-    #                            is_internal=True
-    #                           ),
-    #              ]
-    #     create_rel = partial(Relation.objects.create, subject_entity=subject)
-    #
-    #     for rtype in rtypes:
-    #         create_rel(type=rtype, object_entity=object01, user=self.user)
-    #         create_rel(type=rtype, object_entity=object02, user=self.other_user)
-    #
-    # def test_delete_all01(self):
-    #     self.login()
-    #     self._aux_test_delete_all()
-    #     self.assertEqual(12, Relation.objects.count())
-    #
-    #     url = self.DELETE_ALL_URL
-    #     self.assertPOST404(url)
-    #
-    #     self.assertPOST200(url, data={'subject_id': self.subject.id})
-    #     self.assertEqual(4, Relation.objects.count())
-    #     self.assertFalse(Relation.objects.filter(type__is_internal=False))
-    #
-    # def test_delete_all02(self):
-    #     self.login(is_superuser=False)
-    #     self._set_all_creds_except_one(excluded=EntityCredentials.UNLINK)
-    #     self._aux_test_delete_all()
-    #
-    #     self.assertPOST403(self.DELETE_ALL_URL, data={'subject_id': self.subject.id})
-    #     # 4 internals and 4 the user can't unlink because they are not his ones
-    #     self.assertEqual(4 + 4, Relation.objects.count())
-
     def test_not_copiable_relations01(self):
         user = self.login()
 
@@ -1641,50 +1590,3 @@ class RelationViewsTestCase(ViewsTestCase):
 
         orga._copy_relations(contact1)
         self.assert_relation_count(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))
-
-    # def test_json_entity_rtypes01(self):
-    #     user = self.login()
-    #
-    #     rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-    #
-    #     create_rtype = RelationType.create
-    #     rtype1, rtype2 = create_rtype(('test-subject_JSP01_1', 'Predicate#1'),
-    #                                   ('test-object_JSP01_2',  'Predicate#2'),
-    #                                   is_internal=True,
-    #                                  )
-    #     rtype3, rtype4 = create_rtype(
-    #          ('test-subject__JSP01_3', 'Predicate#3', [FakeContact, FakeOrganisation]),
-    #          ('test-object__JSP01_4',  'Predicate#4', [FakeActivity]),
-    #     )
-    #     rtype5, rtype6 = create_rtype(('test-subject__JSP01_5', 'Predicate#5'),
-    #                                   ('test-object__JSP01_6',  'Predicate#6', [FakeContact]),
-    #                                  )
-    #
-    #     url = self._build_predicates_json_url(rei)
-    #     self.assertGET(400, url)
-    #     self.assertGET(400, url, data={'wedontcare': 'unknown'})
-    #     self.assertGET403(url, data={'fields': ['unknown']})
-    #
-    #     response = self.assertGET200(url, data={'fields': ['id']})
-    #     json_data = response.json()
-    #     self.assertIsInstance(json_data, list)
-    #     self.assertIn([rtype3.id], json_data)
-    #     self.assertIn([rtype5.id], json_data)
-    #     self.assertIn([rtype6.id], json_data)
-    #     self.assertNotIn([rtype1.id], json_data)  # Internal
-    #     self.assertNotIn([rtype4.id], json_data)  # CT constraint
-    #
-    #     nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-    #     response = self.assertGET200(self._build_predicates_json_url(nerv),
-    #                                  data={'fields': ['id', 'unicode']}
-    #                                 )
-    #     self.assertIn([rtype3.id, str(rtype3)],
-    #                   response.json()
-    #                  )
-    #
-    # def test_json_entity_rtypes02(self):
-    #     user = self.login(is_superuser=False, allowed_apps=['documents'])
-    #     rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-    #     self.assertGET403(self._build_predicates_json_url(rei),
-    #                       data={'fields': ['id']},
-    #                      )

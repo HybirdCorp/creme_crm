@@ -18,7 +18,6 @@ from .base import CremeTestCase
 
 class QuickFormTestCase(CremeTestCase):
     @staticmethod
-    # def quickform_data(self, count):
     def quickform_data(count):
         return {
             'form-INITIAL_FORMS':  '0',

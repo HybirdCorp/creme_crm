@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020 Hybird
+#    Copyright (C) 2019-2021 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,14 +69,6 @@ class ReplacersRegistry:
     #     return self._replacer_classes[type_id]
 
     def serialize(self, replacers):
-        # def as_dict(r):
-        #     if not isinstance(r, Replacer):
-        #         raise TypeError(
-        #             'ReplacersRegistry expects Replacer instances.'
-        #         )
-        #
-        #     return r.as_dict()
-
         return [
             [r.type_id, r.as_dict()] for r in replacers
         ]

@@ -38,10 +38,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         cls.contact_ct = get_ct(FakeContact)  # TODO: used once ?!
         cls.orga_ct    = get_ct(FakeOrganisation)
 
-    # def assertCellEqual(self, cell1, cell2):
-    #     self.assertIs(cell1.__class__, cell2.__class__)
-    #     self.assertEqual(cell1.value, cell2.value)
-
     def test_create(self):  # DEPRECATED
         self.login()
 
@@ -450,7 +446,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         new_cells = hf.cells
         # TODO: assertCellsEqual
         self.assertEqual(1, len(new_cells))
-        # self.assertCellEqual(cell1, new_cells[0])
         self.assertEqual(cell1, new_cells[0])
 
         with self.assertNoException():
@@ -486,7 +481,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf = self.refresh(hf)
         new_cells = hf.cells
         self.assertEqual(1, len(new_cells))
-        # self.assertCellEqual(cell1, hf.cells[0])
         self.assertEqual(cell1, hf.cells[0])
 
     def test_populate_entities_relations01(self):

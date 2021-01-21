@@ -94,7 +94,6 @@ class _CremeTestCase:
             RuntimeWarning, r'django\.db\.models\.fields',
         )
 
-    # def tearDown(self):
     def setUp(self):
         clear_global_info()
 
@@ -138,14 +137,6 @@ class _CremeTestCase:
               creatable_models=None, admin_4_apps=()):
         self.password = password = 'test'
 
-        # superuser = CremeUser(
-        #     username='kirika', email='kirika@noir.jp',
-        #     first_name='Kirika', last_name='Yumura',
-        #     is_superuser=True or is_staff,
-        #     is_staff=is_staff,
-        # )
-        # superuser.set_password(password)
-        # superuser.save()
         superuser = self.create_user(
             index=0,
             is_staff=is_staff,
@@ -162,21 +153,16 @@ class _CremeTestCase:
 
         self.role = role
 
-        # basic_user = CremeUser(
-        #     username='mireille',
-        #     email='mireille@noir.jp',
-        #     role=role,
-        #     first_name='Mireille', last_name='Bouquet',
-        # )
-        # basic_user.set_password(password)
-        # basic_user.save()
         basic_user = self.create_user(
             index=1,
             role=role,
         )
 
-        self.user, self.other_user = (superuser, basic_user) if is_superuser else \
-                                     (basic_user, superuser)
+        self.user, self.other_user = (
+            superuser, basic_user,
+        ) if is_superuser else (
+            basic_user, superuser,
+        )
 
         logged = self.client.login(username=self.user.username, password=password)
         self.assertTrue(logged, 'Not logged in')
@@ -602,11 +588,12 @@ class _CremeTestCase:
         try:
             obj = model.objects.get(**kwargs)
         except model.DoesNotExist as e:
-            self.fail(f'Your object does not exist.\n'
-                      f' Query model: {model}\n'
-                      f' Query args {kwargs}\n'
-                      f' [original exception: {e}]'
-                     )
+            self.fail(
+                f'Your object does not exist.\n'
+                f' Query model: {model}\n'
+                f' Query args {kwargs}\n'
+                f' [original exception: {e}]'
+            )
         except Exception as e:
             self.fail(str(e))
 
@@ -640,11 +627,11 @@ class _CremeTestCase:
         get_ct = ContentType.objects.get_for_model
         self.assertListEqual(
             sorted((get_ct(model) for model in sub_models), key=lambda ct: ct.id),
-            [*rt.subject_ctypes.order_by('id')]
+            [*rt.subject_ctypes.order_by('id')],
         )
         self.assertListEqual(
             sorted((get_ct(model) for model in obj_models), key=lambda ct: ct.id),
-            [*rt.object_ctypes.order_by('id')]
+            [*rt.object_ctypes.order_by('id')],
         )
 
         self.assertSetEqual(
@@ -654,9 +641,10 @@ class _CremeTestCase:
             {*obj_props}, {*rt.object_properties.values_list('id', flat=True)}
         )
 
-        self.assertNotEqual(rt.pk, rt.symmetric_type_id,
-                            'Be careful your type is its own symmetric type'
-                           )  # Common error
+        self.assertNotEqual(
+            rt.pk, rt.symmetric_type_id,
+            'Be careful your type is its own symmetric type'
+        )  # Common error
 
         return rt
 
@@ -669,7 +657,7 @@ class _CremeTestCase:
         get_ct = ContentType.objects.get_for_model
         self.assertSetEqual(
             {get_ct(model).id for model in models},
-            {*pt.subject_ctypes.values_list('id', flat=True)}
+            {*pt.subject_ctypes.values_list('id', flat=True)},
         )
 
         return pt
@@ -707,8 +695,9 @@ class _CremeTestCase:
     @staticmethod
     def formfield_value_multi_generic_entity(*entities):
         return json_dump([
-            {'ctype': {'id': str(entity.entity_type_id)},
-             'entity': str(entity.id),
+            {
+                'ctype': {'id': str(entity.entity_type_id)},
+                'entity': str(entity.id),
             } for entity in entities
         ])
 
@@ -727,9 +716,10 @@ class _CremeTestCase:
     @staticmethod
     def formfield_value_multi_relation_entity(*relations):
         return json_dump([
-            {'rtype':  rtype_id,
-             'ctype':  str(entity.entity_type_id),
-             'entity': str(entity.id),
+            {
+                'rtype':  rtype_id,
+                'ctype':  str(entity.entity_type_id),
+                'entity': str(entity.id),
             } for rtype_id, entity in relations
         ])
 
@@ -759,10 +749,6 @@ class CremeTestCase(TestCase, _CremeTestCase):
         super().setUp()
         _CremeTestCase.setUp(self)
 
-    # def tearDown(self):
-    #     super().tearDown()
-    #     _CremeTestCase.tearDown(self)
-
 
 class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
     @classmethod
@@ -773,10 +759,6 @@ class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
     def setUp(self):
         super().setUp()
         _CremeTestCase.setUp(self)
-
-    # def tearDown(self):
-    #     super().tearDown()
-    #     _CremeTestCase.tearDown(self)
 
     @classmethod
     def populate(cls, *args):

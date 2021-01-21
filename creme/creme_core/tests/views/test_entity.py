@@ -303,7 +303,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertContains(response, edit_url)
 
         url = self._build_delete_url(entity)
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
 
@@ -326,7 +325,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
 
         url = self._build_delete_url(entity)
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
         self.assertDoesNotExist(entity)
@@ -415,9 +413,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             user=user, type=rtype, subject_entity=entity01, object_entity=entity02,
         )
 
-        # response = self.assertPOST403(self._build_delete_url(entity01), follow=True)
         response = self.assertPOST409(self._build_delete_url(entity01), follow=True)
-        # self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertTemplateUsed(response, 'creme_core/conflict_error.html')
         self.assertStillExists(entity01)
         self.assertStillExists(entity02)
@@ -609,7 +605,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
         url = self._build_restore_url(entity)
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertPOST404(url)
 
@@ -621,7 +616,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
         url = self._build_restore_url(entity)
 
-        # self.assertGET404(url)
         self.assertGET405(url)
         self.assertRedirects(self.client.post(url), entity.get_absolute_url())
 
@@ -665,9 +659,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             ctxt.get('message'),
         )
 
-        # self.assertPOST200(url)
-        # self.assertFalse(FakeContact.objects.filter(id__in=[contact1.id, contact2.id]))
-        # self.assertStillExists(contact3)
         response = self.assertPOST200(url)
         self.assertTemplateUsed(response, 'creme_core/job/trash-cleaning-popup.html')
 
@@ -746,26 +737,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             user=user, type=rtype, subject_entity=entity01, object_entity=entity02,
         )
 
-        # response = self.assertPOST(409, self.EMPTY_TRASH_URL)
-        # self.assertStillExists(entity01)
-        # self.assertStillExists(entity02)
-        # self.assertDoesNotExist(entity03)
-        # self.assertStillExists(entity04)
-        # self.assertDoesNotExist(entity05)
-        #
-        # content = response.content.decode()
-        # self.assertIn(
-        #     ngettext('The following entity cannot be deleted:',
-        #              'The following entities cannot be deleted:',
-        #              2
-        #             ),
-        #     content
-        # )
-        #
-        # msg_fmt = _('«{entity}» can not be deleted because of its dependencies.').format
-        # self.assertIn(msg_fmt(entity=entity01), content)
-        # self.assertIn(msg_fmt(entity=entity02), content)
-        # self.assertNotIn(msg_fmt(entity=entity03), content)
         self.assertPOST200(self.EMPTY_TRASH_URL)
 
         job = self.get_object_or_fail(Job, type_id=trash_cleaner_type.id)
@@ -826,13 +797,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTrue(user.has_perm_to_delete(orga3))
 
         self.assertPOST200(self.EMPTY_TRASH_URL)
-        # self.assertDoesNotExist(contact1)
-        # self.assertStillExists(contact2)
-        #
-        # self.assertStillExists(orga2)
-        # self.assertDoesNotExist(orga1)
-        # self.assertDoesNotExist(orga3)
         job = self.get_object_or_fail(Job, type_id=trash_cleaner_type.id)
+
         trash_cleaner_type.execute(job)
         self.assertDoesNotExist(contact1)
         self.assertStillExists(contact2)
@@ -1310,7 +1276,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         url = self.RESTRICT_URL
         data = {'id': contact.id}
-        # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
         self.assertPOST200(url, data=data)
 
@@ -1361,7 +1326,6 @@ class _BulkEditTestCase(ViewsTestCase):
         cls._original_bulk_update_registry = bulk_update.bulk_update_registry
 
     @staticmethod
-    # def get_cf_values(self, cf, entity):
     def get_cf_values(cf, entity):
         return cf.value_class.objects.get(custom_field=cf, entity=entity)
 

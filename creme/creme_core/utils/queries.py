@@ -1,67 +1,11 @@
 # -*- coding: utf-8 -*-
 
-################################################################################
-#    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
-
-# import warnings
-import json
-import logging
-from datetime import date, datetime
-
-from django.core.serializers.base import SerializationError
-from django.db.models import Model, Q
-from django.db.models.query import QuerySet
-
-from .dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
-
-logger = logging.getLogger(__name__)
-
-
-# def get_q_from_dict(dict, is_or=False):
-#     """
-#     @return: A Q instance from {'attr1': 'val1', 'attr2': 'val2',...}
-#              If 'is_or' is True, it returns <Q(attr1=val1) | Q(attr2=val2)>
-#              else it returns <Q(attr1=val1) & Q(attr2=val2)>
-#     """
-#     warnings.warn('creme_core.utils.queries.get_q_from_dict() is deprecated ; '
-#                   'use django.db.models.query.Q(**my_dict) instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     q = Q()
-#
-#     for k, v in dict.items():
-#         sub_q = Q(**{str(k): v})
-#
-#         if is_or:
-#             q |= sub_q
-#         else:
-#             q &= sub_q
-#
-#     return q
-
-
 # The following code is an heavy modification of:
 #  https://djangosnippets.org/snippets/3003/
 
 ################################################################################
 # Copyright (c)  2013  asfaltboy
-# Copyright (c)  2015-2020  Hybird
+# Copyright (c)  2015-2021  Hybird
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -89,6 +33,19 @@ logger = logging.getLogger(__name__)
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ################################################################################
 
+import json
+import logging
+from datetime import date, datetime
+
+from django.core.serializers.base import SerializationError
+from django.db.models import Model, Q
+from django.db.models.query import QuerySet
+
+from .dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
+
+logger = logging.getLogger(__name__)
+
+
 class QSerializer:
     """A Q object serializer base class.
 
@@ -99,10 +56,11 @@ class QSerializer:
     def _serialize_value(self, value):
         if isinstance(value, date):
             # TODO: same format for deserialization...
-            return value.strftime(DATETIME_ISO8601_FMT
-                                  if isinstance(value, datetime) else
-                                  DATE_ISO8601_FMT
-                                 )
+            return value.strftime(
+                DATETIME_ISO8601_FMT
+                if isinstance(value, datetime) else
+                DATE_ISO8601_FMT
+            )
 
         if isinstance(value, Model):
             return value.pk
@@ -128,9 +86,10 @@ class QSerializer:
 
                 children.append((key, value))
 
-        return {'op': 'N' + q.connector if q.negated else q.connector,
-                'val': children,
-               }
+        return {
+            'op': 'N' + q.connector if q.negated else q.connector,
+            'val': children,
+        }
 
     def deserialize(self, d: dict) -> Q:
         query = Q()

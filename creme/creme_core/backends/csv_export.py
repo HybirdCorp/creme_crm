@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,9 +44,7 @@ class CSVExportBackend(ExportBackend):
     def writerow(self, row):
         return self.writer.writerow(row)
 
-    # def save(self, filename):
     def save(self, filename, user):
-        # self.response['Content-Disposition'] = f'attachment; filename={slugify(filename)}.csv'
         self.response['Content-Disposition'] = f'attachment; filename="{slugify(filename)}.csv"'
 
 

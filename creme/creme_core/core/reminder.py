@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,9 +36,7 @@ FIRST_REMINDER = 1
 
 
 class Reminder:
-    # id    = None
     id: str = ''  # Override with generate_id()
-    # model = None
     model: Type[CremeModel]  # Override with a CremeModel sub-class
 
     def __init__(self):
@@ -113,10 +111,11 @@ class Reminder:
             self.send_mails(instance, job)
 
             with atomic():
-                DateReminder.objects.create(date_of_remind=dt_now,
-                                            ident=FIRST_REMINDER,
-                                            object_of_reminder=instance,
-                                           )
+                DateReminder.objects.create(
+                    date_of_remind=dt_now,
+                    ident=FIRST_REMINDER,
+                    object_of_reminder=instance,
+                )
 
                 instance.reminded = True
                 instance.save()

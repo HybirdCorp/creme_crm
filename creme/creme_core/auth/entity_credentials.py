@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -106,7 +106,6 @@ class EntityCredentials:
         return self.has_perm(VIEW_PERM)
 
     def has_perm(self, string_permission: str) -> bool:
-        # return bool(self._PERMS_MAP.get(string_permission) & self._value)
         return bool(self._PERMS_MAP[string_permission] & self._value)
 
     @classmethod
@@ -140,17 +139,19 @@ class EntityCredentials:
         model = queryset.model
 
         if not issubclass(model, CremeEntity) or model is CremeEntity:
-            raise ValueError('EntityCredentials.filter() takes a queryset on models '
-                             'inheriting CremeEntity, not CremeEntity directly.'
-                            )
+            raise ValueError(
+                'EntityCredentials.filter() takes a queryset on models '
+                'inheriting CremeEntity, not CremeEntity directly.'
+            )
 
         if not user.is_superuser:
             role = user.role
             assert role is not None
 
-            queryset = role.filter(user=user, perm=perm,
-                                   queryset=queryset.filter(cls._build_sandbox_Q(user)),
-                                  )
+            queryset = role.filter(
+                user=user, perm=perm,
+                queryset=queryset.filter(cls._build_sandbox_Q(user)),
+            )
 
         return queryset
 

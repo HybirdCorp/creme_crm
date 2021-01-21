@@ -56,7 +56,6 @@ from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
 from .fields import CTypeForeignKey
-# from .fields_config import FieldsConfig
 from .relation import RelationType
 from .setting_value import SettingValue
 
@@ -216,43 +215,6 @@ class BrickDetailviewLocation(CremeModel):
             )
         )
 
-    # def __str__(self):
-    #     # TODO: @property "brick" ??
-    #     from ..gui.bricks import brick_registry  # TODO: in attribute ?
-    #
-    #     brick = next(brick_registry.get_bricks((self.brick_id,)))
-    #     ct = self.content_type
-    #
-    #     if ct is None:
-    #         return gettext(
-    #             'Default block configuration for detail-views uses «{block}»'
-    #         ).format(block=brick.verbose_name)
-    #
-    #     if self.role:
-    #         return gettext(
-    #             'Block configuration for detail-views of «{model}» '
-    #             'for role «{role}» uses «{block}»'
-    #         ).format(
-    #             model=ct,
-    #             role=self.role,
-    #             block=brick.verbose_name,
-    #         )
-    #
-    #     if self.superuser:
-    #         return gettext(
-    #             'Block configuration for detail-views of «{model}» '
-    #             'for superusers uses «{block}»'
-    #         ).format(
-    #             model=ct,
-    #             block=brick.verbose_name,
-    #         )
-    #
-    #     return gettext(
-    #         'Block configuration for detail-views of «{model}» uses «{block}»'
-    #     ).format(
-    #         model=ct,
-    #         block=brick.verbose_name,
-    #     )
     def __str__(self):
         # TODO: @property "brick" ?? (or method to pass registry)
         from ..gui.bricks import brick_registry  # TODO: in attribute ?
@@ -284,66 +246,6 @@ class BrickDetailviewLocation(CremeModel):
             role=role,
             block=next(brick_registry.get_bricks((self.brick_id,))).verbose_name,
         )
-
-    # @staticmethod
-    # def create_if_needed(brick_id, order, zone, model=None, role=None):
-    #     """Create an instance of BrickDetailviewLocation, but if only if the related
-    #     brick is not already on the configuration.
-    #     @param zone: Value in BrickDetailviewLocation.{TOP|LEFT|RIGHT|BOTTOM}
-    #     @param model: A class inheriting CremeEntity ; None means default configuration.
-    #     @param role: Can be None (ie: 'Default configuration'), a UserRole instance,
-    #                  or the string 'superuser'.
-    #     """
-    #     warnings.warn('BrickDetailviewLocation.create_if_needed() is deprecated ; '
-    #                   'use BrickDetailviewLocation.objects.create_if_needed() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     kwargs = {'role': None, 'superuser': False}
-    #
-    #     if role:
-    #         if model is None:
-    #             raise ValueError('The default configuration cannot have a related role.')
-    #
-    #         if role == 'superuser':
-    #             kwargs['superuser'] = True
-    #         else:
-    #             kwargs['role'] = role
-    #
-    #     return BrickDetailviewLocation.objects.get_or_create(
-    #                 content_type=ContentType.objects.get_for_model(model) if model else None,
-    #                 brick_id=brick_id,
-    #                 defaults={'order': order, 'zone': zone},
-    #                 **kwargs
-    #             )[0]
-
-    # @staticmethod
-    # def create_4_model_brick(order, zone, model=None, role=None):
-    #     warnings.warn('BrickDetailviewLocation.create_4_model_brick() is deprecated ; '
-    #                   'use BrickDetailviewLocation.objects.create_for_model_brick() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return BrickDetailviewLocation.create_if_needed(brick_id=MODELBRICK_ID, order=order,
-    #                                                     zone=zone, model=model, role=role,
-    #                                                    )
-
-    # @staticmethod
-    # def id_is_4_model(brick_id):
-    #     warnings.warn('BrickDetailviewLocation.id_is_4_model() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #     return brick_id == MODELBRICK_ID
-
-    # @staticmethod
-    # def config_exists(model):
-    #     warnings.warn('BrickDetailviewLocation.config_exists() is deprecated ; '
-    #                   'use BrickDetailviewLocation.filter_for_model() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     ct = ContentType.objects.get_for_model(model)
-    #     return BrickDetailviewLocation.objects.filter(content_type=ct).exists()
 
 
 class BrickHomeLocation(CremeModel):
@@ -443,15 +345,8 @@ class BrickMypageLocation(CremeModel):
             create = cls.objects.create
 
             with atomic():
-                # try:
                 for loc in cls.objects.filter(user=None):
                     create(user=instance, brick_id=loc.brick_id, order=loc.order)
-                # except Exception:
-                #     logger.warning(
-                #         'Can not create brick config for this user: %s'
-                #         ' (if it is the first user, do not worry because it is normal)',
-                #         instance
-                #     )
 
     @property
     def brick_verbose_name(self):
@@ -578,9 +473,10 @@ class RelationBrickItemManager(models.Manager):
                         relation_type_id=rtype_id,
                     )
                 except IntegrityError:
-                    logger.exception('Avoid a RelationBrickItem duplicate: %s ?!',
-                                     relation_type,
-                                    )
+                    logger.exception(
+                        'Avoid a RelationBrickItem duplicate: %s ?!',
+                        relation_type,
+                    )
                     continue
 
             break
@@ -617,12 +513,6 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
     class Meta:
         app_label = 'creme_core'
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     if self.json_cells_map is None:
-    #         self._cells_map = {}
-    #         self._dump_cells_map()
-
     def __str__(self):  # NB: useful for creme_config titles
         return self.relation_type.predicate
 
@@ -630,7 +520,6 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         brick_id = self.brick_id
         self.check_detail_configuration(brick_id)
 
-        # BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
         BrickState.objects.filter(brick_id=brick_id).delete()
 
         super().delete(*args, **kwargs)
@@ -646,24 +535,6 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
             compat_ctype_ids.discard(ct_id)
 
         return not bool(compat_ctype_ids)
-
-    # @staticmethod
-    # def create(relation_type_id):
-    #     warnings.warn('RelationBrickItem.create() is deprecated ; '
-    #                   'use RelationBrickItem.objects.create_if_needed() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     try:
-    #         rbi = RelationBrickItem.objects.get(relation_type=relation_type_id)
-    #     except RelationBrickItem.DoesNotExist:
-    #         from creme.creme_core.gui.bricks import SpecificRelationsBrick
-    #         rbi = RelationBrickItem.objects.create(
-    #             brick_id=SpecificRelationsBrick.generate_id('creme_config', relation_type_id),
-    #             relation_type_id=relation_type_id,
-    #         )
-    #
-    #     return rbi
 
     def _dump_cells_map(self):
         self.json_cells_map = json_encode({
@@ -722,28 +593,22 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         return self
 
 
-# class InstanceBrickConfigItem(CremeModel):
 class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
-    # brick_id = models.CharField(_('Block ID'), max_length=300, editable=False)
     brick_class_id = models.CharField(
         'Block class ID',
         max_length=300, editable=False,
     )
-
     entity = models.ForeignKey(
         CremeEntity,
         verbose_name=_('Block related entity'),
         on_delete=models.CASCADE, editable=False,
     )
 
-    # data     = models.TextField(blank=True, null=True)
     # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
     json_extra_data = models.TextField(
         editable=False,
         default='{}',
     ).set_tags(viewable=False)  # TODO: JSONField ?
-
-    # verbose  = models.CharField(_('Verbose'), max_length=200, blank=True, null=True)
 
     creation_label = _('Create a block')
     save_label     = _('Save the block')
@@ -769,9 +634,6 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
         self.check_home_configuration(brick_id)
         self.check_mypage_configuration(brick_id)
 
-        # BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
-        # BrickHomeLocation.objects.filter(brick_id=brick_id).delete()
-        # BrickMypageLocation.objects.filter(brick_id=brick_id).delete()
         BrickState.objects.filter(brick_id=brick_id).delete()
 
         super().delete(*args, **kwargs)
@@ -825,10 +687,6 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
     def extra_data_items(self):
         return iter(self._extra_data.items())
 
-    # @staticmethod
-    # def id_is_specific(brick_id):
-    #     return brick_id.startswith('instanceblock_')
-
     @classmethod
     def id_from_brick_id(cls, brick_id: str) -> Optional[int]:
         try:
@@ -850,38 +708,15 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
         return ibci_id
 
-    # @staticmethod
     @classmethod
-    # def generate_base_id(app_name: str, name: str) -> str:
     def generate_base_id(cls, app_name: str, name: str) -> str:
-        # return f'instanceblock_{app_name}-{name}'
         return f'{cls._brick_id_prefix}_{app_name}-{name}'
-
-    # @staticmethod
-    # def generate_id(brick_class: Type['Brick'],
-    #                 entity: CremeEntity,
-    #                 key: str) -> str:
-    #     """@param key: String that allows to make the difference between 2 instances
-    #                    of the same Brick class and the same CremeEntity instance.
-    #     """
-    #     if key and any((c in key) for c in ('#', '@', '&', ':', ' ')):
-    #         raise ValueError(
-    #             f'InstanceBrickConfigItem.generate_id: usage of a '
-    #             f'forbidden character in key "{key}"'
-    #         )
-    #
-    #     return f'{brick_class.id_}|{entity.id}-{key}'
-
-    # @staticmethod
-    # def get_base_id(brick_id: str) -> str:
-    #     return brick_id.split('|', 1)[0]
 
     def save(self, **kwargs):
         self.json_extra_data = json_encode(self._extra_data)
         super().save(**kwargs)
 
 
-# class CustomBrickConfigItem(CremeModel):
 class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
     id = models.CharField(primary_key=True, max_length=100, editable=False)
     content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
@@ -894,11 +729,6 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     if self.json_cells is None:
-    #         self.cells = []
 
     def __str__(self):
         return self.name
@@ -913,7 +743,6 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
         brick_id = self.brick_id
         self.check_detail_configuration(brick_id)
 
-        # BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
         BrickState.objects.filter(brick_id=brick_id).delete()
 
         super().delete(*args, **kwargs)
@@ -924,7 +753,6 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
             'use the property CustomBrickConfigItem.brick_id instead.'
         )
 
-        # return f'customblock-{self.id}'
         return self.brick_id
 
     @staticmethod
@@ -974,7 +802,6 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
         """Generators which yields non excluded EntityCell instances.
         (eg: fields not hidden with FieldsConfig, CustomFields not deleted).
         """
-        # return FieldsConfig.filter_cells(self.content_type.model_class(), self.cells)
         for cell in self.cells:
             if not cell.is_excluded:
                 yield cell
@@ -1062,65 +889,6 @@ class BrickState(CremeModel):
             f'json_extra_data="{self.json_extra_data}"'
             f')'
         )
-
-    # @staticmethod
-    # def get_for_brick_id(brick_id, user):
-    #     """Returns current state of a brick."""
-    #     warnings.warn('BrickState.get_for_brick_id() is deprecated; '
-    #                   'use BrickState.objects.get_for_brick_id() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     try:
-    #         return BrickState.objects.get(brick_id=brick_id, user=user)
-    #     except BrickState.DoesNotExist:
-    #         states = {
-    #             sv.key_id: sv.value
-    #                 for sv in SettingValue.objects.filter(
-    #                   key_id__in=[
-    #                       SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
-    #                       SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-#                       ],
-    #                )
-    #         }
-    #
-    #         return BrickState(
-    #             brick_id=brick_id, user=user,
-    #             is_open=states[SETTING_BRICK_DEFAULT_STATE_IS_OPEN],
-    #             show_empty_fields=states[SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
-    #         )
-
-    # @staticmethod
-    # def get_for_brick_ids(brick_ids, user):
-    #     """Get current states of bricks.
-    #     @param brick_ids: a list of brick ids.
-    #     @param user: owner of a BrickState.
-    #     @returns: A dict with brick_id as key and state as value.
-    #     """
-    #     warnings.warn('BrickState.get_for_brick_ids() is deprecated; '
-    #                   'use BrickState.objects.get_for_brick_ids() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     states = {}
-    #
-    #     get_sv = SettingValue.objects.get
-    #     is_default_open             = get_sv(key_id=SETTING_BRICK_DEFAULT_STATE_IS_OPEN).value
-    #     is_default_fields_displayed = get_sv(
-    #         key_id=SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS
-    #     ).value
-    #
-    #     for state in BrickState.objects.filter(brick_id__in=brick_ids, user=user):
-    #         states[state.brick_id] = state
-    #
-    #     block_state = partial(BrickState, is_open=is_default_open, user=user,
-    #                           show_empty_fields=is_default_fields_displayed,
-    #                          )
-    #
-    #     for brick_id in {*brick_ids} - {*states.keys()}:  # Bricks with unset state
-    #         states[brick_id] = block_state(brick_id=brick_id)
-    #
-    #     return states
 
     def del_extra_data(self, key: str) -> None:
         del self._extra_data[key]
