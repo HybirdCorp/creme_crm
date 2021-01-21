@@ -1,7 +1,4 @@
 from django.db import migrations, models
-from django.db.models.deletion import CASCADE
-
-from creme.creme_core.models.fields import CTypeForeignKey
 
 
 class Migration(migrations.Migration):

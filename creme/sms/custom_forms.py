@@ -46,5 +46,5 @@ MESSAGINGLIST_EDITION_CFORM = CustomFormDescriptor(
 )
 
 del Campaign
-# del EmailTemplate
-# del MailingList
+del MessageTemplate
+del MessagingList

@@ -1276,7 +1276,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             content_type=FakeInvoice,
             descriptions=[
                 # (hidden_fname1,  {FieldsConfig.HIDDEN: True}),
-                ('total_no_vat',    {FieldsConfig.HIDDEN: True}),
+                (hidden_fname, {FieldsConfig.HIDDEN: True}),
             ],
         )
 

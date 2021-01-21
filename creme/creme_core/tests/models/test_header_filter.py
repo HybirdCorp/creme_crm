@@ -716,7 +716,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         hf3 = create_hf(3,  user=other_user)
 
-        # This,one can not be seen by not staff users
+        # This one cannot be seen by not staff users
         hf4 = create_hf(4,  user=other_user, is_private=True, is_custom=True)
 
         hfl = HeaderFilterList(self.orga_ct, user)

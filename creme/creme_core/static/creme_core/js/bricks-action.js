@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2015-2020  Hybird
+ Copyright (C) 2015-2021  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -195,8 +195,9 @@ creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub
     },
 
     _build_add_relationships: function(url, options, data) {
-        // NOTE: the options parameter here is never used/filled at the moment, options are actually passed as __name=value
-        //       and available in the data parameter. The only other option in creme.relations.addRelationTo being __mutiple.
+        // NB: the "options" parameter here is never used/filled at the moment, options are
+        //     actually passed as __name=value and available in the data parameter.
+        //     The only other option in creme.relations.addRelationTo being __multiple.
         var action = new creme.relations.AddRelationToAction({
             subject_id: data.subject_id,
             rtype_id: data.rtype_id,

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,7 @@ class StrategyForm(CremeEntityForm):
         model = get_strategy_model()
 
     def __init__(self, *args, **kwargs):
-        warnings.warn('ObjectivePatternForm is deprecated.', DeprecationWarning)
+        warnings.warn('StrategyForm is deprecated.', DeprecationWarning)
         super().__init__(*args, **kwargs)
 
 
