@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -80,7 +80,6 @@ ExtractedTuple = Tuple[Any, Optional[str]]
 ValueCastor = Callable[[str], Any]
 
 
-# def get_backend(filedata):
 def get_import_backend_class(filedata):
     filename = filedata.name
     pathname, extension = splitext(filename)
@@ -94,7 +93,6 @@ def get_import_backend_class(filedata):
 
 
 def get_header(filedata, has_header):
-    # backend, error_msg = get_backend(filedata)
     backend_cls, error_msg = get_import_backend_class(filedata)
 
     if error_msg:
@@ -105,7 +103,6 @@ def get_header(filedata, has_header):
     if has_header:
         try:
             filedata.open(mode='r')  # TODO: 'mode' given by backend ?
-            # header = next(backend(filedata))
             header = next(backend_cls(filedata))
         except Exception as e:
             logger.exception('Error when reading doc header in clean()')
@@ -143,7 +140,6 @@ class UploadForm(CremeForm):
             '<ul class="help-texts">{}</ul>',
             format_html_join(
                 '', '<li>{}: {}</li>',
-                # ((be.verbose_name, be.help_text) for be in import_backend_registry.backends)
                 (
                     (be.verbose_name, be.help_text)
                     for be in import_backend_registry.backend_classes
@@ -199,7 +195,6 @@ class RegularFieldExtractor(SingleColumnExtractor):
             column_index: int,
             default_value,
             value_castor: ValueCastor):
-        # self._column_index = column_index
         super().__init__(column_index=column_index)
         self._default_value = default_value
         self._value_castor = value_castor
@@ -222,7 +217,6 @@ class RegularFieldExtractor(SingleColumnExtractor):
             # TODO: creme_config form ??
             self._fk_form = modelform_factory(subfield_model, fields='__all__')
 
-    # def extract_value(self, line):
     def extract_value(self, line, user) -> ExtractedTuple:
         value = self._default_value
         err_msg = None
@@ -284,9 +278,7 @@ class RegularFieldExtractor(SingleColumnExtractor):
         return value, err_msg
 
 
-# class ExtractorWidget(BaseExtractorWidget):
 class RegularFieldExtractorWidget(BaseExtractorWidget):
-    # template_name = 'creme_core/forms/widgets/mass-import/extractor.html'
     template_name = 'creme_core/forms/widgets/mass-import/field-extractor.html'
 
     def __init__(self, *args, **kwargs):
@@ -352,7 +344,6 @@ class RegularFieldExtractorWidget(BaseExtractorWidget):
         }
 
 
-# class ExtractorField(Field):
 class RegularFieldExtractorField(Field):
     widget = RegularFieldExtractorWidget
     default_error_messages = {
@@ -497,7 +488,6 @@ class EntityExtractionCommand:
         return index
 
 
-# class EntityExtractor:
 class EntityExtractor(BaseExtractor):
     def __init__(self, extraction_cmds: List[EntityExtractionCommand]):
         "@params extraction_cmds: List of EntityExtractionCommands."
@@ -712,7 +702,6 @@ class EntityExtractorField(Field):
 
 # Extractors (and related field/widget) for relations---------------------------
 
-# class RelationExtractor:
 class RelationExtractor(SingleColumnExtractor):
     def __init__(
             self,
@@ -721,7 +710,6 @@ class RelationExtractor(SingleColumnExtractor):
             subfield_search,
             related_model,
             create_if_unfound):
-        # self._column_index = column_index
         super().__init__(column_index=column_index)
         self._rtype = rtype
         self._subfield_search = str(subfield_search)
@@ -985,7 +973,6 @@ class CustomFieldExtractor(SingleColumnExtractor):
             value_castor: ValueCastor,
             custom_field: CustomField,
             create_if_unfound: bool):
-        # self._column_index  = column_index
         super().__init__(column_index=column_index)
         self._default_value = default_value
         self._value_castor  = value_castor
@@ -1001,7 +988,6 @@ class CustomFieldExtractor(SingleColumnExtractor):
         else:
             self._manage_enum = None
 
-    # def extract_value(self, line):
     def extract_value(self, line, user):
         value = self._default_value
         err_msg = None
@@ -1057,7 +1043,6 @@ class CustomFieldExtractor(SingleColumnExtractor):
 
 
 # TODO: make a BaseFieldExtractorWidget ??
-# class CustomFieldExtractorWidget(ExtractorWidget):
 class CustomFieldExtractorWidget(RegularFieldExtractorWidget):
     template_name = 'creme_core/forms/widgets/mass-import/cfield-extractor.html'
 
@@ -1151,7 +1136,6 @@ class CustomfieldExtractorField(Field):
                 code='required',
             )
 
-        # create_if_unfound = value['can_create']
         create_if_unfound = value.get('can_create')
 
         if not self._can_create and create_if_unfound:
@@ -1159,7 +1143,6 @@ class CustomfieldExtractorField(Field):
 
         extractor = CustomFieldExtractor(
             col_index, def_value, self._original_field.clean,
-            # self._custom_field, create_if_unfound,
             self._custom_field, bool(create_if_unfound),
         )
 
@@ -1297,7 +1280,6 @@ class ImportForm(CremeModelForm):
             good_fields.append((fname, cleaned))
 
         filedata = self.cleaned_data['document'].filedata
-        # backend, error_msg = get_backend(filedata)
         backend_cls, error_msg = get_import_backend_class(filedata)
 
         if error_msg:
@@ -1305,7 +1287,6 @@ class ImportForm(CremeModelForm):
 
         # TODO: mode depends on the backend ?
         with filedata.open(mode='r') as file_:
-            # lines = backend(file_)
             lines = backend_cls(file_)
             if get_cleaned('has_header'):
                 next(lines)
@@ -1332,7 +1313,6 @@ class ImportForm(CremeModelForm):
 
                         extr_values = []
                         for fname, extractor in extractor_fields:
-                            # extr_value, err_msg = extractor.extract_value(line)
                             extr_value, err_msg = extractor.extract_value(line=line, user=user)
 
                             # TODO: Extractor.extract_value() should return a ExtractedTuple
@@ -1390,7 +1370,6 @@ class ImportForm(CremeModelForm):
                             extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
                             if extractor:
                                 # TODO: factorise
-                                # extr_value, err_msg = extractor.extract_value(line)
                                 extr_value, err_msg = extractor.extract_value(line, user)
                                 getattr(instance, m2m.name).set(extr_value)
                                 append_error(err_msg)
@@ -1463,10 +1442,8 @@ class ImportForm4CremeEntity(ImportForm):
 
         fields['user'].initial = user.id
 
-        # self.cfields = cfields = CustomField.objects.filter(content_type=ct)
         self.cfields = cfields = CustomField.objects.get_for_model(ct)
         get_col = self.header_dict.get
-        # for cfield in cfields:
         for cfield in cfields.values():
             fields[_CUSTOM_NAME.format(cfield.id)] = CustomfieldExtractorField(
                 choices=self.choices, custom_field=cfield, user=user,
@@ -1503,18 +1480,7 @@ class ImportForm4CremeEntity(ImportForm):
         user = instance.user
 
         # Custom Fields -------
-        # for cfield in self.cfields:
-        #     try:
-        #         value, err_msg = cdata[_CUSTOM_NAME.format(cfield.id)].extract_value(line)
-        #     except ValidationError as e:
-        #         self.append_error(e.messages[0])
-        #     else:
-        #         if err_msg is not None:
-        #             self.append_error(err_msg)
-        #         elif value is not None and value != '':
-        #             CustomFieldValue.save_values_for_entities(cfield, [instance], value)
         for cfield_id, cfield in self.cfields.items():
-            # value, err_msg = cdata[_CUSTOM_NAME.format(cfield_id)].extract_value(line)
             value, err_msg = cdata[_CUSTOM_NAME.format(cfield_id)].extract_value(
                 line=line, user=user,
             )
@@ -1558,7 +1524,6 @@ class ImportForm4CremeEntity(ImportForm):
         Relation.objects.safe_multi_save(relations)
 
 
-# def extractorfield_factory(modelfield, header_dict, choices):
 def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
     formfield = modelfield.formfield()
 

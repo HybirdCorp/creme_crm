@@ -148,7 +148,6 @@ def _basic_printer(field: Field, val, user) -> str:
     if val is None:
         return ''
 
-    # return val
     return str(val)
 
 

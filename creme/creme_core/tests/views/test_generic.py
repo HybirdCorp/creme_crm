@@ -396,7 +396,6 @@ class CreationTestCase(ViewsTestCase):
         title = 'My activity'
         place = 'Mars'
         atype = FakeActivityType.objects.first()
-        # minutes = 'Alright'
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
@@ -406,7 +405,7 @@ class CreationTestCase(ViewsTestCase):
                 'description': 'Trip on Mars',  # should not be used see FAKEACTIVITY_CFORM
                 'type':        atype.id,
                 'place':       place,
-                # 'minutes':     minutes,
+                # 'minutes':   ...,
 
                 'cform_extra-fakeactivity_start': '26-08-2020',
                 'cform_extra-fakeactivity_end':   '26-09-2020',
@@ -418,7 +417,6 @@ class CreationTestCase(ViewsTestCase):
         self.assertEqual('',      activity.description)
         self.assertEqual(place,   activity.place)
         self.assertEqual(atype,   activity.type)
-        # self.assertEqual(minutes, activity.minutes)
         self.assertEqual('',      activity.minutes)
         self.assertEqual(
             self.create_datetime(year=2020, month=8, day=26), activity.start,

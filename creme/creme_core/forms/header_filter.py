@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,9 +36,8 @@ from typing import (
 )
 
 from django.core.exceptions import ValidationError
-# from django.db.models.query_utils import Q
 from django.db.transaction import atomic
-from django.forms.fields import CallableChoiceIterator, Field  # EMPTY_VALUES
+from django.forms.fields import CallableChoiceIterator, Field
 from django.forms.widgets import Widget
 from django.utils.translation import gettext_lazy as _
 
@@ -51,7 +50,6 @@ from ..core.entity_cell import (
     EntityCellRelation,
     EntityCellsRegistry,
 )
-# from ..core import function_field
 from ..gui import listview
 from ..models import (
     CremeEntity,
@@ -74,10 +72,6 @@ if TYPE_CHECKING:
     )
 
 logger = logging.getLogger(__name__)
-# _RFIELD_PREFIX = EntityCellRegularField.type_id + '-'
-# _CFIELD_PREFIX = EntityCellCustomField.type_id + '-'
-# _FFIELD_PREFIX = EntityCellFunctionField.type_id + '-'
-# _RTYPE_PREFIX  = EntityCellRelation.type_id + '-'
 
 
 class UniformEntityCellsWidget(Widget):
@@ -151,25 +145,8 @@ class EntityCellRelationsWidget(UniformEntityCellsWidget):
 
 
 class EntityCellsWidget(Widget):
-    # template_name = 'creme_core/forms/widgets/entity-cells.html'
     template_name = 'creme_core/forms/widgets/entity-cells/widget.html'
 
-    # def __init__(self, user=None, model=None,
-    #              model_fields=(), model_subfields=None,
-    #              custom_fields=(),
-    #              function_fields=(),
-    #              relation_types=(),
-    #              *args, **kwargs
-    #             ):
-    #     super().__init__(*args, **kwargs)
-    #     self.user = user
-    #     self.model = model
-    #
-    #     self.model_fields = model_fields
-    #     self.model_subfields = model_subfields or {}
-    #     self.custom_fields = custom_fields
-    #     self.function_fields = function_fields
-    #     self.relation_types = relation_types
     def __init__(self,
                  user=None,
                  model: Type[CremeEntity] = CremeEntity,
@@ -195,26 +172,8 @@ class EntityCellsWidget(Widget):
 
     def _build_samples(self) -> List[Dict[str, str]]:
         user = self.user
-        # model = self.model
         samples = []
 
-        # PREFIX = len(_RFIELD_PREFIX); build = EntityCellRegularField.build
-        # cells = [
-        #     (field_id, build(model, field_id[PREFIX:]))
-        #     for field_id, field_vname in self.model_fields
-        # ]
-        # cells.extend(
-        #     (field_id, build(model, field_id[PREFIX:]))
-        #     for choices in self.model_subfields.values()
-        #     for field_id, field_vname in choices
-        # )
-        #
-        # PREFIX = len(_FFIELD_PREFIX)
-        # build = EntityCellFunctionField.build
-        # cells.extend(
-        #     (field_id, build(model, field_id[PREFIX:]))
-        #     for field_id, field_vname in self.function_fields
-        # )
         cells = [*chain.from_iterable(sub_w.choices for sub_w in self._sub_widgets)]
 
         # TODO: populate entities
@@ -236,17 +195,8 @@ class EntityCellsWidget(Widget):
 
         return samples
 
-    # @property
-    # def model(self):
-    #     return self._model
-    #
-    # @model.setter
-    # def model(self, model):
-    #     self._model = model or CremeEntity
-
     def get_context(self, name, value, attrs):
         if isinstance(value, list):
-            # value = ','.join(f'{cell.type_id}-{cell.value}' for cell in value)
             # NB: we assume that the choice_id corresponds to the cells' keys
             #     which is not totally satisfactory...
             value = ','.join(cell.key for cell in value)
@@ -255,11 +205,6 @@ class EntityCellsWidget(Widget):
 
         widget_cxt = context['widget']
         widget_cxt['samples'] = self._build_samples()
-        # widget_cxt['model_fields']    = self.model_fields
-        # widget_cxt['model_subfields'] = self.model_subfields
-        # widget_cxt['custom_fields']   = self.custom_fields
-        # widget_cxt['function_fields'] = self.function_fields
-        # widget_cxt['relation_types']  = self.relation_types
 
         for sub_widget in self._sub_widgets:
             sub_ctxt = sub_widget.get_context(name, value, attrs)['widget']
@@ -474,8 +419,6 @@ class EntityCellRelationsField(UniformEntityCellsField):
 class EntityCellsField(Field):
     widget = EntityCellsWidget
     default_error_messages = {
-        # 'invalid': _('Enter a valid value.'),
-        # 'invalid_type': 'The type of cell in invalid.',
         'invalid_type': 'The type of cell in invalid: %(type_id)s.',
     }
 
@@ -486,13 +429,6 @@ class EntityCellsField(Field):
         EntityCellRelationsField,
     }
 
-    # def __init__(self, *, content_type=None, function_field_registry=None, **kwargs):
-    #     super().__init__(**kwargs)
-    #     self.function_field_registry = function_field_registry or \
-    #          function_field.function_field_registry
-    #     self._non_hiddable_cells = []
-    #     self.content_type = content_type
-    #     self.user = None
     def __init__(self, *, model=CremeEntity, cell_registry=None, **kwargs):
         super().__init__(**kwargs)
         self._model = model
@@ -511,106 +447,6 @@ class EntityCellsField(Field):
         result.widget.model = self.model
 
         return result
-
-    # def _build_4_regularfield(self, model, name):
-    #     return EntityCellRegularField.build(model=model, name=name[len(_RFIELD_PREFIX):])
-
-    # def _build_4_customfield(self, model, name):
-    #     return EntityCellCustomField(self._get_cfield(int(name[len(_CFIELD_PREFIX):])))
-
-    # def _build_4_functionfield(self, model, name):
-    #     return EntityCellFunctionField.build(model, name[len(_FFIELD_PREFIX):])
-
-    # def _build_4_relation(self, model, name):
-    #     return EntityCellRelation(model=model, rtype=self._get_rtype(name[len(_RTYPE_PREFIX):]))
-
-    # def _choices_4_customfields(self, ct, builders):
-    #     self._custom_fields = CustomField.objects.filter(content_type=ct)  # Cache
-    #     self.widget.custom_fields = cfields_choices = []
-    #
-    #     for cf in self._custom_fields:
-    #         field_id = _CFIELD_PREFIX + str(cf.id)
-    #         cfields_choices.append((field_id, cf.name))
-    #         builders[field_id] = EntityCellsField._build_4_customfield
-
-    # def _choices_4_functionfields(self, ct, builders):
-    #     self.widget.function_fields = ffields_choices = []
-    #
-    #     for f in self.function_field_registry.fields(ct.model_class()):
-    #         field_id = _FFIELD_PREFIX + f.name
-    #         ffields_choices.append((field_id, f.verbose_name))
-    #         builders[field_id] = EntityCellsField._build_4_functionfield
-
-    # def _regular_fields_enum(self, model):
-    #
-    #     # NB: we enumerate all the fields of the model, with a deep=1 (ie: we
-    #     # get also the sub-fields of ForeignKeys for example). We take care of
-    #     # the FieldsConfig which can hide fields (ie: have to be removed from
-    #     # the choices) ; but if a field was already selected (eg: the field
-    #     # has been hidden _after_), it is not hidden, in order to not remove it
-    #     # from the configuration (of HeaderFilter, CustomBlock...) silently
-    #     # during its next edition.
-    #
-    #     get_fconf = FieldsConfig.LocalCache().get_4_model
-    #
-    #     non_hiddable_fnames = defaultdict(set)
-    #     for cell in self._non_hiddable_cells:
-    #         if isinstance(cell, EntityCellRegularField):
-    #             field_info = cell.field_info
-    #             field = field_info[-1]
-    #             non_hiddable_fnames[field.model].add(field.name)
-    #
-    #             # BEWARE: if a sub-field (eg: 'image__name') cannot be hidden,
-    #             # the related field (eg: 'image') cannot be hidden.
-    #             if len(field_info) == 2:
-    #                 non_hiddable_fnames[model].add(field_info[0].name)
-    #
-    #     def field_excluder(field, deep):
-    #         model = field.model
-    #
-    #         return (
-    #             get_fconf(model).is_field_hidden(field)
-    #             and
-    #             field.name not in non_hiddable_fnames[model]
-    #         )
-    #
-    #     return ModelFieldEnumerator(
-    #         model, deep=1, only_leafs=False,
-    #     ).filter(
-    #         viewable=True,
-    #     ).exclude(field_excluder)
-
-    # def _choices_4_regularfields(self, ct, builders):
-    #     widget = self.widget
-    #     widget.model_fields = rfields_choices = []
-    #     widget.model_subfields = subfields_choices = defaultdict(list)
-    #
-    #     for fields_info in self._regular_fields_enum(ct.model_class()):
-    #         choices = rfields_choices if len(fields_info) == 1 else \
-    #                   subfields_choices[_RFIELD_PREFIX + fields_info[0].name]  # FK, M2M
-    #
-    #         field_id = _RFIELD_PREFIX + '__'.join(field.name for field in fields_info)
-    #         choices.append((field_id, str(fields_info[-1].verbose_name)))
-    #         builders[field_id] = EntityCellsField._build_4_regularfield
-    #
-    #     sort_key = collator.sort_key
-    #     sort_choice = lambda k: sort_key(k[1])
-    #     rfields_choices.sort(key=sort_choice)
-    #
-    #     for subfield_choices in subfields_choices.values():
-    #         subfield_choices.sort(key=sort_choice)
-
-    # def _choices_4_relationtypes(self, ct, builders):
-    #     # Cache
-    #     self._relation_types = RelationType.objects.compatible(
-    #         ct, include_internals=True,
-    #     ).order_by('predicate')
-    #     self.widget.relation_types = rtypes_choices = []
-    #
-    #     for rtype in self._relation_types:
-    #         field_id = _RTYPE_PREFIX + rtype.id
-    #         rtypes_choices.append((field_id, rtype.predicate))
-    #         builders[field_id] = EntityCellsField._build_4_relation
 
     @property
     def cell_registry(self) -> EntityCellsRegistry:
@@ -645,7 +481,6 @@ class EntityCellsField(Field):
 
     @property
     def content_type(self):
-        # return self._content_type
         warnings.warn(
             'The getter EntityCellsField.content_type is deprecated ; '
             'use the property "models" instead',
@@ -658,37 +493,12 @@ class EntityCellsField(Field):
 
     @content_type.setter
     def content_type(self, ct):
-        # self._content_type = ct
-        # self._builders = builders = {}
-        #
-        # if ct is None:
-        #     self._model_fields = self._model_subfields = self._custom_fields \
-        #                        = self._function_fields = self._relation_types \
-        #                        = ()
-        #     self.widget.model = None  # todo: test..
-        # else:
-        #     self.widget.model = ct.model_class()
-        #
-        #     self._choices_4_regularfields(ct, builders)
-        #     self._choices_4_customfields(ct, builders)
-        #     self._choices_4_functionfields(ct, builders)
-        #     self._choices_4_relationtypes(ct, builders)
         warnings.warn(
             'The setter EntityCellsField.content_type is deprecated ; '
             'use the property "models" instead',
             DeprecationWarning
         )
         self.model = ct.model_class()
-
-    # def _get_cfield(self, cfield_id):
-    #     for cfield in self._custom_fields:
-    #         if cfield.id == cfield_id:
-    #             return cfield
-
-    # def _get_rtype(self, rtype_id):
-    #     for rtype in self._relation_types:
-    #         if rtype.id == rtype_id:
-    #             return rtype
 
     @property
     def model(self) -> Type[CremeEntity]:
@@ -708,7 +518,6 @@ class EntityCellsField(Field):
     @non_hiddable_cells.setter
     def non_hiddable_cells(self, cells: Iterable[EntityCell]):
         self._non_hiddable_cells[:] = cells
-        # self.content_type = self._content_type
 
         for sub_field in self._sub_fields:
             sub_field.non_hiddable_cells = cells
@@ -720,27 +529,6 @@ class EntityCellsField(Field):
     @user.setter
     def user(self, user):
         self._user = self.widget.user = user
-
-    # def clean(self, value):
-    #     assert self._content_type
-    #     cells = []
-    #
-    #     if value in EMPTY_VALUES:
-    #         if self.required:
-    #             raise ValidationError(self.error_messages['required'], code='required')
-    #     else:
-    #         model = self._content_type.model_class()
-    #         get_builder = self._builders.get
-    #
-    #         for elt in value.split(','):
-    #             builder = get_builder(elt)
-    #
-    #             if not builder:
-    #                 raise ValidationError(self.error_messages['invalid'], code='invalid')
-    #
-    #             cells.append(builder(self, model, elt))
-    #
-    #     return cells
 
     def to_python(self, value):
         cells = []
@@ -841,7 +629,6 @@ class HeaderFilterCreateForm(_HeaderFilterForm):
         registry = smart_columns_registry or listview.smart_columns_registry
 
         cells_f = self.fields['cells']
-        # cells_f.content_type = self.instance.entity_type = ctype
         self.instance.entity_type = ctype
         cells_f.model = model = ctype.model_class()
         cells_f.initial = registry.get_cells(model)
@@ -873,6 +660,5 @@ class HeaderFilterEditForm(_HeaderFilterForm):
         cells_f = fields['cells']
         cells = instance.cells
         cells_f.non_hiddable_cells = cells
-        # cells_f.content_type = instance.entity_type
         cells_f.model = instance.entity_type.model_class()
         cells_f.initial = cells

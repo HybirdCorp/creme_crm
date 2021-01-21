@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from collections import defaultdict
 from functools import partial
 
@@ -112,34 +111,6 @@ def json_entity_get(request, entity_id):
         instances.append(entity)
 
     return _fields_values(instances, getters, (0, 1), sort, user)
-
-
-# # DEPRECATED
-# JSON_PREDICATE_FIELDS = {
-#     'unicode': lambda e, user: str(e),
-#     'id':      lambda e, user: e.id,
-# }
-#
-#
-# @login_required
-# @jsonify
-# def json_entity_rtypes(request, entity_id):
-#     warnings.warn(
-#         'creme_core.views.relation.json_entity_rtypes() is deprecated.',
-#          DeprecationWarning
-#     )
-#
-#     entity = get_object_or_404(CremeEntity, pk=entity_id)
-#     request.user.has_perm_to_view_or_die(entity)
-#
-#     rtypes = RelationType.objects.filter(is_internal=False) \
-#                                  .filter(Q(subject_ctypes=entity.entity_type) |
-#                                          Q(subject_ctypes__isnull=True)
-#                                         ) \
-#                                  .order_by('predicate') \
-#                                  .distinct()
-#
-#     return _fields_values(rtypes, *_clean_fields_values_args(request.GET, JSON_PREDICATE_FIELDS))
 
 
 JSON_CONTENT_TYPE_FIELDS = {
@@ -255,11 +226,14 @@ class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
     def get_entities(self, model):
         request = self.request
         # TODO: rename 'ids' -> 'entity/id' ?
-        entities = get_list_or_404(model,
-                                   pk__in=request.POST.getlist('ids')
-                                   if request.method == 'POST' else
-                                   request.GET.getlist('ids'),
-                                  )
+        entities = get_list_or_404(
+            model,
+            pk__in=(
+                request.POST.getlist('ids')
+                if request.method == 'POST' else
+                request.GET.getlist('ids')
+            ),
+        )
 
         CremeEntity.populate_real_entities(entities)
 
@@ -351,35 +325,6 @@ class RelationFromFieldsDeletion(CremeModelDeletion):
     #     return self.object.subject_entity.get_real_entity().get_absolute_url()
 
 
-# @login_required
-# def delete_all(request):
-#     warnings.warn('creme_core.views.relation.delete_all() is deprecated.', DeprecationWarning)
-#
-#     subject_id = utils.get_from_POST_or_404(request.POST, 'subject_id')
-#     user = request.user
-#     subject = get_object_or_404(CremeEntity, pk=subject_id)
-#     user.has_perm_to_unlink_or_die(subject)
-#
-#     errors = defaultdict(list)
-#
-#     for relation in Relation.objects.filter(type__is_internal=False, subject_entity=subject_id):
-#         if user.has_perm_to_unlink(relation.object_entity):
-#             relation.delete()
-#         else:
-#             errors[403].append(gettext('{entity} : <b>Permission denied</b>')
-#                                       .format(entity=relation.object_entity)
-#                               )
-#
-#     if not errors:
-#         status = 200
-#         message = gettext('Operation successfully completed')
-#     else:
-#         status = min(errors)
-#         message = ','.join(msg for error_messages in errors.values() for msg in error_messages)
-#
-#     return HttpResponse(message, status=status)
-
-
 class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
                                      base.EntityCTypeRelatedMixin,
                                      BaseEntitiesListPopup):
@@ -445,7 +390,6 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
             ],
         )
 
-        # prop_types = [*rtype.object_properties.all()]
         prop_types = [*rtype.object_properties.values_list('id', flat=True)]
         if prop_types:
             extra_q &= Q(properties__type__in=prop_types)

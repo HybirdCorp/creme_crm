@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,27 +42,20 @@ BackendBaseClass = TypeVar('BackendBaseClass')
 
 
 class _BackendRegistry(Generic[BackendBaseClass]):
-    # class InvalidId(Exception):
-    #     pass
-
     class InvalidClass(Exception):
         pass
 
     class DuplicatedId(Exception):
         pass
 
-    # def __init__(self, settings):
     def __init__(self,
                  base_backend_class: Type[BackendBaseClass],
                  settings: Iterable[str]):
-        # self._backends = None
         self._backend_classes: Optional[Dict[str, Type[BackendBaseClass]]] = None
         self._settings: List[str] = [*settings]
         self._base_backend_class = base_backend_class
 
-    # def _get_backends(self):
     def _get_backend_classes(self) -> Dict[str, Type[BackendBaseClass]]:
-        # if self._backends is None:
         if self._backend_classes is None:
             backends: Dict[str, Type[BackendBaseClass]] = {}
             base_cls = self._base_backend_class
@@ -77,9 +70,6 @@ class _BackendRegistry(Generic[BackendBaseClass]):
                         f'Backend: {BackendClass} is invalid, it is not a sub-class of {base_cls}.'
                     )
 
-                # backend_id = getattr(BackendClass, 'id', None)
-                # if backend_id is None:
-                #     raise self.InvalidId(f'Backend: {BackendClass} has invalid id.')
                 backend_id = BackendClass.id
 
                 if backend_id in backends:
@@ -90,10 +80,8 @@ class _BackendRegistry(Generic[BackendBaseClass]):
 
                 backends[backend_id] = BackendClass
 
-            # self._backends = backends
             self._backend_classes = backends
 
-        # return self._backends
         return self._backend_classes
 
     @property
@@ -111,7 +99,6 @@ class _BackendRegistry(Generic[BackendBaseClass]):
 
     @property
     def extensions(self) -> Iterator[str]:
-        # return self._get_backends().keys()
         return iter(self._get_backend_classes().keys())
 
     def get_backend(self, backend_id):

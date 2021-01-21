@@ -111,7 +111,6 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         entity = self.entity
         todo = FakeTodo.objects.create(
             title='My todo',
-            # creme_entity=self.entity,
             entity_id=entity.id,
             entity_content_type=entity.entity_type,
         )

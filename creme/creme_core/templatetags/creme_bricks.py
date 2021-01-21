@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -949,19 +949,9 @@ def brick_display(context, *bricks, **kwargs):
        - 'detail'  => detailview_display() (default value)
        - 'home'    => home_display()
     """
-    # from creme.creme_core.views.bricks import render_detailview_brick, render_home_brick
-
     context_dict = context.flatten()
     render_type = kwargs.get('render', 'detail')
 
-    # if render_type == 'detail':
-    #     render = render_detailview_brick
-    # elif render_type == 'home':
-    #     render = render_home_brick
-    # else:
-    #     raise ValueError(
-    #         '{% brick_display %}: "render" argument must be in {detail|home}.'
-    #     )
     try:
         brick_render_method = _DISPLAY_METHODS[render_type]
     except KeyError as e:
@@ -1010,12 +1000,9 @@ def brick_display(context, *bricks, **kwargs):
             pop_group(brick_or_seq.id_)
             bricks_to_render.append(brick_or_seq)
 
-    return mark_safe(
-        ''.join(filter(None,
-                       # (render(brick, context={**context_dict})
-                       (render(brick)
-                           for brick in bricks_to_render
-                       )
+    return mark_safe(''.join(filter(
+        None,
+        (render(brick) for brick in bricks_to_render)
     )))
 
 

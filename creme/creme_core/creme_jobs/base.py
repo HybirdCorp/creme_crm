@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -82,7 +82,6 @@ class JobType:
     PSEUDO_PERIODIC = 1
     PERIODIC        = 2
 
-    # id = None
     id: str = ''   # Overload with a string ; use generate_id()
     verbose_name: str = 'JOB'  # Overload with a gettext_lazy object
     periodic: int = NOT_PERIODIC

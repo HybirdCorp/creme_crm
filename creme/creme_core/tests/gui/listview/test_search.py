@@ -192,7 +192,6 @@ class ListViewSearchTestCase(CremeTestCase):
         self.assertIsInstance(str_field, lv_form.ListViewSearchField)
         self.assertEqual(str_cell, str_field.cell)
         self.assertEqual(user,     str_field.user)
-        # self.assertFalse(str_field.widget.type)
 
         self.assertIsNone(registry.builder_4_model_field_type(CharField))
         self.assertIsNone(
@@ -853,7 +852,6 @@ class ListViewSearchTestCase(CremeTestCase):
 
         field = registry.get_field(cell=cell, user=self.user)
         self.assertIsInstance(field, lv_form.ListViewSearchField)
-        # self.assertFalse(field.widget.type)
 
         with self.assertRaises(KeyError):
             registry[EntityCellFunctionField.type_id]  # NOQA

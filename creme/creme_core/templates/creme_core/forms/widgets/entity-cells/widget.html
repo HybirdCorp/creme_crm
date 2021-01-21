@@ -23,15 +23,11 @@
                 {% if ffields_widget %}{% include ffields_widget.template_name with widget=ffields_widget %}{% endif %}
                 {% endwith %}
             {% endblock %}
-
-{#            {% block extra_field_selectors %}{% endblock %} #}
         </div>
 
         {% with rtypes_widget=widget.relation %}
         {% if rtypes_widget %}{% include rtypes_widget.template_name with widget=rtypes_widget %}{% endif %}
         {% endwith %}
-
-{#        {% block extra_selectors %}{% endblock %} #}
     {% endblock %}
     </div> <!-- /.selectors -->
 

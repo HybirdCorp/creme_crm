@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -537,7 +537,6 @@ class EntitySelector(widgets.Widget):
             qfilter = qfilter()
 
         if isinstance(qfilter, dict):
-            # qfilter = get_q_from_dict(qfilter)
             qfilter = Q(**qfilter)
 
         widget_cxt['qfilter'] = QSerializer().serialize(qfilter) if qfilter else None
@@ -585,14 +584,16 @@ class CTEntitySelector(ChainedInput):
 
         if not self.is_required and not multiple:
             clear_label = _('Clear')
-            actions.add_action('reset', clear_label, title=clear_label,
-                               action='reset', value='',
-                              )
+            actions.add_action(
+                'reset', clear_label,
+                title=clear_label, action='reset', value='',
+            )
 
         if self.creator:
-            actions.add_action(name='create', label=_('Add'),
-                               popupUrl='${ctype.create}', popupTitle='${ctype.create_label}',
-                              )
+            actions.add_action(
+                name='create', label=_('Add'),
+                popupUrl='${ctype.create}', popupTitle='${ctype.create_label}',
+            )
 
         self.add_input('entity', widget=actions)
 
@@ -609,12 +610,13 @@ class MultiCTEntitySelector(SelectorList):
         self.creator = creator
 
     def get_context(self, name, value, attrs):
-        self.selector = CTEntitySelector(content_types=self.content_types,
-                                         multiple=True,
-                                         autocomplete=self.autocomplete,
-                                         creator=self.creator,
-                                         attrs={'reset': False},
-                                        )
+        self.selector = CTEntitySelector(
+            content_types=self.content_types,
+            multiple=True,
+            autocomplete=self.autocomplete,
+            creator=self.creator,
+            attrs={'reset': False},
+        )
 
         return super().get_context(name=name, value=value, attrs=attrs)
 
@@ -665,11 +667,12 @@ class MultiRelationSelector(SelectorList):
         self.autocomplete = autocomplete
 
     def get_context(self, name, value, attrs):
-        self.selector = RelationSelector(relation_types=self.relation_types,
-                                         content_types=self.content_types,
-                                         multiple=True,
-                                         autocomplete=self.autocomplete,
-                                        )
+        self.selector = RelationSelector(
+            relation_types=self.relation_types,
+            content_types=self.content_types,
+            multiple=True,
+            autocomplete=self.autocomplete,
+        )
 
         return super().get_context(name=name, value=value, attrs=attrs)
 
@@ -700,18 +703,20 @@ class EntityCreatorWidget(ActionButtonList):
         if not is_disabled:
             if not self.is_required:
                 clear_label = _('Clear')
-                self.add_action('reset', clear_label, title=clear_label, action='reset', value='')
+                self.add_action(
+                    'reset', clear_label, title=clear_label, action='reset', value='',
+                )
 
             url = self.creation_url
-
             if url:
                 allowed = self.creation_allowed
-                self.add_action(name='create',
-                                label=self.creation_label or model.creation_label,
-                                enabled=allowed,
-                                popupUrl=url,
-                                title=_('Create') if allowed else _("Can't create"),
-                               )
+                self.add_action(
+                    name='create',
+                    label=self.creation_label or model.creation_label,
+                    enabled=allowed,
+                    popupUrl=url,
+                    title=_('Create') if allowed else _("Can't create"),
+                )
 
     def get_context(self, name, value, attrs):
         model = self.model
@@ -765,13 +770,15 @@ class MultiEntityCreatorWidget(SelectorList):
                 getattr(model, 'selection_label', pgettext('creme_core-verb', 'Select')),
             )
 
-            delegate = EntitySelector(str(ContentType.objects.get_for_model(model).id),
-                                      {'auto':       False,
-                                       'qfilter':    self.q_filter,
-                                       'multiple':   True,
-                                       'autoselect': True,
-                                      },
-                                     )
+            delegate = EntitySelector(
+                str(ContentType.objects.get_for_model(model).id),
+                {
+                    'auto':       False,
+                    'qfilter':    self.q_filter,
+                    'multiple':   True,
+                    'autoselect': True,
+                },
+            )
 
             def add_action(name, label, enabled=True, **kwargs):
                 button_list.add_action(name, label, enabled=False, hidden=True, **kwargs)
@@ -780,12 +787,13 @@ class MultiEntityCreatorWidget(SelectorList):
             url = self.creation_url
             if url:
                 allowed = self.creation_allowed
-                add_action(name='create',
-                           label=self.creation_label or model.creation_label,
-                           enabled=allowed,
-                           popupUrl=url,
-                           title=_('Create') if allowed else _("Can't create"),
-                          )
+                add_action(
+                    name='create',
+                    label=self.creation_label or model.creation_label,
+                    enabled=allowed,
+                    popupUrl=url,
+                    title=_('Create') if allowed else _("Can't create"),
+                )
 
         button_list.delegate = delegate
 
@@ -801,9 +809,10 @@ class FilteredEntityTypeWidget(ChainedInput):
         self.autocomplete = autocomplete
 
     def get_context(self, name, value, attrs):
-        add_dselect = partial(self.add_dselect,
-                              attrs={'auto': False, 'autocomplete': self.autocomplete},
-                             )
+        add_dselect = partial(
+            self.add_dselect,
+            attrs={'auto': False, 'autocomplete': self.autocomplete},
+        )
         ctype_name = 'ctype'
         add_dselect(ctype_name, options=self.content_types)
 
@@ -1235,10 +1244,11 @@ class DateRangeWidget(widgets.MultiWidget):
         self.render_as = attrs.pop('render_as', 'table') if attrs else 'table'
 
         super().__init__(
-            widgets=(widgets.Select(choices=choices, attrs={'data-daterange-type': True}),
-                     CalendarWidget(attrs={'data-daterange-field': 'start'}),
-                     CalendarWidget(attrs={'data-daterange-field': 'end'}),
-                    ),
+            widgets=(
+                widgets.Select(choices=choices, attrs={'data-daterange-type': True}),
+                CalendarWidget(attrs={'data-daterange-field': 'start'}),
+                CalendarWidget(attrs={'data-daterange-field': 'end'}),
+            ),
             attrs=attrs,
         )
 

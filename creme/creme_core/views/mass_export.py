@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -64,7 +64,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
         self.request.user.has_perm_to_export_or_die(ctype.model_class())
 
-    # def get_backend(self):
     def get_backend_class(self):
         doc_type = get_from_GET_or_404(self.request.GET, self.doc_type_arg)
 
@@ -93,9 +92,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
     def get_header_filter(self):
         return get_object_or_404(
-            # HeaderFilter.get_for_user(user=self.request.user,
-            #                           content_type=self.get_ctype(),
-            #                          ),
             HeaderFilter.objects
                         .filter_by_user(self.request.user)
                         .filter(entity_type=self.get_ctype()),
@@ -103,17 +99,19 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         )
 
     def get_header_only(self):
-        return get_from_GET_or_404(self.request.GET,
-                                   key=self.header_only_arg,
-                                   cast=bool_from_str_extended,
-                                   default='0',
-                                  )
+        return get_from_GET_or_404(
+            self.request.GET,
+            key=self.header_only_arg,
+            cast=bool_from_str_extended,
+            default='0',
+        )
 
     def get_paginator(self, *, queryset, ordering):
-        return FlowPaginator(queryset=queryset.order_by(*ordering),
-                             key=ordering[0],
-                             per_page=self.page_size,
-                            )
+        return FlowPaginator(
+            queryset=queryset.order_by(*ordering),
+            key=ordering[0],
+            per_page=self.page_size,
+        )
 
     def get_search_field_registry(self):
         return self.search_field_registry
@@ -148,14 +146,12 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
     def get_ordering(self, *, model, cells):
         get = self.request.GET.get
-        sort_info = self.get_query_sorter()\
-                        .get(model=model,
-                             cells=cells,
-                             cell_key=get(self.sort_cellkey_arg),
-                             order=Order.from_string(get(self.sort_order_arg),
-                                                     required=False,
-                                                    ),
-                            )
+        sort_info = self.get_query_sorter().get(
+            model=model,
+            cells=cells,
+            cell_key=get(self.sort_cellkey_arg),
+            order=Order.from_string(get(self.sort_order_arg), required=False),
+        )
 
         return sort_info.field_names
 
@@ -163,7 +159,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         user = request.user
 
         header_only = self.get_header_only()
-        # backend = self.get_backend()
         backend_cls = self.get_backend_class()
         ct = self.get_ctype()
         model = ct.model_class()
@@ -171,7 +166,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
         cells = self.get_cells(header_filter=hf)
 
-        # writer = backend()
         writer = backend_cls()
         writerow = writer.writerow
         # Doesn't accept generator expression... ;(
@@ -214,9 +208,7 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
             if use_distinct:
                 entities_qs = entities_qs.distinct()
 
-            paginator = self.get_paginator(queryset=entities_qs,
-                                           ordering=ordering,
-                                          )
+            paginator = self.get_paginator(queryset=entities_qs, ordering=ordering)
 
             total_count = 0
 
@@ -244,7 +236,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
                 ctype=ct, user=user, count=total_count, hfilter=hf, efilter=efilter,
             )
 
-        # writer.save(ct.model)
         writer.save(ct.model, user)
 
         return writer.response

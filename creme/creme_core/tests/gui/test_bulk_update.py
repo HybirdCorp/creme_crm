@@ -282,7 +282,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
             if field.editable and not field.unique
         ]
-        custom_names  = ['A']
+        custom_names = ['A']
 
         regular_fields = bulk_update_registry.regular_fields(FakeContact)
         custom_fields  = bulk_update_registry.custom_fields(FakeContact)

@@ -58,35 +58,18 @@ class CremeFormTestCase(CremeTestCase):
         with self.assertNoException():
             general_group = blocks['general']
 
-        # self.assertIsInstance(general_group, tuple)
-        # self.assertEqual(2, len(general_group))
-        # self.assertEqual(_('General information'), general_group[0])
         self.assertEqual(_('General information'), general_group.label)
 
-        # items = general_group[1]
-        # self.assertIsInstance(items, list)
-        # self.assertEqual(2, len(items))
         bound_fields = general_group.bound_fields
         self.assertIsInstance(bound_fields, list)
         self.assertEqual(2, len(bound_fields))
 
         # --
-        # item1 = items[0]
-        # self.assertIsInstance(item1, tuple)
-        # self.assertEqual(2, len(item1))
-        # self.assertIs(item1[1], True)
-        #
-        # bound_field1 = item1[0]
-        # self.assertIsInstance(bound_field1, BoundField)
-        # self.assertEqual('order', bound_field1.name)
         bound_field1 = bound_fields[0]
         self.assertIsInstance(bound_field1, BoundField)
         self.assertEqual('order', bound_field1.name)
 
         # --
-        # item2 = items[1]
-        # self.assertEqual('description', item2[0].name)
-        # self.assertIs(item2[1], False)
         self.assertEqual('description', bound_fields[1].name)
 
     def test_hook(self):
@@ -152,10 +135,6 @@ class CremeModelFormTestCase(CremeTestCase):
         with self.assertNoException():
             general_group = blocks['general']
 
-        # self.assertIsInstance(general_group, tuple)
-        # self.assertEqual(2, len(general_group))
-        # self.assertEqual(_('General information'), general_group[0])
-        # self.assertEqual(2, len(general_group[1]))
         self.assertEqual(_('General information'), general_group.label)
         self.assertEqual(2, len(general_group.bound_fields))
 
@@ -250,10 +229,6 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             general_group = blocks['general']
 
-        # self.assertIsInstance(general_group, tuple)
-        # self.assertEqual(2, len(general_group))
-        # self.assertEqual(_('General information'), general_group[0])
-        # self.assertGreater(len(general_group[1]), 10)
         self.assertEqual(_('General information'), general_group.label)
         self.assertGreater(len(general_group.bound_fields), 10)
 
@@ -299,8 +274,6 @@ class CremeEntityFormTestCase(CremeTestCase):
         fields = FakeContactForm(user=user).fields
 
         with self.assertNoException():
-            # cf_f1 = fields['custom_field_0']
-            # cf_f2 = fields['custom_field_1']
             cf_f1 = fields[f'custom_field-{cfield1.id}']
             cf_f2 = fields[f'custom_field-{cfield2.id}']
             cf_f3 = fields[f'custom_field-{cfield3.id}']
@@ -349,8 +322,6 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'first_name': first_name,
                 'last_name':  last_name,
 
-                # 'custom_field_0': '150',
-                # 'custom_field_1': '',
                 f'custom_field-{cfield1.id}': '150',
                 f'custom_field-{cfield2.id}': '',
                 f'custom_field-{cfield3.id}': '',
@@ -447,12 +418,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             prop_group = blocks['properties']
 
-        # self.assertEqual(_('Properties'), prop_group[0])
         self.assertEqual(_('Properties'), prop_group.label)
 
-        # items = prop_group[1]
-        # self.assertEqual(len(items), 1)
-        # self.assertEqual('property_types', items[0][0].name)
         bound_fields = prop_group.bound_fields
         self.assertEqual(len(bound_fields), 1)
         self.assertEqual('property_types', bound_fields[0].name)
@@ -583,12 +550,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             relation_group = blocks['relationships']
 
-        # self.assertEqual(_('Relationships'), relation_group[0])
         self.assertEqual(_('Relationships'), relation_group.label)
 
-        # items = relation_group[1]
-        # self.assertEqual(len(items), 1)
-        # self.assertEqual('relation_types', items[0][0].name)
         self.assertListEqual(
             ['relation_types'],
             [bf.name for bf in relation_group.bound_fields],
@@ -660,14 +623,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         with self.assertNoException():
             relation_group = blocks['relationships']
 
-        # self.assertEqual(2, len(relation_group))
-        # self.assertEqual(_('Relationships'), relation_group[0])
         self.assertEqual(_('Relationships'), relation_group.label)
-
-        # items = relation_group[1]
-        # self.assertEqual(len(items), 2)
-        # self.assertEqual('relation_types',   items[0][0].name)
-        # self.assertEqual('semifixed_rtypes', items[1][0].name)
         self.assertListEqual(
             ['relation_types', 'semifixed_rtypes'],
             [bf.name for bf in relation_group.bound_fields],
@@ -1151,7 +1107,6 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         self.assertFormInstanceErrors(
             form2,
-            # ('relation_types', _('This type of relationship causes a constraint error.')),
             (
                 'relation_types',
                 _(

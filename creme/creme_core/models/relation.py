@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -191,15 +191,9 @@ class RelationType(CremeModel):
     subject_ctypes = models.ManyToManyField(
         ContentType, blank=True, related_name='relationtype_subjects_set',
     )
-    # object_ctypes = models.ManyToManyField(
-    #     ContentType, blank=True, related_name='relationtype_objects_set',
-    # )
     subject_properties = models.ManyToManyField(
         CremePropertyType, blank=True, related_name='relationtype_subjects_set',
     )
-    # object_properties = models.ManyToManyField(
-    #    CremePropertyType, blank=True, related_name='relationtype_objects_set'
-    # )
 
     # If True, the relations with this type cannot be created/deleted directly by the users.
     is_internal = models.BooleanField(default=False)
@@ -239,27 +233,12 @@ class RelationType(CremeModel):
         get_ct = ContentType.objects.get_for_model
         cts = [get_ct(model) for model in models]
         self.subject_ctypes.add(*cts)
-        # self.symmetric_type.object_ctypes.add(*cts)
 
     def delete(self, using=None, keep_parents=False):
         sym_type = self.symmetric_type
 
         super(RelationType, sym_type).delete(using=using)
         super().delete(using=using, keep_parents=keep_parents)
-
-    # @staticmethod
-    # def get_compatible_ones(ct, include_internals=False):
-    #     warnings.warn('Relation.get_compatible_ones() is deprecated ; '
-    #                   'use RelationType.objects.compatible() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     types = RelationType.objects.filter(
-    #           Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True)
-    #     )
-    #     if not include_internals:
-    #         types = types.filter(Q(is_internal=False))
-    #
-    #     return types
 
     @staticmethod
     @atomic
@@ -339,27 +318,19 @@ class RelationType(CremeModel):
         for rt in (sub_relation_type, obj_relation_type):
             rt.subject_ctypes.clear()
             rt.subject_properties.clear()
-            # rt.object_ctypes.clear()
-            # rt.object_properties.clear()
 
         get_ct = ContentType.objects.get_for_model
 
         for subject_ctype in subject_desc[2]:
-            ct = get_ct(subject_ctype)
-            sub_relation_type.subject_ctypes.add(ct)
-            # obj_relation_type.object_ctypes.add(ct)
+            sub_relation_type.subject_ctypes.add(get_ct(subject_ctype))
 
         for object_ctype in object_desc[2]:
-            ct = get_ct(object_ctype)
-            # sub_relation_type.object_ctypes.add(ct)
-            obj_relation_type.subject_ctypes.add(ct)
+            obj_relation_type.subject_ctypes.add(get_ct(object_ctype))
 
         for subject_prop in subject_desc[3]:
             sub_relation_type.subject_properties.add(subject_prop)
-            # obj_relation_type.object_properties.add(subject_prop)
 
         for object_prop in object_desc[3]:
-            # sub_relation_type.object_properties.add(object_prop)
             obj_relation_type.subject_properties.add(object_prop)
 
         sub_relation_type.save()
@@ -462,32 +433,16 @@ class Relation(CremeModel):
             sym_relation = self.symmetric_relation
             assert sym_relation
         else:
-            sym_relation = Relation(user=self.user,
-                                    type=self.type.symmetric_type,
-                                    symmetric_relation=self,
-                                    subject_entity=self.object_entity,
-                                    object_entity=self.subject_entity,
-                                   )
+            sym_relation = Relation(
+                user=self.user,
+                type=self.type.symmetric_type,
+                symmetric_relation=self,
+                subject_entity=self.object_entity,
+                object_entity=self.subject_entity,
+            )
 
         return sym_relation
 
-    # @atomic
-    # def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-    #     """See django.db.models.Model.save()
-    #
-    #     @param force_update: Not used.
-    #     @param update_fields: Not used.
-    #     """
-    #     update = bool(self.pk)
-    #
-    #     super().save(using=using, force_insert=force_insert)
-    #
-    #     sym_relation = self._build_symmetric_relation(update)
-    #     super(Relation, sym_relation).save(using=using, force_insert=force_insert)
-    #
-    #     if self.symmetric_relation is None:
-    #         self.symmetric_relation = sym_relation
-    #         super().save(using=using, force_insert=False)
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """See django.db.models.Model.save().
         Notice that Relation instances should only be created, not updated.
@@ -530,14 +485,6 @@ class Relation(CremeModel):
         -> (eg: use select_related('object_entity') on the queryset)
         """
         CremeEntity.populate_real_entities([relation.object_entity for relation in relations])
-
-    # @staticmethod
-    # def filter_in(model, filter_predicate, value_for_filter):
-    #     warnings.warn('Relation.filter_in() is deprecated.', DeprecationWarning)
-    #     return Q(
-    #        relations__type=filter_predicate,
-    #        relations__object_entity__header_filter_search_field__icontains=value_for_filter,
-    #     )
 
 
 class SemiFixedRelationType(CremeModel):

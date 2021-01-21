@@ -17,15 +17,6 @@ from creme.creme_core.utils.date_period import date_period_registry
 
 from .. import base
 
-# def _create_file(name):
-#     rel_media_dir_path = join('upload', 'creme_core-tests', 'models')
-#     final_path = FileCreator(join(settings.MEDIA_ROOT, rel_media_dir_path), name).create()
-#
-#     with open(final_path, 'w') as f:
-#         f.write('I am the content')
-#
-#     return join(rel_media_dir_path, basename(final_path))
-
 
 class FileRefTestCase(base.CremeTestCase):
     def _get_job(self, days=1):
@@ -48,7 +39,6 @@ class FileRefTestCase(base.CremeTestCase):
         )
 
     def test_basename01(self):
-        # path = _create_file('FileRefTestCase_test_basename01.txt')
         path = self.create_uploaded_file(
             file_name='FileRefTestCase_test_basename01.txt',
             dir_name='models',
@@ -59,7 +49,6 @@ class FileRefTestCase(base.CremeTestCase):
 
     def test_basename02(self):
         name = 'FileRefTestCase_test_basename02.txt'
-        # path = _create_file(name)
         path = self.create_uploaded_file(file_name=name, dir_name='models')
 
         with self.assertNoException():
@@ -70,7 +59,6 @@ class FileRefTestCase(base.CremeTestCase):
     def test_job01(self):
         "File is too young to be deleted (just created)"
         job = self._get_job(days=1)
-        # path = _create_file('FileRefTestCase_test_job01.txt')
         path = self.create_uploaded_file(
             file_name='FileRefTestCase_test_job01.txt',
             dir_name='models',
@@ -87,7 +75,6 @@ class FileRefTestCase(base.CremeTestCase):
         "File is old enough to be deleted"
         days = 1
         job = self._get_job(days=days)
-        # path = _create_file('FileRefTestCase_test_job02.txt')
         path = self.create_uploaded_file(
             file_name='FileRefTestCase_test_job02.txt',
             dir_name='models',
@@ -104,7 +91,6 @@ class FileRefTestCase(base.CremeTestCase):
     def test_job03(self):
         "File is too young to be deleted"
         job = self._get_job(days=2)
-        # path = _create_file('FileRefTestCase_test_job03.txt')
         path = self.create_uploaded_file(
             file_name='FileRefTestCase_test_job03.txt',
             dir_name='models',
@@ -119,7 +105,6 @@ class FileRefTestCase(base.CremeTestCase):
     def test_job04(self):
         "File is not temporary"
         job = self._get_job(days=1)
-        # path = _create_file('FileRefTestCase_test_job04.txt')
         path = self.create_uploaded_file(
             file_name='FileRefTestCase_test_job04.txt',
             dir_name='models',
@@ -135,7 +120,6 @@ class FileRefTestCase(base.CremeTestCase):
         user = self.create_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
-        # path = _create_file('FileRefTestCase_test_create_at_deletion.txt')
         path = self.create_uploaded_file(
             file_name='FileRefTestCase_test_create_at_deletion.txt',
             dir_name='models',
@@ -176,7 +160,6 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         user = self.create_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
-        # path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file01.txt')
         path = self.create_uploaded_file(
             file_name='FileRefTestDeleteCase_test_delete_model_with_file01.txt',
             dir_name='models',
@@ -207,7 +190,6 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
         user = self.create_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
-        # path = _create_file('FileRefTestDeleteCase_test_delete_model_with_file02.txt')
         path = self.create_uploaded_file(
             file_name='FileRefTestDeleteCase_test_delete_model_with_file02.txt',
             dir_name='models',

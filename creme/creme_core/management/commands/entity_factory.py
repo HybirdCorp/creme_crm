@@ -142,13 +142,11 @@ def _get_contact_n_factory(locale):
 
     Contact = get_contact_model()
 
-    # build_email_domain = partial(factory.Faker('free_email_domain', locale=locale).generate, {})
     build_email_domain = partial(
         factory.Faker('free_email_domain', locale=locale).evaluate, step=None,
     )
 
     def build_email(contact):
-        # return f'{contact.first_name}.{contact.last_name}@{build_email_domain()}'.lower()
         domain = build_email_domain(contact, extra={'locale': locale})
         return f'{contact.first_name}.{contact.last_name}@{domain}'.lower()
 
@@ -169,13 +167,11 @@ def _get_organisation_n_factory(locale):
 
     Organisation = get_organisation_model()
 
-    # build_email_domain = partial(factory.Faker('free_email_domain', locale=locale).generate, {})
     build_email_domain = partial(
         factory.Faker('free_email_domain', locale=locale).evaluate, step=None,
     )
 
     def build_email(orga):
-        # return f'{orga.name}@{build_email_domain()}'.lower()
         domain = build_email_domain(orga, extra={'locale': locale})
         return f'{orga.name}@{domain}'.lower()
 
@@ -268,10 +264,8 @@ class OptimizePGSQLContext(BaseOptimizeContext):
         if match is None:
             print(f'DEBUG: invalid delay "{delay}" ?!')
         else:
-            # data = match.groupdict()
-            # value = int(data['value'])
             value = int(match['value'])
-            # if data['unit'] == 's':
+
             if match['unit'] == 's':
                 value *= 1000
 
@@ -354,12 +348,10 @@ class Command(BaseCommand):
         db_settings = settings.DATABASES['default']
         # TODO: add an argument to avoid optimisations ?
         optimiser_class = self.SQL_OPTIMISERS.get(
-            # settings.DATABASES['default']['ENGINE'], BaseOptimizeContext,
             db_settings['ENGINE'], BaseOptimizeContext,
         )
 
         if verbosity:
-            # if settings.CONN_MAX_AGE is not None:
             if db_settings['CONN_MAX_AGE'] != 0:
                 self.stdout.write(
                     # 'You can try to set "CONN_MAX_AGE = None" in your '

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -247,7 +247,6 @@ class CTypeOneToOneField(models.OneToOneField):
         )
 
 
-# class RealEntityForeignKey:
 class RealEntityForeignKey(FieldCacheMixin):
     """ Provide a "virtual" field which uses & combines 2 ForeignKeys :
      - a ForeignKey to CremeEntity.
@@ -289,7 +288,6 @@ class RealEntityForeignKey(FieldCacheMixin):
 
         self.name = None
         self.model = None
-        # self.cache_attr = None
 
     def __str__(self):
         meta = self.model._meta
@@ -299,7 +297,6 @@ class RealEntityForeignKey(FieldCacheMixin):
     def contribute_to_class(self, cls, name, **kwargs):
         self.name = name
         self.model = cls
-        # self.cache_attr = '_{}_cache'.format(name)
         cls._meta.add_field(self, private=True)  # TODO: test ?
         setattr(cls, name, self)
 
@@ -362,7 +359,6 @@ class RealEntityForeignKey(FieldCacheMixin):
         # if instance is None:
         #     return self
 
-        # real_entity = getattr(instance, self.cache_attr, None)
         real_entity = self.get_cached_value(instance, default=None)
 
         if real_entity is None:
@@ -389,7 +385,6 @@ class RealEntityForeignKey(FieldCacheMixin):
                     real_entity = ct.model_class()._default_manager.get(id=entity_id)
 
                 setattr(instance, self._fk_field_name, real_entity)
-                # setattr(instance, self.cache_attr, real_entity)
             else:
                 if entity is None:
                     real_entity = None
@@ -424,7 +419,6 @@ class RealEntityForeignKey(FieldCacheMixin):
 
         setattr(instance, self._ct_field_name, ct)
         setattr(instance, self._fk_field_name, value)
-        # # setattr(instance, self.cache_attr, value)  # We use the cache of FK/entity instead.
 
     def get_cache_name(self):  # See FieldCacheMixin
         return self.name
@@ -486,7 +480,7 @@ class BasicAutoField(models.PositiveIntegerField):
 ################################################################################
 #  Copyright (c) 2007  Michael Trier
 #  Copyright (C) 2014  http://trbs.net
-#  Copyright (C) 2009-2020  Hybird
+#  Copyright (C) 2009-2021  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal

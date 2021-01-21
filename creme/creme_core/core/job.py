@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,10 +58,7 @@ class _JobTypeRegistry:
 
         # Configure environment
         activate(job.language)
-        set_global_info(user=job.user,
-                        # usertheme=get_user_theme(request),
-                        # per_request_cache={},
-                       )
+        set_global_info(user=job.user)
 
         job_type.execute(job)
 
@@ -106,13 +103,13 @@ class Command:
         self.data = data
 
 
-# class _BaseJobManagerQueue:
 class _BaseJobSchedulerQueue:
     verbose_name = 'Abstract queue'  # Overload me
     _main_queue = None
-    _manager_error = _('The job manager does not respond.\n'
-                       'Please contact your administrator.'
-                      )
+    _manager_error = _(
+        'The job manager does not respond.\n'
+        'Please contact your administrator.'
+    )
 
     @classmethod
     def _queue_error(cls, msg):
@@ -180,7 +177,6 @@ class _BaseJobSchedulerQueue:
 
 
 if settings.TESTS_ON:
-    # class JobManagerQueue(_BaseJobManagerQueue):
     class JobSchedulerQueue(_BaseJobSchedulerQueue):
         "Mocking JobSchedulerQueue."
         verbose_name = 'Test queue'
@@ -265,7 +261,6 @@ else:
     # TODO: should we rely on a watch dog ??
     # TODO: pub-sub allows to watch the numbers of readers -> use it to (re-)launch the command ?
     # TODO: base class -> children: Redis, AMQP, etc...
-    # class JobManagerQueue(_BaseJobManagerQueue):
     class JobSchedulerQueue(_BaseJobSchedulerQueue):
         verbose_name = _('Redis queue')
         JOBS_COMMANDS_KEY = 'creme_jobs'
@@ -294,7 +289,6 @@ else:
             logger.info('Job scheduler queue: request REFRESH "%s" (data=%s)', job, data)
             self._redis.lpush(
                 self.JOBS_COMMANDS_KEY,
-                # '{}-{}-{}'.format(CMD_REFRESH, job.id, json_dump(data))
                 f'{CMD_REFRESH}-{job.id}-{json_encode(data)}'
             )
 
@@ -311,9 +305,10 @@ else:
                     cmd_type, data = result[1].decode().split('-', 1)
                     cmd = COMMANDS[cmd_type](data)
                 except Exception:
-                    logger.warning('Job scheduler queue: invalid command "%s"\n%s',
-                                   result, traceback.format_exc(),
-                                  )
+                    logger.warning(
+                        'Job scheduler queue: invalid command "%s"\n%s',
+                        result, traceback.format_exc(),
+                    )
 
             return cmd
 
@@ -349,7 +344,6 @@ else:
             self._redis.setex(self._build_pong_key(ping_value), value=1, time=10)
 
 
-# class JobManager:
 class JobScheduler:
     """It should run it its own process (see 'creme_job_manager' command),
     receive command (START...) from an inter-process queue, and spawn jobs
@@ -418,10 +412,9 @@ class JobScheduler:
 
         # NB: order_by() => execute users' jobs in the right order
         #     (Meta.ordering is already OK, but it could change)
-        for job in Job.objects.filter(Q(user__isnull=True) |
-                                      Q(user__isnull=False, status=Job.STATUS_WAIT)
-                                     ) \
-                              .order_by('id'):
+        for job in Job.objects.filter(
+            Q(user__isnull=True) | Q(user__isnull=False, status=Job.STATUS_WAIT)
+        ).order_by('id'):
             jtype = job.type
 
             if jtype is None:
@@ -430,18 +423,20 @@ class JobScheduler:
 
             if job.user:
                 if jtype.periodic != JobType.NOT_PERIODIC:
-                    logger.warning('JobScheduler: job "%s" is a user job and should be'
-                                   ' not periodic -> period is ignored.', repr(job),
-                                  )
+                    logger.warning(
+                        'JobScheduler: job "%s" is a user job and should be'
+                        ' not periodic -> period is ignored.', repr(job),
+                    )
 
                 users_jobs.appendleft(job)
             else:  # System jobs
                 if jtype.periodic != JobType.NOT_PERIODIC:
                     heappush(system_jobs, (self._next_wakeup(job, now_value), job.id, job))
                 else:
-                    logger.warning('JobScheduler: job "%s" is a system job and should be'
-                                   ' (pseudo-)periodic -> job is ignored.', repr(job),
-                                  )
+                    logger.warning(
+                        'JobScheduler: job "%s" is a system job and should be'
+                        ' (pseudo-)periodic -> job is ignored.', repr(job),
+                    )
 
     def _next_wakeup(self,
                      job: Job,
@@ -478,9 +473,10 @@ class JobScheduler:
             if user_job.id not in (j.id for j in users_jobs):
                 users_jobs.appendleft(user_job)
         else:
-            logger.warning('JobScheduler: try to start the job "%s", which is a'
-                           ' system job -> command is ignored.', repr(user_job),
-                          )
+            logger.warning(
+                'JobScheduler: try to start the job "%s", which is a'
+                ' system job -> command is ignored.', repr(user_job),
+            )
 
     def _start_job(self, job: Job):
         logger.info('JobScheduler: start %s', repr(job))
@@ -514,10 +510,11 @@ class JobScheduler:
                 self._running_userjob_ids.discard(job.id)
             else:
                 if job.type.periodic == JobType.NOT_PERIODIC:
-                    logger.critical('JobScheduler.handle_command_end() -> '
-                                    'job "%s" is a system job and should be '
-                                    '(pseudo-)periodic -> job is ignored.', repr(job),
-                                    )
+                    logger.critical(
+                        'JobScheduler.handle_command_end() -> '
+                        'job "%s" is a system job and should be '
+                        '(pseudo-)periodic -> job is ignored.', repr(job),
+                    )
                 else:
                     try:
                         reference_run = self._system_jobs_starts.pop(job.id)

@@ -187,10 +187,9 @@ class EntityFiltersTestCase(CremeTestCase):
         condition = conditions[0]
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(fname,                                condition.name)
-        self.assertEqual({'operator': operator_id, 'values': [value]},
-                         # condition.decoded_value
-                         condition.value
-                        )
+        self.assertEqual(
+            {'operator': operator_id, 'values': [value]}, condition.value,
+        )
 
         self.assertTrue(efilter.entities_are_distinct)
 
@@ -241,10 +240,9 @@ class EntityFiltersTestCase(CremeTestCase):
         condition = conditions[0]
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(fname,                                condition.name)
-        self.assertEqual({'operator': operator_id, 'values': [value]},
-                         # condition.decoded_value
-                         condition.value
-                        )
+        self.assertEqual(
+            {'operator': operator_id, 'values': [value]}, condition.value,
+        )
 
         self.assertTrue(efilter.entities_are_distinct)
 
@@ -500,21 +498,18 @@ class EntityFiltersTestCase(CremeTestCase):
             model=FakeContact,
             type=type_id,
             name='first_name',
-            # value='{"operator": 1, "values": ["Ikari"]}',
             raw_value='{"operator": 1, "values": ["Ikari"]}',
         )
         cond2 = EntityFilterCondition(
             model=FakeContact,
             type=type_id,
             name='first_name',
-            # value='{"operator": 1, "values": ["Ikari"]}',
             raw_value='{"operator": 1, "values": ["Ikari"]}',
         )
         cond3 = EntityFilterCondition(
             model=FakeContact,
             type=type_id,
             name='first_name',
-            # value='{"values": ["Ikari"], "operator": 1}',
             # Different strings, but same JSONified dict....
             raw_value='{"values": ["Ikari"], "operator": 1}',
         )
@@ -559,10 +554,10 @@ class EntityFiltersTestCase(CremeTestCase):
         condition = conditions[0]
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual('first_name',                         condition.name)
-        self.assertEqual({'operator': operators.IEQUALS, 'values': ['Gendo']},
-                         # condition.decoded_value
-                         condition.value
-                        )
+        self.assertEqual(
+            {'operator': operators.IEQUALS, 'values': ['Gendo']},
+            condition.value,
+        )
 
         self.assertEqual(count, EntityFilter.objects.count())
 
@@ -618,10 +613,10 @@ class EntityFiltersTestCase(CremeTestCase):
         condition = conditions[0]
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual('first_name',                         condition.name)
-        self.assertEqual({'operator': operators.IEQUALS, 'values': ['Gendo']},
-                         # condition.decoded_value
-                         condition.value
-                        )
+        self.assertEqual(
+            {'operator': operators.IEQUALS, 'values': ['Gendo']},
+            condition.value
+        )
 
         self.assertEqual(count, EntityFilter.objects.count())
 
@@ -1702,7 +1697,6 @@ class EntityFiltersTestCase(CremeTestCase):
         condition = conditions[0]
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                      condition.name)
-        # self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.value)
         self.assertEqual(old_id,                                    condition.id)
 
@@ -1741,8 +1735,7 @@ class EntityFiltersTestCase(CremeTestCase):
             self.assertEqual(kwargs['field_name'],                 condition.name)
             self.assertDictEqual(
                 {'operator': kwargs['operator'], 'values': kwargs['values']},
-                # condition.decoded_value
-                condition.value
+                condition.value,
             )
 
         old_id = conditions[0].id
@@ -1759,8 +1752,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(old_id,                               condition.id)
         self.assertDictEqual(
             {'operator': kwargs1['operator'], 'values': kwargs1['values']},
-            # condition.decoded_value
-            condition.value
+            condition.value,
         )
 
     def test_set_conditions03(self):
@@ -1820,8 +1812,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(fname, condition1.name)
         self.assertEqual(
             {'operator': operator_id, 'values': [value]},
-            # condition1.decoded_value
-            condition1.value
+            condition1.value,
         )
 
         # ---
@@ -1860,7 +1851,6 @@ class EntityFiltersTestCase(CremeTestCase):
         conditions = self.refresh(efilter).get_conditions()
         self.assertEqual(1, len(conditions))
 
-        # EntityFilterCondition.objects.filter(id=conditions[0].id).update(value='[]')
         EntityFilterCondition.objects.filter(id=conditions[0].id).update(raw_value='[]')
         self.assertFalse(self.refresh(efilter).get_conditions())
 
@@ -2985,11 +2975,6 @@ class EntityFiltersTestCase(CremeTestCase):
             conditions=[EntityFilterCondition(type=20,
                                               model=FakeContact,
                                               name=str(custom_field.id),
-                                              # value=EntityFilterCondition.encode_value({
-                                              #     'operator': operators.EQUALS,
-                                              #     'values': ['False'],
-                                              #     'rname': cfield_rname,
-                                              # }),
                                               value={
                                                   'operator': operators.EQUALS,
                                                   'values': ['False'],

@@ -73,21 +73,13 @@ class EntityCellsFieldTestCaseMixin:
                 )
 
 
-# class EntityCellsFieldTestCase(FieldTestCase):
 class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     super().setUpClass()
-    #     cls.ct_contact = ContentType.objects.get_for_model(FakeContact)
-
     def test_clean_empty_required(self):
-        # clean = EntityCellsField(required=True, content_type=self.ct_contact).clean
         clean = EntityCellsField(required=True, model=FakeContact).clean
         self.assertFieldValidationError(EntityCellsField, 'required', clean, None)
         self.assertFieldValidationError(EntityCellsField, 'required', clean, '')
 
     def test_clean_empty_not_required(self):
-        # field = EntityCellsField(required=False, content_type=self.ct_contact)
         field = EntityCellsField(required=False, model=FakeContact)
 
         with self.assertNoException():
@@ -95,34 +87,15 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
         self.assertListEqual([], value)
 
-    # def test_clean_invalid_choice(self):
-    #     field = EntityCellsField(content_type=self.ct_contact)
-    #     self.assertFieldValidationError(
-    #         EntityCellsField, 'invalid', field.clean,
-    #         'regular_field-first_name,regular_field-unknown',
-    #     )
-
-    # def test_choices_regularfields01(self):
     def test_regularfields01(self):
         field = EntityCellsField()
         self.assertListEqual([], field.non_hiddable_cells)
-        # self.assertFalse(field.widget.model_fields)
 
         choices = self._find_sub_widget(field, 'regular_field').choices
         fname1 = 'created'
         value = f'regular_field-{fname1}'
-        # self.assertInChoices(
-        #     value=value,
-        #     label=_('Creation date'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices(value, choices=choices)
-        # self.assertNotInChoices(
-        #     value='regular_field-entity_type',
-        #     choices=choices,
-        # )
         self.assertCellNotInChoices('regular_field-entity_type', choices=choices)
-
         self.assertCellInChoices('regular_field-user',           choices=choices)
         self.assertCellInChoices('regular_field-user__username', choices=choices)
         self.assertCellNotInChoices('regular_field-user__role',  choices=choices)
@@ -145,78 +118,23 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             message_args={'value': 'entity_type'},
         )
 
-    # def test_choices_regularfields02(self):
     def test_regularfields02(self):
-        # field = EntityCellsField(content_type=self.ct_contact)
         field = EntityCellsField(model=FakeContact)
         self.assertListEqual([], field.non_hiddable_cells)
 
-        # choices = field.widget.model_fields
         choices = self._find_sub_widget(field, 'regular_field').choices
-        # self.assertInChoices(
-        #     value='regular_field-created',
-        #     label=_('Creation date'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices('regular_field-created', choices=choices)
-        # self.assertInChoices(
-        #     value='regular_field-last_name',
-        #     label=_('Last name'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices('regular_field-last_name', choices=choices)
-        # self.assertInChoices(
-        #     value='regular_field-first_name',
-        #     label=_('First name'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices('regular_field-first_name', choices=choices)
-        # self.assertInChoices(
-        #     value='regular_field-sector',
-        #     label=_('Line of business'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices('regular_field-sector', choices=choices)
-        # self.assertInChoices(
-        #     value='regular_field-civility',
-        #     label=_('Civility'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices('regular_field-civility', choices=choices)
-        # self.assertInChoices(
-        #     value='regular_field-address',
-        #     label=_('Billing address'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices('regular_field-address', choices=choices)
 
-        # sub_choices = field.widget.model_subfields
-        # self.assertInChoices(
-        #     value='regular_field-sector__title',
-        #     label=_('Title'),
-        #     choices=sub_choices['regular_field-sector'],
-        # )
         self.assertCellInChoices('regular_field-sector__title', choices=choices)
         self.assertCellNotInChoices('regular_field-sector__is_custom', choices=choices)
-        # self.assertInChoices(
-        #     value='regular_field-civility__shortcut',
-        #     label=_('Shortcut'),
-        #     choices=sub_choices['regular_field-civility'],
-        # )
         self.assertCellInChoices('regular_field-civility__shortcut', choices=choices)
 
-        # addr_choices = sub_choices['regular_field-address']
-        # self.assertInChoices(
-        #     value='regular_field-address__city',
-        #     label=_('City'),
-        #     choices=addr_choices,
-        # )
         self.assertCellInChoices('regular_field-address__city', choices=choices)
-        # self.assertInChoices(
-        #     value='regular_field-address__country',
-        #     label=_('Country'),
-        #     choices=addr_choices,
-        # )
         self.assertCellInChoices('regular_field-address__country', choices=choices)
 
         self.assertCellInChoices('regular_field-image',             choices=choices)
@@ -260,19 +178,14 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             message_args={'value': 'image__categories__name'},
         )
 
-    # def test_choices_regularfields03(self):
     def test_regularfields03(self):
         # "Property <content_type>."
         "Property <model>."
         field = EntityCellsField()
-        # self.assertIsNone(field.content_type)
         self.assertIs(field.model,        CremeEntity)
         self.assertIs(field.widget.model, CremeEntity)
 
-        # ct = self.ct_contact
-        # field.content_type = ct
         field.model = FakeContact
-        # self.assertEqual(ct, field.content_type)
         self.assertEqual(FakeContact, field.model)
 
         widget = field.widget
@@ -280,11 +193,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
         fname = 'last_name'
         value = f'regular_field-{fname}'
-        # self.assertInChoices(
-        #     value=value,
-        #     label=_('Last name'),
-        #     choices=widget.model_fields,
-        # )
         self.assertCellInChoices(
             value,
             choices=self._find_sub_widget(field, 'regular_field').choices,
@@ -294,7 +202,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             field.clean(value)
         )
 
-    # def test_choices_regularfields04(self):
     def test_regularfields04(self):
         "Hidden fields."
         hidden_fname1 = 'first_name'
@@ -302,7 +209,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
         create_fconf = FieldsConfig.objects.create
         create_fconf(
-            # content_type=self.ct_contact,
             content_type=FakeContact,
             descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True})],
         )
@@ -311,33 +217,12 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             descriptions=[(hidden_fname2, {FieldsConfig.HIDDEN: True})],
         )
 
-        # field = EntityCellsField(content_type=self.ct_contact)
         field = EntityCellsField(model=FakeContact)
-        # choices = field.widget.model_fields
         choices = self._find_sub_widget(field, 'regular_field').choices
-        # self.assertInChoices(
-        #     value='regular_field-last_name',
-        #     label=_('Last name'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices('regular_field-last_name', choices=choices)
-        # self.assertNotInChoices(
-        #     value=f'regular_field-{hidden_fname1}',
-        #     choices=choices,
-        # )
         self.assertCellNotInChoices(f'regular_field-{hidden_fname1}', choices=choices)
 
-        # addr_choices = field.widget.model_subfields['regular_field-address']
-        # self.assertInChoices(
-        #     value='regular_field-address__country',
-        #     label=_('Country'),
-        #     choices=addr_choices,
-        # )
         self.assertCellInChoices('regular_field-address__country', choices=choices)
-        # self.assertNotInChoices(
-        #     value=f'regular_field-address__{hidden_fname2}',
-        #     choices=addr_choices,
-        # )
         self.assertCellNotInChoices(
             f'regular_field-address__{hidden_fname2}',
             choices=choices,
@@ -347,32 +232,22 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             [EntityCellRegularField.build(FakeContact, 'last_name')],
             field.clean('regular_field-last_name')
         )
-        # self.assertFieldValidationError(
-        #     EntityCellsField, 'invalid', field.clean,
-        #     f'regular_field-{hidden_fname1}',
-        # )
         self.assertFieldValidationError(
             UniformEntityCellsField, 'invalid_value', field.clean,
             f'regular_field-{hidden_fname1}',
             message_args={'value': hidden_fname1},
         )
-        # self.assertFieldValidationError(
-        #     EntityCellsField, 'invalid', field.clean,
-        #     f'regular_field-address__{hidden_fname2}',
-        # )
         self.assertFieldValidationError(
             UniformEntityCellsField, 'invalid_value', field.clean,
             f'regular_field-address__{hidden_fname2}',
             message_args={'value': f'address__{hidden_fname2}'},
         )
 
-    # def test_choices_regularfields05(self):
     def test_regularfields05(self):
         "Hidden fields + selected cells."
         hidden_fname1 = 'first_name'
         hidden_fname2 = 'city'
         FieldsConfig.objects.create(
-            # content_type=self.ct_contact,
             content_type=FakeContact,
             descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True})],
         )
@@ -387,37 +262,14 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             EntityCellRegularField.build(FakeContact, f'address__{hidden_fname2}'),
         ]
         field.non_hiddable_cells = cells
-        # field.content_type = self.ct_contact
         field.model = FakeContact
         self.assertListEqual(cells, field.non_hiddable_cells)
 
-        # choices = field.widget.model_fields
         choices = self._find_sub_widget(field, 'regular_field').choices
-        # self.assertInChoices(
-        #     value='regular_field-last_name',
-        #     label=_('Last name'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices('regular_field-last_name', choices=choices)
-        # self.assertInChoices(
-        #     value=f'regular_field-{hidden_fname1}',
-        #     label=_('First name'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices(f'regular_field-{hidden_fname1}', choices=choices)
 
-        # addr_choices = field.widget.model_subfields['regular_field-address']
-        # self.assertInChoices(
-        #     value='regular_field-address__country',
-        #     label=_('Country'),
-        #     choices=addr_choices,
-        # )
         self.assertCellInChoices('regular_field-address__country', choices=choices)
-        # self.assertInChoices(
-        #     value=f'regular_field-address__{hidden_fname2}',
-        #     label=_('City'),
-        #     choices=addr_choices,
-        # )
         self.assertCellInChoices(
             f'regular_field-address__{hidden_fname2}',
             choices=choices,
@@ -436,7 +288,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             )
         )
 
-    # def test_choices_regularfields06(self):
     def test_regularfields06(self):
         """Hidden fields + selected cells.
         (<non_hiddable_cells> called after setting content type).
@@ -444,7 +295,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         hidden_fname1 = 'first_name'
         hidden_fname2 = 'city'
         FieldsConfig.objects.create(
-            # content_type=self.ct_contact,
             content_type=FakeContact,
             descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True})],
         )
@@ -453,7 +303,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             descriptions=[(hidden_fname2, {FieldsConfig.HIDDEN: True})],
         )
 
-        # field = EntityCellsField(content_type=self.ct_contact)
         field = EntityCellsField(model=FakeContact)
         cells = [
             EntityCellRegularField.build(FakeContact, hidden_fname1),
@@ -462,41 +311,16 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         field.non_hiddable_cells = cells
         self.assertListEqual(cells, field.non_hiddable_cells)
 
-        # choices = field.widget.model_fields
         choices = self._find_sub_widget(field, 'regular_field').choices
-        # self.assertInChoices(
-        #     value='regular_field-last_name',
-        #     label=_('Last name'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices('regular_field-last_name', choices=choices)
-        # self.assertInChoices(
-        #     value=f'regular_field-{hidden_fname1}',
-        #     label=_('First name'),
-        #     choices=choices,
-        # )
         self.assertCellInChoices(f'regular_field-{hidden_fname1}', choices=choices)
 
-        # addr_choices = field.widget.model_subfields['regular_field-address']
-        # self.assertInChoices(
-        #     value='regular_field-address__country',
-        #     label=_('Country'),
-        #     choices=addr_choices,
-        # )
         self.assertCellInChoices('regular_field-address__country', choices=choices)
-        # self.assertInChoices(
-        #     value=f'regular_field-address__{hidden_fname2}',
-        #     label=_('City'),
-        #     choices=addr_choices,
-        # )
         self.assertCellInChoices(f'regular_field-address__{hidden_fname2}', choices=choices)
 
-    # def test_choices_customfields01(self):
     def test_customfields01(self):
         create_cf = partial(
-            CustomField.objects.create,
-            # content_type=self.ct_contact,
-            content_type=FakeContact,
+            CustomField.objects.create, content_type=FakeContact,
         )
         cf1 = create_cf(field_type=CustomField.BOOL, name='Pilots?')
         cf2 = create_cf(field_type=CustomField.STR,  name='Dog tag')
@@ -505,43 +329,18 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             content_type=FakeOrganisation,
         )
 
-        # field1 = EntityCellsField(content_type=self.ct_contact)
         field1 = EntityCellsField(model=FakeContact)
-        # custom_fields = {cf1, cf2}
-        # self.assertSetEqual(custom_fields, {*field1._custom_fields})
 
-        # choices1 = field1.widget.custom_fields
         choices1 = self._find_sub_widget(field1, 'custom_field').choices
-        # self.assertInChoices(
-        #     value=f'custom_field-{cf1.id}',
-        #     label=cf1.name,
-        #     choices=choices1,
-        # )
         self.assertCellInChoices(f'custom_field-{cf1.id}', choices=choices1)
-        # self.assertInChoices(
-        #     value=f'custom_field-{cf2.id}',
-        #     label=cf2.name,
-        #     choices=choices1,
-        # )
         self.assertCellInChoices(f'custom_field-{cf2.id}', choices=choices1)
-        # self.assertNotInChoices(
-        #     value=f'custom_field-{cf3.id}',
-        #     choices=choices1,
-        # )
         self.assertCellNotInChoices(f'custom_field-{cf3.id}', choices=choices1)
 
         # ---
         field2 = EntityCellsField()
-        # field2.content_type = self.ct_contact
         field2.model = FakeContact
-        # self.assertSetEqual(custom_fields, {*field2._custom_fields})
 
         choices2 = self._find_sub_widget(field2, 'custom_field').choices
-        # self.assertInChoices(
-        #     value=f'custom_field-{cf1.id}',
-        #     label=cf1.name,
-        #     choices=choices2,
-        # )
         self.assertCellInChoices(f'custom_field-{cf1.id}', choices=choices2)
 
         # ----
@@ -556,34 +355,20 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             message_args={'value': value},
         )
 
-    # def test_choices_customfields02(self):
     def test_customfields02(self):
         "Deleted fields."
         create_cf = partial(
             CustomField.objects.create,
-            # content_type=self.ct_contact,
             content_type=FakeContact,
             field_type=CustomField.STR,
         )
         cf1 = create_cf(name='Dog tag')
         cf2 = create_cf(name='Old dog tag', is_deleted=True)
 
-        # field = EntityCellsField(content_type=self.ct_contact)
         field = EntityCellsField(model=FakeContact)
-        # self.assertListEqual([cf1], [*field._custom_fields])
 
-        # choices = field.widget.custom_fields
         choices = self._find_sub_widget(field, 'custom_field').choices
-        # self.assertInChoices(
-        #     value=f'custom_field-{cf1.id}',
-        #     label=cf1.name,
-        #     choices=choices,
-        # )
         self.assertCellInChoices(f'custom_field-{cf1.id}', choices=choices)
-        # self.assertNotInChoices(
-        #     value=f'custom_field-{cf2.id}',
-        #     choices=choices,
-        # )
         self.assertCellNotInChoices(f'custom_field-{cf2.id}', choices=choices)
 
         self.assertListEqual(
@@ -591,41 +376,26 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             field.clean(f'custom_field-{cf1.id}')
         )
         self.assertFieldValidationError(
-            # EntityCellsField, 'invalid', field.clean,
             EntityCellCustomFieldsField, 'invalid_value', field.clean,
             f'custom_field-{cf2.id}',
             message_args={'value': cf2.id},
         )
 
-    # def test_choices_customfields03(self):
     def test_customfields03(self):
         "Deleted fields  + selected cells."
         create_cf = partial(
             CustomField.objects.create,
-            # content_type=self.ct_contact,
             content_type=FakeContact,
             field_type=CustomField.STR,
         )
         cf1 = create_cf(name='Dog tag')
         cf2 = create_cf(name='Old dog tag', is_deleted=True)
 
-        # field = EntityCellsField(content_type=self.ct_contact)
         field = EntityCellsField(model=FakeContact)
         field.non_hiddable_cells = [EntityCellCustomField(cf2)]
-        # self.assertSetEqual({cf1, cf2}, {*field._custom_fields})
 
         choices = self._find_sub_widget(field, 'custom_field').choices
-        # self.assertInChoices(
-        #     value=f'custom_field-{cf1.id}',
-        #     label=cf1.name,
-        #     choices=choices,
-        # )
         self.assertCellInChoices(f'custom_field-{cf1.id}', choices=choices)
-        # self.assertInChoices(
-        #     value=f'custom_field-{cf2.id}',
-        #     label=cf2.name,
-        #     choices=choices,
-        # )
         self.assertCellInChoices(f'custom_field-{cf2.id}', choices=choices)
 
         # ----
@@ -634,17 +404,10 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             field.clean(f'custom_field-{cf1.id},custom_field-{cf2.id}')
         )
 
-    # def test_choices_functionfields(self):
     def test_functionfields(self):
-        # field = EntityCellsField(content_type=self.ct_contact)
         field = EntityCellsField(model=FakeContact)
         name1 = 'get_pretty_properties'
         value = f'function_field-{name1}'
-        # self.assertInChoices(
-        #     value=value,
-        #     label=_('Properties'),
-        #     choices=field.widget.function_fields,
-        # )
         self.assertCellInChoices(
             value,
             choices=self._find_sub_widget(field, 'function_field').choices,
@@ -656,12 +419,10 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
         name2 = 'invalid'
         self.assertFieldValidationError(
-            # EntityCellsField, 'invalid', field.clean, f'function_field-invalid',
             UniformEntityCellsField, 'invalid_value', field.clean, f'function_field-{name2}',
             message_args={'value': name2},
         )
 
-    # def test_choices_relations(self):
     def test_relations(self):
         rtype1 = self.get_object_or_fail(
             RelationType,
@@ -676,51 +437,19 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             id=fake_constants.FAKE_REL_SUB_BILL_ISSUED,
         )
 
-        # field1 = EntityCellsField(content_type=self.ct_contact)
         field1 = EntityCellsField(model=FakeContact)
-        # rtypes1 = {*field1._relation_types}
-        # self.assertIn(rtype1, rtypes1)
-        # self.assertNotIn(rtype2, rtypes1)
-        # self.assertNotIn(rtype3, rtypes1)
 
-        # choices1 = field1.widget.relation_types
         choices1 = self._find_sub_widget(field1, 'relation').choices
-        # self.assertInChoices(
-        #     value=f'relation-{rtype1.id}',
-        #     label=rtype1.predicate,
-        #     choices=choices1,
-        # )
         self.assertCellInChoices(f'relation-{rtype1.id}', choices=choices1)
-        # self.assertNotInChoices(
-        #     value=f'relation-{rtype2.id}',
-        #     choices=choices1,
-        # )
         self.assertCellNotInChoices(f'relation-{rtype2.id}', choices=choices1)
-        # self.assertNotInChoices(
-        #     value=f'relation-{rtype3.id}',
-        #     choices=choices1,
-        # )
         self.assertCellNotInChoices(f'relation-{rtype3.id}', choices=choices1)
 
         # ---
         field2 = EntityCellsField()
-        # field2.content_type = self.ct_contact
         field2.model = FakeContact
-        # rtypes2 = {*field2._relation_types}
-        # self.assertIn(rtype1, rtypes2)
-        # self.assertNotIn(rtype2, rtypes2)
 
         choices2 = self._find_sub_widget(field2, 'relation').choices
-        # self.assertInChoices(
-        #     value=f'relation-{rtype1.id}',
-        #     label=rtype1.predicate,
-        #     choices=choices2,
-        # )
         self.assertCellInChoices(f'relation-{rtype1.id}', choices=choices2)
-        # self.assertNotInChoices(
-        #     value=f'relation-{rtype2.id}',
-        #     choices=choices2,
-        # )
         self.assertCellNotInChoices(f'relation-{rtype2.id}', choices=choices2)
 
         self.assertListEqual(
@@ -734,7 +463,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
     def test_ok01(self):
         "One regular field."
-        # field = EntityCellsField(content_type=self.ct_contact)
         field = EntityCellsField(model=FakeContact)
         fname = 'first_name'
         cells = field.clean(f'regular_field-{fname}')
@@ -762,7 +490,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         )
         funcfield = function_field_registry.get(FakeContact, 'get_pretty_properties')
 
-        # field = EntityCellsField(content_type=self.ct_contact)
         field = EntityCellsField(model=FakeContact)
         cells = field.clean(
             f'relation-{loves.id},'
@@ -783,7 +510,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         "Invalid type id."
         field = EntityCellsField(model=FakeContact, required=False)
         self.assertFieldValidationError(
-            # EntityCellsField, 'invalid', field.clean, 'unknown-donotcare',
             EntityCellsField, 'invalid_type', field.clean, 'unknown-donotcare',
             message_args={'type_id': 'unknown'},
         )
@@ -848,7 +574,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
     def test_copy01(self):
         "Attribute <non_hiddable_cells>."
-        # field1 = EntityCellsField(content_type=self.ct_contact)
         field1 = EntityCellsField(model=FakeContact)
         field2 = deepcopy(field1)
 
@@ -926,7 +651,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
     def test_content_type(self):  # DEPRECATED
         field = EntityCellsField()
-        # self.assertIsNone(field.content_type)
         self.assertIs(field.content_type.model_class(), CremeEntity)
         self.assertIs(field.widget.model, CremeEntity)
 

@@ -644,15 +644,13 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                              condition.filter_type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(fname, condition.name)
-        self.assertDictEqual({'operator': operator_id, 'values': [value]},
-                             # condition.decoded_value
-                             condition.value
-                            )
+        self.assertDictEqual(
+            {'operator': operator_id, 'values': [value]}, condition.value
+        )
 
         handler = RegularFieldConditionHandler.build(
             model=FakeContact,
             name=condition.name,
-            # data=condition.decoded_value,
             data=condition.value,
         )
         self.assertIsInstance(handler, RegularFieldConditionHandler)
@@ -678,10 +676,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(EF_CREDENTIALS, condition.filter_type)
         self.assertEqual(fname, condition.name)
-        self.assertDictEqual({'operator': operators.ICONTAINS, 'values': [value]},
-                             # condition.decoded_value
-                             condition.value
-                            )
+        self.assertDictEqual(
+            {'operator': operators.ICONTAINS, 'values': [value]},
+            condition.value
+        )
 
     def test_regularfield_condition03(self):
         "Build condition + errors."
@@ -1094,15 +1092,14 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                                  condition1.filter_type)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition1.type)
         self.assertEqual(fname1,                                   condition1.name)
-        self.assertDictEqual({'start': {'day': 1, 'month': 1, 'year': 2000}},
-                             # condition1.decoded_value
-                             condition1.value
-                            )
+        self.assertDictEqual(
+            {'start': {'day': 1, 'month': 1, 'year': 2000}},
+            condition1.value,
+        )
 
         handler1 = DateRegularFieldConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            # data=condition1.decoded_value,
             data=condition1.value,
         )
         self.assertIsInstance(handler1, DateRegularFieldConditionHandler)
@@ -1122,23 +1119,23 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             end=date(year=1999, month=12, day=31),
         )
         self.assertEqual('created', condition2.name)
-        self.assertDictEqual({'end': {'day': 31, 'month': 12, 'year': 1999}},
-                             # condition2.decoded_value
-                             condition2.value
-                            )
+        self.assertDictEqual(
+            {'end': {'day': 31, 'month': 12, 'year': 1999}},
+            condition2.value
+        )
 
         handler2 = DateRegularFieldConditionHandler.build(
             model=FakeOrganisation,
             name=condition2.name,
-            # data=condition2.decoded_value,
             data=condition2.value,
         )
         self.assertEqual(FakeOrganisation, handler2.model)
         self.assertIsNone(handler2._range_name)
         self.assertIsNone(handler2._start)
-        self.assertEqual(self.create_datetime(year=1999, month=12, day=31),
-                         handler2._end
-                        )
+        self.assertEqual(
+            self.create_datetime(year=1999, month=12, day=31),
+            handler2._end,
+        )
 
         # RANGE ---
         condition3 = DateRegularFieldConditionHandler.build_condition(
@@ -1146,25 +1143,24 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             start=date(year=2001, month=1, day=1),
             end=date(year=2001, month=12, day=1),
         )
-        self.assertDictEqual({'start': {'day': 1, 'month': 1,  'year': 2001},
-                              'end':   {'day': 1, 'month': 12, 'year': 2001},
-                             },
-                             # condition3.decoded_value
-                             condition3.value
-                            )
+        self.assertDictEqual(
+            {
+                'start': {'day': 1, 'month': 1,  'year': 2001},
+                'end':   {'day': 1, 'month': 12, 'year': 2001},
+            },
+            condition3.value,
+        )
 
         # YESTERDAY ---
         range_name = 'yesterday'
         condition4 = DateRegularFieldConditionHandler.build_condition(
             model=FakeContact, field_name='birthday', date_range=range_name,
         )
-        # self.assertDictEqual({'name': range_name}, condition4.decoded_value)
         self.assertDictEqual({'name': range_name}, condition4.value)
 
         handler4 = DateRegularFieldConditionHandler.build(
             model=FakeContact,
             name=condition4.name,
-            # data=condition4.decoded_value,
             data=condition4.value,
         )
         self.assertEqual(range_name, handler4._range_name)
@@ -1383,9 +1379,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             operator_id=1234,  # <=
             values=['Corp'],
         )
-        self.assertEqual("Operator ID '1234' is invalid",
-                         handler1.error
-                        )
+        self.assertEqual("Operator ID '1234' is invalid", handler1.error)
 
         # ---
         handler2 = CustomFieldConditionHandler(
@@ -1395,9 +1389,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             values=['True'],
             related_name='invalid',  # <===
         )
-        self.assertEqual("related_name 'invalid' is invalid",
-                         handler2.error
-                        )
+        self.assertEqual("related_name 'invalid' is invalid", handler2.error)
 
     def test_customfield_build01(self):
         cfield_id = 6
@@ -1410,7 +1402,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             data={
                 'operator': operator_id,
                 'rname': rname,
-                # 'value': [value],
                 'values': [value],
             },
         )
@@ -1780,18 +1771,17 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(custom_field.id),                condition.name)
         self.assertDictEqual(
-            {'operator': operator_id,
-             'values': [str(value)],
-             'rname': rname,
+            {
+                'operator': operator_id,
+                'values': [str(value)],
+                'rname': rname,
             },
-            # condition.decoded_value
-            condition.value
+            condition.value,
         )
 
         handler = CustomFieldConditionHandler.build(
             model=FakeContact,
             name=condition.name,
-            # data=condition.decoded_value,
             data=condition.value,
         )
         self.assertIsInstance(handler, CustomFieldConditionHandler)
@@ -1824,12 +1814,12 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(custom_field.id), condition.name)
         self.assertDictEqual(
-            {'operator': operators.LTE,
-             'values': [str(value)],
-             'rname': rname,
+            {
+                'operator': operators.LTE,
+                'values': [str(value)],
+                'rname': rname,
             },
-            # condition.decoded_value
-            condition.value
+            condition.value,
         )
 
     def test_customfield_condition03(self):
@@ -1870,10 +1860,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         with self.assertRaises(FilterConditionHandler.ValueError) as err:
-            CustomFieldConditionHandler.build_condition(custom_field=custom_field,
-                                                        operator=operators.GT,
-                                                        values=[True],
-                                                       )
+            CustomFieldConditionHandler.build_condition(
+                custom_field=custom_field, operator=operators.GT, values=[True],
+            )
 
         self.assertEqual(
             str(err.exception),
@@ -2169,9 +2158,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             date_range='yesterday',
             related_name='invalid',  # <===
         )
-        self.assertEqual("related_name 'invalid' is invalid",
-                         handler.error
-                        )
+        self.assertEqual("related_name 'invalid' is invalid", handler.error)
 
     def test_datecustomfield_build01(self):
         cfield_id = 6
@@ -2253,17 +2240,16 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition1.type)
         self.assertEqual(str(custom_field.id),                    condition1.name)
         self.assertDictEqual(
-            {'rname': rname,
-             'start': {'day': 1, 'month': 4, 'year': 2015},
+            {
+                'rname': rname,
+                'start': {'day': 1, 'month': 4, 'year': 2015},
             },
-            # condition1.decoded_value
-            condition1.value
+            condition1.value,
         )
 
         handler1 = DateCustomFieldConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            # data=condition1.decoded_value,
             data=condition1.value,
         )
         self.assertIsInstance(handler1, DateCustomFieldConditionHandler)
@@ -2274,9 +2260,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(rname,           handler1._related_name)
         self.assertIsNone(handler1._range_name)
         self.assertIsNone(handler1._end)
-        self.assertEqual(self.create_datetime(year=2015, month=4, day=1),
-                         handler1._start
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2015, month=4, day=1),
+            handler1._start,
+        )
 
         # ---
         condition2 = DateCustomFieldConditionHandler.build_condition(
@@ -2293,17 +2280,20 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         create_cf = partial(CustomField.objects.create, content_type=FakeContact)
         custom_field1 = create_cf(name='First flight', field_type=CustomField.INT)  # Not a DATE
-        self.assertRaises(ValueError, build_cond,
-                          custom_field=custom_field1, date_range='in_future',
-                         )
+        self.assertRaises(
+            ValueError, build_cond,
+            custom_field=custom_field1, date_range='in_future',
+        )
 
         custom_field2 = create_cf(name='Day', field_type=CustomField.DATETIME)
-        self.assertRaises(ValueError, build_cond,
-                          custom_field=custom_field2,  # No date is given
-                         )
-        self.assertRaises(ValueError, build_cond,
-                          custom_field=custom_field2, date_range='unknown_range',
-                         )
+        self.assertRaises(
+            ValueError, build_cond,
+            custom_field=custom_field2,  # No date is given
+        )
+        self.assertRaises(
+            ValueError, build_cond,
+            custom_field=custom_field2, date_range='unknown_range',
+        )
 
     def test_datecustomfield_get_q(self):
         "get_q() not empty."
@@ -2497,9 +2487,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_init02(self):
         "Pass an instance of RelationType."
-        rtype = RelationType.create(('test-subject_love', 'Is loving'),
-                                    ('test-object_love',  'Is loved by')
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by')
+        )[0]
 
         handler = RelationConditionHandler(
             model=FakeContact,
@@ -2672,15 +2663,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                          condition1.filter_type)
         self.assertEqual(RelationConditionHandler.type_id, condition1.type)
         self.assertEqual(loves.id,                         condition1.name)
-        self.assertDictEqual({'has': True},
-                             # condition1.decoded_value
-                             condition1.value
-                            )
+        self.assertDictEqual({'has': True}, condition1.value)
 
         handler1 = RelationConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            # data=condition1.decoded_value,
             data=condition1.value,
         )
         self.assertIsInstance(handler1, RelationConditionHandler)
@@ -2696,15 +2683,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         condition2 = build_cond(rtype=loved, has=False, filter_type=EF_CREDENTIALS)
         self.assertEqual(loved.id, condition2.name)
         self.assertEqual(EF_CREDENTIALS, condition2.filter_type)
-        self.assertDictEqual({'has': False},
-                             # condition2.decoded_value
-                             condition2.value
-                            )
+        self.assertDictEqual({'has': False}, condition2.value)
 
         handler2 = RelationConditionHandler.build(
             model=FakeContact,
             name=condition2.name,
-            # data=condition2.decoded_value,
             data=condition2.value,
         )
         self.assertIs(handler2._exclude, True)
@@ -2713,15 +2696,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(FakeContact)
         condition3 = build_cond(rtype=loves, ct=ct)
         self.assertEqual(loves.id, condition3.name)
-        self.assertDictEqual({'has': True, 'ct_id': ct.id},
-                             # condition3.decoded_value
-                             condition3.value
-                            )
+        self.assertDictEqual({'has': True, 'ct_id': ct.id}, condition3.value)
 
         handler3 = RelationConditionHandler.build(
             model=FakeContact,
             name=condition3.name,
-            # data=condition3.decoded_value,
             data=condition3.value,
         )
         self.assertEqual(ct.id, handler3._ct_id)
@@ -2731,15 +2710,13 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
         condition4 = build_cond(rtype=loves, ct=ct, entity=orga)
         self.assertEqual(loves.id, condition4.name)
-        self.assertDictEqual({'has': True, 'entity_id': orga.id},
-                             # condition4.decoded_value
-                             condition4.value
-                            )
+        self.assertDictEqual(
+            {'has': True, 'entity_id': orga.id}, condition4.value,
+        )
 
         handler4 = RelationConditionHandler.build(
             model=FakeContact,
             name=condition4.name,
-            # data=condition4.decoded_value,
             data=condition4.value,
         )
         self.assertIsNone(handler4._ct_id)
@@ -2749,9 +2726,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         "get_q() not empty."
         user = self.create_user()
 
-        loves, loved = RelationType.create(('test-subject_love', 'Is loving'),
-                                           ('test-object_love',  'Is loved by')
-                                          )
+        loves, loved = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by')
+        )
 
         create_contact = partial(FakeContact.objects.create, user=user)
         shinji = create_contact(last_name='Ikari',     first_name='Shinji')
@@ -2768,10 +2746,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # rel3 =
         create_rel(subject_entity=misato, type=loves, object_entity=nerv)
 
-        handler1 = RelationConditionHandler(model=FakeContact,
-                                            rtype=loves.id,
-                                            exclude=False,
-                                           )
+        handler1 = RelationConditionHandler(
+            model=FakeContact, rtype=loves.id, exclude=False,
+        )
         # NB: assertQEqual causes problems with PostGre here (order in the pk__in is "random")
         # self.assertQEqual(
         #     Q(pk__in=Relation.objects
@@ -2780,19 +2757,20 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         #      ),
         #     handler1.get_q(user=user)
         # )
-        self.assertQPkIn(handler1.get_q(user=user),
-                         shinji, asuka, misato,
-                        )
+        self.assertQPkIn(
+            handler1.get_q(user=user),
+            shinji, asuka, misato,
+        )
 
         # Exclude ---
-        handler2 = RelationConditionHandler(model=FakeContact,
-                                            rtype=loves.id,
-                                            exclude=True,
-                                           )
-        self.assertQPkIn(handler2.get_q(user=user),
-                         shinji, asuka, misato,
-                         negated=True,
-                        )
+        handler2 = RelationConditionHandler(
+            model=FakeContact, rtype=loves.id, exclude=True,
+        )
+        self.assertQPkIn(
+            handler2.get_q(user=user),
+            shinji, asuka, misato,
+            negated=True,
+        )
 
         # CT ---
         handler3 = RelationConditionHandler(
@@ -2800,9 +2778,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             rtype=loves.id,
             ctype=ContentType.objects.get_for_model(FakeContact),
         )
-        self.assertQPkIn(handler3.get_q(user=user),
-                         shinji, asuka,
-                        )
+        self.assertQPkIn(
+            handler3.get_q(user=user),
+            shinji, asuka,
+        )
 
         # Entity ---
         handler4 = RelationConditionHandler(
@@ -2813,16 +2792,16 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertQEqual(
             Q(pk__in=Relation.objects
                              .filter(id=rel1.id)
-                             .values_list('subject_entity_id', flat=True)
-             ),
+                             .values_list('subject_entity_id', flat=True)),
             handler4.get_q(user=user)
         )
 
     def test_relation_accept(self):
         user = self.create_user()
-        loves = RelationType.create(('test-subject_love', 'Is loving'),
-                                    ('test-object_love',  'Is loved by')
-                                   )[0]
+        loves = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by')
+        )[0]
 
         create_contact = partial(FakeContact.objects.create, user=user)
         shinji = create_contact(last_name='Ikari',     first_name='Shinji')
@@ -2849,10 +2828,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler1.accept(entity=gendo,  user=user), False)
 
         # Exclude ---
-        handler2 = RelationConditionHandler(model=FakeContact,
-                                            rtype=loves.id,
-                                            exclude=True,
-                                           )
+        handler2 = RelationConditionHandler(
+            model=FakeContact, rtype=loves.id, exclude=True,
+        )
         self.assertIs(handler2.accept(entity=shinji, user=user), False)
         self.assertIs(handler2.accept(entity=misato, user=user), False)
         self.assertIs(handler2.accept(entity=asuka,  user=user), False)
@@ -2880,9 +2858,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_relation_description01(self):
         user = self.login()
 
-        rtype = RelationType.create(('test-subject_love', 'Is loving'),
-                                    ('test-object_love',  'Is loved by')
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by')
+        )[0]
 
         handler1 = RelationConditionHandler(
             model=FakeOrganisation,
@@ -2905,7 +2884,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 predicate=rtype.predicate,
                 model='Test Contacts',
             ),
-            handler2.description(user)
+            handler2.description(user),
         )
 
         # ---
@@ -2920,15 +2899,16 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 predicate=rtype.predicate,
                 entity=entity,
             ),
-            handler3.description(user)
+            handler3.description(user),
         )
 
     def test_relation_description02(self):
         user = self.login()
 
-        rtype = RelationType.create(('test-subject_like', 'Is liking'),
-                                    ('test-object_like',  'Is liked by')
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_like', 'Is liking'),
+            ('test-object_like',  'Is liked by')
+        )[0]
 
         handler1 = RelationConditionHandler(
             model=FakeContact,
@@ -2969,19 +2949,21 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 predicate=rtype.predicate,
                 entity=entity,
             ),
-            handler3.description(user)
+            handler3.description(user),
         )
 
     def test_relation_description03(self):
         "Credentials."
         user = self.login(is_superuser=False)
 
-        rtype = RelationType.create(('test-subject_love', 'Is loving'),
-                                    ('test-object_love',  'Is loved by')
-                                   )[0]
-        entity = FakeContact.objects.create(user=self.other_user,
-                                            last_name='Ayanami', first_name='Rei',
-                                           )
+        rtype = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by'),
+        )[0]
+        entity = FakeContact.objects.create(
+            user=self.other_user,
+            last_name='Ayanami', first_name='Rei',
+        )
 
         handler = RelationConditionHandler(
             model=FakeContact,
@@ -2993,7 +2975,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 predicate=rtype.predicate,
                 entity=_('Entity #{id} (not viewable)').format(id=entity.id),
             ),
-            handler.description(user)
+            handler.description(user),
         )
 
     def test_relation_description04(self):
@@ -3021,7 +3003,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 predicate=rtype.predicate,
                 entity='???',
             ),
-            handler2.description(user)
+            handler2.description(user),
         )
 
         # ---
@@ -3192,14 +3174,12 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                           condition1.filter_type)
         self.assertEqual(SubFilterConditionHandler.type_id, condition1.type)
         self.assertEqual(sub_efilter.id,                    condition1.name)
-        # self.assertEqual('',                                condition1.value)
         self.assertEqual('',                                condition1.raw_value)
         self.assertIsNone(condition1.value)
 
         handler1 = SubFilterConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            # data=condition1.decoded_value,
             data=condition1.value,
         )
         self.assertIsInstance(handler1, SubFilterConditionHandler)
@@ -3429,15 +3409,14 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                                   condition1.filter_type)
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition1.type)
         self.assertEqual(loves.id,                                  condition1.name)
-        self.assertDictEqual({'filter_id': sub_efilter1.id, 'has': True},
-                             # condition1.decoded_value
-                             condition1.value
-                            )
+        self.assertDictEqual(
+            {'filter_id': sub_efilter1.id, 'has': True},
+            condition1.value,
+        )
 
         handler1 = RelationSubFilterConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            # data=condition1.decoded_value,
             data=condition1.value,
         )
         self.assertIsInstance(handler1, RelationSubFilterConditionHandler)
@@ -3454,15 +3433,14 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             model=FakeContact, rtype=loved, has=False, subfilter=sub_efilter2,
         )
         self.assertEqual(loved.id, condition2.name)
-        self.assertDictEqual({'filter_id': sub_efilter2.id, 'has': False},
-                             # condition2.decoded_value
-                             condition2.value
-                            )
+        self.assertDictEqual(
+            {'filter_id': sub_efilter2.id, 'has': False},
+            condition2.value,
+        )
 
         handler2 = RelationSubFilterConditionHandler.build(
             model=FakeContact,
             name=condition2.name,
-            # data=condition2.decoded_value,
             data=condition2.value,
         )
         self.assertIsInstance(handler2, RelationSubFilterConditionHandler)
@@ -3483,9 +3461,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         "get_q() not empty."
         user = self.create_user()
 
-        loves, loved = RelationType.create(('test-subject_love', 'Is loving'),
-                                           ('test-object_love',  'Is loved by')
-                                          )
+        loves, loved = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by'),
+        )
 
         create_contact = partial(FakeContact.objects.create, user=user)
         shinji = create_contact(last_name='Ikari',     first_name='Shinji')
@@ -3525,17 +3504,19 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             rtype=loves.id,
             exclude=True,
         )
-        self.assertQPkIn(handler2.get_q(user=user),
-                         shinji, asuka,
-                         negated=True,
-                        )
+        self.assertQPkIn(
+            handler2.get_q(user=user),
+            shinji, asuka,
+            negated=True,
+        )
 
     def test_relation_subfilter_description01(self):
         user = self.create_user()
 
-        rtype = RelationType.create(('test-subject_love', 'Is loving'),
-                                    ('test-object_love',  'Is loved by')
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by'),
+        )[0]
 
         sub_filter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Filter Ikari', model=FakeContact, is_custom=True,
@@ -3557,7 +3538,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 predicate=rtype.predicate,
                 filter=sub_filter,
             ),
-            handler1.description(user)
+            handler1.description(user),
         )
 
         # --- exclude
@@ -3572,7 +3553,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 predicate=rtype.predicate,
                 filter=sub_filter,
             ),
-            handler2.description(user)
+            handler2.description(user),
         )
 
     def test_relation_subfilter_description02(self):
@@ -3596,9 +3577,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual('???', handler1.description(user))
 
         # ---
-        rtype = RelationType.create(('test-subject_love', 'Is loving'),
-                                    ('test-object_love',  'Is loved by')
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by'),
+        )[0]
 
         handler2 = RelationSubFilterConditionHandler(
             model=FakeOrganisation,
@@ -3610,7 +3592,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 predicate=rtype.predicate,
                 filter='???',
             ),
-            handler2.description(user)
+            handler2.description(user),
         )
 
     def test_property_init01(self):
@@ -3726,13 +3708,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                          condition1.filter_type)
         self.assertEqual(PropertyConditionHandler.type_id, condition1.type)
         self.assertEqual(ptype1.id,                        condition1.name)
-        # self.assertEqual(True,                             condition1.decoded_value)
         self.assertEqual(True,                             condition1.value)
 
         handler1 = PropertyConditionHandler.build(
             model=FakeContact,
             name=condition1.name,
-            # data=condition1.decoded_value,
             data=condition1.value,
         )
         self.assertIsInstance(handler1, PropertyConditionHandler)
@@ -3750,13 +3730,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertEqual(EF_CREDENTIALS, condition2.filter_type)
         self.assertEqual(ptype2.id,              condition2.name)
-        # self.assertIs(condition2.decoded_value, False)
         self.assertIs(condition2.value, False)
 
         handler2 = PropertyConditionHandler.build(
             model=FakeContact,
             name=condition2.name,
-            # data=condition2.decoded_value,
             data=condition2.value,
         )
         self.assertEqual(ptype2.id, handler2._ptype_id)

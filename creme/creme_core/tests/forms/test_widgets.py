@@ -27,7 +27,6 @@ from ..base import CremeTestCase
 from ..fake_models import FakeContact
 
 
-# class DynamicSelectTestCase(FieldTestCase):
 class DynamicSelectTestCase(CremeTestCase):
     def test_options_list(self):
         select = DynamicSelect(options=[(1, 'A'), (2, 'B')])
@@ -516,7 +515,6 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         self.assertHTMLEqual(html, select.render(name, ()))
 
 
-# class ActionButtonListTestCase(FieldTestCase):
 class ActionButtonListTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
@@ -563,7 +561,6 @@ class ActionButtonListTestCase(CremeTestCase):
         self.assertHTMLEqual(html, widget.render('field', 1))
 
 
-# class EntitySelectorTestCase(FieldTestCase):
 class EntitySelectorTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
@@ -774,7 +771,6 @@ class EntitySelectorTestCase(CremeTestCase):
         )
 
 
-# class EntityCreatorWidgetTestCase(FieldTestCase):
 class EntityCreatorWidgetTestCase(CremeTestCase):
     maxDiff = None
 
