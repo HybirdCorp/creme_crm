@@ -39,7 +39,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
             'geocoded':  True,
         }
         url = self.SET_ADDRESS_URL
-        # self.assertGET404(url,  data={**data1, 'id': address.id})
         self.assertGET405(url,  data={**data1, 'id': address.id})
         self.assertPOST200(url, data={**data1, 'id': address.id})
 

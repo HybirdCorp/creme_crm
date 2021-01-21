@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2014-2020  Hybird
+    Copyright (C) 2014-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -531,30 +531,6 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
 
     _onMoveLocation: function(event, brick, location) {
         this._onUpdateNeighbours();
-        /*
-        var controller = this._controller;
-        var origin = this._origin;
-
-        if (controller.hasMarker(location.id())) {
-            controller.updateMarker(location.id(), {
-                position: location.position()
-            });
-
-            if (origin && location.id() === origin.id()) {
-                origin.position(location.position());
-                origin.status(location.status());
-
-                controller.updateShape('NeighbourhoodCircle', {
-                    position: location.position()
-                });
-            } else {
-                var neighbour = this.neighbour(location.id());
-
-                neighbour.position(location.position());
-                neighbour.status(location.status());
-            }
-        }
-        */
     },
 
     _onMarkerClick: function(event, data) {
