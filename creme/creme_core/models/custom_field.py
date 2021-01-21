@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -137,9 +137,7 @@ class CustomField(CremeModel):
     def value_class(self) -> Type['CustomFieldValue']:
         return _TABLES[self.field_type]
 
-    # def get_formfield(self, custom_value):
     def get_formfield(self, custom_value, user=None):
-        # return self.get_value_class().get_formfield(self, custom_value)
         return self.value_class.get_formfield(self, custom_value, user=user)
 
     def get_pretty_value(self, entity_id):
@@ -170,7 +168,6 @@ class CustomField(CremeModel):
         for cfield in custom_fields:
             cfield_map[cfield.field_type].append(cfield)
 
-        # cvalues_map = defaultdict(lambda: defaultdict(list))
         cvalues_map = defaultdict(dict)
         # NB: 'list(entities)' ==> made strangely a query for every entity ;(
         entities = [e.id for e in entities]
@@ -230,15 +227,14 @@ class CustomFieldValue(CremeModel):
 
     @staticmethod
     def _get_formfield(**kwargs) -> forms.Field:
-        # return forms.Field(**kwargs)
         raise NotImplementedError()
 
     @classmethod
     def get_formfield(cls, custom_field, custom_value, user=None):
-        # field = cls._get_formfield(label=custom_field.name, required=False)
-        field = cls._get_formfield(label=custom_field.name,
-                                   required=custom_field.is_required,
-                                  )
+        field = cls._get_formfield(
+            label=custom_field.name,
+            required=custom_field.is_required,
+        )
         cls._build_formfield(custom_field, field, user)
         if custom_value:
             custom_value._set_formfield_value(field)
@@ -264,17 +260,8 @@ class CustomFieldValue(CremeModel):
         )
 
         if cls.is_empty_value(value):
-            # cfv_klass.objects.filter(custom_field=custom_field, entity__in=entities).delete()
             cf_values_qs.delete()
         else:
-            # cfv_get = cfv_klass.objects.get
-            # for entity in entities:
-            #     try:
-            #         custom_value = cfv_get(custom_field=custom_field, entity=entity)
-            #     except cfv_klass.DoesNotExist:
-            #         custom_value = cfv_klass(custom_field=custom_field, entity=entity)
-            #
-            #     custom_value.set_value_n_save(value)
             cf_values = {
                 cf_value.entity_id: cf_value
                 for cf_value in cf_values_qs
@@ -419,8 +406,6 @@ class CustomFieldBoolean(CustomFieldValue):
         return gettext('Yes') if self.value else gettext('No')
 
     @staticmethod
-    # def _get_formfield(**kwargs):
-    #     return forms.NullBooleanField(**kwargs)
     def _get_formfield(**kwargs):
         required = kwargs.get('required', False)
         kwargs['required'] = False
@@ -467,7 +452,6 @@ class CustomFieldEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        # return forms.ChoiceField(**kwargs)
         from creme.creme_config.forms.fields import CustomEnumChoiceField
 
         return CustomEnumChoiceField(**kwargs)
@@ -513,7 +497,6 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        # return forms.MultipleChoiceField(**kwargs)
         from creme.creme_config.forms.fields import CustomMultiEnumChoiceField
 
         return CustomMultiEnumChoiceField(**kwargs)

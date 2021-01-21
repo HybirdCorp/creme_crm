@@ -25,13 +25,11 @@ from .views import (
 entity_patterns = [
     re_path(
         r'^delete/multi[/]?$',
-        # entity.delete_entities,
         entity.EntitiesDeletion.as_view(),
         name='creme_core__delete_entities',
     ),
     re_path(
         r'^delete/(?P<entity_id>\d+)[/]?$',
-        # entity.delete_entity
         entity.EntityDeletion.as_view(),
         name='creme_core__delete_entity',
     ),
@@ -42,7 +40,6 @@ entity_patterns = [
     ),
     re_path(
         r'^restore/(?P<entity_id>\d+)[/]?$',
-        # entity.restore_entity
         entity.EntityRestoration.as_view(),
         name='creme_core__restore_entity',
     ),
@@ -50,7 +47,6 @@ entity_patterns = [
     re_path(r'^trash[/]?$', entity.Trash.as_view(), name='creme_core__trash'),
     re_path(
         r'^trash/empty[/]?$',
-        # entity.empty_trash
         entity.TrashCleaning.as_view(),
         name='creme_core__empty_trash',
     ),
@@ -70,7 +66,6 @@ entity_patterns = [
     ),
     re_path(
         r'^get_sanitized_html/(?P<entity_id>\d+)/(?P<field_name>[\w-]+)[/]?$',
-        # entity.get_sanitized_html_field
         entity.HTMLFieldSanitizing.as_view(),
         name='creme_core__sanitized_html_field',
     ),
@@ -81,7 +76,6 @@ entity_patterns = [
     ),
     re_path(
         r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',
-        # entity.get_info_fields,
         entity.FieldsInformation.as_view(),
         name='creme_core__entity_info_fields',
     ),
@@ -160,15 +154,12 @@ relation_patterns = [
         relation.RelationFromFieldsDeletion.as_view(),
         name='creme_core__delete_similar_relations',    # TODO: improve
     ),
-    # re_path(r'^delete/all[/]?$', relation.delete_all, name='creme_core__delete_all_relations'),
 
     re_path(
         r'^entity/(?P<entity_id>\d+)/json[/]?$',
         relation.json_entity_get,
         name='creme_core__entity_as_json',
     ),  # TODO: move to entity_patterns ?
-    # re_path(r'^entity/(?P<entity_id>\d+)/rtypes/json[/]?$',
-    #         relation.json_entity_rtypes, name='creme_core__rtypes_compatible_with_entity'),
     re_path(
         r'^type/(?P<rtype_id>[\w-]+)/content_types/json[/]?$',
         relation.json_rtype_ctypes,
@@ -217,7 +208,6 @@ property_patterns = [
     ),
     re_path(
         r'^type/(?P<ptype_id>[\w-]+)/reload_bricks[/]?$',
-        # creme_property.reload_bricks,
         creme_property.PropertyTypeBricksReloading.as_view(),
         name='creme_core__reload_ptype_bricks',
     ),
@@ -232,13 +222,11 @@ bricks_patterns = [
     ),
     re_path(
         r'^reload/detailview/(?P<entity_id>\d+)[/]?$',
-        # bricks.reload_detailview,
         bricks.DetailviewBricksReloading.as_view(),
         name='creme_core__reload_detailview_bricks',
     ),
     re_path(
         r'^reload/home[/]?$',
-        # bricks.reload_home
         bricks.HomeBricksReloading.as_view(),
         name='creme_core__reload_home_bricks',
     ),
@@ -325,7 +313,6 @@ enumerable_patterns = [
 job_patterns = [
     re_path(r'^all[/]?$',             job.Jobs.as_view(),            name='creme_core__jobs'),
     re_path(r'^mine[/]?$',            job.MyJobs.as_view(),          name='creme_core__my_jobs'),
-    # re_path(r'^info[/]?$',            job.get_info,            name='creme_core__jobs_info'),
     re_path(r'^info[/]?$',            job.JobsInformation.as_view(), name='creme_core__jobs_info'),
     re_path(r'^(?P<job_id>\d+)[/]?$', job.JobDetail.as_view(),       name='creme_core__job'),
 
@@ -337,13 +324,11 @@ job_patterns = [
 
             re_path(
                 r'^enable[/]?$',
-                # job.enable,
                 job.JobEnabling.as_view(),
                 name='creme_core__enable_job',
             ),
             re_path(
                 r'^disable[/]?$',
-                # job.enable,
                 job.JobEnabling.as_view(),
                 {'enabled': False},
                 name='creme_core__disable_job',
@@ -351,7 +336,6 @@ job_patterns = [
 
             re_path(
                 r'^reload[/]?$',
-                # job.reload_bricks,
                 job.JobBricksReloading.as_view(),
                 name='creme_core__reload_job_bricks',
             ),
@@ -405,7 +389,6 @@ creme_core_patterns = [
     ),
     re_path(
         r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)[/]?$',
-        # batch_process.get_ops,
         batch_process.OperatorChoices.as_view(),
         name='creme_core__batch_process_ops',
     ),
@@ -418,19 +401,12 @@ creme_core_patterns = [
             re_path(r'^light[/]?$', search.LightSearch.as_view(), name='creme_core__light_search'),
             re_path(
                 r'^reload_brick[/]?$',
-                # search.reload_brick,
                 search.SearchBricksReloading.as_view(),
                 name='creme_core__reload_search_brick',
             ),
         ]),
     ),
 
-    # re_path(r'^quickforms/', include([
-    #     re_path(r'^from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.QuickCreation.as_view(),
-    #             name='creme_core__quick_form'),
-    #     re_path(r'^(?P<ct_id>\d+)/add[/]?$', quick_forms.QuickCreation.as_view(),
-    #             name='creme_core__quick_form'),
-    # ])),
     re_path(
         r'^quickforms/(?P<ct_id>\d+)/add[/]?$',
         quick_forms.QuickCreation.as_view(),
@@ -447,9 +423,6 @@ creme_core_patterns = [
 urlpatterns = [
     re_path(r'^$',            index.Home.as_view(),   name='creme_core__home'),
     re_path(r'^my_page[/]?$', index.MyPage.as_view(), name='creme_core__my_page'),
-
-    # re_path(r'^download_file/(?P<location>.*)$', file_handling.download_file,
-    #         name='creme_core__dl_file'),
 
     re_path(r'^creme_core/', include(creme_core_patterns)),
 

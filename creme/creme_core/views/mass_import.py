@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ from ..auth.decorators import login_required
 from ..backends import export_backend_registry
 from ..core.exceptions import ConflictError
 from ..creme_jobs import mass_import_type
-from ..forms.mass_import import (  # get_backend
+from ..forms.mass_import import (
     UploadForm,
     form_factory,
     get_header,
@@ -138,46 +138,36 @@ def download_errors(request, job_id):
 
     # TODO: improve get_header() & factorise to return the backend too (we retrieve it twice...)
     header = get_header(doc.filedata, has_header='has_header' in POST)
-    # import_backend, error_msg = get_backend(doc.filedata)
     import_backend_cls, error_msg = get_import_backend_class(doc.filedata)
 
     if error_msg:
         return ConflictError(error_msg)
 
-    # get_export_backend = export_backend_registry.get_backend
-    # export_backend = get_export_backend(import_backend.id) or \
-    #                  get_export_backend(next(export_backend_registry.backends).id)
     get_export_backend_class = export_backend_registry.get_backend_class
     export_backend_class = (
         get_export_backend_class(import_backend_cls.id) or
         get_export_backend_class(next(export_backend_registry.backend_classes).id)
     )
 
-    # if not export_backend:
     if not export_backend_class:
         return ConflictError(_('Unknown file type ; please contact your administrator.'))
 
-    # writer = export_backend()
     writer = export_backend_class()
     writerow = writer.writerow
 
     if header:
-        writerow(
-            [*(smart_str(h) for h in header),
-             smart_str(_('Errors')),
-            ]
-        )
+        writerow([
+            *(smart_str(h) for h in header),
+            smart_str(_('Errors')),
+        ])
 
     for job_result in MassImportJobResult.objects.filter(job=job) \
                                                  .exclude(raw_messages=None):  # TODO: '' too ?
-        writerow(
-            [
-                *(smart_str(i) for i in job_result.line),
-                smart_str('/'.join(job_result.messages)),
-            ]
-        )
+        writerow([
+            *(smart_str(i) for i in job_result.line),
+            smart_str('/'.join(job_result.messages)),
+        ])
 
-    # writer.save(f'{splitext(doc.title)[0]}-errors')
     writer.save(f'{splitext(doc.title)[0]}-errors', request.user)
 
     return writer.response

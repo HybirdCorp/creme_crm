@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 from typing import Iterable, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
@@ -121,9 +120,10 @@ class CremePropertyManager(models.Manager):
             if check_existing:
                 existing_q = Q()
                 for prop in unique_props.values():
-                    existing_q |= Q(type_id=prop.type_id,
-                                    creme_entity_id=prop.creme_entity_id,
-                                   )
+                    existing_q |= Q(
+                        type_id=prop.type_id,
+                        creme_entity_id=prop.creme_entity_id,
+                    )
 
                 for prop_sig in self.filter(existing_q) \
                                     .values_list('type', 'creme_entity'):
@@ -229,16 +229,6 @@ class CremePropertyType(CremeModel):
 
         return property_type
 
-    # @staticmethod
-    # def get_compatible_ones(ct):
-    #     warnings.warn('CremePropertyType.get_compatible_ones() is deprecated ; '
-    #                   'use CremePropertyType.objects.compatible() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return CremePropertyType.objects.filter(
-    #         Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True)
-    #     )
-
 
 class CremeProperty(CremeModel):
     type = models.ForeignKey(CremePropertyType, on_delete=models.CASCADE)
@@ -291,7 +281,7 @@ def _handle_replacement(sender, old_instance, new_instance, **kwargs):
     e_ids = CremeEntity.objects.filter(
         properties__type__in=[old_instance, new_instance]
     ).annotate(
-        prop_count=Count('properties')
+        prop_count=Count('properties'),
     ).filter(
         prop_count__gte=2,
     ).values_list('id', flat=True)

@@ -166,12 +166,8 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(field_name,      cell.value)
         self.assertEqual(_('First name'), cell.title)
         self.assertEqual(f'regular_field-{field_name}', cell.key)
-        # self.assertIs(cell.has_a_filter, True)
-        # self.assertIs(cell.editable, True)
-        # self.assertIs(cell.sortable, True)
         self.assertIs(cell.is_excluded, False)
         self.assertIs(cell.is_multiline, False)
-        # self.assertEqual('first_name__icontains', cell.filter_string)
 
     def test_regular_field_date(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='birthday')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ from collections import OrderedDict
 
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-# from django.forms import CharField
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -30,7 +29,6 @@ from django.utils.translation import gettext_lazy as _
 from ..models import CremeEntity, Relation, RelationType, SemiFixedRelationType
 from ..utils import entities_to_str
 from . import fields as core_fields
-# from .widgets import Label
 from .base import CremeForm, FieldBlockManager
 
 
@@ -225,14 +223,6 @@ class _RelationsCreateForm(CremeForm):
 
         return cdata
 
-    # @staticmethod
-    # def _hash_relation(subject_id, rtype_id, object_id):
-    #     warnings.warn('The method _RelationsCreateForm._hash_relation() is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return '{}#{}#{}'.format(subject_id, rtype_id, object_id)
-
     def save(self):
         user = self.user
 
@@ -258,7 +248,6 @@ class RelationCreateForm(_RelationsCreateForm):
 
 
 class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
-    # entities_lbl = CharField(label=_('Related entities'), widget=Label())
     entities_lbl = core_fields.ReadonlyMessageField(label=_('Related entities'))
 
     # TODO: use Meta.fields ?? (beware to bad_entities_lbl)
@@ -285,9 +274,7 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
         ) if subjects else gettext('NONE !')
 
         if forbidden_subjects:
-            # fields['bad_entities_lbl'] = CharField(
             fields['bad_entities_lbl'] = core_fields.ReadonlyMessageField(
                 label=gettext('Unlinkable entities'),
-                # widget=Label,
                 initial=entities_to_str(forbidden_subjects, user),
             )

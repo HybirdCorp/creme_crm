@@ -953,7 +953,7 @@ class BuiltinActionsTestCase(CremeTestCase):
             action_id='creme_core-view',
             action_type='redirect',
             url=self.contact_other.get_absolute_url(),
-            is_enabled=False,    # other users can view entity
+            is_enabled=False,  # other users can view entity
             is_visible=True,
             is_default=True,
             label=_('See'),

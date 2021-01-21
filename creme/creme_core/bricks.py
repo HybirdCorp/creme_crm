@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -164,7 +164,6 @@ class CustomFieldsBrick(Brick):
         entity = context['object']
 
         # TODO: factorise with CremeEntity.get_custom_fields_n_values() ?
-        # cfields = CustomField.objects.filter(content_type=entity.entity_type)
         cfields = CustomField.objects.get_for_model(entity.entity_type).values()
         CremeEntity.populate_custom_values([entity], cfields)
 

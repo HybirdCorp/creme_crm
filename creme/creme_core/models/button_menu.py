@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,7 +62,6 @@ class ButtonMenuItemManager(models.Manager):
 
 # TODO: what about button per role ?
 class ButtonMenuItem(CremeModel):
-    # id           = models.CharField(primary_key=True, max_length=100)
     # 'null' means: all ContentTypes are accepted.
     # TODO: EntityCTypeForeignKey ??
     content_type = CTypeForeignKey(verbose_name=_('Related type'), null=True)
@@ -83,9 +82,7 @@ class ButtonMenuItem(CremeModel):
         button = button_registry.get_button(self.button_id)
         return str(button.verbose_name) if button else gettext('Deprecated button')
 
-    # @staticmethod
     @classmethod
-    # def create_if_needed(pk, model, button, order):
     def create_if_needed(cls, pk, model, button, order):
         """Creation helper ; useful for populate.py scripts.
         @param model: Can be None for 'all models'.
@@ -97,12 +94,4 @@ class ButtonMenuItem(CremeModel):
             DeprecationWarning,
         )
 
-        # return ButtonMenuItem.objects.get_or_create(
-        #     pk=pk,
-        #     defaults={
-        #         'content_type': ContentType.objects.get_for_model(model) if model else None,
-        #         'button_id':    button.id_,
-        #         'order':        order,
-        #     },
-        # )[0]
         return cls.objects.create_if_needed(model=model, button=button, order=order)

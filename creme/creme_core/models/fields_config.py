@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -161,22 +161,10 @@ class FieldsConfig(CremeModel):
 
             return result
 
-        # def is_fieldinfo_hidden(self, model, field_info):
         def is_fieldinfo_hidden(self, field_info: FieldInfo) -> bool:
             """Is one of the fields in the chain hidden?
             @param field_info: creme_core.utils.meta.FieldInfo instance.
             """
-            # if self.get_4_model(model).is_field_hidden(field_info[0]):
-            #     return True
-            #
-            # if len(field_info) > 1:
-            #     assert len(field_info) == 2
-            #
-            #     if self.get_4_model(field_info[0].remote_field.model)
-            #            .is_field_hidden(field_info[1]):
-            #         return True
-            #
-            # return False
             fields_n_models = []
             related_model = field_info.model
             for field in field_info:
@@ -275,9 +263,10 @@ class FieldsConfig(CremeModel):
         # TODO: pass the registry as argument/store it in an (class?) attribute
         from ..gui.fields_config import fields_config_registry
 
-        get_apps = partial(fields_config_registry.get_needing_apps,
-                           model=self.content_type.model_class(),
-                          )
+        get_apps = partial(
+            fields_config_registry.get_needing_apps,
+            model=self.content_type.model_class(),
+        )
         # TODO: cached_lazy_gettext
         fmt = gettext('Warning: the app «{app}» need the field «{field}».').format
 
@@ -299,8 +288,6 @@ class FieldsConfig(CremeModel):
 
         return excluded
 
-    # @staticmethod
-    # def field_enumerator(model):
     @classmethod
     def field_enumerator(cls, model):
         warnings.warn('FieldsConfig.field_enumerator() is deprecated ; '

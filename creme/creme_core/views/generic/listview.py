@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -231,10 +231,11 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         model = self.model
 
-        logger.critical('No HeaderFilter is available for <%s> ; '
-                        'the developer should have created one in "populate.py" script',
-                        model
-                       )
+        logger.critical(
+            'No HeaderFilter is available for <%s> ; '
+            'the developer should have created one in "populate.py" script',
+            model,
+        )
 
         class EmergencyHeaderFilterCreation(HeaderFilterCreation):
             def get_context_data(self, **kwargs):
@@ -264,11 +265,13 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         cells = hfilter.cells
 
         if self.get_show_actions():
-            cells.insert(0,
-                         EntityCellActions(model=self.model,
-                                           actions_registry=self.get_actions_registry(),
-                                          )
-                        )
+            cells.insert(
+                0,
+                EntityCellActions(
+                    model=self.model,
+                    actions_registry=self.get_actions_registry(),
+                )
+            )
 
         return cells
 
@@ -335,9 +338,10 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             try:
                 return QSerializer().loads(json_q_filter)
             except JSONDecodeError:
-                logger.exception('Error when decoding the argument "%s": %s',
-                                 arg_name, json_q_filter,
-                                )
+                logger.exception(
+                    'Error when decoding the argument "%s": %s',
+                    arg_name, json_q_filter,
+                )
 
         return Q()
 
@@ -347,7 +351,6 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     def get_header_filter(self, header_filters: HeaderFilterList) -> HeaderFilter:
         return self.state.set_headerfilter(
             header_filters,
-            # id=self.arguments.get(self.header_filter_id_arg, -1),
             id=self.arguments.get(self.header_filter_id_arg, ''),
             default_id=self.default_headerfilter_id,
         )
@@ -364,9 +367,10 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         @return: Value in (SelectionMode.NONE, SelectionMode.SINGLE, SelectionMode.MULTIPLE).
         """
         func = get_from_POST_or_404 if self.request.method == 'POST' else get_from_GET_or_404
-        return func(self.arguments, key=self.selection_arg,
-                    cast=SelectionMode, default=self.default_selection_mode,
-                   )
+        return func(
+            self.arguments, key=self.selection_arg,
+            cast=SelectionMode, default=self.default_selection_mode,
+        )
 
     def get_cell_sorter_registry(self) -> sorter.CellSorterRegistry:
         return self.cell_sorter_registry
@@ -382,21 +386,18 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     def get_ordering(self) -> Tuple[str, ...]:
         state = self.state
         get = self.arguments.get
-        sort_info = self.get_query_sorter()\
-                        .get(model=self.model,
-                             cells=self.cells,
-                             cell_key=get(self.sort_cellkey_arg,
-                                          state.sort_cell_key,
-                                         ),
-                             order=Order.from_string(get(self.sort_order_arg,
-                                                         state.sort_order,
-                                                        ),
-                                                     required=False,
-                                                    ),
-                             fast_mode=self.fast_mode,
-                            )
+        sort_info = self.get_query_sorter().get(
+            model=self.model,
+            cells=self.cells,
+            cell_key=get(self.sort_cellkey_arg, state.sort_cell_key),
+            order=Order.from_string(
+                get(self.sort_order_arg, state.sort_order),
+                required=False,
+            ),
+            fast_mode=self.fast_mode,
+        )
         state.sort_cell_key = sort_info.main_cell_key
-        state.sort_order    = str(sort_info.main_order)
+        state.sort_order = str(sort_info.main_order)
 
         return sort_info.field_names
 
@@ -421,14 +422,17 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         # NB: self.paginator_class is not used...
 
         if not self.fast_mode:
-            paginator = Paginator(queryset, per_page=per_page, orphans=orphans,
-                                  allow_empty_first_page=allow_empty_first_page,
-                                 )
+            paginator = Paginator(
+                queryset,
+                per_page=per_page, orphans=orphans,
+                allow_empty_first_page=allow_empty_first_page,
+            )
             paginator.count = self.count
         else:
-            paginator = FlowPaginator(queryset=queryset, key=self.ordering[0],
-                                      per_page=per_page, count=self.count,
-                                     )
+            paginator = FlowPaginator(
+                queryset=queryset, key=self.ordering[0],
+                per_page=per_page, count=self.count,
+            )
 
         return paginator
 
@@ -438,7 +442,6 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     def get_unordered_queryset_n_count(self) -> Tuple[QuerySet, int]:
         # Cannot use this because it use get_ordering() too early
-        # qs = super().get_queryset().filter(is_deleted=False)
         qs = self.model._default_manager.filter(is_deleted=False)
         state = self.state
 

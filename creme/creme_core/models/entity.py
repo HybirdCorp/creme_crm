@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ from .fields import (
     CTypeForeignKey,
     ModificationDateTimeField,
 )
-from .manager import CremeEntityManager  # LowNullsQuerySet
+from .manager import CremeEntityManager
 
 if TYPE_CHECKING:
     from . import CremeProperty, CustomField, Relation
@@ -79,7 +79,6 @@ class CremeEntity(CremeModel):
         editable=False,
     ).set_tags(viewable=False)
 
-    # objects = LowNullsQuerySet.as_manager()
     objects = CremeEntityManager()
 
     _real_entity = None  # TODO: Union[None, 'CremeEntity', Literal[True]]
@@ -231,9 +230,10 @@ class CremeEntity(CremeModel):
         relations = self._relations_map.get(relation_type_id)
 
         if relations is None:
-            logger.debug('CremeEntity.get_relations(): Cache MISS for id=%s type=%s',
-                         self.id, relation_type_id,
-                        )
+            logger.debug(
+                'CremeEntity.get_relations(): Cache MISS for id=%s type=%s',
+                self.id, relation_type_id,
+            )
             relations = self.relations.filter(type=relation_type_id).order_by('id')
 
             if real_obj_entities:
@@ -242,9 +242,10 @@ class CremeEntity(CremeModel):
 
             self._relations_map[relation_type_id] = relations
         else:
-            logger.debug('CremeEntity.get_relations(): Cache HIT for id=%s type=%s',
-                         self.id, relation_type_id,
-                        )
+            logger.debug(
+                'CremeEntity.get_relations(): Cache HIT for id=%s type=%s',
+                self.id, relation_type_id,
+            )
 
         return relations
 
@@ -274,10 +275,10 @@ class CremeEntity(CremeModel):
                            relation_type_ids: Sequence[str]) -> None:
         from . import Relation
 
-        relations = Relation.objects.filter(subject_entity__in=[e.id for e in entities],
-                                            type__in=relation_type_ids,
-                                           )\
-                                    .select_related('object_entity')
+        relations = Relation.objects.filter(
+            subject_entity__in=[e.id for e in entities],
+            type__in=relation_type_ids,
+        ).select_related('object_entity')
         Relation.populate_real_object_entities(relations)
 
         # { Subject_Entity -> { RelationType ->[Relation list] } }
@@ -384,7 +385,6 @@ class CremeEntity(CremeModel):
     def _clone_custom_values(self, source):
         from . import CustomField, CustomFieldValue
 
-        # for custom_field in CustomField.objects.filter(content_type=source.entity_type_id):
         for custom_field in CustomField.objects.get_for_model(source.entity_type).values():
             custom_value_klass = custom_field.value_class
             try:
@@ -477,11 +477,12 @@ class CremeEntity(CremeModel):
             query |= Q(type__in=allowed_internal)
 
         for relation in source.relations.filter(query):
-            relation_create(user_id=relation.user_id,
-                            subject_entity=self,
-                            type=relation.type,
-                            object_entity_id=relation.object_entity_id,
-                           )
+            relation_create(
+                user_id=relation.user_id,
+                subject_entity=self,
+                type=relation.type,
+                object_entity_id=relation.object_entity_id,
+            )
 
     @atomic
     def clone(self) -> 'CremeEntity':

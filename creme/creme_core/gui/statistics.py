@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,6 @@ class _StatisticsRegistry:
             self.label = label
             self.retrieve = func
             self.perm = perm
-            # self._priority = None
             self._priority: int = 1
 
     _items: List[_StatisticsItem]
@@ -102,9 +101,10 @@ class _StatisticsRegistry:
             # TODO: self.RegistrationError ?
             raise ValueError(f'Duplicated id "{id}"')
 
-        return self._add_item(self._StatisticsItem(id=id, label=label, func=func, perm=perm),
-                              priority=priority,
-                             )
+        return self._add_item(
+            self._StatisticsItem(id=id, label=label, func=func, perm=perm),
+            priority=priority,
+        )
 
 
 statistics_registry = _StatisticsRegistry()

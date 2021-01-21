@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -68,7 +68,6 @@ class Button:
 
     def has_perm(self, context) -> bool:
         permission = self.permission
-        # return context['request'].user.has_perm(permission) if permission else True
         return context['user'].has_perm(permission) if permission else True
 
     def ok_4_display(self, entity: CremeEntity) -> bool:

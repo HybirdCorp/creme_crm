@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -187,7 +187,6 @@ class RegularFieldsConditionsField(_ConditionsField):
         field_choicetype = widgets.FieldConditionSelector.field_choicetype
 
         for condition in value:
-            # search_info = condition.decoded_value
             search_info = condition.value  # TODO: use condition.handler
             operator_id = search_info['operator']
             operator = self.efilter_registry.get_operator(operator_id)
@@ -381,7 +380,6 @@ class DateFieldsConditionsField(_ConditionsField):
         fmt = self._format_date
 
         for condition in value:
-            # get = condition.decoded_value.get
             get = condition.value.get
             field = fields[condition.name][-1]
 
@@ -511,7 +509,6 @@ class CustomFieldsConditionsField(_ConditionsField):
         get_op = self.efilter_registry.get_operator
 
         for condition in value:
-            # search_info = condition.decoded_value
             search_info = condition.value
             operator_id = search_info['operator']
             operator = get_op(operator_id)
@@ -660,7 +657,6 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         fmt = self._format_date
 
         for condition in value:
-            # get = condition.decoded_value.get
             get = condition.value.get
 
             dicts.append({
@@ -738,7 +734,6 @@ class RelationsConditionsField(_ConditionsField):
         return RelationType.objects.compatible(self._model, include_internals=True)
 
     def _condition_to_dict(self, condition):
-        # value = condition.decoded_value
         value = condition.value
         ctype_id = 0
 
@@ -888,7 +883,6 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
             all_kwargs.append(kwargs)
 
         if filter_ids:
-            # filters = EntityFilter.get_for_user(self.user).filter(pk__in=filter_ids).in_bulk()
             filters = EntityFilter.objects.filter_by_user(self.user).filter(
                 pk__in=filter_ids,
             ).in_bulk()
@@ -941,7 +935,6 @@ class PropertiesConditionsField(_ConditionsField):
         return [
             {
                 'ptype': condition.name,
-                # 'has':   boolean_str(condition.decoded_value),
                 'has':   boolean_str(condition.value),
             } for condition in value
         ]
@@ -1012,7 +1005,6 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         return [build_condition(subfilter) for subfilter in super().clean(value)]
 
     def initialize(self, ctype, conditions=None, efilter=None):
-        # qs = EntityFilter.get_for_user(self.user, ctype)
         qs = EntityFilter.objects.filter_by_user(self.user).filter(entity_type=ctype)
 
         if efilter:

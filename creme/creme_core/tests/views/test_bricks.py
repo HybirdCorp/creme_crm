@@ -132,37 +132,23 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
-        # class ContactBrick(Brick):
         class ContactBrick(InstanceBrick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'base_block')
             dependencies = (FakeOrganisation,)
             template_name = 'persons/bricks/itdoesnotexist.html'
 
-            # def __init__(self, instance_block_config_item):
-            #     super().__init__()
-            #     self.ibci = instance_block_config_item
-
             def detailview_display(self, context):
-                # return f'<table id="{self.id_}"><thead><tr>{self.ibci.entity}'
-                #        f'</tr></thead></table>'
                 return f'<table id="{self.id_}"><thead><tr>' \
                        f'{self.config_item.entity}</tr></thead></table>'  # Useless :)
 
-        # self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
-
         ibci = InstanceBrickConfigItem.objects.create(
             entity=casca,
-            # brick_id=InstanceBrickConfigItem.generate_id(ContactBrick, casca, ''),
             brick_class_id=ContactBrick.id_,
-            # verbose='I am an awesome brick',
-            # data='',
         )
 
         brick_registry = _BrickRegistry()
         brick_registry.register_4_instance(ContactBrick)
 
-        # bricks = [*brick_registry.get_bricks([ibci.brick_id], entity=casca)]
-        # brick_id = bricks[0].id_
         brick_id = ibci.brick_id
 
         self.assertPOST200(
@@ -700,8 +686,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             user=user, last_name='Narusegawa', first_name='Naru', phone='1122334455',
         )
 
-        # content_node = self._get_contact_brick_content(
-        #     naru, brick_id='modelblock_creme_core-fakecontact')
         content_node = self._get_contact_brick_content(naru, brick_id=MODELBRICK_ID)
         self.assertEqual(
             naru.last_name,

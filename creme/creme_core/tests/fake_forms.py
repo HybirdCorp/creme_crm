@@ -67,7 +67,6 @@ class _FakePersonCSVImportForm(ImportForm4CremeEntity):
         user = self.user
 
         for field_name in _ADDR_FIELD_NAMES:
-            # extr_value, err_msg = data[_ADDRESS_PREFIX + field_name].extract_value(line)
             extr_value, err_msg = data[_ADDRESS_PREFIX + field_name].extract_value(
                 line=line, user=user,
             )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 import logging
 from typing import Dict, Iterable, List, Optional, Tuple, Type  # Callable
 
-# from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Field, FieldDoesNotExist, Model
 from django.utils.functional import cached_property
@@ -80,7 +79,6 @@ class EntityCell:
      - other entities linked by a Relation (of a given RelationType).
      - ...
     """
-    # type_id = None
     type_id: str  # Used for register ; overload in child classes (string type)
     verbose_name = '??'
 
@@ -90,7 +88,6 @@ class EntityCell:
     def __init__(self,
                  model: Type[Model],
                  value: str = '',
-                 # title: str = 'Title',
                  is_hidden: bool = False,
                  is_excluded: bool = False):
         """Constructor.
@@ -107,10 +104,8 @@ class EntityCell:
 
         @return: True means <ignore me>.
         """
-        # @param title: Name for humans (eg: field's verbose name, custom field's name...).
         self._model = model
         self.value = value
-        # self.title = title
         self.is_hidden = is_hidden
         self.is_excluded = is_excluded
 
@@ -289,7 +284,6 @@ class EntityCellActions(EntityCell):
         @param actions_registry: Instance of 'creme.creme_core.gui.actions.ActionsRegistry'.
                Used to get the actions related to the model.
         """
-        # super().__init__(model=model, value='entity_actions', title=_('Actions'))
         super().__init__(model=model, value='entity_actions')
         self.registry = actions_registry
 
@@ -355,7 +349,6 @@ class EntityCellRegularField(EntityCell):
         super().__init__(
             model=model,
             value=name,
-            # title=field_info.verbose_name,
             is_hidden=is_hidden,
             is_excluded=is_excluded,
         )
@@ -446,15 +439,6 @@ class EntityCellCustomField(EntityCell):
     type_id = 'custom_field'
     verbose_name = _('Custom fields')
 
-    # _CF_CSS = {
-    #     CustomField.DATETIME:   models.DateTimeField,
-    #     CustomField.INT:        models.PositiveIntegerField,
-    #     CustomField.FLOAT:      models.DecimalField,
-    #     CustomField.BOOL:       models.BooleanField,
-    #     CustomField.ENUM:       models.ForeignKey,
-    #     CustomField.MULTI_ENUM: models.ManyToManyField,
-    # }
-
     @staticmethod
     def _multi_enum_html(entity, cf_value, user, cfield):
         if cf_value is None:
@@ -506,16 +490,6 @@ class EntityCellCustomField(EntityCell):
     def build(cls,
               model: Type[Model],
               customfield_id: str) -> Optional['EntityCellCustomField']:
-        # ct = ContentType.objects.get_for_model(model)
-        #
-        # try:
-        #     cfield = CustomField.objects.get(content_type=ct, id=customfield_id)
-        # except CustomField.DoesNotExist:
-        #     logger.warning(
-        #         'EntityCellCustomField: custom field "%s" (on model <%s>) does not exist',
-        #         customfield_id, ct,
-        #     )
-        #     return None
         # NB: we prefer use the cache with all model's CustomFields because of
         #     high probability to use several CustomFields in the same request.
         try:
@@ -534,7 +508,6 @@ class EntityCellCustomField(EntityCell):
         return self._customfield
 
     def _get_field_class(self):
-        # return self._CF_CSS.get(self._customfield.field_type, Field)
         return type(self._customfield.value_class._meta.get_field('value'))
 
     def _get_renderer(self, output: str):
@@ -573,14 +546,6 @@ class EntityCellCustomField(EntityCell):
             [cell.custom_field for cell in cells],
         )  # NB: not itervalues()
 
-    # def render_html(self, entity, user):
-    #     from django.utils.html import escape
-    #     return escape(self.render_csv(entity, user))
-
-    # def render_csv(self, entity, user):
-    #     value = entity.get_custom_value(self.custom_field)
-    #     return value if value is not None else ''
-
     @cached_property
     def title(self):
         return (
@@ -606,7 +571,6 @@ class EntityCellFunctionField(EntityCell):
         super().__init__(
             model=model,
             value=func_field.name,
-            # title=str(func_field.verbose_name),
             is_hidden=func_field.is_hidden,
         )
 
@@ -614,7 +578,6 @@ class EntityCellFunctionField(EntityCell):
     def build(cls,
               model: Type[Model],
               func_field_name: str) -> Optional['EntityCellFunctionField']:
-        # func_field = function_field_registry.get(model, func_field_name)
         func_field = cls.field_registry.get(model, func_field_name)
 
         if func_field is None:
@@ -735,20 +698,3 @@ class EntityCellVolatile(EntityCell):
     correspond to any previous type.
     """
     type_id = 'volatile'
-
-    # def __init__(self,
-    #              model: Type[Model],
-    #              value: str,
-    #              title,
-    #              render_func,
-    #              is_hidden: bool = False):
-    #     self._render_func = render_func
-    #     super().__init__(
-    #         model=model,
-    #         value=value,
-    #         title=title,
-    #         is_hidden=is_hidden,
-    #     )
-
-    # def render_html(self, entity, user):
-    #     return self._render_func(entity)

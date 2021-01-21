@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
 from typing import List, Type, Union
 
@@ -26,12 +25,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.transaction import atomic
 from django.forms import BaseForm, ModelForm
 from django.http import HttpResponse, HttpResponseRedirect
-# from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.detail import SingleObjectMixin
 from formtools.wizard.views import SessionWizardView
 
-# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core import models
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 
@@ -39,42 +36,6 @@ from . import base
 
 logger = logging.getLogger(__name__)
 
-
-# class PopupWizardMixin:
-#     """
-#         Convenient mixin class for wizard popups.
-#         Handle permissions and build common template context.
-#     """
-#     template_name = 'creme_core/generics/blockform/wizard_popup.html'
-#     wizard_title = ''
-#     permission = None
-#
-#     @method_decorator(login_required)
-#     def dispatch(self, *args, **kwargs):
-#         warnings.warn('PopupWizardMixin is deprecated ; '
-#                       'use a class inheriting CremeWizardView instead.',
-#                       DeprecationWarning
-#                      )
-#
-#         perm = self.permission
-#         if perm and not self.request.user.has_perm(perm):
-#             from django.core.exceptions import PermissionDenied
-#
-#             raise PermissionDenied('You are not allowed to view this form')
-#
-#         return super().dispatch(*args, **kwargs)
-#
-#     def get_context_data(self, form, **kwargs):
-#         context = super().get_context_data(form=form, **kwargs)
-#         context['title'] = getattr(form, 'step_title', self.wizard_title)
-#         context['prev_label']   = getattr(form, 'step_prev_label',   '')
-#         context['first_label']  = getattr(form, 'step_first_label',  '')
-#         context['submit_label'] = getattr(form, 'step_submit_label', '')
-#
-#         return context
-#
-#     def get_form_kwargs(self, step):
-#         return {'user': self.request.user}
 
 class CremeWizardView(base.PermissionsMixin,
                       base.TitleMixin,

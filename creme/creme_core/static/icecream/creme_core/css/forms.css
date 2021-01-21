@@ -158,12 +158,6 @@ form .table_detail_view.dual_column .td_info > textarea,
     width: 98.5%;
 }
 
-/*
-form .table_detail_view .td_info > textarea {
-    height: 12em;
-}
-*/
-
 /* TODO: this looks more like it's fixing a bug in the previous rules setting the input width to 100% than anything specific to Chrome & Opera.
 The forms templates need to be cleaned up, in addition to the previous rules about input widths.
 */

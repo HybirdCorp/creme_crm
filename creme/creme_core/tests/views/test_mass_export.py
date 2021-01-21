@@ -218,7 +218,6 @@ class MassExportViewsTestCase(ViewsTestCase):
             follow=True,
         )
 
-        # result = [*XlrdReader(None, file_contents=response.content)]
         result = [*XlrdReader(None, file_contents=b''.join(response.streaming_content))]
         self.assertEqual(1, len(result))
         self.assertEqual(result[0], [hfi.title for hfi in cells])
@@ -531,7 +530,6 @@ class MassExportViewsTestCase(ViewsTestCase):
             self._build_contact_dl_url(doc_type='xls'), follow=True,
         )
 
-        # it = iter(XlrdReader(None, file_contents=response.content))
         it = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
         self.assertEqual(next(it), [hfi.title for hfi in cells])
         self.assertEqual(next(it), ['', 'Black', 'Jet', 'Bebop', ''])
@@ -599,7 +597,6 @@ class MassExportViewsTestCase(ViewsTestCase):
             follow=True,
         )
 
-        # it = iter(XlrdReader(None, file_contents=response.content))
         it = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
         self.assertEqual(next(it), [hfi.title for hfi in cells])
         self.assertEqual(next(it), [orga01.name, _('Yes'), ''])

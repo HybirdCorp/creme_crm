@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -99,8 +99,6 @@ def get_meta_value(obj, key, default=''):
         return getattr(obj._meta, key)
     except AttributeError as e:
         logger.warning('Templatetag get_meta_value: %s', e)
-    # except:
-    #     pass
 
     return default
 
@@ -605,29 +603,6 @@ class MediaNode(TemplateNode):
         bundle = self.bundle_var.eval(context)
 
         return _render_include_media(context['THEME_NAME'] + bundle, variation={})
-
-
-# @register.simple_tag
-# def get_export_backends():
-#     warnings.warn('The templatetag {% get_export_backends %} is deprecated.', DeprecationWarning)
-#
-#     from json import dumps as json_dump
-#     from ..backends import export_backend_registry
-#
-#     return json_dump([[backend.id, str(backend.verbose_name)]
-#                         for backend in export_backend_registry.backends
-#                      ]
-#                     )
-#
-#
-# @register.simple_tag
-# def get_import_backends():
-#     warnings.warn('The templatetag {% get_import_backends %} is deprecated.', DeprecationWarning)
-#
-#     from json import dumps as json_dump
-#     from ..backends import import_backend_registry
-#
-#     return json_dump([[backend.id] for backend in import_backend_registry.backends])
 
 
 @register.simple_tag(name='hg_info')

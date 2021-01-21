@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -601,7 +601,6 @@ class BricksManager:
     Bricks can depends on the same model : updating one brick involves to update
     the bricks which depend on the same than it.
     """
-    # var_name = 'blocks_manager'
     var_name: str = 'bricks_manager'
 
     class Error(Exception):
@@ -783,10 +782,8 @@ class _BrickRegistry:
         if main_brick_cls is not None:
             assert issubclass(main_brick_cls, Brick)
 
-            # if main_brick_cls.id_ is not None:
             if main_brick_cls.id_:
                 raise self.RegistrationError(
-                    # f'Main hat brick for model={model} must be None '
                     f'Main hat brick for model={model} must be empty '
                     f'(currently: {main_brick_cls.id_})'
                 )
@@ -825,29 +822,23 @@ class _BrickRegistry:
         @param entity: CremeEntity instance if your Brick has to be displayed on its detail-view.
         @return Brick instance.
         """
-        # brick_id = ibi.brick_id
-        # brick_class = self._instance_brick_classes.get(
-        #   InstanceBrickConfigItem.get_base_id(brick_id))
         brick_class_id = ibi.brick_class_id
         brick_class = self._instance_brick_classes.get(brick_class_id)
 
         if brick_class is None:
             logger.warning('Brick class seems deprecated: %s', brick_class_id)
 
-            # brick = Brick()
             brick = InstanceBrick(ibi)
             brick.verbose_name = '??'
             # TODO: add this attribute to the class
             brick.errors = [_('Unknown type of block (bad uninstall ?)')]
         else:
             brick = brick_class(ibi)
-            # brick.id_ = brick_id
 
             if entity:
                 # When an InstanceBrick is on a detail-view of a entity, the content
                 # of this brick depends (generally) of this entity, so we have to
                 # complete the dependencies.
-                # model = entity.__class__
                 model = entity.entity_type.model_class()
                 if model not in brick.dependencies:
                     assert not isinstance(brick.dependencies, str)  # NB: '*'
@@ -866,7 +857,6 @@ class _BrickRegistry:
                        it should be given.
         """
         specific_ids = [*filter(SpecificRelationsBrick.id_is_specific, brick_ids)]
-        # instance_ids = [*filter(InstanceBrickConfigItem.id_is_specific, brick_ids)]
         instance_ids = [*filter(None, map(InstanceBrickConfigItem.id_from_brick_id, brick_ids))]
         custom_ids   = [*filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids))]
 
@@ -877,9 +867,7 @@ class _BrickRegistry:
                                         .prefetch_related('relation_type')
         } if specific_ids else {}
         instance_bricks_items = {
-            # ibi.brick_id: ibi
             ibi.brick_id: ibi
-            # for ibi in InstanceBrickConfigItem.objects.filter(brick_id__in=instance_ids)
             # TODO: CremeEntity.populate_real_entities
             for ibi in InstanceBrickConfigItem.objects
                                               .filter(id__in=instance_ids)

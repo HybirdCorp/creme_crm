@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,7 +49,6 @@ def generate_string_id_and_save(model: Type[Model],
     # TODO: do-able in SQL ????
     # TODO: would it be cool to fill the 'holes' in id ranges ???
     index = max(id_list, default=0)
-    # last_exception = None
     last_exception: BaseException = RuntimeError('No previous error ?!')
 
     for obj in objects:

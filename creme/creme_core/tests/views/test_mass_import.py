@@ -713,16 +713,6 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         jr_error = jr_errors[0]
         self.assertEqual([*lines[2]], jr_error.line)
-        # self.assertEqual([_('Error while extracting value: tried to retrieve '
-        #                     'the choice «{value}» (column {column}). '
-        #                     'Raw error: [{raw_error}]').format(
-        #                         raw_error='CustomFieldEnumValue matching query does not exist.',
-        #                         column=3,
-        #                         value='strangulation',
-        #                     ),
-        #                  ],
-        #                  jr_error.messages
-        #                 )
         self.assertListEqual(
             [
                 _(
@@ -1534,7 +1524,6 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         asuka_line = lines[1]
         self.get_object_or_fail(FakeContact, first_name=asuka_line[0], last_name=asuka_line[1])
 
-    # def _aux_test_dl_errors(self, doc_builder, result_builder, ext, header=False, follow=False):
     def _aux_test_dl_errors(self, doc_builder, result_builder, ext, header=False):
         "CSV, no header."
         user = self.login()
@@ -1576,9 +1565,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         response = self.assertGET200(self._build_dl_errors_url(job), follow=True)
 
         cdisp = response['Content-Disposition']
-        # self.assertTrue(cdisp.startswith(f'attachment; filename={slugify(doc.title)}-errors'))
         self.assertStartsWith(cdisp, f'attachment; filename="{slugify(doc.title)}-errors')
-        # self.assertTrue(cdisp.endswith('.' + ext))
         self.assertEndsWith(cdisp, f'.{ext}"')
 
         result_lines = [['First name',   'Last name', 'Birthday', _('Errors')]] if header else []
@@ -1616,7 +1603,6 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def test_dl_errors03(self):
         "XLS."
         def result_builder(response):
-            # return [*XlrdReader(None, file_contents=response.content)]
             return [*XlrdReader(None, file_contents=b''.join(response.streaming_content))]
 
         self._aux_test_dl_errors(

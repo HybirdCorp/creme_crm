@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -174,7 +174,6 @@ class MergeEntitiesBaseForm(CremeForm):
 
         # Custom fields --------------------------------------------------------
         # TODO: factorise (CremeEntityForm ? get_custom_fields_n_values ? ...)
-        # cfields = CustomField.objects.filter(content_type=entity1.entity_type)
         cfields = CustomField.objects.get_for_model(entity1.entity_type).values()
         CremeEntity.populate_custom_values([entity1, entity2], cfields)
         self._customs = customs = [
@@ -185,10 +184,8 @@ class MergeEntitiesBaseForm(CremeForm):
             ) for cfield in cfields
         ]
 
-        # for i, (cfield, cvalue1, cvalue2) in enumerate(customs):
         for cfield, cvalue1, cvalue2 in customs:
             formfield1 = cfield.get_formfield(cvalue1)
-            # fields[_CUSTOM_NAME.format(i)] = merge_field = MergeField(
             fields[_CUSTOM_NAME.format(cfield.id)] = merge_field = MergeField(
                 modelform_field=formfield1,
                 model_field=None,
@@ -208,9 +205,7 @@ class MergeEntitiesBaseForm(CremeForm):
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
         # TODO: factorize with __init__() ? CustomFieldsMixin ?
-        # for i, (custom_field, cvalue1, cvalue2) in enumerate(self._customs):
         for custom_field, cvalue1, cvalue2 in self._customs:
-            # value = cleaned_data[_CUSTOM_NAME.format(i)]
             value = cleaned_data[_CUSTOM_NAME.format(custom_field.id)]
             CustomFieldValue.save_values_for_entities(custom_field, [entity1], value)
 

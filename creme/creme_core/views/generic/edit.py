@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -155,8 +155,6 @@ class CremeModelEditionPopup(CremeModelEdition):
     """
     # model = models.CremeModel  # TO BE OVERRIDDEN
     # form_class = forms.CremeModelForm  # TO BE OVERRIDDEN
-    # DO NOT USE OLD TEMPLATES !!!
-    # template_name = 'creme_core/generics/blockform/edit_popup.html'
     template_name = 'creme_core/generics/blockform/edit-popup.html'
 
     def get_success_url(self):
