@@ -172,7 +172,8 @@
                         - creme/persons/templates/persons/*_form.html
                     - The JavaScript function 'creme.persons.copyTo()' is deprecated.
                 * Activities :
-                      - The SettingKey 'setting_keys.form_user_messages_key' is deprecated.
+                      - The SettingKey 'setting_keys.form_user_messages_key' is deprecated ;
+                        the related constant 'SETTING_FORM_USERS_MSG' too.
                       - These template files are deprecated :
                         - creme/activities/templates/activities/frags/*
                         - creme/activities/templates/activities/forms/add-activity-popup.html

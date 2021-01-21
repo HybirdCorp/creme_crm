@@ -265,7 +265,7 @@ class MailingListsTestCase(_EmailsTestCase):
         url = reverse('emails__add_recipients_from_csv', args=(mlist.id,))
         self.assertGET200(url)
 
-        # TODO: it seems django validator does manages address with unicode chars:
+        # TODO: it seems django validator does not manages address with unicode chars:
         #       is it a problem
         # recipients = ['spike.spiegel@bebop.com', 'jet.bläck@bebop.com']
         # recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']

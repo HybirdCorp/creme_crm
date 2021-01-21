@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2020  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,7 @@ creme.billing.checkDecimal = function(element) {
 };
 
 creme.billing.checkPercent = function(element) {
-    // 100[.][0-99] ou [0-99][.][0-99]
+    // 100[.][0-99] or [0-99][.][0-99]
     return element.val().match(/^(100(\.[0]{1,2}){0,1}|[0-9]{1,2}(\.[0-9]{1,2}){0,1})$/) !== null;
 };
 
