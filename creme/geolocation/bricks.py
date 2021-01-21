@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2020  Hybird
+#    Copyright (C) 2014-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,7 +50,6 @@ class _MapBrick(Brick):
         ctypes = [get_ct(model) for model in models]
         efilters_per_ctid = defaultdict(list)
 
-        # for efilter in EntityFilter.get_for_user(user, ctypes):
         for efilter in EntityFilter.objects.filter_by_user(user)\
                                            .filter(entity_type__in=ctypes):
             efilters_per_ctid[efilter.entity_type_id].append(efilter)
@@ -60,10 +59,10 @@ class _MapBrick(Brick):
 
             if efilters:
                 title = str(ct.model_class()._meta.verbose_name_plural)
-                choices.append((title,
-                                [(ef.id, f'{title} - {ef.name}') for ef in efilters]
-                               )
-                              )
+                choices.append((
+                    title,
+                    [(ef.id, f'{title} - {ef.name}') for ef in efilters],
+                ))
 
         return choices
 
@@ -132,9 +131,9 @@ class _FilteredMapBrick(_MapBrick):
     def home_display(self, context):
         return self._render(self.get_template_context(
             context,
-            address_filters=self.get_filter_choices(context['user'],
-                                                    Contact, Organisation,
-                                                   ),
+            address_filters=self.get_filter_choices(
+                context['user'], Contact, Organisation,
+            ),
         ))
 
 
@@ -174,9 +173,9 @@ class _NeighboursMapBrick(_MapBrick):
         return self._render(self.get_template_context(
             context,
             ref_addresses=self.get_addresses_as_dict(entity),
-            address_filters=self.get_filter_choices(context['user'],
-                                                    Contact, Organisation,
-                                                   ),
+            address_filters=self.get_filter_choices(
+                context['user'], Contact, Organisation,
+            ),
             radius=get_radius(),
             maps_blockid=self.detail_map.id_,
         ))
