@@ -11,11 +11,9 @@ from creme.creme_core.models import fields as creme_fields
 class Migration(migrations.Migration):
     # replaces = [
     #     ('projects', '0001_initial'),
-    #     ('projects', '0019_v2_2__task_start_end_duration_notnull'),
-    #     ('projects', '0020_v2_2__resource_not_entity01'),
-    #     ('projects', '0021_v2_2__resource_not_entity02'),
-    #     ('projects', '0022_v2_2__resource_not_entity03'),
-    #     ('projects', '0023_v2_2__resource_not_entity04'),
+    #     ('projects', '0016_v2_1__move_description_to_entity_1'),
+    #     ('projects', '0017_v2_1__move_description_to_entity_2'),
+    #     ('projects', '0018_v2_1__move_description_to_entity_3'),
     # ]
 
     initial = True
@@ -50,6 +48,7 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the project')),
+                # ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('start_date', models.DateTimeField(null=True, verbose_name='Estimated start', blank=True)),
                 ('end_date', models.DateTimeField(null=True, verbose_name='Estimated end', blank=True)),
                 ('effective_end_date', models.DateTimeField(null=True, verbose_name='Effective end date', blank=True, editable=False)),
@@ -99,12 +98,9 @@ class Migration(migrations.Migration):
                  ),
                 ('order', models.PositiveIntegerField(verbose_name='Order', null=True, editable=False, blank=True)),
                 ('parent_tasks', models.ManyToManyField(related_name='children_set', editable=False, to=settings.PROJECTS_TASK_MODEL)),
-                # ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
-                ('start', models.DateTimeField(verbose_name='Start')),
-                # ('end',   models.DateTimeField(null=True, verbose_name='End', blank=True)),
-                ('end', models.DateTimeField(verbose_name='End')),
-                # ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hours)', blank=True)),
-                ('duration', models.PositiveIntegerField(default=0, verbose_name='Duration (in hours)')),
+                ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
+                ('end',   models.DateTimeField(null=True, verbose_name='End', blank=True)),
+                ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hours)', blank=True)),
                 # ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('tstatus', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Task situation', to='projects.TaskStatus')),
             ],
@@ -119,11 +115,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Resource',
             fields=[
-                # ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                #                                          to='creme_core.CremeEntity', on_delete=CASCADE,
-                #                                         )
-                # ),
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('hourly_cost', models.PositiveIntegerField(default=0, verbose_name='Hourly cost')),
                 ('linked_contact', models.ForeignKey(editable=False, to=settings.PERSONS_CONTACT_MODEL, verbose_name='Contact', on_delete=CASCADE)),
                 ('task', models.ForeignKey(related_name='resources_set', editable=False, to='projects.ProjectTask', verbose_name='Task', on_delete=CASCADE)),
