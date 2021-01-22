@@ -1,3 +1,22 @@
+== Version 2.3 Work in progress (not released -- this is a draft) ==
+
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # Deprecated stuffs which have been removed :
+            - Apps :
+                * Activities :
+                    - In 'forms.activity', these classes have been removed :
+                      _ActivityForm, ActivityEditForm, _ActivityCreateForm, ActivityCreateForm, RelatedActivityCreateForm, CalendarActivityCreateForm, IndisponibilityCreateForm.
+                    - The SettingKey 'setting_keys.form_user_messages_key', and the related constant 'SETTING_FORM_USERS_MSG' have been removed.
+                    - These template files have been removed in "creme/activities/templates/activities/" :
+                        - add_activity_form.html
+                        - forms/add-activity-popup.html
+                        - frags/activity_form_content.html
+                        - frags/indispo_form_content.html
+
 == Version 2.2 ==
 
   UPGRADE NOTE :
