@@ -9,7 +9,6 @@ from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
-    #  Memo: last migration was '0013_v2_1__move_description_to_entity_3.py'
     initial = True
     dependencies = [
         ('auth', '0001_initial'),

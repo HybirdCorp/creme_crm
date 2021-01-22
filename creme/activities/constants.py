@@ -53,7 +53,7 @@ STATUS_CANCELLED   = 5
 
 SETTING_DISPLAY_REVIEW     = 'activities-display_review_activities_blocks'
 SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'
-SETTING_FORM_USERS_MSG     = 'activities-form_user_messages'  # DEPRECATED
+# SETTING_FORM_USERS_MSG     = 'activities-form_user_messages'  # DEPRECATED
 
 # Floating styles
 NARROW        = 1
@@ -68,11 +68,12 @@ EFILTER_PARTICIPATE = 'activities-participate'
 DEFAULT_HFILTER_ACTIVITY = 'activities-hf_activity'
 
 DEFAULT_CALENDAR_COLOR = 'C1D9EC'
-COLOR_POOL = ('c1d9ec', '94c6db',  # Blue icecream
-              'f7cbc6', 'f7b5ad',  # Pink icecream
-              'b9fae5', '61ffcd',  # Turquoises
-              'fff4b8', 'ffe96e',  # Yellows
-              'd4ffb8', 'b4ff82',  # Greens
-              'f9b3ff', 'f36bff',  # Pink-mallow
-              'ffcea6', 'ffab66',  # Oranges
-             )
+COLOR_POOL = (
+    'c1d9ec', '94c6db',  # Blue icecream
+    'f7cbc6', 'f7b5ad',  # Pink icecream
+    'b9fae5', '61ffcd',  # Turquoises
+    'fff4b8', 'ffe96e',  # Yellows
+    'd4ffb8', 'b4ff82',  # Greens
+    'f9b3ff', 'f36bff',  # Pink-mallow
+    'ffcea6', 'ffab66',  # Oranges
+)
