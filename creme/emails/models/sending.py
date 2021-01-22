@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from json import loads as json_load
 from time import sleep
 
@@ -118,21 +118,21 @@ class EmailSending(CremeModel):
             date=date_format(localtime(self.sending_date), 'DATETIME_FORMAT'),
         )
 
-    def get_mails(self):
-        warnings.warn('EmailSending.get_mails() is deprecated ;'
-                      'use .mails_set instead.',
-                      DeprecationWarning
-                     )
-        return self.mails_set.all()
+    # def get_mails(self):
+    #     warnings.warn('EmailSending.get_mails() is deprecated ;'
+    #                   'use .mails_set instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     return self.mails_set.all()
 
-    def get_unsent_mails_count(self):
-        warnings.warn('EmailSending.get_unsent_mails_count() is deprecated ;'
-                      'use the property unsent_mails instead.',
-                      DeprecationWarning
-                     )
-        return self.mails_set.filter(
-            status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR],
-        ).count()
+    # def get_unsent_mails_count(self):
+    #     warnings.warn('EmailSending.get_unsent_mails_count() is deprecated ;'
+    #                   'use the property unsent_mails instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     return self.mails_set.filter(
+    #         status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR],
+    #     ).count()
 
     def get_absolute_url(self):
         return reverse('emails__view_sending', args=(self.id,))

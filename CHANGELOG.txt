@@ -29,6 +29,10 @@
                       add.html, add-popup.html, base.html, edit.html
                 * Commercial :
                     - The constants REL_SUB_SOLD_BY & REL_OBJ_SOLD_BY have been removed.
+                * Emails :
+                    - These methods of 'models.EmailSending' have been removed : get_mails(), get_unsent_mails_count()
+                    - In 'views.crudity', these functions have been removed :
+                      set_emails_status(), spam(), validated(), waiting()
 
 == Version 2.2 ==
 
