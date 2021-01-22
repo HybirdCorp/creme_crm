@@ -7,6 +7,9 @@
     ------------------
         # Deprecated stuffs which have been removed :
             - Apps :
+                * Documents :
+                    - The method 'models.AbstractDocument.get_linkeddoc_relations()' has been removed.
+                    - The constant 'forms.document._TITLE_MAX_LEN' has been removed.
                 * Activities :
                     - In 'forms.activity', these classes have been removed :
                       _ActivityForm, ActivityEditForm, _ActivityCreateForm, ActivityCreateForm, RelatedActivityCreateForm, CalendarActivityCreateForm, IndisponibilityCreateForm.
