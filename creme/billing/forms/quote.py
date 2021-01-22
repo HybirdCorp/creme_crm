@@ -18,27 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
+#
+# from .. import get_quote_model
+# from .base import BaseCreateForm, BaseEditForm
 
-from .. import get_quote_model
-from .base import BaseCreateForm, BaseEditForm
-
-Quote = get_quote_model()
-
-
-class QuoteCreateForm(BaseCreateForm):
-    class Meta(BaseCreateForm.Meta):
-        model = Quote
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('QuoteCreateForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# Quote = get_quote_model()
 
 
-class QuoteEditForm(BaseEditForm):
-    class Meta(BaseEditForm.Meta):
-        model = Quote
+# class QuoteCreateForm(BaseCreateForm):
+#     class Meta(BaseCreateForm.Meta):
+#         model = Quote
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('QuoteCreateForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-        warnings.warn('QuoteEditForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+
+# class QuoteEditForm(BaseEditForm):
+#     class Meta(BaseEditForm.Meta):
+#         model = Quote
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('QuoteEditForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)

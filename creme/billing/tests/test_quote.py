@@ -186,7 +186,7 @@ class QuoteTestCase(_BillingTestCase):
         self.assertDictEqual(
             {
                 'status': 1,
-                'target': target,  # deprecated
+                # 'target': target,  # deprecated
                 self.TARGET_KEY: target,
             },
             form.initial,

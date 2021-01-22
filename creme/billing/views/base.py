@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from typing import Sequence, Union
 
 from creme import persons
@@ -55,7 +55,7 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
         initial['status'] = self.initial_status
 
         target = self.get_related_entity()
-        initial['target'] = target  # DEPRECATED
+        # initial['target'] = target  # DEPRECATED
         initial[
             base_forms.BillingTargetSubCell(model=self.model).into_cell().key
         ] = target
@@ -69,9 +69,9 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
         return super().get_success_url()
 
 
-class BaseEdition(generic.EntityEdition):
-    template_name = 'billing/form/edit.html'
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('billing.views.base.BaseEdition is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# class BaseEdition(generic.EntityEdition):
+#     template_name = 'billing/form/edit.html'
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('billing.views.base.BaseEdition is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
