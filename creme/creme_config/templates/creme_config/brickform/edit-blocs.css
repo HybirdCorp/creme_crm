@@ -1,0 +1,135 @@
+.popup {
+    position: absolute;
+    height: auto;
+    width: 1530px;
+    top: 43px;
+    left: 184.5px;
+    display: block;
+    z-index: 101;
+    background: #fff;
+    border-radius: 0;
+    font-family: 'Open Sans', sans-serif;
+    border-color: #aaa;
+    border: 1px solid #6eaac4;
+    color: #222;
+    overflow: hidden;
+}
+
+.innerpopup {
+    padding: 0 1em;
+}
+
+.hat-bar-container {
+    margin-top: 0;
+    padding: 5px 10px 10px 10px;
+    border: 0;
+}
+
+.hat-bar {
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+}
+
+.bar-icon {
+    padding-right: 30px;
+}
+
+.bar-title h1 {
+    font-size: 15px;
+    margin: 3px 0 0 0;
+}
+.bar-icon img {
+    height: 20px;
+    width: 20px;
+    position: relative;
+    top: 2px;
+}
+
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-bottom: 0;
+    width: 100%;
+    padding: 0;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    background: white;
+    color: #222;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+th {
+    border-bottom: 1px solid #dedede;
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 600;
+    font-size: 13px;
+}
+td {
+    padding: 0;
+}
+thead {
+    font-size: 13px;
+    font-weight: bolder;
+    color: #376e86;
+    background: #f5f5f5;
+}
+
+.compass-widget {
+    display: flex;
+    border-collapse: collapse;
+}
+
+.compass-widget-available {
+    /*border-left: 1px solid #dedede;*/
+    /*border-right: 1px solid #dedede;*/
+}
+
+.compass-widget-enabled {
+    padding-left: 5px;
+    flex: 1;
+}
+
+.compass-widget-enabled-row {
+    display: flex;
+    min-height: 200px;
+}
+
+.compass-widget-enabled-north{
+    flex: 1;
+}
+
+.compass-widget-enabled-east{
+    flex: 1;
+    padding-left: 5px;
+}
+
+.compass-widget-enabled-west{
+    flex: 1;
+}
+
+.compass-widget-enabled-south{
+    flex: 1;
+}
+
+.compass-widget-title {
+    background: #f5f5f5;
+    text-align: center;
+    border: 1px solid #dedede;
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.compass-widget-choice{
+    text-align: center;
+    border-left: 1px solid #dedede;
+    border-bottom: 1px solid #dedede;
+    border-right: 1px solid #dedede;
+}
+
+.compass-widget-choices {
+    height: 100%;
+}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr-FR" xml:lang="fr-FR">
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detailview</title>
+     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> 
+    <script src="./Sortable.js"></script>
+
+    <link type="text/css" rel="stylesheet" href="./edit-blocs.css" />
+  </head>
+  <body>
+    <div class='page-content'>
+      <div class='popup'>
+        <div class='innerpopup'>
+          <div class="hat-bar-container">
+            <div class="hat-bar">
+              <div class="bar-icon"><img src="./edit.png" title="Modifier" alt="Modifier" width="48px"></div>
+              <div class="bar-title"><h1>Modifier la configuration par défaut pour «Action commerciale»</h1></div>
+            </div>
+          </div>
+
+          <div id="editform">
+            <form action="" method="POST">
+              <table class="table_detail_view ui-corner-all block-form ">
+                <thead>
+                  <tr>
+                    <th colspan="2">Informations générales</th>
+                  </tr>
+                </thead>
+                <tbody class="collapsable">
+                  <tr>
+                    <td>
+                      <div class='compass-widget'>
+                        <div class='compass-widget-available'>
+                          <div class='compass-widget-title'>Bloc disponibles</div>
+                          <div class="compass-widget-choices" id='compass-widget-available-choices'>
+                            <div class='compass-widget-choice'>Alertes</div>
+                            <div class='compass-widget-choice'>Bloc de relation: «(ticket) lié à la fiche»</div>
+                            <div class='compass-widget-choice'>Bloc de relation: «est client de»</div>
+                            <div class='compass-widget-choice'>Bloc de relation: «est un fournisseur de»</div>
+                            <div class='compass-widget-choice'>Champs personnalisés</div>
+                            <div class='compass-widget-choice'>Démarches commerciales</div>
+                            <div class='compass-widget-choice'>Historique de consultation</div>
+                            <div class='compass-widget-choice'>Historique des e-mails</div>
+                            <div class='compass-widget-choice'>Historique des e-mails des campagnes</div>
+                            <div class='compass-widget-choice'>Information sur la fiche (générique)</div>
+                            <div class='compass-widget-choice'>Mémos</div>
+                            <div class='compass-widget-choice'>Messages utilisateur</div>
+                            <div class='compass-widget-choice'>Objectifs d'une Action Commerciale</div>
+                            <div class='compass-widget-choice'>Opportunités reliées à une Action Commerciale</div>
+                            <div class='compass-widget-choice'>Propriétés</div>
+                            <div class='compass-widget-choice'>Réactions hors délais</div>
+                            <div class='compass-widget-choice'>Somme CA estimé / Phase de vente - Aucune</div>
+                            <div class='compass-widget-choice'>Somme CA estimé / Trimestre (90 jours sur Date de signature réelle) - Aucune</div>
+                            <div class='compass-widget-choice'>Somme des totaux HT des factures impayées de l'année en cours / mois - Aucune</div>
+                            <div class='compass-widget-choice'>Todos</div>
+                          </div>
+                        </div>
+                        <div class='compass-widget-enabled'>
+                          <div class='compass-widget-enabled-row'>
+                              <div class='compass-widget-enabled-north'>
+                                <div class='compass-widget-title'>Haut de page</div>
+                                  <div class="compass-widget-choices" id='compass-widget-enabled-north-choices'>
+                                  <div class='compass-widget-choice'>Actions dans les délais</div>
+                                  <div class='compass-widget-choice'>Activités futures</div>
+                                  <div class='compass-widget-choice'>Activités passées</div>
+                                </div>
+                              </div>
+                          </div>
+                          <div class='compass-widget-enabled-row'>
+                              <div class='compass-widget-enabled-west'>
+                                <div class='compass-widget-title'>Gauche</div>
+                                <div class="compass-widget-choices" id='compass-widget-enabled-west-choices'>
+                                  <div class='compass-widget-choice'>Somme des totaux HT des factures de l'année en cours / mois - Aucune</div>
+                                </div>
+                              </div>
+                              <div class='compass-widget-enabled-east'>
+                                <div class='compass-widget-title'>Droite</div>
+                                <div id='compass-widget-enabled-east-choices'>
+                                  <div class='compass-widget-choice'>Documents liés</div>
+                                  <div class='compass-widget-choice'>Historique</div>
+                                </div>
+                              </div>
+                          </div>
+                          <div class='compass-widget-enabled-row'>
+                              <div class='compass-widget-enabled-south'>
+                                <div class='compass-widget-title'>Bas de page</div>
+                                <div class="compass-widget-choices" id='compass-widget-enabled-south-choices'>
+                                  <div class='compass-widget-choice'>Relations</div>
+                                </div>
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="text/javascript">
+    var sortableOptions = {
+      group: "compass-widget"
+    }
+    var sortableIds = [
+      'compass-widget-available-choices',
+      'compass-widget-enabled-north-choices',
+      'compass-widget-enabled-east-choices',
+      'compass-widget-enabled-west-choices',
+      'compass-widget-enabled-south-choices',
+    ]
+    sortableIds.forEach(function(sortableId) {
+      var element = document.getElementById(sortableId);
+      var sortable = new Sortable(element, sortableOptions);
+    })
+  </script>
+</html>

@@ -54,6 +54,7 @@ class Portal(BricksView):
 class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
                                        base.ConfigCreation,
                                       ):
+    template_name = 'creme_config/brickform/add-brickdetailviewlocations-popup.html'
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsAddForm
 
@@ -147,6 +148,7 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
                                       RoleRelatedMixin,
                                       base.ConfigEdition,
                                      ):
+    template_name = 'creme_config/brickform/edit-brickdetailviewlocations-popup.html'
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsEditForm
     submit_label = _('Save the configuration')
