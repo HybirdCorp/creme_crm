@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,27 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
+#
+# from .. import get_sales_order_model
+# from .base import BaseCreateForm, BaseEditForm
 
-from .. import get_sales_order_model
-from .base import BaseCreateForm, BaseEditForm
-
-SalesOrder = get_sales_order_model()
-
-
-class SalesOrderCreateForm(BaseCreateForm):
-    class Meta(BaseCreateForm.Meta):
-        model = SalesOrder
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('SalesOrderCreateForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# SalesOrder = get_sales_order_model()
 
 
-class SalesOrderEditForm(BaseEditForm):
-    class Meta(BaseEditForm.Meta):
-        model = SalesOrder
+# class SalesOrderCreateForm(BaseCreateForm):
+#     class Meta(BaseCreateForm.Meta):
+#         model = SalesOrder
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('SalesOrderCreateForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-        warnings.warn('SalesOrderEditForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+
+# class SalesOrderEditForm(BaseEditForm):
+#     class Meta(BaseEditForm.Meta):
+#         model = SalesOrder
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('SalesOrderEditForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)

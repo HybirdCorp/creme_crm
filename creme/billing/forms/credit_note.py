@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from functools import partial
 
 from django.db.models.query import Q
@@ -28,28 +28,28 @@ from creme.creme_core.forms import base
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.models import Relation
 
+# from .base import BaseCreateForm, BaseEditForm
 from .. import constants, get_credit_note_model
-from .base import BaseCreateForm, BaseEditForm
 
 CreditNote = get_credit_note_model()
 
 
-class CreditNoteCreateForm(BaseCreateForm):
-    class Meta(BaseCreateForm.Meta):
-        model = CreditNote
+# class CreditNoteCreateForm(BaseCreateForm):
+#     class Meta(BaseCreateForm.Meta):
+#         model = CreditNote
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('CreditNoteCreateForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-        warnings.warn('CreditNoteCreateForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
 
-
-class CreditNoteEditForm(BaseEditForm):
-    class Meta(BaseEditForm.Meta):
-        model = CreditNote
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('CreditNoteEditForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# class CreditNoteEditForm(BaseEditForm):
+#     class Meta(BaseEditForm.Meta):
+#         model = CreditNote
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('CreditNoteEditForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
 
 class CreditNotePopupEditForm(base.CremeModelForm):

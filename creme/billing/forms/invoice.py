@@ -18,27 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
+#
+# from .. import get_invoice_model
+# from .base import BaseCreateForm, BaseEditForm
 
-from .. import get_invoice_model
-from .base import BaseCreateForm, BaseEditForm
-
-Invoice = get_invoice_model()
-
-
-class InvoiceCreateForm(BaseCreateForm):
-    class Meta(BaseCreateForm.Meta):
-        model = Invoice
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('InvoiceCreateForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# Invoice = get_invoice_model()
 
 
-class InvoiceEditForm(BaseEditForm):
-    class Meta(BaseEditForm.Meta):
-        model = Invoice
+# class InvoiceCreateForm(BaseCreateForm):
+#     class Meta(BaseCreateForm.Meta):
+#         model = Invoice
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('InvoiceCreateForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-        warnings.warn('InvoiceEditForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+
+# class InvoiceEditForm(BaseEditForm):
+#     class Meta(BaseEditForm.Meta):
+#         model = Invoice
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('InvoiceEditForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
