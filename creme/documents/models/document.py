@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from mimetypes import guess_type
 from os.path import basename
 
@@ -78,18 +78,18 @@ class AbstractDocument(CremeEntity):
     def get_lv_absolute_url():
         return reverse('documents__list_documents')
 
-    @staticmethod
-    def get_linkeddoc_relations(entity):
-        warnings.warn(
-            'AbstractDocument.get_linkeddoc_relations() is deprecated.',
-            DeprecationWarning,
-        )
-
-        from creme.creme_core.models import Relation
-
-        from ..constants import REL_SUB_RELATED_2_DOC
-
-        return Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC)
+    # @staticmethod
+    # def get_linkeddoc_relations(entity):
+    #     warnings.warn(
+    #         'AbstractDocument.get_linkeddoc_relations() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     from creme.creme_core.models import Relation
+    #
+    #     from ..constants import REL_SUB_RELATED_2_DOC
+    #
+    #     return Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC)
 
     def get_download_absolute_url(self):
         return reverse(
