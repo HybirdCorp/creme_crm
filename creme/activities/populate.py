@@ -420,9 +420,9 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_svalue = SettingValue.objects.get_or_create
-        create_svalue(key_id=setting_keys.review_key.id,             defaults={'value': True})
-        create_svalue(key_id=setting_keys.auto_subjects_key.id,      defaults={'value': True})
-        create_svalue(key_id=setting_keys.form_user_messages_key.id, defaults={'value': False})
+        create_svalue(key_id=setting_keys.review_key.id,        defaults={'value': True})
+        create_svalue(key_id=setting_keys.auto_subjects_key.id, defaults={'value': True})
+        # create_svalue(key_id=setting_keys.form_user_messages_key.id, defaults={'value': False})
 
         # ---------------------------
         if not already_populated:

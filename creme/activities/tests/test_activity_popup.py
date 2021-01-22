@@ -8,8 +8,8 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
-from creme.creme_core.models.setting_value import SettingValue
-from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+# from creme.creme_core.models.setting_value import SettingValue
+from creme.creme_core.tests.base import CremeTestCase  # skipIfNotInstalled
 
 from .. import constants
 from ..models import ActivityType, Calendar
@@ -285,18 +285,18 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertEqual(create_today_dt(hour=0,  minute=0), activity.start)
         self.assertEqual(create_today_dt(hour=23, minute=59), activity.end)
 
-    @skipIfNotInstalled('creme.assistants')
-    def test_disabled_informed_users_field(self):
-        "Setting: no 'informed_users' field."
-        self.login()
-
-        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_FORM_USERS_MSG)
-        sv.value = False
-        sv.save()
-
-        response = self.assertGET200(
-            self.ACTIVITY_POPUP_CREATION_URL,
-            data={'start': '2010-01-01T16:30:00'},
-        )
-
-        self.assertNotIn('informed_users', response.context['form'].fields)
+    # @skipIfNotInstalled('creme.assistants')
+    # def test_disabled_informed_users_field(self):
+    #     "Setting: no 'informed_users' field."
+    #     self.login()
+    #
+    #     sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_FORM_USERS_MSG)
+    #     sv.value = False
+    #     sv.save()
+    #
+    #     response = self.assertGET200(
+    #         self.ACTIVITY_POPUP_CREATION_URL,
+    #         data={'start': '2010-01-01T16:30:00'},
+    #     )
+    #
+    #     self.assertNotIn('informed_users', response.context['form'].fields)
