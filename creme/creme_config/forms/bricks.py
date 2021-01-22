@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
-
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -49,6 +47,8 @@ from creme.creme_core.models import (
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
+
+from .fields import BricksConfigField
 
 __all__ = (
     'BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm',
@@ -90,6 +90,8 @@ class _BrickLocationsForm(base.CremeForm):
         needed = sum(len(brick_ids) or 1 for brick_ids in bricks_partitions.values())
         lendiff = needed - len(old_locations)
 
+        # Reserve the number of BrickLocation database rows we need for the
+        # process. Remove the surplus, build the missing.
         if lendiff < 0:
             locations_store = old_locations[:needed]
             location_model.objects.filter(
@@ -123,22 +125,14 @@ class _BrickLocationsForm(base.CremeForm):
 
 class _BrickDetailviewLocationsForm(_BrickLocationsForm):
     hat    = forms.ChoiceField(label=_('Header block'), widget=core_widgets.CremeRadioSelect)
-    top    = BrickLocationsField(label=_('Blocks to display on top'))
-    left   = BrickLocationsField(label=_('Blocks to display on left side'))
-    right  = BrickLocationsField(label=_('Blocks to display on right side'))
-    bottom = BrickLocationsField(label=_('Blocks to display on bottom'))
+    locations = BricksConfigField(label=_("Blocks"), required=True)
 
-    error_messages = {
-        'duplicated_block': _('The following block should be displayed only once: «%(block)s»'),
-        'empty_config':     _('Your configuration is empty !'),
+    locations_map = {
+        BrickDetailviewLocation.TOP: BricksConfigField.zones.TOP,
+        BrickDetailviewLocation.LEFT: BricksConfigField.zones.LEFT,
+        BrickDetailviewLocation.RIGHT: BricksConfigField.zones.RIGHT,
+        BrickDetailviewLocation.BOTTOM: BricksConfigField.zones.BOTTOM,
     }
-
-    _ZONES = (
-        ('top',    BrickDetailviewLocation.TOP),
-        ('left',   BrickDetailviewLocation.LEFT),
-        ('right',  BrickDetailviewLocation.RIGHT),
-        ('bottom', BrickDetailviewLocation.BOTTOM),
-    )
 
     def __init__(self, ctype=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -150,69 +144,37 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         model = ctype.model_class() if ctype else None
 
         self.choices = choices = [
-            (brick.id_, str(brick.verbose_name))
+            (brick.id_, brick)
             for brick in gui_bricks.brick_registry.get_compatible_bricks(model=model)
         ]
-
         sort_key = collator.sort_key
-        choices.sort(key=lambda c: sort_key(c[1]))
+        choices.sort(key=lambda c: sort_key(c[1].verbose_name))
 
-        fields = self.fields
-
-        for fname, zone in self._ZONES:
-            fields[fname].choices = choices
+        self.fields['locations'].choices = self.choices
 
         hat_bricks = []
         if model:
             hat_bricks.extend(gui_bricks.brick_registry.get_compatible_hat_bricks(model))
 
         if len(hat_bricks) > 1:
-            hat_f = fields['hat']
+            hat_f = self.fields['hat']
             hat_f.choices = [(brick.id_, brick.verbose_name) for brick in hat_bricks]
         else:
-            del fields['hat']
-
-    def clean(self):
-        cdata = super().clean()
-        all_brick_ids = set()
-
-        for brick_id in chain(cdata['top'], cdata['left'], cdata['right'], cdata['bottom']):
-            if brick_id in all_brick_ids:
-                verbose_name = '??'
-                for b_id, b_vname in self.choices:
-                    if b_id == brick_id:
-                        verbose_name = b_vname
-                        break
-
-                raise ValidationError(
-                    self.error_messages['duplicated_block'],
-                    params={'block': verbose_name},
-                    code='duplicated_block',
-                )
-
-            all_brick_ids.add(brick_id)
-
-        if not all_brick_ids:
-            raise ValidationError(
-                self.error_messages['empty_config'],
-                code='empty_config',
-            )
-
-        return cdata
+            del self.fields['hat']
 
     def save(self, *args, **kwargs):
         cdata = self.cleaned_data
         hat_brick_id = cdata.get('hat')
-
+        locations = cdata["locations"]
         self._save_locations(
             BrickDetailviewLocation,
             lambda: BrickDetailviewLocation(content_type=self.ct),
             bricks_partitions={
                 BrickDetailviewLocation.HAT:    [hat_brick_id] if hat_brick_id else [],
-                BrickDetailviewLocation.TOP:    cdata['top'],
-                BrickDetailviewLocation.LEFT:   cdata['left'],
-                BrickDetailviewLocation.RIGHT:  cdata['right'],
-                BrickDetailviewLocation.BOTTOM: cdata['bottom'],
+                BrickDetailviewLocation.TOP:    locations['top'],
+                BrickDetailviewLocation.LEFT:   locations['left'],
+                BrickDetailviewLocation.RIGHT:  locations['right'],
+                BrickDetailviewLocation.BOTTOM: locations['bottom'],
             },
             old_locations=self.locations,
             role=self.role, superuser=self.superuser,
@@ -229,7 +191,7 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
     blocks = base.FieldBlockManager({
         'id': 'general',
         'label': _('Configuration'),
-        'fields': ('role', 'hat', 'top', 'left', 'right', 'bottom'),
+        'fields': ('role', 'hat', 'locations'),
     })
 
     def __init__(self, *args, **kwargs):
@@ -275,8 +237,12 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
 
         fields = self.fields
 
-        for fname, zone in self._ZONES:
-            fields[fname].initial = [bl.brick_id for bl in locations if bl.zone == zone]
+        initial_locations = {zone.value: [] for zone in self.locations_map.values()}
+        for bl in locations:
+            zone_name = self.locations_map.get(bl.zone)
+            if bl.brick_id and zone_name is not None:
+                initial_locations[zone_name.value].append(bl.brick_id)
+        fields['locations'].initial = initial_locations
 
         hat_f = fields.get('hat')
         if hat_f:

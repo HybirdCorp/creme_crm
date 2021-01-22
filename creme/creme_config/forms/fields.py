@@ -17,11 +17,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from copy import deepcopy
 from typing import Tuple
 
-from django.core.exceptions import ValidationError
-from django.forms import fields
+from django.forms import ValidationError, fields
 from django.forms import models as modelforms
 from django.forms.fields import CallableChoiceIterator
 from django.urls import reverse
@@ -348,3 +348,114 @@ class MenuEntriesField(fields.JSONField):
                 entries.append(entry_class(data=validated_data))
 
         return entries
+
+
+class BricksConfigField(fields.JSONField):
+    widget = widgets.BricksConfigWidget
+    zones = widgets.BricksConfigWidget.zones
+
+    default_error_messages = {
+        'invalid_format': _("The value doesn't match the expected format."),
+        'invalid_choice': (
+            fields.ChoiceField.default_error_messages['invalid_choice']),
+        'duplicated_brick': _('The following block should be displayed only once: «%(block)s»'),
+        'required': _('Your configuration is empty !'),
+    }
+
+    def __init__(self, *, choices=(), **kwargs):
+        if not kwargs.setdefault("required", True):
+            raise NotImplementedError("BricksConfigField is a required field.")
+
+        if 'initial' not in kwargs:
+            kwargs['initial'] = {zone: [] for zone in self.zones.values()}
+
+        super().__init__(**kwargs)
+        self.choices = choices
+
+    def __deepcopy__(self, memo):
+        result = super().__deepcopy__(memo)
+        result._choices = deepcopy(self._choices, memo)
+        result._valid_choices = deepcopy(self._valid_choices, memo)
+        return result
+
+    @property
+    def choices(self):
+        return self._choices
+
+    @choices.setter
+    def choices(self, value):
+        # Setting choices also sets the choices on the widget.
+        # choices can be any iterable, but we call list() on it because
+        # it will be consumed more than once.
+        value = list(value)
+
+        self._choices = self.widget.choices = value
+        self._valid_choices = {
+            choice_id for choice_id, choice_label in value
+        }
+
+    def clean(self, value: str):
+        value = super().clean(value)
+
+        if not isinstance(value, dict):
+            raise ValidationError(
+                self.error_messages['invalid_format'],
+                code='invalid_format',
+            )
+
+        errors = []
+        invalid_choices = set()
+        duplicates = set()
+        bricks = set()
+
+        cleaned_value = {}
+        for zone in self.zones.values():
+            zone_value = value.get(zone, [])
+            if not isinstance(zone_value, list):
+                raise ValidationError(
+                    self.error_messages['invalid_format'],
+                    code='invalid_format',
+                )
+
+            for brick_id in zone_value:
+                if brick_id not in self._valid_choices:
+                    invalid_choices.add(brick_id)
+                    continue
+
+                if brick_id in bricks:
+                    duplicates.add(brick_id)
+
+                bricks.add(brick_id)
+
+            cleaned_value[zone] = zone_value
+
+        if invalid_choices:
+            errors.extend(
+                ValidationError(
+                    self.error_messages['invalid_choice'],
+                    code='invalid_choice',
+                    params={'value': value},
+                )
+                for value in invalid_choices
+            )
+
+        if duplicates:
+            errors.extend(
+                ValidationError(
+                    self.error_messages['duplicated_brick'],
+                    params={'block': brick.verbose_name},
+                    code='duplicated_brick',
+                )
+                for brick_id, brick in self.choices
+                if brick_id in duplicates
+            )
+
+        if errors:
+            raise ValidationError(errors)
+
+        if not bricks:
+            raise ValidationError(
+                self.error_messages['required'],
+                code='required')
+
+        return cleaned_value

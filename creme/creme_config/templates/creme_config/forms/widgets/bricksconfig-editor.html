@@ -1,0 +1,47 @@
+{% load i18n %}
+
+{% with choices_id="bricks-config-widget-"|add:widget.attrs.id %}
+{{ widget.choices|json_script:choices_id }}
+
+<div class="bricks-config-widget" id="{{widget.attrs.id}}">
+    <input type="hidden" name="{{widget.name}}" value="{{ widget.value }}">
+    <div class="widget-available">
+        <div class="widget-title">{% translate "Available blocks" %}</div>
+        <div class="widget-choices widget-available-choices"></div>
+    </div>
+    <div class="widget-enabled">
+        <div class="widget-enabled-row">
+            <div class="widget-enabled-top">
+                <div class="widget-title">{% translate "Top of page" %}</div>
+                <div class="widget-choices widget-enabled-top-choices"></div>
+            </div>
+        </div>
+        <div class="widget-enabled-row">
+            <div class="widget-enabled-left">
+                <div class="widget-title">{% translate "Left" %}</div>
+                <div class="widget-choices widget-enabled-left-choices"></div>
+            </div>
+            <div class="widget-enabled-right">
+                <div class="widget-title">{% translate "Right" %}</div>
+                <div class="widget-choices widget-enabled-right-choices"></div>
+            </div>
+        </div>
+        <div class="widget-enabled-row">
+            <div class="widget-enabled-bottom">
+                <div class="widget-title">{% translate "Bottom of page" %}</div>
+                <div class="widget-choices widget-enabled-bottom-choices"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        return new creme.BricksConfigEditor($("#{{widget.attrs.id}}"), {
+            choices: $('#{{choices_id}}'),
+            targetInput: $("#{{widget.attrs.id}} input[name='{{widget.name}}']")
+        });
+    });
+</script>
+
+{% endwith %}
