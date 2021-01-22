@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from datetime import date
 from functools import partial
 
@@ -211,35 +211,35 @@ class Base(CremeEntity):
         else:
             self._target = person
 
-    def get_source(self):
-        warnings.warn(
-            'billing.Base.get_source() is deprecated ; '
-            'use the property "source" instead.',
-            DeprecationWarning,
-        )
+    # def get_source(self):
+    #     warnings.warn(
+    #         'billing.Base.get_source() is deprecated ; '
+    #         'use the property "source" instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     try:
+    #         return Relation.objects.get(
+    #             subject_entity=self.id,
+    #             type=REL_SUB_BILL_ISSUED,
+    #         ).object_entity if self.id else None
+    #     except Relation.DoesNotExist:
+    #         return None
 
-        try:
-            return Relation.objects.get(
-                subject_entity=self.id,
-                type=REL_SUB_BILL_ISSUED,
-            ).object_entity if self.id else None
-        except Relation.DoesNotExist:
-            return None
-
-    def get_target(self):
-        warnings.warn(
-            'billing.Base.get_target() is deprecated ; '
-            'use the property "target" instead.',
-            DeprecationWarning,
-        )
-
-        try:
-            return Relation.objects.get(
-                subject_entity=self.id,
-                type=REL_SUB_BILL_RECEIVED,
-            ).object_entity if self.id else None
-        except Relation.DoesNotExist:
-            return None
+    # def get_target(self):
+    #     warnings.warn(
+    #         'billing.Base.get_target() is deprecated ; '
+    #         'use the property "target" instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     try:
+    #         return Relation.objects.get(
+    #             subject_entity=self.id,
+    #             type=REL_SUB_BILL_RECEIVED,
+    #         ).object_entity if self.id else None
+    #     except Relation.DoesNotExist:
+    #         return None
 
     # TODO: property ?
     def get_credit_notes(self):

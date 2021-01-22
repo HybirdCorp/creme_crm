@@ -16,6 +16,14 @@
                         - forms/add-activity-popup.html
                         - frags/activity_form_content.html
                         - frags/indispo_form_content.html
+                * Billing :
+                    - In 'models.Base', these methods have been removed : get_source() & get_target().
+                    - The function 'forms.base.first_managed_orga_id()' has been removed.
+                    - In 'views' :
+                        - The class 'base.BaseEdition'  has been removed.
+                        - The class-view 'base.RelatedBaseCreation' does not fill <initial['target']> anymore.
+                    - These template files have been removed in "creme/billing/templates/billing/forms/" :
+                      add.html, add-popup.html, base.html, edit.html
 
 == Version 2.2 ==
 
