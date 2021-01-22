@@ -6,9 +6,11 @@ from json import dumps as json_dump
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.forms.fields import CallableChoiceIterator, InvalidJSONInput
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.menu import MenuEntryForm
@@ -38,6 +40,7 @@ from creme.creme_core.tests.fake_menu import (
 from creme.creme_core.tests.forms.base import FieldTestCase
 
 from ..forms.fields import (
+    BricksConfigField,
     CreatorModelChoiceField,
     CreatorModelMultipleChoiceField,
     CustomEnumChoiceField,
@@ -1215,3 +1218,119 @@ class MenuEntriesFieldTestCase(FieldTestCase):
                 'error': _('the entry ID "{}" is invalid.').format(entry_id),
             },
         )
+
+
+class BricksConfigFieldTestCase(CremeTestCase):
+    # TODO: Use creme_core.tests.forms.base.FieldTestCase.assertFieldValidationError
+    # once it can handle ValidationError.error_list
+
+    def test_initial(self):
+        field = BricksConfigField()
+        self.assertEqual(field.initial, {'top': [], 'left': [], 'right': [], 'bottom': []})
+
+        field = BricksConfigField(initial={'top': [], 'left': []})
+        self.assertEqual(field.initial, {'top': [], 'left': []})
+
+    def test_required(self):
+        self.assertRaises(NotImplementedError, BricksConfigField, required=False)
+
+    def test_choices(self):
+        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
+        field = BricksConfigField(choices=choices)
+
+        choices_list = [(1, "a"), (2, "b"), (3, "c"), (4, "d")]
+        self.assertEqual(field.choices, choices_list)
+        self.assertEqual(field._choices, choices_list)
+        self.assertEqual(field.widget.choices, choices_list)
+
+        choices_set = {1, 2, 3, 4}
+        self.assertEqual(field._valid_choices, choices_set)
+
+    def test_copyfield(self):
+        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
+        field = BricksConfigField(choices=choices)
+        field_copy = deepcopy(field)
+
+        self.assertFalse(field._choices is field_copy._choices)
+        self.assertFalse(field._valid_choices is field_copy._valid_choices)
+
+    def test_clean_invalid_json(self):
+        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
+        field = BricksConfigField(choices=choices)
+
+        with self.assertRaises(ValidationError) as context:
+            field.clean('TEST')
+
+        self.assertEqual(context.exception.code, 'invalid')
+
+    @parameterized.expand([
+        [""], [None],
+    ])
+    def test_clean_required(self, value):
+        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
+        field = BricksConfigField(choices=choices)
+
+        with self.assertRaises(ValidationError) as context:
+            field.clean(value)
+
+        self.assertEqual(context.exception.code, 'required')
+
+    @parameterized.expand([
+        ["42"],
+        [json_dump("not a dict")],
+        [json_dump(["not a dict"])],
+        [json_dump({"top": "lot a list"})],
+    ])
+    def test_clean_invalid_not_a_dict_of_lists(self, value):
+        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
+        field = BricksConfigField(choices=choices)
+
+        with self.assertRaises(ValidationError) as context:
+            field.clean(value)
+
+        self.assertEqual(context.exception.code, 'invalid_format')
+
+    def test_clean_invalid_choices(self):
+        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
+        field = BricksConfigField(choices=choices)
+
+        with self.assertRaises(ValidationError) as context:
+            field.clean('{"top": [5], "left": [6]}')
+
+        self.assertEqual(context.exception.error_list[0].code, 'invalid_choice')
+        self.assertEqual(context.exception.error_list[0].params, {"value": 5})
+        self.assertEqual(context.exception.error_list[1].code, 'invalid_choice')
+        self.assertEqual(context.exception.error_list[1].params, {"value": 6})
+
+    def test_clean_duplicates(self):
+        class Brick:
+            def __init__(self, verbose_name):
+                self.verbose_name = verbose_name
+
+        choices = ((1, Brick("a")), (2, Brick("b")), (3, Brick("c")), (4, Brick("d")))
+        field = BricksConfigField(choices=choices)
+
+        with self.assertRaises(ValidationError) as context:
+            field.clean('{"top": [1, 2], "left": [2, 3], "bottom": [3, 4]}')
+
+        self.assertEqual(context.exception.error_list[0].code, 'duplicated_brick')
+        self.assertEqual(context.exception.error_list[0].params, {'block': "b"})
+        self.assertEqual(context.exception.error_list[1].code, 'duplicated_brick')
+        self.assertEqual(context.exception.error_list[1].params, {'block': "c"})
+
+    def test_clean_empty_config(self):
+        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
+        field = BricksConfigField(choices=choices)
+
+        with self.assertRaises(ValidationError) as context:
+            field.clean('{"top": [], "left": []}')
+
+        self.assertEqual(context.exception.code, 'required')
+
+    def test_clean_ok(self):
+        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
+        field = BricksConfigField(choices=choices)
+
+        cleaned_value = field.clean('{"top": [1], "left": [2, 3]}')
+
+        self.assertEqual(cleaned_value, {"top": [1], "left": [2, 3], "right": [], "bottom": []})

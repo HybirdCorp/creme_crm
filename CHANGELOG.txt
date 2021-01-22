@@ -15,6 +15,7 @@
             - The main menu can now be customised ; containers can be created,
               re-ordered, removed, & their entries can be chosen too.
               All apps have been reworked to use the new system to provide a menu identical to the old one.
+            - The detail view bricks configuration form has been redesigned.
         * Persons :
             - The setting PERSONS_MENU_CUSTOMERS_ENABLED has been removed (you can add/remove the entry menu in 'creme_config').
 
