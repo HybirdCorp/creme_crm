@@ -24,6 +24,8 @@
                         - The class-view 'base.RelatedBaseCreation' does not fill <initial['target']> anymore.
                     - These template files have been removed in "creme/billing/templates/billing/forms/" :
                       add.html, add-popup.html, base.html, edit.html
+                * Commercial :
+                    - The constants REL_SUB_SOLD_BY & REL_OBJ_SOLD_BY have been removed.
 
 == Version 2.2 ==
 

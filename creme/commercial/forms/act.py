@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from math import ceil
 
 from django import forms
@@ -35,13 +35,13 @@ from ..models import ActObjective, ActObjectivePatternComponent
 ActObjectivePattern = commercial.get_pattern_model()
 
 
-class ActForm(base_forms.CremeEntityForm):
-    class Meta(base_forms.CremeEntityForm.Meta):
-        model = commercial.get_act_model()
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('ActForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# class ActForm(base_forms.CremeEntityForm):
+#     class Meta(base_forms.CremeEntityForm.Meta):
+#         model = commercial.get_act_model()
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('ActForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
 
 class ObjectiveForm(base_forms.CremeModelForm):
@@ -131,13 +131,13 @@ class ObjectivesFromPatternForm(base_forms.CremeForm):
         create_objectives_from_components(pattern.get_components_tree(), won_opps)
 
 
-class ObjectivePatternForm(base_forms.CremeEntityForm):
-    class Meta(base_forms.CremeEntityForm.Meta):
-        model = ActObjectivePattern
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('ObjectivePatternForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# class ObjectivePatternForm(base_forms.CremeEntityForm):
+#     class Meta(base_forms.CremeEntityForm.Meta):
+#         model = ActObjectivePattern
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('ObjectivePatternForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
 
 class _PatternComponentForm(base_forms.CremeModelForm):
