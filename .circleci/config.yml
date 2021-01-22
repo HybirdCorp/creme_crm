@@ -14,6 +14,7 @@ commands:
     description: "Create python virtualenv"
     steps:
       - run: python3 -m venv ~/venv
+      - run: ~/venv/bin/pip install -U pip setuptools
       - run: echo "source ~/venv/bin/activate" >> $BASH_ENV
 
   install-creme-system-packages:
@@ -70,9 +71,9 @@ commands:
             echo "export LC_ALL=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
 
 jobs:
-  lint-isort:
+  python36-lint-isort:
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.6
     steps:
       - checkout
       - install-creme-system-packages
@@ -80,9 +81,9 @@ jobs:
       - run: make isort-check
 
 
-  lint-flake8:
+  python36-lint-flake8:
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.6
     steps:
       - checkout
       - install-creme-system-packages
@@ -90,9 +91,9 @@ jobs:
       - run: flake8 creme/
 
 
-  tests-mysql:
+  python36-tests-mysql:
     docker:
-      - image: circleci/python:3.7-browsers
+      - image: circleci/python:3.6-browsers
       - image: circleci/mysql:5.7-ram
         environment:
           MYSQL_ROOT_PASSWORD: creme
@@ -123,9 +124,9 @@ jobs:
           path: artifacts/coverage_html
 
 
-  tests-pgsql:
+  python36-tests-pgsql:
     docker:
-      - image: circleci/python:3.7-browsers
+      - image: circleci/python:3.6-browsers
       - image: circleci/postgres:12-ram
         environment:
           POSTGRES_USER: creme
@@ -155,7 +156,32 @@ jobs:
       - store_artifacts:
           path: artifacts/coverage_html
 
-  tests-sqlite3:
+  python36-tests-sqlite3:
+    docker:
+      - image: circleci/python:3.6-browsers
+    resource_class: large
+    steps:
+      - checkout
+
+      - setup-locale:
+          language: fr_FR
+          encoding: UTF-8
+
+      - install-creme-system-packages
+      - install-py-dev-env
+      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
+      - run: cp ~/project/.circleci/sqlite3_settings.py creme/local_settings.py
+      - run: python creme/manage.py migrate
+      - run: python creme/manage.py creme_populate
+      - run: python creme/manage.py generatemedia
+      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
+      - run: coverage combine
+      - run: coverage html
+      - store_artifacts:
+          path: artifacts/coverage_html
+
+
+  python37-tests-sqlite3:
     docker:
       - image: circleci/python:3.7-browsers
     resource_class: large
@@ -182,7 +208,7 @@ jobs:
 
   lint-js:
     docker:
-     - image: circleci/python:3.7-node-browsers
+     - image: circleci/python:3.6-node-browsers
     steps:
       - checkout
       - install-node-env
@@ -194,7 +220,7 @@ jobs:
 
   tests-js:
     docker:
-     - image: circleci/python:3.7-node-browsers
+     - image: circleci/python:3.6-node-browsers
     steps:
       - checkout
       - install-creme-system-packages
@@ -217,17 +243,18 @@ workflows:
           requires:
            - lint-js
 
-      - lint-isort
-      - lint-flake8
-      - tests-sqlite3:
+      - python36-lint-isort
+      - python36-lint-flake8
+      - python36-tests-sqlite3:
           requires:
-            - lint-isort
-            - lint-flake8
-      - tests-mysql:
+            - python36-lint-isort
+            - python36-lint-flake8
+      - python36-tests-mysql:
           requires:
-            - lint-isort
-            - lint-flake8
-      - tests-pgsql:
+            - python36-lint-isort
+            - python36-lint-flake8
+      - python36-tests-pgsql:
           requires:
-            - lint-isort
-            - lint-flake8
+            - python36-lint-isort
+            - python36-lint-flake8
+      - python37-tests-sqlite3
