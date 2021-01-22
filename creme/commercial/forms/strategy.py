@@ -18,14 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.forms import CharField
 from django.forms.utils import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import (
-    CremeEntityForm,
+from creme.creme_core.forms import (  # CremeEntityForm
     CremeForm,
     CremeModelForm,
     FieldBlockManager,
@@ -34,7 +32,7 @@ from creme.creme_core.forms import (
 from creme.creme_core.models import CremePropertyType
 from creme.persons import get_organisation_model
 
-from .. import get_strategy_model
+# from .. import get_strategy_model
 from ..models import (
     CommercialAsset,
     MarketSegment,
@@ -42,14 +40,13 @@ from ..models import (
     MarketSegmentDescription,
 )
 
-
-class StrategyForm(CremeEntityForm):
-    class Meta(CremeEntityForm.Meta):
-        model = get_strategy_model()
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('StrategyForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# class StrategyForm(CremeEntityForm):
+#     class Meta(CremeEntityForm.Meta):
+#         model = get_strategy_model()
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('StrategyForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
 
 class _AuxForm(CremeModelForm):
