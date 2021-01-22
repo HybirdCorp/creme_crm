@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.forms import ChoiceField
 from django.utils.translation import gettext
@@ -26,7 +26,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 
-from .. import get_template_base_model
+# from .. import get_template_base_model
 from . import base
 
 
@@ -77,54 +77,54 @@ class BaseTemplateCreationCustomForm(base.BaseCustomForm):
         return super().save(*args, **kwargs)
 
 
-class _TemplateBaseForm(base.BaseEditForm):
-    status = ChoiceField(label=_('Status'), choices=())
-
-    class Meta(base.BaseEditForm.Meta):
-        model = get_template_base_model()
-        help_texts = {
-            'number': _(
-                'If a number is given, it will be only used as fallback value '
-                'when generating a number in the final recurring entities.'
-            ),
-        }
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('_TemplateBaseForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
-
-    def _build_status_field(self, billing_ct):
-        meta = billing_ct.model_class()._meta
-        status_field = self.fields['status']
-
-        status_field.label = gettext('Status of {}').format(meta.verbose_name)
-        status_field.choices = [
-            (status.id, str(status))
-            for status in meta.get_field('status').remote_field.model.objects.all()
-        ]
-
-        return status_field
-
-    def save(self, *args, **kwargs):
-        self.instance.status_id = self.cleaned_data['status']
-        return super().save(*args, **kwargs)
-
-
-class TemplateBaseEditForm(_TemplateBaseForm):
-    def __init__(self, *args, **kwargs):
-        warnings.warn('TemplateBaseEditForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
-
-        instance = self.instance
-
-        status_field = self._build_status_field(instance.ct)
-        status_field.initial = instance.status_id
+# class _TemplateBaseForm(base.BaseEditForm):
+#     status = ChoiceField(label=_('Status'), choices=())
+#
+#     class Meta(base.BaseEditForm.Meta):
+#         model = get_template_base_model()
+#         help_texts = {
+#             'number': _(
+#                 'If a number is given, it will be only used as fallback value '
+#                 'when generating a number in the final recurring entities.'
+#             ),
+#         }
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('_TemplateBaseForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
+#
+#     def _build_status_field(self, billing_ct):
+#         meta = billing_ct.model_class()._meta
+#         status_field = self.fields['status']
+#
+#         status_field.label = gettext('Status of {}').format(meta.verbose_name)
+#         status_field.choices = [
+#             (status.id, str(status))
+#             for status in meta.get_field('status').remote_field.model.objects.all()
+#         ]
+#
+#         return status_field
+#
+#     def save(self, *args, **kwargs):
+#         self.instance.status_id = self.cleaned_data['status']
+#         return super().save(*args, **kwargs)
 
 
-class TemplateBaseCreateForm(_TemplateBaseForm):
-    def __init__(self, ct, *args, **kwargs):  # 'ct' arg => see RecurrentGeneratorWizard
-        super().__init__(*args, **kwargs)
-        warnings.warn('TemplateBaseCreateForm is deprecated.', DeprecationWarning)
-        self._build_status_field(ct)
-        self.instance.ct = ct
-        self.fields['source'].initial = base.first_managed_orga_id()
+# class TemplateBaseEditForm(_TemplateBaseForm):
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('TemplateBaseEditForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
+#
+#         instance = self.instance
+#
+#         status_field = self._build_status_field(instance.ct)
+#         status_field.initial = instance.status_id
+
+
+# class TemplateBaseCreateForm(_TemplateBaseForm):
+#     def __init__(self, ct, *args, **kwargs):  # 'ct' arg => see RecurrentGeneratorWizard
+#         super().__init__(*args, **kwargs)
+#         warnings.warn('TemplateBaseCreateForm is deprecated.', DeprecationWarning)
+#         self._build_status_field(ct)
+#         self.instance.ct = ct
+#         self.fields['source'].initial = base.first_managed_orga_id()

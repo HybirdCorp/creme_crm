@@ -105,7 +105,7 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertDictEqual(
             {
                 'status': 1,
-                'target': target,
+                # 'target': target,
                 self.TARGET_KEY: target,
             },
             form.initial,

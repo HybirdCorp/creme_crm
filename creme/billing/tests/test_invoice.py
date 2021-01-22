@@ -90,9 +90,9 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(source, gotten_source)
         self.assertEqual(target, gotten_target)
 
-        # DEPRECATED
-        self.assertEqual(source, invoice.get_source().get_real_entity())
-        self.assertEqual(target, invoice.get_target().get_real_entity())
+        # # DEPRECATED
+        # self.assertEqual(source, invoice.get_source().get_real_entity())
+        # self.assertEqual(target, invoice.get_target().get_real_entity())
 
     def test_source_n_target02(self):
         "Errors at creation."
@@ -414,7 +414,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertDictEqual(
             {
                 'status': 1,
-                'target': target,  # deprecated
+                # 'target': target,  # deprecated
                 self.TARGET_KEY: target,
             },
             form.initial,
