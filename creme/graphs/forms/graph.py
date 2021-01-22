@@ -18,25 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm, CremeForm
+# from .. import get_graph_model
+from creme.creme_core.forms import CremeForm  # CremeEntityForm
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import RelationType
 
-from .. import get_graph_model
-
-
-class GraphForm(CremeEntityForm):
-    class Meta(CremeEntityForm.Meta):
-        model = get_graph_model()
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('GraphForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# class GraphForm(CremeEntityForm):
+#     class Meta(CremeEntityForm.Meta):
+#         model = get_graph_model()
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('GraphForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
 
 class AddRelationTypesForm(CremeForm):
