@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.db.models.query import Q
 from django.utils.translation import gettext_lazy as _
 
 from creme import emails
-from creme.creme_core.forms import (
-    CremeEntityForm,
+from creme.creme_core.forms import (  # CremeEntityForm
     CremeForm,
     FieldBlockManager,
     MultiCreatorEntityField,
@@ -34,23 +32,23 @@ from creme.creme_core.forms import (
 EmailCampaign = emails.get_emailcampaign_model()
 
 
-class CampaignCreateForm(CremeEntityForm):
-    class Meta(CremeEntityForm.Meta):
-        model = EmailCampaign
+# class CampaignCreateForm(CremeEntityForm):
+#     class Meta(CremeEntityForm.Meta):
+#         model = EmailCampaign
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('CampaignCreateForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-        warnings.warn('CampaignCreateForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
 
-
-class CampaignEditForm(CremeEntityForm):
-    class Meta(CremeEntityForm.Meta):
-        model   = EmailCampaign
-        exclude = (*CremeEntityForm.Meta.exclude, 'mailing_lists')
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('CampaignEditForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# class CampaignEditForm(CremeEntityForm):
+#     class Meta(CremeEntityForm.Meta):
+#         model   = EmailCampaign
+#         exclude = (*CremeEntityForm.Meta.exclude, 'mailing_lists')
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('CampaignEditForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
 
 class CampaignAddMLForm(CremeForm):

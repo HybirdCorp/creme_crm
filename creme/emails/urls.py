@@ -332,8 +332,8 @@ if apps.is_installed('creme.crudity'):
             name='emails__crudity_sync',
         ),
 
-        # DEPRECATED
-        re_path(r'^mail/spam[/]?$',      crudity.spam,      name='emails__crudity_spam'),
-        re_path(r'^mail/validated[/]?$', crudity.validated, name='emails__crudity_validated'),
-        re_path(r'^mail/waiting[/]?$',   crudity.waiting,   name='emails__crudity_waiting'),
+        # # DEPRECATED
+        # re_path(r'^mail/spam[/]?$',      crudity.spam,      name='emails__crudity_spam'),
+        # re_path(r'^mail/validated[/]?$', crudity.validated, name='emails__crudity_validated'),
+        # re_path(r'^mail/waiting[/]?$',   crudity.waiting,   name='emails__crudity_waiting'),
     ]
