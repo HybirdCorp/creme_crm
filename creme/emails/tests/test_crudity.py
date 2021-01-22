@@ -62,48 +62,48 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         'verbose_method': 'Create',
     }
 
-    def test_spam(self):  # DEPRECATED
-        emails = self._create_emails()
+    # def test_spam(self):  # DEPRECATED
+    #     emails = self._create_emails()
+    #
+    #     self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
+    #
+    #     url = reverse('emails__crudity_spam')
+    #     self.assertPOST200(url)
+    #     self.assertPOST200(url, data={'ids': [e.id for e in emails]})
+    #
+    #     refresh = self.refresh
+    #     self.assertListEqual(
+    #         [MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
+    #         [refresh(e).status for e in emails]
+    #     )
 
-        self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
+    # def test_validated(self):  # DEPRECATED
+    #     emails = self._create_emails()
+    #
+    #     self.assertPOST200(
+    #         reverse('emails__crudity_validated'),
+    #         data={'ids': [e.id for e in emails]},
+    #     )
+    #
+    #     refresh = self.refresh
+    #     self.assertListEqual(
+    #         [MAIL_STATUS_SYNCHRONIZED] * 4,
+    #         [refresh(e).status for e in emails]
+    #     )
 
-        url = reverse('emails__crudity_spam')
-        self.assertPOST200(url)
-        self.assertPOST200(url, data={'ids': [e.id for e in emails]})
-
-        refresh = self.refresh
-        self.assertListEqual(
-            [MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
-            [refresh(e).status for e in emails]
-        )
-
-    def test_validated(self):  # DEPRECATED
-        emails = self._create_emails()
-
-        self.assertPOST200(
-            reverse('emails__crudity_validated'),
-            data={'ids': [e.id for e in emails]},
-        )
-
-        refresh = self.refresh
-        self.assertListEqual(
-            [MAIL_STATUS_SYNCHRONIZED] * 4,
-            [refresh(e).status for e in emails]
-        )
-
-    def test_waiting(self):  # DEPRECATED
-        emails = self._create_emails()
-
-        self.assertPOST200(
-            reverse('emails__crudity_waiting'),
-            data={'ids': [e.id for e in emails]},
-        )
-
-        refresh = self.refresh
-        self.assertListEqual(
-            [MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
-            [refresh(e).status for e in emails]
-        )
+    # def test_waiting(self):  # DEPRECATED
+    #     emails = self._create_emails()
+    #
+    #     self.assertPOST200(
+    #         reverse('emails__crudity_waiting'),
+    #         data={'ids': [e.id for e in emails]},
+    #     )
+    #
+    #     refresh = self.refresh
+    #     self.assertListEqual(
+    #         [MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
+    #         [refresh(e).status for e in emails]
+    #     )
 
     def test_set_status01(self):
         "Validated."
