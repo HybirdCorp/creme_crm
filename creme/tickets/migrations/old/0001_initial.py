@@ -10,8 +10,9 @@ from creme.creme_core.models import fields as creme_fields
 class Migration(migrations.Migration):
     # replaces = [
     #     ('tickets', '0001_initial'),
-    #     ('tickets', '0008_v2_2__status_is_closed01'),
-    #     ('tickets', '0009_v2_2__status_is_closed02'),
+    #     ('tickets', '0005_v2_1__move_description_to_entity_1'),
+    #     ('tickets', '0006_v2_1__move_description_to_entity_2'),
+    #     ('tickets', '0007_v2_1__move_description_to_entity_3'),
     # ]
 
     initial = True
@@ -55,17 +56,6 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
                 ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
-                (
-                    'is_closed',
-                    models.BooleanField(
-                        default=False,
-                        verbose_name='Is a "closed" status?',
-                        help_text=(
-                            'If you set as closed, existing tickets which use this status will '
-                            'not be updated automatically (ie: closing dates will not be set).'
-                        ),
-                    )
-                ),
             ],
             options={
                 'ordering': ('order',),
@@ -75,37 +65,26 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='TicketNumber',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-            ],
+                name='TicketNumber',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ],
         ),
         migrations.CreateModel(
             name='Ticket',
             fields=[
-                (
-                    'cremeentity_ptr',
-                    models.OneToOneField(
-                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                        to='creme_core.CremeEntity', on_delete=CASCADE,
-                    )
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
                 ),
                 ('number', models.PositiveIntegerField(verbose_name='Number', unique=True, editable=False)),
                 ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
+                # ('description', models.TextField(verbose_name='Description')),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
                 ('closing_date', models.DateTimeField(verbose_name='Closing date', null=True, editable=False, blank=True)),
-                (
-                    'criticity',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')
-                ),
-                (
-                    'priority',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Priority', to='tickets.Priority')
-                ),
-                (
-                    'status',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='tickets.Status')
-                ),
+                ('criticity', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')),
+                ('priority', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Priority', to='tickets.Priority')),
+                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='tickets.Status')),
             ],
             options={
                 'swappable': 'TICKETS_TICKET_MODEL',
@@ -118,27 +97,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TicketTemplate',
             fields=[
-                (
-                    'cremeentity_ptr',
-                    models.OneToOneField(
-                        parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                        to='creme_core.CremeEntity', on_delete=CASCADE,
-                    )
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
+                # ('description', models.TextField(verbose_name='Description')),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
-                (
-                    'criticity',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')
-                ),
-                (
-                    'priority',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Priority', to='tickets.Priority')
-                ),
-                (
-                    'status',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='tickets.Status')
-                ),
+                ('criticity', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')),
+                ('priority', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Priority', to='tickets.Priority')),
+                ('status', models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Status', to='tickets.Status')),
             ],
             options={
                 'swappable': 'TICKETS_TEMPLATE_MODEL',
