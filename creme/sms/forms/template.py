@@ -18,25 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from creme.creme_core.forms import CremeEntityForm
-
-from .. import get_messagetemplate_model
-
-MessageTemplate = get_messagetemplate_model()
-
-
-class TemplateCreateForm(CremeEntityForm):
-    class Meta(CremeEntityForm.Meta):
-        model = MessageTemplate
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('TemplateCreateForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
-
-
-class TemplateEditForm(TemplateCreateForm):
-    def __init__(self, *args, **kwargs):
-        warnings.warn('TemplateEditForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# import warnings
+#
+# from creme.creme_core.forms import CremeEntityForm
+#
+# from .. import get_messagetemplate_model
+#
+# MessageTemplate = get_messagetemplate_model()
+#
+#
+# class TemplateCreateForm(CremeEntityForm):
+#     class Meta(CremeEntityForm.Meta):
+#         model = MessageTemplate
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('TemplateCreateForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
+#
+#
+# class TemplateEditForm(TemplateCreateForm):
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('TemplateEditForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)

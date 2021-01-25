@@ -18,15 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelChoiceField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.forms import (
-    CremeEntityForm,
+# from .. import get_messaginglist_model
+from creme.creme_core.forms import (  # CremeEntityForm
     CremeForm,
     FieldBlockManager,
 )
@@ -34,18 +33,15 @@ from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.models import EntityFilter
 from creme.persons import get_contact_model
 
-from .. import get_messaginglist_model
-
 Contact = get_contact_model()
 
-
-class MessagingListForm(CremeEntityForm):
-    class Meta(CremeEntityForm.Meta):
-        model = get_messaginglist_model()
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('MessagingListForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# class MessagingListForm(CremeEntityForm):
+#     class Meta(CremeEntityForm.Meta):
+#         model = get_messaginglist_model()
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('MessagingListForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
 
 class AddContactsForm(CremeForm):
