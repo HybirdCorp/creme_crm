@@ -375,9 +375,9 @@ class GuiTestCase(CremeTestCase):
         "Registration."
         registry = QuickFormsRegistry()
 
-        self.assertFalse([*registry.iter_models()])
+        # self.assertFalse([*registry.iter_models()])
         self.assertFalse([*registry.models])
-        self.assertIsNone(registry.get_form(FakeContact))
+        # self.assertIsNone(registry.get_form(FakeContact))
         self.assertIsNone(registry.get_form_class(FakeContact))
 
         registry.register(
@@ -385,15 +385,15 @@ class GuiTestCase(CremeTestCase):
         ).register(
             FakeOrganisation, FakeOrganisationQuickForm,
         )
-        self.assertIs(FakeContactQuickForm,      registry.get_form(FakeContact))
-        self.assertIs(FakeOrganisationQuickForm, registry.get_form(FakeOrganisation))
+        # self.assertIs(FakeContactQuickForm,      registry.get_form(FakeContact))
+        # self.assertIs(FakeOrganisationQuickForm, registry.get_form(FakeOrganisation))
         self.assertIs(FakeContactQuickForm,      registry.get_form_class(FakeContact))
         self.assertIs(FakeOrganisationQuickForm, registry.get_form_class(FakeOrganisation))
 
-        self.assertSetEqual(
-            {FakeContact, FakeOrganisation},
-            {*registry.iter_models()}
-        )
+        # self.assertSetEqual(
+        #     {FakeContact, FakeOrganisation},
+        #     {*registry.iter_models()}
+        # )
         self.assertSetEqual(
             {FakeContact, FakeOrganisation},
             {*registry.models}
@@ -428,7 +428,7 @@ class GuiTestCase(CremeTestCase):
         with self.assertNoException():
             registry.unregister(FakeContact)
 
-        self.assertIsNone(registry.get_form(FakeContact))
+        # self.assertIsNone(registry.get_form(FakeContact))
         self.assertIsNone(registry.get_form_class(FakeContact))
 
     @skipIfNotInstalled('creme.persons')

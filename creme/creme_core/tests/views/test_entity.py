@@ -214,7 +214,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             model=FakeOrganisation._meta.verbose_name,
         )
         self.assertEqual(
-            # entity01.name,
             entity01_msg,
             dep_2_str(dependencies=[entity01], user=user)
         )
@@ -225,7 +224,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             model=FakeOrganisation._meta.verbose_name,
         )
         self.assertEqual(
-            # f'{entity01.name}, {entity02.name}',
             f'{entity01_msg}, {entity02_msg}',
             dep_2_str(dependencies=[entity01, entity02], user=user)
         )
@@ -233,7 +231,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity03 = create_orga(user=self.other_user, name='Acme#1')
         self.assertEqual(
             ', '.join([
-                # entity01.name, entity02.name,
                 entity01_msg, entity02_msg,
                 ngettext(
                     '{count} not viewable entity',
@@ -247,7 +244,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity04 = create_orga(user=self.other_user, name='Acme#2')
         self.assertEqual(
             ', '.join([
-                # entity01.name, entity02.name,
                 entity01_msg, entity02_msg,
                 ngettext(
                     '{count} not viewable entity',
@@ -281,7 +277,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         TestMixin.dependencies_limit = 2
         self.assertEqual(
-            # f'{entity01.name}, {entity02.name}…',
             f'{entity01_msg}, {entity02_msg}…',
             dep_2_str(dependencies=[entity01, entity03, entity02], user=user),
         )

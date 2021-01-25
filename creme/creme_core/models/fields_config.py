@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from functools import partial
 from json import loads as json_load
 from typing import (
@@ -217,14 +217,14 @@ class FieldsConfig(CremeModel):
 
         return errors, safe_descriptions
 
-    @classmethod
-    def create(cls, model, descriptions=()):
-        warnings.warn('FieldsConfig.create() is deprecated ; '
-                      'use FieldsConfig.objects.create() instead.',
-                      DeprecationWarning
-                     )
-
-        return cls.objects.create(content_type=model, descriptions=descriptions)
+    # @classmethod
+    # def create(cls, model, descriptions=()):
+    #     warnings.warn('FieldsConfig.create() is deprecated ; '
+    #                   'use FieldsConfig.objects.create() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return cls.objects.create(content_type=model, descriptions=descriptions)
 
     @property
     def descriptions(self) -> FieldsDescriptions:
@@ -288,60 +288,59 @@ class FieldsConfig(CremeModel):
 
         return excluded
 
-    @classmethod
-    def field_enumerator(cls, model):
-        warnings.warn('FieldsConfig.field_enumerator() is deprecated ; '
-                      'use FieldsConfig.objects.field_enumerator() instead.',
-                      DeprecationWarning
-                     )
+    # @classmethod
+    # def field_enumerator(cls, model):
+    #     warnings.warn('FieldsConfig.field_enumerator() is deprecated ; '
+    #                   'use FieldsConfig.objects.field_enumerator() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return cls.objects.field_enumerator(model)
 
-        return cls.objects.field_enumerator(model)
+    # @classmethod
+    # def filter_cells(cls,
+    #                  model: Type['Model'],
+    #                  cells):
+    #     """Yields not hidden cells.
+    #     @param model: Class inheriting django.db.models.Model.
+    #     @param cells: Iterable of EntityCell instances.
+    #     @yield EntityCell instances.
+    #     """
+    #     warnings.warn(
+    #         'FieldsConfig.filter_cells() is deprecated ; '
+    #         'use EntityCell.is_excluded instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     from ..core.entity_cell import EntityCellRegularField
+    #
+    #     fconfigs = cls.LocalCache()
+    #
+    #     for cell in cells:
+    #         if (
+    #             not isinstance(cell, EntityCellRegularField)
+    #             or
+    #             not fconfigs.is_fieldinfo_hidden(cell.field_info)
+    #         ):
+    #             yield cell
 
-    @classmethod
-    def filter_cells(cls,
-                     model: Type['Model'],
-                     cells):
-        """Yields not hidden cells.
-        @param model: Class inheriting django.db.models.Model.
-        @param cells: Iterable of EntityCell instances.
-        @yield EntityCell instances.
-        """
-        warnings.warn(
-            'FieldsConfig.filter_cells() is deprecated ; '
-            'use EntityCell.is_excluded instead.',
-            DeprecationWarning
-        )
+    # @classmethod
+    # def get_4_model(cls, model):
+    #     warnings.warn('FieldsConfig.get_4_model() is deprecated ; '
+    #                   'use FieldsConfig.objects.get_for_model() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return cls.objects.get_for_model(model)
 
-        from ..core.entity_cell import EntityCellRegularField
-
-        fconfigs = cls.LocalCache()
-
-        for cell in cells:
-            if (
-                not isinstance(cell, EntityCellRegularField)
-                or
-                # not fconfigs.is_fieldinfo_hidden(model, cell.field_info)
-                not fconfigs.is_fieldinfo_hidden(cell.field_info)
-            ):
-                yield cell
-
-    @classmethod
-    def get_4_model(cls, model):
-        warnings.warn('FieldsConfig.get_4_model() is deprecated ; '
-                      'use FieldsConfig.objects.get_for_model() instead.',
-                      DeprecationWarning
-                     )
-
-        return cls.objects.get_for_model(model)
-
-    @classmethod
-    def get_4_models(cls, models):
-        warnings.warn('FieldsConfig.get_4_models() is deprecated ; '
-                      'use FieldsConfig.objects.get_for_models() instead.',
-                      DeprecationWarning
-                     )
-
-        return cls.objects.get_for_models(models)
+    # @classmethod
+    # def get_4_models(cls, models):
+    #     warnings.warn('FieldsConfig.get_4_models() is deprecated ; '
+    #                   'use FieldsConfig.objects.get_for_models() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return cls.objects.get_for_models(models)
 
     @property
     def hidden_fields(self) -> Iterator['Field']:
@@ -362,14 +361,14 @@ class FieldsConfig(CremeModel):
 
         return self.is_field_hidden(field)
 
-    @classmethod
-    def is_model_valid(cls, model):
-        warnings.warn('FieldsConfig.is_model_valid() is deprecated ; '
-                      'use FieldsConfig.objects.is_model_valid() instead.',
-                      DeprecationWarning
-                     )
-
-        return cls.objects.is_model_valid(model)
+    # @classmethod
+    # def is_model_valid(cls, model):
+    #     warnings.warn('FieldsConfig.is_model_valid() is deprecated ; '
+    #                   'use FieldsConfig.objects.is_model_valid() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return cls.objects.is_model_valid(model)
 
     def save(self, *args, **kwargs):
         if not type(self).objects.is_model_valid(self.content_type.model_class()):

@@ -30,9 +30,9 @@ class ContentTypeTestCase(CremeTestCase):
 
         self.assertNotIn(get_ct(FakeSector), ctypes)
 
-        # DEPRECATED:
-        from creme.creme_core import utils
-        self.assertListEqual(ctypes, [*utils.creme_entity_content_types()])
+        # # DEPRECATED:
+        # from creme.creme_core import utils
+        # self.assertListEqual(ctypes, [*utils.creme_entity_content_types()])
 
     def test_get_ctype_or_404(self):
         get_ct = ContentType.objects.get_for_model
@@ -59,11 +59,11 @@ class ContentTypeTestCase(CremeTestCase):
         with self.assertRaises(Http404):
             get_ctype_or_404('invalid')
 
-        # DEPRECATED:
-        from creme.creme_core import utils
-        with self.assertNoException():
-            ct2_depr = utils.get_ct_or_404(ctype2.id)
-        self.assertEqual(ct2, ct2_depr)
+        # # DEPRECATED:
+        # from creme.creme_core import utils
+        # with self.assertNoException():
+        #     ct2_depr = utils.get_ct_or_404(ctype2.id)
+        # self.assertEqual(ct2, ct2_depr)
 
     def test_ctype_choices(self):
         get_ct = ContentType.objects.get_for_model
@@ -84,8 +84,8 @@ class ContentTypeTestCase(CremeTestCase):
             choices=choices,
         )
 
-        # DEPRECATED:
-        from creme.creme_core import utils
-        with self.assertNoException():
-            choices_depr = utils.build_ct_choices([ctype1, ctype2])
-        self.assertEqual(choices, choices_depr)
+        # # DEPRECATED:
+        # from creme.creme_core import utils
+        # with self.assertNoException():
+        #     choices_depr = utils.build_ct_choices([ctype1, ctype2])
+        # self.assertEqual(choices, choices_depr)

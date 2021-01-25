@@ -19,7 +19,7 @@
 ################################################################################
 
 import uuid
-import warnings
+# import warnings
 from collections import OrderedDict, defaultdict
 from typing import Any, DefaultDict, Dict, Iterable, Type
 
@@ -116,22 +116,22 @@ class CustomField(CremeModel):
 
         super().delete(*args, **kwargs)
 
-    def type_verbose_name(self) -> str:
-        warnings.warn(
-            'CustomField.type_verbose_name() is deprecated.',
-            DeprecationWarning
-        )
+    # def type_verbose_name(self) -> str:
+    #     warnings.warn(
+    #         'CustomField.type_verbose_name() is deprecated.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     return self.value_class.verbose_name
 
-        return self.value_class.verbose_name
-
-    def get_value_class(self):
-        warnings.warn(
-            'CustomField.get_value_class() is deprecated ; '
-            'use the property "value_class" instead.',
-            DeprecationWarning
-        )
-
-        return self.value_class
+    # def get_value_class(self):
+    #     warnings.warn(
+    #         'CustomField.get_value_class() is deprecated ; '
+    #         'use the property "value_class" instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     return self.value_class
 
     @property
     def value_class(self) -> Type['CustomFieldValue']:
@@ -140,22 +140,22 @@ class CustomField(CremeModel):
     def get_formfield(self, custom_value, user=None):
         return self.value_class.get_formfield(self, custom_value, user=user)
 
-    def get_pretty_value(self, entity_id):
-        """Return string object containing the human readable value of this
-        custom field for an entity.
-        It manages CustomField which type is ENUM.
-        """
-        warnings.warn(
-            'CustomField.get_pretty_value() is deprecated.',
-            DeprecationWarning,
-        )
-
-        cf_values = self.value_class.objects.filter(
-            custom_field=self.id,
-            entity=entity_id,
-        )
-
-        return str(cf_values[0]) if cf_values else ''
+    # def get_pretty_value(self, entity_id):
+    #     """Return string object containing the human readable value of this
+    #     custom field for an entity.
+    #     It manages CustomField which type is ENUM.
+    #     """
+    #     warnings.warn(
+    #         'CustomField.get_pretty_value() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     cf_values = self.value_class.objects.filter(
+    #         custom_field=self.id,
+    #         entity=entity_id,
+    #     )
+    #
+    #     return str(cf_values[0]) if cf_values else ''
 
     @staticmethod
     def get_custom_values_map(
@@ -201,22 +201,22 @@ class CustomFieldValue(CremeModel):
     def get_related_name(cls):
         return cls.__name__.lower()
 
-    @staticmethod
-    def delete_all(entity):
-        warnings.warn(
-            'CustomFieldValue.delete_all() is deprecated.',
-            DeprecationWarning,
-        )
-
-        cf_types = {
-            *CustomField.objects
-                        .filter(content_type=entity.entity_type_id)
-                        .values_list('field_type', flat=True)
-        }
-
-        for cf_type in cf_types:
-            for cvalue in _TABLES[cf_type].objects.filter(entity=entity):
-                cvalue.delete()
+    # @staticmethod
+    # def delete_all(entity):
+    #     warnings.warn(
+    #         'CustomFieldValue.delete_all() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     cf_types = {
+    #         *CustomField.objects
+    #                     .filter(content_type=entity.entity_type_id)
+    #                     .values_list('field_type', flat=True)
+    #     }
+    #
+    #     for cf_type in cf_types:
+    #         for cvalue in _TABLES[cf_type].objects.filter(entity=entity):
+    #             cvalue.delete()
 
     @staticmethod
     def _build_formfield(custom_field, formfield, user=None):

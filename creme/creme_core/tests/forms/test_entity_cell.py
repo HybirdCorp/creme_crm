@@ -3,8 +3,7 @@
 from copy import deepcopy
 from functools import partial
 
-from django.contrib.contenttypes.models import ContentType
-
+# from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellFunctionField,
@@ -179,7 +178,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         )
 
     def test_regularfields03(self):
-        # "Property <content_type>."
         "Property <model>."
         field = EntityCellsField()
         self.assertIs(field.model,        CremeEntity)
@@ -649,12 +647,12 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         self.assertCellInChoices(orga_value, choices=choices1)
         self.assertCellNotInChoices(orga_value, choices=choices2)
 
-    def test_content_type(self):  # DEPRECATED
-        field = EntityCellsField()
-        self.assertIs(field.content_type.model_class(), CremeEntity)
-        self.assertIs(field.widget.model, CremeEntity)
-
-        ct = ContentType.objects.get_for_model(FakeContact)
-        field.content_type = ct
-        self.assertEqual(ct, field.content_type)
-        self.assertEqual(FakeContact, field.model)
+    # def test_content_type(self):  # DEPRECATED
+    #     field = EntityCellsField()
+    #     self.assertIs(field.content_type.model_class(), CremeEntity)
+    #     self.assertIs(field.widget.model, CremeEntity)
+    #
+    #     ct = ContentType.objects.get_for_model(FakeContact)
+    #     field.content_type = ct
+    #     self.assertEqual(ct, field.content_type)
+    #     self.assertEqual(FakeContact, field.model)

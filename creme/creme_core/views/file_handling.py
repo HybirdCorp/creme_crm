@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,19 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import os
-import warnings
+# import os
+# import warnings
 from os.path import basename, join
 from random import randint
 from typing import List, Optional
 
+# from django.utils.translation import gettext as _
 from django.conf import settings
 from django.core.files.base import File
-from django.http import FileResponse, Http404, HttpResponse
+from django.http import FileResponse, Http404  # HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext as _
 
-from ..auth.decorators import login_required
+# from ..auth.decorators import login_required
 from ..core.download import (
     DownLoadableFileField,
     FileFieldDownLoadRegistry,
@@ -93,37 +93,37 @@ def handle_uploaded_file(f: File,
     return join(relative_dir_path, basename(final_path))
 
 
-@login_required
-def download_file(request, location):
-    from mimetypes import guess_type
-
-    warnings.warn(
-        'The view download_file() is deprecated ; '
-        'use the class based-view RegisteredFileFieldDownloadView instead.',
-        DeprecationWarning
-    )
-
-    name_parts = location.replace('\\', '/').rpartition('/')[2].split('.')
-
-    if len(name_parts) == 1:  # Should not happen
-        ftype = 'text/plain'
-        name = name_parts[0]
-    else:
-        name = '.'.join(name_parts)
-        ftype = guess_type(name)[0] or 'application/octet-stream'
-
-    path = settings.MEDIA_ROOT + os.sep + location.replace('../', '').replace('..\\', '')
-
-    try:
-        with open(path, 'rb') as f:
-            data = f.read()
-    except IOError as e:
-        raise Http404(_('Invalid file')) from e
-
-    response = HttpResponse(data, content_type=ftype)
-    response['Content-Disposition'] = 'attachment; filename={}'.format(name.replace(' ', '_'))
-
-    return response
+# @login_required
+# def download_file(request, location):
+#     from mimetypes import guess_type
+#
+#     warnings.warn(
+#         'The view download_file() is deprecated ; '
+#         'use the class based-view RegisteredFileFieldDownloadView instead.',
+#         DeprecationWarning
+#     )
+#
+#     name_parts = location.replace('\\', '/').rpartition('/')[2].split('.')
+#
+#     if len(name_parts) == 1:  # Should not happen
+#         ftype = 'text/plain'
+#         name = name_parts[0]
+#     else:
+#         name = '.'.join(name_parts)
+#         ftype = guess_type(name)[0] or 'application/octet-stream'
+#
+#     path = settings.MEDIA_ROOT + os.sep + location.replace('../', '').replace('..\\', '')
+#
+#     try:
+#         with open(path, 'rb') as f:
+#             data = f.read()
+#     except IOError as e:
+#         raise Http404(_('Invalid file')) from e
+#
+#     response = HttpResponse(data, content_type=ftype)
+#     response['Content-Disposition'] = 'attachment; filename={}'.format(name.replace(' ', '_'))
+#
+#     return response
 
 
 class RegisteredFileFieldDownloadView(base.ContentTypeRelatedMixin,

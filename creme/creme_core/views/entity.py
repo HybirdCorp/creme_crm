@@ -827,7 +827,6 @@ class EntityDeletionMixin:
             for dep in dependencies:
                 if isinstance(dep, CremeEntity):
                     if can_view(dep):
-                        # yield str(dep)
                         yield gettext('«{object}» ({model})').format(
                             object=dep, model=dep.entity_type,
                         )

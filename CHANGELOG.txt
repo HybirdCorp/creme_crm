@@ -6,6 +6,42 @@
     Breaking changes :
     ------------------
         # Deprecated stuffs which have been removed :
+            - In 'creme_core.models' :
+                - The method 'Relation._build_symmetric_relation()' has been removed.
+                - These methods of 'EntityFilter' have been removed : create(), get_latest_version(), get_for_user()
+                - These methods of 'HeaderFilter' have been removed : create(), get_for_user()
+                - These methods of 'FieldsConfig' have been removed :
+                  create(), field_enumerator(), filter_cells(), get_4_model(), get_4_models(), is_model_valid()
+                - These methods of 'CustomField' have been removed : get_pretty_value(), get_value_class(), type_verbose_name()
+                - The method 'CustomFieldValue.delete_all()' has been removed.
+                - The method 'ButtonMenuItem.create_if_needed()' has been removed.
+                - The property 'BrickHomeLocation.brick_verbose_name' has been removed.
+                - The property 'BrickMypageLocation.brick_verbose_name' has been removed.
+                - The method 'CustomBrickConfigItem.generate_id()' has been removed.
+                - The property 'InstanceBrickConfigItem.errors' has been removed.
+                - These methods of 'SearchConfigItem' have been removed : create_if_needed(), get_4_models()
+            - In 'backends._BackendRegistry' :
+                - The property 'backends' has been removed.
+                - The method 'get_backend()' has been removed.
+            - In 'gui' :
+                - In 'field_printers' :
+                    - The class 'M2MPrinter' has been removed.
+                    - These functions have been removed : print_decimal(), print_integer()
+                - These methods of 'quick_forms.QuickFormsRegistry' have been moved : iter_models(), get_form()
+            - In 'forms' :
+                - In 'fields', these classes  have been removed: AjaxChoiceField, AjaxMultipleChoiceField
+                - The property 'header_filter.EntityCellsField.content_type' has been removed.
+                - The class 'widgets.DependentSelect' has been removed.
+            - In 'views' :
+                - In 'bricks', these functions have been removed :
+                  build_context(), get_brick_ids_or_404(), render_detailview_brick(), render_home_brick(), bricks_render_info()
+                - The decorator 'decorators.POST_only' has been removed.
+                - The function 'file_handling.download_file()' has been removed.
+            - In 'utils', these functions have been removed :
+              creme_entity_content_types(), get_ct_or_404(), build_ct_choices(), entities2unicode(), related2unicode()
+            - These templatetags of 'creme_core_tags' have been removed: {% creme_media_url %}, {% hg_info %}
+            - The template file "creme/creme_core/templates/creme_core/generics/blockform/content.html" have been removed
+            - In JavaScript, the module 'creme.color' has been removed.
             - Apps :
                 * Creme_config :
                     - In 'forms' :
@@ -363,8 +399,9 @@
                 - The method 'enumerators.EntityFilterEnumerator.efilter_as_dict()' has been removed.
             - The function 'utils.queries.get_q_from_dict()' has been removed.
             - The templatetags "{% get_export_backends %}" & "{% get_import_backends %}" (from the lib "creme_core_tags")  have been removed.
-            - These template files in "creme_core/generics/blockform/"  have been removed :
-              add_wizard.html, add_wizard_popup.html, edit_wizard_popup.html, wizard_popup.html
+            - These template files have been removed :
+                - In "creme_core/generics/blockform/" : add_wizard.html, add_wizard_popup.html, edit_wizard_popup.html, wizard_popup.html
+                - creme_core/templatetags/widgets/list_instances.html
             - In JavaScript :
                 - The function 'creme.utils.appendInUrl()' has been removed.
                 - The method 'creme.lv_widget.selectedLines()' has been removed.
