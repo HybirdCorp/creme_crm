@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from typing import Iterable, Tuple, Type, Union
 
@@ -423,25 +423,25 @@ class Relation(CremeModel):
     def __str__(self):
         return f'«{self.subject_entity}» {self.type} «{self.object_entity}»'
 
-    def _build_symmetric_relation(self, update: bool):
-        warnings.warn(
-            'Relation._build_symmetric_relation() is deprecated.',
-            DeprecationWarning
-        )
-
-        if update:
-            sym_relation = self.symmetric_relation
-            assert sym_relation
-        else:
-            sym_relation = Relation(
-                user=self.user,
-                type=self.type.symmetric_type,
-                symmetric_relation=self,
-                subject_entity=self.object_entity,
-                object_entity=self.subject_entity,
-            )
-
-        return sym_relation
+    # def _build_symmetric_relation(self, update: bool):
+    #     warnings.warn(
+    #         'Relation._build_symmetric_relation() is deprecated.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     if update:
+    #         sym_relation = self.symmetric_relation
+    #         assert sym_relation
+    #     else:
+    #         sym_relation = Relation(
+    #             user=self.user,
+    #             type=self.type.symmetric_type,
+    #             symmetric_relation=self,
+    #             subject_entity=self.object_entity,
+    #             object_entity=self.subject_entity,
+    #         )
+    #
+    #     return sym_relation
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """See django.db.models.Model.save().

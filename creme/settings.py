@@ -667,7 +667,7 @@ CREME_CORE_JS = [
     'creme_core/js/lib/browser.js',
 
     'creme_core/js/creme.js',
-    'creme_core/js/color.js',
+    # 'creme_core/js/color.js',
     'creme_core/js/utils.js',
     'creme_core/js/forms.js',
     'creme_core/js/ajax.js',

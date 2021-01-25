@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from os.path import splitext
 from typing import Any, Callable, Iterator, Type
 
@@ -175,16 +175,16 @@ class FileFieldPrinterForHTML:
 print_file_html = print_image_html = FileFieldPrinterForHTML(registry=filefield_download_registry)
 
 
-def print_integer(entity: Model, fval, user, field: Field) -> str:
-    warnings.warn(
-        'The function creme_core.gui.field_printers.print_integer() is deprecated.',
-        DeprecationWarning
-    )
-
-    if field.choices:
-        fval = getattr(entity, f'get_{field.name}_display')()
-
-    return str(fval) if fval is not None else ''
+# def print_integer(entity: Model, fval, user, field: Field) -> str:
+#     warnings.warn(
+#         'The function creme_core.gui.field_printers.print_integer() is deprecated.',
+#         DeprecationWarning
+#     )
+#
+#     if field.choices:
+#         fval = getattr(entity, f'get_{field.name}_display')()
+#
+#     return str(fval) if fval is not None else ''
 
 
 def print_integer_html(entity: Model, fval, user, field: Field) -> str:
@@ -194,13 +194,13 @@ def print_integer_html(entity: Model, fval, user, field: Field) -> str:
     return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
 
 
-def print_decimal(entity: Model, fval, user, field: Field) -> str:
-    warnings.warn(
-        'The function creme_core.gui.field_printers.print_decimal() is deprecated.',
-        DeprecationWarning
-    )
-
-    return number_format(fval, use_l10n=True) if fval is not None else ''
+# def print_decimal(entity: Model, fval, user, field: Field) -> str:
+#     warnings.warn(
+#         'The function creme_core.gui.field_printers.print_decimal() is deprecated.',
+#         DeprecationWarning
+#     )
+#
+#     return number_format(fval, use_l10n=True) if fval is not None else ''
 
 
 def print_decimal_html(entity: Model, fval, user, field: Field) -> str:
@@ -378,26 +378,22 @@ class M2MPrinterForHTML(BaseM2MPrinter):
         return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
 
 
-class M2MPrinter(M2MPrinterForHTML):
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            'The class creme_core.gui.field_printers.M2MPrinter is deprecated ; '
-            'use M2MPrinterForHTML instead.',
-            DeprecationWarning
-        )
-        super().__init__(*args, **kwargs)
+# class M2MPrinter(M2MPrinterForHTML):
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn(
+#             'The class creme_core.gui.field_printers.M2MPrinter is deprecated ; '
+#             'use M2MPrinterForHTML instead.',
+#             DeprecationWarning
+#         )
+#         super().__init__(*args, **kwargs)
 
 
 print_many2many_html = M2MPrinterForHTML(
-    # default_printer=M2MPrinter.printer_html,
     default_printer=M2MPrinterForHTML.printer_html,
-    # default_enumerator=M2MPrinter.enumerator_all,
     default_enumerator=M2MPrinterForHTML.enumerator_all,
 ).register(
     CremeEntity,
-    # printer=M2MPrinter.printer_entity_html,
     printer=M2MPrinterForHTML.printer_entity_html,
-    # enumerator=M2MPrinter.enumerator_entity,
     enumerator=M2MPrinterForHTML.enumerator_entity,
 )
 

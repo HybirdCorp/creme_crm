@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from itertools import zip_longest
 from re import compile as compile_re
 from urllib.parse import urlencode, urlsplit
@@ -42,7 +42,7 @@ from ..models import CremeEntity, Relation
 from ..utils import bool_as_html
 from ..utils.currency_format import currency
 from ..utils.html import escapejson
-from ..utils.media import get_creme_media_url
+# from ..utils.media import get_creme_media_url
 from ..utils.serializers import json_encode
 from ..utils.translation import plural
 from ..utils.unicode_collation import collator
@@ -573,13 +573,13 @@ class HasPermToNode(TemplateNode):
 # TAG : "has_perm_to [end]------------------------------------------------------
 
 
-@register.simple_tag(takes_context=True)
-def creme_media_url(context, url):
-    warnings.warn('{% creme_media_url %} is deprecated ; '
-                  'use the icon system instead.',
-                  DeprecationWarning
-                 )
-    return get_creme_media_url(context.get('THEME_NAME') or settings.THEMES[0][0], url)
+# @register.simple_tag(takes_context=True)
+# def creme_media_url(context, url):
+#     warnings.warn('{% creme_media_url %} is deprecated ; '
+#                   'use the icon system instead.',
+#                   DeprecationWarning
+#                  )
+#     return get_creme_media_url(context.get('THEME_NAME') or settings.THEMES[0][0], url)
 
 
 @register.tag(name='include_creme_media')
@@ -605,15 +605,15 @@ class MediaNode(TemplateNode):
         return _render_include_media(context['THEME_NAME'] + bundle, variation={})
 
 
-@register.simple_tag(name='hg_info')
-def get_hg_info():
-    warnings.warn(
-        '{% hg_info %} is deprecated ; use {% scm_info %} instead.',
-        DeprecationWarning
-    )
-    from ..utils.version import get_hg_info
-
-    return get_hg_info
+# @register.simple_tag(name='hg_info')
+# def get_hg_info():
+#     warnings.warn(
+#         '{% hg_info %} is deprecated ; use {% scm_info %} instead.',
+#         DeprecationWarning
+#     )
+#     from ..utils.version import get_hg_info
+#
+#     return get_hg_info
 
 
 @register.simple_tag(name='scm_info')

@@ -176,6 +176,7 @@ QUnit.test('color.RGBColor.hsl', function(assert) {
     deepEqual({h: 0, s: 47, l: 39, b: 57}, new RGBColor(0x913434).hsl());
 });
 
+/*
 QUnit.test('creme.color (deprecated functions)', function(assert) {
     deepEqual({r: 0xaa, g: 0x73, b: 0xef}, creme.color.HEXtoRGB(0xaa73ef));
     equal(0.085, creme.color.luminance(0x91, 0x34, 0x34));
@@ -191,5 +192,6 @@ QUnit.test('creme.color (deprecated functions)', function(assert) {
         ['creme.color.maxContrastingColor is deprecated; Use new RGBColor({r:r, g:g, b:b}).foreground() instead']
     ], this.mockConsoleWarnCalls());
 });
+*/
 
 }(jQuery));

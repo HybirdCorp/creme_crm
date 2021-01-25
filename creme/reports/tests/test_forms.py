@@ -508,7 +508,7 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
 
         columns_f = form.fields['columns']
         self.assertIsInstance(columns_f, ReportHandsField)
-        self.assertEqual(self.ct_contact, columns_f.content_type)
+        # self.assertEqual(self.ct_contact, columns_f.content_type)
         self.assertEqual(FakeContact,     columns_f.model)
 
         cells = [
@@ -539,7 +539,7 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
         form = ReportFieldsForm(user=user, instance=report)
 
         columns_f = form.fields['columns']
-        self.assertEqual(self.ct_orga, columns_f.content_type)
+        # self.assertEqual(self.ct_orga, columns_f.content_type)
         self.assertEqual(FakeOrganisation, columns_f.model)
         self.assertEqual(
             [ReportEntityCellRegularAggregate.build(FakeOrganisation, agg_id)],

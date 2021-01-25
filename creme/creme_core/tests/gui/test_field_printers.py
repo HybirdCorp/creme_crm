@@ -21,9 +21,9 @@ from creme.creme_core.core.entity_filter import operators
 from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
+# from creme.creme_core.gui.field_printers import print_integer, print_decimal, M2MPrinter
 from creme.creme_core.gui.field_printers import (
     FKPrinter,
-    M2MPrinter,
     M2MPrinterForHTML,
     _FieldPrintersRegistry,
     print_boolean_csv,
@@ -31,7 +31,6 @@ from creme.creme_core.gui.field_printers import (
     print_choice,
     print_date,
     print_datetime,
-    print_decimal,
     print_decimal_csv,
     print_decimal_html,
     print_email_html,
@@ -39,7 +38,6 @@ from creme.creme_core.gui.field_printers import (
     print_foreignkey_csv,
     print_foreignkey_html,
     print_image_html,
-    print_integer,
     print_integer_html,
     print_many2many_csv,
     print_text_html,
@@ -132,34 +130,34 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_choice(line3, fval='whatever', user=user, field=field)
         )
 
-    def test_print_integer01(self):  # DEPRECATED
-        o = FakeOrganisation()
-        user = CremeUser()
-        field = o._meta.get_field('capital')
-        self.assertEqual(
-            '',
-            print_integer(o, fval=None, user=user, field=field)
-        )
-        self.assertEqual(
-            '1234',
-            print_integer(o, fval=1234, user=user, field=field)
-        )
+    # def test_print_integer01(self):  # DEPRECATED
+    #     o = FakeOrganisation()
+    #     user = CremeUser()
+    #     field = o._meta.get_field('capital')
+    #     self.assertEqual(
+    #         '',
+    #         print_integer(o, fval=None, user=user, field=field)
+    #     )
+    #     self.assertEqual(
+    #         '1234',
+    #         print_integer(o, fval=1234, user=user, field=field)
+    #     )
 
-    def test_print_integer02(self):  # DEPRECATED
-        "Choices."
-        l1 = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
-        user = CremeUser()
-        field = type(l1)._meta.get_field('discount_unit')
-        self.assertEqual(
-            _('Percent'),
-            print_integer(l1, fval=None, user=user, field=field)
-        )
-
-        l2 = FakeInvoiceLine(discount_unit=FAKE_AMOUNT_UNIT)
-        self.assertEqual(
-            _('Amount'),
-            print_integer(l2, fval=None, user=user, field=field)
-        )
+    # def test_print_integer02(self):  # DEPRECATED
+    #     "Choices."
+    #     l1 = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
+    #     user = CremeUser()
+    #     field = type(l1)._meta.get_field('discount_unit')
+    #     self.assertEqual(
+    #         _('Percent'),
+    #         print_integer(l1, fval=None, user=user, field=field)
+    #     )
+    #
+    #     l2 = FakeInvoiceLine(discount_unit=FAKE_AMOUNT_UNIT)
+    #     self.assertEqual(
+    #         _('Amount'),
+    #         print_integer(l2, fval=None, user=user, field=field)
+    #     )
 
     def _aux_print_integer_html01(self):
         o = FakeOrganisation()
@@ -184,20 +182,20 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_print_integer_html02(self):
         return self._aux_print_integer_html01()
 
-    def test_print_decimal(self):  # DEPRECATED
-        line = FakeInvoiceLine()
-        user = CremeUser()
-        field = line._meta.get_field('discount')
-        self.assertEqual(
-            '',
-            print_decimal(line, fval=None, user=user, field=field)
-        )
-
-        value = Decimal('1234.56')
-        self.assertEqual(
-            number_format(value, use_l10n=True),
-            print_decimal(line, fval=value, user=user, field=field)
-        )
+    # def test_print_decimal(self):  # DEPRECATED
+    #     line = FakeInvoiceLine()
+    #     user = CremeUser()
+    #     field = line._meta.get_field('discount')
+    #     self.assertEqual(
+    #         '',
+    #         print_decimal(line, fval=None, user=user, field=field)
+    #     )
+    #
+    #     value = Decimal('1234.56')
+    #     self.assertEqual(
+    #         number_format(value, use_l10n=True),
+    #         print_decimal(line, fval=value, user=user, field=field)
+    #     )
 
     def test_print_decimal_html(self):
         line = FakeInvoiceLine()
@@ -724,25 +722,25 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_foreignkey_csv(c, img, user, field)
         )
 
-    def test_m2m_printer(self):  # DEPRECATED
-        user = self.create_user()
-        img = FakeImage.objects.create(user=user, name='My img')
-        field = img._meta.get_field('categories')
-
-        printer = M2MPrinter(
-            default_printer=M2MPrinter.printer_html,
-            default_enumerator=M2MPrinter.enumerator_all,
-        )
-
-        self.assertEqual('', printer(img, img.categories, user, field))
-
-        img.categories.set([
-            FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')
-        ])
-        self.assertHTMLEqual(
-            '<ul><li>A</li><li>B</li><li>C</li></ul>',
-            printer(img, img.categories, user, field)
-        )
+    # def test_m2m_printer(self):  # DEPRECATED
+    #     user = self.create_user()
+    #     img = FakeImage.objects.create(user=user, name='My img')
+    #     field = img._meta.get_field('categories')
+    #
+    #     printer = M2MPrinter(
+    #         default_printer=M2MPrinter.printer_html,
+    #         default_enumerator=M2MPrinter.enumerator_all,
+    #     )
+    #
+    #     self.assertEqual('', printer(img, img.categories, user, field))
+    #
+    #     img.categories.set([
+    #         FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')
+    #     ])
+    #     self.assertHTMLEqual(
+    #         '<ul><li>A</li><li>B</li><li>C</li></ul>',
+    #         printer(img, img.categories, user, field)
+    #     )
 
     def test_many2many_printer_html01(self):
         user = self.create_user()
