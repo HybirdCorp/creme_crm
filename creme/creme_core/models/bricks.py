@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from functools import partial
 from json import loads as json_load
 from typing import (
@@ -299,16 +299,16 @@ class BrickHomeLocation(CremeModel):
             block=next(brick_registry.get_bricks((self.brick_id,))).verbose_name,
         )
 
-    @property
-    def brick_verbose_name(self):
-        warnings.warn(
-            'BrickHomeLocation.brick_verbose_name is deprecated.',
-            DeprecationWarning
-        )
-
-        from ..gui.bricks import brick_registry
-
-        return next(brick_registry.get_bricks((self.brick_id,))).verbose_name
+    # @property
+    # def brick_verbose_name(self):
+    #     warnings.warn(
+    #         'BrickHomeLocation.brick_verbose_name is deprecated.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     from ..gui.bricks import brick_registry
+    #
+    #     return next(brick_registry.get_bricks((self.brick_id,))).verbose_name
 
 
 class BrickMypageLocation(CremeModel):
@@ -348,16 +348,16 @@ class BrickMypageLocation(CremeModel):
                 for loc in cls.objects.filter(user=None):
                     create(user=instance, brick_id=loc.brick_id, order=loc.order)
 
-    @property
-    def brick_verbose_name(self):
-        warnings.warn(
-            'BrickMypageLocation.brick_verbose_name is deprecated.',
-            DeprecationWarning
-        )
-
-        from creme.creme_core.gui.bricks import brick_registry
-
-        return next(brick_registry.get_bricks((self.brick_id,))).verbose_name
+    # @property
+    # def brick_verbose_name(self):
+    #     warnings.warn(
+    #         'BrickMypageLocation.brick_verbose_name is deprecated.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     from creme.creme_core.gui.bricks import brick_registry
+    #
+    #     return next(brick_registry.get_bricks((self.brick_id,))).verbose_name
 
 
 post_save.connect(
@@ -659,16 +659,15 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
         return f'{self._brick_id_prefix}-{my_id}'
 
-    @property
-    def errors(self) -> Optional[List[str]]:
-        # return getattr(self.brick, 'errors', None)
-        warnings.warn(
-            'InstanceBrickConfigItem.errors() is deprecated; '
-            'use InstanceBrickConfigItem.brick.errors instead.',
-            DeprecationWarning
-        )
-
-        return self.brick.errors
+    # @property
+    # def errors(self) -> Optional[List[str]]:
+    #     warnings.warn(
+    #         'InstanceBrickConfigItem.errors() is deprecated; '
+    #         'use InstanceBrickConfigItem.brick.errors instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     return self.brick.errors
 
     # TODO ?
     # def del_extra_data(self, key: str) -> None:
@@ -739,7 +738,6 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     @atomic
     def delete(self, *args, **kwargs):
-        # brick_id = self.generate_id()
         brick_id = self.brick_id
         self.check_detail_configuration(brick_id)
 
@@ -747,13 +745,13 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
         super().delete(*args, **kwargs)
 
-    def generate_id(self) -> str:
-        warnings.warn(
-            'CustomBrickConfigItem.generate_id() is deprecated ; '
-            'use the property CustomBrickConfigItem.brick_id instead.'
-        )
-
-        return self.brick_id
+    # def generate_id(self) -> str:
+    #     warnings.warn(
+    #         'CustomBrickConfigItem.generate_id() is deprecated ; '
+    #         'use the property CustomBrickConfigItem.brick_id instead.'
+    #     )
+    #
+    #     return self.brick_id
 
     @staticmethod
     def id_from_brick_id(brick_id: str) -> Optional[str]:

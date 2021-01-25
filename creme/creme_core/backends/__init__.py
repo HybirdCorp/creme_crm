@@ -20,7 +20,7 @@
 
 # TODO: move to 'core/' ??
 
-import warnings
+# import warnings
 from typing import (
     Dict,
     Generic,
@@ -84,14 +84,14 @@ class _BackendRegistry(Generic[BackendBaseClass]):
 
         return self._backend_classes
 
-    @property
-    def backends(self):
-        warnings.warn(f'{type(self)}.backends is deprecated ; '
-                      f'use backend_classes instead.',
-                      DeprecationWarning
-                     )
-
-        return self.backend_classes
+    # @property
+    # def backends(self):
+    #     warnings.warn(f'{type(self)}.backends is deprecated ; '
+    #                   f'use backend_classes instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return self.backend_classes
 
     @property
     def backend_classes(self) -> Iterator[Type[BackendBaseClass]]:
@@ -101,13 +101,13 @@ class _BackendRegistry(Generic[BackendBaseClass]):
     def extensions(self) -> Iterator[str]:
         return iter(self._get_backend_classes().keys())
 
-    def get_backend(self, backend_id):
-        warnings.warn(f'{type(self)}.get_backend() is deprecated ; '
-                      f'use get_backend_class() instead.',
-                      DeprecationWarning
-                     )
-
-        return self.get_backend_class(backend_id)
+    # def get_backend(self, backend_id):
+    #     warnings.warn(f'{type(self)}.get_backend() is deprecated ; '
+    #                   f'use get_backend_class() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return self.get_backend_class(backend_id)
 
     def get_backend_class(self, backend_id: str) -> Optional[Type[BackendBaseClass]]:
         return self._get_backend_classes().get(backend_id)

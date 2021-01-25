@@ -38,33 +38,33 @@ class HeaderFiltersTestCase(CremeTestCase):
         cls.contact_ct = get_ct(FakeContact)  # TODO: used once ?!
         cls.orga_ct    = get_ct(FakeOrganisation)
 
-    def test_create(self):  # DEPRECATED
-        self.login()
-
-        name = 'Contact view'
-        pk   = 'tests-hf_contact'
-        hf   = HeaderFilter.create(pk=pk, name=name, model=FakeContact, is_custom=True)
-        self.assertEqual(pk,   hf.pk)
-        self.assertEqual(name, hf.name)
-        self.assertIsNone(hf.user)
-        self.assertEqual(self.contact_ct, hf.entity_type)
-        self.assertIs(hf.is_custom, True)
-        self.assertIs(hf.is_private, False)
-        self.assertEqual('[]', hf.json_cells)
-        self.assertFalse(hf.cells)
-
-        hf.cells = [EntityCellRegularField.build(model=FakeContact, name='first_name')]
-        hf.save()
-
-        hf = self.refresh(hf)
-        self.assertEqual(1, len(hf.cells))
-
-        with self.assertNoException():
-            deserialized = json_load(hf.json_cells)
-
-        self.assertEqual([{'type': 'regular_field', 'value': 'first_name'}],
-                         deserialized
-                        )
+    # def test_create(self):  # DEPRECATED
+    #     self.login()
+    #
+    #     name = 'Contact view'
+    #     pk   = 'tests-hf_contact'
+    #     hf   = HeaderFilter.create(pk=pk, name=name, model=FakeContact, is_custom=True)
+    #     self.assertEqual(pk,   hf.pk)
+    #     self.assertEqual(name, hf.name)
+    #     self.assertIsNone(hf.user)
+    #     self.assertEqual(self.contact_ct, hf.entity_type)
+    #     self.assertIs(hf.is_custom, True)
+    #     self.assertIs(hf.is_private, False)
+    #     self.assertEqual('[]', hf.json_cells)
+    #     self.assertFalse(hf.cells)
+    #
+    #     hf.cells = [EntityCellRegularField.build(model=FakeContact, name='first_name')]
+    #     hf.save()
+    #
+    #     hf = self.refresh(hf)
+    #     self.assertEqual(1, len(hf.cells))
+    #
+    #     with self.assertNoException():
+    #         deserialized = json_load(hf.json_cells)
+    #
+    #     self.assertEqual([{'type': 'regular_field', 'value': 'first_name'}],
+    #                      deserialized
+    #                     )
 
     def test_manager_create_if_needed01(self):
         self.login()

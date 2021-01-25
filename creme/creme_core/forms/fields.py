@@ -34,7 +34,7 @@ from django.forms import ValidationError, fields
 from django.forms import models as mforms
 from django.forms import widgets
 from django.urls import reverse
-from django.utils.encoding import smart_text
+# from django.utils.encoding import smart_text
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -60,7 +60,8 @@ __all__ = (
     'FilteredEntityTypeField',
     'OptionalField', 'OptionalChoiceField', 'OptionalModelChoiceField',
     'ListEditionField',
-    'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
+    # 'AjaxChoiceField', 'AjaxMultipleChoiceField',
+    'AjaxModelChoiceField',
     'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
     'ChoiceOrCharField',
     'CTypeChoiceField', 'EntityCTypeChoiceField',
@@ -1312,52 +1313,52 @@ class ListEditionField(fields.Field):
         self.widget.only_delete = only_delete
 
 
-class AjaxChoiceField(fields.ChoiceField):
-    """
-        Same as ChoiceField but bypass the choices validation due to the ajax filling
-    """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        warnings.warn('creme_core.forms.fields.AjaxChoiceField is deprecated',
-                      DeprecationWarning
-                     )
+# class AjaxChoiceField(fields.ChoiceField):
+#     """
+#         Same as ChoiceField but bypass the choices validation due to the ajax filling
+#     """
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#         warnings.warn('creme_core.forms.fields.AjaxChoiceField is deprecated',
+#                       DeprecationWarning
+#                      )
+#
+#     def clean(self, value):
+#         if value in self.empty_values:
+#             if self.required:
+#                 raise ValidationError(self.error_messages['required'], code='required')
+#
+#             value = ''
+#
+#         return smart_text(value)
 
-    def clean(self, value):
-        if value in self.empty_values:
-            if self.required:
-                raise ValidationError(self.error_messages['required'], code='required')
 
-            value = ''
-
-        return smart_text(value)
-
-
-class AjaxMultipleChoiceField(fields.MultipleChoiceField):
-    """
-        Same as MultipleChoiceField but bypass the choices validation due to the ajax filling
-    """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        warnings.warn('creme_core.forms.fields.AjaxMultipleChoiceField is deprecated',
-                      DeprecationWarning
-                     )
-
-    def clean(self, value):
-        """
-        Validates that the input is a list or tuple.
-        """
-        not_value = not value
-        if self.required and not_value:
-            raise ValidationError(self.error_messages['required'], code='required')
-        elif not self.required and not_value:
-            return []
-
-        if not isinstance(value, (list, tuple)):
-            raise ValidationError(self.error_messages['invalid_list'],
-                                  code='invalid_list',
-                                 )
-
-        return [smart_text(val) for val in value]
+# class AjaxMultipleChoiceField(fields.MultipleChoiceField):
+#     """
+#         Same as MultipleChoiceField but bypass the choices validation due to the ajax filling
+#     """
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#         warnings.warn('creme_core.forms.fields.AjaxMultipleChoiceField is deprecated',
+#                       DeprecationWarning
+#                      )
+#
+#     def clean(self, value):
+#         """
+#         Validates that the input is a list or tuple.
+#         """
+#         not_value = not value
+#         if self.required and not_value:
+#             raise ValidationError(self.error_messages['required'], code='required')
+#         elif not self.required and not_value:
+#             return []
+#
+#         if not isinstance(value, (list, tuple)):
+#             raise ValidationError(self.error_messages['invalid_list'],
+#                                   code='invalid_list',
+#                                  )
+#
+#         return [smart_text(val) for val in value]
 
 
 class AjaxModelChoiceField(mforms.ModelChoiceField):

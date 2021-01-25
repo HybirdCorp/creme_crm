@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from typing import (
     DefaultDict,
@@ -289,31 +289,31 @@ class SearchConfigItem(CremeModel):
         """
         return self._get_modelfields_choices(self.content_type.model_class())
 
-    @classmethod
-    def create_if_needed(cls, model, fields, role=None, disabled=False):
-        """Create a config item & its fields if one does not already exists.
-        @param fields: Sequence of strings representing field names.
-        @param role: UserRole instance; or 'superuser'; or None, for default configuration.
-        @param disabled: Boolean.
-        """
-        warnings.warn('SearchConfigItem.create_if_needed() is deprecated ; '
-                      'use SearchConfigItem.objects.create_if_needed() instead.',
-                      DeprecationWarning
-                     )
+    # @classmethod
+    # def create_if_needed(cls, model, fields, role=None, disabled=False):
+    #     """Create a config item & its fields if one does not already exists.
+    #     @param fields: Sequence of strings representing field names.
+    #     @param role: UserRole instance; or 'superuser'; or None, for default configuration.
+    #     @param disabled: Boolean.
+    #     """
+    #     warnings.warn('SearchConfigItem.create_if_needed() is deprecated ; '
+    #                   'use SearchConfigItem.objects.create_if_needed() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return cls.objects.create_if_needed(
+    #         model=model, fields=fields, role=role, disabled=disabled,
+    #     )
 
-        return cls.objects.create_if_needed(
-            model=model, fields=fields, role=role, disabled=disabled,
-        )
-
-    @classmethod
-    def get_4_models(cls, models, user):
-        "Get the SearchConfigItem instances corresponding to the given models (generator)."
-        warnings.warn('SearchConfigItem.get_4_models() is deprecated ; '
-                      'use SearchConfigItem.objects.iter_for_models() instead.',
-                      DeprecationWarning
-                     )
-
-        yield from cls.objects.iter_for_models(models, user)
+    # @classmethod
+    # def get_4_models(cls, models, user):
+    #     "Get the SearchConfigItem instances corresponding to the given models (generator)."
+    #     warnings.warn('SearchConfigItem.get_4_models() is deprecated ; '
+    #                   'use SearchConfigItem.objects.iter_for_models() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     yield from cls.objects.iter_for_models(models, user)
 
     def save(self, *args, **kwargs):
         if self.superuser and self.role_id:
