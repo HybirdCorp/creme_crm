@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
@@ -479,26 +479,26 @@ class EntityCellsField(Field):
         self._sub_fields[:] = sub_fields
         self.widget.sub_widgets = sub_widgets
 
-    @property
-    def content_type(self):
-        warnings.warn(
-            'The getter EntityCellsField.content_type is deprecated ; '
-            'use the property "models" instead',
-            DeprecationWarning
-        )
-
-        from django.contrib.contenttypes.models import ContentType
-
-        return ContentType.objects.get_for_model(self._model)
-
-    @content_type.setter
-    def content_type(self, ct):
-        warnings.warn(
-            'The setter EntityCellsField.content_type is deprecated ; '
-            'use the property "models" instead',
-            DeprecationWarning
-        )
-        self.model = ct.model_class()
+    # @property
+    # def content_type(self):
+    #     warnings.warn(
+    #         'The getter EntityCellsField.content_type is deprecated ; '
+    #         'use the property "models" instead',
+    #         DeprecationWarning
+    #     )
+    #
+    #     from django.contrib.contenttypes.models import ContentType
+    #
+    #     return ContentType.objects.get_for_model(self._model)
+    #
+    # @content_type.setter
+    # def content_type(self, ct):
+    #     warnings.warn(
+    #         'The setter EntityCellsField.content_type is deprecated ; '
+    #         'use the property "models" instead',
+    #         DeprecationWarning
+    #     )
+    #     self.model = ct.model_class()
 
     @property
     def model(self) -> Type[CremeEntity]:

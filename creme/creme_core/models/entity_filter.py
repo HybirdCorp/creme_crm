@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from itertools import zip_longest
 from json import loads as json_load
 from re import compile as compile_re
@@ -604,25 +604,25 @@ class EntityFilter(models.Model):  # CremeModel ???
         self._check_privacy_sub_filters(conditions, is_private, owner)
         self._check_privacy_parent_filters(is_private, owner)
 
-    @classmethod
-    def create(cls, pk, name, model, is_custom=False, user=None, use_or=False,
-               is_private=False, conditions=(),
-              ):
-        """Creation helper ; useful for populate.py scripts.
-        @param user: Can be None (ie: 'All users'), a User instance, or the string
-                     'admin', which means 'the first admin user'.
-        """
-        warnings.warn(
-            'EntityFilter.create() is deprecated ; '
-            'use EntityFilter.objects.smart_update_or_create() instead.',
-            DeprecationWarning
-        )
-
-        return cls.objects.smart_update_or_create(
-            pk=pk, name=name, model=model,
-            is_custom=is_custom, user=user,
-            use_or=use_or, is_private=is_private, conditions=conditions,
-        )
+    # @classmethod
+    # def create(cls, pk, name, model, is_custom=False, user=None, use_or=False,
+    #            is_private=False, conditions=(),
+    #           ):
+    #     """Creation helper ; useful for populate.py scripts.
+    #     @param user: Can be None (ie: 'All users'), a User instance, or the string
+    #                  'admin', which means 'the first admin user'.
+    #     """
+    #     warnings.warn(
+    #         'EntityFilter.create() is deprecated ; '
+    #         'use EntityFilter.objects.smart_update_or_create() instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     return cls.objects.smart_update_or_create(
+    #         pk=pk, name=name, model=model,
+    #         is_custom=is_custom, user=user,
+    #         use_or=use_or, is_private=is_private, conditions=conditions,
+    #     )
 
     def delete(self, check_orphan=True, *args, **kwargs):
         if check_orphan:
@@ -710,38 +710,39 @@ class EntityFilter(models.Model):  # CremeModel ???
     def get_edit_absolute_url(self):
         return reverse('creme_core__edit_efilter', args=(self.id,))
 
-    @classmethod
-    def get_for_user(cls, user, content_type=None):
-        """Get the EntityFilter queryset corresponding of filters which a user can see.
-        @param user: A User instance.
-        @param content_type: None (means 'for all ContentTypes').
-               A ContentType instance (means 'filters related to this CT').
-               An iterable of ContentType instances (means 'filters related to these CT').
-        """
-        warnings.warn(
-            'EntityFilter.get_for_user() is deprecated ; '
-            'use EntityFilter.objects.filter_by_user(...).filter(entity_type[__in]=...) instead.',
-            DeprecationWarning
-        )
-
-        assert not user.is_team
-
-        qs = cls.objects.filter(filter_type=EF_USER)
-
-        if content_type:
-            qs = (
-                qs.filter(entity_type=content_type)
-                if isinstance(content_type, ContentType) else
-                qs.filter(entity_type__in=content_type)
-            )
-
-        return (
-            qs if user.is_staff else
-            qs.filter(
-                Q(is_private=False) |
-                Q(is_private=True, user__in=[user, *user.teams])
-            )
-        )
+    # @classmethod
+    # def get_for_user(cls, user, content_type=None):
+    #     """Get the EntityFilter queryset corresponding of filters which a user can see.
+    #     @param user: A User instance.
+    #     @param content_type: None (means 'for all ContentTypes').
+    #            A ContentType instance (means 'filters related to this CT').
+    #            An iterable of ContentType instances (means 'filters related to these CT').
+    #     """
+    #     warnings.warn(
+    #         'EntityFilter.get_for_user() is deprecated ; '
+    #         'use EntityFilter.objects.filter_by_user(...).filter(entity_type[__in]=...) '
+    #         'instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     assert not user.is_team
+    #
+    #     qs = cls.objects.filter(filter_type=EF_USER)
+    #
+    #     if content_type:
+    #         qs = (
+    #             qs.filter(entity_type=content_type)
+    #             if isinstance(content_type, ContentType) else
+    #             qs.filter(entity_type__in=content_type)
+    #         )
+    #
+    #     return (
+    #         qs if user.is_staff else
+    #         qs.filter(
+    #             Q(is_private=False) |
+    #             Q(is_private=True, user__in=[user, *user.teams])
+    #         )
+    #     )
 
     def get_q(self, user=None) -> Q:
         query = Q()
@@ -820,17 +821,17 @@ class EntityFilter(models.Model):  # CremeModel ???
 
         self._build_conditions_cache(conditions)
 
-    @classmethod
-    def get_latest_version(cls, base_pk):
-        """Get the latest EntityFilter from the family which uses the 'base_pk'.
-        @raises EntityFilter.DoesNotExist If there is none instance in this family
-        """
-        warnings.warn('EntityFilter.get_latest_version() is deprecated ; '
-                      'use EntityFilter.objects.get_latest_version() instead.',
-                      DeprecationWarning
-                     )
-
-        return cls.objects.get_latest_version(base_pk)
+    # @classmethod
+    # def get_latest_version(cls, base_pk):
+    #     """Get the latest EntityFilter from the family which uses the 'base_pk'.
+    #     @raises EntityFilter.DoesNotExist If there is none instance in this family
+    #     """
+    #     warnings.warn('EntityFilter.get_latest_version() is deprecated ; '
+    #                   'use EntityFilter.objects.get_latest_version() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return cls.objects.get_latest_version(base_pk)
 
     def get_verbose_conditions(self, user):
         "Generators of human-readable strings explaining the conditions."

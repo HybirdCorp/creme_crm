@@ -20,7 +20,7 @@
 
 import copy
 import logging
-import warnings
+# import warnings
 from functools import partial
 from types import GeneratorType
 
@@ -888,43 +888,43 @@ class CalendarWidget(widgets.TextInput):
         return context
 
 
-class DependentSelect(widgets.Select):
-    template_name = 'creme_core/forms/widgets/dependent-select.html'
-
-    def __init__(self, target_id, attrs=None, choices=()):
-        warnings.warn('creme_core.forms.widgets.DependentSelect is deprecated.',
-                      DeprecationWarning
-                     )
-
-        self.target_id = target_id
-        self.target_url = None
-        self.target_val = None
-        super().__init__(attrs, choices)
-
-    def get_context(self, name, value, attrs):
-        context = super().get_context(name=name, value=value, attrs=attrs)
-        final_attrs = context['widget']['attrs']
-        final_attrs['onchange'] = """(function() {
-    var source = $('#%(id)s');
-    if (!source || typeof(source) === undefined) return;
-
-    var target = $('#%(target_id)s');
-    if (!target || typeof(target) === undefined) return;
-
-    $.post('%(target_url)s',
-           {record_id: source.val()},
-           function(data) {
-               var data = creme.forms.Select.optionsFromData(data.result, 'text', 'id');
-               creme.forms.Select.fill(target, data, '%(target_val)s');
-           }, 'json');
-}());""" % {
-            'id': final_attrs['id'],
-            'target_id': self.target_id,
-            'target_url': self.target_url,
-            'target_val': self.target_val,
-        }
-
-        return context
+# class DependentSelect(widgets.Select):
+#     template_name = 'creme_core/forms/widgets/dependent-select.html'
+#
+#     def __init__(self, target_id, attrs=None, choices=()):
+#         warnings.warn('creme_core.forms.widgets.DependentSelect is deprecated.',
+#                       DeprecationWarning
+#                      )
+#
+#         self.target_id = target_id
+#         self.target_url = None
+#         self.target_val = None
+#         super().__init__(attrs, choices)
+#
+#     def get_context(self, name, value, attrs):
+#         context = super().get_context(name=name, value=value, attrs=attrs)
+#         final_attrs = context['widget']['attrs']
+#         final_attrs['onchange'] = """(function() {
+#     var source = $('#%(id)s');
+#     if (!source || typeof(source) === undefined) return;
+#
+#     var target = $('#%(target_id)s');
+#     if (!target || typeof(target) === undefined) return;
+#
+#     $.post('%(target_url)s',
+#            {record_id: source.val()},
+#            function(data) {
+#                var data = creme.forms.Select.optionsFromData(data.result, 'text', 'id');
+#                creme.forms.Select.fill(target, data, '%(target_val)s');
+#            }, 'json');
+# }());""" % {
+#             'id': final_attrs['id'],
+#             'target_id': self.target_id,
+#             'target_url': self.target_url,
+#             'target_val': self.target_val,
+#         }
+#
+#         return context
 
 
 class OptionalWidget(widgets.MultiWidget):
