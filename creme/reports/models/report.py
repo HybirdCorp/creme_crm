@@ -19,15 +19,14 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from itertools import chain
-from typing import (
+from typing import (  # Tuple
     TYPE_CHECKING,
     Iterator,
     List,
     Optional,
     Set,
-    Tuple,
     Type,
     Union,
 )
@@ -211,35 +210,35 @@ class AbstractReport(CremeEntity):
             new_graph.linked_report = self
             new_graph.save()
 
-    @staticmethod
-    def get_related_fields_choices(model) -> List[Tuple[str, str]]:
-        warnings.warn(
-            'The method AbstractReport.get_related_fields_choices() is deprecated.',
-            DeprecationWarning
-        )
-
-        # TODO: can we just use the regular introspection (+ field tags ?) instead
-        allowed_related_fields = model.allowed_related
-
-        # TODO: factorise (creme_core.utils.meta ?)
-        # NB: https://docs.djangoproject.com/en/1.8/ref/models/meta/#migrating-from-the-old-api
-        get_fields = model._meta.get_fields
-        related_fields = (
-            f
-            for f in get_fields()
-            if (f.one_to_many or f.one_to_one) and f.auto_created
-        )
-        m2m_fields = (
-            f
-            for f in get_fields(include_hidden=True)
-            if f.many_to_many and f.auto_created
-        )
-
-        return [
-            (f.name, str(f.related_model._meta.verbose_name))
-            for f in chain(related_fields, m2m_fields)
-            if f.name in allowed_related_fields
-        ]
+    # @staticmethod
+    # def get_related_fields_choices(model) -> List[Tuple[str, str]]:
+    #     warnings.warn(
+    #         'The method AbstractReport.get_related_fields_choices() is deprecated.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     # TODO: can we just use the regular introspection (+ field tags ?) instead
+    #     allowed_related_fields = model.allowed_related
+    #
+    #     # TODO: factorise (creme_core.utils.meta ?)
+    #     # NB: https://docs.djangoproject.com/en/1.8/ref/models/meta/#migrating-from-the-old-api
+    #     get_fields = model._meta.get_fields
+    #     related_fields = (
+    #         f
+    #         for f in get_fields()
+    #         if (f.one_to_many or f.one_to_one) and f.auto_created
+    #     )
+    #     m2m_fields = (
+    #         f
+    #         for f in get_fields(include_hidden=True)
+    #         if f.many_to_many and f.auto_created
+    #     )
+    #
+    #     return [
+    #         (f.name, str(f.related_model._meta.verbose_name))
+    #         for f in chain(related_fields, m2m_fields)
+    #         if f.name in allowed_related_fields
+    #     ]
 
 
 class Report(AbstractReport):

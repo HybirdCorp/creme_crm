@@ -162,9 +162,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         return uri
 
-    @staticmethod
-    def _build_graph_types_url(ct):
-        return reverse('reports__graph_types', args=(ct.id,))
+    # @staticmethod
+    # def _build_graph_types_url(ct):
+    #     return reverse('reports__graph_types', args=(ct.id,))
 
     def _create_invoice_report_n_graph(self, abscissa='issuing_date',
                                        ordinate_type=RGA_SUM, ordinate_field='total_no_vat'):
@@ -288,7 +288,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         hand = rgraph.hand
         self.assertEqual(_('Sector'), hand.verbose_abscissa)
-        self.assertEqual(_('Count'),  hand.verbose_ordinate)
+        # self.assertEqual(_('Count'),  hand.verbose_ordinate)
         self.assertEqual(_('Count'),  hand.ordinate.verbose_name)
         self.assertIsNone(hand.abscissa_error)
         self.assertIsNone(hand.ordinate_error)
@@ -401,10 +401,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         hand = rgraph.hand
         self.assertEqual(_('Creation date'), hand.verbose_abscissa)
-        self.assertEqual(
-            f"{_('Capital')} - {_('Maximum')}",
-            hand.verbose_ordinate
-        )
+        # self.assertEqual(
+        #     f"{_('Capital')} - {_('Maximum')}",
+        #     hand.verbose_ordinate
+        # )
         self.assertEqual(_('Maximum'), hand.ordinate.verbose_name)
         self.assertEqual(_('Capital'), str(hand.ordinate.cell))
 
@@ -1207,7 +1207,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         hand = rgraph.hand
-        self.assertEqual('{} - {}'.format(cf, _('Maximum')), hand.verbose_ordinate)
+        # self.assertEqual('{} - {}'.format(cf, _('Maximum')), hand.verbose_ordinate)
         self.assertEqual(_('Maximum'), hand.ordinate.verbose_name)
         self.assertEqual(cf.name,      str(hand.ordinate.cell))
 
@@ -2597,85 +2597,85 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(chart, rgraph.chart)
         self.assertFalse(rgraph.asc)
 
-    def test_create_instance_brick_config_item01(self):  # DEPRECATED
-        "No link."
-        self.login()
-        rgraph = self._create_documents_rgraph()
+    # def test_create_instance_brick_config_item01(self):  # DEPRECATED
+    #     "No link."
+    #     self.login()
+    #     rgraph = self._create_documents_rgraph()
+    #
+    #     ibci = rgraph.create_instance_brick_config_item()
+    #     self.assertEqual('instanceblock_reports-graph', ibci.brick_class_id)
+    #     self.assertEqual(RGF_NOLINK, ibci.get_extra_data('type'))
+    #     self.assertIsNone(ibci.get_extra_data('value'))
+    #
+    #     volatile = _('No volatile column')
+    #     self.assertEqual(
+    #         f'{rgraph.name} - {volatile}', ReportGraphBrick(ibci).verbose_name
+    #     )
+    #
+    #     # Brick verbose name should be dynamically computed
+    #     rgraph.name = rgraph.name.upper()
+    #     rgraph.save()
+    #     self.assertEqual(
+    #         f'{rgraph.name} - {volatile}', ReportGraphBrick(ibci).verbose_name
+    #     )
 
-        ibci = rgraph.create_instance_brick_config_item()
-        self.assertEqual('instanceblock_reports-graph', ibci.brick_class_id)
-        self.assertEqual(RGF_NOLINK, ibci.get_extra_data('type'))
-        self.assertIsNone(ibci.get_extra_data('value'))
+    # def test_create_instance_brick_config_item02(self):  # DEPRECATED
+    #     "Link: regular field."
+    #     self.login()
+    #     rgraph = self._create_documents_rgraph()
+    #     create_ibci = rgraph.create_instance_brick_config_item
+    #
+    #     fk_name = 'linked_folder'
+    #     ibci = create_ibci(volatile_field=fk_name)
+    #     self.assertEqual(ReportGraphBrick.id_, ibci.brick_class_id)
+    #     self.assertEqual(RGF_FK, ibci.get_extra_data('type'))
+    #     self.assertEqual(fk_name, ibci.get_extra_data('value'))
+    #
+    #     self.assertIsNone(create_ibci(volatile_field='unknown'))
+    #     self.assertIsNone(create_ibci(volatile_field='description'))  # Not FK
+    #     self.assertIsNone(create_ibci(volatile_field='user'))  # Not FK to CremeEntity
+    #     self.assertIsNone(create_ibci(volatile_field='folder__title'))  # Depth > 1
+    #
+    #     self.assertEqual(
+    #         '{} - {}' .format(
+    #             rgraph.name,
+    #             _('{field} (Field)').format(field=_('Folder')),
+    #         ),
+    #         ReportGraphBrick(ibci).verbose_name
+    #     )
 
-        volatile = _('No volatile column')
-        self.assertEqual(
-            f'{rgraph.name} - {volatile}', ReportGraphBrick(ibci).verbose_name
-        )
-
-        # Brick verbose name should be dynamically computed
-        rgraph.name = rgraph.name.upper()
-        rgraph.save()
-        self.assertEqual(
-            f'{rgraph.name} - {volatile}', ReportGraphBrick(ibci).verbose_name
-        )
-
-    def test_create_instance_brick_config_item02(self):  # DEPRECATED
-        "Link: regular field."
-        self.login()
-        rgraph = self._create_documents_rgraph()
-        create_ibci = rgraph.create_instance_brick_config_item
-
-        fk_name = 'linked_folder'
-        ibci = create_ibci(volatile_field=fk_name)
-        self.assertEqual(ReportGraphBrick.id_, ibci.brick_class_id)
-        self.assertEqual(RGF_FK, ibci.get_extra_data('type'))
-        self.assertEqual(fk_name, ibci.get_extra_data('value'))
-
-        self.assertIsNone(create_ibci(volatile_field='unknown'))
-        self.assertIsNone(create_ibci(volatile_field='description'))  # Not FK
-        self.assertIsNone(create_ibci(volatile_field='user'))  # Not FK to CremeEntity
-        self.assertIsNone(create_ibci(volatile_field='folder__title'))  # Depth > 1
-
-        self.assertEqual(
-            '{} - {}' .format(
-                rgraph.name,
-                _('{field} (Field)').format(field=_('Folder')),
-            ),
-            ReportGraphBrick(ibci).verbose_name
-        )
-
-    def test_create_instance_brick_config_item03(self):  # DEPRECATED
-        "Link: relation type."
-        user = self.login()
-        report = self._create_simple_contacts_report()
-        rgraph = ReportGraph.objects.create(
-            user=user,
-            linked_report=report,
-            name='Number of created contacts / year',
-            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_COUNT,
-        )
-
-        rtype = RelationType.create(
-            ('reports-subject_loves', 'loves',       [FakeContact]),
-            ('reports-object_loves',  'is loved by', [FakeContact]),
-        )[0]
-
-        ibci = rgraph.create_instance_brick_config_item(volatile_rtype=rtype)
-        self.assertEqual(ReportGraphBrick.id_, ibci.brick_class_id)
-        self.assertEqual(RGF_RELATION, ibci.get_extra_data('type'))
-        self.assertEqual(rtype.id,     ibci.get_extra_data('value'))
-
-        fmt = _('{rtype} (Relationship)').format
-        self.assertEqual(
-            f'{rgraph.name} - {fmt(rtype=rtype)}', ReportGraphBrick(ibci).verbose_name,
-        )
-
-        rtype.predicate = 'likes'
-        rtype.save()
-        self.assertEqual(
-            f'{rgraph.name} - {fmt(rtype=rtype)}', ReportGraphBrick(ibci).verbose_name,
-        )
+    # def test_create_instance_brick_config_item03(self):  # DEPRECATED
+    #     "Link: relation type."
+    #     user = self.login()
+    #     report = self._create_simple_contacts_report()
+    #     rgraph = ReportGraph.objects.create(
+    #         user=user,
+    #         linked_report=report,
+    #         name='Number of created contacts / year',
+    #         abscissa_cell_value='created', abscissa_type=RGT_YEAR,
+    #         ordinate_type=RGA_COUNT,
+    #     )
+    #
+    #     rtype = RelationType.create(
+    #         ('reports-subject_loves', 'loves',       [FakeContact]),
+    #         ('reports-object_loves',  'is loved by', [FakeContact]),
+    #     )[0]
+    #
+    #     ibci = rgraph.create_instance_brick_config_item(volatile_rtype=rtype)
+    #     self.assertEqual(ReportGraphBrick.id_, ibci.brick_class_id)
+    #     self.assertEqual(RGF_RELATION, ibci.get_extra_data('type'))
+    #     self.assertEqual(rtype.id,     ibci.get_extra_data('value'))
+    #
+    #     fmt = _('{rtype} (Relationship)').format
+    #     self.assertEqual(
+    #         f'{rgraph.name} - {fmt(rtype=rtype)}', ReportGraphBrick(ibci).verbose_name,
+    #     )
+    #
+    #     rtype.predicate = 'likes'
+    #     rtype.save()
+    #     self.assertEqual(
+    #         f'{rgraph.name} - {fmt(rtype=rtype)}', ReportGraphBrick(ibci).verbose_name,
+    #     )
 
     def test_add_graph_instance_brick01(self):
         user = self.login()
@@ -2883,7 +2883,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = self.assertGET200(folder1.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
 
-        fetcher = ReportGraph.get_fetcher_from_instance_brick(item)
+        # fetcher = ReportGraph.get_fetcher_from_instance_brick(item)
+        fetcher = ReportGraphBrick(item).fetcher
         self.assertIsNone(fetcher.error)
 
         x, y = fetcher.fetch_4_entity(entity=folder1, user=user)  # TODO: order
@@ -3038,7 +3039,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_rel(subject_entity=sonsaku)
         create_rel(subject_entity=ryomou)
 
-        fetcher = ReportGraph.get_fetcher_from_instance_brick(item)
+        # fetcher = ReportGraph.get_fetcher_from_instance_brick(item)
+        fetcher = ReportGraphBrick(item).fetcher
         self.assertIsNone(fetcher.error)
 
         x, y = fetcher.fetch_4_entity(entity=nanyo, user=user)
@@ -3083,7 +3085,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         ibci.set_extra_data(key='type',  value=RGF_RELATION)
         ibci.set_extra_data(key='value', value=rtype_id)
 
-        fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        # fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        fetcher = fetcher = ReportGraphBrick(ibci).fetcher
         x, y = fetcher.fetch_4_entity(entity=user.linked_contact, user=user)
         self.assertListEqual([], x)
         self.assertListEqual([], y)
@@ -3100,14 +3103,16 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         # No extra data
-        fetcher1 = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        # fetcher1 = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        fetcher1 = ReportGraphBrick(ibci).fetcher
         self.assertIsInstance(fetcher1, SimpleGraphFetcher)
         msg = _('Invalid volatile link ; please contact your administrator.')
         self.assertEqual(msg, fetcher1.error)
 
         # Invalid type
         ibci.set_extra_data(key='type', value='invalid')
-        fetcher2 = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        # fetcher2 = ReportGraph.get_fetcher_from_instance_brick(ibci)
+        fetcher2 = ReportGraphBrick(ibci).fetcher
         self.assertIsInstance(fetcher2, SimpleGraphFetcher)
         self.assertEqual(msg, fetcher2.error)
 
@@ -3144,80 +3149,80 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertStillExists(bdl)
         self.assertStillExists(bhl)
 
-    def test_get_available_report_graph_types01(self):
-        self.login()
-        url = self._build_graph_types_url(self.ct_orga)
-        self.assertGET404(url)
-        self.assertPOST404(url)
-
-        response = self.assertPOST200(url, data={'record_id': 'name'})
-        self.assertDictEqual(
-            {'result': [{'text': _('Choose an abscissa field'), 'id': ''}]},
-            response.json(),
-        )
-
-        response = self.assertPOST200(url, data={'record_id': 'creation_date'})
-        self.assertDictEqual(
-            {
-                'result': [
-                    {'id': RGT_DAY,   'text': _('By days')},
-                    {'id': RGT_MONTH, 'text': _('By months')},
-                    {'id': RGT_YEAR,  'text': _('By years')},
-                    {'id': RGT_RANGE, 'text': _('By X days')},
-                ],
-            },
-            response.json(),
-        )
-
-        response = self.assertPOST200(url, data={'record_id': 'sector'})
-        self.assertDictEqual(
-            {'result': [{'id': RGT_FK, 'text': _('By values')}]}, response.json()
-        )
-
-    def test_get_available_report_graph_types02(self):
-        self.login()
-        ct = self.ct_invoice
-        url = self._build_graph_types_url(ct)
-
-        response = self.assertPOST200(
-            url, data={'record_id': fake_constants.FAKE_REL_SUB_BILL_RECEIVED},
-        )
-        self.assertDictEqual(
-            {
-                'result': [{
-                    'id': RGT_RELATION,
-                    'text': _('By values (of related entities)'),
-                }],
-            },
-            response.json(),
-        )
-
-        create_cf = partial(CustomField.objects.create, content_type=ct)
-        cf_enum = create_cf(name='Type', field_type=CustomField.ENUM)
-        response = self.assertPOST200(url, data={'record_id': cf_enum.id})
-        self.assertDictEqual(
-            {
-                'result': [{
-                    'id': RGT_CUSTOM_FK,
-                    'text': _('By values (of custom choices)')
-                }],
-            },
-            response.json(),
-        )
-
-        cf_dt = create_cf(name='First payment', field_type=CustomField.DATETIME)
-        response = self.assertPOST200(url, data={'record_id': cf_dt.id})
-        self.assertDictEqual(
-            {
-                'result': [
-                    {'id': RGT_CUSTOM_DAY,   'text': _('By days')},
-                    {'id': RGT_CUSTOM_MONTH, 'text': _('By months')},
-                    {'id': RGT_CUSTOM_YEAR,  'text': _('By years')},
-                    {'id': RGT_CUSTOM_RANGE, 'text': _('By X days')},
-                ],
-            },
-            response.json(),
-        )
+    # def test_get_available_report_graph_types01(self):
+    #     self.login()
+    #     url = self._build_graph_types_url(self.ct_orga)
+    #     self.assertGET404(url)
+    #     self.assertPOST404(url)
+    #
+    #     response = self.assertPOST200(url, data={'record_id': 'name'})
+    #     self.assertDictEqual(
+    #         {'result': [{'text': _('Choose an abscissa field'), 'id': ''}]},
+    #         response.json(),
+    #     )
+    #
+    #     response = self.assertPOST200(url, data={'record_id': 'creation_date'})
+    #     self.assertDictEqual(
+    #         {
+    #             'result': [
+    #                 {'id': RGT_DAY,   'text': _('By days')},
+    #                 {'id': RGT_MONTH, 'text': _('By months')},
+    #                 {'id': RGT_YEAR,  'text': _('By years')},
+    #                 {'id': RGT_RANGE, 'text': _('By X days')},
+    #             ],
+    #         },
+    #         response.json(),
+    #     )
+    #
+    #     response = self.assertPOST200(url, data={'record_id': 'sector'})
+    #     self.assertDictEqual(
+    #         {'result': [{'id': RGT_FK, 'text': _('By values')}]}, response.json()
+    #     )
+    #
+    # def test_get_available_report_graph_types02(self):
+    #     self.login()
+    #     ct = self.ct_invoice
+    #     url = self._build_graph_types_url(ct)
+    #
+    #     response = self.assertPOST200(
+    #         url, data={'record_id': fake_constants.FAKE_REL_SUB_BILL_RECEIVED},
+    #     )
+    #     self.assertDictEqual(
+    #         {
+    #             'result': [{
+    #                 'id': RGT_RELATION,
+    #                 'text': _('By values (of related entities)'),
+    #             }],
+    #         },
+    #         response.json(),
+    #     )
+    #
+    #     create_cf = partial(CustomField.objects.create, content_type=ct)
+    #     cf_enum = create_cf(name='Type', field_type=CustomField.ENUM)
+    #     response = self.assertPOST200(url, data={'record_id': cf_enum.id})
+    #     self.assertDictEqual(
+    #         {
+    #             'result': [{
+    #                 'id': RGT_CUSTOM_FK,
+    #                 'text': _('By values (of custom choices)')
+    #             }],
+    #         },
+    #         response.json(),
+    #     )
+    #
+    #     cf_dt = create_cf(name='First payment', field_type=CustomField.DATETIME)
+    #     response = self.assertPOST200(url, data={'record_id': cf_dt.id})
+    #     self.assertDictEqual(
+    #         {
+    #             'result': [
+    #                 {'id': RGT_CUSTOM_DAY,   'text': _('By days')},
+    #                 {'id': RGT_CUSTOM_MONTH, 'text': _('By months')},
+    #                 {'id': RGT_CUSTOM_YEAR,  'text': _('By years')},
+    #                 {'id': RGT_CUSTOM_RANGE, 'text': _('By X days')},
+    #             ],
+    #         },
+    #         response.json(),
+    #     )
 
     def bench_big_fetch_using_count(self):
         """

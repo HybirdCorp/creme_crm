@@ -53,11 +53,11 @@ urlpatterns = [
         name='reports__edit_fields',
     ),
 
-    re_path(
-        r'^graph/get_available_types/(?P<ct_id>\d+)[/]?$',
-        graph.get_available_report_graph_types,
-        name='reports__graph_types'
-    ),
+    # re_path(
+    #     r'^graph/get_available_types/(?P<ct_id>\d+)[/]?$',
+    #     graph.get_available_report_graph_types,
+    #     name='reports__graph_types'
+    # ),
 
     re_path(
         r'^graph/fetch/(?P<graph_id>\d+)[/]?$',
