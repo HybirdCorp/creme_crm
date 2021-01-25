@@ -1,6 +1,8 @@
 /* eslint operator-linebreak: ["error", "before"] */
 
 (function($) {
+
+/*
 QUnit.module("creme.persons", new QUnitMixin(QUnitEventMixin,
                                              QUnitAjaxMixin,
                                              QUnitBrickMixin, {
@@ -60,5 +62,6 @@ QUnit.test('creme.persons.copyTo', function(assert) {
         field_c: ['This is a test']
     }, creme.ajax.serializeFormAsDict(form_B));
 });
+*/
 
 }(jQuery));

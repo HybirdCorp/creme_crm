@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.urls import include, re_path
+from django.urls import re_path  # include
 
 from creme import persons
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
-from .views import address, contact, crud_relations, organisation
+from .views import address, contact, organisation  # crud_relations
 
 urlpatterns = [
     re_path(
@@ -19,31 +19,31 @@ urlpatterns = [
         name='persons__orga_unset_managed',
     ),
 
-    re_path(
-        r'^(?P<entity_id>\d+)/become_',
-        include([
-            re_path(
-                r'^customer[/]?$',
-                crud_relations.become_customer, name='persons__become_customer',
-            ),
-            re_path(
-                r'^prospect[/]?$',
-                crud_relations.become_prospect, name='persons__become_prospect',
-            ),
-            re_path(
-                r'^suspect[/]?$',
-                crud_relations.become_suspect,  name='persons__become_suspect',
-            ),
-            re_path(
-                r'^inactive_customer[/]?$',
-                crud_relations.become_inactive, name='persons__become_inactive_customer',
-            ),
-            re_path(
-                r'^supplier[/]?$',
-                crud_relations.become_supplier, name='persons__become_supplier',
-            ),
-        ]),
-    ),
+    # re_path(
+    #     r'^(?P<entity_id>\d+)/become_',
+    #     include([
+    #         re_path(
+    #             r'^customer[/]?$',
+    #             crud_relations.become_customer, name='persons__become_customer',
+    #         ),
+    #         re_path(
+    #             r'^prospect[/]?$',
+    #             crud_relations.become_prospect, name='persons__become_prospect',
+    #         ),
+    #         re_path(
+    #             r'^suspect[/]?$',
+    #             crud_relations.become_suspect,  name='persons__become_suspect',
+    #         ),
+    #         re_path(
+    #             r'^inactive_customer[/]?$',
+    #             crud_relations.become_inactive, name='persons__become_inactive_customer',
+    #         ),
+    #         re_path(
+    #             r'^supplier[/]?$',
+    #             crud_relations.become_supplier, name='persons__become_supplier',
+    #         ),
+    #     ]),
+    # ),
 
     *swap_manager.add_group(
         persons.contact_model_is_custom,
