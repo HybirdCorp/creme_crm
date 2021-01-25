@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from collections import OrderedDict
 from typing import Tuple
 
@@ -42,8 +42,7 @@ from creme.creme_core.core.entity_filter import (
     entity_filter_registries,
 )
 from creme.creme_core.creme_jobs import deletor_type
-from creme.creme_core.forms import (
-    CremeForm,
+from creme.creme_core.forms import (  # CremeForm
     CremeModelForm,
     FieldBlockManager,
     MultiEntityCTypeChoiceField,
@@ -81,18 +80,20 @@ class CredentialsGeneralStep(CremeModelForm):
 
     can_link = forms.BooleanField(
         label=_('Link'), required=False,
-        help_text=_("You must have the permission to link on 2 entities "
-                    "to create a relationship between them. "
-                    "Beware: if you use «Filtered entities», you won't "
-                    "be able to add relationships in the creation forms "
-                    "(you'll have to add them later).",
-                   ),
+        help_text=_(
+            "You must have the permission to link on 2 entities "
+            "to create a relationship between them. "
+            "Beware: if you use «Filtered entities», you won't "
+            "be able to add relationships in the creation forms "
+            "(you'll have to add them later).",
+        ),
     )
     can_unlink = forms.BooleanField(
         label=_('Unlink'), required=False,
-        help_text=_('You must have the permission to unlink on '
-                    '2 entities to delete a relationship between them.'
-                   ),
+        help_text=_(
+            'You must have the permission to unlink on '
+            '2 entities to delete a relationship between them.'
+        ),
     )
 
     # Field name => permission
@@ -249,9 +250,9 @@ class CredentialsFilterStep(CremeModelForm):
             fnames = self.conditions_field_names
 
             if fnames and not any(cdata[f] for f in fnames):
-                raise ValidationError(self.error_messages['no_condition'],
-                                      code='no_condition',
-                                     )
+                raise ValidationError(
+                    self.error_messages['no_condition'], code='no_condition',
+                )
 
         return cdata
 
@@ -315,38 +316,38 @@ class CredentialsFilterStep(CremeModelForm):
         return instance
 
 
-class UserRoleDeleteForm(CremeForm):
-    def __init__(self, user, instance, *args, **kwargs):
-        warnings.warn('UserRoleDeleteForm is deprecated ; '
-                      'use UserRoleDeletionForm instead.',
-                      DeprecationWarning
-                     )
-
-        super().__init__(user, *args, **kwargs)
-        self.role_to_delete = instance
-        self.using_users = users = CremeUser.objects.filter(role=instance)
-
-        if users:
-            self.fields['to_role'] = forms.ModelChoiceField(
-                label=gettext('Choose a role to transfer to'),
-                queryset=UserRole.objects.exclude(id=instance.id),
-            )
-        else:
-            self.fields['info'] = forms.CharField(
-                label=gettext('Information'), required=False,
-                widget=creme_widgets.Label,
-                initial=gettext('This role is not used by any user,'
-                                ' you can delete it safely.'
-                               ),
-            )
-
-    def save(self, *args, **kwargs):
-        to_role = self.cleaned_data.get('to_role')
-
-        if to_role is not None:
-            self.using_users.update(role=to_role)
-
-        self.role_to_delete.delete()
+# class UserRoleDeleteForm(CremeForm):
+#     def __init__(self, user, instance, *args, **kwargs):
+#         warnings.warn('UserRoleDeleteForm is deprecated ; '
+#                       'use UserRoleDeletionForm instead.',
+#                       DeprecationWarning
+#                      )
+#
+#         super().__init__(user, *args, **kwargs)
+#         self.role_to_delete = instance
+#         self.using_users = users = CremeUser.objects.filter(role=instance)
+#
+#         if users:
+#             self.fields['to_role'] = forms.ModelChoiceField(
+#                 label=gettext('Choose a role to transfer to'),
+#                 queryset=UserRole.objects.exclude(id=instance.id),
+#             )
+#         else:
+#             self.fields['info'] = forms.CharField(
+#                 label=gettext('Information'), required=False,
+#                 widget=creme_widgets.Label,
+#                 initial=gettext('This role is not used by any user,'
+#                                 ' you can delete it safely.'
+#                                ),
+#             )
+#
+#     def save(self, *args, **kwargs):
+#         to_role = self.cleaned_data.get('to_role')
+#
+#         if to_role is not None:
+#             self.using_users.update(role=to_role)
+#
+#         self.role_to_delete.delete()
 
 
 class UserRoleDeletionForm(CremeModelForm):
@@ -446,10 +447,11 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
     admin_4_apps = forms.MultipleChoiceField(
         required=False, choices=(),
         label=_('Administrated applications'),
-        help_text=_('These applications can be configured. '
-                    'For example, the concerned users can create new choices '
-                    'available in forms (eg: position for contacts).'
-                   ),
+        help_text=_(
+            'These applications can be configured. '
+            'For example, the concerned users can create new choices '
+            'available in forms (eg: position for contacts).'
+        ),
     )
 
     class Meta(_UserRoleWizardFormStep.Meta):
@@ -481,7 +483,9 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
 
 
 class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
-    creatable_ctypes = MultiEntityCTypeChoiceField(label=_('Creatable resources'), required=False)
+    creatable_ctypes = MultiEntityCTypeChoiceField(
+        label=_('Creatable resources'), required=False,
+    )
 
     class Meta(_UserRoleWizardFormStep.Meta):
         fields = ('creatable_ctypes',)
@@ -505,9 +509,10 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
 class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
     exportable_ctypes = MultiEntityCTypeChoiceField(
         label=_('Exportable resources'), required=False,
-        help_text=_('This types of entities can be downloaded as CSV/XLS '
-                    'files (in the corresponding list-views).'
-                   ),
+        help_text=_(
+            'This types of entities can be downloaded as CSV/XLS '
+            'files (in the corresponding list-views).'
+        ),
     )
 
     class Meta(_UserRoleWizardFormStep.Meta):
@@ -532,8 +537,9 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
 class UserRoleCredentialsGeneralStep(CredentialsGeneralStep):
     blocks = FieldBlockManager(
         ('general', _('First credentials: main information'), '*'),
-        ('actions', _('First credentials: actions'),
-         ['can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink'],
+        (
+            'actions', _('First credentials: actions'),
+            ['can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink'],
         ),
     )
 

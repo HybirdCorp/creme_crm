@@ -7,6 +7,11 @@
     ------------------
         # Deprecated stuffs which have been removed :
             - Apps :
+                * Creme_config :
+                    - In 'forms', these classes have been removed :
+                        - user_role.UserRoleDeleteForm
+                        - In 'custom_fields':
+                          CustomFieldsBaseForm, CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm.
                 * Persons :
                     - The module 'views.crud_relations' has been removed.
                     - In 'forms.base', these constants have ben removed : _BILLING_ADDRESS_FIELD & _SHIPPING_ADDRESS_FIELD
