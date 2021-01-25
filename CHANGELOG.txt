@@ -7,6 +7,14 @@
     ------------------
         # Deprecated stuffs which have been removed :
             - Apps :
+                * Persons :
+                    - The module 'views.crud_relations' has been removed.
+                    - In 'forms.base', these constants have ben removed : _BILLING_ADDRESS_FIELD & _SHIPPING_ADDRESS_FIELD
+                    - These template files in "creme/persons/templates/persons/" have been removed.
+                        - frags/*
+                        - add_*_form.html
+                        - edit_*_form.html
+                    - The JavaScript function 'creme.persons.copyTo()' has been removed.
                 * Documents :
                     - The method 'models.AbstractDocument.get_linkeddoc_relations()' has been removed.
                     - The constant 'forms.document._TITLE_MAX_LEN' has been removed.

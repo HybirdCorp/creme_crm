@@ -173,11 +173,12 @@
 
 /* Address in forms */
 
-/* DEPRECATED */
+/*
 #editforms form .table_detail_view#billing_table tbody > tr:first-child,
 #editforms form .table_detail_view#shipping_table tbody > tr:first-child {
     border-bottom: none;
 }
+*/
 
 .persons-form_block-addresses .persons-form_block-addresses-inner-header {
     text-transform: uppercase;
