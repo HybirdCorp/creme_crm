@@ -3230,7 +3230,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # self.assertEqual('', item.data)
         self.assertEqual(RGF_NOLINK, item.get_extra_data('type'))
         self.assertIsNone(item.get_extra_data('value'))
-        self.assertIsNone(item.errors)
+        self.assertIsNone(item.brick.errors)
 
         brick_id = item.brick_id
         self.assertEqual(f'instanceblock-{item.id}', brick_id)
@@ -3482,7 +3482,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # self.assertEqual('??',                       fetcher.verbose_volatile_column)
         self.assertEqual('??',                       fetcher.verbose_name)
 
-        self.assertEqual([_('The field is invalid.')], ibci.errors)
+        self.assertEqual([_('The field is invalid.')], ibci.brick.errors)
 
     def test_add_graph_instance_brick02_error02(self):
         "Volatile column (RFT_FIELD): field is not a FK to CremeEntity."

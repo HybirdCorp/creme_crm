@@ -205,7 +205,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = line._meta.get_field('discount')
         self.assertEqual(
             '',
-            print_decimal(line, fval=None, user=user, field=field)
+            print_decimal_html(line, fval=None, user=user, field=field)
         )
 
         value = Decimal('1234.56')
@@ -220,7 +220,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = line._meta.get_field('discount')
         self.assertEqual(
             '',
-            print_decimal(line, fval=None, user=user, field=field)
+            print_decimal_csv(line, fval=None, user=user, field=field)
         )
 
         value = Decimal('1234.56')
@@ -762,8 +762,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = img._meta.get_field('categories')
 
         printer = M2MPrinterForHTML(
-            default_printer=M2MPrinter.printer_html,
-            default_enumerator=M2MPrinter.enumerator_all,
+            default_printer=M2MPrinterForHTML.printer_html,
+            default_enumerator=M2MPrinterForHTML.enumerator_all,
         )
 
         self.assertEqual('', printer(img, img.categories, user, field))
@@ -788,8 +788,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         prod.images.set([img1, img2])
 
         printer = M2MPrinterForHTML(
-            default_printer=M2MPrinter.printer_html,
-            default_enumerator=M2MPrinter.enumerator_all,
+            default_printer=M2MPrinterForHTML.printer_html,
+            default_enumerator=M2MPrinterForHTML.enumerator_all,
         )
         self.assertHTMLEqual(
             f'<ul><li>{img1}</li><li>{img2}</li></ul>',
@@ -815,12 +815,13 @@ class FieldsPrintersTestCase(CremeTestCase):
         prod.images.set([img1, img2, img3])
 
         printer = M2MPrinterForHTML(
-            default_printer=M2MPrinter.printer_html,
-            default_enumerator=M2MPrinter.enumerator_all,
+            default_printer=M2MPrinterForHTML.printer_html,
+            default_enumerator=M2MPrinterForHTML.enumerator_all,
         ).register(
             CremeEntity,
-            printer=M2MPrinter.printer_entity_html,  # TODO: test is_deleted too (other enumerator)
-            enumerator=M2MPrinter.enumerator_entity,
+            # TODO: test is_deleted too (other enumerator)
+            printer=M2MPrinterForHTML.printer_entity_html,
+            enumerator=M2MPrinterForHTML.enumerator_entity,
         )
         self.assertHTMLEqual(
             f'<ul>'

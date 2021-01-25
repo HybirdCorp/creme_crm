@@ -1343,7 +1343,7 @@
             - The function 'simple_value()' has been removed.
         # The list-views no longer support "whoami" in both POST & GET requests.
         # In the templatetag library "creme_listview", these functions have benn removed: '_build_bool_search_widget()', '_build_date_search_widget()' & '_build_select_search_widget()'.
-        # In JavaScrip, the class 'creme.action.ActionBuilderRegistry' has been renamed/moved as 'creme.component.FactoryRegistry'.
+        # In JavaScript, the class 'creme.action.ActionBuilderRegistry' has been renamed/moved as 'creme.component.FactoryRegistry'.
         # Apps :
             * Creme_config :
                 - There are many changes in 'registry'.

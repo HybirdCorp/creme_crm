@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -413,12 +413,16 @@ class M2MPrinter(M2MPrinterForHTML):
 
 # print_many2many_html = M2MPrinter(
 print_many2many_html = M2MPrinterForHTML(
-    default_printer=M2MPrinter.printer_html,
-    default_enumerator=M2MPrinter.enumerator_all,
+    # default_printer=M2MPrinter.printer_html,
+    default_printer=M2MPrinterForHTML.printer_html,
+    # default_enumerator=M2MPrinter.enumerator_all,
+    default_enumerator=M2MPrinterForHTML.enumerator_all,
 ).register(
     CremeEntity,
-    printer=M2MPrinter.printer_entity_html,
-    enumerator=M2MPrinter.enumerator_entity,
+    # printer=M2MPrinter.printer_entity_html,
+    printer=M2MPrinterForHTML.printer_entity_html,
+    # enumerator=M2MPrinter.enumerator_entity,
+    enumerator=M2MPrinterForHTML.enumerator_entity,
 )
 
 
