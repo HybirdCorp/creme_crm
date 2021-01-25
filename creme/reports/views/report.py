@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
 import logging
-import warnings
 from typing import Type
 
 from django.db.transaction import atomic
@@ -186,17 +186,17 @@ class FieldSelection(generic.base.EntityRelatedMixin, generic.CheckedView):
         return HttpResponse()
 
 
-class ReportCreation(generic.EntityCreation):
-    model = Report
-    form_class = report_forms.ReportCreateForm
-    template_name = 'reports/add_report.html'
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            'ReportCreation is deprecated ; use ReportCreationWizard instead.',
-            DeprecationWarning,
-        )
-        super().__init__(*args, **kwargs)
+# class ReportCreation(generic.EntityCreation):
+#     model = Report
+#     form_class = report_forms.ReportCreateForm
+#     template_name = 'reports/add_report.html'
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn(
+#             'ReportCreation is deprecated ; use ReportCreationWizard instead.',
+#             DeprecationWarning,
+#         )
+#         super().__init__(*args, **kwargs)
 
 
 class ReportCreationWizard(generic.EntityCreationWizard):

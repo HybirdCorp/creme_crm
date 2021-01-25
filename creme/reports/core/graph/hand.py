@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from datetime import datetime, timedelta
 from typing import (
     TYPE_CHECKING,
@@ -135,18 +135,18 @@ class ReportGraphHand:
     def ordinate(self) -> ReportGraphAggregator:
         return self._y_calculator
 
-    @property
-    def verbose_ordinate(self) -> str:
-        warnings.warn(
-            'The property "verbose_ordinate" is deprecated ; '
-            'you can use the templatetag {% reports_graph_ordinate %} instead.',
-            DeprecationWarning,
-        )
-
-        from creme.reports.templatetags.reports_tags import (
-            reports_graph_ordinate,
-        )
-        return reports_graph_ordinate(self._graph)
+    # @property
+    # def verbose_ordinate(self) -> str:
+    #     warnings.warn(
+    #         'The property "verbose_ordinate" is deprecated ; '
+    #         'you can use the templatetag {% reports_graph_ordinate %} instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     from creme.reports.templatetags.reports_tags import (
+    #         reports_graph_ordinate,
+    #     )
+    #     return reports_graph_ordinate(self._graph)
 
     # TODO: The 'group by' query could be extracted into a common Manager
     def _aggregate_by_key(self, entities, key, order):

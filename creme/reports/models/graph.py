@@ -19,21 +19,20 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from typing import TYPE_CHECKING, List, Optional, Tuple, Type
 
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext
+# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import (
+from creme.creme_core.models import (  # RelationType
     CremeEntity,
     InstanceBrickConfigItem,
-    RelationType,
 )
 
 from ..constants import AGGREGATOR_TYPES, GROUP_TYPES
@@ -46,7 +45,7 @@ from ..core.graph import (
 from ..graph_fetcher_registry import graph_fetcher_registry
 
 if TYPE_CHECKING:
-    from ..core.graph import GraphFetcher, ReportGraphHand
+    from ..core.graph import ReportGraphHand  # GraphFetcher
 
 logger = logging.getLogger(__name__)
 
@@ -197,21 +196,21 @@ class AbstractReportGraph(CremeEntity):
 
         return self.hand.fetch(entities=entities, order=order, user=user, extra_q=extra_q)
 
-    @staticmethod
-    def get_fetcher_from_instance_brick(
-            instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
-        """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
-        @param instance_brick_config: An instance of InstanceBrickConfigItem.
-        @return A GraphFetcher instance.
-        """
-        warnings.warn(
-            'AbstractReportGraph.get_fetcher_from_instance_brick() is deprecated ; '
-            'use ReportGraphBrick(...).fetcher instead.',
-            DeprecationWarning
-        )
-
-        from ..bricks import ReportGraphBrick
-        return ReportGraphBrick(instance_brick_config).fetcher
+    # @staticmethod
+    # def get_fetcher_from_instance_brick(
+    #         instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
+    #     """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
+    #     @param instance_brick_config: An instance of InstanceBrickConfigItem.
+    #     @return A GraphFetcher instance.
+    #     """
+    #     warnings.warn(
+    #         'AbstractReportGraph.get_fetcher_from_instance_brick() is deprecated ; '
+    #         'use ReportGraphBrick(...).fetcher instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     from ..bricks import ReportGraphBrick
+    #     return ReportGraphBrick(instance_brick_config).fetcher
 
     @property
     def hand(self) -> 'ReportGraphHand':
@@ -224,71 +223,72 @@ class AbstractReportGraph(CremeEntity):
 
         return hand
 
-    class InstanceBrickConfigItemError(Exception):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            warnings.warn(
-                'AbstractReportGraph.InstanceBrickConfigItemError is deprecated.',
-                DeprecationWarning
-            )
+    # class InstanceBrickConfigItemError(Exception):
+    #     def __init__(self, *args, **kwargs):
+    #         super().__init__(*args, **kwargs)
+    #         warnings.warn(
+    #             'AbstractReportGraph.InstanceBrickConfigItemError is deprecated.',
+    #             DeprecationWarning
+    #         )
 
-    def create_instance_brick_config_item(self,
-                                          volatile_field: Optional[str] = None,
-                                          volatile_rtype: Optional[RelationType] = None,
-                                          save: bool = True) -> Optional[InstanceBrickConfigItem]:
-        warnings.warn(
-            'AbstractReportGraph.create_instance_brick_config_item() is deprecated ; '
-            'use GraphFetcher.create_brick_config_item() instead.',
-            DeprecationWarning
-        )
-
-        from ..bricks import ReportGraphBrick
-        from ..constants import RGF_FK, RGF_NOLINK, RGF_RELATION
-        from ..core.graph.fetcher import RegularFieldLinkedGraphFetcher
-
-        ibci = InstanceBrickConfigItem(
-            entity=self,
-            brick_class_id=ReportGraphBrick.id_,
-        )
-
-        if volatile_field:
-            assert volatile_rtype is None
-            error = RegularFieldLinkedGraphFetcher.validate_fieldname(self, volatile_field)
-
-            if error:
-                logger.warning(
-                    'ReportGraph.create_instance_brick_config_item(): '
-                    '%s -> InstanceBrickConfigItem not built.',
-                    error,
-                )
-
-                return None
-
-            ibci.set_extra_data(key='type',  value=RGF_FK)
-            ibci.set_extra_data(key='value', value=volatile_field)
-        elif volatile_rtype:
-            ibci.set_extra_data(key='type',  value=RGF_RELATION)
-            ibci.set_extra_data(key='value', value=volatile_rtype.id)
-        else:
-            ibci.set_extra_data(key='type', value=RGF_NOLINK)
-
-        extra_items = dict(ibci.extra_data_items)
-
-        for other_ibci in InstanceBrickConfigItem.objects.filter(
-            entity=self,
-            brick_class_id=ReportGraphBrick.id_,
-        ):
-            if extra_items == dict(other_ibci.extra_data_items):
-                raise self.InstanceBrickConfigItemError(
-                    gettext(
-                        'The instance block for «{graph}» with these parameters already exists!'
-                    ).format(graph=self)
-                )
-
-        if save:
-            ibci.save()
-
-        return ibci
+    # def create_instance_brick_config_item(self,
+    #                                       volatile_field: Optional[str] = None,
+    #                                       volatile_rtype: Optional[RelationType] = None,
+    #                                       save: bool = True,
+    #                                       ) -> Optional[InstanceBrickConfigItem]:
+    #     warnings.warn(
+    #         'AbstractReportGraph.create_instance_brick_config_item() is deprecated ; '
+    #         'use GraphFetcher.create_brick_config_item() instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     from ..bricks import ReportGraphBrick
+    #     from ..constants import RGF_FK, RGF_NOLINK, RGF_RELATION
+    #     from ..core.graph.fetcher import RegularFieldLinkedGraphFetcher
+    #
+    #     ibci = InstanceBrickConfigItem(
+    #         entity=self,
+    #         brick_class_id=ReportGraphBrick.id_,
+    #     )
+    #
+    #     if volatile_field:
+    #         assert volatile_rtype is None
+    #         error = RegularFieldLinkedGraphFetcher.validate_fieldname(self, volatile_field)
+    #
+    #         if error:
+    #             logger.warning(
+    #                 'ReportGraph.create_instance_brick_config_item(): '
+    #                 '%s -> InstanceBrickConfigItem not built.',
+    #                 error,
+    #             )
+    #
+    #             return None
+    #
+    #         ibci.set_extra_data(key='type',  value=RGF_FK)
+    #         ibci.set_extra_data(key='value', value=volatile_field)
+    #     elif volatile_rtype:
+    #         ibci.set_extra_data(key='type',  value=RGF_RELATION)
+    #         ibci.set_extra_data(key='value', value=volatile_rtype.id)
+    #     else:
+    #         ibci.set_extra_data(key='type', value=RGF_NOLINK)
+    #
+    #     extra_items = dict(ibci.extra_data_items)
+    #
+    #     for other_ibci in InstanceBrickConfigItem.objects.filter(
+    #         entity=self,
+    #         brick_class_id=ReportGraphBrick.id_,
+    #     ):
+    #         if extra_items == dict(other_ibci.extra_data_items):
+    #             raise self.InstanceBrickConfigItemError(
+    #                 gettext(
+    #                     'The instance block for «{graph}» with these parameters already exists!'
+    #                 ).format(graph=self)
+    #             )
+    #
+    #     if save:
+    #         ibci.save()
+    #
+    #     return ibci
 
     @property
     def model(self) -> Type[CremeEntity]:

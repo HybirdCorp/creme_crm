@@ -18,28 +18,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
 import logging
-import warnings
 
-from django.core.exceptions import FieldDoesNotExist
+# from django.core.exceptions import FieldDoesNotExist
+# from django.utils.translation import gettext
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme import reports
 from creme.creme_core import utils
-from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import InstanceBrickConfigItem
 from creme.creme_core.utils.meta import Order
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import jsonify
+# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.generic import base
 
-from .. import constants
-from ..core.graph import RGRAPH_HANDS_MAP, GraphFetcher
+# from .. import constants
+from ..core.graph import GraphFetcher  # RGRAPH_HANDS_MAP
 from ..forms.graph import ReportGraphForm
 from ..report_chart_registry import report_chart_registry
 
@@ -49,93 +49,94 @@ ReportGraph = reports.get_rgraph_model()
 
 # Function views --------------------------------------------------------------
 
-def _get_available_report_graph_types(ct, name):
-    warnings.warn('reports.views.graph._get_available_report_graph_types() is deprecated.',
-                  DeprecationWarning
-                 )
+# def _get_available_report_graph_types(ct, name):
+#     warnings.warn('reports.views.graph._get_available_report_graph_types() is deprecated.',
+#                   DeprecationWarning
+#                  )
+#
+#     from django.db.models import DateField, DateTimeField, ForeignKey
+#
+#     from creme.creme_core.models import CustomField, RelationType
+#
+#     model = ct.model_class()
+#
+#     try:
+#         field = model._meta.get_field(name)
+#     except FieldDoesNotExist:
+#         if name.isdigit():
+#             try:
+#                 cf = CustomField.objects.get(pk=name, content_type=ct)
+#             except CustomField.DoesNotExist:
+#                 logger.debug(
+#                     'get_available_report_graph_types(): '
+#                     '"%s" is not a field or a CustomField id',
+#                     name
+#                 )
+#             else:
+#                 field_type = cf.field_type
+#
+#                 if field_type == CustomField.DATETIME:
+#                     return (
+#                         constants.RGT_CUSTOM_DAY,
+#                         constants.RGT_CUSTOM_MONTH,
+#                         constants.RGT_CUSTOM_YEAR,
+#                         constants.RGT_CUSTOM_RANGE,
+#                     )
+#
+#                 if field_type == CustomField.ENUM:
+#                     return (constants.RGT_CUSTOM_FK,)
+#
+#                 logger.debug(
+#                     'get_available_report_graph_types(): '
+#                     'only ENUM & DATETIME CustomField are allowed.'
+#                 )
+#         else:
+#             try:
+#                 RelationType.objects.get(pk=name)
+#             except RelationType.DoesNotExist:
+#                 logger.debug(
+#                     'get_available_report_graph_types(): '
+#                     '"%s" is not a field or a RelationType id', name
+#                 )
+#             else:
+#                 return (constants.RGT_RELATION,)
+#     else:
+#         if isinstance(field, (DateField, DateTimeField)):
+#             return (
+#                 constants.RGT_DAY,
+#                 constants.RGT_MONTH,
+#                 constants.RGT_YEAR,
+#                 constants.RGT_RANGE,
+#             )
+#
+#         if isinstance(field, ForeignKey):
+#             return (constants.RGT_FK,)
+#
+#         logger.debug(
+#             'get_available_report_graph_types(): "%s" is not a valid field for abscissa', name
+#         )
 
-    from django.db.models import DateField, DateTimeField, ForeignKey
 
-    from creme.creme_core.models import CustomField, RelationType
-
-    model = ct.model_class()
-
-    try:
-        field = model._meta.get_field(name)
-    except FieldDoesNotExist:
-        if name.isdigit():
-            try:
-                cf = CustomField.objects.get(pk=name, content_type=ct)
-            except CustomField.DoesNotExist:
-                logger.debug(
-                    'get_available_report_graph_types(): "%s" is not a field or a CustomField id',
-                    name
-                )
-            else:
-                field_type = cf.field_type
-
-                if field_type == CustomField.DATETIME:
-                    return (
-                        constants.RGT_CUSTOM_DAY,
-                        constants.RGT_CUSTOM_MONTH,
-                        constants.RGT_CUSTOM_YEAR,
-                        constants.RGT_CUSTOM_RANGE,
-                    )
-
-                if field_type == CustomField.ENUM:
-                    return (constants.RGT_CUSTOM_FK,)
-
-                logger.debug(
-                    'get_available_report_graph_types(): '
-                    'only ENUM & DATETIME CustomField are allowed.'
-                )
-        else:
-            try:
-                RelationType.objects.get(pk=name)
-            except RelationType.DoesNotExist:
-                logger.debug(
-                    'get_available_report_graph_types(): '
-                    '"%s" is not a field or a RelationType id', name
-                )
-            else:
-                return (constants.RGT_RELATION,)
-    else:
-        if isinstance(field, (DateField, DateTimeField)):
-            return (
-                constants.RGT_DAY,
-                constants.RGT_MONTH,
-                constants.RGT_YEAR,
-                constants.RGT_RANGE,
-            )
-
-        if isinstance(field, ForeignKey):
-            return (constants.RGT_FK,)
-
-        logger.debug(
-            'get_available_report_graph_types(): "%s" is not a valid field for abscissa', name
-        )
-
-
-@login_required
-@jsonify
-def get_available_report_graph_types(request, ct_id):
-    warnings.warn('reports.views.graph.get_available_report_graph_types() is deprecated.',
-                  DeprecationWarning
-                 )
-
-    ct = utils.get_ct_or_404(ct_id)
-    abscissa_field = utils.get_from_POST_or_404(request.POST, 'record_id')
-    gtypes = _get_available_report_graph_types(ct, abscissa_field)
-
-    if gtypes is None:
-        result = [{'id': '', 'text': gettext('Choose an abscissa field')}]
-    else:
-        result = [{'id':   type_id,
-                   'text': str(RGRAPH_HANDS_MAP[type_id].verbose_name),
-                  } for type_id in gtypes
-                 ]
-
-    return {'result': result}
+# @login_required
+# @jsonify
+# def get_available_report_graph_types(request, ct_id):
+#     warnings.warn('reports.views.graph.get_available_report_graph_types() is deprecated.',
+#                   DeprecationWarning
+#                  )
+#
+#     ct = utils.get_ct_or_404(ct_id)
+#     abscissa_field = utils.get_from_POST_or_404(request.POST, 'record_id')
+#     gtypes = _get_available_report_graph_types(ct, abscissa_field)
+#
+#     if gtypes is None:
+#         result = [{'id': '', 'text': gettext('Choose an abscissa field')}]
+#     else:
+#         result = [{'id':   type_id,
+#                    'text': str(RGRAPH_HANDS_MAP[type_id].verbose_name),
+#                   } for type_id in gtypes
+#                  ]
+#
+#     return {'result': result}
 
 
 # Class-based views  ----------------------------------------------------------
