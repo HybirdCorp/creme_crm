@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,35 +18,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.bulk import BulkForm
 
-from .. import get_product_model
-from .base import _BaseEditForm, _BaseForm
+# from .. import get_product_model
+# from .base import _BaseEditForm, _BaseForm
 from .fields import CategoryField
 
-Product = get_product_model()
+# Product = get_product_model()
 
 
-class ProductCreateForm(_BaseForm):
-    class Meta(_BaseForm.Meta):
-        model = Product
+# class ProductCreateForm(_BaseForm):
+#     class Meta(_BaseForm.Meta):
+#         model = Product
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('ProductCreateForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-        warnings.warn('ProductCreateForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
 
-
-class ProductEditForm(_BaseEditForm):
-    class Meta(_BaseEditForm.Meta):
-        model = Product
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('ProductEditForm is deprecated.', DeprecationWarning)
-        super().__init__(*args, **kwargs)
+# class ProductEditForm(_BaseEditForm):
+#     class Meta(_BaseEditForm.Meta):
+#         model = Product
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('ProductEditForm is deprecated.', DeprecationWarning)
+#         super().__init__(*args, **kwargs)
 
 
 class ProductInnerEditCategory(BulkForm):
