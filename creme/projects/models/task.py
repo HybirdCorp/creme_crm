@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from itertools import chain
 
 from django.conf import settings
@@ -103,15 +103,15 @@ class AbstractProjectTask(CremeEntity):
         for relation in self.relations.filter(type=REL_OBJ_LINKED_2_PTASK):
             relation._delete_without_transaction()
 
-    @property
-    def safe_duration(self):
-        warnings.warn(
-            'The property AbstractProjectTask.safe_duration is deprecated ; '
-            'use the field "duration" instead.',
-            DeprecationWarning,
-        )
-
-        return self.duration or 0
+    # @property
+    # def safe_duration(self):
+    #     warnings.warn(
+    #         'The property AbstractProjectTask.safe_duration is deprecated ; '
+    #         'use the field "duration" instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     return self.duration or 0
 
     def get_parents(self):
         if self.parents is None:

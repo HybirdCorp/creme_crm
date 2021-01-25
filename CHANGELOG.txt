@@ -43,6 +43,8 @@
                     - These methods of 'models.EmailSending' have been removed : get_mails(), get_unsent_mails_count()
                     - In 'views.crudity', these functions have been removed :
                       set_emails_status(), spam(), validated(), waiting()
+                * Projects :
+                    - The property 'models.AbstractProjectTask.safe_duration' has been removed.
 
 == Version 2.2 ==
 
