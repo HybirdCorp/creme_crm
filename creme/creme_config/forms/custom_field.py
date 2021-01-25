@@ -154,11 +154,13 @@ class CustomFieldsCTAddForm(FirstCustomFieldCreationForm):
 # class CustomFieldsAddForm(CustomFieldsBaseForm):
 class CustomFieldCreationForm(CustomFieldBaseForm):
     error_messages = {
-        **CustomFieldsBaseForm.error_messages,
+        # **CustomFieldsBaseForm.error_messages,
+        **CustomFieldBaseForm.error_messages,
         'duplicated_name': _('There is already a custom field with this name.'),
     }
 
-    class Meta(CustomFieldsBaseForm.Meta):
+    # class Meta(CustomFieldsBaseForm.Meta):
+    class Meta(CustomFieldBaseForm.Meta):
         exclude = ('content_type',)
 
     def __init__(self, ctype, *args, **kwargs):

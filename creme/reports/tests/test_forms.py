@@ -653,6 +653,7 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
 
         columns_f = form.fields['columns']
         self.assertEqual(self.ct_orga, columns_f.content_type)
+        self.assertEqual(FakeOrganisation, columns_f.model)
         self.assertEqual(
             # [_EntityCellAggregate(model=FakeOrganisation, agg_id=agg_id)],
             [ReportEntityCellRegularAggregate.build(FakeOrganisation, agg_id)],

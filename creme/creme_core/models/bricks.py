@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -906,7 +906,8 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     @atomic
     def delete(self, *args, **kwargs):
-        brick_id = self.generate_id()
+        # brick_id = self.generate_id()
+        brick_id = self.brick_id
         self.check_detail_configuration(brick_id)
 
         # BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
