@@ -1935,10 +1935,10 @@ class ReportTestCase(BaseReportsTestCase):
         "RFT_RELATED field."
         user = self.login()
 
-        self.assertListEqual(
-            [('fakereportsdocument', 'Test (reports) Document')],
-            Report.get_related_fields_choices(FakeReportsFolder),
-        )
+        # self.assertListEqual(
+        #     [('fakereportsdocument', 'Test (reports) Document')],
+        #     Report.get_related_fields_choices(FakeReportsFolder),
+        # )
 
         folder_report = Report.objects.create(
             name='Report on folders', user=user, ct=self.ct_folder,

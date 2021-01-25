@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from functools import partial
 from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple, Type, Union
 
@@ -245,28 +245,28 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
 
         return [field.remote_field.model]
 
-    @staticmethod
-    def validate_fieldname(graph, field_name):
-        warnings.warn(
-            'RegularFieldLinkedGraphFetcher.validate_fieldname() is deprecated.',
-            DeprecationWarning
-        )
-
-        from creme.creme_core.utils.meta import FieldInfo
-
-        try:
-            field_info = FieldInfo(graph.model, field_name)
-        except FieldDoesNotExist:
-            return f'invalid field "{field_name}"'
-
-        if len(field_info) > 1:
-            return f'field "{field_name}" with deep > 1'
-
-        field = field_info[0]
-
-        if not (isinstance(field, ForeignKey) and
-                issubclass(field.remote_field.model, CremeEntity)):
-            return f'field "{field_name}" is not a ForeignKey to CremeEntity'
+    # @staticmethod
+    # def validate_fieldname(graph, field_name):
+    #     warnings.warn(
+    #         'RegularFieldLinkedGraphFetcher.validate_fieldname() is deprecated.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     from creme.creme_core.utils.meta import FieldInfo
+    #
+    #     try:
+    #         field_info = FieldInfo(graph.model, field_name)
+    #     except FieldDoesNotExist:
+    #         return f'invalid field "{field_name}"'
+    #
+    #     if len(field_info) > 1:
+    #         return f'field "{field_name}" with deep > 1'
+    #
+    #     field = field_info[0]
+    #
+    #     if not (isinstance(field, ForeignKey) and
+    #             issubclass(field.remote_field.model, CremeEntity)):
+    #         return f'field "{field_name}" is not a ForeignKey to CremeEntity'
 
 
 class RelationLinkedGraphFetcher(GraphFetcher):

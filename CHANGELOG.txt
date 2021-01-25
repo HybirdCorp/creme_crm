@@ -43,6 +43,20 @@
                     - These methods of 'models.EmailSending' have been removed : get_mails(), get_unsent_mails_count()
                     - In 'views.crudity', these functions have been removed :
                       set_emails_status(), spam(), validated(), waiting()
+                * Reports :
+                    - In 'core.graph' :
+                        - The property 'hand.ReportGraphHand.verbose_ordinate' has been removed.
+                        - The method 'fetcher.RegularFieldLinkedGraphFetcher.validate_fieldname()' has been removed.
+                    - In 'models' :
+                        - The method 'AbstractReport.get_related_fields_choices()' has been removed.
+                        - In 'AbstractReportGraph' :
+                            - These methods have been removed :  create_instance_brick_config_item(), get_fetcher_from_instance_brick().
+                            - The sub-class 'InstanceBrickConfigItemError' has been removed.
+                    - In 'views' :
+                        - The class 'report.ReportCreation' has been removed.
+                        - In 'graph', these functions have been removed : get_available_report_graph_types(), _get_available_report_graph_types().
+                    - The template file "creme/reports/templates/reports/add_report.html" has been removed.
+                    - In JavaScript, the component 'creme.reports.ReportFormController' has been removed.
                 * Projects :
                     - The property 'models.AbstractProjectTask.safe_duration' has been removed.
 
