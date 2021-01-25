@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from collections import Counter
 from functools import partial
 
@@ -112,7 +112,7 @@ class CustomFieldBaseForm(CremeModelForm):
         return instance
 
 
-CustomFieldsBaseForm = CustomFieldBaseForm  # DEPRECATED
+# CustomFieldsBaseForm = CustomFieldBaseForm  # DEPRECATED
 
 
 class FirstCustomFieldCreationForm(CustomFieldBaseForm):
@@ -137,15 +137,15 @@ class FirstCustomFieldCreationForm(CustomFieldBaseForm):
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
 
-class CustomFieldsCTAddForm(FirstCustomFieldCreationForm):
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            'creme_config.forms.custom_fields.CustomFieldsCTAddForm is deprecated ;'
-            'use FirstCustomFieldCreationForm instead.',
-            DeprecationWarning
-        )
-
-        super().__init__(*args, **kwargs)
+# class CustomFieldsCTAddForm(FirstCustomFieldCreationForm):
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn(
+#             'creme_config.forms.custom_fields.CustomFieldsCTAddForm is deprecated ;'
+#             'use FirstCustomFieldCreationForm instead.',
+#             DeprecationWarning
+#         )
+#
+#         super().__init__(*args, **kwargs)
 
 
 class CustomFieldCreationForm(CustomFieldBaseForm):
@@ -178,80 +178,80 @@ class CustomFieldCreationForm(CustomFieldBaseForm):
         return super().save()
 
 
-class CustomFieldsAddForm(CustomFieldCreationForm):
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            'creme_config.forms.custom_fields.CustomFieldsAddForm is deprecated ; '
-            'use CustomFieldCreationForm instead.',
-            DeprecationWarning
-        )
-        super().__init__(*args, **kwargs)
+# class CustomFieldsAddForm(CustomFieldCreationForm):
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn(
+#             'creme_config.forms.custom_fields.CustomFieldsAddForm is deprecated ; '
+#             'use CustomFieldCreationForm instead.',
+#             DeprecationWarning
+#         )
+#         super().__init__(*args, **kwargs)
 
 
-class CustomFieldsEditForm(CremeModelForm):
-    error_messages = {
-        'duplicated_name': _('There is already a custom field with this name.'),
-    }
-
-    class Meta:
-        model = CustomField
-        fields = ('name',)
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            'creme_config.forms.custom_fields.CustomFieldsEditForm is deprecated ; '
-            'use CustomFieldEditionForm instead.',
-            DeprecationWarning
-        )
-
-        super().__init__(*args, **kwargs)
-
-        if self.instance.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-            self._enum_values = CustomFieldEnumValue.objects.filter(custom_field=self.instance)
-
-            fields = self.fields
-            fields['old_choices'] = core_fields.ListEditionField(
-                content=[enum.value for enum in self._enum_values],
-                label=gettext('Existing choices of the list'),
-                help_text=gettext('Uncheck the choices you want to delete.'),
-            )
-            fields['new_choices'] = forms.CharField(
-                widget=Textarea(), required=False,
-                label=gettext('New choices of the list'),
-                help_text=gettext('Give the new possible choices (one per line).'),
-            )
-
-    def clean_name(self):
-        name = self.cleaned_data['name']
-        instance = self.instance
-
-        if CustomField.objects.filter(content_type=instance.content_type, name=name)\
-                              .exclude(id=instance.id)\
-                              .exists():
-            raise ValidationError(
-                self.error_messages['duplicated_name'], code='duplicated_name',
-            )
-
-        return name
-
-    def save(self):
-        cfield = super().save()
-
-        if cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-            cleaned_data = self.cleaned_data
-
-            for cfev, new_value in zip(self._enum_values, cleaned_data['old_choices']):
-                if new_value is None:
-                    cfev.delete()
-                elif cfev.value != new_value:
-                    cfev.value = new_value
-                    cfev.save()
-
-            create_enum_value = CustomFieldEnumValue.objects.create
-            for enum_value in cleaned_data['new_choices'].splitlines():
-                create_enum_value(custom_field=cfield, value=enum_value)
-
-        return cfield
+# class CustomFieldsEditForm(CremeModelForm):
+#     error_messages = {
+#         'duplicated_name': _('There is already a custom field with this name.'),
+#     }
+#
+#     class Meta:
+#         model = CustomField
+#         fields = ('name',)
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn(
+#             'creme_config.forms.custom_fields.CustomFieldsEditForm is deprecated ; '
+#             'use CustomFieldEditionForm instead.',
+#             DeprecationWarning
+#         )
+#
+#         super().__init__(*args, **kwargs)
+#
+#         if self.instance.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+#             self._enum_values = CustomFieldEnumValue.objects.filter(custom_field=self.instance)
+#
+#             fields = self.fields
+#             fields['old_choices'] = core_fields.ListEditionField(
+#                 content=[enum.value for enum in self._enum_values],
+#                 label=gettext('Existing choices of the list'),
+#                 help_text=gettext('Uncheck the choices you want to delete.'),
+#             )
+#             fields['new_choices'] = forms.CharField(
+#                 widget=Textarea(), required=False,
+#                 label=gettext('New choices of the list'),
+#                 help_text=gettext('Give the new possible choices (one per line).'),
+#             )
+#
+#     def clean_name(self):
+#         name = self.cleaned_data['name']
+#         instance = self.instance
+#
+#         if CustomField.objects.filter(content_type=instance.content_type, name=name)\
+#                               .exclude(id=instance.id)\
+#                               .exists():
+#             raise ValidationError(
+#                 self.error_messages['duplicated_name'], code='duplicated_name',
+#             )
+#
+#         return name
+#
+#     def save(self):
+#         cfield = super().save()
+#
+#         if cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+#             cleaned_data = self.cleaned_data
+#
+#             for cfev, new_value in zip(self._enum_values, cleaned_data['old_choices']):
+#                 if new_value is None:
+#                     cfev.delete()
+#                 elif cfev.value != new_value:
+#                     cfev.value = new_value
+#                     cfev.save()
+#
+#             create_enum_value = CustomFieldEnumValue.objects.create
+#             for enum_value in cleaned_data['new_choices'].splitlines():
+#                 create_enum_value(custom_field=cfield, value=enum_value)
+#
+#         return cfield
 
 
 class CustomFieldEditionForm(CremeModelForm):
