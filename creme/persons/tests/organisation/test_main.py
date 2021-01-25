@@ -10,13 +10,12 @@ from creme.creme_core.models import FieldsConfig, Relation, SetCredentials
 from creme.persons import constants
 from creme.persons.models import LegalForm, Sector, StaffSize
 
-from ..base import (
+from ..base import (  # skipIfCustomContact
     Address,
     Contact,
     Organisation,
     _BaseTestCase,
     skipIfCustomAddress,
-    skipIfCustomContact,
     skipIfCustomOrganisation,
 )
 
@@ -407,67 +406,67 @@ class OrganisationTestCase(_BaseTestCase):
 
         self.assertListEqual([c2, c1], [*orga1.get_managers()])
 
-    def test_become_customer01(self):
-        self._become_test('persons__become_customer', constants.REL_SUB_CUSTOMER_SUPPLIER)
+    # def test_become_customer01(self):
+    #     self._become_test('persons__become_customer', constants.REL_SUB_CUSTOMER_SUPPLIER)
+    #
+    # @skipIfCustomContact
+    # def test_become_customer02(self):
+    #     "Credentials errors"
+    #     user = self.login(is_superuser=False)
+    #
+    #     create_creds = partial(SetCredentials.objects.create, role=self.role)
+    #     create_creds(
+    #         value=(
+    #             EntityCredentials.VIEW
+    #             | EntityCredentials.CHANGE
+    #             | EntityCredentials.DELETE
+    #             | EntityCredentials.UNLINK
+    #         ),  # Not 'LINK'
+    #         set_type=SetCredentials.ESET_ALL,
+    #     )
+    #     create_creds(
+    #         value=(
+    #             EntityCredentials.VIEW
+    #             | EntityCredentials.CHANGE
+    #             | EntityCredentials.DELETE
+    #             | EntityCredentials.LINK
+    #             | EntityCredentials.UNLINK
+    #         ),
+    #         set_type=SetCredentials.ESET_OWN,
+    #     )
+    #
+    #     mng_orga01 = self._build_managed_orga()
+    #
+    #     # Can not link it
+    #     customer01 = Contact.objects.create(
+    #         user=self.other_user, first_name='Jet', last_name='Black',
+    #     )
+    #
+    #     self.assertPOST403(
+    #         reverse('persons__become_customer', args=(customer01.id,)),
+    #         data={'id': mng_orga01.id}, follow=True
+    #     )
+    #     self.assertEqual(0, Relation.objects.filter(subject_entity=customer01.id).count())
+    #
+    #     mng_orga02 = self._build_managed_orga(user=self.other_user)  # Can not link it
+    #     customer02 = Contact.objects.create(user=user, first_name='Vicious', last_name='??')
+    #     self.assertPOST403(
+    #         reverse('persons__become_customer', args=(customer02.id,)),
+    #         data={'id': mng_orga02.id}, follow=True
+    #     )
+    #     self.assertEqual(0, Relation.objects.filter(subject_entity=customer02.id).count())
 
-    @skipIfCustomContact
-    def test_become_customer02(self):
-        "Credentials errors"
-        user = self.login(is_superuser=False)
-
-        create_creds = partial(SetCredentials.objects.create, role=self.role)
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),  # Not 'LINK'
-            set_type=SetCredentials.ESET_ALL,
-        )
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
-
-        mng_orga01 = self._build_managed_orga()
-
-        # Can not link it
-        customer01 = Contact.objects.create(
-            user=self.other_user, first_name='Jet', last_name='Black',
-        )
-
-        self.assertPOST403(
-            reverse('persons__become_customer', args=(customer01.id,)),
-            data={'id': mng_orga01.id}, follow=True
-        )
-        self.assertEqual(0, Relation.objects.filter(subject_entity=customer01.id).count())
-
-        mng_orga02 = self._build_managed_orga(user=self.other_user)  # Can not link it
-        customer02 = Contact.objects.create(user=user, first_name='Vicious', last_name='??')
-        self.assertPOST403(
-            reverse('persons__become_customer', args=(customer02.id,)),
-            data={'id': mng_orga02.id}, follow=True
-        )
-        self.assertEqual(0, Relation.objects.filter(subject_entity=customer02.id).count())
-
-    def test_become_prospect(self):
-        self._become_test('persons__become_prospect', constants.REL_SUB_PROSPECT)
-
-    def test_become_suspect(self):
-        self._become_test('persons__become_suspect', constants.REL_SUB_SUSPECT)
-
-    def test_become_inactive_customer(self):
-        self._become_test('persons__become_inactive_customer', constants.REL_SUB_INACTIVE)
-
-    def test_become_supplier(self):
-        self._become_test('persons__become_supplier', constants.REL_OBJ_CUSTOMER_SUPPLIER)
+    # def test_become_prospect(self):
+    #     self._become_test('persons__become_prospect', constants.REL_SUB_PROSPECT)
+    #
+    # def test_become_suspect(self):
+    #     self._become_test('persons__become_suspect', constants.REL_SUB_SUSPECT)
+    #
+    # def test_become_inactive_customer(self):
+    #     self._become_test('persons__become_inactive_customer', constants.REL_SUB_INACTIVE)
+    #
+    # def test_become_supplier(self):
+    #     self._become_test('persons__become_supplier', constants.REL_OBJ_CUSTOMER_SUPPLIER)
 
     def test_leads_customers01(self):
         user = self.login()
@@ -491,14 +490,25 @@ class OrganisationTestCase(_BaseTestCase):
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
         fsf  = create_orga(name='FSF')
+        evil = create_orga(name='EvilCorp')
 
-        post = partial(self.client.post, data={'id': mng_orga.id})
-        post(reverse('persons__become_customer', args=(nerv.id,)))
-        post(reverse('persons__become_prospect', args=(acme.id,)))
-        post(reverse('persons__become_suspect',  args=(fsf.id,)))
+        # post = partial(self.client.post, data={'id': mng_orga.id})
+        # post(reverse('persons__become_customer', args=(nerv.id,)))
+        # post(reverse('persons__become_prospect', args=(acme.id,)))
+        # post(reverse('persons__become_suspect',  args=(fsf.id,)))
+        def create_relation(orga, rtype_id):
+            Relation.objects.create(
+                user=user,
+                subject_entity=orga,
+                object_entity=mng_orga,
+                type_id=rtype_id,
+            )
+
+        create_relation(nerv, constants.REL_SUB_CUSTOMER_SUPPLIER)
+        create_relation(acme, constants.REL_SUB_PROSPECT)
+        create_relation(fsf,  constants.REL_SUB_SUSPECT)
 
         response = self.client.get(reverse('persons__leads_customers'))
-        # orgas_page = response.context['entities']
         orgas_page = response.context['page_obj']
 
         self.assertEqual(3, orgas_page.paginator.count)
@@ -507,6 +517,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertIn(nerv, orgas_set)
         self.assertIn(acme, orgas_set)
         self.assertIn(fsf,  orgas_set)
+        self.assertNotIn(evil, orgas_set)
 
     def test_leads_customers03(self):
         user = self.login()
@@ -514,9 +525,15 @@ class OrganisationTestCase(_BaseTestCase):
         create_orga = partial(Organisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
-        self.client.post(
-            reverse('persons__become_customer', args=(nerv.id,)),
-            data={'id': acme.id},
+        # self.client.post(
+        #     reverse('persons__become_customer', args=(nerv.id,)),
+        #     data={'id': acme.id},
+        # )
+        Relation.objects.create(
+            user=user,
+            subject_entity=acme,
+            object_entity=nerv,
+            type_id=constants.REL_SUB_CUSTOMER_SUPPLIER,
         )
 
         response = self.client.get(reverse('persons__leads_customers'))

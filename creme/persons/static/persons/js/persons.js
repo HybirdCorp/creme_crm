@@ -25,21 +25,18 @@
 
 creme.persons = creme.persons || {};
 
-// Copy inputs from a form to another in the SAME order.
-// WARNING : Extremely weak function, if any field is missing or moved on the
-// other side, it will fall apart.
-creme.persons.copyTo = function(source, target) {
-    console.warn('creme.persons.copyTo() is deprecated.');
-
-    source = Object.isString(source) ? $('#' + source) : $(source);
-    target = Object.isString(target) ? $('#' + target) : $(target);
-
-    var targetInputs = target.find('input, textarea, select');
-
-    source.find('input, textarea, select').each(function(index) {
-        $(targetInputs[index]).val($(this).val());
-    });
-};
+// creme.persons.copyTo = function(source, target) {
+//     console.warn('creme.persons.copyTo() is deprecated.');
+//
+//     source = Object.isString(source) ? $('#' + source) : $(source);
+//     target = Object.isString(target) ? $('#' + target) : $(target);
+//
+//     var targetInputs = target.find('input, textarea, select');
+//
+//     source.find('input, textarea, select').each(function(index) {
+//         $(targetInputs[index]).val($(this).val());
+//     });
+// };
 
 // TODO: unit test
 creme.persons.copyAddressInputs = function(source_prefix, target_prefix, source_root, target_root) {
