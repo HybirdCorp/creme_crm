@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from collections import defaultdict
 
 from django.contrib.auth import get_user_model, password_validation
@@ -36,23 +36,23 @@ from creme.creme_core.models.fields import CremeUserForeignKey
 CremeUser = get_user_model()
 
 
-def _password_validators_help_text_html(password_validators=None):
-    warnings.warn(
-        'creme_config.forms.user._password_validators_help_text_html() is deprecated.',
-        DeprecationWarning,
-    )
-
-    from django.utils.html import format_html, format_html_join
-
-    help_texts = password_validation.password_validators_help_texts(password_validators)
-
-    if not help_texts:
-        return ''
-
-    return format_html(
-        '<ul>{}</ul>',
-        format_html_join('', '<li>{}</li>', ((text,) for text in help_texts))
-    )
+# def _password_validators_help_text_html(password_validators=None):
+#     warnings.warn(
+#         'creme_config.forms.user._password_validators_help_text_html() is deprecated.',
+#         DeprecationWarning,
+#     )
+#
+#     from django.utils.html import format_html, format_html_join
+#
+#     help_texts = password_validation.password_validators_help_texts(password_validators)
+#
+#     if not help_texts:
+#         return ''
+#
+#     return format_html(
+#         '<ul>{}</ul>',
+#         format_html_join('', '<li>{}</li>', ((text,) for text in help_texts))
+#     )
 
 
 # TODO: inherit from django.contrib.auth.forms.UserCreationForm
