@@ -111,6 +111,10 @@
                     - In JavaScript, the component 'creme.reports.ReportFormController' has been removed.
                 * Projects :
                     - The property 'models.AbstractProjectTask.safe_duration' has been removed.
+        # Apps :
+            * Projects :
+                - The <related_name> of the field 'models.AbstractProjectTask.parent_tasks' has been renamed "children" (it was "children_set").
+
 
 == Version 2.2 ==
 

@@ -98,7 +98,8 @@ class Migration(migrations.Migration):
                                                     )
                  ),
                 ('order', models.PositiveIntegerField(verbose_name='Order', null=True, editable=False, blank=True)),
-                ('parent_tasks', models.ManyToManyField(related_name='children_set', editable=False, to=settings.PROJECTS_TASK_MODEL)),
+                # ('parent_tasks', models.ManyToManyField(related_name='children_set', editable=False, to=settings.PROJECTS_TASK_MODEL)),
+                ('parent_tasks', models.ManyToManyField(related_name='children', editable=False, to=settings.PROJECTS_TASK_MODEL)),
                 # ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
                 ('start', models.DateTimeField(verbose_name='Start')),
                 # ('end',   models.DateTimeField(null=True, verbose_name='End', blank=True)),

@@ -52,7 +52,8 @@ class AbstractProjectTask(CremeEntity):
 
     parent_tasks = models.ManyToManyField(
         'self', symmetrical=False,
-        related_name='children_set',  # TODO: rename children ?
+        # related_name='children_set',
+        related_name='children',
         editable=False,
     )
 
@@ -61,6 +62,8 @@ class AbstractProjectTask(CremeEntity):
     duration = models.PositiveIntegerField(_('Duration (in hours)'), default=0)
 
     # TODO: rename "status" (does not collide with activity's status anymore)
+    #       beware: data-migration for HeaderFilter, CustomFormConfigItem,
+    #               SearchConfigItem, Bricks... is needed.
     tstatus = models.ForeignKey(
         TaskStatus, verbose_name=_('Task situation'), on_delete=CREME_REPLACE,
     )
@@ -128,7 +131,8 @@ class AbstractProjectTask(CremeEntity):
         # TODO: use prefetch_related() ??
         while level_tasks:
             level_tasks = [
-                *chain.from_iterable(task.children_set.all() for task in level_tasks),
+                # *chain.from_iterable(task.children_set.all() for task in level_tasks),
+                *chain.from_iterable(task.children.all() for task in level_tasks),
             ]
             subtasks.extend(level_tasks)
 
