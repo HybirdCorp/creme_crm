@@ -6,6 +6,8 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - The class 'creme_core.forms.fields.AjaxModelChoiceField' is deprecated.
+            - In the template "creme_core/generics/blockform/field-block.html", the block {% block extra_buttons %} is deprecated.
             - Apps :
                 * Persons :
                     - The function 'forms.base._get_address_field_names()' is deprecated.

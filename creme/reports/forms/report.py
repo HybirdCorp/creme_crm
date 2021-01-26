@@ -291,7 +291,6 @@ _CELL_2_HAND_MAP = {
 _HAND_2_CELL_MAP = {v: k for k, v in _CELL_2_HAND_MAP.items()}
 
 
-# TODO: deprecated AjaxModelChoiceField when removed
 # class ReportCreateForm(CremeEntityForm):
 #     hf = core_fields.AjaxModelChoiceField(
 #         label=_('Existing view'),
