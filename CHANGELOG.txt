@@ -3,6 +3,14 @@
   Developers side :
   -----------------
 
+    Non breaking changes :
+    ----------------------
+        # Deprecations :
+            - Apps :
+                * Persons :
+                    - The function 'forms.base._get_address_field_names()' is deprecated.
+                    - The class 'forms.address._AuxiliaryAddressForm' is deprecated.
+
     Breaking changes :
     ------------------
         # Deprecated stuffs which have been removed :
