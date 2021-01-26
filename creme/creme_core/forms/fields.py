@@ -1365,6 +1365,13 @@ class AjaxModelChoiceField(mforms.ModelChoiceField):
     """
         Same as ModelChoiceField but bypass the choices validation due to the ajax filling
     """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        warnings.warn(
+            'creme_core.forms.fields.AjaxModelChoiceField is deprecated',
+            DeprecationWarning,
+        )
+
     def clean(self, value):
         # Field.clean(self, value)
 

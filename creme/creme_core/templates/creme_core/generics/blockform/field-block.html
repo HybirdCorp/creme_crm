@@ -24,7 +24,7 @@
                 </tr>
             </thead>
             <tbody class="collapsable">
-                {% block extra_buttons %}{% endblock %}{# NB: To be deprecated ; use block "content_fields.super" instead #}
+                {% block extra_buttons %}{# DEPRECATED: use block "content_fields.super" instead #}{% endblock %}
               {% block content_fields %}
                 {% for field in fields %}
                     {% if not field.is_hidden %}
