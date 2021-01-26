@@ -125,7 +125,9 @@ class UserAddForm(CremeModelForm):
 
 # TODO: factorise with UserAddForm
 class UserEditForm(CremeModelForm):
-    role = ModelChoiceField(label=_('Role'), queryset=UserRole.objects.all(), required=False)
+    role = ModelChoiceField(
+        label=_('Role'), queryset=UserRole.objects.all(), required=False,
+    )
 
     class Meta:
         model = CremeUser
