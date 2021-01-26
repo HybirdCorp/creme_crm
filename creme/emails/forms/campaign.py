@@ -56,7 +56,9 @@ class CampaignAddMLForm(CremeForm):
         label=_('Lists'), required=False, model=emails.get_mailinglist_model(),
     )
 
-    blocks = FieldBlockManager(('general', _('Mailing lists'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Mailing lists'), 'fields': '*',
+    })
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -226,9 +226,11 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
     )
 
     # TODO: manage Meta.fields in '*'
-    blocks = base.FieldBlockManager(
-        ('general', _('Configuration'), ('role', 'hat', 'top', 'left', 'right', 'bottom')),
-    )
+    blocks = base.FieldBlockManager({
+        'id': 'general',
+        'label': _('Configuration'),
+        'fields': ('role', 'hat', 'top', 'left', 'right', 'bottom'),
+    })
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -255,7 +257,7 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
             hat_f.initial = hat_f.choices[0][0]
 
     def save(self, *args, **kwargs):
-        self.role      = role = self.cleaned_data['role']
+        self.role = role = self.cleaned_data['role']
         self.superuser = (role is None)
         super().save(*args, **kwargs)
 
@@ -263,7 +265,7 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
 class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
     def __init__(self, role, superuser, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.role      = role
+        self.role = role
         self.superuser = superuser
 
         self.locations = locations = BrickDetailviewLocation.objects.filter(
@@ -328,7 +330,7 @@ class BrickHomeLocationsEditionForm(_BrickLocationsForm):
 
     def __init__(self, role, superuser, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.role      = role
+        self.role = role
         self.superuser = superuser
 
         self.locations = locations = BrickHomeLocation.objects.filter(
@@ -529,9 +531,9 @@ class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
 class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
     cells = EntityCellsField(label=_('Lines'))
 
-    blocks = base.CremeModelForm.blocks.new(
-        ('cells', 'Columns', ['cells']),
-    )
+    blocks = base.CremeModelForm.blocks.new({
+        'id': 'cells', 'label': 'Columns', 'fields': ['cells'],
+    })
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -569,7 +569,9 @@ class _HeaderFilterForm(CremeModelForm):
             ),
         }
 
-    blocks = CremeModelForm.blocks.new(('cells', _('Columns'), ['cells']))
+    blocks = CremeModelForm.blocks.new({
+        'id': 'cells', 'label': _('Columns'), 'fields': ['cells'],
+    })
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

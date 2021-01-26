@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,9 @@ class MailingListAddRecipientsForm(CremeForm):
         help_text=_('Write a valid e-mail address per line.'),
     )
 
-    blocks = FieldBlockManager(('general', _('Recipients'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Recipients'), 'fields': '*',
+    })
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,7 +72,7 @@ class MailingListAddRecipientsForm(CremeForm):
     def save(self):
         ml = self.ml
         recipients = self.cleaned_data['recipients']
-        existing   = frozenset(
+        existing = frozenset(
             EmailRecipient.objects.filter(ml=ml, address__in=recipients)
                                   .values_list('address', flat=True)
         )
@@ -91,7 +93,9 @@ class MailingListAddCSVForm(CremeForm):
         )
     )
 
-    blocks = FieldBlockManager(('general', _('CSV file'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('CSV file'), 'fields': '*',
+    })
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -124,7 +128,7 @@ class MailingListAddCSVForm(CremeForm):
 
         for recipients in chunktools.iter_as_chunk(addresses(), 256):
             recipients = frozenset(recipients)
-            existing   = frozenset(
+            existing = frozenset(
                 filter_(ml=ml, address__in=recipients).values_list('address', flat=True)
             )
 

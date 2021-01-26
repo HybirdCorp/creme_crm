@@ -88,12 +88,15 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
     items = MultiCreatorEntityField(label=_('Products'), model=products.get_product_model())
 
     blocks = core_forms.FieldBlockManager(
-        ('general', _('Products choice'), ['items']),
-        (
-            'additional',
-            _('Optional global information applied to your selected products'),
-            ['quantity', 'vat', 'discount_value'],
-        )
+        {
+            'id': 'general',
+            'label': _('Products choice'),
+            'fields': ['items'],
+        }, {
+            'id': 'additional',
+            'label': _('Optional global information applied to your selected products'),
+            'fields': ['quantity', 'vat', 'discount_value'],
+        },
     )
 
     def _get_line_class(self):
@@ -104,12 +107,15 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
     items = MultiCreatorEntityField(label=_('Services'), model=products.get_service_model())
 
     blocks = core_forms.FieldBlockManager(
-        ('general', _('Services choice'), ['items']),
-        (
-            'additional',
-            _('Optional global information applied to your selected services'),
-            ['quantity', 'vat', 'discount_value'],
-        )
+        {
+            'id': 'general',
+            'label': _('Services choice'),
+            'fields': ['items'],
+        }, {
+            'id': 'additional',
+            'label': _('Optional global information applied to your selected services'),
+            'fields': ['quantity', 'vat', 'discount_value'],
+        },
     )
 
     def _get_line_class(self):

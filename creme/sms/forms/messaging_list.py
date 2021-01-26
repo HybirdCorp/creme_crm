@@ -50,7 +50,9 @@ class AddContactsForm(CremeForm):
         label=_('Contacts'), required=False, model=Contact,
     )
 
-    blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Contacts recipients'), 'fields': '*',
+    })
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -100,7 +102,9 @@ class AddPersonsFromFilterForm(CremeForm):  # private class ???
 
 
 class AddContactsFromFilterForm(AddPersonsFromFilterForm):
-    blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Contacts recipients'), 'fields': '*',
+    })
 
     person_model = Contact
 

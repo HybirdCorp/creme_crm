@@ -662,8 +662,8 @@ class ReportGraphForm(CremeModelForm):
     ordinate = OrdinateField(label=_('Y axis'))
 
     blocks = CremeModelForm.blocks.new(
-        ('abscissa', _('X axis'), ['abscissa']),
-        ('ordinate', _('Y axis'), ['ordinate']),
+        {'id': 'abscissa', 'label': _('X axis'), 'fields': ['abscissa']},
+        {'id': 'ordinate', 'label': _('Y axis'), 'fields': ['ordinate']},
     )
 
     class Meta(CremeModelForm.Meta):

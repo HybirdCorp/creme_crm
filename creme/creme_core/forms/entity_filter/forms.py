@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,8 +35,15 @@ class _EntityFilterForm(CremeModelForm):
     }
 
     blocks = FieldBlockManager(
-        ('general',    _('General information'), ('name', 'user', 'is_private', 'use_or')),
-        ('conditions', _('Conditions'),          '*'),
+        {
+            'id': 'general',
+            'label': _('General information'),
+            'fields': ('name', 'user', 'is_private', 'use_or'),
+        }, {
+            'id': 'conditions',
+            'label': _('Conditions'),
+            'fields': '*',
+        },
     )
 
     class Meta(CremeModelForm.Meta):
@@ -82,9 +89,9 @@ class _EntityFilterForm(CremeModelForm):
 
         if not self._errors:
             if not any(cdata[f] for f in self.conditions_field_names):
-                raise ValidationError(self.error_messages['no_condition'],
-                                      code='no_condition',
-                                     )
+                raise ValidationError(
+                    self.error_messages['no_condition'], code='no_condition',
+                )
 
             is_private = cdata.get('is_private', False)
             owner      = cdata.get('user')
