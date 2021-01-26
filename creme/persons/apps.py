@@ -354,13 +354,11 @@ class PersonsConfig(CremeAppConfig):
                 initial=constants.REL_SUB_EMPLOYED_BY,
             )
 
-            blocks = UserCreation.form_class.blocks.new(
-                {
-                    'id': 'contact',
-                    'label': _('Related Contact'),
-                    'fields': ('organisation', 'relation'),
-                },
-            )
+            blocks = UserCreation.form_class.blocks.new({
+                'id': 'contact',
+                'label': _('Related Contact'),
+                'fields': ('organisation', 'relation'),
+            })
 
             def __init__(this, *args, **kwargs):
                 super().__init__(*args, **kwargs)

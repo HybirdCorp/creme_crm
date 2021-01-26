@@ -90,9 +90,11 @@ class _SegmentForm(_AuxForm):
         'duplicated_property': _('A property with the name «%(name)s» already exists'),
     }
 
-    blocks = FieldBlockManager(
-        ('general', _('General information'), ['name', 'product', 'place', 'price', 'promotion']),
-    )
+    blocks = FieldBlockManager({
+        'id': 'general',
+        'label': _('General information'),
+        'fields': ['name', 'product', 'place', 'price', 'promotion'],
+    })
 
     class Meta:
         model = MarketSegmentDescription

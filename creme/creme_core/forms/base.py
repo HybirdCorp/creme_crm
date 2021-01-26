@@ -464,7 +464,9 @@ class HookableFormMixin:
 
 
 class CremeForm(HookableFormMixin, forms.Form):
-    blocks = FieldBlockManager(('general', _('General information'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('General information'), 'fields': '*',
+    })
 
     def __init__(self, user, *args, **kwargs):
         """Constructor.
@@ -493,7 +495,9 @@ class CremeForm(HookableFormMixin, forms.Form):
 
 
 class CremeModelForm(HookableFormMixin, forms.ModelForm):
-    blocks = FieldBlockManager(('general', _('General information'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('General information'), 'fields': '*',
+    })
 
     class Meta:
         fields: Union[str, Tuple[str, ...]] = '__all__'
@@ -599,13 +603,19 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
     }
 
     blocks = CremeModelForm.blocks.new(
-        ('description', _('Description'), ('description',)),
-        ('properties',  _('Properties'),  ('property_types',)),
-        (
-            'relationships',
-            _('Relationships'),
-            ('rtypes_info', 'relation_types', 'semifixed_rtypes'),
-        ),
+        {
+            'id': 'description',
+            'label': _('Description'),
+            'fields': ['description'],
+        }, {
+            'id': 'properties',
+            'label': _('Properties'),
+            'fields': ['property_types'],
+        }, {
+            'id': 'relationships',
+            'label': _('Relationships'),
+            'fields': ['rtypes_info', 'relation_types', 'semifixed_rtypes'],
+        },
     )
 
     class Meta:

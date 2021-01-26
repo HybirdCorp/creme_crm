@@ -1182,8 +1182,15 @@ class ImportForm(CremeModelForm):
     header_dict: Dict[str, int] = {}  # Idem
 
     blocks = FieldBlockManager(
-        ('general', _('Update mode'),  ('step', 'document', 'has_header', 'key_fields')),
-        ('fields',  _('Field values'), '*'),
+        {
+            'id': 'general',
+            'label': _('Update mode'),
+            'fields': ('step', 'document', 'has_header', 'key_fields')
+        }, {
+            'id': 'fields',
+            'label': _('Field values'),
+            'fields': '*',
+        },
     )
 
     def __init__(self, *args, **kwargs):
@@ -1411,14 +1418,24 @@ class ImportForm4CremeEntity(ImportForm):
     )
 
     blocks = FieldBlockManager(
-        (
-            'general',
-            _('General'),
-            ('step', 'document', 'has_header', 'user', 'key_fields')
-        ),
-        ('fields',     _('Field values'),             '*'),
-        ('properties', _('Related properties'),       ('property_types',)),
-        ('relations',  _('Associated relationships'), ('fixed_relations', 'dyn_relations')),
+        {
+            'id': 'general',
+            'label': _('General'),
+            'fields': ('step', 'document', 'has_header', 'user', 'key_fields'),
+        }, {
+            'id': 'fields',
+            'label': _('Field values'),
+            'fields': '*',
+        },
+        {
+            'id': 'properties',
+            'label': _('Related properties'),
+            'fields': ('property_types',),
+        }, {
+            'id': 'relations',
+            'label': _('Associated relationships'),
+            'fields': ('fixed_relations', 'dyn_relations')
+        },
     )
 
     error_messages = {

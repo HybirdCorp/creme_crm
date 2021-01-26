@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,12 +35,14 @@ logger = logging.getLogger(__name__)
 
 
 class ImportForm(CremeForm):
-    config = FileField(label=_('Configuration file'),
-                       help_text=_('A JSON file created with the export button '
-                                   '(generally in another Creme instance).'
-                                  ),
-                       # max_length=
-                      )
+    config = FileField(
+        label=_('Configuration file'),
+        help_text=_(
+            'A JSON file created with the export button '
+            '(generally in another Creme instance).'
+        ),
+        # max_length=
+    )
 
     error_messages = {
         'invalid_json':    _('File content is not valid JSON.'),
@@ -48,7 +50,9 @@ class ImportForm(CremeForm):
         'invalid_version': _('The file has an unsupported version.'),
     }
 
-    blocks = FieldBlockManager(('general', _('Configuration file'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Configuration file'), 'fields': '*',
+    })
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,9 +65,9 @@ class ImportForm(CremeForm):
             deserialized_data = json_load('\n'.join(line.decode() for line in config))
         except Exception as e:
             logger.warning('ImportForm: invalid JSON (%s)', e)
-            raise ValidationError(self.error_messages['invalid_json'],
-                                  code='invalid_json',
-                                 )
+            raise ValidationError(
+                self.error_messages['invalid_json'], code='invalid_json',
+            )
         else:
             if not isinstance(deserialized_data, dict):
                 raise ValidationError(
@@ -73,25 +77,26 @@ class ImportForm(CremeForm):
                 )
 
             if deserialized_data.get('version') != '1.0':
-                raise ValidationError(self.error_messages['invalid_version'],
-                                      code='invalid_version',
-                                     )
+                raise ValidationError(
+                    self.error_messages['invalid_version'], code='invalid_version',
+                )
 
             validated_data = defaultdict(set)
 
             try:
                 for importer in self._importers:
-                    importer.validate(deserialized_data=deserialized_data,
-                                      validated_data=validated_data,
-                                     )
+                    importer.validate(
+                        deserialized_data=deserialized_data,
+                        validated_data=validated_data,
+                    )
             except ValidationError:
                 raise
             except Exception as e:
                 logger.exception('Error in ImportForm.clean_config()')
-                raise ValidationError(self.error_messages['invalid_data'],
-                                      params={'error': e},
-                                      code='invalid_data',
-                                     )
+                raise ValidationError(
+                    self.error_messages['invalid_data'],
+                    params={'error': e}, code='invalid_data',
+                )
 
         return config
 

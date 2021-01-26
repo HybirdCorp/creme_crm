@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -89,9 +89,10 @@ class VcfForm(CremeForm):
             vcf_data = read_vcf(file_obj)
         except Exception as e:
             logger.exception('VcfForm -> error when reading file')
-            raise ValidationError(self.error_messages['invalid_file'],
-                                  params={'error': e}, code='invalid_file',
-                                 ) from e
+            raise ValidationError(
+                self.error_messages['invalid_file'],
+                params={'error': e}, code='invalid_file',
+            ) from e
 
         return vcf_data
 
@@ -124,16 +125,19 @@ class VcfImportForm(CremeModelForm):
     homeaddr_region   = CharField(label=_('Region'),   required=False)
 
     # Related Organisation
-    create_or_attach_orga = BooleanField(label=_('Create or attach organisation'),
-                                         required=False, initial=False,
-                                        )
-    organisation = CreatorEntityField(label=_('Organisation'), required=False, model=Organisation)
-    relation = ModelChoiceField(label=_('Position in the organisation'),
-                                queryset=RelationType.objects.none(),
-                                initial=REL_SUB_EMPLOYED_BY, required=False,
-                                empty_label='',
-                                widget=DynamicSelect(attrs={'autocomplete': True}),
-                               )
+    create_or_attach_orga = BooleanField(
+        label=_('Create or attach organisation'), required=False, initial=False,
+    )
+    organisation = CreatorEntityField(
+        label=_('Organisation'), required=False, model=Organisation,
+    )
+    relation = ModelChoiceField(
+        label=_('Position in the organisation'),
+        queryset=RelationType.objects.none(),
+        initial=REL_SUB_EMPLOYED_BY, required=False,
+        empty_label='',
+        widget=DynamicSelect(attrs={'autocomplete': True}),
+    )
 
     # TODO: Composite field
     update_work_name = BooleanField(
@@ -190,47 +194,64 @@ class VcfImportForm(CremeModelForm):
     orga_fields = ['name', 'phone', 'email', 'fax', 'url_site']
 
     # Correspondence between VCF field types & form-field names.
-    phone_dict = {'HOME': 'phone',
-                  'CELL': 'mobile',
-                  'FAX':  'fax',
-                  'WORK': 'work_phone',
-                 }
-    email_dict = {'HOME':     'email',
-                  'INTERNET': 'email',
-                  'WORK':     'work_email',
-                 }
-    url_dict = {'HOME':     'url_site',
-                'INTERNET': 'url_site',
-                'WORK':     'work_url_site',
-               }
+    phone_dict = {
+        'HOME': 'phone',
+        'CELL': 'mobile',
+        'FAX':  'fax',
+        'WORK': 'work_phone',
+    }
+    email_dict = {
+        'HOME':     'email',
+        'INTERNET': 'email',
+        'WORK':     'work_email',
+    }
+    url_dict = {
+        'HOME':     'url_site',
+        'INTERNET': 'url_site',
+        'WORK':     'work_url_site',
+    }
 
     # Form-field names prefix for address + correspondence with VCF field types.
-    address_prefixes = {'HOME': HOME_ADDR_PREFIX,
-                        'WORK': WORK_ADDR_PREFIX,
-                       }
+    address_prefixes = {
+        'HOME': HOME_ADDR_PREFIX,
+        'WORK': WORK_ADDR_PREFIX,
+    }
     # Mapping between form fields names (which use vcf lib names) & Address fields names.
-    address_mapping = [('name',     'name'),
-                       ('address',  'address'),
-                       ('city',     'city'),
-                       ('country',  'country'),
-                       ('code',     'zipcode'),
-                       ('region',   'department'),
-                      ]
+    address_mapping = [
+        ('name',     'name'),
+        ('address',  'address'),
+        ('city',     'city'),
+        ('country',  'country'),
+        ('code',     'zipcode'),
+        ('region',   'department'),
+    ]
 
-    # blocks = CremeModelWithUserForm.blocks.new(
     blocks = CremeModelForm.blocks.new(
-        ('details', _('Details'), contact_details),
-        ('contact_address', _('Billing address'),
-         [HOME_ADDR_PREFIX + n[0] for n in address_mapping]
-        ),
-        ('organisation', _('Organisation'),
-         ['create_or_attach_orga', 'organisation', 'relation',
-          *chain.from_iterable(('update_work_' + fn, 'work_' + fn) for fn in orga_fields)
-         ]
-        ),
-        ('organisation_address', _('Organisation billing address'),
-         ['update_work_address', *(WORK_ADDR_PREFIX + n[0] for n in address_mapping)]
-        ),
+        {
+            'id': 'details',
+            'label': _('Details'),
+            'fields': contact_details,
+        }, {
+            'id': 'contact_address',
+            'label': _('Billing address'),
+            'fields': [HOME_ADDR_PREFIX + n[0] for n in address_mapping],
+        }, {
+            'id': 'organisation',
+            'label': _('Organisation'),
+            'fields': [
+                'create_or_attach_orga', 'organisation', 'relation',
+                *chain.from_iterable(
+                    (f'update_work_{fn}', f'work_{fn}') for fn in orga_fields
+                ),
+            ],
+        }, {
+            'id': 'organisation_address',
+            'label': _('Organisation billing address'),
+            'fields': [
+                'update_work_address',
+                *(WORK_ADDR_PREFIX + n[0] for n in address_mapping),
+            ]
+        },
     )
 
     type_help_text  = _('Read in VCF File without type : ')
@@ -385,12 +406,13 @@ class VcfImportForm(CremeModelForm):
                 fields[prefix + 'code'].initial    = value.code
                 fields[prefix + 'region'].initial  = value.region
             else:
-                self._generate_help_text('homeaddr_address',
-                                         ', '.join([value.box, value.street, value.city,
-                                                    value.region, value.code, value.country,
-                                                   ]
-                                                  ),
-                                        )
+                self._generate_help_text(
+                    'homeaddr_address',
+                    ', '.join([
+                        value.box, value.street, value.city,
+                        value.region, value.code, value.country,
+                    ]),
+                )
 
     def _generate_help_text(self, field_name, value):
         field = self.fields[field_name]
@@ -406,9 +428,9 @@ class VcfImportForm(CremeModelForm):
         cleaned = cleaned_data.get(field_name)
 
         if cleaned_data['create_or_attach_orga'] and not cleaned:
-            raise ValidationError(self.error_messages['required4orga'],
-                                  code='required4orga',
-                                 )
+            raise ValidationError(
+                self.error_messages['required4orga'], code='required4orga',
+            )
 
         return cleaned
 
@@ -424,13 +446,15 @@ class VcfImportForm(CremeModelForm):
 
         if checked:
             if not cleaned_data['create_or_attach_orga']:
-                raise ValidationError(self.error_messages['no_orga_creation'],
-                                      code='no_orga_creation',
-                                     )
+                raise ValidationError(
+                    self.error_messages['no_orga_creation'],
+                    code='no_orga_creation',
+                )
             elif not cleaned_data['organisation']:
-                raise ValidationError(self.error_messages['orga_not_selected'],
-                                      code='orga_not_selected',
-                                     )
+                raise ValidationError(
+                    self.error_messages['orga_not_selected'],
+                    code='orga_not_selected',
+                )
 
         return checked
 
@@ -520,7 +544,9 @@ class VcfImportForm(CremeModelForm):
         image_encoded = cleaned_data['image_encoded']
 
         if image_encoded:
-            img_name = secure_filename(f'{contact.last_name}_{contact.first_name}_{contact.id}')
+            img_name = secure_filename(
+                f'{contact.last_name}_{contact.first_name}_{contact.id}'
+            )
             img_path = None
 
             if image_encoded.startswith(URL_START):
@@ -608,9 +634,9 @@ class VcfImportForm(CremeModelForm):
 
                 organisation = Organisation.objects.create(user=user, **orga_kwargs)
 
-                orga_addr = self._create_address(cleaned_data, owner=organisation,
-                                                 data_prefix=addr_prefix,
-                                                )
+                orga_addr = self._create_address(
+                    cleaned_data, owner=organisation, data_prefix=addr_prefix,
+                )
                 if orga_addr is not None:
                     organisation.billing_address = orga_addr
                     save_orga = True
@@ -618,11 +644,12 @@ class VcfImportForm(CremeModelForm):
             if save_orga:
                 organisation.save()
 
-            Relation.objects.create(user=user,
-                                    subject_entity=contact,
-                                    type=cleaned_data['relation'],
-                                    object_entity=organisation,
-                                   )
+            Relation.objects.create(
+                user=user,
+                subject_entity=contact,
+                type=cleaned_data['relation'],
+                object_entity=organisation,
+            )
 
     @atomic
     def save(self, *args, **kwargs):
@@ -635,9 +662,9 @@ class VcfImportForm(CremeModelForm):
             contact.image = image
             save_contact = True
 
-        contact_addr = self._create_address(cleaned_data, owner=contact,
-                                            data_prefix=HOME_ADDR_PREFIX,
-                                           )
+        contact_addr = self._create_address(
+            cleaned_data, owner=contact, data_prefix=HOME_ADDR_PREFIX,
+        )
         if contact_addr is not None:
             contact.billing_address = contact_addr
             save_contact = True
