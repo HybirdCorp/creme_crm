@@ -251,13 +251,11 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
     entities_lbl = core_fields.ReadonlyMessageField(label=_('Related entities'))
 
     # TODO: use Meta.fields ?? (beware to bad_entities_lbl)
-    blocks = FieldBlockManager(
-        (
-            'general',
-            _('General information'),
-            ['entities_lbl', 'relations', 'semifixed_rtypes'],
-        ),
-    )
+    blocks = FieldBlockManager({
+        'id': 'general',
+        'label': _('General information'),
+        'fields': ['entities_lbl', 'relations', 'semifixed_rtypes'],
+    })
 
     def __init__(self, subjects, forbidden_subjects, relations_types=None, *args, **kwargs):
         first_subject = subjects[0] if subjects else forbidden_subjects[0]

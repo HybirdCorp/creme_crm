@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,16 +62,19 @@ class SendingCreateForm(CremeModelForm):
 
     error_messages = {
         'forbidden': _(
-            'You are not allowed to modify the sender address, please contact your administrator.'
+            'You are not allowed to modify the sender address, '
+            'please contact your administrator.'
         ),
     }
 
-    blocks = CremeModelForm.blocks.new(
-        ('sending_date', _('Sending date'), ['type', 'sending_date', 'hour', 'minute']),
-    )
+    blocks = CremeModelForm.blocks.new({
+        'id': 'sending_date',
+        'label': _('Sending date'),
+        'fields': ['type', 'sending_date', 'hour', 'minute'],
+    })
 
     class Meta:
-        model   = EmailSending
+        model = EmailSending
         exclude = ()
 
     def __init__(self, entity, *args, **kwargs):
@@ -90,11 +93,14 @@ class SendingCreateForm(CremeModelForm):
 
         if not sender_setting.value:
             if not can_admin_emails:
-                sender_field.initial = _('No sender email address has been configured, '
-                                         'please contact your administrator.'
-                                        )
+                sender_field.initial = _(
+                    'No sender email address has been configured, '
+                    'please contact your administrator.'
+                )
         else:
-            sender_field.help_text = _('Only an administrator can modify the sender address.')
+            sender_field.help_text = _(
+                'Only an administrator can modify the sender address.'
+            )
             sender_field.initial = sender_setting.value
 
         self.sender_setting = sender_setting
@@ -103,7 +109,9 @@ class SendingCreateForm(CremeModelForm):
         sender_value = self.cleaned_data.get('sender')
 
         if not self.can_edit_sender_value and sender_value != self.sender_setting.value:
-            raise ValidationError(self.error_messages['forbidden'], code='forbidden')
+            raise ValidationError(
+                self.error_messages['forbidden'], code='forbidden',
+            )
 
         return sender_value
 

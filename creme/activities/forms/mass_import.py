@@ -602,12 +602,13 @@ def get_massimport_form_builder(header_dict, choices):
         class Meta:
             exclude = ('type', 'sub_type', 'busy')
 
-        blocks = ImportForm4CremeEntity.blocks.new(
-            (
-                'participants',   _('Participants & subjects'),
-                ['my_participation', 'participating_users', 'participants', 'subjects']
-            ),
-        )
+        blocks = ImportForm4CremeEntity.blocks.new({
+            'id': 'participants',
+            'label': _('Participants & subjects'),
+            'fields': [
+                'my_participation', 'participating_users', 'participants', 'subjects',
+            ],
+        })
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)

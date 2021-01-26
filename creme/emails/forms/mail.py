@@ -73,10 +73,23 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
     }
 
     blocks = base_forms.FieldBlockManager(
-        ('recipients', _('Who'),  ['user', 'sender', 'send_me', 'c_recipients', 'o_recipients']),
-        ('content',    _('What'), ['subject', 'body', 'body_html']),
-        ('extra',      _('With'), ['signature', 'attachments']),
-        ('required_cfields', _('Required custom fields'), '*'),
+        {
+            'id': 'recipients',
+            'label': _('Who'),
+            'fields': ['user', 'sender', 'send_me', 'c_recipients', 'o_recipients'],
+        }, {
+            'id': 'content',
+            'label': _('What'),
+            'fields': ['subject', 'body', 'body_html'],
+        }, {
+            'id': 'extra',
+            'label': _('With'),
+            'fields': ['signature', 'attachments']
+        }, {
+            'id': 'required_cfields',
+            'label': _('Required custom fields'),
+            'fields': '*',
+        },
     )
 
     class Meta:

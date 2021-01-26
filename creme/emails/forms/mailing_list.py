@@ -56,7 +56,9 @@ class AddContactsForm(CremeForm):
         label=_('Contacts'), required=False, model=Contact,
     )  # other filter (name + email)??
 
-    blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Contacts recipients'), 'fields': '*',
+    })
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -75,7 +77,9 @@ class AddOrganisationsForm(CremeForm):  # TODO: factorise
         label=_('Organisations'), required=False, model=Organisation,
     )  # other filter (name + email)??
 
-    blocks = FieldBlockManager(('general', _('Organisations recipients'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Organisations recipients'), 'fields': '*',
+    })
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -124,7 +128,9 @@ class _AddPersonsFromFilterForm(CremeForm):
 
 
 class AddContactsFromFilterForm(_AddPersonsFromFilterForm):
-    blocks = FieldBlockManager(('general', _('Contacts recipients'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Contacts recipients'), 'fields': '*',
+    })
 
     person_model = Contact
 
@@ -133,7 +139,9 @@ class AddContactsFromFilterForm(_AddPersonsFromFilterForm):
 
 
 class AddOrganisationsFromFilterForm(_AddPersonsFromFilterForm):
-    blocks = FieldBlockManager(('general', _('Organisations recipients'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Organisations recipients'), 'fields': '*',
+    })
 
     person_model = Organisation
 
@@ -150,7 +158,9 @@ class AddChildForm(CremeForm):
         'in_children': _('List already in the children'),
     }
 
-    blocks = FieldBlockManager(('general', _('Child mailing list'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Child mailing list'), 'fields': '*',
+    })
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -158,7 +168,7 @@ class AddChildForm(CremeForm):
 
     def clean_child(self):
         child = self.cleaned_data['child']
-        ml    = self.ml
+        ml = self.ml
 
         if ml.id == child.id:
             raise ValidationError(self.error_messages['own_child'], code='own_child')

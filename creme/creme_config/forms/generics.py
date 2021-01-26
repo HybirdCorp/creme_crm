@@ -331,7 +331,9 @@ class M2MHandler(ChoiceReplacingHandler):
 
 
 class DeletionForm(CremeModelForm):
-    blocks = FieldBlockManager(('general', _('Replacement'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Replacement'), 'fields': '*',
+    })
 
     # TODO: what about deletion.DO_NOTHING ?!
     fk_handler_classes = {

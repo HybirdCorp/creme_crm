@@ -106,8 +106,15 @@ class CredentialsGeneralStep(CremeModelForm):
     ])
 
     blocks = FieldBlockManager(
-        ('general', _('General information'), '*'),
-        ('actions', _('Actions'), [*PERM_FIELDS.keys()]),
+        {
+            'id': 'general',
+            'label': _('General information'),
+            'fields': '*',
+        }, {
+            'id': 'actions',
+            'label': _('Actions'),
+            'fields': [*PERM_FIELDS.keys()],
+        },
     )
 
     class Meta:
@@ -169,8 +176,15 @@ class CredentialsFilterStep(CremeModelForm):
     }
 
     blocks = FieldBlockManager(
-        ('general',    _('Filter'),     ('name', 'use_or')),
-        ('conditions', _('Conditions'), '*'),
+        {
+            'id': 'general',
+            'label': _('Filter'),
+            'fields': ('name', 'use_or'),
+        }, {
+            'id': 'conditions',
+            'label': _('Conditions'),
+            'fields': '*',
+        },
     )
 
     step_help_message = _(
@@ -536,11 +550,17 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
 
 class UserRoleCredentialsGeneralStep(CredentialsGeneralStep):
     blocks = FieldBlockManager(
-        ('general', _('First credentials: main information'), '*'),
-        (
-            'actions', _('First credentials: actions'),
-            ['can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink'],
-        ),
+        {
+            'id': 'general',
+            'label': _('First credentials: main information'),
+            'fields': '*',
+        }, {
+            'id': 'actions',
+            'label': _('First credentials: actions'),
+            'fields': [
+                'can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink',
+            ],
+        },
     )
 
     def __init__(self, role, *args, **kwargs):
@@ -567,8 +587,15 @@ class UserRoleCredentialsGeneralStep(CredentialsGeneralStep):
 
 class UserRoleCredentialsFilterStep(CredentialsFilterStep):
     blocks = FieldBlockManager(
-        ('general',    _('First credentials: filter'),     ('name', 'use_or')),
-        ('conditions', _('First credentials: conditions'), '*'),
+        {
+            'id': 'general',
+            'label': _('First credentials: filter'),
+            'fields': ('name', 'use_or'),
+        }, {
+            'id': 'conditions',
+            'label': _('First credentials: conditions'),
+            'fields': '*',
+        },
     )
 
     def __init__(self, role, *args, **kwargs):

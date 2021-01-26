@@ -191,8 +191,15 @@ class CustomFormGroupForm(CremeModelForm):
     cells = CustomFormCellsField(label=_('Fields'))
 
     blocks = FieldBlockManager(
-        ('name',  'Name',   ('name',)),
-        ('cells', 'Fields', ('cells',)),
+        {
+            'id': 'name',
+            'label': 'Name',
+            'fields': ('name',),
+        }, {
+            'id': 'cells',
+            'label': 'Fields',
+            'fields': ('cells',),
+        },
     )
 
     class Meta:

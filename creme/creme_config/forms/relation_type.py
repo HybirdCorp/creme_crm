@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,14 +38,18 @@ from creme.creme_core.models import (
     SemiFixedRelationType,
 )
 
-_CTypesField = partial(MultiEntityCTypeChoiceField, required=False,
-                       label=_('Type constraint'),
-                       help_text=_('No constraint means that all types are accepted.'),
-                      )
-_PropertyTypesField = partial(ModelMultipleChoiceField, required=False,
-                              label=_('Properties constraint'),
-                              queryset=CremePropertyType.objects.all(),
-                             )
+_CTypesField = partial(
+    MultiEntityCTypeChoiceField,
+    required=False,
+    label=_('Type constraint'),
+    help_text=_('No constraint means that all types are accepted.'),
+)
+_PropertyTypesField = partial(
+    ModelMultipleChoiceField,
+    required=False,
+    label=_('Properties constraint'),
+    queryset=CremePropertyType.objects.all(),
+)
 
 
 class RelationTypeCreateForm(CremeForm):
@@ -90,16 +94,22 @@ class RelationTypeCreateForm(CremeForm):
     )
 
     blocks = FieldBlockManager(
-        ('subject', _('Subject'), ['subject_ctypes', 'subject_properties']),
-        (
-            'predicate',
-            _('Verb/Predicate'),
-            [
+        {
+            'id': 'subject',
+            'label': _('Subject'),
+            'fields': ['subject_ctypes', 'subject_properties'],
+        }, {
+            'id': 'predicate',
+            'label': _('Verb/Predicate'),
+            'fields': [
                 'subject_predicate', 'subject_is_copiable', 'subject_min_display',
-                'object_predicate',  'object_is_copiable',  'object_min_display',
+                'object_predicate', 'object_is_copiable', 'object_min_display',
             ],
-        ),
-        ('object', _('Object'), ['object_ctypes', 'object_properties']),
+        }, {
+            'id': 'object',
+            'label': _('Object'),
+            'fields': ['object_ctypes', 'object_properties'],
+        },
     )
 
     def __init__(self, instance=None, *args, **kwargs):
