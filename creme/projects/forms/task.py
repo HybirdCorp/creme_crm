@@ -151,7 +151,8 @@ class TaskAddParentForm(CremeForm):
         self.fields['parents'].q_filter = (
             Q(linked_project=instance.linked_project_id)
             & ~Q(id__in=[t.id for t in instance.get_subtasks()])
-            & ~Q(children_set=instance.pk)
+            # & ~Q(children_set=instance.pk)
+            & ~Q(children=instance.pk)
         )
 
     def save(self, *args, **kwargs):
