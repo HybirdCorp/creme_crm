@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.forms import ModelForm
 from django.utils.translation import gettext_lazy as _
@@ -52,7 +53,6 @@ class UnnamedAddressForm(AddressForm):
         exclude = ('name',)
 
 
-# TODO: to be deprecated in Creme 2.3
 # Does not inherit CremeModelForm, so there is no use of FieldsConfig
 #   - all fields are used
 #   - no SQL query
@@ -60,6 +60,10 @@ class _AuxiliaryAddressForm(ModelForm):
     class Meta(AddressForm.Meta):
         model = Address
         exclude = ('name',)
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn('_AuxiliaryAddressForm is deprecated', DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class _FieldAddressForm(UnnamedAddressForm):
