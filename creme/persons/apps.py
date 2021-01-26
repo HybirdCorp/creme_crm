@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -277,58 +277,119 @@ class PersonsConfig(CremeAppConfig):
         User.linked_contact = property(_get_linked_contact)
         User.get_absolute_url = lambda u: u.linked_contact.get_absolute_url()
 
+    # def hook_user_form(self):
+    #     from creme.creme_config.forms.user import UserAddForm
+    #
+    #     def _add_related_orga_fields(form):
+    #         from django.contrib.contenttypes.models import ContentType
+    #         from django.forms import ModelChoiceField
+    #
+    #         from creme.creme_core.forms.widgets import DynamicSelect
+    #         from creme.creme_core.models import RelationType
+    #
+    #         fields = form.fields
+    #         get_ct = ContentType.objects.get_for_model
+    #         fields['organisation'] = ModelChoiceField(
+    #             label=_('User organisation'),
+    #             queryset=self.Organisation.objects.filter_managed_by_creme(),
+    #             empty_label=None,
+    #         )
+    #         fields['relation'] = ModelChoiceField(
+    #             label=_('Position in the organisation'),
+    #             queryset=RelationType.objects.filter(
+    #                 subject_ctypes=get_ct(self.Contact),
+    #                 # object_ctypes=get_ct(self.Organisation),
+    #                 symmetric_type__subject_ctypes=get_ct(self.Organisation),
+    #                 is_internal=False,
+    #             ),
+    #             empty_label=None,
+    #             widget=DynamicSelect(attrs={'autocomplete': True}),
+    #             initial=constants.REL_SUB_EMPLOYED_BY,
+    #         )
+    #
+    #         def set_required(name):
+    #             field = fields[name]
+    #             field.required = field.widget.is_required = True
+    #
+    #         set_required('first_name')
+    #         set_required('last_name')
+    #         set_required('email')
+    #
+    #     def _save_related_orga_fields(form):
+    #         from creme.creme_core.models import Relation
+    #
+    #         cdata = form.cleaned_data
+    #         user = form.instance
+    #
+    #         Relation.objects.create(
+    #             user=user, subject_entity=user.linked_contact,
+    #             type=cdata['relation'],
+    #             object_entity=cdata['organisation'],
+    #         )
+    #
+    #     UserAddForm.add_post_init_callback(_add_related_orga_fields)
+    #     UserAddForm.add_post_save_callback(_save_related_orga_fields)
     def hook_user_form(self):
-        from creme.creme_config.forms.user import UserAddForm
+        from django.contrib.contenttypes.models import ContentType
+        from django.forms import ModelChoiceField
 
-        def _add_related_orga_fields(form):
-            from django.contrib.contenttypes.models import ContentType
-            from django.forms import ModelChoiceField
+        from creme.creme_config.views.user import UserCreation
+        from creme.creme_core.forms.widgets import DynamicSelect
+        from creme.creme_core.models import Relation, RelationType
 
-            from creme.creme_core.forms.widgets import DynamicSelect
-            from creme.creme_core.models import RelationType
-
-            fields = form.fields
-            get_ct = ContentType.objects.get_for_model
-            fields['organisation'] = ModelChoiceField(
+        class ContactUserCreationForm(UserCreation.form_class):
+            organisation = ModelChoiceField(
                 label=_('User organisation'),
                 queryset=self.Organisation.objects.filter_managed_by_creme(),
                 empty_label=None,
             )
-            fields['relation'] = ModelChoiceField(
+            relation = ModelChoiceField(
                 label=_('Position in the organisation'),
-                queryset=RelationType.objects.filter(
-                    subject_ctypes=get_ct(self.Contact),
-                    # object_ctypes=get_ct(self.Organisation),
-                    symmetric_type__subject_ctypes=get_ct(self.Organisation),
-                    is_internal=False,
-                ),
+                # NB: the QuerySet is built in __init__() because a loading artefact
+                #     makes ContentType values inconsistent in unit tests if the
+                #     Queryset is built here.
+                queryset=RelationType.objects.none(),
                 empty_label=None,
                 widget=DynamicSelect(attrs={'autocomplete': True}),
                 initial=constants.REL_SUB_EMPLOYED_BY,
             )
 
-            def set_required(name):
-                field = fields[name]
-                field.required = field.widget.is_required = True
-
-            set_required('first_name')
-            set_required('last_name')
-            set_required('email')
-
-        def _save_related_orga_fields(form):
-            from creme.creme_core.models import Relation
-
-            cdata = form.cleaned_data
-            user = form.instance
-
-            Relation.objects.create(
-                user=user, subject_entity=user.linked_contact,
-                type=cdata['relation'],
-                object_entity=cdata['organisation'],
+            blocks = UserCreation.form_class.blocks.new(
+                {
+                    'id': 'contact',
+                    'label': _('Related Contact'),
+                    'fields': ('organisation', 'relation'),
+                },
             )
 
-        UserAddForm.add_post_init_callback(_add_related_orga_fields)
-        UserAddForm.add_post_save_callback(_save_related_orga_fields)
+            def __init__(this, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                fields = this.fields
+
+                get_ct = ContentType.objects.get_for_model
+                fields['relation'].queryset = RelationType.objects.filter(
+                    subject_ctypes=get_ct(self.Contact),
+                    symmetric_type__subject_ctypes=get_ct(self.Organisation),
+                    is_internal=False,
+                )
+
+                for field_name in ('first_name', 'last_name', 'email'):
+                    field = fields[field_name]
+                    field.required = field.widget.is_required = True
+
+            def save(this, *args, **kwargs):
+                user = super().save(*args, **kwargs)
+                cdata = this.cleaned_data
+
+                Relation.objects.create(
+                    user=user, subject_entity=user.linked_contact,
+                    type=cdata['relation'],
+                    object_entity=cdata['organisation'],
+                )
+
+                return user
+
+        UserCreation.form_class = ContactUserCreationForm
 
     def register_reports_graph_fetchers(self):
         from creme.reports.graph_fetcher_registry import graph_fetcher_registry
