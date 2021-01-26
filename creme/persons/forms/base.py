@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
+import warnings
 
 # from django.utils.translation import gettext_lazy as _
 #
@@ -27,7 +27,6 @@ import logging
 # from creme.creme_core.models import CremeEntity
 #
 # from .address import UnnamedAddressForm as AddressForm
-from .address import _AuxiliaryAddressForm
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +35,11 @@ logger = logging.getLogger(__name__)
 # _SHIPPING_ADDRESS_FIELD = 'shipping_address'
 
 
-# TODO: to be deprecated in Creme 2.3
 def _get_address_field_names(addr_fieldname):
+    warnings.warn('_get_address_field_names is deprecated.', DeprecationWarning)
+
+    from .address import _AuxiliaryAddressForm
+
     form = _AuxiliaryAddressForm(prefix=addr_fieldname)
     return [form.add_prefix(name) for name in form.base_fields]
 
