@@ -36,7 +36,9 @@ class MessagingListAddRecipientsForm(CremeForm):
         help_text=_('One phone number per line'),
     )
 
-    blocks = FieldBlockManager(('general', _('Recipients'), '*'))
+    blocks = FieldBlockManager({
+        'id': 'general', 'label': _('Recipients'), 'fields': '*',
+    })
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
