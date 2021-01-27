@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'COMMERCIAL' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-28 15:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -90,11 +90,11 @@ msgstr ""
 msgid "Send emails for commercials approaches"
 msgstr "Envoyer les e-mails pour les approches commerciales"
 
-#: creme_jobs.py:106
+#: creme_jobs.py:110
 msgid "[CremeCRM] The organisation «{}» seems neglected"
 msgstr "[CremeCRM] La société «{}» semble délaissée"
 
-#: creme_jobs.py:108
+#: creme_jobs.py:112
 #, python-brace-format
 msgid ""
 "It seems you haven't created a commercial approach for the organisation "
@@ -103,26 +103,47 @@ msgstr ""
 "Il semblerait que vous n'ayez pas crée d'approche commerciale pour la "
 "société «{orga}» depuis {delay} jours"
 
-#: creme_jobs.py:126
+#: creme_jobs.py:130
 msgid "An error has occurred while sending emails"
 msgstr "Une erreur s'est produite pendant l'envoi des e-mails"
 
 # Already in creme_core
-#: creme_jobs.py:127
+#: creme_jobs.py:131
 msgid "Original error: {}"
 msgstr ""
 
-#: creme_jobs.py:134
+#: creme_jobs.py:138
 msgid ""
 "For each customer organisation, an email is sent to its owner (ie: a Creme "
 "user), if there is no commercial approach since {} days linked to: the "
 "organisation, one of its managers/employees, or an Opportunity which targets "
 "this organisation."
 msgstr ""
-"Pour chaque société cliente, un e-mail est envoyé à son propriété (c-a-d un "
-"utilisateur Creme), si il n'y a aucune approche commercial depuis {} jour "
-"liée à : la société, un de ses salariés/responsables, ou une Opportunité qui "
-"cible cette société."
+"Pour chaque société cliente, un e-mail est envoyé à son propriétaire (c-a-d "
+"un utilisateur Creme), si il n'y a aucune approche commerciale depuis {} "
+"jours liée à : la société, un de ses salariés/responsables, ou une "
+"Opportunité qui cible cette société."
+
+#: creme_jobs.py:144
+msgid ""
+"Hint: to create commercial approaches, activate the field «Is a commercial "
+"approach?» in the configuration of Activities' forms ; so when you create an "
+"Activity, if you check the box, some approaches will be created for "
+"participants, subjects & linked entities."
+msgstr ""
+"Astuce : pour créer des approches commerciales, activez le champ «Est une "
+"démarche commerciale ?» dans la configuration des formulaires des "
+"Activités ; du coup, lorsque vous créerez une Activité, si vous cochez la "
+"case, des approches seront créés pour les participants, sujets et entités "
+"liées."
+
+#: creme_jobs.py:150
+msgid ""
+"Hint: to see commercial approaches, activate the related block on detail-"
+"views."
+msgstr ""
+"Astuce : pour voir les approches commerciales, activez le bloc idoine pour "
+"les vues détaillées."
 
 #: custom_forms.py:15
 msgid "Creation form for commercial action"
