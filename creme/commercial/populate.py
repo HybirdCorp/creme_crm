@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -249,6 +249,9 @@ class Populator(BasePopulator):
                 'language':    settings.LANGUAGE_CODE,
                 'periodicity': date_period_registry.get_period('days', 1),
                 'status':      Job.STATUS_OK,
+                # The CommercialApproach field for Activities' CustomForms is not
+                # in the default configuration, so a enabled job would be annoying.
+                'enabled': False,
             },
         )
 
@@ -262,14 +265,14 @@ class Populator(BasePopulator):
             RIGHT = BrickDetailviewLocation.RIGHT
             LEFT  = BrickDetailviewLocation.LEFT
 
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'brick': bricks.ApproachesBrick, 'order': 10, 'zone': RIGHT},
-                data=[
-                    {},  # default configuration
-                    {'model': Contact},
-                    {'model': Organisation},
-                ]
-            )
+            # BrickDetailviewLocation.objects.multi_create(
+            #     defaults={'brick': bricks.ApproachesBrick, 'order': 10, 'zone': RIGHT},
+            #     data=[
+            #         {},  # default configuration
+            #         {'model': Contact},
+            #         {'model': Organisation},
+            #     ]
+            # )
 
             BrickDetailviewLocation.objects.multi_create(
                 defaults={'model': Act, 'zone': LEFT},

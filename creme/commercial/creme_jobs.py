@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,10 +63,9 @@ class _ComApproachesEmailsSendType(JobType):
         ct_opp     = get_ct(Opportunity)
 
         now_value = now()
-        managed_orga_ids = [*Organisation.objects
-                                         .filter(is_managed=True)
-                                         .values_list('id', flat=True)
-                           ]
+        managed_orga_ids = [
+            *Organisation.objects.filter(is_managed=True).values_list('id', flat=True),
+        ]
         opp_filter = Opportunity.objects.filter
 
         EMAIL_SENDER = settings.EMAIL_SENDER
@@ -78,28 +77,33 @@ class _ComApproachesEmailsSendType(JobType):
 
             # TODO: are 'values_list' real optimizations here ??
             #       ==> remove them when CommercialApproach use real ForeignKey
-            for orga in Organisation.objects.filter(is_managed=False,
-                                                    relations__type=rtype,
-                                                    relations__object_entity__in=managed_orga_ids,
-                                                   ):
+            for orga in Organisation.objects.filter(
+                is_managed=False,
+                relations__type=rtype,
+                relations__object_entity__in=managed_orga_ids,
+            ):
                 if com_apps_filter(entity_content_type=ct_orga, entity_id=orga.id).exists():
                     continue
 
-                if com_apps_filter(entity_content_type=ct_contact,
-                                   entity_id__in=orga.get_managers().values_list('id', flat=True)
-                                  ).exists():
+                if com_apps_filter(
+                    entity_content_type=ct_contact,
+                    entity_id__in=orga.get_managers().values_list('id', flat=True),
+                ).exists():
                     continue
 
-                if com_apps_filter(entity_content_type=ct_contact,
-                                   entity_id__in=orga.get_employees().values_list('id', flat=True)
-                                  ).exists():
+                if com_apps_filter(
+                    entity_content_type=ct_contact,
+                    entity_id__in=orga.get_employees().values_list('id', flat=True),
+                ).exists():
                     continue
 
-                if com_apps_filter(entity_content_type=ct_opp,
-                                   entity_id__in=opp_filter(relations__type=REL_SUB_TARGETS,
-                                                            relations__object_entity=orga,
-                                                           ).values_list('id', flat=True)
-                                  ).exists():
+                if com_apps_filter(
+                    entity_content_type=ct_opp,
+                    entity_id__in=opp_filter(
+                        relations__type=REL_SUB_TARGETS,
+                        relations__object_entity=orga,
+                    ).values_list('id', flat=True),
+                ).exists():
                     continue
 
                 emails.append(EmailMessage(
@@ -136,6 +140,16 @@ class _ComApproachesEmailsSendType(JobType):
                 "{} days linked to: the organisation, one of its managers/employees, "
                 "or an Opportunity which targets this organisation."
             ).format(self.list_target_orga[0][1]),
+            gettext(
+                "Hint: to create commercial approaches, activate the field "
+                "«Is a commercial approach?» in the configuration of Activities' forms ; "
+                "so when you create an Activity, if you check the box, some approaches "
+                "will be created for participants, subjects & linked entities."
+            ),
+            gettext(
+                "Hint: to see commercial approaches, activate the related block "
+                "on detail-views."
+            ),
         ]
 
 

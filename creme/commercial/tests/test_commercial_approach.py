@@ -5,6 +5,7 @@ from functools import partial
 from json import dumps as json_dump
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend
 from django.urls import reverse
@@ -22,6 +23,7 @@ from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.forms import LAYOUT_REGULAR
 from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
     BrickHomeLocation,
     CremeEntity,
     CustomFormConfigItem,
@@ -383,6 +385,19 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         sv = SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
         self.assertTrue(sv.value)
+
+        # See populate.py
+        self.assertFalse(
+            BrickDetailviewLocation.objects
+                                   .filter_for_model(Organisation)
+                                   .filter(brick_id=ApproachesBrick.id_)
+        )
+        BrickDetailviewLocation.objects.create(
+            content_type=ContentType.objects.get_for_model(Organisation),
+            brick_id=ApproachesBrick.id_,
+            order=10,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
 
         user = self.user
         orga = Organisation.objects.create(user=user, name='NERV')
