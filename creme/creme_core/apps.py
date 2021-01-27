@@ -146,10 +146,15 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         super().ready()
 
         from django.contrib.contenttypes.models import ContentType
-        assert not ContentType._meta.ordering, \
-            'It seems ContentType has an ordering policy now ?!'
 
-        ContentType._meta.ordering = ('id', )
+        meta = ContentType._meta
+        assert not meta.ordering, 'It seems ContentType has an ordering policy now ?!'
+
+        meta.ordering = ('id', )
+
+        get_ct_field = meta.get_field
+        for fname in ('app_label', 'model'):
+            get_ct_field(fname).set_tags(viewable=False)
 
 
 class CremeAppConfig(AppConfig):
@@ -385,7 +390,7 @@ class CremeCoreConfig(CremeAppConfig):
         if self.MIGRATION_MODE:
             return
 
-        self.tag_ctype()
+        # self.tag_ctype()
 
         self.hook_fk_formfield()
         self.hook_fk_check()
@@ -765,14 +770,14 @@ class CremeCoreConfig(CremeAppConfig):
         forms.MultipleChoiceField.widget = forms.ModelMultipleChoiceField.widget = \
             widgets.UnorderedMultipleChoiceWidget
 
-    @staticmethod
-    def tag_ctype():
-        from django.contrib.contenttypes.models import ContentType
-
-        get_ct_field = ContentType._meta.get_field
-
-        for fname in ('app_label', 'model'):
-            get_ct_field(fname).set_tags(viewable=False)
+    # @staticmethod
+    # def tag_ctype():
+    #     from django.contrib.contenttypes.models import ContentType
+    #
+    #     get_ct_field = ContentType._meta.get_field
+    #
+    #     for fname in ('app_label', 'model'):
+    #         get_ct_field(fname).set_tags(viewable=False)
 
 
 def creme_app_configs():
