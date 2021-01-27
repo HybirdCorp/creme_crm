@@ -115,6 +115,12 @@
             * Projects :
                 - The <related_name> of the field 'models.AbstractProjectTask.parent_tasks' has been renamed "children" (it was "children_set").
 
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+
+        # The method 'creme_core.apps.CremeCoreConfig.tag_ctype()' has been removed.
+
 
 == Version 2.2 ==
 
