@@ -173,13 +173,18 @@ class EntityCellsWidget(Widget):
     def _build_samples(self) -> List[Dict[str, str]]:
         user = self.user
         samples = []
-
         cells = [*chain.from_iterable(sub_w.choices for sub_w in self._sub_widgets)]
+        entities = [
+            *EntityCredentials.filter(
+                user=user, queryset=self.model.objects.order_by('-modified'),
+            )[:2],
+        ]
+        EntityCell.mixed_populate_entities(
+            cells=[choice[1] for choice in cells],
+            entities=entities, user=user,
+        )
 
-        # TODO: populate entities
-        for entity in EntityCredentials.filter(
-            user, self.model.objects.order_by('-modified'),
-        )[:2]:
+        for entity in entities:
             dump = {}
 
             for choice_id, cell in cells:
