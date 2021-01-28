@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 17:25+0100\n"
+"POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1746,19 +1746,19 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: gui/field_printers.py:491
+#: gui/field_printers.py:495
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] "heure"
 msgstr[1] "heures"
 
-#: gui/field_printers.py:493
+#: gui/field_printers.py:497
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "minute"
 msgstr[1] "minutes"
 
-#: gui/field_printers.py:495
+#: gui/field_printers.py:499
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "seconde"
@@ -2212,7 +2212,7 @@ msgstr "Ce bloc est utilisé dans la configuration par défaut de \"Ma page\""
 msgid "This block is used in the configuration of «{}» for \"My page\""
 msgstr "Ce bloc est utilisé dans la configuration de «{}» pour \"Ma page\""
 
-#: models/bricks.py:602 models/bricks.py:1029
+#: models/bricks.py:602 models/bricks.py:1030
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 

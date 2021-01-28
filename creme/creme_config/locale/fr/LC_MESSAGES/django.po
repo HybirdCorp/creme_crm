@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 17:38+0100\n"
+"POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -418,7 +418,7 @@ msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_field.py:68 forms/custom_field.py:286
+#: forms/custom_field.py:68 forms/custom_field.py:288
 msgid "The choice «{}» is duplicated."
 msgstr "le choix «{}» est en double."
 
@@ -430,47 +430,47 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
-#: forms/custom_field.py:158 forms/custom_field.py:195
-#: forms/custom_field.py:262
+#: forms/custom_field.py:159 forms/custom_field.py:197
+#: forms/custom_field.py:264
 msgid "There is already a custom field with this name."
 msgstr "Il y a déjà un champ personnalisé avec ce nom."
 
-#: forms/custom_field.py:217
+#: forms/custom_field.py:219
 msgid "Existing choices of the list"
 msgstr "Choix existants de la liste"
 
-#: forms/custom_field.py:218
+#: forms/custom_field.py:220
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_field.py:222 forms/custom_field.py:327
+#: forms/custom_field.py:224 forms/custom_field.py:329
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_field.py:223 forms/custom_field.py:328
+#: forms/custom_field.py:225 forms/custom_field.py:330
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/custom_field.py:301
+#: forms/custom_field.py:303
 msgid "New choice"
 msgstr "Nouveau choix"
 
-#: forms/custom_field.py:382
+#: forms/custom_field.py:384
 msgid "Choose a choice to transfer to"
 msgstr "Choisissez un choice auquel transférer"
 
-#: forms/custom_field.py:384
+#: forms/custom_field.py:386
 msgid ""
 "The selected choice will replace the deleted one in entities which use it."
 msgstr ""
 "Le choix sélectionné remplacera le choix supprimé dans les fiches qui lui "
 "sont associés."
 
-#: forms/custom_field.py:395 forms/user_role.py:336 forms/user_role.py:371
+#: forms/custom_field.py:397 forms/user_role.py:336 forms/user_role.py:371
 msgid "Information"
 msgstr "Informations"
 
-#: forms/custom_field.py:399
+#: forms/custom_field.py:401
 msgid "This choice is not used by any entity, you can delete it safely."
 msgstr ""
 "Ce choix n'est utilisé par aucune fiche, vous pouvez le supprimer en toute "

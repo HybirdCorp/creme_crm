@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -359,7 +359,7 @@ msgstr ""
 "Classeur contenant tous les documents CSV utilisés lors des imports de "
 "données"
 
-#: views/document.py:59
+#: views/document.py:60
 #, python-brace-format
 msgid "New document for «{entity}»"
 msgstr "Ajout de document à «{entity}»"

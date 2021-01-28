@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/reports/js/reports.js:35
+#: static/reports/js/reports.js:37
 msgid "No selected view"
 msgstr "Aucune vue sélectionnée"
 
-#: static/reports/js/reports.js:39 static/reports/js/reports.js:40
+#: static/reports/js/reports.js:41 static/reports/js/reports.js:42
 msgid "All"
 msgstr "Tout"
 
-#: static/reports/js/reports.js:46
+#: static/reports/js/reports.js:48
 msgid "None available"
 msgstr "Aucun disponible"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Recurrents 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 17:25+0100\n"
+"POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -35,7 +35,7 @@ msgstr "Formulaire de création de générateur"
 msgid "Edition form for generator"
 msgstr "Formulaire de modification de générateur"
 
-#: forms/recurrentgenerator.py:45 forms/recurrentgenerator.py:67
+#: forms/recurrentgenerator.py:46 forms/recurrentgenerator.py:68
 msgid "Type of resource used as template"
 msgstr "Type de ressource utilisé en tant que modèle"
 
