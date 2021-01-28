@@ -26,12 +26,16 @@ from creme.creme_core.core.function_field import (
     function_field_registry,
 )
 from creme.creme_core.models import (
+    CremeEntity,
     CustomField,
     CustomFieldEnumValue,
+    FakeCivility,
     FakeContact,
     FakeDocument,
     FakeFolder,
+    FakePosition,
     FieldsConfig,
+    Relation,
     RelationType,
 )
 
@@ -597,3 +601,151 @@ class EntityCellTestCase(CremeTestCase):
             TestCell(model=FakeDocument, value='title'),
             cell1
         )
+
+    def test_mixed_populate_entities01(self):
+        "Regular fields: no FK."
+        user = self.create_user()
+
+        pos = FakePosition.objects.create(title='Pilot')
+        create_contact = partial(FakeContact.objects.create, user=user, position_id=pos.id)
+        contacts = [
+            create_contact(first_name='Nagate',  last_name='Tanikaze'),
+            create_contact(first_name='Shizuka', last_name='Hoshijiro'),
+        ]
+
+        build = partial(EntityCellRegularField.build, model=FakeContact)
+        cells = [build(name='last_name'), build(name='first_name')]
+
+        with self.assertNumQueries(0):
+            EntityCell.mixed_populate_entities(cells=cells, entities=contacts, user=user)
+
+        with self.assertNumQueries(1):
+            contacts[0].position  # NOQA
+
+    def test_mixed_populate_entities02(self):
+        "Regular fields: FK."
+        user = self.create_user()
+
+        pos = FakePosition.objects.all()[0]
+        civ = FakeCivility.objects.all()[0]
+        create_contact = partial(
+            FakeContact.objects.create, user=user, position=pos, civility=civ,
+        )
+        contact1 = create_contact(first_name='Nagate', last_name='Tanikaze')
+        contact2 = create_contact(first_name='Shizuka', last_name='Hoshijiro')
+        # NB: we refresh because the __str__() method retrieves the civility
+        contacts = [self.refresh(contact1), self.refresh(contact2)]
+
+        build = partial(EntityCellRegularField.build, model=FakeContact)
+        cells = [
+            build(name='last_name'), build(name='first_name'),
+            build(name='position'),
+            build(name='civility__title'),
+        ]
+
+        with self.assertNumQueries(2):
+            EntityCell.mixed_populate_entities(cells=cells, entities=contacts, user=user)
+
+        with self.assertNumQueries(0):
+            contacts[0].position  # NOQA
+            contacts[1].position  # NOQA
+            contacts[0].civility  # NOQA
+            contacts[1].civility  # NOQA
+
+    def test_mixed_populate_entities03(self):
+        "Relationships."
+        user = self.create_user()
+
+        create_rt = RelationType.create
+        loved = create_rt(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love', 'Is loved by'),
+        )[1]
+        hated = create_rt(
+            ('test-subject_hate', 'Is hating'),
+            ('test-object_hate', 'Is hated by'),
+        )[1]
+
+        cells = [
+            EntityCellRegularField.build(model=FakeContact, name='last_name'),
+            EntityCellRelation(model=FakeContact, rtype=loved),
+            EntityCellRelation(model=FakeContact, rtype=hated),
+        ]
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        nagate  = create_contact(first_name='Nagate',  last_name='Tanikaze')
+        shizuka = create_contact(first_name='Shizuka', last_name='Hoshijiro')
+        izana   = create_contact(first_name='Izana',   last_name='Shinatose')
+        norio   = create_contact(first_name='Norio',   last_name='Kunato')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=nagate,  type=loved, object_entity=izana)
+        create_rel(subject_entity=nagate,  type=hated, object_entity=norio)
+        create_rel(subject_entity=shizuka, type=loved, object_entity=norio)
+
+        # NB: sometimes a query to get this CT is performed when the Relations
+        # are retrieved. So we force the cache to be filled has he should be
+        ContentType.objects.get_for_model(CremeEntity)
+
+        with self.assertNumQueries(2):
+            EntityCell.mixed_populate_entities(cells, [nagate, shizuka], user)
+
+        with self.assertNumQueries(0):
+            r1 = nagate.get_relations(loved.id,  real_obj_entities=True)
+            r2 = nagate.get_relations(hated.id,  real_obj_entities=True)
+            r3 = shizuka.get_relations(loved.id, real_obj_entities=True)
+            r4 = shizuka.get_relations(hated.id, real_obj_entities=True)
+
+        with self.assertNumQueries(0):
+            objs1 = [r.object_entity.get_real_entity() for r in r1]
+            objs2 = [r.object_entity.get_real_entity() for r in r2]
+            objs3 = [r.object_entity.get_real_entity() for r in r3]
+            objs4 = [r.object_entity.get_real_entity() for r in r4]
+
+        self.assertListEqual([izana], objs1)
+        self.assertListEqual([norio], objs2)
+        self.assertListEqual([norio], objs3)
+        self.assertListEqual([],      objs4)
+
+    def test_mixed_populate_entities04(self):
+        "Mixed types."
+        user = self.create_user()
+
+        pos = FakePosition.objects.all()[0]
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contacts = [
+            create_contact(first_name='Nagate',  last_name='Tanikaze', position=pos),
+            create_contact(first_name='Shizuka', last_name='Hoshijiro'),
+            create_contact(first_name='Izana',   last_name='Shinatose'),
+        ]
+
+        loved = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love', 'Is loved by'),
+        )[1]
+        Relation.objects.create(
+            user=user, subject_entity=contacts[0], type=loved, object_entity=contacts[2],
+        )
+
+        build_rfield = partial(EntityCellRegularField.build, model=FakeContact)
+        cells = [
+            build_rfield(name='last_name'),
+            build_rfield(name='position'),
+            EntityCellRelation(model=FakeContact, rtype=loved),
+        ]
+
+        # NB: sometimes a query to get this CT is performed when the Relations
+        # are retrieved. So we force the cache to be filled has he should be
+        ContentType.objects.get_for_model(CremeEntity)
+
+        # Drop caches
+        contacts = [self.refresh(c) for c in contacts]
+
+        with self.assertNumQueries(3):
+            EntityCell.mixed_populate_entities(cells, contacts, user)
+
+        with self.assertNumQueries(0):
+            contacts[0].position  # NOQA
+
+        with self.assertNumQueries(0):
+            contacts[0].get_relations(loved.id,  real_obj_entities=True)

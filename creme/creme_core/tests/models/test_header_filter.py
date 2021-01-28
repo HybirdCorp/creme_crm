@@ -13,15 +13,13 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
-from creme.creme_core.models import (
-    CremeEntity,
+from creme.creme_core.models import (  # CremeEntity Relation
     FakeCivility,
     FakeContact,
     FakeOrganisation,
     FakePosition,
     FieldsConfig,
     HeaderFilter,
-    Relation,
     RelationType,
 )
 from creme.creme_core.models.header_filter import HeaderFilterList
@@ -221,7 +219,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(3, len(self.refresh(hf).cells))
 
     def test_cells_property02(self):
-        "None value are ignored"
+        "None value are ignored."
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf01', name='Contact view', model=FakeContact,
         )
@@ -459,86 +457,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         with self.assertNoException():
             with self.assertNumQueries(0):
                 hf.populate_entities(contacts, user)
-
-    def test_populate_entities_fields04(self):
-        "Regular fields: invalid subfields."
-        self.login()
-
-        cell1 = EntityCellRegularField.build(model=FakeContact, name='last_name')
-
-        cell2 = EntityCellRegularField.build(model=FakeContact, name='user__username')
-        cell2.value = 'user__invalid'
-
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf', name='Contact view', model=FakeContact,
-            cells_desc=[cell1, cell2],
-        )
-
-        create_contact = partial(FakeContact.objects.create, user=self.user)
-        create_contact(first_name='Nagate',  last_name='Tanikaze')
-        create_contact(first_name='Shizuka', last_name='Hoshijiro')
-
-        hf = self.refresh(hf)
-        new_cells = hf.cells
-        self.assertEqual(1, len(new_cells))
-        self.assertEqual(cell1, hf.cells[0])
-
-    def test_populate_entities_relations01(self):
-        user = self.create_user()
-
-        create_rt = RelationType.create
-        loved = create_rt(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love', 'Is loved by'),
-        )[1]
-        hated = create_rt(
-            ('test-subject_hate', 'Is hating'),
-            ('test-object_hate', 'Is hated by'),
-        )[1]
-
-        hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf', name='Contact view', model=FakeContact,
-            cells_desc=[
-                EntityCellRegularField.build(model=FakeContact, name='last_name'),
-                EntityCellRelation(model=FakeContact, rtype=loved),
-                EntityCellRelation(model=FakeContact, rtype=hated),
-            ],
-        )
-
-        create_contact = partial(FakeContact.objects.create, user=user)
-        nagate  = create_contact(first_name='Nagate',  last_name='Tanikaze')
-        shizuka = create_contact(first_name='Shizuka', last_name='Hoshijiro')
-        izana   = create_contact(first_name='Izana',   last_name='Shinatose')
-        norio   = create_contact(first_name='Norio',   last_name='Kunato')
-
-        create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=nagate,  type=loved, object_entity=izana)
-        create_rel(subject_entity=nagate,  type=hated, object_entity=norio)
-        create_rel(subject_entity=shizuka, type=loved, object_entity=norio)
-
-        # NB: sometimes a query to get this CT is performed when the Relations
-        # are retrieved. So we force the cache to be filled has he should be
-        ContentType.objects.get_for_model(CremeEntity)
-
-        with self.assertNumQueries(2):
-            hf.populate_entities([nagate, shizuka], user)
-
-        with self.assertNumQueries(0):
-            r1 = nagate.get_relations(loved.id,  real_obj_entities=True)
-            r2 = nagate.get_relations(hated.id,  real_obj_entities=True)
-            r3 = shizuka.get_relations(loved.id, real_obj_entities=True)
-            r4 = shizuka.get_relations(hated.id, real_obj_entities=True)
-
-        with self.assertNumQueries(0):
-            objs1 = [r.object_entity.get_real_entity() for r in r1]
-            objs2 = [r.object_entity.get_real_entity() for r in r2]
-            objs3 = [r.object_entity.get_real_entity() for r in r3]
-            objs4 = [r.object_entity.get_real_entity() for r in r4]
-
-        self.assertEqual([izana], objs1)
-        self.assertEqual([norio], objs2)
-        self.assertEqual([norio], objs3)
-        self.assertEqual([],      objs4)
 
     def test_manager_filter_by_user(self):
         user = self.login(is_superuser=False)
