@@ -20,11 +20,10 @@
 
 import logging
 # import warnings
-from collections import defaultdict
+# from collections import defaultdict
 from json import loads as json_load
-from typing import (
+from typing import (  # DefaultDict
     TYPE_CHECKING,
-    DefaultDict,
     Iterable,
     List,
     Optional,
@@ -318,8 +317,6 @@ class HeaderFilter(models.Model):  # CremeModel ???
     #         )
     #     )
 
-    # TODO: dispatch this job in Cells classes
-    #       => get the cells as argument, so we can pass filtered cells
     # TODO: way to mean QuerySet[CremeEntity] ??
     def populate_entities(self, entities: QuerySet, user) -> None:
         """Fill caches of CremeEntity objects, related to the columns that will
@@ -327,10 +324,14 @@ class HeaderFilter(models.Model):  # CremeModel ???
         @param entities: QuerySet on CremeEntity (or subclass).
         @param user: Instance of get_user_model().
         """
-        cell_groups: DefaultDict[Type['EntityCell'], List['EntityCell']] = defaultdict(list)
-
-        for cell in self.cells:
-            cell_groups[cell.__class__].append(cell)
-
-        for cell_cls, cell_group in cell_groups.items():
-            cell_cls.populate_entities(cell_group, entities, user)
+        # cell_groups: DefaultDict[Type['EntityCell'], List['EntityCell']] = defaultdict(list)
+        #
+        # for cell in self.cells:
+        #     cell_groups[cell.__class__].append(cell)
+        #
+        # for cell_cls, cell_group in cell_groups.items():
+        #     cell_cls.populate_entities(cell_group, entities, user)
+        from ..core.entity_cell import EntityCell
+        EntityCell.mixed_populate_entities(
+            cells=self.cells, entities=entities, user=user,
+        )
