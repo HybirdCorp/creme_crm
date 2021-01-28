@@ -19,7 +19,17 @@
 ################################################################################
 
 import logging
-from typing import Dict, Iterable, List, Optional, Tuple, Type  # Callable
+from collections import defaultdict
+from typing import (  # Callable
+    DefaultDict,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+)
 
 from django.db import models
 from django.db.models import Field, FieldDoesNotExist, Model
@@ -179,7 +189,37 @@ class EntityCell:
         return issubclass(self._get_field_class(), MULTILINE_FIELDS)
 
     @staticmethod
-    def populate_entities(cells, entities, user):
+    def mixed_populate_entities(cells: Iterable['EntityCell'],
+                                entities: Sequence[CremeEntity],
+                                user) -> None:
+        """Fill caches of CremeEntity objects with grouped SQL queries, & so
+        avoid multiple queries when rendering the cells.
+        The given cells are grouped by types, and then the method
+        'populate_entities()' of each used type is called.
+        @param cells: Instances of (subclasses of) EntityCell.
+        @param entities: Instances of CremeEntities (or subclass).
+        @param user: Instance of <contrib.auth.get_user_model()>.
+        """
+        cell_groups: DefaultDict[Type['EntityCell'], List['EntityCell']] = defaultdict(list)
+
+        for cell in cells:
+            cell_groups[cell.__class__].append(cell)
+
+        for cell_cls, cell_group in cell_groups.items():
+            cell_cls.populate_entities(cell_group, entities, user)
+
+    @staticmethod
+    def populate_entities(cells: Iterable['EntityCell'],
+                          entities: Sequence[CremeEntity],
+                          user) -> None:
+        """Fill caches of CremeEntity objects with grouped SQL queries, & so
+        avoid multiple queries when rendering the cells.
+        The given cells MUST HAVE THE SAME TYPE (corresponding to the class
+        the method belongs).
+        @param cells: Instances of (subclasses of) EntityCell.
+        @param entities: Instances of CremeEntities (or subclass).
+        @param user: Instance of <contrib.auth.get_user_model()>.
+        """
         pass
 
     # TODO: factorise render_* => like FunctionField, result that can be html, csv...
