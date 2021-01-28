@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -117,22 +117,22 @@ msgstr "Responsable(s) du projet"
 msgid "Contact to be assigned to this task"
 msgstr "Contact à affecter à cette tâche"
 
-#: forms/resource.py:68 forms/task.py:200
+#: forms/resource.py:68 forms/task.py:202
 msgid ""
 "If the contact changes, the old one keeps participating to the activities."
 msgstr ""
 "Si le contact change, l'ancien contact continue de participer aux activités."
 
-#: forms/task.py:68 forms/task.py:123 forms/task.py:147
+#: forms/task.py:68 forms/task.py:125 forms/task.py:149
 #: templates/projects/bricks/tasks.html:21
 msgid "Parent tasks"
 msgstr "Tâche(s) parente(s)"
 
-#: forms/task.py:170
+#: forms/task.py:172
 msgid "Allocated resource"
 msgstr "Ressource affectée"
 
-#: forms/task.py:171 templates/projects/bricks/activities.html:18
+#: forms/task.py:173 templates/projects/bricks/activities.html:18
 msgid "Type"
 msgstr "Type"
 

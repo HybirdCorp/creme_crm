@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -48,51 +48,51 @@ msgstr "Société de l'utilisateur"
 msgid "Position in the organisation"
 msgstr "Statut dans la société"
 
-#: bricks.py:83
+#: bricks.py:87
 msgid "Not contacted since 15 days"
 msgstr "Pas contacté depuis 15j"
 
-#: bricks.py:84
+#: bricks.py:88
 msgid "Never contacted"
 msgstr "Jamais contacté"
 
-#: bricks.py:208 bricks.py:242
+#: bricks.py:214 bricks.py:250
 msgid "Card header block"
 msgstr "Bloc «carte de visite»"
 
-#: bricks.py:284
+#: bricks.py:292
 msgid "Organisation managers"
 msgstr "Responsables d'une société"
 
-#: bricks.py:292
+#: bricks.py:300
 msgid "Create a manager"
 msgstr "Créer un responsable"
 
-#: bricks.py:314
+#: bricks.py:322
 msgid "Organisation employees"
 msgstr "Salariés d'une société"
 
-#: bricks.py:321
+#: bricks.py:329
 msgid "Create an employee"
 msgstr "Créer un salarié"
 
-#: bricks.py:391
+#: bricks.py:400
 msgid "Addresses (detailed)"
 msgstr "Adresses (détaillées)"
 
-#: bricks.py:397
+#: bricks.py:406
 msgid "Addresses (pretty)"
 msgstr "Adresses (jolies)"
 
-#: bricks.py:426
+#: bricks.py:435
 msgid "Other addresses (detailed)"
 msgstr "Adresses supplémentaires (détaillées)"
 
-#: bricks.py:433
+#: bricks.py:442
 msgid "Other addresses (pretty)"
 msgstr "Adresses supplémentaires (jolies)"
 
-#: bricks.py:467 templates/persons/bricks/neglected-organisations.html:7
+#: bricks.py:476 templates/persons/bricks/neglected-organisations.html:7
 msgid "Neglected organisations"
 msgstr "Sociétés délaissées"
 

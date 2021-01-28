@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 17:28+0100\n"
+"POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -515,42 +515,42 @@ msgid "Do not save"
 msgstr "Ne pas sauvegarder"
 
 # Already in creme_core
-#: views.py:89
+#: views.py:90
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:93
+#: views.py:94
 msgid "The page you have requested is not found."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:97
+#: views.py:98
 msgid "You can not perform this action because of business constraints."
 msgstr ""
 
-#: views.py:269
+#: views.py:270
 msgid "Your search is too short."
 msgstr "Votre recherche est trop courte."
 
-#: views.py:526
+#: views.py:527
 msgid "You cannot create a call to yourself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
-#: views.py:587 views.py:624
+#: views.py:596 views.py:633
 #, python-brace-format
 msgid "{status} call to {person} from Creme Mobile"
 msgstr "Appel {status} vers {person} depuis Creme Mobile"
 
-#: views.py:588
+#: views.py:597
 msgid "Successful"
 msgstr "réussi"
 
-#: views.py:625
+#: views.py:634
 msgid "Failed"
 msgstr "échoué"
 
-#: views.py:686
+#: views.py:695
 msgid "Call to {} from Creme Mobile"
 msgstr "Appel vers {} depuis Creme Mobile"
 

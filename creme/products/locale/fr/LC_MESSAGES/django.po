@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 17:40+0100\n"
+"POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -47,12 +47,12 @@ msgstr "Formulaire de modification de service"
 msgid "Category & sub-category"
 msgstr "Catégorie & sous-catégorie"
 
-#: forms/base.py:52 forms/fields.py:73 forms/product.py:53 models/product.py:39
+#: forms/base.py:51 forms/fields.py:73 forms/product.py:53 models/product.py:39
 #: models/service.py:40
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/base.py:84 models/product.py:54 models/service.py:51
+#: forms/base.py:83 models/product.py:54 models/service.py:51
 #: templates/products/bricks/images.html:7
 msgid "Images"
 msgstr "Images"
