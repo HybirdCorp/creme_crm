@@ -156,6 +156,10 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         for fname in ('app_label', 'model'):
             get_ct_field(fname).set_tags(viewable=False)
 
+        # NB: the original prefix with app's name => ugly choices for final users
+        #     => use gettext+context had smooth translation instead
+        ContentType.__str__ = lambda this: this.name
+
 
 class CremeAppConfig(AppConfig):
     # True => App can be used by some services

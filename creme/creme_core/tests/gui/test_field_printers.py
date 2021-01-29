@@ -1119,7 +1119,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(str(casca.image), get_csv_val(casca, 'image', user))
 
         self.assertEqual(
-            '<p>Casca&#39;s selfie</p>',
+            # '<p>Casca&#39;s selfie</p>',
+            '<p>Casca&#x27;s selfie</p>',
             get_html_val(casca, 'image__description', user)
         )
         self.assertEqual(
@@ -1310,7 +1311,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             get_html_val(judo, 'image', user)
         )
         self.assertEqual(
-            '<p>Judo&#39;s selfie</p>',
+            # '<p>Judo&#39;s selfie</p>',
+            '<p>Judo&#x27;s selfie</p>',
             get_html_val(judo, 'image__description', user)
         )
 

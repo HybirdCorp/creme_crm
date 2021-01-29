@@ -20,7 +20,9 @@
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import bricks as bricks_views
@@ -48,6 +50,7 @@ class SendingDetail(generic.RelatedToEntityDetail):
 
 
 # TODO: factorise with get_lightweight_mail_body()
+@method_decorator(xframe_options_sameorigin, name='dispatch')
 class SendingBody(generic.RelatedToEntityDetail):
     model = EmailSending
     pk_url_kwarg = 'sending_id'

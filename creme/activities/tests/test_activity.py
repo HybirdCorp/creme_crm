@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelMultipleChoiceField
 from django.forms.utils import ValidationError
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str  # force_text
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
@@ -2325,7 +2325,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual('text/calendar', response['Content-Type'])
         self.assertEqual('attachment; filename=Calendar.ics', response['Content-Disposition'])
 
-        content = force_text(response.content)
+        # content = force_text(response.content)
+        content = force_str(response.content)
         self.assertStartsWith(
             content,
             'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CremeCRM//CremeCRM//EN\n'

@@ -290,7 +290,6 @@ class Command(BaseCommand):
 
     SQL_OPTIMISERS = {
         'django.db.backends.mysql': OptimizeMySQLContext,
-        'django.db.backends.postgresql_psycopg2': OptimizePGSQLContext,
         'django.db.backends.postgresql': OptimizePGSQLContext,
         # TODO: other DBRMS ?
     }

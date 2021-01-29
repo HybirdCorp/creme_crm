@@ -49,7 +49,7 @@ class Command(BaseCommand):
             from hashlib import sha256
             from time import time
 
-            from django.utils.encoding import force_text
+            from django.utils.encoding import force_str  # force_text
 
             choice = random.choice
 
@@ -66,7 +66,8 @@ class Command(BaseCommand):
 
             random.seed(
                 sha256(
-                    f'{random.getstate()}{time()}{force_text(kb_seed)}'.encode('utf-8')
+                    # f'{random.getstate()}{time()}{force_text(kb_seed)}'.encode('utf-8')
+                    f'{random.getstate()}{time()}{force_str(kb_seed)}'.encode('utf-8')
                 ).digest()
             )
 

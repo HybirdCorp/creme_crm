@@ -24,8 +24,10 @@ from django.forms.forms import BaseForm
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import Context, Template
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.core.exceptions import ConflictError
@@ -206,6 +208,7 @@ class LightWeightEmailPopup(generic.RelatedToEntityDetailPopup):
         )
 
 
+@method_decorator(xframe_options_sameorigin, name='dispatch')
 class LightWeightEmailBody(generic.CheckedView):
     """Used to show an HTML document in an <iframe>."""
     permissions = 'emails'

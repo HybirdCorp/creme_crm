@@ -29,7 +29,7 @@ from django.core.management.base import AppCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.migrations.recorder import MigrationRecorder
 from django.dispatch import receiver
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str  # force_text
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.bricks import Brick
@@ -470,7 +470,8 @@ class Command(AppCommand):
                     ' [KO] Original error: {error}.\n'
                     'Remaining tables:\n'
                     '{models}\n'.format(
-                        error=force_text(e),  # PostGreSQL returns localized errors...
+                        # error=force_text(e),  # PostGreSQL returns localized errors...
+                        error=force_str(e),  # PostGreSQL returns localized errors...
                         models='\n'.join(model._meta.db_table for model in models),
                     )
                 )

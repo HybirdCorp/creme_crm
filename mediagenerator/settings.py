@@ -1,8 +1,8 @@
-from os import path as os_path
 import sys
+from os import path as os_path
 
 from django.conf import settings
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str  # force_text
 
 __main__ = sys.modules.get('__main__')
 
@@ -15,16 +15,17 @@ if hasattr(__main__, '__file__'):
     _media_dir = os_path.join(_root, _media_dir)
 
 GENERATED_MEDIA_DIR = os_path.abspath(getattr(settings, 'GENERATED_MEDIA_DIR', _media_dir))
-GENERATED_MEDIA_NAMES_MODULE = getattr(settings, 'GENERATED_MEDIA_NAMES_MODULE',
-                                       '_generated_media_names'
-                                      )
+GENERATED_MEDIA_NAMES_MODULE = getattr(
+    settings, 'GENERATED_MEDIA_NAMES_MODULE', '_generated_media_names'
+)
 GENERATED_MEDIA_NAMES_FILE = os_path.abspath(
     getattr(settings, 'GENERATED_MEDIA_NAMES_FILE', _map_file_path)
 )
 
-PRODUCTION_MEDIA_URL = getattr(settings, 'PRODUCTION_MEDIA_URL',
-                               getattr(settings, 'STATIC_URL', settings.MEDIA_URL)
-                              )
+PRODUCTION_MEDIA_URL = getattr(
+    settings, 'PRODUCTION_MEDIA_URL',
+    getattr(settings, 'STATIC_URL', settings.MEDIA_URL)
+)
 
 MEDIA_GENERATORS = getattr(settings, 'MEDIA_GENERATORS', (
     'mediagenerator.generators.copyfiles.CopyFiles',
@@ -33,10 +34,11 @@ MEDIA_GENERATORS = getattr(settings, 'MEDIA_GENERATORS', (
 ))
 
 GLOBAL_MEDIA_DIRS = [
-    os_path.normcase(os_path.normpath(force_text(path)))
-        for path in getattr(settings, 'GLOBAL_MEDIA_DIRS',
-                            getattr(settings, 'STATICFILES_DIRS', ())
-                           )
+    # os_path.normcase(os_path.normpath(force_text(path)))
+    os_path.normcase(os_path.normpath(force_str(path)))
+    for path in getattr(
+        settings, 'GLOBAL_MEDIA_DIRS', getattr(settings, 'STATICFILES_DIRS', ())
+    )
 ]
 
 IGNORE_APP_MEDIA_DIRS = getattr(settings, 'IGNORE_APP_MEDIA_DIRS', ('django.contrib.admin',))

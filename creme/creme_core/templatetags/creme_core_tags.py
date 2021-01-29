@@ -31,7 +31,7 @@ from django.template import Node as TemplateNode
 from django.template import Template, TemplateSyntaxError
 from django.template.defaulttags import TemplateLiteral
 from django.template.library import token_kwargs
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str  # force_text
 from django.utils.html import escape, format_html_join
 from django.utils.safestring import mark_safe
 
@@ -658,7 +658,8 @@ class JsonScriptNode(TemplateNode):
             logger.warning('jsondatablock tag do not accept custom "type" attribute')
 
         attrs = ''.join(
-            f' {k}="{escape(force_text(v.resolve(context)))}"'
+            # f' {k}="{escape(force_text(v.resolve(context)))}"'
+            f' {k}="{escape(force_str(v.resolve(context)))}"'
             for k, v in kwargs.items()
         )
 

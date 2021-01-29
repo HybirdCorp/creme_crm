@@ -69,7 +69,7 @@ virtual env, in order to keep the old one working).
  - These python packages :
    (exact versions of Python packages are indicated in the 'setup.cfg' file)
    - Mandatory :
-     - Django 2.2
+     - Django 3.0
      - redis 3.4
      - python-dateutil 2.8
      - bleach 3.1
@@ -92,7 +92,7 @@ Installation with 'pip':
  - You should probably use "virtualenv" (on a Python >= 3.6).
  - Creme should be installed using 'pip install -e .'
  - About DB server :
-   - If you use MySQL, you must add the 'mysql' flag:
+   - If you use MySQL/MariaDB, you must add the 'mysql' flag:
      'pip install .[mysql]'
    - For PostGreSQL, use 'pip install .[pgsql]' instead.
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).

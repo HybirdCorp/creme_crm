@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import ModelMultipleChoiceField
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str  # smart_text
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
@@ -31,14 +31,15 @@ from ..models import RootNode
 
 class RelationTypeMultipleChoiceField(ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        return smart_text(obj.predicate)
+        # return smart_text(obj.predicate)
+        return smart_str(obj.predicate)
 
 
 class AddRootNodesForm(CremeForm):
-    entities       = MultiGenericEntityField(label=_('Root entities'))
-    relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
-                                                     queryset=RelationType.objects.all(),
-                                                    )
+    entities = MultiGenericEntityField(label=_('Root entities'))
+    relation_types = RelationTypeMultipleChoiceField(
+        label=_('Related types of relations'), queryset=RelationType.objects.all(),
+    )
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -59,9 +60,9 @@ class AddRootNodesForm(CremeForm):
 
 
 class EditRootNodeForm(CremeModelForm):
-    relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
-                                                     queryset=RelationType.objects.all(),
-                                                     )
+    relation_types = RelationTypeMultipleChoiceField(
+        label=_('Related types of relations'), queryset=RelationType.objects.all(),
+    )
 
     class Meta:
         model = RootNode

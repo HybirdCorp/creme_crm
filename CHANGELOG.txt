@@ -1,7 +1,22 @@
 == Version 2.3 Work in progress (not released -- this is a draft) ==
 
+  UPGRADE NOTE :
+    - You should create a all new virtual environment based on Python 3.6+
+      (eg: "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
+      and populate it with "pip install -e .[mysql|pgsql]" of course.
+    - Execute the well known commands "migrate", "generatemedia" & "creme_populate".
+
+  Users side :
+  ------------
+    # The version of Django has been upgraded to 3.0.
+
+
   Developers side :
   -----------------
+    - The version of Django is now "3.0".
+      You should probably read the following releases notes for Django versions :
+        - https://docs.djangoproject.com/en/3.2/releases/3.0/
+
 
     Non breaking changes :
     ----------------------

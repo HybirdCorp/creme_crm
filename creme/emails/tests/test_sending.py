@@ -305,31 +305,35 @@ class SendingsTestCase(_EmailsTestCase):
         mail = mails[0]
         self.assertEqual(0, mail.reads)
         self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
-        response = self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
-        self.assertTemplateUsed(response, 'creme_core/generics/detail-popup.html')
-        self.assertEqual(_('Details of the email'), response.context.get('title'))
+
+        response1 = self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
+        self.assertTemplateUsed(response1, 'creme_core/generics/detail-popup.html')
+        self.assertEqual(_('Details of the email'), response1.context.get('title'))
+        self.assertEqual('DENY', response1.get('X-Frame-Options'))
 
         # ---
-        response = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
-        self.assertEqual(b'', response.content)
+        response2 = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
+        self.assertEqual(b'', response2.content)
+        self.assertEqual('SAMEORIGIN', response2.get('X-Frame-Options'))
 
         # Detail view ----------------------------------------------------------
         detail_url = reverse('emails__view_sending', args=(sending.id,))
         self.assertPOST405(detail_url)
 
-        response = self.assertGET200(detail_url)
-        self.assertTemplateUsed(response, 'emails/view_sending.html')
-        self.assertEqual(sending, response.context.get('object'))
+        response3 = self.assertGET200(detail_url)
+        self.assertTemplateUsed(response3, 'emails/view_sending.html')
+        self.assertEqual(sending, response3.context.get('object'))
 
-        self.assertContains(response, contacts[0].email)
-        self.assertContains(response, orgas[0].email)
+        self.assertContains(response3, contacts[0].email)
+        self.assertContains(response3, orgas[0].email)
 
         # HTML body ----------------------------------------------------------
         body_url = reverse('emails__sending_body', args=(sending.id,))
         self.assertPOST405(body_url)
 
-        response = self.assertGET200(body_url)
-        self.assertEqual(b'', response.content)
+        response4 = self.assertGET200(body_url)
+        self.assertEqual(b'', response4.content)
+        self.assertEqual('SAMEORIGIN', response4.get('X-Frame-Options'))
 
         # Test delete campaign -------------------------------------------------
         camp.trash()

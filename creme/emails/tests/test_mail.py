@@ -898,6 +898,7 @@ class EntityEmailTestCase(_EmailsTestCase):
             reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html'))
         )
         self.assertEqual(b'', response.content)
+        self.assertEqual('SAMEORIGIN', response.get('X-Frame-Options'))
 
     def test_get_sanitized_html_field02(self):
         self.login()

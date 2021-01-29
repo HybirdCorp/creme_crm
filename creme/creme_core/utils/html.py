@@ -22,7 +22,7 @@ from typing import Callable, Dict, Sequence, Union
 
 import bleach
 from django.conf import settings
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str  # force_text
 from django.utils.html import mark_safe
 
 _AllowedAttributesDict = Dict[str, Union[Sequence[str], Callable[[str, str, str], bool]]]
@@ -114,4 +114,5 @@ JSON_ESCAPES = {
 
 
 def escapejson(value: str) -> str:
-    return mark_safe(force_text(value).translate(JSON_ESCAPES))
+    # return mark_safe(force_text(value).translate(JSON_ESCAPES))
+    return mark_safe(force_str(value).translate(JSON_ESCAPES))
