@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str  # smart_text
 
 from creme.creme_core.core import exceptions as creme_exceptions
 
@@ -41,7 +41,8 @@ class _AlternativeErrorMiddleware(MiddlewareMixin):
 
     def process_exception(self, request, exception):
         if self.error is None or isinstance(exception, self.error):
-            msg = smart_text(exception)
+            # msg = smart_text(exception)
+            msg = smart_str(exception)
 
             if request.is_ajax():
                 if self.log_ajax:
@@ -52,9 +53,10 @@ class _AlternativeErrorMiddleware(MiddlewareMixin):
             if self.template is None:
                 return
 
-            return render(request, self.template,
-                          {'error_message': msg}, status=self.status,
-                         )
+            return render(
+                request, self.template,
+                {'error_message': msg}, status=self.status,
+            )
 
 
 class BadRequestMiddleware(_AlternativeErrorMiddleware):

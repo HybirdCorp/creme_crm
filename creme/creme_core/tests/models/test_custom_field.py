@@ -517,12 +517,13 @@ by a man named Tochiro.
             entity=orga,
         )
 
-        with self.assertNumQueries(3):
+        # with self.assertNumQueries(3):
+        with self.assertNumQueries(2):
             cf_value.set_value_n_save([enum_value1, enum_value2])
 
         self.assertSetEqual(
             {enum_value1, enum_value2},
-            {*self.refresh(cf_value).value.all()}
+            {*self.refresh(cf_value).value.all()},
         )
 
     def test_delete(self):

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import FileField, Textarea
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str  # smart_text
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, FieldBlockManager
@@ -86,7 +86,8 @@ class MessagingListAddCSVForm(CremeForm):
         # TODO: genexpr
         def phones():
             for line in uploaded_file:
-                phone = PhoneField.filternumbers(smart_text(line.strip()))
+                # phone = PhoneField.filternumbers(smart_text(line.strip()))
+                phone = PhoneField.filternumbers(smart_str(line.strip()))
                 if phone:
                     yield phone
 

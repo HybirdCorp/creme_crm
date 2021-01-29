@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from functools import partial
 from json import dumps as json_dump
 from random import shuffle
+from urllib.parse import quote
 from xml.etree.ElementTree import tostring as html_tostring
 
 from django.conf import settings
@@ -12,8 +13,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import force_text
-from django.utils.http import urlquote
+from django.utils.encoding import force_str  # force_text
+# from django.utils.http import urlquote
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -429,7 +430,8 @@ class ListViewTestCase(ViewsTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                force_text(response.content),
+                # force_text(response.content),
+                force_str(response.content),
             )
 
         post('none')
@@ -450,7 +452,8 @@ class ListViewTestCase(ViewsTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                force_text(response.content),
+                # force_text(response.content),
+                force_str(response.content),
             )
 
         get('none')
@@ -1003,7 +1006,8 @@ class ListViewTestCase(ViewsTestCase):
             r'.creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?, '
             r'.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
             r'.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?, '
-            r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
+            # r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
+            r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
         )
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=2)
@@ -1014,7 +1018,8 @@ class ListViewTestCase(ViewsTestCase):
             sql,
             r'ORDER BY'
             r' .creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?,'
-            r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
+            # r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
+            r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
         )
 
     def test_efilter01(self):
@@ -1176,8 +1181,10 @@ class ListViewTestCase(ViewsTestCase):
         dl_uri = data_hrefs[1]
         self.assertStartsWith(dl_uri, dl_url)
         self.assertIn(f'hfilter={hf.id}', dl_uri)
-        self.assertIn(f'&extra_q={urlquote(q_filter)}', dl_uri)
-        self.assertIn(f'&search-regular_field-phone={urlquote(searched_phone)}', dl_uri)
+        # self.assertIn(f'&extra_q={urlquote(q_filter)}', dl_uri)
+        self.assertIn(f'&extra_q={quote(q_filter)}', dl_uri)
+        # self.assertIn(f'&search-regular_field-phone={urlquote(searched_phone)}', dl_uri)
+        self.assertIn(f'&search-regular_field-phone={quote(searched_phone)}', dl_uri)
 
         dl_header_uri = data_hrefs[2]
         self.assertStartsWith(dl_header_uri, dl_url)

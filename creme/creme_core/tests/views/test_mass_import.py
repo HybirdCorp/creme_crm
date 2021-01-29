@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import slugify
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -1579,7 +1579,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         return [
             [i[1:-1] for i in line.split(separator)]
-            for line in smart_text(response.content).splitlines()
+            for line in smart_str(response.content).splitlines()
         ]
 
     def test_dl_errors01(self):

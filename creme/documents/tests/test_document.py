@@ -664,8 +664,9 @@ class DocumentTestCase(_DocumentsTestCase):
             get_html_val(judo, 'image', other_user)
         )
         self.assertEqual(
-            '<p>Judo&#39;s selfie</p>',
-            get_html_val(judo, 'image__description', other_user)
+            # '<p>Judo&#39;s selfie</p>',
+            '<p>Judo&#x27;s selfie</p>',
+            get_html_val(judo, 'image__description', other_user),
         )
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE

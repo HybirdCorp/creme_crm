@@ -198,6 +198,7 @@ class EntityCTypeForeignKey(CTypeForeignKey):
 
 
 # TODO: factorise with CTypeForeignKey
+#       (NB: using <descriptor_class> is harder than just move __get__/__set__ in a class...)
 class CTypeOneToOneField(models.OneToOneField):
     def __init__(self, **kwargs):
         kwargs['to'] = 'contenttypes.ContentType'

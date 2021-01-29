@@ -32,10 +32,12 @@ from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from .. import constants
 from ..auth import SUPERUSER_PERM
@@ -107,6 +109,7 @@ def get_creme_entities_repr(request, entities_ids):
     ]
 
 
+@method_decorator(xframe_options_sameorigin, name='dispatch')
 class HTMLFieldSanitizing(generic.base.EntityRelatedMixin,
                           generic.CheckedView):
     """Used to show an HTML document in an <iframe>."""

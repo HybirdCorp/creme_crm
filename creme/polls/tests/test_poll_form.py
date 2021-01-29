@@ -6,7 +6,7 @@ from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -464,7 +464,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertStillExists(line)
         self.assertEqual(
             _('There is at least one question in this section.'),
-            smart_text(response.content)
+            smart_str(response.content),
         )
 
     def test_add_line_string01(self):
@@ -1995,7 +1995,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertStillExists(cond)
         self.assertEqual(
             _('There is at least one other question which depends on this question.'),
-            smart_text(response.content),
+            smart_str(response.content),
         )
 
     def test_delete_line01(self):
@@ -2087,7 +2087,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertStillExists(cond)
         self.assertEqual(
             _('There is at least one other question which depends on this question.'),
-            smart_text(response.content)
+            smart_str(response.content),
         )
 
     def test_get_choices01(self):
