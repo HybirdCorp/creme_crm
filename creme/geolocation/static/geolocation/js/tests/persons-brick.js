@@ -125,7 +125,7 @@ QUnit.module("creme.geolocation.persons-brick", new QUnitMixin(QUnitEventMixin,
     },
 
     assertAddressItem: function(item, expected) {
-        equal(1, item.size());
+        equal(1, item.length);
         equal(expected.id, item.attr('data-addressid'));
         equal(expected.selected, item.find('input[type="checkbox"]').is(':checked'));
         equal(expected.selected, item.is('.is-mark-visible'));
@@ -148,9 +148,9 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (defaults)', [
 
         deepEqual([], controller.addresses());
         equal(undefined, controller.locationUrl());
-        deepEqual(canvas, controller.canvas());
-        deepEqual(canvas, controller.mapController().element());
-        equal(0, controller.addressItems().size());
+        deepEqual(canvas.get(), controller.canvas().get());
+        deepEqual(canvas.get(), controller.mapController().element().get());
+        equal(0, controller.addressItems().length);
 
         equal(true, controller.mapController().isBound());
         equal(true, controller.mapController().isEnabled());
@@ -188,9 +188,9 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (no geocoder)', [
 
         deepEqual([], controller.addresses());
         equal(undefined, controller.locationUrl());
-        deepEqual(canvas, controller.canvas());
-        deepEqual(canvas, controller.mapController().element());
-        equal(0, controller.addressItems().size());
+        deepEqual(canvas.get(), controller.canvas().get());
+        deepEqual(canvas.get(), controller.mapController().element().get());
+        equal(0, controller.addressItems().length);
 
         equal(true, controller.mapController().isBound());
         equal(true, controller.mapController().isEnabled());
@@ -266,9 +266,9 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (addresses)', [
 
         deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
 
-        deepEqual(canvas, controller.canvas());
-        deepEqual(canvas, mapController.element());
-        equal(4, controller.addressItems().size());
+        deepEqual(canvas.get(), controller.canvas().get());
+        deepEqual(canvas.get(), mapController.element().get());
+        equal(4, controller.addressItems().length);
 
         equal(true, mapController.isMapEnabled());
     });
@@ -300,10 +300,10 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (addressItem)', [
         mapController._geocoder = geocoder;
 
         deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
-        equal(4, controller.addressItems().size());
+        equal(4, controller.addressItems().length);
 
         // unknown item returns empty query
-        equal(0, controller.addressItem('Unknown').size());
+        equal(0, controller.addressItem('Unknown').length);
 
         self.assertAddressItem(controller.addressItem('Address_A'), {
             id: 'Address_A',
@@ -362,7 +362,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (markers)', [
         mapController._geocoder = geocoder;
 
         deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
-        equal(4, controller.addressItems().size());
+        equal(4, controller.addressItems().length);
 
         setTimeout(function() {
             equal(3, mapController.markers().length);
@@ -421,7 +421,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
         mapController._geocoder = geocoder;
 
         deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
-        equal(4, controller.addressItems().size());
+        equal(4, controller.addressItems().length);
 
         setTimeout(function() {
             equal(3, mapController.markers().length);
@@ -510,7 +510,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
         mapController._geocoder = geocoder;
 
         deepEqual(addresses.map(self.newAddressLocation), controller.addresses());
-        equal(4, controller.addressItems().size());
+        equal(4, controller.addressItems().length);
 
         setTimeout(function() {
             equal(3, mapController.markers().length);

@@ -181,16 +181,18 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (defaults)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
 
-        deepEqual(canvas, controller.canvas());
-        deepEqual(filter, controller.filterSelector());
-        deepEqual(origin, controller.originSelector());
-        deepEqual(counter, controller.counterItem());
+        deepEqual(canvas.get(), controller.canvas().get());
+        deepEqual(filter.get(), controller.filterSelector().get());
+        deepEqual(origin.get(), controller.originSelector().get());
+
+        deepEqual(counter.get(), controller.counterItem().get());
 
         equal(undefined, controller.neighboursUrl());
         equal(null, controller.origin());
         deepEqual([], controller.neighbours());
 
-        deepEqual(canvas, controller.mapController().element());
+        deepEqual(canvas.get(), controller.mapController().element().get());
+
         equal(true, controller.mapController().isBound());
         equal(true, controller.mapController().isEnabled());
         equal(true, controller.mapController().isMapEnabled());
