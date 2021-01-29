@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 14-01-2021 for Creme 2.2
+:Version: 29-01-2021 for Creme 2.2
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -180,7 +180,6 @@ favorite text editor, containing the following code : ::
 
         class Meta:
             app_label = 'beavers'
-            manager_inheritance_from_future = True  # To avoid some error messages from Django
             verbose_name = _('Beaver')
             verbose_name_plural = _('Beavers')
             ordering = ('name',)

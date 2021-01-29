@@ -78,7 +78,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             # unique_together = ('title', 'parent', 'category')
             verbose_name = 'Test Folder'
             verbose_name_plural = 'Test Folders'
@@ -116,7 +116,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Document'
             verbose_name_plural = 'Test Documents'
             ordering = ('title',)
@@ -154,7 +154,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test File bag'
             verbose_name_plural = 'Test File bags'
             ordering = ('name',)
@@ -191,7 +191,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Image'
             verbose_name_plural = 'Test Images'
             ordering = ('name',)
@@ -368,7 +368,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             ordering = ('last_name', 'first_name')
             verbose_name = 'Test Contact'
             verbose_name_plural = 'Test Contacts'
@@ -462,7 +462,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             ordering = ('name',)
             verbose_name = 'Test Organisation'
             verbose_name_plural = 'Test Organisations'
@@ -515,7 +515,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Activity'
             verbose_name_plural = 'Test Activities'
             ordering = ('-start',)
@@ -535,7 +535,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Mailing list'
             verbose_name_plural = 'Test Mailing lists'
             ordering = ('name',)
@@ -558,7 +558,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test campaign'
             verbose_name_plural = 'Test campaigns'
             ordering = ('name',)
@@ -596,7 +596,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Invoice'
             verbose_name_plural = 'Test Invoices'
             # ordering = ('name',)
@@ -633,7 +633,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Invoice Line'
             verbose_name_plural = 'Test Invoice Lines'
             ordering = ('created',)
@@ -673,7 +673,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Product'
             verbose_name_plural = 'Test Products'
             ordering = ('name',)
@@ -699,7 +699,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Report'
             verbose_name_plural = 'Test Reports'
             ordering = ('name',)
@@ -751,7 +751,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Ticket'
             verbose_name_plural = 'Test Tickets'
             ordering = ('title',)
@@ -781,7 +781,7 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            manager_inheritance_from_future = True
+            # manager_inheritance_from_future = True
             verbose_name = 'Test Recipe'
             verbose_name_plural = 'Test Recipes'
             ordering = ('name',)
