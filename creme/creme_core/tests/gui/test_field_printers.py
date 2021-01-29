@@ -1070,7 +1070,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(_('No'),  get_csv_val(casca, 'is_a_nerd', user))
         self.assertEqual(_('Yes'), get_csv_val(judo, 'is_a_nerd', user))
 
-    def test_regsitry_fk(self):
+    def test_registry_fk(self):
         "ForeignKey."
         user = self.create_user()
 

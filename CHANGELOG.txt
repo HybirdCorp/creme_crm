@@ -217,6 +217,8 @@
                     - The function 'views.crudity.set_emails_status()' is deprecated.
                 * Projects :
                     - The property 'AbstractProjectTask.safe_duration' is deprecated ; use the field "duration" instead.
+        # The attributes <manager_inheritance_from_future = True> have been removed in all Meta classes ;
+          you should remove it too (it won't work with future versions of Django).
         # Some static typing has been made in 'creme_core' with the help of mypy (& pyCharm).
         # A configuration for CircleCI has been added ; many checks have been added (isort, flake8, ...).
         # A string permission for staff users has been added : creme_core.auth.STAFF_PERM
