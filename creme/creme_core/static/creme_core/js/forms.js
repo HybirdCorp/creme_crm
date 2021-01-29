@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -318,7 +318,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
             }
         }
 
-        var chosenCount = $chosen.find('li').size();
+        var chosenCount = $chosen.find('li').length;
 
         if (chosenCount === 0) {
             $remall_button.attr('disabled', 'disabled');
@@ -326,7 +326,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
             $remall_button.removeAttr('disabled');
         }
 
-        if (($available.find('li').size() - chosenCount) === 0) {
+        if (($available.find('li').length - chosenCount) === 0) {
             $addall_button.attr('disabled', 'disabled');
         } else {
             $addall_button.removeAttr('disabled');
@@ -350,7 +350,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
         $available.find('li').each(function() {
             var name = $(this).attr('name');
 
-            if ($chosen.find('li[name="' + name + '"]').size() === 0) {
+            if ($chosen.find('li[name="' + name + '"]').length === 0) {
                 addChosenLi($(this).html(), name);  // not "$(this).text()" (xss)
                 $(this).hide();
             }
