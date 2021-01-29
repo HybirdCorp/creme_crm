@@ -69,7 +69,7 @@ virtual env, in order to keep the old one working).
  - These python packages :
    (exact versions of Python packages are indicated in the 'setup.cfg' file)
    - Mandatory :
-     - Django 2.2
+     - Django 3.0
      - redis 3.4
      - python-dateutil 2.8
      - bleach 3.1

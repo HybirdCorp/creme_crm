@@ -22,7 +22,7 @@ from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme  # is_safe_url
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -65,7 +65,8 @@ class JobDetail(generic.CremeModelDetail):
     def get_list_url(self):
         request = self.request
         list_url = request.GET.get('list_url')
-        list_url_is_safe = list_url and is_safe_url(
+        # list_url_is_safe = list_url and is_safe_url(
+        list_url_is_safe = list_url and url_has_allowed_host_and_scheme(
             url=list_url,
             allowed_hosts={request.get_host()},
             require_https=request.is_secure(),

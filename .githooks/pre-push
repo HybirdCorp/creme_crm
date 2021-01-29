@@ -2,7 +2,8 @@
 
 . .githooks/toolkit
 
-PRE_PUSH_CHECKS=${PRE_PUSH_CHECKS-"flake8 isort eslint signature"}
+#PRE_PUSH_CHECKS=${PRE_PUSH_CHECKS-"flake8 isort eslint signature"}
+PRE_PUSH_CHECKS=${PRE_PUSH_CHECKS-"flake8 isort signature"}
 GIT_PARENT_BRANCH="${GIT_PARENT_BRANCH:-main}"
 
 hook_check_isort() {

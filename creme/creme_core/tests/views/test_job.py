@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Max
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.utils.formats import date_format
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
@@ -51,7 +51,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     # TODO: move to base class ?
     def _assertCount(self, response, found, count):
-        self.assertEqual(count, smart_text(response.content).count(found))
+        self.assertEqual(count, smart_str(response.content).count(found))
 
     def _build_enable_url(self, job):
         return reverse('creme_core__enable_job', args=(job.id,))

@@ -31,7 +31,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str  # smart_text
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
@@ -102,7 +102,8 @@ def lw_exceptions(view):
             {
                 'status':    status,
                 'msg':       msg,
-                'exception': smart_text(error),
+                # 'exception': smart_text(error),
+                'exception': smart_str(error),
             },
             status=status,
         )
@@ -214,16 +215,16 @@ def persons_portal(request):
         request, 'mobile/directory.html',
         {
             'favorite_contacts': cred_filter(
-                Contact.objects.filter(is_deleted=False,
-                                       mobile_favorite__user=user,
-                                      )
+                Contact.objects.filter(
+                    is_deleted=False, mobile_favorite__user=user,
+                )
             ),
             'contact_model': Contact,
 
             'favorite_organisations': cred_filter(
-                Organisation.objects.filter(is_deleted=False,
-                                            mobile_favorite__user=user,
-                                           )
+                Organisation.objects.filter(
+                    is_deleted=False, mobile_favorite__user=user,
+                )
             ),
             'orga_model': Organisation,
         },

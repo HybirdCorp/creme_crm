@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ import pytz
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 
 APP_NAME = 'locale_overload'  # TODO: can configure it with command options ??
 
@@ -181,7 +181,7 @@ class Command(BaseCommand):
                                                     .localize(datetime.now()) \
                                                     .strftime('%Y-%m-%d %H:%M%z')
 
-        terms = [smart_text(arg) for arg in args]
+        terms = [smart_str(arg) for arg in args]
         entry_count = 0
 
         for app_pofile in self._iter_pofiles(language, polib, file_name):

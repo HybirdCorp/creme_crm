@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from os import path as os_path
-from importlib import import_module
 import re
+from importlib import import_module
+from os import path as os_path
+from urllib.parse import quote
 
+# from django.utils.http import urlquote
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.http import urlquote
 
 from .settings import (
-    GLOBAL_MEDIA_DIRS, PRODUCTION_MEDIA_URL,
-    IGNORE_APP_MEDIA_DIRS, MEDIA_GENERATORS,
     GENERATED_MEDIA_NAMES_MODULE,
+    GLOBAL_MEDIA_DIRS,
+    IGNORE_APP_MEDIA_DIRS,
+    MEDIA_GENERATORS,
+    PRODUCTION_MEDIA_URL,
 )
 
 try:
@@ -43,7 +46,8 @@ def _refresh_dev_names():
 
     for backend in _load_generators():
         for key, url, hash in backend.get_dev_output_names():
-            versioned_url = urlquote(url)
+            # versioned_url = urlquote(url)
+            versioned_url = quote(url)
 
             if hash:
                 versioned_url += '?version=' + hash
@@ -129,8 +133,8 @@ def get_media_dirs():
             if app.name in IGNORE_APP_MEDIA_DIRS:
                 continue
 
-            media_dirs.append(os_path.join(app.path, u'static'))
-            media_dirs.append(os_path.join(app.path, u'media'))
+            media_dirs.append(os_path.join(app.path, 'static'))
+            media_dirs.append(os_path.join(app.path, 'media'))
 
         _media_dirs_cache.extend(media_dirs)
 

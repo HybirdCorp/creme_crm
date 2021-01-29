@@ -1,12 +1,16 @@
-from collections import defaultdict, OrderedDict
 import logging
 import os
 import shutil
+from collections import OrderedDict, defaultdict
+from urllib.parse import quote
 
-from django.utils.http import urlquote
-
+# from django.utils.http import urlquote
 from . import utils  # settings
-from .settings import GENERATED_MEDIA_DIR, GENERATED_MEDIA_NAMES_FILE, MEDIA_GENERATORS
+from .settings import (
+    GENERATED_MEDIA_DIR,
+    GENERATED_MEDIA_NAMES_FILE,
+    MEDIA_GENERATORS,
+)
 from .utils import load_backend
 
 # HACK: by Hybird (we should pass it as argument -- & modify all the API)
@@ -42,7 +46,8 @@ def generate_media():
             with open(path, 'wb') as fp:
                 fp.write(content)
 
-            utils.NAMES[key] = urlquote(url)
+            # utils.NAMES[key] = urlquote(url)
+            utils.NAMES[key] = quote(url)
 
     # Generate a module with media file name mappings
     with open(GENERATED_MEDIA_NAMES_FILE, 'w') as fp:

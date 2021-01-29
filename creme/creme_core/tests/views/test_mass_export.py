@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
@@ -205,7 +205,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         self.assertListEqual(
             [','.join(f'"{hfi.title}"' for hfi in cells)],
-            [force_text(line) for line in response.content.splitlines()],
+            [force_str(line) for line in response.content.splitlines()],
         )
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
 
@@ -232,7 +232,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         # TODO: sort the relations/properties by their verbose_name ??
         result = response.content.splitlines()
-        it = (force_text(line) for line in result)
+        it = (force_str(line) for line in result)
         self.assertEqual(next(it), ','.join(f'"{hfi.title}"' for hfi in hf.cells))
         self.assertEqual(next(it), '"","Black","Jet","Bebop",""')
         self.assertIn(
@@ -286,7 +286,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_contact_dl_url(doc_type='scsv'))
 
         # TODO: sort the relations/properties by their verbose_name ??
-        it = (force_text(line) for line in response.content.splitlines())
+        it = (force_str(line) for line in response.content.splitlines())
         self.assertEqual(next(it), ';'.join(f'"{hfi.title}"' for hfi in cells))
         self.assertEqual(next(it), '"";"Black";"Jet";"Bebop";""')
         self.assertIn(
@@ -340,7 +340,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertTrue(user.has_perm_to_view(organisations['Swordfish']))
 
         response = self.assertGET200(self._build_contact_dl_url())
-        result = [*map(force_text, response.content.splitlines())]
+        result = [*map(force_str, response.content.splitlines())]
         self.assertEqual(result[1], '"","Black","Jet","",""')
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
         self.assertEqual(result[3], '"","Wong","Edward","","is a girl"')
@@ -361,7 +361,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
 
-        result = [force_text(line) for line in response.content.splitlines()]
+        result = [force_str(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual(
             result[1],
@@ -401,7 +401,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
-        it = (force_text(line) for line in response.content.splitlines()); next(it)
+        it = (force_str(line) for line in response.content.splitlines()); next(it)
 
         self.assertEqual(next(it), '"Black","Jet face","Jet\'s selfie"')
 
@@ -435,7 +435,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             list_url=FakeEmailCampaign.get_lv_absolute_url(),
             hfilter_id=hf.id,
         ))
-        result = [force_text(line) for line in response.content.splitlines()]
+        result = [force_str(line) for line in response.content.splitlines()]
         self.assertEqual(4, len(result))
 
         self.assertEqual(result[1], '"Camp#1","ML#1/ML#2"')
@@ -454,7 +454,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url())
 
-        it = (force_text(line) for line in response.content.splitlines())
+        it = (force_str(line) for line in response.content.splitlines())
         self.assertEqual(
             next(it),
             ','.join(
@@ -472,7 +472,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             self._build_contact_dl_url(extra_q=QSerializer().dumps(Q(last_name='Wong'))),
         )
 
-        result = [force_text(line) for line in response.content.splitlines()]
+        result = [force_str(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual('"","Wong","Edward","","is a girl"', result[1])
 
@@ -496,7 +496,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             list_url=FakeContact.get_lv_absolute_url(),
             efilter_id=efilter.id
         ))
-        result = [force_text(line) for line in response.content.splitlines()]
+        result = [force_str(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
 
         self.assertEqual('"","Wong","Edward","","is a girl"', result[1])
@@ -628,7 +628,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             follow=True,
         )
 
-        lines = {force_text(line) for line in response.content.splitlines()}
+        lines = {force_str(line) for line in response.content.splitlines()}
         self.assertIn('"Bebop","1000"', lines)
         self.assertIn('"Swordfish","20000"', lines)
         self.assertIn('"Redtail",""', lines)
@@ -661,7 +661,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             follow=True,
         )
 
-        lines = {force_text(line) for line in response.content.splitlines()}
+        lines = {force_str(line) for line in response.content.splitlines()}
         self.assertIn('"Bebop","{}"'.format(_('Percent')),    lines)
         self.assertIn('"Swordfish","{}"'.format(_('Amount')), lines)
 
@@ -723,7 +723,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                 '"123233","Spiegel","Spike"',
             ],
             # NB: slice to remove the header
-            [force_text(line) for line in response.content.splitlines()[1:]]
+            [force_str(line) for line in response.content.splitlines()[1:]]
         )
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
@@ -758,7 +758,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                 '"123455","Black","Jet"',
             ],
             # NB: slice to remove the header
-            [force_text(line) for line in response.content.splitlines()[1:]]
+            [force_str(line) for line in response.content.splitlines()[1:]]
         )
 
     def test_distinct(self):

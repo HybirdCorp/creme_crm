@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 29-01-2021 for Creme 2.2
+:Version: 29-01-2021 for Creme 2.3
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -29,8 +29,8 @@ Requirements
 
 Creme is developed with a Python framework for websites et Web apps : Django_.
 If you really want to code some modules for Creme, you should know Django.
-Its documentation is complete & quite good ; see here : https://docs.djangoproject.com/en/2.2/.
-To begin, reading the `tutorial <https://docs.djangoproject.com/en/2.2/intro/overview/>`_
+Its documentation is complete & quite good ; see here : https://docs.djangoproject.com/en/3.0/.
+To begin, reading the `tutorial <https://docs.djangoproject.com/en/3.0/intro/overview/>`_
 should be enough.
 
 Creme uses the JavaScript (JS) library jQuery_ too ; to implement some features
