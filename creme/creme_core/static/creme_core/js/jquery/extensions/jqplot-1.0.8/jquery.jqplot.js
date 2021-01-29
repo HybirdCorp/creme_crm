@@ -395,7 +395,8 @@
         return $.jqplot.support_canvas_text.result;
     };
     
-    $.jqplot.use_excanvas = ((!$.support.boxModel || !$.support.objectAll || !$support.leadingWhitespace) && !$.jqplot.support_canvas()) ? true : false;
+    // Compatibility with jquery 1.12+
+    $.jqplot.use_excanvas = false; // ((!$.support.boxModel || !$.support.objectAll || !$support.leadingWhitespace) && !$.jqplot.support_canvas()) ? true : false;
     
     /**
      * 
