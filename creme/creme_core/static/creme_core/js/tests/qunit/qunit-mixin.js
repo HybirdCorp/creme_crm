@@ -166,7 +166,7 @@
         qunitFixture: function(name) {
             var fixture = $('#qunit-fixture');
 
-            if (fixture.size() === 0) {
+            if (fixture.length === 0) {
                 throw Error('Missing qunit-fixture element !');
             };
 
