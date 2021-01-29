@@ -130,13 +130,13 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (defaults)', [
     this.bindTestOn(canvas, 'geomap-status-enabled', function() {
         var controller = self.controller;
 
-        deepEqual(canvas, controller.canvas());
-        deepEqual(filter, controller.filterSelector());
-        deepEqual(counter, controller.counterItem());
+        deepEqual(canvas.get(), controller.canvas().get());
+        deepEqual(filter.get(), controller.filterSelector().get());
+        deepEqual(counter.get(), controller.counterItem().get());
         equal(undefined, controller.addressesUrl());
         deepEqual([], controller.addresses());
 
-        deepEqual(canvas, controller.mapController().element());
+        deepEqual(canvas.get(), controller.mapController().element().get());
         equal(true, controller.mapController().isBound());
         equal(true, controller.mapController().isEnabled());
         equal(true, controller.mapController().isMapEnabled());
