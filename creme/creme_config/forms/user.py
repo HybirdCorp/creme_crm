@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from collections import defaultdict
 
 from django.contrib.auth import get_user_model, password_validation
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.utils import ValidationError
 from django.forms.widgets import PasswordInput
-from django.utils.functional import lazy
-from django.utils.html import format_html, format_html_join
+# from django.utils.functional import lazy
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -36,16 +36,23 @@ from creme.creme_core.models.fields import CremeUserForeignKey
 CremeUser = get_user_model()
 
 
-# NB: password_validation.password_validators_help_text_html is not mark_safe()'ed.
 def _password_validators_help_text_html(password_validators=None):
+    warnings.warn(
+        'creme_config.forms.user._password_validators_help_text_html() is deprecated.',
+        DeprecationWarning,
+    )
+
+    from django.utils.html import format_html, format_html_join
+
     help_texts = password_validation.password_validators_help_texts(password_validators)
 
     if not help_texts:
         return ''
 
-    return format_html('<ul>{}</ul>',
-                       format_html_join('', '<li>{}</li>', ((text,) for text in help_texts))
-                      )
+    return format_html(
+        '<ul>{}</ul>',
+        format_html_join('', '<li>{}</li>', ((text,) for text in help_texts))
+    )
 
 
 # TODO: inherit from django.contrib.auth.forms.UserCreationForm
@@ -56,16 +63,20 @@ class UserAddForm(CremeModelForm):
         'password_mismatch': _("The two password fields didn't match."),
     }
 
-    password_1 = CharField(label=_('Password'), strip=False, widget=PasswordInput,
-                           help_text=lazy(_password_validators_help_text_html, str),
-                          )
-    password_2 = CharField(label=_('Confirm password'),
-                           widget=PasswordInput, strip=False,
-                           help_text=_('Enter the same password as before, for verification.'),
-                          )
-    role         = ModelChoiceField(label=_('Role'), required=False,
-                                    queryset=UserRole.objects.all(),
-                                   )
+    password_1 = CharField(
+        label=_('Password'), strip=False, widget=PasswordInput,
+        # help_text=lazy(_password_validators_help_text_html, str),
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    password_2 = CharField(
+        label=_('Confirm password'),
+        widget=PasswordInput, strip=False,
+        help_text=_('Enter the same password as before, for verification.'),
+    )
+
+    role = ModelChoiceField(
+        label=_('Role'), required=False, queryset=UserRole.objects.all(),
+    )
 
     class Meta:
         model = CremeUser
@@ -148,14 +159,17 @@ class UserChangePwForm(CremeForm):
         'password_mismatch': _("The two password fields didn't match."),
     }
 
-    password_1 = CharField(label=_('Password'),
-                           widget=PasswordInput, strip=False,
-                           help_text=lazy(_password_validators_help_text_html, str),
-                          )
-    password_2 = CharField(label=_('Password (again)'),
-                           widget=PasswordInput, strip=False,
-                           help_text=_('Enter the same password as before, for verification.'),
-                          )
+    password_1 = CharField(
+        label=_('Password'),
+        widget=PasswordInput, strip=False,
+        # help_text=lazy(_password_validators_help_text_html, str),
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    password_2 = CharField(
+        label=_('Password (again)'),
+        widget=PasswordInput, strip=False,
+        help_text=_('Enter the same password as before, for verification.'),
+    )
 
     def __init__(self, *args, **kwargs):
         self.user2edit = kwargs.pop('instance')
@@ -166,9 +180,9 @@ class UserChangePwForm(CremeForm):
         pw2  = data['password_2']
 
         if data['password_1'] != pw2:
-            raise ValidationError(self.error_messages['password_mismatch'],
-                                  code='password_mismatch',
-                                 )
+            raise ValidationError(
+                self.error_messages['password_mismatch'], code='password_mismatch',
+            )
 
         password_validation.validate_password(pw2, self.user2edit)
 
@@ -211,9 +225,10 @@ class TeamEditForm(TeamCreateForm):
 
 
 class UserAssignationForm(CremeForm):
-    to_user = ModelChoiceField(label=_('Choose a user to transfer to'),
-                               queryset=CremeUser.objects.none(),
-                              )
+    to_user = ModelChoiceField(
+        label=_('Choose a user to transfer to'),
+        queryset=CremeUser.objects.none(),
+    )
 
     def __init__(self, user, instance, *args, **kwargs):
         """Forms which assigns the fields with type CremeUserForeignKey
@@ -232,9 +247,10 @@ class UserAssignationForm(CremeForm):
 
         to_user = self.fields['to_user']
         to_user.queryset = users
-        to_user.choices = [(gettext('Users'), choices[False]),
-                           (gettext('Teams'), choices[True]),
-                          ]
+        to_user.choices = [
+            (gettext('Users'), choices[False]),
+            (gettext('Teams'), choices[True]),
+        ]
 
     def save(self, *args, **kwargs):
         CremeUserForeignKey._TRANSFER_TO_USER = self.cleaned_data['to_user']

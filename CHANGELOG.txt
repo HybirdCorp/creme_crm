@@ -165,6 +165,7 @@
                         - The class 'CustomFieldsCTAddForm' is deprecated ; use 'FirstCustomFieldCreationForm' instead.
                         - The class 'CustomFieldsAddForm' is deprecated ; use 'CustomFieldCreationForm' instead.
                         - The class 'CustomFieldsEditForm' is deprecated.
+                    - The function 'forms.user._password_validators_help_text_html()' is deprecated.
                 * Persons :
                     - These function-views in 'views.crud_relations' are deprecated ; use the view named "creme_core__save_relations" instead :
                       become_customer(), become_prospect(), become_suspect(), become_inactive(), become_supplier()
