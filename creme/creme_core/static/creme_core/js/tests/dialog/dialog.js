@@ -875,45 +875,51 @@ QUnit.test('creme.dialog.Dialog (titlebar, fetch url)', function(assert) {
 
 
 QUnit.test('creme.dialogs.Dialog (scrollbackOnClose)', function(assert) {
-    var dialog = new creme.dialog.Dialog().open();
+    this.withScrollBackFaker(function(faker) {
+        faker.result = 789;
 
-    equal(true, dialog.options.scrollbackOnClose);
+        var dialog = new creme.dialog.Dialog().open();
 
-    deepEqual([
-        [undefined, undefined]
-    ], this.mockScrollBackCalls());
-    equal(789, dialog._scrollbackPosition);
+        equal(true, dialog.options.scrollbackOnClose);
 
-    creme.utils.scrollBack(50);
-    deepEqual([
-        [undefined, undefined],
-        [50, undefined]
-    ], this.mockScrollBackCalls());
+        deepEqual(faker.calls(), [
+            []
+        ]);
+        equal(789, dialog._scrollbackPosition);
 
-    dialog.close();
-    deepEqual([
-        [undefined, undefined],
-        [50, undefined],
-        [789, 'slow']
-    ], this.mockScrollBackCalls());
+        creme.utils.scrollBack(50);
+        deepEqual(faker.calls(), [
+            [],
+            [50]
+        ]);
+
+        dialog.close();
+        deepEqual(faker.calls(), [
+            [],
+            [50],
+            [789, 'slow']
+        ]);
+    });
 });
 
 
 QUnit.test('creme.dialogs.Dialog (scrollbackOnClose, disabled)', function(assert) {
-    var dialog = new creme.dialog.Dialog({
-        scrollbackOnClose: false
+    this.withScrollBackFaker(function(faker) {
+        var dialog = new creme.dialog.Dialog({
+            scrollbackOnClose: false
+        });
+
+        equal(false, dialog.options.scrollbackOnClose);
+
+        dialog.open();
+        deepEqual(faker.calls(), []);
+
+        // close() always call creme.utils.scrollBack
+        dialog.close();
+        deepEqual(faker.calls(), [
+            [undefined, 'slow']
+        ]);
     });
-
-    equal(false, dialog.options.scrollbackOnClose);
-
-    dialog.open();
-    deepEqual([], this.mockScrollBackCalls());
-
-    // close() always call creme.utils.scrollBack
-    dialog.close();
-    deepEqual([
-        [undefined, 'slow']
-    ], this.mockScrollBackCalls());
 });
 
 

@@ -1,3 +1,5 @@
+/* globals FunctionFaker */
+
 (function($) {
 
 /**
@@ -89,6 +91,28 @@ QUnit.test('creme.utils.goTo', function(assert) {
         '/test?a=1&b=2&b=3',
         '/test?bar=2&bar=3&foo=1#id_node'
     ], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.utils.scrollBack', function(assert) {
+    new FunctionFaker({
+        instance: $.fn,
+        method: 'animate'
+    }).with(function(faker) {
+        creme.utils.scrollBack(null);
+        deepEqual(faker.calls(), []);
+
+        creme.utils.scrollBack(null, 20);
+        deepEqual(faker.calls(), []);
+
+        equal(creme.utils.scrollBack(50));
+        deepEqual(faker.calls(), []);
+
+        equal(creme.utils.scrollBack(12, 200));
+        deepEqual(faker.calls(), [
+            [{scrollTop: 12}, 200],
+            [{scrollTop: 12}, 200]
+        ]);
+    });
 });
 
 /*
