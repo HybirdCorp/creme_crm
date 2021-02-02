@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ import uuid
 from collections import OrderedDict, defaultdict
 from functools import reduce
 from operator import or_ as or_op
-from re import compile as re_compile
+# from re import compile as re_compile
 from typing import (
     TYPE_CHECKING,
     DefaultDict,
@@ -47,9 +47,10 @@ from django.contrib.auth.models import (
     BaseUserManager,
     _user_has_perm,
 )
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.core.validators import RegexValidator
+# from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.utils.timezone import now
@@ -847,6 +848,8 @@ _EntityInstanceOrClass = Union[Type['CremeEntity'], 'CremeEntity']
 
 
 class CremeUser(AbstractBaseUser):
+    username_validator = UnicodeUsernameValidator()
+
     # NB: auth.models.AbstractUser.username max_length == 150 (since django 1.10) => increase too ?
     username = models.CharField(
         _('Username'), max_length=30, unique=True,
@@ -854,15 +857,16 @@ class CremeUser(AbstractBaseUser):
             'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'
         ),
         validators=[
-            RegexValidator(
-                re_compile(r'^[\w.@+-]+$'),
-                _(
-                    'Enter a valid username. '
-                    'This value may contain only letters, numbers, '
-                    'and @/./+/-/_ characters.'
-                ),
-                'invalid',
-            ),
+            # RegexValidator(
+            #     re_compile(r'^[\w.@+-]+$'),
+            #     _(
+            #         'Enter a valid username. '
+            #         'This value may contain only letters, numbers, '
+            #         'and @/./+/-/_ characters.'
+            #     ),
+            #     'invalid',
+            # ),
+            username_validator,
         ],
         error_messages={
             'unique': _('A user with that username already exists.'),
