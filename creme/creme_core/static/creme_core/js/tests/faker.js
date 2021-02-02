@@ -115,6 +115,7 @@ QUnit.test('FunctionFaker.wrap (call)', function(assert) {
     equal(instance.real, 1);
 
     deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    deepEqual(faker.calls(function(args) { return args.length; }), [2]);
     equal(faker.called(), true);
     equal(faker.count(), 1);
 });

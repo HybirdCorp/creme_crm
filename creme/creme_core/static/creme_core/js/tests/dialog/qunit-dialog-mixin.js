@@ -1,24 +1,12 @@
 /* eslint operator-linebreak: ["error", "before"] */
+/* globals FunctionFaker */
 
 (function($) {
     "use strict";
 
     window.QUnitDialogMixin = {
         beforeEach: function() {
-            var self = this;
-
             $('<div class="ui-dialog-within-container"></div>').appendTo('body');
-
-            this.resetMockScrollBackCalls();
-
-            this.__scrollBack = creme.utils.scrollBack;
-            creme.utils.scrollBack = function(position, speed) {
-                self._scrollbackCalls.push([position, speed]);
-
-                if (Object.isNone(position)) {
-                    return 789;
-                }
-            };
         },
 
         afterEach: function() {
@@ -28,12 +16,11 @@
             $('.ui-dialog-within-container').detach();
         },
 
-        resetMockScrollBackCalls: function() {
-            this._scrollbackCalls = [];
-        },
-
-        mockScrollBackCalls: function() {
-            return this._scrollbackCalls;
+        withScrollBackFaker: function(block) {
+            return new FunctionFaker({
+                instance: creme.utils,
+                method: 'scrollBack'
+            }).with(block.bind(this));
         },
 
         shutdownDialogs: function() {

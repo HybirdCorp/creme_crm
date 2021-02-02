@@ -316,57 +316,65 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons, duplicates)'
 });
 
 QUnit.test('creme.dialogs.FormDialog (scrollbackOnClose, cancel)', function(assert) {
-    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
+    this.withScrollBackFaker(function(faker) {
+        faker.result = 789;
 
-    equal(true, dialog.options.scrollbackOnClose);
+        var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
 
-    dialog.open();
+        equal(true, dialog.options.scrollbackOnClose);
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+        dialog.open();
 
-    deepEqual([
-        [undefined, undefined]
-    ], this.mockScrollBackCalls());
-    equal(789, dialog._scrollbackPosition);
+        equal(2, dialog.buttons().find('button').length);
+        equal(gettext('Save'), dialog.button('send').text());
+        equal(gettext('Cancel'), dialog.button('cancel').text());
 
-    dialog.button('cancel').click();
+        deepEqual(faker.calls(), [
+            []
+        ]);
+        equal(789, dialog._scrollbackPosition);
 
-    deepEqual([
-        [undefined, undefined],
-        [789, 'slow']
-    ], this.mockScrollBackCalls());
+        dialog.button('cancel').click();
+
+        deepEqual(faker.calls(), [
+            [],
+            [789, 'slow']
+        ]);
+    });
 });
 
 QUnit.test('creme.dialogs.FormDialog (scrollbackOnClose, submit)', function(assert) {
-    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
-    dialog.onFormSuccess(this.mockListener('form-success'));
+    this.withScrollBackFaker(function(faker) {
+        faker.result = 789;
 
-    equal(true, dialog.options.scrollbackOnClose);
+        var dialog = new creme.dialog.FormDialog({url: 'mock/submit/json', backend: this.backend});
+        dialog.onFormSuccess(this.mockListener('form-success'));
 
-    dialog.open();
+        equal(true, dialog.options.scrollbackOnClose);
 
-    equal(2, dialog.buttons().find('button').length);
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Cancel'), dialog.button('cancel').text());
+        dialog.open();
 
-    deepEqual([
-        [undefined, undefined]
-    ], this.mockScrollBackCalls());
-    equal(789, dialog._scrollbackPosition);
+        equal(2, dialog.buttons().find('button').length);
+        equal(gettext('Save'), dialog.button('send').text());
+        equal(gettext('Cancel'), dialog.button('cancel').text());
 
-    dialog.form().find('[name="responseType"]').val('empty');
+        deepEqual(faker.calls(), [
+            []
+        ]);
+        equal(789, dialog._scrollbackPosition);
 
-    equal(false, dialog.button('send').is('[disabled]'));
+        dialog.form().find('[name="responseType"]').val('empty');
 
-    dialog.button('send').click();
-    equal(false, dialog.isOpened());
+        equal(false, dialog.button('send').is('[disabled]'));
 
-    deepEqual([
-        [undefined, undefined],
-        [789, 'slow']
-    ], this.mockScrollBackCalls());
+        dialog.button('send').click();
+        equal(false, dialog.isOpened());
+
+        deepEqual(faker.calls(), [
+            [],
+            [789, 'slow']
+        ]);
+    });
 });
 
 QUnit.test('creme.dialog.FormDialog (submit)', function(assert) {
