@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import re
+# import re
 import uuid
 from decimal import Decimal
 
 import pytz
 from django.conf import settings
-from django.core.validators import RegexValidator
+from django.contrib.auth.validators import UnicodeUsernameValidator
+# from django.core.validators import RegexValidator
 from django.db import migrations, models
 from django.utils.timezone import now
 
@@ -73,15 +74,21 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('password', models.CharField(max_length=128, verbose_name='password')),
                 ('last_login', models.DateTimeField(null=True, verbose_name='last login', blank=True)),
-                ('username', models.CharField(help_text='Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.',
-                                              unique=True, max_length=30, verbose_name='Username',
-                                              validators=[RegexValidator(re.compile('^[\\w.@+-]+$'),
-                                                                         'Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.',
-                                                                         'invalid',
-                                                                        ),
-                                              ],
-                                              error_messages={'unique': 'A user with that username already exists.'},
-                                             )
+                (
+                    'username',
+                    models.CharField(
+                        help_text='Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.',
+                        unique=True, max_length=30, verbose_name='Username',
+                        validators=[
+                            # RegexValidator(
+                            #     re.compile('^[\\w.@+-]+$'),
+                            #     'Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.',
+                            #     'invalid',
+                            # ),
+                            UnicodeUsernameValidator(),
+                        ],
+                        error_messages={'unique': 'A user with that username already exists.'},
+                    )
                 ),
                 ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
                 ('last_name', models.CharField(max_length=100, verbose_name='Last name', blank=True)),

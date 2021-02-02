@@ -22,6 +22,7 @@ import warnings
 from collections import defaultdict
 
 from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth.forms import UsernameField
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.utils import ValidationError
 from django.forms.widgets import PasswordInput
@@ -81,6 +82,7 @@ class UserAddForm(CremeModelForm):
     class Meta:
         model = CremeUser
         fields = ('username', 'last_name', 'first_name', 'email', 'role')  # 'is_superuser'
+        field_classes = {'username': UsernameField}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
