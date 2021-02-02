@@ -64,12 +64,15 @@ class UserAddForm(CremeModelForm):
     }
 
     password_1 = CharField(
-        label=_('Password'), strip=False, widget=PasswordInput,
+        label=_('Password'),
+        strip=False,
+        widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=password_validation.password_validators_help_text_html(),
     )
     password_2 = CharField(
         label=_('Confirm password'),
-        widget=PasswordInput, strip=False,
+        strip=False,
+        widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=_('Enter the same password as before, for verification.'),
     )
 
@@ -158,12 +161,14 @@ class UserChangePwForm(CremeForm):
 
     password_1 = CharField(
         label=_('Password'),
-        widget=PasswordInput, strip=False,
+        strip=False,
+        widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=password_validation.password_validators_help_text_html(),
     )
     password_2 = CharField(
         label=_('Password (again)'),
-        widget=PasswordInput, strip=False,
+        strip=False,
+        widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=_('Enter the same password as before, for verification.'),
     )
 
