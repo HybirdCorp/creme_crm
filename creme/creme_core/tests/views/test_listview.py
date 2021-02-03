@@ -92,17 +92,20 @@ class ListViewTestCase(ViewsTestCase):
         if db_engine == 'django.db.backends.mysql':
             trash_sql = (
                 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` '
-                'WHERE `creme_core_cremeentity`.`is_deleted` = 1'
+                # 'WHERE `creme_core_cremeentity`.`is_deleted` = 1'
+                'WHERE `creme_core_cremeentity`.`is_deleted`'
             )
         elif db_engine == 'django.db.backends.sqlite3':
             trash_sql = (
                 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" '
-                'WHERE "creme_core_cremeentity"."is_deleted" = 1'
+                # 'WHERE "creme_core_cremeentity"."is_deleted" = 1'
+                'WHERE "creme_core_cremeentity"."is_deleted"'
             )
         elif db_engine.startswith('django.db.backends.postgresql'):
             trash_sql = (
                 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" '
-                'WHERE "creme_core_cremeentity"."is_deleted" = true'
+                # 'WHERE "creme_core_cremeentity"."is_deleted" = true'
+                'WHERE "creme_core_cremeentity"."is_deleted"'
             )
         else:
             self.fail('This RDBMS is not managed by this test case.')
@@ -983,7 +986,8 @@ class ListViewTestCase(ViewsTestCase):
         main_sql_match = re.compile(
             r'SELECT .creme_core_cremeentity.\..id., .*'
             r'.creme_core_fakecontact.\..last_name., .*'
-            r'WHERE .creme_core_cremeentity.\..is_deleted. = '
+            # r'WHERE .creme_core_cremeentity.\..is_deleted. = '
+            r'WHERE NOT .creme_core_cremeentity.\..is_deleted'
         ).match
         main_sql = [sql for sql in context.captured_sql if main_sql_match(sql)]
 

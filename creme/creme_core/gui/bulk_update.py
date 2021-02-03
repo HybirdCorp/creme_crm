@@ -35,7 +35,8 @@ from typing import (
 )
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Field, FieldDoesNotExist, ForeignKey, Model
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Field, ForeignKey, Model
 from django.urls import reverse
 
 from ..core.entity_cell import (

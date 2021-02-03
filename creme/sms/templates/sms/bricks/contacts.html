@@ -24,7 +24,7 @@
 {% block brick_table_rows %}
 {% if field_hidden %}
     <tr>
-        <td class="brick-table-data-error">{% trans "The field «Mobile» of Contact is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
+        <td class="brick-table-data-error">{% translate "The field «Mobile» of Contact is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
     </tr>
 {% else %}{% has_perm_to change object as edit_perm %}{% url 'sms__remove_contact_from_mlist' object.id as rm_contact_url %}
     {% for contact in page.object_list %}
@@ -32,7 +32,7 @@
         <td {% brick_table_data_status primary %}>
             {% widget_entity_hyperlink contact user %}
             {% if contact_perm %}
-                &nbsp;:&nbsp;{% if contact.mobile %}{{contact.mobile|sms_phonenumber|sms_formatphone}}{% else %}{% trans 'no number' %}{% endif %}
+                &nbsp;:&nbsp;{% if contact.mobile %}{{contact.mobile|sms_phonenumber|sms_formatphone}}{% else %}{% translate 'no number' %}{% endif %}
             {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
@@ -44,5 +44,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No contact recipient for the moment' %}
+    {% translate 'No contact recipient for the moment' %}
 {% endblock %}

@@ -12,13 +12,13 @@
         <table>
             <tbody>
                 <tr>
-                    <th colspan="2"></th><th colspan="2" class="matrix-charms-title">{% trans "Charms" %}</th>
+                    <th colspan="2"></th><th colspan="2" class="matrix-charms-title">{% translate "Charms" %}</th>
                 </tr>
                 <tr>
-                    <th colspan="2"></th><th class="matrix-charms">{% trans "Strong" %}</th><th class="matrix-charms">{% trans "Weak" %}</th>
+                    <th colspan="2"></th><th class="matrix-charms">{% translate "Strong" %}</th><th class="matrix-charms">{% translate "Weak" %}</th>
                 </tr>
                 <tr>
-                    <th rowspan="2" class="matrix-assets-title">{% trans "Assets" %}</th><th class="matrix-assets">{% trans "Strong" %}</th>
+                    <th rowspan="2" class="matrix-assets-title">{% translate "Assets" %}</th><th class="matrix-assets">{% translate "Strong" %}</th>
                     {% commercial_segments_for_category strategy orga 1 as segments %}
                     <td class="strategy-cat" data-score="3" data-category="1">
                         <ul>{% for segment in segments %}<li data-segment="{{segment.id}}" data-orga="{{orga.id}}">{{segment}}</li>{% endfor %}</ul>
@@ -29,7 +29,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th class="matrix-assets">{% trans "Weak" %}</th>
+                    <th class="matrix-assets">{% translate "Weak" %}</th>
                     {% commercial_segments_for_category strategy orga 3 as segments %}
                     <td class="strategy-cat" data-score="2" data-category="3">
                         <ul>{% for segment in segments %}<li data-segment="{{segment.id}}" data-orga="{{orga.id}}">{{segment}}</li>{% endfor %}</ul>
@@ -43,9 +43,9 @@
             </tbody>
         </table>
         <div class="matrix-legend">
-            <div class="strategy-cat" data-score="3">{% trans 'Priority segment' %}</div>
-            <div class="strategy-cat" data-score="2">{% trans 'Pool segment' %}</div>
-            <div class="strategy-cat" data-score="1">{% trans 'Abandoned segment' %}</div>
+            <div class="strategy-cat" data-score="3">{% translate 'Priority segment' %}</div>
+            <div class="strategy-cat" data-score="2">{% translate 'Pool segment' %}</div>
+            <div class="strategy-cat" data-score="1">{% translate 'Abandoned segment' %}</div>
         </div>
     </div>
 {% endblock %}

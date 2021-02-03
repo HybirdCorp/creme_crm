@@ -1,10 +1,10 @@
 {% load i18n creme_core_tags creme_widgets creme_ctype %}
-<fieldset title="{% trans 'Filter the lines of the table' %}">
+<fieldset title="{% translate 'Filter the lines of the table' %}">
     <div class="legend">
-        {% trans 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
+        {% translate 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
     </div>
     <select name="filter" class="lv-state-field list-filters-selector">
-        <option value="">{% trans 'All' context 'creme_core-filter' %}</option>
+        <option value="">{% translate 'All' context 'creme_core-filter' %}</option>
         {% for efilter in entity_filters %}
             <option value="{{efilter.id}}"{% if efilter_id == efilter.id %} selected{% endif %}>{{efilter.name}}</option>
         {% endfor %}

@@ -5,12 +5,12 @@
 
     <div class="config-deletion-job-info-tiles">
         <div class="config-deletion-job-info-tile">
-            <span class="config-deletion-job-tile-name">{% trans 'Status' %}</span>
+            <span class="config-deletion-job-tile-name">{% translate 'Status' %}</span>
             <span class="config-deletion-job-tile-value" data-job-id="{{job.id}}" data-job-status="{{job.status}}" data-job-ack-errors="{{job.ack_errors}}">
                 {{job.progress.render}}
             </span>
         </div>
     </div>
 
-    <input type="submit" class="ui-creme-dialog-action" value="{% trans 'Finish' %}">{# NB: we override the label #}
+    <input type="submit" class="ui-creme-dialog-action" value="{% translate 'Finish' %}">{# NB: we override the label #}
 </form>

@@ -1,13 +1,13 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n creme_widgets creme_bricks %}
 
-{% block page_title %}{% trans 'Home' %} - {% endblock %}
+{% block page_title %}{% translate 'Home' %} - {% endblock %}
 
 {% block content_extra_class %}content-home{% endblock %}
 
 {% block content %}
     <div class="hat-bar-container">
-        <div class="hat-bar">{% trans 'Home' as title %}
+        <div class="hat-bar">{% translate 'Home' as title %}
             <div class="bar-icon">{% widget_icon name='home' size='brick-hat-bar' label=title %}</div>
             <div class="bar-title"><h1>{{title}}</h1></div>
         </div>

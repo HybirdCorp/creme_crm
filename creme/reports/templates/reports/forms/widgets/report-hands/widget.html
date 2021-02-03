@@ -14,7 +14,7 @@
     {{block.super}}
 
     <div class="aggregate_selectors ">
-        <h3 class="selector_title">{% trans 'Aggregated values' %}</h3>
+        <h3 class="selector_title">{% translate 'Aggregated values' %}</h3>
 
         {% with regagg_widget=widget.regular_aggregate %}
         {% if regagg_widget %}{% include regagg_widget.template_name with widget=regagg_widget %}{% endif %}

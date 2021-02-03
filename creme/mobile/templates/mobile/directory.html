@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="format-detection" content="telephone=no" />
-<title>Creme Mobile - {% trans 'Directory' %}</title>
+<title>Creme Mobile - {% translate 'Directory' %}</title>
 {% comment %}
 <link rel="stylesheet" href="base.css" />
 <link rel="stylesheet" href="directory.css" />
@@ -29,9 +29,9 @@ if (navigator.userAgent.match(/Android/i)) {
 </head>
 <body class="page-directory" onload="checkCallCookies()">
   <nav>
-    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
-    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% trans 'Directory' %}</a>
-    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% translate 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% translate 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% translate 'Activities' %}</a>
   </nav>
 
   {% include 'mobile/frags/search_div.html' %}
@@ -41,10 +41,10 @@ if (navigator.userAgent.match(/Android/i)) {
     {% if contact_creation_perm or orga_creation_perm %}
       <div class="create-actions">
         {% if contact_creation_perm %}
-          <a href="{% url 'mobile__create_contact' %}" class="button">{% trans 'Create a contact' %}</a>
+          <a href="{% url 'mobile__create_contact' %}" class="button">{% translate 'Create a contact' %}</a>
         {% endif %}
         {% if orga_creation_perm %}
-          <a href="{% url 'mobile__create_organisation' %}" class="button">{% trans 'Create an organisation' %}</a>
+          <a href="{% url 'mobile__create_organisation' %}" class="button">{% translate 'Create an organisation' %}</a>
         {% endif %}
       </div>
     {% endif %}
@@ -52,9 +52,9 @@ if (navigator.userAgent.match(/Android/i)) {
     <div class="card-list favorites-contact list-contact">
       <div class="card-list-title">
         {% if favorite_contacts %}
-          {% blocktrans count counter=favorite_contacts|length %}{{counter}} favorite contact{% plural %}{{counter}} favorite contacts{% endblocktrans %}
+          {% blocktranslate count counter=favorite_contacts|length %}{{counter}} favorite contact{% plural %}{{counter}} favorite contacts{% endblocktranslate %}
         {% else %}
-          {% trans 'No favorite contact' %}
+          {% translate 'No favorite contact' %}
         {% endif %}
       </div>
 
@@ -68,9 +68,9 @@ if (navigator.userAgent.match(/Android/i)) {
     <div class="card-list favorites-orga list-orga">
       <div class="card-list-title">
         {% if favorite_organisations %}
-          {% blocktrans count counter=favorite_organisations|length %}{{counter}} favorite organisation{% plural %}{{counter}} favorite organisations{% endblocktrans %}
+          {% blocktranslate count counter=favorite_organisations|length %}{{counter}} favorite organisation{% plural %}{{counter}} favorite organisations{% endblocktranslate %}
         {% else %}
-          {% trans 'No favorite organisation' %}
+          {% translate 'No favorite organisation' %}
         {% endif %}
       </div>
 

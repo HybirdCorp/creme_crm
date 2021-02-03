@@ -6,12 +6,12 @@
 {% block brick_extra_attributes %}data-crudity-backend="{{backend.get_id}}"{% endblock %}
 
 {% block brick_header_title %}
-    {% widget_icon ctype=waiting_ct size='brick-header' as ct_icon %}{% trans '%s Action selected' as sel_fmt %}{% trans '%s Actions selected' as sel_plural_fmt %}
+    {% widget_icon ctype=waiting_ct size='brick-header' as ct_icon %}{% translate '%s Action selected' as sel_fmt %}{% translate '%s Actions selected' as sel_plural_fmt %}
     {% with count=page.paginator.count %}
     {% if count %}
-        {% blocktrans count count=count with model=waiting_ct source=backend.verbose_source asvar title %}{{count}} Waiting action - {{model}} - {{source}}{% plural %}{{count}} Waiting actions - {{model}} - {{source}}{% endblocktrans %}
+        {% blocktranslate count count=count with model=waiting_ct source=backend.verbose_source asvar title %}{{count}} Waiting action - {{model}} - {{source}}{% plural %}{{count}} Waiting actions - {{model}} - {{source}}{% endblocktranslate %}
     {% else %}
-        {% blocktrans with model=waiting_ct source=backend.verbose_source asvar title %}Waiting actions - {{model}} - {{source}}{% endblocktrans %}
+        {% blocktranslate with model=waiting_ct source=backend.verbose_source asvar title %}Waiting actions - {{model}} - {{source}}{% endblocktranslate %}
     {% endif %}
 
     {% brick_header_title title=title icon=ct_icon selection_title=sel_fmt selection_plural=sel_plural_fmt %}
@@ -28,7 +28,7 @@
 
 {% block brick_table_columns %}
     <th data-selectable-selector-column>
-        <input class="row-selector-all" type="checkbox" title="{% trans 'Select all' %}"/>
+        <input class="row-selector-all" type="checkbox" title="{% translate 'Select all' %}"/>
     </th>
     {% brick_table_column title=_('Data') %}
     {% brick_table_column title=_('Type') %}
@@ -40,7 +40,7 @@
     {% for waiting_action in page.object_list %}
     <tr>
         <td data-selectable-selector-column>
-            <input class="row-selector" value="{{waiting_action.pk}}" title="{% trans 'Select this line' %}" type="checkbox"/>
+            <input class="row-selector" value="{{waiting_action.pk}}" title="{% translate 'Select this line' %}" type="checkbox"/>
         </td>
         <td>
         {% for k, v in waiting_action.data.items %}
@@ -67,5 +67,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% blocktrans with ctype=waiting_ct backend=backend.verbose_source %}No waiting action for «{{ctype}}» from «{{backend}}»{% endblocktrans %}
+    {% blocktranslate with ctype=waiting_ct backend=backend.verbose_source %}No waiting action for «{{ctype}}» from «{{backend}}»{% endblocktranslate %}
 {% endblock %}

@@ -4,7 +4,7 @@
 {% block icon %}
     {% with img_url=object.image.get_dl_url %}
         {% if img_url %}
-            {% trans 'Logo' as img_label %}<img src="{{img_url}}" alt="{{img_label}}" title="{{img_label}}" style="max-height:64px;max-width:200px;"/>
+            {% translate 'Logo' as img_label %}<img src="{{img_url}}" alt="{{img_label}}" title="{{img_label}}" style="max-height:64px;max-width:200px;"/>
         {% else %}
             {{block.super}}
         {% endif %}

@@ -718,7 +718,7 @@ def brick_card_action(context, url, enabled, id='edit', display='both', **kwargs
 
         {% block card_fields %}
             <div class="card-info-field">
-                <span class='card-info-key'>{% trans 'My label' %}</span>
+                <span class='card-info-key'>{% translate 'My label' %}</span>
                 <span class='card-info-value'>
                     {{my_value}}
                     {% brick_card_action url=my_url enabled=True %}
@@ -752,7 +752,7 @@ def brick_card_action_for_field(context, instance, field, user, **kwargs):
 
         {% block card_fields %}
             <div class="card-info-field">
-                <span class='card-info-key'>{% trans 'My field' %}</span>
+                <span class='card-info-key'>{% translate 'My field' %}</span>
                 <span class='card-info-value'>
                     {{object.my_field|default:'—'}}
                     {% brick_card_action_for_field instance=object field='my_field' user=user %}

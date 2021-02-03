@@ -1,16 +1,17 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n creme_widgets creme_bricks creme_search %}
 
-{% block page_title %}{% trans 'Search results' %} - {% endblock %}
+{% block page_title %}{% translate 'Search results' %} - {% endblock %}
 
 {% block extrahead %}
+{% translate 'Search results: %d entity' as singular_msg %}{% translate 'Search results: %d entities' as plural_msg %}
 <script type="text/javascript">
     $(document).ready(function() {
         var total = 0;
         $('.brick.creme_core-search-brick[search-count]').each(function() {
             total += parseInt($(this).attr('search-count'));
         });
-{% trans 'Search results: %d entity' as singular_msg %}{% trans 'Search results: %d entities' as plural_msg %}
+
         var title_fmt = pluralidx(total) ? '{{plural_msg|escapejs}}' : '{{singular_msg|escapejs}}';
 
         $('#search_results_title').text(title_fmt.format(total));
@@ -44,7 +45,7 @@
 {% block content %}
 <div class="search_results">
     <div class="hat-bar-container">
-        <div class="hat-bar">{% trans 'Search' context 'creme_core-noun' as title %}
+        <div class="hat-bar">{% translate 'Search' context 'creme_core-noun' as title %}
             <div class="bar-icon">{% widget_icon name='search' size='brick-hat-bar' label=title %}</div>
             <div class="bar-title"><h1 id="search_results_title">Search results</h1></div>{# The title is updated by JavaScript #}
         </div>
@@ -58,8 +59,8 @@
                 <tr>
                     <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
                     <td>
-                        {% if research %}{% trans 'Your search : ' %}{{research}}<br/>{% endif %}
-                        {% if models %}{% trans 'Concerned types : ' %}{{models|join:", "}}<br/>{% endif %}
+                        {% if research %}{% translate 'Your search : ' %}{{research}}<br/>{% endif %}
+                        {% if models %}{% translate 'Concerned types : ' %}{{models|join:", "}}<br/>{% endif %}
                     </td>
                 </tr>
             </table>

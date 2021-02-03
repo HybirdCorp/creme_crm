@@ -27,9 +27,9 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import validators
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import BooleanField as ModelBooleanField
 from django.db.models import ManyToManyField
-from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
 from django.forms import (
     BooleanField,

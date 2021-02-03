@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="regular_aggregate_selectors inline_selectors">
-    <h4 class="selector_title">{% trans 'Regular fields'%}</h4>
+    <h4 class="selector_title">{% translate 'Regular fields'%}</h4>
     {% if widget.choices %}
         <ul class="selector_list">
             {% for choice_id, agg_vname in widget.choices %}
@@ -8,6 +8,6 @@
             {% endfor %}
         </ul>
     {% else %}
-        {% trans 'No field is usable for aggregation.' %}
+        {% translate 'No field is usable for aggregation.' %}
     {% endif %}
 </div>

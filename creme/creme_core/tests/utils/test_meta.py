@@ -3,7 +3,7 @@
 from functools import partial
 
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.core.exceptions import FieldDoesNotExist
 from django.utils import translation
 from django.utils.translation import gettext as _
 
@@ -103,8 +103,6 @@ class FieldInfoTestCase(CremeTestCase):
 
     def test_field_info03(self):
         "Invalid fields."
-        FieldDoesNotExist = models.FieldDoesNotExist
-
         with self.assertRaises(FieldDoesNotExist):
             meta.FieldInfo(FakeContact, 'invalid')
 

@@ -17,7 +17,7 @@ data-type-global-discount="{{object.discount}}"
 
 {% block brick_content %}
 {% has_perm_to change object as change_perm %}
-{% trans 'Reset' context 'billing-lines' as reset_label %}
+{% translate 'Reset' context 'billing-lines' as reset_label %}
     <div class="bline-form" ct_id="{{ct_id}}" id="form_id_{{ct_id}}" >
         {% csrf_token %}
         {{formset.management_form}}

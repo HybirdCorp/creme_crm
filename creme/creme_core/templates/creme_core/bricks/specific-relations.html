@@ -7,7 +7,7 @@
     {{block.super}}
 
     <hr/>{% has_perm_to admin 'creme_core' as config_perm %}
-    {% for ctype, cells in config_item.iter_cells %}{% url 'creme_config__edit_cells_of_rtype_brick' config_item.id ctype.id as edit_cells_url %}{% blocktrans asvar edit_label %}Configure the fields for «{{ctype}}»'{% endblocktrans %}
+    {% for ctype, cells in config_item.iter_cells %}{% url 'creme_config__edit_cells_of_rtype_brick' config_item.id ctype.id as edit_cells_url %}{% blocktranslate asvar edit_label %}Configure the fields for «{{ctype}}»'{% endblocktranslate %}
         {% brick_menu_action id='edit' url=edit_cells_url icon='config' label=edit_label enabled=config_perm %}
     {% endfor %}
 
@@ -18,7 +18,7 @@
 
 {% block brick_header_title %}
 {% with predicate=relation_type.predicate %}
-    {% if page.paginator.count|is_plural %}{% trans '{count} Entities' as first_part %}{% else %}{% trans '{count} Entity' as first_part %}{% endif %}
+    {% if page.paginator.count|is_plural %}{% translate '{count} Entities' as first_part %}{% else %}{% translate '{count} Entity' as first_part %}{% endif %}
     {% templatize '{{first_part}} — {{predicate}}' as title_fmt %}
     {% brick_header_title title=title_fmt empty=predicate icon='relations' %}
 {% endwith %}
@@ -44,7 +44,7 @@
         {% elif groups|length > 1 %}
         <div class="relation-group relation-summary-group">
             <div class="relation-group-key">
-                {% blocktrans count count=counter %}{{count}} Entity{% plural %}{{count}} Entities{% endblocktrans %}
+                {% blocktranslate count count=counter %}{{count}} Entity{% plural %}{{count}} Entities{% endblocktranslate %}
             </div>
         </div>
         {% endif %}
@@ -71,7 +71,7 @@
                             {% if forloop.first %}
                             <td {% brick_table_data_status primary %} {% if cell.data_type %}data-type="{{cell.data_type}}"{% endif %}>
                                 {% cell_render cell=cell instance=entity_obj user=user output='csv' as cell_content %}
-                                <a href="{{entity_obj.get_absolute_url}}"{% if entity.is_deleted %}class="is_deleted"{% endif %}>{% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">{% trans '(empty)' %}</span>{% endif %}</a>
+                                <a href="{{entity_obj.get_absolute_url}}"{% if entity.is_deleted %}class="is_deleted"{% endif %}>{% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">{% translate '(empty)' %}</span>{% endif %}</a>
                             {% else %}
                             <td {% if cell.data_type %}data-type="{{cell.data_type}}"{% endif %}>
                                 {% cell_render cell=cell instance=entity_obj user=user as cell_content %}
@@ -110,5 +110,5 @@
 {% endblock %}
 
 {% block brick_list_empty %}
-    {% trans 'No related entity for the moment' %}
+    {% translate 'No related entity for the moment' %}
 {% endblock %}

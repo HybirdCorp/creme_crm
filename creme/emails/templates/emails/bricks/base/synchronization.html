@@ -12,7 +12,7 @@
 
 {% block brick_table_columns %}
     <th data-selectable-selector-column>
-        <input class="row-selector-all" type="checkbox" title="{% trans 'Select all' %}"/>
+        <input class="row-selector-all" type="checkbox" title="{% translate 'Select all' %}"/>
     </th>
     {% brick_table_column title=_('Status') status='primary' %}
     {% brick_table_column title=_('Sender(s)') %}
@@ -27,7 +27,7 @@
     {% for mail in page.object_list %}
     <tr>
         <td data-selectable-selector-column>
-            <input class="row-selector" value="{{mail.pk}}" title="{% trans 'Select this line' %}" type="checkbox"/>
+            <input class="row-selector" value="{{mail.pk}}" title="{% translate 'Select this line' %}" type="checkbox"/>
         </td>
         <td {% brick_table_data_status primary %}>{{MAIL_STATUS|get_value:mail.status}}</td>
         <td>{{mail.sender}}</td>
@@ -47,5 +47,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No received email to synchronize' %}
+    {% translate 'No received email to synchronize' %}
 {% endblock %}

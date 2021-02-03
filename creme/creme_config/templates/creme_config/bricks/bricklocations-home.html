@@ -23,12 +23,12 @@
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_home_brick' as delete_url %}
     {% if not page.number or page.number < 2 %}
         <tr>
-            <td {% brick_table_data_status primary %} class="home-bricks-default">{% trans 'Default configuration' %}</td>
+            <td {% brick_table_data_status primary %} class="home-bricks-default">{% translate 'Default configuration' %}</td>
             <td>
                 {% if 'default' in empty_configs %}
-                    {% trans 'No block' %}
+                    {% translate 'No block' %}
                 {% else %}
-                    {% blocktrans count count=get_default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                    {% blocktranslate count count=get_default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
                 {% endif %}
             </td>
             <td {% brick_table_data_status action %}>{% url 'creme_config__edit_home_bricks' 'default' as edit_url %}
@@ -39,12 +39,12 @@
 
         {% if superuser_count %}
         <tr>
-            <td {% brick_table_data_status primary %} class="home-bricks-superuser">{% trans 'Superuser' %}</td>
+            <td {% brick_table_data_status primary %} class="home-bricks-superuser">{% translate 'Superuser' %}</td>
             <td>
                 {% if 'superuser' in empty_configs %}
-                    {% trans 'No block' %}
+                    {% translate 'No block' %}
                 {% else %}
-                    {% blocktrans count count=superuser_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                    {% blocktranslate count count=superuser_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
                 {% endif %}
             </td>
             <td {% brick_table_data_status action %}>{% url 'creme_config__edit_home_bricks' 'superuser' as edit_url %}
@@ -62,9 +62,9 @@
             <td {% brick_table_data_status primary %} class="home-bricks-role">{{role}}</td>
             <td>
                 {% if role.id in empty_configs %}
-                    {% trans 'No block' %}
+                    {% translate 'No block' %}
                 {% else %}
-                    {% blocktrans count count=role.bricks_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
+                    {% blocktranslate count count=role.bricks_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
                 {% endif %}
             </td>
             <td {% brick_table_data_status action %}>{% url 'creme_config__edit_home_bricks' role.id as edit_url %}
@@ -78,5 +78,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No configuration for the moment' %}
+    {% translate 'No configuration for the moment' %}
 {% endblock %}

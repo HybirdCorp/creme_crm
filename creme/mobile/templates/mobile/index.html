@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="format-detection" content="telephone=no" />
-<title>Creme Mobile - {% trans 'Home' %}</title>
+<title>Creme Mobile - {% translate 'Home' %}</title>
 {# <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" /> #}
 {% comment %}<!--CSS files for dev -->
 <link rel="stylesheet" href="base.css" />
@@ -47,18 +47,18 @@ if (navigator.userAgent.match(/Android/i)) {
 {% endcomment %}
 
   <nav>
-    <a href="{% url 'mobile__portal' %}" class="tab selected-tab">{% trans 'Home' %}</a>
-    <a href="{% url 'mobile__directory' %}" class="tab">{% trans 'Directory' %}</a>
-    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab selected-tab">{% translate 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab">{% translate 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% translate 'Activities' %}</a>
   </nav>
 
   <ul class="shortcuts hideable-content">
     {% for hour, enabled in shortcuts_map %}
-      <li class="shortcut{% if not enabled %} shortcut-disabled{% endif %}" data-shortcut="{{hour}}">{% blocktrans %}{{hour}}h{% endblocktrans %}</li>
+      <li class="shortcut{% if not enabled %} shortcut-disabled{% endif %}" data-shortcut="{{hour}}">{% blocktranslate %}{{hour}}h{% endblocktranslate %}</li>
     {% endfor %}
   </ul>
 
-  <div class="welcome-text">{% blocktrans %}Welcome on Creme Mobile, {{user}}{% endblocktrans %}</div>
+  <div class="welcome-text">{% blocktranslate %}Welcome on Creme Mobile, {{user}}{% endblocktranslate %}</div>
 
   {% include 'mobile/frags/search_div.html' %}
 
@@ -66,9 +66,9 @@ if (navigator.userAgent.match(/Android/i)) {
     <div class="card-list in-progress-activities">
       <div class="card-list-title">
         {% if hot_activities %}
-          {% blocktrans count counter=hot_activities|length with start_time=today|date:_('H:i') today_date=today|date:_('j F') %}{{counter}} activity in progress at {{start_time}} this {{today_date}}{% plural %}{{counter}} activities in progress at {{start_time}} this {{today_date}}{% endblocktrans %}
+          {% blocktranslate count counter=hot_activities|length with start_time=today|date:_('H:i') today_date=today|date:_('j F') %}{{counter}} activity in progress at {{start_time}} this {{today_date}}{% plural %}{{counter}} activities in progress at {{start_time}} this {{today_date}}{% endblocktranslate %}
         {% else %}
-          {% blocktrans with start_time=today|date:_('H:i') today_date=today|date:_('j F') %}No activity in progress at {{start_time}} this {{today_date}}{% endblocktrans %}
+          {% blocktranslate with start_time=today|date:_('H:i') today_date=today|date:_('j F') %}No activity in progress at {{start_time}} this {{today_date}}{% endblocktranslate %}
         {% endif %}
       </div>
 
@@ -82,9 +82,9 @@ if (navigator.userAgent.match(/Android/i)) {
     <div class="card-list todays-activities">
       <div class="card-list-title">
         {% if today_activities %}
-          {% blocktrans count counter=today_activities|length with today_date=today|date:_('j F') %}{{counter}} activity planned this {{today_date}}{% plural %}{{counter}} activities planned this {{today_date}}{% endblocktrans %}
+          {% blocktranslate count counter=today_activities|length with today_date=today|date:_('j F') %}{{counter}} activity planned this {{today_date}}{% plural %}{{counter}} activities planned this {{today_date}}{% endblocktranslate %}
         {% else %}
-          {% blocktrans with today_date=today|date:_('j F') %}No activity planned this {{today_date}}{% endblocktrans %}
+          {% blocktranslate with today_date=today|date:_('j F') %}No activity planned this {{today_date}}{% endblocktranslate %}
         {% endif %}
       </div>
 

@@ -1,10 +1,10 @@
 {% load i18n %}
 {% if activity.start >= today or activity.status_id != STATUS_IN_PROGRESS %}
   <form action="{% url 'mobile__start_activity' activity.id %}" method="POST">{% csrf_token %}
-    <input type="submit" class="button" value="{% trans 'Start this activity' %}" />
+    <input type="submit" class="button" value="{% translate 'Start this activity' %}" />
   </form>
 {% else %}
   <form action="/mobile/activity/{{activity.id}}/stop" method="POST">{% csrf_token %}
-    <input type="submit" class="button" value="{% trans 'Stop this activity' %}" />
+    <input type="submit" class="button" value="{% translate 'Stop this activity' %}" />
   </form>
 {% endif %}

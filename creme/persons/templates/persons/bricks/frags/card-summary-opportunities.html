@@ -4,9 +4,9 @@
         <div class="card-info-field">
             <span class='card-info-key'>
                 {% if acts|length == 0 %}
-                    {% trans 'Opportunities' %}
+                    {% translate 'Opportunities' %}
                 {% else %}
-                    {% blocktrans count count=opportunities|length %}{{count}} Opportunity{% plural %}{{count}} Opportunities{% endblocktrans %}
+                    {% blocktranslate count count=opportunities|length %}{{count}} Opportunity{% plural %}{{count}} Opportunities{% endblocktranslate %}
                 {% endif %}
             </span>
             <span class='card-info-value'>

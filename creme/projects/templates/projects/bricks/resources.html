@@ -26,7 +26,7 @@
     {% for resource in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink resource.linked_contact user %}</td>
-        <td>{% blocktrans with cost=resource.hourly_cost|format_amount:currency %}{{cost}} / hour{% endblocktrans %}</td>
+        <td>{% blocktranslate with cost=resource.hourly_cost|format_amount:currency %}{{cost}} / hour{% endblocktranslate %}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url=resource.get_edit_absolute_url label=_('Edit this resource') enabled=has_perm %}
         </td>
@@ -37,7 +37,7 @@
     {% endfor %}
     {% if not object.is_alive %}
     <tr class="task-activities-subtitle">
-        <td colspan="4">{% blocktrans with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktrans %}</th>
+        <td colspan="4">{% blocktranslate with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktranslate %}</th>
     </tr>
     {% endif %}
 {% endwith %}
@@ -45,8 +45,8 @@
 
 {% block brick_table_empty %}
     {% if not object.is_alive %}
-        {% blocktrans with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktrans %}
+        {% blocktranslate with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktranslate %}
     {% else %}
-        {% trans 'No resource assigned to this task' %}
+        {% translate 'No resource assigned to this task' %}
     {% endif %}
 {% endblock %}

@@ -28,16 +28,16 @@
         </tr>
         {% endfor %}
         <tr class="charm-score-total">
-            <td class="charm-title">{% trans 'Total' %}</td>
+            <td class="charm-title">{% translate 'Total' %}</td>
             {% for total in totals %}
             <td class="strategy-cat" data-score="{{total.1}}">{{total.0}}</td>
             {% endfor %}
         </tr>
     </tbody>
     {% elif charms %}
-    <thead><tr><th>{% trans 'No market segment charm for the moment' %}</th></tr><thead>
+    <thead><tr><th>{% translate 'No market segment charm for the moment' %}</th></tr><thead>
     {% else %}
-    <thead><tr><th>{% trans 'No market segment for the moment' %}</th></tr></thead>
+    <thead><tr><th>{% translate 'No market segment for the moment' %}</th></tr></thead>
     {% endif %}
 </table>
 {% endblock %}

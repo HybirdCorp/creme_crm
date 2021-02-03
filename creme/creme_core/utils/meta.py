@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,9 @@ from functools import partial
 from itertools import chain
 from typing import Callable, List, Optional, Tuple, Type, Union
 
+from django.core.exceptions import FieldDoesNotExist
 from django.core.validators import EMPTY_VALUES
-from django.db.models import DateField, Field, FieldDoesNotExist, Model
+from django.db.models import DateField, Field, Model
 
 from .unicode_collation import collator
 

@@ -22,8 +22,8 @@ import re
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
-from django.db.models import FieldDoesNotExist, FileField, ManyToManyField
+from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.db.models import FileField, ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.widgets import Select

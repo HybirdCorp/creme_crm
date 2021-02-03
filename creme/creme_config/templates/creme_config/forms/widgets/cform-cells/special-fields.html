@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="specialcform_field_selectors">
-    <h3 class="selector_title">{% trans 'Special fields' %}</h3>
+    <h3 class="selector_title">{% translate 'Special fields' %}</h3>
 
     {% if widget.choices %}
         <ul class="selector_list">
@@ -9,6 +9,6 @@
             {% endfor %}
         </ul>
     {% else %}
-        <span class="empty-message">{% trans 'No available special field.' %}</span>
+        <span class="empty-message">{% translate 'No available special field.' %}</span>
     {% endif %}
 </div>

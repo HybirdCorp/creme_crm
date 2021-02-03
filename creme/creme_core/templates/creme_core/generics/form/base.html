@@ -27,7 +27,7 @@
 </script>
 {% endif %}
 
-<p class="required-help">{% trans 'Fields marked with * are required.' %}</p>
+<p class="required-help">{% translate 'Fields marked with * are required.' %}</p>
 
 <div id="editforms">
     <form action="" method="POST"{% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>{% csrf_token %}
@@ -53,7 +53,7 @@
             <table class="table_detail_view ui-corner-all">
                 <thead>
                     <tr>
-                        <th valign="middle">{% trans 'Global errors' %}</th>
+                        <th valign="middle">{% translate 'Global errors' %}</th>
                     </tr>
                 </thead>
                 <tbody class="collapsable">
@@ -67,7 +67,7 @@
             {% if not is_inner_popup %}
                 <div class="submit_buttons">
                     <input type="submit" value="{{submit_label|default:_('Save')}}"/>
-                    {% if cancel_url %}<a href="{{cancel_url}}" >{% trans 'Cancel' %}</a>{% endif %}
+                    {% if cancel_url %}<a href="{{cancel_url}}" >{% translate 'Cancel' %}</a>{% endif %}
                 </div>
             {% else %}
                 <input type="submit" value="{{submit_label|default:_('Save')}}" class="ui-creme-dialog-action"/>

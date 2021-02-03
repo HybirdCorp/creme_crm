@@ -28,6 +28,7 @@ from django.utils.deprecation import MiddlewareMixin
 from django.utils.encoding import smart_str  # smart_text
 
 from creme.creme_core.core import exceptions as creme_exceptions
+from creme.creme_core.http import is_ajax
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,8 @@ class _AlternativeErrorMiddleware(MiddlewareMixin):
             # msg = smart_text(exception)
             msg = smart_str(exception)
 
-            if request.is_ajax():
+            # if request.is_ajax():
+            if is_ajax(request):
                 if self.log_ajax:
                     logger.exception('Error (status=%s)', self.status)
 

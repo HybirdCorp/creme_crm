@@ -31,8 +31,9 @@ from typing import (  # Callable
     Type,
 )
 
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
-from django.db.models import Field, FieldDoesNotExist, Model
+from django.db.models import Field, Model
 from django.utils.functional import cached_property
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.translation import gettext

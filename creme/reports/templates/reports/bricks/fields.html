@@ -44,7 +44,7 @@
             {% brick_table_column title=_('Expand?') status='action nowrap' %}
         {% endif %}
     {% else %}
-        <th>{% trans 'No column set for the moment' %}</th>
+        <th>{% translate 'No column set for the moment' %}</th>
     {% endif %}
 {% endblock %}
 
@@ -55,15 +55,15 @@
     {% for column in columns %}
     {% with sub_report=column.sub_report %}
         <tr {% if column.hand.hidden %}class="hidden-report-field"{% endif %} data-reorderable-item-order="{{column.order}}" data-reorderable-item-url="{% url 'reports__reorder_field' object.id column.id %}">
-            <td data-reorderable-handle-column class="ui-sortable-handle" title="{% trans 'Drag and drop to re-order this column of report' %}">
+            <td data-reorderable-handle-column class="ui-sortable-handle" title="{% translate 'Drag and drop to re-order this column of report' %}">
                 {{reorder_icon.render}}
             </td>
             <td {% brick_table_data_status primary %}>{{column}}</td>
             <td>
             {% if sub_report %}
-                {% trans 'Columns of' %} <a href="{{sub_report.get_absolute_url}}">{{sub_report}}</a> ({{sub_report.columns|join:', '}})
+                {% translate 'Columns of' %} <a href="{{sub_report.get_absolute_url}}">{{sub_report}}</a> ({{sub_report.columns|join:', '}})
             {% else %}
-                {% trans 'Value' %}
+                {% translate 'Value' %}
             {% endif %}
             </td>
             <td>{{column.hand.verbose_name}}</td>

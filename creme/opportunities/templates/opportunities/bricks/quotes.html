@@ -47,11 +47,11 @@
             <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'unset_current' %}"
                    {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %}
                    checked />
-            {% trans 'Yes' %}
+            {% translate 'Yes' %}
         {% else %}
             <input class="opportunities-current-quote" type="checkbox" data-url="{% url 'opportunities__linked_quote_is_current' object.id quote.id 'set_current' %}"
                    {% if not unlink_perm or not quote_unlink_perm %}disabled="disabled"{% endif %} />
-            {% trans 'No' %}
+            {% translate 'No' %}
         {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
@@ -63,5 +63,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No linked quote for the moment' %}
+    {% translate 'No linked quote for the moment' %}
 {% endblock %}

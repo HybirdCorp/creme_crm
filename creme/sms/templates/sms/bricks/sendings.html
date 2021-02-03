@@ -35,7 +35,7 @@
 
 {% block brick_table_rows %}
 {% has_perm_to change object as edit_perm %}{% url 'sms__delete_sending' object.id as delete_sending_url %}
-{% trans 'Details' as details_label %}{% trans 'Synchronize' as sync_label %}{% trans "Can't synchronize" as nosync_label %}
+{% translate 'Details' as details_label %}{% translate 'Synchronize' as sync_label %}{% translate "Can't synchronize" as nosync_label %}
     {% for sending in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %} data-type='date'>{{sending.date}}</td>
@@ -61,5 +61,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No sending for the moment' %}
+    {% translate 'No sending for the moment' %}
 {% endblock %}

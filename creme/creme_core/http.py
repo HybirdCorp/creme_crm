@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,14 @@
 from django.http import response
 
 from creme.creme_core.utils.serializers import CremeJSONEncoder
+
+
+# The method HttpRequest.is_ajax() is deprecated since Django 3.1 because it relied
+# on a way which was jQuery centric. As dropping jQuery is not planned at, we keep
+# this technic at the moment.
+# It could change if we use https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+def is_ajax(request):
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 
 class CremeJsonResponse(response.JsonResponse):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,8 @@ from typing import (
 )
 
 from django.apps import apps
-from django.db.models import FieldDoesNotExist, Model
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Model
 from django.forms.models import ModelForm, modelform_factory
 from django.urls import reverse
 
@@ -589,9 +590,10 @@ class _ConfigRegistry:
             allowed = False
         else:
             if creator.url_name is None and creator.enable_func(user=user):  # Is URL customised ?
-                url = reverse('creme_config__create_instance_from_widget',
-                              args=(app_label, creator.model_name),
-                             )
+                url = reverse(
+                    'creme_config__create_instance_from_widget',
+                    args=(app_label, creator.model_name),
+                )
             else:
                 allowed = False
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from collections import OrderedDict
 from functools import partial
 from typing import Dict, Iterable, List, Optional, Tuple, Type
 
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models import Field, Model
 
@@ -447,7 +448,7 @@ class QuerySorter:
     def _is_field_unique(model: Type[Model], field_name: str) -> bool:
         try:
             field = model._meta.get_field(field_name)
-        except models.FieldDoesNotExist:
+        except FieldDoesNotExist:
             return False
 
         return field.unique

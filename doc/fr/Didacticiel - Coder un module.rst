@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 29-01-2021 pour la version 2.3 de Creme
+:Version: 03-02-2021 pour la version 2.3 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -30,8 +30,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/3.0/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/3.0/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/3.1/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/3.1/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque JavaScript (JS) jQuery_ ; il se peut que pour
@@ -145,7 +145,7 @@ Plaçons nous dans notre projet, dans le répertoire ``creme/`` : ::
 
     > cd creme_crm/creme
 
-Il existe une commande pour créer une app (``django-admin.py startapp``), cependant
+Il existe une commande pour créer une app (``django-admin startapp``), cependant
 la tâche étant très simple, nous allons faire ce travail nous-mêmes, petit à petit.
 D'abord nous créons le répertoire contenant notre app : ::
 
@@ -755,7 +755,7 @@ Dans ``beavers/``, créez un répertoire ``locale``, puis lancez la commande qui
 construit le fichier de traduction (en français ici) : ::
 
     > mkdir locale
-    > django-admin.py makemessages -l fr
+    > django-admin makemessages -l fr
     processing language fr
 
 
@@ -872,7 +872,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
 Il suffit maintenant de compiler notre fichier de traduction avec la commande
 suivante : ::
 
-    > django-admin.py compilemessages
+    > django-admin compilemessages
     processing file django.po in [...]/creme_crm/creme/beavers/locale/fr/LC_MESSAGES
 
 Le fichier ``beavers/locale/fr/LC_MESSAGES/django.mo`` est bien généré. Si vous
@@ -2353,7 +2353,7 @@ N'oubliez pas de supprimer les lignes "#, fuzzy".
 Il ne restera alors plus qu'à compiler ces nouvelles traductions comme déjà
 vu auparavant. En se plaçant dans le répertoire ``locale_overload/`` : ::
 
-    > django-admin.py compilemessages
+    > django-admin compilemessages
 
 
 Modification d'un modèle existant

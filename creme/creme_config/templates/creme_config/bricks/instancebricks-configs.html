@@ -22,8 +22,8 @@
         <td {% brick_table_data_status primary %} class="instancebrick-config-name"><a href="{{brick_type.entity.get_absolute_url}}">{{brick_type}}</a></td>
         <td>
             <ul>
-                {% if brick|has_attr:'home_display' %}<li>{% trans 'Home & «My page»' %}</li>{% endif %}
-                {% if brick|has_attr:'detailview_display' %}<li>{% trans 'Detail views:' %}&nbsp;{% widget_enumerator brick.target_ctypes|verbose_models|uca_sort threshold=10 empty=_('All types of entity') %}</li>{% endif %}
+                {% if brick|has_attr:'home_display' %}<li>{% translate 'Home & «My page»' %}</li>{% endif %}
+                {% if brick|has_attr:'detailview_display' %}<li>{% translate 'Detail views:' %}&nbsp;{% widget_enumerator brick.target_ctypes|verbose_models|uca_sort threshold=10 empty=_('All types of entity') %}</li>{% endif %}
             </ul>
         </td>
         <td class="instancebrick-config-errors">
@@ -42,5 +42,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No type of instance block created for the moment' %}
+    {% translate 'No type of instance block created for the moment' %}
 {% endblock %}

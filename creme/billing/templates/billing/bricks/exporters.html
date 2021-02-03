@@ -20,9 +20,9 @@
         <td>
             {% with exporter=config_item.exporter %}
                 {% if not config_item.engine_id %}
-                    <span class="billing-exporter-empty">{% trans 'Not configured' %}</span>
+                    <span class="billing-exporter-empty">{% translate 'Not configured' %}</span>
                 {% elif exporter == None %}
-                    <span class="billing-exporter-error">{% trans 'Invalid configuration' %}</span>
+                    <span class="billing-exporter-error">{% translate 'Invalid configuration' %}</span>
                 {% else %}
                     <span class="billing-exporter-name">{{exporter.verbose_name}}</span>
                     <div class="billing-exporter-screenshots">
@@ -44,5 +44,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No model configured for export ; see with your administrator if you want to add one.' %}
+    {% translate 'No model configured for export ; see with your administrator if you want to add one.' %}
 {% endblock %}

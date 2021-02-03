@@ -1,7 +1,7 @@
 {% load i18n creme_core_tags %}{% spaceless %}
 {% with view_less=widget.view_less creation_allowed=widget.creation_allowed creation_url=widget.creation_url %}
 {% if widget.choice_count == 0 and not creation_allowed %}
-{% trans 'No choice available.' %}
+{% translate 'No choice available.' %}
 {% else %}
 <div class="{{widget.class}}" widget="{{widget.widget_type}}"{% if widget.view_less %} less{% if widget.view_less is not True %}="{{widget.view_less}}"{% endif %}{% endif %}>
     {% include 'django/forms/widgets/select.html' %}
@@ -9,8 +9,8 @@
     <div class="checklist-header">
         {% if widget.checkall  %}
         {% with checkall_hidden=widget.choice_count|lt:widget.MIN_CHECKALL_COUNT %}
-        <a type="button" class="checklist-check-all{% if checkall_hidden %} hidden{% endif %}">{% trans 'Check all' %}</a>
-        <a type="button" class="checklist-check-none{% if checkall_hidden %} hidden{% endif %}">{% trans 'Check none' %}</a>
+        <a type="button" class="checklist-check-all{% if checkall_hidden %} hidden{% endif %}">{% translate 'Check all' %}</a>
+        <a type="button" class="checklist-check-none{% if checkall_hidden %} hidden{% endif %}">{% translate 'Check none' %}</a>
         {% endwith %}
         {% endif %}
 
@@ -19,8 +19,8 @@
         {% endif %}
 
         {% if widget.filter_type %}
-        {% if widget.filter_type == 'filter' %}{% trans 'Filter' context 'creme_core-noun' as filter_name %}
-        {% else %}                             {% trans 'Search' context 'creme_core-noun' as filter_name %}{% endif %}
+        {% if widget.filter_type == 'filter' %}{% translate 'Filter' context 'creme_core-noun' as filter_name %}
+        {% else %}                             {% translate 'Search' context 'creme_core-noun' as filter_name %}{% endif %}
         <input type="search" class="checklist-filter" placeholder="{{filter_name|upper}}">
         {% endif %}
     </div>
@@ -29,7 +29,7 @@
     </div>
     {% if widget.view_less %}
     <div class="checklist-footer">
-       <a class="checklist-toggle-less">{% trans 'More' %}</a>
+       <a class="checklist-toggle-less">{% translate 'More' %}</a>
     </div>
     {% endif %}
 </div>

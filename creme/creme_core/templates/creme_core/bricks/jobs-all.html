@@ -4,7 +4,8 @@
 {% block brick_extra_class %}{{block.super}} creme_core-jobs-brick{% endblock %}
 
 {% block brick_script %}{# TODO: in .js ?? #}
-    {% if not request.is_ajax %}
+{#    {% if not request.is_ajax %} #}
+    {% if not request|is_ajax %}
     <script type="text/javascript">
         $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
             new creme.jobs.BrickJobsMonitor('{% url 'creme_core__jobs_info' %}', brick._id).start();
@@ -33,9 +34,9 @@
     {% if not_finished_user_jobs_count >= MAX_JOBS_PER_USER %}
     <div class="help-box">
         {% if not_finished_user_jobs_count == 1 %}
-            {% trans 'You must wait that your job is finished in order to create a new one.' %}
+            {% translate 'You must wait that your job is finished in order to create a new one.' %}
         {% else %}
-            {% trans 'You must wait that one of your jobs is finished in order to create a new one.' %}
+            {% translate 'You must wait that one of your jobs is finished in order to create a new one.' %}
         {% endif %}
     </div>
     {% endif %}
@@ -51,12 +52,12 @@
         {% with periodic=job.type.periodic %}
         {% if periodic != NOT_PERIODIC %}
             <ul>
-                <li>{% trans 'Reference run' %}: {{job.reference_run}}</li>
+                <li>{% translate 'Reference run' %}: {{job.reference_run}}</li>
                 <li>
                     {% if periodic == PSEUDO_PERIODIC %}
-                        {% trans 'Every (at least)' %}: {{job.real_periodicity}}
+                        {% translate 'Every (at least)' %}: {{job.real_periodicity}}
                     {% else %}{# PERIODIC #}
-                        {% trans 'Every' %}: {{job.real_periodicity}}
+                        {% translate 'Every' %}: {{job.real_periodicity}}
                     {% endif %}
                 </li>
             </ul>
@@ -98,5 +99,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No job for the moment' %}
+    {% translate 'No job for the moment' %}
 {% endblock %}

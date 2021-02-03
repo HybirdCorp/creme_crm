@@ -6,7 +6,7 @@
 {% block brick_header %}
     {% with campaign=object.sending.campaign %}
     {# NB: 'view' credentials checked in the view function #}
-    <a class="complete-detailview" href="{{campaign.get_absolute_url}}">{% blocktrans %}Full detailview of the campaign «{{campaign}}»{% endblocktrans %}</a>
+    <a class="complete-detailview" href="{{campaign.get_absolute_url}}">{% blocktranslate %}Full detailview of the campaign «{{campaign}}»{% endblocktranslate %}</a>
     {% endwith %}
 {% endblock %}
 
@@ -21,7 +21,7 @@
 
 {% comment %}
     <div class="brick-tile brick-tile-multiline-value {% if not object.attachments.count %}brick-tile-empty-value{% endif %}" data-field="attachments">
-        <span class="brick-tile-name">{% trans 'Attachments' %}</span>
+        <span class="brick-tile-name">{% translate 'Attachments' %}</span>
         <span class="brick-tile-value">
             {% for attachment in sending.attachments.all %}{% widget_join %}{% widget_entity_hyperlink attachment user %}{% end_widget_join %}{% empty %}—{% endfor %}
         </span>

@@ -20,6 +20,6 @@
     {% for cell in config_item.filtered_cells %}
         {% brick_tile_for_cell cell object user %}
     {% empty %}
-        {% trans 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}
+        {% translate 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}
     {% endfor %}
 {% endblock %}

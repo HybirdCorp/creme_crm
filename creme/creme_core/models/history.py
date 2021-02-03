@@ -39,13 +39,12 @@ from typing import (
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db.models import (
     CASCADE,
     SET_NULL,
     CharField,
     Field,
-    FieldDoesNotExist,
     ForeignKey,
     Model,
     OneToOneField,

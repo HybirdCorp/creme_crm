@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2012-2019 Hybird
+# Copyright (c) 2012-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,18 +25,17 @@
 
 from django.dispatch import Signal
 
-pre_merge_related = Signal(providing_args=['other_entity'])
-pre_replace_related = Signal(providing_args=['old_instance', 'new_instance'])
+# Providing argument <other_entity>
+pre_merge_related = Signal()
+# Providing arguments: old_instance, new_instance
+pre_replace_related = Signal()
 
 # Signal sent by the job "Deletor" (deleting instance of 'small' models in creme_config).
 # <sender> is the instance to delete.
-pre_replace_and_delete = Signal(providing_args=['model_field', 'replacing_instance'])
+# Providing arguments: model_field, replacing_instance
+pre_replace_and_delete = Signal()
 
-pre_uninstall_flush  = Signal(providing_args=['content_types', 'verbosity',
-                                              'stdout_write', 'stderr_write', 'style',
-                                             ],
-                             )
-post_uninstall_flush = Signal(providing_args=['content_types', 'verbosity',
-                                              'stdout_write', 'stderr_write', 'style',
-                                             ],
-                             )
+# Providing arguments: content_types, verbosity, stdout_write, stderr_write, style
+pre_uninstall_flush = Signal()
+# Providing arguments: content_types, verbosity, stdout_write, stderr_write, style
+post_uninstall_flush = Signal()

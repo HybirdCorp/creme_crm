@@ -24,9 +24,9 @@ from itertools import islice
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import FieldDoesNotExist, PermissionDenied
 from django.db import IntegrityError
-from django.db.models import FieldDoesNotExist, ProtectedError, Q
+from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
@@ -56,7 +56,7 @@ from ..forms.merge import form_factory as merge_form_factory
 # NB: do no import <bulk_update_registry> to facilitate unit testing
 from ..gui import bulk_update
 from ..gui.merge import merge_form_registry
-from ..http import CremeJsonResponse
+from ..http import CremeJsonResponse, is_ajax
 from ..models import (
     CremeEntity,
     EntityJobResult,
@@ -195,7 +195,8 @@ class Clone(base.EntityRelatedMixin, base.CheckedView):
     def post(self, request, *args, **kwargs):
         new_entity = self.get_related_entity().clone()  # NB: clone() is @atomic
 
-        if request.is_ajax():
+        # if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(new_entity.get_absolute_url())
 
         return redirect(new_entity)
@@ -708,7 +709,8 @@ class TrashCleanerEnd(generic.CheckedView):
             raise ConflictError('A non finished job cannot be terminated.')
 
         if EntityJobResult.objects.filter(job=job).exists():
-            if request.is_ajax():
+            # if request.is_ajax():
+            if is_ajax(request):
                 return HttpResponse(job.get_absolute_url(), content_type='text/plain')
 
             return redirect(job)
@@ -739,7 +741,8 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 
         entity.restore()
 
-        if request.is_ajax():
+        # if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse()
 
         return redirect(entity)
@@ -827,6 +830,9 @@ class EntityDeletionMixin:
             not_viewable_count = 0
             can_view = user.has_perm_to_view
 
+            def is_printable_relation(dep):
+                return isinstance(dep, Relation) and '-object_' not in dep.type_id
+
             for dep in dependencies:
                 if isinstance(dep, CremeEntity):
                     if can_view(dep):
@@ -837,7 +843,7 @@ class EntityDeletionMixin:
                         not_viewable_count += 1
 
             for dep in dependencies:
-                if isinstance(dep, Relation) and can_view(dep.object_entity):
+                if is_printable_relation(dep) and can_view(dep.object_entity):
                     yield f'{dep.type.predicate} «{dep.object_entity}»'
 
             if not_viewable_count:
@@ -848,7 +854,7 @@ class EntityDeletionMixin:
                 ).format(count=not_viewable_count)
 
             for dep in dependencies:
-                if isinstance(dep, Relation) and not can_view(dep.object_entity):
+                if is_printable_relation(dep) and not can_view(dep.object_entity):
                     yield f'{dep.type.predicate} «{settings.HIDDEN_VALUE}»'
 
             for dep in dependencies:

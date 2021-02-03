@@ -17,13 +17,13 @@
         </span>
         <div class='business-card-indicators'>
         {% if object.is_managed %}
-            <div class='business-card-indicator'>{% trans 'Managed by Creme' %}</div>
+            <div class='business-card-indicator'>{% translate 'Managed by Creme' %}</div>
         {% endif %}
         {% if is_customer %}
-            <div class='business-card-indicator'>{% trans 'Customer' %}</div>
+            <div class='business-card-indicator'>{% translate 'Customer' %}</div>
         {% endif %}
         {% if is_supplier %}
-            <div class='business-card-indicator'>{% trans 'Supplier' %}</div>
+            <div class='business-card-indicator'>{% translate 'Supplier' %}</div>
         {% endif %}
         </div>
     </div>
@@ -35,16 +35,16 @@
     <div class="card-employees{% if total_count > 3 and total_count < 15 %} card-employees-wide{% endif %}">
     {% if total_count >= 15 %}
         <span class="card-function">
-        {% if managers_count %}{% blocktrans count count=managers_count %}{{count}} Manager{% plural %}{{count}} Managers{% endblocktrans %}{% endif %}
+        {% if managers_count %}{% blocktranslate count count=managers_count %}{{count}} Manager{% plural %}{{count}} Managers{% endblocktranslate %}{% endif %}
         {% if managers_count and employees_count %}, {% endif %}
-        {% if employees_count %}{% blocktrans count count=employees_count %}{{count}} Employee{% plural %}{{count}} Employees{% endblocktrans %}{% endif %}
+        {% if employees_count %}{% blocktranslate count count=employees_count %}{{count}} Employee{% plural %}{{count}} Employees{% endblocktranslate %}{% endif %}
         </span>
     {% elif position_is_hidden %}
         {% for manager in managers %}
-        <span class="card-function">{% trans 'Manager' %}</span> <a href='{{manager.get_absolute_url}}'>{{manager|persons_pretty_contact}}</a>{% if not forloop.last or employees %}, {% endif %}
+        <span class="card-function">{% translate 'Manager' %}</span> <a href='{{manager.get_absolute_url}}'>{{manager|persons_pretty_contact}}</a>{% if not forloop.last or employees %}, {% endif %}
         {% endfor %}
         {% for employee in employees %}
-        <span class="card-function">{% trans 'Employee' %}</span> <a href='{{employee.get_absolute_url}}'>{{employee|persons_pretty_contact}}</a>{% if not forloop.last %}, {% endif %}
+        <span class="card-function">{% translate 'Employee' %}</span> <a href='{{employee.get_absolute_url}}'>{{employee|persons_pretty_contact}}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
     {% else %}
         {% for manager in managers %}
@@ -59,13 +59,13 @@
 {% endblock %}
 
 {% block card_fields_title %}
-{% trans 'Details' context 'persons-organisation' %}
+{% translate 'Details' context 'persons-organisation' %}
 {% endblock %}
 
 {% block card_fields %}{% has_perm_to change object as edition_perm %}
     {% if 'phone' not in hidden_fields %}
     <div class="card-info-field">
-        <span class='card-info-key'>{% trans 'Phone' %}</span>
+        <span class='card-info-key'>{% translate 'Phone' %}</span>
         <span class='card-info-value'>
             {{object.phone|default:'—'}}
             {% brick_card_action_for_field instance=object field='phone' user=user %}
@@ -74,7 +74,7 @@
     {% endif %}
     {% if 'billing_address' not in hidden_fields %}
     <div class="card-info-field">
-        <span class='card-info-key'>{% trans 'Address' %}</span>
+        <span class='card-info-key'>{% translate 'Address' %}</span>
         <span class='card-info-value'>
             {% with address=object.billing_address %}
             {% if address is not None %}

@@ -1,11 +1,11 @@
 {% extends 'creme_config/portal.html' %}
 {% load i18n creme_core_tags creme_bricks %}
 
-{% block page_title %}{% trans 'Configuration of search' %} - {% endblock %}
+{% block page_title %}{% translate 'Configuration of search' %} - {% endblock %}
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
-    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'Search in Creme' %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% translate 'Configuration' %} > </a>{% endif %}{% translate 'Search in Creme' %}
 {% endblock %}
 
 {% block portal_bricks %}
@@ -14,9 +14,9 @@
             <tr>
                 <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
                 <td>
-                    {% trans 'Create search settings in order to make the global search faster.' %}<br/>
-                    {% trans 'Limit the number of fields per type for better performance and better results visibility.' %}<br/>
-                    {% trans 'Edit a configuration to specify the search fields.' %}
+                    {% translate 'Create search settings in order to make the global search faster.' %}<br/>
+                    {% translate 'Limit the number of fields per type for better performance and better results visibility.' %}<br/>
+                    {% translate 'Edit a configuration to specify the search fields.' %}
                 </td>
             </tr>
         </table>

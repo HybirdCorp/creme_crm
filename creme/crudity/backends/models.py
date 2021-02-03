@@ -32,13 +32,13 @@ from typing import (
 )
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import FieldDoesNotExist
 from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from django.db.models import (
     BooleanField,
     DateField,
     DateTimeField,
-    FieldDoesNotExist,
     FileField,
     ForeignKey,
     ManyToManyField,

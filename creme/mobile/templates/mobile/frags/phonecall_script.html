@@ -98,7 +98,7 @@
     xhr.send();
 
     if (xhr.status !== 200) {
-      alert("{% trans 'Error' %}: " + xhr.responseText);
+      alert("{% translate 'Error' %}: " + xhr.responseText);
     } else {
       setPanelContent(xhr.responseText);
     }
@@ -143,7 +143,7 @@
     xhr.send(postData);
 
     if (xhr.status !== 200) {
-      document.getElementById("workflow_errors").innerHTML = "{% trans 'Error' %}: " + xhr.responseText;
+      document.getElementById("workflow_errors").innerHTML = "{% translate 'Error' %}: " + xhr.responseText;
     } else {
         clearCookie();
         window.location = window.location;  // eslint-disable-line

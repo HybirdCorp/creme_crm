@@ -39,13 +39,13 @@
           {% block lv_header_buttons %}
             {% if not is_popup_view %}{% listview_buttons model=model buttons=buttons %}{% endif %}
             <a class="with-icon do-search button-right" data-action="submit-lv-state">
-                {% trans 'Search' context 'creme_core-verb' as label %}
+                {% translate 'Search' context 'creme_core-verb' as label %}
                 {{label}}
                 {% widget_icon name='search' label=label size='listview-button' %}
             </a>
             <a class="clear-search button-right{% if not search_form.search_q %} is-disabled{% endif %}" data-action="submit-lv-state">
                 {% blockjsondata %}{"data": {"search": "clear"}}{% endblockjsondata %}
-                {% trans 'Clear search'%}
+                {% translate 'Clear search'%}
             </a>
           {% endblock %}
         </div>
@@ -66,7 +66,7 @@
             </th>
         </tr>
         <tr class="lv-columns-header">
-            {% if is_selection_multiple %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% trans 'Select all' %}"/></center></th>{% endif %}
+            {% if is_selection_multiple %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% translate 'Select all' %}"/></center></th>{% endif %}
             {% for cell in cells %}
                 {% if cell.is_hidden %}
                     <th style="display:none;"></th>
@@ -76,7 +76,7 @@
                     {# TODO: should this header also add the cell.header_listview_css_class ? #}
                     <th data-column-key="{{cell.key}}" class="lv-column{% if cell.key == list_view_state.sort_cell_key %} sorted{% if list_view_state.sort_order == 'DESC' %} reverse{% endif %}{% endif %}{% if cell|cell_is_sortable:cell_sorter_registry %} sortable{% endif %} cl_lv {{cell.listview_css_class}}"
                         colspan="{{cell|listview_column_colspan:is_popup_view}}">
-                        <button type="button" {% if cell|cell_is_sortable:cell_sorter_registry %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}"{% else %}disabled="true"{% endif %}>
+                        <button type="button" {% if cell|cell_is_sortable:cell_sorter_registry %}title="{% blocktranslate with cell.title as col_title %}Sort by {{col_title}}{% endblocktranslate %}"{% else %}disabled="true"{% endif %}>
                             <div>
                                 <span class="lv-sort-toggle-flag ui-icon {% if list_view_state.sort_order == 'DESC' %}ui-icon-triangle-1-s{% else %}ui-icon-triangle-1-n{% endif %}">&nbsp;</span>
                                 <span class="lv-sort-toggle-title">{{cell.title}}</span>
@@ -94,7 +94,7 @@
                     <th style="display:none;"></th>
                 {% elif cell.type_id == 'actions' %}
                     <th class="actions" colspan="{{cell|listview_column_colspan:is_popup_view}}">
-                        <span class='lv-search-title'>{% trans 'Quick search' %}</span>
+                        <span class='lv-search-title'>{% translate 'Quick search' %}</span>
                     </th>
                 {% else %}
                     <th class="lv-column {{cell.header_listview_css_class}} {{cell.listview_css_class}}{% if search_form.cleaned_data|get_by_index:cell.key %} search{% endif %}{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %}"
@@ -134,7 +134,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="{{colspan}}">{% trans 'No entity exists / matches your search' %}</td>
+                <td colspan="{{colspan}}">{% translate 'No entity exists / matches your search' %}</td>
             </tr>
         {% endfor %}
     </tbody>
@@ -146,9 +146,9 @@
                     <div class='list-footer-stats'>
                     {% with start_index=page_obj.start_index %}
                       {% if start_index %}{# TODO: per paginator-class footer-stats templatetag ?? (see similar question in title section #}
-                        {% blocktrans with end_index=page_obj.end_index entities_count=paginator.count %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
+                        {% blocktranslate with end_index=page_obj.end_index entities_count=paginator.count %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktranslate %}
                       {% else %}
-                        {% blocktrans count entities_count=paginator.count %}{{entities_count}} recording{% plural %}{{entities_count}} recordings{% endblocktrans %}
+                        {% blocktranslate count entities_count=paginator.count %}{{entities_count}} recording{% plural %}{{entities_count}} recordings{% endblocktranslate %}
                       {% endif %}
                     {% endwith %}
                     </div>
@@ -156,7 +156,7 @@
                     {% if paginator.num_pages > 1 %}{% listview_pager page_obj %}{% else %}<div class='listview-pagination'></div>{% endif %}
 
                     <div class='list-footer-page-selector'>
-                        <label >{% trans 'Nb / Page' %} :
+                        <label >{% translate 'Nb / Page' %} :
                         <select name="rows" class="lv-state-field list-pagesize-selector">
                         {% with rows=paginator.per_page %}
                             {% for size_option in page_sizes %}<option value="{{size_option}}"{% if rows == size_option %} selected{% endif %}>{{size_option}}</option>{% endfor %}

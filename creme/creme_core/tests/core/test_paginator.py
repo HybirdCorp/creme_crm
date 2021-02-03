@@ -5,7 +5,7 @@ from datetime import date
 from functools import partial
 from random import shuffle
 
-from django.db.models import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist
 
 from creme.creme_core.core.paginator import (
     FirstPage,

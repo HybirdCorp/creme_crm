@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="format-detection" content="telephone=no" />
-<title>Creme Mobile - {% trans 'Activities' %}</title>
+<title>Creme Mobile - {% translate 'Activities' %}</title>
 <style type="text/css">
   {% include 'mobile/css/base.css' %}
 </style>
@@ -24,9 +24,9 @@ if (navigator.userAgent.match(/Android/i)) {
 </head>
 <body class="page-activities" onload="checkCallCookies()">
   <nav>
-    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
-    <a href="{% url 'mobile__directory' %}" class="tab">{% trans 'Directory' %}</a>
-    <a href="{% url 'mobile__activities' %}" class="tab selected-tab">{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% translate 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab">{% translate 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab selected-tab">{% translate 'Activities' %}</a>
   </nav>
 
   <section class="hideable-content">
@@ -34,7 +34,7 @@ if (navigator.userAgent.match(/Android/i)) {
       <div class="card-list late-activities with-more-info showing-more-info">
         <div class="card-list-title">
           <a href="" class="more-info-trigger showing-more-info">
-            {% blocktrans count counter=phone_calls|length %}{{counter}} delayed phone call{% plural %}{{counter}} last delayed phone calls{% endblocktrans %}
+            {% blocktranslate count counter=phone_calls|length %}{{counter}} delayed phone call{% plural %}{{counter}} last delayed phone calls{% endblocktranslate %}
           </a>
         </div>
 
@@ -48,7 +48,7 @@ if (navigator.userAgent.match(/Android/i)) {
       </div>
     {% else %}
       <div class="card-list late-activities">
-        <div class="card-list-title">{% trans 'No delayed phone calls' %}</div>
+        <div class="card-list-title">{% translate 'No delayed phone calls' %}</div>
       </div>
     {% endif %}
 
@@ -58,9 +58,9 @@ if (navigator.userAgent.match(/Android/i)) {
           <a href="" class="more-info-trigger showing-more-info">
             {% with floating_length=floating_activities|length %}
               {% if floating_length <= floating_activities_count %}
-                {% blocktrans count counter=floating_length %}{{counter}} activity without date{% plural %}{{counter}} activities without date{% endblocktrans %}
+                {% blocktranslate count counter=floating_length %}{{counter}} activity without date{% plural %}{{counter}} activities without date{% endblocktranslate %}
               {% else %}
-                {% blocktrans count counter=floating_length with total=floating_activities_count %}{{counter}} activity without date (on {{total}}){% plural %}{{counter}} activities without date (on {{total}}){% endblocktrans %}
+                {% blocktranslate count counter=floating_length with total=floating_activities_count %}{{counter}} activity without date (on {{total}}){% plural %}{{counter}} activities without date (on {{total}}){% endblocktranslate %}
               {% endif %}
             {% endwith %}
           </a>
@@ -76,7 +76,7 @@ if (navigator.userAgent.match(/Android/i)) {
       </div>
     {% else %}
       <div class="card-list unplanned-activities">
-        <div class="card-list-title">{% trans 'No activity without date' %}</div>
+        <div class="card-list-title">{% translate 'No activity without date' %}</div>
       </div>
     {% endif %}
 
@@ -84,7 +84,7 @@ if (navigator.userAgent.match(/Android/i)) {
       <div class="card-list future-activities with-more-info">
         <div class="card-list-title">
             <a href="" class="more-info-trigger">
-              {% blocktrans count counter=tomorrow_activities|length with tomorrow_date=tomorrow|date:_('l j F') %}{{counter}} activity planned tomorrow, {{tomorrow_date}}{% plural %}{{counter}} activities planned tomorrow, {{tomorrow_date}}{% endblocktrans %}
+              {% blocktranslate count counter=tomorrow_activities|length with tomorrow_date=tomorrow|date:_('l j F') %}{{counter}} activity planned tomorrow, {{tomorrow_date}}{% plural %}{{counter}} activities planned tomorrow, {{tomorrow_date}}{% endblocktranslate %}
             </a>
         </div>
 
@@ -99,7 +99,7 @@ if (navigator.userAgent.match(/Android/i)) {
     {% else %}
       <div class="card-list future-activities">
         <div class="card-list-title">
-          {% blocktrans with tomorrow_date=tomorrow|date:_('l j F') %}No activity planned tomorrow, {{tomorrow_date}}{% endblocktrans %}
+          {% blocktranslate with tomorrow_date=tomorrow|date:_('l j F') %}No activity planned tomorrow, {{tomorrow_date}}{% endblocktranslate %}
         </div>
       </div>
     {% endif %}

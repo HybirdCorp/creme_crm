@@ -198,101 +198,101 @@ gettext-collect:
 		for appdir in ${appdirs}; do (\
 			pushd $${appdir} > /dev/null && \
 				echo "Building messages $$(pwd)..." && \
-				django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" -i "tests.py" -e "html,txt,py,xml" && \
-				django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} -i "*/js/tests/*" -e js && \
+				django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -i "tests.py" -e "html,txt,py,xml" && \
+				django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "*/js/tests/*" -e js && \
 			popd > /dev/null \
 		); done; \
 	else \
 		pushd ./creme/products && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/opportunities && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/mobile && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/reports && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/reports/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/reports/js/tests/*" && \
 			popd; \
 		pushd ./creme/creme_core && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" -i "templates/creme_core/tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/creme_core/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -i "templates/creme_core/tests/*" && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/creme_core/js/tests/*" && \
 			popd; \
 		pushd ./creme/sms && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/events && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i tests.py && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py && \
 			popd; \
 		pushd ./creme/projects && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i tests.py && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/projects/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/projects/js/tests/*" && \
 			popd; \
 		pushd ./creme/crudity && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" -e py -e html -e xml && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -e py -e html -e xml && \
 			popd; \
 		pushd ./creme/emails && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/emails/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/emails/js/tests/*" && \
 			popd; \
 		pushd ./creme/tickets && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i tests.py && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py && \
 			popd; \
 		pushd ./creme/commercial && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*" && \
 			popd; \
 		pushd ./creme/graphs && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i tests.py && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py && \
 			popd; \
 		pushd ./creme/polls && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/assistants && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/activities && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/activities/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/activities/js/tests/*" && \
 			popd; \
 		pushd ./creme/creme_config && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/vcfs && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/recurrents && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/documents && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
 			popd; \
 		pushd ./creme/cti && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE}  -i "tests.py" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/cti/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE}  -i "tests.py" && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/cti/js/tests/*" && \
 			popd; \
 		pushd ./creme/persons && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/persons/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/persons/js/tests/*" && \
 			popd; \
 		pushd ./creme/geolocation && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/geolocation/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/geolocation/js/tests/*" && \
 			popd; \
 		pushd ./creme/billing && \
-			django-admin.py makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin.py makemessages -d djangojs -l ${CREME_LANGUAGE} && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} && \
 			popd; \
 	fi
 
 ## Compile the translation files
 .PHONY: gettext-compile
 gettext-compile:
-	django-admin.py compilemessages -l ${CREME_LANGUAGE}
+	django-admin compilemessages -l ${CREME_LANGUAGE}
 
 
 ## Print this message

@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="format-detection" content="telephone=no" />
-<title>Creme Mobile - {% trans 'Directory' %}</title>
+<title>Creme Mobile - {% translate 'Directory' %}</title>
 <style type="text/css">
   {% include 'mobile/css/base.css' %}
 </style>
@@ -23,15 +23,15 @@ if (navigator.userAgent.match(/Android/i)) {
 </head>
 <body class="page-error">
   <nav>
-    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
-    <a href="{% url 'mobile__directory' %}" class="tab">{% trans 'Directory' %}</a>
-    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% translate 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab">{% translate 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% translate 'Activities' %}</a>
   </nav>
 
-  <div class="error">{% blocktrans %}Error ! ({{status}}){% endblocktrans %}</div>
+  <div class="error">{% blocktranslate %}Error ! ({{status}}){% endblocktranslate %}</div>
   <div class="error">{{msg}}</div>
   <div class="exception">
-    {% trans 'Detail:' %}<br/>
+    {% translate 'Detail:' %}<br/>
     {{exception}}
   </div>
 

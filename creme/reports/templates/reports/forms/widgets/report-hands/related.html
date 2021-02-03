@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="related_field_selectors inline_selectors">
-    <h4 class="selector_title">{% trans 'Related entities' %}</h4>
+    <h4 class="selector_title">{% translate 'Related entities' %}</h4>
     {% if widget.choices %}
         <ul class="selector_list">
             {% for choice_id, related_vname in widget.choices %}
@@ -8,6 +8,6 @@
             {% endfor %}
         </ul>
     {% else %}
-        {% trans 'No other entity type references this entity type.' %}
+        {% translate 'No other entity type references this entity type.' %}
     {% endif %}
 </div>

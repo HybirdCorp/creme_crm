@@ -3,8 +3,7 @@
 from os.path import basename, join
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.db.models import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, PermissionDenied
 
 from creme.creme_core.core.download import FileFieldDownLoadRegistry
 from creme.creme_core.models import (

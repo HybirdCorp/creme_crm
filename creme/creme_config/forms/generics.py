@@ -336,6 +336,7 @@ class DeletionForm(CremeModelForm):
     })
 
     # TODO: what about deletion.DO_NOTHING ?!
+    # TODO: manage deletion.RESTRICT (handler would need a smarter counting method)
     fk_handler_classes = {
         'django.db.models.deletion.CASCADE':     CascadeHandler,
         'django.db.models.deletion.PROTECT':     ProtectHandler,

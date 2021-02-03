@@ -29,9 +29,9 @@ if (navigator.userAgent.match(/Android/i)) {
 </head>
 <body class="page-form" onload="checkCallCookies()">
   <nav>
-    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
-    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% trans 'Directory' %}</a>
-    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% translate 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% translate 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% translate 'Activities' %}</a>
   </nav>
 
   <section class="hideable-content">
@@ -45,16 +45,16 @@ if (navigator.userAgent.match(/Android/i)) {
       {% endfor %}
 
       <div class="form-field">
-        <label class="field-label" for="{{form.name.auto_id}}">{% trans 'Name' %}<span class="field-modifier"> {% trans '(required)' %}</span></label>
+        <label class="field-label" for="{{form.name.auto_id}}">{% translate 'Name' %}<span class="field-modifier"> {% translate '(required)' %}</span></label>
         {{form.name}}
-        <div class="field-error field-error-client">{% trans 'The name must be filled.' %}</div>
+        <div class="field-error field-error-client">{% translate 'The name must be filled.' %}</div>
         {% for error in form.name.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
       </div>
 
       {% with phone_f=form.phone %}
         {% if phone_f %}
           <div class="form-field">
-            <label class="field-label" for="{{phone_f.auto_id}}">{% trans 'Phone' %}</label>
+            <label class="field-label" for="{{phone_f.auto_id}}">{% translate 'Phone' %}</label>
             {{phone_f}}
             {% for error in phone_f.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
           </div>
@@ -67,12 +67,12 @@ if (navigator.userAgent.match(/Android/i)) {
 
       <div class="form-field">
         {{form.is_favorite}}
-        <label for="{{form.is_favorite.auto_id}}">{% trans 'Add this organisation to the favorites' %}</label>
+        <label for="{{form.is_favorite.auto_id}}">{% translate 'Add this organisation to the favorites' %}</label>
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="button">{% trans 'Save the organisation' %}</button>
-        <a href="{{cancel_url}}" class="button">{% trans 'Cancel' %}</a>
+        <button type="submit" class="button">{% translate 'Save the organisation' %}</button>
+        <a href="{{cancel_url}}" class="button">{% translate 'Cancel' %}</a>
       </div>
     </form>
   </section>

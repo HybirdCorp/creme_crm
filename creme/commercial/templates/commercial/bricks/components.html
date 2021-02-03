@@ -27,7 +27,7 @@
                     {% endif %}
                 </td>
                 <td class="component-description">
-                    <span>{% trans "Success rate" %} : {{component.success_rate}}%</span>
+                    <span>{% translate "Success rate" %} : {{component.success_rate}}%</span>
                     {% if component.ctype %}
                     <span>({{component.ctype}}{% if component.filter %} / {{component.filter}}{% endif %})</span>
                     {% endif %}
@@ -46,7 +46,7 @@
         </tbody>
     {% else %}
         <thead>
-            <tr><th>{% trans 'No objective for the moment' %}</th></tr>
+            <tr><th>{% translate 'No objective for the moment' %}</th></tr>
         </thead>
     {% endif %}
     </table>

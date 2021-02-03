@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="format-detection" content="telephone=no" />
-<title>Creme Mobile - {% trans 'Search' context 'creme_core-noun' %}</title>
+<title>Creme Mobile - {% translate 'Search' context 'creme_core-noun' %}</title>
 {% comment %}
 <link rel="stylesheet" href="base.css" />
 <link rel="stylesheet" href="directory.css" />
@@ -29,9 +29,9 @@ if (navigator.userAgent.match(/Android/i)) {
 </head>
 <body class="page-directory" onload="checkCallCookies()">
   <nav>
-    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
-    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% trans 'Directory' %}</a>
-    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% translate 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% translate 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% translate 'Activities' %}</a>
   </nav>
 
   {% include 'mobile/frags/search_div.html' %}
@@ -41,16 +41,16 @@ if (navigator.userAgent.match(/Android/i)) {
     {% if contact_creation_perm or orga_creation_perm %}
       <div class="create-actions">
         {% if contact_creation_perm %}
-          <a href="{% url 'mobile__create_contact' %}?last_name={{search|urlencode}}" class="button">{% trans 'Create a contact' %}</a>
+          <a href="{% url 'mobile__create_contact' %}?last_name={{search|urlencode}}" class="button">{% translate 'Create a contact' %}</a>
         {% endif %}
         {% if orga_creation_perm %}
-          <a href="{% url 'mobile__create_organisation' %}?name={{search|urlencode}}" class="button">{% trans 'Create an organisation' %}</a>
+          <a href="{% url 'mobile__create_organisation' %}?name={{search|urlencode}}" class="button">{% translate 'Create an organisation' %}</a>
         {% endif %}
       </div>
     {% endif %}
 
     <div class="card-list search-results-contact list-contact">
-      <div class="card-list-title">{% blocktrans count counter=contacts|length %}Search of contacts &ndash; {{counter}} result{% plural %}Search of contacts &ndash; {{counter}} results{% endblocktrans %}</div>
+      <div class="card-list-title">{% blocktranslate count counter=contacts|length %}Search of contacts &ndash; {{counter}} result{% plural %}Search of contacts &ndash; {{counter}} results{% endblocktranslate %}</div>
 
       {% for contact in contacts %}
         <div class="card-container">
@@ -60,7 +60,7 @@ if (navigator.userAgent.match(/Android/i)) {
     </div>
 
     <div class="card-list search-results-orga list-orga">
-      <div class="card-list-title">{% blocktrans count counter=organisations|length %}Search of organisations &ndash; {{counter}} result{% plural %}Search of organisations &ndash; {{counter}} results{% endblocktrans %}</div>
+      <div class="card-list-title">{% blocktranslate count counter=organisations|length %}Search of organisations &ndash; {{counter}} result{% plural %}Search of organisations &ndash; {{counter}} results{% endblocktranslate %}</div>
 
       {% for orga in organisations %}
         <div class="card-container">

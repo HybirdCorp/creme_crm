@@ -11,7 +11,7 @@
 
 {% block brick_table_rows %}
     <tr>
-        <td><h1 class="billing-total-exclusive billing-total-exclusive-label">{% trans 'Total (exclusive of tax)' %}</h1></td>
+        <td><h1 class="billing-total-exclusive billing-total-exclusive-label">{% translate 'Total (exclusive of tax)' %}</h1></td>
         <td data-type="money">
             <h1 class="billing-total-exclusive billing-total-exclusive-value" name="total_no_vat">
                 {{object.total_no_vat|format_amount:object.currency}}
@@ -19,7 +19,7 @@
         </td>
     </tr>
     <tr>
-        <td><h1 class="billing-total-inclusive billing-total-inclusive-label">{% trans 'Total (inclusive of tax)' %}</h1></td>
+        <td><h1 class="billing-total-inclusive billing-total-inclusive-label">{% translate 'Total (inclusive of tax)' %}</h1></td>
         <td data-type="money">
             <h1 class="billing-total-inclusive billing-total-inclusive-value" name="total_vat">
                 {{object.total_vat|format_amount:object.currency}}

@@ -107,7 +107,7 @@
 		<xsf:exportToWeb ui="disabled"></xsf:exportToWeb>
 		<xsf:exportToExcel ui="disabled"></xsf:exportToExcel>
 	</xsf:featureRestrictions>
-	<xsf:submit caption="&amp;{% trans "Send" %}" disableMenuItem="no" onAfterSubmit="openNew" showStatusDialog="yes">
+	<xsf:submit caption="&amp;{% translate "Send" %}" disableMenuItem="no" onAfterSubmit="openNew" showStatusDialog="yes">
 		<xsf:emailAdapter name="Email submit" submitAllowed="yes">
 			<xsf:to value="{{ to }}" valueType="literal"></xsf:to>
 			<xsf:subject value="{{ form_name }}" valueType="literal"></xsf:subject>

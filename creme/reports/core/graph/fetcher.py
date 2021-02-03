@@ -23,7 +23,8 @@ import logging
 from functools import partial
 from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple, Type, Union
 
-from django.db.models import FieldDoesNotExist, ForeignKey, Q
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import ForeignKey, Q
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext

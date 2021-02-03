@@ -6,7 +6,7 @@
 {% block title %}{{object.type.name}} : {{object|capfirst}}{% endblock %}
 
 {% block main_content %}
-    <a class="complete-detailview" href="{{object.get_absolute_url}}">{% trans 'Full detailview' %}</a>
+    <a class="complete-detailview" href="{{object.get_absolute_url}}">{% translate 'Full detailview' %}</a>
 
     {% brick_import object=object as object_brick %}
     {% brick_import app='creme_core' name='customfields' as customfields_brick %}

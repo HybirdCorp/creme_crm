@@ -3,9 +3,9 @@
 
 {% block page_title %}
     {% if object %}
-        {% blocktrans %}Edit «{{object}}»{% endblocktrans %}
+        {% blocktranslate %}Edit «{{object}}»{% endblocktranslate %}
     {% else %}
-        {% trans 'Edit' %}
+        {% translate 'Edit' %}
     {% endif %} -
 {% endblock %}
 
@@ -13,7 +13,7 @@
 
 {% block content %}
     {% with icon_name='edit' icon_label=_('Edit') submit_label=submit_label|default:_('Save the modifications') %}
-        {% if not title %}{% blocktrans asvar form_title %}Edit «{{object}}»{% endblocktrans %}
+        {% if not title %}{% blocktranslate asvar form_title %}Edit «{{object}}»{% endblocktranslate %}
             {% include 'creme_core/generics/blockform/base.html' with title=form_title|safe %}
         {% else %}
             {% include 'creme_core/generics/blockform/base-wizard.html' %}

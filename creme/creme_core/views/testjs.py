@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,6 +49,7 @@ from ..gui.field_printers import (
     print_many2many_html,
     print_url_html,
 )
+from ..http import is_ajax
 from ..models import CremeProperty
 
 logger = logging.getLogger(__name__)
@@ -214,7 +215,8 @@ def test_http_response(request):
     if status == 500:
         raise Exception('Tests: server internal error')
 
-    if request.is_ajax():
+    # if request.is_ajax():
+    if is_ajax(request):
         return HttpResponse(f'XML Http Response {status}', status=status)
 
     return HttpResponse(f'<p>Http Response {status}</p>', status=status)
@@ -222,10 +224,11 @@ def test_http_response(request):
 
 @login_required
 def test_js(request):
-    js_testview_or_404("Beware: if you are not running unittest this view shouldn't be reachable. "
-                       "Check your server configuration.",
-                       "This is view is only reachable during javascript unittests."
-                      )
+    js_testview_or_404(
+        "Beware: if you are not running unittest this view shouldn't be reachable. "
+        "Check your server configuration.",
+        "This is view is only reachable during javascript unittests."
+    )
 
     return render(request, 'creme_core/test_js.html')
 

@@ -44,7 +44,7 @@
     </tr>
     {% endfor %}
     <tr class="acts-opportunities-total">
-        <td colspan="2">{% trans 'Total' %}</td>
+        <td colspan="2">{% translate 'Total' %}</td>
         <td data-type="money">{{object.get_estimated_sales}}</td>
         <td data-type="money">{{object.get_made_sales}}</td>
         <td>&nbsp;</td>
@@ -52,5 +52,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No related opportunity for the moment' %}
+    {% translate 'No related opportunity for the moment' %}
 {% endblock %}

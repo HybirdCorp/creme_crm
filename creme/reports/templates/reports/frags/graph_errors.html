@@ -2,8 +2,8 @@
 {% with abscissa_error=hand.abscissa_error ordinate_error=hand.ordinate_error %}
     {% if abscissa_error or ordinate_error %}
         <ul class="errorlist">
-            {% if abscissa_error %}<li>{% blocktrans with error=abscissa_error %}Invalid abscissa: {{error}}{% endblocktrans %}</li>{% endif %}
-            {% if ordinate_error %}<li>{% blocktrans with error=ordinate_error %}Invalid ordinate: {{error}}{% endblocktrans %}</li>{% endif %}
+            {% if abscissa_error %}<li>{% blocktranslate with error=abscissa_error %}Invalid abscissa: {{error}}{% endblocktranslate %}</li>{% endif %}
+            {% if ordinate_error %}<li>{% blocktranslate with error=ordinate_error %}Invalid ordinate: {{error}}{% endblocktranslate %}</li>{% endif %}
         </ul>
     {% else %}
         {{empty_message}}

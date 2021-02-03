@@ -25,6 +25,7 @@ from functools import partial
 from typing import Optional, Tuple, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import (
     BooleanField,
     ForeignKey,
@@ -32,7 +33,6 @@ from django.db.models import (
     Model,
     Q,
 )
-from django.db.models.fields import FieldDoesNotExist
 from django.utils.formats import date_format
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
