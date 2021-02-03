@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-28 15:16+0100\n"
+"POT-Creation-Date: 2021-02-03 11:52+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -37,38 +37,38 @@ msgstr ""
 msgid "Salesman"
 msgstr "Commercial"
 
-#: bricks.py:57 models/commercial_approach.py:54
+#: bricks.py:58 models/commercial_approach.py:54
 #: templates/commercial/bricks/approaches.html:7
 msgid "Commercial approaches"
 msgstr "Démarches commerciales"
 
-#: bricks.py:128 models/strategy.py:347
+#: bricks.py:126 models/strategy.py:347
 msgid "Market segment descriptions"
 msgstr "descriptions de segment de marché"
 
-#: bricks.py:144 models/strategy.py:384
+#: bricks.py:142 models/strategy.py:384
 #: templates/commercial/bricks/assets.html:7
 msgid "Commercial assets"
 msgstr "Atouts commerciaux"
 
-#: bricks.py:159 models/strategy.py:429
+#: bricks.py:157 models/strategy.py:429
 #: templates/commercial/bricks/charms.html:7
 msgid "Segment charms"
 msgstr "Attraits de segment"
 
-#: bricks.py:174
+#: bricks.py:172
 msgid "Evaluated organisations"
 msgstr "Sociétés évaluées"
 
-#: bricks.py:251
+#: bricks.py:249
 msgid "Objectives of a Commercial Action"
 msgstr "Objectifs d'une Action Commerciale"
 
-#: bricks.py:270
+#: bricks.py:268
 msgid "Opportunities related to a Commercial Action"
 msgstr "Opportunités reliées à une Action Commerciale"
 
-#: bricks.py:286
+#: bricks.py:284
 msgid "Components of an Objective Pattern"
 msgstr "Composants d'un Modèle d'Objectif"
 
@@ -562,18 +562,23 @@ msgid "Related entity"
 msgstr "Fiche concernée"
 
 #: templates/commercial/bricks/approaches.html:24
+msgctxt "commercial-approach"
+msgid "Created on"
+msgstr "Date de création"
+
+#: templates/commercial/bricks/approaches.html:27
 msgid "Details"
 msgstr "Détails"
 
-#: templates/commercial/bricks/approaches.html:25
+#: templates/commercial/bricks/approaches.html:28
 msgid "Generate from"
 msgstr "Générée à partir de"
 
-#: templates/commercial/bricks/approaches.html:38
+#: templates/commercial/bricks/approaches.html:42
 msgid "Nothing"
 msgstr "Rien"
 
-#: templates/commercial/bricks/approaches.html:46
+#: templates/commercial/bricks/approaches.html:50
 msgid "No commercial approach for the moment"
 msgstr "Aucune démarche commerciale enregistrée pour le moment"
 

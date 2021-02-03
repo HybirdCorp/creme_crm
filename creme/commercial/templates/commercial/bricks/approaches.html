@@ -21,6 +21,9 @@
     {% brick_table_column title=_('Related entity') %}
     {% endif %}
 
+    {% trans 'Created on' context 'commercial-approach' as creation_label %}
+    {% brick_table_column_for_field ctype=objects_ctype field='creation_date' status='nowrap' title=creation_label %}
+
     {% brick_table_column_for_field ctype=objects_ctype field='description' title=_('Details') class='approaches-details' %}
     {% brick_table_column title=_('Generate from') status='nowrap' %}
 {% endblock %}
@@ -32,6 +35,7 @@
         {% if not object %}
             <td>{% widget_entity_hyperlink approach.creme_entity user %}</td>
         {% endif %}
+        <td data-type="date">{{approach.creation_date|date:'DATE_FORMAT'}}</td>
         <td>{% print_field object=approach field='description' %}</td>
         <td>
             <a href="{{approach.related_activity.get_absolute_url|default:approach.creme_entity.get_absolute_url}}">
