@@ -508,7 +508,7 @@ class GenericEntityField(EntityCredsJSONField):
 
     def _get_ctypes_options(self):
         create_url = partial(self._create_url, self._user)
-        return (
+        choices = [
             (
                 json_encode({
                     'id': ctype.pk,
@@ -517,7 +517,12 @@ class GenericEntityField(EntityCredsJSONField):
                 }),
                 str(ctype)
             ) for ctype in self.get_ctypes()
-        )
+        ]
+
+        sort_key = collator.sort_key
+        choices.sort(key=lambda k: sort_key(k[1]))
+
+        return choices
 
     def get_ctypes(self):
         models = self._allowed_models
