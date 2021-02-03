@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,8 +29,9 @@ from tempfile import mkdtemp
 from typing import List, Optional, Tuple, Type
 
 from django.conf import settings
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
-from django.db.models.fields import EmailField, Field, FieldDoesNotExist
+from django.db.models.fields import EmailField, Field
 from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
@@ -223,12 +224,14 @@ class InfopathFormField:
             self.model_field.get_internal_type()
         )
         try:
-            return render_to_string(template_name,
-                                    {'field': self,
-                                     'choices': self._get_choices(),
-                                    },
-                                    request=self.request,
-                                   )
+            return render_to_string(
+                template_name,
+                {
+                    'field': self,
+                    'choices': self._get_choices(),
+                },
+                request=self.request,
+            )
         except TemplateDoesNotExist:
             return ''
 
@@ -409,14 +412,15 @@ class InfopathFormBuilder:
     def _render_manifest_xsf(self, request) -> str:
         return render_to_string(
             'crudity/infopath/create_template/manifest.xsf',
-            {'creme_namespace': self.namespace,
-             'form_urn':        self.urn,
-             'lang_code':       self._get_lang_code(request.LANGUAGE_CODE),
-             'form_name':       self.backend.subject,
-             'fields':          self.fields,
-             'file_fields':     self.file_fields,
-             'to':              settings.CREME_GET_EMAIL,
-             'password':        self.backend.password,
+            {
+                'creme_namespace': self.namespace,
+                'form_urn':        self.urn,
+                'lang_code':       self._get_lang_code(request.LANGUAGE_CODE),
+                'form_name':       self.backend.subject,
+                'fields':          self.fields,
+                'file_fields':     self.file_fields,
+                'to':              settings.CREME_GET_EMAIL,
+                'password':        self.backend.password,
             },
             request=request,
         )
@@ -424,8 +428,9 @@ class InfopathFormBuilder:
     def _render_myschema_xsd(self, request) -> str:
         return render_to_string(
             'crudity/infopath/create_template/myschema.xsd',
-            {'creme_namespace': self.namespace,
-             'fields':          self.fields,
+            {
+                'creme_namespace': self.namespace,
+                'fields':          self.fields,
             },
             request=request,
         )
@@ -433,9 +438,10 @@ class InfopathFormBuilder:
     def _render_template_xml(self, request) -> str:
         return render_to_string(
             'crudity/infopath/create_template/template.xml',
-            {'creme_namespace': self.namespace,
-             'form_urn':        self.urn,
-             'fields':          self.fields,
+            {
+                'creme_namespace': self.namespace,
+                'form_urn':        self.urn,
+                'fields':          self.fields,
             },
             request=request,
         )
@@ -443,8 +449,9 @@ class InfopathFormBuilder:
     def _render_upgrade_xsl(self, request) -> str:
         return render_to_string(
             'crudity/infopath/create_template/upgrade.xsl',
-            {'creme_namespace': self.namespace,
-             'fields':          self.fields,
+            {
+                'creme_namespace': self.namespace,
+                'fields':          self.fields,
             },
             request=request,
         )
@@ -453,12 +460,13 @@ class InfopathFormBuilder:
         backend = self.backend
         return render_to_string(
             'crudity/infopath/create_template/view1.xsl',
-            {'creme_namespace': self.namespace,
-             'fields':          self.fields,
-             'form_title':      '{} {}'.format(
-                 _('Create'),
-                 backend.model._meta.verbose_name,
-             ),
+            {
+                'creme_namespace': self.namespace,
+                'fields':          self.fields,
+                'form_title':      '{} {}'.format(
+                    _('Create'),
+                    backend.model._meta.verbose_name,
+                ),
             },
             request=request,
         )

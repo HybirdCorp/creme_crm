@@ -15,7 +15,7 @@
 
 {% block brick_before_content %}
     <div class="help">{% url 'creme_config__bricks' as config_url %}
-        {% blocktrans %}These blocks can be placed on Home & on some detail-views in the <a href="{{config_url}}">blocks configuration</a>.{% endblocktrans %}
+        {% blocktranslate %}These blocks can be placed on Home & on some detail-views in the <a href="{{config_url}}">blocks configuration</a>.{% endblocktranslate %}
     </div>
 {% endblock %}
 
@@ -32,5 +32,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No brick for this graph' %}
+    {% translate 'No brick for this graph' %}
 {% endblock %}

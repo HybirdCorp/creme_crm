@@ -20,7 +20,7 @@
 
 import logging
 
-from django.db.models.fields import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist
 from django.db.transaction import atomic
 from django.forms import CheckboxInput, Field, Select, Widget
 from django.forms.models import fields_for_model, model_to_dict

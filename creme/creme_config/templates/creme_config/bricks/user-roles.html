@@ -14,8 +14,8 @@
 
 {% block brick_before_content %}
     <div class="help">
-        {% blocktrans %}The users which are not super-users must have a role.
-It limits what the concerned users can see, edit, delete…{% endblocktrans %}
+        {% blocktranslate %}The users which are not super-users must have a role.
+It limits what the concerned users can see, edit, delete…{% endblocktranslate %}
     </div>
 {% endblock %}
 
@@ -47,7 +47,7 @@ It limits what the concerned users can see, edit, delete…{% endblocktrans %}
                     {% brick_action id='delete' url=rm_creds_url __id=sc.id label=_('Delete these credentials') enabled=admin_perm %}
                     {% with efilter=sc.efilter %}
                         {% if efilter %}
-                            <br>&nbsp;{% blocktrans %}Filter «{{efilter}}»{% endblocktrans %}
+                            <br>&nbsp;{% blocktranslate %}Filter «{{efilter}}»{% endblocktranslate %}
                             <a data-action="popover">
                                 {% widget_icon name='info' label=_('Information on the current filter') size='brick-action' %}
                                 {% include 'creme_core/frags/entity-filter-summary.html' with efilter=sc.efilter user=user %}
@@ -70,5 +70,5 @@ It limits what the concerned users can see, edit, delete…{% endblocktrans %}
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No role for the moment' %}
+    {% translate 'No role for the moment' %}
 {% endblock %}

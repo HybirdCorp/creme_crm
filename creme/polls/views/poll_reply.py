@@ -36,6 +36,7 @@ from creme.creme_core.auth.decorators import (
     login_required,
     permission_required,
 )
+from creme.creme_core.http import is_ajax
 from creme.creme_core.templatetags.creme_widgets import (
     get_icon_by_name,
     get_icon_size_px,
@@ -372,7 +373,8 @@ class PollReplyCleaning(generic.base.EntityRelatedMixin, generic.CheckedView):
             preply = self.get_related_entity()
             self.clean(preply)
 
-        if request.is_ajax():
+        # if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse()
 
         return redirect(preply)

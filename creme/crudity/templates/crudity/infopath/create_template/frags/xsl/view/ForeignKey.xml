@@ -5,7 +5,7 @@
             <xsl:attribute name="value">
                 <xsl:value-of select="my:{{ field_name }}"/>
             </xsl:attribute>
-            <option><xsl:if test="my:{{ field_name }}=&quot;&quot;"><xsl:attribute name="selected">selected</xsl:attribute></xsl:if>{% trans "Select..." %}</option>
+            <option><xsl:if test="my:{{ field_name }}=&quot;&quot;"><xsl:attribute name="selected">selected</xsl:attribute></xsl:if>{% translate "Select..." %}</option>
             {% for value, verbose in choices %}
                 <option value="{{ value }}">
                     <xsl:if test="my:{{ field_name }}=&quot;{{ value }}&quot;">

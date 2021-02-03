@@ -8,7 +8,7 @@ from unittest import skipIf
 from xml.etree.ElementTree import XML, tostring
 
 from django.contrib.auth import get_user_model
-from django.db.models.fields import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.utils.translation import gettext as _

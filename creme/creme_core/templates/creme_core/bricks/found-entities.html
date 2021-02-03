@@ -22,7 +22,7 @@ search-count="{{page.paginator.count}}"
             {% brick_table_column title=cell %}
         {% endfor %}
     {% else %}
-        <tr><th>{% trans 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}</th></tr>
+        <tr><th>{% translate 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}</th></tr>
     {% endif %}
 {% endblock %}
 

@@ -5,8 +5,7 @@ from decimal import Decimal
 from functools import partial
 
 from django import forms
-from django.core.exceptions import ValidationError
-from django.db.models import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext as _
 

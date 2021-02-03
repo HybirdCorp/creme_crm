@@ -4,10 +4,10 @@
     <div class="selectors">
     {% block selectors %}
         <div class="field_selectors">
-            <h3 class="selector_title">{% trans 'Fields'%}</h3>
+            <h3 class="selector_title">{% translate 'Fields'%}</h3>
 
             <div class="selector_filter">{# highlight : main fields | <a href="">popular</a> | <a href="">recent</a> #}
-                <input type="search" class="field_selector_filter" name="{{widget.name}}_field_selector_filter" placeholder="{% trans 'SEARCH'%}" data-type="fields">
+                <input type="search" class="field_selector_filter" name="{{widget.name}}_field_selector_filter" placeholder="{% translate 'SEARCH'%}" data-type="fields">
             </div>
 
             {% block field_selectors %}
@@ -36,7 +36,7 @@
         <h3 class="preview_title"></h3>
 
         <div class="selector_filter">
-            <a href="" class="remove_all_columns">{% trans 'Remove all columns'%}</a>
+            <a href="" class="remove_all_columns">{% translate 'Remove all columns'%}</a>
         </div>
 
         <div class="help_instructions"></div>

@@ -40,7 +40,7 @@
             </div>
             <div class="poll-response">
                 {% if not node.applicable %}
-                    {% trans "N/A" context "polls" %}
+                    {% translate "N/A" context "polls" %}
                 {% elif node.type == 101 %}{# MULTI_ENUM #}
                     {% for item in node.answer %}
                         {% widget_join %}{{item}}{% end_widget_join %}
@@ -57,7 +57,7 @@
     </div>
     {% empty %}
     <div class="brick-list-item brick-list-empty">
-        {% trans 'No question or section for the moment' %}
+        {% translate 'No question or section for the moment' %}
     </div>
     {% endfor %}
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n creme_core_tags creme_bricks creme_widgets %}
 
-{% block page_title %}{% trans 'Configuration' %} - {% endblock %}
+{% block page_title %}{% translate 'Configuration' %} - {% endblock %}
 
 {% block content_extra_class %}content-config-portal{% endblock %}
 
@@ -10,7 +10,7 @@
         <div class="hat-bar">
             <div class="bar-icon">{% block logo %}{% widget_icon name='config' size='brick-hat-bar' label=_('Configuration') %}{% endblock %}</div>
             <div class="bar-title">
-                <h1>{% block title %}{% trans 'Creme configuration portal' %}{% endblock %}</h1>
+                <h1>{% block title %}{% translate 'Creme configuration portal' %}{% endblock %}</h1>
             </div>
         </div>
     </div>
@@ -25,15 +25,15 @@
         <div class="brick-content">
             <table class="brick-table-content">
                 <tbody>
-                    <tr><td><a href="{% url 'creme_config__rtypes' %}">{% trans 'Relation types settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__ptypes' %}">{% trans 'Property types settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__fields' %}">{% trans 'Fields settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__custom_fields' %}">{% trans 'Custom fields settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__custom_forms' %}">{% trans 'Custom forms settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__bricks' %}">{% trans 'Blocks settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__buttons' %}">{% trans 'Button menu settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__search' %}">{% trans 'Search settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__history' %}">{% trans 'History settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__rtypes' %}">{% translate 'Relation types settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__ptypes' %}">{% translate 'Property types settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__fields' %}">{% translate 'Fields settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__custom_fields' %}">{% translate 'Custom fields settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__custom_forms' %}">{% translate 'Custom forms settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__bricks' %}">{% translate 'Blocks settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__buttons' %}">{% translate 'Button menu settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__search' %}">{% translate 'Search settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__history' %}">{% translate 'History settings' %}</a></td></tr>
                 </tbody>
             </table>
         </div>
@@ -47,8 +47,8 @@
         <div class="brick-content">
             <table class="brick-table-content">
                 <tbody>
-                    <tr><td><a href="{% url 'creme_config__users' %}">{% trans 'Users settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__roles' %}">{% trans 'Roles and credentials settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__users' %}">{% translate 'Users settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__roles' %}">{% translate 'Roles and credentials settings' %}</a></td></tr>
                 </tbody>
             </table>
         </div>
@@ -72,9 +72,9 @@
                     <tr>
                         <td>
                         {% if app_admin_perm %}
-                            <a href="{{app_conf.portal_url}}">{% blocktrans with app_name=app_conf.verbose_name %}{{app_name}} configuration portal{% endblocktrans %}</a>
+                            <a href="{{app_conf.portal_url}}">{% blocktranslate with app_name=app_conf.verbose_name %}{{app_name}} configuration portal{% endblocktranslate %}</a>
                         {% else %}
-                            <span class="forbidden">{% blocktrans with app_name=app_conf.verbose_name %}{{app_name}} configuration portal{% endblocktrans %}</span>
+                            <span class="forbidden">{% blocktranslate with app_name=app_conf.verbose_name %}{{app_name}} configuration portal{% endblocktranslate %}</span>
                         {% endif %}
                         </td>
                     </tr>
@@ -82,7 +82,7 @@
                 </tbody>
                 {% else %}
                 <thead>
-                    <tr><th>{% trans 'No application requires configuration' %}</th></tr>
+                    <tr><th>{% translate 'No application requires configuration' %}</th></tr>
                 </thead>
                 {% endif %}
             </table>

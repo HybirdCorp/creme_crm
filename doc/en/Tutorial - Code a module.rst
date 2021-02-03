@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 29-01-2021 for Creme 2.3
+:Version: 03-02-2021 for Creme 2.3
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -29,8 +29,8 @@ Requirements
 
 Creme is developed with a Python framework for websites et Web apps : Django_.
 If you really want to code some modules for Creme, you should know Django.
-Its documentation is complete & quite good ; see here : https://docs.djangoproject.com/en/3.0/.
-To begin, reading the `tutorial <https://docs.djangoproject.com/en/3.0/intro/overview/>`_
+Its documentation is complete & quite good ; see here : https://docs.djangoproject.com/en/3.1/.
+To begin, reading the `tutorial <https://docs.djangoproject.com/en/3.1/intro/overview/>`_
 should be enough.
 
 Creme uses the JavaScript (JS) library jQuery_ too ; to implement some features
@@ -135,7 +135,7 @@ Move to our project, in the directory ``creme/`` : ::
 
     > cd creme_crm/creme
 
-There is a command to create an app (``django-admin.py startapp``), nonetheless
+There is a command to create an app (``django-admin startapp``), nonetheless
 this task is really easy, so we'er going to made this work ourselves, step by step.
 First, we create the directory containing our app : ::
 
@@ -731,7 +731,7 @@ In ``beavers/``, create a sub directory ``locale``, then run the command which
 builds the translation file (in french here) : ::
 
     > mkdir locale
-    > django-admin.py makemessages -l fr
+    > django-admin makemessages -l fr
     processing language fr
 
 
@@ -846,7 +846,7 @@ Edit this file by filling the translations in strings "msgstr" : ::
 
 Now, you just have to compile our translation file with the following command : ::
 
-    > django-admin.py compilemessages
+    > django-admin compilemessages
     processing file django.po in [...]/creme_crm/creme/beavers/locale/fr/LC_MESSAGES
 
 The file ``beavers/locale/fr/LC_MESSAGES/django.mo`` has been generated. If you
@@ -2282,7 +2282,7 @@ Then you have to edit the new translation file created in ``locale_overload/``
 Finally, compile these new translations as seen before. In the directory
 ``locale_overload/`` : ::
 
-    > django-admin.py compilemessages
+    > django-admin compilemessages
 
 
 Modifying an existing model

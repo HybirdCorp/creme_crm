@@ -1,10 +1,10 @@
 {% load i18n creme_core_tags creme_widgets %}
 
-<summary>{% blocktrans %}Conditions of «{{efilter}}»{% endblocktrans %}</summary>
+<summary>{% blocktranslate %}Conditions of «{{efilter}}»{% endblocktranslate %}</summary>
 <details>
 {% get_efilter_conditions efilter=efilter user=user as vconds %}
 {% if vconds|length > 1 %}
-    <span>{% if efilter.use_or %}{% trans 'Any condition is met:' %}{% else %}{% trans 'All these conditions are met:' %}{% endif %}</span>
+    <span>{% if efilter.use_or %}{% translate 'Any condition is met:' %}{% else %}{% translate 'All these conditions are met:' %}{% endif %}</span>
     <ul>
         {% for vcond in vconds %}<li>{{vcond}}</li>{% endfor %}
     </ul>

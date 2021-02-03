@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% url 'creme_core__delete_related_to_entity' ct_id as delete_url %}{% trans 'Create a phone call' as creation_label %}
+{% url 'creme_core__delete_related_to_entity' ct_id as delete_url %}{% translate 'Create a phone call' as creation_label %}
     {% for caller in page.object_list %}
     <tr>
         <td class="caller-entity">{% widget_entity_hyperlink caller user %}</td>
@@ -33,5 +33,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% blocktrans %}No contact/organisation corresponds to this number : {{number}}{% endblocktrans %}
+    {% blocktranslate %}No contact/organisation corresponds to this number : {{number}}{% endblocktranslate %}
 {% endblock %}

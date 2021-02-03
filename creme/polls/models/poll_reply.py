@@ -19,18 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import (
-    CASCADE,
-    PROTECT,
-    SET_NULL,
-    BooleanField,
-    CharField,
-    ForeignKey,
-    NullBooleanField,
-    PositiveIntegerField,
-    PositiveSmallIntegerField,
-    TextField,
-)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -44,23 +33,27 @@ from .poll_type import PollType
 
 
 class AbstractPollReply(CremeEntity):
-    name        = CharField(_('Name'), max_length=250)
-    pform       = ForeignKey(settings.POLLS_FORM_MODEL, verbose_name=_('Related form'),
-                             editable=False, on_delete=PROTECT,
-                            )
-    campaign    = ForeignKey(settings.POLLS_CAMPAIGN_MODEL,
-                             verbose_name=pgettext_lazy('polls', 'Related campaign'),
-                             on_delete=PROTECT, null=True, blank=True,
-                            )
-    person      = ForeignKey(CremeEntity, verbose_name=_('Person who filled'),
-                             on_delete=PROTECT,
-                             null=True, blank=True, related_name='+',
-                            )
-    type        = ForeignKey(PollType, verbose_name=_('Type'),
-                             editable=False, on_delete=SET_NULL,
-                             null=True, blank=True,
-                            )
-    is_complete = BooleanField(_('Is complete'), default=False, editable=False)
+    name = models.CharField(_('Name'), max_length=250)
+    pform = models.ForeignKey(
+        settings.POLLS_FORM_MODEL,
+        verbose_name=_('Related form'), editable=False, on_delete=models.PROTECT,
+    )
+    campaign = models.ForeignKey(
+        settings.POLLS_CAMPAIGN_MODEL,
+        verbose_name=pgettext_lazy('polls', 'Related campaign'),
+        on_delete=models.PROTECT, null=True, blank=True,
+    )
+    person = models.ForeignKey(
+        CremeEntity,
+        verbose_name=_('Person who filled'),
+        on_delete=models.PROTECT, null=True, blank=True, related_name='+',
+    )
+    type = models.ForeignKey(
+        PollType,
+        verbose_name=_('Type'),
+        editable=False, on_delete=models.SET_NULL, null=True, blank=True,
+    )
+    is_complete = models.BooleanField(_('Is complete'), default=False, editable=False)
 
     creation_label = _('Create a reply')
     save_label     = _('Save the reply')
@@ -100,15 +93,15 @@ class PollReply(AbstractPollReply):
 
 # TODO: factorise (abstract class) ?
 class PollReplySection(CremeModel):
-    preply = ForeignKey(
-        settings.POLLS_REPLY_MODEL, editable=False, related_name='sections',
-        on_delete=CASCADE,
+    preply = models.ForeignKey(
+        settings.POLLS_REPLY_MODEL,
+        editable=False, related_name='sections', on_delete=models.CASCADE,
     )
     # TODO: related_name='children' ?
-    parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)
-    order  = PositiveIntegerField(editable=False, default=1)
-    name   = CharField(_('Name'), max_length=250)
-    body   = TextField(_('Section body'), blank=True)
+    parent = models.ForeignKey('self', editable=False, null=True, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(editable=False, default=1)
+    name = models.CharField(_('Name'), max_length=250)
+    body = models.TextField(_('Section body'), blank=True)
 
     class Meta:
         app_label = 'polls'
@@ -121,27 +114,33 @@ class PollReplySection(CremeModel):
 
 
 class PollReplyLine(CremeModel, _PollLine):
-    preply = ForeignKey(
-        settings.POLLS_REPLY_MODEL, editable=False, related_name='lines', on_delete=CASCADE,
+    preply = models.ForeignKey(
+        settings.POLLS_REPLY_MODEL,
+        editable=False, related_name='lines', on_delete=models.CASCADE,
     )
     # TODO: related_name='lines' ?
-    section = ForeignKey(PollReplySection, editable=False, null=True, on_delete=CASCADE)
+    section = models.ForeignKey(
+        PollReplySection, editable=False, null=True, on_delete=models.CASCADE,
+    )
     # TODO: related_name='lines' ?
-    pform_line = ForeignKey(PollFormLine, editable=False, on_delete=CASCADE)
-    order = PositiveIntegerField(editable=False, default=1)
-    type = PositiveSmallIntegerField(editable=False)
-    type_args = TextField(editable=False, null=True)
+    pform_line = models.ForeignKey(PollFormLine, editable=False, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(editable=False, default=1)
+    type = models.PositiveSmallIntegerField(editable=False)
+    type_args = models.TextField(editable=False, null=True)
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
-    applicable = BooleanField(_('Applicable'), default=True, editable=False)
+    applicable = models.BooleanField(_('Applicable'), default=True, editable=False)
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
-    conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
+    # conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
+    conds_use_or = models.BooleanField(
+        _('Use OR or AND between conditions'), editable=False, null=True,
+    )
 
-    question = TextField(_('Question'))
+    question = models.TextField(_('Question'))
 
     # NULL == not answered  [tip: use the property 'answer']
-    raw_answer = TextField(_('Answer'), null=True)
+    raw_answer = models.TextField(_('Answer'), null=True)
 
     class Meta:
         app_label = 'polls'
@@ -192,12 +191,12 @@ class PollReplyLine(CremeModel, _PollLine):
 
 
 class PollReplyLineCondition(CremeModel):
-    line = ForeignKey(
-        PollReplyLine, editable=False, related_name='conditions', on_delete=CASCADE,
+    line = models.ForeignKey(
+        PollReplyLine, editable=False, related_name='conditions', on_delete=models.CASCADE,
     )
-    source = ForeignKey(PollReplyLine, on_delete=CASCADE)
-    operator = PositiveSmallIntegerField()  # See EQUALS etc...
-    raw_answer = TextField(null=True)
+    source = models.ForeignKey(PollReplyLine, on_delete=models.CASCADE)
+    operator = models.PositiveSmallIntegerField()  # See EQUALS etc...
+    raw_answer = models.TextField(null=True)
 
     class Meta:
         app_label = 'polls'

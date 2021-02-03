@@ -2,7 +2,7 @@
 # Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -i "tests/*"
+# > django-admin makemessages -l fr -i "tests/*"
 #
 msgid ""
 msgstr ""

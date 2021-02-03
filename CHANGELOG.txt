@@ -8,14 +8,15 @@
 
   Users side :
   ------------
-    # The version of Django has been upgraded to 3.0.
+    # The version of Django has been upgraded to "3.1".
 
 
   Developers side :
   -----------------
-    - The version of Django is now "3.0".
+    - The version of Django is now "3.1".
       You should probably read the following releases notes for Django versions :
         - https://docs.djangoproject.com/en/3.2/releases/3.0/
+        - https://docs.djangoproject.com/en/3.2/releases/3.1/
 
 
     Non breaking changes :

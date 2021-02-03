@@ -21,7 +21,7 @@
 
 {% block brick_table_rows %}
 {% has_perm_to change object as has_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as del_recipients_url %}
-{% trans 'Delete this recipient' context 'sms' as del_label %}
+{% translate 'Delete this recipient' context 'sms' as del_label %}
     {% for recipient in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{{recipient.phone|sms_formatphone}}</td>
@@ -33,5 +33,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No unlinked recipient for the moment' %}
+    {% translate 'No unlinked recipient for the moment' %}
 {% endblock %}

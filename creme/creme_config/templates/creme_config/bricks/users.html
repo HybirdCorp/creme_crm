@@ -36,13 +36,13 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% trans 'Superuser' as superuser_label %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% translate 'Superuser' as superuser_label %}
     {% for user in page.object_list %}
     <tr>
         <td class="user-username" {% brick_table_data_status primary %}>{{user.username}}</td>
         <td class="user-lastname" >{{user.last_name}}</td>
         <td class="user-firstname" >{{user.first_name}}</td>
-        <td class="user-role" >{% if user.role %}{{user.role}}{% else %}<em>{% if user.is_staff %}{% trans 'Staff' %}{% else %}{{superuser_label}}{% endif %}</em>{% endif %}</td>
+        <td class="user-role" >{% if user.role %}{{user.role}}{% else %}<em>{% if user.is_staff %}{% translate 'Staff' %}{% else %}{{superuser_label}}{% endif %}</em>{% endif %}</td>
         <td class="user-email" >{{user.email}}</td>
         <td class="user-active" >{{user.is_active|yesno:_('Yes,No')}}</td>
         <td class="user-last-login" data-type='datetime'>{{user.last_login|default:'—'}}</td>

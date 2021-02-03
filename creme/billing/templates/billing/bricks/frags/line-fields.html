@@ -3,14 +3,14 @@
 {% with line=form.instance currency=object.currency %}
 <table class="linetable linetable_{{ct_id}}{% if not edit_perm %} readonly{% endif %}">
     <tr class="content">{# FIRST LINE #}
-        <th class="bline-quantity">{% trans 'Quantity' %}</th>
-        <th class="bline-unit-price">{% trans 'Unit price' %}</th>
-        <th class="bline-unit">{% trans 'Unit' %}</th>
-        <th class="bline-discount">{% trans 'Discount' %}</th>
-        <th class="bline-vat">{% trans 'VAT' %}</th>
-        <th class="bline-total-no-tax">{% trans 'Total (exclusive of tax)' %}</th>
-        <th class="bline-total-discounted">{% trans 'Total (without tax) discounted' %}</th>
-        <th class="bline-total">{% trans 'Total (inclusive of tax)' %}</th>
+        <th class="bline-quantity">{% translate 'Quantity' %}</th>
+        <th class="bline-unit-price">{% translate 'Unit price' %}</th>
+        <th class="bline-unit">{% translate 'Unit' %}</th>
+        <th class="bline-discount">{% translate 'Discount' %}</th>
+        <th class="bline-vat">{% translate 'VAT' %}</th>
+        <th class="bline-total-no-tax">{% translate 'Total (exclusive of tax)' %}</th>
+        <th class="bline-total-discounted">{% translate 'Total (without tax) discounted' %}</th>
+        <th class="bline-total">{% translate 'Total (inclusive of tax)' %}</th>
     </tr>
 
     <tr class="content">
@@ -41,7 +41,7 @@
 
     <tr class="content">{# SECOND LINE #}
         <th class="bline-item" colspan="3">{{related_item_label}}</th>
-        <th class="bline-comment" colspan="5">{% trans 'Comment' %}</th>
+        <th class="bline-comment" colspan="5">{% translate 'Comment' %}</th>
     </tr>
     <tr class="content">
     {% if edit_perm %}

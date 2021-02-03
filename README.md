@@ -62,14 +62,14 @@ virtual env, in order to keep the old one working).
 ### Dependencies
 
  - Python 3.6+
- - MySQL 5.7+ or PostGreSQL 9.5+ (or SQLite which is included with Python)
+ - MySQL 5.7+ (or MariaDB 10.2+) or PostGreSQL 9.5+ (or SQLite which is included with Python)
  - A web server compatible with Python, like Apache 2.4
  - Redis 3+
  - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
  - These python packages :
    (exact versions of Python packages are indicated in the 'setup.cfg' file)
    - Mandatory :
-     - Django 3.0
+     - Django 3.1
      - redis 3.4
      - python-dateutil 2.8
      - bleach 3.1

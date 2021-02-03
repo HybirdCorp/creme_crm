@@ -6,7 +6,7 @@
     <table data-field-block-id="{{form_block.id}}" class="table_detail_view ui-corner-all block-form persons-form_block-addresses">
         <thead>
             <tr>
-                <th colspan="{{count|mult:2}}">{% if count == 1 %}{{fields_info.grouped_meta.0.title}}{% else %}{% trans 'Addresses' %}{% endif %}</th>
+                <th colspan="{{count|mult:2}}">{% if count == 1 %}{{fields_info.grouped_meta.0.title}}{% else %}{% translate 'Addresses' %}{% endif %}</th>
             </tr>
         </thead>
 
@@ -24,14 +24,14 @@
                         {% with previous_idx=forloop.counter0|sub:1 %}
                         {% with previous_meta=fields_info.grouped_meta|get_by_index:previous_idx %}
                         <button class="addresses-copy_to_left" type="button" onclick="creme.persons.copyAddressInputs('{{meta.prefix}}', '{{previous_meta.prefix}}', $(this).parents('tbody'));">
-                            <<&nbsp;{% trans 'Copy the address to left side' %}
+                            <<&nbsp;{% translate 'Copy the address to left side' %}
                         </button>
                         {% endwith %} {% endwith %}
                     {% endif %}
                     {% if not forloop.last %}
                        {% with next_meta=fields_info.grouped_meta|get_by_index:forloop.counter %}
                         <button class="addresses-copy_to_right" type="button" onclick="creme.persons.copyAddressInputs('{{meta.prefix}}', '{{next_meta.prefix}}', $(this).parents('tbody'));">
-                            {% trans 'Copy the address to right side' %}&nbsp;>>
+                            {% translate 'Copy the address to right side' %}&nbsp;>>
                         </button>
                         {% endwith %}
                     {% endif %}

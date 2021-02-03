@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="computed_field_selectors inline_selectors">
-    <h4 class="selector_title">{% trans 'Computed fields' %}</h4>
+    <h4 class="selector_title">{% translate 'Computed fields' %}</h4>
     <ul class="selector_list">
         {% for choice_id, ffield_vname in widget.choices %}
         <li class="selector" data-column="{{choice_id}}"><input type="checkbox" /><label>{{ffield_vname}}</label></li>

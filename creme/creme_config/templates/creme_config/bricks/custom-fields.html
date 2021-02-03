@@ -36,13 +36,13 @@
                     <tr {% if cfield.is_deleted %}class="cfields-config-deleted"{% endif %}>
                         <td class="cfields-config-name">{{cfield.name}}</td>
                         <td class="cfields-config-type">
-                            {{cfield.value_class.verbose_name}}{% if cfield.is_required %}&nbsp;<span class="cfields-config-required">{% trans '(required)' %}</span>{% endif %}
+                            {{cfield.value_class.verbose_name}}{% if cfield.is_required %}&nbsp;<span class="cfields-config-required">{% translate '(required)' %}</span>{% endif %}
                           {% if cfield.is_enum %}
                             {% url 'creme_config__custom_enums' cfield.id as enums_url %}
                             {% if cfield.is_deleted %}
-                            {% blocktrans with count=cfield.enum_count asvar enums_label %}See the choices (currently {{count}}){% endblocktrans %}
+                            {% blocktranslate with count=cfield.enum_count asvar enums_label %}See the choices (currently {{count}}){% endblocktranslate %}
                             {% else %}
-                            {% blocktrans with count=cfield.enum_count asvar enums_label %}See & manage the choices (currently {{count}}){% endblocktrans %}
+                            {% blocktranslate with count=cfield.enum_count asvar enums_label %}See & manage the choices (currently {{count}}){% endblocktranslate %}
                             {% endif %}
                             {% brick_table_action id='redirect' url=enums_url label=enums_label type='view' display='both' %}
                           {% endif %}
@@ -69,6 +69,6 @@
     </div>
         {% endwith %}
     {% empty %}
-        <div class="brick-list-item brick-list-empty">{% trans 'No type of entity has custom field for the moment' %}</div>
+        <div class="brick-list-item brick-list-empty">{% translate 'No type of entity has custom field for the moment' %}</div>
     {% endfor %}
 {% endblock %}

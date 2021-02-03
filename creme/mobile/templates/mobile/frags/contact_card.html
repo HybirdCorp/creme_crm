@@ -6,7 +6,7 @@
   {% with more_info=email|or_op:has_address|or_op:position|or_op:organisations %}
   <div class="{{card_classes|default:'card card-contact'}}{% if more_info %} with-more-info{% endif %}" data-person-id="{{contact.id}}">
     <div class="entity-field">
-      <span class="field-label">{% trans 'contact' %}</span>
+      <span class="field-label">{% translate 'contact' %}</span>
       {% if more_info %}
         <a class="contact-name more-info-trigger field-value" href=""><span class="contact-first-name">{{contact.first_name}}</span> <span class="contact-last-name">{{contact.last_name}}</span></a>
       {% else %}
@@ -16,13 +16,13 @@
     {% with phone=contact.phone mobile=contact.mobile %}
       {% if phone %}
         <div class="entity-field">
-          <span class="field-label">{% trans 'phone' %}</span>
+          <span class="field-label">{% translate 'phone' %}</span>
           <a class="field-value" href="tel:{{phone}}">{{phone}}</a>
         </div>
       {% endif %}
       {% if mobile %}
         <div class="entity-field">
-          <span class="field-label">{% trans 'mobile' %}</span>
+          <span class="field-label">{% translate 'mobile' %}</span>
           <a class="field-value" href="tel:{{mobile}}">{{mobile}}</a>
         </div>
       {% endif %}
@@ -32,13 +32,13 @@
       <div class="more-info">
         {% if email %}
           <div class="entity-field">
-            <span class="field-label">{% trans 'email' %}</span>
+            <span class="field-label">{% translate 'email' %}</span>
             <a class="field-value" href="mailto:{{email}}">{{email}}</a>
           </div>
         {% endif %}
         {% if has_address %}
           <div class="entity-field">
-            <span class="field-label">{% trans 'address' %}</span>
+            <span class="field-label">{% translate 'address' %}</span>
             <a class="field-value" href="{% mobile_location_map_url address %}" target="_blank">{# TODO: generic #}
               {{address|linebreaksbr}}
             </a>
@@ -46,7 +46,7 @@
         {% endif %}
         {% if position %}
           <div class="entity-field">
-            <span class="field-label">{% trans 'position' %}</span>
+            <span class="field-label">{% translate 'position' %}</span>
             <span class="field-value">{{position}}</span>
           </div>
         {% endif %}
@@ -58,18 +58,18 @@
             {% if orga_phone or orga_has_address %}
               <div class="contact-orga" data-person-id="{{orga.id}}">
                 <div class="entity-field">
-                  <span class="field-label">{% trans 'organisation' %}</span>
+                  <span class="field-label">{% translate 'organisation' %}</span>
                   <span class="field-value">{{orga}}</span>
                 </div>
                 {% if orga_phone %}
                   <div class="entity-field">
-                    <span class="field-label">{% trans 'phone' %}</span>
+                    <span class="field-label">{% translate 'phone' %}</span>
                     <a class="field-value" href="tel:{{orga_phone}}">{{orga_phone}}</a>
                   </div>
                 {% endif %}
                 {% if orga_has_address %}
                   <div class="entity-field">
-                    <span class="field-label">{% trans 'address' %}</span>
+                    <span class="field-label">{% translate 'address' %}</span>
                     <a class="field-value" href="{% mobile_location_map_url orga_address %}" target="_blank">
                       {{orga_address|linebreaksbr}}
                     </a>
@@ -78,7 +78,7 @@
               </div>
             {% else %}
               <div class="entity-field">
-                <span class="field-label">{% trans 'organisation' %}</span>
+                <span class="field-label">{% translate 'organisation' %}</span>
                 <span class="field-value">{{orga}}</span>
               </div>
             {% endif %}
@@ -91,7 +91,7 @@
 {% else %}
   <div class="{{card_classes|default:'card card-contact'}}" data-person-id="{{contact.id}}">
     <div class="entity-field">
-      <span class="field-label">{% trans 'contact' %}</span>
+      <span class="field-label">{% translate 'contact' %}</span>
         <span class="contact-name field-value"><span class="contact-first-name">??</span> <span class="contact-last-name">??</span></span>
     </div>
   </div>

@@ -1,12 +1,12 @@
 {% load i18n %}
 <div class="basic_field_selectors{% if not widget.choices %} inline_selectors{% endif %}">
-    <h4 class="selector_title">{% trans 'Regular fields'%}</h4>
+    <h4 class="selector_title">{% translate 'Regular fields'%}</h4>
     {% if widget.choices %}
     <ul class="selector_list">
         {% for choice_id, field_vname, sub_choices in widget.choices %}
             <li class="selector" data-column="{{choice_id}}">
                 {% if sub_choices and sub_choices|length > 1 %}
-                    <input type="checkbox"><a href="" class="sub_selector_toggle" title="{% trans 'Click to select the sub-fields' %}">{{field_vname}}</a>
+                    <input type="checkbox"><a href="" class="sub_selector_toggle" title="{% translate 'Click to select the sub-fields' %}">{{field_vname}}</a>
                     <div class="underlay-container">
                         <div class="underlay_wrapper">
                             <div class="arrow">
@@ -14,9 +14,9 @@
                             </div>
                             <div class="underlay-content">
                                 <span class="selector_title">
-                                    {% blocktrans count subfields_count=sub_choices|length with field=field_vname %}{{field}}: {{subfields_count}} sub-field{% plural %}{{field}}: {{subfields_count}} sub-fields{% endblocktrans %}
+                                    {% blocktranslate count subfields_count=sub_choices|length with field=field_vname %}{{field}}: {{subfields_count}} sub-field{% plural %}{{field}}: {{subfields_count}} sub-fields{% endblocktranslate %}
                                 </span>
-                                <span class="selector_close">×&nbsp;{% trans 'Close' %}</span>
+                                <span class="selector_close">×&nbsp;{% translate 'Close' %}</span>
                                 <ul class="underlay_selector_list">
                                     {% for sub_choice_id, sub_field_vname in sub_choices %}
                                         <li class="selector" data-column="{{sub_choice_id}}"><input type="checkbox" /><label>{{sub_field_vname}}</label></li>
@@ -33,7 +33,7 @@
         {% endfor %}
     </ul>
     {% else %}
-    <span class="empty-message">{% trans 'No available field.' %}</span>
+    <span class="empty-message">{% translate 'No available field.' %}</span>
     {% endif %}
 </div>
 {% comment %}

@@ -1,14 +1,14 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n creme_widgets creme_bricks %}
 
-{% block page_title %}{% blocktrans %}Synthesis of «{{orga}}»{% endblocktrans %} - {% endblock %}
+{% block page_title %}{% blocktranslate %}Synthesis of «{{orga}}»{% endblocktranslate %} - {% endblock %}
 
 {% block content %}
     {% block global_buttons_container %}
         <div class="buttons-list global-buttons">
             <ul>
                 <li>
-                    <a class="menu_button menu-button-icon" href="{{strategy.get_absolute_url}}">{% trans 'Back to the strategy' as back_label %}
+                    <a class="menu_button menu-button-icon" href="{{strategy.get_absolute_url}}">{% translate 'Back to the strategy' as back_label %}
                         {% widget_icon name='previous' label=back_label %}
                         {{back_label}}
                     </a>
@@ -21,7 +21,7 @@
         <div class="hat-bar-container">
             <div class="hat-bar">
                 <div class="bar-icon">{% widget_icon name='organisation' size='brick-hat-bar' label=_('Organisation') %}</div>
-                <div class="bar-title"><h1>{% blocktrans %}Synthesis of «{{orga}}» by «{{strategy}}»{% endblocktrans %}</h1></div>
+                <div class="bar-title"><h1>{% blocktranslate %}Synthesis of «{{orga}}» by «{{strategy}}»{% endblocktranslate %}</h1></div>
             </div>
         </div>
     {% endblock %}

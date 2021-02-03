@@ -8,7 +8,7 @@
             </td>
             {% if widget.propose_creation %}
             <td class="csv_cfvalue_creation">&nbsp;
-                <label for="{{id}}_create">{% trans 'Create if not found?' %}:
+                <label for="{{id}}_create">{% translate 'Create if not found?' %}:
                     <input type="checkbox" id="{{id}}_create" name="{{widget.name}}_create"{% if widget.can_create %} checked{% endif %}>
                 </label>
                 <script type="text/javascript">
@@ -19,7 +19,7 @@
             </td>
             {% endif %}
             <td>&nbsp;
-                <label for="{{id}}_defval">{% trans 'Default value' %}:
+                <label for="{{id}}_defval">{% translate 'Default value' %}:
                     {% include widget.default_value_widget.template_name with widget=widget.default_value_widget %}
                 </label>
             </td>

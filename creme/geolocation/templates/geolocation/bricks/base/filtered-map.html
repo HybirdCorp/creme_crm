@@ -15,7 +15,7 @@
 
 {% block brick_content %}
     <div class="geolocation-brick-header">
-        <span class="brick-geoaddress-counter">{% trans 'No address from' %}</span>&nbsp;
+        <span class="brick-geoaddress-counter">{% translate 'No address from' %}</span>&nbsp;
         <select class="brick-geoaddress-filter">
         {% for groupname, choices in address_filters %}
             <optgroup label="{{groupname}}">

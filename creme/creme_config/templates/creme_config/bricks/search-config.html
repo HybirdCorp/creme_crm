@@ -28,15 +28,15 @@
                         {% if sc_item.role %}
                         <td class="search-config-ctype-label">{{sc_item.role}}</td>
                         {% elif sc_item.superuser %}
-                        <td class="search-config-ctype-label search-config-superuser">{% trans 'Superuser' %}</td>
+                        <td class="search-config-ctype-label search-config-superuser">{% translate 'Superuser' %}</td>
                         {% else %}
-                        <td class="search-config-ctype-label">{% trans 'Default configuration' %}</td>
+                        <td class="search-config-ctype-label">{% translate 'Default configuration' %}</td>
                         {% endif %}
                         <td class="search-config-fields">
                             {% if sc_item.disabled %}
-                            <em>{% trans 'Search is disabled' %}</em>
+                            <em>{% translate 'Search is disabled' %}</em>
                             {% elif sc_item.all_fields %}
-                            <em>{% trans 'All fields' %}</em>
+                            <em>{% translate 'All fields' %}</em>
                             {% else %}
                             {{sc_item.searchfields|join:' / '}}
                             {% endif %}
@@ -60,5 +60,5 @@
 {% endblock %}
 
 {% block brick_list_empty %}
-    {% trans 'No search configuration for the moment' %}
+    {% translate 'No search configuration for the moment' %}
 {% endblock %}

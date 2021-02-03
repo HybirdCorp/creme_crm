@@ -1,7 +1,7 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n creme_bricks creme_widgets %}
 
-{% block page_title %}{% trans 'Waiting actions' %} - {% endblock %}
+{% block page_title %}{% translate 'Waiting actions' %} - {% endblock %}
 
 {% block extrahead %}
 {# TODO: the 'refresh' button should be disabled when the page it loaded, & be enabled after the first automatic refreshing #}
@@ -14,7 +14,7 @@
 
 {% block content %}
     <div class="hat-bar-container crudity-hat-bar">
-        <div class="hat-bar">{% trans 'Waiting actions' as title %}
+        <div class="hat-bar">{% translate 'Waiting actions' as title %}
             <div class="bar-icon">{% widget_icon name='email' size='brick-hat-bar' label=title %}</div>
             <div class="bar-title"><h1>{{title}}</h1></div>
             <div class="bar-actions">
@@ -37,7 +37,7 @@
                 <tr>
                     <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
                     <td>
-                        {% trans 'No external data source is configured. Please contact your administrator (settings.CRUDITY_BACKENDS).' %}
+                        {% translate 'No external data source is configured. Please contact your administrator (settings.CRUDITY_BACKENDS).' %}
                     </td>
                 </tr>
             </table>

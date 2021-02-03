@@ -38,9 +38,9 @@
             {% with start_date=activity.start|date:'SHORT_DATE_FORMAT' end_date=activity.end|date:'SHORT_DATE_FORMAT' start_hour=activity.start|date:"H\hi" end_hour=activity.end|date:"H\hi" %}
             <a href="{{activity.get_absolute_url}}">
                 {% if start_date == end_date %}
-                {% blocktrans %}On <span class="start-date">{{start_date}}</span> from <span class="start-hour">{{start_hour}}</span> to <span class="end-hour">{{end_hour}}</span>{% endblocktrans %}
+                {% blocktranslate %}On <span class="start-date">{{start_date}}</span> from <span class="start-hour">{{start_hour}}</span> to <span class="end-hour">{{end_hour}}</span>{% endblocktranslate %}
                 {% else %}
-                {% blocktrans %}From <span class="start-date">{{start_date}}</span> at <span class="start-hour">{{start_hour}}</span> to <span class="end-date">{{end_date}}</span> at <span class="end-hour">{{end_hour}}</span>{% endblocktrans %}
+                {% blocktranslate %}From <span class="start-date">{{start_date}}</span> at <span class="start-hour">{{start_hour}}</span> to <span class="end-date">{{end_date}}</span> at <span class="end-hour">{{end_hour}}</span>{% endblocktranslate %}
                 {% endif %}
             </a>
             {% endwith %}
@@ -60,15 +60,15 @@
     {% endfor %}
     {% if not object.is_alive %}
     <tr class="task-activities-subtitle">
-        <td colspan="6">{% blocktrans with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktrans %}</td>
+        <td colspan="6">{% blocktranslate with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktranslate %}</td>
     </tr>
     {% endif %}
 {% endblock %}
 
 {% block brick_table_empty %}
     {% if not object.is_alive %}
-        {% blocktrans with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktrans %}
+        {% blocktranslate with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktranslate %}
     {% else %}
-        {% trans 'No related activity for this task' %}
+        {% translate 'No related activity for this task' %}
     {% endif %}
 {% endblock %}

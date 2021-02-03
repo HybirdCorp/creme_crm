@@ -27,7 +27,7 @@
         <td {% brick_table_data_status primary %} data-type='date'>{{sending.sending_date}}</td>
         <td>{{sending.get_type_display}}</td>
         <td>{{sending.get_state_display}}</td>
-        <td>{{sending.mails_set.count}}{% with unsent_count=sending.unsent_mails.count %}{% if unsent_count %} / <span class="errorlist">{% blocktrans count count=unsent_count %}{{count}} not sent{% plural %}{{count}} not sent{% endblocktrans %}</span>{% endif %}{% endwith %}</td>
+        <td>{{sending.mails_set.count}}{% with unsent_count=sending.unsent_mails.count %}{% if unsent_count %} / <span class="errorlist">{% blocktranslate count count=unsent_count %}{{count}} not sent{% plural %}{{count}} not sent{% endblocktranslate %}</span>{% endif %}{% endwith %}</td>
         <td {% brick_table_data_status action %}>{% url 'emails__view_sending' sending.id as mails_url %}
             {% brick_table_action id='redirect' url=sending.get_absolute_url icon='view' label=_('Details') %}
         </td>
@@ -39,5 +39,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No sending for the moment' %}
+    {% translate 'No sending for the moment' %}
 {% endblock %}

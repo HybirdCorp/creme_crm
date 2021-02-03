@@ -1,7 +1,7 @@
 {% load i18n creme_core_tags creme_widgets %}
 <ul class="row-actions-list">
     {% if actions.others %}
-    <li class="row-actions-trigger" title="{% blocktrans %}Display the available actions for «&nbsp;{{entity}}&nbsp;»{% endblocktrans %}">
+    <li class="row-actions-trigger" title="{% blocktranslate %}Display the available actions for «&nbsp;{{entity}}&nbsp;»{% endblocktranslate %}">
         <div class="listview-actions-container">
             {% for action in actions.others %}
             <div class="listview-action">
@@ -24,7 +24,7 @@
             {% if action.action_data %}{% jsondata action.action_data class='listview-action-data' %}{% endif %}
         </a>
         {% else %}
-        <a>{% trans 'Actions' %}</a>
+        <a>{% translate 'Actions' %}</a>
         {% endif %}
         {% endwith %}
     </li>

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.http import is_ajax
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
@@ -83,6 +84,7 @@ class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
 
         return (
             http.HttpResponse(url, content_type='text/plain')
-            if self.request.is_ajax() else
+            # if self.request.is_ajax() else
+            if is_ajax(self.request) else
             http.HttpResponseRedirect(url)
         )

@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <title>{% trans 'About CremeCRM' %}</title>
+    <title>{% translate 'About CremeCRM' %}</title>
     <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" />
 </head>
 <style type="text/css">
@@ -139,22 +139,22 @@
             <div class="about-icon">{% block icon %}<img src="{% media_url 'common/images/creme_200.png' %}"/>{% endblock %}</div>
             <div class="main-content">
                 <div class="title">
-                    {% block title %}{% trans 'About CremeCRM' %}{% endblock %}
+                    {% block title %}{% translate 'About CremeCRM' %}{% endblock %}
                 </div>
                 <div class="message">
                     {% block message %}
-                        <p>{% blocktrans with software='<a href="https://cremecrm.com">Crème</a>' creator='<a href="https://hybird.org">Hybird</a>' %}<strong>{{software}}</strong> is a <a href="https://en.wikipedia.org/wiki/Free_software">free</a> <a href="https://en.wikipedia.org/wiki/Customer_relationship_management"><abbr title="Customer relationship management">CRM</abbr></a>, cooked in France since 2008, by <strong>{{creator}}</strong>.{% endblocktrans %}</p>
-                        <p>{% blocktrans with python='<a href="https://www.python.org">Python</a>' django='<a href="https://www.djangoproject.com">Django</a>' jquery='<a href="https://jquery.com/">jQuery</a>' %}Its recipe uses delicious & free ingredients like the {{python}} language, the web framework {{django}} or the library {{jquery}}.{% endblocktrans %}</p>
+                        <p>{% blocktranslate with software='<a href="https://cremecrm.com">Crème</a>' creator='<a href="https://hybird.org">Hybird</a>' %}<strong>{{software}}</strong> is a <a href="https://en.wikipedia.org/wiki/Free_software">free</a> <a href="https://en.wikipedia.org/wiki/Customer_relationship_management"><abbr title="Customer relationship management">CRM</abbr></a>, cooked in France since 2008, by <strong>{{creator}}</strong>.{% endblocktranslate %}</p>
+                        <p>{% blocktranslate with python='<a href="https://www.python.org">Python</a>' django='<a href="https://www.djangoproject.com">Django</a>' jquery='<a href="https://jquery.com/">jQuery</a>' %}Its recipe uses delicious & free ingredients like the {{python}} language, the web framework {{django}} or the library {{jquery}}.{% endblocktranslate %}</p>
                     {% endblock %}
                 </div>
                 <div class="version">
-                    {% block version %}{% blocktrans %}Version {{creme_version}}{% endblocktrans %}{% endblock %}
+                    {% block version %}{% blocktranslate %}Version {{creme_version}}{% endblocktranslate %}{% endblock %}
                 </div>
                 <div class="links">
                     {% block links %}
-                        {% block creme_source_code %}<div><a href="{{REPOSITORY}}">{% trans 'Source code' %}</a></div>{% endblock %}
-                        {% block creme_forum %}<div><a href="https://www.cremecrm.com/forum/">{% trans 'Ask questions' %}</a></div>{% endblock %}
-                        {% block creme_irc %}<div><a href="https://webchat.freenode.net/?channels=cremecrm">{% trans 'Talk with us' %}</a></div>{% endblock %}
+                        {% block creme_source_code %}<div><a href="{{REPOSITORY}}">{% translate 'Source code' %}</a></div>{% endblock %}
+                        {% block creme_forum %}<div><a href="https://www.cremecrm.com/forum/">{% translate 'Ask questions' %}</a></div>{% endblock %}
+                        {% block creme_irc %}<div><a href="https://webchat.freenode.net/?channels=cremecrm">{% translate 'Talk with us' %}</a></div>{% endblock %}
                     {% endblock %}
                 </div>
             </div>

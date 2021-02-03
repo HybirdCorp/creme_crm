@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <title>Creme CRM - {% trans 'Connection' %}</title>
+    <title>Creme CRM - {% translate 'Connection' %}</title>
     <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" />
     <style>
     {% block style %}
@@ -418,7 +418,7 @@
         <div class="main-content">
             {% block container_title %}
             <div class="title">
-                {% blocktrans %}Log to <span class="app-label">Crème CRM</span>{% endblocktrans %}
+                {% blocktranslate %}Log to <span class="app-label">Crème CRM</span>{% endblocktranslate %}
             </div>
             {% endblock %}
             {% block form %}
@@ -426,20 +426,20 @@
                 {% csrf_token %}
                 {% block form_username %}
                 <div class="form-row">
-                    <label for="id_username">{% trans 'Username' %}</label>{{form.username}}
+                    <label for="id_username">{% translate 'Username' %}</label>{{form.username}}
                 </div>
                 <div>{{form.errors.username}}</div>
                 {% endblock %}
                 {% block form_password %}
                 <div class="form-row">
-                    <label for="id_password">{% trans 'Password' %}</label>{{form.password}}
+                    <label for="id_password">{% translate 'Password' %}</label>{{form.password}}
                     <input type="hidden" name="this_is_the_login_form" value="1" />
                 </div>
                 <div>{{form.errors.password}}</div>
                 {% endblock %}
                 {% block form_submit %}
                 <div class="submit-row">
-                    <input type="submit" value="{% trans 'Log in' %}" />
+                    <input type="submit" value="{% translate 'Log in' %}" />
                 </div>
                 {% endblock %}
                 <div>{{form.non_field_errors}}</div>

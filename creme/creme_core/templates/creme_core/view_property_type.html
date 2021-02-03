@@ -5,7 +5,7 @@
 
 {% block global_buttons %}
     <li>
-        <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% trans 'Go to the configuration of types' as list_label %}
+        <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% translate 'Go to the configuration of types' as list_label %}
             {% widget_icon name='listview' size='global-button' label=list_label %} {{list_label}}
         </a>
     </li>
@@ -23,7 +23,7 @@
 
 {% block content %}
     <div class="hat-bar-container">
-        <div class="hat-bar">{% trans 'Property type' as title %}
+        <div class="hat-bar">{% translate 'Property type' as title %}
             <div class="bar-icon">{% widget_icon name='property' size='brick-hat-bar' label=title %}</div>
             <div class="bar-title"><h1>{{title}} : {{object|capfirst}}</h1></div>
             {% if object.is_custom %}

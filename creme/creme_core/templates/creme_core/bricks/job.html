@@ -1,10 +1,11 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n creme_bricks %}
+{% load i18n creme_core_tags creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} creme_core-job-brick{% endblock %}
 
 {% block brick_script %}{# TODO: in .js ?? #}
-    {% if not request.is_ajax and not job.is_finished %}
+{#    {% if not request.is_ajax and not job.is_finished %} #}
+    {% if not request|is_ajax and not job.is_finished %}
     <script type="text/javascript">
         $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
             new creme.jobs.BrickJobsMonitor('{% url 'creme_core__jobs_info' %}', brick._id).onAllJobsFinished(creme.utils.reload).start();
@@ -41,27 +42,27 @@
     <div class="global-error" style="display: none;"></div>
 
     {% if job.enabled and not job.user and user.is_superuser and job.status == JOB_WAIT %}
-    <div class="help-box">{% trans 'Disabling takes effect only after the current execution.' %}</div>
+    <div class="help-box">{% translate 'Disabling takes effect only after the current execution.' %}</div>
     {% endif %}
 {% endblock %}
 
 {% block brick_table_rows %}
     <tr>
-        <td>{% trans 'Type' %}</td>
+        <td>{% translate 'Type' %}</td>
         <td>{{job.type}}</td>
     </tr>
     <tr>
-        <td>{% trans 'App' %}</td>
+        <td>{% translate 'App' %}</td>
         <td>{{job.type.app_config.verbose_name}}</td>
     </tr>
     {% if job.user %}
     <tr>
-        <td>{% trans 'User' %}</td>
+        <td>{% translate 'User' %}</td>
         <td>{{job.user}}</td>
     </tr>
     {% endif %}
     <tr>
-        <td>{% trans 'Description' %}</td>
+        <td>{% translate 'Description' %}</td>
         <td>
         {% with description=job.description %}{# TODO: factorise #}
             {% if description|length > 1 %}
@@ -74,21 +75,21 @@
     </tr>
     {% if job.type.periodic != NOT_PERIODIC %}
     <tr>
-        <td>{% trans 'Periodicity' %}</td>
+        <td>{% translate 'Periodicity' %}</td>
         <td data-type="list">
             <ul>
-                <li>{% trans 'Reference run' %}: {{job.reference_run}}</li>
-                <li>{% trans 'Every' %}: {{job.real_periodicity}}</li>
+                <li>{% translate 'Reference run' %}: {{job.reference_run}}</li>
+                <li>{% translate 'Every' %}: {{job.real_periodicity}}</li>
             </ul>
         </td>
     </tr>
     {% endif %}
     <tr>
-        <td>{% trans 'Last run' %}</td>
+        <td>{% translate 'Last run' %}</td>
         <td>{{job.last_run|default:_('Not run yet')}}</td>
     </tr>
     <tr>
-        <td>{% trans 'Status' %}</td>
+        <td>{% translate 'Status' %}</td>
         <td data-job-id="{{job.id}}" data-job-status="{{job.status}}" data-job-ack-errors="{{job.ack_errors}}">
             {{job.get_status_display}}
             {% if not job.is_finished %}{{job.progress.render}}{% endif %}
@@ -96,7 +97,7 @@
     </tr>
     {% if job.status == JOB_OK %}
     <tr>
-        <td>{% trans 'Statistics' %}</td>
+        <td>{% translate 'Statistics' %}</td>
         <td>
         {% with stats=job.stats %}{# TODO: factorise #}
             {% if stats|length > 1 %}
@@ -109,7 +110,7 @@
     </tr>
     {% elif job.status == JOB_ERROR %}
     <tr>
-        <td>{% trans 'Error' %}</td>
+        <td>{% translate 'Error' %}</td>
         <td>{{job.error}}</td>
     </tr>
     {% endif %}

@@ -7,9 +7,9 @@
   <div class="activity-summary card-component">
     {% if start %}
       {% if activity.is_all_day %}
-        <span class="activity-schedule activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% trans 'All day' %}</span>
+        <span class="activity-schedule activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% translate 'All day' %}</span>
       {% elif is_floating %}
-        <span class="activity-schedule activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% trans 'In day' %}</span>
+        <span class="activity-schedule activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% translate 'In day' %}</span>
       {% else %}
         <span class="activity-schedule"><span class="activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y H:i')}}{% else %}{{start|date:_('H:i')}}{% endif %}</span> &ndash; {{activity.end|date:_('H:i')}}</span>
       {% endif %}

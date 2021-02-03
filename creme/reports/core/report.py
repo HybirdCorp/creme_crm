@@ -33,8 +33,8 @@ from typing import (
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import FieldDoesNotExist, ForeignKey, ManyToManyField
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
+from django.db.models import ForeignKey, ManyToManyField
 from django.utils.formats import number_format
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _

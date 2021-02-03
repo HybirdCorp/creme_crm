@@ -64,7 +64,7 @@
             {% if number != 1 %}
             <div class="poll-conditions" style="margin-left:-{{node.deep|mult:1.5}}em;">
                 {% if conditions %}
-                {% trans 'Conditions' %}
+                {% translate 'Conditions' %}
                 {% with OR_or_AND=node.verbose_conds_use_or %}
                     {% for condition in conditions %}
                     <div class="poll-condition">
@@ -93,7 +93,7 @@
     </div>
     {% empty %}
     <div class="brick-list-item brick-list-empty">
-        {% trans 'No question or section for the moment' %}
+        {% translate 'No question or section for the moment' %}
     </div>
     {% endfor %}
 {% endblock %}

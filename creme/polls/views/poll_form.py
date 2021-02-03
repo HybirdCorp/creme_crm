@@ -28,7 +28,7 @@ from creme.creme_core.auth.decorators import (
     login_required,
     permission_required,
 )
-from creme.creme_core.http import CremeJsonResponse
+from creme.creme_core.http import CremeJsonResponse, is_ajax
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic import base
 
@@ -66,7 +66,8 @@ def disable_line(request, line_id):
     except ProtectedError as e:
         raise PermissionDenied(e.args[0]) from e
 
-    if request.is_ajax():
+    # if request.is_ajax():
+    if is_ajax(request):
         return HttpResponse()
 
     return redirect(pform)

@@ -1,15 +1,15 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n %}
 
-{% block page_title %}{% trans 'Filter' context 'creme_core-noun' %} - {{form.instance.entity_type}} - {% endblock %}
+{% block page_title %}{% translate 'Filter' context 'creme_core-noun' %} - {{form.instance.entity_type}} - {% endblock %}
 
 {% block content %}
-{% trans 'Filter' context 'creme_core-noun' as icon_label %}
+{% translate 'Filter' context 'creme_core-noun' as icon_label %}
     {% if not form.instance.pk %}
-        {% blocktrans with ctype=form.instance.entity_type asvar form_title %}Create a filter for «{{ctype}}»{% endblocktrans %}
+        {% blocktranslate with ctype=form.instance.entity_type asvar form_title %}Create a filter for «{{ctype}}»{% endblocktranslate %}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form_title|safe %}
     {% else %}
-        {% blocktrans with filter=form.instance asvar form_title %}Edit the filter «{{filter}}»{% endblocktrans %}
+        {% blocktranslate with filter=form.instance asvar form_title %}Edit the filter «{{filter}}»{% endblocktranslate %}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form_title|safe %}
     {% endif %}
 {% endblock %}

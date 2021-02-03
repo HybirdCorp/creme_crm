@@ -18,14 +18,14 @@
     }
 {% endblock %}
 
-{% block title %}{% trans 'Creme — 404 Error' %}{% endblock %}
+{% block title %}{% translate 'Creme — 404 Error' %}{% endblock %}
 
 {% block error_message %}
-    {% trans 'The page you have requested is not found.' %}
+    {% translate 'The page you have requested is not found.' %}
     <div class="error-details">
-        <a id="expand-error-details" href="#" onclick="document.getElementById('error-details-content').style.display = 'block'; this.style.display = 'none';">{% trans 'Details' %}</a>
+        <a id="expand-error-details" href="#" onclick="document.getElementById('error-details-content').style.display = 'block'; this.style.display = 'none';">{% translate 'Details' %}</a>
         <div id="error-details-content" style="display:none;">
-            <a id="collapse-error-details" href="#" onclick="document.getElementById('error-details-content').style.display = 'none'; document.getElementById('expand-error-details').style.display = 'block';">{% trans 'Hide details' %}</a>
+            <a id="collapse-error-details" href="#" onclick="document.getElementById('error-details-content').style.display = 'none'; document.getElementById('expand-error-details').style.display = 'block';">{% translate 'Hide details' %}</a>
             <p>{{exception}}</p>
         </div>
     </div>

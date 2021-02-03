@@ -254,12 +254,21 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             dep_2_str(dependencies=[entity01, entity03, entity02, entity04], user=user),
         )
 
-        rtype = RelationType.objects.first()
+        # rtype = RelationType.objects.first()
+        rtype = RelationType.objects.filter(id__contains='-subject_').first()
         create_rel = partial(Relation.objects.create, user=user, type=rtype)
         rel01 = create_rel(subject_entity=entity01, object_entity=entity02)
         self.assertEqual(
             f'{rtype.predicate} «{entity02.name}»',
             dep_2_str(dependencies=[rel01], user=user),
+        )
+        self.assertEqual(
+            '',
+            dep_2_str(dependencies=[rel01.symmetric_relation], user=user),
+        )
+        self.assertEqual(
+            f'{rtype.predicate} «{entity02.name}»',
+            dep_2_str(dependencies=[rel01, rel01.symmetric_relation], user=user),
         )
 
         rel02 = create_rel(subject_entity=entity01, object_entity=entity03)

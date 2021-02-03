@@ -24,7 +24,8 @@ from typing import Iterable, Optional
 from xml.etree import ElementTree as ET
 
 from django.contrib.auth import get_user_model
-from django.db.models import FieldDoesNotExist, FileField, ForeignKey
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import FileField, ForeignKey
 from django.utils.translation import gettext_lazy as _
 
 from creme.documents import get_document_model

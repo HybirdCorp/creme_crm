@@ -25,8 +25,8 @@
         <div class="customform-config-group-title">
             {% widget_icon ctype=ctype size='brick-list' class='customform-config-type-icon' %} {{ctype}}
 
-            <a class="customform-config-show-details" href="#" data-ct-id="{{ctype.id}}">{% trans 'Show details' %}</a>
-            <a class="customform-config-hide-details" href="#">{% trans 'Hide details' %}</a>
+            <a class="customform-config-show-details" href="#" data-ct-id="{{ctype.id}}">{% translate 'Show details' %}</a>
+            <a class="customform-config-hide-details" href="#">{% translate 'Hide details' %}</a>
         </div>
         <div class="customform-config-group brick-table">
             <table class="brick-table-content">
@@ -35,7 +35,7 @@
                     <tr>{% url 'creme_config__delete_custom_form_group' descriptor.id as delete_group_url %}{% url 'creme_config__delete_custom_form_cell' descriptor.id as delete_cell_url %}
                         <td class="customform-config-ctype-label">{{descriptor.verbose_name}}</td>
                         <td class="customform-config-fields">
-                            <p class="help-instructions">{% trans 'Drag and drop the groups to order them.' %}</p>
+                            <p class="help-instructions">{% translate 'Drag and drop the groups to order them.' %}</p>
                             <table>
                                 <tbody class="customform-config-blocks">
                                 {% for group in descriptor.groups %}
@@ -103,5 +103,5 @@
 {% endblock %}
 
 {% block brick_list_empty %}
-    {% trans 'No custom form' %}
+    {% translate 'No custom form' %}
 {% endblock %}

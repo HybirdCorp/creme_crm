@@ -28,9 +28,9 @@
         <td>{{result.line}}</td>
         <td>
             {% if result.entity != None %}
-            {% widget_entity_hyperlink result.entity user %} [{% if result.updated %}{% trans "updated" %}{% else %}{% trans "created" %}{% endif %}]
+            {% widget_entity_hyperlink result.entity user %} [{% if result.updated %}{% translate "updated" %}{% else %}{% translate "created" %}{% endif %}]
             {% else %}
-            {% trans 'None (because error is critical)' %}
+            {% translate 'None (because error is critical)' %}
             {% endif %}
         </td>
         <td>

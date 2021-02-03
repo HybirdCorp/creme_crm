@@ -21,7 +21,7 @@
     {% brick_table_column title=_('Concerned entity') %}
     {% endif %}
 
-{% trans 'Created on' context 'assistants-message' as creation_label %}
+{% translate 'Created on' context 'assistants-message' as creation_label %}
     {% brick_table_column_for_field ctype=objects_ctype field='sender'        status='primary' %}
     {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=creation_label data_type='date' %}
     {% brick_table_column_for_field ctype=objects_ctype field='title' %}
@@ -37,7 +37,7 @@
                 {% if creme_entity %}
                     <td>{% widget_entity_hyperlink creme_entity user %}</td>
                 {% else %}
-                    <td>{% trans '(None)' %}</td>
+                    <td>{% translate '(None)' %}</td>
                 {% endif %}
             {% endwith %}
         {% endif %}
@@ -53,5 +53,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No received message for the moment' %}
+    {% translate 'No received message for the moment' %}
 {% endblock %}

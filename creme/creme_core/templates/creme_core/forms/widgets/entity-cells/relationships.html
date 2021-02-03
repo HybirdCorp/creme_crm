@@ -1,11 +1,11 @@
 {% load i18n %}
 <div class="relationship_selectors">
-    <h3 class="selector_title">{% trans 'Relationships' %}</h3>
+    <h3 class="selector_title">{% translate 'Relationships' %}</h3>
 
     <div class="selector_filter">
         <span class="filter_result"></span>
 {# filter : accounts & contacts | <a href="" class="relationship_filter_all">all relationship types</a> #}
-        <input type="search" class="field_selector_filter" name="{{widget.name}}_relationships_selector_filter" placeholder="{% trans 'FILTER'%}" data-type="relationships">
+        <input type="search" class="field_selector_filter" name="{{widget.name}}_relationships_selector_filter" placeholder="{% translate 'FILTER'%}" data-type="relationships">
     </div>
 
     <ul class="selector_list">

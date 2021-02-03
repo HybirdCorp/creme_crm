@@ -19,7 +19,7 @@
     {% brick_table_column title=_('Concerned entity') %}
     {% endif %}
 
-{% trans 'Created on' context 'assistants-memo' as creation_label %}
+{% translate 'Created on' context 'assistants-memo' as creation_label %}
     {% brick_table_column_for_field ctype=objects_ctype field='user'          title=_('User')       status='primary' %}
     {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=creation_label %}
     {% brick_table_column_for_field ctype=objects_ctype field='content' %}
@@ -46,5 +46,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No memo for the moment' %}
+    {% translate 'No memo for the moment' %}
 {% endblock %}

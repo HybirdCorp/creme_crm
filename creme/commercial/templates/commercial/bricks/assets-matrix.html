@@ -28,16 +28,16 @@
         </tr>
         {% endfor %}
         <tr class="asset-score-total">
-            <td class="asset-title">{% trans 'Total' %}</td>
+            <td class="asset-title">{% translate 'Total' %}</td>
             {% for total in totals %}
             <td class="strategy-cat" data-score="{{total.1}}">{{total.0}}</td>
             {% endfor %}
         </tr>
     </tbody>
     {% elif assets %}
-    <thead><tr><th>{% trans 'No commercial asset for the moment' %}</th></tr><thead>
+    <thead><tr><th>{% translate 'No commercial asset for the moment' %}</th></tr><thead>
     {% else %}
-    <thead><tr><th>{% trans 'No market segment for the moment' %}</th></tr></thead>
+    <thead><tr><th>{% translate 'No market segment for the moment' %}</th></tr></thead>
     {% endif %}
 </table>
 {% endblock %}

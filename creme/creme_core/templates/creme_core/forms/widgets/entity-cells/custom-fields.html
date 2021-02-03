@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="custom_field_selectors inline_selectors">
-    <h4 class="selector_title">{% trans 'Custom fields'%}</h4>
+    <h4 class="selector_title">{% translate 'Custom fields'%}</h4>
     {% if widget.choices %}
         <ul class="selector_list">
             {% for choice_id, cfield_name in widget.choices %}
@@ -8,6 +8,6 @@
             {% endfor %}
         </ul>
     {% else %}
-        <span class="empty-message">{% trans 'No custom field at the moment.' %}</span>
+        <span class="empty-message">{% translate 'No custom field at the moment.' %}</span>
     {% endif %}
 </div>

@@ -16,20 +16,20 @@
 
 {% block card_indicators %}
     {% if is_neglected %}
-    <div class='business-card-indicator business-card-warning-indicator' title="{% trans 'Meeting, phone call…' %}">{% trans 'No activity since 30 days' %}</div>
+    <div class='business-card-indicator business-card-warning-indicator' title="{% translate 'Meeting, phone call…' %}">{% translate 'No activity since 30 days' %}</div>
     {% endif %}
 {% endblock %}
 
 {% block card_secondary %}
     <div class="card-targets">
         {% if target_is_organisation %}
-        <span class="card-function">{% trans 'Targets the organisation' %}</span> {% widget_entity_hyperlink target user %}
+        <span class="card-function">{% translate 'Targets the organisation' %}</span> {% widget_entity_hyperlink target user %}
         {% else %}
-        <span class="card-function">{% trans 'Targets the contact' %}</span>{% has_perm_to view target as target_view_perm %}
+        <span class="card-function">{% translate 'Targets the contact' %}</span>{% has_perm_to view target as target_view_perm %}
             {% if target_view_perm %}
             <a href='{{target.get_absolute_url}}' {% if target.is_deleted %}class="is_deleted"{% endif %}>{{target|persons_pretty_contact}}</a>{% persons_contact_first_employer contact=target user=user as employer %}
                 {% if employer %},
-                {% if employer.as_manager %}{% trans 'manager of the organisation' %}{% else %}{% trans 'employee of the organisation' %}{% endif %}
+                {% if employer.as_manager %}{% translate 'manager of the organisation' %}{% else %}{% translate 'employee of the organisation' %}{% endif %}
                 {% widget_entity_hyperlink employer.organisation user %}
                 {% endif %}
             {% else %}
@@ -40,12 +40,12 @@
 {% endblock %}
 
 {% block card_fields_title %}
-{% trans 'Details' context 'opportunities' %}
+{% translate 'Details' context 'opportunities' %}
 {% endblock %}
 
 {% block card_fields %}
     <div class="card-info-field">
-        <span class='card-info-key'>{% trans 'Sales phase' %}</span>
+        <span class='card-info-key'>{% translate 'Sales phase' %}</span>
         <span class='card-info-value'>
             {{object.sales_phase|default:'—'}}
             {% brick_card_action_for_field instance=object field='sales_phase' user=user %}
@@ -53,7 +53,7 @@
     </div>
     {% if 'estimated_sales' not in hidden_fields %}
     <div class="card-info-field">
-        <span class='card-info-key'>{% trans 'Estimated sales' %}</span>
+        <span class='card-info-key'>{% translate 'Estimated sales' %}</span>
         <span class='card-info-value'>
             {% if object.estimated_sales is None %}
             —
@@ -66,7 +66,7 @@
     {% endif %}
     {% if 'made_sales' not in hidden_fields %}
     <div class="card-info-field">
-        <span class='card-info-key'>{% trans 'Made sales' %}</span>
+        <span class='card-info-key'>{% translate 'Made sales' %}</span>
         <span class='card-info-value'>
             {% if object.made_sales is None %}
             —
@@ -86,9 +86,9 @@
             <div class="card-info-field">
                 <span class='card-info-key'>
                     {% if paginator.count == 0 %}
-                        {% trans 'Linked contacts' %}
+                        {% translate 'Linked contacts' %}
                     {% else %}
-                        {% blocktrans count count=paginator.count %}{{count}} Linked contact{% plural %}{{count}} Linked contacts{% endblocktrans %}
+                        {% blocktranslate count count=paginator.count %}{{count}} Linked contact{% plural %}{{count}} Linked contacts{% endblocktranslate %}
                     {% endif %}
                 </span>
                 <span class='card-info-value'>

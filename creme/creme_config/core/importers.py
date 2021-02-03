@@ -25,7 +25,8 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import FieldDoesNotExist, Model
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Model
 from django.forms import ValidationError
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _

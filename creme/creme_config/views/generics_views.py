@@ -21,8 +21,8 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
-from django.db.models import FieldDoesNotExist, IntegerField
+from django.core.exceptions import FieldDoesNotExist, PermissionDenied
+from django.db.models import IntegerField
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -177,11 +177,13 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
         return [model_conf.get_brick()]
 
     def get_bricks_reload_url(self):
-        return reverse('creme_config__reload_model_brick',
-                       args=(self.get_app_registry().name,
-                             self.get_model_conf().model_name,
-                            ),
-                      )
+        return reverse(
+            'creme_config__reload_model_brick',
+            args=(
+                self.get_app_registry().name,
+                self.get_model_conf().model_name,
+            ),
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -248,10 +250,11 @@ class GenericDeletion(ModelConfMixin, generic.CremeModelEditionPopup):
     def form_valid(self, form):
         self.object = form.save()
 
-        return render(request=self.request,
-                      template_name=self.job_template_name,
-                      context={'job': self.object.job},
-                     )
+        return render(
+            request=self.request,
+            template_name=self.job_template_name,
+            context={'job': self.object.job},
+        )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -308,9 +311,10 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
         return [*self.get_app_registry().bricks]  # Get config registered bricks
 
     def get_bricks_reload_url(self):
-        return reverse('creme_config__reload_app_bricks',
-                       args=(self.get_app_registry().name,),
-                      )
+        return reverse(
+            'creme_config__reload_app_bricks',
+            args=(self.get_app_registry().name,),
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

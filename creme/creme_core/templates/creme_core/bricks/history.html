@@ -59,9 +59,9 @@
                         {% endif %}
                     {% else %}
                         {% if related_entity %}
-                            {% trans "Edition of :" %}&nbsp;{% widget_entity_hyperlink related_entity user %}
+                            {% translate "Edition of :" %}&nbsp;{% widget_entity_hyperlink related_entity user %}
                         {% else %}
-                            {% blocktrans with related_line.entity_repr as entity %}Edit "{{entity}}"{% endblocktrans %}{# TODO: improve credentials here !! #}
+                            {% blocktranslate with related_line.entity_repr as entity %}Edit "{{entity}}"{% endblocktranslate %}{# TODO: improve credentials here !! #}
                         {% endif %}
                         <br/>
                         {% for modif in related_line|history_modifications:user %} - {{modif}}<br/>{% endfor %}
@@ -75,5 +75,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No history for the moment' %}
+    {% translate 'No history for the moment' %}
 {% endblock %}

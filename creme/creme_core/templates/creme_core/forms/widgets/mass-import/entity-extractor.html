@@ -7,7 +7,7 @@
         <tr>
             <td>{{ctype}}: </td>
             <td>{% include widget.template_name %}</td>
-            <td>&nbsp;{% trans 'Create if not found?' %}
+            <td>&nbsp;{% translate 'Create if not found?' %}
                 <input type="checkbox" name="{{name}}_{{app}}_{{model}}_create" id="{{id}}_{{app}}_{{model}}_create"{% if cmd and cmd.create %} checked{% endif %}>
             </td>
         </tr>

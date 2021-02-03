@@ -38,6 +38,7 @@ from django.utils.safestring import mark_safe
 from mediagenerator.generators.bundles.utils import _render_include_media
 
 from ..gui.field_printers import field_printers_registry
+from ..http import is_ajax
 from ..models import CremeEntity, Relation
 from ..utils import bool_as_html
 from ..utils.currency_format import currency
@@ -278,6 +279,11 @@ def allowed_str(entity, user):
 @register.filter
 def format_amount(amount, currency_or_id=None):
     return currency(amount, currency_or_id)
+
+
+@register.filter('is_ajax')
+def request_is_ajax(request):
+    return is_ajax(request)
 
 
 @register.filter

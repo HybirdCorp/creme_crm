@@ -29,9 +29,9 @@ if (navigator.userAgent.match(/Android/i)) {
 </head>
 <body class="page-form" onload="checkCallCookies()">
   <nav>
-    <a href="{% url 'mobile__portal' %}" class="tab">{% trans 'Home' %}</a>
-    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% trans 'Directory' %}</a>
-    <a href="{% url 'mobile__activities' %}" class="tab">{% trans 'Activities' %}</a>
+    <a href="{% url 'mobile__portal' %}" class="tab">{% translate 'Home' %}</a>
+    <a href="{% url 'mobile__directory' %}" class="tab selected-tab">{% translate 'Directory' %}</a>
+    <a href="{% url 'mobile__activities' %}" class="tab">{% translate 'Activities' %}</a>
   </nav>
 
   <section class="hideable-content">
@@ -49,13 +49,13 @@ if (navigator.userAgent.match(/Android/i)) {
       {% endfor %}
 
       <div class="form-field">
-        <label class="field-label" for="{{form.last_name.auto_id}}">{% trans 'Last name' %}<span class="field-modifier"> {% trans '(required)' %}</span></label>
+        <label class="field-label" for="{{form.last_name.auto_id}}">{% translate 'Last name' %}<span class="field-modifier"> {% translate '(required)' %}</span></label>
         {{form.last_name}}
-        <div class="field-error field-error-client">{% trans 'The last name must be filled.' %}</div>
+        <div class="field-error field-error-client">{% translate 'The last name must be filled.' %}</div>
         {% for error in form.last_name.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
       </div>
       <div class="form-field">
-        <label class="field-label" for="{{form.first_name.auto_id}}">{% trans 'First name' %}</label>
+        <label class="field-label" for="{{form.first_name.auto_id}}">{% translate 'First name' %}</label>
         {{form.first_name}}
         {% for error in form.first_name.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
       </div>
@@ -67,21 +67,21 @@ if (navigator.userAgent.match(/Android/i)) {
 
         {% if phone_f %}
           <div class="form-field">
-            <label class="field-label" for="{{phone_f.auto_id}}">{% trans 'Phone' %}</label>
+            <label class="field-label" for="{{phone_f.auto_id}}">{% translate 'Phone' %}</label>
             {{phone_f}}
             {% for error in phone_f.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
           </div>
         {% endif %}
         {% if mobile_f %}
           <div class="form-field">
-            <label class="field-label" for="{{mobile_f.auto_id}}">{% trans 'Mobile' %}</label>
+            <label class="field-label" for="{{mobile_f.auto_id}}">{% translate 'Mobile' %}</label>
             {{mobile_f}}
             {% for error in mobile_f.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
           </div>
         {% endif %}
         {% if email_f %}
           <div class="form-field">
-            <label class="field-label" for="{{email_f.auto_id}}">{% trans 'Email address' %}</label>
+            <label class="field-label" for="{{email_f.auto_id}}">{% translate 'Email address' %}</label>
             {{email_f}}
             {% for error in email_f.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
           </div>
@@ -93,7 +93,7 @@ if (navigator.userAgent.match(/Android/i)) {
       <hr/>
 
       <div class="form-field">
-        <label class="field-label" for="{{form.organisation.auto_id}}">{% trans 'Organisation' %}</label>
+        <label class="field-label" for="{{form.organisation.auto_id}}">{% translate 'Organisation' %}</label>
         {{form.organisation}}
         <div class="field-details">{{form.organisation.help_text}}</div>
         {% for error in form.organisation.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
@@ -103,12 +103,12 @@ if (navigator.userAgent.match(/Android/i)) {
 
       <div class="form-field">
         {{form.is_favorite}}
-        <label for="{{form.is_favorite.auto_id}}">{% trans 'Add this contact to the favorites' %}</label>
+        <label for="{{form.is_favorite.auto_id}}">{% translate 'Add this contact to the favorites' %}</label>
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="button">{% trans 'Save the contact' %}</button>
-        <a href="{{cancel_url}}" class="button">{% trans 'Cancel' %}</a>
+        <button type="submit" class="button">{% translate 'Save the contact' %}</button>
+        <a href="{{cancel_url}}" class="button">{% translate 'Cancel' %}</a>
       </div>
 
     </form>

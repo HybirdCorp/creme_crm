@@ -21,18 +21,7 @@
 from functools import partial
 
 from django.conf import settings
-from django.db.models import (
-    CASCADE,
-    SET_NULL,
-    BooleanField,
-    CharField,
-    ForeignKey,
-    NullBooleanField,
-    PositiveIntegerField,
-    PositiveSmallIntegerField,
-    ProtectedError,
-    TextField,
-)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -46,8 +35,11 @@ from .poll_type import PollType
 
 
 class AbstractPollForm(CremeEntity):
-    name = CharField(_('Name'), max_length=220)
-    type = ForeignKey(PollType, verbose_name=_('Type'), null=True, blank=True, on_delete=SET_NULL)
+    name = models.CharField(_('Name'), max_length=220)
+    type = models.ForeignKey(
+        PollType,
+        verbose_name=_('Type'), null=True, blank=True, on_delete=models.SET_NULL,
+    )
 
     creation_label = _('Create a form')
     save_label     = _('Save the form of poll')
@@ -108,13 +100,17 @@ class AbstractPollForm(CremeEntity):
                 fsections,
             )
 
-            matches.update((child.id, create_section(name=child.name,
-                                                     body=child.body,
-                                                     order=child.order,
-                                                     parent=matches.get(child.parent_id),
-                                                    )
-                           ) for child in children
-                          )
+            matches.update(
+                (
+                    child.id,
+                    create_section(
+                        name=child.name,
+                        body=child.body,
+                        order=child.order,
+                        parent=matches.get(child.parent_id),
+                    )
+                ) for child in children
+            )
 
             parents = children
 
@@ -151,11 +147,12 @@ class AbstractPollForm(CremeEntity):
         for fcond in PollFormLineCondition.objects.filter(
             line__in=[line.id for line in pform_lines],
         ):
-            create_cond(line=line_matches[fcond.line_id],
-                        source=line_matches[fcond.source_id],
-                        operator=fcond.operator,
-                        raw_answer=fcond.raw_answer,
-                       )
+            create_cond(
+                line=line_matches[fcond.line_id],
+                source=line_matches[fcond.source_id],
+                operator=fcond.operator,
+                raw_answer=fcond.raw_answer,
+            )
         return instance
 
 
@@ -165,14 +162,17 @@ class PollForm(AbstractPollForm):
 
 
 class PollFormSection(CremeModel):
-    pform = ForeignKey(
-        settings.POLLS_FORM_MODEL, editable=False, related_name='sections', on_delete=CASCADE,
+    pform = models.ForeignKey(
+        settings.POLLS_FORM_MODEL,
+        editable=False, related_name='sections', on_delete=models.CASCADE,
     )
     # TODO: related_name='children' ?
-    parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)
-    order = PositiveIntegerField(editable=False, default=1)
-    name = CharField(_('Name'), max_length=250)
-    body = TextField(_('Section body'), blank=True)
+    parent = models.ForeignKey(
+        'self', editable=False, null=True, on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField(editable=False, default=1)
+    name = models.CharField(_('Name'), max_length=250)
+    body = models.TextField(_('Section body'), blank=True)
 
     creation_label = _('Create a section')
     save_label     = _('Save the section')
@@ -199,7 +199,7 @@ class PollFormSection(CremeModel):
                 if not node.has_line:
                     break
 
-                raise ProtectedError(
+                raise models.ProtectedError(
                     gettext('There is at least one question in this section.'),
                     [self],
                 )
@@ -214,23 +214,29 @@ class PollFormSection(CremeModel):
 
 
 class PollFormLine(CremeModel, _PollLine):
-    pform = ForeignKey(
-        settings.POLLS_FORM_MODEL, editable=False, related_name='lines', on_delete=CASCADE,
+    pform = models.ForeignKey(
+        settings.POLLS_FORM_MODEL,
+        editable=False, related_name='lines', on_delete=models.CASCADE,
     )
     # TODO: related_name='lines' ?
-    section = ForeignKey(PollFormSection, editable=False, null=True, on_delete=CASCADE)
-    order = PositiveIntegerField(editable=False, default=1)
-    disabled = BooleanField(default=False, editable=False)
+    section = models.ForeignKey(
+        PollFormSection, editable=False, null=True, on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField(editable=False, default=1)
+    disabled = models.BooleanField(default=False, editable=False)
 
     # See PollLineType
     #   ['choices' is not set here, in order to allow the contribution by other apps]
-    type = PositiveSmallIntegerField(_('Type'))
-    type_args = TextField(editable=False, null=True)  # TODO: use a JSONField ?
+    type = models.PositiveSmallIntegerField(_('Type'))
+    type_args = models.TextField(editable=False, null=True)  # TODO: use a JSONField ?
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
-    conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
+    # conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
+    conds_use_or = models.BooleanField(
+        _('Use OR or AND between conditions'), editable=False, null=True,
+    )
 
-    question = TextField(_('Question'))
+    question = models.TextField(_('Question'))
 
     creation_label = _('Create a question')
     save_label     = _('Save the question')
@@ -253,7 +259,7 @@ class PollFormLine(CremeModel, _PollLine):
 
     def delete(self, *args, **kwargs):
         if not self.disabled and PollFormLineCondition.objects.filter(source=self).exists():
-            raise ProtectedError(
+            raise models.ProtectedError(
                 gettext(
                     'There is at least one other question which depends on this question.'
                 ),
@@ -264,10 +270,12 @@ class PollFormLine(CremeModel, _PollLine):
 
     def disable(self):
         if self.disabled:
-            raise ProtectedError(gettext('This question is already disabled.'), [self])
+            raise models.ProtectedError(
+                gettext('This question is already disabled.'), [self],
+            )
 
         if PollFormLineCondition.objects.filter(source=self).exists():
-            raise ProtectedError(
+            raise models.ProtectedError(
                 gettext(
                     'There is at least one other question which depends on this question.'
                 ),
@@ -314,10 +322,13 @@ class PollFormLineCondition(CremeModel):
     # ISEMPTY         = 21
     # RANGE           = 22
 
-    line = ForeignKey(PollFormLine, editable=False, related_name='conditions', on_delete=CASCADE)
-    source = ForeignKey(PollFormLine, on_delete=CASCADE)
-    operator = PositiveSmallIntegerField()  # See EQUALS etc...
-    raw_answer = TextField(null=True)
+    line = models.ForeignKey(
+        PollFormLine,
+        editable=False, related_name='conditions', on_delete=models.CASCADE,
+    )
+    source = models.ForeignKey(PollFormLine, on_delete=models.CASCADE)
+    operator = models.PositiveSmallIntegerField()  # See EQUALS etc...
+    raw_answer = models.TextField(null=True)
 
     save_label = _('Save the condition')
 

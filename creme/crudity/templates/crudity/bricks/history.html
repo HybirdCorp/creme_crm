@@ -7,9 +7,9 @@
     {% widget_icon ctype=ct size='brick-header' as ct_icon %}
     {% with count=page.paginator.count %}
     {% if count %}
-        {% blocktrans count count=count with model=ct asvar title %}{{count}} History item - {{model}}{% plural %}{{count}} History items - {{model}}{% endblocktrans %}
+        {% blocktranslate count count=count with model=ct asvar title %}{{count}} History item - {{model}}{% plural %}{{count}} History items - {{model}}{% endblocktranslate %}
     {% else %}
-        {% blocktrans with model=ct asvar title %}History items - {{model}}{% endblocktrans %}
+        {% blocktranslate with model=ct asvar title %}History items - {{model}}{% endblocktranslate %}
     {% endif %}
     {% brick_header_title title=title icon=ct_icon %}
     {% endwith %}
@@ -35,5 +35,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% blocktrans with ctype=ct %}No history for «{{ctype}}»{% endblocktrans %}
+    {% blocktranslate with ctype=ct %}No history for «{{ctype}}»{% endblocktranslate %}
 {% endblock %}

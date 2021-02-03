@@ -1,13 +1,13 @@
 {% extends 'crudity/waiting-actions.html' %}
 {% load i18n creme_widgets creme_bricks %}
 
-{% block page_title %}{% trans 'Synchronization of incoming emails with Creme' %} - {% endblock %}
+{% block page_title %}{% translate 'Synchronization of incoming emails with Creme' %} - {% endblock %}
 
 {% block content %}
     <div class="hat-bar-container">
         <div class="hat-bar">
             <div class="bar-icon">{% widget_icon name='email' size='brick-hat-bar' label=_('Emails') %}</div>
-            <div class="bar-title"><h1>{% trans 'Synchronization of incoming emails with Creme' %}</h1></div>
+            <div class="bar-title"><h1>{% translate 'Synchronization of incoming emails with Creme' %}</h1></div>
             <div class="bar-actions">
                <div class='bar-action'>
                     <a class="bar-button" onclick="refreshWaitingActions('{% url 'crudity__refresh_actions' %}');" >
@@ -24,6 +24,6 @@
 
         {% brick_end %}
     {% else %}
-        <div class="help_box">{% trans 'The synchronisation of external emails is not configured ; contact your administrator if you want this feature to be enabled.' %}</div>
+        <div class="help_box">{% translate 'The synchronisation of external emails is not configured ; contact your administrator if you want this feature to be enabled.' %}</div>
     {% endif %}
 {% endblock %}

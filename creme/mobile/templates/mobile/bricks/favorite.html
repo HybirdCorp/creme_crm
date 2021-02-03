@@ -34,10 +34,10 @@
 
 {% block brick_list_empty %}
     {% if is_contact %}
-        {% trans 'This contact is not a favorite for the moment' %}
+        {% translate 'This contact is not a favorite for the moment' %}
     {% elif is_orga %}
-        {% trans 'This organisation is not a favorite for the moment' %}
+        {% translate 'This organisation is not a favorite for the moment' %}
     {% else %}
-        {% trans 'This entity is not a favorite for the moment' %}
+        {% translate 'This entity is not a favorite for the moment' %}
     {% endif %}
 {% endblock %}

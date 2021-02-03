@@ -55,7 +55,7 @@
         {% if activity.get_subject_relations %}
         <div class="activity-group activity-info-group">
             <div class="activity-group-key">
-                {% blocktrans count counter=activity.get_subject_relations|length %}{{counter}} Subject{% plural %}{{counter}} Subjects{% endblocktrans %}
+                {% blocktranslate count counter=activity.get_subject_relations|length %}{{counter}} Subject{% plural %}{{counter}} Subjects{% endblocktranslate %}
             </div>
             <div class="activity-group-value">
             {% for relation in activity.get_subject_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
@@ -65,7 +65,7 @@
         {% if activity.get_participant_relations %}
         <div class="activity-group activity-info-group">
             <div class="activity-group-key">
-                {% blocktrans count counter=activity.get_participant_relations|length %}{{counter}} Participant{% plural %}{{counter}} Participants{% endblocktrans %}
+                {% blocktranslate count counter=activity.get_participant_relations|length %}{{counter}} Participant{% plural %}{{counter}} Participants{% endblocktranslate %}
             </div>
             <div class="activity-group-value">
             {% for relation in activity.get_participant_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
@@ -75,7 +75,7 @@
         {% if activity.get_linkedto_relations %}
         <div class="activity-group activity-info-group">
             <div class="activity-group-key">
-                {% blocktrans count counter=activity.get_linkedto_relations|length %}{{counter}} Is related to{% plural %}{{counter}} Are related to{% endblocktrans %}
+                {% blocktranslate count counter=activity.get_linkedto_relations|length %}{{counter}} Is related to{% plural %}{{counter}} Are related to{% endblocktranslate %}
             </div>
             <div class="activity-group-value">
             {% for relation in activity.get_linkedto_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
@@ -84,7 +84,7 @@
         {% endif %}
         {% if display_review and activity.minutes %}
         <div class="activity-group activity-info-group">
-            <div class="activity-group-key">{% trans 'Minutes' %}</div>
+            <div class="activity-group-key">{% translate 'Minutes' %}</div>
             <div class="activity-group-value">{{activity.minutes}}</div>
         </div>
         {% endif %}

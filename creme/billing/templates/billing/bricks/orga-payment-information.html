@@ -21,11 +21,11 @@
                 {{payment_info.name}}
             </div>
             <div class="billing-group-value">
-                {% blocktrans with account=payment_info.account_number|default:'—' %}N° {{account}}{% endblocktrans %}
+                {% blocktranslate with account=payment_info.account_number|default:'—' %}N° {{account}}{% endblocktranslate %}
             </div>
             {% if payment_info.is_default %}
             <div {# class="billing-group-value" #}>
-                {% trans 'Is default account' %}
+                {% translate 'Is default account' %}
             </div>
             {% endif %}
             <div class="billing-action">
@@ -36,27 +36,27 @@
             </div>
         </div>
         <div class="billing-group billing-info-group">
-            <div class="billing-group-key">{% trans 'Bank code' %}</div>
+            <div class="billing-group-key">{% translate 'Bank code' %}</div>
             <div class="billing-group-value">{{payment_info.bank_code|default:'—'}}</div>
         </div>
         <div class="billing-group billing-info-group">
-            <div class="billing-group-key">{% trans 'Counter code' %}</div>
+            <div class="billing-group-key">{% translate 'Counter code' %}</div>
             <div class="billing-group-value">{{payment_info.counter_code|default:'—'}}</div>
         </div>
         <div class="billing-group billing-info-group">
-            <div class="billing-group-key">{% trans 'Banking domiciliation' %}</div>
+            <div class="billing-group-key">{% translate 'Banking domiciliation' %}</div>
             <div class="billing-group-value">{{payment_info.banking_domiciliation|default:'—'}}</div>
         </div>
         <div class="billing-group billing-info-group">
-            <div class="billing-group-key">{% trans 'RIB' %}</div>
+            <div class="billing-group-key">{% translate 'RIB' %}</div>
             <div class="billing-group-value">{{payment_info.rib_key|default:'—'}}</div>
         </div>
         <div class="billing-group billing-info-group">
-            <div class="billing-group-key">{% trans 'IBAN' %}</div>
+            <div class="billing-group-key">{% translate 'IBAN' %}</div>
             <div class="billing-group-value">{{payment_info.iban|default:'—'}}</div>
         </div>
         <div class="billing-group billing-info-group">
-            <div class="billing-group-key">{% trans 'BIC' %}</div>
+            <div class="billing-group-key">{% translate 'BIC' %}</div>
             <div class="billing-group-value">{{payment_info.bic|default:'—'}}</div>
         </div>
     </div>
@@ -64,6 +64,6 @@
 {% endblock %}
 
 {% block brick_list_empty %}
-    {% trans 'No payment information for the moment' %}
+    {% translate 'No payment information for the moment' %}
 {% endblock %}
 

@@ -1,14 +1,14 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n %}
 
-{% block page_title %}{% trans 'View of list' %} - {{form.instance.entity_type}} - {% endblock %}
+{% block page_title %}{% translate 'View of list' %} - {{form.instance.entity_type}} - {% endblock %}
 
 {% block content %}
     {% if not form.instance.pk %}
-        {% blocktrans with ctype=form.instance.entity_type asvar form_title %}Create a view of list for «{{ctype}}»{% endblocktrans %}
+        {% blocktranslate with ctype=form.instance.entity_type asvar form_title %}Create a view of list for «{{ctype}}»{% endblocktranslate %}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title|safe %}
     {% else %}
-        {% blocktrans with view=form.instance asvar form_title %}Edit the view of list «{{view}}»{% endblocktrans %}
+        {% blocktranslate with view=form.instance asvar form_title %}Edit the view of list «{{view}}»{% endblocktranslate %}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form_title|safe %}
     {% endif %}
 {% endblock %}

@@ -150,7 +150,8 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         meta = ContentType._meta
         assert not meta.ordering, 'It seems ContentType has an ordering policy now ?!'
 
-        meta.ordering = ('id', )
+        # meta.ordering = ('id', )
+        meta.ordering = ['id']
 
         get_ct_field = meta.get_field
         for fname in ('app_label', 'model'):

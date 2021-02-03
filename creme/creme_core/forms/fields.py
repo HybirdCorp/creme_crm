@@ -1893,8 +1893,12 @@ class EnhancedModelChoiceIterator(mforms.ModelChoiceIterator):
         return ''
 
     def choice(self, obj):
-        pk, label = super().choice(obj)
+        # pk, label = super().choice(obj)
+        value, label = super().choice(obj)
+        pk = value.value
 
+        # NB: django's ModelChoiceIteratorValue stores the instance (obj)
+        # => TODO: do the same thing ?
         return (
             self.choice_cls(
                 value=pk,

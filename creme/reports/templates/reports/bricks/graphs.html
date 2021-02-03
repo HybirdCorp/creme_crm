@@ -9,8 +9,8 @@
              var properties = {
                  charts: {{report_charts|report_chart_labels|jsonify|safe}},
                  sorts: {
-                     'ASC':  "{% trans 'Ascending' %}",
-                     'DESC': "{% trans 'Descending' %}"
+                     'ASC':  "{% translate 'Ascending' %}",
+                     'DESC': "{% translate 'Descending' %}"
                  }
              };
 
@@ -48,7 +48,7 @@
 {% endblock %}
 
 {% block brick_header_title %}
-{% trans 'Graphs' context 'reports-graphs' as empty_label %}
+{% translate 'Graphs' context 'reports-graphs' as empty_label %}
     {% brick_header_title title=_('{count} Graph') plural=_('{count} Graphs') empty=empty_label icon='graph' %}
 {% endblock %}
 
@@ -95,26 +95,26 @@
             <div class="brick-graph-header">
                 <div class="graph-controls">
                     <div class="graph-control graph-controls-type">
-                        <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                        <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">
-                            {% trans 'Histogram' %}
+                        <span class="graph-control-name">{% translate 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                        <a class="graph-control-value" title="{% translate 'Select the type of visualisation for this graph' %}">
+                            {% translate 'Histogram' %}
                         </a>
                     </div>
                     <div class="graph-control graph-controls-sort">
-                        <span class="graph-control-name">{% trans 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                        <a class="graph-control-value" title="{% trans 'Select the sort order' %}">
-                            {% trans 'Ascending' %}
+                        <span class="graph-control-name">{% translate 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                        <a class="graph-control-value" title="{% translate 'Select the sort order' %}">
+                            {% translate 'Ascending' %}
                         </a>
                     </div>
                 </div>
                 <div class="graph-actions">
                     {% if volatile_column %}
                     <div class="graph-volatile">
-                        <span class="graph-volatile-label">{% trans 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
+                        <span class="graph-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
                         <span class="graph-volatile-value">{{volatile_column}}</span>
                     </div>
                     {% endif %}
-                    {% with bricks_count=graph.instance_bricks_count %}{% blocktrans count count=bricks_count asvar popup_label %}{{count}} configured block{% plural %}{{count}} configured blocks{% endblocktrans %}
+                    {% with bricks_count=graph.instance_bricks_count %}{% blocktranslate count count=bricks_count asvar popup_label %}{{count}} configured block{% plural %}{{count}} configured blocks{% endblocktranslate %}
                     {% if bricks_count %}{% url 'reports__instance_bricks_info' graph.id as view_bricks_url %}
                     <div class="graph-action">
                         {% brick_table_action id='view' url=view_bricks_url label=popup_label display='text' %}
@@ -146,5 +146,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No graphs registered for the moment' %}
+    {% translate 'No graphs registered for the moment' %}
 {% endblock %}

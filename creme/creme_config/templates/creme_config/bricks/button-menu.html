@@ -16,7 +16,7 @@
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_ctype_buttons' as delete_url %}
     <div class="brick-list-item buttonmenu-config-item">
         <div class="buttonmenu-config-group buttonmenu-config-summary-group">
-            <div class="buttonmenu-config-group-title">{% trans 'Default configuration' %}</div>
+            <div class="buttonmenu-config-group-title">{% translate 'Default configuration' %}</div>
             <div class="buttonmenu-config-group-action">{% url 'creme_config__edit_ctype_buttons' 0 as edit_def_url %}
                 {% brick_action id='edit' url=edit_def_url label=_('Edit the default configuration') enabled=admin_perm %}
             </div>

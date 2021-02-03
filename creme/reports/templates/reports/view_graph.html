@@ -1,7 +1,7 @@
 {% extends 'creme_core/detailview.html' %}
 {% load i18n creme_core_tags creme_widgets %}
 
-{% block page_title %}{% blocktrans %}Rendered {{object}}{% endblocktrans %} - {% endblock %}
+{% block page_title %}{% blocktranslate %}Rendered {{object}}{% endblocktranslate %} - {% endblock %}
 
 {% block body_classes %}{% if object.report.is_deleted %}is_deleted{% endif %}{% endblock %}
 
@@ -9,7 +9,7 @@
     <div class="buttons-list global-buttons">
         <ul>
             <li>
-                <a class="menu_button menu-button-icon" href="{{object.linked_report.get_absolute_url}}">{% trans 'Back to the report' as back_label %}
+                <a class="menu_button menu-button-icon" href="{{object.linked_report.get_absolute_url}}">{% translate 'Back to the report' as back_label %}
                     {% widget_icon name='previous' size='global-button' label=back_label %}
                     {{back_label}}
                 </a>
@@ -22,8 +22,8 @@
             <div class="bar-icon">{% widget_icon instance=object size='brick-hat-bar' %}</div>
             <div class="bar-title">
                 <h1>
-                    {% blocktrans with verbose_name=object|get_meta_value:'verbose_name'|capfirst title=object|capfirst %}Rendered {{verbose_name}} : {{title}}{% endblocktrans %}
-                    {% if object.report.is_deleted %} [{% trans 'deleted' %}]{% endif %}
+                    {% blocktranslate with verbose_name=object|get_meta_value:'verbose_name'|capfirst title=object|capfirst %}Rendered {{verbose_name}} : {{title}}{% endblocktranslate %}
+                    {% if object.report.is_deleted %} [{% translate 'deleted' %}]{% endif %}
                 </h1>
             </div>
         </div>

@@ -10,8 +10,8 @@
              var properties = {
                  charts: {{report_charts|report_chart_labels|jsonify|safe}},
                  sorts: {
-                     'ASC':  "{% trans 'Ascending' %}",
-                     'DESC': "{% trans 'Descending' %}"
+                     'ASC':  "{% translate 'Ascending' %}",
+                     'DESC': "{% translate 'Descending' %}"
                  }
              };
 
@@ -32,7 +32,7 @@
 {% endblock %}
 
 {% block brick_header_title %}
-    {% trans "Graph" context "reports-graphs" as title_prefix %}{% templatize '{{title_prefix}} — {{graph}}' as title %}
+    {% translate "Graph" context "reports-graphs" as title_prefix %}{% templatize '{{title_prefix}} — {{graph}}' as title %}
     {% brick_header_title title=title icon='graph' %}
 {% endblock %}
 
@@ -46,18 +46,18 @@
     <div class="brick-graph-header clearfix">
         <div class="graph-controls">
             <div class="graph-control graph-controls-type">
-                <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">Histogram{# Filled by JS #}</a>
+                <span class="graph-control-name">{% translate 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                <a class="graph-control-value" title="{% translate 'Select the type of visualisation for this graph' %}">Histogram{# Filled by JS #}</a>
             </div>
             <div class="graph-control graph-controls-sort">
-                <span class="graph-control-name">{% trans 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                <a class="graph-control-value" title="{% trans 'Select the sort order' %}">Ascending{# Filled by JS #}</a>
+                <span class="graph-control-name">{% translate 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
+                <a class="graph-control-value" title="{% translate 'Select the sort order' %}">Ascending{# Filled by JS #}</a>
             </div>
         </div>
         <div class="graph-actions">
             {% if object and volatile_column %}
             <div class="graph-volatile">
-                <span class="graph-volatile-label">{% trans 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
+                <span class="graph-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
                 <span class="graph-volatile-value">{{volatile_column}}</span>
             </div>
             {% endif %}
@@ -83,6 +83,6 @@
     {% elif error %}
     <div class="brick-graph-container brick-empty brick-error">{{error}}</div>
     {% else %}
-    <div class="brick-graph-container brick-empty">{% trans 'No values or graph is not applicable here' %}</div>
+    <div class="brick-graph-container brick-empty">{% translate 'No values or graph is not applicable here' %}</div>
     {% endif %}
 {% endblock %}

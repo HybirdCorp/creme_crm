@@ -4,8 +4,9 @@
 {% block brick_extra_class %}{{block.super}} creme_config-property-types-brick{% endblock %}
 
 {% block brick_before %}
-{% if not request.is_ajax %}
-    <div class="help_box">{% trans 'Deleting a property type will delete the associated properties' %}</div>
+{# {% if not request.is_ajax %} #}
+{% if not request|is_ajax %}
+    <div class="help_box">{% translate 'Deleting a property type will delete the associated properties' %}</div>
 {% endif %}
 {% endblock %}
 
@@ -36,7 +37,7 @@
         </td>
         <td class="property-copiable">{% print_field object=prop_type field='is_copiable' %}</td>
         <td class="property-count">
-            {% blocktrans count count=prop_type.stats %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktrans %}
+            {% blocktranslate count count=prop_type.stats %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %}
         </td>
         {% with action_enabled=admin_perm|and_op:prop_type.is_custom %}
         <td {% brick_table_data_status action %}>{% url 'creme_config__edit_ptype' prop_type.id as edit_url %}
@@ -51,5 +52,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No type of property for the moment' %}
+    {% translate 'No type of property for the moment' %}
 {% endblock %}

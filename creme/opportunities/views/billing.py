@@ -29,6 +29,7 @@ from django.utils.translation import gettext as _
 
 from creme import billing
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from creme.creme_core.http import is_ajax
 from creme.creme_core.models import Relation, SettingValue, Vat
 from creme.creme_core.views.generic import base
 from creme.creme_core.views.relation import RelationsObjectsSelectionPopup
@@ -88,7 +89,8 @@ class CurrentQuoteSetting(base.CheckedView):
         else:  # action == 'unset_current':
             relations.delete()
 
-        if request.is_ajax():
+        # if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse()
 
         return redirect(opp)
@@ -187,7 +189,8 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         if workflow_action:
             workflow_action(opp.emitter, opp.target, user)
 
-        if request.is_ajax():
+        # if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse()
 
         return redirect(opp)

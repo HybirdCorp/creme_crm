@@ -1,7 +1,7 @@
 {% extends 'creme_core/detailview.html' %}
 {% load i18n creme_core_tags creme_widgets reports_tags %}
 
-{% block page_title %}{% blocktrans %}Preview {{object}}{% endblocktrans %} - {% endblock %}
+{% block page_title %}{% blocktranslate %}Preview {{object}}{% endblocktranslate %} - {% endblock %}
 
 {% block extrahead %}
     {{block.super}}
@@ -21,7 +21,7 @@
     <div class="buttons-list global-buttons">
         <ul>
             <li>
-                <a class="menu_button menu-button-icon" href="{{object.get_absolute_url}}">{% trans 'Back to the report' as back_label %}
+                <a class="menu_button menu-button-icon" href="{{object.get_absolute_url}}">{% translate 'Back to the report' as back_label %}
                     {% widget_icon name='previous' size='global-button' label=back_label %}
                     {{back_label}}
                 </a>
@@ -33,7 +33,7 @@
         <div class="hat-bar">
             <div class="bar-icon">{% widget_icon instance=object size='brick-hat-bar' %}</div>
             <div class="bar-title">
-                <h1>{% blocktrans with title=object|capfirst %}Preview of the report «{{title}}»{% endblocktrans %}</h1>
+                <h1>{% blocktranslate with title=object|capfirst %}Preview of the report «{{title}}»{% endblocktranslate %}</h1>
             </div>
         </div>
     </div>
@@ -43,8 +43,8 @@
             <form>
             {% include 'reports/frags/report_preview_format.html' %}
             </form>
-            <button type="button" name="generate">{% trans 'Preview' context 'reports-preview' %}</button>
-            <button type="button" name="download">{% trans 'Download as file' %}</button>
+            <button type="button" name="generate">{% translate 'Preview' context 'reports-preview' %}</button>
+            <button type="button" name="download">{% translate 'Download as file' %}</button>
         </div>
 
         {% include 'reports/bricks/preview.html' %}

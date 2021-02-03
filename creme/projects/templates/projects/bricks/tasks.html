@@ -33,11 +33,11 @@
             <td>{{task.duration}}h</td>
             {% if task.get_delay > 0 %}
             <td class="task-delay-value -overtime">
-                {% blocktrans with duration=task.get_effective_duration delay=task.get_delay %}{{duration}}h: overtime of {{delay}}h{% endblocktrans %}
+                {% blocktranslate with duration=task.get_effective_duration delay=task.get_delay %}{{duration}}h: overtime of {{delay}}h{% endblocktranslate %}
             </td>
             {% else %}
             <td class="task-delay-value">
-                {% blocktrans with duration=task.get_effective_duration abs_delay=task.get_delay|absolute %}{{duration}}h: remaining time of {{abs_delay}}h{% endblocktrans %}
+                {% blocktranslate with duration=task.get_effective_duration abs_delay=task.get_delay|absolute %}{{duration}}h: remaining time of {{abs_delay}}h{% endblocktranslate %}
             </td>
             {% endif %}
             <td>{{task.tstatus}}</td>
@@ -47,7 +47,7 @@
                     {% widget_entity_hyperlink parent user %}
                     {% brick_action id='delete' url=remove_parent_url __id=task.id __parent_id=parent.id enabled=change_perm %}
                 {% endspaceless %}{% end_widget_join %}{% empty %}
-                    {% trans "No parent task" %}
+                    {% translate "No parent task" %}
                 {% endfor %}
             </td>
             <td data-type="money">{{task.get_task_cost|format_amount:object.currency}}</td>
@@ -69,5 +69,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% trans 'No task in this project for the moment' %}
+    {% translate 'No task in this project for the moment' %}
 {% endblock %}

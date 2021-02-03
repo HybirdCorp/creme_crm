@@ -1,7 +1,7 @@
 {% load i18n creme_core_tags creme_widgets creme_ctype %}
-<fieldset title="{% trans 'Show only the desired columns' %}">
+<fieldset title="{% translate 'Show only the desired columns' %}">
     <div class="legend">
-        {% trans 'View of list' as label %}{% widget_icon name='header_filter' label=label size='listview-filter' %}{{label}}
+        {% translate 'View of list' as label %}{% widget_icon name='header_filter' label=label size='listview-filter' %}{{label}}
     </div>
     <select name="hfilter" class="lv-state-field list-views-selector">
         {% for hfilter in global_header_filters %}
@@ -9,7 +9,7 @@
         {% endfor %}
 
         {% if my_header_filters %}
-            <optgroup label="{% trans 'My views' %}">
+            <optgroup label="{% translate 'My views' %}">
             {% for hfilter in my_header_filters %}
                 <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
             {% endfor %}
@@ -17,7 +17,7 @@
         {% endif %}
 
          {% for user, hfilters in other_header_filters %}
-            <optgroup label="{% blocktrans %}Views of {{user}}{% endblocktrans %}">
+            <optgroup label="{% blocktranslate %}Views of {{user}}{% endblocktranslate %}">
             {% for hfilter in hfilters %}
                <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
             {% endfor %}

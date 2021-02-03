@@ -3,13 +3,13 @@
 <div {# name="{{name}}" #} {% include 'django/forms/widgets/attrs.html' %}>
     {% include widget.column_select.template_name with widget=widget.column_select %}
     <label for="{{id}}_separator">
-        {% trans 'Separator' %}:
+        {% translate 'Separator' %}:
         <input id="{{id}}_separator" type="text" name="{{name}}_separator" value="{{widget.separator}}" />
     </label>
     {% if widget.propose_creation %}
     <label for="{{id}}_create">
         <input id="{{id}}_create" type="checkbox" name="{{name}}_create"{% if widget.create %} checked{% endif %}/>
-        {% trans 'Create the Organisations which are not found?' %}
+        {% translate 'Create the Organisations which are not found?' %}
     </label>
     {% endif %}
 </div>
