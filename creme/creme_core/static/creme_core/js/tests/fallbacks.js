@@ -659,11 +659,93 @@ QUnit.test('fallbacks.String.endsWith', function() {
     equal('dcba'.startsWith('abcd'), false);
 });
 
-QUnit.test('fallbacks.String.format', function() {
-    equal('12',    '%d'.format(12));
+QUnit.test('fallbacks.String.format (skip format)', function() {
+    equal('%d', '%%d'.format(12));
+    equal('%12', '%%%d'.format(12));
+});
+
+QUnit.test('fallbacks.String.format (array)', function() {
+    equal('12', '%d'.format([12, 5]));
+    equal('12', '%0$d'.format([12, 5]));
+    equal('5', '%1$d'.format([12, 5]));
+    equal('8', '%2$d'.format([12, 5, 8, 7]));
+});
+
+QUnit.test('fallbacks.String.format (padding)', function() {
+    equal('ab', '%s'.format('ab'));
+    equal('12', '%s'.format(12));
+    equal('12.05', '%s'.format(12.05));
+
+    equal('   ab', '%5s'.format('ab'));
+    equal('   12', '%5s'.format(12));
+    equal('12.05', '%5s'.format(12.05));
+
+    equal('+   ab', '+%5s'.format('ab'));  // bug ! "   ab"
+    equal('&nbsp;&nbsp;&nbsp;ab', '%&5s'.format('ab'));
+    equal('   ab', '%#5s'.format('ab'));
+
+    equal('ab   ', '%-5s'.format('ab'));
+    equal('12   ', '%-5s'.format(12));
+    equal('12.05', '%-5s'.format(12.05));
+});
+
+QUnit.test('fallbacks.String.format (integer)', function() {
+    equal('12',    '%d'.format(12.0));
+    equal('12',    '%u'.format(12.0));
+    equal('12',    '%i'.format(12.0));
+
+    equal('',    '%d'.format({}));
+    equal('0',    '%u'.format({}));  // bug ! NaN => ""
+    equal('',    '%i'.format({}));
+
+    equal('+12',    '%+d'.format(12));  // bug ! "12"
+    equal(' 12',    '% d'.format(12));  // bug ! "12"
+    equal('-12',    '%d'.format(-12));
     equal('00012', '%05d'.format(12));
     equal('   12', '%5d'.format(12));
     equal('12   ', '%-5d'.format(12));
+
+    equal('12', '%\'d'.format(12));
+    equal("12,412", '%\'d'.format(12412));
+});
+
+QUnit.test('fallbacks.String.format (base change)', function() {
+    equal('c1f',      '%x'.format(3103));
+    equal('C1F',      '%X'.format(3103));
+    equal('c1f',      '%+x'.format(3103));  // bug ! "0xc1f"
+    equal('c1f',      '% x'.format(3103));  // bug ! "0xc1f"
+    equal('fffff3e1', '%x'.format(-3103));
+    equal('00c1f', '%05x'.format(3103));
+    equal('  c1f', '%5x'.format(3103));
+    equal('c1f  ', '%-5x'.format(3103));
+
+    equal('1101',   '%b'.format(13));
+    equal('1101',   '%+b'.format(13));  // bug ! "0b1101"
+    equal('1101',   '% b'.format(13));  // bug ! "0b1101"
+    equal('11111111111111111111111111110011',   '%b'.format(-13));
+    equal('01101', '%05b'.format(13));
+    equal(' 1101', '%5b'.format(13));
+    equal(' 1101', '%+5b'.format(13));
+    equal('1101 ', '%-5b'.format(13));
+
+    equal('15',   '%o'.format(13));
+    equal('15',   '%+o'.format(13));  // bug ! "015"
+    equal('15',   '% o'.format(13));  // bug ! "015"
+    equal('37777777763',   '%o'.format(-13));
+    equal('00015', '%05o'.format(13));
+    equal('   15', '%5o'.format(13));
+    equal('   15', '%+5o'.format(13));
+    equal('15   ', '%-5o'.format(13));
+});
+
+QUnit.test('fallbacks.String.format (decimal)', function() {
+    equal('0.012', '%.3p'.format(0.012));
+    equal('12', '%.4p'.format(12.0));
+    equal('4.321e-5', '%.4p'.format(0.00004321));
+
+    equal('0.0120', '%.3g'.format(0.012));
+    equal('12.00', '%.4g'.format(12.0));
+    equal('0.00004321', '%.4g'.format(0.00004321));  // bug !
 
     equal('12.457000', '%f'.format(12.457));
     equal('12.457000', '%09f'.format(12.457));
