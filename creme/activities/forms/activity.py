@@ -238,7 +238,8 @@ class LinkedEntitiesSubCell(CustomFormExtraSubCell):
 
     def formfield(self, instance, user, **kwargs):
         return core_forms.MultiGenericEntityField(
-            label=self.verbose_name, user=user, **kwargs
+            label=self.verbose_name, user=user, autocomplete=True,
+            **kwargs
         )
 
 
