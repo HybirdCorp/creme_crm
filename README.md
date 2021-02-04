@@ -116,7 +116,7 @@ Global remarks:
 
 Database configuration:
 For a new install, you have to create a new database & a new DB user (who is allowed to create/drop tables, indices...).
-For an upgrade from Creme 2.0, duplicate your existing DB.
+For an upgrade from the previous major version, duplicate your existing DB (and backup 'creme/media/upload').
 
 Settings:
 See the file creme/settings.py and set your parameters in a new file called 'creme/local_settings.py'.
