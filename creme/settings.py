@@ -191,6 +191,7 @@ LOGIN_URL = 'creme_login'
 # Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = join(CREME_ROOT, 'media')
 
+# NB: not currently used (see root's urls.py)  TODO: remove it ?
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"

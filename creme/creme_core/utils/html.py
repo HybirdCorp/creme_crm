@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -79,6 +79,8 @@ def filter_img_src(tag, attr, value):
     if attr in IMG_SAFE_ATTRIBUTES:
         return True
 
+    # XXX: this feature is probably broken (& not used) -- see urls.py
+    # TODO: remove the external image feature ??
     if attr == 'src':
         return value.startswith(settings.MEDIA_URL)
 
@@ -92,9 +94,11 @@ def sanitize_html(html: str, allow_external_img: bool = False) -> str:
         {**ALLOWED_ATTRIBUTES, 'img': filter_img_src}
     )
 
-    return bleach.clean(html, tags=ALLOWED_TAGS, attributes=attributes,
-                        styles=ALLOWED_STYLES, strip=True,
-                       )
+    return bleach.clean(
+        html,
+        tags=ALLOWED_TAGS, attributes=attributes,
+        styles=ALLOWED_STYLES, strip=True,
+    )
 
 
 JSON_ESCAPES = {
