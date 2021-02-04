@@ -70,6 +70,10 @@ QUnit.test('assert.Assert.is', function(assert) {
     }, Error, 'Error: "" is not a function');
 
     this.assertRaises(function() {
+        Assert.is(Assert, 'function');
+    }, Error, 'Error: ${value} is not a function'.template({value: String(Assert)}));
+
+    this.assertRaises(function() {
         Assert.is(12, 'function', 'this is not a function: ${value}');
     }, Error, 'Error: this is not a function: 12');
 });
@@ -145,6 +149,24 @@ QUnit.test('assert.Assert.notIn', function(assert) {
     this.assertRaises(function() {
         Assert.notIn('a', {a: 12, b: 10});
     }, Error, 'Error: a should not be in the collection');
+});
+
+QUnit.test('assert.Assert.notThrown', function(assert) {
+    Assert.notThrown(function() {
+        return 0;
+    });
+
+    this.assertRaises(function() {
+        Assert.notThrown(function() {
+            throw Error('unexpected !');
+        });
+    }, Error, 'Error: unexpected !');
+
+    this.assertRaises(function() {
+        Assert.notThrown(function() {
+            throw Error('unexpected !');
+        }, 'Should not raise : ${error}');
+    }, Error, 'Error: Should not raise : unexpected !');
 });
 
 }(jQuery));
