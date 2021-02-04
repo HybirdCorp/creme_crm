@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2021  Hybird
+    Copyright (C) 2020-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -123,6 +123,60 @@ FunctionFaker.prototype = {
         }
 
         return this;
+    }
+};
+
+
+window.PropertyFaker = function(options) {
+    options = options || {};
+
+    Assert.not(Object.isNone(options.instance), 'Cannot fake property of undefined or null');
+
+    this._instance = options.instance;
+    this._properties = options.props || {};
+};
+
+/* globals PropertyFaker */
+PropertyFaker.prototype = {
+    'with': function(callable) {
+        var origin = {};
+        var fakes = {};
+        var newKeys = [];
+        var instance = this._instance;
+
+        for (var key in this._properties) {
+            var prop = Object.getOwnPropertyDescriptor(instance, key);
+            var fake = {
+                value: this._properties[key],
+                writable: false,
+                enumerable: false,
+                configurable: true
+            };
+
+            if (prop === undefined) {
+                newKeys.push(key);
+            } else if (prop.configurable) {
+                origin[key] = prop;
+
+                fake.writable = prop.writable;
+                fake.enumerable = prop.enumerable;
+                fake.configurable = prop.configurable;
+            } else {
+                throw new Error('The property "${key}" is not configurable'.template({key: key}));
+            }
+
+            fakes[key] = fake;
+        }
+
+        try {
+            Object.defineProperties(instance, fakes);
+            callable(this);
+        } finally {
+            Object.defineProperties(instance, origin);
+            newKeys.forEach(function(key) {
+                delete instance[key];
+            });
+        }
     }
 };
 

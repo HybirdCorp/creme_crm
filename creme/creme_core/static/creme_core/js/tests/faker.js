@@ -1,4 +1,4 @@
-/* globals FunctionFaker */
+/* globals FunctionFaker, PropertyFaker */
 
 (function($) {
 
@@ -64,6 +64,34 @@ QUnit.test('FunctionFaker.wrap (property)', function(assert) {
     deepEqual(faker.calls(), [['arg1', 'arg2']]);
     equal(faker.called(), true);
     equal(faker.count(), 1);
+});
+
+QUnit.test('FunctionFaker.wrap (function)', function(assert) {
+    function func(a, b) { return a + b; };
+
+    var faker = new FunctionFaker(func);
+
+    equal(func(12, 5), 12 + 5);
+
+    equal(faker._instance, null);
+    equal(faker._property, null);
+    equal(faker._origin, func);
+    equal(faker._follow, false);
+    equal(faker.result, undefined);
+
+    deepEqual(faker.calls(), []);
+    equal(faker.called(), false);
+    equal(faker.count(), 0);
+
+    var wrapper = faker.wrap();
+
+    equal(wrapper(12, 5), undefined);
+    deepEqual(faker.calls(), [[12, 5]]);
+    equal(faker.called(), true);
+    equal(faker.count(), 1);
+
+    faker.result = 'Fake!';
+    equal(wrapper(12, 5), 'Fake!');
 });
 
 QUnit.test('FunctionFaker.wrap (method)', function(assert) {
@@ -225,6 +253,90 @@ QUnit.test('FunctionFaker.with', function(assert) {
     ]);
     equal(faker.called(), true);
     equal(faker.count(), 2);
+});
+
+QUnit.test('PropertyFaker (null)', function(assert) {
+    this.assertRaises(function() {
+        return new PropertyFaker();
+    }, Error, 'Error: Cannot fake property of undefined or null');
+
+    this.assertRaises(function() {
+        return new PropertyFaker({props: {a: 'fake!'}});
+    }, Error, 'Error: Cannot fake property of undefined or null');
+
+    this.assertRaises(function() {
+        return new PropertyFaker({instance: null});
+    }, Error, 'Error: Cannot fake property of undefined or null');
+});
+
+QUnit.test('PropertyFaker (replace)', function(assert) {
+    var data = {
+        a: 12,
+        b: 'test'
+    };
+
+    var faker = new PropertyFaker({
+        instance: data,
+        props: {a: 'fake!', b: 'faketoo!'}
+    });
+
+    equal(data.a, 12);
+    equal(data.b, 'test');
+
+    faker.with(function() {
+        equal(data.a, 'fake!');
+        equal(data.b, 'faketoo!');
+    });
+
+    equal(data.a, 12);
+    equal(data.b, 'test');
+});
+
+QUnit.test('PropertyFaker (add)', function(assert) {
+    var data = {
+        a: 12,
+        b: 'test'
+    };
+
+    var faker = new PropertyFaker({
+        instance: data,
+        props: {a: 'fake!', b: 'faketoo!', c: 'new!'}
+    });
+
+    equal(data.a, 12);
+    equal(data.b, 'test');
+    equal(data.c, undefined);
+    ok(!('c' in data));
+
+    faker.with(function() {
+        equal(data.a, 'fake!');
+        equal(data.b, 'faketoo!');
+        equal(data.c, 'new!');
+    });
+
+    equal(data.a, 12);
+    equal(data.b, 'test');
+    equal(data.c, undefined);
+    ok(!('c' in data));
+});
+
+QUnit.test('PropertyFaker (not configurable)', function(assert) {
+    var data = {};
+    Object.defineProperty(data, 'irremovable', {
+        value: 12,
+        configurable: false
+    });
+
+    var faker = new PropertyFaker({
+        instance: data,
+        props: {irremovable: 'fake!'}
+    });
+
+    equal(data.irremovable, 12);
+
+    this.assertRaises(function() {
+        faker.with(function() {});
+    }, Error, 'Error: The property "irremovable" is not configurable');
 });
 
 }(jQuery));
