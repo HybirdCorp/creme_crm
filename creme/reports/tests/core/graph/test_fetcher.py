@@ -16,13 +16,21 @@ from creme.creme_core.tests.fake_constants import (
     FAKE_REL_SUB_EMPLOYED_BY,
 )
 from creme.reports.bricks import ReportGraphBrick
+# from creme.reports.constants import (
+#     RGA_COUNT,
+#     RGF_FK,
+#     RGF_NOLINK,
+#     RGF_RELATION,
+#     RGT_YEAR,
+# )
 from creme.reports.constants import (
-    RGA_COUNT,
     RGF_FK,
     RGF_NOLINK,
     RGF_RELATION,
-    RGT_YEAR,
+    AbscissaGroup,
+    OrdinateAggregator,
 )
+# from creme.reports.constants import AbscissaGroup
 from creme.reports.core.graph.fetcher import (
     RegularFieldLinkedGraphFetcher,
     RelationLinkedGraphFetcher,
@@ -38,8 +46,10 @@ class GraphFetcherTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
+            abscissa_cell_value='created', abscissa_type=AbscissaGroup.YEAR,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=OrdinateAggregator.COUNT,
         )
 
         fetcher1 = SimpleGraphFetcher(graph=graph)
@@ -85,8 +95,10 @@ class GraphFetcherTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
+            abscissa_cell_value='created', abscissa_type=AbscissaGroup.YEAR,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=OrdinateAggregator.COUNT,
         )
 
         fname = 'image'
@@ -172,8 +184,10 @@ class GraphFetcherTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
+            abscissa_cell_value='created', abscissa_type=AbscissaGroup.YEAR,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=OrdinateAggregator.COUNT,
         )
 
         fetcher1 = RelationLinkedGraphFetcher(graph=graph, value=FAKE_REL_SUB_EMPLOYED_BY)
@@ -236,8 +250,10 @@ class GraphFetcherTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
+            abscissa_cell_value='created', abscissa_type=AbscissaGroup.YEAR,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=OrdinateAggregator.COUNT,
         )
 
         ibci = SimpleGraphFetcher(graph=graph).create_brick_config_item(

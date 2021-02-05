@@ -520,7 +520,8 @@ class Populator(BasePopulator):
 
         from creme import reports
         from creme.creme_core.utils.meta import FieldInfo
-        from creme.reports import constants as rep_constants
+        # from creme.reports import constants as rep_constants
+        from creme.reports.constants import RFT_FIELD, RFT_RELATION
         from creme.reports.core.graph.fetcher import SimpleGraphFetcher
         from creme.reports.models import Field
 
@@ -538,12 +539,12 @@ class Populator(BasePopulator):
         )
 
         # TODO: helper method(s) (see EntityFilterCondition)
-        create_field = partial(Field.objects.create, report=report, type=rep_constants.RFT_FIELD)
+        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
         create_field(name='name',              order=1)
         create_field(name='estimated_sales',   order=2)
         create_field(name='made_sales',        order=3)
         create_field(name='sales_phase__name', order=4)
-        create_field(name=rt_obj_emit_orga.id, order=5, type=rep_constants.RFT_RELATION)
+        create_field(name=rt_obj_emit_orga.id, order=5, type=RFT_RELATION)
 
         # Create 2 graphs ------------------------------------------------------
         if reports.rgraph_model_is_custom():
@@ -561,11 +562,14 @@ class Populator(BasePopulator):
             )
             return
 
+        ReportGraph = reports.get_rgraph_model()
+
         # TODO: helper method (range only on DateFields etc...)
         create_graph = partial(
-            reports.get_rgraph_model().objects.create,
+            ReportGraph.objects.create,
             linked_report=report, user=admin,
-            ordinate_type=rep_constants.RGA_SUM,
+            # ordinate_type=rep_constants.RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=sales_cell.key,
         )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name
@@ -574,7 +578,8 @@ class Populator(BasePopulator):
                 estimated_sales=esales_vname,
                 sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
             ),
-            abscissa_type=rep_constants.RGT_FK,
+            # abscissa_type=rep_constants.RGT_FK,
+            abscissa_type=ReportGraph.Group.FK,
             abscissa_cell_value='sales_phase',
         )
         rgraph2 = create_graph(
@@ -582,7 +587,8 @@ class Populator(BasePopulator):
                 estimated_sales=esales_vname,
                 closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
             ),
-            abscissa_type=rep_constants.RGT_RANGE,
+            # abscissa_type=rep_constants.RGT_RANGE,
+            abscissa_type=ReportGraph.Group.RANGE,
             abscissa_cell_value='closing_date',
             abscissa_parameter='90',
         )

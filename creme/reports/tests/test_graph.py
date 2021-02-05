@@ -44,27 +44,28 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.queries import QSerializer
 
 from ..bricks import InstanceBricksInfoBrick, ReportGraphBrick
-from ..constants import (
-    RGA_AVG,
-    RGA_COUNT,
-    RGA_MAX,
-    RGA_MIN,
-    RGA_SUM,
-    RGF_FK,
-    RGF_NOLINK,
-    RGF_RELATION,
-    RGT_CUSTOM_DAY,
-    RGT_CUSTOM_FK,
-    RGT_CUSTOM_MONTH,
-    RGT_CUSTOM_RANGE,
-    RGT_CUSTOM_YEAR,
-    RGT_DAY,
-    RGT_FK,
-    RGT_MONTH,
-    RGT_RANGE,
-    RGT_RELATION,
-    RGT_YEAR,
-)
+# from ..constants import (
+#     RGA_AVG,
+#     RGA_COUNT,
+#     RGA_MAX,
+#     RGA_MIN,
+#     RGA_SUM,
+#     RGF_FK,
+#     RGF_NOLINK,
+#     RGF_RELATION,
+#     RGT_CUSTOM_DAY,
+#     RGT_CUSTOM_FK,
+#     RGT_CUSTOM_MONTH,
+#     RGT_CUSTOM_RANGE,
+#     RGT_CUSTOM_YEAR,
+#     RGT_DAY,
+#     RGT_FK,
+#     RGT_MONTH,
+#     RGT_RANGE,
+#     RGT_RELATION,
+#     RGT_YEAR,
+# )
+from ..constants import RGF_FK, RGF_NOLINK, RGF_RELATION
 from ..core.graph import AbscissaInfo, ListViewURLBuilder, OrdinateInfo
 from ..core.graph.fetcher import (
     RegularFieldLinkedGraphFetcher,
@@ -167,7 +168,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
     #     return reverse('reports__graph_types', args=(ct.id,))
 
     def _create_invoice_report_n_graph(self, abscissa='issuing_date',
-                                       ordinate_type=RGA_SUM, ordinate_field='total_no_vat'):
+                                       # ordinate_type=RGA_SUM,
+                                       ordinate_type=ReportGraph.Aggregator.SUM,
+                                       ordinate_field='total_no_vat'):
         self.report = report = Report.objects.create(
             user=self.user,
             name='All invoices of the current year',
@@ -180,7 +183,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             linked_report=report,
             name='Sum of current year invoices total without taxes / month',
             abscissa_cell_value=abscissa,
-            abscissa_type=RGT_MONTH,
+            # abscissa_type=RGT_MONTH,
+            abscissa_type=ReportGraph.Group.MONTH,
             ordinate_type=ordinate_type,
             ordinate_cell_key=f'regular_field-{ordinate_field}',
         )
@@ -241,7 +245,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertURL(builder({'id': 1}), FakeContact, expected_q=q & Q(id=1))
 
     def test_createview01(self):
-        "RGT_FK."
+        "Group.FK."
         user = self.login()
         report = self._create_simple_organisations_report()
 
@@ -255,7 +259,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         name = 'My Graph #1'
         abscissa = 'sector'
-        gtype = RGT_FK
+        # gtype = RGT_FK
+        gtype = ReportGraph.Group.FK
         chart = 'barchart'
         self.assertNoFormError(
             self.client.post(
@@ -269,7 +274,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                         graph_type=gtype,
                     ),
 
-                    'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                    # 'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                    'ordinate': self.formfield_value_ordinate(
+                        aggr_id=ReportGraph.Aggregator.COUNT,
+                    ),
 
                     'chart': chart,
                 },
@@ -279,7 +287,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,      rgraph.user)
         self.assertEqual(abscissa,  rgraph.abscissa_cell_value)
-        self.assertEqual(RGA_COUNT, rgraph.ordinate_type)
+        # self.assertEqual(RGA_COUNT, rgraph.ordinate_type)
+        self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
         self.assertEqual('',        rgraph.ordinate_cell_key)
         self.assertEqual(gtype,     rgraph.abscissa_type)
         self.assertEqual(chart,     rgraph.chart)
@@ -338,14 +347,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertGET404(self._builf_fetch_url(rgraph, 'STUFF'))
 
     def test_createview02(self):
-        "Ordinate with aggregate + RGT_DAY."
+        "Ordinate with aggregate + Group.DAY."
         user = self.login()
         report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
         ordinate = 'capital'
-        gtype = RGT_DAY
+        # gtype = RGT_DAY
+        gtype = ReportGraph.Group.DAY
 
         def post(**kwargs):
             return self.client.post(
@@ -364,7 +374,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 graph_type=gtype,
             ),
             ordinate=self.formfield_value_ordinate(
-                aggr_id=RGA_MAX,
+                # aggr_id=RGA_MAX,
+                aggr_id=ReportGraph.Aggregator.MAX,
                 cell=EntityCellRegularField.build(FakeOrganisation, 'name'),
             ),
         )
@@ -378,7 +389,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             'This entity cell is not allowed.'
         )
 
-        aggregate = RGA_MAX
+        # aggregate = RGA_MAX
+        aggregate = ReportGraph.Aggregator.MAX
         abscissa = 'created'
         self.assertNoFormError(post(
             abscissa=self.formfield_value_abscissa(
@@ -409,13 +421,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(_('Capital'), str(hand.ordinate.cell))
 
     def test_createview_with_relation(self):
-        "RGT_RELATION."
+        "Group.RELATION."
         user = self.login()
         report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
-        gtype = RGT_RELATION
+        # gtype = RGT_RELATION
+        gtype = ReportGraph.Group.RELATION
 
         rtype_id = fake_constants.FAKE_REL_OBJ_EMPLOYED_BY
         rtype = RelationType.objects.get(id=rtype_id)
@@ -431,21 +444,25 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     graph_type=gtype,
                 ),
 
-                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                # 'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                'ordinate': self.formfield_value_ordinate(aggr_id=ReportGraph.Aggregator.COUNT),
             },
         ))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
         self.assertEqual(user,      rgraph.user)
         self.assertEqual(rtype_id,  rgraph.abscissa_cell_value)
-        self.assertEqual(RGA_COUNT, rgraph.ordinate_type)
+        # self.assertEqual(RGA_COUNT, rgraph.ordinate_type)
+        self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
         self.assertEqual('',        rgraph.ordinate_cell_key)
 
         self.assertEqual('employs', rgraph.hand.verbose_abscissa)
 
     @parameterized.expand([
-        (RGT_MONTH,),
-        (RGT_YEAR,),
+        # (RGT_MONTH,),
+        (ReportGraph.Group.MONTH,),
+        # (RGT_YEAR,),
+        (ReportGraph.Group.YEAR,),
     ])
     def test_createview_with_date(self, gtype):
         user = self.login()
@@ -454,7 +471,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         name = 'My Graph #1'
         ordinate = 'capital'
-        aggregate = RGA_MIN
+        # aggregate = RGA_MIN
+        aggregate = ReportGraph.Aggregator.MIN
 
         def post(abscissa_field, **kwargs):
             return self.client.post(
@@ -497,16 +515,18 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(f'regular_field-{ordinate}', rgraph.ordinate_cell_key)
 
     def test_createview_with_range(self):
-        "RGT_RANGE."
+        "ReportGraph.Group.RANGE."
         user = self.login()
         report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
         ordinate = 'capital'
-        gtype = RGT_RANGE
+        # gtype = RGT_RANGE
+        gtype = ReportGraph.Group.RANGE
 
-        def post(abscissa_field, parameter='', aggr_id=RGA_MAX, **kwargs):
+        # def post(abscissa_field, parameter='', aggr_id=RGA_MAX, **kwargs):
+        def post(abscissa_field, parameter='', aggr_id=ReportGraph.Aggregator.MAX, **kwargs):
             return self.client.post(
                 url,
                 data={
@@ -535,7 +555,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             'This entity cell is not allowed.'
         )
 
-        aggregate = RGA_AVG
+        # aggregate = RGA_AVG
+        aggregate = ReportGraph.Aggregator.AVG
         abscissa = 'modified'
         days = '25'
         self.assertNoFormError(post(abscissa_field=abscissa, parameter=days, aggr_id=aggregate))
@@ -549,7 +570,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(f'regular_field-{ordinate}', rgraph.ordinate_cell_key)
 
     def test_createview_with_customfk(self):
-        "RGT_CUSTOM_FK."
+        "ReportGraph.Group.CUSTOM_FK."
         user = self.login()
         cf_enum = CustomField.objects.create(
             content_type=self.ct_contact, name='Hair', field_type=CustomField.ENUM,
@@ -559,7 +580,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
-        gtype = RGT_CUSTOM_FK
+        # gtype = RGT_CUSTOM_FK
+        gtype = ReportGraph.Group.CUSTOM_FK
 
         self.assertNoFormError(self.client.post(
             url,
@@ -571,7 +593,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     abscissa=cf_enum,
                     graph_type=gtype,
                 ),
-                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                # 'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                'ordinate': self.formfield_value_ordinate(aggr_id=ReportGraph.Aggregator.COUNT),
             },
         ))
 
@@ -581,9 +604,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(gtype,           rgraph.abscissa_type)
 
     @parameterized.expand([
-        (RGT_CUSTOM_DAY,),
-        (RGT_CUSTOM_MONTH,),
-        (RGT_CUSTOM_YEAR,),
+        # (RGT_CUSTOM_DAY,),
+        # (RGT_CUSTOM_MONTH,),
+        # (RGT_CUSTOM_YEAR,),
+        (ReportGraph.Group.CUSTOM_DAY,),
+        (ReportGraph.Group.CUSTOM_MONTH,),
+        (ReportGraph.Group.CUSTOM_YEAR,),
     ])
     def test_createview_with_customdate(self, gtype):
         user = self.login()
@@ -608,7 +634,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     abscissa=cf_dt,
                     graph_type=gtype,
                 ),
-                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                # 'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                'ordinate': self.formfield_value_ordinate(aggr_id=ReportGraph.Aggregator.COUNT),
             },
         ))
 
@@ -616,13 +643,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(user,          rgraph.user)
         self.assertEqual(str(cf_dt.id), rgraph.abscissa_cell_value)
         self.assertEqual(gtype,         rgraph.abscissa_type)
-        self.assertEqual(RGA_COUNT,     rgraph.ordinate_type)
+        # self.assertEqual(RGA_COUNT,     rgraph.ordinate_type)
+        self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
         self.assertEqual('',            rgraph.ordinate_cell_key)
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
     def test_createview_with_customrange(self):
-        "RGT_CUSTOM_RANGE."
+        "ReportGraph.Group.CUSTOM_RANGE."
         user = self.login()
 
         cf_dt = CustomField.objects.create(
@@ -633,7 +661,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
-        gtype = RGT_CUSTOM_RANGE
+        # gtype = RGT_CUSTOM_RANGE
+        gtype = ReportGraph.Group.CUSTOM_RANGE
 
         days = '25'
         self.assertNoFormError(self.client.post(
@@ -648,7 +677,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     graph_type=gtype,
                     parameter=days,
                 ),
-                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                # 'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                'ordinate': self.formfield_value_ordinate(aggr_id=ReportGraph.Aggregator.COUNT),
             },
         ))
 
@@ -657,7 +687,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(str(cf_dt.id), rgraph.abscissa_cell_value)
         self.assertEqual(gtype,         rgraph.abscissa_type)
         self.assertEqual(days,          rgraph.abscissa_parameter)
-        self.assertEqual(RGA_COUNT,     rgraph.ordinate_type)
+        # self.assertEqual(RGA_COUNT,     rgraph.ordinate_type)
+        self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
         self.assertEqual('',            rgraph.ordinate_cell_key)
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
@@ -691,10 +722,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
                 'abscissa': self.formfield_value_abscissa(
                     abscissa=FakeOrganisation._meta.get_field(hidden_fname1),
-                    graph_type=RGT_FK,
+                    # graph_type=RGT_FK,
+                    graph_type=ReportGraph.Group.FK,
                 ),
                 'ordinate': self.formfield_value_ordinate(
-                    aggr_id=RGA_SUM,
+                    # aggr_id=RGA_SUM,
+                    aggr_id=ReportGraph.Aggregator.SUM,
                     cell=EntityCellRegularField.build(FakeOrganisation, hidden_fname2),
                 ),
             },
@@ -714,36 +747,43 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph(
             user=user, linked_report=report,
             name='Capital per month of creation',
-            ordinate_type=RGA_SUM,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key='regular_field-capital',
         )
 
         rgraph.abscissa_info = AbscissaInfo(
-            graph_type=RGT_FK,
+            # graph_type=RGT_FK,
+            graph_type=ReportGraph.Group.FK,
             cell=EntityCellRegularField.build(FakeOrganisation, 'capital'),
         )
-        self.assertEqual('capital', rgraph.abscissa_cell_value)
-        self.assertEqual(RGT_FK, rgraph.abscissa_type)
+        self.assertEqual('capital',            rgraph.abscissa_cell_value)
+        # self.assertEqual(RGT_FK, rgraph.abscissa_type)
+        self.assertEqual(ReportGraph.Group.FK, rgraph.abscissa_type)
         self.assertIsNone(rgraph.abscissa_parameter)
 
         abs_info1 = rgraph.abscissa_info
         self.assertIsInstance(abs_info1, AbscissaInfo)
-        self.assertEqual(RGT_FK, abs_info1.graph_type)
+        # self.assertEqual(RGT_FK, abs_info1.graph_type)
+        self.assertEqual(ReportGraph.Group.FK, abs_info1.graph_type)
         self.assertIsNone(abs_info1.parameter)
         self.assertEqual('regular_field-capital', abs_info1.cell.key)
 
         # ---
         rgraph.abscissa_info = AbscissaInfo(
-            graph_type=RGT_RANGE,
+            # graph_type=RGT_RANGE,
+            graph_type=ReportGraph.Group.RANGE,
             cell=EntityCellRegularField.build(FakeOrganisation, 'created'),
             parameter='3',
         )
         self.assertEqual('created', rgraph.abscissa_cell_value)
-        self.assertEqual(RGT_RANGE, rgraph.abscissa_type)
+        # self.assertEqual(RGT_RANGE, rgraph.abscissa_type)
+        self.assertEqual(ReportGraph.Group.RANGE, rgraph.abscissa_type)
         self.assertEqual('3', rgraph.abscissa_parameter)
 
         abs_info2 = rgraph.abscissa_info
-        self.assertEqual(RGT_RANGE, abs_info2.graph_type)
+        # self.assertEqual(RGT_RANGE, abs_info2.graph_type)
+        self.assertEqual(ReportGraph.Group.RANGE, abs_info2.graph_type)
         self.assertEqual('regular_field-created', abs_info2.cell.key)
         self.assertEqual('3', abs_info2.parameter)
 
@@ -754,7 +794,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Capital per month of creation',
         )
-        aggr_id1 = RGA_MAX
+        # aggr_id1 = RGA_MAX
+        aggr_id1 = ReportGraph.Aggregator.MAX
         cell1 = EntityCellRegularField.build(FakeOrganisation, 'capital')
         rgraph.ordinate_info = OrdinateInfo(aggr_id=aggr_id1, cell=cell1)
         self.assertEqual(aggr_id1,  rgraph.ordinate_type)
@@ -772,7 +813,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             field_type=CustomField.INT,
         )
         cell2 = EntityCellCustomField(cfield)
-        aggr_id2 = RGA_MIN
+        # aggr_id2 = RGA_MIN
+        aggr_id2 = ReportGraph.Aggregator.MIN
         rgraph.ordinate_info = OrdinateInfo(aggr_id=aggr_id2, cell=cell2)
 
         self.assertEqual(aggr_id2,  rgraph.ordinate_type)
@@ -783,7 +825,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(cell2.key, ord_info2.cell.key)
 
         # ---
-        aggr_id3 = RGA_COUNT
+        # aggr_id3 = RGA_COUNT
+        aggr_id3 = ReportGraph.Aggregator.COUNT
         rgraph.ordinate_info = OrdinateInfo(aggr_id=aggr_id3)
 
         self.assertEqual(aggr_id3, rgraph.ordinate_type)
@@ -804,7 +847,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         report = self._create_simple_organisations_report()
         cell_key = f'regular_field-{hidden_fname}'
-        aggr_id = RGA_MAX
+        # aggr_id = RGA_MAX
+        aggr_id = ReportGraph.Aggregator.MAX
         rgraph = ReportGraph(
             user=user, linked_report=report,
             name='Max capital per month of creation',
@@ -824,8 +868,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Capital per month of creation',
             abscissa_cell_value='created',
-            abscissa_type=RGT_MONTH,
-            ordinate_type=RGA_SUM,
+            # abscissa_type=RGT_MONTH,
+            abscissa_type=ReportGraph.Group.MONTH,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -848,7 +894,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         name = 'Organisations per sector'
         abscissa = 'sector'
-        gtype = RGT_FK
+        # gtype = RGT_FK
+        gtype = ReportGraph.Group.FK
         self.assertNoFormError(self.client.post(
             url,
             data={
@@ -860,14 +907,16 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     abscissa=FakeOrganisation._meta.get_field(abscissa),
                     graph_type=gtype,
                 ),
-                'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                # 'ordinate': self.formfield_value_ordinate(aggr_id=RGA_COUNT),
+                'ordinate': self.formfield_value_ordinate(aggr_id=ReportGraph.Aggregator.COUNT),
             },
         ))
 
         rgraph = self.refresh(rgraph)
         self.assertEqual(name,     rgraph.name)
         self.assertEqual(abscissa, rgraph.abscissa_cell_value)
-        self.assertEqual(RGA_COUNT,  rgraph.ordinate_type)
+        # self.assertEqual(RGA_COUNT,  rgraph.ordinate_type)
+        self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
         self.assertEqual(gtype,    rgraph.abscissa_type)
         self.assertIsNone(rgraph.abscissa_parameter)
 
@@ -890,7 +939,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         abscissa = 'created'
-        gtype = RGT_DAY
+        # gtype = RGT_DAY
+        gtype = ReportGraph.Group.DAY
         self.assertNoFormError(self.client.post(
             url,
             data={
@@ -903,7 +953,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     graph_type=gtype,
                 ),
                 'ordinate': self.formfield_value_ordinate(
-                    aggr_id=RGA_AVG,
+                    # aggr_id=RGA_AVG,
+                    aggr_id=ReportGraph.Aggregator.AVG,
                     cell=EntityCellRegularField.build(FakeInvoice, 'total_vat'),
                 ),
             },
@@ -913,14 +964,16 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(abscissa, rgraph.abscissa_cell_value)
         self.assertEqual(gtype,    rgraph.abscissa_type)
         self.assertIsNone(rgraph.abscissa_parameter)
-        self.assertEqual(RGA_AVG,                   rgraph.ordinate_type)
-        self.assertEqual('regular_field-total_vat', rgraph.ordinate_cell_key)
+        # self.assertEqual(RGA_AVG,                   rgraph.ordinate_type)
+        self.assertEqual(ReportGraph.Aggregator.AVG, rgraph.ordinate_type)
+        self.assertEqual('regular_field-total_vat',  rgraph.ordinate_cell_key)
 
     def test_editview03(self):
         "With FieldsConfig."
         user = self.login()
         rgraph = self._create_invoice_report_n_graph(
-            ordinate_type=RGA_SUM,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_field='total_vat',
         )
 
@@ -941,11 +994,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
                 'abscissa': self.formfield_value_abscissa(
                     abscissa=FakeInvoice._meta.get_field('expiration_date'),
-                    graph_type=RGT_MONTH,
+                    # graph_type=RGT_MONTH,
+                    graph_type=ReportGraph.Group.MONTH,
                 ),
 
                 'ordinate': self.formfield_value_ordinate(
-                    aggr_id=RGA_AVG,
+                    # aggr_id=RGA_AVG,
+                    aggr_id=ReportGraph.Aggregator.AVG,
                     cell=EntityCellRegularField.build(FakeInvoice, hidden_fname),
                 ),
             },
@@ -978,7 +1033,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                     graph_type=rgraph.abscissa_type,
                 ),
                 'ordinate': self.formfield_value_ordinate(
-                    aggr_id=RGA_SUM,
+                    # aggr_id=RGA_SUM,
+                    aggr_id=ReportGraph.Aggregator.SUM,
                     cell=EntityCellRegularField.build(FakeInvoice, 'total_no_vat'),
                 ),
             },
@@ -999,7 +1055,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.login()
         hidden_fname = 'total_no_vat'
         rgraph = self._create_invoice_report_n_graph(
-            ordinate_type=RGA_SUM,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_field=hidden_fname,
         )
 
@@ -1042,9 +1099,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of clans per countries',
-            abscissa_type=RGT_CUSTOM_FK,
+            # abscissa_type=RGT_CUSTOM_FK,
+            abscissa_type=ReportGraph.Group.CUSTOM_FK,
             abscissa_cell_value=str(cf.id),
-            ordinate_type=RGA_COUNT,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         response = self.assertGET200(self._build_edit_url(rgraph))
@@ -1085,8 +1144,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts by position',
-            abscissa_cell_value='position', abscissa_type=RGT_FK,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='position', abscissa_type=RGT_FK,
+            abscissa_cell_value='position', abscissa_type=ReportGraph.Group.FK,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         with self.assertNoException():
@@ -1152,8 +1213,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Capital max by sector',
-            abscissa_cell_value='sector', abscissa_type=RGT_FK,
-            ordinate_type=RGA_MAX,
+            # abscissa_cell_value='sector', abscissa_type=RGT_FK,
+            abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
+            # ordinate_type=RGA_MAX,
+            ordinate_type=ReportGraph.Aggregator.MAX,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -1201,8 +1264,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Max soldiers by sector',
-            abscissa_cell_value='sector', abscissa_type=RGT_FK,
-            ordinate_type=RGA_MAX,
+            # abscissa_cell_value='sector', abscissa_type=RGT_FK,
+            abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
+            # ordinate_type=RGA_MAX,
+            ordinate_type=ReportGraph.Aggregator.MAX,
             ordinate_cell_key=f'custom_field-{cf.id}',
         )
 
@@ -1232,8 +1297,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user,
             linked_report=self._create_simple_organisations_report(),
             name='Max soldiers by sector',
-            abscissa_cell_value='sector', abscissa_type=RGT_FK,
-            ordinate_type=RGA_MAX,
+            # abscissa_cell_value='sector', abscissa_type=RGT_FK,
+            abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
+            # ordinate_type=RGA_MAX,
+            ordinate_type=ReportGraph.Aggregator.MAX,
             ordinate_cell_key='regular_field-unknown',  # <=====
         )
 
@@ -1262,7 +1329,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user,
             linked_report=self._create_simple_organisations_report(),
             name='Max soldiers by sector',
-            abscissa_cell_value='sector', abscissa_type=RGT_FK,
+            # abscissa_cell_value='sector', abscissa_type=RGT_FK,
+            abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
             ordinate_type='invalid',  # <=====
             ordinate_cell_key='regular_field-capital',
         )
@@ -1292,8 +1360,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user,
             linked_report=self._create_simple_organisations_report(),
             name='Max soldiers by sector',
-            abscissa_cell_value='sector', abscissa_type=RGT_FK,
-            ordinate_type=RGA_MAX,
+            # abscissa_cell_value='sector', abscissa_type=RGT_FK,
+            abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
+            # ordinate_type=RGA_MAX,
+            ordinate_type=ReportGraph.Aggregator.MAX,
             ordinate_cell_key='custom_field-1000',  # <=====
         )
 
@@ -1342,8 +1412,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts count by User',
-            abscissa_cell_value='user', abscissa_type=RGT_FK,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='user', abscissa_type=RGT_FK,
+            abscissa_cell_value='user', abscissa_type=ReportGraph.Group.FK,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         with self.assertNoException():
@@ -1364,8 +1436,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Report count by CTypes',
-            abscissa_cell_value='ct', abscissa_type=RGT_FK,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='ct', abscissa_type=RGT_FK,
+            abscissa_cell_value='ct', abscissa_type=ReportGraph.Group.FK,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         with self.assertNoException():
@@ -1381,8 +1455,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contact count per address',
-            abscissa_cell_value='address', abscissa_type=RGT_FK,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='address', abscissa_type=RGT_FK,
+            abscissa_cell_value='address', abscissa_type=ReportGraph.Group.FK,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user)
@@ -1405,8 +1481,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 user=user, linked_report=report,
                 name=f'Number of organisation created / {days} day(s)',
                 abscissa_cell_value='creation_date',
-                abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
-                ordinate_type=RGA_COUNT,
+                # abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
+                abscissa_type=ReportGraph.Group.RANGE, abscissa_parameter=str(days),
+                # ordinate_type=RGA_COUNT,
+                ordinate_type=ReportGraph.Aggregator.COUNT,
             )
 
         rgraph = create_graph(15)
@@ -1480,8 +1558,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name=f'Minimum of capital by creation date (period of {days} days)',
             abscissa_cell_value='creation_date',
-            abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
-            ordinate_type=RGA_SUM,
+            # abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
+            abscissa_type=ReportGraph.Group.RANGE, abscissa_parameter=str(days),
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -1523,8 +1603,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 user=user, linked_report=report,
                 name=f'Number of organisation created / {days} day(s)',
                 abscissa_cell_value='creation_date',
-                abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
-                ordinate_type=RGA_COUNT,
+                # abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
+                abscissa_type=ReportGraph.Group.RANGE, abscissa_parameter=str(days),
+                # ordinate_type=RGA_COUNT,
+                ordinate_type=ReportGraph.Aggregator.COUNT,
             )
 
         rgraph = create_graph(15)
@@ -1633,8 +1715,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             linked_report=self._create_simple_organisations_report(),
             name=f'First victory / {days} day(s)',
             abscissa_cell_value=cf.id,
-            abscissa_type=RGT_CUSTOM_RANGE, abscissa_parameter=str(days),
-            ordinate_type=RGA_COUNT,
+            # abscissa_type=RGT_CUSTOM_RANGE, abscissa_parameter=str(days),
+            abscissa_type=ReportGraph.Group.CUSTOM_RANGE, abscissa_parameter=str(days),
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         # ASC -----------------------------------------------------------------
@@ -1713,8 +1797,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Useless name',
             abscissa_cell_value=1000,  # <====
-            abscissa_type=RGT_CUSTOM_RANGE, abscissa_parameter='11',
-            ordinate_type=RGA_COUNT,
+            # abscissa_type=RGT_CUSTOM_RANGE, abscissa_parameter='11',
+            abscissa_type=ReportGraph.Group.CUSTOM_RANGE, abscissa_parameter='11',
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user)
@@ -1729,8 +1815,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Average of capital by creation date (by day)',
             abscissa_cell_value='creation_date',
-            abscissa_type=RGT_DAY,
-            ordinate_type=RGA_AVG,
+            # abscissa_type=RGT_DAY,
+            abscissa_type=ReportGraph.Group.DAY,
+            # ordinate_type=RGA_AVG,
+            ordinate_type=ReportGraph.Aggregator.AVG,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -1808,8 +1896,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by 1rst victory (by day)',
-            abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_DAY,
-            ordinate_type=RGA_AVG,
+            # abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_DAY,
+            abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_DAY,
+            # ordinate_type=RGA_AVG,
+            ordinate_type=ReportGraph.Aggregator.AVG,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -1854,8 +1944,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Average of capital by creation date (by day)',
             abscissa_cell_value=1000,  # <====
-            abscissa_type=RGT_CUSTOM_DAY,
-            ordinate_type=RGA_AVG,
+            # abscissa_type=RGT_CUSTOM_DAY,
+            abscissa_type=ReportGraph.Group.CUSTOM_DAY,
+            # ordinate_type=RGA_AVG,
+            ordinate_type=ReportGraph.Aggregator.AVG,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -1876,11 +1968,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of orgas by creation date (period of 1 month)',
-            # abscissa='creation_date', type=RGT_MONTH,
-            abscissa_cell_value='creation_date',
-            abscissa_type=RGT_MONTH,
-            # ordinate='', is_count=True,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='creation_date', abscissa_type=RGT_MONTH,
+            abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.MONTH,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1928,8 +2019,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of houses by 1rst victory (period of 1 month)',
-            abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_MONTH,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_MONTH,
+            abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user=user)
@@ -1969,9 +2062,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of orgas by creation date (period of 1 year)',
-            abscissa_cell_value='creation_date',
-            abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='creation_date', abscissa_type=RGT_YEAR,
+            abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.YEAR,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2022,9 +2116,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Sum of vine by creation date (period of 1 year)',
-            abscissa_cell_value='creation_date',
-            abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_SUM,
+            # abscissa_cell_value='creation_date', abscissa_type=RGT_YEAR,
+            abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.YEAR,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=f'custom_field-{cf.id}',
         )
 
@@ -2049,8 +2144,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Number of orgas by creation date (period of 1 year)',
             abscissa_cell_value='invalid',  # <=====
-            abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_COUNT,
+            # abscissa_type=RGT_YEAR,
+            abscissa_type=ReportGraph.Group.YEAR,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user)
@@ -2084,8 +2181,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of house by 1rst victory (period of 1 year)',
-            abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_YEAR,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_YEAR,
+            abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         x_asc, y_asc = rgraph.fetch(user=user)
@@ -2155,8 +2254,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Number of employees',
             abscissa_cell_value=fake_constants.FAKE_REL_SUB_EMPLOYED_BY,
-            abscissa_type=RGT_RELATION,
-            ordinate_type=RGA_COUNT,
+            # abscissa_type=RGT_RELATION,
+            abscissa_type=ReportGraph.Group.RELATION,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         # ASC -----------------------------------------------------------------
@@ -2227,8 +2328,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Capital by lords',
             abscissa_cell_value=rtype.id,
-            abscissa_type=RGT_RELATION,
-            ordinate_type=RGA_SUM,
+            # abscissa_type=RGT_RELATION,
+            abscissa_type=ReportGraph.Group.RELATION,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -2299,10 +2402,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts HP by house',
-            # abscissa=rtype_id, type=RGT_RELATION,
-            abscissa_cell_value=rtype_id, abscissa_type=RGT_RELATION,
-            # ordinate=f'{cf.id}__sum', is_count=False,
-            ordinate_type=RGA_SUM,
+            # abscissa_cell_value=rtype_id, abscissa_type=RGT_RELATION,
+            abscissa_cell_value=rtype_id, abscissa_type=ReportGraph.Group.RELATION,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=f'custom_field-{cf.id}',
         )
 
@@ -2327,18 +2430,17 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by creation date (by day)',
-            # abscissa='invalidrtype',  # <====
             abscissa_cell_value='invalidrtype',  # <====
-            # type=RGT_RELATION,
-            abscissa_type=RGT_RELATION,
-            # ordinate='capital__avg', is_count=False,
-            ordinate_type=RGA_AVG,
+            # abscissa_type=RGT_RELATION,
+            abscissa_type=ReportGraph.Group.RELATION,
+            # ordinate_type=RGA_AVG,
+            ordinate_type=ReportGraph.Aggregator.AVG,
             ordinate_cell_key='regular_field-capital',
         )
 
         x_asc, y_asc = rgraph.fetch(user)
-        self.assertEqual([], x_asc)
-        self.assertEqual([], y_asc)
+        self.assertListEqual([], x_asc)
+        self.assertListEqual([], y_asc)
 
         hand = rgraph.hand
         self.assertEqual('??', hand.verbose_abscissa)
@@ -2352,12 +2454,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts by title',
-            # abscissa=1000,  # <=========
             abscissa_cell_value=1000,  # <=========
-            # type=RGT_CUSTOM_FK,
-            abscissa_type=RGT_CUSTOM_FK,
-            # ordinate='', is_count=True,
-            ordinate_type=RGA_COUNT,
+            # abscissa_type=RGT_CUSTOM_FK,
+            abscissa_type=ReportGraph.Group.CUSTOM_FK,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         with self.assertNoException():
@@ -2397,10 +2498,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts by title',
-            # abscissa=cf.id, type=RGT_CUSTOM_FK,
-            abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_FK,
-            # ordinate='', is_count=True,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_FK,
+            abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_FK,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         with self.assertNoException():
@@ -2458,10 +2559,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Capital by policy',
-            # abscissa=cf.id, type=RGT_CUSTOM_FK,
-            abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_FK,
-            # ordinate='capital__sum', is_count=False,
-            ordinate_type=RGA_SUM,
+            # abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_FK,
+            abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_FK,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -2490,7 +2591,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         user = self.login()
         # rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
         rgraph = self._create_invoice_report_n_graph(
-            ordinate_type=RGA_SUM,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_field='total_vat',
         )
 
@@ -2791,7 +2893,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertIsInstance(result, dict)
         self.assertEqual(2, len(result))
 
-        x_fmt = '{:02}/2014'.format  # NB: RGT_MONTH
+        x_fmt = '{:02}/2014'.format  # NB: ReportGraph.Group.MONTH
         self.assertEqual([x_fmt(10), x_fmt(11)], result.get('x'))
 
         y = result.get('y')
@@ -2994,8 +3096,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of created contacts / year',
-            abscissa_cell_value='created', abscissa_type=RGT_YEAR,
-            ordinate_type=RGA_COUNT,
+            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
+            abscissa_cell_value='created', abscissa_type=ReportGraph.Group.YEAR,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         url = self._build_add_brick_url(rgraph)
@@ -3239,8 +3343,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Number of organisation created by day',
             abscissa_cell_value='creation_date',
-            abscissa_type=RGT_RANGE, abscissa_parameter='1',
-            ordinate_type=RGA_COUNT,
+            # abscissa_type=RGT_RANGE, abscissa_parameter='1',
+            abscissa_type=ReportGraph.Group.RANGE, abscissa_parameter='1',
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         interval_day_count = 300
@@ -3279,8 +3385,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='Sum of capital by creation date (period of 1 days)',
             abscissa_cell_value='creation_date',
-            abscissa_type=RGT_RANGE, abscissa_parameter='1',
-            ordinate_type=RGA_SUM,
+            # abscissa_type=RGT_RANGE, abscissa_parameter='1',
+            abscissa_type=ReportGraph.Group.RANGE, abscissa_parameter='1',
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -3312,9 +3420,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='capital per month of creation',
             chart='barchart',
-            abscissa_cell_value='created',
-            abscissa_type=RGT_MONTH,
-            ordinate_type=RGA_SUM,
+            # abscissa_cell_value='created', abscissa_type=RGT_MONTH,
+            abscissa_cell_value='created', abscissa_type=ReportGraph.Group.MONTH,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -3343,9 +3452,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             user=user, linked_report=report,
             name='capital per month of creation',
             chart='barchart',
-            abscissa_cell_value='created',
-            abscissa_type=RGT_MONTH,
-            ordinate_type=RGA_SUM,
+            # abscissa_cell_value='created', abscissa_type=RGT_MONTH,
+            abscissa_cell_value='created', abscissa_type=ReportGraph.Group.MONTH,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key='regular_field-capital',
         )
 
@@ -3396,10 +3506,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
                 'abscissa': self.formfield_value_abscissa(
                     abscissa=FakeOrganisation._meta.get_field('user'),
-                    graph_type=RGT_FK,
+                    # graph_type=RGT_FK,
+                    graph_type=ReportGraph.Group.FK,
                 ),
                 'ordinate': self.formfield_value_ordinate(
-                    aggr_id=RGA_MAX,
+                    # aggr_id=RGA_MAX,
+                    aggr_id=ReportGraph.Aggregator.MAX,
                     cell=EntityCellRegularField.build(FakeOrganisation, 'capital'),
                 ),
             })

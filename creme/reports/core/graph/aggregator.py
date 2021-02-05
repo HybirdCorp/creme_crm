@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,8 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
 )
 from creme.creme_core.models import FieldsConfig
-from creme.reports import constants
+# from creme.reports import constants
+from creme.reports.constants import OrdinateAggregator
 
 if TYPE_CHECKING:
     from creme.reports.models import AbstractReportGraph
@@ -63,7 +64,11 @@ class ReportGraphAggregator:
 
     @property
     def verbose_name(self) -> str:
-        return constants.AGGREGATOR_TYPES.get(self.aggr_id, '??')
+        # return constants.AGGREGATOR_TYPES.get(self.aggr_id, '??')
+        try:
+            return OrdinateAggregator(self.aggr_id).label
+        except ValueError:
+            return '??'
 
 
 class ReportGraphAggregatorRegistry:
@@ -116,7 +121,8 @@ class ReportGraphAggregatorRegistry:
 AGGREGATORS_MAP = ReportGraphAggregatorRegistry()
 
 
-@AGGREGATORS_MAP(constants.RGA_COUNT)
+# @AGGREGATORS_MAP(constants.RGA_COUNT)
+@AGGREGATORS_MAP(OrdinateAggregator.COUNT)
 class RGACount(ReportGraphAggregator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -172,21 +178,25 @@ class _RGAFieldAggregation(ReportGraphAggregator):
         ).get('rga_value_agg') or 0
 
 
-@AGGREGATORS_MAP(constants.RGA_AVG)
+# @AGGREGATORS_MAP(constants.RGA_AVG)
+@AGGREGATORS_MAP(OrdinateAggregator.AVG)
 class RGAAverage(_RGAFieldAggregation):
     aggregate_cls = aggregates.Avg
 
 
-@AGGREGATORS_MAP(constants.RGA_MAX)
+# @AGGREGATORS_MAP(constants.RGA_MAX)
+@AGGREGATORS_MAP(OrdinateAggregator.MAX)
 class RGAMax(_RGAFieldAggregation):
     aggregate_cls = aggregates.Max
 
 
-@AGGREGATORS_MAP(constants.RGA_MIN)
+# @AGGREGATORS_MAP(constants.RGA_MIN)
+@AGGREGATORS_MAP(OrdinateAggregator.MIN)
 class RGAMin(_RGAFieldAggregation):
     aggregate_cls = aggregates.Min
 
 
-@AGGREGATORS_MAP(constants.RGA_SUM)
+# @AGGREGATORS_MAP(constants.RGA_SUM)
+@AGGREGATORS_MAP(OrdinateAggregator.SUM)
 class RGASum(_RGAFieldAggregation):
     aggregate_cls = aggregates.Sum

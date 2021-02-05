@@ -35,7 +35,8 @@ from creme.creme_core.models import (  # RelationType
     InstanceBrickConfigItem,
 )
 
-from ..constants import AGGREGATOR_TYPES, GROUP_TYPES
+# from ..constants import AGGREGATOR_TYPES, GROUP_TYPES
+from .. import constants
 from ..core.graph import (
     AbscissaInfo,
     OrdinateInfo,
@@ -51,6 +52,9 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractReportGraph(CremeEntity):
+    Group = constants.AbscissaGroup
+    Aggregator = constants.OrdinateAggregator
+
     name = models.CharField(
         pgettext_lazy('reports-graphs', 'Name of the graph'), max_length=100,
     )
@@ -61,7 +65,8 @@ class AbstractReportGraph(CremeEntity):
 
     # TODO: string IDs instead of integer ?
     abscissa_type = models.PositiveIntegerField(
-        _('X axis (grouping)'), editable=False, choices=GROUP_TYPES.items(),
+        # _('X axis (grouping)'), editable=False, choices=GROUP_TYPES.items(),
+        _('X axis (grouping)'), editable=False, choices=Group.choices,
     )
     abscissa_cell_value = models.CharField(
         _('X axis (field)'), max_length=100, editable=False,
@@ -71,9 +76,9 @@ class AbstractReportGraph(CremeEntity):
     )
 
     ordinate_type = models.CharField(
-        _('Y axis (type)'), max_length=100,
-        choices=AGGREGATOR_TYPES.items(), default='',
-        editable=False,
+        _('Y axis (type)'), max_length=100, editable=False,
+        # choices=AGGREGATOR_TYPES.items(), default='',
+        choices=Aggregator.choices, default='',
     )
     ordinate_cell_key = models.CharField(
         _('Y axis (field)'), max_length=100, editable=False, default='',

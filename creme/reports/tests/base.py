@@ -12,12 +12,6 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from creme.creme_core.constants import REL_SUB_HAS
-# from creme.creme_core.core.entity_cell import (
-#     EntityCellFunctionField,
-#     EntityCellRegularField,
-#     EntityCellRelation,
-# )
-# from creme.creme_core.models import HeaderFilter
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -232,6 +226,8 @@ class BaseReportsTestCase(CremeTestCase):
         return ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of created documents / year',
-            abscissa_cell_value='created', abscissa_type=constants.RGT_YEAR,
-            ordinate_type=constants.RGA_COUNT,
+            # abscissa_cell_value='created', abscissa_type=constants.RGT_YEAR,
+            abscissa_cell_value='created', abscissa_type=ReportGraph.Group.YEAR,
+            # ordinate_type=constants.RGA_COUNT,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
         )
