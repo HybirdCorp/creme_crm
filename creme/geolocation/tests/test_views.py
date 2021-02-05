@@ -35,7 +35,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         data1 = {
             'latitude':  45.22454,
             'longitude': -1.22121,
-            'status':    GeoAddress.COMPLETE,
+            # 'status':    GeoAddress.COMPLETE,
+            'status':    GeoAddress.Status.COMPLETE,
             'geocoded':  True,
         }
         url = self.SET_ADDRESS_URL
@@ -52,7 +53,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         data2 = {
             'latitude':  28.411,
             'longitude': 45.44,
-            'status':    GeoAddress.MANUAL,
+            # 'status':    GeoAddress.MANUAL,
+            'status':    GeoAddress.Status.MANUAL,
             'geocoded':  True,
         }
         self.assertPOST200(url, data={**data2, 'id': address.id})
@@ -75,7 +77,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         data1 = {
             'latitude':  45.22454,
             'longitude': -1.22121,
-            'status':    GeoAddress.COMPLETE,
+            # 'status':    GeoAddress.COMPLETE,
+            'status':    GeoAddress.Status.COMPLETE,
             'geocoded':  True,
         }
         url = self.SET_ADDRESS_URL
@@ -84,36 +87,40 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         address = self.refresh(address)
         self.assertEqual(1, GeoAddress.objects.count())
         self.assertEqual(address.geoaddress, GeoAddress.objects.get())
-        self.assertGeoAddress(GeoAddress.objects.get(), address=address,
-                              draggable=True, **data1
-                             )
+        self.assertGeoAddress(
+            GeoAddress.objects.get(), address=address, draggable=True, **data1
+        )
 
         data2 = {
             'latitude':  28.411,
             'longitude': 45.44,
-            'status':    GeoAddress.COMPLETE,
+            # 'status':    GeoAddress.COMPLETE,
+            'status':    GeoAddress.Status.COMPLETE,
             'geocoded':  True,
         }
         self.assertPOST200(url, data={**data2, 'id': address.id})
 
         geoaddresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geoaddresses))
-        self.assertGeoAddress(geoaddresses[0], address=address,
-                              draggable=True, **data2
-                             )
+        self.assertGeoAddress(
+            geoaddresses[0], address=address, draggable=True, **data2
+        )
 
     def test_set_address_info_missing_address(self):
         self.login()
 
         self.assertFalse(GeoAddress.objects.all())
-        self.assertPOST404(self.SET_ADDRESS_URL,
-                           data={'id':       '000',
-                                 'latitude':  45.22454,
-                                 'longitude': -1.22121,
-                                 'status':    GeoAddress.COMPLETE,
-                                 'geocoded':  True,
-                                },
-                          )
+        self.assertPOST404(
+            self.SET_ADDRESS_URL,
+            data={
+                'id':       '000',
+                'latitude':  45.22454,
+                'longitude': -1.22121,
+                # 'status':    GeoAddress.COMPLETE,
+                'status':    GeoAddress.Status.COMPLETE,
+                'geocoded':  True,
+            },
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -126,7 +133,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         data = {
             'latitude':  45.22454,
             'longitude': -1.22121,
-            'status':    GeoAddress.COMPLETE,
+            # 'status':    GeoAddress.COMPLETE,
+            'status':    GeoAddress.Status.COMPLETE,
             'geocoded':  True,
         }
         self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
@@ -138,12 +146,14 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         self.assertGeoAddress(geoaddress, address=address, draggable=True, **data)
         self.assertEqual(self.refresh(address).geoaddress, geoaddress)
 
-        self.assertPOST404(self.SET_ADDRESS_URL,
-                           data={'id':        address.id,
-                                 'latitude':  45.22454,
-                                 'geocoded':  True,
-                                }
-                          )
+        self.assertPOST404(
+            self.SET_ADDRESS_URL,
+            data={
+                'id':        address.id,
+                'latitude':  45.22454,
+                'geocoded':  True,
+            },
+        )
 
         geoaddresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geoaddresses))
@@ -154,36 +164,43 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
     def test_set_address_info_credentials(self):
         self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
 
-        SetCredentials.objects.create(role=self.user.role,
-                                      ctype=Organisation,
-                                      value=EntityCredentials._ALL_CREDS,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.user.role,
+            ctype=Organisation,
+            value=EntityCredentials._ALL_CREDS,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         orga = create_orga(name='Orga 1', user=self.other_user)
         address = self.create_address(orga)
 
         url = self.SET_ADDRESS_URL
-        self.assertPOST403(url,
-                           data={'id':        address.id,
-                                 'latitude':  45.22454,
-                                 'longitude': -1.22121,
-                                 'status':    GeoAddress.COMPLETE,
-                                 'geocoded':  True,
-                                },
-                          )
+        self.assertPOST403(
+            url,
+            data={
+                'id':        address.id,
+                'latitude':  45.22454,
+                'longitude': -1.22121,
+                # 'status':    GeoAddress.COMPLETE,
+                'status':    GeoAddress.Status.COMPLETE,
+                'geocoded':  True,
+            },
+        )
 
         self.client.logout()
         self.client.login(username=self.other_user.username, password='test')
 
-        self.assertPOST200(url,
-                           data={'id':        address.id,
-                                 'latitude':  45.22454,
-                                 'longitude': -1.22121,
-                                 'status':    GeoAddress.COMPLETE,
-                                 'geocoded':  True,
-                                },
-                          )
+        self.assertPOST200(
+            url,
+            data={
+                'id':        address.id,
+                'latitude':  45.22454,
+                'longitude': -1.22121,
+                # 'status':    GeoAddress.COMPLETE,
+                'status':    GeoAddress.Status.COMPLETE,
+                'geocoded':  True,
+            },
+        )
 
 
 @skipIfCustomOrganisation
@@ -202,17 +219,17 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         response = self.assertGET200(url)
         self.assertDictEqual(response.json(), {'addresses': []})
 
-        address  = self.create_billing_address(orga1, zipcode='13012', town='Marseille')
+        address1 = self.create_billing_address(orga1, zipcode='13012', town='Marseille')
         address2 = self.create_shipping_address(orga2, zipcode='01190', town='Ozan')
         address3 = self.create_address(orga3, zipcode='01630', town='Péron')
 
         response = self.assertGET200(url)
-        self.assertListAddressAsDict(response.json()['addresses'],
-                                     [address_as_dict(address),
-                                      address_as_dict(address2),
-                                      address_as_dict(address3),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            response.json()['addresses'],
+            address_as_dict(address1),
+            address_as_dict(address2),
+            address_as_dict(address3),
+        )
 
     @skipIfCustomContact
     def test_get_addresses_priority(self):
@@ -236,12 +253,12 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         contact_address = self.create_address(contact, zipcode='01630', town='Péron')
 
         response = self.assertGET200(url)
-        self.assertListAddressAsDict(response.json()['addresses'],
-                                     [address_as_dict(contact_address),
-                                      address_as_dict(orga_address),
-                                      address_as_dict(orga2_address),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            response.json()['addresses'],
+            address_as_dict(contact_address),
+            address_as_dict(orga_address),
+            address_as_dict(orga2_address),
+        )
 
     def test_get_addresses_first_other_address(self):
         user = self.login()
@@ -253,9 +270,9 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         self.create_address(orga, zipcode='01630', town='Péron')
 
         response = self.assertGET200(self.GET_ADDRESSES_URL)
-        self.assertDictEqual(response.json(),
-                             {'addresses': [address_as_dict(orga_address)]}
-                            )
+        self.assertDictEqual(
+            response.json(), {'addresses': [address_as_dict(orga_address)]},
+        )
 
     def test_get_addresses_invalid_filter(self):
         user = self.login()
@@ -266,11 +283,12 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
     def test_get_addresses_credentials(self):
         self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
 
-        SetCredentials.objects.create(role=self.user.role,
-                                      ctype=Organisation,
-                                      value=EntityCredentials._ALL_CREDS,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.user.role,
+            ctype=Organisation,
+            value=EntityCredentials._ALL_CREDS,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         orga1 = create_orga(name='Orga 1', user=self.user)
         orga2 = create_orga(name='Orga 2', user=self.other_user)
@@ -286,11 +304,11 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         self.client.login(username=self.other_user.username, password='test')
 
         response = self.assertGET200(url)
-        self.assertListAddressAsDict(response.json()['addresses'],
-                                     [address_as_dict(orga1_address),
-                                      address_as_dict(orga2_address),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            response.json()['addresses'],
+            address_as_dict(orga1_address),
+            address_as_dict(orga2_address),
+        )
 
     def test_get_addresses(self):
         user = self.login()
@@ -316,17 +334,17 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
 
         url = self.GET_ADDRESSES_URL
         response = self.assertGET200(url)
-        self.assertListAddressAsDict(response.json()['addresses'],
-                                     [address_as_dict(address1),
-                                      address_as_dict(address2),
-                                      address_as_dict(address3),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            response.json()['addresses'],
+            address_as_dict(address1),
+            address_as_dict(address2),
+            address_as_dict(address3),
+        )
 
         response = self.assertGET200(url, data={'id': efilter.pk})
-        self.assertDictEqual(response.json(),
-                             {'addresses': [address_as_dict(address1)]}
-                            )
+        self.assertDictEqual(
+            response.json(), {'addresses': [address_as_dict(address1)]},
+        )
 
     def test_get_addresses_populate(self):
         user = self.login()
@@ -343,12 +361,12 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         self.assertEqual(0, GeoAddress.objects.count())
 
         response = self.assertGET200(self.GET_ADDRESSES_URL)
-        self.assertListAddressAsDict(response.json()['addresses'],
-                                     [address_as_dict(address1),
-                                      address_as_dict(address2),
-                                      address_as_dict(address3),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            response.json()['addresses'],
+            address_as_dict(address1),
+            address_as_dict(address2),
+            address_as_dict(address3),
+        )
 
         self.assertEqual(3, GeoAddress.objects.count())
 
@@ -396,19 +414,21 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         response = self.assertGET200(url, data={'address_id': self.MARSEILLE_MAIRIE.id})
         data = response.json()
         self.assertEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
-        self.assertListAddressAsDict(data['addresses'],
-                                     [address_as_dict(self.MARSEILLE_LA_MAJOR),
-                                      address_as_dict(self.MARSEILLE_ST_VICTOR),
-                                      address_as_dict(self.MARSEILLE_COMMANDERIE),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            data['addresses'],
+            address_as_dict(self.MARSEILLE_LA_MAJOR),
+            address_as_dict(self.MARSEILLE_ST_VICTOR),
+            address_as_dict(self.MARSEILLE_COMMANDERIE),
+        )
 
         response = self.assertGET200(url, data={'address_id': self.AUBAGNE_MAIRIE.id})
-        self.assertDictEqual(response.json(),
-                             {'source_address': address_as_dict(self.AUBAGNE_MAIRIE),
-                              'addresses': [address_as_dict(self.MARSEILLE_COMMANDERIE)],
-                             }
-                            )
+        self.assertDictEqual(
+            response.json(),
+            {
+                'source_address': address_as_dict(self.AUBAGNE_MAIRIE),
+                'addresses': [address_as_dict(self.MARSEILLE_COMMANDERIE)],
+            },
+        )
 
         response = self.assertGET200(
             url,
@@ -416,13 +436,13 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         )
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE))
-        self.assertListAddressAsDict(data['addresses'],
-                                     [address_as_dict(self.MARSEILLE_LA_MAJOR),
-                                      address_as_dict(self.MARSEILLE_MAIRIE),
-                                      address_as_dict(self.MARSEILLE_ST_VICTOR),
-                                      address_as_dict(self.AUBAGNE_MAIRIE),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            data['addresses'],
+            address_as_dict(self.MARSEILLE_LA_MAJOR),
+            address_as_dict(self.MARSEILLE_MAIRIE),
+            address_as_dict(self.MARSEILLE_ST_VICTOR),
+            address_as_dict(self.AUBAGNE_MAIRIE),
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -435,32 +455,32 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         response = self.assertGET200(url, data={**GET_data, 'distance': 1000})
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
-        self.assertListAddressAsDict(data['addresses'],
-                                     [address_as_dict(self.MARSEILLE_LA_MAJOR),
-                                      address_as_dict(self.MARSEILLE_ST_VICTOR),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            data['addresses'],
+            address_as_dict(self.MARSEILLE_LA_MAJOR),
+            address_as_dict(self.MARSEILLE_ST_VICTOR),
+        )
 
         response = self.assertGET200(url, data={**GET_data, 'distance': 20000})
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
-        self.assertListAddressAsDict(data['addresses'],
-                                     [address_as_dict(self.MARSEILLE_LA_MAJOR),
-                                      address_as_dict(self.MARSEILLE_ST_VICTOR),
-                                      address_as_dict(self.MARSEILLE_COMMANDERIE),
-                                      address_as_dict(self.AUBAGNE_MAIRIE),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            data['addresses'],
+            address_as_dict(self.MARSEILLE_LA_MAJOR),
+            address_as_dict(self.MARSEILLE_ST_VICTOR),
+            address_as_dict(self.MARSEILLE_COMMANDERIE),
+            address_as_dict(self.AUBAGNE_MAIRIE),
+        )
 
         response = self.assertGET200(url, data={**GET_data, 'distance': 'NaN'})
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
-        self.assertListAddressAsDict(data['addresses'],
-                                     [address_as_dict(self.MARSEILLE_LA_MAJOR),
-                                      address_as_dict(self.MARSEILLE_ST_VICTOR),
-                                      address_as_dict(self.MARSEILLE_COMMANDERIE),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            data['addresses'],
+            address_as_dict(self.MARSEILLE_LA_MAJOR),
+            address_as_dict(self.MARSEILLE_ST_VICTOR),
+            address_as_dict(self.MARSEILLE_COMMANDERIE),
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -487,31 +507,35 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         )
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
-        self.assertListAddressAsDict(data['addresses'],
-                                     [address_as_dict(self.MARSEILLE_LA_MAJOR),
-                                      address_as_dict(self.MARSEILLE_COMMANDERIE),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            data['addresses'],
+            address_as_dict(self.MARSEILLE_LA_MAJOR),
+            address_as_dict(self.MARSEILLE_COMMANDERIE),
+        )
 
         response = self.assertGET200(url, data={**GET_data, 'address_id': self.AUBAGNE_MAIRIE.id})
-        self.assertDictEqual(response.json(),
-                             {'source_address': address_as_dict(self.AUBAGNE_MAIRIE),
-                              'addresses': [address_as_dict(self.MARSEILLE_COMMANDERIE)],
-                             }
-                            )
+        self.assertDictEqual(
+            response.json(),
+            {
+                'source_address': address_as_dict(self.AUBAGNE_MAIRIE),
+                'addresses': [address_as_dict(self.MARSEILLE_COMMANDERIE)],
+            },
+        )
 
         response = self.assertGET200(
             url,
             data={**GET_data, 'address_id': self.MARSEILLE_COMMANDERIE.id},
         )
         data = response.json()
-        self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE))
-        self.assertListAddressAsDict(data['addresses'],
-                                     [address_as_dict(self.MARSEILLE_LA_MAJOR),
-                                      address_as_dict(self.MARSEILLE_MAIRIE),
-                                      address_as_dict(self.AUBAGNE_MAIRIE),
-                                     ]
-                                    )
+        self.assertDictEqual(
+            data['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE),
+        )
+        self.assertListAddressAsDict(
+            data['addresses'],
+            address_as_dict(self.MARSEILLE_LA_MAJOR),
+            address_as_dict(self.MARSEILLE_MAIRIE),
+            address_as_dict(self.AUBAGNE_MAIRIE),
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomContact
@@ -524,11 +548,12 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
             allowed_apps=('creme_core', 'geolocation', 'persons'),
         )
 
-        SetCredentials.objects.create(role=self.role,
-                                      ctype=Organisation,
-                                      value=EntityCredentials._ALL_CREDS,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            ctype=Organisation,
+            value=EntityCredentials._ALL_CREDS,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         self.populate_addresses(user)
 
@@ -548,11 +573,11 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         response = self.assertGET200(url, data=GET_data)
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
-        self.assertListAddressAsDict(data['addresses'],
-                                     [address_as_dict(self.MARSEILLE_ST_VICTOR),
-                                      address_as_dict(self.MARSEILLE_COMMANDERIE),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            data['addresses'],
+            address_as_dict(self.MARSEILLE_ST_VICTOR),
+            address_as_dict(self.MARSEILLE_COMMANDERIE),
+        )
 
         self.client.logout()
         self.client.login(username=self.other_user.username, password='test')
@@ -560,12 +585,12 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         response = self.assertGET200(url, data=GET_data)
         data = response.json()
         self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
-        self.assertListAddressAsDict(data['addresses'],
-                                     [address_as_dict(self.MARSEILLE_LA_MAJOR),
-                                      address_as_dict(self.MARSEILLE_ST_VICTOR),
-                                      address_as_dict(self.MARSEILLE_COMMANDERIE),
-                                     ]
-                                    )
+        self.assertListAddressAsDict(
+            data['addresses'],
+            address_as_dict(self.MARSEILLE_LA_MAJOR),
+            address_as_dict(self.MARSEILLE_ST_VICTOR),
+            address_as_dict(self.MARSEILLE_COMMANDERIE),
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress

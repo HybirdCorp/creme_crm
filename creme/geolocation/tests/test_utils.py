@@ -36,22 +36,24 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         )
 
         self.assertDictEqual(
-            {'id': address.pk,
-             'content': '13 rue du yahourt 13012 Marseille 13',
-             'title': '13 rue du yahourt',
-             'owner': 'Orga 1',
-             'is_shipping': False,
-             'is_billing': False,
-             'is_complete': True,
-             'latitude': 43.299991,
-             'longitude': 5.364832,
-             'draggable': True,
-             'geocoded': False,
-             'status_label': '',
-             'status': GeoAddress.COMPLETE,
-             'url': orga.get_absolute_url(),
+            {
+                'id': address.pk,
+                'content': '13 rue du yahourt 13012 Marseille 13',
+                'title': '13 rue du yahourt',
+                'owner': 'Orga 1',
+                'is_shipping': False,
+                'is_billing': False,
+                'is_complete': True,
+                'latitude': 43.299991,
+                'longitude': 5.364832,
+                'draggable': True,
+                'geocoded': False,
+                'status_label': '',
+                # 'status': GeoAddress.COMPLETE,
+                'status': GeoAddress.Status.COMPLETE,
+                'url': orga.get_absolute_url(),
             },
-            address_as_dict(address)
+            address_as_dict(address),
         )
 
     @skipIfCustomOrganisation
@@ -65,22 +67,24 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         )
 
         self.assertDictEqual(
-            {'id': address.pk,
-             'content': '',
-             'title': _('Billing address'),
-             'owner': 'Orga 1',
-             'is_shipping': False,
-             'is_billing': True,
-             'is_complete': True,
-             'latitude': 43.299991,
-             'longitude': 5.364832,
-             'draggable': True,
-             'geocoded': False,
-             'status_label': '',
-             'status': GeoAddress.COMPLETE,
-             'url': orga.get_absolute_url(),
+            {
+                'id': address.pk,
+                'content': '',
+                'title': _('Billing address'),
+                'owner': 'Orga 1',
+                'is_shipping': False,
+                'is_billing': True,
+                'is_complete': True,
+                'latitude': 43.299991,
+                'longitude': 5.364832,
+                'draggable': True,
+                'geocoded': False,
+                'status_label': '',
+                # 'status': GeoAddress.COMPLETE,
+                'status': GeoAddress.Status.COMPLETE,
+                'url': orga.get_absolute_url(),
             },
-            address_as_dict(address)
+            address_as_dict(address),
         )
 
         address = self.create_shipping_address(
@@ -88,22 +92,24 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         )
 
         self.assertDictEqual(
-            {'id': address.id,
-             'content': '',
-             'title': _('Shipping address'),
-             'owner': 'Orga 1',
-             'is_shipping': True,
-             'is_complete': True,
-             'is_billing': False,
-             'latitude': 43.299991,
-             'longitude': 5.364832,
-             'draggable': True,
-             'geocoded': False,
-             'status_label': '',
-             'status': GeoAddress.COMPLETE,
-             'url': orga.get_absolute_url(),
+            {
+                'id': address.id,
+                'content': '',
+                'title': _('Shipping address'),
+                'owner': 'Orga 1',
+                'is_shipping': True,
+                'is_complete': True,
+                'is_billing': False,
+                'latitude': 43.299991,
+                'longitude': 5.364832,
+                'draggable': True,
+                'geocoded': False,
+                'status_label': '',
+                # 'status': GeoAddress.COMPLETE,
+                'status': GeoAddress.Status.COMPLETE,
+                'url': orga.get_absolute_url(),
             },
-            address_as_dict(address)
+            address_as_dict(address),
         )
 
     @skipIfCustomOrganisation
@@ -117,22 +123,24 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         )
 
         self.assertDictEqual(
-            {'id': address.pk,
-             'content': '',
-             'title': '',
-             'owner': 'Orga 1',
-             'is_shipping': False,
-             'is_billing': False,
-             'is_complete': True,
-             'latitude': 43.299991,
-             'longitude': 5.364832,
-             'draggable': True,
-             'geocoded': False,
-             'status_label': '',
-             'status': GeoAddress.COMPLETE,
-             'url': orga.get_absolute_url()
+            {
+                'id': address.pk,
+                'content': '',
+                'title': '',
+                'owner': 'Orga 1',
+                'is_shipping': False,
+                'is_billing': False,
+                'is_complete': True,
+                'latitude': 43.299991,
+                'longitude': 5.364832,
+                'draggable': True,
+                'geocoded': False,
+                'status_label': '',
+                # 'status': GeoAddress.COMPLETE,
+                'status': GeoAddress.Status.COMPLETE,
+                'url': orga.get_absolute_url()
             },
-            address_as_dict(address)
+            address_as_dict(address),
         )
 
     @skipIfCustomOrganisation
@@ -152,20 +160,22 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
             address.geoaddress
 
         self.assertDictEqual(
-            {'id': address.pk,
-             'content': '',
-             'title': '',
-             'owner': 'Orga 1',
-             'is_shipping': False,
-             'is_billing': False,
-             'is_complete': False,
-             'latitude': None,
-             'longitude': None,
-             'draggable': True,
-             'geocoded': False,
-             'status_label': _('Not localized'),
-             'status': GeoAddress.UNDEFINED,
-             'url': orga.get_absolute_url(),
+            {
+                'id': address.pk,
+                'content': '',
+                'title': '',
+                'owner': 'Orga 1',
+                'is_shipping': False,
+                'is_billing': False,
+                'is_complete': False,
+                'latitude': None,
+                'longitude': None,
+                'draggable': True,
+                'geocoded': False,
+                'status_label': _('Not localized'),
+                # 'status': GeoAddress.UNDEFINED,
+                'status': GeoAddress.Status.UNDEFINED,
+                'url': orga.get_absolute_url(),
             },
             address_as_dict(address)
         )
@@ -187,22 +197,24 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
             address.geoaddress
 
         self.assertDictEqual(
-            {'id': address.pk,
-             'content': '',
-             'title': '',
-             'owner': 'Orga 1',
-             'is_shipping': False,
-             'is_billing': False,
-             'is_complete': False,
-             'latitude': None,
-             'longitude': None,
-             'draggable': True,
-             'geocoded': False,
-             'status_label': _('Not localized'),
-             'status': GeoAddress.UNDEFINED,
-             'url': orga.get_absolute_url(),
+            {
+                'id': address.pk,
+                'content': '',
+                'title': '',
+                'owner': 'Orga 1',
+                'is_shipping': False,
+                'is_billing': False,
+                'is_complete': False,
+                'latitude': None,
+                'longitude': None,
+                'draggable': True,
+                'geocoded': False,
+                'status_label': _('Not localized'),
+                # 'status': GeoAddress.UNDEFINED,
+                'status': GeoAddress.Status.UNDEFINED,
+                'url': orga.get_absolute_url(),
             },
-            address_as_dict(address)
+            address_as_dict(address),
         )
 
     @skipIfCustomOrganisation
@@ -210,13 +222,13 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     def test_addresses_from_persons(self):
         user = self.create_user()
 
-        orga    = Organisation.objects.create(name='Orga 1', user=user)
-        orga2   = Organisation.objects.create(name='Orga 2', user=user)
+        orga1 = Organisation.objects.create(name='Orga 1', user=user)
+        orga2 = Organisation.objects.create(name='Orga 2', user=user)
         contact = Contact.objects.create(last_name='Contact 1', user=user)
 
-        orga_address = self.create_billing_address(orga, zipcode='13012', town='Marseille')
-        self.create_shipping_address(orga, zipcode='01190', town='Ozan')
-        self.create_address(orga, zipcode='01630', town='Péron')
+        orga_address = self.create_billing_address(orga1, zipcode='13012', town='Marseille')
+        self.create_shipping_address(orga1, zipcode='01190', town='Ozan')
+        self.create_address(orga1, zipcode='01630', town='Péron')
 
         orga2_address = self.create_shipping_address(orga2, zipcode='01190', town='Ozan')
         self.create_address(orga2, zipcode='01630', town='Péron')
@@ -224,7 +236,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         contact_address = self.create_address(contact, zipcode='01630', town='Péron')
         self.assertListEqual(
             [*addresses_from_persons(Contact.objects.all(), user)],
-            [contact_address]
+            [contact_address],
         )
 
         self.assertListEqual(
@@ -232,7 +244,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 [*addresses_from_persons(Organisation.objects.all(), user)],
                 key=lambda a: a.pk
             ),
-            sorted([orga_address, orga2_address], key=lambda a: a.pk)
+            sorted([orga_address, orga2_address], key=lambda a: a.pk),
         )
 
     def test_get_radius(self):
@@ -271,7 +283,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
 
     def test_location_bounding_box(self):
         # 10 km ~ 0.09046499004885108 lat, 0.12704038469036066 long (for 45° lat)
-        self.assertEqual(
+        self.assertTupleEqual(
             (
                 (45.0 - 0.09046499004885108, 5.0 - 0.12704038469036066),
                 (45.0 + 0.09046499004885108, 5.0 + 0.12704038469036066),
@@ -280,7 +292,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         )
 
         # 10 km ~ 0.09046499004885108 lat, 0.09559627851921597 long (for 20° lat)
-        self.assertEqual(
+        self.assertTupleEqual(
             (
                 (20.0 - 0.09046499004885108, 5.0 - 0.09559627851921597),
                 (20.0 + 0.09046499004885108, 5.0 + 0.09559627851921597),

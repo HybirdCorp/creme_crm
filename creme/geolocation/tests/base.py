@@ -34,7 +34,8 @@ class GeoLocationBaseTestCase(CremeTestCase):
     def assertGeoAddress(self, instance, **kwargs):
         self.assertModelInstance(instance, GeoAddress, **kwargs)
 
-    def assertListAddressAsDict(self, addresses, expected):
+    # def assertListAddressAsDict(self, addresses, expected):
+    def assertListAddressAsDict(self, addresses, *expected):
         def key(a):
             return a['id']
 
@@ -58,7 +59,8 @@ class GeoLocationBaseTestCase(CremeTestCase):
 
         if geoloc is not None:
             latitude, longitude = geoloc
-            address.geoaddress.status = GeoAddress.COMPLETE
+            # address.geoaddress.status = GeoAddress.COMPLETE
+            address.geoaddress.status = GeoAddress.Status.COMPLETE
             address.geoaddress.latitude = latitude
             address.geoaddress.longitude = longitude
             address.geoaddress.save()

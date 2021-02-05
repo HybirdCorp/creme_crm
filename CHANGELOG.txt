@@ -130,6 +130,9 @@
         # Apps :
             * Projects :
                 - The <related_name> of the field 'models.AbstractProjectTask.parent_tasks' has been renamed "children" (it was "children_set").
+            * Geolocation :
+                - The inner-constants in 'models.GeoAddress' have been replaced by an 'IntegerChoices' class :
+                  UNDEFINED, MANUAL, PARTIAL, COMPLETE, STATUS_LABELS
 
     Internal breaking changes :
     ---------------------------
