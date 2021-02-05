@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2020  Hybird
+#    Copyright (C) 2014-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,17 +35,22 @@ from .utils import location_bounding_box
 
 
 class GeoAddress(models.Model):
-    UNDEFINED  = 0
-    MANUAL     = 1
-    PARTIAL    = 2
-    COMPLETE   = 3
-
-    STATUS_LABELS = {
-        UNDEFINED: _('Not localized'),
-        MANUAL:    _('Manual location'),
-        PARTIAL:   _('Partially matching location'),
-        COMPLETE:  '',
-    }
+    # UNDEFINED  = 0
+    # MANUAL     = 1
+    # PARTIAL    = 2
+    # COMPLETE   = 3
+    #
+    # STATUS_LABELS = {
+    #     UNDEFINED: _('Not localized'),
+    #     MANUAL:    _('Manual location'),
+    #     PARTIAL:   _('Partially matching location'),
+    #     COMPLETE:  '',
+    # }
+    class Status(models.IntegerChoices):
+        UNDEFINED = 0, _('Not localized'),
+        MANUAL    = 1, _('Manual location'),
+        PARTIAL   = 2, _('Partially matching location'),
+        COMPLETE  = 3, '',
 
     address = models.OneToOneField(
         settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Address'),
@@ -63,7 +68,8 @@ class GeoAddress(models.Model):
     )
     status = models.SmallIntegerField(
         verbose_name=pgettext_lazy('geolocation', 'Status'),
-        choices=STATUS_LABELS.items(), default=UNDEFINED,
+        # choices=STATUS_LABELS.items(), default=UNDEFINED,
+        choices=Status.choices, default=Status.UNDEFINED,
     )
 
     creation_label = pgettext_lazy('geolocation-address', 'Create an address')
@@ -80,7 +86,8 @@ class GeoAddress(models.Model):
 
     @property
     def is_complete(self):
-        return self.status == self.COMPLETE
+        # return self.status == self.COMPLETE
+        return self.status == self.Status.COMPLETE
 
     @classmethod
     def get_geoaddress(cls, address):
@@ -138,11 +145,13 @@ class GeoAddress(models.Model):
         if town is not None:
             self.latitude = town.latitude
             self.longitude = town.longitude
-            self.status = GeoAddress.PARTIAL
+            # self.status = GeoAddress.PARTIAL
+            self.status = self.Status.PARTIAL
         else:
             self.latitude = None
             self.longitude = None
-            self.status = GeoAddress.UNDEFINED
+            # self.status = GeoAddress.UNDEFINED
+            self.status = self.Status.UNDEFINED
 
     def update(self, **kwargs):
         update_model_instance(self, **kwargs)
