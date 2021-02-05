@@ -28,7 +28,9 @@ creme.forms = {};
 
 creme.forms.Select = {};
 
+/* istanbul ignore next */
 creme.forms.Select.optionsFromData = function(data, option_label, option_value) {
+    console.warn('creme.forms.Select.optionsFromData is deprecated');
     var options = [];
 
     option_value = (option_value !== undefined) ? option_value : 0;
