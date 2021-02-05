@@ -23,12 +23,18 @@
             {% with widget=widget.subcategory_defvalselect %}{% include widget.template_name %}{% endwith %}
         </label>
     </li>
+    {% jsondata widget.subcat_js_map id=id|add:'_subcat_map' %}
     <script type="text/javascript">
         $(document).ready(function() {
-            var subCatMap = {{widget.subcat_js_map|jsonify}};
+            var subCatMap = JSON.parse(creme.utils.JSON.readScriptText($('#{{id}}_subcat_map')));
 
             $('#{{id}}_cat_defval').on('change', function(e) {
-                creme.forms.Select.fill($('#{{id}}_subcat_defval'), subCatMap[$(this).val()]);
+                var options = subCatMap[$(this).val()] || [];
+                var content = options.map(function(entry) {
+                    return '<option value="${0}">${1}</option>'.template(entry);
+                }).join('');
+
+                $('#{{id}}_subcat_defval').html(content);
             });
         });
     </script>
