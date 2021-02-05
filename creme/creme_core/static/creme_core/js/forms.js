@@ -27,6 +27,7 @@ creme.forms = {};
  */
 
 creme.forms.Select = {};
+
 creme.forms.Select.optionsFromData = function(data, option_label, option_value) {
     var options = [];
 
@@ -62,6 +63,8 @@ creme.forms.Select.optionsFromData = function(data, option_label, option_value) 
 };
 
 creme.forms.Select.fill = function(self, options, selected) {
+    console.warn('creme.forms.Select.fill is deprecated');
+
     if ((self === undefined) || (options === undefined)) {
         return;
     }
@@ -78,7 +81,7 @@ creme.forms.Select.fill = function(self, options, selected) {
         var option = $('<option/>').val(entry_value).text(entry_label);
 
         if (entry_value === selected) {
-            option.attr('selected', 'selected');
+            option.prop('selected', 'selected');
             value = selected;
         }
 
