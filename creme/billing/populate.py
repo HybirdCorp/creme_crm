@@ -756,18 +756,19 @@ class Populator(BasePopulator):
         from django.contrib.auth import get_user_model
 
         from creme import reports
-        from creme.reports.constants import (
-            RFT_FIELD,
-            RFT_RELATION,
-            RGA_SUM,
-            RGT_FK,
-            RGT_MONTH,
-        )
+        # from creme.reports.constants import (
+        #     RFT_FIELD,
+        #     RFT_RELATION,
+        #     RGA_SUM,
+        #     RGT_FK,
+        #     RGT_MONTH,
+        # )
+        from creme.reports.constants import RFT_FIELD, RFT_RELATION
         from creme.reports.core.graph.fetcher import SimpleGraphFetcher
-        # from creme.reports.models import Report, Field, ReportGraph
         from creme.reports.models import Field
 
         admin = get_user_model().objects.get_admin()
+        ReportGraph = reports.get_rgraph_model()
 
         total_no_vat_cell = EntityCellRegularField.build(Invoice, 'total_no_vat')
         if total_no_vat_cell is None:
@@ -788,7 +789,7 @@ class Populator(BasePopulator):
             create_field(name='expiration_date',       order=7)
 
         create_report = partial(reports.get_report_model().objects.create, user=admin, ct=Invoice)
-        create_graph = partial(reports.get_rgraph_model().objects.create, user=admin)
+        create_graph = partial(ReportGraph.objects.create, user=admin)
 
         # Create current year invoices report ----------------------------------
         invoices_report1 = create_report(
@@ -801,15 +802,19 @@ class Populator(BasePopulator):
         rgraph1 = create_graph(
             name=_('Sum of current year invoices total without taxes / month'),
             linked_report=invoices_report1,
-            abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
-            ordinate_type=RGA_SUM,
+            # abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
+            abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
         create_graph(
             name=_('Sum of current year invoices total without taxes / invoices status'),
             linked_report=invoices_report1,
-            abscissa_cell_value='status', abscissa_type=RGT_FK,
-            ordinate_type=RGA_SUM,
+            # abscissa_cell_value='status', abscissa_type=RGT_FK,
+            abscissa_cell_value='status', abscissa_type=ReportGraph.Group.FK,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
         ibci1 = SimpleGraphFetcher(graph=rgraph1).create_brick_config_item()
@@ -825,8 +830,10 @@ class Populator(BasePopulator):
         rgraph3 = create_graph(
             name=_('Sum of current year and unpaid invoices total without taxes / month'),
             linked_report=invoices_report2,
-            abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
-            ordinate_type=RGA_SUM,
+            # abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
+            abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
         ibci3 = SimpleGraphFetcher(rgraph3).create_brick_config_item()

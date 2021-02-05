@@ -217,10 +217,8 @@ class AbstractReport(CremeEntity):
     #         DeprecationWarning
     #     )
     #
-    #     # TODO: can we just use the regular introspection (+ field tags ?) instead
     #     allowed_related_fields = model.allowed_related
     #
-    #     # TODO: factorise (creme_core.utils.meta ?)
     #     # NB: https://docs.djangoproject.com/en/1.8/ref/models/meta/#migrating-from-the-old-api
     #     get_fields = model._meta.get_fields
     #     related_fields = (

@@ -128,6 +128,10 @@
                 * Projects :
                     - The property 'models.AbstractProjectTask.safe_duration' has been removed.
         # Apps :
+            * Reports :
+                - Some constants have been replaced by 'django.db.models.*Choices' :
+                    - An 'IntegerChoices' class for : RGT_*, GROUP_TYPES.
+                    - An 'TextChoices' class for : RGA_*, AGGREGATOR_TYPES.
             * Projects :
                 - The <related_name> of the field 'models.AbstractProjectTask.parent_tasks' has been renamed "children" (it was "children_set").
             * Geolocation :

@@ -38,7 +38,8 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.models import CremeEntity, CustomFieldEnumValue, Relation
-from creme.reports import constants
+# from creme.reports import constants
+from creme.reports.constants import AbscissaGroup
 from creme.reports.utils import sparsezip
 
 from .aggregator import AGGREGATORS_MAP, ReportGraphAggregator
@@ -261,7 +262,8 @@ class _RGHRegularField(ReportGraphHand):
         return field.verbose_name if field else '??'
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_DAY)
+# @RGRAPH_HANDS_MAP(constants.RGT_DAY)
+@RGRAPH_HANDS_MAP(AbscissaGroup.DAY)
 class RGHDay(_RGHRegularField):
     verbose_name = _('By days')
 
@@ -284,7 +286,8 @@ class RGHDay(_RGHRegularField):
         )
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_MONTH)
+# @RGRAPH_HANDS_MAP(constants.RGT_MONTH)
+@RGRAPH_HANDS_MAP(AbscissaGroup.MONTH)
 class RGHMonth(_RGHRegularField):
     verbose_name = _('By months')
 
@@ -305,7 +308,8 @@ class RGHMonth(_RGHRegularField):
         )
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_YEAR)
+# @RGRAPH_HANDS_MAP(constants.RGT_YEAR)
+@RGRAPH_HANDS_MAP(AbscissaGroup.YEAR)
 class RGHYear(_RGHRegularField):
     verbose_name = _('By years')
 
@@ -361,7 +365,8 @@ class _DateRangeMixin:
         return days
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_RANGE)
+# @RGRAPH_HANDS_MAP(constants.RGT_RANGE)
+@RGRAPH_HANDS_MAP(AbscissaGroup.RANGE)
 class RGHRange(_DateRangeMixin, _RGHRegularField):
     verbose_name = _('By X days')
 
@@ -474,7 +479,8 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
                 )
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_FK)
+# @RGRAPH_HANDS_MAP(constants.RGT_FK)
+@RGRAPH_HANDS_MAP(AbscissaGroup.FK)
 class RGHForeignKey(_RGHRegularField):
     verbose_name = _('By values')
 
@@ -513,7 +519,8 @@ class RGHForeignKey(_RGHRegularField):
             )
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_RELATION)
+# @RGRAPH_HANDS_MAP(constants.RGT_RELATION)
+@RGRAPH_HANDS_MAP(AbscissaGroup.RELATION)
 class RGHRelation(ReportGraphHand):
     verbose_name = _('By values (of related entities)')
 
@@ -639,11 +646,11 @@ class _RGHCustomField(ReportGraphHand):
         return cfield.name if cfield else '??'
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_DAY)
+# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_DAY)
+@RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_DAY)
 class RGHCustomDay(_RGHCustomField):
     verbose_name = _('By days')
 
-    # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
         return self._get_custom_dates_values(
             entities=entities,
@@ -659,7 +666,8 @@ class RGHCustomDay(_RGHCustomField):
         )
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_MONTH)
+# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_MONTH)
+@RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_MONTH)
 class RGHCustomMonth(_RGHCustomField):
     verbose_name = _('By months')
 
@@ -677,14 +685,14 @@ class RGHCustomMonth(_RGHCustomField):
         )
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_YEAR)
+# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_YEAR)
+@RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_YEAR)
 class RGHCustomYear(_RGHCustomField):
     verbose_name = _('By years')
 
     def _fetch(self, *, entities, order, user, extra_q):
         return self._get_custom_dates_values(
             entities=entities,
-            # abscissa=self._graph.abscissa,
             kind='year',
             qdict_builder=lambda date: {
                 'customfielddatetime__value__year': date.year,
@@ -695,7 +703,8 @@ class RGHCustomYear(_RGHCustomField):
         )
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_RANGE)
+# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_RANGE)
+@RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_RANGE)
 class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
     verbose_name = _('By X days')
 
@@ -805,7 +814,8 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                 )
 
 
-@RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_FK)
+# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_FK)
+@RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_FK)
 class RGHCustomFK(_RGHCustomField):
     verbose_name = _('By values (of custom choices)')
 

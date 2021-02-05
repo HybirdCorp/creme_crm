@@ -46,7 +46,8 @@ from creme.creme_core.models.fields import MoneyField
 from creme.creme_core.utils.unicode_collation import collator
 
 from .. import get_rgraph_model
-from ..constants import AGGREGATOR_TYPES, GROUP_TYPES
+# from ..constants import AGGREGATOR_TYPES, GROUP_TYPES
+from ..constants import AbscissaGroup, OrdinateAggregator
 from ..core.graph import AbscissaInfo, OrdinateInfo
 from ..core.graph.cell_constraint import (
     AggregatorCellConstraint,
@@ -139,7 +140,8 @@ class AbscissaWidget(ChainedInput):
                     gtype_id_dname: rgraph_type,
                     constraint_dname: get_constraint(rgraph_type=rgraph_type).type_id,
                 }),
-                GROUP_TYPES.get(rgraph_type, '??'),
+                # GROUP_TYPES.get(rgraph_type, '??'),
+                AbscissaGroup(rgraph_type).label,
             ) for rgraph_type in registry.rgraph_types
         ]
 
@@ -422,7 +424,8 @@ class OrdinateWidget(ChainedInput):
                                 aggr_id_dname: aggr_id,
                                 constraint_dname: category,
                             }),
-                            AGGREGATOR_TYPES.get(aggr_id, '??'),
+                            # AGGREGATOR_TYPES.get(aggr_id, '??'),
+                            OrdinateAggregator(aggr_id).label,
                         )
                     )
 

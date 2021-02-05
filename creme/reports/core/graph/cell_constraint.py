@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,8 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
-from creme.reports import constants
+# from creme.reports import constants
+from creme.reports.constants import AbscissaGroup, OrdinateAggregator
 
 
 class GraphHandCellConstraint:
@@ -263,33 +264,46 @@ class GraphHandConstraintsRegistry:
 abscissa_constraints = GraphHandConstraintsRegistry(
 ).register_cell_constraint(
     constraint_class=GHCCRegularFK,
-    rgraph_types=[constants.RGT_FK],
+    # rgraph_types=[constants.RGT_FK],
+    rgraph_types=[AbscissaGroup.FK],
 ).register_cell_constraint(
     constraint_class=GHCCRegularDate,
     rgraph_types=[
-        constants.RGT_DAY,
-        constants.RGT_MONTH,
-        constants.RGT_YEAR,
-        constants.RGT_RANGE,
+        # constants.RGT_DAY,
+        # constants.RGT_MONTH,
+        # constants.RGT_YEAR,
+        # constants.RGT_RANGE,
+        AbscissaGroup.DAY,
+        AbscissaGroup.MONTH,
+        AbscissaGroup.YEAR,
+        AbscissaGroup.RANGE,
     ],
 ).register_cell_constraint(
     constraint_class=GHCCRelation,
-    rgraph_types=[constants.RGT_RELATION],
+    # rgraph_types=[constants.RGT_RELATION],
+    rgraph_types=[AbscissaGroup.RELATION],
 ).register_cell_constraint(
     constraint_class=GHCCCustomEnum,
-    rgraph_types=[constants.RGT_CUSTOM_FK],
+    # rgraph_types=[constants.RGT_CUSTOM_FK],
+    rgraph_types=[AbscissaGroup.CUSTOM_FK],
 ).register_cell_constraint(
     constraint_class=GHCCCustomDate,
     rgraph_types=[
-        constants.RGT_CUSTOM_DAY,
-        constants.RGT_CUSTOM_MONTH,
-        constants.RGT_CUSTOM_YEAR,
-        constants.RGT_CUSTOM_RANGE,
+        # constants.RGT_CUSTOM_DAY,
+        # constants.RGT_CUSTOM_MONTH,
+        # constants.RGT_CUSTOM_YEAR,
+        # constants.RGT_CUSTOM_RANGE,
+        AbscissaGroup.CUSTOM_DAY,
+        AbscissaGroup.CUSTOM_MONTH,
+        AbscissaGroup.CUSTOM_YEAR,
+        AbscissaGroup.CUSTOM_RANGE,
     ],
 ).register_parameter_validator(
     rgraph_types=[
-        constants.RGT_RANGE,
-        constants.RGT_CUSTOM_RANGE,
+        # constants.RGT_RANGE,
+        # constants.RGT_CUSTOM_RANGE,
+        AbscissaGroup.RANGE,
+        AbscissaGroup.CUSTOM_RANGE,
     ],
     formfield=forms.IntegerField(label=_('Number of days')),
 )
@@ -342,16 +356,21 @@ class AggregatorCellConstraint:
 
 class ACCCount(AggregatorCellConstraint):
     type_id = 'count'
-    aggregator_ids = [constants.RGA_COUNT]
+    # aggregator_ids = [constants.RGA_COUNT]
+    aggregator_ids = [OrdinateAggregator.COUNT]
 
 
 class ACCFieldAggregation(AggregatorCellConstraint):
     type_id = 'field_aggregation'
     aggregator_ids = [
-        constants.RGA_AVG,
-        constants.RGA_MAX,
-        constants.RGA_MIN,
-        constants.RGA_SUM,
+        # constants.RGA_AVG,
+        # constants.RGA_MAX,
+        # constants.RGA_MIN,
+        # constants.RGA_SUM,
+        OrdinateAggregator.AVG,
+        OrdinateAggregator.MAX,
+        OrdinateAggregator.MIN,
+        OrdinateAggregator.SUM,
     ]
     cell_classes: List[Type[EntityCell]] = [
         EntityCellRegularField,

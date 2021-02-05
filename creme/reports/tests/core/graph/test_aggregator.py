@@ -17,7 +17,8 @@ from creme.creme_core.models import (
     FieldsConfig,
 )
 from creme.creme_core.tests.base import CremeTestCase
-from creme.reports.constants import RGA_COUNT, RGA_SUM
+# from creme.reports.constants import RGA_COUNT, RGA_SUM
+from creme.reports.constants import OrdinateAggregator
 from creme.reports.core.graph.aggregator import (
     ReportGraphAggregator,
     ReportGraphAggregatorRegistry,
@@ -49,7 +50,8 @@ class AggregatorTestCase(CremeTestCase):
         report = Report(ct=FakeOrganisation)
         rgraph = ReportGraph(
             linked_report=report,
-            ordinate_type=RGA_COUNT,
+            # ordinate_type=RGA_COUNT,
+            ordinate_type=OrdinateAggregator.COUNT,
         )
 
         aggregator1 = registry[rgraph]
@@ -59,7 +61,8 @@ class AggregatorTestCase(CremeTestCase):
         self.assertEqual(_('the aggregation function is invalid.'), aggregator1.error)
 
         # ---
-        registry(RGA_COUNT)(RGACount)
+        # registry(RGA_COUNT)(RGACount)
+        registry(OrdinateAggregator.COUNT)(RGACount)
         aggregator2 = registry[rgraph]
         self.assertIsInstance(aggregator2, RGACount)
         self.assertIsNone(aggregator2.error)
@@ -69,10 +72,12 @@ class AggregatorTestCase(CremeTestCase):
         report = Report(ct=FakeOrganisation)
         rgraph = ReportGraph(
             linked_report=report,
-            ordinate_type=RGA_SUM,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=OrdinateAggregator.SUM,
         )
 
-        registry(RGA_SUM)(RGASum)
+        # registry(RGA_SUM)(RGASum)
+        registry(OrdinateAggregator.SUM)(RGASum)
         aggregator1 = registry[rgraph]
         self.assertNotEqual(type(aggregator1), RGACount)
         self.assertEqual('??', aggregator1.verbose_name)
@@ -96,11 +101,13 @@ class AggregatorTestCase(CremeTestCase):
         report = Report(ct=FakeOrganisation)
         rgraph = ReportGraph(
             linked_report=report,
-            ordinate_type=RGA_SUM,
+            # ordinate_type=RGA_SUM,
+            ordinate_type=OrdinateAggregator.SUM,
             ordinate_cell_key=f'regular_field-{hidden_fname}',
         )
 
-        registry(RGA_SUM)(RGASum)
+        # registry(RGA_SUM)(RGASum)
+        registry(OrdinateAggregator.SUM)(RGASum)
         aggregator = registry[rgraph]
         self.assertIsInstance(aggregator, RGASum)
         self.assertEqual(_('this field should be hidden.'), aggregator.error)
@@ -337,7 +344,10 @@ class AggregatorConstraintsRegistryTestCase(CremeTestCase):
     def test_empty(self):
         registry = AggregatorConstraintsRegistry()
         self.assertListEqual([], [*registry.cell_constraints(FakeInvoice)])
-        self.assertIsNone(registry.get_constraint_by_aggr_id(FakeInvoice, RGA_COUNT))
+        # self.assertIsNone(registry.get_constraint_by_aggr_id(FakeInvoice, RGA_COUNT))
+        self.assertIsNone(registry.get_constraint_by_aggr_id(
+            FakeInvoice, OrdinateAggregator.COUNT,
+        ))
 
     def test_cell_constraints01(self):
         registry = AggregatorConstraintsRegistry(
@@ -349,8 +359,13 @@ class AggregatorConstraintsRegistryTestCase(CremeTestCase):
 
         # ---
         get_constraint = registry.get_constraint_by_aggr_id
-        self.assertIsInstance(get_constraint(FakeInvoice, RGA_COUNT), ACCCount)
-        self.assertIsNone(get_constraint(FakeInvoice, RGA_SUM))
+        # self.assertIsInstance(get_constraint(FakeInvoice, RGA_COUNT), ACCCount)
+        self.assertIsInstance(
+            get_constraint(FakeInvoice, OrdinateAggregator.COUNT),
+            ACCCount,
+        )
+        # self.assertIsNone(get_constraint(FakeInvoice, RGA_SUM))
+        self.assertIsNone(get_constraint(FakeInvoice, OrdinateAggregator.SUM))
 
     def test_cell_constraints02(self):
         "Several constraints."
@@ -362,8 +377,16 @@ class AggregatorConstraintsRegistryTestCase(CremeTestCase):
 
         # ---
         get_constraint = registry.get_constraint_by_aggr_id
-        self.assertIsInstance(get_constraint(FakeInvoice, RGA_COUNT), ACCCount)
-        self.assertIsInstance(get_constraint(FakeInvoice, RGA_SUM),   ACCFieldAggregation)
+        # self.assertIsInstance(get_constraint(FakeInvoice, RGA_COUNT), ACCCount)
+        self.assertIsInstance(
+            get_constraint(FakeInvoice, OrdinateAggregator.COUNT),
+            ACCCount,
+        )
+        # self.assertIsInstance(get_constraint(FakeInvoice, RGA_SUM),   ACCFieldAggregation)
+        self.assertIsInstance(
+            get_constraint(FakeInvoice, OrdinateAggregator.SUM),
+            ACCFieldAggregation,
+        )
 
     def test_cell_constraints03(self):
         "Duplicated constraints."
