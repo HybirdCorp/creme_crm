@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import CharField, ManyToManyField
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -29,10 +29,11 @@ from .recipient import EmailRecipient
 
 
 class AbstractEmailCampaign(CremeEntity):
-    name          = CharField(_('Name of the campaign'), max_length=100)
-    mailing_lists = ManyToManyField(settings.EMAILS_MLIST_MODEL, blank=True,
-                                    verbose_name=_('Related mailing lists'),
-                                   )
+    name = models.CharField(_('Name of the campaign'), max_length=100)
+    mailing_lists = models.ManyToManyField(
+        settings.EMAILS_MLIST_MODEL,
+        blank=True, verbose_name=_('Related mailing lists'),
+    )
 
     creation_label = _('Create an emailing campaign')
     save_label     = _('Save the emailing campaign')
@@ -97,9 +98,13 @@ class AbstractEmailCampaign(CremeEntity):
 
         # TODO: in a signal handler instead ?
         #       (we need a restore signal, or an official "backup" feature -- see HistoryLine)
-        from .sending import SENDING_STATE_DONE, EmailSending
+        # from .sending import SENDING_STATE_DONE, EmailSending
+        from .sending import EmailSending
 
-        if EmailSending.objects.filter(campaign=self).exclude(state=SENDING_STATE_DONE).exists():
+        if EmailSending.objects.filter(campaign=self).exclude(
+            # state=SENDING_STATE_DONE
+            state=EmailSending.State.DONE,
+        ).exists():
             # TODO: regroup the 'refresh' message, to avoid flooding the job manager
             from ..creme_jobs import campaign_emails_send_type
 

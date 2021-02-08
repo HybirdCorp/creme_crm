@@ -25,18 +25,7 @@ from time import sleep
 
 from django.conf import settings
 from django.core.mail import get_connection, send_mail
-from django.db import IntegrityError
-from django.db.models import (
-    CASCADE,
-    SET_NULL,
-    CharField,
-    DateTimeField,
-    EmailField,
-    ForeignKey,
-    ManyToManyField,
-    PositiveSmallIntegerField,
-    TextField,
-)
+from django.db import IntegrityError, models
 from django.db.transaction import atomic
 from django.template import Context, Template
 from django.urls import reverse
@@ -48,61 +37,76 @@ from django.utils.translation import pgettext, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel
 
-from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
+# from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 from ..utils import EMailSender, ImageFromHTMLError, generate_id
 from .mail import ID_LENGTH, _Email
 from .signature import EmailSignature
 
 logger = logging.getLogger(__name__)
 
-# TODO: move to constants.py ???
-SENDING_TYPE_IMMEDIATE = 1
-SENDING_TYPE_DEFERRED  = 2
+# SENDING_TYPE_IMMEDIATE = 1
+# SENDING_TYPE_DEFERRED  = 2
+#
+# SENDING_TYPES = {
+#     SENDING_TYPE_IMMEDIATE: _('Immediate'),
+#     SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', 'Deferred'),
+# }
 
-SENDING_TYPES = {
-    SENDING_TYPE_IMMEDIATE: _('Immediate'),
-    SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', 'Deferred'),
-}
-
-SENDING_STATE_DONE       = 1
-SENDING_STATE_INPROGRESS = 2
-SENDING_STATE_PLANNED    = 3
-SENDING_STATE_ERROR      = 4
-
-SENDING_STATES = {
-    SENDING_STATE_DONE:       pgettext_lazy('emails-sending', 'Done'),
-    SENDING_STATE_INPROGRESS: _('In progress'),
-    SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', 'Planned'),
-    SENDING_STATE_ERROR:      _('Error during sending'),
-}
+# SENDING_STATE_DONE       = 1
+# SENDING_STATE_INPROGRESS = 2
+# SENDING_STATE_PLANNED    = 3
+# SENDING_STATE_ERROR      = 4
+#
+# SENDING_STATES = {
+#     SENDING_STATE_DONE:       pgettext_lazy('emails-sending', 'Done'),
+#     SENDING_STATE_INPROGRESS: _('In progress'),
+#     SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', 'Planned'),
+#     SENDING_STATE_ERROR:      _('Error during sending'),
+# }
 
 
 class EmailSending(CremeModel):
-    sender        = EmailField(_('Sender address'), max_length=100)
-    campaign      = ForeignKey(settings.EMAILS_CAMPAIGN_MODEL, on_delete=CASCADE,
-                               verbose_name=pgettext_lazy('emails', 'Related campaign'),
-                               related_name='sendings_set', editable=False,
-                              )
-    type          = PositiveSmallIntegerField(verbose_name=_('Sending type'),
-                                              choices=SENDING_TYPES.items(),
-                                              default=SENDING_TYPE_IMMEDIATE,
-                                             )
-    sending_date  = DateTimeField(_('Sending date'))
-    state         = PositiveSmallIntegerField(verbose_name=_('Sending state'),
-                                              editable=False,
-                                              choices=SENDING_STATES.items(),
-                                              default=SENDING_STATE_PLANNED,
-                                             )
+    class Type(models.IntegerChoices):
+        IMMEDIATE = 1, _('Immediate'),
+        DEFERRED  = 2, pgettext_lazy('emails-sending', 'Deferred'),
 
-    subject     = CharField(_('Subject'), max_length=100, editable=False)
-    body        = TextField(_('Body'), editable=False)
-    body_html   = TextField(_('Body (HTML)'), null=True, editable=False)
-    signature   = ForeignKey(EmailSignature, verbose_name=_('Signature'),
-                             null=True, editable=False, on_delete=SET_NULL,
-                            )
-    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL,
-                                  verbose_name=_('Attachments'), editable=False,
-                                 )
+    class State(models.IntegerChoices):
+        DONE        = 1, pgettext_lazy('emails-sending', 'Done'),
+        IN_PROGRESS = 2, _('In progress'),
+        PLANNED     = 3, pgettext_lazy('emails-sending', 'Planned'),
+        ERROR       = 4, _('Error during sending'),
+
+    sender = models.EmailField(_('Sender address'), max_length=100)
+    campaign = models.ForeignKey(
+        settings.EMAILS_CAMPAIGN_MODEL,
+        verbose_name=pgettext_lazy('emails', 'Related campaign'),
+        on_delete=models.CASCADE, related_name='sendings_set', editable=False,
+    )
+    type = models.PositiveSmallIntegerField(
+        verbose_name=_('Sending type'),
+        # choices=SENDING_TYPES.items(), default=SENDING_TYPE_IMMEDIATE,
+        choices=Type.choices, default=Type.IMMEDIATE,
+    )
+    sending_date = models.DateTimeField(_('Sending date'))
+    state = models.PositiveSmallIntegerField(
+        verbose_name=_('Sending state'), editable=False,
+        # choices=SENDING_STATES.items(), default=SENDING_STATE_PLANNED,
+        choices=State.choices, default=State.PLANNED,
+    )
+
+    subject   = models.CharField(_('Subject'), max_length=100, editable=False)
+    body      = models.TextField(_('Body'), editable=False)
+    body_html = models.TextField(_('Body (HTML)'), null=True, editable=False)
+
+    signature = models.ForeignKey(
+        EmailSignature,
+        verbose_name=_('Signature'),
+        null=True, editable=False, on_delete=models.SET_NULL,
+    )
+    attachments = models.ManyToManyField(
+        settings.DOCUMENTS_DOCUMENT_MODEL,
+        verbose_name=_('Attachments'), editable=False,
+    )
 
     creation_label = pgettext_lazy('emails', 'Create a sending')
     save_label     = pgettext_lazy('emails', 'Save the sending')
@@ -159,19 +163,21 @@ class EmailSending(CremeModel):
                 fail_silently=False,
             )
 
-            return SENDING_STATE_ERROR
+            # return SENDING_STATE_ERROR
+            return self.State.ERROR
 
-        connection = get_connection(host=settings.EMAILCAMPAIGN_HOST,
-                                    port=settings.EMAILCAMPAIGN_PORT,
-                                    username=settings.EMAILCAMPAIGN_HOST_USER,
-                                    password=settings.EMAILCAMPAIGN_PASSWORD,
-                                    use_tls=settings.EMAILCAMPAIGN_USE_TLS,
-                                   )
+        connection = get_connection(
+            host=settings.EMAILCAMPAIGN_HOST,
+            port=settings.EMAILCAMPAIGN_PORT,
+            username=settings.EMAILCAMPAIGN_HOST_USER,
+            password=settings.EMAILCAMPAIGN_PASSWORD,
+            use_tls=settings.EMAILCAMPAIGN_USE_TLS,
+        )
 
-        mails_count   = 0
+        mails_count = 0
         one_mail_sent = False
-        SENDING_SIZE  = getattr(settings, 'EMAILCAMPAIGN_SIZE', 40)
-        SLEEP_TIME    = getattr(settings, 'EMAILCAMPAIGN_SLEEP_TIME', 2)
+        SENDING_SIZE = getattr(settings, 'EMAILCAMPAIGN_SIZE', 40)
+        SLEEP_TIME = getattr(settings, 'EMAILCAMPAIGN_SLEEP_TIME', 2)
 
         for mail in LightWeightEmail.objects.filter(sending=self):
             if sender.send(mail, connection=connection):
@@ -186,27 +192,32 @@ class EmailSending(CremeModel):
                 sleep(SLEEP_TIME)  # Avoiding the mail to be classed as spam
 
         if not one_mail_sent:
-            return SENDING_STATE_ERROR
+            # return SENDING_STATE_ERROR
+            return self.State.ERROR
 
         # TODO: close the connection ??
 
     @property
     def unsent_mails(self):
-        return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR])
+        # return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR])
+        Status = _Email.Status
+
+        return self.mails_set.filter(status__in=[Status.NOT_SENT, Status.SENDING_ERROR])
 
 
 class LightWeightEmail(_Email):
     """Used by campaigns.
     id is a unique generated string in order to avoid stats hacking.
     """
-    id = CharField(_('Email ID'), primary_key=True, max_length=ID_LENGTH, editable=False)
-    sending = ForeignKey(
+    id = models.CharField(_('Email ID'), primary_key=True, max_length=ID_LENGTH, editable=False)
+    sending = models.ForeignKey(
         EmailSending, verbose_name=_('Related sending'),
-        related_name='mails_set', editable=False, on_delete=CASCADE,
+        related_name='mails_set', editable=False, on_delete=models.CASCADE,
     )
-    recipient_entity = ForeignKey(
-        CremeEntity, null=True, related_name='received_lw_mails',
-        editable=False, on_delete=CASCADE,
+    recipient_entity = models.ForeignKey(
+        CremeEntity,
+        null=True, on_delete=models.CASCADE,
+        related_name='received_lw_mails', editable=False,
     )
 
     class Meta:
@@ -250,11 +261,12 @@ class LightWeightEmail(_Email):
 
 class LightWeightEmailSender(EMailSender):
     def __init__(self, sending):
-        super().__init__(body=sending.body,
-                         body_html=sending.body_html,
-                         signature=sending.signature,
-                         attachments=sending.attachments.all(),
-                        )
+        super().__init__(
+            body=sending.body,
+            body_html=sending.body_html,
+            signature=sending.signature,
+            attachments=sending.attachments.all(),
+        )
         self._sending = sending
         self._body_template = Template(self._body)
         self._body_html_template = Template(self._body_html)

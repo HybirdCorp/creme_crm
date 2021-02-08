@@ -28,7 +28,7 @@ from django.utils.translation import gettext as _
 from creme.creme_core.views import generic
 from creme.crudity import registry
 
-from .. import bricks, constants, get_entityemail_model
+from .. import bricks, get_entityemail_model  # constants
 from ..crudity_register import EntityEmailBackend
 
 EntityEmail = get_entityemail_model()
@@ -122,9 +122,12 @@ class EmailStatusSetting(generic.CheckedView):
     model = EntityEmail
     status_url_kwarg = 'status'
     status_map = {
-        'validated': constants.MAIL_STATUS_SYNCHRONIZED,
-        'spam':      constants.MAIL_STATUS_SYNCHRONIZED_SPAM,
-        'waiting':   constants.MAIL_STATUS_SYNCHRONIZED_WAITING,
+        # 'validated': constants.MAIL_STATUS_SYNCHRONIZED,
+        # 'spam':      constants.MAIL_STATUS_SYNCHRONIZED_SPAM,
+        # 'waiting':   constants.MAIL_STATUS_SYNCHRONIZED_WAITING,
+        'validated': EntityEmail.Status.SYNCHRONIZED,
+        'spam':      EntityEmail.Status.SYNCHRONIZED_SPAM,
+        'waiting':   EntityEmail.Status.SYNCHRONIZED_WAITING,
     }
     email_ids_arg = 'ids'
 

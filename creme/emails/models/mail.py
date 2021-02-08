@@ -32,7 +32,7 @@ from django.utils.translation import pgettext_lazy
 from creme.creme_core.models import CremeEntity, CremeModel
 from creme.creme_core.models.fields import UnsafeHTMLField
 
-from .. import constants, utils
+from .. import utils  # constants
 from .signature import EmailSignature
 
 logger = logging.getLogger(__name__)
@@ -40,18 +40,34 @@ ID_LENGTH = 32
 
 
 class _Email(CremeModel):
-    reads          = models.PositiveIntegerField(_('Number of reads'), null=True,
-                                                 default=0, editable=False,
-                                               )
-    status         = models.PositiveSmallIntegerField(_('Status'), editable=False,
-                                                      default=constants.MAIL_STATUS_NOTSENT,
-                                                      choices=constants.MAIL_STATUS.items(),
-                                                     )
+    class Status(models.IntegerChoices):
+        SENT                 = 1, pgettext_lazy('emails', 'Sent'),
+        NOT_SENT             = 2, pgettext_lazy('emails', 'Not sent'),
+        SENDING_ERROR        = 3, _('Sending error'),
+        SYNCHRONIZED         = 4, pgettext_lazy('emails', 'Synchronized'),
+        SYNCHRONIZED_SPAM    = 5, _('Synchronized - Marked as SPAM'),
+        SYNCHRONIZED_WAITING = 6, _('Synchronized - Untreated'),
 
-    sender         = models.CharField(_('Sender'), max_length=100)
-    recipient      = models.CharField(_('Recipient'), max_length=100)
-    subject        = models.CharField(_('Subject'), max_length=100, blank=True)
-    body           = models.TextField(_('Body'))
+    SYNCHRONIZATION_STATUSES = {
+        Status.SYNCHRONIZED,
+        Status.SYNCHRONIZED_SPAM,
+        Status.SYNCHRONIZED_WAITING,
+    }
+
+    reads = models.PositiveIntegerField(
+        _('Number of reads'), null=True, default=0, editable=False,
+    )
+    status = models.PositiveSmallIntegerField(
+        _('Status'), editable=False,
+        # choices=constants.MAIL_STATUS.items(), default=constants.MAIL_STATUS_NOTSENT,
+        choices=Status.choices, default=Status.NOT_SENT,
+    )
+
+    sender    = models.CharField(_('Sender'), max_length=100)
+    recipient = models.CharField(_('Recipient'), max_length=100)
+    subject   = models.CharField(_('Subject'), max_length=100, blank=True)
+    body      = models.TextField(_('Body'))
+
     sending_date   = models.DateTimeField(_('Sending date'), null=True, editable=False)
     reception_date = models.DateTimeField(_('Reception date'), null=True, editable=False)
 
@@ -70,26 +86,28 @@ class _Email(CremeModel):
 
     @property
     def sent(self):
-        return self.status == constants.MAIL_STATUS_SENT
+        # return self.status == constants.MAIL_STATUS_SENT
+        return self.status == self.Status.SENT
 
     @property
     def synchronised(self):
-        return self.status in constants.MAIL_SYNC_STATUSES
+        # return self.status in constants.MAIL_SYNC_STATUSES
+        return self.status in self.SYNCHRONIZATION_STATUSES
 
 
 class AbstractEntityEmail(_Email, CremeEntity):
-    identifier  = models.CharField(_('Email ID'), unique=True, max_length=ID_LENGTH,
-                                   editable=False,
-                                   default=utils.generate_id,  # TODO: lambda for this
-                                  )
-    body_html   = UnsafeHTMLField(_('Body (HTML)'))
-    signature   = models.ForeignKey(EmailSignature, verbose_name=_('Signature'),
-                                    blank=True, null=True,
-                                    on_delete=models.SET_NULL,
-                                   )  # TODO: merge with body ????
-    attachments = models.ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL,
-                                         verbose_name=_('Attachments'), blank=True,
-                                        )
+    identifier = models.CharField(
+        _('Email ID'), unique=True, max_length=ID_LENGTH, editable=False,
+        default=utils.generate_id,  # TODO: lambda for this
+    )
+    body_html = UnsafeHTMLField(_('Body (HTML)'))
+    signature = models.ForeignKey(
+        EmailSignature, verbose_name=_('Signature'),
+        blank=True, null=True, on_delete=models.SET_NULL,
+    )  # TODO: merge with body ????
+    attachments = models.ManyToManyField(
+        settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_('Attachments'), blank=True,
+    )
 
     creation_label = _('Create an email')
     save_label     = _('Save the email')
@@ -137,16 +155,16 @@ class AbstractEntityEmail(_Email, CremeEntity):
     # TODO: in a manager ?
     @classmethod
     def create_n_send_mail(cls, sender, recipient, subject, user, body,
-                           body_html='', signature=None, attachments=None,
-                          ):
-        email = cls(sender=sender,
-                    recipient=recipient,
-                    subject=subject,
-                    body=body,
-                    body_html=body_html,
-                    signature=signature,
-                    user=user,
-                   )
+                           body_html='', signature=None, attachments=None):
+        email = cls(
+            sender=sender,
+            recipient=recipient,
+            subject=subject,
+            body=body,
+            body_html=body_html,
+            signature=signature,
+            user=user,
+        )
         email.genid_n_save()
 
         if attachments:
@@ -164,18 +182,20 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
         # TODO: in a signal handler instead ?
         #       (we need a restore signal, or an official "backup" feature -- see HistoryLine)
-        if self.status in (constants.MAIL_STATUS_NOTSENT, constants.MAIL_STATUS_SENDINGERROR):
+        # if self.status in (constants.MAIL_STATUS_NOTSENT, constants.MAIL_STATUS_SENDINGERROR):
+        if self.status in (self.Status.NOT_SENT, self.Status.SENDING_ERROR):
             # TODO: regroup the 'refresh' message, to avoid flooding the job manager
             from ..creme_jobs import entity_emails_send_type
 
             entity_emails_send_type.refresh_job()
 
     def send(self):
-        sender = EntityEmailSender(body=self.body,
-                                   body_html=self.body_html,
-                                   signature=self.signature,
-                                   attachments=self.attachments.all(),
-                                  )
+        sender = EntityEmailSender(
+            body=self.body,
+            body_html=self.body_html,
+            signature=self.signature,
+            attachments=self.attachments.all(),
+        )
 
         if sender.send(self):
             logger.debug('Mail sent to %s', self.recipient)

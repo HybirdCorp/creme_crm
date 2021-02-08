@@ -33,10 +33,7 @@ from creme.persons.tests.base import (
 )
 
 from ..actions import BulkEntityEmailResendAction, EntityEmailResendAction
-from ..constants import (
-    MAIL_STATUS_NOTSENT,
-    MAIL_STATUS_SENDINGERROR,
-    MAIL_STATUS_SENT,
+from ..constants import (  # MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SENT
     REL_OBJ_MAIL_RECEIVED,
     REL_OBJ_MAIL_SENDED,
     REL_OBJ_RELATED_TO,
@@ -110,7 +107,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         context = self.assertGET200(url).context
         self.assertEqual(
             _('Sending an email to «{entity}»').format(entity=contact),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(EntityEmail.sending_label, context.get('submit_label'))
 
@@ -141,7 +138,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(subject,          email.subject)
         self.assertEqual(body,             email.body)
         self.assertEqual(body_html,        email.body_html)
-        self.assertEqual(MAIL_STATUS_SENT, email.status)
+        # self.assertEqual(MAIL_STATUS_SENT, email.status)
+        self.assertEqual(EntityEmail.Status.SENT, email.status)
 
         self.get_object_or_fail(
             Relation,
@@ -256,7 +254,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                 (basename(doc1.filedata.name), content1.decode(), 'text/plain'),
                 (basename(doc2.filedata.name), content2.decode(), 'text/plain'),
             ],
-            message.attachments
+            message.attachments,
         )
 
     @skipIfCustomContact
@@ -317,11 +315,11 @@ class EntityEmailTestCase(_EmailsTestCase):
         )
         self.assertFormError(
             response, 'form', 'c_recipients',
-            _('The email address for {} is invalid').format(contact01)
+            _('The email address for {} is invalid').format(contact01),
         )
         self.assertFormError(
             response, 'form', 'o_recipients',
-            _('The email address for {} is invalid').format(orga01)
+            _('The email address for {} is invalid').format(orga01),
         )
 
     @skipIfCustomContact
@@ -338,7 +336,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertIsNone(c_recipients.initial)
         self.assertEqual(
             _('Beware: the contact «{}» has no email address!').format(contact),
-            c_recipients.help_text
+            c_recipients.help_text,
         )
 
     @skipIfCustomOrganisation
@@ -355,7 +353,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertIsNone(o_recipients.initial)
         self.assertEqual(
             _('Beware: the organisation «{}» has no email address!').format(orga),
-            o_recipients.help_text
+            o_recipients.help_text,
         )
 
     @skipIfCustomContact
@@ -367,16 +365,20 @@ class EntityEmailTestCase(_EmailsTestCase):
         create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.LINK   |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.LINK
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),  # Not LINK
             set_type=SetCredentials.ESET_ALL
         )
@@ -432,11 +434,11 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.assertFormError(
             response, 'form', 'c_recipients',
-            _('Some entities are not linkable: {}').format(contact01)
+            _('Some entities are not linkable: {}').format(contact01),
         )
         self.assertFormError(
             response, 'form', 'o_recipients',
-            _('Some entities are not linkable: {}').format(orga01)
+            _('Some entities are not linkable: {}').format(orga01),
         )
 
     def test_createview_no_recipient(self):
@@ -456,7 +458,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         )
         self.assertFormError(
             response, 'form', None,
-            _('Select at least a Contact or an Organisation')
+            _('Select at least a Contact or an Organisation'),
         )
 
     @skipIfCustomContact
@@ -478,8 +480,11 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.assertIsInstance(recip_field.widget, Label)
         self.assertEqual(
-            _('Beware: the field «Email address» is hidden ; please contact your administrator.'),
-            recip_field.initial
+            _(
+                'Beware: the field «Email address» is hidden ; '
+                'please contact your administrator.'
+            ),
+            recip_field.initial,
         )
 
         response = self.assertPOST200(
@@ -487,7 +492,8 @@ class EntityEmailTestCase(_EmailsTestCase):
             data={
                 'user':         user.id,
                 'sender':       user.linked_contact.email,
-                'c_recipients': self.formfield_value_multi_creator_entity(c),  # Should not be used
+                # Should not be used
+                'c_recipients': self.formfield_value_multi_creator_entity(c),
                 'subject':      'Under arrest',
                 'body':         'Freeze !',
                 'body_html':    '<p>Freeze !</p>',
@@ -495,7 +501,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         )
         self.assertFormError(
             response, 'form', None,
-            _('Select at least a Contact or an Organisation')
+            _('Select at least a Contact or an Organisation'),
         )
 
     @skipIfCustomOrganisation
@@ -517,8 +523,11 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.assertIsInstance(recip_field.widget, Label)
         self.assertEqual(
-            _('Beware: the field «Email address» is hidden ; please contact your administrator.'),
-            recip_field.initial
+            _(
+                'Beware: the field «Email address» is hidden ; '
+                'please contact your administrator.'
+            ),
+            recip_field.initial,
         )
 
         response = self.assertPOST200(
@@ -535,7 +544,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         )
         self.assertFormError(
             response, 'form', None,
-            _('Select at least a Contact or an Organisation')
+            _('Select at least a Contact or an Organisation'),
         )
 
     @skipIfCustomContact
@@ -574,7 +583,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertNoFormError(response)
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
-        self.assertEqual(MAIL_STATUS_SENDINGERROR, email.status)
+        # self.assertEqual(MAIL_STATUS_SENDINGERROR, email.status)
+        self.assertEqual(EntityEmail.Status.SENDING_ERROR, email.status)
 
         self.assertTrue(queue.refreshed_jobs)
 
@@ -582,15 +592,18 @@ class EntityEmailTestCase(_EmailsTestCase):
     @skipIfCustomOrganisation
     def test_createview_no_creation_perm(self):
         "No creation credentials."
-        user = self.login(is_superuser=False,
-                          creatable_models=(Contact, Organisation)  # No EntityEmail
-                         )
+        user = self.login(
+            is_superuser=False,
+            creatable_models=(Contact, Organisation)  # No EntityEmail
+        )
         SetCredentials.objects.create(
             role=user.role,
             value=(
-                EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                EntityCredentials.LINK   |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.LINK
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -627,10 +640,10 @@ class EntityEmailTestCase(_EmailsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'c_recipients', _('This entity does not exist.')
+            response, 'form', 'c_recipients', _('This entity does not exist.'),
         )
         self.assertFormError(
-            response, 'form', 'o_recipients', _('This entity does not exist.')
+            response, 'form', 'o_recipients', _('This entity does not exist.'),
         )
 
     @skipIfCustomEmailTemplate
@@ -663,7 +676,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertGET200(url)
         self.assertTemplateUsed(
             response,
-            'creme_core/generics/blockform/add-wizard-popup.html'
+            'creme_core/generics/blockform/add-wizard-popup.html',
         )
 
         context = response.context
@@ -686,10 +699,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertNoFormError(response)
 
         context = response.context
-        self.assertEqual(
-            title,
-            context.get('title')
-        )
+        self.assertEqual(title, context.get('title'))
         self.assertEqual(_('Send the email'), context.get('submit_label'))
 
         with self.assertNoException():
@@ -794,7 +804,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         context = response.context
         self.assertEqual(
             _('Link «{entity}» to emails').format(entity=contact),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(_('Save the relationships'), context.get('submit_label'))
 
@@ -865,7 +875,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                 'data': {},
                 'options': {'selection': [email.id]},
             },
-            resend_action.action_data
+            resend_action.action_data,
         )
         self.assertTrue(resend_action.is_enabled)
         self.assertTrue(resend_action.is_visible)
@@ -914,7 +924,7 @@ class EntityEmailTestCase(_EmailsTestCase):
             '<p>hi</p>'
             '<img alt="Totoro">'
             '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-            response.content.decode()
+            response.content.decode(),
         )
 
         response = self.assertGET200(url + '?external_img=on')
@@ -922,14 +932,17 @@ class EntityEmailTestCase(_EmailsTestCase):
             '<p>hi</p>'
             '<img alt="Totoro" src="http://external/images/totoro.jpg">'
             '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-            response.content.decode()
+            response.content.decode(),
         )
         # TODO: improve sanitization test (other tags, css...)
 
     def test_resend01(self):
         self.login()
-        email1 = self._create_email(MAIL_STATUS_NOTSENT)
-        email2 = self._create_email(MAIL_STATUS_NOTSENT)
+        NOT_SENT = EntityEmail.Status.NOT_SENT
+        # email1 = self._create_email(MAIL_STATUS_NOTSENT)
+        email1 = self._create_email(NOT_SENT)
+        # email2 = self._create_email(MAIL_STATUS_NOTSENT)
+        email2 = self._create_email(NOT_SENT)
 
         url = reverse('emails__resend_emails')
         data = {'ids': f'{email1.id},{email2.id}, '}
@@ -945,8 +958,11 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(email1.subject, message.subject)
         self.assertEqual(email1.body,    message.body)
 
-        self.assertEqual(MAIL_STATUS_SENT, self.refresh(email1).status)
-        self.assertEqual(MAIL_STATUS_SENT, self.refresh(email2).status)
+        SENT = EntityEmail.Status.SENT
+        # self.assertEqual(MAIL_STATUS_SENT, self.refresh(email1).status)
+        self.assertEqual(SENT, self.refresh(email1).status)
+        # self.assertEqual(MAIL_STATUS_SENT, self.refresh(email2).status)
+        self.assertEqual(SENT, self.refresh(email2).status)
 
     def test_resend02(self):
         self.login()
@@ -963,7 +979,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertIsNone(job.user)
         self.assertIsNone(job.type.next_wakeup(job, now_value))
 
-        email = self._create_email(MAIL_STATUS_NOTSENT)
+        # email = self._create_email(MAIL_STATUS_NOTSENT)
+        email = self._create_email(EntityEmail.Status.NOT_SENT)
         self.assertIs(job.type.next_wakeup(job, now_value), now_value)
 
         self._send_mails(job)
@@ -979,7 +996,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         from ..creme_jobs.entity_emails_send import ENTITY_EMAILS_RETRY
 
         self.login()
-        email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        # email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        email = self._create_email(EntityEmail.Status.SENDING_ERROR)
 
         job = self._get_job()
         now_value = now()
@@ -987,7 +1005,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertIsNotNone(wakeup)
         self.assertDatetimesAlmostEqual(
             now_value + timedelta(minutes=ENTITY_EMAILS_RETRY),
-            wakeup
+            wakeup,
         )
 
         self._send_mails(job)
@@ -1001,7 +1019,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     def test_job03(self):
         self.login()
-        self._create_email(MAIL_STATUS_SENT)
+        # self._create_email(MAIL_STATUS_SENT)
+        self._create_email(EntityEmail.Status.SENT)
         self._send_mails()
 
         self.assertFalse(mail.outbox)
@@ -1009,7 +1028,8 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_job04(self):
         "Email is in the trash."
         self.login()
-        email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        # email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        email = self._create_email(EntityEmail.Status.SENDING_ERROR)
         email.trash()
 
         job = self._get_job()
@@ -1023,7 +1043,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.login()
         job = self._get_job()
 
-        email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        # email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        email = self._create_email(EntityEmail.Status.SENDING_ERROR)
         email.trash()
 
         queue = JobSchedulerQueue.get_main_queue()
@@ -1040,8 +1061,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         "Mail is restored + do not have to be send => do not refresh the job."
         self.login()
 
-        email = self._create_email(MAIL_STATUS_SENDINGERROR)
-        email.status = MAIL_STATUS_SENT
+        # email = self._create_email(MAIL_STATUS_SENDINGERROR)
+        email = self._create_email(EntityEmail.Status.SENDING_ERROR)
+        # email.status = MAIL_STATUS_SENT
+        email.status = EntityEmail.Status.SENT
         email.is_deleted = True
         email.save()
 

@@ -38,8 +38,7 @@ from creme.creme_core.forms.widgets import CremeTextarea
 from creme.creme_core.models import FieldsConfig, Relation
 from creme.documents import get_document_model
 
-from ..constants import (
-    MAIL_STATUS_SENDINGERROR,
+from ..constants import (  # MAIL_STATUS_SENDINGERROR
     REL_SUB_MAIL_RECEIVED,
     REL_SUB_MAIL_SENDED,
 )
@@ -192,7 +191,8 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
                 signature=signature, attachments=attachments,
             )
 
-            if email.status == MAIL_STATUS_SENDINGERROR:
+            # if email.status == MAIL_STATUS_SENDINGERROR:
+            if email.status == email.Status.SENDING_ERROR:
                 sending_error = True
 
             return email

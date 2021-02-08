@@ -27,15 +27,15 @@ from creme.persons.tests.base import (
 )
 
 from ..bricks import MailsBrick
-from ..constants import MAIL_STATUS_NOTSENT, SETTING_EMAILCAMPAIGN_SENDER
+from ..constants import SETTING_EMAILCAMPAIGN_SENDER  # MAIL_STATUS_NOTSENT
 from ..creme_jobs import campaign_emails_send_type
 from ..models import EmailRecipient, EmailSending, LightWeightEmail
-from ..models.sending import (
-    SENDING_STATE_DONE,
-    SENDING_STATE_PLANNED,
-    SENDING_TYPE_DEFERRED,
-    SENDING_TYPE_IMMEDIATE,
-)
+# from ..models.sending import (
+#     SENDING_STATE_DONE,
+#     SENDING_STATE_PLANNED,
+#     SENDING_TYPE_DEFERRED,
+#     SENDING_TYPE_IMMEDIATE,
+# )
 from .base import (
     Contact,
     EmailCampaign,
@@ -74,7 +74,7 @@ class SendingsTestCase(_EmailsTestCase):
         context = response.context
         self.assertEqual(
             _('New sending for «{entity}»').format(entity=camp),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(EmailSending.save_label, context.get('submit_label'))
 
@@ -87,7 +87,8 @@ class SendingsTestCase(_EmailsTestCase):
             url,
             data={
                 'sender':   sender_email,
-                'type':     SENDING_TYPE_IMMEDIATE,
+                # 'type':     SENDING_TYPE_IMMEDIATE,
+                'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
         ))
@@ -100,15 +101,21 @@ class SendingsTestCase(_EmailsTestCase):
 
         self.assertEqual(sender_email, sender.initial)
 
-        response = self.assertPOST200(url, data={'sender':   'another_email@address.com',
-                                                 'type':     SENDING_TYPE_IMMEDIATE,
-                                                 'template': template.id,
-                                                }
-                                     )
+        response = self.assertPOST200(
+            url,
+            data={
+                'sender':   'another_email@address.com',
+                # 'type':     SENDING_TYPE_IMMEDIATE,
+                'type':     EmailSending.Type.IMMEDIATE,
+                'template': template.id,
+            },
+        )
         self.assertFormError(
             response, 'form', 'sender',
-            _('You are not allowed to modify the sender address, '
-              'please contact your administrator.')
+            _(
+                'You are not allowed to modify the sender address, '
+                'please contact your administrator.'
+            ),
         )
 
     def test_sender_setting02(self):
@@ -116,17 +123,19 @@ class SendingsTestCase(_EmailsTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK |
-                EntityCredentials.CHANGE
+                EntityCredentials.VIEW
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
+                | EntityCredentials.CHANGE
             ),
             set_type=SetCredentials.ESET_ALL
         )
 
         camp = EmailCampaign.objects.create(user=user, name='camp01')
-        template = EmailTemplate.objects.create(user=user, name='name',
-                                                subject='SUBJECT', body='BODY',
-                                               )
+        template = EmailTemplate.objects.create(
+            user=user, name='name', subject='SUBJECT', body='BODY',
+        )
 
         url = self._build_add_url(camp)
         response = self.assertGET200(url)
@@ -135,8 +144,12 @@ class SendingsTestCase(_EmailsTestCase):
             sender = response.context['form'].fields['sender']
 
         self.assertEqual(
-            _('No sender email address has been configured, please contact your administrator.'),
-            sender.initial)
+            _(
+                'No sender email address has been configured, '
+                'please contact your administrator.'
+            ),
+            sender.initial,
+        )
         sender_email = 'vicious@reddragons.mrs'
 
         self.assertFormError(
@@ -144,13 +157,16 @@ class SendingsTestCase(_EmailsTestCase):
                 url,
                 data={
                     'sender': sender_email,
-                    'type': SENDING_TYPE_IMMEDIATE,
+                    # 'type': SENDING_TYPE_IMMEDIATE,
+                    'type': EmailSending.Type.IMMEDIATE,
                     'template': template.id,
                 },
             ),
             'form', 'sender',
-            _('You are not allowed to modify the sender address, '
-              'please contact your administrator.'),
+            _(
+                'You are not allowed to modify the sender address, '
+                'please contact your administrator.'
+            ),
         )
 
         sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
@@ -168,7 +184,8 @@ class SendingsTestCase(_EmailsTestCase):
             url,
             data={
                 'sender':   sender_email,
-                'type':     SENDING_TYPE_IMMEDIATE,
+                # 'type':     SENDING_TYPE_IMMEDIATE,
+                'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
         ))
@@ -256,7 +273,8 @@ class SendingsTestCase(_EmailsTestCase):
             url,
             data={
                 'sender':   'vicious@reddragons.mrs',
-                'type':     SENDING_TYPE_IMMEDIATE,
+                # 'type':     SENDING_TYPE_IMMEDIATE,
+                'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
         ))
@@ -265,8 +283,10 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(1, len(sendings))
 
         sending = sendings[0]
-        self.assertEqual(SENDING_TYPE_IMMEDIATE, sending.type)
-        self.assertEqual(SENDING_STATE_PLANNED,  sending.state)
+        # self.assertEqual(SENDING_TYPE_IMMEDIATE, sending.type)
+        self.assertEqual(EmailSending.Type.IMMEDIATE, sending.type)
+        # self.assertEqual(SENDING_STATE_PLANNED,  sending.state)
+        self.assertEqual(EmailSending.State.PLANNED,  sending.state)
         self.assertEqual(subject,                sending.subject)
         self.assertEqual(body,                   sending.body)
         self.assertEqual('',                     sending.body_html)
@@ -304,7 +324,8 @@ class SendingsTestCase(_EmailsTestCase):
         # ---
         mail = mails[0]
         self.assertEqual(0, mail.reads)
-        self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
+        # self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
+        self.assertEqual(LightWeightEmail.Status.NOT_SENT, mail.status)
 
         response1 = self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
         self.assertTemplateUsed(response1, 'creme_core/generics/detail-popup.html')
@@ -347,10 +368,10 @@ class SendingsTestCase(_EmailsTestCase):
         "Test template."
         user = self.login()
         first_name = 'Spike'
-        last_name  = 'Spiegel'
+        last_name = 'Spiegel'
 
-        camp    = EmailCampaign.objects.create(user=user, name='camp01')
-        mlist   = MailingList.objects.create(user=user, name='ml01')
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
+        mlist = MailingList.objects.create(user=user, name='ml01')
         contact = Contact.objects.create(
             user=user, first_name=first_name,
             last_name=last_name, email='spike.spiegel@bebop.com',
@@ -369,7 +390,8 @@ class SendingsTestCase(_EmailsTestCase):
             self._build_add_url(camp),
             data={
                 'sender':   'vicious@reddragons.mrs',
-                'type':     SENDING_TYPE_IMMEDIATE,
+                # 'type':     SENDING_TYPE_IMMEDIATE,
+                'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
         )
@@ -389,7 +411,7 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(html, mail.rendered_body_html)
         self.assertEqual(
             html.encode(),
-            self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content
+            self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content,
         )
 
         # View template --------------------------------------------------------
@@ -401,7 +423,7 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertPOST(
             302,
             reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-            data={'id': sending.pk}
+            data={'id': sending.pk},
         )
         self.assertDoesNotExist(sending)
         self.assertDoesNotExist(mail)
@@ -443,7 +465,8 @@ class SendingsTestCase(_EmailsTestCase):
             self._build_add_url(camp),
             data={
                 'sender':   sender,
-                'type':     SENDING_TYPE_IMMEDIATE,
+                # 'type':     SENDING_TYPE_IMMEDIATE,
+                'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
         ))
@@ -460,7 +483,8 @@ class SendingsTestCase(_EmailsTestCase):
         with self.assertNoException():
             sending = camp.sendings_set.all()[0]
 
-        self.assertEqual(SENDING_STATE_DONE, sending.state)
+        # self.assertEqual(SENDING_STATE_DONE, sending.state)
+        self.assertEqual(EmailSending.State.DONE, sending.state)
 
         messages = django_mail.outbox
         self.assertEqual(len(messages), 3)
@@ -478,7 +502,7 @@ class SendingsTestCase(_EmailsTestCase):
                 recipient
                 for message in messages
                 for recipient in message.recipients()
-            }
+            },
         )
 
         self.assertIsNone(job.type.next_wakeup(job, now_value))
@@ -498,7 +522,8 @@ class SendingsTestCase(_EmailsTestCase):
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {
             'sender':   'vicious@reddragons.mrs',
-            'type':     SENDING_TYPE_DEFERRED,
+            # 'type':     SENDING_TYPE_DEFERRED,
+            'type':     EmailSending.Type.DEFERRED,
             'template': template.id,
         }
 
@@ -524,7 +549,7 @@ class SendingsTestCase(_EmailsTestCase):
 
         self.assertFormError(
             post(data=data), 'form', 'sending_date',
-            _('Sending date required for a deferred sending')
+            _('Sending date required for a deferred sending'),
         )
 
         msg = _('Sending date must be is the future')
@@ -557,7 +582,8 @@ class SendingsTestCase(_EmailsTestCase):
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {
             'sender':   'vicious@reddragons.mrs',
-            'type':     SENDING_TYPE_DEFERRED,
+            # 'type':     SENDING_TYPE_DEFERRED,
+            'type':     EmailSending.Type.DEFERRED,
             'template': template.id,
         }
 
@@ -599,7 +625,8 @@ class SendingsTestCase(_EmailsTestCase):
             self._build_add_url(camp),
             data={
                 'sender':   'vicious@reddragons.mrs',
-                'type':     SENDING_TYPE_IMMEDIATE,
+                # 'type':     SENDING_TYPE_IMMEDIATE,
+                'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
         ))
@@ -612,7 +639,7 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual('Hello Spike Spiegel !', message.body)
         self.assertListEqual(
             [('<b>Hello</b> Spike Spiegel !', 'text/html')],
-            message.alternatives
+            message.alternatives,
         )
 
     def test_create07(self):
@@ -742,8 +769,10 @@ class SendingsTestCase(_EmailsTestCase):
         user = self.login()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         sending = EmailSending.objects.create(
-            campaign=camp, type=SENDING_TYPE_IMMEDIATE,
-            sending_date=now(), state=SENDING_STATE_PLANNED,
+            # campaign=camp, type=SENDING_TYPE_IMMEDIATE,
+            campaign=camp, type=EmailSending.Type.IMMEDIATE,
+            # sending_date=now(), state=SENDING_STATE_PLANNED,
+            sending_date=now(), state=EmailSending.State.PLANNED,
         )
 
         build_url = self.build_inneredit_url
@@ -768,7 +797,8 @@ class SendingsTestCase(_EmailsTestCase):
         now_value = now()
         create_sending = partial(
             EmailSending.objects.create, campaign=camp,
-            type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+            # type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+            type=EmailSending.Type.DEFERRED, state=EmailSending.State.PLANNED,
         )
         create_sending(sending_date=now_value + timedelta(weeks=2))
         sending1 = create_sending(sending_date=now_value + timedelta(weeks=1))
@@ -787,7 +817,8 @@ class SendingsTestCase(_EmailsTestCase):
 
         EmailSending.objects.create(
             campaign=camp,
-            type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+            # type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+            type=EmailSending.Type.DEFERRED, state=EmailSending.State.PLANNED,
             sending_date=now_value - timedelta(hours=1),
         )
 
@@ -816,7 +847,8 @@ class SendingsTestCase(_EmailsTestCase):
             self._build_add_url(camp),
             data={
                 'sender':   sender,
-                'type':     SENDING_TYPE_IMMEDIATE,
+                # 'type':     SENDING_TYPE_IMMEDIATE,
+                'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
         )
@@ -837,7 +869,8 @@ class SendingsTestCase(_EmailsTestCase):
 
         EmailSending.objects.create(
             campaign=camp,
-            type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+            # type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
+            type=EmailSending.Type.DEFERRED, state=EmailSending.State.PLANNED,
             sending_date=now() - timedelta(hours=1),
         )
 
@@ -858,7 +891,8 @@ class SendingsTestCase(_EmailsTestCase):
 
         EmailSending.objects.create(
             campaign=camp,
-            type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_DONE,
+            # type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_DONE,
+            type=EmailSending.Type.DEFERRED, state=EmailSending.State.DONE,
             sending_date=now() - timedelta(hours=1),
         )
 
