@@ -405,4 +405,108 @@ QUnit.test('creme.forms.Select.fill (select)', function(assert) {
     equal(element.val(), 'd');
 });
 
+QUnit.test('creme.forms.TimePicker', function(assert) {
+    var element = $('<ul>' +
+        '<input type="hidden" id="time_field" value="08:32:00">' +
+        '<li class="hour"><input type="text"/></li>' +
+        '<li class="minute"><input type="text"/></li>' +
+        '<li><button></button></li>' +
+    '</ul>');
+
+    var input = element.find('#time_field');
+
+    deepEqual({hour: '08', minute: '32'}, creme.forms.TimePicker.timeval(element));
+
+    creme.forms.TimePicker.init(element);
+    equal("08:32:00", input.val());
+    equal('08', element.find('.hour input').val());
+    equal('32', element.find('.minute input').val());
+    equal('08:32:00', creme.forms.TimePicker.val(element));
+
+    creme.forms.TimePicker.clear(element);
+    equal("", input.val());
+    equal('', element.find('.hour input').val());
+    equal('', element.find('.minute input').val());
+
+    creme.forms.TimePicker.set(element, 12, 54);
+    equal("12:54", input.val());
+    equal('12', element.find('.hour input').val());
+    equal('54', element.find('.minute input').val());
+
+    element.find('.hour input').val('07').change();
+    equal("07:54", input.val());
+    equal('07', element.find('.hour input').val());
+    equal('54', element.find('.minute input').val());
+
+    this.withFrozenTime(new Date(2020, 5, 1, 16, 30), function() {
+        element.find('button').click();
+        equal("16:30", input.val());
+        equal('16', element.find('.hour input').val());
+        equal('30', element.find('.minute input').val());
+    });
+});
+
+QUnit.test('creme.forms.DateTimePicker', function(assert) {
+    var element = $('<ul>' +
+            '<input type="hidden" id="time_field" value="2020-10-12 08:32:00">' +
+            '<li class="date"><input type="text"/></li>' +
+            '<li class="hour"><input type="text"/></li>' +
+            '<li class="minute"><input type="text"/></li>' +
+            '<li class="now"><button></button></li>' +
+            '<li class="clear"><button></button></li>' +
+        '</ul>');
+    var input = element.find('#time_field');
+
+    deepEqual({date: '2020-10-12', hour: '08', minute: '32'}, creme.forms.DateTimePicker.datetimeval(element));
+
+    creme.forms.DateTimePicker.init(element);
+    equal("2020-10-12 08:32:00", input.val());
+    equal('2020-10-12', element.find('.date input').val());
+    equal('08', element.find('.hour input').val());
+    equal('32', element.find('.minute input').val());
+    equal('2020-10-12 08:32:00', creme.forms.DateTimePicker.val(element));
+
+    creme.forms.DateTimePicker.clear(element);
+    equal("", input.val());
+    equal('', element.find('.date input').val());
+    equal('', element.find('.hour input').val());
+    equal('', element.find('.minute input').val());
+
+    creme.forms.DateTimePicker.setDate(element, new Date(2020, 4, 1, 16, 30));
+    equal("2020-05-01 16:30", input.val());
+    equal('2020-05-01', element.find('.date input').val());
+    equal('16', element.find('.hour input').val());
+    equal('30', element.find('.minute input').val());
+
+    this.withFrozenTime(new Date(2020, 9, 18, 12, 30), function() {
+        element.find('.now button').click();
+        equal("2020-10-18 12:30", input.val());
+        equal('2020-10-18', element.find('.date input').val());
+        equal('12', element.find('.hour input').val());
+        equal('30', element.find('.minute input').val());
+    });
+
+    element.find('.clear button').click();
+    equal("", input.val());
+    equal('', element.find('.date input').val());
+    equal('', element.find('.hour input').val());
+    equal('', element.find('.minute input').val());
+
+    creme.forms.DateTimePicker.set(element, 2020, 4, 18, 17, 32);
+    equal("2020-05-18 17:32", input.val());
+    equal('2020-05-18', element.find('.date input').val());
+    equal('17', element.find('.hour input').val());
+    equal('32', element.find('.minute input').val());
+
+    element.find('.date input').val('2021-12-24').change();
+    equal('2021-12-24', element.find('.date input').val());
+    equal('17', element.find('.hour input').val());
+    equal('32', element.find('.minute input').val());
+
+    element.find('.minute input').val('54').change();
+    equal('2021-12-24', element.find('.date input').val());
+    equal('17', element.find('.hour input').val());
+    equal('54', element.find('.minute input').val());
+});
+
 }(jQuery));

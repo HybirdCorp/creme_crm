@@ -254,6 +254,10 @@
                 method: method,
                 follow: follow
             }).with(block.bind(this));
+        },
+
+        withFrozenTime: function(date, block) {
+            return new DateFaker(date).with(block.bind(this));
         }
     };
 
