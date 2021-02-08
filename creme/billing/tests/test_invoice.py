@@ -28,9 +28,7 @@ from creme.persons.tests.base import (
 )
 
 from ..actions import ExportInvoiceAction, GenerateNumberAction
-from ..constants import (
-    DISCOUNT_LINE_AMOUNT,
-    DISCOUNT_PERCENT,
+from ..constants import (  # DISCOUNT_LINE_AMOUNT DISCOUNT_PERCENT
     REL_OBJ_BILL_ISSUED,
     REL_OBJ_BILL_RECEIVED,
     REL_SUB_BILL_ISSUED,
@@ -39,6 +37,7 @@ from ..constants import (
 from ..models import (
     AdditionalInformation,
     InvoiceStatus,
+    Line,
     PaymentInformation,
     PaymentTerms,
 )
@@ -1132,7 +1131,8 @@ class InvoiceTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('1000.00'), quantity=2,
             discount=Decimal('10.00'),
-            discount_unit=DISCOUNT_PERCENT,
+            # discount_unit=DISCOUNT_PERCENT,
+            discount_unit=Line.Discount.PERCENT,
             vat_value=Vat.get_default_vat(),
             **kwargs
         )
@@ -1146,7 +1146,8 @@ class InvoiceTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=10,
             discount=Decimal('100.00'),
-            discount_unit=DISCOUNT_LINE_AMOUNT,
+            # discount_unit=DISCOUNT_LINE_AMOUNT,
+            discount_unit=Line.Discount.LINE_AMOUNT,
             vat_value=Vat.get_default_vat(),
             **kwargs
         )

@@ -22,6 +22,7 @@ from creme.billing.exporters.latex import LatexExportEngine, LatexExporter
 from creme.billing.exporters.xls import XLSExportEngine, XLSExporter
 from creme.billing.models import (
     ExporterConfigItem,
+    Line,
     PaymentInformation,
     SettlementTerms,
 )
@@ -38,7 +39,7 @@ from creme.products import get_product_model, get_service_model
 from creme.products.models import SubCategory
 from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
-from .. import constants
+# from .. import constants
 from ..forms.export import ExporterLocalisationField
 from .base import (
     Address,
@@ -768,7 +769,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         "Bad CT."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Laputa')
-        # self.assertGET409(self._build_export_url(orga))
         self.assertGET404(self._build_export_url(orga))
 
         # TODO: test with a billing model but not managed
@@ -886,7 +886,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
         self.assertEqual(
             f'attachment; filename="{fileref.basename}"',
-            response['Content-Disposition']
+            response['Content-Disposition'],
         )
 
         # Consume stream to avoid ResourceWarning
@@ -1063,7 +1063,8 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             unit_price=product.unit_price,
             quantity=Decimal('2'),
             discount=Decimal('5'),
-            discount_unit=constants.DISCOUNT_PERCENT,
+            # discount_unit=constants.DISCOUNT_PERCENT,
+            discount_unit=Line.Discount.PERCENT,
         )
 
         create_sline = partial(
@@ -1075,7 +1076,8 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             unit_price=Decimal('11'),
             quantity=Decimal('2'),
             discount=Decimal('6'),
-            discount_unit=constants.DISCOUNT_LINE_AMOUNT,
+            # discount_unit=constants.DISCOUNT_LINE_AMOUNT,
+            discount_unit=Line.Discount.LINE_AMOUNT,
             comment='This line is important',
         )
         service = get_service_model().objects.create(
@@ -1088,7 +1090,8 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             unit_price=service.unit_price,
             quantity=Decimal('1'),
             discount=Decimal('5.5'),
-            discount_unit=constants.DISCOUNT_ITEM_AMOUNT,
+            # discount_unit=constants.DISCOUNT_ITEM_AMOUNT,
+            discount_unit=Line.Discount.ITEM_AMOUNT,
         )
 
         existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
@@ -1119,11 +1122,11 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
                 addr1.address, addr1.po_box, addr1.zipcode,
                 addr1.city, addr1.department, addr1.state, addr1.country,
             ],
-            next(lines)[:7]
+            next(lines)[:7],
         )
         self.assertListEqual(
             [source.siret, source.naf, source.rcs, source.tvaintra],
-            next(lines)[:4]
+            next(lines)[:4],
         )
         self.assertListEqual([str(target)], next(lines)[:1])
         self.assertListEqual(
@@ -1131,7 +1134,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
                 addr2.address, addr2.po_box, addr2.zipcode,
                 addr2.city, addr2.department, addr2.state, addr2.country,
             ],
-            next(lines)[:7]
+            next(lines)[:7],
         )
 
         self.assertListEqual(
@@ -1146,14 +1149,14 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
                 addr3.address, addr3.po_box, addr3.zipcode,
                 addr3.city, addr3.department, addr3.state, addr3.country,
             ],
-            next(lines)[:7]
+            next(lines)[:7],
         )
         self.assertListEqual(
             [
                 addr4.address, addr4.po_box, addr4.zipcode,
                 addr4.city, addr4.department, addr4.state, addr4.country,
             ],
-            next(lines)[:7]
+            next(lines)[:7],
         )
         self.assertListEqual(
             [
@@ -1171,7 +1174,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
                 payment_info.rib_key,
                 payment_info.banking_domiciliation,
             ],
-            next(lines)[:5]
+            next(lines)[:5],
         )
         self.assertListEqual(
             [invoice.currency.name, '0.00', invoice.comment],
@@ -1396,7 +1399,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
                 payment_info.rib_key,
                 payment_info.banking_domiciliation,
             ],
-            next(lines)[:5]
+            next(lines)[:5],
         )
         self.assertListEqual(
             [quote.currency.name, '0.00', quote.comment],

@@ -156,15 +156,20 @@ class LineEditForm(core_forms.CremeModelForm):
         if self.instance.related_item:
             del fields['on_the_fly_item']
 
+        Discount = self._meta.model.Discount
+
         currency_str = related_document.currency.local_symbol
         discount_units = [
-            (constants.DISCOUNT_PERCENT, '%'),
+            # (constants.DISCOUNT_PERCENT, '%'),
+            (Discount.PERCENT, '%'),
             (
-                constants.DISCOUNT_LINE_AMOUNT,
+                # constants.DISCOUNT_LINE_AMOUNT,
+                Discount.LINE_AMOUNT,
                 gettext('{currency} per line').format(currency=currency_str),
             ),
             (
-                constants.DISCOUNT_ITEM_AMOUNT,
+                # constants.DISCOUNT_ITEM_AMOUNT,
+                Discount.ITEM_AMOUNT,
                 gettext('{currency} per unit').format(currency=currency_str),
             ),
         ]

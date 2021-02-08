@@ -39,6 +39,11 @@ logger = logging.getLogger(__name__)
 #  several lines are edited for the moment when have to re-save the model manually.
 
 class Line(CremeEntity):
+    class Discount(models.IntegerChoices):
+        PERCENT     = 1, _('Percent'),
+        LINE_AMOUNT = 2, _('Amount per line'),
+        ITEM_AMOUNT = 3, _('Amount per unit'),
+
     # NB: not blank (no related item => name is filled)
     on_the_fly_item = models.CharField(_('On-the-fly line'), max_length=100, null=True)
 
@@ -55,11 +60,10 @@ class Line(CremeEntity):
     discount = models.DecimalField(
         _('Discount'), max_digits=10, decimal_places=2, default=constants.DEFAULT_DECIMAL,
     )
-    # TODO: move constants in the model class
     discount_unit = models.PositiveIntegerField(
         _('Discount Unit'),
-        choices=constants.DISCOUNT_UNIT.items(),
-        default=constants.DISCOUNT_PERCENT,
+        # choices=constants.DISCOUNT_UNIT.items(), default=constants.DISCOUNT_PERCENT,
+        choices=Discount.choices, default=Discount.PERCENT,
     )
     vat_value = models.ForeignKey(
         Vat, verbose_name=_('VAT'), on_delete=models.PROTECT,
@@ -97,15 +101,18 @@ class Line(CremeEntity):
     def clean(self):
         discount_unit = self.discount_unit
 
-        if discount_unit == constants.DISCOUNT_PERCENT:
+        # if discount_unit == constants.DISCOUNT_PERCENT:
+        if discount_unit == self.Discount.PERCENT:
             if not (0 <= self.discount <= 100):
                 raise ValidationError(
-                    gettext('If you choose % for your discount unit, '
-                            'your discount must be between 1 and 100%'
-                           ),
+                    gettext(
+                        'If you choose % for your discount unit, '
+                        'your discount must be between 1 and 100%'
+                    ),
                     code='invalid_percentage',
                 )
-        elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:  # Global discount
+        # elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:  # Global discount
+        elif discount_unit == self.Discount.LINE_AMOUNT:  # Global discount
             if self.discount > self.unit_price * self.quantity:
                 raise ValidationError(
                     gettext(
@@ -124,9 +131,9 @@ class Line(CremeEntity):
         if self.related_item:
             if self.on_the_fly_item:
                 raise ValidationError(
-                    gettext('You cannot set an on the fly name '
-                            'to a line with a related item'
-                           ),
+                    gettext(
+                        'You cannot set an on the fly name to a line with a related item'
+                    ),
                     code='useless_name',
                 )
         elif not self.on_the_fly_item:
@@ -160,13 +167,18 @@ class Line(CremeEntity):
         line_discount   = self.discount
         unit_price_line = self.unit_price
         discount_unit   = self.discount_unit
+        Discount = self.Discount
 
-        if discount_unit == constants.DISCOUNT_PERCENT:
-            total_after_first_discount = \
-                self.quantity * (unit_price_line - (unit_price_line * line_discount / 100))
-        elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:
+        # if discount_unit == constants.DISCOUNT_PERCENT:
+        if discount_unit == Discount.PERCENT:
+            total_after_first_discount = self.quantity * (
+                unit_price_line - (unit_price_line * line_discount / 100)
+            )
+        # elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:
+        elif discount_unit == Discount.LINE_AMOUNT:
             total_after_first_discount = self.quantity * unit_price_line - line_discount
-        else:  # DISCOUNT_ITEM_AMOUNT
+        # else:  # DISCOUNT_ITEM_AMOUNT
+        else:  # ITEM_AMOUNT
             total_after_first_discount = self.quantity * (unit_price_line - line_discount)
 
         document     = document if document else self.related_document
