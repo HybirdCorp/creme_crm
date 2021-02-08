@@ -1,4 +1,4 @@
-/* globals FunctionFaker, PropertyFaker */
+/* globals FunctionFaker, PropertyFaker, DateFaker */
 
 (function($) {
 
@@ -337,6 +337,37 @@ QUnit.test('PropertyFaker (not configurable)', function(assert) {
     this.assertRaises(function() {
         faker.with(function() {});
     }, Error, 'Error: The property "irremovable" is not configurable');
+});
+
+QUnit.parametrize('DateFaker (invalid date)', [
+    ['invalid', 'The value "invalid" is not a valid date'],
+    ['2020-10-32', 'The value "2020-10-32" is not a valid date'],
+    [undefined, 'The value must be either a string or a Date'],
+    [null, 'The value must be either a string or a Date'],
+    [new Error(), 'The value must be either a string or a Date']
+], function(value, expected, assert) {
+    this.assertRaises(function() {
+        return new DateFaker(value);
+    }, Error, 'Error: ${message}'.template({message: expected}));
+});
+
+QUnit.parametrize('DateFaker.with', [
+    [new Date(2020, 9, 12, 16, 30), new Date(2020, 9, 12, 16, 30).toISOString()],
+    ['2020-10-12', '2020-10-12T00:00:00.000Z'],
+    ['2020-10-12T16:30:52.000Z', '2020-10-12T16:30:52.000Z']
+], function(value, expected, assert) {
+    var origin = window.Date;
+    var faker = new DateFaker(value);
+
+    equal(faker.frozen, expected);
+    equal(origin, window.Date);
+
+    faker.with(function(datefaker) {
+        deepEqual(faker, datefaker);
+        equal(expected, new Date().toISOString());
+    });
+
+    equal(origin, window.Date);
 });
 
 }(jQuery));

@@ -177,6 +177,46 @@ PropertyFaker.prototype = {
                 delete instance[key];
             });
         }
+
+        return this;
+    }
+};
+
+
+window.DateFaker = function(value) {
+    Assert.that(
+        Object.isString(value) || Object.isSubClassOf(value, Date),
+        'The value must be either a string or a Date',
+        {value: value}
+    );
+
+    try {
+        if (Object.isString(value)) {
+            this.frozen = new Date(value).toISOString();
+        } else {
+            this.frozen = value.toISOString();
+        }
+    } catch (e) {
+        throw new Error('The value "${value}" is not a valid date'.template({value: value}));
+    }
+};
+
+window.DateFaker.prototype = {
+    'with': function(callable) {
+        var NativeDate = window.Date;
+        var frozen = this.frozen;
+
+        try {
+            window.Date = function() {
+                return new NativeDate(frozen);
+            };
+
+            callable(this);
+        } finally {
+            window.Date = NativeDate;
+        }
+
+        return this;
     }
 };
 
