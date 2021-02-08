@@ -38,8 +38,8 @@ from creme.documents.constants import (
 )
 from creme.documents.models import FolderCategory
 
+# from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
 from . import bricks, get_entityemail_model
-from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
 
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
@@ -48,8 +48,8 @@ EntityEmail = get_entityemail_model()
 
 
 class EntityEmailBackend(CrudityBackend):
-    model           = EntityEmail
-    brick_classes   = (
+    model = EntityEmail
+    brick_classes = (
         bricks.WaitingSynchronizationMailsBrick,
         bricks.SpamSynchronizationMailsBrick,
     )
@@ -76,7 +76,8 @@ class EntityEmailBackend(CrudityBackend):
         )[0]
 
         mail = EntityEmail(
-            status=MAIL_STATUS_SYNCHRONIZED_WAITING,
+            # status=MAIL_STATUS_SYNCHRONIZED_WAITING,
+            status=EntityEmail.Status.SYNCHRONIZED_WAITING,
             body=email.body,
             body_html=email.body_html,
             sender=', '.join({*email.senders}),

@@ -38,8 +38,7 @@ from creme.creme_core.models import HistoryLine, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
-from ..models.sending import (
-    SENDING_TYPE_DEFERRED,
+from ..models.sending import (  # SENDING_TYPE_DEFERRED
     EmailSending,
     LightWeightEmail,
 )
@@ -118,7 +117,8 @@ class SendingCreateForm(CremeModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if cleaned_data['type'] == SENDING_TYPE_DEFERRED:
+        # if cleaned_data['type'] == SENDING_TYPE_DEFERRED:
+        if cleaned_data['type'] == EmailSending.Type.DEFERRED:
             sending_date = cleaned_data['sending_date']
 
             if sending_date is None:

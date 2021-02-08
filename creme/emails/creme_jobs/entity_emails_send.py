@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,32 +24,38 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.creme_jobs.base import JobType
 
+# from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 from .. import get_entityemail_model
-from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 
 ENTITY_EMAILS_RETRY = 15  # In minutes  TODO: in settings ? Setting value ? Job data ?
 EntityEmail = get_entityemail_model()
 
 
 class _EntityEmailsSendType(JobType):
-    id           = JobType.generate_id('emails', 'entity_emails_send')
+    id = JobType.generate_id('emails', 'entity_emails_send')
     verbose_name = _('Send entity emails')
-    periodic     = JobType.PSEUDO_PERIODIC
+    periodic = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):
+        Status = EntityEmail.Status
+
         for email in EntityEmail.objects.exclude(is_deleted=True).filter(
-            status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR],
+            # status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR],
+            status__in=[Status.NOT_SENT, Status.SENDING_ERROR],
         ):
             email.send()
 
     # We have to implement it because it is a PSEUDO_PERIODIC JobType
     def next_wakeup(self, job, now_value):
+        Status = EntityEmail.Status
         filter_mail = EntityEmail.objects.exclude(is_deleted=True).filter
 
-        if filter_mail(status=MAIL_STATUS_NOTSENT).exists():
+        # if filter_mail(status=MAIL_STATUS_NOTSENT).exists():
+        if filter_mail(status=Status.NOT_SENT).exists():
             return now_value
 
-        if filter_mail(status=MAIL_STATUS_SENDINGERROR).exists():
+        # if filter_mail(status=MAIL_STATUS_SENDINGERROR).exists():
+        if filter_mail(status=Status.SENDING_ERROR).exists():
             return now_value + timedelta(minutes=ENTITY_EMAILS_RETRY)
 
         return None

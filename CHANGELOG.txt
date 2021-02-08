@@ -132,6 +132,13 @@
                 - Some constants have been replaced by 'django.db.models.*Choices' :
                     - An 'IntegerChoices' class for : RGT_*, GROUP_TYPES.
                     - An 'TextChoices' class for : RGA_*, AGGREGATOR_TYPES.
+            * Emails :
+                - In 'constants' :
+                    - 'MAIL_STATUS*' have been replaced by a 'django.db.models.IntegerChoices' : 'model._Email.Status'.
+                    - 'MAIL_SYNC_STATUSES' has been replaced 'model._Email.SYNCHRONIZATION_STATUSES'.
+                - In 'models.sending', some constants have been replaced by 'django.db.models.IntegerChoices' :
+                    - 'SENDING_TYPE*' by 'EmailSending.Type'.
+                    - 'SENDING_STATE*' by 'EmailSending.State'.
             * Projects :
                 - The <related_name> of the field 'models.AbstractProjectTask.parent_tasks' has been renamed "children" (it was "children_set").
             * Geolocation :

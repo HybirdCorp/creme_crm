@@ -8,6 +8,7 @@ from django.urls import reverse
 from creme import documents, persons
 from creme.creme_core.tests.base import CremeTestCase
 
+# from ..constants import MAIL_STATUS_NOTSENT
 from .. import (
     emailcampaign_model_is_custom,
     emailtemplate_model_is_custom,
@@ -18,7 +19,6 @@ from .. import (
     get_mailinglist_model,
     mailinglist_model_is_custom,
 )
-from ..constants import MAIL_STATUS_NOTSENT
 
 skip_emailcampaign_tests = emailcampaign_model_is_custom()
 skip_emailtemplate_tests = emailtemplate_model_is_custom()
@@ -62,7 +62,8 @@ class _EmailsTestCase(CremeTestCase):
     def _build_create_entitymail_url(self, entity):
         return reverse('emails__create_email', args=(entity.id,))
 
-    def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html='', signature=None):
+    # def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html='', signature=None):
+    def _create_email(self, status=EntityEmail.Status.NOT_SENT, body_html='', signature=None):
         user = self.user
         return EntityEmail.objects.create(
             user=user,

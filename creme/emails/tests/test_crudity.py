@@ -14,12 +14,12 @@ from creme.crudity.models import History
 from creme.crudity.utils import is_sandbox_by_user
 from creme.documents.models import FolderCategory
 
-from ..constants import (
-    MAIL_STATUS_SENT,
-    MAIL_STATUS_SYNCHRONIZED,
-    MAIL_STATUS_SYNCHRONIZED_SPAM,
-    MAIL_STATUS_SYNCHRONIZED_WAITING,
-)
+# from ..constants import (
+#     MAIL_STATUS_SENT,
+#     MAIL_STATUS_SYNCHRONIZED,
+#     MAIL_STATUS_SYNCHRONIZED_SPAM,
+#     MAIL_STATUS_SYNCHRONIZED_WAITING,
+# )
 from .base import EntityEmail, _EmailsTestCase, skipIfCustomEntityEmail
 
 
@@ -108,7 +108,8 @@ class EmailsCrudityTestCase(_EmailsTestCase):
     def test_set_status01(self):
         "Validated."
         emails = self._create_emails()
-        self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
+        # self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
+        self.assertEqual([EntityEmail.Status.SENT] * 4, [e.status for e in emails])
 
         url = reverse('emails__crudity_set_email_status', args=('validated',))
         self.assertGET405(url)
@@ -123,7 +124,8 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         self.assertPOST200(url, data=data)
         refresh = self.refresh
         self.assertListEqual(
-            [MAIL_STATUS_SYNCHRONIZED] * 4,
+            # [MAIL_STATUS_SYNCHRONIZED] * 4,
+            [EntityEmail.Status.SYNCHRONIZED] * 4,
             [refresh(e).status for e in emails]
         )
 
@@ -138,8 +140,9 @@ class EmailsCrudityTestCase(_EmailsTestCase):
 
         refresh = self.refresh
         self.assertListEqual(
-            [MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
-            [refresh(e).status for e in emails]
+            # [MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
+            [EntityEmail.Status.SYNCHRONIZED_SPAM] * 4,
+            [refresh(e).status for e in emails],
         )
 
     def test_set_status03(self):
@@ -153,8 +156,9 @@ class EmailsCrudityTestCase(_EmailsTestCase):
 
         refresh = self.refresh
         self.assertListEqual(
-            [MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
-            [refresh(e).status for e in emails]
+            # [MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
+            [EntityEmail.Status.SYNCHRONIZED_WAITING] * 4,
+            [refresh(e).status for e in emails],
         )
 
     def test_synchronisation(self):
@@ -195,10 +199,11 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         backend.fetcher_fallback(email, user)
 
         e_email = self.get_object_or_fail(EntityEmail, subject=email.subject)
-        self.assertEqual(MAIL_STATUS_SYNCHRONIZED_WAITING, e_email.status)
-        self.assertEqual(email.body,                       e_email.body)
-        self.assertEqual(email.body_html,                  e_email.body_html)
-        self.assertEqual(user,                             e_email.user)
+        # self.assertEqual(MAIL_STATUS_SYNCHRONIZED_WAITING, e_email.status)
+        self.assertEqual(EntityEmail.Status.SYNCHRONIZED_WAITING, e_email.status)
+        self.assertEqual(email.body,      e_email.body)
+        self.assertEqual(email.body_html, e_email.body_html)
+        self.assertEqual(user,            e_email.user)
         self.assertEqual(e_email.sender, 'mireille@noir.jp')
         self.assertIsNone(e_email.reception_date)
 
@@ -213,7 +218,7 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         self.assertEqual(user,          history.user)
         self.assertEqual(
             _('Creation of {entity}').format(entity=e_email),
-            history.description
+            history.description,
         )
 
     def test_create02(self):
