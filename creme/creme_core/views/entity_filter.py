@@ -26,7 +26,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models.deletion import ProtectedError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
+# from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -46,6 +46,7 @@ from ..utils.content_type import entity_ctypes
 from ..utils.unicode_collation import collator
 from . import generic
 from .decorators import jsonify
+from .entity import EntityDeletionMixin
 from .generic import base
 
 logger = logging.getLogger(__name__)
@@ -186,7 +187,8 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
         return kwargs
 
 
-class EntityFilterDeletion(generic.CremeModelDeletion):
+# class EntityFilterDeletion(generic.CremeModelDeletion):
+class EntityFilterDeletion(EntityDeletionMixin, generic.CremeModelDeletion):
     model = EntityFilter
 
     def check_instance_permissions(self, instance, user):
@@ -204,13 +206,24 @@ class EntityFilterDeletion(generic.CremeModelDeletion):
             raise ConflictError(e) from e
         # TODO: move in a middleware ??
         except ProtectedError as e:
-            msg = gettext('The filter can not be deleted because of its dependencies.')
-            msg += render_to_string(
-                'creme_core/templatetags/widgets/list_instances.html',
-                {'objects': e.args[1][:25], 'user': request.user},
-                request=request,
-            )
-            raise ConflictError(msg) from e
+            # msg = gettext('The filter can not be deleted because of its dependencies.')
+            # msg += render_to_string(
+            #     'creme_core/templatetags/widgets/list_instances.html',
+            #     {'objects': e.args[1][:25], 'user': request.user},
+            #     request=request,
+            # )
+            # raise ConflictError(msg) from e
+            raise ConflictError(
+                gettext(
+                    'The filter can not be deleted because of its dependencies '
+                    '({dependencies}).'
+                ).format(
+                    dependencies=self.dependencies_to_str(
+                        dependencies=e.args[1],
+                        user=request.user,
+                    ),
+                )
+            ) from e
 
 
 # TODO: factorise with views.relations.json_rtype_ctypes  ???

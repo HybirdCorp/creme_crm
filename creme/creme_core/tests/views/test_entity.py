@@ -209,21 +209,32 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         entity01 = create_orga(name='Nerv')
+        entity01_msg = _('«{object}» ({model})').format(
+            object=entity01.name,
+            model=FakeOrganisation._meta.verbose_name,
+        )
         self.assertEqual(
-            entity01.name,
+            # entity01.name,
+            entity01_msg,
             dep_2_str(dependencies=[entity01], user=user)
         )
 
         entity02 = create_orga(name='Seele')
+        entity02_msg = _('«{object}» ({model})').format(
+            object=entity02.name,
+            model=FakeOrganisation._meta.verbose_name,
+        )
         self.assertEqual(
-            f'{entity01.name}, {entity02.name}',
+            # f'{entity01.name}, {entity02.name}',
+            f'{entity01_msg}, {entity02_msg}',
             dep_2_str(dependencies=[entity01, entity02], user=user)
         )
 
         entity03 = create_orga(user=self.other_user, name='Acme#1')
         self.assertEqual(
             ', '.join([
-                entity01.name, entity02.name,
+                # entity01.name, entity02.name,
+                entity01_msg, entity02_msg,
                 ngettext(
                     '{count} not viewable entity',
                     '{count} not viewable entities',
@@ -236,7 +247,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity04 = create_orga(user=self.other_user, name='Acme#2')
         self.assertEqual(
             ', '.join([
-                entity01.name, entity02.name,
+                # entity01.name, entity02.name,
+                entity01_msg, entity02_msg,
                 ngettext(
                     '{count} not viewable entity',
                     '{count} not viewable entities',
@@ -269,7 +281,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         TestMixin.dependencies_limit = 2
         self.assertEqual(
-            f'{entity01.name}, {entity02.name}…',
+            # f'{entity01.name}, {entity02.name}…',
+            f'{entity01_msg}, {entity02_msg}…',
             dep_2_str(dependencies=[entity01, entity03, entity02], user=user),
         )
 
