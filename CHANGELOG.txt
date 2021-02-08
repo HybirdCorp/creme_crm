@@ -154,7 +154,9 @@
             - In 'creme_core.templatetags' :
                 - "{% creme_media_url %}" is deprecated ; use the icon system instead.
                 - "{% hg_info %}" is deprecated ; use "{% scm_info %}" instead.
-            - The template file "creme/creme_core/templates/creme_core/generics/blockform/content.html" is deprecated.
+            - These template files are deprecated :
+                - creme/creme_core/templates/creme_core/generics/blockform/content.html
+                - creme/creme_core/templates/creme_core/templatetags/widgets/list_instances.html
             - In JavaScript :
                 - The package "creme.color" is deprecated and can be replaced by RGBColor tools.
             - Apps :

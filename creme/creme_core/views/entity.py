@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -981,6 +981,7 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 #                         error=e,
 #                     )
 #                )
+# TODO: used by EntityFilterDeletion => split ? rename ?
 class EntityDeletionMixin:
     dependencies_limit = 3
 
@@ -1065,7 +1066,10 @@ class EntityDeletionMixin:
             for dep in dependencies:
                 if isinstance(dep, CremeEntity):
                     if can_view(dep):
-                        yield str(dep)
+                        # yield str(dep)
+                        yield gettext('«{object}» ({model})').format(
+                            object=dep, model=dep.entity_type,
+                        )
                     else:
                         not_viewable_count += 1
 
