@@ -132,6 +132,8 @@
                 - Some constants have been replaced by 'django.db.models.*Choices' :
                     - An 'IntegerChoices' class for : RGT_*, GROUP_TYPES.
                     - An 'TextChoices' class for : RGA_*, AGGREGATOR_TYPES.
+            * Billing :
+                - The constants 'DISCOUNT_*' have been replaced by an 'django.db.models.IntegerChoices' : 'model.Line.Discount'.
             * Emails :
                 - In 'constants' :
                     - 'MAIL_STATUS*' have been replaced by a 'django.db.models.IntegerChoices' : 'model._Email.Status'.

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,8 @@ from creme.creme_core.utils.file_handling import FileCreator
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.utils.xlwt_utils import XlwtWriter
 
-from .. import constants
+# from .. import constants
+from ..models import Line
 from . import base
 
 
@@ -127,11 +128,14 @@ class XLSExporter(base.BillingExporter):
         # TODO: factorise with LineEditForm
         currency_str = entity.currency.local_symbol
         discount_units = {
-            constants.DISCOUNT_PERCENT: '%',
-            constants.DISCOUNT_LINE_AMOUNT: gettext('{currency} per line').format(
+            # constants.DISCOUNT_PERCENT: '%',
+            Line.Discount.PERCENT: '%',
+            # constants.DISCOUNT_LINE_AMOUNT: gettext('{currency} per line').format(
+            Line.Discount.LINE_AMOUNT: gettext('{currency} per line').format(
                 currency=currency_str,
             ),
-            constants.DISCOUNT_ITEM_AMOUNT: gettext('{currency} per unit').format(
+            # constants.DISCOUNT_ITEM_AMOUNT: gettext('{currency} per unit').format(
+            Line.Discount.ITEM_AMOUNT: gettext('{currency} per unit').format(
                 currency=currency_str,
             ),
         }

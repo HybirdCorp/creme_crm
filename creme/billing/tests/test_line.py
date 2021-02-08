@@ -21,10 +21,7 @@ from creme.persons.tests.base import skipIfCustomOrganisation
 from creme.products.models import Product, Service, SubCategory
 from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
-from ..constants import (
-    DISCOUNT_ITEM_AMOUNT,
-    DISCOUNT_LINE_AMOUNT,
-    DISCOUNT_PERCENT,
+from ..constants import (  # DISCOUNT_ITEM_AMOUNT DISCOUNT_LINE_AMOUNT DISCOUNT_PERCENT
     REL_SUB_HAS_LINE,
     REL_SUB_LINE_RELATED_ITEM,
 )
@@ -46,7 +43,7 @@ class LineTestCase(_BillingTestCase):
         return reverse('billing__multi_save_lines', args=(bdocument.id,))
 
     def test_clean01(self):
-        "DISCOUNT_PERCENT."
+        "Discount.PERCENT."
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice01', discount=0)[0]
         kwargs = {
@@ -54,7 +51,8 @@ class LineTestCase(_BillingTestCase):
             'related_document': invoice,
             'on_the_fly_item': 'Flyyy product',
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
-            'discount_unit': DISCOUNT_PERCENT,
+            # 'discount_unit': DISCOUNT_PERCENT,
+            'discount_unit': ProductLine.Discount.PERCENT,
         }
 
         with self.assertRaises(ValidationError):
@@ -67,7 +65,7 @@ class LineTestCase(_BillingTestCase):
             ProductLine(discount=Decimal('50'), ** kwargs).clean()
 
     def test_clean02(self):
-        "DISCOUNT_LINE_AMOUNT."
+        "Discount.LINE_AMOUNT."
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice01', discount=0)[0]
         kwargs = {
@@ -76,7 +74,8 @@ class LineTestCase(_BillingTestCase):
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
 
             'on_the_fly_item': 'Flyyy product',
-            'discount_unit': DISCOUNT_LINE_AMOUNT,
+            # 'discount_unit': DISCOUNT_LINE_AMOUNT,
+            'discount_unit': ProductLine.Discount.LINE_AMOUNT,
             # 'total_discount': True,
         }
 
@@ -105,7 +104,7 @@ class LineTestCase(_BillingTestCase):
             ).clean()
 
     def test_clean03(self):
-        "DISCOUNT_ITEM_AMOUNT."
+        "Discount.ITEM_AMOUNT."
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice01', discount=0)[0]
         kwargs = {
@@ -114,7 +113,8 @@ class LineTestCase(_BillingTestCase):
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
 
             'on_the_fly_item': 'Flyyy product',
-            'discount_unit': DISCOUNT_ITEM_AMOUNT,
+            # 'discount_unit': DISCOUNT_ITEM_AMOUNT,
+            'discount_unit': ProductLine.Discount.ITEM_AMOUNT,
         }
 
         with self.assertRaises(ValidationError):
@@ -242,10 +242,11 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(Product, line0.related_item_class())
 
     def test_addlines_not_superuser(self):
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'billing'],
-                   creatable_models=[Invoice],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice],
+        )
         SetCredentials.objects.create(
             role=self.role,
             value=(
@@ -263,11 +264,12 @@ class LineTestCase(_BillingTestCase):
         self.assertGET200(reverse('billing__create_service_lines', args=(invoice.id,)))
 
     def test_add_lines_link(self):
-        "LINK creds are needed"
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'billing'],
-                   creatable_models=[Invoice],
-                  )
+        "LINK creds are needed."
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice],
+        )
         create_sc = partial(
             SetCredentials.objects.create, role=self.role, set_type=SetCredentials.ESET_ALL,
         )
@@ -878,7 +880,8 @@ class LineTestCase(_BillingTestCase):
         quantity = '2'
         unit = 'day'
         discount = '20'
-        discount_unit = DISCOUNT_PERCENT
+        # discount_unit = DISCOUNT_PERCENT
+        discount_unit = ServiceLine.Discount.PERCENT
         response = self.client.post(
             url,
             data={
@@ -912,7 +915,7 @@ class LineTestCase(_BillingTestCase):
 
     @skipIfCustomProductLine
     def test_multi_save_lines02(self):
-        "1 product line created on the fly and 1 deleted"
+        "1 product line created on the fly and 1 deleted."
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
@@ -1010,7 +1013,7 @@ class LineTestCase(_BillingTestCase):
 
     @skipIfCustomServiceLine
     def test_multi_save_lines04(self):
-        "Other type of discount: amount per line"
+        "Other type of discount: amount per line."
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
@@ -1019,7 +1022,8 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
         )
 
-        discount_unit = DISCOUNT_LINE_AMOUNT
+        # discount_unit = DISCOUNT_LINE_AMOUNT
+        discount_unit = ServiceLine.Discount.LINE_AMOUNT
         response = self.client.post(
             self._build_msave_url(invoice),
             data={
@@ -1057,7 +1061,8 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
         )
 
-        discount_unit = DISCOUNT_ITEM_AMOUNT
+        # discount_unit = DISCOUNT_ITEM_AMOUNT
+        discount_unit = ServiceLine.Discount.ITEM_AMOUNT
         response = self.client.post(
             self._build_msave_url(invoice),
             data={
@@ -1087,7 +1092,7 @@ class LineTestCase(_BillingTestCase):
 
     @skipIfCustomServiceLine
     def test_multi_save_lines06(self):
-        "1 service line updated with concrete related Service"
+        "1 service line updated with concrete related Service."
         user = self.login()
 
         sub_cat = SubCategory.objects.all()[0]
@@ -1158,7 +1163,6 @@ class LineTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_global_discount_change(self):
         user = self.login()
-
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
 
         ProductLine.objects.create(
@@ -1195,7 +1199,8 @@ class LineTestCase(_BillingTestCase):
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
 
             'discount': Decimal('0'),
-            'discount_unit': DISCOUNT_PERCENT,
+            # 'discount_unit': DISCOUNT_PERCENT,
+            'discount_unit': ProductLine.Discount.PERCENT,
 
             'quantity': 2,
         }
@@ -1216,7 +1221,7 @@ class LineTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_discount02(self):
-        "DISCOUNT_PERCENT (PERCENT_PK)."
+        "Discount.PERCENT."
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
@@ -1228,7 +1233,8 @@ class LineTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('100.00'), quantity=2,
-            discount=Decimal('10.00'), discount_unit=DISCOUNT_PERCENT,
+            # discount=Decimal('10.00'), discount_unit=DISCOUNT_PERCENT,
+            discount=Decimal('10.00'), discount_unit=ProductLine.Discount.PERCENT,
             **kwargs
         )
         self.assertEqual(Decimal('180.00'), product_line.get_price_exclusive_of_tax())
@@ -1236,7 +1242,8 @@ class LineTestCase(_BillingTestCase):
         service_line = ServiceLine.objects.create(
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=3,
-            discount=Decimal('3.00'), discount_unit=DISCOUNT_PERCENT,
+            # discount=Decimal('3.00'), discount_unit=DISCOUNT_PERCENT,
+            discount=Decimal('3.00'), discount_unit=ServiceLine.Discount.PERCENT,
             # total_discount=False,
             **kwargs
         )
@@ -1245,7 +1252,7 @@ class LineTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_discount03(self):
-        "DISCOUNT_LINE_AMOUNT (AMOUNT_PK + total_discount==True)."
+        "Discount.LINE_AMOUNT."
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
@@ -1258,7 +1265,8 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('100.00'), quantity=2,
             discount=Decimal('5.00'),
-            discount_unit=DISCOUNT_LINE_AMOUNT,
+            # discount_unit=DISCOUNT_LINE_AMOUNT,
+            discount_unit=ProductLine.Discount.LINE_AMOUNT,
             **kwargs
         )
         self.assertEqual(Decimal('195.00'), product_line.get_price_exclusive_of_tax())
@@ -1267,7 +1275,8 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=3,
             discount=Decimal('3.00'),
-            discount_unit=DISCOUNT_LINE_AMOUNT,
+            # discount_unit=DISCOUNT_LINE_AMOUNT,
+            discount_unit=ServiceLine.Discount.LINE_AMOUNT,
             **kwargs
         )
         self.assertEqual(Decimal('57.00'), service_line.get_price_exclusive_of_tax())
@@ -1288,7 +1297,8 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('100.00'), quantity=2,
             discount=Decimal('5.00'),
-            discount_unit=DISCOUNT_ITEM_AMOUNT,
+            # discount_unit=DISCOUNT_ITEM_AMOUNT,
+            discount_unit=ProductLine.Discount.ITEM_AMOUNT,
             **kwargs
         )
         self.assertEqual(Decimal('190.00'), product_line.get_price_exclusive_of_tax())
@@ -1297,7 +1307,8 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=3,
             discount=Decimal('3.00'),
-            discount_unit=DISCOUNT_ITEM_AMOUNT,
+            # discount_unit=DISCOUNT_ITEM_AMOUNT,
+            discount_unit=ServiceLine.Discount.ITEM_AMOUNT,
             **kwargs
         )
         self.assertEqual(Decimal('51.00'), service_line.get_price_exclusive_of_tax())
@@ -1314,7 +1325,8 @@ class LineTestCase(_BillingTestCase):
             'quantity': 2,
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
             'discount': Decimal('0'),
-            'discount_unit': DISCOUNT_PERCENT,
+            # 'discount_unit': DISCOUNT_PERCENT,
+            'discount_unit': ProductLine.Discount.PERCENT,
         }
         product_line1 = ProductLine.objects.create(
             related_document=invoice1,

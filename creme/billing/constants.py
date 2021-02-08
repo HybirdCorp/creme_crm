@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# from django.utils.translation import gettext_lazy as _
 # NB: other possibilities: ROUND_UP ROUND_DOWN ROUND_HALF_EVEN
 from decimal import ROUND_HALF_UP, Decimal
-
-from django.utils.translation import gettext_lazy as _
 
 DEFAULT_DECIMAL = Decimal()
 
@@ -34,15 +33,15 @@ DEFAULT_HFILTER_CNOTE    = 'billing-hf_creditnote'
 DEFAULT_HFILTER_TEMPLATE = 'billing-hf_template'
 
 ############################################
-DISCOUNT_PERCENT     = 1
-DISCOUNT_LINE_AMOUNT = 2
-DISCOUNT_ITEM_AMOUNT = 3
-
-DISCOUNT_UNIT = {
-    DISCOUNT_PERCENT:     _('Percent'),
-    DISCOUNT_LINE_AMOUNT: _('Amount per line'),
-    DISCOUNT_ITEM_AMOUNT: _('Amount per unit'),
-}
+# DISCOUNT_PERCENT     = 1
+# DISCOUNT_LINE_AMOUNT = 2
+# DISCOUNT_ITEM_AMOUNT = 3
+#
+# DISCOUNT_UNIT = {
+#     DISCOUNT_PERCENT:     _('Percent'),
+#     DISCOUNT_LINE_AMOUNT: _('Amount per line'),
+#     DISCOUNT_ITEM_AMOUNT: _('Amount per unit'),
+# }
 
 ############################################
 
