@@ -1507,9 +1507,12 @@ class ListViewTestCase(ViewsTestCase):
 
         invoice = FakeInvoice.objects.create(user=user, name='Invoice #1')
         create_line = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
-        line1 = create_line(item='Item #1', discount_unit=fake_constants.FAKE_PERCENT_UNIT)
-        line2 = create_line(item='Item #2', discount_unit=fake_constants.FAKE_AMOUNT_UNIT)
-        line3 = create_line(item='Item #3', discount_unit=fake_constants.FAKE_PERCENT_UNIT)
+        # line1 = create_line(item='Item #1', discount_unit=fake_constants.FAKE_PERCENT_UNIT)
+        line1 = create_line(item='Item #1', discount_unit=FakeInvoiceLine.Discount.PERCENT)
+        # line2 = create_line(item='Item #2', discount_unit=fake_constants.FAKE_AMOUNT_UNIT)
+        line2 = create_line(item='Item #2', discount_unit=FakeInvoiceLine.Discount.AMOUNT)
+        # line3 = create_line(item='Item #3', discount_unit=fake_constants.FAKE_PERCENT_UNIT)
+        line3 = create_line(item='Item #3', discount_unit=FakeInvoiceLine.Discount.PERCENT)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoiceLine)
         du_cell = build_cell(name='discount_unit')
@@ -1538,7 +1541,8 @@ class ListViewTestCase(ViewsTestCase):
             url,
             data={
                 'hfilter': hf.id,
-                'search-' + du_cell.key: fake_constants.FAKE_PERCENT_UNIT,
+                # 'search-' + du_cell.key: fake_constants.FAKE_PERCENT_UNIT,
+                f'search-{du_cell.key}': FakeInvoiceLine.Discount.PERCENT.value,
             },
         )
         content = self._get_lv_content(self._get_lv_node(response))

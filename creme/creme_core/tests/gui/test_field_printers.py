@@ -67,9 +67,8 @@ from creme.creme_core.models import (
     FakeSector,
     SetCredentials,
 )
+# from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
 from creme.creme_core.tests.base import CremeTestCase
-
-from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
 
 
 class FieldsPrintersTestCase(CremeTestCase):
@@ -85,12 +84,12 @@ class FieldsPrintersTestCase(CremeTestCase):
         value = 'Rei'
         self.assertEqual(
             value,
-            simple_print_html(c, value, user, field)
+            simple_print_html(c, value, user, field),
         )
 
         self.assertEqual(
             '&lt;b&gt;Rei&lt;b&gt;',
-            simple_print_html(c, '<b>Rei<b>', user, field)
+            simple_print_html(c, '<b>Rei<b>', user, field),
         )
 
     def test_simple_print_csv(self):
@@ -99,35 +98,37 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = c._meta.get_field('first_name')
         self.assertEqual(
             '',
-            simple_print_csv(c, fval=None, user=user, field=field)
+            simple_print_csv(c, fval=None, user=user, field=field),
         )
 
         value = 'Rei'
         self.assertEqual(
             value,
-            simple_print_csv(c, value, user, field)
+            simple_print_csv(c, value, user, field),
         )
 
     def test_print_choice(self):
         user = CremeUser()
         field = FakeInvoiceLine._meta.get_field('discount_unit')
 
-        line1 = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
+        # line1 = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
+        line1 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
         self.assertEqual(
             _('Percent'),
-            print_choice(line1, fval='whatever', user=user, field=field)
+            print_choice(line1, fval='whatever', user=user, field=field),
         )
 
-        line2 = FakeInvoiceLine(discount_unit=FAKE_AMOUNT_UNIT)
+        # line2 = FakeInvoiceLine(discount_unit=FAKE_AMOUNT_UNIT)
+        line2 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.AMOUNT)
         self.assertEqual(
             _('Amount'),
-            print_choice(line2, fval='whatever', user=user, field=field)
+            print_choice(line2, fval='whatever', user=user, field=field),
         )
 
         line3 = FakeInvoiceLine(discount_unit=None)
         self.assertEqual(
             '',
-            print_choice(line3, fval='whatever', user=user, field=field)
+            print_choice(line3, fval='whatever', user=user, field=field),
         )
 
     # def test_print_integer01(self):  # DEPRECATED
@@ -945,12 +946,14 @@ class FieldsPrintersTestCase(CremeTestCase):
         as_html = registry.get_html_field_value
         as_csv = registry.get_csv_field_value
 
-        l1 = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
+        # l1 = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
+        l1 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
         expected1 = _('Percent')
         self.assertEqual(expected1, as_html(l1, 'discount_unit', user))
         self.assertEqual(expected1, as_csv(l1,  'discount_unit', user))
 
-        l2 = FakeInvoiceLine(discount_unit=FAKE_AMOUNT_UNIT)
+        # l2 = FakeInvoiceLine(discount_unit=FAKE_AMOUNT_UNIT)
+        l2 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.AMOUNT)
         expected2 = _('Amount')
         self.assertEqual(expected2, as_html(l2, 'discount_unit', user))
         self.assertEqual(expected2, as_csv(l2,  'discount_unit', user))
@@ -976,7 +979,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_choices_csv, output='csv',
         )
 
-        line = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
+        # line = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
+        line = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
         label = _('Percent')
         self.assertEqual(
             '<em>{}</em>'.format(label),
@@ -1005,7 +1009,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         # Decimal & integer with choices
         line1 = FakeInvoiceLine(
             item='Swords',  quantity='3.00', unit_price='125.6',
-            discount_unit=FAKE_PERCENT_UNIT,
+            # discount_unit=FAKE_PERCENT_UNIT,
+            discount_unit=FakeInvoiceLine.Discount.PERCENT,
         )
         dec_format = partial(number_format, use_l10n=True)
         self.assertEqual(dec_format('3.00'),  get_csv_val(line1, 'quantity',   user))
@@ -1019,7 +1024,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         hawk = FakeOrganisation.objects.create(
             user=user, name='Hawk',
-            description='A powerful army.\nOfficial site: www.hawk-troop.org'
+            description='A powerful army.\nOfficial site: www.hawk-troop.org',
         )
 
         get_html_val = field_printers_registry.get_html_field_value

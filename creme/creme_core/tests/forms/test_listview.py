@@ -18,6 +18,10 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.enumerable import QSEnumerator, _EnumerableRegistry
 from creme.creme_core.forms import listview as lv_form
 from creme.creme_core.gui.listview import ListViewSearchFieldRegistry
+# from creme.creme_core.tests.fake_constants import (
+#     FAKE_AMOUNT_UNIT,
+#     FAKE_PERCENT_UNIT,
+# )
 from creme.creme_core.models import (
     CremeUser,
     CustomField,
@@ -32,10 +36,6 @@ from creme.creme_core.models import (
     FakeSector,
     Relation,
     RelationType,
-)
-from creme.creme_core.tests.fake_constants import (
-    FAKE_AMOUNT_UNIT,
-    FAKE_PERCENT_UNIT,
 )
 
 from ..base import CremeTestCase
@@ -466,11 +466,14 @@ class SearchFieldsTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount_unit')
 
         field = lv_form.RegularChoiceField(cell=cell, user=self.user)  # TODO: choices=... ?
+        Discount = FakeInvoiceLine.Discount
         expected_choices = [
             {'value': '',                'label': pgettext('creme_core-filter', 'All')},
             {'value': lv_form.NULL,      'label': _('* is empty *')},
-            {'value': FAKE_PERCENT_UNIT, 'label': _('Percent')},
-            {'value': FAKE_AMOUNT_UNIT,  'label': _('Amount')},
+            # {'value': FAKE_PERCENT_UNIT, 'label': _('Percent')},
+            # {'value': FAKE_AMOUNT_UNIT,  'label': _('Amount')},
+            {'value': Discount.PERCENT.value, 'label': _('Percent')},
+            {'value': Discount.AMOUNT.value,  'label': _('Amount')},
         ]
 
         self.assertEqual(expected_choices, field.choices)
@@ -482,12 +485,16 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value='unknown'))
 
         self.assertEqual(
-            Q(discount_unit=FAKE_PERCENT_UNIT),
-            to_python(value=str(FAKE_PERCENT_UNIT))
+            # Q(discount_unit=FAKE_PERCENT_UNIT),
+            Q(discount_unit=Discount.PERCENT.value),
+            # to_python(value=str(FAKE_PERCENT_UNIT))
+            to_python(value=str(Discount.PERCENT.value))
         )
         self.assertEqual(
-            Q(discount_unit=FAKE_AMOUNT_UNIT),
-            to_python(value=str(FAKE_AMOUNT_UNIT))
+            # Q(discount_unit=FAKE_AMOUNT_UNIT),
+            Q(discount_unit=Discount.AMOUNT.value),
+            # to_python(value=str(FAKE_AMOUNT_UNIT))
+            to_python(value=str(Discount.AMOUNT.value))
         )
 
         self.assertEqual(Q(discount_unit__isnull=True), to_python(value=lv_form.NULL))

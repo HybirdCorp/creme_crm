@@ -20,6 +20,7 @@ else:
     from django.utils.translation import pgettext_lazy
 
     from ..core.entity_filter import EF_USER
+    # from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
     from ..models import (
         CremeEntity,
         CremeModel,
@@ -28,7 +29,6 @@ else:
         deletion,
     )
     from ..models import fields as core_fields
-    from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
 
     __all__ = (
         'FakeFolderCategory', 'FakeFolder',
@@ -615,6 +615,10 @@ else:
             return reverse('creme_core__list_fake_invoices')
 
     class FakeInvoiceLine(CremeEntity):
+        class Discount(models.IntegerChoices):
+            PERCENT = 1, _('Percent'),
+            AMOUNT  = 2, _('Amount'),
+
         linked_invoice = models.ForeignKey(FakeInvoice, on_delete=models.CASCADE)
         item = models.CharField('Item', max_length=100, blank=True, null=True)
         quantity = models.DecimalField(
@@ -628,7 +632,8 @@ else:
         )
         discount_unit = models.PositiveIntegerField(
             _('Discount Unit'), blank=True, null=True,
-            choices=FAKE_DISCOUNT_UNIT.items(), default=FAKE_PERCENT_UNIT,
+            # choices=FAKE_DISCOUNT_UNIT.items(), default=FAKE_PERCENT_UNIT,
+            choices=Discount.choices, default=Discount.PERCENT,
         )
 
         class Meta:
