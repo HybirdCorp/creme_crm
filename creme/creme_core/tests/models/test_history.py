@@ -38,7 +38,7 @@ from creme.creme_core.models.history import (
 from creme.creme_core.utils.dates import dt_to_ISO8601
 
 from ..base import CremeTestCase
-from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
+# from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
 from ..fake_models import (
     FakeActivity,
     FakeActivityType,
@@ -955,7 +955,8 @@ about this fantastic animation studio."""
         pline = FakeInvoiceLine.objects.create(
             item='DeathNote', user=user,
             linked_invoice=invoice, quantity=Decimal('1'),
-            discount_unit=FAKE_AMOUNT_UNIT,
+            # discount_unit=FAKE_AMOUNT_UNIT,
+            discount_unit=FakeInvoiceLine.Discount.AMOUNT,
         )
 
         hlines = self._get_hlines()
@@ -965,7 +966,8 @@ about this fantastic animation studio."""
         old_count += 1
 
         pline.quantity = Decimal('2')
-        pline.discount_unit = FAKE_PERCENT_UNIT
+        # pline.discount_unit = FAKE_PERCENT_UNIT
+        pline.discount_unit = FakeInvoiceLine.Discount.PERCENT
         pline.save()
 
         hlines = self._get_hlines()
