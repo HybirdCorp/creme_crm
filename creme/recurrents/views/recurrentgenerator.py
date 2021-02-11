@@ -58,7 +58,8 @@ class RecurrentGeneratorWizard(generic.EntityCreationWizard):
             prev_data = self.get_cleaned_data_for_step('0')
 
             ctype = prev_data[self.ctype_form_data_key]
-            form_class = self.registry.get_form_of_template(ctype)
+            # form_class = self.registry.get_form_of_template(ctype)
+            form_class = self.registry.get_template_form_class(ctype.model_class())
 
             kwargs = self.get_form_kwargs(step)
             kwargs.update(

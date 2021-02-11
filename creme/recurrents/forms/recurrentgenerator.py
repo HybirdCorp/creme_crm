@@ -19,6 +19,7 @@
 ################################################################################
 
 # import warnings
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
@@ -67,13 +68,16 @@ class GeneratorCTypeSubCell(CustomFormExtraSubCell):
 
     def formfield(self, instance, user, **kwargs):
         has_perm = user.has_perm_to_create
+        get_ct = ContentType.objects.get_for_model
 
         return EntityCTypeChoiceField(
             label=self.verbose_name,
+            # TODO: accept models too ?
             ctypes=[
-                ctype
-                for ctype in self.registry.ctypes
-                if has_perm(ctype.model_class())
+                # ctype
+                # for ctype in self.registry.ctypes
+                # if has_perm(ctype.model_class())
+                get_ct(model) for model in self.registry.models if has_perm(model)
             ],
         )
 
