@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2020  Hybird
+    Copyright (C) 2020-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,19 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-/* require: creme.layout.TextAreaAutoSize */
-
 (function($) {
 "use strict";
 
-// TODO: unit test ?
 creme.widget.AutoSizedTextArea = creme.widget.declare('ui-creme-autosizedarea', {
-    _create: function(element) {
-        var rows = element.attr('rows');
+    options: {
+        'min-rows': undefined,
+        'max-rows': undefined
+    },
 
-        new creme.layout.TextAreaAutoSize(rows === undefined ? {} : {min: rows}).bind(element);
+    _create: function(element, options) {
+        var rows = element.attr('rows');
+        var minRows = parseInt(options['min-rows'] || rows);
+        var maxRows = parseInt(options['max-rows']);
+
+        this._layout = new creme.layout.TextAreaAutoSize({
+            min: !isNaN(minRows) ? minRows : undefined,
+            max: !isNaN(maxRows) ? maxRows : undefined
+        }).bind(element);
 
         element.addClass('widget-ready');
+    },
+
+    layout: function(element) {
+        return this._layout;
     }
 });
 

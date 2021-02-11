@@ -847,6 +847,8 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/model/query.js',
     'creme_core/js/tests/model/controller.js',
 
+    'creme_core/js/tests/layout/textautosize.js',
+
     'creme_core/js/tests/dialog/frame.js',
     'creme_core/js/tests/dialog/overlay.js',
     'creme_core/js/tests/dialog/dialog.js',
