@@ -138,14 +138,9 @@ class CremeUserForeignKey(models.ForeignKey):
         return 'ForeignKey'
 
 
-class CTypeForeignKey(models.ForeignKey):
-    def __init__(self, **kwargs):
-        kwargs['to'] = 'contenttypes.ContentType'
-        # In a normal use, ContentType instances are never deleted ;
-        # so CASCADE by default should be OK
-        kwargs.setdefault('on_delete', CASCADE)
-        super().__init__(**kwargs)
-
+# NB: using <descriptor_class> is harder than just move __get__/__set__ in a
+#     class for CTypeForeignKey & CTypeOneToOneField...
+class CTypeDescriptorMixin:
     def __get__(self, instance, instance_type=None):
         ct_id = getattr(instance, self.attname)
         return ContentType.objects.get_for_id(ct_id) if ct_id else None
@@ -159,6 +154,30 @@ class CTypeForeignKey(models.ForeignKey):
             ct_id = ContentType.objects.get_for_model(value).id
 
         setattr(instance, self.attname, ct_id)
+
+
+# class CTypeForeignKey(models.ForeignKey):
+class CTypeForeignKey(CTypeDescriptorMixin, models.ForeignKey):
+    def __init__(self, **kwargs):
+        kwargs['to'] = 'contenttypes.ContentType'
+        # In a normal use, ContentType instances are never deleted ;
+        # so CASCADE by default should be OK
+        kwargs.setdefault('on_delete', CASCADE)
+        super().__init__(**kwargs)
+
+    # def __get__(self, instance, instance_type=None):
+    #     ct_id = getattr(instance, self.attname)
+    #     return ContentType.objects.get_for_id(ct_id) if ct_id else None
+    #
+    # def __set__(self, instance, value):
+    #     if not value:
+    #         ct_id = None
+    #     elif isinstance(value, ContentType):
+    #         ct_id = value.id
+    #     else:
+    #         ct_id = ContentType.objects.get_for_model(value).id
+    #
+    #     setattr(instance, self.attname, ct_id)
 
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
@@ -197,9 +216,8 @@ class EntityCTypeForeignKey(CTypeForeignKey):
         return super().formfield(**{'form_class': EntityCTypeChoiceField, **kwargs})
 
 
-# TODO: factorise with CTypeForeignKey
-#       (NB: using <descriptor_class> is harder than just move __get__/__set__ in a class...)
-class CTypeOneToOneField(models.OneToOneField):
+# class CTypeOneToOneField(models.OneToOneField):
+class CTypeOneToOneField(CTypeDescriptorMixin, models.OneToOneField):
     def __init__(self, **kwargs):
         kwargs['to'] = 'contenttypes.ContentType'
 
@@ -209,19 +227,19 @@ class CTypeOneToOneField(models.OneToOneField):
 
         super().__init__(**kwargs)
 
-    def __get__(self, instance, instance_type=None):
-        ct_id = getattr(instance, self.attname)
-        return ContentType.objects.get_for_id(ct_id) if ct_id else None
-
-    def __set__(self, instance, value):
-        if not value:
-            ct_id = None
-        elif isinstance(value, ContentType):
-            ct_id = value.id
-        else:
-            ct_id = ContentType.objects.get_for_model(value).id
-
-        setattr(instance, self.attname, ct_id)
+    # def __get__(self, instance, instance_type=None):
+    #     ct_id = getattr(instance, self.attname)
+    #     return ContentType.objects.get_for_id(ct_id) if ct_id else None
+    #
+    # def __set__(self, instance, value):
+    #     if not value:
+    #         ct_id = None
+    #     elif isinstance(value, ContentType):
+    #         ct_id = value.id
+    #     else:
+    #         ct_id = ContentType.objects.get_for_model(value).id
+    #
+    #     setattr(instance, self.attname, ct_id)
 
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
