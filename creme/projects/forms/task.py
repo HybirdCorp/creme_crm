@@ -85,12 +85,11 @@ class BaseTaskCreationCustomForm(CremeEntityForm):
         self.instance.linked_project = entity
 
     def save(self, *args, **kwargs):
-        instance = self.instance
-
-        # TODO: in AbstractProjectTask.save() ??
-        instance.order = instance.linked_project.attribute_order_task()
-
-        super().save(*args, **kwargs)
+        # instance = self.instance
+        # instance.order = instance.linked_project.attribute_order_task()
+        #
+        # super().save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
 
         add_parent = instance.parent_tasks.add
         for parent in self.cleaned_data[self.subcell_key(ParentTasksSubCell)]:

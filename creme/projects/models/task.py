@@ -47,8 +47,8 @@ class AbstractProjectTask(CremeEntity):
         editable=False,
     )
 
-    # TODO: null = False ? remove blank
-    order = models.PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)
+    # order = models.PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)
+    order = models.PositiveIntegerField(_('Order'), editable=False)
 
     parent_tasks = models.ManyToManyField(
         'self', symmetrical=False,
@@ -231,6 +231,12 @@ class AbstractProjectTask(CremeEntity):
         for task in project_task_filter(pk__in=new_links.keys()):
             for sub_task in project_task_filter(pk__in=new_links[task.id]):
                 sub_task.parent_tasks.add(task)
+
+    def save(self, *args, **kwargs):
+        if self.pk is None and not self.order:
+            self.order = self.linked_project.attribute_order_task()
+
+        super().save(*args, **kwargs)
 
 
 class ProjectTask(AbstractProjectTask):
