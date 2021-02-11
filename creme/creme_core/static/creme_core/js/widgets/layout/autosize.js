@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2014  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/* globals BrowserVersion */
 (function($) {
 "use strict";
 
@@ -43,7 +44,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         count = !isNaN(this._max) ? Math.min(this._max, count) : count;
 
         if (previous !== count) {
-            count = $.browserInfo().mozilla ? count - 1 : count;
+            count = BrowserVersion.isFirefox() ? Math.max(count - 1, 0) : count;
             element.get().scrollTop = 0;
             element.attr('rows', count);
         }
@@ -58,10 +59,10 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         element.css({'overflow-y': 'hidden', 'resize': 'none'});
 
         this._initial = parseInt(element.attr('rows')) || 1;
-        this._initial = $.browserInfo().mozilla ? this._initial - 1 : this._initial;
+        this._initial = BrowserVersion.isFirefox() ? this._initial - 1 : this._initial;
         this._onResize(element);
 
-        element.bind('propertychange keydown paste input', this._listeners);
+        element.on('propertychange keydown paste input', this._listeners);
         return this;
     },
 
@@ -70,7 +71,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
             throw new Error('not bound');
         }
 
-        this._delegate.unbind('propertychange keydown paste input', this._listeners);
+        this._delegate.off('propertychange keydown paste input', this._listeners);
         this._delegate = undefined;
 
         return this;
