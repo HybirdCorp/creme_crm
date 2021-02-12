@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,9 @@ jQuery.ajaxSettings.traditional = true;
 
 creme.ajax = creme.ajax || {};
 
+/* istanbul ignore next */
 creme.ajax.submit = function(form, data, options) {
+    console.error('creme.ajax.submit should not be used; Use creme.ajax.jqueryFormSubmit or creme.ajax.Backend().submit instead');
     // Tip: If data === true => data are taken from the form
     var $form = $(form);
 
@@ -87,61 +89,68 @@ creme.ajax.submit = function(form, data, options) {
     });
 };
 
+/* istanbul ignore next */
 creme.ajax.ajax = function(options) {
-        options = $.extend({
-            type: "GET",
-            url: "",
-            async: true,
-            data: {},
-            dataType: "html",
-            cache: true,
-            beforeSend: null,
-            success: null,
-            beforeError: null,
-            beforeComplete: null,
-            error: function() {
-                creme.utils.showErrorNReload();
-            },
-            afterError: null,
-            complete: null
-        }, options);
+    console.warn('creme.ajax.ajax is deprecated. Use creme.ajax.Query(...) instead');
+    options = $.extend({
+        type: "GET",
+        url: "",
+        async: true,
+        data: {},
+        dataType: "html",
+        cache: true,
+        beforeSend: null,
+        success: null,
+        beforeError: null,
+        beforeComplete: null,
+        error: function() {
+            creme.utils.showErrorNReload();
+        },
+        afterError: null,
+        complete: null
+    }, options);
 
-        $.ajax({
-              url: options.url,
-              type: options.type,
-              data: options.data,
-              async: options.async,
-              dataType: options.dataType,
-              beforeSend: function(request) {
-                  creme.utils.loading('loading', false, {});
-                  if (options.beforeSend && $.isFunction(options.beforeSend)) options.beforeSend(request);
-              },
-              success: function(returnedData, status) {
-                if (options.success && $.isFunction(options.success)) options.success(returnedData, status);
-              },
-              error: function(request, status, error) {
-                  if (options.beforeError && $.isFunction(options.beforeError)) options.beforeError(request, status, error);
-                  if (options.error && $.isFunction(options.error)) options.error(request, status, error);
-                  if (options.afterError && $.isFunction(options.afterError)) options.afterError(request, status, error);
-              },
-              complete: function (request, status) {
-                  if (options.beforeComplete) options.beforeComplete(request, status);
-                  creme.utils.loading('loading', true, {});
-                  if (options.complete) options.complete(request, status);
-              }
-        });
+    $.ajax({
+          url: options.url,
+          type: options.type,
+          data: options.data,
+          async: options.async,
+          dataType: options.dataType,
+          beforeSend: function(request) {
+              creme.utils.loading('loading', false, {});
+              if (options.beforeSend && $.isFunction(options.beforeSend)) options.beforeSend(request);
+          },
+          success: function(returnedData, status) {
+            if (options.success && $.isFunction(options.success)) options.success(returnedData, status);
+          },
+          error: function(request, status, error) {
+              if (options.beforeError && $.isFunction(options.beforeError)) options.beforeError(request, status, error);
+              if (options.error && $.isFunction(options.error)) options.error(request, status, error);
+              if (options.afterError && $.isFunction(options.afterError)) options.afterError(request, status, error);
+          },
+          complete: function (request, status) {
+              if (options.beforeComplete) options.beforeComplete(request, status);
+              creme.utils.loading('loading', true, {});
+              if (options.complete) options.complete(request, status);
+          }
+    });
 };
 
+/* istanbul ignore next */
 creme.ajax.get = function(options) {
+    console.warn('creme.ajax.get is deprecated. Use creme.ajax.Query(...).get(...) instead');
     creme.ajax.ajax($.extend({type: "GET"}, options));
 };
 
+/* istanbul ignore next */
 creme.ajax.post = function(options) {
+    console.warn('creme.ajax.get is deprecated. Use creme.ajax.Query(...).post(...) instead');
     creme.ajax.ajax($.extend({type: "POST"}, options));
 };
 
-/* TODO: deprecate ? */
+/* istanbul ignore next */
 creme.ajax.reloadContent = function($target, target_url) {
+    console.warn('creme.ajax.reladContent is deprecated. Use creme.ajax.Query(...).onDone(...) instead');
     creme.ajax.get({
         url: target_url,
         success: function(data) {
