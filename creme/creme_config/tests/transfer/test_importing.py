@@ -46,6 +46,7 @@ from creme.creme_core.models import (
     ButtonMenuItem,
     CremeEntity,
     CremePropertyType,
+    CustomBrickConfigItem,
     CustomField,
     EntityFilter,
     EntityFilterCondition,
@@ -54,6 +55,7 @@ from creme.creme_core.models import (
     FakeDocument,
     FakeOrganisation,
     HeaderFilter,
+    RelationBrickItem,
     RelationType,
     SearchConfigItem,
     SetCredentials,
@@ -552,366 +554,6 @@ class ImportingTestCase(CremeTestCase):
             _('This filter PK is invalid: «{}».').format(efilter_id),
         )
 
-    def test_detailview_bricks01(self):
-        self.login(is_staff=True)
-        role = self.role
-
-        TOP    = BrickDetailviewLocation.TOP
-        LEFT   = BrickDetailviewLocation.LEFT
-        RIGHT  = BrickDetailviewLocation.RIGHT
-        BOTTOM = BrickDetailviewLocation.BOTTOM
-
-        BrickDetailviewLocation.objects.create_for_model_brick(
-            model=FakeOrganisation, order=5, zone=LEFT,
-        )
-
-        ct_str = 'creme_core.fakecontact'
-
-        bricks_data = [
-            # Default
-            {'id': bricks.HistoryBrick.id_,      'order': 1,  'zone': TOP},
-            {'id': constants.MODELBRICK_ID,      'order': 1,  'zone': LEFT},
-            {'id': bricks.CustomFieldsBrick.id_, 'order': 10, 'zone': LEFT},
-            {'id': bricks.RelationsBrick.id_,    'order': 5,  'zone': RIGHT},
-            {'id': bricks.PropertiesBrick.id_,   'order': 15, 'zone': BOTTOM},
-
-            # FakeContact
-            {'id': constants.MODELBRICK_ID,    'order': 1, 'zone': TOP,    'ctype': ct_str},
-            {'id': bricks.HistoryBrick.id_,    'order': 1, 'zone': LEFT,   'ctype': ct_str},
-            {'id': bricks.RelationsBrick.id_,  'order': 5, 'zone': RIGHT,  'ctype': ct_str},
-            {'id': bricks.PropertiesBrick.id_, 'order': 5, 'zone': BOTTOM, 'ctype': ct_str},
-
-            # FakeContact for existing role
-            {
-                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
-                'ctype': ct_str, 'role': role.name,
-            }, {
-                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
-                'ctype': ct_str, 'role': role.name,
-            }, {
-                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
-                'ctype': ct_str, 'role': role.name,
-            }, {
-                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
-                'ctype': ct_str, 'role': role.name,
-            },
-
-            # FakeContact for superuser
-            {
-                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
-                'ctype': ct_str, 'superuser': True,
-            }, {
-                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
-                'ctype': ct_str, 'superuser': True,
-            }, {
-                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
-                'ctype': ct_str, 'superuser': True,
-            }, {
-                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
-                'ctype': ct_str, 'superuser': True,
-            },
-        ]
-
-        json_file = StringIO(json_dump({'version': '1.0', 'detail_bricks': bricks_data}))
-        json_file.name = 'config-24-10-2017.csv'  # Django uses this
-
-        response = self.client.post(self.URL, data={'config': json_file})
-        self.assertNoFormError(response)
-
-        # --
-        default_bricks_data = defaultdict(list)
-        for bdl in BrickDetailviewLocation.objects.filter(
-                content_type=None, role=None, superuser=False,
-        ):
-            default_bricks_data[bdl.zone].append(
-                {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone}
-            )
-
-        self.assertFalse(default_bricks_data.get(BrickDetailviewLocation.HAT))
-        self.assertEqual([bricks_data[0]],                 default_bricks_data.get(TOP))
-        self.assertEqual([bricks_data[1], bricks_data[2]], default_bricks_data.get(LEFT))
-        self.assertEqual([bricks_data[3]],                 default_bricks_data.get(RIGHT))
-        self.assertEqual([bricks_data[4]],                 default_bricks_data.get(BOTTOM))
-
-        # --
-        contact_bricks_data = defaultdict(list)
-        contact_ct = ContentType.objects.get_for_model(FakeContact)
-        for bdl in BrickDetailviewLocation.objects.filter(
-                content_type=contact_ct,
-                role=None,
-                superuser=False,
-        ):
-            contact_bricks_data[bdl.zone].append({
-                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone, 'ctype': ct_str,
-            })
-
-        self.assertFalse(contact_bricks_data.get(BrickDetailviewLocation.HAT))
-        self.assertEqual([bricks_data[5]], contact_bricks_data.get(TOP))
-        self.assertEqual([bricks_data[6]], contact_bricks_data.get(LEFT))
-        self.assertEqual([bricks_data[7]], contact_bricks_data.get(RIGHT))
-        self.assertEqual([bricks_data[8]], contact_bricks_data.get(BOTTOM))
-
-        # --
-        role_contact_bricks_data = defaultdict(list)
-        for bdl in BrickDetailviewLocation.objects.filter(
-                content_type=contact_ct,
-                role=role,
-                superuser=False,
-        ):
-            role_contact_bricks_data[bdl.zone].append({
-                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                'ctype': ct_str, 'role': role.name,
-            })
-
-        self.assertFalse(role_contact_bricks_data.get(BrickDetailviewLocation.HAT))
-        self.assertEqual([bricks_data[9]],  role_contact_bricks_data.get(TOP))
-        self.assertEqual([bricks_data[10]], role_contact_bricks_data.get(LEFT))
-        self.assertEqual([bricks_data[11]], role_contact_bricks_data.get(RIGHT))
-        self.assertEqual([bricks_data[12]], role_contact_bricks_data.get(BOTTOM))
-
-        # --
-        superuser_contact_bricks_data = defaultdict(list)
-        for bdl in BrickDetailviewLocation.objects.filter(
-                content_type=contact_ct, role=None, superuser=True,
-        ):
-            superuser_contact_bricks_data[bdl.zone].append({
-                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                'ctype': ct_str, 'superuser': True,
-            })
-
-        self.assertFalse(superuser_contact_bricks_data.get(BrickDetailviewLocation.HAT))
-        self.assertEqual([bricks_data[13]], superuser_contact_bricks_data.get(TOP))
-        self.assertEqual([bricks_data[14]], superuser_contact_bricks_data.get(LEFT))
-        self.assertEqual([bricks_data[15]], superuser_contact_bricks_data.get(RIGHT))
-        self.assertEqual([bricks_data[16]], superuser_contact_bricks_data.get(BOTTOM))
-
-        self.assertFalse(BrickDetailviewLocation.objects.filter(
-            content_type=ContentType.objects.get_for_model(FakeOrganisation)
-        ))
-
-    def test_detailview_bricks02(self):
-        "Related role is imported."
-        self.login(is_staff=True)
-
-        TOP    = BrickDetailviewLocation.TOP
-        LEFT   = BrickDetailviewLocation.LEFT
-        RIGHT  = BrickDetailviewLocation.RIGHT
-        BOTTOM = BrickDetailviewLocation.BOTTOM
-
-        ct_str = 'creme_core.fakecontact'
-        role_name = 'Super-hero'
-        bricks_data = [
-            # Default
-            {'id': bricks.HistoryBrick.id_,      'order': 1,  'zone': TOP},
-            {'id': constants.MODELBRICK_ID,      'order': 1,  'zone': LEFT},
-            {'id': bricks.CustomFieldsBrick.id_, 'order': 10, 'zone': LEFT},
-            {'id': bricks.RelationsBrick.id_,    'order': 5,  'zone': RIGHT},
-            {'id': bricks.PropertiesBrick.id_,   'order': 15, 'zone': BOTTOM},
-
-            # FakeContact for our role
-            {
-                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
-                'ctype': ct_str, 'role': role_name,
-            }, {
-                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
-                'ctype': ct_str, 'role': role_name,
-            }, {
-                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
-                'ctype': ct_str, 'role': role_name,
-            }, {
-                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
-                'ctype': ct_str, 'role': role_name,
-            },
-        ]
-        data = {
-            'version': '1.0',
-            'roles': [{
-                'name': role_name,
-
-                'allowed_apps': ['persons'],
-                'admin_4_apps': [],
-
-                'creatable_ctypes':  ['creme_core.fakecontact'],
-                'exportable_ctypes': [],
-
-                'credentials': [
-                    {
-                        'value': (
-                            EntityCredentials.VIEW
-                            | EntityCredentials.CHANGE
-                            | EntityCredentials.DELETE
-                        ),
-                        'type':  SetCredentials.ESET_ALL,
-                    },
-                ],
-            }],
-            'detail_bricks': bricks_data,
-        }
-
-        json_file = StringIO(json_dump(data))
-        json_file.name = 'config-30-10-2017.csv'  # Django uses this
-
-        response = self.client.post(self.URL, data={'config': json_file})
-        self.assertNoFormError(response)
-
-        # --
-        role_contact_bricks_data = defaultdict(list)
-        for bdl in BrickDetailviewLocation.objects.filter(
-            content_type=ContentType.objects.get_for_model(FakeContact),
-            role__name=role_name,
-            superuser=False,
-        ):
-            role_contact_bricks_data[bdl.zone].append({
-                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                'ctype': ct_str, 'role': role_name,
-            })
-
-        self.assertFalse(role_contact_bricks_data.get(BrickDetailviewLocation.HAT))
-        self.assertEqual([bricks_data[5]], role_contact_bricks_data.get(TOP))
-        self.assertEqual([bricks_data[6]], role_contact_bricks_data.get(LEFT))
-        self.assertEqual([bricks_data[7]], role_contact_bricks_data.get(RIGHT))
-        self.assertEqual([bricks_data[8]], role_contact_bricks_data.get(BOTTOM))
-
-    def test_home_bricks01(self):
-        self.login(is_staff=True)
-
-        bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15},
-        ]
-
-        json_file = StringIO(json_dump({'version': '1.0', 'home_bricks': bricks_data}))
-        json_file.name = 'config-24-10-2017.csv'  # Django uses this
-
-        response = self.client.post(self.URL, data={'config': json_file})
-        self.assertNoFormError(response)
-        self.assertListEqual(
-            bricks_data,
-            [
-                {'id': loc.brick_id, 'order': loc.order}
-                for loc in BrickHomeLocation.objects.all()
-            ],
-        )
-
-    def test_home_bricks02(self):
-        "Config per role."
-        self.login(is_staff=True)
-        role = self.role
-
-        bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role.name},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15, 'role': role.name},
-        ]
-
-        json_file = StringIO(json_dump({'version': '1.0', 'home_bricks': bricks_data}))
-        json_file.name = 'config-02-03-2020.csv'
-
-        response = self.client.post(self.URL, data={'config': json_file})
-        self.assertNoFormError(response)
-        self.assertListEqual(
-            bricks_data,
-            [
-                {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
-                for loc in BrickHomeLocation.objects.filter(role=role, superuser=False)
-            ]
-        )
-
-    def test_home_bricks03(self):
-        "Config per role (role is imported)."
-        self.login(is_staff=True)
-
-        role_name = 'Super-hero'
-        bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role_name},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15, 'role': role_name},
-        ]
-
-        data = {
-            'version': '1.0',
-            'roles': [{
-                'name': role_name,
-
-                'allowed_apps': ['persons'],
-                'admin_4_apps': [],
-
-                'creatable_ctypes':  ['creme_core.fakecontact'],
-                'exportable_ctypes': [],
-
-                'credentials': [
-                    {
-                        'value': (
-                            EntityCredentials.VIEW
-                            | EntityCredentials.CHANGE
-                            | EntityCredentials.DELETE
-                        ),
-                        'type':  SetCredentials.ESET_ALL,
-                    },
-                ],
-            }],
-            'home_bricks': bricks_data,
-        }
-
-        json_file = StringIO(json_dump(data))
-        json_file.name = 'config-02-03-2020.csv'
-
-        response = self.client.post(self.URL, data={'config': json_file})
-        self.assertNoFormError(response)
-        self.assertListEqual(
-            bricks_data,
-            [
-                {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
-                for loc in BrickHomeLocation.objects.filter(role__isnull=False, superuser=False)
-            ],
-        )
-
-    def test_home_bricks04(self):
-        "Config for superuser."
-        self.login(is_staff=True)
-
-        bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5,  'superuser': True},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15, 'superuser': True},
-        ]
-
-        json_file = StringIO(json_dump({'version': '1.0', 'home_bricks': bricks_data}))
-        json_file.name = 'config-02-03-2020.csv'
-
-        response = self.client.post(self.URL, data={'config': json_file})
-        self.assertNoFormError(response)
-        self.assertListEqual(
-            bricks_data,
-            [
-                {'id': loc.brick_id, 'order': loc.order, 'superuser': True}
-                for loc in BrickHomeLocation.objects.filter(role=None, superuser=True)
-            ]
-        )
-
-    def test_mypage_bricks(self):
-        user = self.login(is_staff=True)
-        user_loc = BrickMypageLocation.objects.create(
-            brick_id=bricks.HistoryBrick.id_, order=1, user=user,
-        )
-
-        bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15},
-        ]
-
-        json_file = StringIO(json_dump({'version': '1.0', 'mypage_bricks': bricks_data}))
-        json_file.name = 'config-24-10-2017.csv'  # Django uses this
-
-        response = self.client.post(self.URL, data={'config': json_file})
-        self.assertNoFormError(response)
-        self.assertListEqual(
-            bricks_data,
-            [
-                {'id': loc.brick_id, 'order': loc.order}
-                for loc in BrickMypageLocation.objects.filter(user=None)
-            ]
-        )
-
-        self.assertStillExists(user_loc)
-
     def test_buttons(self):
         self.login(is_staff=True)
 
@@ -1252,7 +894,7 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_relations_types03(self):
-        "Do no override a not custom relation-type"
+        "Do no override a not custom relation-type."
         self.login(is_staff=True)
 
         rtype = RelationType.objects.filter(is_custom=False, id__contains='-subject_').first()
@@ -1695,8 +1337,9 @@ class ImportingTestCase(CremeTestCase):
         data = {
             'version': '1.0',
             'custom_fields': [
-                {'uuid': cf_uuid, 'ctype': ct_str,
-                 'name': 'Rating', 'type': CustomField.INT,
+                {
+                    'uuid': cf_uuid, 'ctype': ct_str,
+                    'name': 'Rating', 'type': CustomField.INT,
                 },
             ],
             'header_filters': [hfilter_data],
@@ -1751,9 +1394,10 @@ class ImportingTestCase(CremeTestCase):
         self.assertFormError(
             response, 'form', 'config',
             _(
-                'The column with type="{type}" is invalid in the view of list '
-                'id="{id}".'
-            ).format(type=cell_type, id=hf_id),
+                'The column with type="{type}" is invalid in «{container}».').format(
+                type=cell_type,
+                container=_('view of list id="{id}"').format(id=hf_id),
+            ),
         )
 
     def test_headerfilters_error02(self):
@@ -1776,9 +1420,11 @@ class ImportingTestCase(CremeTestCase):
         self.assertFormError(
             response, 'form', 'config',
             _(
-                'The column with field="{field}" is invalid in the view of '
-                'list id="{id}".'
-            ).format(field=fname, id=hf_id),
+                'The column with field="{field}" is invalid in «{container}».'
+            ).format(
+                field=fname,
+                container=_('view of list id="{id}"').format(id=hf_id),
+            ),
         )
 
     def test_headerfilters_error03(self):
@@ -1801,9 +1447,11 @@ class ImportingTestCase(CremeTestCase):
         self.assertFormError(
             response, 'form', 'config',
             _(
-                'The column with custom-field="{uuid}" is invalid in the view '
-                'of list id="{id}".'
-            ).format(uuid=cf_uuid, id=hf_id)
+                'The column with custom-field="{uuid}" is invalid in «{container}».'
+            ).format(
+                uuid=cf_uuid,
+                container=_('view of list id="{id}"').format(id=hf_id),
+            )
         )
 
     def test_headerfilters_error04(self):
@@ -1829,9 +1477,11 @@ class ImportingTestCase(CremeTestCase):
         self.assertFormError(
             response, 'form', 'config',
             _(
-                'The column with function-field="{ffield}" is invalid '
-                'in the view of list id="{id}".'
-            ).format(ffield=ff_name, id=hf_id),
+                'The column with function-field="{ffield}" is invalid in «{container}».'
+            ).format(
+                ffield=ff_name,
+                container=_('view of list id="{id}"').format(id=hf_id),
+            ),
         )
 
     def test_headerfilters_error05(self):
@@ -1857,9 +1507,11 @@ class ImportingTestCase(CremeTestCase):
         self.assertFormError(
             response, 'form', 'config',
             _(
-                'The column with relation-type="{rtype}" is invalid '
-                'in the view of list id="{id}".'
-            ).format(rtype=rtype_id, id=hf_id),
+                'The column with relation-type="{rtype}" is invalid in «{container}».'
+            ).format(
+                rtype=rtype_id,
+                container=_('view of list id="{id}"').format(id=hf_id),
+            ),
         )
 
     def test_entityfilters01(self):
@@ -2798,3 +2450,535 @@ class ImportingTestCase(CremeTestCase):
             response, 'form', 'config',
             f'The custom-form ID is invalid: {cform_id}'
         )
+
+    def test_relation_bricks(self):
+        self.login(is_staff=True)
+        get_ct = ContentType.objects.get_for_model
+        ct_str1 = 'creme_core.fakecontact'
+        ct_str2 = 'creme_core.fakeorganisation'
+
+        brick_id01 = 'specificblock_creme_core-test01'
+        brick_id03 = 'specificblock_creme_core-test03'
+
+        rtype01, rtype02 = RelationType.objects.filter(
+            is_custom=False, id__contains='-subject_',
+        )[:2]
+        rtype03_id = 'creme_config-subject_test_import_relation_bricks01'
+
+        cf_uuid = uuid4()
+        cfields_data = [
+            {
+                'uuid': str(cf_uuid), 'ctype': ct_str1, 'name': 'Rating',
+                'type': CustomField.INT,
+            },
+        ]
+
+        RelationBrickItem(
+            brick_id=brick_id01,
+            relation_type=rtype01,
+        ).set_cells(
+            get_ct(FakeContact),
+            [
+                EntityCellRegularField.build(FakeContact, 'first_name'),
+                EntityCellRegularField.build(FakeContact, 'last_name'),
+            ],
+        ).save()
+
+        # Will be removed
+        rbi2 = RelationBrickItem.objects.create(
+            brick_id='specificblock_creme_core-test02',
+            relation_type=rtype02,
+        )
+
+        rtypes_data = [
+            {
+                'id': rtype03_id, 'predicate': 'loves',
+                'is_copiable': True, 'minimal_display': False,
+
+                'symmetric': {
+                    'predicate': 'is loved by',
+                    'is_copiable': True, 'minimal_display': False,
+                },
+            },
+        ]
+
+        rbi_data = [
+            {
+                'brick_id': brick_id01,
+                'relation_type': rtype01.id,
+            }, {
+                'brick_id': brick_id03,
+                'relation_type': rtype03_id,
+                'cells': [
+                    [
+                        ct_str1,
+                        [
+                            {'type': EntityCellRegularField.type_id, 'value': 'first_name'},
+                            {'type': EntityCellRegularField.type_id, 'value': 'last_name'},
+                            {'type': EntityCellCustomField.type_id,  'value': str(cf_uuid)},
+                        ],
+                    ], [
+                        ct_str2,
+                        [{'type': 'regular_field', 'value': 'name'}],
+                    ],
+                ]
+            },
+        ]
+
+        json_file = StringIO(json_dump({
+            'version': '1.0',
+            'rtype_bricks': rbi_data,
+            'relation_types': rtypes_data,
+            'custom_fields': cfields_data,
+        }))
+        json_file.name = 'config-12-02-2021.csv'  # Django uses this
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        self.assertDoesNotExist(rbi2)
+
+        rbi1 = self.get_object_or_fail(RelationBrickItem, relation_type=rtype01)
+        self.assertEqual(brick_id01, rbi1.brick_id)
+        self.assertFalse([*rbi1.iter_cells()])
+
+        cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
+
+        rbi3 = self.get_object_or_fail(RelationBrickItem, relation_type_id=rtype03_id)
+        self.assertEqual(brick_id03, rbi3.brick_id)
+
+        def assert_cells(model, keys):
+            cells = rbi3.get_cells(get_ct(model))
+            self.assertIsNotNone(cells)
+            self.assertListEqual(keys, [cell.key for cell in cells])
+
+        assert_cells(
+            FakeContact,
+            [
+                'regular_field-first_name',
+                'regular_field-last_name',
+                f'custom_field-{cfield.id}',
+            ],
+        )
+        assert_cells(FakeOrganisation, ['regular_field-name'])
+
+    def test_custom_bricks(self):
+        self.login(is_staff=True)
+
+        old_cbci = CustomBrickConfigItem.objects.create(
+            id='creme_core-fake_orga_info',
+            name='FakeOrganisation information',
+            content_type=FakeOrganisation,
+            cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
+        )
+
+        ct_str = 'creme_core.fakecontact'
+
+        cf_uuid = uuid4()
+        cfields_data = [
+            {
+                'uuid': str(cf_uuid), 'ctype': ct_str, 'name': 'Rating',
+                'type': CustomField.INT,
+            },
+        ]
+
+        cbci_id = 'creme_core-fake_contact_info'
+        name = 'FakeContact information'
+        cbci_data = [
+            {
+                'id': cbci_id,
+                'content_type': ct_str,
+                'name': name,
+                'cells': [
+                    {'type': EntityCellRegularField.type_id, 'value': 'first_name'},
+                    {'type': EntityCellRegularField.type_id, 'value': 'last_name'},
+                    {'type': EntityCellCustomField.type_id,  'value': str(cf_uuid)},
+                ]
+            },
+        ]
+
+        json_file = StringIO(json_dump({
+            'version': '1.0',
+            'custom_bricks': cbci_data,
+            'custom_fields': cfields_data,
+        }))
+        json_file.name = 'config-13-02-2021.csv'  # Django uses this
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        self.assertDoesNotExist(old_cbci)
+
+        cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
+
+        cbci = self.get_object_or_fail(CustomBrickConfigItem, id=cbci_id)
+        self.assertEqual(name,        cbci.name)
+        self.assertEqual(FakeContact, cbci.content_type.model_class())
+        self.assertListEqual(
+            [
+                'regular_field-first_name',
+                'regular_field-last_name',
+                f'custom_field-{cfield.id}',
+            ],
+            [cell.key for cell in cbci.cells],
+        )
+
+    def test_detailview_bricks01(self):
+        self.login(is_staff=True)
+        role = self.role
+
+        TOP    = BrickDetailviewLocation.TOP
+        LEFT   = BrickDetailviewLocation.LEFT
+        RIGHT  = BrickDetailviewLocation.RIGHT
+        BOTTOM = BrickDetailviewLocation.BOTTOM
+
+        BrickDetailviewLocation.objects.create_for_model_brick(
+            model=FakeOrganisation, order=5, zone=LEFT,
+        )
+
+        ct_str = 'creme_core.fakecontact'
+
+        bricks_data = [
+            # Default
+            {'id': bricks.HistoryBrick.id_,      'order': 1,  'zone': TOP},
+            {'id': constants.MODELBRICK_ID,      'order': 1,  'zone': LEFT},
+            {'id': bricks.CustomFieldsBrick.id_, 'order': 10, 'zone': LEFT},
+            {'id': bricks.RelationsBrick.id_,    'order': 5,  'zone': RIGHT},
+            {'id': bricks.PropertiesBrick.id_,   'order': 15, 'zone': BOTTOM},
+
+            # FakeContact
+            {'id': constants.MODELBRICK_ID,    'order': 1, 'zone': TOP,    'ctype': ct_str},
+            {'id': bricks.HistoryBrick.id_,    'order': 1, 'zone': LEFT,   'ctype': ct_str},
+            {'id': bricks.RelationsBrick.id_,  'order': 5, 'zone': RIGHT,  'ctype': ct_str},
+            {'id': bricks.PropertiesBrick.id_, 'order': 5, 'zone': BOTTOM, 'ctype': ct_str},
+
+            # FakeContact for existing role
+            {
+                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                'ctype': ct_str, 'role': role.name,
+            }, {
+                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                'ctype': ct_str, 'role': role.name,
+            }, {
+                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
+                'ctype': ct_str, 'role': role.name,
+            }, {
+                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                'ctype': ct_str, 'role': role.name,
+            },
+
+            # FakeContact for superuser
+            {
+                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                'ctype': ct_str, 'superuser': True,
+            }, {
+                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                'ctype': ct_str, 'superuser': True,
+            }, {
+                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
+                'ctype': ct_str, 'superuser': True,
+            }, {
+                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                'ctype': ct_str, 'superuser': True,
+            },
+        ]
+
+        json_file = StringIO(json_dump({'version': '1.0', 'detail_bricks': bricks_data}))
+        json_file.name = 'config-24-10-2017.csv'  # Django uses this
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        # --
+        default_bricks_data = defaultdict(list)
+        for bdl in BrickDetailviewLocation.objects.filter(
+                content_type=None, role=None, superuser=False,
+        ):
+            default_bricks_data[bdl.zone].append(
+                {'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone}
+            )
+
+        self.assertFalse(default_bricks_data.get(BrickDetailviewLocation.HAT))
+        self.assertEqual([bricks_data[0]],                 default_bricks_data.get(TOP))
+        self.assertEqual([bricks_data[1], bricks_data[2]], default_bricks_data.get(LEFT))
+        self.assertEqual([bricks_data[3]],                 default_bricks_data.get(RIGHT))
+        self.assertEqual([bricks_data[4]],                 default_bricks_data.get(BOTTOM))
+
+        # --
+        contact_bricks_data = defaultdict(list)
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+        for bdl in BrickDetailviewLocation.objects.filter(
+                content_type=contact_ct,
+                role=None,
+                superuser=False,
+        ):
+            contact_bricks_data[bdl.zone].append({
+                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone, 'ctype': ct_str,
+            })
+
+        self.assertFalse(contact_bricks_data.get(BrickDetailviewLocation.HAT))
+        self.assertEqual([bricks_data[5]], contact_bricks_data.get(TOP))
+        self.assertEqual([bricks_data[6]], contact_bricks_data.get(LEFT))
+        self.assertEqual([bricks_data[7]], contact_bricks_data.get(RIGHT))
+        self.assertEqual([bricks_data[8]], contact_bricks_data.get(BOTTOM))
+
+        # --
+        role_contact_bricks_data = defaultdict(list)
+        for bdl in BrickDetailviewLocation.objects.filter(
+                content_type=contact_ct,
+                role=role,
+                superuser=False,
+        ):
+            role_contact_bricks_data[bdl.zone].append({
+                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
+                'ctype': ct_str, 'role': role.name,
+            })
+
+        self.assertFalse(role_contact_bricks_data.get(BrickDetailviewLocation.HAT))
+        self.assertEqual([bricks_data[9]],  role_contact_bricks_data.get(TOP))
+        self.assertEqual([bricks_data[10]], role_contact_bricks_data.get(LEFT))
+        self.assertEqual([bricks_data[11]], role_contact_bricks_data.get(RIGHT))
+        self.assertEqual([bricks_data[12]], role_contact_bricks_data.get(BOTTOM))
+
+        # --
+        superuser_contact_bricks_data = defaultdict(list)
+        for bdl in BrickDetailviewLocation.objects.filter(
+                content_type=contact_ct, role=None, superuser=True,
+        ):
+            superuser_contact_bricks_data[bdl.zone].append({
+                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
+                'ctype': ct_str, 'superuser': True,
+            })
+
+        self.assertFalse(superuser_contact_bricks_data.get(BrickDetailviewLocation.HAT))
+        self.assertEqual([bricks_data[13]], superuser_contact_bricks_data.get(TOP))
+        self.assertEqual([bricks_data[14]], superuser_contact_bricks_data.get(LEFT))
+        self.assertEqual([bricks_data[15]], superuser_contact_bricks_data.get(RIGHT))
+        self.assertEqual([bricks_data[16]], superuser_contact_bricks_data.get(BOTTOM))
+
+        self.assertFalse(BrickDetailviewLocation.objects.filter(
+            content_type=ContentType.objects.get_for_model(FakeOrganisation)
+        ))
+
+    def test_detailview_bricks02(self):
+        "Related role is imported."
+        self.login(is_staff=True)
+
+        TOP    = BrickDetailviewLocation.TOP
+        LEFT   = BrickDetailviewLocation.LEFT
+        RIGHT  = BrickDetailviewLocation.RIGHT
+        BOTTOM = BrickDetailviewLocation.BOTTOM
+
+        ct_str = 'creme_core.fakecontact'
+        role_name = 'Super-hero'
+        bricks_data = [
+            # Default
+            {'id': bricks.HistoryBrick.id_,      'order': 1,  'zone': TOP},
+            {'id': constants.MODELBRICK_ID,      'order': 1,  'zone': LEFT},
+            {'id': bricks.CustomFieldsBrick.id_, 'order': 10, 'zone': LEFT},
+            {'id': bricks.RelationsBrick.id_,    'order': 5,  'zone': RIGHT},
+            {'id': bricks.PropertiesBrick.id_,   'order': 15, 'zone': BOTTOM},
+
+            # FakeContact for our role
+            {
+                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                'ctype': ct_str, 'role': role_name,
+            }, {
+                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                'ctype': ct_str, 'role': role_name,
+            }, {
+                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
+                'ctype': ct_str, 'role': role_name,
+            }, {
+                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                'ctype': ct_str, 'role': role_name,
+            },
+        ]
+        data = {
+            'version': '1.0',
+            'roles': [{
+                'name': role_name,
+
+                'allowed_apps': ['persons'],
+                'admin_4_apps': [],
+
+                'creatable_ctypes':  ['creme_core.fakecontact'],
+                'exportable_ctypes': [],
+
+                'credentials': [
+                    {
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.DELETE
+                        ),
+                        'type':  SetCredentials.ESET_ALL,
+                    },
+                ],
+            }],
+            'detail_bricks': bricks_data,
+        }
+
+        json_file = StringIO(json_dump(data))
+        json_file.name = 'config-30-10-2017.csv'  # Django uses this
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        # --
+        role_contact_bricks_data = defaultdict(list)
+        for bdl in BrickDetailviewLocation.objects.filter(
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            role__name=role_name,
+            superuser=False,
+        ):
+            role_contact_bricks_data[bdl.zone].append({
+                'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
+                'ctype': ct_str, 'role': role_name,
+            })
+
+        self.assertFalse(role_contact_bricks_data.get(BrickDetailviewLocation.HAT))
+        self.assertEqual([bricks_data[5]], role_contact_bricks_data.get(TOP))
+        self.assertEqual([bricks_data[6]], role_contact_bricks_data.get(LEFT))
+        self.assertEqual([bricks_data[7]], role_contact_bricks_data.get(RIGHT))
+        self.assertEqual([bricks_data[8]], role_contact_bricks_data.get(BOTTOM))
+
+    def test_home_bricks01(self):
+        self.login(is_staff=True)
+
+        bricks_data = [
+            {'id': bricks.HistoryBrick.id_,    'order': 5},
+            {'id': bricks.StatisticsBrick.id_, 'order': 15},
+        ]
+
+        json_file = StringIO(json_dump({'version': '1.0', 'home_bricks': bricks_data}))
+        json_file.name = 'config-24-10-2017.csv'  # Django uses this
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+        self.assertListEqual(
+            bricks_data,
+            [
+                {'id': loc.brick_id, 'order': loc.order}
+                for loc in BrickHomeLocation.objects.all()
+            ],
+        )
+
+    def test_home_bricks02(self):
+        "Config per role."
+        self.login(is_staff=True)
+        role = self.role
+
+        bricks_data = [
+            {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role.name},
+            {'id': bricks.StatisticsBrick.id_, 'order': 15, 'role': role.name},
+        ]
+
+        json_file = StringIO(json_dump({'version': '1.0', 'home_bricks': bricks_data}))
+        json_file.name = 'config-02-03-2020.csv'
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+        self.assertListEqual(
+            bricks_data,
+            [
+                {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
+                for loc in BrickHomeLocation.objects.filter(role=role, superuser=False)
+            ]
+        )
+
+    def test_home_bricks03(self):
+        "Config per role (role is imported)."
+        self.login(is_staff=True)
+
+        role_name = 'Super-hero'
+        bricks_data = [
+            {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role_name},
+            {'id': bricks.StatisticsBrick.id_, 'order': 15, 'role': role_name},
+        ]
+
+        data = {
+            'version': '1.0',
+            'roles': [{
+                'name': role_name,
+
+                'allowed_apps': ['persons'],
+                'admin_4_apps': [],
+
+                'creatable_ctypes':  ['creme_core.fakecontact'],
+                'exportable_ctypes': [],
+
+                'credentials': [
+                    {
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.DELETE
+                        ),
+                        'type':  SetCredentials.ESET_ALL,
+                    },
+                ],
+            }],
+            'home_bricks': bricks_data,
+        }
+
+        json_file = StringIO(json_dump(data))
+        json_file.name = 'config-02-03-2020.csv'
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+        self.assertListEqual(
+            bricks_data,
+            [
+                {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
+                for loc in BrickHomeLocation.objects.filter(role__isnull=False, superuser=False)
+            ],
+        )
+
+    def test_home_bricks04(self):
+        "Config for superuser."
+        self.login(is_staff=True)
+
+        bricks_data = [
+            {'id': bricks.HistoryBrick.id_,    'order': 5,  'superuser': True},
+            {'id': bricks.StatisticsBrick.id_, 'order': 15, 'superuser': True},
+        ]
+
+        json_file = StringIO(json_dump({'version': '1.0', 'home_bricks': bricks_data}))
+        json_file.name = 'config-02-03-2020.csv'
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+        self.assertListEqual(
+            bricks_data,
+            [
+                {'id': loc.brick_id, 'order': loc.order, 'superuser': True}
+                for loc in BrickHomeLocation.objects.filter(role=None, superuser=True)
+            ]
+        )
+
+    def test_mypage_bricks(self):
+        user = self.login(is_staff=True)
+        user_loc = BrickMypageLocation.objects.create(
+            brick_id=bricks.HistoryBrick.id_, order=1, user=user,
+        )
+
+        bricks_data = [
+            {'id': bricks.HistoryBrick.id_,    'order': 5},
+            {'id': bricks.StatisticsBrick.id_, 'order': 15},
+        ]
+
+        json_file = StringIO(json_dump({'version': '1.0', 'mypage_bricks': bricks_data}))
+        json_file.name = 'config-24-10-2017.csv'  # Django uses this
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+        self.assertListEqual(
+            bricks_data,
+            [
+                {'id': loc.brick_id, 'order': loc.order}
+                for loc in BrickMypageLocation.objects.filter(user=None)
+            ]
+        )
+
+        self.assertStillExists(user_loc)

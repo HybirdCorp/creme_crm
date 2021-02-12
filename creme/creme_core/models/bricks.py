@@ -703,6 +703,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         del self._cells_by_ct()[ctype.id]
         self._dump_cells_map()
 
+    # TODO: accept model too ?
     def get_cells(self, ctype: ContentType) -> List['EntityCell']:
         return self._cells_by_ct().get(ctype.id)
 
@@ -713,10 +714,12 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         for ct_id, cells in self._cells_by_ct().items():
             yield get_ct(ct_id), cells  # TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
 
-    def set_cells(self, ctype: ContentType, cells: List['EntityCell']) -> None:
+    # TODO: accept model too ?
+    def set_cells(self, ctype: ContentType, cells: List['EntityCell']) -> 'RelationBrickItem':
         self._cells_by_ct()[ctype.id] = cells
         self._dump_cells_map()
-        # return self  TODO ??
+
+        return self
 
 
 # class InstanceBrickConfigItem(CremeModel):

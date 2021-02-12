@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,12 +55,14 @@ from creme.creme_core.models import (
     ButtonMenuItem,
     CremeEntity,
     CremePropertyType,
+    CustomBrickConfigItem,
     CustomField,
     CustomFieldEnumValue,
     CustomFormConfigItem,
     EntityFilter,
     EntityFilterCondition,
     HeaderFilter,
+    RelationBrickItem,
     RelationType,
     SearchConfigItem,
     SetCredentials,
@@ -322,108 +324,6 @@ class UserRolesImporter(Importer):
 
             for creds_info in role_data['credentials']:
                 SetCredentials.objects.create(role=role, **creds_info)
-
-
-@IMPORTERS.register(data_id=constants.ID_DETAIL_BRICKS)
-class DetailviewBricksLocationsImporter(Importer):
-    dependencies = [constants.ID_ROLES]
-
-    def _validate_section(self, deserialized_section, validated_data):
-        ZONE_NAMES = BrickDetailviewLocation.ZONE_NAMES
-
-        def validated_zone(zone):
-            if zone not in ZONE_NAMES:
-                raise ValueError(
-                    _('The brick zone «{}» is not valid.').format(zone)
-                )
-
-            return zone
-
-        def load_loc(info):
-            data = {
-                'brick_id': info['id'],
-                'order':    int(info['order']),
-                'zone':     validated_zone(int(info['zone'])),
-            }
-
-            natural_ctype = info.get('ctype')
-            if natural_ctype:
-                data['content_type'] = load_ct(natural_ctype)
-
-            role_name = info.get('role')
-            if role_name:
-                if role_name in validated_data[UserRole]:
-                    data['role_name'] = role_name
-                else:
-                    data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
-            elif info.get('superuser'):
-                data['superuser'] = True
-
-            return data
-
-        self._data = [*map(load_loc, deserialized_section)]
-
-    def save(self):
-        BrickDetailviewLocation.objects.all().delete()  # TODO: recycle instances
-
-        for data in self._data:
-            role_name = data.pop('role_name', None)
-            if role_name:
-                data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
-
-            BrickDetailviewLocation.objects.create(**data)
-
-
-# TODO: factorise
-@IMPORTERS.register(data_id=constants.ID_HOME_BRICKS)
-class HomeBricksLocationsImporter(Importer):
-    dependencies = [constants.ID_ROLES]
-
-    def _validate_section(self, deserialized_section, validated_data):
-        def load_loc(info):
-            data = {
-                'brick_id': info['id'],
-                'order':    int(info['order']),
-            }
-
-            role_name = info.get('role')
-            if role_name:
-                if role_name in validated_data[UserRole]:
-                    data['role_name'] = role_name
-                else:
-                    data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
-            elif info.get('superuser'):
-                data['superuser'] = True
-
-            return data
-
-        self._data = [*map(load_loc, deserialized_section)]
-
-    def save(self):
-        BrickHomeLocation.objects.all().delete()  # TODO: recycle instances
-
-        for data in self._data:
-            role_name = data.pop('role_name', None)
-            if role_name:
-                data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
-
-            BrickHomeLocation.objects.create(**data)
-
-
-@IMPORTERS.register(data_id=constants.ID_MYPAGE_BRICKS)
-class MypageBricksLocationsImporter(Importer):
-    def _validate_section(self, deserialized_section, validated_data):
-        self._data = [
-            {'brick_id': loc_info['id'],
-             'order':    int(loc_info['order']),
-            } for loc_info in deserialized_section
-        ]
-
-    def save(self):
-        BrickMypageLocation.objects.filter(user=None).delete()  # TODO: recycle instances
-
-        for data in self._data:
-            BrickMypageLocation.objects.create(**data)
 
 
 @IMPORTERS.register(data_id=constants.ID_BUTTONS)
@@ -698,19 +598,20 @@ class CellProxy:
 
     def __init__(
             self,
-            hfilter_id: str,
+            container_label: str,
             model: Type[CremeEntity],
             value: str,
             validated_data: ValidatedData):
         """Constructor.
 
-        @param hfilter_id: ID of related HeaderFilter instance (used by error messages)
+        @param container_label: String used by error messages to identify related
+               objects containing the cells (like HeaderFilter instance)
         @param model: model related to the HeaderFilter.
         @param value: deserialized data.
         @param validated_data: IDs of validated (future) instances ;
                dictionary <key=model ; values=set of IDs>
         """
-        self.hfilter_id = hfilter_id
+        self.container_label = container_label
         self.model = model
         self.value = value
 
@@ -747,6 +648,31 @@ class CellProxiesRegistry:
         "@param type_id: see EntityCell.type_id."
         return self._proxies_classes.get(type_id)
 
+    def build_proxies_from_dicts(self, *, model, container_label, cell_dicts, validated_data):
+        cells_proxies = []
+
+        for cell_dict in cell_dicts:  # TODO: check is a dict
+            cell_type  = cell_dict['type']
+            cell_value = cell_dict['value']
+
+            cell_proxy_cls = self.get(cell_type)
+
+            if cell_proxy_cls is None:
+                raise ValidationError(
+                    _(
+                        'The column with type="{type}" is invalid in «{container}».'
+                    ).format(type=cell_type, container=container_label)
+                )
+
+            cells_proxies.append(cell_proxy_cls(
+                container_label=container_label,
+                model=model,
+                value=cell_value,
+                validated_data=validated_data,
+            ))
+
+        return cells_proxies
+
 
 CELL_PROXIES = CellProxiesRegistry()
 
@@ -760,9 +686,8 @@ class CellProxyRegularField(CellProxy):
             FieldInfo(self.model, self.value)
         except FieldDoesNotExist:
             raise ValidationError(
-                _('The column with field="{field}" is invalid '
-                  'in the view of list id="{id}".').format(
-                    field=self.value, id=self.hfilter_id,
+                _('The column with field="{field}" is invalid in «{container}».').format(
+                    field=self.value, container=self.container_label,
                 )
             )
 
@@ -778,9 +703,8 @@ class CellProxyCustomField(CellProxy):
            not CustomField.objects.filter(uuid=value).exists():
             raise ValidationError(
                 _(
-                    'The column with custom-field="{uuid}" is invalid '
-                    'in the view of list id="{id}".'
-                ).format(uuid=value, id=self.hfilter_id)
+                    'The column with custom-field="{uuid}" is invalid in «{container}».'
+                ).format(uuid=value, container=self.container_label)
             )
 
     def build_cell(self):
@@ -799,9 +723,8 @@ class CellProxyFunctionField(CellProxy):
         if func_field is None:
             raise ValidationError(
                 _(
-                    'The column with function-field="{ffield}" is invalid '
-                    'in the view of list id="{id}".'
-                ).format(ffield=self.value, id=self.hfilter_id)
+                    'The column with function-field="{ffield}" is invalid in «{container}».'
+                ).format(ffield=self.value, container=self.container_label)
             )
 
 
@@ -816,9 +739,8 @@ class CellProxyRelation(CellProxy):
            not RelationType.objects.filter(pk=value).exists():
             raise ValidationError(
                 _(
-                    'The column with relation-type="{rtype}" is invalid '
-                    'in the view of list id="{id}".'
-                ).format(rtype=value, id=self.hfilter_id)
+                    'The column with relation-type="{rtype}" is invalid in «{container}».'
+                ).format(rtype=value, container=self.container_label)
             )
 
 
@@ -833,7 +755,6 @@ class HeaderFiltersImporter(Importer):
 
         def load_hfilter(hfilter_info):
             hfilter_id = hfilter_info['id']
-
             hfilter = HeaderFilter.objects.filter(id=hfilter_id, is_custom=False).first()
             if hfilter is not None:
                 raise ValidationError(
@@ -841,36 +762,19 @@ class HeaderFiltersImporter(Importer):
                 )
 
             model = load_model(hfilter_info['ctype'])
-            cells_proxies = []
-
-            for cell_dict in hfilter_info['cells']:  # TODO: check is a dict
-                cell_type  = cell_dict['type']
-                cell_value = cell_dict['value']
-
-                cell_proxy_cls = self.cells_proxies_registry.get(cell_type)
-
-                if cell_proxy_cls is None:
-                    raise ValidationError(
-                        _(
-                            'The column with type="{type}" is invalid '
-                            'in the view of list id="{id}".'
-                        ).format(type=cell_type, id=hfilter_id)
-                    )
-
-                cells_proxies.append(cell_proxy_cls(
-                    hfilter_id=hfilter_id,
-                    model=model,
-                    value=cell_value,
-                    validated_data=validated_data,
-                ))
-
             data = {
                 'id':         hfilter_id,
                 'model':      model,
                 'name':       str(hfilter_info['name']),
                 'user':       None,
                 'is_private': False,
-                'cells':      cells_proxies,
+
+                'cells':  self.cells_proxies_registry.build_proxies_from_dicts(
+                    model=model,
+                    container_label=_('view of list id="{id}"').format(id=hfilter_id),
+                    cell_dicts=hfilter_info['cells'],
+                    validated_data=validated_data,
+                ),
             }
 
             username = hfilter_info.get('user')
@@ -1469,3 +1373,191 @@ class CustomFormsImporter(Importer):
                 ],
             ))
             instance.save()
+
+
+@IMPORTERS.register(data_id=constants.ID_RTYPE_BRICKS)
+class RelationBrickItemsImporter(Importer):
+    # Cells can contain reference to RelationTypes/CustomFields
+    dependencies = [constants.ID_RELATION_TYPES, constants.ID_CUSTOM_FIELDS]
+
+    cells_proxies_registry = CELL_PROXIES
+
+    def _validate_section(self, deserialized_section, validated_data):
+        def load_ctype_cells(rtype_id, ctype_cells_info):
+            ctype = load_ct(ctype_cells_info[0])
+
+            return ctype, self.cells_proxies_registry.build_proxies_from_dicts(
+                model=ctype.model_class(),
+                container_label=_('block for relation-type id="{id}"').format(id=rtype_id),
+                cell_dicts=ctype_cells_info[1],
+                validated_data=validated_data,
+            )
+
+        self._data = data = []
+
+        for info in deserialized_section:
+            rtype_id = info['relation_type']
+            data.append({
+                'brick_id': info['brick_id'],
+                'relation_type_id': rtype_id,
+                'cells': [
+                    load_ctype_cells(rtype_id, ctype_cells)
+                    for ctype_cells in info.get('cells', ())
+                ],
+            })
+
+    def save(self):
+        RelationBrickItem.objects.all().delete()  # TODO: recycle instances
+
+        for data in self._data:
+            cell_proxies = data.pop('cells')
+            rbi = RelationBrickItem(**data)
+
+            for ctype, ctype_cell_proxies in cell_proxies:
+                rbi.set_cells(
+                    ctype,
+                    [cell_proxy.build_cell() for cell_proxy in ctype_cell_proxies],
+                )
+
+            rbi.save()
+
+
+@IMPORTERS.register(data_id=constants.ID_CUSTOM_BRICKS)
+class CustomBrickConfigItemsImporter(Importer):
+    # Cells can contain reference to RelationTypes/CustomFields
+    dependencies = [constants.ID_RELATION_TYPES, constants.ID_CUSTOM_FIELDS]
+
+    cells_proxies_registry = CELL_PROXIES
+
+    def _validate_section(self, deserialized_section, validated_data):
+        self._data = data = []
+
+        for info in deserialized_section:
+            cbci_id = info['id']
+            ctype = load_ct(info['content_type'])
+
+            data.append({
+                'id': cbci_id,
+                'name': info['name'],
+                'content_type': ctype,
+                'cells': self.cells_proxies_registry.build_proxies_from_dicts(
+                    model=ctype.model_class(),
+                    container_label=_('custom block with id="{id}"').format(id=cbci_id),
+                    cell_dicts=info['cells'],
+                    validated_data=validated_data,
+                )
+            })
+
+    def save(self):
+        CustomBrickConfigItem.objects.all().delete()  # TODO: recycle instances
+
+        for data in self._data:
+            cell_proxies = data.pop('cells')
+
+            CustomBrickConfigItem.objects.create(
+                cells=[cell_proxy.build_cell() for cell_proxy in cell_proxies],
+                **data,
+            )
+
+
+@IMPORTERS.register(data_id=constants.ID_DETAIL_BRICKS)
+class DetailviewBricksLocationsImporter(Importer):
+    dependencies = [constants.ID_ROLES]
+
+    def _validate_section(self, deserialized_section, validated_data):
+        ZONE_NAMES = BrickDetailviewLocation.ZONE_NAMES
+
+        def validated_zone(zone):
+            if zone not in ZONE_NAMES:
+                raise ValueError(
+                    _('The brick zone «{}» is not valid.').format(zone)
+                )
+
+            return zone
+
+        def load_loc(info):
+            data = {
+                'brick_id': info['id'],
+                'order':    int(info['order']),
+                'zone':     validated_zone(int(info['zone'])),
+            }
+
+            natural_ctype = info.get('ctype')
+            if natural_ctype:
+                data['content_type'] = load_ct(natural_ctype)
+
+            role_name = info.get('role')
+            if role_name:
+                if role_name in validated_data[UserRole]:
+                    data['role_name'] = role_name
+                else:
+                    data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+            elif info.get('superuser'):
+                data['superuser'] = True
+
+            return data
+
+        self._data = [*map(load_loc, deserialized_section)]
+
+    def save(self):
+        BrickDetailviewLocation.objects.all().delete()  # TODO: recycle instances
+
+        for data in self._data:
+            role_name = data.pop('role_name', None)
+            if role_name:
+                data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+
+            BrickDetailviewLocation.objects.create(**data)
+
+
+# TODO: factorise
+@IMPORTERS.register(data_id=constants.ID_HOME_BRICKS)
+class HomeBricksLocationsImporter(Importer):
+    dependencies = [constants.ID_ROLES]
+
+    def _validate_section(self, deserialized_section, validated_data):
+        def load_loc(info):
+            data = {
+                'brick_id': info['id'],
+                'order':    int(info['order']),
+            }
+
+            role_name = info.get('role')
+            if role_name:
+                if role_name in validated_data[UserRole]:
+                    data['role_name'] = role_name
+                else:
+                    data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+            elif info.get('superuser'):
+                data['superuser'] = True
+
+            return data
+
+        self._data = [*map(load_loc, deserialized_section)]
+
+    def save(self):
+        BrickHomeLocation.objects.all().delete()  # TODO: recycle instances
+
+        for data in self._data:
+            role_name = data.pop('role_name', None)
+            if role_name:
+                data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+
+            BrickHomeLocation.objects.create(**data)
+
+
+@IMPORTERS.register(data_id=constants.ID_MYPAGE_BRICKS)
+class MypageBricksLocationsImporter(Importer):
+    def _validate_section(self, deserialized_section, validated_data):
+        self._data = [
+            {
+                'brick_id': loc_info['id'],
+                'order':    int(loc_info['order']),
+            } for loc_info in deserialized_section
+        ]
+
+    def save(self):
+        BrickMypageLocation.objects.filter(user=None).delete()  # TODO: recycle instances
+
+        for data in self._data:
+            BrickMypageLocation.objects.create(**data)
