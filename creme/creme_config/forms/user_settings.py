@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,30 +20,46 @@
 
 from django.contrib.auth import get_user_model
 from django.forms.widgets import Select
+from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.base import CremeModelForm
 
 User = get_user_model()
 
+# def _build_select():
+#     return Select(
+#         attrs={
+#             'onchange': (
+#                 'creme.ajax.json.ajaxFormSubmit('
+#                 '$(this.form), function() {creme.utils.reload(window);}'
+#                 ');'
+#             )
+#         },
+#     )
 
-def _build_select():
-    return Select(
-        attrs={
-            'onchange': (
-                'creme.ajax.json.ajaxFormSubmit('
-                '$(this.form), function() {creme.utils.reload(window);}'
-                ');'
-            )
-        },
-    )
+
+class MenuSetting(Select):
+    def __init__(self, url, choices=()):
+        self.url = url
+        Select.__init__(self, attrs={
+            'class': 'user-setting-toggle'
+        }, choices=choices)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['attrs']['data-url'] = reverse(self.url)
+        return context
 
 
 class UserThemeForm(CremeModelForm):
     class Meta:
         model = User
         fields = ('theme',)
-        widgets = {'theme': _build_select()}
+        # widgets = {'theme': _build_select()}
+        widgets = {
+            'theme': MenuSetting(url='creme_config__set_user_theme')
+        }
         labels = {'theme': _('Your theme')}
 
 
@@ -51,7 +67,10 @@ class UserTimeZoneForm(CremeModelForm):
     class Meta:
         model = User
         fields = ('time_zone',)
-        widgets = {'time_zone': _build_select()}
+        # widgets = {'theme': _build_select()}
+        widgets = {
+            'time_zone': MenuSetting(url='creme_config__set_user_timezone')
+        }
         labels = {'time_zone': _('Your time zone')}
 
 
@@ -59,5 +78,8 @@ class UserLanguageForm(CremeModelForm):
     class Meta:
         model = User
         fields = ('language',)
-        widgets = {'language': _build_select()}
+        # widgets = {'theme': _build_select()}
+        widgets = {
+            'language': MenuSetting(url='creme_config__set_user_language')
+        }
         labels = {'language': _('Your language')}
