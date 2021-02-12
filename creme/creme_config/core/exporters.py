@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,10 +24,14 @@ from typing import Callable, Dict, Iterator, List, Set, Tuple, Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, QuerySet
+from django.utils.translation import gettext as _
 
 from creme.creme_core import models
 from creme.creme_core.core import entity_cell
 from creme.creme_core.core.entity_filter import condition_handler
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.gui.bricks import brick_registry
+from creme.creme_core.utils.unicode_collation import collator
 
 from .. import constants
 
@@ -36,6 +40,23 @@ logger = logging.getLogger(__name__)
 
 def dump_ct(ctype: ContentType) -> str:
     return '.'.join(ctype.natural_key())
+
+
+class CellsExporterMixin:
+    cell_exporters = {
+        # TODO: 'uuid' key instead of 'value' to avoid confusion ??
+        entity_cell.EntityCellCustomField.type_id: lambda cell: {
+            'type': cell.type_id,
+            'value': str(cell.custom_field.uuid),
+        },
+    }
+
+    def dump_cell(self, cell):
+        assert isinstance(cell, entity_cell.EntityCell)
+
+        exporter = self.cell_exporters.get(cell.type_id)
+
+        return cell.to_dict() if exporter is None else exporter(cell)
 
 
 class Exporter:
@@ -191,9 +212,97 @@ class UserRoleExporter(Exporter):
         }
 
 
+@EXPORTERS.register(data_id=constants.ID_RTYPE_BRICKS)
+class RelationBrickItemExporter(CellsExporterMixin, Exporter):
+    model = models.RelationBrickItem
+
+    def dump_instance(self, instance):
+        assert isinstance(instance, models.RelationBrickItem)
+
+        data = {
+            'brick_id':      instance.brick_id,
+            'relation_type': instance.relation_type_id,
+        }
+
+        ctypes_cells = [*instance.iter_cells()]
+        if ctypes_cells:
+            data['cells'] = [
+                [dump_ct(ctype), [*map(self.dump_cell, cells)]]
+                for ctype, cells in ctypes_cells
+            ]
+
+        return data
+
+
+@EXPORTERS.register(data_id=constants.ID_CUSTOM_BRICKS)
+class CustomBrickConfigItemExporter(CellsExporterMixin, Exporter):
+    model = models.CustomBrickConfigItem
+
+    def dump_instance(self, instance):
+        assert isinstance(instance, models.CustomBrickConfigItem)
+
+        return {
+            'id':   instance.id,
+            'name': instance.name,
+
+            'content_type': dump_ct(instance.content_type),
+            'cells': [*map(self.dump_cell, instance.cells)],
+        }
+
+
+class BrickExporterMixin:
+    brick_registry = brick_registry
+
+    @staticmethod
+    def filter_non_exportable_items(qs):
+        return qs.filter(
+            brick_id__startswith=models.InstanceBrickConfigItem._brick_id_prefix,
+        )
+
+    def items_to_str(self, items):
+        return ', '.join(
+            brick.verbose_name
+            for brick in self.brick_registry.get_bricks(
+                brick_ids={bdl.brick_id for bdl in items}
+            )
+        )
+
+
 @EXPORTERS.register(data_id=constants.ID_DETAIL_BRICKS)
-class BrickDetailviewLocationExporter(Exporter):
+class BrickDetailviewLocationExporter(BrickExporterMixin, Exporter):
     model = models.BrickDetailviewLocation
+
+    def get_queryset(self) -> QuerySet:
+        qs = self.model._default_manager.all()
+        cursed_items = self.filter_non_exportable_items(qs)
+
+        if cursed_items:
+            ctypes = {bdl.content_type for bdl in cursed_items}
+            try:
+                ctypes.remove(None)
+            except KeyError:
+                default_config = False
+            else:
+                default_config = True
+
+            ct_labels = sorted((str(ct) for ct in ctypes), key=collator.sort_key)
+
+            if default_config:
+                ct_labels.insert(0, _('Default configuration'))
+
+            raise ConflictError(
+                _(
+                    'The configuration of blocks for detailed-views cannot be '
+                    'exported because it contains references to some '
+                    'instance-blocks ({blocks}), which are not managed, for the '
+                    'following cases: {models}.'
+                ).format(
+                    blocks=self.items_to_str(cursed_items),
+                    models=', '.join(ct_labels)
+                )
+            )
+
+        return qs
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.BrickDetailviewLocation)
@@ -218,8 +327,23 @@ class BrickDetailviewLocationExporter(Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_HOME_BRICKS)
-class BrickHomeLocationExporter(Exporter):
+class BrickHomeLocationExporter(BrickExporterMixin, Exporter):
     model = models.BrickHomeLocation
+
+    def get_queryset(self) -> QuerySet:
+        qs = self.model._default_manager.all()
+        cursed_items = self.filter_non_exportable_items(qs)
+
+        if cursed_items:
+            raise ConflictError(
+                _(
+                    'The configuration of blocks for Home cannot be exported '
+                    'because it contains references to some instance-blocks '
+                    '({blocks}), which are not managed.'
+                ).format(blocks=self.items_to_str(cursed_items))
+            )
+
+        return qs
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.BrickHomeLocation)
@@ -240,11 +364,23 @@ class BrickHomeLocationExporter(Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_MYPAGE_BRICKS)
-class BrickMypageLocationExporter(Exporter):
+class BrickMypageLocationExporter(BrickExporterMixin, Exporter):
     model = models.BrickMypageLocation
 
-    def get_queryset(self):
-        return super().get_queryset().filter(user=None)
+    def get_queryset(self) -> QuerySet:
+        qs = self.model._default_manager.filter(user=None)
+        cursed_items = self.filter_non_exportable_items(qs)
+
+        if cursed_items:
+            raise ConflictError(
+                _(
+                    'The configuration of blocks for «My page» cannot be exported '
+                    'because it contains references to some instance-blocks '
+                    '({blocks}), which are not managed.'
+                ).format(blocks=self.items_to_str(cursed_items))
+            )
+
+        return qs
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.BrickMypageLocation)
@@ -396,26 +532,11 @@ class CustomFieldExporter(Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_HEADER_FILTERS)
-class HeaderFilterExporter(Exporter):
+class HeaderFilterExporter(CellsExporterMixin, Exporter):
     model = models.HeaderFilter
-
-    cell_exporters = {
-        # TODO: 'uuid' key instead of 'value' to avoid confusion ??
-        entity_cell.EntityCellCustomField.type_id: lambda cell: {
-            'type': cell.type_id,
-            'value': str(cell.custom_field.uuid),
-        },
-    }
 
     def get_queryset(self):
         return super().get_queryset().filter(is_custom=True)
-
-    def dump_cell(self, cell):
-        assert isinstance(cell, entity_cell.EntityCell)
-
-        exporter = self.cell_exporters.get(cell.type_id)
-
-        return cell.to_dict() if exporter is None else exporter(cell)
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.HeaderFilter)

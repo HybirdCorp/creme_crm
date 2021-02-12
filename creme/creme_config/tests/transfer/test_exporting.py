@@ -6,6 +6,8 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import gettext as _
 
 from creme.creme_config.core.exporters import Exporter, ExportersRegistry
 from creme.creme_core import bricks, constants
@@ -34,6 +36,11 @@ from creme.creme_core.forms import (
     LAYOUT_DUAL_SECOND,
     LAYOUT_REGULAR,
 )
+from creme.creme_core.gui.bricks import (
+    InstanceBrick,
+    SpecificRelationsBrick,
+    brick_registry,
+)
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.models import (
@@ -42,6 +49,7 @@ from creme.creme_core.models import (
     BrickMypageLocation,
     ButtonMenuItem,
     CremePropertyType,
+    CustomBrickConfigItem,
     CustomField,
     CustomFieldEnumValue,
     CustomFormConfigItem,
@@ -50,6 +58,8 @@ from creme.creme_core.models import (
     FakeDocument,
     FakeOrganisation,
     HeaderFilter,
+    InstanceBrickConfigItem,
+    RelationBrickItem,
     RelationType,
     SearchConfigItem,
     SetCredentials,
@@ -59,8 +69,35 @@ from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
 
 
+class ExportingInstanceBrick(InstanceBrick):
+    id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_exporting')
+
+    # NB: would be in __init__() in classical cases...
+    verbose_name = 'Instance brick for exporter'
+
+    def detailview_display(self, context):
+        return (
+            f'<table id="{self.id_}">'
+            f'<thead><tr>{self.config_item.entity}</tr></thead>'
+            f'</table>'
+        )
+
+    def home_display(self, context):
+        return self.detailview_display(context)
+
+
 class ExportingTestCase(CremeTestCase):
     URL = reverse('creme_config__transfer_export')
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        BrickDetailviewLocation.objects.filter(brick_id__startswith='instanceblock').delete()
+        BrickHomeLocation.objects.filter(brick_id__startswith='instanceblock').delete()
+        BrickMypageLocation.objects.filter(brick_id__startswith='instanceblock').delete()
+
+        brick_registry.register_4_instance(ExportingInstanceBrick)
 
     def test_creds(self):
         "Not staff."
@@ -326,6 +363,143 @@ class ExportingTestCase(CremeTestCase):
         else:
             self.fail(f'EntityFilter with id="{efilter.id}" not found.')
 
+    def test_relation_bricks(self):
+        self.login(is_staff=True)
+        get_ct = ContentType.objects.get_for_model
+
+        rtype01 = RelationType.create(
+            ('test-subfoo', 'subject_predicate01'),
+            ('test-objfoo', 'object_predicate01'),
+        )[0]
+        rtype02 = RelationType.create(
+            ('test-subbar', 'subject_predicate02'),
+            ('test-objbar', 'object_predicate02'),
+        )[0]
+
+        rtype_brick_id01 = SpecificRelationsBrick.generate_id('test', 'foo')
+        RelationBrickItem.objects.create(brick_id=rtype_brick_id01, relation_type=rtype01)
+
+        rtype_brick_id02 = SpecificRelationsBrick.generate_id('test', 'bar')
+        RelationBrickItem(
+            brick_id=rtype_brick_id02,
+            relation_type=rtype02,
+        ).set_cells(
+            get_ct(FakeContact),
+            [
+                EntityCellRegularField.build(FakeContact, 'first_name'),
+                EntityCellRegularField.build(FakeContact, 'last_name'),
+            ],
+        ).set_cells(
+            get_ct(FakeOrganisation),
+            [EntityCellRegularField.build(FakeOrganisation, 'name')],
+        ).save()
+
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        rtype_bricks_info = content.get('rtype_bricks')
+        self.assertIsInstance(rtype_bricks_info, list)
+        self.assertGreaterEqual(len(rtype_bricks_info), 2)
+
+        # ----
+        with self.assertNoException():
+            all_rbi_info01 = [
+                dumped_rbi
+                for dumped_rbi in rtype_bricks_info
+                if dumped_rbi['relation_type'] == rtype01.id
+            ]
+
+        self.assertEqual(1, len(all_rbi_info01))
+
+        rbi_info01 = all_rbi_info01[0]
+        self.assertEqual(rtype_brick_id01, rbi_info01.get('brick_id'))
+        self.assertNotIn('cells', rbi_info01)
+
+        # ----
+        with self.assertNoException():
+            all_rbi_info02 = [
+                dumped_rbi
+                for dumped_rbi in rtype_bricks_info
+                if dumped_rbi['relation_type'] == rtype02.id
+            ]
+
+        self.assertEqual(1, len(all_rbi_info02))
+
+        rbi_info02 = all_rbi_info02[0]
+        self.assertEqual(rtype_brick_id02, rbi_info02.get('brick_id'))
+
+        cells_info = rbi_info02.get('cells')
+        self.assertIsInstance(cells_info, list)
+        self.assertEqual(2, len(cells_info))
+
+        def find_cells_for_naturalkey(key):
+            for ctype_info in cells_info:
+                self.assertIsInstance(ctype_info, list)
+                self.assertEqual(2, len(ctype_info))
+
+                if ctype_info[0] == key:
+                    return ctype_info[1]
+
+            self.fail(f'Cells for key="{key} not found.')
+
+        self.assertListEqual(
+            [
+                {'type': 'regular_field', 'value': 'first_name'},
+                {'type': 'regular_field', 'value': 'last_name'},
+            ],
+            find_cells_for_naturalkey('creme_core.fakecontact'),
+        )
+        self.assertListEqual(
+            [{'type': 'regular_field', 'value': 'name'}],
+            find_cells_for_naturalkey('creme_core.fakeorganisation'),
+        )
+
+    def test_custom_bricks(self):
+        self.login(is_staff=True)
+
+        cfield = CustomField.objects.create(
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            name='Rating', field_type=CustomField.INT,
+        )
+
+        cbci = CustomBrickConfigItem.objects.create(
+            id='creme_core-fake_contact_info',
+            name='FakeContact information',
+            content_type=FakeContact,
+            cells=[
+                EntityCellRegularField.build(FakeContact, 'first_name'),
+                EntityCellRegularField.build(FakeContact, 'last_name'),
+                EntityCellCustomField(cfield),
+            ],
+        )
+
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        custom_bricks_info = content.get('custom_bricks')
+        self.assertIsInstance(custom_bricks_info, list)
+
+        with self.assertNoException():
+            all_cbci_info01 = [
+                dumped_cbci
+                for dumped_cbci in custom_bricks_info
+                if dumped_cbci['id'] == cbci.id
+            ]
+
+        self.assertEqual(1, len(all_cbci_info01))
+
+        cbci_info = all_cbci_info01[0]
+        self.assertEqual('creme_core.fakecontact', cbci_info.get('content_type'))
+        self.assertEqual(cbci.name, cbci_info.get('name'))
+        self.assertListEqual(
+            [
+                {'type': 'regular_field', 'value': 'first_name'},
+                {'type': 'regular_field', 'value': 'last_name'},
+                {'type': 'custom_field',  'value': str(cfield.uuid)},
+            ],
+            cbci_info.get('cells'),
+        )
+
     def test_detail_bricks01(self):
         "Default detail-views config."
         self.login(is_staff=True)
@@ -333,7 +507,7 @@ class ExportingTestCase(CremeTestCase):
         existing_default_bricks_data = defaultdict(list)
 
         for bdl in BrickDetailviewLocation.objects.filter(
-            content_type=None, role=None, superuser=False
+            content_type=None, role=None, superuser=False,
         ):
             existing_default_bricks_data[bdl.zone].append({'id': bdl.brick_id, 'order': bdl.order})
 
@@ -649,6 +823,113 @@ class ExportingTestCase(CremeTestCase):
         self.assertListEqual(
             [{'id': loc.brick_id, 'order': loc.order} for loc in existing_locs],
             content.get('mypage_bricks')
+        )
+
+    def test_instance_bricks01(self):
+        "Detail view."
+        self.login(is_staff=True)
+
+        naru = FakeContact.objects.create(
+            user=self.other_user, first_name='Naru', last_name='Narusegawa',
+        )
+
+        ibi = InstanceBrickConfigItem.objects.create(
+            brick_class_id=ExportingInstanceBrick.id_,
+            entity=naru,
+        )
+
+        # ---
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            zone=BrickDetailviewLocation.RIGHT,
+            brick=ibi.brick_id, order=5,
+        )
+        create_bdl(model=FakeContact)
+
+        msg_fmt = _(
+            'The configuration of blocks for detailed-views cannot be '
+            'exported because it contains references to some instance-blocks '
+            '({blocks}), which are not managed, for the following cases: {models}.'
+        )
+        self.assertContains(
+            self.client.get(self.URL),
+            escape(msg_fmt.format(
+                blocks=ExportingInstanceBrick.verbose_name,
+                models=FakeContact._meta.verbose_name
+            )),
+            status_code=409,
+        )
+
+        # ---
+        create_bdl(model=None)
+        self.assertContains(
+            self.client.get(self.URL),
+            escape(msg_fmt.format(
+                blocks=ExportingInstanceBrick.verbose_name,
+                models='{}, {}'.format(
+                    _('Default configuration'),
+                    FakeContact._meta.verbose_name,
+                ),
+            )),
+            status_code=409,
+        )
+
+    def test_instance_bricks02(self):
+        "Home view."
+        self.login(is_staff=True)
+
+        naru = FakeContact.objects.create(
+            user=self.other_user, first_name='Naru', last_name='Narusegawa',
+        )
+
+        ibi = InstanceBrickConfigItem.objects.create(
+            brick_class_id=ExportingInstanceBrick.id_,
+            entity=naru,
+        )
+
+        BrickHomeLocation.objects.create(brick_id=ibi.brick_id, order=1, superuser=True)
+
+        self.assertContains(
+            self.client.get(self.URL),
+            escape(
+                _(
+                    'The configuration of blocks for Home cannot be exported '
+                    'because it contains references to some instance-blocks '
+                    '({blocks}), which are not managed.'
+                ).format(
+                    blocks=ExportingInstanceBrick.verbose_name,
+                )
+            ),
+            status_code=409,
+        )
+
+    def test_instance_bricks03(self):
+        "<My page> view."
+        self.login(is_staff=True)
+
+        naru = FakeContact.objects.create(
+            user=self.other_user, first_name='Naru', last_name='Narusegawa',
+        )
+
+        ibi = InstanceBrickConfigItem.objects.create(
+            brick_class_id=ExportingInstanceBrick.id_,
+            entity=naru,
+        )
+
+        BrickMypageLocation.objects.create(brick_id=ibi.brick_id, order=1)
+
+        self.assertContains(
+            self.client.get(self.URL),
+            escape(
+                _(
+                    'The configuration of blocks for «My page» cannot be exported '
+                    'because it contains references to some instance-blocks '
+                    '({blocks}), which are not managed.'
+                ).format(
+                    blocks=ExportingInstanceBrick.verbose_name,
+                )
+            ),
+            status_code=409,
         )
 
     def test_buttons(self):
