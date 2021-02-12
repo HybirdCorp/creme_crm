@@ -767,6 +767,7 @@ CREME_OPTLIB_JS = [
 
 CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.creme_config',  'creme_config/js/creme_config.js'),
+    ('creme.creme_config',  'creme_config/js/settings-menu.js'),
 
     ('creme.persons',       'persons/js/persons.js'),
 
