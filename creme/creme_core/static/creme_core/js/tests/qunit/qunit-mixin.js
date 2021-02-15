@@ -321,9 +321,7 @@
             });
         },
 
-        fakeDragNDrop: function(source, target, options) {
-            options = options || {};
-
+        fakeDragNDrop: function(source, target) {
             var dragPosition = source.offset();
             var dragOffset = {
                 left: source.width() / 2,
@@ -340,19 +338,19 @@
                 this.fakeMouseEvent('mousedown', {
                     position: dragPosition,
                     offset: dragOffset
-                }, options.mouseDown)
+                })
             );
 
             source.trigger(
                 this.fakeMouseEvent('mousemove', {
                     position: dropPosition
-                }, options.mouseMove)
+                })
             );
 
             target.trigger(
                 this.fakeMouseEvent('mouseup', {
                     position: dropPosition
-                }, options.mouseUp)
+                })
             );
         }
     };
