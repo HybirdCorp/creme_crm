@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        creme.initButtonMenuWidget($("#{{widget.attrs.id}}"), {
+        return new creme.ButtonMenuEditor($("#{{widget.attrs.id}}"), {
             optionsId: 'buttons-widget-choices'
         });
     });
