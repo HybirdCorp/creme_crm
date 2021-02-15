@@ -141,4 +141,59 @@ QUnit.test('creme.reports.ChartController (select chart)', function(assert) {
     equal('Ascending', element.find('.graph-controls-sort .graph-control-value').text());
 });
 
+QUnit.parameterize('creme.reports.ChartController (graphael converter)', [
+    [{}, []],
+    [{x: [1, 2]}, []],  // needs both x & y
+    [{y: [1, 2]}, []],  // needs both x & y
+    [
+        {x: [1, 2], y: [0.5, 1.47]},
+        [
+            [[1, 0.5, undefined], [2, 1.47, undefined]]
+        ]
+    ],
+    [ // take the shorter list from x & y
+        {x: [1, 2], y: [0.5, 1.47, 5.78]},
+        [
+            [[1, 0.5, undefined], [2, 1.47, undefined]]
+        ]
+    ],
+    [
+        {x: [1, 2, 3], y: [0.5, 1.47]},
+        [
+            [[1, 0.5, undefined], [2, 1.47, undefined]]
+        ]
+    ],
+    [ // x can be a string, y is converted to float
+        {x: ['1', '2'], y: ['0.5', '1.47']},
+        [
+            [['1', 0.5, undefined], ['2', 1.47, undefined]]
+        ]
+    ],
+    [
+        {x: ['A', 'B'], y: ['0.5', '1.47']},
+        [
+            [['A', 0.5, undefined], ['B', 1.47, undefined]]
+        ]
+    ],
+    [
+        {x: ['A', 'B'], y: ['X', 'Y']},
+        [
+            [['A', 0.0, undefined], ['B', 0.0, undefined]]
+        ]
+    ],
+    [ // y can be an array
+        {x: ['A', 'B'], y: [['0.5', 'YA'], ['1.47', 'YB']]},
+        [
+            [['A', 0.5, 'YA'], ['B', 1.47, 'YB']]
+        ]
+    ]
+], function(input, expected, assert) {
+    var output = creme.utils.convert(input, {
+        from: 'creme.graphael.BargraphData',
+        to: 'jqplotData'
+    });
+
+    deepEqual(output, expected);
+});
+
 }(jQuery));
