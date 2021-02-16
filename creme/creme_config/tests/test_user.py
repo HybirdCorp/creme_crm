@@ -308,7 +308,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertFormError(
             response, 'form', 'password_2',
-            _("The two password fields didn't match."),
+            # _("The two password fields didn't match."),
+            _("The two password fields didn’t match."),
         )
 
         response = self.assertPOST200(
@@ -629,7 +630,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             data={'password_1': password, 'password_2': password + '42'},
         )
         self.assertFormError(
-            response, 'form', 'password_2', _("The two password fields didn't match."),
+            # response, 'form', 'password_2', _("The two password fields didn't match."),
+            response, 'form', 'password_2', _("The two password fields didn’t match."),
         )
 
     @skipIfNotCremeUser

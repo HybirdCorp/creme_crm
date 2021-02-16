@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'CTI' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the PACKAGE package.
 #
-# > django-admin makemessages -l fr -i "tests.py"
+# > django-admin makemessages -l fr -i "tests.py" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme CTI 2.2\n"
+"Project-Id-Version: Creme CTI 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 19:19+0100\n"
+"POT-Creation-Date: 2021-02-16 10:17+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,61 +16,48 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:28
 msgid "Computer Telephony Integration"
 msgstr "Couplage Téléphonique Informatique"
 
-#: bricks.py:86
 msgid "All phone fields are hidden ; please contact your administrator."
 msgstr ""
 "Tous les champs téléphoniques sont cachés ; veuillez contacter votre "
 "administrateur."
 
-#: templates/cti/bricks/callers.html:7
 #, python-brace-format
 msgid "{count} Potential caller"
 msgstr "{count} Appelant possible"
 
-#: templates/cti/bricks/callers.html:7
 #, python-brace-format
 msgid "{count} Potential callers"
 msgstr "{count} Appelants possibles"
 
-#: templates/cti/bricks/callers.html:7
 msgid "Potential callers"
 msgstr "Appelants possibles"
 
-#: templates/cti/bricks/callers.html:19
 msgid "Entity"
 msgstr "Fiche"
 
-#: templates/cti/bricks/callers.html:20
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/cti/bricks/callers.html:24
 msgid "Create a phone call"
 msgstr "Créer un appel téléphonique"
 
-#: templates/cti/bricks/callers.html:36
 #, python-format
 msgid "No contact/organisation corresponds to this number : %(number)s"
 msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
 
-#: utils.py:52
 msgid "Call"
 msgstr "Appeler"
 
-#: views.py:212
 #, python-brace-format
 msgid "Call to {entity}"
 msgstr "Appel à {entity}"
 
-#: views.py:222
 msgid "Automatically created by CTI"
 msgstr "Créé automatiquement par CTI"
 
-#: views.py:289
 msgid "Phone call successfully created."
 msgstr "Appel téléphonique créé avec succès."
 

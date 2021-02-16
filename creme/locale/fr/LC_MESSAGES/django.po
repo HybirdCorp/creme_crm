@@ -2,13 +2,13 @@
 # Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -l fr -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*"
+# > django-admin makemessages -l fr  --no-location -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme 2.2\n"
+"Project-Id-Version: Creme 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-28 16:32+0100\n"
+"POT-Creation-Date: 2021-02-16 10:17+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,72 +16,55 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: settings.py:145
 msgid "Format: Day-Month-Year (Ex:31-12-2021)"
 msgstr "Format : Jour-Mois-Année (Ex:31-12-2021)"
 
-#: settings.py:160
 msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2021 23:59:59)"
 msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2021 23:59:59)"
 
-#: settings.py:534
 msgid "Ice cream"
 msgstr "Crème glacée"
 
-#: settings.py:535
 msgid "Chantilly"
 msgstr "Chantilly"
 
-#: templates/400.html:6
 msgid "Creme — 400 Error"
 msgstr "Creme — Erreur 400"
 
-#: templates/400.html:8
 msgid "Bad request."
 msgstr "Mauvaise requête."
 
-#: templates/403.html:6
 msgid "Creme — 403 Error"
 msgstr "Creme — Erreur 403"
 
-#: templates/403.html:8
 msgid "Your are not allowed to access this page."
 msgstr "Vous n'êtes pas autorisé à accéder à cette page."
 
-#: templates/404.html:21
 msgid "Creme — 404 Error"
 msgstr "Creme — Erreur 404"
 
-#: templates/404.html:24
 msgid "The page you have requested is not found."
 msgstr "La page que vous avez demandée est introuvable."
 
-#: templates/404.html:26
 msgid "Details"
 msgstr "Détails"
 
-#: templates/404.html:28
 msgid "Hide details"
 msgstr "Cacher les détails"
 
-#: templates/409.html:6
 msgid "Creme — 409 Error"
 msgstr "Creme — Erreur 409"
 
-#: templates/409.html:8
 msgid "You can not perform this action because of business constraints."
 msgstr ""
 "Vous ne pouvez pas effectuer cette action à cause de contraintes métier."
 
-#: templates/500.html:6
 msgid "Creme — 500 Error"
 msgstr "Creme — Erreur 500"
 
-#: templates/about/base.html:6 templates/about/base.html:142
 msgid "About CremeCRM"
 msgstr "À propos de CremeCRM"
 
-#: templates/about/base.html:146
 #, python-format
 msgid ""
 "<strong>%(software)s</strong> is a <a href=\"https://en.wikipedia.org/wiki/"
@@ -96,7 +79,6 @@ msgstr ""
 "Logiciel_libre\">libre</a>, cuisiné en France depuis 2008, par <strong>"
 "%(creator)s</strong>."
 
-#: templates/about/base.html:147
 #, python-format
 msgid ""
 "Its recipe uses delicious & free ingredients like the %(python)s language, "
@@ -105,52 +87,40 @@ msgstr ""
 "Sa recette utilise des ingrédients délicieux & libres comme le langage "
 "%(python)s, le framework web %(django)s ou la bibliothèque %(jquery)s."
 
-#: templates/about/base.html:151 templates/footer/base.html:21
 #, python-format
 msgid "Version %(creme_version)s"
 msgstr "Version %(creme_version)s"
 
-#: templates/about/base.html:155
 msgid "Source code"
 msgstr "Code source"
 
-#: templates/about/base.html:156
 msgid "Ask questions"
 msgstr "Poser des questions"
 
-#: templates/about/base.html:157
 msgid "Talk with us"
 msgstr "Discuter avec nous"
 
-#: templates/authent/base.html:7
 msgid "Connection"
 msgstr "Connexion"
 
-#: templates/authent/base.html:421
 msgid "Log to <span class=\"app-label\">Crème CRM</span>"
 msgstr "Se connecter à <span class=\"app-label\">Crème CRM</span>"
 
-#: templates/authent/base.html:429
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: templates/authent/base.html:435
 msgid "Password"
 msgstr "Mot de passe"
 
-#: templates/authent/base.html:442
 msgid "Log in"
 msgstr "Se connecter"
 
-#: templates/error-base.html:6
 msgid "Error !"
 msgstr "Erreur !"
 
-#: templates/error-base.html:130
 msgid "An internal error has occurred."
 msgstr "Une erreur interne s'est produite."
 
-#: templates/footer/base.html:20
 #, python-format
 msgid ""
 "<strong>%(software)s</strong> is free/OpenSource software, cooked in France "
@@ -159,10 +129,8 @@ msgstr ""
 "<strong>%(software)s</strong> est un logiciel libre, cuisiné en France "
 "depuis 2008, par <strong>%(creator)s</strong>"
 
-#: templates/footer/base.html:31
 msgid "About"
 msgstr "À propos"
 
-#: templates/footer/base.html:34
 msgid "Forum"
 msgstr "Forum"

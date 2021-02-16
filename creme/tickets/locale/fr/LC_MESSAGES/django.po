@@ -1,40 +1,34 @@
 # FR LOCALISATION OF 'TICKETS' APP
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -l fr -i tests.py
+# > django-admin makemessages -l fr -i tests.py --no-location
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Tickets 2.2\n"
+"Project-Id-Version: Creme Tickets 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-14 19:09+0100\n"
+"POT-Creation-Date: 2021-02-16 10:17+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 models/ticket.py:88
 msgid "Tickets"
 msgstr "Tickets"
 
-#: apps.py:96
 msgid "Tools"
 msgstr "Outils"
 
-#: apps.py:111
 msgid "Tickets not closed"
 msgstr "Tickets non fermés"
 
-#: bricks.py:31
 msgid "Information on the ticket"
 msgstr "Informations sur le ticket"
 
-#: buttons.py:30
 msgid "Is linked to a ticket"
 msgstr "Est lié à un ticket"
 
-#: buttons.py:32
 msgid ""
 "This button links the current entity to a selected ticket, using the "
 "relationship type «is linked to the ticket».\n"
@@ -44,89 +38,69 @@ msgstr ""
 "le type de relation «est lié au ticket».\n"
 "App: Tickets"
 
-#: custom_forms.py:17
 msgid "Creation form for ticket"
 msgstr "Formulaire de création de ticket"
 
-#: custom_forms.py:24
 msgid "Edition form for ticket"
 msgstr "Formulaire de modification de ticket"
 
-#: custom_forms.py:30
 msgid "Creation form for ticket template"
 msgstr "Formulaire de création de patron"
 
-#: custom_forms.py:37
 msgid "Edition form for ticket template"
 msgstr "Formulaire de modification de patron"
 
-#: function_fields.py:31
 msgid "Resolving duration"
 msgstr "Temps de résolution"
 
-#: models/criticity.py:31 models/priority.py:31 models/status.py:52
 msgid "Name"
 msgstr "Nom"
 
-#: models/criticity.py:32 models/priority.py:32 models/status.py:62
 msgid "Order"
 msgstr "Ordre"
 
-#: models/criticity.py:34
 msgctxt "tickets-criticality"
 msgid "Create a criticality"
 msgstr "Créer une criticité"
 
-#: models/criticity.py:41
 msgid "Ticket criticality"
 msgstr "Criticité de ticket"
 
-#: models/criticity.py:42
 msgid "Ticket criticalities"
 msgstr "Criticités de ticket"
 
-#: models/priority.py:34
 msgctxt "tickets-priority"
 msgid "Create a priority"
 msgstr "Créer une priorité"
 
-#: models/priority.py:41
 msgid "Ticket priority"
 msgstr "Priorité de ticket"
 
-#: models/priority.py:42
 msgid "Ticket priorities"
 msgstr "Priorités de ticket"
 
-#: models/status.py:42
 msgctxt "tickets-status"
 msgid "Open"
 msgstr "Ouvert"
 
-#: models/status.py:43
 msgctxt "tickets-status"
 msgid "Closed"
 msgstr "Fermé"
 
-#: models/status.py:44
 msgctxt "tickets-status"
 msgid "Invalid"
 msgstr "Invalide"
 
-#: models/status.py:45
 msgctxt "tickets-status"
 msgid "Duplicated"
 msgstr "Dupliqué"
 
-#: models/status.py:46
 msgid "Won't fix"
 msgstr "Ne sera pas corrigé"
 
-#: models/status.py:54
 msgid "Is a \"closed\" status?"
 msgstr "Est un statut \"fermé\" ?"
 
-#: models/status.py:57
 msgid ""
 "If you set as closed, existing tickets which use this status will not be "
 "updated automatically (ie: closing dates will not be set)."
@@ -135,160 +109,122 @@ msgstr ""
 "ne seront pasautomatiquement mis à jour (c-à-d: les date de clôture ne "
 "seront pas renseignées)."
 
-#: models/status.py:64
 msgctxt "tickets-status"
 msgid "Create a status"
 msgstr "Créer un statut"
 
-#: models/status.py:71
 msgid "Ticket status"
 msgstr "Statut de ticket"
 
-#: models/status.py:72
 msgid "Ticket statuses"
 msgstr "Statuts de ticket"
 
-#: models/ticket.py:52
 msgid "Title"
 msgstr "Titre"
 
-#: models/ticket.py:54
 msgid "Status"
 msgstr "Statut"
 
-#: models/ticket.py:57
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/ticket.py:60
 msgid "Criticity"
 msgstr "Criticité"
 
-#: models/ticket.py:62
 msgid "Solution"
 msgstr "Solution"
 
-#: models/ticket.py:74
 msgid "Number"
 msgstr "Numéro"
 
-#: models/ticket.py:77
 msgid "Closing date"
 msgstr "Date de clôture"
 
-#: models/ticket.py:80
 msgid "Create a ticket"
 msgstr "Créer un ticket"
 
-#: models/ticket.py:81
 msgid "Save the ticket"
 msgstr "Enregistrer le ticket"
 
-#: models/ticket.py:87 templates/tickets/buttons/linked.html:1
 msgid "Ticket"
 msgstr "Ticket"
 
-#: models/ticket.py:145
 msgid "Create a ticket template"
 msgstr "Créer un patron de ticket"
 
-#: models/ticket.py:146
 msgid "Save the ticket template"
 msgstr "Enregistrer le patron de ticket"
 
-#: models/ticket.py:152
 msgid "Ticket template"
 msgstr "Patron de ticket"
 
-#: models/ticket.py:153
 msgid "Ticket templates"
 msgstr "Patrons de ticket"
 
-#: populate.py:65
 msgid "is linked to the ticket"
 msgstr "est lié au ticket"
 
-#: populate.py:66
 msgid "(ticket) linked to the entity"
 msgstr "(ticket) lié à la fiche"
 
-#: populate.py:94
 msgid "Ticket view"
 msgstr "Vue de Ticket"
 
-#: populate.py:107
 msgid "Ticket template view"
 msgstr "Vue de patron de ticket"
 
-#: populate.py:119
 msgid "Description"
 msgstr "Description"
 
 # Already in creme_core
-#: populate.py:124
 msgid "Custom fields"
 msgstr ""
 
 # Already in creme_core
-#: populate.py:135
 msgid "Properties"
 msgstr ""
 
 # Already in creme_core
-#: populate.py:143
 msgid "Relationships"
 msgstr ""
 
 # Already in creme_core
-#: populate.py:157 populate.py:178 populate.py:197
 msgid "General information"
 msgstr ""
 
-#: populate.py:244
 msgid "Low"
 msgstr "Basse"
 
-#: populate.py:244
 msgid "Normal"
 msgstr "Normale"
 
-#: populate.py:244
 msgid "High"
 msgstr "Haute"
 
-#: populate.py:244
 msgid "Urgent"
 msgstr "Urgente"
 
-#: populate.py:244
 msgid "Blocking"
 msgstr "Bloquante"
 
-#: populate.py:251
 msgid "Minor"
 msgstr "Mineure"
 
-#: populate.py:251
 msgid "Major"
 msgstr "Majeure"
 
-#: populate.py:252
 msgid "Feature"
 msgstr "Fonctionnalité"
 
-#: populate.py:252
 msgid "Critical"
 msgstr "Critique"
 
-#: populate.py:252
 msgid "Enhancement"
 msgstr "Amélioration"
 
-#: populate.py:253
 msgid "Error"
 msgstr "Erreur"
 
-#: templates/tickets/buttons/linked.html:5
 msgid "Link to a ticket"
 msgstr "Lier à un ticket"
 

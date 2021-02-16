@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'EMAILS' APP (JavaScript only)
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -d djangojs -l fr -i "static/emails/js/tests/*"
+# > django-admin makemessages -d djangojs -l fr -i "static/emails/js/tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Emails 2.1\n"
+"Project-Id-Version: Creme Emails 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 18:29+0100\n"
+"POT-Creation-Date: 2021-02-16 10:17+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,20 +17,16 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 # Already in creme_core
-#: static/emails/js/emails.js:72
 msgid "Please select at least one entity."
 msgstr ""
 
-#: static/emails/js/emails.js:86 static/emails/js/emails.js:96
 msgid "Nothing is selected."
 msgstr "Rien n'est sélectionné."
 
 # Already in creme_core
-#: static/emails/js/emails.js:149
 msgid "Error"
 msgstr ""
 
-#: static/emails/js/emails.js:172
 msgid "Please select at least one e-mail."
 msgstr "Veuillez sélectionner au moins un e-mail."
 

@@ -21,8 +21,8 @@
 # import warnings
 from collections import defaultdict
 
+from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model, password_validation
-from django.contrib.auth.forms import UsernameField
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.utils import ValidationError
 from django.forms.widgets import PasswordInput
@@ -60,7 +60,8 @@ CremeUser = get_user_model()
 class UserAddForm(CremeModelForm):
     # Copied from django.contrib.auth.forms.UserCreationForm
     error_messages = {
-        'password_mismatch': _("The two password fields didn't match."),
+        # 'password_mismatch': _("The two password fields didn't match."),
+        'password_mismatch': auth_forms.UserCreationForm.error_messages['password_mismatch'],
     }
 
     password_1 = CharField(
@@ -83,7 +84,7 @@ class UserAddForm(CremeModelForm):
     class Meta:
         model = CremeUser
         fields = ('username', 'last_name', 'first_name', 'email', 'role')  # 'is_superuser'
-        field_classes = {'username': UsernameField}
+        field_classes = {'username': auth_forms.UsernameField}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -156,7 +157,8 @@ class UserEditForm(CremeModelForm):
 #     attribute like us (but it correspond to our 'user2edit' one, not our 'user' one)
 class UserChangePwForm(CremeForm):
     error_messages = {
-        'password_mismatch': _("The two password fields didn't match."),
+        # 'password_mismatch': _("The two password fields didn't match."),
+        'password_mismatch': auth_forms.SetPasswordForm.error_messages['password_mismatch'],
     }
 
     password_1 = CharField(
