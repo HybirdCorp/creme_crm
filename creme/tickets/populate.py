@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -117,11 +118,13 @@ class Populator(BasePopulator):
         common_groups_desc = [
             {
                 'name': _('Description'),
+                'layout': LAYOUT_DUAL_SECOND,
                 'cells': [
                     (EntityCellRegularField, {'name': 'description'}),
                 ],
             }, {
                 'name': _('Custom fields'),
+                'layout': LAYOUT_DUAL_SECOND,
                 'cells': [
                     (
                         EntityCellCustomFormSpecial,
@@ -155,6 +158,7 @@ class Populator(BasePopulator):
             groups_desc=[
                 {
                     'name': _('General information'),
+                    'layout': LAYOUT_DUAL_FIRST,
                     'cells': [
                         (EntityCellRegularField, {'name': 'user'}),
                         (EntityCellRegularField, {'name': 'title'}),

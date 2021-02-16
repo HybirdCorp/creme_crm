@@ -1,16 +1,17 @@
-/* retarget to editforms as it was mistakenly applied to some detailviews */
-#editforms {
+/* #editforms { */
+div.form-container {
     padding-bottom: 10px;
 }
 
+/*
 #editforms form .table_detail_view {
     border-spacing: 0;
     border-collapse: collapse;
-    border-bottom: 0; /* distribute the existing 1px border into the last row to prevent a Chrome bug (dual column form, rightmost form: the border at the bottom of the last cell is hidden) */
+    border-bottom: 0; // distribute the existing 1px border into the last row to prevent a Chrome bug (dual column form, rightmost form: the border at the bottom of the last cell is hidden)
 }
 
 #editforms form .table_detail_view tbody tr:last-child {
-    border-bottom: 1px solid #ccc; /* table border distributed in the last row */
+    border-bottom: 1px solid #ccc; // table border distributed in the last row
 }
 
 #editforms form .table_detail_view .block_header_line_light,
@@ -21,12 +22,12 @@
 #editforms form .table_detail_view .block_header_line_dark,
 #editforms form .table_detail_view .block_line_dark {
     background: #fcfcfc;
-
 }
 
 #editforms form .table_detail_view tbody tr:not(:last-child) {
     border-bottom: 1px solid #ddd;
 }
+*/
 
 /* Layout */
 
@@ -38,7 +39,7 @@
 
 .form-container-blocks .form-layout-regular,
 .form-container-blocks .form-layout-dual-columns {
-    width:99.9%;
+    width: 99.9%;
 }
 
 .form-container-blocks .form-layout-dual-columns .dual-column {
@@ -62,7 +63,144 @@
     margin-top: 15px;
 }
 
+.form-container .form-block {
+    width: 100%;
+    display: inline-block;
+
+    background: white;
+}
+
+.form-container-blocks .form-block {
+    border-left: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    border-right: 1px solid #d9d9d9;
+
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+}
+
+.form-container .form-block-errors {
+    width: 100%;
+    display: inline-block;
+
+    background: #fef1ec;
+
+    border: 2px solid #ffa3a3;
+    border-radius: 3px;
+
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+}
+
+.form-container .form-block + .form-block {
+    margin-top: 15px;
+}
+
+.form-container .form-block-errors {
+    margin-bottom: 15px;
+}
+
 /* Layout - end */
+
+/* Blocks */
+
+.form-block-errors .form-block-errors-header {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    height: 26px;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffd4c4;
+}
+
+.form-block-errors .form-block-errors-header .form-block-errors-title {
+    padding-left: 10px;
+
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #612f2f;
+    font-weight: 600;
+}
+
+.form-block-errors .form-block-errors-content .errorlist {
+    border: none;
+    background: none;
+}
+
+.form-block .form-block-header {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    height: 26px;
+
+    margin: 0;
+    padding: 0;
+
+    background: #f5f5f5;
+
+    border-top: 1px solid #d9d9d9;
+    border-bottom: 1px solid #dedede;
+}
+
+.form-block .form-block-header .form-block-title {
+    padding-left: 10px;
+
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+}
+
+.form-block .form-block-field {
+    padding-right: 8px;
+    padding-left: 8px;
+    padding-bottom: 8px;
+}
+
+.form-block .form-block-fields {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: auto 1fr;
+
+    padding: 10px;
+    padding-top: 0;
+}
+
+.form-block .form-block-fields label {
+    padding: 10px;
+
+    border-top: 1px solid #d9d9d9;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+}
+
+.form-block .form-block-field-value {
+    padding-top: 10px;
+    border-top: 1px solid #d9d9d9;
+}
+
+.form-block .form-block-field .form-block-field-value,
+.form-block .form-block-fields label:first-child,
+.form-block .form-block-fields label:first-child + .form-block-field-value {
+    border-top: none;
+}
+
+.form-block .form-block-field .form-block-field-value ul.errorlist,
+.form-block .form-block-fields .form-block-field-value ul.errorlist {
+    margin-top: 0px;
+}
+
+/* Blocks - end */
 
 div.submit_buttons {
     margin-top: 20px;
@@ -73,6 +211,7 @@ div.submit_buttons a {
     padding-left: 20px;
 }
 
+/*
 input,
 textarea,
 select,
@@ -83,9 +222,22 @@ label {
     font-family: 'Open Sans', 'Verdana', sans-serif;
     font-size: 13px;
 }
+*/
+input,
+textarea,
+select,
+.ui-widget input,
+.ui-widget textarea,
+.ui-widget select {
+    font-size: 13px;
+}
 
 input, textarea {
     padding-left: 5px;
+}
+
+.form-block-field-value textarea {
+    width: 99%;
 }
 
 select {
@@ -130,6 +282,7 @@ ul.multi-select {
     padding: 0;
 }
 
+/*
 table.block-form thead tr th {
     border-bottom: 1px solid #dedede;
 
@@ -141,14 +294,17 @@ table.block-form thead tr th {
 .block-form td button {
     padding: 0 6px;
 }
+*/
 
+/*
 form .table_detail_view .td_info > input,
 form .table_detail_view .td_info > select,
 form .table_detail_view .td_info > textarea {
     width: 45%;
 }
+*/
 
-/* TODO: this shouldn't be done to all inputs, it creates problems with checkboxes or radiobuttons (centering them in wide cells in FF, Chrome, IE), see next todo. Needs to be applied to specific form widgets only */
+/* todo: this shouldn't be done to all inputs, it creates problems with checkboxes or radiobuttons (centering them in wide cells in FF, Chrome, IE), see next todo. Needs to be applied to specific form widgets only
 form .table_detail_view.dual_column .td_info > input,
 form .table_detail_view.dual_column .td_info > select,
 form .table_detail_view.dual_column .td_info > textarea,
@@ -157,19 +313,27 @@ form .table_detail_view.dual_column .td_info > textarea,
 .ui-dialog-content form .table_detail_view .td_info > textarea {
     width: 98.5%;
 }
+ */
 
-/* TODO: this looks more like it's fixing a bug in the previous rules setting the input width to 100% than anything specific to Chrome & Opera.
+/* todo: this looks more like it's fixing a bug in the previous rules setting the input width to 100% than anything specific to Chrome & Opera.
 The forms templates need to be cleaned up, in addition to the previous rules about input widths.
-*/
 .table_detail_view .td_info > input[type="checkbox"],
-.table_detail_view.dual_column .td_info > input[type="checkbox"], .ui-dialog-content form .table_detail_view .td_info > input[type="checkbox"] {/* Fix for chrome & opera */
+.table_detail_view.dual_column .td_info > input[type="checkbox"], .ui-dialog-content form .table_detail_view .td_info > input[type="checkbox"] { // Fix for chrome & opera
     width: auto;
     margin-left: 0;
 }
+*/
 
+/*
 .ui-dialog-content form .table_detail_view .td_info > input.hasDatepicker,
 form .table_detail_view.dual_column .td_info > input.hasDatepicker {
     width: 75%;
+}
+*/
+
+.form-block-field-value ul.ui-layout,
+.form-block-field-value input {
+    margin-bottom: 5px;
 }
 
 input.dperiod-value {
@@ -225,20 +389,29 @@ ul.optional-widget {
     max-width: 5%;
 }
 
+/*
 form .table_detail_view .li_merge_entity1 input,
 form .table_detail_view .li_merge_entity1 textarea {
+*/
+.form-container .form-block .li_merge_entity1 input,
+.form-container .form-block .li_merge_entity1 textarea {
     color: #5a92ab;
     background: #edf9ff;
     border: 1px solid #bbe0f0;
 }
 
+/*
 form .table_detail_view .li_merge_entity2 input,
 form .table_detail_view .li_merge_entity2 textarea {
+*/
+.form-container .form-block .li_merge_entity2 input,
+.form-container .form-block .li_merge_entity2 textarea {
     color: #d87d72;
     background: #ffedeb;
     border: 1px solid #f9c9c4;
 }
 
+/*
 form .table_detail_view .merge_entity1 {
     width: 99%;
     color: #5a92ab;
@@ -256,6 +429,7 @@ form .table_detail_view .merge_entity2 {
 form .table_detail_view .merge_result {
     width: 99%;
 }
+*/
 
 /* HEADER FILTER */
 

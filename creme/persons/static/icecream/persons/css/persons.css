@@ -173,17 +173,26 @@
 
 /* Address in forms */
 
-/*
-#editforms form .table_detail_view#billing_table tbody > tr:first-child,
-#editforms form .table_detail_view#shipping_table tbody > tr:first-child {
-    border-bottom: none;
+.persons-form_block-addresses .persons-form_block-addresses-inner-headers,
+.persons-form_block-addresses .persons-form_block-addresses-buttons-container,
+.persons-form_block-addresses .persons-form_block-addresses-fields-container {
+    display: flex;
+    flex-direction: row;
 }
-*/
 
 .persons-form_block-addresses .persons-form_block-addresses-inner-header {
     text-transform: uppercase;
+    font-weight: 700;
+    color: #4d4d4d;
 }
 
+.persons-form_block-addresses .persons-form_block-addresses-buttons {
+    flex-grow: 1;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+/*
 .persons-form_block-addresses .persons-form_block-addresses-inner-header-buttons .addresses-copy_to_left {
     float: left;
 }
@@ -191,7 +200,16 @@
 .persons-form_block-addresses .persons-form_block-addresses-inner-header-buttons .addresses-copy_to_right {
     float: right;
 }
+*/
+.persons-form_block-addresses .persons-form_block-addresses-buttons .addresses-copy_to_left {
+    float: left;
+}
 
+.persons-form_block-addresses .persons-form_block-addresses-buttons .addresses-copy_to_right {
+    float: right;
+}
+
+/*
 .persons-form_block-addresses .td_info,
 .persons-form_block-addresses .th_info {
     width: auto;
@@ -206,6 +224,16 @@ form .table_detail_view.persons-form_block-addresses .td_info>textarea {
 .persons-form_block-addresses .persons-form_block-addresses-inner-header-buttons + .persons-form_block-addresses-inner-header-buttons,
 .persons-form_block-addresses tbody td + th  {
     border-left: 2px solid #ccc;
+}
+*/
+
+.persons-form_block-addresses .persons-form_block-addresses-inner-header {
+    flex-grow: 1;
+    margin: 5px;
+}
+
+.persons-form_block-addresses .form-block-fields {
+    flex-grow: 1;
 }
 
 /* Address in forms - [end] */

@@ -182,6 +182,7 @@ button.reports-chart-selectors-refresh {
 /* Report preview */
 /* TODO: remove/rework this shit when form HTML/CSS has been reworked */
 
+/*
 div.report-preview {
     padding-top: 20px;
 }
@@ -197,6 +198,32 @@ div.report-preview {
     background: #e9f6fb;
     color: black;
     font-size: 14px;
+}
+*/
+.report-preview-header {
+    overflow-x: auto;
+    margin-bottom: 10px;
+}
+
+.reports-form_block-preview {
+    margin-right: 10%;
+
+    border-left: 1px solid #bdd3dc;
+    border-bottom: 1px solid #bdd3dc;
+    border-right: 1px solid #bdd3dc;
+
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+       -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+}
+
+.form-block .form-block-fields .report-preview-errors-label {
+    color: #b92222;
+    font-weight: 700;
+}
+
+.report-preview-buttons {
+    margin-top: 3px;
 }
 
 /* Report preview - end */

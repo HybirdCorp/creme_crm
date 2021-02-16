@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -127,7 +127,7 @@ def persons_contact_first_employer(contact, user):
 
 # TODO: unit test
 @register.simple_tag
-def persons_addresses_formblock_fields(form, address_fks):
+def persons_addresses_formblock_fields(form, address_fks, zip_fields=True):
     if not address_fks:
         return None
 
@@ -150,5 +150,6 @@ def persons_addresses_formblock_fields(form, address_fks):
 
     return {
         'grouped_meta': meta,
-        'grouped_fields': [*zip(*grouped_fields)],
+        # 'grouped_fields': [*zip(*grouped_fields)],
+        'grouped_fields': [*zip(*grouped_fields)] if zip_fields else grouped_fields,
     }

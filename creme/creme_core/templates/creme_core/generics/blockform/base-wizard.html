@@ -50,6 +50,7 @@
             {% endfor %}
 
             {% if form.non_field_errors %}
+{% comment %}
                 <table class="table_detail_view ui-corner-all">
                     <thead>
                         <tr>
@@ -62,6 +63,15 @@
                         </tr>
                     </tbody>
                 </table>
+{% endcomment %}
+                <div class="form-block-errors">
+                    <div class="form-block-errors-header">
+                        <span class="form-block-errors-title">{% translate 'Global errors' %}</span>
+                    </div>
+                    <div class="form-block-errors-content">
+                        {{form.non_field_errors}}
+                    </div>
+                </div>
             {% endif %}
 
             {% block main_content %}

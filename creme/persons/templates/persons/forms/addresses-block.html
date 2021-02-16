@@ -1,4 +1,59 @@
 {% load i18n creme_core_tags persons_tags %}
+{% persons_addresses_formblock_fields form=form address_fks=form_block.template_context.address_fields zip_fields=False as fields_info %}
+{% if fields_info %}
+    {% with meta=fields_info.grouped_meta grouped_fields=fields_info.grouped_fields %}
+    {% with count=meta|length %}
+    <div data-field-block-id="{{form_block.id}}" class="form-block persons-form_block-addresses">
+        <div class="form-block-header">
+            <span class="form-block-title">{% if count == 1 %}{{fields_info.grouped_meta.0.title}}{% else %}{% translate 'Addresses' %}{% endif %}</span>
+        </div>
+
+        {% if count > 1 %}
+        <div class="persons-form_block-addresses-inner-headers">
+            {% for meta in fields_info.grouped_meta %}
+            <div class="persons-form_block-addresses-inner-header">{{meta.title}}</div>
+            {% endfor %}
+        </div>
+        <div class="persons-form_block-addresses-buttons-container">
+            {% for meta in fields_info.grouped_meta %}
+            <div class="persons-form_block-addresses-buttons">
+                {% if not forloop.first %}
+                    {% with previous_idx=forloop.counter0|sub:1 %}
+                    {% with previous_meta=fields_info.grouped_meta|get_by_index:previous_idx %}
+                    <button class="addresses-copy_to_left" type="button" onclick="creme.persons.copyAddressInputs('{{meta.prefix}}', '{{previous_meta.prefix}}', $(this).parents('.persons-form_block-addresses'));">
+                        <<&nbsp;{% translate  'Copy the address to left side' %}
+                    </button>
+                    {% endwith %} {% endwith %}
+                {% endif %}
+                {% if not forloop.last %}
+                   {% with next_meta=fields_info.grouped_meta|get_by_index:forloop.counter %}
+                    <button class="addresses-copy_to_right" type="button" onclick="creme.persons.copyAddressInputs('{{meta.prefix}}', '{{next_meta.prefix}}', $(this).parents('.persons-form_block-addresses'));">
+                        {% translate  'Copy the address to right side' %}&nbsp;>>
+                    </button>
+                    {% endwith %}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="persons-form_block-addresses-fields-container">
+            {% for fields in grouped_fields %}
+            <div class="form-block-fields">
+                {% for field in fields %}
+                <label for="{{field.auto_id}}">{{field.label}} {% if field.field.required %}<span class="required-mark">*</span>{% endif %}</label>
+                <div class="form-block-field-value">
+                    {% if field.help_text %}<div class="help-text">{{field.help_text|linebreaksbr}}</div>{% endif %}
+                    {{field.errors}} {{field}}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endwith %}{% endwith %}
+{% endif %}
+{% comment %}
 {% persons_addresses_formblock_fields form=form address_fks=form_block.template_context.address_fields as fields_info %}
 {% if fields_info %}
     {% with meta=fields_info.grouped_meta grouped_fields=fields_info.grouped_fields %}
@@ -58,3 +113,4 @@
     </table>
     {% endwith %}{% endwith %}
 {% endif %}
+{% endcomment %}

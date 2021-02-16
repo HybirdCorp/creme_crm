@@ -1,4 +1,31 @@
 {% load i18n creme_core_tags %}
+<div class="form-block reports-form_block-preview">
+    <div class="form-block-header">
+        <span class="form-block-title">{% translate 'Export parameters' %}</span>
+    </div>
+
+    <div class="form-block-fields">
+        {% if form.non_field_errors %}
+            <label class="report-preview-errors-label">{% translate 'Global errors' %}</label>
+            <div class="report-preview-errors">
+                {{form.non_field_errors}}
+            </div>
+        {% endif %}
+
+        <label for="{{form.doc_type.auto_id}}">{{form.doc_type.label}}</label>
+        <div class="form-block-field-value">{{form.doc_type.errors}}{{form.doc_type}}</div>
+
+        <label for="{{form.date_filter.auto_id}}">{{form.date_filter.label}}</label>
+        <div class="form-block-field-value">
+            {{form.date_filter.errors}}
+            <ul class="ui-layout hbox">
+                <li>{{form.date_field}}</li>
+                <li class="date-filter">{{form.date_filter}}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% comment %}
 <table class="table_detail_view ui-corner-all block-form">
     <thead>
         <tr>
@@ -31,3 +58,4 @@
         </tr>
     </tbody>
 </table>
+{% endcomment %}
