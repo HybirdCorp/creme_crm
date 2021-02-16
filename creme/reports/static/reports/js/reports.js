@@ -160,10 +160,12 @@ creme.reports.PreviewController = creme.component.Component.sub({
         };
     },
 
+    isBound: function() {
+        return this._header !== undefined;
+    },
+
     bind: function(element) {
-        if (this._header !== undefined) {
-            throw new Error('creme.reports.PreviewController is already bound.');
-        }
+        Assert.not(this.isBound(), 'creme.reports.PreviewController is already bound.');
 
         var listeners = this._listeners;
         var header = this._header = $('.report-preview-header', element);
@@ -176,7 +178,9 @@ creme.reports.PreviewController = creme.component.Component.sub({
         return this;
     },
 
-    unbind: function(element) {
+    unbind: function() {
+        Assert.that(this.isBound(), 'creme.reports.PreviewController is not bound.');
+
         var listeners = this._listeners;
         var header = this._header;
 
