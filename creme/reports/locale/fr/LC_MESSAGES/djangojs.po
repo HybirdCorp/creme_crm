@@ -1,11 +1,11 @@
 # FR LOCALISATION OF 'REPORTS' APP (JavaScript only)
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -d djangojs -l fr -i "static/reports/js/tests/*"
+# > django-admin makemessages -d djangojs -l fr -i "static/reports/js/tests/*" --no-location
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 2.1\n"
+"Project-Id-Version: Creme Reports 2.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-28 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"

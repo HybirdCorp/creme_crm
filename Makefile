@@ -198,94 +198,94 @@ gettext-collect:
 		for appdir in ${appdirs}; do (\
 			pushd $${appdir} > /dev/null && \
 				echo "Building messages $$(pwd)..." && \
-				django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -i "tests.py" -e "html,txt,py,xml" && \
-				django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "*/js/tests/*" -e js && \
+				django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -i "tests.py" -e "html,txt,py,xml" --no-location && \
+				django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "*/js/tests/*" -e js --no-location && \
 			popd > /dev/null \
 		); done; \
 	else \
 		pushd ./creme/products && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/opportunities && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/mobile && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/reports && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/reports/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*"  --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/reports/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/creme_core && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -i "templates/creme_core/tests/*" && \
-			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/creme_core/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -i "templates/creme_core/tests/*" --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/creme_core/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/sms && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/events && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py --no-location && \
 			popd; \
 		pushd ./creme/projects && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py && \
-			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/projects/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/projects/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/crudity && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -e py -e html -e xml && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" -e py -e html -e xml --no-location && \
 			popd; \
 		pushd ./creme/emails && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/emails/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/emails/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/tickets && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py --no-location && \
 			popd; \
 		pushd ./creme/commercial && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} --no-location -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*" && \
 			popd; \
 		pushd ./creme/graphs && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i tests.py --no-location && \
 			popd; \
 		pushd ./creme/polls && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/assistants && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/activities && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/activities/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/activities/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/creme_config && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/vcfs && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/recurrents && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/documents && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			popd; \
 		pushd ./creme/cti && \
-			django-admin makemessages -l ${CREME_LANGUAGE}  -i "tests.py" && \
-			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/cti/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE}  -i "tests.py" --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/cti/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/persons && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/persons/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/persons/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/geolocation && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/geolocation/js/tests/*" && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/geolocation/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/billing && \
-			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" && \
-			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} --no-location && \
 			popd; \
 	fi
 

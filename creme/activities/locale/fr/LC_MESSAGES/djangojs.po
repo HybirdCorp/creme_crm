@@ -2,13 +2,13 @@
 # Copyright (C) 2020 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -d djangojs -l fr -i "static/activities/js/tests/*"
+# > django-admin makemessages -d djangojs -l fr -i "static/activities/js/tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Activities 2.2\n"
+"Project-Id-Version: Creme Activities 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 21:41+0100\n"
+"POT-Creation-Date: 2021-02-16 10:17+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,112 +16,84 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/activities/js/activities-calendar.js:58
 msgid "All day"
 msgstr "Toute la journée"
 
-#: static/activities/js/activities-calendar.js:81
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: static/activities/js/activities-calendar.js:82
 msgid "Month"
 msgstr "Mois"
 
-#: static/activities/js/activities-calendar.js:83
-#: static/activities/js/activities-calendar.js:548
 msgid "Week"
 msgstr "Semaine"
 
-#: static/activities/js/activities-calendar.js:84
 msgid "Day"
 msgstr "Jour"
 
-#: static/activities/js/activities-calendar.js:87
 msgid "January"
 msgstr "Janvier"
 
-#: static/activities/js/activities-calendar.js:88
 msgid "February"
 msgstr "Février"
 
-#: static/activities/js/activities-calendar.js:89
 msgid "March"
 msgstr "Mars"
 
-#: static/activities/js/activities-calendar.js:90
 msgid "April"
 msgstr "Avril"
 
-#: static/activities/js/activities-calendar.js:91
 msgid "May"
 msgstr "Mai"
 
-#: static/activities/js/activities-calendar.js:92
 msgid "June"
 msgstr "Juin"
 
-#: static/activities/js/activities-calendar.js:93
 msgid "July"
 msgstr "Juillet"
 
-#: static/activities/js/activities-calendar.js:94
 msgid "August"
 msgstr "Août"
 
-#: static/activities/js/activities-calendar.js:95
 msgid "September"
 msgstr "Septembre"
 
-#: static/activities/js/activities-calendar.js:96
 msgid "October"
 msgstr "Octobre"
 
-#: static/activities/js/activities-calendar.js:97
 msgid "November"
 msgstr "Novembre"
 
-#: static/activities/js/activities-calendar.js:98
 msgid "December"
 msgstr "Décembre"
 
-#: static/activities/js/activities-calendar.js:101
 msgid "Sunday"
 msgstr "Dimanche"
 
-#: static/activities/js/activities-calendar.js:102
 msgid "Monday"
 msgstr "Lundi"
 
-#: static/activities/js/activities-calendar.js:103
 msgid "Tuesday"
 msgstr "Mardi"
 
-#: static/activities/js/activities-calendar.js:104
 msgid "Wesnesday"
 msgstr "Mercredi"
 
-#: static/activities/js/activities-calendar.js:105
 msgid "Thursday"
 msgstr "Jeudi"
 
-#: static/activities/js/activities-calendar.js:106
 msgid "Friday"
 msgstr "Vendredi"
 
-#: static/activities/js/activities-calendar.js:107
 msgid "Saturday"
 msgstr "Samedi"
 
-#: static/activities/js/activities-calendar.js:211
 msgid "You do not have permission, the change will not be saved."
 msgstr "Vous n'avez pas la permission, les changements ne seront pas sauvés."
 
-#: static/activities/js/activities-calendar.js:215
 msgid "Error, please reload the page."
 msgstr "Erreur, veuillez recharger la page."
 
-#: static/activities/js/activities.js:37
 msgid "Please select at least a line in order to export."
 msgstr "Veuillez sélectionner au moins une ligne pour pouvoir exporter."
 

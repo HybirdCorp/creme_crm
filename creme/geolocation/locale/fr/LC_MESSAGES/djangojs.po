@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'GEOLOCATION' APP (JavaScript only)
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -d djangojs -l fr -i "static/geolocation/js/tests/*"
+# > django-admin makemessages -d djangojs -l fr -i "static/geolocation/js/tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Geolocation 2.2\n"
+"Project-Id-Version: Creme Geolocation 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 19:58+0100\n"
+"POT-Creation-Date: 2021-02-16 10:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -17,46 +17,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/geolocation/js/brick.js:388
 msgid "%0$d address from"
 msgid_plural "%0$d addresses from"
 msgstr[0] "%0$d adresse de"
 msgstr[1] "%0$d adresses de"
 
-#: static/geolocation/js/brick.js:388
 msgid "No address from"
 msgstr "Aucune adresse de"
 
-#: static/geolocation/js/brick.js:601
 msgid "%0$d of"
 msgid_plural "%0$d of"
 msgstr[0] "%0$d adresse de"
 msgstr[1] "%0$d adresses de"
 
-#: static/geolocation/js/brick.js:601
 msgid "None of"
 msgstr "Aucune adresse de"
 
-#: static/geolocation/js/geolocation-google.js:397
 msgid "Map"
 msgstr "Plan"
 
-#: static/geolocation/js/geolocation-google.js:617
-#: static/geolocation/js/geolocation-google.js:634
-#: static/geolocation/js/geolocation-leaflet.js:140
-#: static/geolocation/js/geolocation-leaflet.js:158
 msgid "No matching location"
 msgstr "Non localisé"
 
-#: static/geolocation/js/geolocation.js:34
 msgid "Not localized"
 msgstr "Non localisé"
 
-#: static/geolocation/js/geolocation.js:36
 msgid "Manual location"
 msgstr "Localisation manuelle"
 
-#: static/geolocation/js/geolocation.js:38
 msgid "Partially matching location"
 msgstr "Localisation incomplète"
 

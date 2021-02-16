@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'PERSONS' APP (JavaScript only)
-# Copyright (C) 2020 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -d djangojs -l fr -i "static/persons/js/tests/*"
+# > django-admin makemessages -d djangojs -l fr -i "static/persons/js/tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Persons 2.2\n"
+"Project-Id-Version: Creme Persons 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-04 20:29+0100\n"
+"POT-Creation-Date: 2021-02-16 10:17+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,10 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/persons/js/persons.js:122
 msgid "Select the concerned organisation."
 msgstr "Sélectionnez la société concernée."
 
-#: static/persons/js/persons.js:125
 msgid "Organisation"
 msgstr "Société"

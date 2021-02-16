@@ -2,437 +2,333 @@
 # Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -l fr -i "tests/*"
+# > django-admin makemessages -l fr -i "tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 2.2\n"
+"Project-Id-Version: Creme Products 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-28 16:32+0100\n"
+"POT-Creation-Date: 2021-02-16 10:17+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: apps.py:117 apps.py:128
 msgid "Management"
 msgstr "Gestion"
 
-#: bricks.py:34
 msgid "Images of product/service"
 msgstr "Images du produit/service"
 
-#: custom_forms.py:15
 msgid "Creation form for product"
 msgstr "Formulaire de création de produit"
 
-#: custom_forms.py:23
 msgid "Edition form for product"
 msgstr "Formulaire de modification de produit"
 
-#: custom_forms.py:30
 msgid "Creation form for service"
 msgstr "Formulaire de création de service"
 
-#: custom_forms.py:38
 msgid "Edition form for service"
 msgstr "Formulaire de modification de service"
 
-#: forms/base.py:35
 msgid "Category & sub-category"
 msgstr "Catégorie & sous-catégorie"
 
-#: forms/base.py:51 forms/fields.py:73 forms/product.py:53 models/product.py:39
-#: models/service.py:40
-msgid "Sub-category"
-msgstr "Sous-catégorie"
-
-#: forms/base.py:83 models/product.py:54 models/service.py:51
-#: templates/products/bricks/images.html:7
 msgid "Images"
 msgstr "Images"
 
-#: forms/fields.py:59
 msgid "Create"
 msgstr ""
 
-#: forms/fields.py:59
 msgid "Can't create"
 msgstr ""
 
-#: forms/fields.py:67 models/product.py:36 models/service.py:37
 msgid "Category"
 msgstr "Catégorie"
 
-#: forms/fields.py:85
+msgid "Sub-category"
+msgstr "Sous-catégorie"
+
 msgid "This category doesn't exist."
 msgstr "Cette catégorie n'existe pas."
 
-#: forms/fields.py:86
 msgid "This category causes constraint error."
 msgstr "Cette catégorie cause une erreur de contrainte."
 
-#: forms/fields.py:87
 msgid "This sub-category causes constraint error."
 msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
-#: forms/mass_import.py:77
 msgid "The category «{}» does not exist"
 msgstr "La catégorie «{}»  n'existe pas."
 
-#: forms/mass_import.py:101
 msgid "The sub-category «{}» does not exist"
 msgstr "La sous-catégorie «{}» n'existe pas."
 
-#: forms/mass_import.py:109
 #, python-brace-format
 msgid "The category «{cat}» and the sub-category «{sub_cat}» are not matching."
 msgstr ""
 "La catégorie «{cat}» et la ssous-catégorie «{sub_cat}» ne correspondent pas."
 
-#: forms/mass_import.py:236
 msgid "Select a valid sub-category."
 msgstr "Sélectionnez une sous-catégorie valide."
 
-#: forms/mass_import.py:238
 msgid ""
 "Select a column for the sub-category if you select a column for the category."
 msgstr ""
 "Sélectionnez une colonne pour la sous-catégorie si sous sélectionnez une "
 "colonne pour la catégorie."
 
-#: forms/mass_import.py:313
 msgid "Categories"
 msgstr "Catégories"
 
-#: models/other_models.py:29
 msgid "Name of the category"
 msgstr "Nom de la catégorie"
 
-#: models/other_models.py:30 models/other_models.py:46 populate.py:90
 msgid "Description"
 msgstr "Description"
 
-#: models/other_models.py:32
 msgctxt "products-category"
 msgid "Create a category"
 msgstr "Créer une catégorie"
 
-#: models/other_models.py:39
-#: templates/products/forms/widgets/mass-import/categories-extractor.html:11
 msgctxt "products-category"
 msgid "Category"
 msgstr "Catégorie"
 
-#: models/other_models.py:40
 msgctxt "products-category"
 msgid "Categories"
 msgstr "Catégories"
 
-#: models/other_models.py:45
 msgid "Name of the sub-category"
 msgstr "Nom de la sous-catégorie"
 
-#: models/other_models.py:47
 msgid "Parent category"
 msgstr "Catégorie parente"
 
-#: models/other_models.py:51
 msgctxt "products-sub_category"
 msgid "Create a sub-category"
 msgstr "Créer une sous-catégorie"
 
-#: models/other_models.py:58
-#: templates/products/forms/widgets/mass-import/categories-extractor.html:19
 msgctxt "products-sub_category"
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: models/other_models.py:59
 msgctxt "products-sub_category"
 msgid "Sub-categories"
 msgstr "Sous-catégories"
 
-#: models/product.py:32 models/service.py:33
 msgid "Name"
 msgstr "Nom"
 
-#: models/product.py:33
 msgid "Code"
 msgstr "Code"
 
-#: models/product.py:42 models/service.py:48
 msgid "Unit price"
 msgstr "Prix Unitaire"
 
-#: models/product.py:43 models/service.py:44
 msgid "Unit"
 msgstr "Unité"
 
-#: models/product.py:45 models/service.py:46
 msgid "Quantity/Unit"
 msgstr "Conditionnement"
 
-#: models/product.py:48
 msgid "Weight"
 msgstr "Poids"
 
-#: models/product.py:51
 msgid "Quantity/Stock"
 msgstr "Quantité/Stock"
 
-#: models/product.py:53 models/service.py:50
 msgid "Web Site"
 msgstr "Site Web"
 
-#: models/product.py:56
 msgid "Create a product"
 msgstr "Créer un produit"
 
-#: models/product.py:57
 msgid "Save the product"
 msgstr "Enregistrer le produit"
 
-#: models/product.py:63
 msgid "Product"
 msgstr "Produit"
 
-#: models/product.py:64
 msgid "Products"
 msgstr "Produits"
 
-#: models/service.py:34
 msgid "Reference"
 msgstr "Référence"
 
-#: models/service.py:43
 msgid "Countable"
 msgstr "Dénombrable"
 
-#: models/service.py:53
 msgid "Create a service"
 msgstr "Créer un service"
 
-#: models/service.py:54
 msgid "Save the service"
 msgstr "Enregistrer le service"
 
-#: models/service.py:60
 msgid "Service"
 msgstr "Service"
 
-#: models/service.py:61
 msgid "Services"
 msgstr "Services"
 
-#: populate.py:66
 msgid "Product view"
 msgstr "Vue de Produit"
 
-#: populate.py:78
 msgid "Service view"
 msgstr "Vue de Service"
 
-#: populate.py:95
 msgid "Custom fields"
 msgstr ""
 
 # Already in creme_core
-#: populate.py:110 populate.py:145
 msgid "General information"
 msgstr ""
 
-#: populate.py:121
 msgid "Properties"
 msgstr ""
 
-#: populate.py:129
 msgid "Relationships"
 msgstr ""
 
-#: populate.py:216
 msgid "Jewelry"
 msgstr "Bijoux"
 
-#: populate.py:217
 msgid "Ring"
 msgstr "Bague"
 
-#: populate.py:218
 msgid "Bracelet"
 msgstr "Bracelet"
 
-#: populate.py:219
 msgid "Necklace"
 msgstr "Collier"
 
-#: populate.py:220
 msgid "Earrings"
 msgstr "Boucles d'oreille"
 
-#: populate.py:222
 msgid "Mobile"
 msgstr "Mobile"
 
-#: populate.py:223
 msgid "Iphone"
 msgstr "Iphone"
 
-#: populate.py:224
 msgid "Blackberry"
 msgstr "Blackberry"
 
-#: populate.py:225
 msgid "Samsung"
 msgstr "Samsung"
 
-#: populate.py:226
 msgid "Android"
 msgstr "Android"
 
-#: populate.py:228
 msgid "Electronics"
 msgstr "Matériel informatique"
 
-#: populate.py:229
 msgid "Laptops"
 msgstr "Portables"
 
-#: populate.py:230
 msgid "Desktops"
 msgstr "Bureau"
 
-#: populate.py:231
 msgid "Tablet"
 msgstr "Tablette"
 
-#: populate.py:232
 msgid "Notebook"
 msgstr "Netbook"
 
-#: populate.py:234
 msgid "Travels"
 msgstr "Voyages"
 
-#: populate.py:235
 msgid "Fly"
 msgstr "Vol"
 
-#: populate.py:236
 msgid "Hotel"
 msgstr "Hôtel"
 
-#: populate.py:237
 msgid "Week-end"
 msgstr "Week-end"
 
-#: populate.py:238
 msgid "Rent"
 msgstr "Location"
 
-#: populate.py:240
 msgid "Vehicle"
 msgstr "Véhicule"
 
-#: populate.py:241
 msgid "Car"
 msgstr "Voiture"
 
-#: populate.py:242
 msgid "Moto"
 msgstr "Moto"
 
-#: populate.py:243
 msgid "Boat"
 msgstr "Bateau"
 
-#: populate.py:244
 msgid "Plane"
 msgstr "Avion"
 
-#: populate.py:246
 msgid "Games & Toys"
 msgstr "Jeux & jouets"
 
-#: populate.py:247
 msgid "Boys"
 msgstr "Garçons"
 
-#: populate.py:248
 msgid "Girls"
 msgstr "Filles"
 
-#: populate.py:249
 msgid "Teens"
 msgstr "Adolescents"
 
-#: populate.py:250 populate.py:256
 msgid "Babies"
 msgstr "Bébés"
 
-#: populate.py:252
 msgid "Clothes"
 msgstr "Vêtements"
 
-#: populate.py:253
 msgid "Men"
 msgstr "Hommes"
 
-#: populate.py:254
 msgid "Women"
 msgstr "Femmes"
 
-#: populate.py:255
 msgid "Kids"
 msgstr "Enfants"
 
-#: templates/products/bricks/images.html:7
 #, python-brace-format
 msgid "{count} Image"
 msgstr "{count} Image"
 
-#: templates/products/bricks/images.html:7
 #, python-brace-format
 msgid "{count} Images"
 msgstr "{count} Images"
 
-#: templates/products/bricks/images.html:12
 msgid "Add images"
 msgstr "Ajouter des images"
 
-#: templates/products/bricks/images.html:34
 msgid "Remove this image"
 msgstr "Enlever cette image"
 
-#: templates/products/bricks/images.html:38
 msgid "No image for the moment"
 msgstr "Pas d'image pour le moment"
 
-#: templates/products/forms/widgets/mass-import/categories-extractor.html:6
 msgid "Create the Categories/Sub-Categories which are not found?"
 msgstr "Créer les Catégories/Sous-Catégories qui ne sont pas trouvées ?"
 
-#: templates/products/forms/widgets/mass-import/categories-extractor.html:14
 msgctxt "products-category"
 msgid "Default category"
 msgstr "Catégorie par défaut"
 
-#: templates/products/forms/widgets/mass-import/categories-extractor.html:22
 msgctxt "products-sub_category"
 msgid "Default sub-category"
 msgstr "Sous-catégorie par défaut"
 
-#: views/base.py:33
 #, python-brace-format
 msgid "New images for «{entity}»"
 msgstr "Nouvelles images pour «{entity}»"
 
-#: views/base.py:34
 msgid "Link the images"
 msgstr "Lier les images"
 

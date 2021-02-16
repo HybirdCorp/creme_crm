@@ -2,13 +2,13 @@
 # Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -l fr -i "tests/*"
+# > django-admin makemessages -l fr -i "tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Mobile 2.2\n"
+"Project-Id-Version: Creme Mobile 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-28 16:32+0100\n"
+"POT-Creation-Date: 2021-02-16 10:17+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,25 +16,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: apps.py:28 templates/mobile/add_contact.html:77
 msgid "Mobile"
 msgstr "Mobile"
 
-#: bricks.py:36
 msgid "Favorite Contacts & Organisations (for mobile)"
 msgstr "Contacts & Sociétés favoris (pour mobile)"
 
-#: forms.py:81
 msgctxt "mobile-contact"
 msgid "Is favorite"
 msgstr "Est favori"
 
-#: forms.py:123
 msgctxt "mobile-orga"
 msgid "Is favorite"
 msgstr "Est favorite"
 
-#: setting_keys.py:17
 #, python-brace-format
 msgid ""
 "URL pattern to map & geolocation services.\n"
@@ -46,318 +41,232 @@ msgstr ""
 "est activée, les coordonnées {lat} & {lng} peuvent être utilisées aussi."
 
 # Already in activities
-#: templates/mobile/activities.html:10 templates/mobile/activities.html:29
-#: templates/mobile/add_contact.html:34 templates/mobile/add_orga.html:34
-#: templates/mobile/directory.html:34 templates/mobile/error.html:28
-#: templates/mobile/index.html:52 templates/mobile/search.html:34
 msgid "Activities"
 msgstr ""
 
-#: templates/mobile/activities.html:27 templates/mobile/add_contact.html:32
-#: templates/mobile/add_orga.html:32 templates/mobile/directory.html:32
-#: templates/mobile/error.html:26 templates/mobile/index.html:10
-#: templates/mobile/index.html:50 templates/mobile/search.html:32
 msgid "Home"
 msgstr "Accueil"
 
-#: templates/mobile/activities.html:28 templates/mobile/add_contact.html:33
-#: templates/mobile/add_orga.html:33 templates/mobile/directory.html:10
-#: templates/mobile/directory.html:33 templates/mobile/error.html:10
-#: templates/mobile/error.html:27 templates/mobile/index.html:51
-#: templates/mobile/search.html:33
 msgid "Directory"
 msgstr "Annuaire"
 
-#: templates/mobile/activities.html:37
 #, python-format
 msgid "%(counter)s delayed phone call"
 msgid_plural "%(counter)s last delayed phone calls"
 msgstr[0] "%(counter)s appel en retard"
 msgstr[1] "%(counter)s derniers appels en retard"
 
-#: templates/mobile/activities.html:51
 msgid "No delayed phone calls"
 msgstr "Pas d'appel en retard"
 
-#: templates/mobile/activities.html:61
 #, python-format
 msgid "%(counter)s activity without date"
 msgid_plural "%(counter)s activities without date"
 msgstr[0] "%(counter)s activité sans date"
 msgstr[1] "%(counter)s activités sans date"
 
-#: templates/mobile/activities.html:63
 #, python-format
 msgid "%(counter)s activity without date (on %(total)s)"
 msgid_plural "%(counter)s activities without date (on %(total)s)"
 msgstr[0] "%(counter)s activité sans date (sur %(total)s)"
 msgstr[1] "%(counter)s activités sans date (sur %(total)s)"
 
-#: templates/mobile/activities.html:79
 msgid "No activity without date"
 msgstr "Pas d'activité sans date"
 
-#: templates/mobile/activities.html:87 templates/mobile/activities.html:102
 msgid "l j F"
 msgstr "l j F"
 
-#: templates/mobile/activities.html:87
 #, python-format
 msgid "%(counter)s activity planned tomorrow, %(tomorrow_date)s"
 msgid_plural "%(counter)s activities planned tomorrow, %(tomorrow_date)s"
 msgstr[0] "%(counter)s activité prévue demain, %(tomorrow_date)s"
 msgstr[1] "%(counter)s activités prévues demain, %(tomorrow_date)s"
 
-#: templates/mobile/activities.html:102
 #, python-format
 msgid "No activity planned tomorrow, %(tomorrow_date)s"
 msgstr "Pas d'activité prévue demain, %(tomorrow_date)s"
 
 # Already in persons
-#: templates/mobile/add_contact.html:52
 msgid "Last name"
 msgstr ""
 
-#: templates/mobile/add_contact.html:52 templates/mobile/add_orga.html:48
-#: templates/mobile/frags/custom_fields.html:7
 msgid "(required)"
 msgstr "(obligatoire)"
 
-#: templates/mobile/add_contact.html:54
 msgid "The last name must be filled."
 msgstr "Le nom doit être rempli."
 
 # Already in persons
-#: templates/mobile/add_contact.html:58
 msgid "First name"
 msgstr ""
 
-#: templates/mobile/add_contact.html:70 templates/mobile/add_orga.html:57
 msgid "Phone"
 msgstr "Téléphone"
 
-#: templates/mobile/add_contact.html:84
 msgid "Email address"
 msgstr "Adresse e-mail"
 
 # Already in persons
-#: templates/mobile/add_contact.html:96
 msgid "Organisation"
 msgstr ""
 
-#: templates/mobile/add_contact.html:106
 msgid "Add this contact to the favorites"
 msgstr "Ajouter ce contact aux favoris"
 
 # Already in persons
-#: templates/mobile/add_contact.html:110
 msgid "Save the contact"
 msgstr ""
 
 # Already in creme_core
-#: templates/mobile/add_contact.html:111 templates/mobile/add_orga.html:75
 msgid "Cancel"
 msgstr ""
 
 # Already in persons
-#: templates/mobile/add_orga.html:48
 msgid "Name"
 msgstr ""
 
-#: templates/mobile/add_orga.html:50
 msgid "The name must be filled."
 msgstr "Le nom doit être rempli."
 
-#: templates/mobile/add_orga.html:70
 msgid "Add this organisation to the favorites"
 msgstr "Ajouter cette société aux favoris"
 
 # Already in persons
-#: templates/mobile/add_orga.html:74
 msgid "Save the organisation"
 msgstr ""
 
-#: templates/mobile/bricks/favorite.html:8
 #, python-brace-format
 msgid "This contact is a favorite for {count} user"
 msgstr "Ce contact est un favori pour {count} utilisateur"
 
-#: templates/mobile/bricks/favorite.html:8
 #, python-brace-format
 msgid "This contact is a favorite for {count} users"
 msgstr "Ce contact est un favori pour {count} utilisateurs"
 
-#: templates/mobile/bricks/favorite.html:8
 msgid "Favorite contacts"
 msgstr "Contacts favoris"
 
-#: templates/mobile/bricks/favorite.html:10
 #, python-brace-format
 msgid "This organisation is a favorite for {count} user"
 msgstr "Cette société est une favorite pour {count} utilisateur"
 
-#: templates/mobile/bricks/favorite.html:10
 #, python-brace-format
 msgid "This organisation is a favorite for {count} users"
 msgstr "Cette société est une favorite pour {count} utilisateurs"
 
-#: templates/mobile/bricks/favorite.html:10
 msgid "Favorite organisations"
 msgstr "Aucune société favorite"
 
-#: templates/mobile/bricks/favorite.html:12
 #, python-brace-format
 msgid "This entity is a favorite for {count} user"
 msgstr "Cette fiche est une favorite pour {count} utilisateur"
 
-#: templates/mobile/bricks/favorite.html:12
 #, python-brace-format
 msgid "This entity is a favorite for {count} users"
 msgstr "Cette fiche est une favorite pour {count} utilisateurs"
 
-#: templates/mobile/bricks/favorite.html:12
 msgid "Favorite entities"
 msgstr "Fiches favorites"
 
-#: templates/mobile/bricks/favorite.html:18
 msgid "Mark as favorite"
 msgstr "Marquer comme favori"
 
-#: templates/mobile/bricks/favorite.html:28
 msgid "Remove from your favorite contacts"
 msgstr "Enlever de vos contacts favoris"
 
-#: templates/mobile/bricks/favorite.html:37
 msgid "This contact is not a favorite for the moment"
 msgstr "Ce contact n'est pas un favori pour le moment"
 
-#: templates/mobile/bricks/favorite.html:39
 msgid "This organisation is not a favorite for the moment"
 msgstr "Cette société n'est pas une favorite pour le moment"
 
-#: templates/mobile/bricks/favorite.html:41
 msgid "This entity is not a favorite for the moment"
 msgstr "Cette fiche n'est pas une favorite pour le moment"
 
 # Already in persons
-#: templates/mobile/directory.html:44 templates/mobile/search.html:44
 msgid "Create a contact"
 msgstr ""
 
 # Already in persons
-#: templates/mobile/directory.html:47 templates/mobile/search.html:47
 msgid "Create an organisation"
 msgstr ""
 
-#: templates/mobile/directory.html:55
 #, python-format
 msgid "%(counter)s favorite contact"
 msgid_plural "%(counter)s favorite contacts"
 msgstr[0] "%(counter)s contact favori"
 msgstr[1] "%(counter)s contacts favoris"
 
-#: templates/mobile/directory.html:57
 msgid "No favorite contact"
 msgstr "Aucun contact favori"
 
-#: templates/mobile/directory.html:71
 #, python-format
 msgid "%(counter)s favorite organisation"
 msgid_plural "%(counter)s favorite organisations"
 msgstr[0] "%(counter)s société favorite"
 msgstr[1] "%(counter)s sociétés favorites"
 
-#: templates/mobile/directory.html:73
 msgid "No favorite organisation"
 msgstr "Aucune société favorite"
 
-#: templates/mobile/error.html:31
 #, python-format
 msgid "Error ! (%(status)s)"
 msgstr "Erreur ! (%(status)s)"
 
-#: templates/mobile/error.html:34
 msgid "Detail:"
 msgstr "Détail :"
 
-#: templates/mobile/frags/button_done.html:3
 msgid "This call has already been spent"
 msgstr "Cet appel a déjà été passé"
 
-#: templates/mobile/frags/buttons_start_stop.html:4
 msgid "Start this activity"
 msgstr "Commencer l'activité"
 
-#: templates/mobile/frags/buttons_start_stop.html:8
 msgid "Stop this activity"
 msgstr "Terminer l'activité"
 
-#: templates/mobile/frags/contact_card.html:9
-#: templates/mobile/frags/contact_card.html:94
 msgid "contact"
 msgstr "contact"
 
-#: templates/mobile/frags/contact_card.html:19
-#: templates/mobile/frags/contact_card.html:66
-#: templates/mobile/frags/orga_card.html:17
 msgid "phone"
 msgstr "tél."
 
-#: templates/mobile/frags/contact_card.html:25
 msgid "mobile"
 msgstr "mobile"
 
-#: templates/mobile/frags/contact_card.html:35
 msgid "email"
 msgstr "email"
 
-#: templates/mobile/frags/contact_card.html:41
-#: templates/mobile/frags/contact_card.html:72
-#: templates/mobile/frags/orga_card.html:26
 msgid "address"
 msgstr "adresse"
 
-#: templates/mobile/frags/contact_card.html:49
 msgid "position"
 msgstr "fonction"
 
-#: templates/mobile/frags/contact_card.html:61
-#: templates/mobile/frags/contact_card.html:81
-#: templates/mobile/frags/orga_card.html:7
-#: templates/mobile/frags/orga_card.html:38
 msgid "organisation"
 msgstr "société"
 
-#: templates/mobile/frags/phonecall_script.html:101
-#: templates/mobile/frags/phonecall_script.html:146
 msgid "Error"
 msgstr "Erreur"
 
-#: templates/mobile/frags/search_div.html:4
 msgid "Search in the directory"
 msgstr "Recherche dans l'annuaire"
 
-#: templates/mobile/index.html:57
 #, python-format
 msgid "%(hour)sh"
 msgstr "%(hour)sh"
 
-#: templates/mobile/index.html:61
 #, python-format
 msgid "Welcome on Creme Mobile, %(user)s"
 msgstr "Bienvenue sur Crème Mobile, %(user)s"
 
-#: templates/mobile/index.html:69 templates/mobile/index.html:71
-#: templates/mobile/templatetags/activity_card.html:14
 msgid "H:i"
 msgstr "H\\hi"
 
-#: templates/mobile/index.html:69 templates/mobile/index.html:71
-#: templates/mobile/index.html:85 templates/mobile/index.html:87
 msgid "j F"
 msgstr "j F"
 
-#: templates/mobile/index.html:69
 #, python-format
 msgid "%(counter)s activity in progress at %(start_time)s this %(today_date)s"
 msgid_plural ""
@@ -365,102 +274,80 @@ msgid_plural ""
 msgstr[0] "%(counter)s activité en cours à %(start_time)s ce %(today_date)s"
 msgstr[1] "%(counter)s activités en cours à %(start_time)s ce %(today_date)s"
 
-#: templates/mobile/index.html:71
 #, python-format
 msgid "No activity in progress at %(start_time)s this %(today_date)s"
 msgstr "Aucune activité en cours à %(start_time)s ce %(today_date)s"
 
-#: templates/mobile/index.html:85
 #, python-format
 msgid "%(counter)s activity planned this %(today_date)s"
 msgid_plural "%(counter)s activities planned this %(today_date)s"
 msgstr[0] "%(counter)s activité prévue ce %(today_date)s"
 msgstr[1] "%(counter)s activités prévues ce %(today_date)s"
 
-#: templates/mobile/index.html:87
 #, python-format
 msgid "No activity planned this %(today_date)s"
 msgstr "Aucune activité prévue ce %(today_date)s"
 
 # Already in creme/locale
-#: templates/mobile/login.html:10 templates/mobile/login.html:32
 msgid "Connection"
 msgstr ""
 
 # Already in creme_core
-#: templates/mobile/login.html:41
 msgid "Username"
 msgstr ""
 
-#: templates/mobile/login.html:43
 msgid "The username must be filled."
 msgstr "Le nom d'utilisateur doit être rempli."
 
 # Already in creme_core
-#: templates/mobile/login.html:47
 msgid "Password"
 msgstr ""
 
-#: templates/mobile/login.html:49
 msgid "The password must be filled."
 msgstr "Le mot de passe doit être rempli."
 
 # Already in creme/locale
-#: templates/mobile/login.html:55
 msgid "Log in"
 msgstr ""
 
-#: templates/mobile/search.html:10
 msgctxt "creme_core-noun"
 msgid "Search"
 msgstr "Recherche"
 
-#: templates/mobile/search.html:53
 #, python-format
 msgid "Search of contacts &ndash; %(counter)s result"
 msgid_plural "Search of contacts &ndash; %(counter)s results"
 msgstr[0] "Recherche de contacts &ndash; %(counter)s résultat"
 msgstr[1] "Recherche de contacts &ndash; %(counter)s résultats"
 
-#: templates/mobile/search.html:63
 #, python-format
 msgid "Search of organisations &ndash; %(counter)s result"
 msgid_plural "Search of organisations &ndash; %(counter)s results"
 msgstr[0] "Recherche de sociétés &ndash; %(counter)s résultat"
 msgstr[1] "Recherche de sociétés &ndash; %(counter)s résultats"
 
-#: templates/mobile/templatetags/activity_card.html:10
-#: templates/mobile/templatetags/activity_card.html:12
 msgid "d/m/Y"
 msgstr "d/m/Y"
 
-#: templates/mobile/templatetags/activity_card.html:10
 msgid "All day"
 msgstr "Toute la journée"
 
-#: templates/mobile/templatetags/activity_card.html:12
 msgid "In day"
 msgstr "Dans la journée"
 
-#: templates/mobile/templatetags/activity_card.html:14
-#: templates/mobile/workflow_panel.html:6
 msgid "d/m/Y H:i"
 msgstr "d/m/Y H\\hi"
 
 # Already in creme_core
-#: templates/mobile/templatetags/footer.html:3
 msgid "Log out"
 msgstr ""
 
-#: templates/mobile/templatetags/footer.html:4
 msgid "Go to the complete site"
 msgstr "Accéder au site complet"
 
-#: templates/mobile/workflow_panel.html:7
 msgid "Call in progress"
 msgstr "Appel en cours"
 
-#: templates/mobile/workflow_panel.html:14
 #, python-format
 msgid ""
 "You left the application to call <span class=\"call-target\"><span class="
@@ -474,7 +361,6 @@ msgstr ""
 "\" href=\"tel:%(number)s\">%(number)s</a>, vous pouvez sauvegarder le "
 "résultat de cet appel."
 
-#: templates/mobile/workflow_panel.html:18
 #, python-format
 msgid ""
 "You left the application to call <span class=\"call-target\"><span class="
@@ -486,71 +372,55 @@ msgstr ""
 "number\" href=\"tel:%(number)s\">%(number)s</a>, vous pouvez sauvegarder le "
 "résultat de cet appel."
 
-#: templates/mobile/workflow_panel.html:26
 msgid "Add call minutes"
 msgstr "Ajouter un bilan d'appel"
 
-#: templates/mobile/workflow_panel.html:29
 msgid "Call minutes"
 msgstr "Bilan de l'appel "
 
-#: templates/mobile/workflow_panel.html:35
 msgid "Call is just done"
 msgstr "L'appel vient de se terminer"
 
-#: templates/mobile/workflow_panel.html:36
 msgid "Call lasted 5 minutes"
 msgstr "L'appel a duré 5 minutes"
 
-#: templates/mobile/workflow_panel.html:37
 msgid "Call has failed"
 msgstr "L'appel a échoué"
 
-#: templates/mobile/workflow_panel.html:38
 msgid "Call has failed and<br/> Recall tomorrow"
 msgstr "L'appel a échoué et<br/> Rappeler demain"
 
-#: templates/mobile/workflow_panel.html:39
 msgid "Do not save"
 msgstr "Ne pas sauvegarder"
 
 # Already in creme_core
-#: views.py:90
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:94
 msgid "The page you have requested is not found."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:98
 msgid "You can not perform this action because of business constraints."
 msgstr ""
 
-#: views.py:270
 msgid "Your search is too short."
 msgstr "Votre recherche est trop courte."
 
-#: views.py:527
 msgid "You cannot create a call to yourself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
-#: views.py:596 views.py:633
 #, python-brace-format
 msgid "{status} call to {person} from Creme Mobile"
 msgstr "Appel {status} vers {person} depuis Creme Mobile"
 
-#: views.py:597
 msgid "Successful"
 msgstr "réussi"
 
-#: views.py:634
 msgid "Failed"
 msgstr "échoué"
 
-#: views.py:695
 msgid "Call to {} from Creme Mobile"
 msgstr "Appel vers {} depuis Creme Mobile"
 
