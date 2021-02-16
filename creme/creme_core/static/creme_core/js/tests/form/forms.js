@@ -509,4 +509,41 @@ QUnit.test('creme.forms.DateTimePicker', function(assert) {
     equal('54', element.find('.minute input').val());
 });
 
+QUnit.parameterize('creme.forms.toImportField', [
+    ['0', false],  // "Not in CSV" => not visible
+    ['1', true]    // "Column 1" => visible
+], function(initial, expected, assert) {
+    this.qunitFixture().append($(
+        '<table id="field_a">' +
+            '<tbody><tr>' +
+                '<td class="csv_column_select">' +
+                    '<select name="column_select" class="csv_col_select">' +
+                        '<option value="0">Not here</option>' +
+                        '<option value="1">Column 1</option>' +
+                        '<option value="2">Column 2</option>' +
+                    '</select>' +
+                '</td>' +
+                '<td class="csv_column_options">' +
+                    '<input type="checkbox" id="field_a_create" name="field_a_create">Create</input>' +
+                '</td>' +
+            '</tr></tbody>' +
+        '</table>')
+    );
+
+    this.qunitFixture().find('#field_a .csv_col_select').val(initial);
+
+    creme.forms.toImportField('field_a', '.csv_column_options', 0);
+
+    // initial visible state : 0 => hidden, 1 => visible
+    equal(this.qunitFixture().find('#field_a .csv_column_options').is(':visible'), expected);
+
+    // toggle state "not in csv" => not visible
+    this.qunitFixture().find('#field_a .csv_col_select').val('0').change();
+    equal(this.qunitFixture().find('#field_a .csv_column_options').is(':visible'), false);
+
+    // toggle state "Column 1" => visible
+    this.qunitFixture().find('#field_a .csv_col_select').val('1').change();
+    equal(this.qunitFixture().find('#field_a .csv_column_options').is(':visible'), true);
+});
+
 }(jQuery));
