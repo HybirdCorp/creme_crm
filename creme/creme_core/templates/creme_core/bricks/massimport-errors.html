@@ -23,7 +23,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for result in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+    {% for result in page.object_list %}
     <tr>
         <td>{{result.line}}</td>
         <td>

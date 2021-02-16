@@ -24,7 +24,6 @@
     ----------------------
         # Deprecations :
             - The class 'creme_core.forms.fields.AjaxModelChoiceField' is deprecated.
-            - In the template "creme_core/generics/blockform/field-block.html", the block {% block extra_buttons %} is deprecated.
             - In Javascript:
                 * Some creme.ajax.* functions are now deprecated; use creme.ajax.Query instead:
                     - creme.ajax.ajax()
@@ -154,6 +153,11 @@
                     - In JavaScript, the component 'creme.reports.ReportFormController' has been removed.
                 * Projects :
                     - The property 'models.AbstractProjectTask.safe_duration' has been removed.
+        # The HTML/CSS for forms have been heavily reworked :
+            - "<div>" tags are used instead of "<table>" in the blocks.
+            - The HTML id "editforms" has been removed.
+            - The CSS class "table_detail_view" is not use anymore.
+            - the CSS files "creme_core/css/blocks.css" have been removed from in the setting "CREME_CORE_CSS" (they will be removed in Creme 2.4)
         # Apps :
             * Reports :
                 - Some constants have been replaced by 'django.db.models.*Choices' :

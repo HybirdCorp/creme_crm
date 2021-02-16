@@ -238,7 +238,7 @@ td p {
 }
 
 .errorlist li {
-    list-style-image: url(chantilly/images/cancel_16.png);
+/*    list-style-image: url(chantilly/images/cancel_16.png); */
     padding-top: 3px;
 }
 
@@ -304,10 +304,13 @@ a img:hover {
 }
 
 .help_box {
-    background-color: #fff7a1;
-    padding:5px;
+    margin-bottom: 10px;
+    padding: 5px;
+
     border: 1px solid #f0f0f0;
     border-bottom: 2px solid #ccc;
+
+    background-color: #fff7a1;
 
     -webkit-border-radius: 10px;
        -moz-border-radius: 10px;

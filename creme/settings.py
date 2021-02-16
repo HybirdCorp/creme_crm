@@ -557,7 +557,7 @@ CREME_CORE_CSS = [
 
     'creme_core/css/header_menu.css',
     'creme_core/css/forms.css',
-    'creme_core/css/blocks.css',
+    # 'creme_core/css/blocks.css',  # TODO: remove the files in creme 2.4
     'creme_core/css/bricks.css',
     'creme_core/css/home.css',
     'creme_core/css/my_page.css',

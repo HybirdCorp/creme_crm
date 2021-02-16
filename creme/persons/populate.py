@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,7 @@ from creme.creme_core.core.entity_filter import (
     operands,
     operators,
 )
+from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -218,12 +219,14 @@ class Populator(BasePopulator):
         ]
         description_group_desc = {
             'name': _('Description'),
+            'layout': LAYOUT_DUAL_SECOND,
             'cells': [
                 (EntityCellRegularField, {'name': 'description'}),
             ],
         }
         cfields_group_desc = {
             'name': _('Custom fields'),
+            'layout': LAYOUT_DUAL_SECOND,
             'cells': [
                 (
                     EntityCellCustomFormSpecial,
@@ -234,6 +237,7 @@ class Populator(BasePopulator):
         contact_groups_desc = [
             {
                 'name': _('General information'),
+                'layout': LAYOUT_DUAL_FIRST,
                 'cells': [
                     (EntityCellRegularField, {'name': 'user'}),
                     (EntityCellRegularField, {'name': 'civility'}),
@@ -253,6 +257,7 @@ class Populator(BasePopulator):
             description_group_desc,
             {
                 'name': _('Contact details'),
+                'layout': LAYOUT_DUAL_SECOND,
                 'cells': [
                     (EntityCellRegularField, {'name': 'skype'}),
                     (EntityCellRegularField, {'name': 'phone'}),
@@ -268,6 +273,7 @@ class Populator(BasePopulator):
         orga_groups_desc = [
             {
                 'name': _('General information'),
+                'layout': LAYOUT_DUAL_FIRST,
                 'cells': [
                     (EntityCellRegularField, {'name': 'user'}),
                     (EntityCellRegularField, {'name': 'name'}),

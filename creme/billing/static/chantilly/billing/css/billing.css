@@ -65,12 +65,12 @@ select.line-vat {
 }
 
 .linetable th {
-    color: #376e86; /* See .table_detail_view > tbody > tr > th { */
+    color: #376e86;
     text-align: left;
 }
 
 .linetable .readonly {
-    background-color: #f4fafd; /* See 'block_line_light' */
+    background-color: #f4fafd;
     color: #666;
 }
 

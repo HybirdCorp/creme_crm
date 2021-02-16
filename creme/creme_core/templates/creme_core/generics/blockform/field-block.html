@@ -1,5 +1,50 @@
 {% with fields=form_block.bound_fields %}
   {% if fields %}
+    <div data-field-block-id="{{form_block.id}}" class="form-block{% block extra_classes %}{% endblock %}">
+        {% if fields|length == 1 %}
+            {% with field=fields.0 %}
+                {% if not field.is_hidden %}
+                    <div class="form-block-header">
+                      {% block content_header_alone %}
+                        <span class="form-block-title">{{field.label}} {% if field.field.required %}<span class="required-mark">*</span>{% endif %}</span>
+                      {% endblock %}
+                    </div>
+                    <div class="form-block-field">
+                      {% block content_field_alone %}
+                        <div class="form-block-field-value">
+                            {% if field.help_text %}<div class="help-text">{{field.help_text|linebreaksbr}}</div>{% endif %}
+                            {{field.errors}} {{field}}
+                        </div>
+                      {% endblock %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        {% else %}
+            <div class="form-block-header">
+              {% block content_header %}
+                <span class="form-block-title">{{form_block.label}}</span>
+              {% endblock %}
+            </div>
+            <div class="form-block-fields">
+              {% block content_fields %}
+                {% for field in fields %}
+                    {% if not field.is_hidden %}
+                    <label for="{{field.auto_id}}">{{field.label}} {% if field.field.required %}<span class="required-mark">*</span>{% endif %}</label>
+                    <div class="form-block-field-value">
+                        {% if field.help_text %}<div class="help-text">{{field.help_text|linebreaksbr}}</div>{% endif %}
+                        {{field.errors}} {{field}}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+              {% endblock %}
+            </div>
+        {% endif %}
+    </div>
+  {% endif %}
+{% endwith %}
+{% comment %}
+{% with fields=form_block.bound_fields %}
+  {% if fields %}
     <table data-field-block-id="{{form_block.id}}" class="table_detail_view ui-corner-all block-form {% block table_classes %}{% endblock %}" {% block table_attrs %}{% endblock %}>
         {% if fields|length == 1 %}
             {% with field=fields.0 %}
@@ -24,7 +69,7 @@
                 </tr>
             </thead>
             <tbody class="collapsable">
-                {% block extra_buttons %}{# DEPRECATED: use block "content_fields.super" instead #}{% endblock %}
+                {% block extra_buttons %}{% endblock %}
               {% block content_fields %}
                 {% for field in fields %}
                     {% if not field.is_hidden %}
@@ -45,3 +90,4 @@
     </table>
   {% endif %}
 {% endwith %}
+{% endcomment %}

@@ -33,13 +33,13 @@
     margin-top: 15px;
 }
 
-/* TODO: some blocks have script tags defined before them, making sibling selection impossible. Eg. Geoolocation map block.
-Those templates need to be cleaned up */
+/*
 .brick + table.table_detail_view,
 .brick + script + table.table_detail_view {
     margin-top: 15px;
     margin-bottom: 0;
 }
+*/
 
 .brick.is-empty {
     display: none;

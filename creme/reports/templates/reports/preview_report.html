@@ -39,12 +39,15 @@
     </div>
 
     <div class="report-preview">
-        <div class='scrollable-block-container report-preview-header'>
+{#        <div class='scrollable-block-container report-preview-header'> #}
+        <div class='report-preview-header'>
             <form>
             {% include 'reports/frags/report_preview_format.html' %}
             </form>
-            <button type="button" name="generate">{% translate 'Preview' context 'reports-preview' %}</button>
-            <button type="button" name="download">{% translate 'Download as file' %}</button>
+            <div class="report-preview-buttons">
+                <button type="button" name="generate">{% translate 'Preview' context 'reports-preview' %}</button>
+                <button type="button" name="download">{% translate 'Download as file' %}</button>
+            </div>
         </div>
 
         {% include 'reports/bricks/preview.html' %}

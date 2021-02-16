@@ -325,7 +325,7 @@ button {
 }
 
 .errorlist li {
-    list-style-image: url(icecream/images/cancel_16.png);
+/*    list-style-image: url(icecream/images/cancel_16.png); */
     padding-top: 3px;
 }
 
@@ -373,9 +373,12 @@ button {
 
 /* This seems to be block-related and could be moved to blocks.css */
 /* Buttons (for example: 'validate') in the blocks */
+
+/*
 .table_detail_view td button {
     padding: 0px;
 }
+*/
 
 /* This seems duplicated/overridden in blocks.css - [end] */
 

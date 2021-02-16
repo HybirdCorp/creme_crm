@@ -22,14 +22,15 @@
 {% if not is_inner_popup %}
 <script type="text/javascript">
     $(document).ready(function() {
-        creme.forms.initialize($('#editforms form'));
+{#        creme.forms.initialize($('#editforms form')); #}
+        creme.forms.initialize($('.form-container form'));
     });
 </script>
 {% endif %}
 
 <p class="required-help">{% translate 'Fields marked with * are required.' %}</p>
 
-<div id="editforms" class="form-container form-container-blocks">
+<div {# id="editforms" #} class="form-container form-container-blocks">
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         {% for hidden in form.hidden_fields %}
@@ -40,6 +41,7 @@
             {% endif %}
         {% endfor %}
         {% if form.non_field_errors %}
+{% comment %}
             <table class="table_detail_view ui-corner-all">
                 <thead>
                     <tr>
@@ -52,14 +54,18 @@
                     </tr>
                 </tbody>
             </table>
+{% endcomment %}
+            <div class="form-block-errors">
+                <div class="form-block-errors-header">
+                    <span class="form-block-errors-title">{% translate 'Global errors' %}</span>
+                </div>
+                <div class="form-block-errors-content">
+                    {{form.non_field_errors}}
+                </div>
+            </div>
         {% endif %}
 
         {% block main_content %}
-{% comment %}
-            {% for form_block in form.get_blocks %}
-                {% include 'creme_core/generics/blockform/content.html' %}
-            {% endfor %}
-{% endcomment %}
             {% include 'creme_core/generics/blockform/field-blocks.html' %}
         {% endblock %}
 
