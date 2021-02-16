@@ -516,13 +516,16 @@ creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
     creme.forms._toDualColumnMultiSelect(table_id, true, buildColumns, refreshTable, reduced);
 };
 
-creme.forms.toImportField = function(table_id, target_query) {
+// TODO : create a real widget instead
+creme.forms.toImportField = function(table_id, target_query, speed) {
+    speed = speed !== undefined ? speed : 'normal';
+
     var $table = $('#' + table_id);
     var $csv_select    = $table.find('.csv_col_select');
     var $fields_select = $table.find(target_query);
 
     function not_in_csv() {
-        return $csv_select.find('[value="0"]').attr('selected');
+        return $csv_select.val() === '0';
     }
 
     if (not_in_csv()) {
@@ -531,9 +534,9 @@ creme.forms.toImportField = function(table_id, target_query) {
 
     function handleColChange() {
         if (not_in_csv()) {
-            $fields_select.hide('normal');
+            $fields_select.hide(speed);
         } else {
-            $fields_select.show('normal');
+            $fields_select.show(speed);
         }
     }
 
