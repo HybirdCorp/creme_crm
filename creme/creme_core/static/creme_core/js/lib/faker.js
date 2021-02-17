@@ -19,6 +19,31 @@
 (function($) {
 "use strict";
 
+function __import(module, path) {
+    var output = module;
+    var pwd = [];
+    var splitPath = Array.isArray(path) ? path : path.split('.');
+
+    splitPath.forEach(function(key) {
+        Assert.that(key in output, '"${key}" is not a property of ${pwd}', {
+            key: key,
+            pwd: String(module) + (Object.isEmpty(pwd) ? '' : '.' + pwd.join('.'))
+        });
+
+        output = output[key];
+        pwd.push(key);
+    });
+
+    return output;
+}
+
+function __export(module, path, value) {
+    var splitPath = path.split('.');
+    var target = __import(module, splitPath.slice(0, splitPath.length - 1));
+
+    target[splitPath[splitPath.length - 1]] = value;
+};
+
 window.FunctionFaker = function(options) {
     if (Object.isFunc(options)) {
         options = {
@@ -34,15 +59,17 @@ window.FunctionFaker = function(options) {
     var property = null;
     var follow = options.follow || false;
 
+
     if (Object.isFunc(method)) {
         origin = method;
-    } else if (Object.isNone(options.instance) === false) {
+    } else if (Object.isString(method)) {
         property = method;
-        origin = options.instance[method];
-        Assert.that(Object.isFunc(origin), '"${method}" is not a method property', {method: method});
+        origin = __import(options.instance || window, method);
     } else {
-        throw new Error('"${method}" is not a function'.template({method: method}));
+        throw new Error('"${method}" is not a function nor a path'.template({method: method}));
     }
+
+    Assert.that(Object.isFunc(origin), '"${method}" is not a function', {method: method});
 
     this._calls = [];
 
@@ -96,7 +123,7 @@ FunctionFaker.prototype = {
             this._wrapper = this._makeWrapper().bind(this._instance);
 
             if (this._property) {
-                this._instance[this._property] = this._wrapper;
+                __export(this._instance || window, this._property, this._wrapper);
             }
         }
 
@@ -106,7 +133,7 @@ FunctionFaker.prototype = {
     unwrap: function() {
         if (this._wrapper) {
             if (this._property) {
-                this._instance[this._property] = this._origin;
+                __export(this._instance || window, this._property, this._origin);
             }
 
             delete this._wrapper;
