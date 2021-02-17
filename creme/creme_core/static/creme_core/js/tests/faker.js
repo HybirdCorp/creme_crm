@@ -10,6 +10,17 @@ MockA.prototype = {
     func: function() {
         this.real += 1;
         return 'MockA!';
+    },
+
+    toString: function() {
+        return 'MockA';
+    },
+
+    data: {
+        x: 12,
+        func: function() {
+            return 'MockA.data.func';
+        }
     }
 };
 
@@ -28,13 +39,31 @@ QUnit.test('FunctionFaker', function(assert) {
 QUnit.test('FunctionFaker (errors)', function(assert) {
     this.assertRaises(function() {
         return new FunctionFaker({method: 12});
-    }, Error, 'Error: "12" is not a function');
+    }, Error, 'Error: "12" is not a function nor a path');
 
     this.assertRaises(function() {
         return new FunctionFaker({
             instance: new MockA(), method: 'unknown'
         });
-    }, Error, 'Error: "unknown" is not a method property');
+    }, Error, 'Error: "unknown" is not a property of MockA');
+
+    this.assertRaises(function() {
+        return new FunctionFaker({
+            method: 'unknown'
+        });
+    }, Error, 'Error: "unknown" is not a property of ' + String(window));
+
+    this.assertRaises(function() {
+        return new FunctionFaker({
+            instance: new MockA(), method: 'data.unknown'
+        });
+    }, Error, 'Error: "unknown" is not a property of MockA.data');
+
+    this.assertRaises(function() {
+        return new FunctionFaker({
+            instance: new MockA(), method: 'data.x'
+        });
+    }, Error, 'Error: "data.x" is not a function');
 });
 
 QUnit.test('FunctionFaker.wrap (property)', function(assert) {
@@ -254,6 +283,76 @@ QUnit.test('FunctionFaker.with', function(assert) {
     equal(faker.called(), true);
     equal(faker.count(), 2);
 });
+
+QUnit.test('FunctionFaker.with (path)', function(assert) {
+    var instance = new MockA();
+    var faker = new FunctionFaker({
+        instance: instance, method: 'data.func', result: 'Fake!'
+    });
+
+    faker.with(function(faker, wrapper) {
+        equal(instance.data.func('arg1', 'arg2'), 'Fake!');
+
+        deepEqual(faker.calls(), [['arg1', 'arg2']]);
+        equal(faker.called(), true);
+        equal(faker.count(), 1);
+
+        wrapper('arg3', 'arg4');
+
+        deepEqual(faker.calls(), [
+            ['arg1', 'arg2'],
+            ['arg3', 'arg4']
+        ]);
+        equal(faker.called(), true);
+        equal(faker.count(), 2);
+    });
+
+    equal(instance.data.func('arg1', 'arg2'), 'MockA.data.func');
+
+    deepEqual(faker.calls(), [
+        ['arg1', 'arg2'],
+        ['arg3', 'arg4']
+    ]);
+    equal(faker.called(), true);
+    equal(faker.count(), 2);
+});
+
+QUnit.test('FunctionFaker.with (static path)', function(assert) {
+    var faker = new FunctionFaker({
+        method: 'JSON.stringify', result: 'Fake!'
+    });
+
+    var origin = JSON.stringify;
+    var dump = JSON.stringify({a: 12, b: 'B'});
+
+    faker.with(function(faker, wrapper) {
+        equal(JSON.stringify({a: 12, b: 'B'}), 'Fake!');
+
+        deepEqual(faker.calls(), [[{a: 12, b: 'B'}]]);
+        equal(faker.called(), true);
+        equal(faker.count(), 1);
+
+        wrapper({c: 5, d: 'D'});
+
+        deepEqual(faker.calls(), [
+            [{a: 12, b: 'B'}],
+            [{c: 5, d: 'D'}]
+        ]);
+        equal(faker.called(), true);
+        equal(faker.count(), 2);
+    });
+
+    equal(JSON.stringify, origin);
+    equal(JSON.stringify({a: 12, b: 'B'}), dump);
+
+    deepEqual(faker.calls(), [
+        [{a: 12, b: 'B'}],
+        [{c: 5, d: 'D'}]
+    ]);
+    equal(faker.called(), true);
+    equal(faker.count(), 2);
+});
+
 
 QUnit.test('PropertyFaker (null)', function(assert) {
     this.assertRaises(function() {
