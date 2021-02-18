@@ -7,10 +7,9 @@ QUnit.module("creme.ajax.utils.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMix
         return new creme.ajax.MockAjaxBackend({sync: true, name: 'creme.ajax.utils.js'});
     },
 
-    beforeEach: function() {
-    },
-
     afterEach: function() {
+        // reset csrftoken cookie
+        document.cookie = 'csrftoken=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
     },
 
     assertUrlSearchData: function(expected, data) {
@@ -366,8 +365,6 @@ QUnit.parameterize('creme.ajax.jqueryFormSubmit (options)', [
         instance: $.fn, method: 'ajaxSubmit'
     });
 
-    document.cookie = 'csrftoken=my-token';
-
     var form = $(
         '<form action="mock/a">' +
             '<input type="text" name="a" value="A"></input>' +
@@ -375,6 +372,7 @@ QUnit.parameterize('creme.ajax.jqueryFormSubmit (options)', [
     );
 
     faker.with(function() {
+        document.cookie = 'csrftoken=my-token';
         creme.ajax.jqueryFormSubmit(form, successCb, errorCb, options);
     });
 
@@ -387,7 +385,8 @@ QUnit.parameterize('creme.ajax.jqueryFormSubmit (options)', [
 
 QUnit.parameterize('creme.ajax.jqueryFormSubmit (django csrftoken)', [
     [{}, {
-        action: 'mock/a'
+        action: 'mock/a',
+        headers: {}
     }],
     [{headers: {'X-CSRFToken': 'my-token'}}, {
         action: 'mock/a',
@@ -399,8 +398,6 @@ QUnit.parameterize('creme.ajax.jqueryFormSubmit (django csrftoken)', [
     var faker = new FunctionFaker({
         instance: $.fn, method: 'ajaxSubmit'
     });
-
-    document.cookie = 'csrftoken=my-token';
 
     var form = $(
         '<form action="mock/a">' +
@@ -598,6 +595,181 @@ QUnit.test('creme.ajax.jqueryFormSubmit (no callback)', function(assert) {
     submitCall.success('Ok', 'success', {status: 200, responseText: "Ok"}, form);
     submitCall.success('HTTPError 403', 'success', {status: 0, responseText: "HTTPError 403"}, form);
     submitCall.success('Ok', 'success', {status: 0, responseText: "Ok"}, form);
+});
+
+QUnit.parameterize('creme.ajax.jqueryAjaxSend (options)', [
+    ['', {}, {}, {
+        url: '',
+        async: true,
+        data: {},
+        dataType: 'json',
+        type: 'GET',
+        headers: {}
+    }],
+    ['mock/a', {a: 12}, {sync: true}, {
+        url: 'mock/a',
+        async: false,
+        data: {a: 12},
+        dataType: 'json',
+        type: 'GET',
+        headers: {}
+    }],
+    ['mock/a', {a: 12}, {method: 'POST', dataType: 'text'}, {
+        url: 'mock/a',
+        async: true,
+        data: {a: 12},
+        dataType: 'text',
+        type: 'POST',
+        headers: {}
+    }]
+], function(url, data, options, expected, assert) {
+    var successCb = function() {};
+    var errorCb = function() {};
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
+    });
+
+    ajaxFaker.with(function() {
+        creme.ajax.jqueryAjaxSend(url, data, successCb, errorCb, options);
+    });
+
+    equal(ajaxFaker.count(), 1);
+
+    var ajaxCall = ajaxFaker.calls()[0][0];
+
+    equal(ajaxCall.async, expected.async);
+    equal(ajaxCall.url, expected.url);
+    deepEqual(ajaxCall.data, expected.data);
+    equal(ajaxCall.dataType, expected.dataType);
+    equal(ajaxCall.type, expected.type);
+    deepEqual(ajaxCall.headers, expected.headers);
+});
+
+QUnit.parameterize('creme.ajax.jqueryAjaxSend (headers)', [
+    ['my-token', {}, {
+        headers: {'X-CSRFToken': 'my-token'}
+    }],
+    ['', {headers: {'X-CSRFToken': 'my-token'}}, {
+        headers: {'X-CSRFToken': 'my-token'}
+    }],
+    ['my-token', {headers: {'X-CSRFToken': 'my-other-token'}}, {
+        headers: {'X-CSRFToken': 'my-other-token'}
+    }]
+], function(token, options, expected, assert) {
+    var successCb = function() {};
+    var errorCb = function() {};
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
+    });
+
+    ajaxFaker.with(function() {
+        if (token.length) {
+            document.cookie = 'csrftoken=' + token;
+        }
+
+        creme.ajax.jqueryAjaxSend('mock/a', {}, successCb, errorCb, options);
+    });
+
+    equal(ajaxFaker.count(), 1);
+
+    var ajaxCall = ajaxFaker.calls()[0][0];
+
+    deepEqual(ajaxCall.headers, expected.headers);
+});
+
+
+QUnit.parameterize('creme.ajax.jqueryAjaxSend (error callback)', [
+    ['Wrong', {status: 400, statusText: 'error', responseText: "Wrong call!"}, {
+        responseText: 'Wrong call!',
+        message: 'HTTP 400 - error',
+        status: 400,
+        xhr: {status: 400, statusText: 'error', responseText: "Wrong call!"}
+    }],
+    ['parseerror', {status: 0, statusText: 'parseerror', responseText: "Invalid JSON"}, {
+        responseText: 'Invalid JSON',
+        message: 'JSON parse error',
+        status: 0,
+        xhr: {status: 0, statusText: 'parseerror', responseText: "Invalid JSON"}
+    }]
+], function(textStatus, xhr, expected, assert) {
+    var successCb = new FunctionFaker();
+    var errorCb = new FunctionFaker();
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
+    });
+
+    ajaxFaker.with(function() {
+        creme.ajax.jqueryAjaxSend('mock/a', {}, successCb.wrap(), errorCb.wrap(), {});
+    });
+
+    // retrieve internal callbacks from the ajaxSubmit call
+    var ajaxCall = ajaxFaker.calls()[0][0];
+    ok(Object.isFunc(ajaxCall.success));
+    ok(Object.isFunc(ajaxCall.error));
+
+    // now call internal error callback
+    ajaxCall.error(xhr, textStatus);
+
+    equal(successCb.count(), 0);
+    equal(errorCb.count(), 1);
+
+    deepEqual(errorCb.calls(), [
+        [
+            expected.responseText, {
+                type: "request",
+                status:  expected.status,
+                message: expected.message,
+                request: expected.xhr
+            }
+        ]
+    ]);
+});
+
+QUnit.test('creme.ajax.jqueryAjaxSend (success callback)', function(assert) {
+    var successCb = new FunctionFaker();
+    var errorCb = new FunctionFaker();
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
+    });
+
+    ajaxFaker.with(function() {
+        creme.ajax.jqueryAjaxSend('mock/a', {}, successCb.wrap(), errorCb.wrap(), {});
+    });
+
+    // retrieve internal callbacks from the ajaxSubmit call
+    var ajaxCall = ajaxFaker.calls()[0][0];
+    ok(Object.isFunc(ajaxCall.success));
+    ok(Object.isFunc(ajaxCall.error));
+
+    // now call internal error callback
+    ajaxCall.success({a: 12}, 'success', {status: 200, responseText: 'Ok'});
+
+    equal(successCb.count(), 1);
+    equal(errorCb.count(), 0);
+
+    deepEqual(successCb.calls(), [
+        [{a: 12}, 'success', {status: 200, responseText: 'Ok'}]
+    ]);
+});
+
+QUnit.test('creme.ajax.jqueryAjaxSend (no callback)', function(assert) {
+    var ajaxFaker = new FunctionFaker({
+        instance: $, method: 'ajax'
+    });
+
+    ajaxFaker.with(function() {
+        creme.ajax.jqueryAjaxSend('mock/a', {}, undefined, undefined, {});
+    });
+
+ // retrieve internal callbacks from the ajaxSubmit call
+    var ajaxCall = ajaxFaker.calls()[0][0];
+    ok(Object.isFunc(ajaxCall.success));
+    ok(Object.isFunc(ajaxCall.error));
+
+    // now call internal error callback
+    ajaxCall.error({status: 400, responseText: "Wrong call!"}, 'error');
+    ajaxCall.error({status: 0, responseText: "JSON error"}, 'parseerror');
+    ajaxCall.success('Ok', 'success', {status: 200, responseText: "Ok"});
 });
 
 }(jQuery));
