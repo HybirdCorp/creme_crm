@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-15 16:50+0100\n"
+"POT-Creation-Date: 2021-02-18 17:14+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -190,10 +190,10 @@ msgstr ""
 "La colonne avec le champ calculé=\"{ffield}\" est invalide dans «{container}»."
 
 #: core/importers.py:742
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "The column with relation-type=\"{rtype}\" is invalid in «{container}»."
 msgstr ""
-"La colonne avec le type de relation=\"{rtype}\" est invalide dans  «{container}»."
+"La colonne avec le type de relation=\"{rtype}\" est invalide dans «{container}»."
 
 #: core/importers.py:761
 msgid "This view of list cannot be overridden: «{}»."
