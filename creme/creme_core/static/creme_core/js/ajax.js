@@ -160,6 +160,8 @@ creme.ajax.reloadContent = function($target, target_url) {
 };
 
 creme.ajax.json = {};
+
+// TODO : merge this in creme.ajax.jqueryAjaxSend
 creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
     var message;
 
@@ -179,6 +181,13 @@ creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
 };
 
 creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, parameters) {
+    console.warn('creme.ajax.json.send is deprecated. Use creme.ajax.Query(...) instead');
+
+    creme.ajax.jqueryAjaxSend(url, data, success_cb, error_cb, $.extend({
+        sync: sync,
+        method: method
+    }, parameters || {}));
+/*
     var ajax_parameters = {
         async: !sync,
         type: method,
@@ -202,6 +211,7 @@ creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, p
     }
 
     $.ajax(ajax_parameters);
+*/
 };
 
 creme.ajax.json.post = function(url, data, success_cb, error_cb, sync, parameters) {
@@ -215,7 +225,9 @@ creme.ajax.json.get = function(url, data, success_cb, error_cb, sync, parameters
 // Make sure the incoming data is actual JSON
 // Logic borrowed from http://json.org/json2.js
 // TODO : Factorise with creme.utils.JSON
+/* istanbul ignore next */
 creme.ajax.json.isvalid = function(data) {
+    console.warn('creme.ajax.json.parse is deprecated. Use creme.utils.JSON.isValid');
     return Object.isString(data) &&
            /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
                                     .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
@@ -224,7 +236,9 @@ creme.ajax.json.isvalid = function(data) {
 
 // Code copied from JQuery 1.4.*
 // TODO : Factorise with creme.utils.JSON
+/* istanbul ignore next */
 creme.ajax.json.parse = function(data) {
+    console.warn('creme.ajax.json.parse is deprecated. Use JSON.parse and catch exceptions instead');
     if (!data || !Object.isString(data)) {
         return null;
     }
@@ -249,6 +263,7 @@ creme.ajax.json.parse = function(data) {
      }
  };
 
+/* Never used. Anyway creme.ajax.jqueryFormSubmit() should be used instead
 creme.ajax.json.ajaxFormSubmit = function($form, success_cb, error_cb, sync, parameters) {
     creme.ajax.json.post($form.attr('action'),
                          $form.serialize(),
@@ -256,4 +271,6 @@ creme.ajax.json.ajaxFormSubmit = function($form, success_cb, error_cb, sync, par
                          error_cb, sync, parameters
     );
 };
+*/
+
 }(jQuery));

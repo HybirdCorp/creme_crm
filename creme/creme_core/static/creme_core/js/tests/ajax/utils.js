@@ -1,3 +1,5 @@
+/* globals FunctionFaker */
+
 (function($) {
 
 QUnit.module("creme.ajax.utils.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMixin, {
@@ -280,6 +282,28 @@ QUnit.test('creme.ajax.cookieCSRF', function(assert) {
             document.cookie = 'csrftoken=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
         }
     }
+});
+
+QUnit.parameterize('creme.ajax.json.send (deprecated alias)', [
+    [false, 'GET', {}, {sync: false, method: 'GET'}],
+    [false, 'GET', {sync: true}, {sync: true, method: 'GET'}],
+    [false, 'GET', {dataType: 'text'}, {sync: false, method: 'GET', dataType: 'text'}],
+    [true, 'POST', {dataType: 'text'}, {sync: true, method: 'POST', dataType: 'text'}]
+], function(isSync, method, options, expected, assert) {
+    var successCb = function() {};
+    var errorCb = function() {};
+
+    var faker = new FunctionFaker({
+        method: 'creme.ajax.jqueryAjaxSend'
+    });
+
+    faker.with(function() {
+        creme.ajax.json.send('mock/a', {a: 12}, successCb, errorCb, isSync, method, options);
+    });
+
+    deepEqual(faker.calls(), [
+        ['mock/a', {a: 12}, successCb, errorCb, expected]
+    ]);
 });
 
 }(jQuery));
