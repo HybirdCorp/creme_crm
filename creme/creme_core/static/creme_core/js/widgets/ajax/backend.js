@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -155,15 +155,14 @@ creme.ajax.serializeFormAsDict = function(form, extraData) {
     return data;
 };
 
-creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options) {
+creme.ajax.jqueryFormSubmit = function(form, successCb, errorCb, options) {
     options = options || {};
 
-    var form_action = form.attr('action');
-    var needs_iframe = $('input[type=file]', form).length > 0; // disable iframe if no file input in form
+    var formUrl = form.attr('action');
 
-    form.attr('action', options.action || form_action);
+    form.attr('action', options.action || formUrl);
 
-    function parse_iframe_response_status(responseText) {
+    function _parseIFrameResponseStatus(responseText) {
         if (/^HTTPError [0-9]+$/.test(responseText)) {
             return parseInt(responseText.substr('HTTPError '.length));
         } else {
@@ -171,53 +170,55 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options) {
         }
     }
 
-    var submit_options = {
-        iframe: needs_iframe,
-        success: function(responseText, statusText, xhr, form) {
-            form.attr('action', form_action);
+    function _onSuccess(responseText, statusText, xhr, form) {
+        form.attr('action', formUrl);
 
-            if (needs_iframe && xhr.status === 0) {
-                xhr.status = parse_iframe_response_status(responseText);
-            }
+        if (submitOptions.iframe && xhr.status === 0) {
+            xhr.status = _parseIFrameResponseStatus(responseText);
+        }
 
-            if (xhr.status === 200) {
-                if (success_cb !== undefined) {
-                    success_cb(responseText, statusText, xhr, form);
-                }
-
-                return;
+        if (xhr.status === 200) {
+            if (Object.isFunc(successCb)) {
+                successCb(responseText, statusText, xhr, form);
             }
-
-            if (error_cb !== undefined) {
-                error_cb(responseText, {
-                    type:    "request",
-                    status:  xhr.status,
-                    message: "HTTP - " + xhr.status + " error",
-                    request: xhr
-                });
-            }
-        },
-        error: function(xhr) {
-            if (error_cb !== undefined) {
-                error_cb(xhr.responseText, {
-                    type:   "request",
-                    status:  xhr.status,
-                    message: "HTTP - " + xhr.status + " error",
-                    request: xhr});
-            }
+        } else if (Object.isFunc(errorCb)) {
+            errorCb(responseText, {
+                type:    "request",
+                status:  xhr.status,
+                message: "HTTP - " + xhr.status + " error",
+                request: xhr
+            });
         }
     };
 
-    submit_options = $.extend({}, submit_options, options, true);
+    function _onError(xhr) {
+        if (Object.isFunc(errorCb)) {
+            errorCb(xhr.responseText, {
+                type:   "request",
+                status:  xhr.status,
+                message: "HTTP - " + xhr.status + " error",
+                request: xhr});
+        }
+    };
+
+    // disable iframe if no file input in form
+    var useIFrame = $('input[type=file]', form).length > 0;
+
+    var submitOptions = $.extend({
+        iframe: useIFrame,
+        success: _onSuccess,
+        error: _onError
+    }, options, true);
 
     if ($('input[name="csrfmiddlewaretoken"]', form).length === 0) {
-        submit_options.headers = $.extend(options.headers || {}, {'X-CSRFToken': creme.ajax.cookieCSRF()});
+        submitOptions.headers = {'X-CSRFToken': creme.ajax.cookieCSRF()};
     }
 
-    $(form).ajaxSubmit(submit_options);
+    $.extend(submitOptions.headers, options.headers || {});
+
+    $(form).ajaxSubmit(submitOptions);
 };
 
-// TODO : This code is duplicated from creme.ajax.json.send and will replace it in the future
 // TODO : replace success_cb/error_cb by listeners.
 creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options) {
     options = options || {};
