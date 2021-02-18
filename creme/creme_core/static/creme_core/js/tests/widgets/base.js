@@ -86,10 +86,10 @@ QUnit.test('creme.widget.template (template:keys, values: not in template)', fun
 });
 
 QUnit.test('creme.widget.parseval (parser: json, value: none)', function(assert) {
-    var result = creme.widget.parseval(undefined, creme.ajax.json.parse);
+    var result = creme.widget.parseval(undefined, JSON.parse);
     equal(result, undefined);
 
-    result = creme.widget.parseval(null, creme.ajax.json.parse);
+    result = creme.widget.parseval(null, JSON.parse);
     equal(result, null);
 
     result = creme.widget.parseval(undefined);
@@ -100,7 +100,7 @@ QUnit.test('creme.widget.parseval (parser: json, value: none)', function(assert)
 });
 
 QUnit.test('creme.widget.parseval (parser: json, value: object)', function(assert) {
-    var result = creme.widget.parseval({'a': 2, 'b': 3}, creme.ajax.json.parse);
+    var result = creme.widget.parseval({'a': 2, 'b': 3}, JSON.parse);
     deepEqual(result, {'a': 2, 'b': 3});
 
     result = creme.widget.parseval({'a': 2, 'b': 3});
@@ -111,30 +111,30 @@ QUnit.test('creme.widget.parseval (parser: json, value: object)', function(asser
 });
 
 QUnit.test('creme.widget.parseval (parser: json, value: invalid json)', function(assert) {
-    var result = creme.widget.parseval('{"a":2, "b":3', creme.ajax.json.parse);
+    var result = creme.widget.parseval('{"a":2, "b":3', JSON.parse);
     equal(result, null);
 
-    result = creme.widget.parseval('', creme.ajax.json.parse);
+    result = creme.widget.parseval('', JSON.parse);
     equal(result, null);
 
-    result = creme.widget.parseval('["a", 2', creme.ajax.json.parse);
+    result = creme.widget.parseval('["a", 2', JSON.parse);
     equal(result, null);
 
-    result = creme.widget.parseval("15a335", creme.ajax.json.parse);
+    result = creme.widget.parseval("15a335", JSON.parse);
     equal(result, null);
 });
 
 QUnit.test('creme.widget.parseval (parser: json, value: valid json)', function(assert) {
-    var result = creme.widget.parseval('{"a":2, "b":3}', creme.ajax.json.parse);
+    var result = creme.widget.parseval('{"a":2, "b":3}', JSON.parse);
     deepEqual(result, {'a': 2, 'b': 3});
 
-    result = creme.widget.parseval('""', creme.ajax.json.parse);
+    result = creme.widget.parseval('""', JSON.parse);
     deepEqual(result, "");
 
-    result = creme.widget.parseval('["a", "b", 2]', creme.ajax.json.parse);
+    result = creme.widget.parseval('["a", "b", 2]', JSON.parse);
     deepEqual(result, ['a', 'b', 2]);
 
-    result = creme.widget.parseval("15335", creme.ajax.json.parse);
+    result = creme.widget.parseval("15335", JSON.parse);
     equal(result, 15335);
 });
 

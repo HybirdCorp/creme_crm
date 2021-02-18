@@ -381,7 +381,7 @@ QUnit.test('creme.widget.values_list (setter, inputs: widget, values: invalid js
     creme.widget.values_list(element, "{'0':'dict'");
     equal(input.val(), "{'0':'dict'");
 
-    creme.widget.values_list(element, "{'0':'dict'", creme.ajax.json.parse);
+    creme.widget.values_list(element, "{'0':'dict'", JSON.parse);
     equal(input.val(), "");
 });
 
@@ -392,13 +392,13 @@ QUnit.test('creme.widget.values_list (setter, inputs: widget, values: valid json
     creme.widget.values_list(element, '{"0":"dict",   "1":  15}');
     equal(input.val(), '{"0":"dict",   "1":  15}');
 
-    creme.widget.values_list(element, '{"0":"dict",   "1":  15}', creme.ajax.json.parse);
+    creme.widget.values_list(element, '{"0":"dict",   "1":  15}', JSON.parse);
     equal(input.val(), '{"0":"dict","1":15}');
 
     creme.widget.values_list(element, '["0"]');
     equal(input.val(), '["0"]');
 
-    creme.widget.values_list(element, '["0"]', creme.ajax.json.parse);
+    creme.widget.values_list(element, '["0"]', JSON.parse);
     equal(input.val(), 0);
 });
 
@@ -431,7 +431,7 @@ QUnit.test('creme.widget.values_list (setter, inputs: multiple input, values: in
     equal($(inputs[1]).val(), 41);
     equal($(inputs[2]).val(), 42);
 
-    creme.widget.values_list(inputs, '["51", "52", 53', creme.ajax.json.parse);
+    creme.widget.values_list(inputs, '["51", "52", 53', JSON.parse);
     equal($(inputs[0]).val(), '');
     equal($(inputs[1]).val(), '');
     equal($(inputs[2]).val(), '');
@@ -446,12 +446,12 @@ QUnit.test('creme.widget.values_list (setter, inputs: multiple input, values: va
     equal($(inputs[1]).val(), 41);
     equal($(inputs[2]).val(), 42);
 
-    creme.widget.values_list(inputs, '["51", "52", "53"]', creme.ajax.json.parse);
+    creme.widget.values_list(inputs, '["51", "52", "53"]', JSON.parse);
     equal($(inputs[0]).val(), 51);
     equal($(inputs[1]).val(), 52);
     equal($(inputs[2]).val(), 53);
 
-    creme.widget.values_list(inputs, '["a", "b"]', creme.ajax.json.parse);
+    creme.widget.values_list(inputs, '["a", "b"]', JSON.parse);
     equal($(inputs[0]).val(), "a");
     equal($(inputs[1]).val(), "b");
     equal($(inputs[2]).val(), '');
@@ -486,7 +486,7 @@ QUnit.test('creme.widget.values_list (setter, inputs: widget multiple, values: i
     equal($(mocks[1]).creme().widget().val(), 41);
     equal($(mocks[2]).creme().widget().val(), 42);
 
-    creme.widget.values_list(mocks, '["51", "52", 53', creme.ajax.json.parse);
+    creme.widget.values_list(mocks, '["51", "52", 53', JSON.parse);
     equal($(mocks[0]).creme().widget().val(), '');
     equal($(mocks[1]).creme().widget().val(), '');
     equal($(mocks[2]).creme().widget().val(), '');
@@ -501,7 +501,7 @@ QUnit.test('creme.widget.values_list (setter, inputs: widget multiple, values: v
     equal($(mocks[1]).creme().widget().val(), 41);
     equal($(mocks[2]).creme().widget().val(), 42);
 
-    creme.widget.values_list(mocks, '["51", "52", 53]', creme.ajax.json.parse);
+    creme.widget.values_list(mocks, '["51", "52", 53]', JSON.parse);
     equal($(mocks[0]).creme().widget().val(), 51);
     equal($(mocks[1]).creme().widget().val(), 52);
     equal($(mocks[2]).creme().widget().val(), 53);
