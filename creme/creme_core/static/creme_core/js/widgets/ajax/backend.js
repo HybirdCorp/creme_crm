@@ -203,51 +203,70 @@ creme.ajax.jqueryFormSubmit = function(form, successCb, errorCb, options) {
 
     // disable iframe if no file input in form
     var useIFrame = $('input[type=file]', form).length > 0;
-
-    var submitOptions = $.extend({
-        iframe: useIFrame,
-        success: _onSuccess,
-        error: _onError
-    }, options, true);
+    var headers = {};
 
     if ($('input[name="csrfmiddlewaretoken"]', form).length === 0) {
-        submitOptions.headers = {'X-CSRFToken': creme.ajax.cookieCSRF()};
+        headers = {'X-CSRFToken': creme.ajax.cookieCSRF()};
     }
 
-    $.extend(submitOptions.headers, options.headers || {});
+    var submitOptions = $.extend(true, {
+        iframe: useIFrame,
+        success: _onSuccess,
+        error: _onError,
+        headers: headers
+    }, options);
 
     $(form).ajaxSubmit(submitOptions);
 };
 
 // TODO : replace success_cb/error_cb by listeners.
-creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options) {
+creme.ajax.jqueryAjaxSend = function(url, data, successCb, errorCb, options) {
     options = options || {};
 
-    var csrf = creme.ajax.cookieCSRF();
+    function _onSuccess(data, textStatus, xhr) {
+        if (Object.isFunc(successCb)) {
+            successCb(data, textStatus, xhr);
+        }
+    };
 
-    var ajax_options = $.extend({
+    function _errorMessage(xhr, textStatus) {
+        if (textStatus === 'parseerror') {
+            return "JSON parse error";
+        } else {
+            return "HTTP ${status} - ${statusText}".template(xhr);
+        }
+    };
+
+    function _onError(xhr, textStatus, errorThrown) {
+        if (Object.isFunc(errorCb)) {
+            errorCb(xhr.responseText, {
+                type: "request",
+                status: xhr.status,
+                request: xhr,
+                message: _errorMessage(xhr, textStatus)
+            });
+        }
+    };
+
+    var csrf = creme.ajax.cookieCSRF();
+    var headers = {};
+
+    if (Object.isEmpty(csrf) === false) {
+        headers = {'X-CSRFToken': csrf};
+    }
+
+    var ajaxOptions = $.extend(true, {
         async:    !options.sync,
         type:     options.method || 'GET',
         url:      url,
-        data:     data !== undefined ? data : '',
+        data:     data || {},
         dataType: options.dataType || 'json',
-        success: function(data, textStatus, xhr) {
-            if (Object.isFunc(success_cb)) {
-                success_cb(data, textStatus, xhr);
-            }
-        },
-        error: function(req, textStatus, errorThrown) {
-            if (Object.isFunc(error_cb)) {
-                error_cb(req.responseText, creme.ajax.json._handleSendError(req, textStatus, errorThrown));
-            }
-        }
+        headers:  headers,
+        success:  _onSuccess,
+        error:    _onError
     }, options);
 
-    if (Object.isEmpty(csrf) === false) {
-        ajax_options.headers = $.extend(options.headers || {}, {'X-CSRFToken': csrf});
-    }
-
-    $.ajax(ajax_options);
+    return $.ajax(ajaxOptions);
 };
 
 var __defaultBackend = new creme.ajax.Backend();

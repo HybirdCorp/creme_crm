@@ -160,8 +160,7 @@ creme.ajax.reloadContent = function($target, target_url) {
 };
 
 creme.ajax.json = {};
-
-// TODO : merge this in creme.ajax.jqueryAjaxSend
+/*
 creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
     var message;
 
@@ -179,6 +178,7 @@ creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
         message: message
     };
 };
+*/
 
 creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, parameters) {
     console.warn('creme.ajax.json.send is deprecated. Use creme.ajax.Query(...) instead');
