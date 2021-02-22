@@ -31,7 +31,7 @@ creme.ajax.Backend = function(options) {
 
 creme.ajax.Backend.prototype = {
     get: function(url, data, on_success, on_error, options) {
-        var opts = $.extend({method: 'GET'}, this.options, options);
+        var opts = $.extend(true, {method: 'GET'}, this.options, options);
 
         if (opts.debug) {
             console.log('creme.ajax.Backend > GET', url, ' > data:', data, ', options:', opts);
@@ -41,7 +41,7 @@ creme.ajax.Backend.prototype = {
     },
 
     post: function(url, data, on_success, on_error, options) {
-        var opts = $.extend({method: 'POST'}, this.options, options, true);
+        var opts = $.extend(true, {method: 'POST'}, this.options, options);
 
         if (opts.debug) {
             console.log('creme.ajax.Backend > POST', url, ' > data:', data, ', options:', opts);
@@ -51,7 +51,7 @@ creme.ajax.Backend.prototype = {
     },
 
     submit: function(form, on_success, on_error, options) {
-        var opts = $.extend({}, this.options, options, true);
+        var opts = $.extend(true, {}, this.options, options);
 
         if (opts.debug) {
             console.log('creme.ajax.Backend > SUBMIT', form.attr('action'), '> options:', opts);
