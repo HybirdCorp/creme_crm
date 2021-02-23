@@ -608,6 +608,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 });
 
 // TODO : Remove this hack later after finding a better way to do this in the bulk edit field selector.
+/*
 creme.dialog.redirect = function(url, from) {
     if (from === undefined) {
         creme.utils.redirect(url);
@@ -619,6 +620,7 @@ creme.dialog.redirect = function(url, from) {
         dialog.fetch(url);
     }
 };
+*/
 
 creme.dialog.DialogAction = creme.component.Action.sub({
     _init_: function(options, listeners) {
@@ -684,14 +686,20 @@ creme.dialogs = $.extend(creme.dialogs, {
             });
         } else if (options.redirectOnSuccess) {
             dialog.onFormSuccess(function(event, response, dataType) {
+                var url;
+
                 if (options.redirectOnSuccess === true) {
                     if (response.isHTMLOrElement()) {
-                        creme.utils.goTo(response.data().attr('redirect') || data);
-                    } else {
-                        creme.utils.goTo(data.content);
+                        url = response.data().attr('redirect');
+                    } else if (response.isPlainText()) {
+                        url = response.content;
                     }
                 } else {
-                    creme.utils.goTo(options.redirectOnSuccess);
+                    url = options.redirectOnSuccess;
+                }
+
+                if (!Object.isEmpty(url)) {
+                    creme.utils.goTo(url);
                 }
             });
         }

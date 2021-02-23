@@ -65,6 +65,9 @@ var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>${data}</json>';
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_PRE = '<pre style="word-wrap: break-word; white-space: pre-wrap;">' + $.toJSON({value: 2, added: [5, 'John Pre']}) + '</pre>';
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
+var MOCK_FRAME_CONTENT_SUBMIT_INNER = '<div class="in-popup" closing="true"></div>';
+
+
 QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
                                                     QUnitAjaxMixin,
                                                     QUnitDialogMixin, {
@@ -98,10 +101,14 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
                     return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_PRE);
                 } else if (responseType === 'jsontag') {
                     return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON.template({data: responseData}));
+                } else if (responseType === 'innerpopup') {
+                    return backend.response(200, responseData || MOCK_FRAME_CONTENT_SUBMIT_INNER, {'content-type': 'text/html'});
                 } else if (responseType === 'invalid') {
                     return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID);
                 } else if (responseType === 'empty') {
                     return backend.response(200, '');
+                } else if (responseType === 'plain') {
+                    return backend.response(200, responseData, {'content-type': 'text/plain'});
                 } else {
                     return backend.response(200, responseData, {'content-type': 'text/json'});
                 }
@@ -1150,6 +1157,69 @@ QUnit.test('creme.dialog.FormDialog (empty response)', function(assert) {
     deepEqual([
         ['form-success', {content: '', data: '', type: 'text/html'}, 'text/html']
     ], this.mockFormSubmitCalls('form-success'));
+});
+
+QUnit.parametrize('creme.dialogs.form (reloadOnSuccess)', ['empty', 'innerpopup'], [
+    ['mock/submit/json', {}, {reloadCount: 0}],
+    ['mock/submit/json', {reloadOnSuccess: false}, {reloadCount: 0}],
+    ['mock/submit/json', {reloadOnSuccess: true}, {reloadCount: 1}],
+    ['mock/submit/fail', {reloadOnSuccess: true}, {reloadCount: 0}]
+], function(responseType, url, options, expected, assert) {
+    var dialog = creme.dialogs.form(url, options);
+
+    dialog.open();
+
+    dialog.form().find('[name="responseType"]').val(responseType);
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    dialog.submit();
+
+    equal(this.mockReloadCalls().length, expected.reloadCount);
+});
+
+QUnit.parametrize('creme.dialogs.form (redirectOnSuccess, empty response)', ['empty', 'innerpopup'], [
+    ['mock/submit/json', {}, {redirectCount: 0}],
+    ['mock/submit/json', {redirectOnSuccess: false}, {redirectCount: 0}],
+    ['mock/submit/json', {redirectOnSuccess: true}, {redirectCount: 0}],  // ignore empty or html without 'redirect' attribute
+    ['mock/submit/json', {redirectOnSuccess: 'mock/redirect'}, {redirectCount: 1}],
+    ['mock/submit/fail', {redirectOnSuccess: 'mock/redirect'}, {redirectCount: 0}]
+], function(responseType, url, options, expected, assert) {
+    var dialog = creme.dialogs.form(url, options);
+
+    dialog.open();
+
+    dialog.form().find('[name="responseType"]').val(responseType);
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    dialog.submit();
+
+    equal(this.mockRedirectCalls().length, expected.redirectCount);
+});
+
+QUnit.parametrize('creme.dialogs.form (redirectOnSuccess, response)', [
+    ['plain', 'mock/redirect'],
+    ['innerpopup', '<div class="in-popup" redirect="mock/redirect"></div>']
+], [
+    ['mock/submit/json', {}, {redirectCount: 0}],
+    ['mock/submit/json', {redirectOnSuccess: false}, {redirectCount: 0}],
+    ['mock/submit/json', {redirectOnSuccess: true}, {redirectCount: 1}],
+    ['mock/submit/fail', {redirectOnSuccess: true}, {redirectCount: 0}]
+], function(responseType, responseData, url, options, expected, assert) {
+    var dialog = creme.dialogs.form(url, options);
+
+    dialog.open();
+
+    dialog.form().find('[name="responseType"]').val(responseType);
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    dialog.submit({}, {
+        responseData: responseData
+    });
+
+    equal(this.mockRedirectCalls().length, expected.redirectCount);
 });
 
 }(jQuery));

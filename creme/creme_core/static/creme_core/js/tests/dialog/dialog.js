@@ -966,29 +966,39 @@ QUnit.test('creme.dialogs.image (element)', function(assert) {
     this.equalHtml('<img src="nowhere" class="no-title"/>', dialog.content());
 });
 
-QUnit.test('creme.dialogs.html', function(assert) {
-    var dialog = creme.dialogs.html('<p>This is a test</p>');
+QUnit.parametrize('creme.dialogs.html', [
+    [{}, {reloadCount: 0}],
+    [{reloadOnClose: false}, {reloadCount: 0}],
+    [{reloadOnClose: true}, {reloadCount: 1}]
+], function(options, expected, assert) {
+    var dialog = creme.dialogs.html('<p>This is a test</p>',  options);
 
     dialog.open();
 
     this.equalHtml('<p>This is a test</p>', dialog.content());
     dialog.close();
 
-    deepEqual([], this.mockRedirectCalls());
+    equal(this.mockReloadCalls().length, expected.reloadCount);
 });
 
-QUnit.test('creme.dialogs.html (reloadOnClose)', function(assert) {
-    var current_url = window.location.href;
-    var dialog = creme.dialogs.html('<p>This is a test</p>', {
-        reloadOnClose: true
-    });
+QUnit.parametrize('creme.dialogs.url', [
+    ['', {}, {content: 'Bad Request', fetchCount: 0, reloadCount: 0}],
+    ['mock/error', {reloadOnClose: false}, {content: 'HTTP - Error 500', fetchCount: 1, reloadCount: 0}],
+    ['mock/error', {reloadOnClose: true}, {content: 'HTTP - Error 500', fetchCount: 1, reloadCount: 1}],
+    ['mock/html', {reloadOnClose: false}, {content: 'This a frame test', fetchCount: 1, reloadCount: 0}],
+    ['mock/html', {reloadOnClose: true}, {content: 'This a frame test', fetchCount: 1, reloadCount: 1}]
+], function(url, options, expected, assert) {
+    var dialog = creme.dialogs.url(url, options);
+
+    equal(this.mockBackendCalls().length, expected.fetchCount);
+    equal(this.mockReloadCalls().length, 0);
+    ok(dialog.content().html().indexOf(expected.content) !== -1);
 
     dialog.open();
+    equal(this.mockReloadCalls().length, 0);
 
-    this.equalHtml('<p>This is a test</p>', dialog.content());
     dialog.close();
-
-    deepEqual([current_url], this.mockReloadCalls());
+    equal(this.mockReloadCalls().length, expected.reloadCount);
 });
 
 }(jQuery));
