@@ -140,11 +140,15 @@ class _ModelConfigEditor(_ModelConfigAction):
                 args=(
                     self._model._meta.app_label,
                     self.model_name,
-                    instance.id,
+                    # 'pk' instead of 'id' because a model could have a different primary key
+                    #  (like GeoAddress)
+                    # instance.id,
+                    instance.pk,
                 ),
             ) if url_name is None else reverse(
                 url_name,
-                args=(instance.id,),
+                # args=(instance.id,),
+                args=(instance.pk,),
             )
 
         return None
@@ -174,11 +178,13 @@ class _ModelConfigDeletor(_ModelConfigAction):
                 args=(
                     self._model._meta.app_label,
                     self.model_name,
-                    instance.id,
+                    # instance.id,
+                    instance.pk,
                 ),
             ) if url_name is None else reverse(
                 url_name,
-                args=(instance.id,),
+                # args=(instance.id,),
+                args=(instance.pk,),
             )
 
         return None
