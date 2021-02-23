@@ -93,8 +93,8 @@ Installation with 'pip':
  - Creme should be installed using 'pip install -e .'
  - About DB server :
    - If you use MySQL, you must add the 'mysql' flag:
-     'pip install .[mysql]'
-   - For PostGreSQL, use 'pip install .[pgsql]' instead.
+     'pip install -e .[mysql]'
+   - For PostGreSQL, use 'pip install -e .[pgsql]' instead.
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
  - Notice some of these python packages need system libraries to be installed.
    For example, here a list of Debian/Ubuntu packages you'll have to install before:
