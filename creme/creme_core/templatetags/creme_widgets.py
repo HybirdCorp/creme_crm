@@ -56,11 +56,13 @@ class IconNode(TemplateNode):
         def resolve(var, default):
             return var.resolve(context) if var is not None else default
 
-        icon = self._build_icon(context, theme=theme,
-                                size_px=get_icon_size_px(theme, resolve(self.size_var, 'medium')),
-                                label=resolve(self.label_var, ''),
-                                css_class=resolve(self.class_var, ''),
-                               )
+        icon = self._build_icon(
+            context,
+            theme=theme,
+            size_px=get_icon_size_px(theme, resolve(self.size_var, 'medium')),
+            label=resolve(self.label_var, ''),
+            css_class=resolve(self.class_var, ''),
+        )
 
         if self.asvar_name:
             context[self.asvar_name] = icon
@@ -212,9 +214,10 @@ def do_render_icon(parser, token):
 
         return parser.compile_filter(token)
 
-    return IconRendererNode(icon_var=compile_arg(bits[1], 'icon='),
-                            class_var=compile_arg(bits[2], 'class='),
-                           )
+    return IconRendererNode(
+        icon_var=compile_arg(bits[1], 'icon='),
+        class_var=compile_arg(bits[2], 'class='),
+    )
 
 
 class IconRendererNode(TemplateNode):
@@ -326,9 +329,10 @@ class JoinNode(TemplateNode):
         except KeyError:
             behaviour = self.behaviours['']
 
-        return behaviour(self.nodelist.render(context), counter=forloop['counter0'],
-                         is_first=forloop['first'], is_last=forloop['last'],
-                        )
+        return behaviour(
+            self.nodelist.render(context), counter=forloop['counter0'],
+            is_first=forloop['first'], is_last=forloop['last'],
+        )
 
 
 @register.filter

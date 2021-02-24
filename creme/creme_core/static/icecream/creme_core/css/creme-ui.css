@@ -10,7 +10,8 @@
     font-family: 'Open Sans', 'Verdana', sans-serif;
 }
 
-.ui-state-default, .ui-widget-content .ui-state-default {
+.ui-state-default,
+.ui-widget-content .ui-state-default {
     font-size: 1.1em;
 }
 
@@ -43,16 +44,21 @@
 }
 
 .ui-dialog .ui-dialog-buttonset button {
+    padding: 10px 30px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
     border: 1px solid #d7d7d7;
     border-bottom: 1px solid #bdbdbd;
-    padding: 10px 30px;
+    border-radius: 3px;
+
+    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+            box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+
     text-align: center;
     text-decoration: none;
     color: #333;
-    border-radius: 3px;
-    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
-    background: linear-gradient(#fcfcfc, #f0f0f0);
     text-transform: uppercase;
     font-size: 11px;
     font-weight: 600;
@@ -66,8 +72,10 @@
 .ui-dialog .ui-dialog-buttonset button:active {
     background: linear-gradient(#f9f9f9, #ededed);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+
     border-bottom-color: #d7d7d7;
     border-top-color: #bdbdbd;
+
     color: #1a1a1a;
 }
 
@@ -151,10 +159,12 @@ ul.ui-layout.vbox li {
     cursor: default;
 }
 
+/*
 .ui-creme-selectorlist button[type="button"].ui-creme-actionbutton {
     background-image: url("icecream/images/add_16.png");
     padding-left: 20px;
 }
+*/
 
 /*----------------------------------*/
 .ui-creme-chainedselect img.reset { border:0; vertical-align:middle; }
@@ -183,6 +193,7 @@ ul.ui-layout.vbox li {
     box-shadow: none !important;
 }
 
+/*
 .ui-creme-entityselector > button[type="button"] {
     min-width: 110px;
     padding: 2px 6px;
@@ -207,6 +218,7 @@ ul.ui-layout.vbox li {
 .ui-creme-entityselector > button[type="button"]:hover {
     background-color: #fafafa;
 }
+*/
 
 /*----------------------------------*/
 .ui-creme-overlay {
@@ -308,14 +320,18 @@ ul.ui-layout.vbox li {
 }
 
 .ui-creme-jqueryplot .jqplot-highlighter-tooltip {
+    z-index: 1;
+    padding: 3px;
+
     border: 0px;
     border-radius: 5px;
+
     background: black;
+
     color: white;
     font-size: 12px;
     font-weight: bold;
-    padding: 3px;
-    z-index: 1;
+
     pointer-events: none;
 }
 
@@ -365,7 +381,9 @@ ul.ui-creme-actionbuttonlist {
     padding: 0px 4px 0px 0px;
 }
 
-button[type="button"].ui-creme-actionbutton {
+button[type="button"].ui-creme-actionbutton,
+.ui-creme-entityselector > button[type="button"] {
+/*
     padding: 1px 6px 1px 6px;
     cursor: pointer;
     margin: 0px;
@@ -375,19 +393,48 @@ button[type="button"].ui-creme-actionbutton {
     background-position: 2px 50%;
     border: 1px solid #6E9EB2;
 
-    background-color: #ebebeb; /* desaturate and lighten */
+    background-color: #ebebeb; // desaturate and lighten
     color: #22439f;
+*/
+    padding: 3px 10px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+            box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+
+    cursor: pointer;
 }
 
-button[type="button"].ui-creme-actionbutton:hover {
+button[type="button"].ui-creme-actionbutton:hover,
+.ui-creme-entityselector > button[type="button"]:hover {
+/*
     text-decoration: none;
     color: #22439f;
     background-color: #f4fafd;
+*/
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
 }
 
-button[type="button"].ui-creme-actionbutton[disabled] {
+button[type="button"].ui-creme-actionbutton[disabled],
+.ui-creme-entityselector > button[type="button"][disabled] {
     opacity: .50;
     filter: Alpha(Opacity=50);
+
+    -webkit-box-shadow: none;
+       -moz-box-shadow: none;
+            box-shadow: none;
+
     cursor: default;
 }
 
@@ -395,6 +442,17 @@ button[type="button"].ui-creme-actionbutton[disabled]:hover {
     background-color: #ebebeb; /* desaturate and lighten */
 }
 
+
+button[type="button"].ui-creme-actionbutton.with-icon {
+    padding-left: 30px;
+}
+
+button[type="button"].ui-creme-actionbutton img {
+    position: absolute;
+    left: 11px;
+}
+
+/*
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=create] {
     background-image: url("icecream/images/add_16.png");
     padding-left: 20px;
@@ -414,6 +472,7 @@ ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name
     background-image: url("icecream/images/edit_16.png");
     padding-left: 20px;
 }
+*/
 
 /*
 td.td_info > ul.ui-creme-actionbuttonlist { width: 100%; }
@@ -423,7 +482,44 @@ td.td_info > ul.ui-creme-actionbuttonlist li.delegate > * { width: 100%; }
 
 /*-------------------------*/
 span.ui-creme-datepicker-trigger {
-    vertical-align:middle;
+    vertical-align: middle;
+}
+
+/* TODO: factorise ? */
+.creme-datepicker button[name="today"],
+.ui-creme-timepicker button,
+.ui-creme-datetimepicker button {
+    padding: 2px 10px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
+       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
+            box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+
+    cursor: pointer;
+}
+
+.creme-datepicker button[name="today"]:hover,
+.ui-creme-timepicker button:hover,
+.ui-creme-datetimepicker button:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.creme-datepicker button[name="today"]:disabled,
+.ui-creme-timepicker button:disabled,
+.ui-creme-datetimepicker button:disabled,
+input:disabled + .ui-datepicker-trigger {
+    display: none;
 }
 
 /*----------------------------------*/
@@ -451,10 +547,11 @@ span.ui-creme-datepicker-trigger {
 /*---------------------------------*/
 .checklist-header {
     float: right;
-    color: #777;
     margin-top: 2px;
     margin-bottom: 2px;
     margin-right: 5px;
+
+    color: #777;
 }
 
 .checklist-header a {
@@ -471,9 +568,10 @@ span.ui-creme-datepicker-trigger {
 }
 
 .checklist-header a+a {
-    border-left: 1px solid #777;
     padding-left: 4px;
     margin-left: 4px;
+
+    border-left: 1px solid #777;
 }
 
 .checklist-header a:hover {
@@ -500,12 +598,14 @@ span.ui-creme-datepicker-trigger {
 }
 
 .checklist-counter {
+    display: none;
     float: left;
-    color: #777;
+
     margin-left: 2px;
     margin-top: 2px;
     margin-bottom: 2px;
-    display: none;
+
+    color: #777;
 }
 
 .checklist-counter.visible {
@@ -867,6 +967,8 @@ span.ack-errors {
     display: block;
     background-color: #f08080;
 }
+
+/* Jobs - end */
 
 img.entity-summary {
     height: 64px;

@@ -56,11 +56,12 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         role.allowed_apps = ['persons']  # Not admin
         role.save()
 
-        user = get_user_model().objects.create_user(username='averagejoe',
-                                                    first_name='Joe',
-                                                    last_name='Average',
-                                                    email='averagejoe@company.com',
-                                                   )
+        user = get_user_model().objects.create_user(
+            username='averagejoe',
+            first_name='Joe',
+            last_name='Average',
+            email='averagejoe@company.com',
+        )
         user.role = role
 
         field.user = user
@@ -99,11 +100,13 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.user = get_user_model().objects.create(username='chloe', role=role)
 
         render_str = field.widget.render('position', None)
-        self.assertNotIn(reverse('creme_config__create_instance_from_widget',
-                                 args=('creme_core', 'fake_position')
-                                ),
-                         render_str,
-                        )
+        self.assertNotIn(
+            reverse(
+                'creme_config__create_instance_from_widget',
+                args=('creme_core', 'fake_position'),
+            ),
+            render_str,
+        )
         self.assertNotIn(str(FakePosition.creation_label), render_str)
 
     def test_queryset01(self):
@@ -114,10 +117,11 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
             choices = [*field.choices]
 
         self.assertListEqual(
-            [('', '---------'),
-             *((p.pk, str(p)) for p in FakeSector.objects.all()),
+            [
+                ('', '---------'),
+                *((p.pk, str(p)) for p in FakeSector.objects.all()),
             ],
-            choices
+            choices,
         )
 
     def test_queryset02(self):
@@ -129,10 +133,11 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
             options = [*field.choices]
 
         self.assertListEqual(
-            [('', '---------'),
-             *((p.pk, str(p)) for p in FakeSector.objects.all()),
+            [
+                ('', '---------'),
+                *((p.pk, str(p)) for p in FakeSector.objects.all()),
             ],
-            options
+            options,
         )
 
         # ------
@@ -150,11 +155,13 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         with self.assertNoException():
             choices = [*field.choices]
 
-        self.assertEqual([('', '---------'),
-                          (pk, FakeSector.objects.get(pk=pk).title),
-                         ],
-                         choices
-                        )
+        self.assertListEqual(
+            [
+                ('', '---------'),
+                (pk, FakeSector.objects.get(pk=pk).title),
+            ],
+            choices
+        )
 
     def test_filtered_queryset02(self):
         "With action"
@@ -180,10 +187,11 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
         self.assertFalse(hasattr(field.widget, 'actions'))
         self.assertListEqual(
-            [('', '---------'),
-             *((s.pk, str(s)) for s in FakeSector.objects.all())
+            [
+                ('', '---------'),
+                *((s.pk, str(s)) for s in FakeSector.objects.all()),
             ],
-            [*field.choices]
+            [*field.choices],
         )
 
     def test_queryset_property02(self):
@@ -220,37 +228,49 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
 
     def test_render_url_n_allowed(self):
-        widget = CreatorModelChoiceWidget(choices=[(1, 'A'), (2, 'B')],
-                                          creation_url=self.ADD_URL,
-                                          creation_allowed=True,
-                                         )
+        widget = CreatorModelChoiceWidget(
+            choices=[(1, 'A'), (2, 'B')],
+            creation_url=self.ADD_URL,
+            creation_allowed=True,
+        )
         name = 'test'
-        expected_fmt = '''
-<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
+        creation_label = _('Create')
+        expected = '''
+<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
+    widget="ui-creme-actionbuttonlist">
     <li class="delegate">
-        <select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" name="{name}" url="" widget="ui-creme-dselect">
+        <select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect"
+                name="{name}" url="" widget="ui-creme-dselect">
             <option value="1" selected>A</option>
             <option value="2">B</option>
         </select>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" name="create" title="{create_label}" type="button" popupurl="{create_url}">{create_label}</button>
+        <button class="ui-creme-actionbutton with-icon" name="create" title="{create_label}"
+                type="button" popupurl="{create_url}">
+            {create_icon}{create_label}
+        </button>
     </li>
-</ul>'''  # NOQA
-        expected = expected_fmt.format(
-            create_url=self.ADD_URL,
-            create_label=_('Create'),
+</ul>'''.format(
             name=name,
+
+            create_url=self.ADD_URL,
+            create_label=creation_label,
+            create_icon=self.get_icon(
+                'add', size='form-widget', label=creation_label,
+            ).render(),
         )
+        self.maxDiff = None
         self.assertHTMLEqual(expected, widget.render(name, 1))
         self.assertHTMLEqual(expected, widget.render(name, 1, attrs={}))
 
     def test_render_url_n_allowed_disabled(self):
-        widget = CreatorModelChoiceWidget(choices=[(1, 'A'), (2, 'B')],
-                                          creation_url=self.ADD_URL,
-                                          creation_allowed=True,
-                                          attrs={'disabled': True},
-                                         )
+        widget = CreatorModelChoiceWidget(
+            choices=[(1, 'A'), (2, 'B')],
+            creation_url=self.ADD_URL,
+            creation_allowed=True,
+            attrs={'disabled': True},
+        )
         name = 'testnoaction'
 
         self.assertHTMLEqual(
@@ -258,14 +278,14 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
             '  <option value="1" selected>A</option>'
             '  <option value="2">B</option>'
             '</select>'.format(name=name),
-            widget.render(name, 1, attrs={'disabled': True})
+            widget.render(name, 1, attrs={'disabled': True}),
         )
         self.assertHTMLEqual(
             '<select name="{name}" disabled readonly>'
             '  <option value="1" selected>A</option>'
             '  <option value="2">B</option>'
             '</select>'.format(name=name),
-            widget.render(name, 1, attrs={'readonly': True})
+            widget.render(name, 1, attrs={'readonly': True}),
         )
 
 
@@ -434,7 +454,6 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertTupleEqual((url, True), field.creation_url_n_allowed)
 
     def test_creation_url_n_allowed(self):
-        # user = self.login()
         user = create_user()
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
@@ -636,9 +655,10 @@ class CustomMultiEnumChoiceFieldTestCase(CremeTestCase):
         str_id2 = str(cfeval02.id)
         self.assertListEqual([cfeval01.id], field.clean([str_id1]))
         self.assertListEqual([cfeval02.id], field.clean([str_id2]))
-        self.assertListEqual([cfeval01.id, cfeval02.id],
-                             field.clean([str_id1, str_id2])
-                            )
+        self.assertListEqual(
+            [cfeval01.id, cfeval02.id],
+            field.clean([str_id1, str_id2])
+        )
         self.assertListEqual([], field.clean(''))
 
     def test_user_property(self):
@@ -728,5 +748,5 @@ class CustomMultiEnumChoiceFieldTestCase(CremeTestCase):
         field.user = create_user()
         self.assertTupleEqual(
             (reverse('creme_config__add_custom_enum', args=(cfield.id,)), True),
-            field.creation_url_n_allowed
+            field.creation_url_n_allowed,
         )

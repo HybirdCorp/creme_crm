@@ -22,6 +22,7 @@ import copy
 import logging
 from functools import partial
 from types import GeneratorType
+from typing import Optional
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -36,6 +37,62 @@ from ..utils.queries import QSerializer
 from ..utils.url import TemplateURLBuilder
 
 logger = logging.getLogger(__name__)
+
+
+class WidgetAction:
+    def __init__(self, *, name, label, icon=None, enabled=True, **attrs):
+        self.name = name
+        self.label = label
+        self.icon = icon
+        self.enabled = enabled
+        self.attrs = attrs
+
+    def __eq__(self, other):
+        return (
+            self.name == other.name
+            and self.label == other.label
+            and self.icon == other.icon
+            and self.enabled == other.enabled
+            and self.attrs == other.attrs
+        )
+
+    def __repr__(self):
+        return (
+            f'WidgetAction('
+            f'name={self.name!r}, '
+            f'label={self.label!r}, '
+            f'icon={self.icon!r}, '
+            f'enabled={self.enabled}, '
+            f'attrs={self.attrs}'
+            f')'
+        )
+
+    @property
+    def enabled(self):
+        enabled = self._enabled
+        return enabled() if callable(enabled) else (enabled is True)
+
+    @enabled.setter
+    def enabled(self, enabled):
+        self._enabled = enabled
+
+    @property
+    def context(self):
+        attrs = {**self.attrs}
+        label = self.label
+
+        if not self.enabled:
+            attrs['disabled'] = True
+
+        title = attrs.pop('title', label)
+
+        return {
+            'name': self.name,
+            'label': label,
+            'icon': self.icon,
+            'attrs': attrs,
+            'title': title,
+        }
 
 
 # TODO: to be improved....
@@ -168,6 +225,8 @@ class DynamicSelectMultiple(EnhancedSelectOptions, widgets.SelectMultiple):
 class ActionButtonList(widgets.Widget):
     template_name = 'creme_core/forms/widgets/action-button-list.html'
 
+    action_class = WidgetAction
+
     def __init__(self, delegate, attrs=None, actions=()):
         super().__init__(attrs)
         self.delegate = delegate
@@ -179,27 +238,33 @@ class ActionButtonList(widgets.Widget):
         obj.actions = copy.deepcopy(self.actions)
         return obj
 
-    def add_action(self, name, label, enabled=True, **kwargs):
-        self.actions.append((name, label, enabled, kwargs))
+    # def add_action(self, name, label, enabled=True, **kwargs):
+    def add_action(self, name, label, enabled=True, icon: Optional[str] = None, **attrs):
+        # self.actions.append((name, label, enabled, kwargs))
+        self.actions.append(self.action_class(
+            name=name, label=label, icon=icon,
+            enabled=enabled,
+            **attrs,
+        ))
         return self
 
     def clear_actions(self):
         self.actions.clear()
         return self
 
-    def _get_button_context(self, name, label, enabled, **kwargs):
-        if enabled is not None:
-            if enabled is False or (callable(enabled) and not enabled()):
-                kwargs['disabled'] = True
-
-        title = kwargs.pop('title', label)
-
-        return {
-            'name':  name,
-            'attrs':  kwargs,
-            'label': label,
-            'title': title,
-        }
+    # def _get_button_context(self, name, label, enabled, **kwargs):
+    #     if enabled is not None:
+    #         if enabled is False or (callable(enabled) and not enabled()):
+    #             kwargs['disabled'] = True
+    #
+    #     title = kwargs.pop('title', label)
+    #
+    #     return {
+    #         'name':  name,
+    #         'attrs':  kwargs,
+    #         'label': label,
+    #         'title': title,
+    #     }
 
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-actionbuttonlist'
@@ -212,10 +277,11 @@ class ActionButtonList(widgets.Widget):
         widget_cxt['widget_type'] = widget_type
 
         widget_cxt['buttons'] = [
-            self._get_button_context(
-                name=a_name, label=a_label, enabled=a_enabled, **a_attrs,
-            )
-            for a_name, a_label, a_enabled, a_attrs in self.actions
+            # self._get_button_context(
+            #     name=a_name, label=a_label, enabled=a_enabled, **a_attrs,
+            # )
+            # for a_name, a_label, a_enabled, a_attrs in self.actions
+            action.context for action in self.actions
         ]
         widget_cxt['delegate'] = self.delegate.get_context(
             name=name, value=value, attrs=attrs,
@@ -409,47 +475,55 @@ class ChainedInput(widgets.TextInput):
 class SelectorList(widgets.TextInput):
     template_name = 'creme_core/forms/widgets/selector-list.html'
 
-    class Action:
-        def __init__(self, name, label, enabled=True, **attrs):
-            self.name = name
-            self.label = label
-            self.enabled = enabled
-            self.attrs = attrs or {}
-
-        @property
-        def enabled(self):
-            # TODO: self._enabled() ?
-            return self._enabled if callable(self._enabled) else (self._enabled is True)
-
-        @enabled.setter
-        def enabled(self, enabled):
-            self._enabled = enabled
-
-        @property
-        def context(self):
-            attrs = {**self.attrs}
-
-            if not self.enabled:
-                attrs['disabled'] = True
-
-            title = attrs.pop('title', self.label)
-
-            return {
-                'name':  self.name,
-                'label': self.label,
-                'attrs': attrs,
-                'title': title,
-            }
+    # class Action:
+    #     def __init__(self, name, label, enabled=True, **attrs):
+    #         self.name = name
+    #         self.label = label
+    #         self.icon = icon
+    #         self.enabled = enabled
+    #         self.attrs = attrs or {}
+    #
+    #     @property
+    #     def enabled(self):
+    #         return self._enabled if callable(self._enabled) else (self._enabled is True)
+    #
+    #     @enabled.setter
+    #     def enabled(self, enabled):
+    #         self._enabled = enabled
+    #
+    #     @property
+    #     def context(self):
+    #         attrs = {**self.attrs}
+    #         label = self.label
+    #
+    #         if not self.enabled:
+    #             attrs['disabled'] = True
+    #
+    #         title = attrs.pop('title', label)
+    #
+    #         return {
+    #             'name':  self.name,
+    #             'label': label,
+    #             'icon': self.icon,
+    #             'attrs': attrs,
+    #             'title': title,
+    #         }
+    action_class = WidgetAction
 
     def __init__(self, selector, attrs=None, enabled=True):
         super().__init__(attrs)
         self.selector = selector
         self.enabled = enabled
-        self.actions = [self.Action('add', gettext_lazy('Add'))]
+        # self.actions = [self.Action('add', gettext_lazy('Add'))]
+        self.actions = [self.action_class(name='add', label=gettext_lazy('Add'), icon='add')]
         self.from_python = None  # TODO: remove this hack ?
 
-    def add_action(self, name, label, enabled=True, **kwargs):
-        self.actions.append(self.Action(name, label, enabled, **kwargs))
+    # def add_action(self, name, label, enabled=True, **kwargs):
+    def add_action(self, name, label, enabled=True, icon: Optional[str] = None, **attrs):
+        # self.actions.append(self.Action(name, label, enabled, **kwargs))
+        self.actions.append(self.action_class(
+            name=name, label=label, icon=icon, enabled=enabled, **attrs
+        ))
         return self
 
     def clear_actions(self):
@@ -574,9 +648,10 @@ class CTEntitySelector(ChainedInput):
         self.add_dselect('ctype', options=self.content_types, attrs=field_attrs)
 
         multiple = self.multiple
-        selector = EntitySelector(content_type='${ctype.id}',
-                                  attrs={'auto': False, 'multiple': multiple},
-                                 )
+        selector = EntitySelector(
+            content_type='${ctype.id}',
+            attrs={'auto': False, 'multiple': multiple},
+        )
         selector.is_required = self.is_required
 
         actions = ActionButtonList(delegate=selector)
@@ -585,12 +660,14 @@ class CTEntitySelector(ChainedInput):
             clear_label = _('Clear')
             actions.add_action(
                 'reset', clear_label,
+                icon='delete',
                 title=clear_label, action='reset', value='',
             )
 
         if self.creator:
             actions.add_action(
                 name='create', label=_('Add'),
+                icon='add',
                 popupUrl='${ctype.create}', popupTitle='${ctype.create_label}',
             )
 
@@ -624,8 +701,7 @@ class RelationSelector(ChainedInput):
     # template_name = ... TODO in order to override from apps ?
 
     def __init__(self, relation_types=(), content_types=None,  # TODO: rename 'ctypes_url' ?
-                 attrs=None, multiple=False, autocomplete=False,
-                ):
+                 attrs=None, multiple=False, autocomplete=False):
         super().__init__(attrs)
         self.relation_types = relation_types
         self.content_types = content_types
@@ -658,8 +734,7 @@ class MultiRelationSelector(SelectorList):
     # template_name = ... TODO in order to override from apps ?
 
     def __init__(self, relation_types=(), content_types=None,
-                 attrs=None, autocomplete=False,
-                ):
+                 attrs=None, autocomplete=False):
         super().__init__(None, attrs=attrs)
         self.relation_types = relation_types
         self.content_types = content_types
@@ -703,7 +778,8 @@ class EntityCreatorWidget(ActionButtonList):
             if not self.is_required:
                 clear_label = _('Clear')
                 self.add_action(
-                    'reset', clear_label, title=clear_label, action='reset', value='',
+                    'reset', clear_label,
+                    title=clear_label, action='reset', value='', icon='delete',
                 )
 
             url = self.creation_url
@@ -712,6 +788,7 @@ class EntityCreatorWidget(ActionButtonList):
                 self.add_action(
                     name='create',
                     label=self.creation_label or model.creation_label,
+                    icon='add',
                     enabled=allowed,
                     popupUrl=url,
                     title=_('Create') if allowed else _("Can't create"),
@@ -765,8 +842,8 @@ class MultiEntityCreatorWidget(SelectorList):
         else:
             self.clear_actions()  # TODO: indicate that we do not want actions in __init__
             self.add_action(
-                'add',
-                getattr(model, 'selection_label', pgettext('creme_core-verb', 'Select')),
+                name='add',
+                label=getattr(model, 'selection_label', pgettext('creme_core-verb', 'Select')),
             )
 
             delegate = EntitySelector(
@@ -779,20 +856,31 @@ class MultiEntityCreatorWidget(SelectorList):
                 },
             )
 
-            def add_action(name, label, enabled=True, **kwargs):
-                button_list.add_action(name, label, enabled=False, hidden=True, **kwargs)
-                self.add_action(name, label, enabled)
+            # def add_action(name, label, enabled=True, **kwargs):
+            #     button_list.add_action(name, label, enabled=False, hidden=True, **kwargs)
+            #     self.add_action(name, label, enabled)
 
             url = self.creation_url
             if url:
                 allowed = self.creation_allowed
-                add_action(
-                    name='create',
-                    label=self.creation_label or model.creation_label,
-                    enabled=allowed,
-                    popupUrl=url,
+                # add_action(
+                #     name='create',
+                #     label=self.creation_label or model.creation_label,
+                #     enabled=allowed,
+                #     popupUrl=url,
+                #     title=_('Create') if allowed else _("Can't create"),
+                # )
+
+                name = 'create'
+                label = self.creation_label or model.creation_label
+                icon = 'add'
+                button_list.add_action(
+                    name=name, label=label, icon=icon,
+                    enabled=False, hidden=True,
                     title=_('Create') if allowed else _("Can't create"),
+                    popupUrl=url,
                 )
+                self.add_action(name=name, label=label, icon=icon, enabled=allowed)
 
         button_list.delegate = delegate
 
@@ -969,7 +1057,8 @@ class TinyMCEEditor(widgets.Textarea):
         css_class = (
             'ui-creme-input ui-creme-widget widget-auto '
             if final_attrs.pop('auto', True) else
-            'ui-creme-input ui-creme-widget ')
+            'ui-creme-input ui-creme-widget '
+        )
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type
         final_attrs['basepath'] = 'tiny_mce/'  # See root urls.py
@@ -988,7 +1077,8 @@ class ColorPickerWidget(widgets.TextInput):
         css_class = (
             'ui-creme-input ui-creme-widget widget-auto '
             if final_attrs.pop('auto', True) else
-            'ui-creme-input ui-creme-widget ')
+            'ui-creme-input ui-creme-widget '
+        )
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type
         final_attrs['plugin'] = 'gccolor'
@@ -1196,9 +1286,10 @@ class DatePeriodWidget(widgets.MultiWidget):
 
     def __init__(self, choices=(), attrs=None):
         super().__init__(
-            widgets=(widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
-                     widgets.TextInput(attrs={'class': 'dperiod-value'}),  # TODO: min_value
-                    ),
+            widgets=(
+                widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
+                widgets.TextInput(attrs={'class': 'dperiod-value'}),  # TODO: min_value
+            ),
             attrs=attrs,
         )
 
