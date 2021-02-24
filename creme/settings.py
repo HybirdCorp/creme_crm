@@ -878,6 +878,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/widgets/plotselector.js',
     'creme_core/js/tests/widgets/entitycells.js',
     'creme_core/js/tests/widgets/editor.js',
+    'creme_core/js/tests/widgets/datetimepicker.js',
 
     'creme_core/js/tests/form/forms.js',
 
