@@ -20,6 +20,7 @@ from creme.creme_core.forms.widgets import (
     EntityCreatorWidget,
     EntitySelector,
     UnorderedMultipleChoiceWidget,
+    WidgetAction,
 )
 from creme.creme_core.utils.url import TemplateURLBuilder
 
@@ -515,6 +516,113 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         self.assertHTMLEqual(html, select.render(name, ()))
 
 
+class WidgetActionTestCase(CremeTestCase):
+    def test_init01(self):
+        name = 'add'
+        label = 'Create a stuff'
+        action = WidgetAction(name=name, label=label)
+        self.assertEqual(name,  action.name)
+        self.assertEqual(label, action.label)
+        self.assertIsNone(action.icon)
+        self.assertIs(action.enabled, True)
+        self.assertDictEqual({}, action.attrs)
+
+        self.assertDictEqual(
+            {
+                'name': name,
+                'label': label,
+                'icon': None,
+                'attrs': {},
+                'title': label,
+            },
+            action.context,
+        )
+
+    def test_init02(self):
+        name = 'reset'
+        label = 'Delete'
+        icon = 'delete'
+        url = 'https://www.stuff.org'
+        action = WidgetAction(name=name, label=label, icon=icon, enabled=False, url=url)
+        self.assertEqual(name,  action.name)
+        self.assertEqual(label, action.label)
+        self.assertEqual(icon,  action.icon)
+        self.assertIs(action.enabled, False)
+        self.assertDictEqual({'url': url}, action.attrs)
+
+        self.assertDictEqual(
+            {
+                'name': name,
+                'label': label,
+                'icon': icon,
+                'attrs': {
+                    'disabled': True,
+                    'url': url,
+                },
+                'title': label,
+            },
+            action.context,
+        )
+
+    def test_callable_enabled(self):
+        action = WidgetAction(name='name', label='label', enabled=lambda: False)
+        self.assertIs(action.enabled, False)
+
+    def test_context_title(self):
+        name = 'reset'
+        label = 'Delete'
+        title = 'Delete stuff'
+        icon = 'delete'
+        url = 'https://www.stuff.org'
+        action = WidgetAction(name=name, label=label, icon=icon, url=url, title=title)
+
+        self.assertDictEqual(
+            {
+                'name': name,
+                'label': label,
+                'icon': icon,
+                'attrs': {
+                    'url': url,
+                },
+                'title': title,
+            },
+            action.context,
+        )
+
+    def test_eq(self):
+        self.assertEqual(
+            WidgetAction(name='name', label='label', enabled=True),
+            WidgetAction(name='name', label='label'),
+        )
+
+        url = 'https://www.stuff.org'
+        self.assertEqual(
+            WidgetAction(name='add', label='Create', url=url, enabled=False),
+            WidgetAction(name='add', label='Create', url=url, enabled=False),
+        )
+
+        self.assertNotEqual(
+            WidgetAction(name='add',    label='Add'),
+            WidgetAction(name='delete', label='Add'),
+        )
+        self.assertNotEqual(
+            WidgetAction(name='add', label='Add'),
+            WidgetAction(name='add', label='Create'),
+        )
+        self.assertNotEqual(
+            WidgetAction(name='add', label='Add', enabled=True),
+            WidgetAction(name='add', label='Add', enabled=False),
+        )
+        self.assertNotEqual(
+            WidgetAction(name='add', label='Add', icon='add'),
+            WidgetAction(name='add', label='Add'),
+        )
+        self.assertNotEqual(
+            WidgetAction(name='add', label='Add', url=url),
+            WidgetAction(name='add', label='Add'),
+        )
+
+
 class ActionButtonListTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
@@ -775,13 +883,32 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
     maxDiff = None
 
     def _build_reset_action(self, enabled=True, value=''):
-        return (
-            'reset', _('Clear'), enabled,
-            {'action': 'reset', 'title': _('Clear'), 'value': value},
+        # return (
+        #     'reset', _('Clear'), enabled,
+        #     {'action': 'reset', 'title': _('Clear'), 'value': value},
+        # )
+        return WidgetAction(
+            name='reset',
+            label=_('Clear'),
+            enabled=enabled,
+            icon='delete',
+
+            action='reset',
+            title=_('Clear'),
+            value=value,
         )
 
     def _build_create_action(self, label, title, url='', enabled=True):
-        return 'create', label, enabled, {'title': title, 'popupUrl': url}
+        # return 'create', label, enabled, {'title': title, 'popupUrl': url}
+        return WidgetAction(
+            name='create',
+            label=label,
+            enabled=enabled,
+            icon='add',
+
+            title=title,
+            popupUrl=url,
+        )
 
     def test_is_disabled(self):
         widget = EntityCreatorWidget(FakeContact)
@@ -894,6 +1021,8 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
         )
         self.assertIsNone(widget.creation_label)
 
+        reset_label = _('Clear')
+        create_label = FakeContact.creation_label
         html = '''
 <ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist"
     widget="ui-creme-actionbuttonlist">
@@ -906,26 +1035,29 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
         </span>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" action="reset" name="reset"
-                title="{reset_title}" type="button" value="">
-            {reset_label}
+        <button class="ui-creme-actionbutton with-icon" action="reset" name="reset"
+                title="{reset_label}" type="button" value="">
+            {reset_icon}{reset_label}
         </button>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" name="create"
+        <button class="ui-creme-actionbutton with-icon" name="create"
                 title="{create_title}" type="button" disabled popupUrl="{create_url}">
-            {create_label}
+            {create_icon}{create_label}
         </button>
     </li>
 </ul>'''.format(
             select_label=_('Select…'),
             select_label_url=EntitySelector(content_type=ct_id).text_url,
             select_url=EntitySelector(content_type=ct_id).url,
-            reset_title=_('Clear'),
-            reset_label=_('Clear'),
+
+            reset_label=reset_label,
+            reset_icon=self.get_icon('delete', size='form-widget', label=reset_label).render(),
+
             create_title=_("Can't create"),
-            create_label=FakeContact.creation_label,
+            create_label=create_label,
             create_url=creation_url,
+            create_icon=self.get_icon('add', size='form-widget', label=create_label).render(),
         )
         self.assertHTMLEqual(html, widget.render('field', ''))
 
@@ -944,8 +1076,9 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
             creation_label=creation_label,
         )
         self.assertEqual(creation_label, widget.creation_label)
-        widget.from_python = lambda value: value.id
 
+        widget.from_python = lambda value: value.id
+        reset_label = _('Clear')
         html = '''
 <ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist"
     widget="ui-creme-actionbuttonlist">
@@ -959,26 +1092,30 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
         </span>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" action="reset" name="reset"
-                title="{reset_title}" type="button" value="">
-            {reset_label}
+        <button class="ui-creme-actionbutton with-icon" action="reset" name="reset"
+                title="{reset_label}" type="button" value="">
+            {reset_icon}{reset_label}
         </button>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" name="create"
+        <button class="ui-creme-actionbutton with-icon" name="create"
                 title="{create_title}" type="button" disabled popupUrl="{create_url}">
-            {create_label}
+            {create_icon}{create_label}
         </button>
     </li>
 </ul>'''.format(
             select_label=_('Select…'),
             select_label_url=EntitySelector(content_type=ct_id).text_url,
             select_url=EntitySelector(content_type=ct_id).url,
-            reset_title=_('Clear'),
-            reset_label=_('Clear'),
+
+            reset_label=reset_label,
+            reset_icon=self.get_icon('delete', size='form-widget', label=reset_label).render(),
+
             create_title=_("Can't create"),
             create_label=creation_label,
             create_url=creation_url,
+            create_icon=self.get_icon('add', size='form-widget', label=creation_label).render(),
+
             value=contact.id,
         )
         self.assertHTMLEqual(html, widget.render('field', value=contact))

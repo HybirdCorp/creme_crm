@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -57,8 +57,9 @@ class CreatorModelChoiceWidget(Select):
                 allowed = self.creation_allowed
                 label = str(self.creation_label)
                 button_list.add_action(
-                    'create', label, enabled=allowed, popupUrl=url,
-                    title=label if allowed else gettext('Cannot create'),
+                    'create', label,
+                    icon='add', title=label if allowed else gettext('Cannot create'),
+                    enabled=allowed, popupUrl=url,
                 )
 
                 context = button_list.get_context(name=name, value=value, attrs=attrs)

@@ -1,3 +1,4 @@
+{% load creme_widgets %}
 <div class="{{widget.class}}" widget="{{widget.widget_type}}"{% if widget.clonelast %} clonelast{% endif %}{% if not widget.enabled %} disabled{% endif %}>
     {% include widget.input.template_name with widget=widget.input %}
     <div class="inner-selector-model" style="display:none;">
@@ -7,7 +8,8 @@
     <ul class="ui-layout hbox">
         {% for action in widget.actions %}
         <li>
-            <button class="ui-creme-actionbutton selectorlist-{{action.name}}" title="{{action.title}}" alt="{{action.title}}" type="button" {% include 'django/forms/widgets/attrs.html' with widget=action %}>
+            <button class="ui-creme-actionbutton selectorlist-{{action.name}}{% if action.icon %} with-icon{% endif %}" title="{{action.title}}" alt="{{action.title}}" type="button" {% include 'django/forms/widgets/attrs.html' with widget=action %}>
+                {% if action.icon %}{% widget_icon name=action.icon size='form-widget' label=action.label %}{% endif %}
                 {{action.label}}
             </button>
         </li>
