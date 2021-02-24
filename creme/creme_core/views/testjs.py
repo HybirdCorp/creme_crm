@@ -234,7 +234,7 @@ def test_js(request):
 
 
 @login_required
-def test_widget(request, widget):
+def test_widget(request, widget=None):
     js_testview_or_404(
         "Beware: if you are not in testing javascript widgets this view shouldn't be reachable. "
         "Check your server configuration.",
