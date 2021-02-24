@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -99,8 +99,11 @@ creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
     },
 
     _create: function(element, options, cb, sync) {
-        this._disabled = creme.object.isTrue(options.disabled) && element.is('[disabled]');
-        this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
+        this._disabled = creme.object.isTrue(options.disabled) || element.is('[disabled]');
+        this._readonly = creme.object.isTrue(options.readonly) || element.is('[readonly]');
+
+        element.toggleAttr('disabled', this._disabled);
+        element.toggleAttr('readonly', this._readonly);
 
         creme.forms.DateTimePicker.init(element, options.format);
 
