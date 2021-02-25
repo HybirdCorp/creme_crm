@@ -598,8 +598,6 @@ CREME_I18N_JS = [
     'l10n.js',
 
     {'filter': 'mediagenerator.filters.i18n.I18N'},  # To build the i18n catalog statically.
-    # 'creme_core/js/datejs/date-en-US.js', # TODO improve
-    # 'creme_core/js/datejs/date-fr-FR.js',
 ]
 
 CREME_LIB_JS = [
