@@ -140,4 +140,41 @@ QUnit.test('creme.billing.checkValue', function(assert) {
     equal(true, creme.billing.checkValue($('<input type="text">').val("-123")));
 });
 
+QUnit.test('creme.billing.markDelete', function(assert) {
+    $(
+        '<form>' +
+            '<table><tr><td id="line_content_line-0">' +
+                '<input type="checkbox" name="form-0-DELETE" id="id_form-0-DELETE" />' +
+            '</td></tr>' +
+            '<tr><td id="line_content_line-1" class="bline-deletion-mark">' +
+                '<input type="checkbox" name="form-1-DELETE" id="id_form-1-DELETE" checked="checked"/>' +
+            '</td></tr></table>' +
+        '</form>'
+    ).appendTo(this.qunitFixture());
+
+    equal($('#line_content_line-0').is('.bline-deletion-mark'), false);
+    equal($('#id_form-0-DELETE').prop('checked'), false);
+
+    equal($('#line_content_line-1').is('.bline-deletion-mark'), true);
+    equal($('#id_form-1-DELETE').prop('checked'), true);
+
+    creme.billing.markDelete('form-0', 'line-0');
+    creme.billing.markDelete('form-1', 'line-1');
+
+    equal($('#line_content_line-0').is('.bline-deletion-mark'), true);
+    equal($('#id_form-0-DELETE').prop('checked'), true);
+
+    equal($('#line_content_line-1').is('.bline-deletion-mark'), false);
+    equal($('#id_form-1-DELETE').prop('checked'), false);
+
+    creme.billing.markDelete('form-0', 'line-0');
+    creme.billing.markDelete('form-1', 'line-1');
+
+    equal($('#line_content_line-0').is('.bline-deletion-mark'), false);
+    equal($('#id_form-0-DELETE').prop('checked'), false);
+
+    equal($('#line_content_line-1').is('.bline-deletion-mark'), true);
+    equal($('#id_form-1-DELETE').prop('checked'), true);
+});
+
 }(jQuery));

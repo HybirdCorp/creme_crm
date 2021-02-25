@@ -1,4 +1,13 @@
-**/js/jquery/*
+**/js/jquery/1.11/*
+**/js/jquery/1.12/*
+**/js/jquery/extensions/jqplot*
+**/js/jquery/extensions/chosen*
+**/js/jquery/extensions/gccolor*
+**/js/jquery/extensions/json*
+**/js/jquery/extensions/jquery.dragtable.*
+**/js/jquery/extensions/jquery.floatthead-*
+**/js/jquery/extensions/jquery.form-*
+**/js/jquery/extensions/jquery.uuid-*
 **/js/lib/momentjs/*
 **/js/lib/leaflet*.js
 **/js/lib/editor/*
