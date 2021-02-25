@@ -183,19 +183,19 @@ QUnit.test('creme.widget.DynamicSelect.choices', function() {
 
 QUnit.test('creme.widget.DynamicSelect.choices (json)', function() {
     var element = this.createDynamicSelectTag();
-    this.appendOptionTag(element, 'a', $.toJSON({id: 1, name: 'a'}));
-    this.appendOptionTag(element, 'b', $.toJSON({id: 5, name: 'b'}));
-    this.appendOptionTag(element, 'c', $.toJSON({id: 3, name: 'c'}));
+    this.appendOptionTag(element, 'a', JSON.stringify({id: 1, name: 'a'}));
+    this.appendOptionTag(element, 'b', JSON.stringify({id: 5, name: 'b'}));
+    this.appendOptionTag(element, 'c', JSON.stringify({id: 3, name: 'c'}));
 
     var widget = creme.widget.create(element, {backend: this.backend});
     equal(widget.url(), "");
 
-    deepEqual(widget.choices(), [[$.toJSON({id: 1, name: 'a'}), 'a'],
-                                 [$.toJSON({id: 5, name: 'b'}), 'b'],
-                                 [$.toJSON({id: 3, name: 'c'}), 'c']]);
-    deepEqual(widget.choice($.toJSON({id: 1, name: 'a'})), [$.toJSON({id: 1, name: 'a'}), 'a']);
-    deepEqual(widget.choice($.toJSON({id: 5, name: 'b'})), [$.toJSON({id: 5, name: 'b'}), 'b']);
-    deepEqual(widget.choice($.toJSON({id: 3, name: 'c'})), [$.toJSON({id: 3, name: 'c'}), 'c']);
+    deepEqual(widget.choices(), [[JSON.stringify({id: 1, name: 'a'}), 'a'],
+                                 [JSON.stringify({id: 5, name: 'b'}), 'b'],
+                                 [JSON.stringify({id: 3, name: 'c'}), 'c']]);
+    deepEqual(widget.choice(JSON.stringify({id: 1, name: 'a'})), [JSON.stringify({id: 1, name: 'a'}), 'a']);
+    deepEqual(widget.choice(JSON.stringify({id: 5, name: 'b'})), [JSON.stringify({id: 5, name: 'b'}), 'b']);
+    deepEqual(widget.choice(JSON.stringify({id: 3, name: 'c'})), [JSON.stringify({id: 3, name: 'c'}), 'c']);
     equal(widget.choice('15'), undefined);
 });
 
@@ -623,30 +623,30 @@ QUnit.test('creme.widget.DynamicSelect.val (static)', function(assert) {
 
 QUnit.test('creme.widget.DynamicSelect.val (static, json)', function(assert) {
     var element = this.createDynamicSelectTag().attr('datatype', 'json');
-    this.appendOptionTag(element, 'a', $.toJSON({'a': 1}));
-    this.appendOptionTag(element, 'b', $.toJSON({'b': 5}));
-    this.appendOptionTag(element, 'c', $.toJSON({'c': 3}));
+    this.appendOptionTag(element, 'a', JSON.stringify({'a': 1}));
+    this.appendOptionTag(element, 'b', JSON.stringify({'b': 5}));
+    this.appendOptionTag(element, 'c', JSON.stringify({'c': 3}));
 
     var widget = creme.widget.create(element, {backend: this.backend});
     equal(3, $('option', element).length);
-    equal($.toJSON({'a': 1}), $('option:nth(0)', element).attr('value'));
-    equal($.toJSON({'b': 5}), $('option:nth(1)', element).attr('value'));
-    equal($.toJSON({'c': 3}), $('option:nth(2)', element).attr('value'));
+    equal(JSON.stringify({'a': 1}), $('option:nth(0)', element).attr('value'));
+    equal(JSON.stringify({'b': 5}), $('option:nth(1)', element).attr('value'));
+    equal(JSON.stringify({'c': 3}), $('option:nth(2)', element).attr('value'));
 
-    deepEqual([$.toJSON({'a': 1}), 'a'], widget.firstchoice());
+    deepEqual([JSON.stringify({'a': 1}), 'a'], widget.firstchoice());
     equal('json', widget.options().datatype);
-    equal($.toJSON({'a': 1}), widget.val());
+    equal(JSON.stringify({'a': 1}), widget.val());
 
     widget.val({'c': 3});
-    equal($.toJSON({'c': 3}), widget.val(), 'existing choice');
+    equal(JSON.stringify({'c': 3}), widget.val(), 'existing choice');
     deepEqual({'c': 3}, widget.cleanedval(), 'cleaned');
 
-    widget.val($.toJSON({'b': 5}));
-    equal($.toJSON({'b': 5}), widget.val(), 'existing choice');
+    widget.val(JSON.stringify({'b': 5}));
+    equal(JSON.stringify({'b': 5}), widget.val(), 'existing choice');
     deepEqual({'b': 5}, widget.cleanedval(), 'cleaned');
 
     widget.val(15);
-    equal($.toJSON({'a': 1}), widget.val(), 'unknown choice');
+    equal(JSON.stringify({'a': 1}), widget.val(), 'unknown choice');
     deepEqual({'a': 1}, widget.cleanedval(), 'cleaned');
 });
 
@@ -680,27 +680,27 @@ QUnit.test('creme.widget.DynamicSelect.val (static, multiple, json)', function(a
     var element = this.createDynamicSelectTag().attr('multiple', 'multiple')
                                        .attr('datatype', 'json');
 
-    this.appendOptionTag(element, 'a', $.toJSON({'a': 1}));
-    this.appendOptionTag(element, 'b', $.toJSON({'b': 5}));
-    this.appendOptionTag(element, 'c', $.toJSON({'c': 3}));
+    this.appendOptionTag(element, 'a', JSON.stringify({'a': 1}));
+    this.appendOptionTag(element, 'b', JSON.stringify({'b': 5}));
+    this.appendOptionTag(element, 'c', JSON.stringify({'c': 3}));
 
     var widget = creme.widget.create(element, {multiple: true, backend: this.backend});
     equal(3, $('option', element).length);
-    equal($.toJSON({'a': 1}), $('option:nth(0)', element).attr('value'));
-    equal($.toJSON({'b': 5}), $('option:nth(1)', element).attr('value'));
-    equal($.toJSON({'c': 3}), $('option:nth(2)', element).attr('value'));
+    equal(JSON.stringify({'a': 1}), $('option:nth(0)', element).attr('value'));
+    equal(JSON.stringify({'b': 5}), $('option:nth(1)', element).attr('value'));
+    equal(JSON.stringify({'c': 3}), $('option:nth(2)', element).attr('value'));
 
-    deepEqual([$.toJSON({'a': 1}), 'a'], widget.firstchoice());
+    deepEqual([JSON.stringify({'a': 1}), 'a'], widget.firstchoice());
     equal(true, widget.options().multiple);
     equal('json', widget.options().datatype);
     equal(null, widget.val());
 
     widget.val({'c': 3});
-    deepEqual([$.toJSON({'c': 3})], widget.val());
+    deepEqual([JSON.stringify({'c': 3})], widget.val());
     deepEqual([{'c': 3}], widget.cleanedval(), 'cleaned');
 
-    widget.val($.toJSON([{'b': 5}, {'c': 3}]));
-    deepEqual([$.toJSON({'b': 5}), $.toJSON({'c': 3})], widget.val());
+    widget.val(JSON.stringify([{'b': 5}, {'c': 3}]));
+    deepEqual([JSON.stringify({'b': 5}), JSON.stringify({'c': 3})], widget.val());
     deepEqual([{'b': 5}, {'c': 3}], widget.cleanedval(), 'cleaned');
 
     widget.val(15);

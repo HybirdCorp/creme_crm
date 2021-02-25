@@ -50,14 +50,14 @@
             };
 
             for (var month = 1; month <= 12; ++month) {
-                urls['mock/content/' + month + '/1'] =  mockbackend.response(200, $.toJSON(randomBargraph(month, month)));
-                urls['mock/content/' + month + '/3'] =  mockbackend.response(200, $.toJSON(randomBargraph(month, month + 2)));
-                urls['mock/content/' + month + '/6'] =  mockbackend.response(200, $.toJSON(randomBargraph(month, month + 5)));
-                urls['mock/content/' + month + '/12'] = mockbackend.response(200, $.toJSON(randomBargraph(month, month + 12)));
+                urls['mock/content/' + month + '/1'] =  mockbackend.response(200, JSON.stringify(randomBargraph(month, month)));
+                urls['mock/content/' + month + '/3'] =  mockbackend.response(200, JSON.stringify(randomBargraph(month, month + 2)));
+                urls['mock/content/' + month + '/6'] =  mockbackend.response(200, JSON.stringify(randomBargraph(month, month + 5)));
+                urls['mock/content/' + month + '/12'] = mockbackend.response(200, JSON.stringify(randomBargraph(month, month + 12)));
             }
 
             urls['mock/content/1/12'] = function() {
-                return mockbackend.response(200, $.toJSON(randomBargraph(1, 12)));
+                return mockbackend.response(200, JSON.stringify(randomBargraph(1, 12)));
             };
 
             $.extend(mockbackend.GET, urls);

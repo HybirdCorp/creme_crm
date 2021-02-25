@@ -23,7 +23,9 @@ QUnit.module("creme.ajax.query.js", new QUnitMixin(QUnitAjaxMixin, QUnitEventMix
         });
 
         this.setMockBackendPOST({
-            'mock/add/widget': this.backend.response(200, '<json>' + $.toJSON({value: '', added: [1, 'newitem']}) + '</json>'),
+            'mock/add/widget': this.backend.response(
+                 200, '<json>' + JSON.stringify({value: '', added: [1, 'newitem']}) + '</json>'
+             ),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500'),
             'mock/custom': function(url, data, options) {
@@ -109,7 +111,7 @@ QUnit.test('creme.ajax.Query.get (url)', function(assert) {
     query.url('mock/options/1').get();
 
     deepEqual([
-               ['done', $.toJSON(['a'])]
+               ['done', JSON.stringify(['a'])]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -118,8 +120,8 @@ QUnit.test('creme.ajax.Query.get (url)', function(assert) {
     query.url('mock/options/3').get();
 
     deepEqual([
-               ['done', $.toJSON(['a'])],
-               ['done', $.toJSON(['a', 'b', 'c'])]
+               ['done', JSON.stringify(['a'])],
+               ['done', JSON.stringify(['a', 'b', 'c'])]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -136,7 +138,7 @@ QUnit.test('creme.ajax.Query.get (url, data)', function(assert) {
     query.url('mock/custom').get();
 
     deepEqual([
-               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {}})]
+               ['done', JSON.stringify({url: 'mock/custom', method: 'GET', data: {}})]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -145,8 +147,8 @@ QUnit.test('creme.ajax.Query.get (url, data)', function(assert) {
     query.url('mock/custom').get({a: [1, 2]});
 
     deepEqual([
-               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {}})],
-               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {a: [1, 2]}})]
+               ['done', JSON.stringify({url: 'mock/custom', method: 'GET', data: {}})],
+               ['done', JSON.stringify({url: 'mock/custom', method: 'GET', data: {a: [1, 2]}})]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -155,9 +157,9 @@ QUnit.test('creme.ajax.Query.get (url, data)', function(assert) {
     query.url('mock/custom').data({b: 'b'}).get({a: [1, 2]});
 
     deepEqual([
-               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {}})],
-               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {a: [1, 2]}})],
-               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {b: 'b', a: [1, 2]}})]
+               ['done', JSON.stringify({url: 'mock/custom', method: 'GET', data: {}})],
+               ['done', JSON.stringify({url: 'mock/custom', method: 'GET', data: {a: [1, 2]}})],
+               ['done', JSON.stringify({url: 'mock/custom', method: 'GET', data: {b: 'b', a: [1, 2]}})]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -178,7 +180,7 @@ QUnit.test('creme.ajax.Query.get (url, data function)', function(assert) {
     query.url('mock/custom').data(datasource).get({c: 12});
 
     deepEqual([
-               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {a: 'a', b: [3, 4], c: 12}})]
+               ['done', JSON.stringify({url: 'mock/custom', method: 'GET', data: {a: 'a', b: [3, 4], c: 12}})]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -229,7 +231,7 @@ QUnit.test('creme.ajax.Query.get (url, merge backend options)', function(assert)
         ['done', {url: 'mock/custom/showoptions', method: 'GET', data: {c: 12}, options: $.extend({}, backend_options, {dataType: 'json'})}],
         ['done', {url: 'mock/custom/showoptions', method: 'GET', data: {a: 'test'}, options: $.extend({}, backend_options, {sync: true, dataType: 'json', custom: true})}],
         // datatype is text, so the JSON response is not parsed
-        ['done', $.toJSON({url: 'mock/custom/showoptions', method: 'GET', data: {b: 53}, options: $.extend({}, backend_options, {dataType: 'text'})})]
+        ['done', JSON.stringify({url: 'mock/custom/showoptions', method: 'GET', data: {b: 53}, options: $.extend({}, backend_options, {dataType: 'text'})})]
        ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -254,7 +256,7 @@ QUnit.test('creme.ajax.Query.get (async)', function(assert) {
     setTimeout(function() {
         deepEqual([], self.mockListenerCalls('cancel'));
         deepEqual([
-            ['done', $.toJSON(['a'])]
+            ['done', JSON.stringify(['a'])]
         ], self.mockListenerCalls('complete'));
         start();
     }, 400);
@@ -378,7 +380,7 @@ QUnit.test('creme.ajax.Query.get (converter, raises)', function(assert) {
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([
-        ['fail', $.toJSON({url: 'mock/custom', method: 'GET', data: {a: 5}}), Error('invalid convert')]
+        ['fail', JSON.stringify({url: 'mock/custom', method: 'GET', data: {a: 5}}), Error('invalid convert')]
     ], this.mockListenerCalls('error'));
 });
 
@@ -419,7 +421,7 @@ QUnit.test('creme.ajax.Query.post (url)', function(assert) {
     query.url('mock/custom').post();
 
     deepEqual([
-               ['done', $.toJSON({url: 'mock/custom', method: 'POST', data: {}})]
+               ['done', JSON.stringify({url: 'mock/custom', method: 'POST', data: {}})]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -428,8 +430,8 @@ QUnit.test('creme.ajax.Query.post (url)', function(assert) {
     query.url('mock/custom').post({a: [1, 2], b: 'a'});
 
     deepEqual([
-               ['done', $.toJSON({url: 'mock/custom', method: 'POST', data: {}})],
-               ['done', $.toJSON({url: 'mock/custom', method: 'POST', data: {a: [1, 2], b: 'a'}})]
+               ['done', JSON.stringify({url: 'mock/custom', method: 'POST', data: {}})],
+               ['done', JSON.stringify({url: 'mock/custom', method: 'POST', data: {a: [1, 2], b: 'a'}})]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -484,7 +486,7 @@ QUnit.test('creme.ajax.query (get)', function(assert) {
     query.start();
 
     deepEqual([
-               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {}})]
+               ['done', JSON.stringify({url: 'mock/custom', method: 'GET', data: {}})]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
@@ -501,7 +503,7 @@ QUnit.test('creme.ajax.query (post)', function(assert) {
     query.start();
 
     deepEqual([
-               ['done', $.toJSON({url: 'mock/custom', method: 'POST', data: {}})]
+               ['done', JSON.stringify({url: 'mock/custom', method: 'POST', data: {}})]
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));

@@ -25,7 +25,7 @@
 //            if (Object.isNone(ctypeFilters)) {
 //                return backend.response(400, 'unknown ctype ${}'.format(ctypeId), {'content-type': 'text/json'});
 //            } else {
-//                return backend.response(200, $.toJSON(ctypeFilters), {'content-type': 'text/json'});
+//                return backend.response(200, JSON.stringify(ctypeFilters), {'content-type': 'text/json'});
 //            }
 //        };
 //

@@ -62,7 +62,9 @@ var MOCK_FRAME_CONTENT_FORM_JSON = '<form action="mock/submit/json">' +
                                    '</form>';
 
 var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>${data}</json>';
-var MOCK_FRAME_CONTENT_SUBMIT_JSON_PRE = '<pre style="word-wrap: break-word; white-space: pre-wrap;">' + $.toJSON({value: 2, added: [5, 'John Pre']}) + '</pre>';
+var MOCK_FRAME_CONTENT_SUBMIT_JSON_PRE = ('<pre style="word-wrap: break-word; white-space: pre-wrap;">' +
+                                             JSON.stringify({value: 2, added: [5, 'John Pre']}) +
+                                         '</pre>');
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
 var MOCK_FRAME_CONTENT_SUBMIT_INNER = '<div class="in-popup" closing="true"></div>';
@@ -987,20 +989,20 @@ QUnit.test('creme.dialog.FormDialog (<json>JSON</json> response)', function(asse
 
     dialog.form().find('[name="responseType"]').val('jsontag');
     dialog.submit({}, {
-        responseData: $.toJSON({value: 1, added: [1, 'John Doe']})
+        responseData: JSON.stringify({value: 1, added: [1, 'John Doe']})
     });
 
     deepEqual([
         ['GET', {}],
         ['POST', {
             responseType: ['jsontag'],
-            responseData: [$.toJSON({value: 1, added: [1, 'John Doe']})]
+            responseData: [JSON.stringify({value: 1, added: [1, 'John Doe']})]
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
     deepEqual([
         ['form-success', {
-            content: $.toJSON({value: 1, added: [1, 'John Doe']}),
+            content: JSON.stringify({value: 1, added: [1, 'John Doe']}),
             data: {value: 1, added: [1, 'John Doe']},
             type: 'text/json'
         }, 'text/json']
@@ -1025,7 +1027,7 @@ QUnit.test('creme.dialog.FormDialog (<pre>JSON</pre> response)', function(assert
 
     deepEqual([
         ['form-success', {
-            content: $.toJSON({value: 2, added: [5, 'John Pre']}),
+            content: JSON.stringify({value: 2, added: [5, 'John Pre']}),
             data: {value: 2, added: [5, 'John Pre']},
             type: 'text/json'
         }, 'text/json']
@@ -1093,20 +1095,20 @@ QUnit.test('creme.dialog.FormDialog (JSON response)', function(assert) {
     dialog.open();
 
     dialog.submit({}, {
-        responseData: $.toJSON({value: 3, added: [-8, 'John NoTag']})
+        responseData: JSON.stringify({value: 3, added: [-8, 'John NoTag']})
     });
 
     deepEqual([
         ['GET', {}],
         ['POST', {
             responseType: [''],
-            responseData: [$.toJSON({value: 3, added: [-8, 'John NoTag']})]
+            responseData: [JSON.stringify({value: 3, added: [-8, 'John NoTag']})]
         }]
     ], this.mockBackendUrlCalls('mock/submit/json'));
 
     deepEqual([
         ['form-success', {
-            content: $.toJSON({value: 3, added: [-8, 'John NoTag']}),
+            content: JSON.stringify({value: 3, added: [-8, 'John NoTag']}),
             data: {value: 3, added: [-8, 'John NoTag']},
             type: 'text/json'
         }, 'text/json']

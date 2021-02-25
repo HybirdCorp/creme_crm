@@ -149,7 +149,7 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin,
 
     appendMockPlotScript: function(selector, name, data) {
         var script = data || '';
-        script = (typeof script === 'string') ? script : $.toJSON(script);
+        script = (typeof script === 'string') ? script : JSON.stringify(script);
 
         selector.append($('<script name="' + name + '" type="text/json"><!--' + script + '--></script>'));
     }
@@ -191,11 +191,11 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, no data)', function(assert
     deepEqual(widget.dependencies(), []);
 
     deepEqual(widget.plotOptions().map(function(item) { return [item[0], item[1].replace(/\r\n/g, '')]; }),
-              [['bar', $.toJSON(PLOTSELECTOR_BARGRAPH_SCRIPT)],
-               ['pie', $.toJSON(PLOTSELECTOR_PIEGRAPH_SCRIPT)]], 'test 1');
+              [['bar', JSON.stringify(PLOTSELECTOR_BARGRAPH_SCRIPT)],
+               ['pie', JSON.stringify(PLOTSELECTOR_PIEGRAPH_SCRIPT)]], 'test 1');
 
-    equal(widget.plotOption('bar').replace(/\r\n/g, ''), $.toJSON(PLOTSELECTOR_BARGRAPH_SCRIPT), 'test 2');
-    equal(widget.plotOption('pie').replace(/\r\n/g, ''), $.toJSON(PLOTSELECTOR_PIEGRAPH_SCRIPT), 'test 3');
+    equal(widget.plotOption('bar').replace(/\r\n/g, ''), JSON.stringify(PLOTSELECTOR_BARGRAPH_SCRIPT), 'test 2');
+    equal(widget.plotOption('pie').replace(/\r\n/g, ''), JSON.stringify(PLOTSELECTOR_PIEGRAPH_SCRIPT), 'test 3');
     equal(widget.plotOption('unknown'), undefined);
 
     deepEqual(plot_widget.plotOptions(), {});
@@ -237,7 +237,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, template name, no initial,
 QUnit.test('creme.widget.PlotSelector.create (graphs, template name, initial, no data)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-name': '${name}-graph',
-        'initial': $.toJSON({'name': 'pie'})
+        'initial': JSON.stringify({'name': 'pie'})
     });
 
     this.appendMockPlotScript(element, 'bar-graph', PLOTSELECTOR_BARGRAPH_SCRIPT);
@@ -298,7 +298,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, template data url, i
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/${id}/data',
         'plot-name': 'pie-graph',
-        'initial': $.toJSON({'id': 1})
+        'initial': JSON.stringify({'id': 1})
     });
 
     this.appendMockPlotScript(element, 'bar-graph', PLOTSELECTOR_BARGRAPH_SCRIPT);

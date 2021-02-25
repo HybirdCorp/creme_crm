@@ -26,13 +26,15 @@ var MockWidget = function() {
     val: function(element, value) {
         var input = creme.widget.input(element);
 
-        if (value !== undefined) { return input.val((typeof value !== 'string') ? $.toJSON(value) : value); }
+        if (value !== undefined) {
+            return input.val(Object.isString(value) ? value : JSON.stringify(value));
+        }
 
         return input.val();
     },
 
     jsonval: function(element) {
-        return $.toJSON(this.val(element));
+        return JSON.stringify(this.val(element));
     }
 };
 };
@@ -46,7 +48,7 @@ QUnit.module("creme.widgets.widget.js", new QUnitMixin({
 creme.widget.declare('ui-creme-mock', new MockWidget());
 
 function create_widget_element(name, initial, noauto) {
-    var value = (initial !== undefined) ? $.toJSON(initial) : '42';
+    var value = (initial !== undefined) ? JSON.stringify(initial) : '42';
     var element =  $('<div widget="' + name + '" class="' + name + ' ui-creme-widget widget-auto" initial=\'' + value + '\'>')
                         .append($('<input type="text" class="ui-creme-input ' + name + '"/>'));
 
@@ -58,7 +60,7 @@ function create_widget_element(name, initial, noauto) {
 }
 
 function create_mock(initial) {
-    var value = (initial !== undefined) ? $.toJSON(initial) : '42';
+    var value = (initial !== undefined) ? JSON.stringify(initial) : '42';
     var element = $('<div widget="ui-creme-mock" class="ui-creme-mock ui-creme-widget widget-auto" initial=\'' + value + '\'>')
                        .append($('<input type="text" class="ui-creme-input ui-creme-mock"/>'));
 
@@ -66,13 +68,13 @@ function create_mock(initial) {
 
     equal(typeof widget, 'object');
     equal(typeof widget.delegate, 'object');
-    equal(widget.val(), (typeof value !== 'string') ? $.toJSON(value) : value);
+    equal(widget.val(), (typeof value !== 'string') ? JSON.stringify(value) : value);
 
     return element;
 }
 
 function create_input(initial) {
-    var value = (initial !== undefined ? $.toJSON(initial) : '42');
+    var value = (initial !== undefined ? JSON.stringify(initial) : '42');
     return $('<input type="text" class="ui-creme-input" value="' + value + '"/>');
 }
 
