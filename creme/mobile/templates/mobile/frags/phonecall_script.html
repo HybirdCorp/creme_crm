@@ -16,9 +16,9 @@
 
   document.addEventListener('click', function (e) {
     if (e.target.href !== undefined && e.target.href.indexOf('tel:') === 0) {
-      var d = new Date();
+      var now = new Date();
 
-      phonecall_data = {number: e.target.text, call_start: d.toJSON()};
+      phonecall_data = {number: e.target.text, call_start: now.toJSON()};
 
       var person_component = e.target;
       var person_id;
@@ -44,8 +44,8 @@
       }
 
       // Cookie way (page is reload after click on a phone number)
-      d.setTime(d.getTime() + 24 * 60 * 60 * 1000);
-      document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecall_data) + "; expires=" + d.toUTCString();
+      now.setTime(now.getTime() + 24 * 60 * 60 * 1000);
+      document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecall_data) + "; expires=" + now.toUTCString();
 
       // Timer way (page is just suspended after click on a phone number)
       setTimeout(displayWorkflowPanel, 3000);

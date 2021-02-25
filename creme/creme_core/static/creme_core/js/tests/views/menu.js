@@ -131,10 +131,17 @@ QUnit.module("creme.menu.js", new QUnitMixin(QUnitEventMixin,
             items: [{
                 label: 'menu A',
                 id: 'A',
-                items: [
-                    {id: 'anyA', content: '<a class="anyform-menu-link" data-grouped-links="' + $.toJSON([]) + '">anyform A</a>'},
-                    {id: 'anyB', content: '<a class="anyform-menu-link" data-grouped-links="' + $.toJSON(ANYFORM_GROUPED_LINKS).replace(/"/gi, '&quot;') + '">anyform B</a>'}
-                ]
+                items: [{
+                    id: 'anyA',
+                    content: '<a class="anyform-menu-link" data-grouped-links="[]">anyform A</a>'
+                }, {
+                    id: 'anyB',
+                    content: (
+                        '<a class="anyform-menu-link" data-grouped-links="' +
+                            JSON.stringify(ANYFORM_GROUPED_LINKS).replace(/"/gi, '&quot;') +
+                        '">anyform B</a>'
+                    )
+                }]
             }]
         });
     }

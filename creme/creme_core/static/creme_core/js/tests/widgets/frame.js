@@ -18,8 +18,8 @@ var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></
 var MOCK_FRAME_CONTENT_LIST = '<div class="mock-content"><ul><li>Item 1</li><li>Item 2</li></ul></div>';
 var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit"><input id="firstname" type="text"><input id="lastname" type="text"></form>';
 var MOCK_FRAME_CONTENT_FORM_NOACTION = '<form action=""><input id="firstname" type="text"><input id="lastname" type="text"></form>';
-var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value: 1, added: [1, 'John Doe']}) + '</json>';
-var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value: 1, added: [1, 'John Doe']});
+var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + JSON.stringify({value: 1, added: [1, 'John Doe']}) + '</json>';
+var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = JSON.stringify({value: 1, added: [1, 'John Doe']});
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
 QUnit.module("creme.widget.frame.js", new QUnitMixin(QUnitEventMixin,
@@ -56,7 +56,7 @@ QUnit.module("creme.widget.frame.js", new QUnitMixin(QUnitEventMixin,
     },
 
     _custom_GET: function(url, data, options) {
-        return this.backend.response(200, '<div>' + $.toJSON({url: url, method: 'GET', data: data}) + '</div>');
+        return this.backend.response(200, '<div>' + JSON.stringify({url: url, method: 'GET', data: data}) + '</div>');
     }
 }));
 
@@ -357,11 +357,11 @@ QUnit.test('creme.widget.Frame.reload (url, data)', function(assert) {
 
     this.assertOverlayState(element, {active: false});
     equal(0, $('h1', element).length);
-    equal(element.html(), '<div>' + $.toJSON({url: 'mock/custom', method: 'GET', data: {}}) + '</div>');
+    equal(element.html(), '<div>' + JSON.stringify({url: 'mock/custom', method: 'GET', data: {}}) + '</div>');
 
     element.creme().widget().reload('mock/custom', {'a': 12});
     equal(0, $('h1', element).length);
-    equal(element.html(), '<div>' + $.toJSON({url: 'mock/custom', method: 'GET', data: {'a': 12}}) + '</div>');
+    equal(element.html(), '<div>' + JSON.stringify({url: 'mock/custom', method: 'GET', data: {'a': 12}}) + '</div>');
 });
 
 QUnit.test('creme.widget.Frame.reload (url, async)', function(assert) {
@@ -542,7 +542,7 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
     element.creme().widget().submit($('form', element), listeners);
     deepEqual(this.mockFormSubmitCalls('success'), [
         ['submit-done', {
-            content: $.toJSON({value: 1, added: [1, 'John Doe']}),
+            content: JSON.stringify({value: 1, added: [1, 'John Doe']}),
             data: {value: 1, added: [1, 'John Doe']},
             type: 'text/json'
         }, 'text/json']
@@ -558,7 +558,7 @@ QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
     element.creme().widget().submit($('form', element), listeners);
     deepEqual(this.mockFormSubmitCalls('success'), [
         ['submit-done', {
-            content: $.toJSON({value: 1, added: [1, 'John Doe']}),
+            content: JSON.stringify({value: 1, added: [1, 'John Doe']}),
             data: {value: 1, added: [1, 'John Doe']},
             type: 'text/json'
         }, 'text/json']

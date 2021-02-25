@@ -203,8 +203,8 @@
                     classes: (options.classes || []).join(' '),
                     isasync: options.async ? 'is-async-action' : '',
                     isdisabled: options.disabled ? 'is-disabled' : '',
-                    options: $.toJSON(options.options || {}),
-                    data: $.toJSON(options.data || {})
+                    options: JSON.stringify(options.options || {}),
+                    data: JSON.stringify(options.data || {})
                 });
         },
 

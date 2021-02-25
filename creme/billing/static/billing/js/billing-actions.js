@@ -139,7 +139,7 @@ var billingLinesActions = {
 
                 modifiedLines.each(function() {
                     var container = $(this);
-                    formsData[container.attr('ct_id')] = $.toJSON(creme.billing.serializeForm(container));
+                    formsData[container.attr('ct_id')] = JSON.stringify(creme.billing.serializeForm(container));
                 });
 
                 creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, warnOnFailTitle: gettext('Errors report')}, formsData)

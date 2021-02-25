@@ -29,7 +29,7 @@ QUnit.module("creme.cacheajax.js", new QUnitMixin(QUnitAjaxMixin, {
     },
 
     _custom_GET: function(url, data, options) {
-        return this.backend.response(200, 'received data %s'.format($.toJSON(data)));
+        return this.backend.response(200, 'received data %s'.format(JSON.stringify(data)));
     },
 
     _custom_POST: function(url, data, options) {

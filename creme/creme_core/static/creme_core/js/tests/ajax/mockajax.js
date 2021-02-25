@@ -7,23 +7,29 @@ QUnit.module("creme.mockajax.js", new QUnitMixin({
         var self = this;
 
         this.backend = new creme.ajax.MockAjaxBackend({sync: false});
-        $.extend(this.backend.GET, {'mock/html': this.backend.response(200, 'this is a test'),
-                                    'mock/json': this.backend.responseJSON(200, {a: 1, b: "test"}),
-                                    'mock/json/invalid': this.backend.response(200, '{"invalid json', {'Content-Type': 'text/json'}),
-                                    'mock/add': this.backend.response(200, MOCK_AJAX_FORM_CONTENT),
-                                    'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                    'mock/error': this.backend.response(500, 'HTTP - Error 500'),
-                                    'mock/custom': function(url, data, options) {
-                                        return self._custom_GET(url, data, options);
-                                    }});
+        $.extend(this.backend.GET, {
+            'mock/html': this.backend.response(200, 'this is a test'),
+            'mock/json': this.backend.responseJSON(200, {a: 1, b: "test"}),
+            'mock/json/invalid': this.backend.response(200, '{"invalid json', {'Content-Type': 'text/json'}),
+            'mock/add': this.backend.response(200, MOCK_AJAX_FORM_CONTENT),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+            'mock/custom': function(url, data, options) {
+                return self._custom_GET(url, data, options);
+            }
+        });
 
-        $.extend(this.backend.POST, {'mock/add/widget': this.backend.response(200, '<json>' + $.toJSON({value: '', added: [1, 'newitem']}) + '</json>'),
-                                     'mock/add': this.backend.response(200, MOCK_AJAX_FORM_CONTENT),
-                                     'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                     'mock/error': this.backend.response(500, 'HTTP - Error 500'),
-                                     'mock/custom': function(url, data, options) {
-                                         return self._custom_POST(url, data, options);
-                                     }});
+        $.extend(this.backend.POST, {
+            'mock/add/widget': this.backend.response(
+                200, '<json>' + JSON.stringify({value: '', added: [1, 'newitem']}) + '</json>'
+            ),
+            'mock/add': this.backend.response(200, MOCK_AJAX_FORM_CONTENT),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+            'mock/custom': function(url, data, options) {
+                return self._custom_POST(url, data, options);
+            }
+        });
     },
 
     afterEach: function() {
@@ -136,13 +142,13 @@ QUnit.test('MockAjaxBackend.get (custom)', function(assert) {
     this.backend.get('mock/custom', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                         function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
 
-    equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'GET', data: {}}));
+    equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'GET', data: {}}));
 
     this.backend.get('mock/custom', {a: 1, b: 'test'},
                                         function(responseText) { $.extend(response, {responseText: responseText}); },
                                         function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
 
-    equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'GET', data: {a: 1, b: 'test'}}));
+    equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'GET', data: {a: 1, b: 'test'}}));
 });
 
 QUnit.test('MockAjaxBackend.get (json, dataType=text)', function(assert) {
@@ -153,7 +159,7 @@ QUnit.test('MockAjaxBackend.get (json, dataType=text)', function(assert) {
                      {sync: true});
 
     equal(response.xhr.status, 200);
-    equal(response.responseText, $.toJSON({a: 1, b: 'test'}));
+    equal(response.responseText, JSON.stringify({a: 1, b: 'test'}));
     equal('text/json', response.xhr.getResponseHeader('Content-Type'));
     equal('text/json', response.xhr.getResponseHeader('content-type'));
 });
@@ -243,13 +249,13 @@ QUnit.test('MockAjaxBackend.post (custom)', function(assert) {
     this.backend.post('mock/custom', {}, function(responseText) { $.extend(response, {responseText: responseText}); },
                                          function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
 
-    equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'POST', data: {}}));
+    equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'POST', data: {}}));
 
     this.backend.post('mock/custom', {a: 1, b: 'test'},
                                         function(responseText) { $.extend(response, {responseText: responseText}); },
                                         function(responseText, xhr) { $.extend(response, xhr); }, {sync: true});
 
-    equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'POST', data: {a: 1, b: 'test'}}));
+    equal(response.responseText, JSON.stringify({url: 'mock/custom', method: 'POST', data: {a: 1, b: 'test'}}));
 });
 
 }(jQuery));

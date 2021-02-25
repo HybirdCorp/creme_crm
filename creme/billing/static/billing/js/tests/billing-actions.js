@@ -136,7 +136,7 @@ QUnit.test('creme.billing.brick (billing-line-saveall, invalid response)', funct
 
     deepEqual([
         ['POST', {
-            '86': $.toJSON({'product_line_formset-0-quantity': '5', 'product_line_formset-0-product': 'Product #1'})
+            '86': JSON.stringify({'product_line_formset-0-quantity': '5', 'product_line_formset-0-product': 'Product #1'})
          }]
     ], this.mockBackendUrlCalls('mock/billing/saveall/fail'));
 
@@ -183,7 +183,7 @@ QUnit.test('creme.billing.brick (billing-line-saveall, ok)', function(assert) {
 
     deepEqual([
         ['POST', {
-            '86': $.toJSON({'product_line_formset-0-quantity': '5', 'product_line_formset-0-product': 'Product #1'})
+            '86': JSON.stringify({'product_line_formset-0-quantity': '5', 'product_line_formset-0-product': 'Product #1'})
          }]
     ], this.mockBackendUrlCalls('mock/billing/saveall'));
 

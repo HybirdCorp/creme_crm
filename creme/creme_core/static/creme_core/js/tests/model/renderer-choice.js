@@ -90,8 +90,13 @@ QUnit.test('creme.model.ChoiceRenderer (empty model, add object)', function(asse
     model.append([{value: {id: 1, name: 'a'}, label: 'a'},
                   {value: {id: 2, name: 'b'}, label: 'b'}]);
 
-    this.assertOptions(element, [{value: $.toJSON({id: 1, name: 'a'}), label: 'a'},
-                            {value: $.toJSON({id: 2, name: 'b'}), label: 'b'}]);
+    this.assertOptions(element, [{
+        value: JSON.stringify({id: 1, name: 'a'}),
+        label: 'a'
+    }, {
+        value: JSON.stringify({id: 2, name: 'b'}),
+        label: 'b'
+    }]);
 });
 
 QUnit.test('creme.model.ChoiceRenderer (filled, model, add)', function(assert) {

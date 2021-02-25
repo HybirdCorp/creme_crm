@@ -107,7 +107,7 @@
                 action: options.action || '',
                 attrs: Object.entries(options.attrs || {}).map(renderAttr).join(' '),
                 html: options.html || '',
-                data: $.toJSON({
+                data: JSON.stringify({
                     data: options.data || {},
                     options: options.options || {}
                 })

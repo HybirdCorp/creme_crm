@@ -37,7 +37,7 @@
                 '</a>').template({
                     url: options.url,
                     action: options.action,
-                    data: $.toJSON({
+                    data: JSON.stringify({
                         data: options.data || {},
                         options: options.options || {}
                     })

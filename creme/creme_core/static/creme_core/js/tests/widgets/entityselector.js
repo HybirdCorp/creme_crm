@@ -329,12 +329,12 @@ QUnit.test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)
     widget.reload({selection: creme.widget.EntitySelectorMode.MULTIPLE});
     equal("mock/listview/multiple?q_filter=", widget.popupURL());
 
-    widget.reload({qfilter: $.toJSON({"~pk__in": [1, 2]})});
-    equal("mock/listview/multiple?q_filter=" + $.toJSON({"~pk__in": [1, 2]}), widget.popupURL());
+    widget.reload({qfilter: JSON.stringify({"~pk__in": [1, 2]})});
+    equal("mock/listview/multiple?q_filter=" + JSON.stringify({"~pk__in": [1, 2]}), widget.popupURL());
 
     widget.reload('mock/listview/${ctype}/${selection}?q_filter=${qfilter}');
     deepEqual(['ctype', 'selection', 'qfilter'], widget.dependencies());
-    equal("mock/listview/${ctype}/multiple?q_filter=" + $.toJSON({"~pk__in": [1, 2]}), widget.popupURL());
+    equal("mock/listview/${ctype}/multiple?q_filter=" + JSON.stringify({"~pk__in": [1, 2]}), widget.popupURL());
 });
 
 QUnit.test('creme.widget.EntitySelector.reset', function(assert) {

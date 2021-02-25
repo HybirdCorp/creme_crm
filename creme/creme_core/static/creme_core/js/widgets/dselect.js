@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2018  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -291,7 +291,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
             selections = Array.isArray(selections) ? selections : [selections];
             selections = selections.map(function(item) {
-                return Object.isString(item) === false ? $.toJSON(item) : item;
+                return Object.isString(item) === false ? JSON.stringify(item) : item;
             });
 
             element.val(selections);
@@ -310,8 +310,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         value = value !== null ? value : '';
 
-        if (typeof value !== 'string') {
-            value = $.toJSON(value);
+        if (Object.isString(value) === false) {
+            value = JSON.stringify(value);
         }
 
         var choice = this.choice(element, value);
@@ -353,8 +353,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     },
 
     _querychoices: function(element, key, strict) {
-        if (typeof key !== 'string') {
-            key = $.toJSON(key);
+        if (Object.isString(key) === false) {
+            key = JSON.stringify(key);
         }
 
         var choices = $('option' + (key ? ':not(:disabled)' : ''), element).filter(function() {
@@ -371,8 +371,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     },
 
     _querygroups: function(element, key, strict) {
-        if (typeof key !== 'string') {
-            key = $.toJSON(key);
+        if (Object.isString(key) === false) {
+            key = JSON.stringify(key);
         }
 
         var groups = $('optgroup' + (key ? ':not(:disabled)' : ''), element).filter(function() {
