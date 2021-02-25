@@ -8,6 +8,10 @@
 **/js/jquery/extensions/jquery.floatthead-*
 **/js/jquery/extensions/jquery.form-*
 **/js/jquery/extensions/jquery.uuid-*
+**/js/jquery/extensions/jquery.browser*
+**/js/jquery/extensions/jquery.debounce*
+**/js/jquery/extensions/fullcalendar*
+**/js/jquery/ui/*
 **/js/lib/momentjs/*
 **/js/lib/leaflet*.js
 **/js/lib/editor/*
