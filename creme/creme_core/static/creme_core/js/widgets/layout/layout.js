@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/* globals BrowserVersion */
 (function($) {
 "use strict";
 
@@ -30,7 +31,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
     _init_: function() {
         this._threshold = 100;
 
-        if ($.browserInfo().msie) {
+        if (BrowserVersion.isIE()) {
             this._sensor = $('<div class="ui-layout resize-sensor" onresize="$(\'body\').resize();">');
         } else {
             this._sensor = $('<div class="ui-layout resize-sensor">' +
@@ -87,7 +88,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
 
         var flow_cb = $.debounce(matchFlow, this._threshold);
 
-        if (!$.browserInfo().msie) {
+        if (!BrowserVersion.isIE()) {
             this._onOverflow(sensor, flow_cb);
             this._onUnderflow(sensor, flow_cb);
             this._onOverflow(overflow, flow_cb);
