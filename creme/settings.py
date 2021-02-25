@@ -631,7 +631,6 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.cursor.js',
     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
     'creme_core/js/jquery/extensions/json-2.2.js',
-    'creme_core/js/jquery/extensions/utils.js',
     'creme_core/js/jquery/extensions/wait.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
     'creme_core/js/jquery/extensions/jquery.form-3.51.js',
@@ -651,7 +650,10 @@ CREME_CORE_JS = [
     # Name
     'main.js',
 
-    # Content
+    # jQuery tools
+    'creme_core/js/jquery/extensions/jquery.toggle-attr.js',
+
+    # Base tools
     'creme_core/js/lib/fallbacks/object-0.1.js',
     'creme_core/js/lib/fallbacks/array-0.9.js',
     'creme_core/js/lib/fallbacks/string-0.1.js',
@@ -664,6 +666,7 @@ CREME_CORE_JS = [
     'creme_core/js/lib/faker.js',
     'creme_core/js/lib/browser.js',
 
+    # Legacy tools
     'creme_core/js/creme.js',
     # 'creme_core/js/color.js',
     'creme_core/js/utils.js',
@@ -816,6 +819,8 @@ TEST_CREME_LIB_JS = [
 TEST_CREME_CORE_JS = [
     # Name
     'testcore.js',
+
+    'creme_core/js/tests/jquery/toggle-attr.js',
 
     # Content
     'creme_core/js/tests/component/component.js',

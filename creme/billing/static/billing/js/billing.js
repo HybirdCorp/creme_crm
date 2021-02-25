@@ -72,20 +72,15 @@ creme.billing.checkDiscount = function(element) {
     return false;
 };
 
-creme.billing.markDelete = function(form_prefix, line_id) {
-    var checkbox_name = form_prefix + '-DELETE';
-    var delete_checkbox = $('#id_' + checkbox_name);
-    var line_td = $('#line_content_' + line_id);
+creme.billing.markDelete = function(prefix, lineId) {
+    var name = prefix + '-DELETE';
+    var checkbox = $('#id_' + name);
+    var line = $('#line_content_' + lineId);
 
-    var to_delete = !delete_checkbox.is(':checked');
+    var toDelete = !checkbox.is(':checked');
 
-    if (!to_delete) {
-        delete_checkbox.uncheck();
-        line_td.removeClass('bline-deletion-mark');
-    } else {
-        delete_checkbox.check();
-        line_td.addClass('bline-deletion-mark');
-    }
+    checkbox.prop('checked', toDelete);
+    line.toggleClass('bline-deletion-mark', toDelete);
 
     // TODO: remove the id of <tbody> ??
 //    var tbodyform = $('tbody[id^="form_id_' + ct_id + '"]');
