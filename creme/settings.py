@@ -631,7 +631,6 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.cursor.js',
     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
     'creme_core/js/jquery/extensions/json-2.2.js',
-    'creme_core/js/jquery/extensions/highlight.js',
     'creme_core/js/jquery/extensions/utils.js',
     'creme_core/js/jquery/extensions/wait.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
