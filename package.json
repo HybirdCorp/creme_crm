@@ -12,7 +12,7 @@
         "graceful-fs": "^4.1.15",
         "has-flag": "4.0.0",
         "istanbul": "0.4.5",
-        "jquery": "1.12.4",
+        "jquery": "2.2.4",
         "js-yaml": "3.13.1",
         "jsdom": "11.0.0",
         "karma": "3.1.4",
