@@ -623,8 +623,7 @@ CREME_LIB_JS = [
     {'filter': 'mediagenerator.filters.media_url.MediaURL'},
 
     'creme_core/js/media.js',
-    'creme_core/js/jquery/1.12/jquery-1.12.4.js',
-    'creme_core/js/jquery/1.12/jquery-migrate-1.4.1.js',
+    'creme_core/js/jquery/2.x/jquery-2.2.4.js',
     'creme_core/js/jquery/ui/jquery-ui-1.11.4.custom.js',
     'creme_core/js/jquery/ui/jquery-ui-locale.js',
     'creme_core/js/jquery/extensions/jquery.browser.js',

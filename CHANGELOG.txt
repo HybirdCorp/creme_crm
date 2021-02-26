@@ -18,7 +18,7 @@
       You should probably read the following releases notes for Django versions :
         - https://docs.djangoproject.com/en/3.2/releases/3.0/
         - https://docs.djangoproject.com/en/3.2/releases/3.1/
-    - The version of jQuery is now "1.12.4"
+    - The version of jQuery is now "2.2.4"
 
 
     Non breaking changes :
