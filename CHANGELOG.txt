@@ -17,6 +17,7 @@
       You should probably read the following releases notes for Django versions :
         - https://docs.djangoproject.com/en/3.2/releases/3.0/
         - https://docs.djangoproject.com/en/3.2/releases/3.1/
+    - The version of jQuery is now "1.12.4"
 
 
     Non breaking changes :
@@ -24,6 +25,27 @@
         # Deprecations :
             - The class 'creme_core.forms.fields.AjaxModelChoiceField' is deprecated.
             - In the template "creme_core/generics/blockform/field-block.html", the block {% block extra_buttons %} is deprecated.
+            - In Javascript:
+                * Some creme.ajax.* functions are now deprecated; use creme.ajax.Query instead:
+                    - creme.ajax.ajax()
+                    - creme.ajax.get()
+                    - creme.ajax.post()
+                    - creme.ajax.submit()
+                    - creme.ajax.reloadContent()
+                    - creme.ajax.json.send()
+                    - creme.ajax.json.get()
+                    - creme.ajax.json.post()
+                    - creme.ajax.json.isvalid()
+                    - creme.ajax.json.parse()
+                * Some creme.form.* functions are now deprecated
+                    - creme.forms.Select.optionsFromData()
+                    - creme.forms.Select.fill()
+                * All 'creme.layout.Layout' classes are deprecated; Use CSS instead
+                    - creme.layout.Layout
+                    - creme.layout.ColumnSortLayout
+                    - creme.layout.CSSColumnLayout
+                    - creme.layout.SortLayout
+                * The jquery extension '$.browserVersion' is now deprecated but kept as gccolor dependency
             - Apps :
                 * Persons :
                     - The function 'forms.base._get_address_field_names()' is deprecated.
@@ -153,6 +175,17 @@
             * Geolocation :
                 - The inner-constants in 'models.GeoAddress' have been replaced by an 'IntegerChoices' class :
                   UNDEFINED, MANUAL, PARTIAL, COMPLETE, STATUS_LABELS
+        # Javascript :
+            * The function 'creme.ajax.json.ajaxFormSubmit' has been removed.
+            * The jQuery package 'extensions/utils.js' is refactored as 'extensions/jquery.toggle-attr.js'
+                - The extensions '$.fn.check()', '$.fn.uncheck()' & '$.fn.toggleCheck' are removed.
+                - Add the extension '$.fn.toggleProp'
+            * Remove the jQuery extension '$.fn.wait()' which is not useful.
+            * Remove the jQuery extension '$.toJSON()'; use JSON.stringify() instead
+            * Remove unused dependencies
+                - jquery.cookie.js
+                - jquery.highlight.js
+                - jquery.bind-first.js
 
     Internal breaking changes :
     ---------------------------
