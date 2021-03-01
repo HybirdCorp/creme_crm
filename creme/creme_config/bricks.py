@@ -611,8 +611,8 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
 
         paginator = btc['page'].paginator
         btc['show_add_button'] = (
-            (UserRole.objects.count() > paginator.count) and
-            superuser_count
+            (UserRole.objects.count() > paginator.count)
+            or (superuser_count == 0)
         )
 
         # NB: the UserRole queryset count does not use the default & superuser configuration
