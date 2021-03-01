@@ -3,6 +3,8 @@
   Users side :
   ------------
     # Apps :
+        * Creme_config :
+            - In the bricks' configuration, the button to add an home configuration for a role was hidden in some cases it should not.
         * Geolocation :
             - The configuration portal of 'GeoAddress' has been fixed: creation, edition & deletion have been disabled.
         * Reports :

@@ -4,6 +4,7 @@ from copy import deepcopy
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext as _
@@ -53,6 +54,7 @@ from creme.creme_core.tests.fake_models import (
     FakeInvoiceLine,
     FakeOrganisation,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
 # Test Bricks ------------------------------------------------------------------
@@ -160,7 +162,7 @@ class FakeContactHatBrick(Brick):
 
 # Test case --------------------------------------------------------------------
 
-class BricksConfigTestCase(CremeTestCase):
+class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     DEL_DETAIL_URL = reverse('creme_config__delete_detailview_bricks')
     CUSTOM_WIZARD_URL = reverse('creme_config__create_custom_brick')
 
@@ -1536,6 +1538,80 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertDoesNotExist(bhl04)
         self.assertStillExists(bhl01)
         self.assertStillExists(bhl03)
+
+    def test_home_config_brick(self):
+        self.login()
+        self.assertFalse(BrickHomeLocation.objects.filter(
+            Q(role__isnull=False) | Q(superuser=False)
+        ))
+
+        existing_roles = [*UserRole.objects.all()]
+        self.assertEqual(1, len(existing_roles))
+
+        brick_id = bricks.BrickHomeLocationsBrick.id_
+        button_url = reverse('creme_config__create_home_bricks')
+        button_label = _('Add a home configuration for a role')
+
+        # TODO: render only the brick, not the whole page ?
+        url = reverse('creme_config__bricks')
+        response1 = self.assertGET200(url)
+        brick_node1 = self.get_brick_node(
+            self.get_html_tree(response1.content), brick_id,
+        )
+        self.assertBrickHeaderHasButton(
+            self.get_brick_header_buttons(brick_node1),
+            url=button_url, label=button_label,
+        )
+
+        # ---
+        BrickHomeLocation.objects.create(
+            superuser=True, brick_id=HomeOnlyBrick1.id_, order=1,
+        )
+        response2 = self.assertGET200(url)
+        brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content), brick_id,
+        )
+        self.assertBrickHeaderHasButton(
+            self.get_brick_header_buttons(brick_node2),
+            url=button_url, label=button_label,
+        )
+
+        # ---
+        BrickHomeLocation.objects.create(
+            role=existing_roles[0], brick_id=HomeOnlyBrick1.id_, order=1,
+        )
+        response3 = self.assertGET200(url)
+        brick_node3 = self.get_brick_node(
+            self.get_html_tree(response3.content), brick_id,
+        )
+        self.assertBrickHeaderHasNoButton(
+            self.get_brick_header_buttons(brick_node3), url=button_url,
+        )
+
+        # ---
+        role2 = UserRole.objects.create(name='CEO')
+        response4 = self.assertGET200(url)
+        brick_node4 = self.get_brick_node(
+            self.get_html_tree(response4.content), brick_id,
+        )
+        self.assertBrickHeaderHasButton(
+            self.get_brick_header_buttons(brick_node4),
+            url=button_url, label=button_label,
+        )
+
+        # ---
+        BrickHomeLocation.objects.create(
+            role=role2, brick_id=HomeOnlyBrick1.id_, order=1,
+        )
+        response5 = self.assertGET200(url)
+        brick_node5 = self.get_brick_node(
+            self.get_html_tree(response5.content), brick_id,
+        )
+        self.assertBrickHeaderHasNoButton(
+            self.get_brick_header_buttons(brick_node5), url=button_url,
+        )
+
+        # TODO: test paginator count (title)
 
     def test_edit_default_mypage(self):
         self.login()
