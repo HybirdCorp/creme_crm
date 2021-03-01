@@ -264,6 +264,7 @@ class ReportCreation(generic.EntityCreation):
 
 
 class ReportCreationWizard(generic.EntityCreationWizard):
+    model = Report
     form_list = [
         custom_forms.REPORT_CREATION_CFORM,
         report_forms.HeaderFilterStep,

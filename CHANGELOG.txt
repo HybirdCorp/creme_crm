@@ -5,6 +5,8 @@
     # Apps :
         * Geolocation :
             - The configuration portal of 'GeoAddress' has been fixed: creation, edition & deletion have been disabled.
+        * Reports :
+            - The title of Reports' creation wizard has been fixed.
 
 
 == Version 2.2 ==
