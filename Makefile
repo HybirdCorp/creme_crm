@@ -114,14 +114,14 @@ shell:
 ## Run the Javascript linters
 .PHONY: eslint-diff
 eslint-diff:
-	git diff --name-only origin/master creme/ | { grep -E '.js$$' || true; } | xargs --no-run-if-empty \
+	git diff --name-only origin/main creme/ | { grep -E '.js$$' || true; } | xargs --no-run-if-empty \
 		node_modules/.bin/eslint \
 			--config .eslintrc \
 			--ignore-path .eslintignore \
 			--format stylish \
 			--quiet
 
-	git diff --name-only origin/master creme/ | { grep -E '.html$$' || true; } | xargs --no-run-if-empty \
+	git diff --name-only origin/main creme/ | { grep -E '.html$$' || true; } | xargs --no-run-if-empty \
 		node_modules/.bin/eslint \
 			--config .eslintrc \
 			--ignore-path .eslintignore \

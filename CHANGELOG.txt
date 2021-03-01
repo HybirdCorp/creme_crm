@@ -11,6 +11,14 @@
             - The title of Reports' creation wizard has been fixed.
 
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The target "eslint-diff" of the Makefile has been fixed (the branch "master" was still used).
+
+
 == Version 2.2 ==
 
   UPGRADE NOTE :
