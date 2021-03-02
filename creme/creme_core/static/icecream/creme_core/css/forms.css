@@ -186,6 +186,8 @@ div.form-container {
 
 .form-block .form-block-field-value {
     padding-top: 10px;
+    padding-bottom: 5px;
+
     border-top: 1px solid #d9d9d9;
 }
 
@@ -250,39 +252,24 @@ div.submit_buttons input:active {
     color: #1a1a1a;
 }
 
-/*
 input,
 textarea,
 select,
-.ui-widget input,
-.ui-widget textarea,
-.ui-widget select,
-label {
-    font-family: 'Open Sans', 'Verdana', sans-serif;
-    font-size: 13px;
-}
-*/
-input,
-textarea,
-select,
+label,
 .ui-widget input,
 .ui-widget textarea,
 .ui-widget select {
+    font-family: 'Open Sans', 'Verdana', sans-serif;
     font-size: 13px;
 }
 
-input, textarea {
+input,
+textarea {
     padding-left: 5px;
-}
-
-.form-block-field-value textarea {
-    width: 99%;
 }
 
 select {
     padding-left: 3px;
-
-    font-family: 'Open Sans', 'Verdana', sans-serif;
     font-size: 12.5px;
 }
 
@@ -319,6 +306,83 @@ ul.radio_select,
 ul.multi-select {
     list-style-type: none;
     padding: 0;
+}
+
+.form-block-field-value textarea {
+    width: 99%;
+}
+
+.select-wrapper {
+    display: inline-block;
+    height: 24px;
+}
+
+.select-wrapper select {
+    -webkit-appearance: none;
+       -moz-appearance: none;
+            appearance: none;
+
+    width: 200px;
+    height: 23px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+            box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+
+    text-align: left;
+    text-decoration: none;
+    color: #333;
+
+    cursor: pointer;
+}
+
+.select-wrapper select:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.select-wrapper select[disabled]:hover {
+    background-color: #ebebeb; /* desaturate and lighten */
+}
+
+/* Not used by all browsers... */
+.select-wrapper option {
+    background-color: #fff;
+    color: #333;
+}
+
+.select-wrapper .select-arrow {
+    position: relative;
+
+    top: -14px;
+    left: 180px; /* see .form-block-field-value select => width: 200px */
+
+    width: 0;
+    height: 0;
+
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #00000063;
+
+    pointer-events: none;
+}
+
+.select-wrapper select:disabled,
+.select-wrapper select:disabled + .select-arrow  {
+    opacity: .50;
+    filter: Alpha(Opacity=50);
+
+    -webkit-box-shadow: none;
+       -moz-box-shadow: none;
+            box-shadow: none;
+
+    cursor: default;
 }
 
 /*
@@ -370,6 +434,7 @@ form .table_detail_view.dual_column .td_info > input.hasDatepicker {
 }
 */
 
+/*
 .form-block-field-value ul.ui-layout,
 .form-block-field-value input,
 .form-block-field-value select,
@@ -378,6 +443,7 @@ form .table_detail_view.dual_column .td_info > input.hasDatepicker {
 .form-block-field-value ul.selectors img.delete {
     margin-bottom: 5px;
 }
+*/
 
 input.dperiod-value {
     width: 40px;
@@ -424,7 +490,9 @@ ul.optional-widget {
     text-align: center;
 }
 
-.li_merge_entity1, .li_merge_entity2, .li_merge_result {
+.li_merge_entity1,
+.li_merge_entity2,
+.li_merge_result {
     width: 30%;
 }
 
@@ -473,6 +541,13 @@ form .table_detail_view .merge_result {
     width: 99%;
 }
 */
+
+.form-container .li_merge_entity1 .help-text,
+.form-container .li_merge_entity1 .help-text-format,
+.form-container .li_merge_entity2 .help-text,
+.form-container .li_merge_entity2 .help-text-format {
+    visibility: hidden; /* Not display:none to keep input aligned */
+}
 
 /* HEADER FILTER */
 

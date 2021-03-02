@@ -158,6 +158,7 @@
             - The method 'ActionButtonList._get_button_context()' has been removed.
             - The inner-class 'SelectorList.Action' has been replaced by the new class 'WidgetAction' (they are globally identical, but the new constructor takes only keyword arguments).
         # The HTML/CSS for forms have been heavily reworked :
+            - The HTML for 'django.forms.widgets.Select' is now wrapped in a tag "<div>".
             - "<div>" tags are used instead of "<table>" in the blocks.
             - The HTML id "editforms" has been removed.
             - The CSS class "table_detail_view" is not use anymore.

@@ -478,7 +478,6 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
             create_url='/add',
             create_lbl=_('Create'),
         )
-
         self.assertHTMLEqual(html, select.render(name, ()))
 
     def test_render_enhanced_options(self):
@@ -512,7 +511,6 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
             check_all=_('Check all'),
             check_none=_('Check none'),
         )
-
         self.assertHTMLEqual(html, select.render(name, ()))
 
 
@@ -631,14 +629,27 @@ class ActionButtonListTestCase(CremeTestCase):
     def test_render_empty_action_list(self):
         widget = ActionButtonList(Select(choices=[(1, 'A'), (2, 'B')]))
 
+#         html = '''
+# <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
+#     widget="ui-creme-actionbuttonlist">
+#     <li class="delegate">
+#         <select name="field">
+#             <option value="1">A</option>
+#             <option value="2" selected>B</option>
+#         </select>
+#     </li>
+# </ul>'''
         html = '''
 <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
     widget="ui-creme-actionbuttonlist">
     <li class="delegate">
-        <select name="field">
-            <option value="1">A</option>
-            <option value="2" selected>B</option>
-        </select>
+        <div class="select-wrapper">
+            <select name="field">
+                <option value="1">A</option>
+                <option value="2" selected>B</option>
+            </select>
+            <div class="select-arrow"></div>
+        </div>
     </li>
 </ul>'''
         self.assertHTMLEqual(html, widget.render('field', 2))
@@ -648,14 +659,35 @@ class ActionButtonListTestCase(CremeTestCase):
         widget.add_action('action_a', 'Action A', title='Do the action A')
         widget.add_action('action_b', 'Action B', False)
 
+#         html = '''
+# <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
+#     widget="ui-creme-actionbuttonlist">
+#     <li class="delegate">
+#         <select name="field">
+#             <option value="1" selected>A</option>
+#             <option value="2">B</option>
+#         </select>
+#     </li>
+#     <li>
+#         <button class="ui-creme-actionbutton" name="action_a"
+#                 title="Do the action A" type="button">Action A</button>
+#     </li>
+#     <li>
+#         <button class="ui-creme-actionbutton" name="action_b" title="Action B"
+#                 type="button" disabled>Action B</button>
+#     </li>
+# </ul>'''
         html = '''
 <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
     widget="ui-creme-actionbuttonlist">
     <li class="delegate">
-        <select name="field">
-            <option value="1" selected>A</option>
-            <option value="2">B</option>
-        </select>
+        <div class="select-wrapper">
+            <select name="field">
+                <option value="1" selected>A</option>
+                <option value="2">B</option>
+            </select>
+            <div class="select-arrow"></div>
+        </div>
     </li>
     <li>
         <button class="ui-creme-actionbutton" name="action_a"
@@ -730,7 +762,7 @@ class EntitySelectorTestCase(CremeTestCase):
         if dom1 != dom2:
             standard_msg = '{} != {}'.format(
                 safe_repr(dom1, True),
-                safe_repr(dom2, True)
+                safe_repr(dom2, True),
             )
             diff = ('\n' + '\n'.join(difflib.ndiff(
                 str(dom1).splitlines(),
@@ -995,10 +1027,10 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
         )
 
         widget._build_actions(FakeContact, {'readonly': True})
-        self.assertEqual([], widget.actions)
+        self.assertListEqual([], widget.actions)
 
         widget._build_actions(FakeContact, {'disabled': True})
-        self.assertEqual([], widget.actions)
+        self.assertListEqual([], widget.actions)
 
     def test_render_no_model(self):
         widget = EntityCreatorWidget()
@@ -1129,7 +1161,7 @@ class CremeTextareaTestCase(CremeTestCase):
 <textarea cols="40" rows="3" name="field"
           class="ui-creme-autosizedarea ui-creme-widget widget-auto"
           widget="ui-creme-autosizedarea">''',
-            widget.render('field', value='')
+            widget.render('field', value=''),
         )
 
     def test_render02(self):
@@ -1140,7 +1172,7 @@ class CremeTextareaTestCase(CremeTestCase):
 <textarea cols="80" rows="4" name="my_field"
           class="ui-creme-autosizedarea ui-creme-widget widget-auto"
           widget="ui-creme-autosizedarea">''',
-            widget.render('my_field', value='')
+            widget.render('my_field', value=''),
         )
 
     def test_render03(self):
@@ -1151,5 +1183,5 @@ class CremeTextareaTestCase(CremeTestCase):
 <textarea cols="40" rows="3" name="field"
           class="my_extra_class ui-creme-autosizedarea ui-creme-widget widget-auto"
           widget="ui-creme-autosizedarea">''',
-            widget.render('field', value='')
+            widget.render('field', value=''),
         )
