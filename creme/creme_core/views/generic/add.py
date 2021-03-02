@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,8 @@ from typing import Type, Union
 from django.db.transaction import atomic
 from django.forms.forms import BaseForm
 from django.http import HttpResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.generic import CreateView
 
 from creme.creme_core import forms, models
@@ -30,9 +32,8 @@ from creme.creme_core.gui.custom_form import CustomFormDescriptor
 
 from . import base
 
+
 # TODO: add a system to be redirected after the creation (from an argument "?next=") ?
-
-
 class CremeModelCreation(base.CustomFormMixin,
                          base.CancellableMixin,
                          base.PermissionsMixin,
@@ -127,6 +128,7 @@ class EntityCreation(CremeModelCreation):
         user.has_perm_to_create_or_die(model)
 
 
+@method_decorator(xframe_options_sameorigin, name='dispatch')
 class CremeModelCreationPopup(CremeModelCreation):
     """ Base class for creation view with a form in Creme within an Inner-Popup.
     See CremeModelCreation.

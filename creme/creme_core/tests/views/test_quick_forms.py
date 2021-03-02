@@ -43,13 +43,14 @@ class QuickFormTestCase(CremeTestCase):
             args=(ContentType.objects.get_for_model(model).pk,),
         )
 
-    def test_ok01(self):
+    def test_create_contact(self):
         user = self.login()
         count = FakeContact.objects.count()
 
         url = self._build_quickform_url(FakeContact)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
+        self.assertEqual('SAMEORIGIN', response.get('X-Frame-Options'))  # allows iframe
 
         context = response.context
         self.assertEqual(FakeContact.creation_label, context.get('title'))
@@ -66,6 +67,7 @@ class QuickFormTestCase(CremeTestCase):
                 'user':      user.id,
             },
         )
+        self.assertEqual('SAMEORIGIN', response.get('X-Frame-Options'))  # allows iframe
         self.assertEqual(count + 1, FakeContact.objects.count())
 
         contact = self.get_object_or_fail(FakeContact, last_name=last_name, email=email)
@@ -77,17 +79,17 @@ class QuickFormTestCase(CremeTestCase):
             response.json(),
         )
 
-    def test_ok02(self):
+    def test_get_not_superuser(self):
         "Not super-user."
         self.login(is_superuser=False, creatable_models=[FakeOrganisation])
         self.assertGET200(self._build_quickform_url(FakeOrganisation))
 
-    def test_error01(self):
+    def test_get_missing_permission(self):
         "Creation permission needed."
         self.login(is_superuser=False, creatable_models=[FakeContact])
         self.assertGET403(self._build_quickform_url(FakeOrganisation))
 
-    def test_error02(self):
+    def test_get_model_without_quickform(self):
         "Model without form."
         self.login()
         self.assertGET404(self._build_quickform_url(FakeInvoice))
