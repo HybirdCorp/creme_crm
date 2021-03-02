@@ -489,6 +489,7 @@ span.ui-creme-datepicker-trigger {
 .creme-datepicker button[name="today"],
 .ui-creme-timepicker button,
 .ui-creme-datetimepicker button {
+    height: 23px;
     padding: 2px 10px;
 
     background: linear-gradient(#fcfcfc, #f0f0f0);

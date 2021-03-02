@@ -283,6 +283,8 @@ button[type="button"].ui-creme-actionbutton,
 */
     padding: 5px 15px;
 
+    background: linear-gradient(#f6fcff, #e0f1f7);
+
     border: 1px solid #bdd3dc;
     border-bottom: 1px solid #9db2bb;
 
@@ -295,8 +297,6 @@ button[type="button"].ui-creme-actionbutton,
     text-align: center;
     text-decoration: none;
     color: #34687e;
-
-    background: linear-gradient(#f6fcff, #e0f1f7);
 
     cursor: pointer;
 }

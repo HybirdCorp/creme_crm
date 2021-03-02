@@ -37,23 +37,33 @@
 /* @group Single Chosen */
 .chzn-container-single .chzn-single {
   background-color: #ffffff;
+/*
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0 );   
   background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(20%, #ffffff), color-stop(50%, #f6f6f6), color-stop(52%, #eeeeee), color-stop(100%, #f4f4f4));
   background-image: -webkit-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
   background-image: -moz-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
   background-image: -o-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
   background-image: -ms-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
-  background-image: linear-gradient(#ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%); 
+  background-image: linear-gradient(#ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+*/
+  background: linear-gradient(#f6fcff, #e0f1f7);
+
   -webkit-border-radius: 5px;
-  -moz-border-radius   : 5px;
-  border-radius        : 5px;
-  -moz-background-clip   : padding;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+
   -webkit-background-clip: padding-box;
-  background-clip        : padding-box;
-  border: 1px solid #aaaaaa;
+     -moz-background-clip: padding;
+          background-clip: padding-box;
+
+/*  border: 1px solid #aaaaaa; */
+  border: 1px solid #bdd3dc;
+  border-bottom: 1px solid #9db2bb;
+
   -webkit-box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
-  -moz-box-shadow   : 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
-  box-shadow        : 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
+     -moz-box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
+          box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
+
   display: block;
   overflow: hidden;
   white-space: nowrap;
@@ -61,7 +71,10 @@
   height: 23px;
   line-height: 24px;
   padding: 0 0 0 8px;
-  color: #444444;
+
+  /* color: #444444; */
+  color: #34687e;
+
   text-decoration: none;
 }
 .chzn-container-single .chzn-default {
@@ -286,6 +299,7 @@
   display: list-item;
 }
 .chzn-results .highlighted {
+/*
   background-color: #3875d7;
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3875d7', endColorstr='#2a62bc', GradientType=0 );  
   background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(20%, #3875d7), color-stop(90%, #2a62bc));
@@ -294,6 +308,14 @@
   background-image: -o-linear-gradient(top, #3875d7 20%, #2a62bc 90%);
   background-image: linear-gradient(#3875d7 20%, #2a62bc 90%);
   color: #fff;
+*/
+  background-color: #ff968d;
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f4a79f', endColorstr='#ff968d', GradientType=0 );
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(20%, #f4a79f), color-stop(90%, #2ff968d));
+  background-image: -webkit-linear-gradient(top, #f4a79f 20%, #2ff968d 90%);
+  background-image: -moz-linear-gradient(top, #f4a79f 20%, #2ff968d 90%);
+  background-image: -o-linear-gradient(top, #f4a79f 20%, #2ff968d 90%);
+  background-image: linear-gradient(#f4a79f 20%, #ff968d 90%);
 }
 .chzn-results li em {
   background: #feffde;

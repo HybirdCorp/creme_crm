@@ -403,6 +403,7 @@ class CremeCoreConfig(CremeAppConfig):
         self.hook_textfield_formfield()
         self.hook_datetime_widgets()
         self.hook_multiselection_widgets()
+        self.hook_select_template()
 
         if settings.TESTS_ON:
             from .tests.fake_apps import ready
@@ -774,6 +775,12 @@ class CremeCoreConfig(CremeAppConfig):
 
         forms.MultipleChoiceField.widget = forms.ModelMultipleChoiceField.widget = \
             widgets.UnorderedMultipleChoiceWidget
+
+    @staticmethod
+    def hook_select_template():
+        from django.forms.widgets import Select
+
+        Select.template_name = 'creme_core/forms/widgets/select.html'
 
     # @staticmethod
     # def tag_ctype():

@@ -42,9 +42,7 @@ User = get_user_model()
 class MenuSetting(Select):
     def __init__(self, url, choices=()):
         self.url = url
-        Select.__init__(self, attrs={
-            'class': 'user-setting-toggle'
-        }, choices=choices)
+        super().__init__(attrs={'class': 'user-setting-toggle'}, choices=choices)
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)

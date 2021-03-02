@@ -10,7 +10,8 @@ html {
     background-color: #f6fcff;
 
     color: black;
-    font-size: 0.8em;
+/*    font-size: 0.8em; */
+    font-size: 12.8px;
     font-family: "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
 }
 
@@ -497,7 +498,8 @@ a[data-action] details {
 }
 
 .footer .footer-baseline a {
-    color: inherit;
+/*    color: inherit; */
+    color: #ff968d;
 }
 
 .footer a:hover {
