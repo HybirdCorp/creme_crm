@@ -23,6 +23,7 @@ from django.urls import reverse
 from django.utils.timezone import get_current_timezone, make_aware, utc
 
 from ..global_info import clear_global_info
+from ..gui.icons import get_icon_by_name, get_icon_size_px
 from ..management.commands.creme_populate import Command as PopulateCommand
 from ..models import (
     CremePropertyType,
@@ -34,6 +35,7 @@ from ..models import (
     UserRole,
 )
 from ..utils import print_traceback
+from ..utils.media import get_current_theme
 from ..utils.xml_utils import XMLDiffError, xml_diff
 
 
@@ -730,8 +732,20 @@ class _CremeTestCase:
             'efilter': efilter.id if efilter else '',
         })
 
-    def get_html_tree(self, content):
+    @staticmethod
+    # def get_html_tree(self, content):
+    def get_html_tree(content):
         return html5lib.parse(content, namespaceHTMLElements=False)
+
+    @staticmethod
+    def get_icon(name, size, label=''):
+        theme = get_current_theme()
+
+        return get_icon_by_name(
+            name, theme,
+            size_px=get_icon_size_px(theme, size),
+            label=label,
+        )
 
     @staticmethod
     def http_file(file_path):
