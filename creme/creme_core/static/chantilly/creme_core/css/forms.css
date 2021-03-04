@@ -304,6 +304,18 @@ ul.multi-select {
     width: 99%;
 }
 
+.form-block-field-value .help-text {
+    margin-bottom: 4px;
+
+    color: hsla(197, 15%, 45%, 1);
+    font-style: italic;
+    font-size: 12.5px;
+}
+
+.form-block-field-value .help-text-format {
+    color: hsla(197, 15%, 50%, 1);
+}
+
 .select-wrapper {
     display: inline-block;
     height: 24px;
