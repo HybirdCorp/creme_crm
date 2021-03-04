@@ -52,6 +52,10 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 }
 
 /*----------------------------------*/
+ul.ui-creme-widget[readonly] li {
+    color: hsla(197, 15%, 55%, 1);
+}
+
 .ui-creme-selectorlist > div.add {
     background-repeat: no-repeat;
     background-image: url("chantilly/images/add_16.png");

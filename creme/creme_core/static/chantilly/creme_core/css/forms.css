@@ -304,6 +304,28 @@ ul.multi-select {
     width: 99%;
 }
 
+/* TODO: factorise ? */
+.form-block-field-value input[type="button"] {
+    height: 23px;
+    padding: 2px 10px;
+
+    background: linear-gradient(#f6fcff, #e0f1f7);
+
+    border: 1px solid #bdd3dc;
+    border-bottom: 1px solid #9db2bb;
+    border-radius: 3px;
+
+    -webkit-box-shadow: 0 1px 4px -2px rgb(21 86 119 / 43%), inset 0 1px 0px white;
+       -moz-box-shadow: 0 1px 4px -2px rgb(21 86 119 / 43%), inset 0 1px 0px white;
+            box-shadow: 0 1px 4px -2px rgb(21 86 119 / 43%), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #34687e;
+
+    cursor: pointer;
+}
+
 .form-block-field-value .help-text {
     margin-bottom: 4px;
 
@@ -348,10 +370,12 @@ ul.multi-select {
     cursor: pointer;
 }
 
+.form-block-field-value input[type="button"]:hover,
 .select-wrapper select:hover {
     background: linear-gradient(#ffffff, #f3f3f3);
 }
 
+.form-block-field-value input[type="button"][disabled]:hover,
 .select-wrapper select[disabled]:hover {
     background: linear-gradient(#fafdff, #e7f4f9);
 }
