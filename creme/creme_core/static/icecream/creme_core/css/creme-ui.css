@@ -118,7 +118,8 @@ ul.ui-layout.vbox li {
     display: block;
 }
 
-.ui-layout.resize-sensor, .ui-layout.resize-sensor > div {
+.ui-layout.resize-sensor,
+.ui-layout.resize-sensor > div {
     position: absolute;
     top: 0;
     left: 0;
@@ -129,6 +130,10 @@ ul.ui-layout.vbox li {
 }
 
 /*----------------------------------*/
+ul.ui-creme-widget[readonly] li {
+    color: #888;
+}
+
 .ui-creme-selectorlist > div.add {
     background-repeat: no-repeat;
     background-image: url("icecream/images/add_16.png");
