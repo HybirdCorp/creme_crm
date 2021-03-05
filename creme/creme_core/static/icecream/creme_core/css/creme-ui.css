@@ -15,6 +15,12 @@
     font-size: 1.1em;
 }
 
+.ui-dialog {
+    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
+       -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
+}
+
 .ui-dialog.ui-widget {
     font-size: inherit;
 }
@@ -134,6 +140,7 @@ ul.ui-creme-widget[readonly] li {
     color: #888;
 }
 
+/* NB: useless ??
 .ui-creme-selectorlist > div.add {
     background-repeat: no-repeat;
     background-image: url("icecream/images/add_16.png");
@@ -145,13 +152,14 @@ ul.ui-creme-widget[readonly] li {
 .ui-creme-selectorlist > div.add:hover {
     cursor: pointer;
 }
+*/
 
 .ui-creme-selectorlist .selectors > .selector {
     margin-bottom: 2px;
 }
 
-.ui-creme-selectorlist img.delete { border:0; vertical-align:middle; margin-left: 2px;}
-.ui-creme-selectorlist img.delete:hover { cursor:pointer; }
+.ui-creme-selectorlist img.delete { border: 0; vertical-align: middle; margin-left: 2px;}
+.ui-creme-selectorlist img.delete:hover { cursor: pointer; }
 
 .ui-creme-selectorlist[disabled] img.delete { display: none; }
 .ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton {

@@ -845,7 +845,11 @@ body .ui-tooltip {
 }
 .ui-widget-content {
     border: 1px solid #6eaac4;
-    background: #f6fcff url(images/ui-bg_flat_75_f6fcff_40x100.png) 50% 50% repeat-x; 
+/*
+    background: #f6fcff url(images/ui-bg_flat_75_f6fcff_40x100.png) 50% 50% repeat-x;
+*/
+    background: #f6fcff;
+
     color: #222222;
 }
 .ui-widget-content a {
@@ -855,8 +859,12 @@ body .ui-tooltip {
 .ui-widget-header {
     /* ---- creme theme ---- */
     border: 1px solid #6eaac4;
+/*
     background: #b4d2df url(images/ui-bg_glass_75_b4d2df_1x400.png) 50% 50% repeat-x;
-    color: #5a90a7; 
+*/
+    background: #b4d2df;
+
+    color: #5a90a7;
     font-weight: bold;
 }
 .ui-widget-header a {
@@ -1232,14 +1240,22 @@ body .ui-tooltip {
 
 /* Overlays */
 .ui-widget-overlay {
+/*
     background: #aaaaaa url("images/ui-bg_flat_0_aaaaaa_40x100.png") 50% 50% repeat-x;
+*/
+    background: #aaaaaa;
+
     opacity: .3;
     filter: Alpha(Opacity=30); /* support: IE8 */
 }
 .ui-widget-shadow {
     margin: -8px 0 0 -8px;
     padding: 8px;
+/*
     background: #aaaaaa url("images/ui-bg_flat_0_aaaaaa_40x100.png") 50% 50% repeat-x;
+*/
+    background: #aaaaaa;
+
     opacity: .3;
     filter: Alpha(Opacity=30); /* support: IE8 */
     border-radius: 8px;
