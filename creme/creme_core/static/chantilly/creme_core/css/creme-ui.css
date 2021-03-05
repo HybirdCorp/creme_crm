@@ -451,6 +451,7 @@ input:disabled + .ui-datepicker-trigger {
     cursor: pointer;
 }
 
+/* TODO: remove gif files
 .toggle-icon {
     background-image: url("chantilly/images/expanded.gif");
     background-repeat: no-repeat;
@@ -462,6 +463,7 @@ input:disabled + .ui-datepicker-trigger {
     background-repeat: no-repeat;
     background-position: center;
 }
+*/
 
 /*---------------------------------*/
 .checklist-header {

@@ -154,8 +154,28 @@
     display: none;
 }
 
-.graph-row-header .graph-row-toggle-icon:hover {
+.graph-row-header .graph-row-toggle-icon {
+    height: 16px;
+    width: 16px;
+
     cursor: pointer;
+}
+
+.graph-row-header .toggle-icon {
+    width: 0;
+    height: 0;
+}
+
+.graph-row-header .graph-row-expand .toggle-icon {
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 7px solid #40687e9c;
+}
+
+.graph-row-header .graph-row-collapse .toggle-icon {
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid #40687e9c;
 }
 
 .graph-row.graph-row-collapsed {
