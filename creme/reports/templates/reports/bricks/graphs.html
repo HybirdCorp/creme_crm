@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks reports_tags %}
+{% load i18n creme_core_tags creme_bricks reports_tags %}{# creme_widgets #}
 
 {% block brick_extra_class %}{{block.super}} reports-graphs-brick{% endblock %}
 
@@ -68,12 +68,18 @@
 
 {% block brick_table_rows %}
 {% has_perm_to admin 'reports' as admin_perm %}
+{% comment %}
 {% widget_icon name='expandme' label=_('Expand') size='brick-table-action' class='graph-row-toggle-icon graph-row-expand' as expand_icon %}
 {% widget_icon name='expanded' label=_('Close') size='brick-table-action' class='graph-row-toggle-icon graph-row-collapse' as collapse_icon %}
+{% endcomment %}
     {% for graph in page.object_list %}
     {% with hand=graph.hand %}
     <tr class="graph-row-header graph-row-collapsed" data-graph-id="{{graph.id}}">
-        <td>{{expand_icon.render}}{{collapse_icon.render}}</td>
+{#        <td>{{expand_icon.render}}{{collapse_icon.render}}</td> #}
+        <td>
+            <div class="graph-row-toggle-icon graph-row-expand" title="{% translate 'Expand' %}"><div class="toggle-icon"></div></div>
+            <div class="graph-row-toggle-icon graph-row-collapse" title="{% translate 'Close' %}"><div class="toggle-icon"></div></div>
+        </td>
         <td {% brick_table_data_status primary %}><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
         <td {% if hand.abscissa_error != None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>
         <td {% if hand.abscissa_error != None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
