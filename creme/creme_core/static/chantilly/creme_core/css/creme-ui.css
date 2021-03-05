@@ -12,6 +12,12 @@
     font-size: 1.1em;
 }
 
+.ui-dialog {
+    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
+       -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
+}
+
 /*----------------------------------*/
 .ui-creme-timepicker { margin:0; padding:0; list-style:none;}
 .ui-creme-timepicker li { margin:0; padding:0; position:relative; display:inline-block;}
@@ -56,6 +62,7 @@ ul.ui-creme-widget[readonly] li {
     color: hsla(197, 15%, 55%, 1);
 }
 
+/* NB: useless ??
 .ui-creme-selectorlist > div.add {
     background-repeat: no-repeat;
     background-image: url("chantilly/images/add_16.png");
@@ -67,11 +74,12 @@ ul.ui-creme-widget[readonly] li {
 .ui-creme-selectorlist > div.add:hover {
     cursor: pointer;
 }
+*/
 
-.ui-creme-selectorlist img.delete { border:0; vertical-align:middle; margin-left:2px; }
+.ui-creme-selectorlist img.delete { border: 0; vertical-align: middle; margin-left: 2px; }
 .ui-creme-selectorlist img.delete:hover { cursor:pointer; }
 
-.ui-creme-selectorlist .selectors { margin-bottom:2;}
+.ui-creme-selectorlist .selectors { margin-bottom: 2;}
 
 .ui-creme-selectorlist[disabled] img.delete { display: none; }
 .ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton {
