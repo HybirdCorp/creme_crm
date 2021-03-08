@@ -84,6 +84,8 @@
     /* An alias for me */
     window.QUnit.parametrize = window.QUnit.parameterize;
 
+    $.migrateTrace = true;
+
     QUnitMixin.prototype = {
         beforeEach: function(env) {
             var self = this;

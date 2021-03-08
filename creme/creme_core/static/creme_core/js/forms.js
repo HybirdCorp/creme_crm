@@ -575,7 +575,7 @@ creme.forms.initialize = function(form) {
                     e.preventDefault();
                 }
             }
-        }).submit(function() {
+        }).on('submit', function() {
             form.find('[type="submit"]').addClass('is-form-submit');
         });
 
