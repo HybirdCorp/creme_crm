@@ -590,7 +590,7 @@ CREME_OPT_CSS = [  # APPS
     ('creme.persons',          'persons/css/persons.css'),
 
     ('creme.activities',       'activities/css/activities.css'),
-    ('creme.activities',       'activities/css/fullcalendar-3.10.0.css'),
+    ('creme.activities',       'activities/css/fullcalendar-3.10.2.css'),
 
     ('creme.billing',          'billing/css/billing.css'),
     ('creme.opportunities',    'opportunities/css/opportunities.css'),
@@ -770,7 +770,7 @@ CREME_CORE_JS = [
 ]
 
 CREME_OPTLIB_JS = [
-    ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-3.10.0.js'),
+    ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-3.10.2.js'),
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.6.0.js'),
 ]
 
