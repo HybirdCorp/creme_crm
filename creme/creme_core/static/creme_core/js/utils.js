@@ -85,7 +85,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 creme.utils.confirmSubmit = function(atag, msg) {
     creme.dialogs.confirm(msg || gettext('Are you sure ?'))
                  .onOk(function() {
-                      $('form', $(atag)).submit();
+                      $('form', $(atag)).trigger('submit');
                   })
                  .open();
 };
