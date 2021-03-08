@@ -42,7 +42,7 @@ QUnit.test('creme.opportunities.QuoteController (toggle)', function(assert) {
     deepEqual([], this.mockBackendUrlCalls('mock/opports/15/quote/12/set_current'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
-    brick.element().find('.opportunities-current-quote').click();
+    brick.element().find('.opportunities-current-quote').trigger('click');
 
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/opports/15/quote/12/set_current'));
     deepEqual([
@@ -61,7 +61,7 @@ QUnit.test('creme.opportunities.QuoteController (toggle, disabled)', function(as
     deepEqual([], this.mockBackendUrlCalls('mock/opports/15/quote/12/set_current'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
-    brick.element().find('.opportunities-current-quote').click();
+    brick.element().find('.opportunities-current-quote').trigger('click');
 
     deepEqual([], this.mockBackendUrlCalls('mock/opports/15/quote/12/set_current'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
@@ -78,7 +78,7 @@ QUnit.test('creme.opportunities.QuoteController (toggle, no url)', function(asse
     deepEqual([], this.mockBackendUrlCalls('mock/opports/15/quote/12/set_current'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
-    brick.element().find('.opportunities-current-quote').click();
+    brick.element().find('.opportunities-current-quote').trigger('click');
 
     deepEqual([], this.mockBackendUrlCalls('mock/opports/15/quote/12/set_current'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));

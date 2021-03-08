@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2013-2019  Hybird
+    Copyright (C) 2013-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -274,7 +274,7 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
 
             var input = el.find('> input[type=checkbox]');
 
-            el.find('> label').click(function(e) {
+            el.find('> label').on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 input.prop('checked', !input.prop('checked')).change();
@@ -308,7 +308,7 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
         var div = this.div;
         var underlays = this.underlays;
 
-        div.find('.remove_all_columns').click(function(e) {
+        div.find('.remove_all_columns').on('click', function(e) {
             e.preventDefault();
             div.find('.selector input[type=checkbox]:checked')
                .prop('checked', false)
@@ -512,7 +512,7 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
             self._toggleSelectorUnderlay(target);
         });
 
-        div.find('.sub_selector_toggle').click(function(e) {
+        div.find('.sub_selector_toggle').on('click', function(e) {
             e.preventDefault();
             self._toggleSelectorUnderlay($(this));
         });

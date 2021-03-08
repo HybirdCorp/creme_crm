@@ -197,12 +197,12 @@ QUnit.test('creme.menu.MenuController (main menu, click)', function(assert) {
     equal(false, menuA.is('li.ui-creme-navigation-activated'));
     equal(false, menuB.is('li.ui-creme-navigation-activated'));
 
-    menuA.click();
+    menuA.trigger('click');
 
     equal(true, menuA.is('.ui-creme-navigation-activated'));
     equal(false, menuB.is('.ui-creme-navigation-activated'));
 
-    menuB.click();
+    menuB.trigger('click');
 
     equal(false, menuA.is('.ui-creme-navigation-activated'));
     equal(true, menuB.is('.ui-creme-navigation-activated'));
@@ -218,7 +218,7 @@ QUnit.test('creme.menu.MenuController (submenu quickform)', function(assert) {
     this.assertClosedDialog();
     deepEqual([], this.mockBackendUrlCalls('mock/A/quickform'));
 
-    quickA.click();
+    quickA.trigger('click');
 
     this.assertOpenedDialog();
     deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/A/quickform'));
@@ -240,7 +240,7 @@ QUnit.test('creme.menu.MenuController (quickform, close opened submenu)', functi
 
     this.assertClosedDialog();
 
-    quickA.click();
+    quickA.trigger('click');
 
     this.assertOpenedDialog();
     equal(false, menuA.is('li.ui-creme-navigation-activated'));
@@ -255,14 +255,14 @@ QUnit.test('creme.menu.MenuController (quickform, close opened dialog)', functio
 
     equal(true, controller.isBound());
 
-    quickA.click();
+    quickA.trigger('click');
 
     var dialog = this.assertOpenedDialog();
     equal('mock/A/quickform/', dialog.find('form').attr('action'));
 
     deepEqual([['mock/A/quickform', 'GET', {}]], this.mockBackendUrlCalls());
 
-    quickB.click();
+    quickB.trigger('click');
 
     dialog = this.assertOpenedDialog();
     equal('mock/B/quickform/', dialog.find('form').attr('action'));
@@ -281,7 +281,7 @@ QUnit.test('creme.menu.MenuController (submenu anyform, empty)', function(assert
 
     equal(true, controller.isBound());
 
-    anyA.click();
+    anyA.trigger('click');
 
     var dialog = this.assertOpenedDialog();
     this.equalHtml('<div class="create-all-form">', dialog.find('.ui-creme-dialog-frame'));
@@ -295,7 +295,7 @@ QUnit.test('creme.menu.MenuController (submenu anyform)', function(assert) {
 
     equal(true, controller.isBound());
 
-    anyB.click();
+    anyB.trigger('click');
 
     var dialog = this.assertOpenedDialog();
     deepEqual([], this.mockBackendUrlCalls());   // rendered in js
@@ -339,7 +339,7 @@ QUnit.test('creme.menu.MenuController (submenu anyform, close opened submenu)', 
 
     equal(true, menuA.is('li.ui-creme-navigation-activated'));
 
-    anyA.click();
+    anyA.trigger('click');
 
     this.assertOpenedDialog();
     equal(false, menuA.is('li.ui-creme-navigation-activated'));
@@ -354,11 +354,11 @@ QUnit.test('creme.menu.MenuController (submenu anyform, close opened dialog)', f
 
     equal(true, controller.isBound());
 
-    anyA.click();
+    anyA.trigger('click');
 
     this.assertOpenedDialog();
 
-    anyB.click();
+    anyB.trigger('click');
 
     this.assertOpenedDialog();
 });

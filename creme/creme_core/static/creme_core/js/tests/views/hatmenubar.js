@@ -80,7 +80,7 @@ QUnit.test('creme.detailview.hatmenubar (addrelationships)', function(assert) {
     equal(true, link.isBound());
     equal(false, link.isDisabled());
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     deepEqual([
         ['GET', {subject_id: '74', rtype_id: 'rtypes.1', selection: 'multiple'}]

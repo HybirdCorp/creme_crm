@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2019  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -63,7 +63,7 @@ creme.menu.MenuController = creme.component.Component.sub({
         });
 
         // Activate menus when clicked directly (for devices without hover)
-        items.click(function(e) { // possibly limit this to touch press events for tablets, or maybe just disable for desktop ?
+        items.on('click', function(e) { // possibly limit this to touch press events for tablets, or maybe just disable for desktop ?
             if (e.target !== this) {
                 return; // when clicking on sub-menu entries (<a>s inside <li>s inside <ul>s inside the <li> menu) we don't want to do anything
             }

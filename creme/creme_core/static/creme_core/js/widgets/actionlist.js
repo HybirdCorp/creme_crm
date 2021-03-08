@@ -155,7 +155,7 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
             self.actionButtons(element).attr('disabled', '');
         }
 
-        self.actionButtons(element).click(function(e) {
+        self.actionButtons(element).on('click', function(e) {
             e.preventDefault();
             self._onButtonActionClick(element, $(this));
         });

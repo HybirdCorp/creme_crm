@@ -223,7 +223,7 @@
             var element = brick.element();
 
             ids.forEach(function(id) {
-                $('tr[data-row-index="' + id + '"] td[data-selectable-selector-column]', element).click();
+                $('tr[data-row-index="' + id + '"] td[data-selectable-selector-column]', element).trigger('click');
             });
         }
     };

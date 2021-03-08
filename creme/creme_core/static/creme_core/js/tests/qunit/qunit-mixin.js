@@ -225,7 +225,7 @@
                 }
 
                 // Trigger events for some XSS issues
-                $('[data-test="qunitXSS"]').mouseover().click();
+                $('[data-test="qunitXSS"]').mouseover().trigger('click');
             }.bind(this));
         },
 

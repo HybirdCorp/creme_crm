@@ -144,7 +144,7 @@ QUnit.test('creme.action.ActionLink (bind, no builder)', function(assert) {
     equal(true, link.is('.is-disabled'));
     equal(true, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual([], this.mockActionCalls());
     deepEqual({}, this.mockListenerCalls());
 });
@@ -175,7 +175,7 @@ QUnit.test('creme.action.ActionLink (bind, empty action)', function(assert) {
     equal(true, link.is('.is-disabled'));
     equal(true, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual([], this.mockActionCalls());
     deepEqual({}, this.mockListenerCalls());
 });
@@ -193,7 +193,7 @@ QUnit.test('creme.action.ActionLink (bind, href)', function(assert) {
     equal(false, link.is('.is-disabled'), 'is not disabled');
     equal(false, action.isDisabled(), 'is not disabled');
 
-    link.click();
+    link.trigger('click');
     deepEqual(['a'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionA]], this.mockListenerCalls('complete'));
@@ -213,7 +213,7 @@ QUnit.test('creme.action.ActionLink (bind, registry fallback)', function(assert)
     equal(false, link.is('.is-disabled'), 'is not disabled');
     equal(false, action.isDisabled(), 'is not disabled');
 
-    link.click();
+    link.trigger('click');
     deepEqual(['a'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionA]], this.mockListenerCalls('complete'));
@@ -242,7 +242,7 @@ QUnit.test('creme.action.ActionLink (bind, registry custom)', function(assert) {
     equal(false, link.is('.is-disabled'), 'is not disabled');
     equal(false, action.isDisabled(), 'is not disabled');
 
-    link.click();
+    link.trigger('click');
     deepEqual(['custom-a'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], customActionA]], this.mockListenerCalls('complete'));
@@ -261,7 +261,7 @@ QUnit.test('creme.action.ActionLink (bind, data-action-url)', function(assert) {
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual(['b'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionB]], this.mockListenerCalls('complete'));
@@ -280,7 +280,7 @@ QUnit.test('creme.action.ActionLink (bind, actiontype with -)', function(assert)
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual(['do-it'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionDoIt]], this.mockListenerCalls('complete'));
@@ -331,7 +331,7 @@ QUnit.test('creme.action.ActionLink (bind, function builder)', function(assert) 
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual(['do-it'], this.mockActionCalls());
     deepEqual([['action-link-start', undefined, {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionDoIt]], this.mockListenerCalls('complete'));
@@ -350,7 +350,7 @@ QUnit.test('creme.action.ActionLink (bind, action raises)', function(assert) {
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual([], this.mockActionCalls());
     deepEqual([['action-link-start', undefined, {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-fail', [Error('this is an error !')], this.mockActionRaises]], this.mockListenerCalls('complete'));
@@ -369,7 +369,7 @@ QUnit.test('creme.action.ActionLink (bind, action none)', function(assert) {
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual([], this.mockActionCalls());
     deepEqual([], this.mockListenerCalls('start'));
     deepEqual([], this.mockListenerCalls('complete'));
@@ -400,7 +400,7 @@ QUnit.test('creme.action.ActionLink (bind, text/json data)', function(assert) {
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual(['b'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, 23, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionB]], this.mockListenerCalls('complete'));
@@ -419,7 +419,7 @@ QUnit.test('creme.action.ActionLink (bind, application/json data)', function(ass
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual(['b'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, 23, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionB]], this.mockListenerCalls('complete'));
@@ -441,7 +441,7 @@ QUnit.test('creme.action.ActionLink (bind, multiple data)', function(assert) {
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual(['b'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, 'first', 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionB]], this.mockListenerCalls('complete'));
@@ -460,7 +460,7 @@ QUnit.test('creme.action.ActionLink (bind, invalid data)', function(assert) {
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
     deepEqual(['b'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionB]], this.mockListenerCalls('complete'));
@@ -479,7 +479,7 @@ QUnit.test('creme.action.ActionLink (ignore click, disabled)', function(assert) 
     equal(true, link.is('.is-disabled'));
     equal(true, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
 
     deepEqual([], this.mockActionCalls());
     deepEqual([], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
@@ -490,7 +490,7 @@ QUnit.test('creme.action.ActionLink (ignore click, disabled)', function(assert) 
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
 
     deepEqual(['do-it'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
@@ -512,13 +512,13 @@ QUnit.test('creme.action.ActionLink (ignore click while running)', function(asse
 
     equal(false, action.isRunning());
 
-    link.click();
+    link.trigger('click');
     equal(true, action.isRunning());
     deepEqual([], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([], this.mockListenerCalls('complete'));
 
-    link.click();
+    link.trigger('click');
     equal(true, action.isRunning());
     deepEqual([], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
@@ -555,15 +555,15 @@ QUnit.test('creme.action.ActionLink (debounce click, 200ms delay)', function(ass
     equal(false, action.isRunning());
     equal(200, action._optDebounceDelay(link));
 
-    link.click();
+    link.trigger('click');
     equal(false, action.isRunning());
     deepEqual([], this.mockActionCalls());
     deepEqual([], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([], this.mockListenerCalls('complete'));
 
-    link.click();
-    link.click();
-    link.click();
+    link.trigger('click');
+    link.trigger('click');
+    link.trigger('click');
 
     equal(false, action.isRunning());
     deepEqual([], this.mockActionCalls());
@@ -601,15 +601,15 @@ QUnit.test('creme.action.ActionLink (debounce click, 150ms delay from attrs)', f
     equal(false, action.isRunning());
     equal(150, action._optDebounceDelay(link));
 
-    link.click();
+    link.trigger('click');
     equal(false, action.isRunning());
     deepEqual([], this.mockActionCalls());
     deepEqual([], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([], this.mockListenerCalls('complete'));
 
-    link.click();
-    link.click();
-    link.click();
+    link.trigger('click');
+    link.trigger('click');
+    link.trigger('click');
 
     equal(false, action.isRunning());
     deepEqual([], this.mockActionCalls());
@@ -647,15 +647,15 @@ QUnit.test('creme.action.ActionLink (not debounce click)', function(assert) {
     equal(false, action.isRunning());
     equal(0, action._optDebounceDelay(link));
 
-    link.click();
+    link.trigger('click');
     equal(false, action.isRunning());
     deepEqual(['b'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionB]], this.mockListenerCalls('complete'));
 
-    link.click();
-    link.click();
-    link.click();
+    link.trigger('click');
+    link.trigger('click');
+    link.trigger('click');
 
     equal(false, action.isRunning());
     deepEqual(['b', 'b', 'b', 'b'], this.mockActionCalls());
@@ -686,15 +686,15 @@ QUnit.test('creme.action.ActionLink (bind event once)', function(assert) {
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
 
     deepEqual(['do-it'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
     deepEqual([['action-link-done', [], this.mockActionDoIt]], this.mockListenerCalls('complete'));
 
-    link.click();
-    link.click();
-    link.click();
+    link.trigger('click');
+    link.trigger('click');
+    link.trigger('click');
 
     deepEqual(['do-it', 'do-it', 'do-it', 'do-it'], this.mockActionCalls());
     deepEqual([
@@ -720,7 +720,7 @@ QUnit.test('creme.action.ActionLink (unbind event)', function(assert) {
     equal(false, link.is('.is-disabled'));
     equal(false, action.isDisabled());
 
-    link.click();
+    link.trigger('click');
 
     deepEqual(['do-it'], this.mockActionCalls());
     deepEqual([['action-link-start', '/actions/', {}, {}, 'click']], this.mockListenerCalls('start').map(this.mapLinkStartEventType));
@@ -728,9 +728,9 @@ QUnit.test('creme.action.ActionLink (unbind event)', function(assert) {
 
     action.off('action-link-done', complete_cb);
 
-    link.click();
-    link.click();
-    link.click();
+    link.trigger('click');
+    link.trigger('click');
+    link.trigger('click');
 
     deepEqual(['do-it', 'do-it', 'do-it', 'do-it'], this.mockActionCalls());
     deepEqual([

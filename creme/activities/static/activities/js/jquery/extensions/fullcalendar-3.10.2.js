@@ -14553,7 +14553,7 @@ var Toolbar = /** @class */ (function () {
                             '<button type="button" class="' + buttonClasses.join(' ') + '"' +
                                 buttonAriaAttr +
                                 '>' + buttonInnerHtml + '</button>')
-                                .click(function (ev) {
+                                .on('click', function (ev) {
                                 // don't process clicks for disabled buttons
                                 if (!buttonEl.hasClass(theme.getClass('stateDisabled'))) {
                                     buttonClick(ev);

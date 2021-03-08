@@ -19,7 +19,7 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function() {
-        $('.action-start').click(function() {
+        $('.action-start').on('click', function() {
             var action = $('input[type="radio"][name="action"]:checked').val();
             var confirm = $('input[type="checkbox"][name="confirm"]:checked').val() === '1';
             var waitingOverlay = $('input[type="checkbox"][name="waitingOverlay"]:checked').val() === '1';

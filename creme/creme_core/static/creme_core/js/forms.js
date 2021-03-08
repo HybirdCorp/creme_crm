@@ -276,7 +276,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     }
 
     function addAvailableLi(label, name, is_hidden) {
-        var $li = $('<li></li>').attr('name', name).append(label).click(clickOnAvailable).dblclick(choseOne);
+        var $li = $('<li></li>').attr('name', name).append(label).on('click', clickOnAvailable).dblclick(choseOne);
 
         if (is_hidden) {
             $li.hide();
@@ -286,7 +286,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     }
 
     function addChosenLi(label, name) {
-        $chosen.append($('<li></li>').attr('name', name).append(label).click(clickOnChosen).dblclick(removeChosen));
+        $chosen.append($('<li></li>').attr('name', name).append(label).on('click', clickOnChosen).dblclick(removeChosen));
     }
 
     function refreshButtons($sel) {
@@ -418,21 +418,21 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
     buildColumns($store, addAvailableLi, addChosenLi);
 
-    var $buttons = $('<div></div>').append($add_button.click(choseOne))
-                                   .append($rem_button.click(removeChosen))
+    var $buttons = $('<div></div>').append($add_button.on('click', choseOne))
+                                   .append($rem_button.on('click', removeChosen))
                                    .append('<br/>')
-                                   .append($addall_button.click(choseAll))
-                                   .append($remall_button.click(removeAllChosen))
+                                   .append($addall_button.on('click', choseAll))
+                                   .append($remall_button.on('click', removeAllChosen))
                                    .append('<br/>')
-                                   .append($up_button.click(putChosenUp))
-                                   .append($down_button.click(putChosenDown));
+                                   .append($up_button.on('click', putChosenUp))
+                                   .append($down_button.on('click', putChosenDown));
     refreshButtons();
 
     $store.css('display', 'none');
     $store.replaceWith($div);
 
     var $layout = $('<table></table>');
-    var $div_display = $('<div class="buttons"></div>').append($('<a class="view_less"></a>').click(toggleRow));
+    var $div_display = $('<div class="buttons"></div>').append($('<a class="view_less"></a>').on('click', toggleRow));
 
     $('<tbody></tbody>').appendTo($layout)
                         .append($('<tr class="header"></tr>').append($('<th width="3%"></th>').append($div_display))

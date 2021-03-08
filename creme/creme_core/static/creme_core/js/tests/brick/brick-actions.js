@@ -994,12 +994,12 @@ QUnit.test('creme.bricks.Brick.action (link, no data)', function(assert) {
 
     brick._actionLinks[0].on(this.brickActionLinkListeners);
 
-    collapse.click();
+    collapse.trigger('click');
     equal(true, element.is('.is-collapsed'));
     deepEqual([['action-link-done', []]],
               this.mockListenerCalls('action-link-done').map(function(d) { return d.slice(0, 2); }));
 
-    collapse.click();
+    collapse.trigger('click');
     equal(false, element.is('.is-collapsed'));
     deepEqual([['action-link-done', []], ['action-link-done', []]],
               this.mockListenerCalls('action-link-done').map(function(d) { return d.slice(0, 2); }));
@@ -1021,7 +1021,7 @@ QUnit.test('creme.bricks.Brick.action (link, unknown)', function(assert) {
     equal(true, actionlink.isDisabled());
 
     actionlink.on(this.brickActionLinkListeners);
-    a.click();
+    a.trigger('click');
 
     deepEqual({}, this.mockListenerCalls());
 });
@@ -1043,13 +1043,13 @@ QUnit.test('creme.bricks.Brick.action (link, loading state)', function(assert) {
 
     brick._actionLinks[0].on(this.brickActionLinkListeners);
 
-    collapse.click();
+    collapse.trigger('click');
 
     equal(false, element.is('.is-collapsed'));
     deepEqual({}, this.mockListenerCalls()); // call in this case !
 
     brick.setLoadingState(false);
-    collapse.click();
+    collapse.trigger('click');
 
     equal(true, element.is('.is-collapsed'));
     deepEqual([['action-link-done', []]],
@@ -1069,7 +1069,7 @@ QUnit.test('creme.bricks.Brick.action (link, async)', function(assert) {
     brick._actionLinks[0].on(this.brickActionLinkListeners)
                          .onComplete(this.mockListener('action-link-complete'));
 
-    action.click();
+    action.trigger('click');
 
     equal(true, brick.isLoading());
     this.assertOpenedDialog();
@@ -1103,7 +1103,7 @@ QUnit.test('creme.bricks.Brick.action (popover)', function(assert) {
 
     brick._actionLinks[0].on(this.brickActionLinkListeners);
 
-    action.click();
+    action.trigger('click');
 
     var popover = this.assertOpenedPopover();
     this.assertPopoverTitle('Filter A Details');

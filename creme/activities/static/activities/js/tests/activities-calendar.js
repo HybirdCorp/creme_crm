@@ -1035,7 +1035,7 @@ QUnit.test('creme.activities.CalendarController.show', function(assert) {
 
     var event = this.findCalendarEventItem(element, '3');
     equal(event.length, 1);
-    event.click();
+    event.trigger('click');
 
     this.assertOpenedDialog();
     deepEqual([

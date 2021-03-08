@@ -252,8 +252,8 @@ QUnit.test('creme.listview.core (select)', function(assert) {
     equal(false, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
 
-    $(lines[0]).click();
-    $(lines[1]).click();
+    $(lines[0]).trigger('click');
+    $(lines[1]).trigger('click');
 
     equal(true, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
@@ -262,7 +262,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
 //    deepEqual(creme.lv_widget.selectedLines(element), ['1', '2']);
     equal(controller.hasSelectedRows(), true);
 
-    $(lines[2]).click();
+    $(lines[2]).trigger('click');
 
     equal(true, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
@@ -271,7 +271,7 @@ QUnit.test('creme.listview.core (select)', function(assert) {
 //    deepEqual(creme.lv_widget.selectedLines(element), ['1', '2', '3']);
     equal(controller.hasSelectedRows(), true);
 
-    $(lines[1]).click();
+    $(lines[1]).trigger('click');
 
     equal(true, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
@@ -303,28 +303,28 @@ QUnit.test('creme.listview.core (select, link)', function(assert) {
     deepEqual(controller.selectedRows(), []);
     equal(controller.hasSelectedRows(), false);
 
-    $(lines[0]).click();
+    $(lines[0]).trigger('click');
 
     equal(true, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
     deepEqual(controller.selectedRows(), ['1']);
     equal(controller.hasSelectedRows(), true);
 
-    $(lines[0]).find('a').click();
+    $(lines[0]).find('a').trigger('click');
 
     equal(true, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
     deepEqual(controller.selectedRows(), ['1']);
     equal(controller.hasSelectedRows(), true);
 
-    $(lines[0]).find('.outside-link').click();
+    $(lines[0]).find('.outside-link').trigger('click');
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
     deepEqual(controller.selectedRows(), []);
     equal(controller.hasSelectedRows(), false);
 
-    $(lines[0]).find('.inside-link').click();
+    $(lines[0]).find('.inside-link').trigger('click');
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
@@ -363,8 +363,8 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     equal(false, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
 
-    $(lines[0]).click();
-    $(lines[1]).click();
+    $(lines[0]).trigger('click');
+    $(lines[1]).trigger('click');
 
     equal(false, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
@@ -372,7 +372,7 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     deepEqual(controller.selectedRows(), ['2']);
     equal(controller.hasSelectedRows(), true);
 
-    $(lines[2]).click();
+    $(lines[2]).trigger('click');
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
@@ -380,7 +380,7 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     deepEqual(controller.selectedRows(), ['3']);
     equal(controller.hasSelectedRows(), true);
 
-    $(lines[1]).click();
+    $(lines[1]).trigger('click');
 
     equal(false, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
@@ -388,7 +388,7 @@ QUnit.test('creme.listview.core (select, single)', function(assert) {
     deepEqual(controller.selectedRows(), ['2']);
     equal(controller.hasSelectedRows(), true);
 
-    $(lines[1]).click();
+    $(lines[1]).trigger('click');
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
@@ -432,8 +432,8 @@ QUnit.test('creme.listview.core (select, none)', function(assert) {
     equal(false, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
 
-    $(lines[0]).click();
-    $(lines[1]).click();
+    $(lines[0]).trigger('click');
+    $(lines[1]).trigger('click');
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
@@ -458,14 +458,14 @@ QUnit.test('creme.listview.core (select all)', function(assert) {
     equal(false, $(lines[1]).is('.selected'));
     equal(false, $(lines[2]).is('.selected'));
 
-    table.find('[name="select_all"]').click();
+    table.find('[name="select_all"]').trigger('click');
 
     equal(true, $(lines[0]).is('.selected'));
     equal(true, $(lines[1]).is('.selected'));
     equal(true, $(lines[2]).is('.selected'));
     deepEqual(controller.selectedRows(), ['1', '2', '3']);
 
-    table.find('[name="select_all"]').click();
+    table.find('[name="select_all"]').trigger('click');
 
     equal(false, $(lines[0]).is('.selected'));
     equal(false, $(lines[1]).is('.selected'));
@@ -823,7 +823,7 @@ QUnit.test('creme.listview.core (daterange search widget, change)', function(dat
     start.datepicker('setDate', '01-01-2020');
 
     // click on selected date => onSelect cb => change
-    $('.ui-datepicker-current-day').click();
+    $('.ui-datepicker-current-day').trigger('click');
 
     deepEqual([
         ['POST', {
@@ -913,7 +913,7 @@ QUnit.test('creme.listview.core (toggle sort)', function(assert) {
     equal(listview.isStandalone(), true);
     equal(listview.count(), 3);
 
-    column_name.find('button').click();
+    column_name.find('button').trigger('click');
 
     deepEqual([
         ['POST', {
@@ -962,7 +962,7 @@ QUnit.test('creme.listview.core (toggle sort, disabled)', function(assert) {
     equal(listview.count(), 3);
 
     equal(true, column_name.find('button').is(':disabled'));
-    column_name.find('button').click();
+    column_name.find('button').trigger('click');
 
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
@@ -980,7 +980,7 @@ QUnit.test('creme.listview.core (sort another column)', function(assert) {
     equal(listview.isStandalone(), true);
     equal(listview.count(), 3);
 
-    column_phone.find('button').click();
+    column_phone.find('button').trigger('click');
 
     deepEqual([
         ['POST', {
@@ -1049,7 +1049,7 @@ QUnit.test('creme.listview.core (hatbar buttons, submit-lv-state)', function(ass
     equal(1, button.length);
     equal(false, button.is('.is-disabled'));
 
-    button.click();
+    button.trigger('click');
 
     deepEqual([
         ['POST', {
@@ -1134,7 +1134,7 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, delete)', functi
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/filter/delete'));
 
-    link.click();
+    link.trigger('click');
 
     this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
     this.acceptConfirmDialog();
@@ -1185,7 +1185,7 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, info)', function
     equal(listview.count(), 0);
     equal(1, link.length);
 
-    link.click();
+    link.trigger('click');
 
     var popover = this.assertOpenedPopover();
     this.assertPopoverTitle('Filter A Details');
@@ -1259,7 +1259,7 @@ QUnit.test('creme.listview.core (hatbar controls, view, delete)', function(asser
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/view/delete'));
 
-    link.click();
+    link.trigger('click');
 
     this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
     this.acceptConfirmDialog();
@@ -1333,7 +1333,7 @@ QUnit.test('creme.listview.core (page link)', function(assert) {
     equal(1, link.length);
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    link.click();
+    link.trigger('click');
 
     deepEqual([
         ['POST', {

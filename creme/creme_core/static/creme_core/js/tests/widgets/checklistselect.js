@@ -185,7 +185,7 @@ QUnit.test('creme.widget.CheckListSelect.create (disabled)', function(assert) {
     widget.selectAll();
     deepEqual([], widget.selected());
 
-    element.find('.checklist-check-all').click();
+    element.find('.checklist-check-all').trigger('click');
     deepEqual([], widget.selected());
 
     widget.val(['12', '1']);
@@ -194,10 +194,10 @@ QUnit.test('creme.widget.CheckListSelect.create (disabled)', function(assert) {
     widget.unselectAll();
     deepEqual(['12', '1'], widget.selected());
 
-    element.find('.checklist-check-none').click();
+    element.find('.checklist-check-none').trigger('click');
     deepEqual(['12', '1'], widget.selected());
 
-    element.find('.checklist-create').click();
+    element.find('.checklist-create').trigger('click');
     this.assertClosedDialog();
 });
 
@@ -390,7 +390,7 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect, click on label)
                             {label: 'item3', value: '5',  selected: false}]);
     equal(null, widget.val());
 
-    element.find('.checkbox-field[checklist-index="0"] .checkbox-label').click();
+    element.find('.checkbox-field[checklist-index="0"] .checkbox-label').trigger('click');
 
     deepEqual([{label: 'item1', value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: true},
                {label: 'item2', value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
@@ -401,8 +401,8 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect, click on label)
                             {label: 'item3', value: '5',  selected: false}]);
     deepEqual(["12"], widget.val());
 
-    element.find('.checkbox-field[checklist-index="0"] .checkbox-label').click();  // toggle => unselect
-    element.find('.checkbox-field[checklist-index="2"] .checkbox-label').click();
+    element.find('.checkbox-field[checklist-index="0"] .checkbox-label').trigger('click');  // toggle => unselect
+    element.find('.checkbox-field[checklist-index="2"] .checkbox-label').trigger('click');
 
     deepEqual([{label: 'item1', value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
                {label: 'item2', value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
@@ -434,11 +434,11 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect, disabled / read
                             {label: 'item3', value: '5',  selected: true, readonly: true, disabled: true}]);
     deepEqual(["5"], widget.val());
 
-    $('input[type="checkbox"][value="5"]', widget.content()).click(); // readonly
+    $('input[type="checkbox"][value="5"]', widget.content()).trigger('click'); // readonly
 
     deepEqual(["5"], widget.val());
 
-    $('input[type="checkbox"][value="78"]', widget.content()).click(); // disabled
+    $('input[type="checkbox"][value="78"]', widget.content()).trigger('click'); // disabled
 
     deepEqual(["5"], widget.val());
 });
@@ -463,15 +463,15 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect, disabled / read
                             {label: 'item3', value: '5',  selected: true, readonly: true, disabled: true}]);
     deepEqual(["5"], widget.val());
 
-    element.find('.checkbox-field[checklist-index="0"] .checkbox-label').click();
-    element.find('.checkbox-field[checklist-index="1"] .checkbox-label').click(); // disabled
-    element.find('.checkbox-field[checklist-index="2"] .checkbox-label').click(); // readonly
+    element.find('.checkbox-field[checklist-index="0"] .checkbox-label').trigger('click');
+    element.find('.checkbox-field[checklist-index="1"] .checkbox-label').trigger('click'); // disabled
+    element.find('.checkbox-field[checklist-index="2"] .checkbox-label').trigger('click'); // readonly
 
     deepEqual(["12", "5"], widget.val());
 
-    element.find('.checkbox-field[checklist-index="0"] .checkbox-label').click(); // toggle => unselect
-    element.find('.checkbox-field[checklist-index="1"] .checkbox-label').click(); // disabled
-    element.find('.checkbox-field[checklist-index="2"] .checkbox-label').click(); // readonly
+    element.find('.checkbox-field[checklist-index="0"] .checkbox-label').trigger('click'); // toggle => unselect
+    element.find('.checkbox-field[checklist-index="1"] .checkbox-label').trigger('click'); // disabled
+    element.find('.checkbox-field[checklist-index="2"] .checkbox-label').trigger('click'); // readonly
 
     deepEqual(["5"], widget.val());
 });
@@ -521,7 +521,7 @@ QUnit.test('creme.widget.CheckListSelect.selectAll (click)', function(assert) {
                             {label: 'item3', value: '5',  selected: false}]);
     equal(null, widget.val());
 
-    element.find('.checklist-check-all').click();
+    element.find('.checklist-check-all').trigger('click');
 
     deepEqual([{label: 'item1', value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: true},
                {label: 'item2', value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: true},
@@ -692,7 +692,7 @@ QUnit.test('creme.widget.CheckListSelect.unselectAll (click)', function(assert) 
                             {label: 'item3', value: '5',  selected: true}]);
     deepEqual(['12', '5'], widget.val());
 
-    element.find('.checklist-check-none').click();
+    element.find('.checklist-check-none').trigger('click');
 
     deepEqual([{label: 'item1', value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
                {label: 'item2', value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
@@ -870,7 +870,7 @@ QUnit.test('creme.widget.CheckListSelect.createItem (cancel)', function(assert) 
 
     deepEqual([], this.mockBackendUrlCalls());
 
-    element.find('.checklist-create').click();
+    element.find('.checklist-create').trigger('click');
 
     this.assertOpenedDialog();
     deepEqual([
@@ -901,7 +901,7 @@ QUnit.test('creme.widget.CheckListSelect.createItem', function(assert) {
 
     deepEqual([], this.mockBackendUrlCalls());
 
-    element.find('.checklist-create').click();
+    element.find('.checklist-create').trigger('click');
 
     this.assertOpenedDialog();
     deepEqual([
@@ -1109,7 +1109,7 @@ QUnit.test('creme.widget.CheckListSelect.less (count > threshold, toggle)', func
     equal(ngettext('%d hidden item', '%d hidden items', 2).format(2), element.find('.checklist-toggle-less').html());
     equal(2, element.find('.checkbox-field.more').length);
 
-    element.find('.checklist-toggle-less').click();
+    element.find('.checklist-toggle-less').trigger('click');
 
     equal(true, widget.less());
     equal(false, widget.isLessCollapsed());

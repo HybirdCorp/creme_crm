@@ -165,7 +165,7 @@ QUnit.test('creme.detailview.brick.detailview-merge (cancel)', function(assert) 
     ], this.mockBackendUrlCalls('mock/merge/selection'));
 
     var dialog = this.assertOpenedDialog();
-    this.findDialogButtonsByLabel(gettext('Cancel'), dialog).click();
+    this.findDialogButtonsByLabel(gettext('Cancel'), dialog).trigger('click');
     this.assertClosedDialog();
 
     deepEqual([['cancel']], this.mockListenerCalls('cancel'));

@@ -115,7 +115,7 @@ QUnit.test('creme.reports.ExportReportAction (csv, none)', function(assert) {
     dialog.find('[name="doc_type"]').val('csv');
     dialog.find('[name="date_field"]').val('');
 
-    this.findDialogButtonsByLabel(gettext('Export')).click();
+    this.findDialogButtonsByLabel(gettext('Export')).trigger('click');
 
     this.assertClosedDialog();
 
@@ -154,7 +154,7 @@ QUnit.test('creme.reports.ExportReportAction (xls, created, previous_year)', fun
     dialog.find('[name="date_field"]').val('created').change();
     dialog.find('[name="date_filter_0"]').val('previous_year').change();
 
-    this.findDialogButtonsByLabel(gettext('Export')).click();
+    this.findDialogButtonsByLabel(gettext('Export')).trigger('click');
 
     this.assertClosedDialog();
 
@@ -197,7 +197,7 @@ QUnit.test('creme.reports.listview.actions (reports-export, ok)', function(asser
     dialog.find('[name="doc_type"]').val('csv');
     dialog.find('[name="date_field"]').val('');
 
-    this.findDialogButtonsByLabel(gettext('Export')).click();
+    this.findDialogButtonsByLabel(gettext('Export')).trigger('click');
 
     this.assertClosedDialog();
 

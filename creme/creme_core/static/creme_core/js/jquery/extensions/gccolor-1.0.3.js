@@ -326,12 +326,12 @@
 
 			$('#gccolor-current-color').css('background-color', '#' + hexColor)
 			                           .attr('data-current-color', hexColor)
-			                           .click(function() {
+			                           .on('click', function() {
 			                               _setFromHEX($(this).attr('data-current-color'));
 			                               changeColor();
 			                           });
 
-			$('#gccolor-submit').click(function(){
+			$('#gccolor-submit').on('click', function(){
 			    closeDialog($(document).data('gccolor').target, options, false);
 			});
 			
@@ -414,7 +414,7 @@
 						      .css('top', -3);
 
 						//button.css('left', ($(this).position().left + $(this).outerWidth(true) - 22) + 'px');
-						button.click(function(){
+						button.on('click', function(){
 						    toggleDialog($(this).prev(), options);
 						});
 						updateTargetColor($(this));
@@ -426,7 +426,7 @@
                         });
 
 					} else {
-						$(this).click(function(){
+						$(this).on('click', function(){
 						    toggleDialog($(this), options);
 						});
 					}

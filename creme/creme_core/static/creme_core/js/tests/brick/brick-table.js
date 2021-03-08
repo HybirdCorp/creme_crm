@@ -80,7 +80,7 @@ QUnit.test('creme.bricks.Brick.table (toggle selection)', function(assert) {
 
     deepEqual([], selections.selected());
 
-    $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).click();
+    $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).trigger('click');
 
     equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
     equal('1 entry on 3', element.find('.brick-selection-title').text());
@@ -95,7 +95,7 @@ QUnit.test('creme.bricks.Brick.table (toggle selection)', function(assert) {
         {selected: true, ui: $('tr[data-row-index="1"]', element).get()}
     ], selections.selected().map(this._brickTableItemInfo));
 
-    $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).click();
+    $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).trigger('click');
 
     equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
     equal('', element.find('.brick-selection-title').text());
@@ -140,7 +140,7 @@ QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
 
     deepEqual([], selections.selected());
 
-    $('.row-selector-all', element).click();
+    $('.row-selector-all', element).trigger('click');
 
     equal(true, $('tr[data-row-index="0"]').is('.is-selected'));
     equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
@@ -159,7 +159,7 @@ QUnit.test('creme.bricks.Brick.table (toggle all)', function(assert) {
         {selected: true, ui: $('tr[data-row-index="2"]', element).get()}
     ], selections.selected().map(this._brickTableItemInfo));
 
-    $('.row-selector-all', element).click();
+    $('.row-selector-all', element).trigger('click');
 
     equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
     equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
@@ -223,13 +223,13 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, loading)', function(asse
     brick.setLoadingState(true, 'Loading...');
 
     // selection is disabled on loading
-    $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).click();
+    $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).trigger('click');
 
     equal('', element.find('.brick-selection-title').text());
     deepEqual([], selections.selected());
 
     // toggle all is disabled on loading
-    $('.row-selector-all', element).click();
+    $('.row-selector-all', element).trigger('click');
 
     equal('', element.find('.brick-selection-title').text());
     deepEqual([], selections.selected());
@@ -309,7 +309,7 @@ QUnit.test('creme.bricks.Brick.table (not sortable)', function(assert) {
 
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
-    $('th', element).click();
+    $('th', element).trigger('click');
 
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -339,7 +339,7 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
     equal(true, brick.isBound());
 
     // use brick.element() each time because it changes on reload.
-    $('th[data-sort-field="created"]', brick.element()).click();
+    $('th[data-sort-field="created"]', brick.element()).trigger('click');
 
     deepEqual([
         ['GET', {'brick-for-test_order': '-created', brick_id: ['brick-for-test'], extra_data: '{}'}]
@@ -348,7 +348,7 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
     brick = $('#brick-for-test').creme().widget().brick();
     equal(true, brick.isBound());
 
-    $('th[data-sort-field="name"]', brick.element()).click();
+    $('th[data-sort-field="name"]', brick.element()).trigger('click');
 
     deepEqual([
         ['GET', {'brick-for-test_order': '-created', brick_id: ['brick-for-test'], extra_data: '{}'}],
@@ -380,12 +380,12 @@ QUnit.test('creme.bricks.Brick.table (toggle sort, loading)', function(assert) {
     brick.setLoadingState(true, 'Loading...');
 
     // sorting is disabled on loading
-    $('th[data-sort-field="created"]', brick.element()).click();
+    $('th[data-sort-field="created"]', brick.element()).trigger('click');
 
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     // sorting is disabled on loading
-    $('th[data-sort-field="name"]', brick.element()).click();
+    $('th[data-sort-field="name"]', brick.element()).trigger('click');
 
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });

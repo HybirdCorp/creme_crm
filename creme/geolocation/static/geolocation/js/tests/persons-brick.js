@@ -441,7 +441,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
                 positionLabel: '43.291628, 5.403022'
             });
 
-            controller.addressItem('Address_A').find('input[type="checkbox"]').click();
+            controller.addressItem('Address_A').find('input[type="checkbox"]').trigger('click');
 
             equal(3, mapController.markers().length);
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
@@ -459,7 +459,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
                 positionLabel: '43.291628, 5.403022'
             });
 
-            controller.addressItem('Address_A').find('input[type="checkbox"]').click();
+            controller.addressItem('Address_A').find('input[type="checkbox"]').trigger('click');
 
             equal(3, mapController.markers().length);
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
@@ -516,7 +516,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
             equal(3, mapController.markers().length);
             equal(undefined, mapController.getMarker('Address_D'));
 
-            controller.addressItem('Address_D').find('input[type="checkbox"]').click();
+            controller.addressItem('Address_D').find('input[type="checkbox"]').trigger('click');
 
             setTimeout(function() {
                 equal(4, mapController.markers().length);
@@ -545,7 +545,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
                     }]
                 ], this.mockBackendUrlCalls('mock/location/update'));
 
-                controller.addressItem('Address_D').find('input[type="checkbox"]').click();
+                controller.addressItem('Address_D').find('input[type="checkbox"]').trigger('click');
 
                 this.assertAddressItem(controller.addressItem('Address_D'), {
                     id: 'Address_D',
@@ -761,7 +761,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, no geolocation)'
                 extraData: {}
             });
 
-            controller.addressItem('Address_C').find('.brick-geoaddress-reset').click();
+            controller.addressItem('Address_C').find('.brick-geoaddress-reset').trigger('click');
             deepEqual([], this.mockBackendUrlCalls());
 
             this.assertAddressItem(controller.addressItem('Address_C'), {
@@ -831,7 +831,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not found)', [
                 extraData: {}
             });
 
-            controller.addressItem('Address_B').find('.brick-geoaddress-reset').click();
+            controller.addressItem('Address_B').find('.brick-geoaddress-reset').trigger('click');
 
             setTimeout(function() {
                 deepEqual([], this.mockBackendUrlCalls('mock/location/update'));
@@ -896,7 +896,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not visible)', [
         mapController._geocoder = geocoder;
 
         setTimeout(function() {
-            controller.addressItem('Address_B').find('input[type="checkbox"]').click();
+            controller.addressItem('Address_B').find('input[type="checkbox"]').trigger('click');
 
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_B'), {
                 position: {lat: 43, lng: 5.5},
@@ -915,7 +915,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not visible)', [
             });
 
             // hidden address, do nothing
-            controller.addressItem('Address_B').find('.brick-geoaddress-reset').click();
+            controller.addressItem('Address_B').find('.brick-geoaddress-reset').trigger('click');
 
             setTimeout(function() {
                 deepEqual([], this.mockBackendUrlCalls('mock/location/update'));
@@ -982,7 +982,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, improve accuracy
                 extraData: {}
             });
 
-            controller.addressItem('Address_C').find('.brick-geoaddress-reset').click();
+            controller.addressItem('Address_C').find('.brick-geoaddress-reset').trigger('click');
 
             setTimeout(function() {
                 deepEqual([

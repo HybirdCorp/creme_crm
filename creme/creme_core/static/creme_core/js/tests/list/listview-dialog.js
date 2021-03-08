@@ -73,15 +73,15 @@ QUnit.test('creme.listview.ListViewDialog (none)', function(assert) {
         ['GET', {selection: 'none'}]
     ], this.mockBackendUrlCalls('mock/listview/selection/none'));
 
-    lines[0].click();
+    $(lines[0]).trigger('click');
 
     deepEqual([], dialog.selected());
 
-    lines.click();
+    lines.trigger('click');
 
     deepEqual([], dialog.selected());
 
-    dialog.button('close').click();
+    dialog.button('close').trigger('click');
     equal(false, dialog.isOpened());
 });
 
@@ -120,11 +120,11 @@ QUnit.test('creme.listview.ListViewDialog (multiple)', function(assert) {
         ['GET', {selection: 'multiple'}]
     ], this.mockBackendUrlCalls('mock/listview/selection/multiple'));
 
-    lines[0].click();
+    $(lines[0]).trigger('click');
 
     deepEqual(['1'], dialog.selected());
 
-    lines.click();
+    lines.trigger('click');
 
     deepEqual(['2', '3'], dialog.selected());
 });
@@ -143,7 +143,7 @@ QUnit.test('creme.listview.ListViewDialog (multiple, close)', function(assert) {
     deepEqual([], dialog.selected());
     deepEqual([], this.mockListenerCalls('validate'));
 
-    dialog.button('close').click();
+    dialog.button('close').trigger('click');
 
     equal(false, dialog.isOpened());
     deepEqual([], this.mockListenerCalls('validate'));
@@ -165,7 +165,7 @@ QUnit.test('creme.listview.ListViewDialog (multiple, validate)', function(assert
     deepEqual([], dialog.selected());
     deepEqual([], this.mockListenerCalls('validate'));
 
-    dialog.button('validate').click();
+    dialog.button('validate').trigger('click');
 
     this.assertOpenedAlertDialog(gettext("Please select at least one entity."));
     equal(true, dialog.isOpened());
@@ -174,11 +174,11 @@ QUnit.test('creme.listview.ListViewDialog (multiple, validate)', function(assert
     this.closeTopDialog();
     equal(true, dialog.isOpened());
 
-    lines[0].click();
+    $(lines[0]).trigger('click');
 
     deepEqual(['1'], dialog.selected());
 
-    dialog.button('validate').click();
+    dialog.button('validate').trigger('click');
     equal(false, dialog.isOpened());
     deepEqual([
         ['validate', ['1']]
@@ -220,11 +220,11 @@ QUnit.test('creme.listview.ListViewDialog (single)', function(assert) {
         ['GET', {selection: 'single'}]
     ], this.mockBackendUrlCalls('mock/listview/selection/single'));
 
-    lines[0].click();
+    $(lines[0]).trigger('click');
 
     deepEqual(['1'], dialog.selected());
 
-    lines.click();
+    lines.trigger('click');
 
     deepEqual(['3'], dialog.selected());
 });
@@ -243,7 +243,7 @@ QUnit.test('creme.listview.ListViewDialog (single, close)', function(assert) {
     deepEqual([], dialog.selected());
     deepEqual([], this.mockListenerCalls('validate'));
 
-    dialog.button('close').click();
+    dialog.button('close').trigger('click');
 
     equal(false, dialog.isOpened());
     deepEqual([], this.mockListenerCalls('validate'));
@@ -265,7 +265,7 @@ QUnit.test('creme.listview.ListViewDialog (single, validate)', function(assert) 
     deepEqual([], dialog.selected());
     deepEqual([], this.mockListenerCalls('validate'));
 
-    dialog.button('validate').click();
+    dialog.button('validate').trigger('click');
 
     this.assertOpenedAlertDialog(gettext("Please select at least one entity."));
     equal(true, dialog.isOpened());
@@ -274,11 +274,11 @@ QUnit.test('creme.listview.ListViewDialog (single, validate)', function(assert) 
     this.closeTopDialog();
     equal(true, dialog.isOpened());
 
-    lines[0].click();
+    $(lines[0]).trigger('click');
 
     deepEqual(['1'], dialog.selected());
 
-    dialog.button('validate').click();
+    dialog.button('validate').trigger('click');
     equal(false, dialog.isOpened());
     deepEqual([
         ['validate', ['1']]

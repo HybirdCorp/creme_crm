@@ -7767,7 +7767,7 @@ $.widget( "ui.button", {
 				this.buttonElement.keyup(function(event) {
 					if ( event.keyCode === $.ui.keyCode.SPACE ) {
 						// TODO pass through original event correctly (just as 2nd argument doesn't work)
-						$( this ).click();
+						$( this ).trigger('click');
 					}
 				});
 			}
@@ -8227,7 +8227,7 @@ $.extend(Datepicker.prototype, {
 					html(!buttonImage ? buttonText : $("<img/>").attr(
 					{ src:buttonImage, alt:buttonText, title:buttonText })));
 			input[isRTL ? "before" : "after"](inst.trigger);
-			inst.trigger.click(function() {
+			inst.trigger.on('click', function() {
 				if ($.datepicker._datepickerShowing && $.datepicker._lastInput === input[0]) {
 					$.datepicker._hideDatepicker();
 				} else if ($.datepicker._datepickerShowing && $.datepicker._lastInput !== input[0]) {

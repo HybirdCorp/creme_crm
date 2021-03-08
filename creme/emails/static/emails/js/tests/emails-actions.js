@@ -187,7 +187,7 @@ QUnit.test('creme.emails.brick.emailsync-link (multi, link)', function(assert) {
     this.toggleBrickTableRows(brick, ['1', '2']);
     equal(2, selections.selected().length);
 
-    link.click();
+    link.trigger('click');
 
     equal(false, brick.isLoading());
 
@@ -240,7 +240,7 @@ QUnit.test('creme.emails.brick.emailsync-link (row, link)', function(assert) {
     equal(false, brick.isLoading());
     this.assertClosedDialog();
 
-    $('a[data-action="emailsync-link"]', element).click();
+    $('a[data-action="emailsync-link"]', element).trigger('click');
 
     equal(false, brick.isLoading());
 
@@ -362,7 +362,7 @@ QUnit.test('creme.emails.brick.emailsync-action (link)', function(assert) {
     this.toggleBrickTableRows(brick, ['1', '2']);
     equal(2, selections.selected().length);
 
-    link.click();
+    link.trigger('click');
 
     equal(false, brick.isLoading());
     deepEqual([
@@ -530,7 +530,7 @@ QUnit.test('creme.emails.brick.emailsync-delete (link)', function(assert) {
     this.toggleBrickTableRows(brick, ['1', '2']);
     equal(2, selections.selected().length);
 
-    link.click();
+    link.trigger('click');
 
     this.assertOpenedConfirmDialog();
     this.acceptConfirmDialog();
@@ -561,11 +561,11 @@ QUnit.test('creme.emails.brick.email-toggle-image', function(assert) {
 
     equal('/mock/emails/content', $('iframe', element).attr('src'));
 
-    link.click();
+    link.trigger('click');
 
     equal('/mock/emails/content?external_img=on', $('iframe', element).attr('src'));
 
-    link.click();
+    link.trigger('click');
 
     equal('/mock/emails/content', $('iframe', element).attr('src'));
 });
@@ -666,7 +666,7 @@ QUnit.test('creme.emails.hatmenubar.emails-hatmenubar-linkto', function(assert) 
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     deepEqual([
         ['GET', {rtype: ['rtype.1', 'rtype.5', 'rtype.78'], ids: '12'}]

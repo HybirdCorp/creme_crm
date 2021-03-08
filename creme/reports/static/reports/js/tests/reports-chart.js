@@ -101,11 +101,11 @@ QUnit.test('creme.reports.ChartController (select chart)', function(assert) {
 
     equal(0, $('.popover').length);
 
-    element.find('.graph-controls-type .graph-control-value').click();
+    element.find('.graph-controls-type .graph-control-value').trigger('click');
 
     equal(1, $('.popover').length);
 
-    $('.popover .popover-content .popover-list-item[alt="Bar Chart"]').click();
+    $('.popover .popover-content .popover-list-item[alt="Bar Chart"]').trigger('click');
 
     equal(0, $('.popover').length);
 
@@ -129,11 +129,11 @@ QUnit.test('creme.reports.ChartController (select chart)', function(assert) {
 
     equal(0, $('.popover').length);
 
-    element.find('.graph-controls-sort .graph-control-value').click();
+    element.find('.graph-controls-sort .graph-control-value').trigger('click');
 
     equal(1, $('.popover').length);
 
-    $('.popover .popover-content .popover-list-item[alt="Ascending"]').click();
+    $('.popover .popover-content .popover-list-item[alt="Ascending"]').trigger('click');
 
     equal(0, $('.popover').length);
 

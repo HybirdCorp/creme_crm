@@ -53,7 +53,7 @@ QUnit.test('creme.forms (submit + required)', function(assert) {
     equal(false, email.is(':invalid'));
     equal(false, email.is('.is-field-invalid'));
 
-    submit.click();
+    submit.trigger('click');
 
     equal(false, this.form.is('[novalidate]'));
     equal(false, submit.is('.is-form-submit'));
@@ -80,7 +80,7 @@ QUnit.test('creme.forms (submit + invalid email)', function(assert) {
 
     lastname.val('Doe');
     email.val('this is not an email');
-    submit.click();
+    submit.trigger('click');
 
     equal(false, this.form.is('[novalidate]'));
     equal(false, submit.is('.is-form-submit'));
@@ -107,7 +107,7 @@ QUnit.test('creme.forms (novalidation)', function(assert) {
 
     submit.attr('data-no-validate', '');
     email.val('this is not an email');
-    submit.click();
+    submit.trigger('click');
 
     equal(true, this.form.is('[novalidate]'));
     equal(true, submit.is('.is-form-submit'));
@@ -134,7 +134,7 @@ QUnit.test('creme.forms (submit)', function(assert) {
     firstname.val('John');
     lastname.val('Doe');
     email.val('john.doe@unknown.com');
-    submit.click();
+    submit.trigger('click');
 
     equal(false, this.form.is('[novalidate]'));
     equal(true, submit.is('.is-form-submit'));
@@ -162,11 +162,11 @@ QUnit.test('creme.forms (multiple submit)', function(assert) {
     lastname.val('Doe');
     email.val('john.doe@unknown.com');
 
-    submit.click();
-    submit.click();
-    submit.click();
-    submit.click();
-    submit.click();
+    submit.trigger('click');
+    submit.trigger('click');
+    submit.trigger('click');
+    submit.trigger('click');
+    submit.trigger('click');
 
     equal(false, this.form.is('[novalidate]'));
 
@@ -439,7 +439,7 @@ QUnit.test('creme.forms.TimePicker', function(assert) {
     equal('54', element.find('.minute input').val());
 
     this.withFrozenTime(new Date(2020, 5, 1, 16, 30), function() {
-        element.find('button').click();
+        element.find('button').trigger('click');
         equal("16:30", input.val());
         equal('16', element.find('.hour input').val());
         equal('30', element.find('.minute input').val());
@@ -479,14 +479,14 @@ QUnit.test('creme.forms.DateTimePicker', function(assert) {
     equal('30', element.find('.minute input').val());
 
     this.withFrozenTime(new Date(2020, 9, 18, 12, 30), function() {
-        element.find('.now button').click();
+        element.find('.now button').trigger('click');
         equal("2020-10-18 12:30", input.val());
         equal('2020-10-18', element.find('.date input').val());
         equal('12', element.find('.hour input').val());
         equal('30', element.find('.minute input').val());
     });
 
-    element.find('.clear button').click();
+    element.find('.clear button').trigger('click');
     equal("", input.val());
     equal('', element.find('.date input').val());
     equal('', element.find('.hour input').val());
