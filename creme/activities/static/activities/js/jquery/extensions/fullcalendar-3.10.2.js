@@ -459,7 +459,7 @@ function parseFieldSpecs(input) {
     else if (typeof input === 'function') {
         tokens = [input];
     }
-    else if ($.isArray(input)) {
+    else if (Array.isArray(input)) {
         tokens = input;
     }
     for (i = 0; i < tokens.length; i++) {
@@ -1133,7 +1133,7 @@ var EventSource = /** @class */ (function (_super) {
             this.id = EventSource.normalizeId(rawProps.id);
         }
         // TODO: converge with EventDef
-        if ($.isArray(rawProps.className)) {
+        if (Array.isArray(rawProps.className)) {
             this.className = rawProps.className;
         }
         else if (typeof rawProps.className === 'string') {
@@ -1398,7 +1398,7 @@ function makeMoment(args, parseAsUTC, parseZone) {
                 isAmbigZone = true;
             }
         }
-        else if ($.isArray(input)) {
+        else if (Array.isArray(input)) {
             // arrays have no timezone information, so assume ambiguous zone
             isAmbigZone = true;
         }
@@ -3106,7 +3106,7 @@ var EventDef = /** @class */ (function () {
             this.uid = EventDef.generateId();
         }
         // TODO: converge with EventSource
-        if ($.isArray(rawProps.className)) {
+        if (Array.isArray(rawProps.className)) {
             this.className = rawProps.className;
         }
         if (typeof rawProps.className === 'string') {
@@ -5974,10 +5974,10 @@ var ArrayEventSource = /** @class */ (function (_super) {
     ArrayEventSource.parse = function (rawInput, calendar) {
         var rawProps;
         // normalize raw input
-        if ($.isArray(rawInput.events)) { // extended form
+        if (Array.isArray(rawInput.events)) { // extended form
             rawProps = rawInput;
         }
-        else if ($.isArray(rawInput)) { // short form
+        else if (Array.isArray(rawInput)) { // short form
             rawProps = { events: rawInput };
         }
         if (rawProps) {
@@ -8636,7 +8636,7 @@ var BusinessHourGenerator = /** @class */ (function () {
         else if ($.isPlainObject(rawComplexDef)) {
             rawDefs = [rawComplexDef];
         }
-        else if ($.isArray(rawComplexDef)) {
+        else if (Array.isArray(rawComplexDef)) {
             rawDefs = rawComplexDef;
             requireDow = true; // every sub-definition NEEDS a day-of-week
         }
@@ -8990,7 +8990,7 @@ var EventManager = /** @class */ (function () {
         if (!matchInputs) {
             matchInputs = [];
         }
-        else if (!$.isArray(matchInputs)) {
+        else if (!Array.isArray(matchInputs)) {
             matchInputs = [matchInputs];
         }
         var matchingSources = [];
@@ -9372,7 +9372,7 @@ var JsonFeedEventSource = /** @class */ (function (_super) {
                     _this.calendar.popLoading();
                     if (rawEventDefs) {
                         callbackRes = util_1.applyAll(onSuccess, _this, [rawEventDefs, status, xhr]); // redirect `this`
-                        if ($.isArray(callbackRes)) {
+                        if (Array.isArray(callbackRes)) {
                             rawEventDefs = callbackRes;
                         }
                         onResolve(_this.parseEventDefs(rawEventDefs));
@@ -10645,7 +10645,7 @@ var Calendar = /** @class */ (function () {
             context = triggerInfo.context;
             args = triggerInfo.args;
         }
-        else if ($.isArray(triggerInfo)) {
+        else if (Array.isArray(triggerInfo)) {
             args = triggerInfo;
         }
         if (context == null) {
@@ -12847,7 +12847,7 @@ var TimeGrid = /** @class */ (function (_super) {
         // might be an array value (for TimelineView).
         // if so, getting the most granular entry (the last one probably).
         input = this.opt('slotLabelFormat');
-        if ($.isArray(input)) {
+        if (Array.isArray(input)) {
             input = input[input.length - 1];
         }
         this.labelFormat = input ||

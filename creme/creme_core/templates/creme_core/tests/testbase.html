@@ -99,7 +99,7 @@
 
                 resize: function(screen) {
                     screen = screen || this.screen;
-                    screen = $.isArray(screen) ? screen : screen.split('x');
+                    screen = Array.isArray(screen) ? screen : screen.split('x');
 
                     if (screen.length === 2) {
                         $('.creme-test-body').addClass('resized').css('width', screen[0]).css('height', screen[1]);

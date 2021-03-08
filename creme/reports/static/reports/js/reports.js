@@ -134,7 +134,7 @@ creme.utils.converters().register('creme.graphael.BargraphData', 'jqplotData', f
 
         if (typeof value === 'string') {
             item = [tick, clean_float(value), undefined];
-        } else if ($.isArray(value)) {
+        } else if (Array.isArray(value)) {
             item = [tick, clean_float(value[0]), value[1]];
         } else {
             item = [tick, value, undefined];

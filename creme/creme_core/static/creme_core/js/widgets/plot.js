@@ -369,7 +369,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         }
 
         var rawdata = creme.utils.JSON.clean(source);
-        var data = $.isArray(rawdata) ? {data: rawdata} : rawdata;
+        var data = Array.isArray(rawdata) ? {data: rawdata} : rawdata;
 
         plot_info.options = this._parseJQPlotOptions(data.options || plot_info.options);
         plot_info.data = this._convertData(data.data, plot_info.options);
