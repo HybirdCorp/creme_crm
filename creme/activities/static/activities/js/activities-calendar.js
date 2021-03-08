@@ -426,7 +426,7 @@ creme.activities.CalendarController = creme.component.Component.sub({
     _getFloatingEventMeta: function(item) {
         return {
             id: item.attr('data-id'),
-            title: $.trim(item.text()),
+            title: (item.text() || '').trim(),
             type: item.attr('data-type'),
             user: this.owner(),
             calendar: item.attr('data-calendar'),

@@ -1031,7 +1031,10 @@ creme.bricks.BricksReloader.prototype = {
                           })
                          .onDone(function(event, data) {
                               data.forEach(function(entry) {
-                                  creme.bricks.replaceContent($('[id="' + entry[0] + '"]'), $($.trim(entry[1])));
+                                  creme.bricks.replaceContent(
+                                      $('[id="' + entry[0] + '"]'),
+                                      $((entry[1] || '').trim())
+                                  );
                               });
                           });
     }
