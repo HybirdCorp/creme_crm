@@ -148,8 +148,8 @@ class _ActionsBrick(_AssistantsBrick):
 
 
 class ActionsOnTimeBrick(_ActionsBrick):
-    id_           = QuerysetBrick.generate_id('assistants', 'actions_it')
-    verbose_name  = _('Actions in time')
+    id_ = QuerysetBrick.generate_id('assistants', 'actions_it')
+    verbose_name = _('Actions on time')
     template_name = 'assistants/bricks/actions-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -164,8 +164,8 @@ class ActionsOnTimeBrick(_ActionsBrick):
 
 
 class ActionsNotOnTimeBrick(_ActionsBrick):
-    id_           = QuerysetBrick.generate_id('assistants', 'actions_nit')
-    verbose_name  = _('Reactions not in time')
+    id_ = QuerysetBrick.generate_id('assistants', 'actions_nit')
+    verbose_name = _('Reactions not on time')
     template_name = 'assistants/bricks/actions-not-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -180,10 +180,10 @@ class ActionsNotOnTimeBrick(_ActionsBrick):
 
 
 class UserMessagesBrick(_AssistantsBrick):
-    id_           = QuerysetBrick.generate_id('assistants', 'messages')
-    dependencies  = (UserMessage,)
-    order_by      = '-creation_date'
-    verbose_name  = _('User messages')
+    id_ = QuerysetBrick.generate_id('assistants', 'messages')
+    verbose_name = _('User messages')
+    dependencies = (UserMessage,)
+    order_by = '-creation_date'
     template_name = 'assistants/bricks/messages.html'
 
     def _get_queryset_for_detailview(self, entity, context):

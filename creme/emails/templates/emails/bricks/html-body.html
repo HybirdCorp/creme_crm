@@ -10,10 +10,6 @@
 {% endblock %}
 {% endcomment %}
 
-{% block brick_header_title %}
-    {% brick_header_title title=_('HTML body') icon='info' %}
-{% endblock %}
-
 {% block brick_header_actions %}
     {% if '<img ' in object.body_html %}
         {% brick_header_action id='email-toggle-images' label=_('View external images') __inlabel=_('View external images') __outlabel=_('Hide external images') icon='view' %}

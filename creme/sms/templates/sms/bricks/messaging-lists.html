@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} sms-messaging-lists-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Related messaging list') plural=_('{count} Related messaging lists') empty=_('Messaging lists') icon='sms' %}
+    {% brick_header_title title=_('{count} Related messaging list') plural=_('{count} Related messaging lists') empty=verbose_name icon='sms' %}
 {% endblock %}
 
 {% block brick_header_actions %}

@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} cti-callers-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Potential caller') plural=_('{count} Potential callers') empty=_('Potential callers') icon='phone' %}
+    {% brick_header_title title=_('{count} Potential caller') plural=_('{count} Potential callers') empty=verbose_name icon='phone' %}
 {% endblock %}
 
 {% block brick_header_actions %}

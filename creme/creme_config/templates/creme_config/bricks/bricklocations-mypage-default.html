@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} creme_config-brickloc-mypage-default-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Block on default «My page»') plural=_('{count} Blocks on default «My page»') empty=_('Blocks on default «My page»') icon='config' %}
+    {% brick_header_title title=_('{count} Block on default «My page»') plural=_('{count} Blocks on default «My page»') empty=verbose_name icon='config' %}
 {% endblock %}
 
 {% block brick_header_actions %}

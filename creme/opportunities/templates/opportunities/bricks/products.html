@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} opportunities-products-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Related product') plural=_('{count} Related products') empty=_('Related products') icon='product' %}
+    {% brick_header_title title=_('{count} Related product') plural=_('{count} Related products') empty=verbose_name icon='product' %}
 {% endblock %}
 
 {% block brick_header_actions %}

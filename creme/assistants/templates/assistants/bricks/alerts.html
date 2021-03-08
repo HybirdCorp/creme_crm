@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} assistants-alerts-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Alert') plural=_('{count} Alerts') empty=_('Alerts') icon='alert' %}
+    {% brick_header_title title=_('{count} Alert') plural=_('{count} Alerts') empty=verbose_name icon='alert' %}
 {% endblock %}
 
 {% block brick_header_actions %}

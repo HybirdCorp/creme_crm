@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} assistants-todos-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Todo') plural=_('{count} Todos') empty=_('Todos') icon='todo' %}
+    {% brick_header_title title=_('{count} Todo') plural=_('{count} Todos') empty=verbose_name icon='todo' %}
 {% endblock %}
 
 {% block brick_header_actions %}

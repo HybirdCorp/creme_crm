@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} documents-documents-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Contained document') plural=_('{count} Contained documents') empty=_('Contained documents') icon='document' %}
+    {% brick_header_title title=_('{count} Contained document') plural=_('{count} Contained documents') empty=verbose_name icon='document' %}
 {% endblock %}
 
 {% block brick_header_actions %}

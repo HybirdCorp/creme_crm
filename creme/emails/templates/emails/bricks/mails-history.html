@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} emails-mails-history-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Email in the history') plural=_('{count} Emails in the history') empty=_('Emails') icon='email' %}
+    {% brick_header_title title=_('{count} Email in the history') plural=_('{count} Emails in the history') empty=verbose_name icon='email' %}
 {% endblock %}
 
 {% block brick_header_actions %}

@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} assistants-messages-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} User message') plural=_('{count} User messages') empty=_('Messages') icon='message' %}
+    {% brick_header_title title=_('{count} User message') plural=_('{count} User messages') empty=verbose_name icon='message' %}
 {% endblock %}
 
 {% block brick_header_actions %}

@@ -5,9 +5,9 @@
 
 {% block brick_header_title %}
     {% if custom %}
-        {% brick_header_title title=_('{count} Custom type of relation') plural=_('{count} Custom types of relation') empty=_('Relation types') icon='relations' %}
+        {% brick_header_title title=_('{count} Custom type of relation') plural=_('{count} Custom types of relation') empty=verbose_name icon='relations' %}
     {% else %}
-        {% brick_header_title title=_('{count} Standard type of relation') plural=_('{count} Standard types of relation') empty=_('Relation types') icon='relations' %}
+        {% brick_header_title title=_('{count} Standard type of relation') plural=_('{count} Standard types of relation') empty=verbose_name icon='relations' %}
     {% endif %}
 {% endblock %}
 

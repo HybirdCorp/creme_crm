@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} emails-contacts-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Contact recipient') plural=_('{count} Contact recipients') empty=_('Contacts recipients') icon='contact' %}
+    {% brick_header_title title=_('{count} Contact recipient') plural=_('{count} Contact recipients') empty=verbose_name icon='contact' %}
 {% endblock %}
 
 {% block brick_header_actions %}

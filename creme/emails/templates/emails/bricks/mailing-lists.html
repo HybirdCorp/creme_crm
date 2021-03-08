@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} emails-mailing-lists-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Related mailing list') plural=_('{count} Related mailing lists') empty=_('Mailing lists') icon='email' %}
+    {% brick_header_title title=_('{count} Related mailing list') plural=_('{count} Related mailing lists') empty=verbose_name icon='email' %}
 {% endblock %}
 
 {% block brick_header_actions %}

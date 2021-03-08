@@ -218,7 +218,7 @@ class SendingsBrick(QuerysetBrick):
 class SendingBrick(SimpleBrick):
     id_ = SimpleBrick.generate_id('emails', 'sending')
     dependencies = (EmailSending,)
-    verbose_name = 'Info on the sending'
+    verbose_name = _('Information')
     template_name = 'emails/bricks/sending.html'
     configurable = False
 
@@ -311,17 +311,17 @@ class LwMailsHistoryBrick(QuerysetBrick):
 
 
 class MySignaturesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('emails', 'my_signatures')
-    dependencies  = (EmailSignature,)
-    order_by      = 'name'
-    verbose_name  = 'My Email signatures'
+    id_ = QuerysetBrick.generate_id('emails', 'my_signatures')
+    verbose_name = _('My signatures')
+    dependencies = (EmailSignature,)
+    order_by = 'name'
     template_name = 'emails/bricks/signatures.html'
-    configurable  = False
+    configurable = False
     # NB: used by the view creme_core.views.bricks.reload_basic ;
     #     None means "No special permission required".
     #     The brick must be visible by all users ; we check permissions in the
     #     render to disabled only forbidden things.
-    permission    = None
+    permission = None
 
     def detailview_display(self, context):
         user = context['user']
@@ -344,7 +344,7 @@ if apps.is_installed('creme.crudity'):
 
     class WaitingSynchronizationMailsBrick(_SynchronizationMailsBrick):
         id_ = _SynchronizationMailsBrick.generate_id('emails', 'waiting_synchronisation')
-        verbose_name = 'Incoming Emails to sync'
+        verbose_name = _('Incoming emails to treat')
         template_name = 'emails/bricks/synchronization.html'
 
         def detailview_display(self, context):
@@ -373,7 +373,7 @@ if apps.is_installed('creme.crudity'):
     # TODO: credentials ?? (see template too)
     class SpamSynchronizationMailsBrick(_SynchronizationMailsBrick):
         id_ = _SynchronizationMailsBrick.generate_id('emails', 'synchronised_as_spam')
-        verbose_name = 'Spam emails'
+        verbose_name = _('Spam')
         template_name = 'emails/bricks/synchronization-spam.html'
 
         def detailview_display(self, context):

@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} billing-list-brick billing-orga-payment-info-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Payment information') plural=_('{count} Payments information') empty=_('Payment information') icon='money_info' %}
+    {% brick_header_title title=_('{count} Payment information') plural=_('{count} Payments information') empty=verbose_name icon='money_info' %}
 {% endblock %}
 
 {% block brick_header_actions %}

@@ -39,9 +39,9 @@ class ReportBarHatBrick(core_bricks.SimpleBrick):
 
 
 class ReportFieldsBrick(core_bricks.Brick):
-    id_           = core_bricks.Brick.generate_id('reports', 'fields')
-    dependencies  = (Field,)
-    verbose_name  = _('Columns of the report')
+    id_ = core_bricks.Brick.generate_id('reports', 'fields')
+    verbose_name = _('Columns of the report')
+    dependencies = (Field,)
     template_name = 'reports/bricks/fields.html'
     target_ctypes = (Report,)
 
@@ -56,12 +56,12 @@ class ReportFieldsBrick(core_bricks.Brick):
 
 
 class ReportGraphsBrick(core_bricks.QuerysetBrick):
-    id_           = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
-    dependencies  = (ReportGraph,)
-    verbose_name  = _("Report's graphs")
+    id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
+    verbose_name = _("Report's graphs")
+    dependencies = (ReportGraph,)
     template_name = 'reports/bricks/graphs.html'
-    # order_by      = 'name'
-    order_by      = 'created'
+    # order_by = 'name'
+    order_by = 'created'
     target_ctypes = (Report,)
 
     def detailview_display(self, context):
@@ -84,11 +84,11 @@ class ReportGraphsBrick(core_bricks.QuerysetBrick):
 
 
 class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
-    id_           = core_bricks.QuerysetBrick.generate_id('reports', 'instance_bricks_info')
-    dependencies  = (InstanceBrickConfigItem,)
-    verbose_name  = 'Instance bricks information'
+    id_ = core_bricks.QuerysetBrick.generate_id('reports', 'instance_bricks_info')
+    verbose_name = _('Blocks')
+    dependencies = (InstanceBrickConfigItem,)
     template_name = 'reports/bricks/instance-bricks-info.html'
-    configurable  = False
+    configurable = False
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -101,9 +101,9 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
 
 
 class ReportGraphBrick(core_bricks.InstanceBrick):
-    id_           = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
-    dependencies  = (ReportGraph,)
-    verbose_name  = "Report's graph"  # Overloaded by __init__()
+    id_ = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
+    dependencies = (ReportGraph,)
+    verbose_name = "Report's graph"  # Overloaded by __init__()
     template_name = 'reports/bricks/graph.html'
 
     def __init__(self, instance_brick_config_item):

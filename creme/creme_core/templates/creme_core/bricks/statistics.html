@@ -1,11 +1,7 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n creme_bricks %}
+{% load creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} creme_core-statistics-brick{% endblock %}
-
-{% block brick_header_title %}
-    {% brick_header_title title=_('Statistics') %}
-{% endblock %}
 
 {% block brick_table_head %}{% endblock %}
 

@@ -5,9 +5,9 @@
 
 {% block brick_header_title %}
     {% if is_home %}
-        {% brick_header_title title=_('{count} Past activity for me') plural=_('{count} Past activities for me') empty=_('Past activities') icon='calendar' %}
+        {% brick_header_title title=_('{count} Past activity for me') plural=_('{count} Past activities for me') empty=verbose_name icon='calendar' %}
     {% else %}
-        {% brick_header_title title=_('{count} Past related activity') plural=_('{count} Past related activities') empty=_('Past activities') icon='calendar' %}
+        {% brick_header_title title=_('{count} Past related activity') plural=_('{count} Past related activities') empty=verbose_name icon='calendar' %}
     {% endif %}
 {% endblock %}
 
