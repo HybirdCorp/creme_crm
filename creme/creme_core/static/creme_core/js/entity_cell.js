@@ -117,7 +117,7 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
             columns.push(column);
             this.header_labels.append($('<th>').attr('data-column', column)
                                                .append($('<input type="checkbox" checked class="preview_column_toggle" />')
-                                                        .bind('change', function (event) {
+                                                        .on('change', function (event) {
                                                                 var underlay_info = self.findUnderlayInfo(column);
                                                                 var selectors = underlay_info ? underlay_info.content.find('.underlay_selector_list')
                                                                                             : div.find('.selector_list');
@@ -281,7 +281,7 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
             });
         });
 
-        div.find('.selector_list input[type=checkbox]').bind('change', function (event) {
+        div.find('.selector_list input[type=checkbox]').on('change', function (event) {
             self.onColumnChanged(event.target);
         });
 
@@ -349,7 +349,7 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
 
             var type = elem.attr('data-type');
 
-            elem.bind('propertychange keyup input paste', function() {
+            elem.on('propertychange keyup input paste', function() {
                 var val = elem.val();
 
                 if (elem.data('oldVal') === val) {

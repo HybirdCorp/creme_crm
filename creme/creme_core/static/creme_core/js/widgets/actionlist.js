@@ -160,7 +160,7 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
             self._onButtonActionClick(element, $(this));
         });
 
-        $(element).bind('action', function(e, name, listeners) {
+        $(element).on('action', function(e, name, listeners) {
             self.doAction(element, name, listeners);
         });
 

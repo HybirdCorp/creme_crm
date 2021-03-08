@@ -112,7 +112,7 @@
                     list.toggleAttr('disabled', this.length() <= 1);
                 });
 
-                input.bind('change keyup', function() {
+                input.on('change keyup', function() {
                     filteredmodel.filter(self.containsFilter($(this).val()));
                 });
             },
@@ -129,7 +129,7 @@
                     selector.toggleAttr('disabled', this.length() <= 1);
                 });
 
-                input.bind('change keyup', function() {
+                input.on('change keyup', function() {
                     filteredmodel.filter(self.containsFilter($(this).val()));
                 });
             }

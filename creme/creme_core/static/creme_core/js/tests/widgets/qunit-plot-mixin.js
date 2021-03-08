@@ -63,10 +63,10 @@
         bindMockPlotEvents: function(plot) {
             var self = this;
 
-            plot.bind('plotSuccess', function(e, plot) {
+            plot.on('plotSuccess', function(e, plot) {
                 self.plotSuccess = plot; self.plotError = null;
             });
-            plot.bind('plotError', function(e, err) {
+            plot.on('plotError', function(e, err) {
                 self.plotError = err; self.plotSuccess = null;
             });
         }

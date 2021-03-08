@@ -79,8 +79,8 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         var values = this._selectorValues(element);
 
         this._reloadSelectors(element, values);
-        this.selectors(element).bind('change', self._dependency_change);
-        this.selectors(element).bind('change-multiple', self._dependency_change_multiple);
+        this.selectors(element).on('change', self._dependency_change);
+        this.selectors(element).on('change-multiple', self._dependency_change_multiple);
 
         // if empty data, get values from selector and try to force it in widget
         if (Object.isEmpty(data)) {

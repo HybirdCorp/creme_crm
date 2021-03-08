@@ -120,11 +120,11 @@ creme.forms.TimePicker.init = function(self) {
     $('li.hour input[type="text"]', self).val(time.hour);
     $('li.minute input[type="text"]', self).val(time.minute);
 
-    $('li input[type="text"]', self).bind('change', function() {
+    $('li input[type="text"]', self).on('change', function() {
             creme.forms.TimePicker.update(self);
         });
 
-    $('li button', self).bind('click', function() {
+    $('li button', self).on('click', function() {
             var now = new Date();
             creme.forms.TimePicker.set(self, now.getHours(), now.getMinutes());
         });
@@ -180,16 +180,16 @@ creme.forms.DateTimePicker.init = function(self, format) {
     $('li.hour input[type="text"]', self).val(datetime.hour);
     $('li.minute input[type="text"]', self).val(datetime.minute);
 
-    $('li input[type="text"]', self).bind('change propertychange keyup input paste', function() {
+    $('li input[type="text"]', self).on('change propertychange keyup input paste', function() {
             creme.forms.DateTimePicker.update(self);
         });
 
-    $('li.now button', self).bind('click', function(e) {
+    $('li.now button', self).on('click', function(e) {
             e.preventDefault();
             creme.forms.DateTimePicker.setDate(self, new Date());
         });
 
-    $('li.clear button', self).bind('click', function(e) {
+    $('li.clear button', self).on('click', function(e) {
             e.preventDefault();
             creme.forms.DateTimePicker.clear(self);
         });

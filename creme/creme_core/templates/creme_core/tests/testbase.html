@@ -116,15 +116,15 @@
             $(document).ready(function() {
                 var context = creme.tests.context;
 
-                $('select#test-view-selector').bind('change', function() {
+                $('select#test-view-selector').on('change', function() {
                     context.redirect({view: $(this).val()});
                 });
 
-                $('select#test-theme-selector').bind('change', function() {
+                $('select#test-theme-selector').on('change', function() {
                     context.redirect({theme: $(this).val()});
                 });
 
-                $('select#test-size-selector').bind('change', function() {
+                $('select#test-size-selector').on('change', function() {
                     context.resize($(this).val());
                 }).val(context.screen).change();
             });

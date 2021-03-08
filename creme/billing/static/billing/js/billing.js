@@ -142,7 +142,7 @@ creme.billing.initializeForm = function(element) {
     });
 
     // Bind twice because of double init of blocks, seems to not cause a problem
-    creme.billing.inputs(element).bind('propertychange input change paste', function() {
+    creme.billing.inputs(element).on('propertychange input change paste', function() {
         var input = $(this);
         var item = creme.billing.serializeInput(input, false);
         var changed = (item !== undefined && ('' + item.value !== input.attr('initial')));

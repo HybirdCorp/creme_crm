@@ -50,7 +50,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
             self.unselectAll(element);
         });
 
-        $('.checklist-filter', element).bind('propertychange keyup input paste', function() {
+        $('.checklist-filter', element).on('propertychange keyup input paste', function() {
             self._updateViewFilter(element, $(this).val().toLowerCase());
         });
 
@@ -235,10 +235,10 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         input_renderer.target(input)
                       .model(model);
 
-        input.bind('change', function() {
+        input.on('change', function() {
                   self._updateViewSelection(element);
               })
-             .bind('invalid html5-invalid', function() {
+             .on('invalid html5-invalid', function() {
                   self._updateViewErrorState(element);
               });
 

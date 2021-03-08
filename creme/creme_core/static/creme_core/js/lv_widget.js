@@ -403,7 +403,7 @@ creme.lv_widget.ListViewDialog = creme.dialog.Dialog.sub({
     },
 
     onValidate: function(cb) {
-        this._events.bind('validate', cb);
+        this._events.on('validate', cb);
         return this;
     }
 });

@@ -4,7 +4,7 @@
     {{block.super}}
     <script type='text/javascript'>
         $(document).ready(function() {
-            $(window).bind('beforeunload', creme.billing.checkModifiedOnUnload);
+            $(window).on('beforeunload', creme.billing.checkModifiedOnUnload);
         });
     </script>
 {% endblock %}

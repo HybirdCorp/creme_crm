@@ -105,8 +105,8 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
             var plot = this.mockPlots[index];
 
             plot.remove();
-            plot.unbind('plotSuccess');
-            plot.unbind('plotError');
+            plot.off('plotSuccess');
+            plot.off('plotError');
         }
 
         this.mockPlots = [];

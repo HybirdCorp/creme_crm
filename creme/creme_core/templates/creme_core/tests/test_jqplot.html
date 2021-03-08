@@ -72,13 +72,13 @@
                 $('div#plot').creme().widget().draw($('textarea#plot-content').val());
             });
 
-            $('div#plot').bind('plotError', function(e, err, data) {
+            $('div#plot').on('plotError', function(e, err, data) {
                 $('div#plot-status').html('')
                                     .append($('<h5>').html(err.message || err))
                                     .append($('<div>').css('color', 'red').html(err.stats || ''));
             });
 
-            $('div#plot').bind('plotSuccess', function(e, err, data) {
+            $('div#plot').on('plotSuccess', function(e, err, data) {
                 $('div#plot-status').html('<h5>done.</h5>');
             });
 

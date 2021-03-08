@@ -48,7 +48,7 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
                                   buttonImageOnly: true
                                  };
 
-        self._get_type(element).bind('change', function() {
+        self._get_type(element).on('change', function() {
                 if ($(this).val()) {
                     $datespan.hide();
                 } else {
@@ -63,7 +63,7 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
         self._clean_daterpickers($datespan);
 
         // TODO : use different buttonText value for begin and end datepickers
-        $('.daterange-input', $datespan).bind('change', function() { self._update(element); })
+        $('.daterange-input', $datespan).on('change', function() { self._update(element); })
                                         .datepicker(datepicker_options);
 
         if (!value) {

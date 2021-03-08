@@ -162,12 +162,12 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
 
         $('ul.selectors', element).append(selector_item);
 
-        selector_model.bind('change', function() {
+        selector_model.on('change', function() {
             self._update(element);
         });
 
         var selector = creme.widget.create(selector_model, {disabled: !this._enabled}, function() {
-            selector_model.bind('change-multiple', function(e, data) {
+            selector_model.on('change-multiple', function(e, data) {
                 self.appendSelectors(element, data.slice(1));
             });
 

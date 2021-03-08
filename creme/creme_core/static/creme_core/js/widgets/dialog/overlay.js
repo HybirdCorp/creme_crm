@@ -149,7 +149,7 @@ creme.dialog.Overlay = creme.component.Component.sub({
         }
 
         this._target = element;
-        this._target.bind('resize', function() { self.resize(); });
+        this._target.on('resize', function() { self.resize(); });
 
         return this;
     },

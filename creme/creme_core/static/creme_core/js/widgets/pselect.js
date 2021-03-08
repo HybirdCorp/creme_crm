@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2020  Hybird
+    Copyright (C) 2009-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -72,7 +72,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
             var selector = this._selector;
             var selectorElement = selector.element;
 
-            selectorElement.unbind('change paste', this._selector_onchange_cb);
+            selectorElement.off('change paste', this._selector_onchange_cb);
             selector.destroy();
             selectorElement.remove();
 
@@ -95,7 +95,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         if (selector.length === 1) {
             creme.widget.create(selector, {}, function(delegate) {
                 creme.object.invoke(cb, element);
-                delegate.bind('change paste', self._selector_onchange_cb);
+                delegate.on('change paste', self._selector_onchange_cb);
                 element.change();
             }, sync);
 
