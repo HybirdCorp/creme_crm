@@ -95,7 +95,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
             this._onUnderflow(underflow, flow_cb);
         }
 
-        $('body').bind('resize', flow_cb);
+        $('body').on('resize', flow_cb);
 
         this._targetPosition = this._target.css('position');
         this._target.css('position', 'relative');
@@ -312,20 +312,20 @@ creme.layout.Layout = creme.component.Component.sub({
             return;
         }
 
-        this._target.bind('resize', this._resize_cb);
-        this._target.bind($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
-        this._target.bind($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
+        this._target.on('resize', this._resize_cb);
+        this._target.on($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
+        this._target.on($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
     },
 
     _unbindEvents: function() {
         if (Object.isSubClassOf(this._target, creme.layout.Layout)) {
-            this._target._events.unbind('done', this._layout_cb);
+            this._target._events.off('done', this._layout_cb);
             return;
         }
 
-        this._target.unbind('resize', this._resize_cb);
-        this._target.unbind($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
-        this._target.unbind($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
+        this._target.on('resize', this._resize_cb);
+        this._target.on($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
+        this._target.on($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
     },
 
     bind: function(element) {

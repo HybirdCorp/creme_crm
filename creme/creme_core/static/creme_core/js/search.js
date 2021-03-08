@@ -78,9 +78,9 @@ creme.search.SearchBox = creme.component.Component.sub({
         this._element = element;
 
         this._input = element.find('input');
-        this._input.bind('focus', this._onShow.bind(this))
-                   .bind('input paste', this.debounceDelay ? creme.utils.debounce(this._onInput.bind(this), this.debounceDelay) : this._onInput.bind(this))
-                   .bind('keydown', this._onKeyDown.bind(this));
+        this._input.on('focus', this._onShow.bind(this))
+                   .on('input paste', this.debounceDelay ? creme.utils.debounce(this._onInput.bind(this), this.debounceDelay) : this._onInput.bind(this))
+                   .on('keydown', this._onKeyDown.bind(this));
 
         this._resultsRoot = element.find('.inline-search-results');
 

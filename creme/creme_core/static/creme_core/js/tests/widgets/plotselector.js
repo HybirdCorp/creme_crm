@@ -111,8 +111,8 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin,
             var plot = $('.ui-creme-jqueryplot', selector);
 
             selector.remove();
-            plot.unbind('plotSuccess');
-            plot.unbind('plotError');
+            plot.off('plotSuccess');
+            plot.off('plotError');
         }
 
         this.mockSelectors = [];

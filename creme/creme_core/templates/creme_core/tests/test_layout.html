@@ -53,7 +53,7 @@
             var element = $('.ui-layout.resizable', content);
             var sensor = new creme.layout.LayoutResizeSensor();
 
-            element.bind('resize', function(e) {
+            element.on('resize', function(e) {
                 $('p', element).text('resized(width: %d, height:%d)'.format(e.width, e.height));
             });
 

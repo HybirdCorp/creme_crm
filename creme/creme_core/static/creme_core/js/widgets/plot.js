@@ -86,7 +86,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         this._plot_info = {options: {}, data: []};
         this._plot_handlers = [];
 
-        element.bind('resizestop', function() { self._onResize(element); });
+        element.on('resizestop', function() { self._onResize(element); });
 
         this.draw(element, this.plotScript(element), cb, cb);
     },
