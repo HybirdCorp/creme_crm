@@ -54,7 +54,7 @@ creme.utils.JSON.prototype = {
         }
 
         // Make sure leading/trailing whitespace is removed (IE can't handle it)
-        data = $.trim(data);
+        data = (data || '').trim();
 
         try {
             if (window.JSON && window.JSON.parse) {
