@@ -56,9 +56,9 @@ creme.menu.MenuController = creme.component.Component.sub({
         var items = menu.children('li');
 
         // Activate menus on hover events
-        items.hover(function(e) {
+        items.on('mouseenter', function(e) {
             $(this).addClass('ui-creme-navigation-activated');
-        }, function(e) {
+        }).on('mouseleave', function(e) {
             $(this).removeClass('ui-creme-navigation-activated');
         });
 
