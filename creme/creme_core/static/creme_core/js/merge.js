@@ -65,10 +65,10 @@ creme.merge.initializeMergeForm = function(form) {
             var $source_B = $('[name="' + name + '_2"]', this);
 
             // jquery 1.9x migration : avoid attr('value') for inputs.
-            $result_li.before($(li_html).append($(button_html).val('⏵').click(function() {
+            $result_li.before($(li_html).append($(button_html).val('⏵').on('click', function() {
                 copyTo($source_A, $merged);
             })));
-            $result_li.after($(li_html).append($(button_html).val('⏴').click(function() {
+            $result_li.after($(li_html).append($(button_html).val('⏴').on('click', function() {
                 copyTo($source_B, $merged);
             })));
         });

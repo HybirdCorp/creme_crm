@@ -416,7 +416,7 @@ QUnit.test('creme.widget.Plot.capture (raster image in popup)', function(assert)
 
     this.assertClosedDialog();
 
-    capture.click();
+    capture.trigger('click');
 
     stop(1);
 

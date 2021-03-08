@@ -42,7 +42,7 @@ QUnit.test('creme.list.Pager (link, no data)', function() {
     equal(true, pager.isBound());
     deepEqual([], this.mockListenerCalls('refresh'));
 
-    element.find('.pager-link').click();
+    element.find('.pager-link').trigger('click');
     deepEqual([], this.mockListenerCalls('refresh'));
 });
 
@@ -58,12 +58,12 @@ QUnit.test('creme.list.Pager (link)', function() {
     equal(true, pager.isBound());
     deepEqual([], this.mockListenerCalls('refresh'));
 
-    element.find('.link-a').click();
+    element.find('.link-a').trigger('click');
     deepEqual([
         ['refresh', '1']
     ], this.mockListenerCalls('refresh'));
 
-    element.find('.link-b').click();
+    element.find('.link-b').trigger('click');
     deepEqual([
         ['refresh', '1'],
         ['refresh', '{"type": "forward", "value":2}']
@@ -81,7 +81,7 @@ QUnit.test('creme.list.Pager (link, disabled)', function() {
     equal(true, pager.isBound());
     deepEqual([], this.mockListenerCalls('refresh'));
 
-    element.find('.link-a').click();
+    element.find('.link-a').trigger('click');
     deepEqual([], this.mockListenerCalls('refresh'));
 });
 
@@ -103,13 +103,13 @@ QUnit.test('creme.list.Pager (choose, toggle input)', function() {
     equal(false, input.is('.invalid-page'));
     equal(false, link.is('.active'));
 
-    link.click();
+    link.trigger('click');
 
     equal('2', input.val());
     equal(false, input.is('.invalid-page'));
     equal(true, link.is('.active'));
 
-    link.click();
+    link.trigger('click');
 
     equal('2', input.val());
     equal(false, input.is('.invalid-page'));
@@ -144,7 +144,7 @@ QUnit.test('creme.list.Pager (choose, input value)', function() {
     equal(false, input.is('.invalid-page'));
     equal(false, element.is('.active'));
 
-    link.click();
+    link.trigger('click');
 
     equal('2', input.val());
     equal(false, input.is('.invalid-page'));
@@ -189,7 +189,7 @@ QUnit.test('creme.list.Pager (choose, keyup enter)', function() {
     equal(false, input.is('.invalid-page'));
     equal(false, element.is('.active'));
 
-    link.click();
+    link.trigger('click');
 
     equal('2', input.val());
     equal(false, input.is('.invalid-page'));
@@ -221,7 +221,7 @@ QUnit.test('creme.list.Pager (choose, keyup escape)', function() {
     equal(false, input.is('.invalid-page'));
     equal(false, element.is('.active'));
 
-    link.click();
+    link.trigger('click');
 
     equal('2', input.val());
     equal(false, input.is('.invalid-page'));

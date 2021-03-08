@@ -67,7 +67,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
             element.trigger('change-multiple', [chained_data]);
         };
 
-        $('img.reset', element).click(function() {
+        $('img.reset', element).on('click', function() {
             if (self._enabled) {
                 self.reset(element);
             }

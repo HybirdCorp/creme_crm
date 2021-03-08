@@ -26,7 +26,7 @@ QUnit.test('creme.projects.hatmenubar.close (not confirmed)', function(assert) {
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedConfirmDialog(gettext('Do you really want to close this project?'));
 
@@ -46,7 +46,7 @@ QUnit.test('creme.projects.hatmenubar.close (fail)', function(assert) {
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedConfirmDialog(gettext('Do you really want to close this project?'));
 
@@ -70,7 +70,7 @@ QUnit.test('creme.projects.hatmenubar.close', function(assert) {
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedConfirmDialog(gettext('Do you really want to close this project?'));
 

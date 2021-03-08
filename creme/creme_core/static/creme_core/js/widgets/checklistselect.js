@@ -37,7 +37,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
         this._initializeController(element, options);
 
-        $('.checklist-create:not([disabled])', element).click(function(e) {
+        $('.checklist-create:not([disabled])', element).on('click', function(e) {
             e.preventDefault();
             self._createItem(element, $(this));
         });
@@ -54,7 +54,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
             self._updateViewFilter(element, $(this).val().toLowerCase());
         });
 
-        $('.checklist-toggle-less', element).click(function() {
+        $('.checklist-toggle-less', element).on('click', function() {
             self.toggleShowLess(element);
         });
 

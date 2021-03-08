@@ -31,7 +31,7 @@
                  controllers[$(this).attr('data-graph-id')] = controller;
              });
 
-             $('.graph-row-toggle-icon').click(function(e) {
+             $('.graph-row-toggle-icon').on('click', function(e) {
                  e.stopPropagation();
 
                  var graphid = $(this).parents('.graph-row-header:first').attr('data-graph-id');

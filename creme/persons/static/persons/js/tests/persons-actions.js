@@ -253,7 +253,7 @@ QUnit.test('persons-hatmenubar-become', function(assert) {
     equal(true, link.isBound());
     equal(false, link.isDisabled());
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     var dialog = this.assertOpenedDialog();
 

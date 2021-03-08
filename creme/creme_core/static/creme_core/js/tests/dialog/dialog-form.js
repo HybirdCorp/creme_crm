@@ -259,7 +259,7 @@ QUnit.test('creme.dialog.FormDialog (default button, unamed submit input + click
     equal(gettext('Save'), dialog.button('send').text());
     equal(gettext('Cancel'), dialog.button('cancel').text());
 
-    dialog.button('cancel').click();
+    dialog.button('cancel').trigger('click');
     equal(false, dialog.isOpened());
 });
 
@@ -343,7 +343,7 @@ QUnit.test('creme.dialogs.FormDialog (scrollbackOnClose, cancel)', function(asse
         ]);
         equal(789, dialog._scrollbackPosition);
 
-        dialog.button('cancel').click();
+        dialog.button('cancel').trigger('click');
 
         deepEqual(faker.calls(), [
             [],
@@ -376,7 +376,7 @@ QUnit.test('creme.dialogs.FormDialog (scrollbackOnClose, submit)', function(asse
 
         equal(false, dialog.button('send').is('[disabled]'));
 
-        dialog.button('send').click();
+        dialog.button('send').trigger('click');
         equal(false, dialog.isOpened());
 
         deepEqual(faker.calls(), [
@@ -628,7 +628,7 @@ QUnit.test('creme.dialog.FormDialog (submit + button[data-no-validate])', functi
     ], this.mockBackendUrlCalls('mock/submit/wizard'));
 
     // previous button has 'data-no-validate' attribute and allows submit
-    dialog.button('previous').click();
+    dialog.button('previous').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -720,7 +720,7 @@ QUnit.test('creme.dialog.FormDialog (click + submit)', function(assert) {
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
-    dialog.button('send').click();
+    dialog.button('send').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -829,11 +829,11 @@ QUnit.test('creme.dialog.FormDialog (prevent multiple submit click)', function(a
         ['GET', {}]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 
-    dialog.button('send').click();
-    dialog.button('send').click();
-    dialog.button('send').click();
-    dialog.button('send').click();
-    dialog.button('send').click();
+    dialog.button('send').trigger('click');
+    dialog.button('send').trigger('click');
+    dialog.button('send').trigger('click');
+    dialog.button('send').trigger('click');
+    dialog.button('send').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -860,7 +860,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
-    dialog.button('send').click();
+    dialog.button('send').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -872,7 +872,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
     dialog.fetch('mock/submit/multi');
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
-    dialog.button('send-1').click();
+    dialog.button('send-1').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -884,7 +884,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
     dialog.fetch('mock/submit/multi');
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
-    dialog.button('send-c').click();
+    dialog.button('send-c').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -896,7 +896,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
     dialog.fetch('mock/submit/multi');
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
-    dialog.button('button-d').click();
+    dialog.button('button-d').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -908,7 +908,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', func
     dialog.fetch('mock/submit/multi');
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
-    dialog.button('button-e').click();
+    dialog.button('button-e').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -935,7 +935,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons cl
 
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
-    dialog.button('send').click();
+    dialog.button('send').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -947,7 +947,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons cl
     dialog.fetch('mock/submit/multi/duplicates');
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
-    dialog.button('send-1').click();
+    dialog.button('send-1').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -959,7 +959,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons cl
     dialog.fetch('mock/submit/multi/duplicates');
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
-    dialog.button('button').click();
+    dialog.button('button').trigger('click');
 
     deepEqual([
         ['GET', {}],
@@ -971,7 +971,7 @@ QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons cl
     dialog.fetch('mock/submit/multi/duplicates');
     dialog.form().find('[name="firstname"]').val('John');
     dialog.form().find('[name="lastname"]').val('Doe');
-    dialog.button('button-1').click();
+    dialog.button('button-1').trigger('click');
 
     deepEqual([
         ['GET', {}],

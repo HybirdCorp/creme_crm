@@ -136,10 +136,10 @@ QUnit.test('creme.bricks.Brick.menu (toggle click)', function(assert) {
 
     equal(false, brick.menu().isOpened());
 
-    element.find('.brick-header-menu').click();
+    element.find('.brick-header-menu').trigger('click');
     equal(true, brick.menu().isOpened());
 
-    element.find('.brick-header-menu').click();
+    element.find('.brick-header-menu').trigger('click');
     equal(false, brick.menu().isOpened());
 });
 

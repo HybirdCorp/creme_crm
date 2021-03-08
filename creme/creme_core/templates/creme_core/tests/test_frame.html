@@ -151,15 +151,15 @@
             $(this).creme().create({backend: mockbackend});
         });
 
-        $('#static-frame .fill-frame').click(function() {
+        $('#static-frame .fill-frame').on('click', function() {
             $('#static-frame > .ui-creme-frame.widget-ready').creme().widget().fill('<center><h2>%s</h2></center><div>%s</div>'.format('Static Page', randomText(LOREM_IPSUM)));
         });
 
-        $('#static-frame .reset-frame').click(function() {
+        $('#static-frame .reset-frame').on('click', function() {
             $('#static-frame > .ui-creme-frame.widget-ready').creme().widget().reset();
         });
 
-        $('#dynamic-frame .reload-frame').click(function() {
+        $('#dynamic-frame .reload-frame').on('click', function() {
             $('#dynamic-frame .ui-creme-frame.widget-ready').each(function() {
                 $(this).creme().widget().reload();
             });
@@ -172,7 +172,7 @@
             });
         });
 
-        $('#dynamic-frame .reset-frame').click(function() {
+        $('#dynamic-frame .reset-frame').on('click', function() {
             $('#dynamic-frame .ui-creme-frame.widget-ready').each(function() {
                 $(this).creme().widget().reset();
             });
@@ -180,7 +180,7 @@
 
         $('#dynamic-frame table').resizable();
 
-        $('#popup .popup-html').click(function() {
+        $('#popup .popup-html').on('click', function() {
             var count = parseInt($('#popup .popup-html-paragraph').val());
             var content = '<center><h2>%s</h2></center><div>%s</div>'.format('Static Popup', randomParagraphs(LOREM_IPSUM, count));
             var minWidth = parseSize($('#popup .popup-minwidth').val());
@@ -228,7 +228,7 @@
             }
         });
 
-        $('#popup .popup-block').click(function() {
+        $('#popup .popup-block').on('click', function() {
             var dialog = creme.dialogs.html(MOCK_BLOCK_LIST, {
                 width: '80%',
                 title: 'Static',
@@ -240,7 +240,7 @@
             dialog.on('frame-activated', function() {
                 var content = this.content();
 
-                $('.block-refresh', content).click(function() {
+                $('.block-refresh', content).on('click', function() {
                     dialog.fill(MOCK_BLOCK_LIST);
                 });
             });
@@ -248,7 +248,7 @@
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
-        $('#popup .popup-form button').click(function() {
+        $('#popup .popup-form button').on('click', function() {
             // var confirm = $('#popup input.popup-confirm').val();
             var url = $(this).attr('data-url') || 'mock/form';
             var reloadOnSuccess = $('#popup .popup-form [name="formreload"]').is(':checked');
@@ -279,7 +279,7 @@
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
-        $('#popup .popup-fetch button').click(function() {
+        $('#popup .popup-fetch button').on('click', function() {
             var url = 'mock/' + ($('#popup .popup-fetch .popup-url').val() || '');
             var dialog = creme.dialogs.url(url, {
                                            backend: mockbackend,
@@ -294,7 +294,7 @@
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
-        $('#popup button.popup-error-url').click(function() {
+        $('#popup button.popup-error-url').on('click', function() {
             var url = '/test_http_response?status=' + ($('#popup .popup-error-status').val() || '');
             var dialog = creme.dialogs.url(url, {
                 title: url,
@@ -308,7 +308,7 @@
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
-        $('#popup button.popup-image').click(function() {
+        $('#popup button.popup-image').on('click', function() {
             var url = '{% media_url "common/images/logos/hybird.png" %}';
             var dialog = creme.dialogs.image(url, {
                 title: $('#popup  [name="image-title"]').is(':checked') ? url : false,
@@ -319,7 +319,7 @@
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
-        $('#popup button.popup-select').click(function() {
+        $('#popup button.popup-select').on('click', function() {
             var choices = [{label: 'A', value: 1}, {label: 'B', value: 2}, {label: 'C', value: 3}];
             var dialog = creme.dialogs.choice('Choose a value', {
                 choices: choices,

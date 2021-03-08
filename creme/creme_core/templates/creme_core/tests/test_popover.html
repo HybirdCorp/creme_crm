@@ -53,7 +53,7 @@
     };
 
     $(document).ready(function() {
-        $('.popover-test-open').click(function() {
+        $('.popover-test-open').on('click', function() {
             var direction = $('input[type="radio"][name="direction"]:checked').val();
             var closeIfOut = $('input[type="checkbox"][name="closeIfOut"]:checked').val() === '1';
             var modal = $('input[type="checkbox"][name="modal"]:checked').val() === '1';

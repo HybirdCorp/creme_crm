@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2017-2019  Hybird
+    Copyright (C) 2017-2021  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -161,7 +161,7 @@ creme.crudity.CrudityHatController = creme.component.Component.sub({
 
         this._timeout = setTimeout(function() {
             self._timeout = undefined;
-            self._element.find('a[data-action="crudity-hatbar-refresh"]').click();
+            self._element.find('a[data-action="crudity-hatbar-refresh"]').trigger('click');
         }, delay || 0);
 
         return this;

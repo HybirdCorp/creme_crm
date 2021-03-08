@@ -22,7 +22,7 @@
                 $('.selection-count', $(this).parent()).html(selected.length ? '%d items selected'.format(selected.length) : '');
             });
 
-            $('#bench-reload').click(function() {
+            $('#bench-reload').on('click', function() {
                 var select = $('#bench-selector').creme().widget();
                 var count = parseInt($('#bench-count-input').val());
                 var data = [];
@@ -34,7 +34,7 @@
                 select.model().reset(data);
             });
 
-            $('#required-validate').click(function() {
+            $('#required-validate').on('click', function() {
                 creme.forms.validateHtml5Field($('#required-selector .ui-creme-input'));
             });
 

@@ -59,16 +59,16 @@
 
             sensor.bind(element);
 
-            $('button[name="resize"]', content).click(function(e) {
+            $('button[name="resize"]', content).on('click', function(e) {
                 element.css('width', Math.ceil(200 + Math.random() * 200))
                        .css('height', Math.ceil(100 + Math.random() * 100));
             });
 
-            $('button[name="bind"]', content).click(function(e) {
+            $('button[name="bind"]', content).on('click', function(e) {
                 sensor.bind(element);
             });
 
-            $('button[name="unbind"]', content).click(function(e) {
+            $('button[name="unbind"]', content).on('click', function(e) {
                 sensor.unbind();
             });
         }
@@ -85,14 +85,14 @@
 
             layout.bind(list).layout();
 
-            $('button[name="add"]', content).click(function(e) {
+            $('button[name="add"]', content).on('click', function(e) {
                 var value = '%03d'.format(Math.ceil(Math.random() * 100));
                 var item = $('<li/>').attr('name', value).addClass('added').html(value);
                 list.append(item);
                 return false;
             });
 
-            $('button[name="reverse"]', content).click(function(e) {
+            $('button[name="reverse"]', content).on('click', function(e) {
                 layout.reverse(!layout.reverse()).layout();
             });
         }
@@ -109,7 +109,7 @@
 
             layout.bind(list).layout();
 
-            $('button[name="add"]', content).click(function(e) {
+            $('button[name="add"]', content).on('click', function(e) {
                 var value = '%03d'.format(Math.ceil(Math.random() * 100));
                 var item = $('<li/>').attr('name', value).addClass('added').html(value);
                 list.append(item);

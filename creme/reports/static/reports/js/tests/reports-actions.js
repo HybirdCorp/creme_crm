@@ -118,7 +118,7 @@ QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert)
     dialog.find('[name="doc_type"]').val('csv');
     dialog.find('[name="date_field"]').val('');
 
-    this.findDialogButtonsByLabel(gettext('Export')).click();
+    this.findDialogButtonsByLabel(gettext('Export')).trigger('click');
 
     this.assertClosedDialog();
 
@@ -222,11 +222,11 @@ QUnit.test('creme.reports.PreviewController (preview or download)', function(ass
         date_filter_2: ''
     });
 
-    element.find('button[name="download"]').click();
+    element.find('button[name="download"]').trigger('click');
 
     deepEqual([downloadUrl], this.mockRedirectCalls());
 
-    element.find('button[name="generate"]').click();
+    element.find('button[name="generate"]').trigger('click');
 
     deepEqual([
         downloadUrl,

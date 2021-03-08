@@ -379,7 +379,7 @@ QUnit.test('creme.dialog.Dialog (default button)', function(assert) {
 
     this.assertOpenedDialog();
 
-    dialog.button('close').click();
+    dialog.button('close').trigger('click');
 
     this.assertClosedDialog();
 });

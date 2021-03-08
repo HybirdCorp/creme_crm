@@ -88,7 +88,7 @@ creme.bricks.BrickMenu = creme.component.Component.sub({
         this._dialog = new creme.dialog.Popover(this._options).fill(content);
 
         $('.brick-header-menu', element).toggleClass('is-disabled', is_disabled)
-                                        .click(function(e) {
+                                        .on('click', function(e) {
                                             toggle(e.target);
                                          });
     },

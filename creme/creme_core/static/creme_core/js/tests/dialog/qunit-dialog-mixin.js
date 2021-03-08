@@ -147,7 +147,7 @@
             }
 
             var formHtml = $('.ui-dialog form').html();
-            $('.ui-dialog button[name="send"]').click();
+            $('.ui-dialog button[name="send"]').trigger('click');
 
             return formHtml;
         },
@@ -156,7 +156,7 @@
             equal(1, $('.ui-dialog').length, 'single confirm dialog allowed');
             equal(1, $('.ui-dialog button[name="ok"]').length, 'single confirm ok button allowed');
 
-            $('.ui-dialog button[name="ok"]').click();
+            $('.ui-dialog button[name="ok"]').trigger('click');
         },
 
         findDialogButtonsByLabel: function(label, dialog) {

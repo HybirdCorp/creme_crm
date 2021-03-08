@@ -411,7 +411,7 @@ QUnit.test('creme.widgets.actionlist.reset (button click)', function() {
     equal(widget.val(), 5);
 
     // reset with button
-    widget.actionButton('reset').click();
+    widget.actionButton('reset').trigger('click');
     equal(delegate.val(), 12);
     equal(widget.val(), 12);
 });
@@ -476,7 +476,7 @@ QUnit.test('creme.widgets.actionlist.action (popup, canceled)', function(assert)
     deepEqual([], this.mockListenerJQueryCalls('actionlist-success'));
     deepEqual([], this.mockListenerJQueryCalls('actionlist-cancel'));
 
-    widget.actionButton('create').click();
+    widget.actionButton('create').trigger('click');
 
     this.assertOpenedDialog();
     this.closeDialog();
@@ -515,7 +515,7 @@ QUnit.test('creme.widgets.actionlist.action (popup, fail)', function(assert) {
     deepEqual([], this.mockListenerJQueryCalls('actionlist-success'));
     deepEqual([], this.mockListenerJQueryCalls('actionlist-cancel'));
 
-    widget.actionButton('create').click();
+    widget.actionButton('create').trigger('click');
 
     this.assertOpenedDialog();
     this.closeDialog();
@@ -555,7 +555,7 @@ QUnit.test('creme.widgets.actionlist.action (popup, empty url)', function(assert
     deepEqual([], this.mockListenerJQueryCalls('actionlist-success'));
     deepEqual([], this.mockListenerJQueryCalls('actionlist-cancel'));
 
-    widget.actionButton('create').click();
+    widget.actionButton('create').trigger('click');
 
     this.assertClosedDialog();
 
@@ -593,7 +593,7 @@ QUnit.test('creme.widgets.actionlist.action (popup, success)', function(assert) 
     deepEqual([], this.mockListenerJQueryCalls('actionlist-success'));
     deepEqual([], this.mockListenerJQueryCalls('actionlist-cancel'));
 
-    widget.actionButton('create').click();
+    widget.actionButton('create').trigger('click');
 
     this.assertOpenedDialog();
     this.submitFormDialog({
@@ -638,7 +638,7 @@ QUnit.test('creme.widgets.actionlist.action (unknow action)', function(assert) {
     deepEqual([], this.mockListenerJQueryCalls('actionlist-success'));
     deepEqual([], this.mockListenerJQueryCalls('actionlist-cancel'));
 
-    widget.actionButton('unknown').click();
+    widget.actionButton('unknown').trigger('click');
 
     this.assertClosedDialog();
 
@@ -676,7 +676,7 @@ QUnit.test('creme.widgets.actionlist.action (disabled action)', function(assert)
     deepEqual([], this.mockListenerJQueryCalls('actionlist-success'));
     deepEqual([], this.mockListenerJQueryCalls('actionlist-cancel'));
 
-    widget.actionButton('create').click();
+    widget.actionButton('create').trigger('click');
 
     this.assertClosedDialog();
 

@@ -68,7 +68,7 @@
                     selector.toggleAttr('disabled', this.length() <= 1);
                 });
 
-                add.click(function() {
+                add.on('click', function() {
                     var value = model.length();
                     model.prepend({
                         value: value,
@@ -76,7 +76,7 @@
                     });
                 });
 
-                remove.click(function() {
+                remove.on('click', function() {
                     model.pop();
                 });
             },
@@ -87,7 +87,7 @@
 
                 renderer.redraw();
 
-                add.click(function() {
+                add.on('click', function() {
                     var value = model.length();
                     model.append({
                         value: value,
@@ -95,7 +95,7 @@
                     });
                 });
 
-                remove.click(function() {
+                remove.on('click', function() {
                     model.pop();
                 });
             },

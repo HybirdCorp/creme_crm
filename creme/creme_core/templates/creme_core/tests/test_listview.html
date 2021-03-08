@@ -53,7 +53,7 @@
         };
 
         $(document).ready(function() {
-            $('.listview-open.select').click(function() {
+            $('.listview-open.select').on('click', function() {
                 var multiple = $(this).is('[multiple]');
                 var ctype = $(this).attr('ctype');
                 var target = $(this).attr('target') || '';
@@ -66,7 +66,7 @@
                 });
             });
 
-            $('.listview-open.view').click(function() {
+            $('.listview-open.view').on('click', function() {
                 var ctype = $(this).attr('ctype');
                 // var target = $(this).attr('target') || '';
                 var filter = $(this).attr('filter') || '';
@@ -74,7 +74,7 @@
                 openFilterView(ctype, filter);
             });
 
-            $('.listview-test .ui-icon-close').click(function() {
+            $('.listview-test .ui-icon-close').on('click', function() {
                 $('#' + $(this).attr('target')).val('');
             });
         });

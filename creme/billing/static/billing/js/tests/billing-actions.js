@@ -216,7 +216,7 @@ QUnit.test('creme.billing.brick (billing-line-addonfly)', function(assert) {
     equal(1, brick.element().find('.hidden-form').length);
     equal(false, addonflyLink.is('.forbidden'));
 
-    addonflyLink.click();
+    addonflyLink.trigger('click');
 
     equal(true, creme.billing.formsHaveErrors());
     equal(0, brick.element().find('.hidden-form').length);
@@ -244,7 +244,7 @@ QUnit.test('creme.billing.brick (billing-line-addonfly, forbidden)', function(as
     equal(1, brick.element().find('.hidden-form').length);
     equal(true, addonflyLink.is('.forbidden'));
 
-    addonflyLink.click();
+    addonflyLink.trigger('click');
 
     equal(false, creme.billing.formsHaveErrors());
     equal(1, brick.element().find('.hidden-form').length);
@@ -277,13 +277,13 @@ QUnit.test('creme.billing.brick (billing-line-clearonfly)', function(assert) {
     equal(1, brick.element().find('.hidden-form').length);
     equal(false, addonflyLink.is('.forbidden'));
 
-    addonflyLink.click();
+    addonflyLink.trigger('click');
 
     equal(true, creme.billing.formsHaveErrors());
     equal(0, brick.element().find('.hidden-form').length);
     equal(true, addonflyLink.is('.forbidden'));
 
-    clearonflyLink.click();
+    clearonflyLink.trigger('click');
 
     equal(false, creme.billing.formsHaveErrors());
     equal(1, brick.element().find('.hidden-form').length);
@@ -300,7 +300,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (fail)', function(assert) {
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedAlertDialog('Unable to generate invoice number');
     this.closeDialog();
@@ -320,7 +320,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (ok)', function(assert) {
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertClosedDialog();
 
@@ -341,7 +341,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, cancel)', function
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedConfirmDialog('Are you sure ?');
     this.closeDialog();
@@ -363,7 +363,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, fail)', function(a
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedConfirmDialog('Are you sure ?');
     this.acceptConfirmDialog();
@@ -389,7 +389,7 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, ok)', function(ass
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedConfirmDialog('Are you sure ?');
     this.acceptConfirmDialog();
@@ -413,7 +413,7 @@ QUnit.test('creme.billing.hatmenubar.convert (fail)', function(assert) {
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertOpenedAlertDialog('Unable to convert this quote');
     this.closeDialog();
@@ -435,7 +435,7 @@ QUnit.test('creme.billing.hatmenubar.convert (ok)', function(assert) {
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     this.assertClosedDialog();
 
@@ -595,7 +595,7 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     deepEqual([
         ['GET', {}]
@@ -640,7 +640,7 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document (with redir
         ]
     });
 
-    $(widget.element).find('a.menu_button').click();
+    $(widget.element).find('a.menu_button').trigger('click');
 
     deepEqual([
         ['GET', {"redirection": "true"}]

@@ -201,7 +201,7 @@ QUnit.test('creme.search.SearchBox.search (click outside => close popover)', fun
     equal(1, element.find('.inline-search-results.showing').length);
     equal(1, $('.glasspane').length);
 
-    $('.glasspane').click();
+    $('.glasspane').trigger('click');
 
     equal(false, search.isOpened());
     equal(0, element.find('.inline-search-results.showing').length);

@@ -370,7 +370,7 @@ QUnit.test('creme.widget.EntitySelector.select (single)', function(assert) {
     deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
     deepEqual([], this.mockListenerJQueryCalls('change'));
 
-    $('button', element).click();
+    $('button', element).trigger('click');
 
     var dialog = this.assertOpenedListViewDialog();
     var list = dialog.find('.ui-creme-listview').list_view('instance');
@@ -406,7 +406,7 @@ QUnit.test('creme.widget.EntitySelector.select (single, filtered)', function(ass
     deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
     deepEqual([], this.mockListenerJQueryCalls('change'));
 
-    $('button', element).click();
+    $('button', element).trigger('click');
 
     var dialog = this.assertOpenedListViewDialog();
     var list = dialog.find('.ui-creme-listview').list_view('instance');
@@ -441,7 +441,7 @@ QUnit.test('creme.widget.EntitySelector.select (multiple)', function(assert) {
     deepEqual([], this.mockListenerJQueryCalls('change-multiple'));
     deepEqual([], this.mockListenerJQueryCalls('change'));
 
-    $('button', element).click();
+    $('button', element).trigger('click');
 
     var dialog = this.assertOpenedListViewDialog();
     var list = dialog.find('.ui-creme-listview').list_view('instance');
@@ -477,7 +477,7 @@ QUnit.test('creme.widget.EntitySelector.select (cancel)', function(assert) {
     deepEqual([], this.mockListenerCalls('change-multiple'));
     deepEqual([], this.mockListenerJQueryCalls('change'));
 
-    $('button', element).click();
+    $('button', element).trigger('click');
 
     var dialog = this.assertOpenedListViewDialog();
     var list = dialog.find('.ui-creme-listview').list_view('instance');

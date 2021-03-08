@@ -340,7 +340,7 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular)', function(assert) {
     deepEqual({}, widget.underlays);
 
     // unselect 'email'
-    element.find('.selector_list .selector[data-column="regular_field-email"] > label').click();
+    element.find('.selector_list .selector[data-column="regular_field-email"] > label').trigger('click');
 
     equal('regular_field-lastname', widget.store.val());
     deepEqual([
@@ -348,7 +348,7 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular)', function(assert) {
     ], widget.columns);
 
     // select 'firstname'
-    element.find('.selector_list .selector[data-column="regular_field-firstname"] > label').click();
+    element.find('.selector_list .selector[data-column="regular_field-firstname"] > label').trigger('click');
 
     equal('regular_field-lastname,regular_field-firstname', widget.store.val());
     deepEqual([
@@ -411,7 +411,7 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular, open underlay)', funct
     deepEqual({}, widget.underlays);
 
     // open underlay
-    element.find('.selector_list > .selector[data-column="regular_field-billing_address"] .sub_selector_toggle').click();
+    element.find('.selector_list > .selector[data-column="regular_field-billing_address"] .sub_selector_toggle').trigger('click');
 
     // new underlay added to cache
     equal(1, element.find('.selector_list > .underlay[data-column="regular_field-billing_address"]').length, 'underlay shown');
@@ -637,7 +637,7 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.preview (remove all columns)', f
 
     deepEqual({}, widget.underlays);
 
-    element.find('.remove_all_columns').click();
+    element.find('.remove_all_columns').trigger('click');
 
     equal('', widget.store.val());
     equal(gettext('Preview'), element.find('.preview_title').text());
@@ -689,7 +689,7 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.preview (remove column)', functi
     deepEqual({}, widget.underlays);
 
     // unselect 'email' column
-    element.find('.preview th[data-column="regular_field-email"] .preview_column_toggle').click();
+    element.find('.preview th[data-column="regular_field-email"] .preview_column_toggle').trigger('click');
 
     equal('regular_field-lastname,regular_field-billing_address__name', widget.store.val());
     equal(gettext('Preview and order of the %s columns').format(2), element.find('.preview_title').text());
@@ -700,7 +700,7 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.preview (remove column)', functi
     ], widget.columns);
 
     // unselect 'billing address name' column
-    element.find('.preview th[data-column="regular_field-billing_address__name"] .preview_column_toggle').click();
+    element.find('.preview th[data-column="regular_field-billing_address__name"] .preview_column_toggle').trigger('click');
     equal(gettext('Preview of the column'), element.find('.preview_title').text());
 
     deepEqual([

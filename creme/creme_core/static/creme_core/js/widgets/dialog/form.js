@@ -187,7 +187,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     _onSubmitKey: function(e) {
         if (e.keyCode === this._submitKey && $(e.target).is(':not(textarea)')) {
             e.preventDefault();
-            this.button('send').click();
+            this.button('send').trigger('click');
         }
     },
 

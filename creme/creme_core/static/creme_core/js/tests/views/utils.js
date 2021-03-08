@@ -133,8 +133,8 @@ QUnit.test('creme.utils.clickOnce', function(assert) {
     equal(false, normal.is('.clickonce'));
     this.assertMockInlineHtmlEventCalls([]);
 
-    once.click();
-    normal.click();
+    once.trigger('click');
+    normal.trigger('click');
 
     equal(true, once.is('.clickonce'));
     equal(false, normal.is('.clickonce'));
@@ -143,8 +143,8 @@ QUnit.test('creme.utils.clickOnce', function(assert) {
         ['normal call', 13]
     ]);
 
-    once.click();
-    normal.click();
+    once.trigger('click');
+    normal.trigger('click');
 
     equal(true, once.is('.clickonce'));
     equal(false, normal.is('.clickonce'));

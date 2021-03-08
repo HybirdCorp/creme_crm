@@ -7,7 +7,7 @@
 {% block test_header %}
     <script type="text/javascript">
         $(document).ready(function() {
-            $('button#test-blocklist-refresh').click(function() {
+            $('button#test-blocklist-refresh').on('click', function() {
                 var options = creme.tests.context;
                 window.location = options.view +
                                   '?theme=' + options.theme +

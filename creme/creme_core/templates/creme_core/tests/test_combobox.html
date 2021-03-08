@@ -36,7 +36,7 @@
         }
 
         $(document).ready(function() {
-            $('button.random-model').click(function() {
+            $('button.random-model').on('click', function() {
                 var options = random_options(Math.random());
                 $('select.ui-creme-dselect.random-model').each(function() {
                     $(this).creme().widget().model().reset(options);

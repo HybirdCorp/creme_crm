@@ -71,11 +71,11 @@
                 $('.ui-creme-widget.ui-creme-chainedselect').creme().widget().val({start: 1, duration: 12, graphtype: 'donut'});
             });
 
-            $('button#redraw-plot').click(function() {
+            $('button#redraw-plot').on('click', function() {
                 $('#barplot.widget-ready').creme().widget().reload({start: 1, duration: 12}, undefined, undefined, true);
             });
 
-            $('button#reset-plot').click(function() {
+            $('button#reset-plot').on('click', function() {
                 $('#barplot.widget-ready').creme().widget().reset();
             });
         });

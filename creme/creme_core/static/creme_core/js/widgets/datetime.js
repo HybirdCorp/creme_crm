@@ -70,7 +70,7 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
                                   .attr('type', 'button')
                                   .html(gettext(label));
 
-        button.click(function(e) {
+        button.on('click', function(e) {
             e.preventDefault();
             datepicker.datepicker('setDate', getter(datepicker.datepicker('getDate')));
         });

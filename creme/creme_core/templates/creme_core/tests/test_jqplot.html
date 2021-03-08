@@ -58,7 +58,7 @@
         });
 
         $(document).ready(function() {
-            $('button#redraw-bargraph').click(function() {
+            $('button#redraw-bargraph').on('click', function() {
                 if ($('div#barplot').creme().isActive() === false) {
                     $('div#barplot').creme().create();
                 } else {
@@ -68,7 +68,7 @@
 
             $('div#barplot').resizable();
 
-            $('button#redraw-plot').click(function() {
+            $('button#redraw-plot').on('click', function() {
                 $('div#plot').creme().widget().draw($('textarea#plot-content').val());
             });
 

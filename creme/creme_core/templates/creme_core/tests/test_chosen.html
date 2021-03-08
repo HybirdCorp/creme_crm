@@ -60,7 +60,7 @@
                 $(this).creme().create({backend: mockbackend});
             });
 
-            $('button#test-reload-button').click(function() {
+            $('button#test-reload-button').on('click', function() {
                 $('#reloadable-select').creme().widget().reload({});
             });
         });

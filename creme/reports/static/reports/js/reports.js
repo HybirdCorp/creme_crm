@@ -171,8 +171,8 @@ creme.reports.PreviewController = creme.component.Component.sub({
         var header = this._header = $('.report-preview-header', element);
 
         $('select[name="date_field"]', header).change(listeners.update);
-        $('button[name="generate"]', header).click(listeners.redirect);
-        $('button[name="download"]', header).click(listeners.download);
+        $('button[name="generate"]', header).on('click', listeners.redirect);
+        $('button[name="download"]', header).on('click', listeners.download);
 
         this._updateHeader();
         return this;
@@ -242,7 +242,7 @@ creme.reports.ChartController = creme.component.Component.sub({
             choices = choices.map(function(choice) {
                 var value = choice[0], label = choice[1];
 
-                return $('<a class="popover-list-item" title="%s" alt="%s">%s</a>'.format(label, label, label)).click(function(e) {
+                return $('<a class="popover-list-item" title="%s" alt="%s">%s</a>'.format(label, label, label)).on('click', function(e) {
                     e.preventDefault();
                     popover.close(value);
                 });
@@ -264,13 +264,13 @@ creme.reports.ChartController = creme.component.Component.sub({
         chartPopover.fill(popoverContent(chartPopover, properties.charts, state.chart));
         sortPopover.fill(popoverContent(sortPopover, properties.sorts, state.sort));
 
-        $('.graph-controls-type .graph-control-value', element).click(function(e) {
+        $('.graph-controls-type .graph-control-value', element).on('click', function(e) {
             e.stopPropagation();
             chartPopover.fill(popoverContent(chartPopover, properties.charts, state.chart))
                         .toggle(this);
         });
 
-        $('.graph-controls-sort .graph-control-value', element).click(function(e) {
+        $('.graph-controls-sort .graph-control-value', element).on('click', function(e) {
             e.stopPropagation();
             sortPopover.fill(popoverContent(sortPopover, properties.sorts, state.sort))
                        .toggle(this);
