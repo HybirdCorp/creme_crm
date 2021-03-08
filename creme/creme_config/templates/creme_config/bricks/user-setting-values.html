@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} creme_config-user-settings-brick{% if not values_per_app %} is-empty{% endif %}{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Setting value') plural=_('{count} Setting values') empty=_('Setting values') icon='config' count=count %}
+    {% brick_header_title title=_('{count} Setting value') plural=_('{count} Setting values') empty=verbose_name icon='config' count=count %}
 {% endblock %}
 
 {% block brick_content %}

@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} graphs-root-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Root node') plural=_('{count} Root nodes') empty=_('Root nodes') icon='graph' %}
+    {% brick_header_title title=_('{count} Root node') plural=_('{count} Root nodes') empty=verbose_name icon='graph' %}
 {% endblock %}
 
 {% block brick_header_actions %}

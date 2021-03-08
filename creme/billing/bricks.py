@@ -178,8 +178,8 @@ class TotalBrick(Brick):
         CreditNote, Quote, Invoice, SalesOrder, TemplateBase,
     )
     relation_type_deps = (constants.REL_OBJ_CREDIT_NOTE_APPLIED,)
-    verbose_name = _('Total')
-    template_name = 'billing/bricks/total.html'
+    verbose_name = _('Totals')
+    template_name = 'billing/bricks/total.html'  # TODO: totals.html ?
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
     def detailview_display(self, context):
@@ -358,7 +358,7 @@ class BillingPrettyAddressBrick(persons_bricks.PrettyAddressesBrick):
 
 class BillingExportersBrick(Brick):
     id_ = Brick.generate_id('billing', 'exporters')
-    verbose_name = 'Billing exporters'
+    verbose_name = _('Exporters')
     template_name = 'billing/bricks/exporters.html'
     dependencies = (ExporterConfigItem,)
     configurable = False

@@ -88,8 +88,8 @@ class ProjectTasksBrick(QuerysetBrick):
 
 class TaskResourcesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('projects', 'resources')
-    dependencies = (Resource,)
     verbose_name = _('Resources assigned to a task')
+    dependencies = (Resource,)
     template_name = 'projects/bricks/resources.html'
     target_ctypes = (ProjectTask,)
     order_by = 'linked_contact__last_name'
@@ -104,9 +104,9 @@ class TaskResourcesBrick(QuerysetBrick):
 
 class TaskActivitiesBrick(PaginatedBrick):
     id_ = QuerysetBrick.generate_id('projects', 'task_activities')
+    verbose_name = _('Activities for a task')
     dependencies = (Activity, Resource, Relation)
     relation_type_deps = (REL_OBJ_LINKED_2_PTASK, )
-    verbose_name = _('Activities for this task')
     template_name = 'projects/bricks/activities.html'
     target_ctypes = (ProjectTask,)
 

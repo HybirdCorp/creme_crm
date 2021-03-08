@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} billing-received-invoices-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Received invoice') plural=_('{count} Received invoices') empty=_('Invoices') icon='invoice' %}
+    {% brick_header_title title=_('{count} Received invoice') plural=_('{count} Received invoices') empty=verbose_name icon='invoice' %}
 {% endblock %}
 
 {% block brick_header_actions %}

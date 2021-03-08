@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} creme_core-my-jobs-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('My job') plural=_('My jobs ({count})') empty=_('My jobs') %}
+    {% brick_header_title title=_('My job') plural=_('My jobs ({count})') empty=verbose_name %}
 {% endblock %}
 
 {% block brick_table_columns %}

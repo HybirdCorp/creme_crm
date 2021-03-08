@@ -471,8 +471,8 @@ if apps.is_installed('creme.activities'):
     class NeglectedOrganisationsBrick(PaginatedBrick):
         """Customers/prospects organisations that have no Activity in the future."""
         id_ = PaginatedBrick.generate_id('persons', 'neglected_orgas')
-        dependencies = (Activity,)
         verbose_name = _('Neglected organisations')
+        dependencies = (Activity,)
         template_name = 'persons/bricks/neglected-organisations.html'
 
         _RTYPE_IDS_CUSTOMERS = (

@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} creme_core-relations-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Relationship') plural=_('{count} Relationships') empty=_('Relationships') icon='relations' %}
+    {% brick_header_title title=_('{count} Relationship') plural=_('{count} Relationships') empty=verbose_name icon='relations' %}
 {% endblock %}
 
 {% block brick_header_actions %}

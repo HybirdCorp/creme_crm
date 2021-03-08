@@ -7,7 +7,7 @@
 
 {% block brick_header_title %}
     {% if job.is_finished %}
-    {% brick_header_title title=_('{count} Error') plural=_('{count} Errors') empty=_('Errors') %}
+    {% brick_header_title title=_('{count} Error') plural=_('{count} Errors') empty=verbose_name %}
     {% else %}
     {% brick_header_title title=_('Errors [job is not finished yet]') %}
     {% endif %}

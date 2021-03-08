@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,9 +43,9 @@ class PollFormBarHatBrick(SimpleBrick):
 
 
 class PollFormLinesBrick(Brick):
-    id_           = Brick.generate_id('polls', 'pollform_lines')
-    dependencies  = (PollFormLine,)
-    verbose_name  = _('Form lines')
+    id_ = Brick.generate_id('polls', 'pollform_lines')
+    verbose_name = _('Form lines')
+    dependencies = (PollFormLine,)
     template_name = 'polls/bricks/pform-lines.html'
     target_ctypes = (PollForm,)
 
@@ -101,9 +101,9 @@ class PollFormLinesBrick(Brick):
 
 
 class PollReplyLinesBrick(Brick):
-    id_           = Brick.generate_id('polls', 'pollreply_lines')
-    dependencies  = (PollReplyLine,)
-    verbose_name  = _('Reply lines')
+    id_ = Brick.generate_id('polls', 'pollreply_lines')
+    verbose_name = _('Reply lines')
+    dependencies = (PollReplyLine,)
     template_name = 'polls/bricks/preply-lines.html'
     target_ctypes = (PollReply,)
 
@@ -122,11 +122,11 @@ class PollReplyLinesBrick(Brick):
 
 class PollRepliesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('polls', 'poll_replies')
+    verbose_name = _('Form replies')
 
     # PollFormLine : the 'New' button appears only if there is at least one line.
     dependencies = (PollReply, PollFormLine)
 
-    verbose_name  = _('Form replies')
     template_name = 'polls/bricks/preplies.html'
     target_ctypes = (PollForm,)
 
@@ -159,7 +159,7 @@ class _RelatedRepliesBrick(QuerysetBrick):
 
 
 class PersonPollRepliesBrick(_RelatedRepliesBrick):
-    id_           = _RelatedRepliesBrick.generate_id('polls', 'person_replies')
+    id_ = _RelatedRepliesBrick.generate_id('polls', 'person_replies')
     template_name = 'polls/bricks/person-preplies.html'
     target_ctypes = (persons.get_contact_model(), persons.get_organisation_model())
 
@@ -168,9 +168,9 @@ class PersonPollRepliesBrick(_RelatedRepliesBrick):
 
 
 class PollCampaignRepliesBrick(_RelatedRepliesBrick):
-    id_           = _RelatedRepliesBrick.generate_id('polls', 'pcampaign_replies')
+    id_ = _RelatedRepliesBrick.generate_id('polls', 'pcampaign_replies')
     # PollCampaign: expected_count can be edited
-    dependencies  = (*_RelatedRepliesBrick.dependencies, PollCampaign)
+    dependencies = (*_RelatedRepliesBrick.dependencies, PollCampaign)
     template_name = 'polls/bricks/campaign-preplies.html'
     target_ctypes = (PollCampaign,)
 

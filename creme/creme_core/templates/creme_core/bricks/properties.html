@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} creme_core-properties-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Property') plural=_('{count} Properties') empty=_('Properties') icon='property' %}
+    {% brick_header_title title=_('{count} Property') plural=_('{count} Properties') empty=verbose_name icon='property' %}
 {% endblock %}
 
 {% block brick_header_actions %}

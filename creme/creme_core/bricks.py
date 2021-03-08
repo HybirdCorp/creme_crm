@@ -47,9 +47,9 @@ logger = logging.getLogger(__name__)
 
 
 class PropertiesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'properties')
-    dependencies  = (CremeProperty,)
-    verbose_name  = _('Properties')
+    id_ = QuerysetBrick.generate_id('creme_core', 'properties')
+    dependencies = (CremeProperty,)
+    verbose_name = _('Properties')
     template_name = 'creme_core/bricks/properties.html'
     order_by = 'type__text'  # TODO: in model ??
 
@@ -62,6 +62,7 @@ class PropertiesBrick(QuerysetBrick):
 
 class RelationsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('creme_core', 'relations')
+    verbose_name = _('Relationships')
 
     # NB: indeed (Relation, CremeEntity) but useless because
     # _iter_dependencies_info() has been overridden.
@@ -69,7 +70,6 @@ class RelationsBrick(QuerysetBrick):
 
     relation_type_deps = ()  # Voluntarily void -> see detailview_display()
     order_by = 'type__predicate'
-    verbose_name = _('Relationships')
     template_name = 'creme_core/bricks/relations.html'
 
     def __init__(self):
@@ -155,9 +155,9 @@ class RelationsBrick(QuerysetBrick):
 
 
 class CustomFieldsBrick(Brick):
-    id_           = Brick.generate_id('creme_core', 'customfields')
-    dependencies  = (CustomField,)
-    verbose_name  = _('Custom fields')
+    id_ = Brick.generate_id('creme_core', 'customfields')
+    verbose_name = _('Custom fields')
+    dependencies = (CustomField,)
     template_name = 'creme_core/bricks/custom-fields.html'
 
     def detailview_display(self, context):
@@ -174,11 +174,11 @@ class CustomFieldsBrick(Brick):
 
 
 class HistoryBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'history')
-    dependencies  = '*'
-    read_only     = True
-    order_by      = '-id'  # faster than '-date'
-    verbose_name  = _('History')
+    id_ = QuerysetBrick.generate_id('creme_core', 'history')
+    verbose_name = _('History')
+    dependencies = '*'
+    read_only = True
+    order_by = '-id'  # faster than '-date'
     template_name = 'creme_core/bricks/history.html'
 
     # TODO: factorise (see assistants.bricks) ??
@@ -242,11 +242,11 @@ class HistoryBrick(QuerysetBrick):
 
 
 class ImprintsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'imprints')
-    dependencies  = (Imprint,)
-    read_only     = True
-    order_by      = '-id'  # faster than '-date'
-    verbose_name  = _('History of consultation')
+    id_ = QuerysetBrick.generate_id('creme_core', 'imprints')
+    verbose_name = _('History of consultation')
+    dependencies = (Imprint,)
+    read_only = True
+    order_by = '-id'  # faster than '-date'
     template_name = 'creme_core/bricks/imprints.html'
 
     def detailview_display(self, context):
@@ -273,14 +273,14 @@ class ImprintsBrick(QuerysetBrick):
 
 
 class TrashBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'trash')
-    dependencies  = (CremeEntity,)
-    order_by      = '-modified'
-    verbose_name  = _('Trash')
+    id_ = QuerysetBrick.generate_id('creme_core', 'trash')
+    verbose_name = _('Trash')
+    dependencies = (CremeEntity,)
+    order_by = '-modified'
     template_name = 'creme_core/bricks/trash.html'
-    page_size     = 50
-    permission    = None  # NB: the template uses credentials
-    configurable  = False  # TODO: allows on home page ?
+    page_size = 50
+    permission = None  # NB: the template uses credentials
+    configurable = False  # TODO: allows on home page ?
 
     def detailview_display(self, context):
         btc = self.get_template_context(
@@ -293,8 +293,8 @@ class TrashBrick(QuerysetBrick):
 
 
 class StatisticsBrick(Brick):
-    id_           = Brick.generate_id('creme_core', 'statistics')
-    verbose_name  = _('Statistics')
+    id_ = Brick.generate_id('creme_core', 'statistics')
+    verbose_name = _('Statistics')
     template_name = 'creme_core/bricks/statistics.html'
 
     statistics_registry = statistics.statistics_registry
@@ -313,11 +313,11 @@ class StatisticsBrick(Brick):
 
 
 class JobBrick(Brick):
-    id_           = Brick.generate_id('creme_core', 'job')
-    dependencies  = (Job,)
-    verbose_name  = 'Job'
+    id_ = Brick.generate_id('creme_core', 'job')
+    dependencies = (Job,)
+    verbose_name = _('Job')
     template_name = 'creme_core/bricks/job.html'
-    configurable  = False
+    configurable = False
 
     @QuerysetBrick.reloading_info.setter
     def reloading_info(self, info):
@@ -356,13 +356,13 @@ class JobBrick(Brick):
 
 
 class JobResultsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'job_results')
-    dependencies  = (JobResult,)
-    order_by      = 'id'
-    verbose_name  = 'Job results'
+    id_ = QuerysetBrick.generate_id('creme_core', 'job_results')
+    verbose_name = _('Results')
+    dependencies = (JobResult,)
+    order_by = 'id'
     template_name = 'creme_core/bricks/job-results.html'
-    configurable  = False
-    page_size     = 50
+    configurable = False
+    page_size = 50
 
     def _build_queryset(self, job):
         return self.dependencies[0].objects.filter(job=job)
@@ -380,8 +380,8 @@ class JobResultsBrick(QuerysetBrick):
 
 
 class JobErrorsBrick(JobResultsBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'job_errors')
-    verbose_name  = 'Job errors'
+    id_ = QuerysetBrick.generate_id('creme_core', 'job_errors')
+    verbose_name = _('Errors')
     template_name = 'creme_core/bricks/job-errors.html'
 
     def _build_queryset(self, job):
@@ -392,28 +392,28 @@ class JobErrorsBrick(JobResultsBrick):
 
 
 class EntityJobErrorsBrick(JobErrorsBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'entity_job_errors')
-    dependencies  = (EntityJobResult,)
-    verbose_name  = 'Entity job errors'
+    id_ = QuerysetBrick.generate_id('creme_core', 'entity_job_errors')
+    # verbose_name = 'Entity job errors'
+    dependencies = (EntityJobResult,)
     template_name = 'creme_core/bricks/entity-job-errors.html'
 
 
 class MassImportJobErrorsBrick(JobErrorsBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'mass_import_job_errors')
-    dependencies  = (MassImportJobResult,)
-    verbose_name  = 'Mass import job errors'
+    id_ = QuerysetBrick.generate_id('creme_core', 'mass_import_job_errors')
+    # verbose_name  = 'Mass import job errors'
+    dependencies = (MassImportJobResult,)
     template_name = 'creme_core/bricks/massimport-errors.html'
 
 
 class JobsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'jobs')
-    dependencies  = (Job,)
-    # order_by      = '-created'
-    verbose_name  = 'Jobs'
+    id_ = QuerysetBrick.generate_id('creme_core', 'jobs')
+    verbose_name = _('Jobs')
+    dependencies = (Job,)
+    # order_by = '-created'
     template_name = 'creme_core/bricks/jobs-all.html'
-    configurable  = False
-    page_size     = 50
-    permission    = None
+    configurable = False
+    page_size = 50
+    permission = None
 
     def _jobs_qs(self, context):
         return Job.objects.all()
@@ -429,8 +429,8 @@ class JobsBrick(QuerysetBrick):
 
 
 class MyJobsBrick(JobsBrick):
-    id_           = QuerysetBrick.generate_id('creme_core', 'my_jobs')
-    verbose_name  = 'My jobs'
+    id_ = QuerysetBrick.generate_id('creme_core', 'my_jobs')
+    verbose_name = _('My jobs')
     template_name = 'creme_core/bricks/jobs-mine.html'
 
     def _jobs_qs(self, context):

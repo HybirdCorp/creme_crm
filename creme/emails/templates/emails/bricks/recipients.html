@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} emails-recipients-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Unlinked recipient') plural=_('{count} Unlinked recipients') empty=_('Unlinked recipients') icon='info' %}
+    {% brick_header_title title=_('{count} Unlinked recipient') plural=_('{count} Unlinked recipients') empty=verbose_name icon='info' %}
 {% endblock %}
 
 {% block brick_header_actions %}

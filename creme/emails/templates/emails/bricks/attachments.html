@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} emails-attachments-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Attachment') plural=_('{count} Attachments') empty=_('Attachments') icon='document' %}
+    {% brick_header_title title=_('{count} Attachment') plural=_('{count} Attachments') empty=verbose_name icon='document' %}
 {% endblock %}
 
 {% block brick_header_actions %}

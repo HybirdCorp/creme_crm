@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} documents-linked-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Linked document') plural=_('{count} Linked documents') empty=_('Linked documents') icon='document' %}
+    {% brick_header_title title=_('{count} Linked document') plural=_('{count} Linked documents') empty=verbose_name icon='document' %}
 {% endblock %}
 
 {% block brick_header_actions %}

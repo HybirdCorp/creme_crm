@@ -3,10 +3,6 @@
 
 {% block brick_extra_class %}{{block.super}} commercial-matrix-brick commercial-assets-matrix-brick{% endblock %}
 
-{% block brick_header_title %}
-    {% brick_header_title title=_('Assets / Segments matrix') %}
-{% endblock %}
-
 {% block brick_content %}
 <table class="brick-table-content asset-matrix">
     {% if segment_info and assets %}

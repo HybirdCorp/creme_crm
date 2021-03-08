@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} commercial-segments-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Market segment') plural=_('{count} Market segments') empty=_('Market segments') %}
+    {% brick_header_title title=_('{count} Market segment') plural=_('{count} Market segments') empty=verbose_name %}
 {% endblock %}
 
 {% block brick_header_actions %}{% url 'commercial__create_segment' as create_url %}

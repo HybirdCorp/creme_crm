@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,21 +45,21 @@ class _RelatedEntitesBrick(QuerysetBrick):
 
 
 class MessagingListsBlock(_RelatedEntitesBrick):
-    id_           = QuerysetBrick.generate_id('sms', 'messaging_lists')
-    dependencies  = (MessagingList,)
-    verbose_name  = _('Messaging lists')
+    id_ = QuerysetBrick.generate_id('sms', 'messaging_lists')
+    verbose_name = _('Messaging lists')
+    dependencies = (MessagingList,)
     template_name = 'sms/bricks/messaging-lists.html'
     target_ctypes = (SMSCampaign,)
-    order_by      = 'name'
+    order_by = 'name'
 
     def _get_queryset(self, entity):  # NB: entity=campaign
         return entity.lists.all()
 
 
 class RecipientsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('sms', 'recipients')
-    dependencies  = (Recipient,)
-    verbose_name  = _('Unlinked recipients')
+    id_ = QuerysetBrick.generate_id('sms', 'recipients')
+    verbose_name = _('Unlinked recipients')
+    dependencies = (Recipient,)
     template_name = 'sms/bricks/recipients.html'
     target_ctypes = (MessagingList,)
 
@@ -72,9 +72,9 @@ class RecipientsBrick(QuerysetBrick):
 
 
 class ContactsBrick(_RelatedEntitesBrick):
-    id_           = QuerysetBrick.generate_id('sms', 'contacts')
-    dependencies  = (get_contact_model(),)
-    verbose_name  = _('Contacts recipients')
+    id_ = QuerysetBrick.generate_id('sms', 'contacts')
+    verbose_name = _('Contacts recipients')
+    dependencies = (get_contact_model(),)
     template_name = 'sms/bricks/contacts.html'
     target_ctypes = (MessagingList,)
 
@@ -89,12 +89,12 @@ class ContactsBrick(_RelatedEntitesBrick):
 
 
 class MessagesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('sms', 'messages')
-    dependencies  = (Message,)
+    id_ = QuerysetBrick.generate_id('sms', 'messages')
+    verbose_name = _('Sent messages')
+    dependencies = (Message,)
     order_by = 'id'
-    # page_size     = 12
-    page_size     = QuerysetBrick.page_size * 3
-    verbose_name  = _('Sent messages')
+    # page_size = 12
+    page_size = QuerysetBrick.page_size * 3
     template_name = 'sms/bricks/messages.html'
 
     def detailview_display(self, context):
@@ -103,10 +103,10 @@ class MessagesBrick(QuerysetBrick):
 
 
 class SendingsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('sms', 'sendings')
-    dependencies  = (Sending,)
-    order_by      = '-date'
-    verbose_name  = _('Sendings')
+    id_ = QuerysetBrick.generate_id('sms', 'sendings')
+    verbose_name = _('Sendings')
+    dependencies = (Sending,)
+    order_by = '-date'
     template_name = 'sms/bricks/sendings.html'
     target_ctypes = (SMSCampaign,)
 

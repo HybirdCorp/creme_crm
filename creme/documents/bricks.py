@@ -53,8 +53,8 @@ class DocumentBrick(EntityBrick):
 
 class FolderDocsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('documents', 'folder_docs')
+    verbose_name = _('Contained documents')
     dependencies = (Document,)
-    verbose_name = _('Folder documents')
     template_name = 'documents/bricks/documents.html'
     target_ctypes = (Folder,)
     order_by = 'title'

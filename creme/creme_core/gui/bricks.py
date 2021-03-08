@@ -118,6 +118,10 @@ class Brick:
     # id_ = None
     id_: str = ''
 
+    # Human-readable name used as default title, or in the configuration GUI.
+    # Tips: use gettext_lazy()
+    verbose_name: str = 'BLOCK'
+
     # List of the models on which the brick depends (ie: generally the brick
     # displays instances of these models) ; it also can be the '*' string,
     # which is a wildcard meaning 'All models used in the page'.
@@ -139,14 +143,10 @@ class Brick:
     template_name: str = 'OVERLOAD_ME.html'  # Used to render the brick of course
     context_class = _BrickContext  # Class of the instance which stores the context in the session.
 
-    # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS (ie: in creme_config) ---------------
+    # ATTRIBUTES USED ONLY BY THE CONFIGURATION GUI FOR THE BRICKS (ie: in creme_config) ----------
     # True means that the Brick appears in the configuration IHM
     # (ie: it appears on classical detail-views/portals)
     configurable: bool = True
-
-    # Name used in the configuration GUI (so you should override it,
-    # excepted if <configurable = False>).
-    verbose_name: str = 'BLOCK'
 
     # Sequence of classes inheriting CremeEntity which can have this
     # type of brick on their detail-views.
@@ -155,7 +155,7 @@ class Brick:
     #    # Available for detail-views of Contact & Organisation
     #    target_ctypes = (Contact, Organisation)
     target_ctypes: Sequence[Type[CremeEntity]] = ()
-    # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS [END] -------------------------------
+    # ATTRIBUTES USED BY THE CONFIGURATION [END] --------------------------------------------------
 
     # Some reloading views (see 'creme_core.views.bricks.BricksReloading') check
     # permission to avoid information leaking. It's a classical permission
@@ -214,6 +214,7 @@ class Brick:
                                 brick_context: _BrickContext,
                                 **extra_kwargs) -> dict:
         context['brick_id'] = brick_id
+        context['verbose_name'] = self.verbose_name
         context['state'] = BricksManager.get(context).get_state(self.id_, context['user'])
         context['dependencies'] = [*self._iter_dependencies_info()]
         context['reloading_info'] = self._reloading_info
@@ -468,9 +469,9 @@ class EntityBrick(Brick):
 
 
 class SpecificRelationsBrick(QuerysetBrick):
-    dependencies  = (Relation,)  # NB: (Relation, CremeEntity) but useless
-    order_by      = 'type'
-    verbose_name  = _('Relationships')
+    dependencies = (Relation,)  # NB: (Relation, CremeEntity) but useless
+    verbose_name = _('Relationships')
+    order_by = 'type'
     template_name = 'creme_core/bricks/specific-relations.html'
 
     def __init__(self, relationbrick_item: RelationBrickItem):

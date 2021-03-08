@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} documents-child-folders-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Child Folder') plural=_('{count} Child Folders') empty=_('Child folders') icon='document' %}
+    {% brick_header_title title=_('{count} Child Folder') plural=_('{count} Child Folders') empty=verbose_name icon='document' %}
 {% endblock %}
 
 {% block brick_header_actions %}

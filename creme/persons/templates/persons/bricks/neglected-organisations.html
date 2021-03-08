@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} persons-neglected-organisations-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Neglected organisation') plural=_('{count} Neglected organisations') empty=_('Neglected organisations') icon='organisation' %}
+    {% brick_header_title title=_('{count} Neglected organisation') plural=_('{count} Neglected organisations') empty=verbose_name icon='organisation' %}
 {% endblock %}
 
 {% block brick_table_rows %}

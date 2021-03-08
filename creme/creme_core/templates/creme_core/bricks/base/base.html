@@ -17,7 +17,7 @@
             {% endblock %}
         </div>
         <div class="brick-title-container">
-            {% block brick_header_title %}{% endblock %}
+            {% block brick_header_title %}{% brick_header_title title=verbose_name %}{% endblock %}
         </div>
         <div class="brick-header-buttons">
             {% block brick_header_actions %}{% endblock %}

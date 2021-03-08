@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,12 +51,12 @@ class GraphBarHatBrick(Brick):
 
 
 class RootNodesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('graphs', 'root_nodes')
-    dependencies  = (RootNode,)
-    verbose_name  = _('Roots nodes of a graph')
+    id_ = QuerysetBrick.generate_id('graphs', 'root_nodes')
+    verbose_name = _('Root nodes')
+    dependencies = (RootNode,)
     template_name = 'graphs/bricks/root-nodes.html'
     target_ctypes = (get_graph_model(),)
-    order_by      = 'entity__header_filter_search_field'
+    order_by = 'entity__header_filter_search_field'
 
     def detailview_display(self, context):
         graph = context['object']
@@ -67,9 +67,9 @@ class RootNodesBrick(QuerysetBrick):
 
 
 class OrbitalRelationTypesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('graphs', 'orbital_rtypes')
-    dependencies  = (RootNode,)
-    verbose_name  = _('Peripheral types of relation of a graph')
+    id_ = QuerysetBrick.generate_id('graphs', 'orbital_rtypes')
+    verbose_name = _('Peripheral types of relationship')
+    dependencies = (RootNode,)
     template_name = 'graphs/bricks/orbital-rtypes.html'
     target_ctypes = (get_graph_model(),)
 

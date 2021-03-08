@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} activities-participants-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Participant') plural=_('{count} Participants') empty=_('Participants') %}
+    {% brick_header_title title=_('{count} Participant') plural=_('{count} Participants') empty=verbose_name %}
 {% endblock %}
 
 {% block brick_header_actions %}

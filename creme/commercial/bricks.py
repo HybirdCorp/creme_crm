@@ -107,9 +107,9 @@ class ApproachesBrick(QuerysetBrick):
 
 class SegmentsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('commercial', 'segments')
+    verbose_name = _('Market segments')
     dependencies = (MarketSegment,)
     order_by = 'name'
-    verbose_name = 'Market segments'
     template_name = 'commercial/bricks/segments.html'
     configurable = False
     permission = 'commercial'  # NB: used by the view creme_core.views.blocks.reload_basic
@@ -184,7 +184,7 @@ class EvaluatedOrgasBrick(QuerysetBrick):
 class AssetsMatrixBrick(Brick):
     id_ = Brick.generate_id('commercial', 'assets_matrix')
     # dependencies  = (CommercialAsset,) #useless (custom reload view....)
-    verbose_name = 'Assets / segments matrix'
+    verbose_name = _('Assets / Segments matrix')
     template_name = 'commercial/bricks/assets-matrix.html'
     configurable = False
 
@@ -204,7 +204,7 @@ class AssetsMatrixBrick(Brick):
 class CharmsMatrixBrick(Brick):
     id_ = Brick.generate_id('commercial', 'charms_matrix')
     # dependencies = (MarketSegmentCharm,) #useless (custom reload view....)
-    verbose_name = 'Charms / segments matrix'
+    verbose_name = _('Charms / Segments matrix')
     template_name = 'commercial/bricks/charms-matrix.html'
     configurable = False
 
@@ -224,7 +224,7 @@ class CharmsMatrixBrick(Brick):
 class AssetsCharmsMatrixBrick(Brick):
     id_ = Brick.generate_id('commercial', 'assets_charms_matrix')
     # dependencies = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
-    verbose_name = 'Assets / Charms segments matrix'
+    verbose_name = _('Assets / Charms matrix')
     template_name = 'commercial/bricks/assets-charms-matrix.html'
     configurable = False
 

@@ -23,7 +23,8 @@ from operator import or_
 from typing import Sequence, Type
 
 from django.db.models.query_utils import Q
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from creme import activities, persons
 from creme.creme_core.core.exceptions import ConflictError
@@ -41,11 +42,11 @@ Activity = activities.get_activity_model()
 
 
 class CallersBrick(PaginatedBrick):
-    id_           = PaginatedBrick.generate_id('cti', 'callers')
-    verbose_name  = 'Potential callers'
+    id_ = PaginatedBrick.generate_id('cti', 'callers')
+    verbose_name = _('Potential callers')
     template_name = 'cti/bricks/callers.html'
-    configurable  = False
-    page_size     = 128
+    configurable = False
+    page_size = 128
 
     caller_models: Sequence[Type[CremeEntity]] = (
         Contact,
@@ -79,7 +80,7 @@ class CallersBrick(PaginatedBrick):
 
         if all_fields_hidden:
             raise ConflictError(
-                _('All phone fields are hidden ; please contact your administrator.')
+                gettext('All phone fields are hidden ; please contact your administrator.')
             )
 
         can_create = user.has_perm_to_create

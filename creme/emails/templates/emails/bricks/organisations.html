@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} emails-organisations-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Organisation recipient') plural=_('{count} Organisations recipients') empty=_('Organisations recipients') icon='organisation' %}
+    {% brick_header_title title=_('{count} Organisation recipient') plural=_('{count} Organisations recipients') empty=verbose_name icon='organisation' %}
 {% endblock %}
 
 {% block brick_header_actions %}

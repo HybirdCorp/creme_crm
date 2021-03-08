@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} assistants-actions-ontime-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Action on time') plural=_('{count} Actions on time') empty=_('Actions') icon='action' %}
+    {% brick_header_title title=_('{count} Action on time') plural=_('{count} Actions on time') empty=verbose_name icon='action' %}
 {% endblock %}
 
 {% block brick_header_actions %}

@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} creme_config-custombricks-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Custom block') plural=_('{count} Custom blocks') empty=_('Custom blocks') icon='config' %}
+    {% brick_header_title title=_('{count} Custom block') plural=_('{count} Custom blocks') empty=verbose_name icon='config' %}
 {% endblock %}
 
 {% block brick_header_actions %}

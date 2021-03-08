@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} emails-signatures-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('My signature ({count})') plural=_('My signatures ({count})') empty=_('My signatures') icon='email' %}
+    {% brick_header_title title=_('My signature ({count})') plural=_('My signatures ({count})') empty=verbose_name icon='email' %}
 {% endblock %}
 
 {% block brick_header_actions %}

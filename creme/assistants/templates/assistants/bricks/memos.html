@@ -4,7 +4,7 @@
 {% block brick_extra_class %}{{block.super}} assistants-memos-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Memo') plural=_('{count} Memos') empty=_('Memos') icon='memo' %}
+    {% brick_header_title title=_('{count} Memo') plural=_('{count} Memos') empty=verbose_name icon='memo' %}
 {% endblock %}
 
 {% block brick_header_actions %}
