@@ -300,7 +300,7 @@ $.extend(creme.widget, {
 
         excludes = excludes || [];
 
-        if ($.isArray(excludes)) {
+        if (Array.isArray(excludes)) {
             for (index in excludes) {
                 if (attributes[excludes[index]] !== undefined) {
                     delete attributes[excludes[index]];
@@ -314,7 +314,7 @@ $.extend(creme.widget, {
             }
         }
 
-        // console.log('parseattr > attributes:', attributes, ', excludes:', $.isArray(excludes) ? excludes : Object.keys(excludes));
+        // console.log('parseattr > attributes:', attributes, ', excludes:', Array.isArray(excludes) ? excludes : Object.keys(excludes));
         return attributes;
     },
 
@@ -379,7 +379,7 @@ $.extend(creme.widget, {
 
         values = creme.widget.parseval(data, parser);
         values = (values === null) ? '' : values;
-        values = (!$.isArray(values)) ? [values] : values;
+        values = (!Array.isArray(values)) ? [values] : values;
 
         elements.each(function(index, element) {
             var value = (index < values.length) ? values[index] : '';
