@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-16 10:17+0100\n"
+"POT-Creation-Date: 2021-03-10 10:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -36,14 +36,23 @@ msgstr "Outils"
 msgid "Information on the document"
 msgstr "Informations sur le document"
 
-msgid "Folder documents"
-msgstr "Documents du classeur"
+msgid "Contained documents"
+msgstr "Documents contenus"
+
+msgid "Displays the documents contained by the current Folder."
+msgstr "Affiche les Documents contenus dans le Classeur courant"
 
 msgid "Child Folders"
 msgstr "Classeurs enfants"
 
 msgid "Linked documents"
 msgstr "Documents liés"
+
+msgid ""
+"Allows to add Documents, linked with relationships «related to the document»."
+msgstr ""
+"Permet d'ajouter des Documents, reliés avec des relations «concerne le "
+"document»."
 
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
@@ -213,9 +222,6 @@ msgstr "{count} Classeur enfant"
 msgid "{count} Child Folders"
 msgstr "{count} Classeurs enfants"
 
-msgid "Child folders"
-msgstr "Classeurs enfants"
-
 msgid "Create a child folder"
 msgstr "Créer un classeur enfant"
 
@@ -229,9 +235,6 @@ msgstr "{count} Document contenu"
 #, python-brace-format
 msgid "{count} Contained documents"
 msgstr "{count} Documents contenus"
-
-msgid "Contained documents"
-msgstr "Documents contenus"
 
 msgid "List of documents"
 msgstr "Liste des documents"
@@ -286,6 +289,12 @@ msgstr "Liste des sous-dossiers pour «{parent}»"
 
 msgid "Save the image"
 msgstr "Enregistrer l'image"
+
+#~ msgid "Folder documents"
+#~ msgstr "Documents du classeur"
+
+#~ msgid "Child folders"
+#~ msgstr "Classeurs enfants"
 
 #~ msgid "Portal of documents"
 #~ msgstr "Portail des documents"

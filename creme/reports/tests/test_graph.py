@@ -2829,8 +2829,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         brick = item.brick
         self.assertIsInstance(brick, ReportGraphBrick)
-        self.assertEqual(title, brick.verbose_name)
         self.assertEqual(item,  brick.config_item)
+        self.assertEqual(title, brick.verbose_name)
+        self.assertEqual(
+            _(
+                'This block displays the graph «{graph}», contained by the report «{report}».'
+            ).format(graph=rgraph.name, report=rgraph.linked_report.name),
+            brick.description,
+        )
 
         # ----------------------------------------------------------------------
         response = self.assertPOST200(

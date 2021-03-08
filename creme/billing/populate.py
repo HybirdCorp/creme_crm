@@ -126,7 +126,7 @@ class Populator(BasePopulator):
             ),
             (
                 constants.REL_OBJ_CREDIT_NOTE_APPLIED,
-                _('used the credit note'),
+                _('uses the credit note'),
                 [Quote, SalesOrder, Invoice],
             ),
             is_internal=True,

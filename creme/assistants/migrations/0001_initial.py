@@ -97,7 +97,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
-                ('is_ok', models.BooleanField(default=False, verbose_name='Done ?', editable=False)),
+                ('is_ok', models.BooleanField(default=False, verbose_name='Done?', editable=False)),
                 ('reminded', models.BooleanField(default=False, editable=False, verbose_name='Notification sent')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('creation_date', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),

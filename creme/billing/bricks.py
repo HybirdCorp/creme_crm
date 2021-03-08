@@ -147,11 +147,15 @@ class ServiceLinesBrick(_LinesBrick):
 
 class CreditNotesBrick(PaginatedBrick):
     id_ = PaginatedBrick.generate_id('billing', 'credit_notes')
+    verbose_name = _('Related Credit Notes')
+    description = _(
+        'Displays the Credit Notes linked to the current entity with a relationship '
+        '«is used in the billing document»/«uses the credit note».'
+    )
     dependencies = (Relation, CreditNote)
     relation_type_deps = (constants.REL_OBJ_CREDIT_NOTE_APPLIED, )
-    verbose_name = _('Related Credit Notes')
     template_name = 'billing/bricks/credit-notes.html'
-    target_ctypes = (Invoice, SalesOrder, Quote,)
+    target_ctypes = (Invoice, SalesOrder, Quote)
 
     def detailview_display(self, context):
         billing_document = context['object']
@@ -242,9 +246,10 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
             context,
-            model.objects.filter(relations__object_entity=person_id,
-                                 relations__type=constants.REL_SUB_BILL_RECEIVED,
-                                ),
+            model.objects.filter(
+                relations__object_entity=person_id,
+                relations__type=constants.REL_SUB_BILL_RECEIVED,
+            ),
             title=self._title,
             title_plural=self._title_plural,
             empty_title=self._empty_title,
@@ -298,6 +303,10 @@ class ReceivedCreditNotesBrick(_ReceivedBillingDocumentsBrick):
 class PaymentInformationBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('billing', 'payment_information')
     verbose_name = _('Payment information')
+    description = _(
+        'Allows to add bank information (bank code, IBAN…) for an Organisation.'
+    )
+    dependencies = (PaymentInformation,)
     template_name = 'billing/bricks/orga-payment-information.html'
     target_ctypes = (Organisation, )
     order_by = 'name'
@@ -318,6 +327,10 @@ class PaymentInformationBrick(QuerysetBrick):
 class BillingPaymentInformationBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('billing', 'billing_payment_information')
     verbose_name = _('Default payment information')
+    description = _(
+        'Displays bank information (bank code, IBAN…) of the source '
+        'Organisation used for the current billing entity.'
+    )
     template_name = 'billing/bricks/billing-payment-information.html'
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     dependencies = (Relation, PaymentInformation)
@@ -388,6 +401,12 @@ class BillingExportersBrick(Brick):
 class PersonsStatisticsBrick(Brick):
     id_ = Brick.generate_id('billing', 'persons__statistics')
     verbose_name = _('Billing statistics')
+    description = _(
+        'Displays some statistics concerning Invoices & Quotes:\n'
+        '- Total won Quotes last year\n'
+        '- Total won Quotes this year\n'
+        '- Total pending payment'
+    )
     template_name = 'billing/bricks/persons-statistics.html'
     target_ctypes = (Organisation, Contact)
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-16 10:17+0100\n"
+"POT-Creation-Date: 2021-03-10 10:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -56,11 +56,18 @@ msgstr "Lignes service"
 msgid "Related Credit Notes"
 msgstr "Avoirs relatifs"
 
+msgid ""
+"Displays the Credit Notes linked to the current entity with a relationship "
+"«is used in the billing document»/«uses the credit note»."
+msgstr ""
+"Affivhe les Avoirs reliés à al fiche courante avec une relation«est consommé "
+"dans le document comptable»/«consomme l'avoir»."
+
 msgid "Create a credit note"
 msgstr "Créer un avoir"
 
-msgid "Total"
-msgstr "Total"
+msgid "Totals"
+msgstr "Totaux"
 
 msgid "Target and source"
 msgstr "Cible et source"
@@ -127,11 +134,37 @@ msgstr "Aucun avoir reçu pour le moment"
 msgid "Payment information"
 msgstr "Informations de paiement"
 
+msgid "Allows to add bank information (bank code, IBAN…) for an Organisation."
+msgstr ""
+"Permet d'ajouter des informations bancaires (code banque, IBAN…) pour une "
+"Société."
+
 msgid "Default payment information"
 msgstr "Information de paiement par défaut"
 
+msgid ""
+"Displays bank information (bank code, IBAN…) of the source Organisation used "
+"for the current billing entity."
+msgstr ""
+"Affiche les informations bancaires (code banque, IBAN…) de la Société "
+"émettrice utilisées pour la fiche de facturation courante."
+
+msgid "Exporters"
+msgstr "Exporteurs"
+
 msgid "Billing statistics"
 msgstr "Statistiques de facturation"
+
+msgid ""
+"Displays some statistics concerning Invoices & Quotes:\n"
+"- Total won Quotes last year\n"
+"- Total won Quotes this year\n"
+"- Total pending payment"
+msgstr ""
+"Affiche des statistiques concernant les Factures & Devis :\n"
+"- Total des Devis remportés l'année dernière\n"
+"- Total des Devis remportés cette année\n"
+"- Total des paiements en attente\n"
 
 msgid ""
 "This button generates the number for the current invoice.\n"
@@ -388,13 +421,13 @@ msgstr ""
 msgid "Error: «Acceptation date» is hidden"
 msgstr "Erreur: «Date d'acceptation» est caché"
 
-msgid "Total Pending Payment"
+msgid "Total pending payment"
 msgstr "Total des paiements en attente"
 
-msgid "Total Won Quote This Year"
+msgid "Total won quotes this year"
 msgstr "Total des Devis remportés cette année"
 
-msgid "Total Won Quote Last Year"
+msgid "Total won Quotes last Year"
 msgstr "Total des Devis remportés l'année dernière"
 
 msgid "Organisation"
@@ -764,7 +797,7 @@ msgstr "est le produit/service associé"
 msgid "is used in the billing document"
 msgstr "est consommé dans le document comptable"
 
-msgid "used the credit note"
+msgid "uses the credit note"
 msgstr "consomme l'avoir"
 
 msgid "Deposit"
@@ -1053,9 +1086,6 @@ msgstr "Délier cet avoir"
 msgid "No related credit note for the moment"
 msgstr "Aucun avoir consommé pour le moment"
 
-msgid "Exporters"
-msgstr "Exporteurs"
-
 msgid "Type"
 msgstr "Type"
 
@@ -1089,6 +1119,12 @@ msgstr "Est le compte par défaut"
 
 msgid "Edit these information"
 msgstr "Modifier ces informations"
+
+msgid "Total won Quotes last year"
+msgstr "Total des Devis remportés l'année dernière"
+
+msgid "Total won Quotes this year"
+msgstr "Total des Devis remportés cette année"
 
 #, python-brace-format
 msgid "{count} Product"
@@ -1132,9 +1168,6 @@ msgstr "Aucun service dans ce document"
 msgctxt "billing"
 msgid "Target contact"
 msgstr "Contact récepteur"
-
-msgid "Totals"
-msgstr "Totaux"
 
 #, python-format
 msgid "Errors on the line <strong>«%(item)s»:</strong>"
@@ -1215,6 +1248,9 @@ msgstr "Créer un devis pour «{entity}»"
 msgid "Create a salesorder for «{entity}»"
 msgstr "Créer un bon de commande pour «{entity}»"
 
+#~ msgid "Total"
+#~ msgstr "Total"
+
 #~ msgid "Amount"
 #~ msgstr "Montant"
 
@@ -1281,9 +1317,6 @@ msgstr "Créer un bon de commande pour «{entity}»"
 
 #~ msgid "%s Payments information"
 #~ msgstr "%s Informations de paiement"
-
-#~ msgid "Add a payment information (no source organisation)"
-#~ msgstr "Ajouter une information de paiement (aucune société émettrice)"
 
 #~ msgid ""
 #~ "The field «Payment information» is hidden ; in order to use this block, "

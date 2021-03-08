@@ -54,6 +54,7 @@ class DocumentBrick(EntityBrick):
 class FolderDocsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('documents', 'folder_docs')
     verbose_name = _('Contained documents')
+    description = _('Displays the documents contained by the current Folder.')
     dependencies = (Document,)
     template_name = 'documents/bricks/documents.html'
     target_ctypes = (Folder,)
@@ -73,9 +74,9 @@ class FolderDocsBrick(QuerysetBrick):
 
 class ChildFoldersBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('documents', 'child_folders')
+    verbose_name = _('Child Folders')
     dependencies = (Folder,)
     order_by = 'title'
-    verbose_name = _('Child Folders')
     template_name = 'documents/bricks/child-folders.html'
     target_ctypes = (Folder,)
 
@@ -91,9 +92,13 @@ class ChildFoldersBrick(QuerysetBrick):
 
 class LinkedDocsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('documents', 'linked_docs')
+    verbose_name = _('Linked documents')
+    description = _(
+        'Allows to add Documents, linked with relationships '
+        '«related to the document».'
+    )
     dependencies = (Relation, Document)
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
-    verbose_name = _('Linked documents')
     template_name = 'documents/bricks/linked-docs.html'
     order_by = 'id'  # For consistent ordering between 2 queries (for pages)
 

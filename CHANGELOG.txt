@@ -9,6 +9,7 @@
   Users side :
   ------------
     # The version of Django has been upgraded to "3.1".
+    # Many blocks got descriptions, which are displayed as tool-tips.
 
 
   Developers side :

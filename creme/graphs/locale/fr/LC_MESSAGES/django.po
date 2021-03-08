@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Graphs 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-16 10:17+0100\n"
+"POT-Creation-Date: 2021-03-10 10:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -22,11 +22,11 @@ msgstr "Graphes"
 msgid "Analysis"
 msgstr "Analyse"
 
-msgid "Roots nodes of a graph"
-msgstr "Nœuds racines d'un graphe"
+msgid "Root nodes"
+msgstr "Nœuds racines"
 
-msgid "Peripheral types of relation of a graph"
-msgstr "Types de relation périphériques d'un graphe"
+msgid "Peripheral types of relationship"
+msgstr "Types de relations périphériques"
 
 msgctxt "graphs"
 msgid "Creation form for graph"
@@ -95,9 +95,6 @@ msgstr "{count} Type de relation périphérique"
 msgid "{count} Peripheral types of relationship"
 msgstr "{count} Types de relation périphériques"
 
-msgid "Peripheral types of relationship"
-msgstr "Types de relations périphériques"
-
 msgid "Add some types of relationship"
 msgstr "Ajouter des types de relation"
 
@@ -120,9 +117,6 @@ msgstr "{count} Nœud racine"
 #, python-brace-format
 msgid "{count} Root nodes"
 msgstr "{count} Nœuds racines"
-
-msgid "Root nodes"
-msgstr "Nœuds racines"
 
 msgid "Add some entities"
 msgstr "Ajouter des fiches"
@@ -169,6 +163,12 @@ msgstr "Ajouter des nœuds racines à «{entity}»"
 #, python-brace-format
 msgid "Edit root node for «{entity}»"
 msgstr "Modifier le nœud racine pour «{entity}»"
+
+#~ msgid "Roots nodes of a graph"
+#~ msgstr "Nœuds racines d'un graphe"
+
+#~ msgid "Peripheral types of relation of a graph"
+#~ msgstr "Types de relation périphériques d'un graphe"
 
 #~ msgid "Graphs portal"
 #~ msgstr "Portail Graphes"

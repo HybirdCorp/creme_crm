@@ -796,7 +796,7 @@ else:
 
     class FakeTodo(CremeModel):
         title = models.CharField(_('Title'), max_length=200)
-        # is_ok = models.BooleanField(_('Done ?'), editable=False, default=False)
+        # is_ok = models.BooleanField(_('Done?'), editable=False, default=False)
         # reminded = models.BooleanField(_('Notification sent'), editable=False, default=False)
         description = models.TextField(_('Description'), blank=True)
         # creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)

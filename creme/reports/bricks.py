@@ -20,6 +20,7 @@
 
 from collections import Counter
 
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme import reports
@@ -109,8 +110,9 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
     def __init__(self, instance_brick_config_item):
         super().__init__(instance_brick_config_item)
         get_data = instance_brick_config_item.get_extra_data
+        graph = instance_brick_config_item.entity.get_real_entity()
         self.fetcher = fetcher = ReportGraph.fetcher_registry.get(
-            graph=instance_brick_config_item.entity.get_real_entity(),
+            graph=graph,
             fetcher_dict={
                 key: get_data(key)
                 for key in GraphFetcher.DICT_KEYS
@@ -123,6 +125,9 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
             if fetcher_vname else
             str(fetcher.graph)
         )
+        self.description = gettext(
+            'This block displays the graph «{graph}», contained by the report «{report}».'
+        ).format(graph=graph, report=graph.linked_report)
 
         error = fetcher.error
         self.errors = [error] if error else None

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-16 10:17+0100\n"
+"POT-Creation-Date: 2021-03-10 10:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -39,6 +39,17 @@ msgstr "Listes de diffusion d'e-mails"
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
+msgid ""
+"Allows to add simple email addresses to the current Mailing list. These "
+"addresses are not related to a Contact or an Organisation.\n"
+"Hint: if you want to send emails to Contacts/Organisations, you should use "
+"the other blocks to add recipients."
+msgstr ""
+"Permet d'ajouter des simples adresses e-mail à la Liste de Diffusion. Ces "
+"adresses ne sont pas relatives à des Contacts ou Sociétés.\n"
+"Astuce : si vous voulez envoyer des e-mails à des Contacts/Sociétés, vous "
+"devriez utiliser les autres blocs pour ajouter des destinataires."
+
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
@@ -57,11 +68,38 @@ msgstr "Fichiers attachés"
 msgid "Sendings"
 msgstr "Envois"
 
+msgid "Information"
+msgstr "Informations"
+
 msgid "Emails history"
 msgstr "Historique des e-mails"
 
+msgid ""
+"Displays the Emails linked to the current entity with a relationship «sent "
+"the email», «received the email» or «related to the email». Allows you to "
+"send emails too."
+msgstr ""
+"Affiche les E-Mails reliée à la fiche courante avec une relation «a envoyé "
+"l'e-mail»,  «a reçu l'e-mail» ou «relatif à l'e-mail». Permet aussi "
+"d'envoyer des e-mails."
+
 msgid "Campaigns emails history"
 msgstr "Historique des e-mails des campagnes"
+
+msgid ""
+"Displays the emails (sent from Campaigns) received by the current entity."
+msgstr ""
+"Affiche les e-mails (envoyés depuis des Campagnes) reçus par la fiche "
+"courante."
+
+msgid "My signatures"
+msgstr "Mes signatures"
+
+msgid "Incoming emails to treat"
+msgstr "E-mails entrants à traiter"
+
+msgid "Spam"
+msgstr "Spam"
 
 msgid "Link this email to"
 msgstr "Relier cet e-mail à"
@@ -521,6 +559,7 @@ msgstr "Vue de Patron d'e-mail"
 msgid "Email view"
 msgstr "Vue d'E-mail"
 
+# Already in creme_core
 msgid "Description"
 msgstr ""
 
@@ -789,9 +828,6 @@ msgstr "Supprimer ce destinataire"
 msgid "No unlinked recipient for the moment"
 msgstr "Aucun destinataire pour le moment"
 
-msgid "Information"
-msgstr "Informations"
-
 #, python-brace-format
 msgid "{count} Sending"
 msgstr "{count} Envoi"
@@ -832,9 +868,6 @@ msgstr "Ma signature ({count})"
 msgid "My signatures ({count})"
 msgstr "Ma signature ({count})"
 
-msgid "My signatures"
-msgstr "Mes signatures"
-
 msgctxt "emails"
 msgid "New signature"
 msgstr "Nouvelle signature"
@@ -865,9 +898,6 @@ msgstr "{count} E-mail entrant marqué comme spam"
 #, python-brace-format
 msgid "{count} Incoming emails marked as spam"
 msgstr "{count} E-mails entrants marqués comme spam"
-
-msgid "Spam"
-msgstr "Spam"
 
 msgid "Mark the selection as «to be treated»"
 msgstr "Marquer la sélection comme «à traiter»"

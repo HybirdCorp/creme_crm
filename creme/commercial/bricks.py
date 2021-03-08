@@ -52,10 +52,11 @@ Strategy = commercial.get_strategy_model()
 
 class ApproachesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('commercial', 'approaches')
+    verbose_name = _('Commercial approaches')
+    # description = TODO
     dependencies = (CommercialApproach,)
     # order_by = 'title'
     order_by = '-creation_date'
-    verbose_name = _('Commercial approaches')
     template_name = 'commercial/bricks/approaches.html'
 
     # TODO: factorise with assistants blocks (CremeEntity method ??)
@@ -122,8 +123,8 @@ class SegmentsBrick(QuerysetBrick):
 
 class SegmentDescriptionsBrick(PaginatedBrick):
     id_ = QuerysetBrick.generate_id('commercial', 'segment_info')
-    dependencies = (MarketSegment,)  # MarketSegmentDescription ??
     verbose_name = _('Market segment descriptions')
+    dependencies = (MarketSegment,)  # MarketSegmentDescription ??
     template_name = 'commercial/bricks/segments-info.html'
     target_ctypes = (Strategy,)
 
@@ -137,9 +138,9 @@ class SegmentDescriptionsBrick(PaginatedBrick):
 
 class AssetsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('commercial', 'assets')
+    verbose_name = _('Commercial assets')
     dependencies = (CommercialAsset,)
     order_by = 'name'
-    verbose_name = _('Commercial assets')
     template_name = 'commercial/bricks/assets.html'
     target_ctypes = (Strategy,)
 
@@ -152,9 +153,9 @@ class AssetsBrick(QuerysetBrick):
 
 class CharmsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('commercial', 'charms')
+    verbose_name = _('Segment charms')
     dependencies = (MarketSegmentCharm,)
     order_by = 'name'
-    verbose_name = _('Segment charms')
     template_name = 'commercial/bricks/charms.html'
     target_ctypes = (Strategy,)
 
@@ -167,9 +168,9 @@ class CharmsBrick(QuerysetBrick):
 
 class EvaluatedOrgasBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('commercial', 'evaluated_orgas')
+    verbose_name = _('Evaluated organisations')
     dependencies = (MarketSegmentCharm,)
     order_by = 'name'
-    verbose_name = _('Evaluated organisations')
     template_name = 'commercial/bricks/evaluated-organisations.html'
     target_ctypes = (Strategy,)
 
@@ -183,8 +184,8 @@ class EvaluatedOrgasBrick(QuerysetBrick):
 
 class AssetsMatrixBrick(Brick):
     id_ = Brick.generate_id('commercial', 'assets_matrix')
-    # dependencies  = (CommercialAsset,) #useless (custom reload view....)
     verbose_name = _('Assets / Segments matrix')
+    # dependencies  = (CommercialAsset,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-matrix.html'
     configurable = False
 
@@ -203,8 +204,8 @@ class AssetsMatrixBrick(Brick):
 
 class CharmsMatrixBrick(Brick):
     id_ = Brick.generate_id('commercial', 'charms_matrix')
-    # dependencies = (MarketSegmentCharm,) #useless (custom reload view....)
     verbose_name = _('Charms / Segments matrix')
+    # dependencies = (MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/charms-matrix.html'
     configurable = False
 
@@ -223,8 +224,8 @@ class CharmsMatrixBrick(Brick):
 
 class AssetsCharmsMatrixBrick(Brick):
     id_ = Brick.generate_id('commercial', 'assets_charms_matrix')
-    # dependencies = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
     verbose_name = _('Assets / Charms matrix')
+    # dependencies = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-charms-matrix.html'
     configurable = False
 
@@ -240,13 +241,13 @@ class AssetsCharmsMatrixBrick(Brick):
 
 class ActObjectivesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('commercial', 'objectives')
+    verbose_name = _('Objectives of a Commercial Action')
     # NB: would be cool to add the Relation dependency only if needed
     #     (ie: one of the listed objectives uses relationships), but
     #     modifying self.dependencies during the render is ugly.
     dependencies = (ActObjective, Relation)
     relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
     order_by = 'name'
-    verbose_name = _('Objectives of a Commercial Action')
     template_name = 'commercial/bricks/objectives.html'
     target_ctypes = (Act,)
 
@@ -263,9 +264,9 @@ class ActObjectivesBrick(QuerysetBrick):
 
 class RelatedOpportunitiesBrick(PaginatedBrick):
     id_ = PaginatedBrick.generate_id('commercial', 'opportunities')
+    verbose_name = _('Opportunities related to a Commercial Action')
     dependencies = (Relation, Opportunity)
     relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
-    verbose_name = _('Opportunities related to a Commercial Action')
     template_name = 'commercial/bricks/opportunities.html'
     target_ctypes = (Act,)
 
@@ -280,8 +281,8 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
 
 class PatternComponentsBrick(Brick):
     id_ = Brick.generate_id('commercial', 'pattern_components')
-    dependencies = (ActObjectivePatternComponent,)
     verbose_name = _('Components of an Objective Pattern')
+    dependencies = (ActObjectivePatternComponent,)
     template_name = 'commercial/bricks/components.html'
     target_ctypes = (ActObjectivePattern,)
 
