@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-18 18:16+0100\n"
+"POT-Creation-Date: 2021-03-10 10:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -46,17 +46,20 @@ msgstr "Rôles et droits"
 msgid "Users"
 msgstr "Utilisateurs"
 
-msgid "Property types configuration"
-msgstr "Configuration des types de propriété"
+msgid "Export & import configuration"
+msgstr "Exporter & importer la configuration"
 
-msgid "List of standard relation types"
-msgstr "Liste des types de relation standard"
+msgid "Types of property"
+msgstr "Types de propriété"
 
-msgid "Custom relation types configuration"
-msgstr "Configuration des types de relation personnalisés"
+msgid "Standard types of relation"
+msgstr "Types de relation standard"
 
-msgid "List of semi-fixed relation types"
-msgstr "Liste des types de relation semi-fixés"
+msgid "Custom types of relation"
+msgstr "Types de relation personnalisés"
+
+msgid "Semi-fixed types of relationship"
+msgstr "Types de relation semi-fixés"
 
 msgid "Missing required field: {}"
 msgstr "Champ obligatoire manquant : {}"
@@ -67,8 +70,32 @@ msgstr "Champ personnalisé obligatoire manquant : {}"
 msgid "Missing required special field: {}"
 msgstr "Champ spécial obligatoire manquant : {}"
 
+msgid "Teams"
+msgstr "Équipes"
+
 msgid "Superuser"
 msgstr "Super-utilisateur"
+
+msgid "Blocks on home"
+msgstr "Blocs sur l'accueil"
+
+msgid "Blocks on default «My page»"
+msgstr "Blocs sur «Ma page» par défaut"
+
+msgid "Blocks on «My page»"
+msgstr "Blocs sur «Ma page»"
+
+msgid "Instances' blocks"
+msgstr "Bloc d'instance"
+
+msgid "Custom blocks"
+msgstr "Blocs personnalisés"
+
+msgid "Roles"
+msgstr "Rôles"
+
+msgid "Setting values"
+msgstr "Valeurs de réglage"
 
 msgid "Default configuration"
 msgstr "Configuration par défaut"
@@ -654,9 +681,6 @@ msgstr "Nom de l'équipe"
 msgid "Choose a user to transfer to"
 msgstr "Choisissez un utilisateur auquel transférer"
 
-msgid "Teams"
-msgstr "Équipes"
-
 msgid "View"
 msgstr "Voir"
 
@@ -845,9 +869,6 @@ msgstr "{count} Accueil configuré"
 msgid "{count} Configured homes"
 msgstr "{count} Accueils configurés"
 
-msgid "Block on home"
-msgstr "Bloc sur l'accueil"
-
 msgid "Add a home configuration for a role"
 msgstr "Ajouter une configuration d'accueil pour un rôle"
 
@@ -875,9 +896,6 @@ msgstr "{count} Bloc sur «Ma page» par défaut"
 msgid "{count} Blocks on default «My page»"
 msgstr "{count} Blocs sur «Ma page» par défaut"
 
-msgid "Blocks on default «My page»"
-msgstr "Blocs sur «Ma page» par défaut"
-
 msgid "Edit blocks configuration"
 msgstr "Modifier la configuration de blocs"
 
@@ -891,9 +909,6 @@ msgstr "{count} Bloc sur «Ma page»"
 #, python-brace-format
 msgid "{count} Blocks on «My page»"
 msgstr "{count} Blocs sur «Ma page»"
-
-msgid "Blocks on «My page»"
-msgstr "Blocs sur «Ma page»"
 
 msgid "Edit the configuration"
 msgstr "Modifier la configuration"
@@ -1033,9 +1048,6 @@ msgstr "{count} Bloc personnalisé"
 msgid "{count} Custom blocks"
 msgstr "{count} Blocs personnalisés"
 
-msgid "Custom blocks"
-msgstr "Blocs personnalisés"
-
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
@@ -1094,9 +1106,6 @@ msgstr "{count} Bloc d'instance créé"
 msgid "{count} Instances' blocks created"
 msgstr "{count} Blocs d'instance créés"
 
-msgid "Instances' blocks"
-msgstr "Bloc d'instance"
-
 msgid "Can be displayed on"
 msgstr "Peut être affiché sur"
 
@@ -1125,9 +1134,6 @@ msgstr "{count} Type de propriété"
 #, python-brace-format
 msgid "{count} Types of property"
 msgstr "{count} Types de propriété"
-
-msgid "Types of property"
-msgstr "Types de propriété"
 
 msgid "New custom type of property"
 msgstr "Nouveau type de propriété personnalisé"
@@ -1271,9 +1277,6 @@ msgstr "{count} Type de relation semi-fixé"
 msgid "{count} Semi-fixed types of relationship"
 msgstr "{count} Types de relation semi-fixés"
 
-msgid "Semi-fixed types of relationship"
-msgstr "Types de relation semi-fixés"
-
 msgid "New semi-fixed type"
 msgstr "Nouveau type semi-fixé"
 
@@ -1293,9 +1296,6 @@ msgstr "{count} Valeur de réglage"
 #, python-brace-format
 msgid "{count} Setting values"
 msgstr "{count} Valeurs de réglage"
-
-msgid "Setting values"
-msgstr "Valeurs de réglage"
 
 msgid "Description"
 msgstr "Description"
@@ -1341,9 +1341,6 @@ msgstr "Supprimer cette équipe"
 
 msgid "No team for the moment"
 msgstr "Aucune équipe pour le moment"
-
-msgid "Export & import configuration"
-msgstr "Exporter & importer la configuration"
 
 msgid ""
 "Export the configuration (as a JSON file) & import it in another instance of "
@@ -1402,9 +1399,6 @@ msgstr "{count} Rôle"
 #, python-brace-format
 msgid "{count} Roles"
 msgstr "{count} Rôles"
-
-msgid "Roles"
-msgstr "Rôles"
 
 msgid "New role"
 msgstr "Nouveau rôle"
@@ -1859,6 +1853,18 @@ msgstr "Supprimer le rôle"
 
 msgid "A deletion process for a role already exists."
 msgstr "Il y a déjà un processus de suppression pour un rôle."
+
+#~ msgid "Property types configuration"
+#~ msgstr "Configuration des types de propriété"
+
+#~ msgid "List of standard relation types"
+#~ msgstr "Liste des types de relation standard"
+
+#~ msgid "Custom relation types configuration"
+#~ msgstr "Configuration des types de relation personnalisés"
+
+#~ msgid "List of semi-fixed relation types"
+#~ msgstr "Liste des types de relation semi-fixés"
 
 #~ msgid "Existing choices of the list"
 #~ msgstr "Choix existants de la liste"

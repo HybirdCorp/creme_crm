@@ -34,9 +34,11 @@ from .models import (
     LightWeightEmail,
 )
 
-Document      = documents.get_document_model()
-Contact       = persons.get_contact_model()
-Organisation  = persons.get_organisation_model()
+Document = documents.get_document_model()
+
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+
 EmailTemplate = emails.get_emailtemplate_model()
 EmailCampaign = emails.get_emailcampaign_model()
 EntityEmail   = emails.get_entityemail_model()
@@ -54,7 +56,7 @@ class _HTMLBodyBrick(Brick):
 
     def _get_body_url(self, instance):
         return reverse(
-            'creme_core__sanitized_html_field', args=(instance.id, 'body_html')
+            'creme_core__sanitized_html_field', args=(instance.id, 'body_html'),
         )
 
     def detailview_display(self, context):
@@ -91,7 +93,7 @@ class _RelatedEntitesBrick(QuerysetBrick):
     # verbose_name  = 'SET ME'
     # template_name = 'SET ME'
 
-    def _get_queryset(self, entity):  # OVERLOAD ME
+    def _get_queryset(self, entity):  # OVERRIDE ME
         raise NotImplementedError
 
     def _update_context(self, context):
@@ -106,20 +108,26 @@ class _RelatedEntitesBrick(QuerysetBrick):
 
 class MailingListsBrick(_RelatedEntitesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'mailing_lists')
-    dependencies = (MailingList,)
     verbose_name = _('Mailing lists')
+    dependencies = (MailingList,)
     template_name = 'emails/bricks/mailing-lists.html'
     target_ctypes = (EmailCampaign,)
     order_by = 'name'
 
-    def _get_queryset(self, entity):  # entity=campaign
+    def _get_queryset(self, entity):  # NB: entity==campaign
         return entity.mailing_lists.all()
 
 
 class EmailRecipientsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('emails', 'recipients')
-    dependencies = (EmailRecipient,)
     verbose_name = _('Unlinked recipients')
+    description = _(
+        'Allows to add simple email addresses to the current Mailing list. '
+        'These addresses are not related to a Contact or an Organisation.\n'
+        'Hint: if you want to send emails to Contacts/Organisations, you should '
+        'use the other blocks to add recipients.'
+    )
+    dependencies = (EmailRecipient,)
     template_name = 'emails/bricks/recipients.html'
     target_ctypes = (MailingList,)
 
@@ -133,12 +141,12 @@ class EmailRecipientsBrick(QuerysetBrick):
 
 class ContactsBrick(_RelatedEntitesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'contacts')
-    dependencies = (Contact,)
     verbose_name = _('Contacts recipients')
+    dependencies = (Contact,)
     template_name = 'emails/bricks/contacts.html'
     target_ctypes = (MailingList,)
 
-    def _get_queryset(self, entity):  # entity=mailing_list
+    def _get_queryset(self, entity):  # NB: entity==mailing_list
         return entity.contacts.select_related('civility')
 
     def _update_context(self, context):
@@ -149,12 +157,12 @@ class ContactsBrick(_RelatedEntitesBrick):
 
 class OrganisationsBrick(_RelatedEntitesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'organisations')
-    dependencies = (Organisation,)
     verbose_name = _('Organisations recipients')
+    dependencies = (Organisation,)
     template_name = 'emails/bricks/organisations.html'
     target_ctypes = (MailingList,)
 
-    def _get_queryset(self, entity):  # entity=mailing_list
+    def _get_queryset(self, entity):  # NB: entity==mailing_list
         return entity.organisations.all()
 
     def _update_context(self, context):
@@ -164,45 +172,45 @@ class OrganisationsBrick(_RelatedEntitesBrick):
 
 class ChildListsBrick(_RelatedEntitesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'child_lists')
-    dependencies = (MailingList,)
     verbose_name = _('Child mailing lists')
+    dependencies = (MailingList,)
     template_name = 'emails/bricks/child-lists.html'
     target_ctypes = (MailingList,)
     order_by = 'name'
 
-    def _get_queryset(self, entity):  # entity=mailing_list
+    def _get_queryset(self, entity):  # NB: entity==mailing_list
         return entity.children.all()
 
 
 class ParentListsBrick(_RelatedEntitesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'parent_lists')
-    dependencies = (MailingList,)
     verbose_name = _('Parent mailing lists')
+    dependencies = (MailingList,)
     template_name = 'emails/bricks/parent-lists.html'
     target_ctypes = (MailingList,)
     order_by = 'name'
 
-    def _get_queryset(self, entity):  # entity=mailing_list
+    def _get_queryset(self, entity):  # NB: entity==mailing_list
         return entity.parents_set.all()
 
 
 class AttachmentsBrick(_RelatedEntitesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'attachments')
-    dependencies = (Document,)
     verbose_name = _('Attachments')
+    dependencies = (Document,)
     template_name = 'emails/bricks/attachments.html'
     target_ctypes = (EmailTemplate,)
     order_by = 'title'
 
-    def _get_queryset(self, entity):  # entity=mailtemplate
+    def _get_queryset(self, entity):  # NB: entity==mailtemplate
         return entity.attachments.all()
 
 
 class SendingsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('emails', 'sendings')
+    verbose_name = _('Sendings')
     dependencies = (EmailSending,)
     order_by = '-sending_date'
-    verbose_name = _('Sendings')
     template_name = 'emails/bricks/sendings.html'
     target_ctypes = (EmailCampaign,)
 
@@ -217,19 +225,19 @@ class SendingsBrick(QuerysetBrick):
 
 class SendingBrick(SimpleBrick):
     id_ = SimpleBrick.generate_id('emails', 'sending')
-    dependencies = (EmailSending,)
     verbose_name = _('Information')
+    dependencies = (EmailSending,)
     template_name = 'emails/bricks/sending.html'
     configurable = False
 
 
 class MailsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('emails', 'mails')
+    verbose_name = 'Emails of a sending'
     dependencies = (LightWeightEmail,)
     order_by = 'id'
     # page_size = 12
     page_size = QuerysetBrick.page_size * 3
-    verbose_name = 'Emails of a sending'
     template_name = 'emails/bricks/lw-mails.html'
     configurable = False
 
@@ -248,9 +256,14 @@ class MailsBrick(QuerysetBrick):
 
 class MailsHistoryBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('emails', 'mails_history')
+    verbose_name = _('Emails history')
+    description = _(
+        'Displays the Emails linked to the current entity with a relationship '
+        '«sent the email», «received the email» or «related to the email». '
+        'Allows you to send emails too.'
+    )
     dependencies = (EntityEmail, Relation)
     order_by = '-sending_date'
-    verbose_name = _('Emails history')
     template_name = 'emails/bricks/mails-history.html'
     relation_type_deps = (
         constants.REL_OBJ_MAIL_SENDED,
@@ -280,26 +293,29 @@ class MailsHistoryBrick(QuerysetBrick):
 
 
 class MailPopupBrick(SimpleBrick):
-    id_  = QuerysetBrick.generate_id('emails', 'mail_popup')
+    id_ = QuerysetBrick.generate_id('emails', 'mail_popup')
+    verbose_name = 'Detail popup of e-mail'
     dependencies = (EntityEmail,)
-    verbose_name = 'Detail popup of Email'
     template_name = 'emails/bricks/mail-popup.html'
     configurable = False
 
 
 class LwMailPopupBrick(SimpleBrick):
     id_ = QuerysetBrick.generate_id('emails', 'lw_mail_popup')
+    verbose_name = 'Detail popup of LightWeight email'
     dependencies = (LightWeightEmail,)
-    verbose_name = 'Detail popup of LightWeight Email'
     template_name = 'emails/bricks/lw-mail-popup.html'
     configurable = False
 
 
 class LwMailsHistoryBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('emails', 'lw_mails_history')
+    verbose_name = _('Campaigns emails history')
+    description = _(
+        'Displays the emails (sent from Campaigns) received by the current entity.'
+    )
     dependencies = (LightWeightEmail,)
     order_by = '-sending_date'
-    verbose_name = _('Campaigns emails history')
     template_name = 'emails/bricks/lw-mails-history.html'
 
     def detailview_display(self, context):

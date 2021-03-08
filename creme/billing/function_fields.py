@@ -46,7 +46,7 @@ Quote   = billing.get_quote_model()
 
 
 class TemplateBaseVerboseStatusField(FunctionField):
-    name         = 'get_verbose_status'
+    name = 'get_verbose_status'
     verbose_name = _('Status')
 
     def __init__(self, *args, **kwargs):
@@ -232,8 +232,8 @@ class _BaseTotalFunctionField(FunctionField):
 # TODO: rename this class without '_' prefix ?
 # TODO: prefix name with 'billing' (need data migration)
 class _TotalPendingPayment(_BaseTotalFunctionField):
-    name         = 'total_pending_payment'
-    verbose_name = _('Total Pending Payment')
+    name = 'total_pending_payment'
+    verbose_name = _('Total pending payment')
 
     @classmethod
     def single_func(cls):
@@ -245,8 +245,8 @@ class _TotalPendingPayment(_BaseTotalFunctionField):
 
 
 class _TotalWonQuoteThisYear(_BaseTotalFunctionField):
-    name         = 'total_won_quote_this_year'
-    verbose_name = _('Total Won Quote This Year')
+    name = 'total_won_quote_this_year'
+    verbose_name = _('Total won quotes this year')
 
     @classmethod
     def single_func(cls):
@@ -258,8 +258,8 @@ class _TotalWonQuoteThisYear(_BaseTotalFunctionField):
 
 
 class _TotalWonQuoteLastYear(_BaseTotalFunctionField):
-    name         = 'total_won_quote_last_year'
-    verbose_name = _('Total Won Quote Last Year')
+    name = 'total_won_quote_last_year'
+    verbose_name = _('Total won Quotes last Year')
 
     @classmethod
     def single_func(cls):

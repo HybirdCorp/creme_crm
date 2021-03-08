@@ -198,6 +198,7 @@ class OrganisationBarHatBrick(SimpleBrick):
 
 class ContactCardHatBrick(Brick):
     id_ = SimpleBrick._generate_hat_id('persons', 'contact_card')
+    verbose_name = _('Card header block')
     dependencies = [
         Contact, Organisation, Relation,
         *Activities4Card.dependencies,
@@ -211,7 +212,6 @@ class ContactCardHatBrick(Brick):
         *Opportunities4Card.relation_type_deps,
         *CommercialActs4Card.relation_type_deps,
     ]
-    verbose_name = _('Card header block')
     template_name = 'persons/bricks/contact-hat-card.html'
 
     def detailview_display(self, context):
@@ -234,6 +234,7 @@ class ContactCardHatBrick(Brick):
 
 class OrganisationCardHatBrick(Brick):
     id_ = SimpleBrick._generate_hat_id('persons', 'organisation_card')
+    verbose_name = _('Card header block')
     dependencies = [
         Organisation, Contact, Address, Relation,
         *Activities4Card.dependencies,
@@ -241,13 +242,14 @@ class OrganisationCardHatBrick(Brick):
         *CommercialActs4Card.dependencies,
     ]
     relation_type_deps = [
-        constants.REL_OBJ_CUSTOMER_SUPPLIER, constants.REL_SUB_CUSTOMER_SUPPLIER,
-        constants.REL_OBJ_MANAGES, constants.REL_OBJ_EMPLOYED_BY,
+        constants.REL_OBJ_CUSTOMER_SUPPLIER,
+        constants.REL_SUB_CUSTOMER_SUPPLIER,
+        constants.REL_OBJ_MANAGES,
+        constants.REL_OBJ_EMPLOYED_BY,
         *Activities4Card.relation_type_deps,
         *Opportunities4Card.relation_type_deps,
         *CommercialActs4Card.relation_type_deps,
     ]
-    verbose_name = _('Card header block')
     template_name = 'persons/bricks/organisation-hat-card.html'
 
     def detailview_display(self, context):
@@ -287,9 +289,9 @@ class OrganisationCardHatBrick(Brick):
 
 class ManagersBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('persons', 'managers')
+    verbose_name = _('Organisation managers')
     dependencies = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_MANAGES, )
-    verbose_name = _('Organisation managers')
     template_name = 'persons/bricks/managers.html'
     target_ctypes = (Organisation,)
 
@@ -318,8 +320,8 @@ class ManagersBrick(QuerysetBrick):
 
 class EmployeesBrick(ManagersBrick):
     id_ = QuerysetBrick.generate_id('persons', 'employees')
-    relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
     verbose_name = _('Organisation employees')
+    relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
     template_name = 'persons/bricks/employees.html'
 
     def _get_people_qs(self, orga):
@@ -469,9 +471,16 @@ bricks_list: Tuple[Type[Brick], ...] = (
 
 if apps.is_installed('creme.activities'):
     class NeglectedOrganisationsBrick(PaginatedBrick):
-        """Customers/prospects organisations that have no Activity in the future."""
         id_ = PaginatedBrick.generate_id('persons', 'neglected_orgas')
         verbose_name = _('Neglected organisations')
+        description = _(
+            'Displays customers/prospects organisations (for the Organisations managed by Creme) '
+            'which have no Activity in the future. Expected Activities are related to:\n'
+            '- The Organisations with a relationship «is subject of the activity» or '
+            '«related to the activity»\n'
+            '- The managers & employees with a relationship «participates to the activity» '
+            '(plus the above ones)'
+        )
         dependencies = (Activity,)
         template_name = 'persons/bricks/neglected-organisations.html'
 

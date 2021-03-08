@@ -33,6 +33,9 @@ Organisation = persons.get_organisation_model()
 class FavoritePersonsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('mobile', 'favorite_persons')
     verbose_name = _('Favorite Contacts & Organisations (for mobile)')
+    description = _(
+        'Displays the users who marked the current entity as favorite in mobile views.'
+    )
     dependencies = (MobileFavorite,)
     template_name = 'mobile/bricks/favorite.html'
     target_ctypes = (Contact, Organisation)

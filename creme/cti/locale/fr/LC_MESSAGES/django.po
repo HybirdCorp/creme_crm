@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme CTI 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-16 10:17+0100\n"
+"POT-Creation-Date: 2021-03-10 10:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,6 +18,9 @@ msgstr ""
 
 msgid "Computer Telephony Integration"
 msgstr "Couplage Téléphonique Informatique"
+
+msgid "Potential callers"
+msgstr "Appelants possibles"
 
 msgid "All phone fields are hidden ; please contact your administrator."
 msgstr ""
@@ -31,9 +34,6 @@ msgstr "{count} Appelant possible"
 #, python-brace-format
 msgid "{count} Potential callers"
 msgstr "{count} Appelants possibles"
-
-msgid "Potential callers"
-msgstr "Appelants possibles"
 
 msgid "Entity"
 msgstr "Fiche"

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,14 +42,16 @@ class ActivityBarHatBrick(SimpleBrick):
 
 
 class ParticipantsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('activities', 'participants')
+    id_ = QuerysetBrick.generate_id('activities', 'participants')
+    verbose_name = _('Participants')
+
     # NB: Organisation is a hack in order to reload the SubjectsBlock when
     #     auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
-    dependencies  = (Relation, Contact, Calendar, Organisation)
+    dependencies = (Relation, Contact, Calendar, Organisation)
     relation_type_deps = (constants.REL_OBJ_PART_2_ACTIVITY,)
-    verbose_name  = _('Participants')
+
     template_name = 'activities//bricks/participants.html'
-    order_by      = 'id'  # For consistent ordering between 2 queries (for pages)
+    order_by = 'id'  # For consistent ordering between 2 queries (for pages)
 
     target_ctypes = (Activity, )
 
@@ -63,9 +65,9 @@ class ParticipantsBrick(QuerysetBrick):
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
         # TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
-        contacts = Contact.objects.filter(pk__in=[r.object_entity_id for r in relations]) \
-                                  .select_related('user', 'is_user', 'civility') \
-                                  .in_bulk()
+        contacts = Contact.objects.filter(
+            pk__in=[r.object_entity_id for r in relations],
+        ).select_related('user', 'is_user', 'civility').in_bulk()
 
         for relation in relations:
             relation.object_entity = contacts[relation.object_entity_id]
@@ -76,22 +78,25 @@ class ParticipantsBrick(QuerysetBrick):
             if contact.is_user_id
         }
 
-        for calendar in Calendar.objects.filter(user__in=users_contacts.keys(),
-                                                activity=activity.id,
-                                               ):
+        for calendar in Calendar.objects.filter(
+            user__in=users_contacts.keys(), activity=activity.id,
+        ):
             users_contacts[calendar.user_id].calendar_cache = calendar
 
         return self._render(btc)
 
 
 class SubjectsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('activities', 'subjects')
-    dependencies  = (Relation, Organisation)  # See ParticipantsBlock.dependencies
+    id_ = QuerysetBrick.generate_id('activities', 'subjects')
+    verbose_name = _('Subjects')
+
+    dependencies = (Relation, Organisation)  # See ParticipantsBlock.dependencies
     relation_type_deps = (constants.REL_OBJ_ACTIVITY_SUBJECT,)
-    verbose_name  = _('Subjects')
+
     template_name = 'activities/bricks/subjects.html'
+    order_by = 'id'  # For consistent ordering between 2 queries (for pages)
+
     target_ctypes = (Activity, )
-    order_by      = 'id'  # For consistent ordering between 2 queries (for pages)
 
     def detailview_display(self, context):
         activity = context['object']
@@ -107,14 +112,25 @@ class SubjectsBrick(QuerysetBrick):
 
 
 class FutureActivitiesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('activities', 'future_activities')
-    dependencies  = (Relation, Activity)
+    id_ = QuerysetBrick.generate_id('activities', 'future_activities')
+    verbose_name = _('Future activities')
+    description = _(
+        'Displays activities which:\n'
+        '- are linked to the current entity with a relationship «participates»,'
+        ' «is subject» or «related to the activity» (if the current entity is an'
+        ' Organisation, activities linked to managers & employees are displayed too)\n'
+        '- are ending in the future\n'
+        'Hint: the block uses the setting value «Display minutes information in activities blocks»'
+        ' which is configurable in the configuration of the app «Activities».'
+    )
+
+    dependencies = (Relation, Activity)
     relation_type_deps = (
         constants.REL_SUB_LINKED_2_ACTIVITY,
         constants.REL_SUB_ACTIVITY_SUBJECT,
         constants.REL_SUB_PART_2_ACTIVITY,
     )
-    verbose_name  = _('Future activities')
+
     template_name = 'activities/bricks/future-activities.html'
 
     _RTYPES_2_POP = (
@@ -174,8 +190,16 @@ class FutureActivitiesBrick(QuerysetBrick):
 
 
 class PastActivitiesBrick(FutureActivitiesBrick):
-    id_           = QuerysetBrick.generate_id('activities', 'past_activities')
-    verbose_name  = _('Past activities')
+    id_ = QuerysetBrick.generate_id('activities', 'past_activities')
+    verbose_name = _('Past activities')
+    description = _(
+        'Displays activities which:\n'
+        '- are linked to the current entity with a relationship «participates»,'
+        ' «is subject» or «related to the activity» (if the current entity is an'
+        ' Organisation, activities linked to managers & employees are displayed too)\n'
+        '- are ended\n'
+        'Hint: it is a block complementary with the block «Future activities».'
+    )
     template_name = 'activities/bricks/past-activities.html'
 
     def _get_queryset_for_entity(self, entity, context):
@@ -186,12 +210,12 @@ class PastActivitiesBrick(FutureActivitiesBrick):
 
 
 class UserCalendarsBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('activities', 'user_calendars')
-    dependencies  = (Calendar, )
-    verbose_name  = 'My calendars'
+    id_ = QuerysetBrick.generate_id('activities', 'user_calendars')
+    verbose_name = 'My calendars'
+    dependencies = (Calendar, )
     template_name = 'activities/bricks/user-calendars.html'
-    configurable  = False
-    order_by      = 'name'
+    configurable = False
+    order_by = 'name'
 
     def detailview_display(self, context):
         # NB: credentials are OK, because we retrieve only Calendars related of the user.
@@ -205,11 +229,11 @@ class UserCalendarsBrick(QuerysetBrick):
 
 
 class RelatedCalendarBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('activities', 'related_calendar')
-    dependencies  = (Calendar, )
-    verbose_name  = _('On my calendars')
+    id_ = QuerysetBrick.generate_id('activities', 'related_calendar')
+    verbose_name = _('On my calendars')
+    dependencies = (Calendar, )
     template_name = 'activities/bricks/related-calendars.html'
-    order_by      = 'name'
+    order_by = 'name'
 
     target_ctypes = (Activity, )
 

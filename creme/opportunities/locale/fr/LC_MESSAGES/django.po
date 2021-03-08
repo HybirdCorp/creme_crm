@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-16 10:17+0100\n"
+"POT-Creation-Date: 2021-03-10 10:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -29,20 +29,48 @@ msgstr "Informations sur l'opportunité"
 msgid "Linked Contacts"
 msgstr "Contacts liés"
 
-msgid "Linked Products"
-msgstr "Produits liés"
+msgid ""
+"Displays Contacts linked to the current Opportunity with a relationship "
+"«involves in the opportunity»."
+msgstr ""
+"Affiche les Contacts liés à l'Opportunité courante avec une relation "
+"«intervient dans l'opportunité»."
 
-msgid "Linked Services"
-msgstr "Services liés"
+msgid "Related products"
+msgstr "Produits associés"
+
+msgid ""
+"Displays Products linked to the current Opportunity with a relationship "
+"(Product) «is linked to the opportunity»."
+msgstr ""
+"Affiche les Produits liés à l'Opportunité courante avec une relation "
+"(Produit) «est lié à l'opportunité»."
+
+msgid "Related services"
+msgstr "Services concernés"
+
+msgid ""
+"Displays Services linked to the current Opportunity with a relationship "
+"(Service) «is linked to the opportunity»."
+msgstr ""
+"Affiche les Services liés à l'Opportunité courante avec une relation "
+"(Service) «est lié à l'opportunité»."
 
 msgid "Business managers"
 msgstr "Responsables"
 
-msgid "Opportunities which target the organisation / contact"
-msgstr "Opportunités qui ciblent la société / le contact"
+msgid ""
+"Displays Contacts linked to the current Opportunity with a relationship «is "
+"responsible for»."
+msgstr ""
+"Affiche les Contacts liés à l'Opportunité courante avec une relation «est "
+"chargé de l'affaire»."
 
-msgid "Total"
-msgstr "Total"
+msgid "Opportunities which target the Organisation / Contact"
+msgstr "Opportunités qui ciblent la Société / le Contact"
+
+msgid "Totals"
+msgstr "Totaux"
 
 msgid "Target and source"
 msgstr "Cible et source"
@@ -50,11 +78,32 @@ msgstr "Cible et source"
 msgid "Quotes linked to the opportunity"
 msgstr "Devis liés à l'opportunité"
 
+msgid ""
+"Displays Quotes linked to the current Opportunity with a relationship "
+"(Quote) «generated for the opportunity»."
+msgstr ""
+"Affiche les Devis liés à l'Opportunité courante avec une relation (Devis) «a "
+"été généré pour l'opportunité»."
+
 msgid "Salesorders linked to the opportunity"
 msgstr "Bons de commande liés à l'opportunité"
 
+msgid ""
+"Displays Salesorders linked to the current Opportunity with a relationship "
+"(Salesorder) «generated for the opportunity»."
+msgstr ""
+"Affiche les Bons de commande liés à l'Opportunité courante avec une relation "
+"(Bon) «a été généré pour l'opportunité»."
+
 msgid "Invoices linked to the opportunity"
 msgstr "Factures liées à l'opportunité"
+
+msgid ""
+"Displays Invoices linked to the current Opportunity with a relationship "
+"(Invoice) «generated for the opportunity»."
+msgstr ""
+"Affiche les Factures liées à l'Opportunité courante avec une relation "
+"(Facture) «a été générée pour l'opportunité»."
 
 msgid "Create a linked opportunity"
 msgstr "Créer une opportunité liée"
@@ -402,8 +451,8 @@ msgstr "{count} Facture générée"
 msgid "{count} Generated invoices"
 msgstr "{count} Factures générées"
 
-msgid "Invoices"
-msgstr "Factures"
+msgid "Generated invoices"
+msgstr "Factures générées"
 
 msgid "Generate an invoice"
 msgstr "Générer une facture"
@@ -500,9 +549,6 @@ msgstr "{count} Produit associé"
 msgid "{count} Related products"
 msgstr "{count} Produits associés"
 
-msgid "Related products"
-msgstr "Produits associés"
-
 msgid "Link to a product"
 msgstr "Lier à un produit"
 
@@ -575,9 +621,6 @@ msgstr "{count} Service concerné"
 msgid "{count} Related services"
 msgstr "{count} Services concernés"
 
-msgid "Related services"
-msgstr "Services concernés"
-
 msgid "Link to a service"
 msgstr "Lier à un service"
 
@@ -598,9 +641,6 @@ msgstr "Contact récepteur"
 msgctxt "opportunities"
 msgid "Source organisation"
 msgstr "Société émettrice"
-
-msgid "Totals"
-msgstr "Totaux"
 
 msgid "Total (exclusive of tax)"
 msgstr "Total HT"
@@ -644,6 +684,18 @@ msgstr "Créer un contact lié à «{opportunity}»"
 #, python-brace-format
 msgid "New opportunity targeting «{entity}»"
 msgstr "Nouvelle opportunité ciblant «{entity}»"
+
+#~ msgid "Linked Products"
+#~ msgstr "Produits liés"
+
+#~ msgid "Linked Services"
+#~ msgstr "Services liés"
+
+#~ msgid "Invoices"
+#~ msgstr "Factures"
+
+#~ msgid "Total"
+#~ msgstr "Total"
 
 #~ msgid "New opportunity related to «%s»"
 #~ msgstr "Nouvelle opportunité liée à «%s»"

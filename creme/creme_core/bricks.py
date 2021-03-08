@@ -50,6 +50,10 @@ class PropertiesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('creme_core', 'properties')
     dependencies = (CremeProperty,)
     verbose_name = _('Properties')
+    description = _(
+        'Displays the Properties attached to the current entity. '
+        'Properties are kind of markers, useful to filter entities. '
+    )
     template_name = 'creme_core/bricks/properties.html'
     order_by = 'type__text'  # TODO: in model ??
 
@@ -63,6 +67,13 @@ class PropertiesBrick(QuerysetBrick):
 class RelationsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('creme_core', 'relations')
     verbose_name = _('Relationships')
+    description = _(
+        'Displays the entities which are linked to the current entity with a Relationship. '
+        'A Relationship is: \n'
+        '- typed (examples of types: «is a customer of», «has been sent by»)\n'
+        '- has a symmetric relationship'
+        ' (eg: «is a customer of» & «is a supplier of» are symmetric)'
+    )
 
     # NB: indeed (Relation, CremeEntity) but useless because
     # _iter_dependencies_info() has been overridden.
@@ -157,6 +168,10 @@ class RelationsBrick(QuerysetBrick):
 class CustomFieldsBrick(Brick):
     id_ = Brick.generate_id('creme_core', 'customfields')
     verbose_name = _('Custom fields')
+    description = _(
+        'Displays the values of the Custom Fields for the current entity. '
+        'Custom Fields can be created in the general configuration.'
+    )
     dependencies = (CustomField,)
     template_name = 'creme_core/bricks/custom-fields.html'
 
@@ -176,6 +191,12 @@ class CustomFieldsBrick(Brick):
 class HistoryBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('creme_core', 'history')
     verbose_name = _('History')
+    description = _(
+        'Displays the history of modifications on the current entity. '
+        'Each line of history contains a date, the user which made the '
+        'modifications & the type of modification (creation, edition of fields, '
+        'deletion, relationship adding…).'
+    )
     dependencies = '*'
     read_only = True
     order_by = '-id'  # faster than '-date'
@@ -244,6 +265,10 @@ class HistoryBrick(QuerysetBrick):
 class ImprintsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('creme_core', 'imprints')
     verbose_name = _('History of consultation')
+    description = _(
+        'Displays who has consulted the current entity, and the date of the consultations.\n'
+        'Hint: only super-users can view this data.'
+    )
     dependencies = (Imprint,)
     read_only = True
     order_by = '-id'  # faster than '-date'
@@ -295,6 +320,10 @@ class TrashBrick(QuerysetBrick):
 class StatisticsBrick(Brick):
     id_ = Brick.generate_id('creme_core', 'statistics')
     verbose_name = _('Statistics')
+    description = _(
+        'Displays many statistics (eg: the numbers of customers), depending '
+        'on installed apps.'
+    )
     template_name = 'creme_core/bricks/statistics.html'
 
     statistics_registry = statistics.statistics_registry

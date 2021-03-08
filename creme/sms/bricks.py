@@ -59,6 +59,12 @@ class MessagingListsBlock(_RelatedEntitesBrick):
 class RecipientsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('sms', 'recipients')
     verbose_name = _('Unlinked recipients')
+    description = _(
+        'Allows to add simple phone number to the current Messaging list. '
+        'These numbers are not related to a Contact.\n'
+        'Hint: if you want to send SMS to Contacts, you should '
+        'use the other block to add recipients.'
+    )
     dependencies = (Recipient,)
     template_name = 'sms/bricks/recipients.html'
     target_ctypes = (MessagingList,)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,11 +49,11 @@ class _AssistantsBrick(QuerysetBrick):
             assistant.creme_entity = entities_map[assistant.entity_id]
 
     def _get_queryset_for_detailview(self, entity, context):
-        """OVERLOAD ME"""
+        """OVERRIDE ME"""
         pass
 
     def _get_queryset_for_home(self, context):
-        """OVERLOAD ME"""
+        """OVERRIDE ME"""
         pass
 
     def detailview_display(self, context):
@@ -78,10 +78,19 @@ class _AssistantsBrick(QuerysetBrick):
 
 
 class TodosBrick(_AssistantsBrick):
-    id_           = QuerysetBrick.generate_id('assistants', 'todos')
-    dependencies  = (ToDo,)
-    order_by      = '-creation_date'
-    verbose_name  = _('Todos')
+    id_ = QuerysetBrick.generate_id('assistants', 'todos')
+    verbose_name = _('Todos')
+    description = _(
+        'Allows to add ToDos to the current entity, which help you to remind '
+        'some things to achieve.\n'
+        'Hint #1: ToDos can have a deadline ; e-mails are sent to the owners of the '
+        'ToDos which are not marked as done and near of their deadline (see the '
+        'job «Reminders»).\n'
+        'Hint #2: if the owner of a ToDo is a team, e-mails are sent to all the '
+        'teammates.'
+    )
+    dependencies = (ToDo,)
+    order_by = '-creation_date'
     template_name = 'assistants/bricks/todos.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -94,10 +103,14 @@ class TodosBrick(_AssistantsBrick):
 
 
 class MemosBrick(_AssistantsBrick):
-    id_           = QuerysetBrick.generate_id('assistants', 'memos')
-    dependencies  = (Memo,)
-    order_by      = '-creation_date'
-    verbose_name  = _('Memos')
+    id_ = QuerysetBrick.generate_id('assistants', 'memos')
+    verbose_name = _('Memos')
+    description = _(
+        'Allows to add Memos to the current entity, which help you to note '
+        'extra-information about it.'
+    )
+    dependencies = (Memo,)
+    order_by = '-creation_date'
     template_name = 'assistants/bricks/memos.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -112,10 +125,18 @@ class MemosBrick(_AssistantsBrick):
 
 
 class AlertsBrick(_AssistantsBrick):
-    id_           = QuerysetBrick.generate_id('assistants', 'alerts')
-    dependencies  = (Alert,)
-    order_by      = '-trigger_date'
-    verbose_name  = _('Alerts')
+    id_ = QuerysetBrick.generate_id('assistants', 'alerts')
+    verbose_name = _('Alerts')
+    description = _(
+        'Allows to add Alerts to the current entity, which help you to remind '
+        'some important things to achieve before a trigger date.\n'
+        'E-mails are sent to the owners of the Alerts which are not marked as validated and '
+        'near of their deadline (see the job «Reminders»).\n'
+        'Hint: if the owner of an Alert is a team, e-mails are sent to all the '
+        'teammates.'
+    )
+    dependencies = (Alert,)
+    order_by = '-trigger_date'
     template_name = 'assistants/bricks/alerts.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -134,7 +155,7 @@ class AlertsBrick(_AssistantsBrick):
 
 class _ActionsBrick(_AssistantsBrick):
     dependencies = (Action,)
-    order_by     = 'deadline'
+    order_by = 'deadline'
 
     def _get_queryset_for_detailview(self, entity, context):
         return Action.objects.filter(
@@ -150,6 +171,12 @@ class _ActionsBrick(_AssistantsBrick):
 class ActionsOnTimeBrick(_ActionsBrick):
     id_ = QuerysetBrick.generate_id('assistants', 'actions_it')
     verbose_name = _('Actions on time')
+    description = _(
+        'Allows to add Actions to the current entity ; Actions expect a re-action '
+        'to be done by another user before a given deadline.\n'
+        'This block displays Actions which have no re-action yet & with a deadline '
+        'which has not been reached.'
+    )
     template_name = 'assistants/bricks/actions-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -166,6 +193,12 @@ class ActionsOnTimeBrick(_ActionsBrick):
 class ActionsNotOnTimeBrick(_ActionsBrick):
     id_ = QuerysetBrick.generate_id('assistants', 'actions_nit')
     verbose_name = _('Reactions not on time')
+    description = _(
+        'Allows to add Actions to the current entity ; Actions expect a re-action '
+        'to be done by another user before a given deadline.\n'
+        'This block displays Actions which have no re-action yet & with a deadline '
+        'which has been exceeded.'
+    )
     template_name = 'assistants/bricks/actions-not-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -182,6 +215,10 @@ class ActionsNotOnTimeBrick(_ActionsBrick):
 class UserMessagesBrick(_AssistantsBrick):
     id_ = QuerysetBrick.generate_id('assistants', 'messages')
     verbose_name = _('User messages')
+    description = _(
+        'Allows to send internal messages to other users, and see the messages '
+        'which other users sent to you.'
+    )
     dependencies = (UserMessage,)
     order_by = '-creation_date'
     template_name = 'assistants/bricks/messages.html'

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-16 10:17+0100\n"
+"POT-Creation-Date: 2021-03-10 10:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -56,6 +56,15 @@ msgstr "Colonnes du rapport"
 
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
+
+msgid "Blocks"
+msgstr "Blocs"
+
+#, python-brace-format
+msgid ""
+"This block displays the graph «{graph}», contained by the report «{report}»."
+msgstr ""
+"Ce bloc affiche le graphe «{graph}», contenu par le rapport «{report}»."
 
 msgid "By days"
 msgstr "Par jours"
@@ -510,9 +519,6 @@ msgstr "{count} Bloc"
 msgid "{count} Blocks"
 msgstr "{count} Blocs"
 
-msgid "Blocks"
-msgstr "Blocs"
-
 msgid "Compatible with detail-views of"
 msgstr "Compatible avec les vues détaillées de"
 
@@ -581,6 +587,10 @@ msgstr "Ordonnée invalide : %(error)s"
 
 msgid "Export parameters"
 msgstr "Paramètres d'export"
+
+# Already in creme_core
+msgid "Global errors"
+msgstr ""
 
 #, python-format
 msgid "Preview %(object)s"

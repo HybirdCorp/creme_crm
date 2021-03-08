@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-16 10:17+0100\n"
+"POT-Creation-Date: 2021-03-10 10:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -35,6 +35,9 @@ msgstr "Commercial"
 msgid "Commercial approaches"
 msgstr "Démarches commerciales"
 
+msgid "Market segments"
+msgstr "Segments de marché"
+
 msgid "Market segment descriptions"
 msgstr "descriptions de segment de marché"
 
@@ -46,6 +49,15 @@ msgstr "Attraits de segment"
 
 msgid "Evaluated organisations"
 msgstr "Sociétés évaluées"
+
+msgid "Assets / Segments matrix"
+msgstr "Matrice Atouts / Segments"
+
+msgid "Charms / Segments matrix"
+msgstr "Matrice Attraits / Segments"
+
+msgid "Assets / Charms matrix"
+msgstr "Matrice Atouts / Attraits"
 
 msgid "Objectives of a Commercial Action"
 msgstr "Objectifs d'une Action Commerciale"
@@ -308,9 +320,6 @@ msgstr "Enregistrer le segment de marché"
 msgid "Market segment"
 msgstr "Segment de marché"
 
-msgid "Market segments"
-msgstr "Segments de marché"
-
 msgid "is in the segment «{}»"
 msgstr "est du segment «{}»"
 
@@ -447,9 +456,6 @@ msgstr "Rien"
 msgid "No commercial approach for the moment"
 msgstr "Aucune démarche commerciale enregistrée pour le moment"
 
-msgid "Assets / Charms matrix"
-msgstr "Matrice Atouts / Attraits"
-
 msgid "Charms"
 msgstr "Attrait"
 
@@ -470,9 +476,6 @@ msgstr "Segment réservoir"
 
 msgid "Abandoned segment"
 msgstr "Segment abandonné"
-
-msgid "Assets / Segments matrix"
-msgstr "Matrice Atouts / Segments"
 
 msgid "Total"
 msgstr "Total"
@@ -503,9 +506,6 @@ msgstr "Modifier cet atout"
 
 msgid "Delete this asset"
 msgstr "Supprimer cet atout"
-
-msgid "Charms / Segments matrix"
-msgstr "Matrice Attraits / Segments"
 
 msgid "No market segment charm for the moment"
 msgstr "Aucun attrait de segment de marché enregistré pour le moment"

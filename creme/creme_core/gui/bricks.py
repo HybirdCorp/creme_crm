@@ -122,6 +122,10 @@ class Brick:
     # Tips: use gettext_lazy()
     verbose_name: str = 'BLOCK'
 
+    # Description used as tool-tips, and in the configuration GUI.
+    # Tips: use gettext_lazy()
+    description: str = ''
+
     # List of the models on which the brick depends (ie: generally the brick
     # displays instances of these models) ; it also can be the '*' string,
     # which is a wildcard meaning 'All models used in the page'.
@@ -215,6 +219,7 @@ class Brick:
                                 **extra_kwargs) -> dict:
         context['brick_id'] = brick_id
         context['verbose_name'] = self.verbose_name
+        context['description'] = self.description
         context['state'] = BricksManager.get(context).get_state(self.id_, context['user'])
         context['dependencies'] = [*self._iter_dependencies_info()]
         context['reloading_info'] = self._reloading_info
@@ -428,12 +433,21 @@ class QuerysetBrick(PaginatedBrick):
 
     def get_template_context(self, context, queryset, **extra_kwargs):
         """@param queryset: Set of objects to display in the brick."""
-        return PaginatedBrick.get_template_context(self, context, objects=queryset, **extra_kwargs)
+        return PaginatedBrick.get_template_context(
+            self, context, objects=queryset, **extra_kwargs
+        )
 
 
 class EntityBrick(Brick):
     id_ = MODELBRICK_ID
     verbose_name = _('Information on the entity (generic)')
+    description = _(
+        'Displays the values for the fields of the current entity.\n'
+        'Hint #1: lots of fields can be hidden in configuration '
+        '(so their are hidden everywhere: forms, list-views…).\n'
+        'Hint #2: you can create Custom Blocks in configuration to chose '
+        'the title of the block, which fields are displayed and their order.'
+    )
     template_name = 'creme_core/bricks/generic/entity.html'
 
     BASE_FIELDS = {'created', 'modified', 'user'}
@@ -470,7 +484,15 @@ class EntityBrick(Brick):
 
 class SpecificRelationsBrick(QuerysetBrick):
     dependencies = (Relation,)  # NB: (Relation, CremeEntity) but useless
-    verbose_name = _('Relationships')
+    verbose_name = 'Relationships'  # Overridden by __init__()
+    description = _(
+        'Displays the entities linked to the current entity with a specific '
+        'type of Relationship.\n'
+        'Hint #1: this kind of block can be created in the configuration of blocks.\n'
+        "Hint #2: you can configure the fields which are displayed (in the blocks' "
+        "configuration, or in the block's menu which appears when you click on the "
+        "block's icon)."
+    )
     order_by = 'type'
     template_name = 'creme_core/bricks/specific-relations.html'
 
@@ -560,10 +582,19 @@ class InstanceBrick(Brick):
 
 
 class CustomBrick(Brick):
-    """Brick that can be customised by the user to display information of an entity.
+    """Brick which can be customised by the user to display information of an entity.
     It can display regular, custom & function fields, relationships...
     (see HeaderFilter & EntityCells)
     """
+    description = _(
+        'Displays some information concerning the current entity, like:\n'
+        '- fields\n'
+        '- Custom Fields\n'
+        '- related entities\n'
+        '- …\n'
+        'Hint: this kind of block can be created/modified in the configuration '
+        'of blocks («Custom blocks»).'
+    )  # TODO: properties to insert dynamically the cells ?
     template_name = 'creme_core/bricks/custom.html'
 
     def __init__(self, id_: str, customblock_conf_item: CustomBrickConfigItem):
