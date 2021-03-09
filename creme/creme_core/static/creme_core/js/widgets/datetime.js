@@ -134,7 +134,7 @@ creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
             return creme.forms.DateTimePicker.val(element);
         }
 
-        $('input[type="hidden"]', element).val(value).change();
+        $('input[type="hidden"]', element).val(value).trigger('change');
     }
 });
 

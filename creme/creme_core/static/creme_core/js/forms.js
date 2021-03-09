@@ -106,7 +106,7 @@ creme.forms.Select.fill = function(self, options, selected) {
      }
 
      self.val(value);
-     self.change();
+     self.trigger('change');
      return self;
 };
 
@@ -540,7 +540,7 @@ creme.forms.toImportField = function(table_id, target_query, speed) {
         }
     }
 
-    $csv_select.change(handleColChange);
+    $csv_select.on('change', handleColChange);
 };
 
 // TODO : create a real form controller with better lifecycle (not just a css class) and

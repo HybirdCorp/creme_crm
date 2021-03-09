@@ -34,7 +34,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
 
         this._selector_onchange_cb = function() {
-            element.change();
+            element.trigger('change');
         };
 
         this._init_models(element);
@@ -96,7 +96,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
             creme.widget.create(selector, {}, function(delegate) {
                 creme.object.invoke(cb, element);
                 delegate.on('change paste', self._selector_onchange_cb);
-                element.change();
+                element.trigger('change');
             }, sync);
 
             this._selector = selector.creme().widget();

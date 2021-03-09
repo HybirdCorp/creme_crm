@@ -268,7 +268,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         // Chrome behaviour (bug ?) : select value is not updated if disabled.
         // so enable it before change value !
         element.prop('disabled', false);
-        element.change();
+        element.trigger('change');
 
         this._updateDisabledState(element);
         this._updateAutocomplete();

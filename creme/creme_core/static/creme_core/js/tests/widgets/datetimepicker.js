@@ -116,7 +116,7 @@ QUnit.parametrize('creme.widget.DateTimePicker.val (from element)', [
     var element = $(this.createDateTimePickerHtml());
     var widget = creme.widget.create(element);
 
-    element.find('input[type="hidden"]').val(value).change();
+    element.find('input[type="hidden"]').val(value).trigger('change');
 
     equal(widget.val(), value);
     equal(element.find('.date input').val(), expected.date);

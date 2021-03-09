@@ -433,7 +433,7 @@ QUnit.test('creme.forms.TimePicker', function(assert) {
     equal('12', element.find('.hour input').val());
     equal('54', element.find('.minute input').val());
 
-    element.find('.hour input').val('07').change();
+    element.find('.hour input').val('07').trigger('change');
     equal("07:54", input.val());
     equal('07', element.find('.hour input').val());
     equal('54', element.find('.minute input').val());
@@ -498,12 +498,12 @@ QUnit.test('creme.forms.DateTimePicker', function(assert) {
     equal('17', element.find('.hour input').val());
     equal('32', element.find('.minute input').val());
 
-    element.find('.date input').val('2021-12-24').change();
+    element.find('.date input').val('2021-12-24').trigger('change');
     equal('2021-12-24', element.find('.date input').val());
     equal('17', element.find('.hour input').val());
     equal('32', element.find('.minute input').val());
 
-    element.find('.minute input').val('54').change();
+    element.find('.minute input').val('54').trigger('change');
     equal('2021-12-24', element.find('.date input').val());
     equal('17', element.find('.hour input').val());
     equal('54', element.find('.minute input').val());
@@ -538,11 +538,11 @@ QUnit.parameterize('creme.forms.toImportField', [
     equal(this.qunitFixture().find('#field_a .csv_column_options').is(':visible'), expected);
 
     // toggle state "not in csv" => not visible
-    this.qunitFixture().find('#field_a .csv_col_select').val('0').change();
+    this.qunitFixture().find('#field_a .csv_col_select').val('0').trigger('change');
     equal(this.qunitFixture().find('#field_a .csv_column_options').is(':visible'), false);
 
     // toggle state "Column 1" => visible
-    this.qunitFixture().find('#field_a .csv_col_select').val('1').change();
+    this.qunitFixture().find('#field_a .csv_col_select').val('1').trigger('change');
     equal(this.qunitFixture().find('#field_a .csv_column_options').is(':visible'), true);
 });
 

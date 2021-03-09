@@ -204,7 +204,7 @@ QUnit.test('creme.reports.PreviewController (preview or download)', function(ass
     controller.bind(element);
 
     element.find('[name="doc_type"]').val('csv');
-    element.find('[data-daterange-type]').val('previous_year').change();
+    element.find('[data-daterange-type]').val('previous_year').trigger('change');
 
     var downloadUrl = '/mock/reports/download?' + $.param({
         doc_type: 'csv',

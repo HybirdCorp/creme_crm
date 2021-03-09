@@ -137,7 +137,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
     _updateDelegate: function(element) {
         this._delegate(element).val(this.selected(element));
-        element.change();
+        element.trigger('change');
     },
 
     _updateViewLessCounter: function(element) {
@@ -340,10 +340,10 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         }
 
         if (input) {
-            input.val(value).change();
+            input.val(value).trigger('change');
         }
 
-        element.change();
+        element.trigger('change');
         return this;
     },
 

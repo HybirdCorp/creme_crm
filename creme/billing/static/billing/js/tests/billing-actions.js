@@ -126,8 +126,8 @@ QUnit.test('creme.billing.brick (billing-line-saveall, invalid response)', funct
         ]
     }).brick();
 
-    brick.element().find('#product_line_formset-0-quantity').val('5').change();
-    brick.element().find('#product_line_formset-0-product').val('Product #1').change();
+    brick.element().find('#product_line_formset-0-quantity').val('5').trigger('change');
+    brick.element().find('#product_line_formset-0-product').val('Product #1').trigger('change');
 
     equal(false, creme.billing.formsHaveErrors());
     equal(1, creme.billing.modifiedBLineForms().length);
@@ -174,8 +174,8 @@ QUnit.test('creme.billing.brick (billing-line-saveall, ok)', function(assert) {
         ]
     }).brick();
 
-    brick.element().find('#product_line_formset-0-quantity').val('5').change();
-    brick.element().find('#product_line_formset-0-product').val('Product #1').change();
+    brick.element().find('#product_line_formset-0-quantity').val('5').trigger('change');
+    brick.element().find('#product_line_formset-0-product').val('Product #1').trigger('change');
 
     equal(false, creme.billing.formsHaveErrors());
 

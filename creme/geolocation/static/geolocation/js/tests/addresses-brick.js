@@ -414,7 +414,7 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (update filter)', [
             equal(gettext('%0$d addresses from').format(3), brick.element().find('.brick-geoaddress-counter').text());
             equal(3, mapController.markers().length);
 
-            filter.val('B1').change();
+            filter.val('B1').trigger('change');
 
             setTimeout(function() {
                 deepEqual([
@@ -490,7 +490,7 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (update filter, fail)'
 
             controller.addressesUrl('mock/addresses/fail');
 
-            filter.val('B1').change();
+            filter.val('B1').trigger('change');
 
             setTimeout(function() {
                 deepEqual([

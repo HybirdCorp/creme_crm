@@ -150,22 +150,22 @@ QUnit.test('creme.list.Pager (choose, input value)', function() {
     equal(false, input.is('.invalid-page'));
     equal(true, link.is('.active'));
 
-    input.val('3').change();
+    input.val('3').trigger('change');
     equal(false, input.is('.invalid-page'));
 
-    input.val('6').change();
+    input.val('6').trigger('change');
     equal(true, input.is('.invalid-page'));
 
-    input.val('1').change();
+    input.val('1').trigger('change');
     equal(false, input.is('.invalid-page'));
 
-    input.val('zzz').change();
+    input.val('zzz').trigger('change');
     equal(true, input.is('.invalid-page'));
 
-    input.val('1').change();
+    input.val('1').trigger('change');
     equal(false, input.is('.invalid-page'));
 
-    input.val('0').change();
+    input.val('0').trigger('change');
     equal(true, input.is('.invalid-page'));
 
     deepEqual([], this.mockListenerCalls('refresh'));

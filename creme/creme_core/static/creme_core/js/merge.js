@@ -44,7 +44,7 @@ creme.merge.initializeMergeForm = function(form) {
         } else if (input.is('input[type="checkbox"]')) {
             input.prop('checked', value);
         } else if (input.is('input, select, textarea')) {
-            input.val(value).change();
+            input.val(value).trigger('change');
         }
     };
 

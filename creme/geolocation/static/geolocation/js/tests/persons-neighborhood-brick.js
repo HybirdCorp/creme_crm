@@ -363,7 +363,7 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (filter)', [
             equal(3, controller.mapController().markers().length);
             equal(1, controller.mapController().shapes().length);
 
-            brick.element().find('.brick-geoaddress-filter').val('empty').change();
+            brick.element().find('.brick-geoaddress-filter').val('empty').trigger('change');
 
             setTimeout(function() {
                 deepEqual([
@@ -439,7 +439,7 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (origin change)', [
                 id: 'NeighbourhoodCircle'
             });
 
-            brick.element().find('.brick-geoaddress-origin').val('Address_B').change();
+            brick.element().find('.brick-geoaddress-origin').val('Address_B').trigger('change');
 
             setTimeout(function() {
                 deepEqual([

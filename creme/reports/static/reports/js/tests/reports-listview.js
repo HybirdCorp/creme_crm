@@ -151,8 +151,8 @@ QUnit.test('creme.reports.ExportReportAction (xls, created, previous_year)', fun
     equal(1, this.findDialogButtonsByLabel(gettext('Export')).length);
 
     dialog.find('[name="doc_type"]').val('xls');
-    dialog.find('[name="date_field"]').val('created').change();
-    dialog.find('[name="date_filter_0"]').val('previous_year').change();
+    dialog.find('[name="date_field"]').val('created').trigger('change');
+    dialog.find('[name="date_filter_0"]').val('previous_year').trigger('change');
 
     this.findDialogButtonsByLabel(gettext('Export')).trigger('click');
 

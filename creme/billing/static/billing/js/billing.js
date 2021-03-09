@@ -229,7 +229,7 @@ creme.billing.restoreValue = function(input) {
         input.val(initial_value);
     }
 
-    input.change();
+    input.trigger('change');
 };
 
 creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {

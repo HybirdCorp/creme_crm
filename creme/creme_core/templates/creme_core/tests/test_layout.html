@@ -116,11 +116,11 @@
                 return false;
             });
 
-            $('select[name="columns"]', content).change(function(e) {
+            $('select[name="columns"]', content).on('change', function(e) {
                 layout.columns(parseInt($(this).val())).layout();
             });
 
-            $('select[name="column-size"]', content).change(function(e) {
+            $('select[name="column-size"]', content).on('change', function(e) {
                 var size = parseInt($(this).val());
                 layout.columns(function() {
                     // console.log(Math.floor(this.container().width() / size));

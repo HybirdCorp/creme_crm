@@ -124,7 +124,7 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
 
                                                                 selectors.find('.selector[data-column=' + column + '] input[type=checkbox]:checked')
                                                                          .prop('checked', false)
-                                                                         .change();
+                                                                         .trigger('change');
                                                             })
                                                         .attr('title', gettext("Remove the column '%s'").format(column_titles[column]))
                                                 )
@@ -277,7 +277,7 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
             el.find('> label').on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                input.prop('checked', !input.prop('checked')).change();
+                input.prop('checked', !input.prop('checked')).trigger('change');
             });
         });
 
@@ -297,7 +297,7 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
             // recreate selection IN THE SAME ORDER !
             to_check.forEach(function(column) {
                 var checkbox = div.find('.selector_list [data-column="' + column + '"] > input[type=checkbox]');
-                $(checkbox).prop('checked', true).change();
+                $(checkbox).prop('checked', true).trigger('change');
             });
         } else {
             this.updatePreview();
@@ -312,12 +312,12 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
             e.preventDefault();
             div.find('.selector input[type=checkbox]:checked')
                .prop('checked', false)
-               .change();
+               .trigger('change');
 
             for (var column in underlays) {
                underlays[column].find('.selector input[type=checkbox]:checked')
                                 .prop('checked', false)
-                                .change();
+                                .trigger('change');
             }
         });
 
@@ -518,11 +518,11 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
         });
 
 //         TODO: uncomment when relationships objects sub-fields
-//         div.find('.underlay-content .content_type_toggle').change(function(e) {
+//         div.find('.underlay-content .content_type_toggle').on('change', function(e) {
 //             self.onSubSelectorContentTypeChanged($(e.target));
 //         });
 //
-//         div.find('.underlay-content .content_type_toggle').change();
+//         div.find('.underlay-content .content_type_toggle').trigger('change');
     }
 });
 
