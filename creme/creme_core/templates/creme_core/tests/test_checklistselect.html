@@ -16,7 +16,7 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.ui-creme-checklistselect').change(function() {
+            $('.ui-creme-checklistselect').on('change', function() {
                 var selected = $(this).creme().widget().val();
                 selected = Object.isNone(selected) ? [] : (Array.isArray(selected) ? selected : [selected]);
                 $('.selection-count', $(this).parent()).html(selected.length ? '%d items selected'.format(selected.length) : '');

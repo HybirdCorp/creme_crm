@@ -24,7 +24,7 @@ QUnit.test('creme.UserSettingController (change)', function(assert) {
 
     new creme.UserSettingController(element); /* eslint-disable-line */
 
-    element.find('select').val('b').change();
+    element.find('select').val('b').trigger('change');
 
     deepEqual([
         ['POST', {theme: 'b'}]
@@ -41,7 +41,7 @@ QUnit.test('creme.UserSettingController (no url)', function(assert) {
 
     new creme.UserSettingController(element); /* eslint-disable-line */
 
-    element.find('select').val('b').change();
+    element.find('select').val('b').trigger('change');
 
     deepEqual([], this.mockBackendUrlCalls('mock/toggle'));
     deepEqual([], this.mockReloadCalls());
@@ -55,7 +55,7 @@ QUnit.test('creme.UserSettingController (invalid url)', function(assert) {
 
     new creme.UserSettingController(element); /* eslint-disable-line */
 
-    element.find('select').val('b').change();
+    element.find('select').val('b').trigger('change');
 
     deepEqual([
         ['POST', {theme: 'b'}]

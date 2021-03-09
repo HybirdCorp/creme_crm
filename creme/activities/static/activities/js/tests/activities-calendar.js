@@ -708,7 +708,7 @@ QUnit.test('creme.activities.CalendarController.visibleCalendarIds (selection)',
     deepEqual([], this.mockBackendUrlCalls());
 
     // uncheck all => call update selection url
-    element.find('.calendar-menu-item input').prop('checked', false).change();
+    element.find('.calendar-menu-item input').prop('checked', false).trigger('change');
     deepEqual([], controller.visibleCalendarIds().sort());
     deepEqual([
         ['mock/calendar/select', 'POST', {remove: '1'}],
@@ -722,7 +722,7 @@ QUnit.test('creme.activities.CalendarController.visibleCalendarIds (selection)',
     this.resetMockBackendCalls();
 
     // check '10' => call update selection url
-    element.find('.calendar-menu-item input[value="10"]').prop('checked', true).change();
+    element.find('.calendar-menu-item input[value="10"]').prop('checked', true).trigger('change');
     deepEqual(['10'], controller.visibleCalendarIds().sort());
     deepEqual([[
         'mock/calendar/events', 'GET', {
@@ -743,7 +743,7 @@ QUnit.test('creme.activities.CalendarController.visibleCalendarIds (selection)',
     this.resetMockBackendCalls();
 
     // check '1' => call update selection url
-    element.find('.calendar-menu-item input[value="1"]').prop('checked', true).change();
+    element.find('.calendar-menu-item input[value="1"]').prop('checked', true).trigger('change');
     deepEqual(['1', '10'].sort(), controller.visibleCalendarIds().sort());
     deepEqual([[
         'mock/calendar/events', 'GET', {

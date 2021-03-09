@@ -84,7 +84,7 @@
 
             $('textarea#plot-content').val($('div#plot script[type="text/json"]').html());
 
-            $('#plot-options-selector').change();
+            $('#plot-options-selector').trigger('change');
         });
     </script>
 {% endblock %}

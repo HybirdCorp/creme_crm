@@ -1,4 +1,4 @@
 <script type="text/javascript">
-    $("#{{widget.attrs.id}}").change();
+    $("#{{widget.attrs.id}}").trigger('change');
 </script>
 {% include 'django/forms/widgets/select.html' %}

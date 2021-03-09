@@ -102,7 +102,7 @@ creme.reports = creme.reports || {};
 //        var self = this;
 //        var ctypes = element.find('select[name="ct"]');
 //
-//        ctypes.change(function() {
+//        ctypes.on('change', function() {
 //            self.updateFilters($(this).val());
 //        });
 //
@@ -170,7 +170,7 @@ creme.reports.PreviewController = creme.component.Component.sub({
         var listeners = this._listeners;
         var header = this._header = $('.report-preview-header', element);
 
-        $('select[name="date_field"]', header).change(listeners.update);
+        $('select[name="date_field"]', header).on('change', listeners.update);
         $('button[name="generate"]', header).on('click', listeners.redirect);
         $('button[name="download"]', header).on('click', listeners.download);
 

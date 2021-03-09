@@ -343,7 +343,7 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(asse
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: false}]);
 
-    $('input[type="checkbox"][value="12"]', widget.content()).prop('checked', true).change();
+    $('input[type="checkbox"][value="12"]', widget.content()).prop('checked', true).trigger('change');
 
     equal(ngettext('%d selection', '%d selections', 1).format(1) + '&nbsp;', counter.html());
     deepEqual(["12"], widget.val());
@@ -356,8 +356,8 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(asse
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: false}]);
 
-    $('input[type="checkbox"][value="12"]', widget.content()).prop('checked', false).change();
-    $('input[type="checkbox"][value="5"]', widget.content()).prop('checked', true).change();
+    $('input[type="checkbox"][value="12"]', widget.content()).prop('checked', false).trigger('change');
+    $('input[type="checkbox"][value="5"]', widget.content()).prop('checked', true).trigger('change');
 
     equal(ngettext('%d selection', '%d selections', 1).format(1) + '&nbsp;', counter.html());
     deepEqual(["5"], widget.val());

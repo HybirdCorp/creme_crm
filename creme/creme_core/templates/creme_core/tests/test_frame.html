@@ -165,7 +165,7 @@
             });
         });
 
-        $('#dynamic-frame .redirect-frame').change(function() {
+        $('#dynamic-frame .redirect-frame').on('change', function() {
             var url = $(this).val() || '';
             $('#dynamic-frame .ui-creme-frame.widget-ready').each(function() {
                 $(this).creme().widget().reload('mock/' + url);

@@ -1090,7 +1090,7 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, change)', functi
     equal(listview.count(), 0);
     equal(1, filter.length);
 
-    filter.val('filter-b').change();
+    filter.val('filter-b').trigger('change');
 
     deepEqual([
         ['POST', {
@@ -1215,7 +1215,7 @@ QUnit.test('creme.listview.core (hatbar controls, view, change)', function(asser
     equal(listview.count(), 0);
     equal(1, selector.length);
 
-    selector.val('view-b').change();
+    selector.val('view-b').trigger('change');
 
     deepEqual([
         ['POST', {
@@ -1300,7 +1300,7 @@ QUnit.test('creme.listview.core (pagesize selector)', function(assert) {
     equal(1, selector.length);
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    selector.val('25').change();
+    selector.val('25').trigger('change');
 
     deepEqual([
         ['POST', {

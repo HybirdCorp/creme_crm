@@ -99,7 +99,7 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
             end:   this._get_end(element).val()
         });
 
-        creme.widget.input(element).val(data).change();
+        creme.widget.input(element).val(data).trigger('change');
     },
 
     _update_inputs: function(element, data) {
@@ -114,9 +114,9 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
         // var values = creme.widget.cleanval(value, {'type':'', 'start':null, 'end':null});
 
         if (values.type !== undefined) {
-            this._get_type(element).val(values.type).change();
-            this._get_start(element).val(values.start).change();
-            this._get_end(element).val(values.end).change();
+            this._get_type(element).val(values.type).trigger('change');
+            this._get_start(element).val(values.start).trigger('change');
+            this._get_end(element).val(values.end).trigger('change');
         }
     },
 

@@ -62,7 +62,7 @@ creme.widget.DynamicInput = creme.widget.declare('ui-creme-dinput', {
 
         element.val(value);
         element.removeAttr('disabled');
-        element.change();
+        element.trigger('change');
 
         this._updateDisabledState(element);
     },

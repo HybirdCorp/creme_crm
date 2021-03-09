@@ -126,7 +126,7 @@
 
                 $('select#test-size-selector').on('change', function() {
                     context.resize($(this).val());
-                }).val(context.screen).change();
+                }).val(context.screen).trigger('change');
             });
         </script>
 

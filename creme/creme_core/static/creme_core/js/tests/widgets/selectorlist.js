@@ -435,7 +435,7 @@ QUnit.test('creme.widgets.selectorlist.multiple-change (single selector)', funct
     equal(widget.val(), JSON.stringify([{ctype: '15'}]));
 
     // single change [ctype=5]
-    selector.selector('ctype').val('5').change();
+    selector.selector('ctype').val('5').trigger('change');
     equal(widget.val(), JSON.stringify([{ctype: '5'}]));
 
     // multiple change [ctype=5, ctype=15, ctype=3]
@@ -454,7 +454,7 @@ QUnit.test('creme.widgets.selectorlist.multiple-change (single selector)', funct
     equal(widget.val(), JSON.stringify([{ctype: '5'}, {ctype: '15'}, {ctype: '3'}, {ctype: '15'}]));
 
     // single change [ctype=5, ctype=15, ctype=3, ctype=18]
-    selector.selector('ctype').val('18').change();
+    selector.selector('ctype').val('18').trigger('change');
     equal(widget.selectors().length, 4);
     equal(widget.val(), JSON.stringify([{ctype: '5'}, {ctype: '15'}, {ctype: '3'}, {ctype: '18'}]));
 
@@ -501,7 +501,7 @@ QUnit.test('creme.widgets.selectorlist.multiple-change (multiple selector)', fun
     equal(widget.val(), JSON.stringify([{ctype: '15', rtype: '1'}]));
 
     // single change [{ctype=15, rtype=6}]
-    selector.selector('rtype').val('6').change();
+    selector.selector('rtype').val('6').trigger('change');
     equal(widget.val(), JSON.stringify([{ctype: '15', rtype: '6'}]));
 
     // multiple change [{ctype=15, rtype=6}, {ctype=15, rtype=1}, {ctype=15, rtype=17}]
@@ -521,7 +521,7 @@ QUnit.test('creme.widgets.selectorlist.multiple-change (multiple selector)', fun
     equal(widget.val(), JSON.stringify([{ctype: '15', rtype: '6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}, {ctype: '15', rtype: '1'}]));
 
     // single change [{ctype=15, rtype=6}, {ctype=15, rtype=1}, {ctype=15, rtype=17}, {ctype=24, rtype=1}]
-    selector.selector('ctype').val('24').change();
+    selector.selector('ctype').val('24').trigger('change');
     equal(widget.selectors().length, 4);
     equal(widget.val(), JSON.stringify([{ctype: '15', rtype: '6'}, {ctype: '15', rtype: '1'}, {ctype: '15', rtype: '17'}, {ctype: '24', rtype: '1'}]));
 
