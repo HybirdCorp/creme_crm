@@ -664,7 +664,7 @@ QUnit.test('creme.widget.DynamicSelect.val (static, multiple)', function(assert)
 
     deepEqual(['1', 'a'], widget.firstchoice());
     equal(true, widget.options().multiple);
-    equal(null, widget.val());
+    deepEqual([], widget.val());
 
     widget.val(3);
     deepEqual(['3'], widget.val());
@@ -673,7 +673,7 @@ QUnit.test('creme.widget.DynamicSelect.val (static, multiple)', function(assert)
     deepEqual(['5', '3'], widget.val());
 
     widget.val(15);
-    deepEqual(null, widget.val());
+    deepEqual([], widget.val());
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (static, multiple, json)', function(assert) {
@@ -693,7 +693,7 @@ QUnit.test('creme.widget.DynamicSelect.val (static, multiple, json)', function(a
     deepEqual([JSON.stringify({'a': 1}), 'a'], widget.firstchoice());
     equal(true, widget.options().multiple);
     equal('json', widget.options().datatype);
-    equal(null, widget.val());
+    deepEqual([], widget.val());
 
     widget.val({'c': 3});
     deepEqual([JSON.stringify({'c': 3})], widget.val());
@@ -704,7 +704,7 @@ QUnit.test('creme.widget.DynamicSelect.val (static, multiple, json)', function(a
     deepEqual([{'b': 5}, {'c': 3}], widget.cleanedval(), 'cleaned');
 
     widget.val(15);
-    deepEqual(null, widget.val());
+    deepEqual([], widget.val());
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (reload)', function(assert) {

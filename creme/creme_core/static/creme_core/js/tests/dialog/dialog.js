@@ -143,7 +143,7 @@ QUnit.test('creme.dialog.SelectionDialog (validator)', function(assert) {
     deepEqual([], this.mockListenerCalls('ok'));
     deepEqual([], this.mockListenerCalls('close'));
 
-    equal(null, $('select', dialog.content()).val());
+    deepEqual([], $('select', dialog.content()).val());
     dialog.ok();
 
     // no selection, not valid

@@ -25,7 +25,7 @@ QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin,
         options = $.extend({
             less: false,
             createUrl: 'mock/items/create',
-            delegate: '<select class="ui-creme-input" multiple/>',
+            delegate: '<select class="ui-creme-input" multiple></select>',
             attrs: {},
             auto: true,
             disabled: false
@@ -170,7 +170,7 @@ QUnit.test('creme.widget.CheckListSelect.create (disabled)', function(assert) {
 
     equal(1, widget.delegate._delegate(element).length);
     equal(true, widget.disabled());
-    equal(null, widget.val());
+    deepEqual([], widget.val());
     deepEqual([], widget.selected());
 
     deepEqual([{label: 'item1', value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
@@ -268,7 +268,7 @@ QUnit.test('creme.widget.CheckListSelect.val (required)', function(assert) {
 
     var input = element.find('select');
 
-    equal(null, widget.val());
+    deepEqual([], widget.val());
     equal(false, element.is('.is-field-invalid'));
 
     // not required
@@ -307,7 +307,7 @@ QUnit.test('creme.widget.CheckListSelect.val', function(assert) {
                            [{label: 'item1', value: '12', selected: false},
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: false}]);
-    equal(null, widget.val());
+    deepEqual([], widget.val());
 
     widget.val(["12", "5"]);
 
@@ -334,7 +334,7 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(asse
     var counter = element.find('.checklist-counter');
 
     equal('&nbsp;', counter.html());
-    equal(null, widget.val());
+    deepEqual([], widget.val());
     deepEqual([{label: 'item1', value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
                {label: 'item2', value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
                {label: 'item3', value: "5",  group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false}], widget.model().all());
@@ -388,7 +388,7 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect, click on label)
                            [{label: 'item1', value: '12', selected: false},
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: false}]);
-    equal(null, widget.val());
+    deepEqual([], widget.val());
 
     element.find('.checkbox-field[checklist-index="0"] .checkbox-label').trigger('click');
 
@@ -490,7 +490,7 @@ QUnit.test('creme.widget.CheckListSelect.selectAll', function(assert) {
                            [{label: 'item1', value: '12', selected: false},
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: false}]);
-    equal(null, widget.val());
+    deepEqual([], widget.val());
 
     widget.selectAll();
 
@@ -519,7 +519,7 @@ QUnit.test('creme.widget.CheckListSelect.selectAll (click)', function(assert) {
                            [{label: 'item1', value: '12', selected: false},
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: false}]);
-    equal(null, widget.val());
+    deepEqual([], widget.val());
 
     element.find('.checklist-check-all').trigger('click');
 
@@ -548,7 +548,7 @@ QUnit.test('creme.widget.CheckListSelect.selectAll (disabled options)', function
                            [{label: 'item1', value: '12', selected: false},
                             {label: 'item2', value: '78', selected: false, disabled: true},
                             {label: 'item3', value: '5',  selected: false}]);
-    equal(null, widget.val());
+    deepEqual([], widget.val());
 
     widget.selectAll();
 
@@ -672,7 +672,7 @@ QUnit.test('creme.widget.CheckListSelect.unselectAll', function(assert) {
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: false}]);
 
-    deepEqual(null, widget.val());
+    deepEqual([], widget.val());
 });
 
 QUnit.test('creme.widget.CheckListSelect.unselectAll (click)', function(assert) {
@@ -702,7 +702,7 @@ QUnit.test('creme.widget.CheckListSelect.unselectAll (click)', function(assert) 
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: false}]);
 
-    deepEqual(null, widget.val());
+    deepEqual([], widget.val());
 });
 
 QUnit.test('creme.widget.CheckListSelect.unselectAll (readonly options)', function(assert) {
@@ -763,7 +763,7 @@ QUnit.test('creme.widget.CheckListSelect.reset', function(assert) {
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: false}]);
 
-    deepEqual(null, widget.val());
+    deepEqual([], widget.val());
 });
 
 QUnit.test('creme.widget.CheckListSelect.filter', function(assert) {
