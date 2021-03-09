@@ -238,6 +238,10 @@ window.DateFaker.prototype = {
                 return new NativeDate(frozen);
             };
 
+            window.Date.now = function() {
+                return new NativeDate(frozen);
+            };
+
             callable(this);
         } finally {
             window.Date = NativeDate;

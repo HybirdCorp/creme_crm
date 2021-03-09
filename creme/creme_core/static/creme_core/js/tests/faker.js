@@ -464,6 +464,7 @@ QUnit.parametrize('DateFaker.with', [
     faker.with(function(datefaker) {
         deepEqual(faker, datefaker);
         equal(expected, new Date().toISOString());
+        equal(expected, Date.now().toISOString());
     });
 
     equal(origin, window.Date);
