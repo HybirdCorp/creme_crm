@@ -12,13 +12,6 @@
     {% brick_header_action id='add' url=create_url label=_('New role') enabled=admin_perm %}
 {% endblock %}
 
-{% block brick_before_content %}
-    <div class="help">
-        {% blocktranslate %}The users which are not super-users must have a role.
-It limits what the concerned users can see, edit, delete…{% endblocktranslate %}
-    </div>
-{% endblock %}
-
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' class='role-name' %}
     {% brick_table_column title=_('Allowed applications')       status='nowrap' class='role-apps' %}

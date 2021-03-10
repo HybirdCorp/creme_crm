@@ -1278,6 +1278,12 @@ svg.icon {
     padding: 5px;
 }
 
+.brick .help-text {
+    color: #777;
+    font-style: italic;
+    font-size: 12.5px;
+}
+
 /* Trash brick */
 .creme_core-trash-brick .trash-brick-modelname {
     vertical-align: middle;

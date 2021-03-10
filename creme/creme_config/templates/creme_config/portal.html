@@ -16,7 +16,7 @@
     </div>
 
     {% block portal_bricks %}
-    <div class="brick brick-table">
+    <div class="brick brick-table creme_config-portal-general">
         <div class="brick-header">
             <div class="brick-title-container">
                 {% brick_header_title title=_('General') icon='config' %}
@@ -25,15 +25,42 @@
         <div class="brick-content">
             <table class="brick-table-content">
                 <tbody>
-                    <tr><td><a href="{% url 'creme_config__rtypes' %}">{% translate 'Relation types settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__ptypes' %}">{% translate 'Property types settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__fields' %}">{% translate 'Fields settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__custom_fields' %}">{% translate 'Custom fields settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__custom_forms' %}">{% translate 'Custom forms settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__bricks' %}">{% translate 'Blocks settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__buttons' %}">{% translate 'Button menu settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__search' %}">{% translate 'Search settings' %}</a></td></tr>
-                    <tr><td><a href="{% url 'creme_config__history' %}">{% translate 'History settings' %}</a></td></tr>
+                    <tr><td>
+                        <a href="{% url 'creme_config__rtypes' %}">{% translate 'Relationship types settings' %}</a>
+                        <span class="help-text">{% translate 'See existing Relationship types, create customised ones' %}</span>
+                    </td></tr>
+                    <tr><td>
+                        <a href="{% url 'creme_config__ptypes' %}">{% translate 'Property types settings' %}</a>
+                        <span class="help-text">{% translate 'See existing Property types, create new ones' %}</span>
+                    </td></tr>
+                    <tr><td>
+                        <a href="{% url 'creme_config__fields' %}">{% translate 'Fields settings' %}</a>
+                        <span class="help-text">{% translate 'Hide existing fields of entities' %}</span>
+                    </td></tr>
+                    <tr><td>
+                        <a href="{% url 'creme_config__custom_fields' %}">{% translate 'Custom fields settings' %}</a>
+                        <span class="help-text">{% translate 'Add new fields to entities' %}</span>
+                    </td></tr>
+                    <tr><td>
+                        <a href="{% url 'creme_config__custom_forms' %}">{% translate 'Custom forms settings' %}</a>
+                        <span class="help-text">{% translate 'Customise the forms (which fields, their order…) of entities' %}</span>
+                    </td></tr>
+                    <tr><td>
+                        <a href="{% url 'creme_config__bricks' %}">{% translate 'Blocks settings' %}</a>
+                        <span class="help-text">{% translate "Customise the blocks' locations on detailed views, homes & default «My page»" %}</span>
+                    </td></tr>
+                    <tr><td>
+                        <a href="{% url 'creme_config__buttons' %}">{% translate 'Button menu settings' %}</a>
+                        <span class="help-text">{% translate 'Customise the buttons of detailed views' %}</span>
+                    </td></tr>
+                    <tr><td>
+                        <a href="{% url 'creme_config__search' %}">{% translate 'Search settings' %}</a>
+                        <span class="help-text">{% translate 'Set the fields which are inspected by the global search' %}</span>
+                    </td></tr>
+                    <tr><td>
+                        <a href="{% url 'creme_config__history' %}">{% translate 'History settings' %}</a>
+                        <span class="help-text">{% translate 'Set the Relationship types used to generate related history lines' %}</span>
+                    </td></tr>
                 </tbody>
             </table>
         </div>

@@ -4,6 +4,19 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     height: 14px;
 }
 
+/* Portal */
+
+.creme_config-portal-general .help-text {
+    display: table-cell;
+
+    padding-left: 20px;
+    padding-top: 5px;
+}
+
+/* Portal - end */
+
+/* My configuration */
+
 .theme_picker,
 .tz_picker,
 .language_picker {
@@ -22,6 +35,8 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 .language_picker label {
     font-weight: bolder;
 }
+
+/* My configuration - end */
 
 /* Search/Bricks config */
 

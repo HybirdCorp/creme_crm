@@ -3,13 +3,6 @@
 
 {% block brick_extra_class %}{{block.super}} creme_config-property-types-brick{% endblock %}
 
-{% block brick_before %}
-{# {% if not request.is_ajax %} #}
-{% if not request|is_ajax %}
-    <div class="help_box">{% translate 'Deleting a property type will delete the associated properties' %}</div>
-{% endif %}
-{% endblock %}
-
 {% block brick_header_title %}
     {% brick_header_title title=_('{count} Type of property') plural=_('{count} Types of property') empty=verbose_name icon='property' %}
 {% endblock %}

@@ -2,13 +2,13 @@
 # Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -l fr -i "tests/*"
+# > django-admin makemessages -l fr -i "tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Config 2.2\n"
+"Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-10 10:24+0100\n"
+"POT-Creation-Date: 2021-03-10 17:40+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -543,17 +543,17 @@ msgstr ""
 msgid "Deletion is not possible."
 msgstr "La suppression n'est pas possible."
 
+msgid "Relation types"
+msgstr "Types de relation"
+
 msgid ""
-"If an entity is linked to other entities by a relationship of this type, the "
+"If an entity is linked to other entities by a Relationship of this type, the "
 "history lines that are about the edition of this entity will appear in the "
 "history of the others entities."
 msgstr ""
-"Si une fiche est liée à d'autres fiches par une relation de ce type,\n"
-" les lignes d'historique à propos des modifications de cette fiche "
-"apparaitront dans l'historique des autres fiches."
-
-msgid "Relation types"
-msgstr "Types de relation"
+"Si une fiche est liée à d'autres fiches par une Relation de ce type, les "
+"lignes d'historique à propos des modifications de cette fiche apparaitront "
+"dans l'historique des autres fiches."
 
 msgid "Type constraint"
 msgstr "Contrainte sur le type"
@@ -835,12 +835,12 @@ msgid "No block for the moment"
 msgstr "Aucun bloc pour le moment"
 
 #, python-brace-format
-msgid "{count} Configured type of resource"
-msgstr "{count} Type de ressource configuré"
+msgid "Detailed views — {count} Configured type of resource"
+msgstr "Vues détaillées — {count} Type de ressource configuré"
 
 #, python-brace-format
-msgid "{count} Configured types of resource"
-msgstr "{count} Types de ressource configurés"
+msgid "Detailed views — {count} Configured types of resource"
+msgstr "Vues détaillées — {count} Types de ressource configurés"
 
 #, python-format
 msgid "%(count)s block"
@@ -899,6 +899,15 @@ msgstr "{count} Blocs sur «Ma page» par défaut"
 msgid "Edit blocks configuration"
 msgstr "Modifier la configuration de blocs"
 
+msgid ""
+"Each user has its own view «My Page», which can be configured in «My "
+"configuration» (see the menu entry «Creme»). Here you set the blocks used "
+"when a user did not set its own configuration."
+msgstr ""
+"Chaque utilisateur a sa propre vue «Ma Page», qui peut être configuré dans "
+"«Ma configuration» (voir l'entrée de menu «Creme»). Ici vous indiquez les "
+"blocs utilisés quand un utilisateur n'a pas fait sa propre configuration."
+
 msgid "Remove this block"
 msgstr "Enlever ce bloc"
 
@@ -915,6 +924,14 @@ msgstr "Modifier la configuration"
 
 msgid "Delete the configuration"
 msgstr "Supprimer la configuration"
+
+#, python-brace-format
+msgid "{count} Configured type of resource"
+msgstr "{count} Type de ressource configuré"
+
+#, python-brace-format
+msgid "{count} Configured types of resource"
+msgstr "{count} Types de ressource configurés"
 
 msgid "Configured types of resource"
 msgstr "Types de ressource configurés"
@@ -1051,6 +1068,16 @@ msgstr "{count} Blocs personnalisés"
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
+msgid ""
+"This kind of block can display information (fields, custom fields, "
+"relationships…) about the current entity. Once a type is created, it is "
+"available in the configuration of the corresponding detailed view."
+msgstr ""
+"Ce type de bloc peut afficher des informations (champs, champs "
+"personnalisés, relations…) à propos de la fiche courante. Une fois qu'un "
+"type a été créé, il est disponible dans la configuration de la vue détaillée "
+"correspondante."
+
 msgid "Type"
 msgstr "Type"
 
@@ -1083,15 +1110,6 @@ msgstr "Types de relation utilisés"
 msgid "Add some relationship types"
 msgstr "Ajouter des types de relation utilisés"
 
-msgid ""
-"When an entity is modified, if it has some relationships (the entity is the "
-"subject) with a type from the configured ones, the related entities get a "
-"line in their history which indicates this modification."
-msgstr ""
-"Quand une fiche est modifiée, si elle a des relations (la fiche étant sujet) "
-"avec un des types configurés, alors les fiches reliées reçoivent une ligne "
-"d'historique qui indique la modification."
-
 msgid "Remove this relationship type"
 msgstr "Enlever ce type de relation"
 
@@ -1105,6 +1123,13 @@ msgstr "{count} Bloc d'instance créé"
 #, python-brace-format
 msgid "{count} Instances' blocks created"
 msgstr "{count} Blocs d'instance créés"
+
+msgid ""
+"This kind of block is created by specific apps (like «Reports») & can be "
+"placed on detailed views or home."
+msgstr ""
+"Ce type de bloc est créé par des apps spécifiques (comme «Rapports») & peut "
+"être placé sur les vues détaillées ou l'accueil."
 
 msgid "Can be displayed on"
 msgstr "Peut être affiché sur"
@@ -1123,9 +1148,6 @@ msgstr "Tous les types de fiche"
 
 msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
-
-msgid "Deleting a property type will delete the associated properties"
-msgstr "Supprimer un type de propriété supprimera les propriétés associées"
 
 #, python-brace-format
 msgid "{count} Type of property"
@@ -1240,6 +1262,15 @@ msgstr "Types de bloc de relation créés"
 msgid "New type of block"
 msgstr "Nouveau type de bloc"
 
+msgid ""
+"This kind of block displays the entities linked to the current entity with a "
+"given Relationship type. Once a type is created, it is available in the "
+"configuration of detailed views."
+msgstr ""
+"Ce type de bloc affiche les fiches reliées à la fiche courante avec un type "
+"donné de Relation. Une fois qu'un type a été créé, il est disponible dans la "
+"configuration des vues détaillées."
+
 msgid "All types are configured"
 msgstr "Tous les types sont configurés"
 
@@ -1279,6 +1310,11 @@ msgstr "{count} Types de relation semi-fixés"
 
 msgid "New semi-fixed type"
 msgstr "Nouveau type semi-fixé"
+
+msgid ""
+"If you often manually create Relationships with the same type and object "
+"entity, semi-fixed types create a shortcut"
+msgstr ""
 
 msgid "Type of relationship"
 msgstr "Type de relation"
@@ -1403,14 +1439,6 @@ msgstr "{count} Rôles"
 msgid "New role"
 msgstr "Nouveau rôle"
 
-msgid ""
-"The users which are not super-users must have a role.\n"
-"It limits what the concerned users can see, edit, delete…"
-msgstr ""
-"Les utilisateurs qui ne sont pas super-utilisateurs doivent avoir un rôle.\n"
-"Il limite ce que les utilisateurs concernés peuvent voir, modifier, "
-"supprimer…"
-
 msgid "Creation credentials"
 msgstr "Droits de création"
 
@@ -1500,6 +1528,18 @@ msgstr "Champs personnalisés"
 msgid "Configuration of custom fields"
 msgstr "Configuration des champs personnalisés"
 
+msgid ""
+"Here you can add fields to each entity types.\n"
+"Beware: this kind of field is less performant for searching/filtering of big "
+"number of entities.\n"
+"Notice: if you just want simple markers, Properties could be used instead."
+msgstr ""
+"Ici vous pouvez ajouter des champs à chaque type de fiche.\n"
+"Attention : ce type de champ est moins performant pour la recherche/filtrage "
+"avec un grand nombre de fiches.\n"
+"Remarque: si vous voulez juste de simples marqueurs, les Propriétés peuvent "
+"être utilisées à la place."
+
 msgid "Status"
 msgstr "Statut"
 
@@ -1534,32 +1574,64 @@ msgstr "Portail de Configuration de Creme"
 msgid "General"
 msgstr "Général"
 
-msgid "Relation types settings"
-msgstr "Gestion des types de relation"
+msgid "Relationship types settings"
+msgstr "Gestion des types de Relation"
+
+msgid "See existing Relationship types, create customised ones"
+msgstr "Voir des types de Relation existants, créer-en des personnalisés"
 
 msgid "Property types settings"
-msgstr "Gestion des types de propriété"
+msgstr "Gestion des types de Propriété"
+
+msgid "See existing Property types, create new ones"
+msgstr "Voir des types de Propriété existants, créer-en de nouveaux"
 
 msgid "Fields settings"
 msgstr "Gestion des champs"
 
+msgid "Hide existing fields of entities"
+msgstr "Cacher des champs de fiche existants"
+
 msgid "Custom fields settings"
 msgstr "Gestion des champs personnalisés (custom fields)"
+
+msgid "Add new fields to entities"
+msgstr "Ajouter de nouveaux champs aux fiches"
 
 msgid "Custom forms settings"
 msgstr "Gestion des formulaires personnalisés"
 
+msgid "Customise the forms (which fields, their order…) of entities"
+msgstr "Personnaliser les formulaires (quels champs, leur ordre…) des fiches"
+
 msgid "Blocks settings"
 msgstr "Gestion des blocs"
+
+msgid ""
+"Customise the blocks' locations on detailed views, homes & default «My page»"
+msgstr ""
+"Personnaliser l'emplacement des blocs pour les vues détaillées, les accueils "
+"et «Ma page» par défaut."
 
 msgid "Button menu settings"
 msgstr "Gestion du menu bouton"
 
+msgid "Customise the buttons of detailed views"
+msgstr "Personnaliser les boutons des vues détaillées"
+
 msgid "Search settings"
 msgstr "Gestion de la recherche"
 
+msgid "Set the fields which are inspected by the global search"
+msgstr "Configurer les champs qui sont inspectés par la recherche globale"
+
 msgid "History settings"
 msgstr "Gestion de l'historique"
+
+msgid "Set the Relationship types used to generate related history lines"
+msgstr ""
+"Configurer les types de Relation utilisés pour générer des lignes "
+"d'historique relatives"
 
 msgid "Credentials management"
 msgstr "Gestion des droits"
@@ -1586,17 +1658,63 @@ msgstr "Configuration des blocs"
 msgid "Configuration of buttons"
 msgstr "Configuration des boutons"
 
+msgid ""
+"Here you can configure the buttons displayed on detailed views, just below "
+"the header block."
+msgstr ""
+"Ici vous pouvez configurer les boutons affichés dans les vues détaillées, "
+"juste en dessous du bloc entête."
+
 msgid "Configuration of custom forms"
 msgstr "Configuration des formulaires personnalisés"
 
 msgid "Configuration of fields"
 msgstr "Configuration des champs"
 
+msgid ""
+"Here you can hide existing fields which are optional. Hidden fields "
+"disappear everywhere (blocks on detailed views, forms, list-views…) as if "
+"they do not exist anymore.\n"
+"Notice: if you just want to hide them in some places but not all of them, "
+"you should use another way (eg: custom block, custom form, view of list…)."
+msgstr ""
+"Ici vous pouvez cacher des champs existants qui sont optionnels. Les champs "
+"cachés disparaissent de partout (blocs des vues détaillées, formulaires, "
+"vues de liste…) comme s'ils n'existaient plus.\n"
+"Remarque : si vous voulez juste les cacher à certains endroits mais pas "
+"tous, vous devriez utiliser une autre méthode (ex: bloc personnalisé, "
+"formulaire personnalisé, vue de liste…)."
+
 msgid "Configuration of history"
 msgstr "Configuration de l'historique"
 
+msgid ""
+"When an entity is modified, if it has some relationships (the entity is the "
+"subject) with a type from the configured ones, the related entities get a "
+"line in their history which indicates this modification."
+msgstr ""
+"Quand une fiche est modifiée, si elle a des relations (la fiche étant sujet) "
+"avec un des types configurés, alors les fiches reliées reçoivent une ligne "
+"d'historique qui indique la modification."
+
 msgid "Configuration of properties"
 msgstr "Configuration des propriétés"
+
+msgid ""
+"Properties are kind of markers (eg: \"likes Open Source\") you set on "
+"entities, & which are useful in several cases (filtering, Relationships "
+"constraints…).\n"
+"Create new types here to make them available for entities.\n"
+"\n"
+"BEWARE: deleting a Property type will delete the associated properties."
+msgstr ""
+"Les Propriétés sont des sortes de marqueurs (ex: \"aime l'Open Source\") que "
+"vous mettez sur les fiches, & qui sont utiles dans plusieurs cas (filtrage, "
+"contraintes de Relations…).\n"
+"Créez de nouveaux types ici pour les rendre disponibles pour les fiches.\n"
+"\n"
+"ATTENTION : supprimer un type de propriété supprimera les propriétés "
+"associées."
 
 msgid "Configuration of relationships"
 msgstr "Configuration des relations"
@@ -1610,23 +1728,30 @@ msgstr "Configuration de la recherche"
 msgid "Search in Creme"
 msgstr "Recherche dans Creme"
 
-msgid "Create search settings in order to make the global search faster."
+msgid ""
+"Create search settings in order to make the global search (see right side of "
+"the main menu) faster.\n"
+"Notice: limit the number of fields per type for better performance and "
+"better results visibility."
 msgstr ""
 "Créez des configurations de recherche afin de rendre la recherche globale "
-"plus rapide."
-
-msgid ""
-"Limit the number of fields per type for better performance and better "
-"results visibility."
-msgstr ""
-"Limitez le nombre de champs par type pour de meilleures performances et une "
-"meilleure visibilité des résultats."
-
-msgid "Edit a configuration to specify the search fields."
-msgstr "Modifiez une configuration pour spécifier des champs de recherche."
+"(voir à droite du menu principal)plus rapide.Remarque : limitez le nombre de "
+"champs par type pour de meilleures performances et une meilleure visibilité "
+"des résultats."
 
 msgid "Configuration of roles"
 msgstr "Configuration des rôles"
+
+msgid ""
+"The users which are not super-users must have a role. It limits what the "
+"concerned users can see, edit, delete…\n"
+"If you have many users, it's a good practice to use roles."
+msgstr ""
+"Les utilisateurs qui ne sont pas super-utilisateurs doivent avoir un rôle. "
+"Il limite ce que les utilisateurs concernés peuvent voir, modifier, "
+"supprimer…\n"
+"Si vous avez plusieurs utilisateurs, c'est une bonne pratique d'utiliser les "
+"rôles."
 
 msgid "Configuration of users"
 msgstr "Configuration des utilisateurs"
@@ -1887,32 +2012,17 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "Can unlink"
 #~ msgstr "Peut délier"
 
-#~ msgid "Edit «{}»"
-#~ msgstr "Modifier «{}»"
-
-#~ msgid "{count} Block on home"
-#~ msgstr "{count} Bloc sur l'accueil"
-
 #~ msgid "{count} Blocks on home"
 #~ msgstr "{count} Blocs sur l'accueil"
 
 #~ msgid "Related entity"
 #~ msgstr "Fiche concernée"
 
-#~ msgid "Edit the type «{predicate}»"
-#~ msgstr "Modifier le type «{predicate}»"
-
-#~ msgid "You can't delete a staff user."
-#~ msgstr "Vous ne pouvez pas supprimer un super administrateur."
-
 #~ msgid "Portal of general configuration"
 #~ msgstr "Portail de la configuration générale"
 
 #~ msgid "Related application"
 #~ msgstr "Application associée"
-
-#~ msgid "Blocks to display on the portal"
-#~ msgstr "Blocs à afficher sur le portail"
 
 #~ msgid "Menu entries"
 #~ msgstr "Entrées du menu"

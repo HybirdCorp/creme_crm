@@ -12,6 +12,12 @@
     {% brick_header_action id='edit' url=edit_def_url label=_('Edit blocks configuration') enabled=admin_perm %}
 {% endblock %}
 
+{% block brick_before_content %}
+    <div class="help">
+        {% translate 'Each user has its own view «My Page», which can be configured in «My configuration» (see the menu entry «Creme»). Here you set the blocks used when a user did not set its own configuration.' %}
+    </div>
+{% endblock %}
+
 {% block brick_mypage_location_row_action %}
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_default_mypage_bricks' as delete_url %}
     {% brick_table_action id='delete' url=delete_url __id=location.id label=_('Remove this block') enabled=admin_perm %}

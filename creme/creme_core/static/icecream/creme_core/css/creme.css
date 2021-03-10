@@ -398,6 +398,31 @@ button {
     width: 100%;
 }
 
+.help-sign {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    padding: 10px;
+    margin: 10px;
+
+    background: #fff7a1;
+    background: linear-gradient(to right, #fff7a1 20%, #fff7a100 90%);
+
+    border-radius: 7px;
+
+    color: #75452e;
+}
+
+.help-sign p {
+    margin: 0;
+    padding: 0;
+}
+
+.help-sign img {
+    margin-right: 10px;
+}
+
 .selectable:hover {
     background-color: #fff7d0 !important;
 }
