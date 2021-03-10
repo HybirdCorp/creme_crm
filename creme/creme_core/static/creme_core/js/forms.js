@@ -291,50 +291,50 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
     function refreshButtons($sel) {
         if ($sel === undefined) {
-            $add_button.attr('disabled', 'disabled');
-            $rem_button.attr('disabled', 'disabled');
-            $up_button.attr('disabled', 'disabled');
-            $down_button.attr('disabled', 'disabled');
+            $add_button.prop('disabled', true);
+            $rem_button.prop('disabled', true);
+            $up_button.prop('disabled', true);
+            $down_button.prop('disabled', true);
         } else {
             var $parent = $sel.parent();
 
             if ($parent.attr('name') === 'chosen') {
-                $add_button.attr('disabled', 'disabled');
-                $rem_button.removeAttr('disabled');
+                $add_button.prop('disabled', true);
+                $rem_button.prop('disabled', false);
 
                 var sel_name = $sel.attr('name');
 
                 if (sel_name === $chosen.find('li:first').attr('name')) {
-                    $up_button.attr('disabled', 'disabled');
+                    $up_button.prop('disabled', true);
                 } else {
-                    $up_button.removeAttr('disabled');
+                    $up_button.prop('disabled', false);
                 }
 
                 if (sel_name === $chosen.find('li:last').attr('name')) {
-                    $down_button.attr('disabled', 'disabled');
+                    $down_button.prop('disabled', true);
                 } else {
-                    $down_button.removeAttr('disabled');
+                    $down_button.prop('disabled', false);
                 }
             } else { // $available list
-                $add_button.removeAttr('disabled');
-                $rem_button.attr('disabled', 'disabled');
-                $up_button.attr('disabled', 'disabled');
-                $down_button.attr('disabled', 'disabled');
+                $add_button.prop('disabled', false);
+                $rem_button.prop('disabled', true);
+                $up_button.prop('disabled', true);
+                $down_button.prop('disabled', true);
             }
         }
 
         var chosenCount = $chosen.find('li').length;
 
         if (chosenCount === 0) {
-            $remall_button.attr('disabled', 'disabled');
+            $remall_button.prop('disabled', true);
         } else {
-            $remall_button.removeAttr('disabled');
+            $remall_button.prop('disabled', false);
         }
 
         if (($available.find('li').length - chosenCount) === 0) {
-            $addall_button.attr('disabled', 'disabled');
+            $addall_button.prop('disabled', true);
         } else {
-            $addall_button.removeAttr('disabled');
+            $addall_button.prop('disabled', false);
         }
     }
 
