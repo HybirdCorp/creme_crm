@@ -154,6 +154,13 @@
                     console.warn(message);
                 }
             }
+
+            this.qunitDOMCleanup();
+        },
+
+        qunitDOMCleanup: function() {
+            $('[id^=qunit-fixture-]').empty();
+            $('#qunit-fixture').empty();
         },
 
         qunitDOMCleanupCheck: function(status) {
