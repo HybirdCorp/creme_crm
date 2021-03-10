@@ -514,7 +514,7 @@ QUnit.parameterize('creme.forms.toImportField', [
     ['1', true]    // "Column 1" => visible
 ], function(initial, expected, assert) {
     this.qunitFixture().append($(
-        '<table id="field_a">' +
+        '<table id="csv_field_a">' +
             '<tbody><tr>' +
                 '<td class="csv_column_select">' +
                     '<select name="column_select" class="csv_col_select">' +
@@ -530,20 +530,22 @@ QUnit.parameterize('creme.forms.toImportField', [
         '</table>')
     );
 
-    this.qunitFixture().find('#field_a .csv_col_select').val(initial);
+    $('#csv_field_a .csv_col_select').val(initial);
 
-    creme.forms.toImportField('field_a', '.csv_column_options', 0);
+    // jquery 3.6+ : replace speed=0 by speed=null or an animation will be triggered anyway
+    // and the ':visible' state may randomly fail
+    creme.forms.toImportField('csv_field_a', '.csv_column_options', null);
 
     // initial visible state : 0 => hidden, 1 => visible
-    equal(this.qunitFixture().find('#field_a .csv_column_options').is(':visible'), expected);
+    equal($('#csv_field_a .csv_column_options').is(':visible'), expected);
 
     // toggle state "not in csv" => not visible
-    this.qunitFixture().find('#field_a .csv_col_select').val('0').trigger('change');
-    equal(this.qunitFixture().find('#field_a .csv_column_options').is(':visible'), false);
+    $('#csv_field_a .csv_col_select').val('0').trigger('change');
+    equal($('#csv_field_a .csv_column_options:not(:visible)').length, 1);
 
     // toggle state "Column 1" => visible
-    this.qunitFixture().find('#field_a .csv_col_select').val('1').trigger('change');
-    equal(this.qunitFixture().find('#field_a .csv_column_options').is(':visible'), true);
+    $('#csv_field_a .csv_col_select').val('1').trigger('change');
+    equal($('#csv_field_a .csv_column_options:visible').length, 1);
 });
 
 }(jQuery));
