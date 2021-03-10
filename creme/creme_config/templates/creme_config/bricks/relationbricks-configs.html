@@ -12,6 +12,12 @@
     {% brick_header_action id='add' url=create_url label=_('New type of block') enabled=admin_perm %}
 {% endblock %}
 
+{% block brick_before_content %}
+    <div class="help">
+        {% translate 'This kind of block displays the entities linked to the current entity with a given Relationship type. Once a type is created, it is available in the configuration of detailed views.' %}
+    </div>
+{% endblock %}
+
 {% block brick_list_content %}
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_rtype_brick' as delete_url %}
     {% for brick_type in page.object_list %}

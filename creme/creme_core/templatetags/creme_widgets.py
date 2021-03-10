@@ -273,6 +273,11 @@ def widget_enumerator(items, threshold=None, empty=''):
     return {'items': items, 'threshold': threshold, 'empty_label': empty}
 
 
+@register.inclusion_tag('creme_core/templatetags/widgets/help-sign.html')
+def widget_help_sign(message, icon='info'):
+    return {'message': message, 'icon': icon}
+
+
 @register.tag(name='widget_join')
 def do_join(parser, token):
     """ Joins the items items of a enumeration (ie: for loop) in a pretty way.

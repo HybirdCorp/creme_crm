@@ -12,6 +12,12 @@
     {% brick_header_action id='add' url=create_url label=_('New custom block') enabled=admin_perm %}
 {% endblock %}
 
+{% block brick_before_content %}
+    <div class="help">
+        {% translate 'This kind of block can display information (fields, custom fields, relationships…) about the current entity. Once a type is created, it is available in the configuration of the corresponding detailed view.' %}
+    </div>
+{% endblock %}
+
 {% block brick_table_columns %}
     {% brick_table_column title=_('Type')                         class='custombrick-config-type' %}
     {% brick_table_column title=_('Name') status='primary nowrap' class='custombrick-config-label' %}

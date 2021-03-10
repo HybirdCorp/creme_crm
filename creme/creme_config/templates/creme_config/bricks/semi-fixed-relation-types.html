@@ -12,6 +12,10 @@
     {% brick_header_action id='add' url=create_url label=_('New semi-fixed type') enabled=admin_perm %}
 {% endblock %}
 
+{% block brick_before_content %}
+    <div class="help">{% translate 'If you often manually create Relationships with the same type and object entity, semi-fixed types create a shortcut' %}</div>
+{% endblock %}
+
 {% block brick_table_columns %}
     {% brick_table_column title=_('Predicate') status='nowrap' %}
     {% brick_table_column title=_('Object') %}

@@ -1,5 +1,5 @@
 {% extends 'creme_config/portal.html' %}
-{% load i18n creme_core_tags creme_bricks %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block page_title %}{% translate 'Configuration of buttons' %} - {% endblock %}
 
@@ -9,6 +9,8 @@
 {% endblock %}
 
 {% block portal_bricks %}
+    {% widget_help_sign message=_('Here you can configure the buttons displayed on detailed views, just below the header block.') %}
+
     {% brick_import app='creme_config' name='button_menu' as button_menu_brick %}
     {% brick_display button_menu_brick %}
 {% endblock %}

@@ -7,6 +7,12 @@
     {% brick_header_title title=_("{count} Instance's block created") plural=_("{count} Instances' blocks created") empty=verbose_name icon='config' %}
 {% endblock %}
 
+{% block brick_before_content %}
+    <div class="help">
+        {% translate 'This kind of block is created by specific apps (like «Reports») & can be placed on detailed views or home.' %}
+    </div>
+{% endblock %}
+
 {% block brick_table_columns %}
     {% brick_table_column title=_('Name')   status='primary nowrap' class='instancebrick-config-name' %}
     {% brick_table_column title=_('Can be displayed on') %}

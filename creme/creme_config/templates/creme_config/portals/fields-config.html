@@ -1,5 +1,5 @@
 {% extends 'creme_config/portal.html' %}
-{% load i18n creme_core_tags creme_bricks %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block page_title %}{% translate 'Configuration of fields' %} - {% endblock %}
 
@@ -9,6 +9,10 @@
 {% endblock %}
 
 {% block portal_bricks %}
+{% blocktranslate asvar help_msg %}Here you can hide existing fields which are optional. Hidden fields disappear everywhere (blocks on detailed views, forms, list-views…) as if they do not exist anymore.
+Notice: if you just want to hide them in some places but not all of them, you should use another way (eg: custom block, custom form, view of list…).{% endblocktranslate %}
+    {% widget_help_sign message=help_msg %}
+
     {% brick_import app='creme_config' name='fields_configs' as fields_configs_brick %}
     {% brick_display fields_configs_brick %}
 {% endblock %}
