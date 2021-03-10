@@ -72,7 +72,7 @@ QUnit.module("creme.reports.actions", new QUnitMixin(QUnitEventMixin,
 
         this.setMockBackendPOST({
             'mock/reports/filterform': function(url, data, options) {
-                var redirectUrl = 'mock/reports/download?' + $.param(data);
+                var redirectUrl = 'mock/reports/download?' + creme.ajax.param(data);
                 return backend.response(200, redirectUrl, {'content-type': 'text/plain'});
             },
             'mock/reports/filterform/invalid': backend.response(200, this.createExportDialogHtml()),
@@ -122,7 +122,7 @@ QUnit.test('creme.reports.hatbar.actions (reports-export, ok)', function(assert)
 
     this.assertClosedDialog();
 
-    var downloadUrl = 'mock/reports/download?' + $.param({
+    var downloadUrl = 'mock/reports/download?' + creme.ajax.param({
         doc_type: 'csv',
         date_field: '',
         date_filter_0: '',
@@ -206,7 +206,7 @@ QUnit.test('creme.reports.PreviewController (preview or download)', function(ass
     element.find('[name="doc_type"]').val('csv');
     element.find('[data-daterange-type]').val('previous_year').trigger('change');
 
-    var downloadUrl = '/mock/reports/download?' + $.param({
+    var downloadUrl = '/mock/reports/download?' + creme.ajax.param({
         doc_type: 'csv',
         date_field: '',
         date_filter_0: 'previous_year',
@@ -214,7 +214,7 @@ QUnit.test('creme.reports.PreviewController (preview or download)', function(ass
         date_filter_2: ''
     });
 
-    var previewUrl = '/mock/reports/preview?' + $.param({
+    var previewUrl = '/mock/reports/preview?' + creme.ajax.param({
         doc_type: 'csv',
         date_field: '',
         date_filter_0: 'previous_year',

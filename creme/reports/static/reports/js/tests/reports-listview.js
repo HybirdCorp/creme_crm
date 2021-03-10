@@ -46,7 +46,7 @@ QUnit.module("creme.reports.listview.actions", new QUnitMixin(QUnitEventMixin,
 
         this.setMockBackendPOST({
             'mock/reports/filterform': function(url, data, options) {
-                var redirectUrl = 'mock/reports/download?' + $.param(data);
+                var redirectUrl = 'mock/reports/download?' + creme.ajax.param(data);
                 return backend.response(200, redirectUrl, {'content-type': 'text/plain'});
             },
             'mock/reports/filterform/invalid': backend.response(200, MOCK_FILTERFORM_CONTENT),
@@ -119,7 +119,7 @@ QUnit.test('creme.reports.ExportReportAction (csv, none)', function(assert) {
 
     this.assertClosedDialog();
 
-    var download_url = 'mock/reports/download?' + $.param({doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''});
+    var download_url = 'mock/reports/download?' + creme.ajax.param({doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''});
 
     deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
 
@@ -158,7 +158,7 @@ QUnit.test('creme.reports.ExportReportAction (xls, created, previous_year)', fun
 
     this.assertClosedDialog();
 
-    var download_url = 'mock/reports/download?' + $.param({doc_type: 'xls', date_field: 'created', date_filter_0: 'previous_year', date_filter_2: ''});
+    var download_url = 'mock/reports/download?' + creme.ajax.param({doc_type: 'xls', date_field: 'created', date_filter_0: 'previous_year', date_filter_2: ''});
 
     deepEqual([['done', download_url]], this.mockListenerCalls('action-done'));
 
@@ -201,7 +201,9 @@ QUnit.test('creme.reports.listview.actions (reports-export, ok)', function(asser
 
     this.assertClosedDialog();
 
-    var download_url = 'mock/reports/download?' + $.param({doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''});
+    var download_url = 'mock/reports/download?' + creme.ajax.param({
+        doc_type: 'csv', date_field: '', date_filter_0: '', date_filter_2: ''
+    });
 
     deepEqual([
         ['GET', {}],

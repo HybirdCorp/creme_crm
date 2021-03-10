@@ -90,7 +90,7 @@ var GoogleAPILoader = creme.component.Action.sub({
             };
 
             script.type = 'text/javascript';
-            script.src = 'https://maps.googleapis.com/maps/api/js?' + $.param(parameters);
+            script.src = 'https://maps.googleapis.com/maps/api/js?' + creme.ajax.param(parameters);
 
             document.head.appendChild(script);
         }

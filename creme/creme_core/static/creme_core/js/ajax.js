@@ -24,17 +24,6 @@
 (function($) {
 "use strict";
 
-$(document).ajaxSend(function(event, xhr, settings) {
-    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-        // Only send the token to relative URLs i.e. locally.
-        xhr.setRequestHeader("X-CSRFToken", creme.ajax.cookieCSRF());
-    }
-});
-
-// Traditional parameter serialization (true: a=1&a=2&b=3, false: a[]=1&a[]=2&b=3)
-// So, with false if a param is used more than once "[]" is appended to the param name
-jQuery.ajaxSettings.traditional = true;
-
 creme.ajax = creme.ajax || {};
 
 /* istanbul ignore next */
