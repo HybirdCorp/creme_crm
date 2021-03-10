@@ -99,6 +99,10 @@ QUnit.test('creme.ajax.parseUrl (encoded)', function(assert) {
     }, creme.ajax.parseUrl('/this/is/a/test?a%5Bone%5D=1&a%5Btwo%5D=2&a%5Bthree%5D=3&b=b%3D1%2C2%2C3&c%5B%5D=1&c%5B%5D=2&c%5B%5D=3'));
 });
 
+QUnit.test('creme.ajax.param', function(assert) {
+    equal('a=12&b=1&b=2&d=', creme.ajax.param({a: 12, b: [1, 2], c: [], d: ''}));
+});
+
 QUnit.test('creme.ajax.URL (properties)', function(assert) {
     deepEqual({
         href: 'http://joe:pwd@admin.com:8080/this/is/a/test#hash',
