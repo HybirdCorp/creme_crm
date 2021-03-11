@@ -14,8 +14,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Assistants (Todos, Memo, ...)"
-msgstr "Assistants (Todos, Mémo, ...)"
+msgid "Assistants (Todos, Memos, ...)"
+msgstr "Assistants (Todos, Mémos, ...)"
 
 msgid "Todos"
 msgstr "Todos"
