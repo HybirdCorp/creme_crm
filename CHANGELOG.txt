@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # The code for queries optimization of the Imprint brick has been fixed.
     # Apps :
         * Creme_config :
             - In the bricks' configuration, the button to add an home configuration for a role was hidden in some cases it should not.
