@@ -42,6 +42,7 @@ from .models import (
     RelationType,
 )
 from .models.history import TYPE_SYM_REL_DEL, TYPE_SYM_RELATION, HistoryLine
+from .utils.db import populate_related
 
 logger = logging.getLogger(__name__)
 
@@ -284,15 +285,24 @@ class ImprintsBrick(QuerysetBrick):
 
     def home_display(self, context):
         can_view = context['user'].is_superuser
-        qs = Imprint.objects.all() if can_view else Imprint.objects.none()
+        # qs = Imprint.objects.all() if can_view else Imprint.objects.none()
+        qs = Imprint.objects.select_related('entity') if can_view else Imprint.objects.none()
         btc = self.get_template_context(context, qs)
 
-        if not can_view:
+        # NB: optimisations
+        if can_view:
+            # CremeEntity.populate_real_entities(
+            #     CremeEntity.objects.filter(
+            #         id__in=[imprint.entity_id for imprint in btc['page'].object_list],
+            #     )
+            # )
+            imprints = btc['page'].object_list
             CremeEntity.populate_real_entities(
-                CremeEntity.objects.filter(
-                    id__in=[imprint.entity_id for imprint in btc['page'].object_list],
-                )
+                [imprint.entity for imprint in imprints]
             )
+            # NB: there will still be queries for each different Contacts
+            #     corresponding to users...
+            populate_related(instances=imprints, field_names=['user'])
 
         return self._render(btc)
 
