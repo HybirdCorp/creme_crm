@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 17:25+0100\n"
+"POT-Creation-Date: 2021-03-12 10:00+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: apps.py:28
-msgid "Assistants (Todos, Memo, ...)"
-msgstr "Assistants (Todos, Mémo, ...)"
+msgid "Assistants (Todos, Memos, ...)"
+msgstr "Assistants (Todos, Mémos, ...)"
 
 #: bricks.py:84 function_fields.py:130 models/todo.py:63
 #: templates/assistants/bricks/todos.html:7
@@ -34,11 +34,11 @@ msgid "Alerts"
 msgstr "Alertes"
 
 #: bricks.py:152
-msgid "Actions in time"
+msgid "Actions on time"
 msgstr "Actions dans les délais"
 
 #: bricks.py:168
-msgid "Reactions not in time"
+msgid "Reactions not on time"
 msgstr "Réactions hors délais"
 
 #: bricks.py:186 models/user_message.py:86
