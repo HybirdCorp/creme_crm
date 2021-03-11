@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n creme_bricks %}
+{% load i18n creme_bricks creme_widgets %}
 
 {% block brick_extra_class %}{{block.super}} brick-scrollable creme_core-bulk-errors-brick{% endblock %}
 
@@ -8,7 +8,8 @@
 {% endblock %}
 
 {% block brick_before %}
-    <div class="help_box">{{summary|linebreaksbr}}</div>
+{#    <div class="help_box">{{summary|linebreaksbr}}</div> #}
+    {% widget_help_sign message=summary %}
 {% endblock %}
 
 {% block brick_content_extra_class %}brick-scrollable-container{% endblock %}

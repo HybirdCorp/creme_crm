@@ -32,15 +32,6 @@
 
         {% brick_end %}
     {% else %}
-        <div class="help_box">
-            <table>
-                <tr>
-                    <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
-                    <td>
-                        {% translate 'No external data source is configured. Please contact your administrator (settings.CRUDITY_BACKENDS).' %}
-                    </td>
-                </tr>
-            </table>
-        </div>
+        {% widget_help_sign message=_('No external data source is configured. Please contact your administrator (settings.CRUDITY_BACKENDS).') %}
     {% endif %}
 {% endblock %}

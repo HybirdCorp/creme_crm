@@ -1,5 +1,5 @@
 {% extends 'crudity/waiting-actions.html' %}
-{% load i18n creme_widgets creme_bricks %}
+{% load i18n creme_bricks creme_widgets %}
 
 {% block page_title %}{% translate 'Synchronization of incoming emails with Creme' %} - {% endblock %}
 
@@ -24,6 +24,6 @@
 
         {% brick_end %}
     {% else %}
-        <div class="help_box">{% translate 'The synchronisation of external emails is not configured ; contact your administrator if you want this feature to be enabled.' %}</div>
+        {% widget_help_sign message=_('The synchronisation of external emails is not configured ; contact your administrator if you want this feature to be enabled.') %}
     {% endif %}
 {% endblock %}

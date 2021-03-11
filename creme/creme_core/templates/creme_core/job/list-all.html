@@ -1,10 +1,10 @@
 {% extends 'creme_core/base.html' %}
-{% load i18n creme_bricks %}
+{% load i18n creme_bricks creme_widgets %}
 
 {% block page_title %}{% translate 'List of jobs' %} - {% endblock %}
 
 {% block content %}
-    <div class="help_box">{% translate 'Disabling a job takes effect only after its current execution.' %}</div>
+    {% widget_help_sign message=_('Disabling a job takes effect only after its current execution.') %}
 
     {% brick_import app='creme_core' name='jobs' as jobs_brick %}
     {% brick_display jobs_brick %}

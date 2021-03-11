@@ -387,6 +387,7 @@ button {
     background-color: transparent;
 }
 
+/*
 .help_box {
     background-color: #fff7a1;
     padding: 5px;
@@ -397,6 +398,7 @@ button {
 .help_box.with-table table {
     width: 100%;
 }
+*/
 
 .help-sign {
     display: flex;

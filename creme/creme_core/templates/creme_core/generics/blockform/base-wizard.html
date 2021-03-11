@@ -11,7 +11,8 @@
     {% endblock %}
 
     {% if help_message %}
-        <div class="help_box">{{help_message|linebreaksbr}}</div>
+{#        <div class="help_box">{{help_message|linebreaksbr}}</div> #}
+        {% widget_help_sign message=help_message %}
     {% endif%}
 
     <script type="text/javascript">
