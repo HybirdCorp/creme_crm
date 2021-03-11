@@ -54,17 +54,10 @@
     {% search_form user=user selected_ct_id=selected_ct_id search_terms=research %}
 
     {% if research or models %}
-        <div class="help_box">
-            <table>
-                <tr>
-                    <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
-                    <td>
-                        {% if research %}{% translate 'Your search : ' %}{{research}}<br/>{% endif %}
-                        {% if models %}{% translate 'Concerned types : ' %}{{models|join:", "}}<br/>{% endif %}
-                    </td>
-                </tr>
-            </table>
-        </div>
+        {% blocktranslate with types=models|join:', ' asvar help_msg %}Your search: {{research}}
+
+Concerned types: {{types}}{% endblocktranslate %}
+        {% widget_help_sign message=help_msg|safe %}
     {% endif %}
 
     {% if error_message %}

@@ -306,6 +306,7 @@ a img:hover {
     opacity: 0.8;
 }
 
+/*
 .help_box {
     margin-bottom: 10px;
     padding: 5px;
@@ -323,6 +324,7 @@ a img:hover {
 .help_box.with-table table {
     width: 100%;
 }
+*/
 
 .help-sign {
     display: flex;
