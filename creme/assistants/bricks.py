@@ -149,7 +149,7 @@ class _ActionsBrick(_AssistantsBrick):
 
 class ActionsOnTimeBrick(_ActionsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'actions_it')
-    verbose_name  = _('Actions in time')
+    verbose_name  = _('Actions on time')
     template_name = 'assistants/bricks/actions-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
@@ -165,7 +165,7 @@ class ActionsOnTimeBrick(_ActionsBrick):
 
 class ActionsNotOnTimeBrick(_ActionsBrick):
     id_           = QuerysetBrick.generate_id('assistants', 'actions_nit')
-    verbose_name  = _('Reactions not in time')
+    verbose_name  = _('Reactions not on time')
     template_name = 'assistants/bricks/actions-not-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
