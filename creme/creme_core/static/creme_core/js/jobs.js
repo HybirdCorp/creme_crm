@@ -25,174 +25,213 @@
 
 creme.jobs = {};
 
+var __JOB_STATUS = {
+    WAIT: 1,
+    ERROR: 10,
+    OK: 20
+};
+
 creme.jobs.BaseJobsMonitor = creme.component.Component.sub({
-    _init_: function(url) {
-        this._url = url;  // URL for jobs information
-        this._onAllJobsFinishedCallBack = function() {};
+    _init_: function(options) {
+        options = $.extend({
+            fetchDelay: 5000
+        }, options || {});
+
+        this._url = options.url;  // URL for jobs information
+        this._fetchDelay = options.fetchDelay;
+        this._events = new creme.component.EventHandler();
     },
 
-    decorate: function(element, job_id, status, ack_errors, progress) {
-        var must_reload = false;
+    on: function(event, listener, decorator) {
+        this._events.on(event, listener, decorator);
+        return this;
+    },
 
-        if (ack_errors) {
-            must_reload = true;
+    off: function(event, listener) {
+        this._events.off(event, listener);
+        return this;
+    },
 
-            element.find('[data-job-ack-errors][data-job-id=' + job_id + ']').each(function(i, e) {
-                var elt = $(e);
+    one: function(event, listener) {
+        this._events.one(event, listener);
+        return this;
+    },
 
-                if (!elt.find('.ack-errors').length) {
-                    elt.append('<span class="ack-errors">' +
-                               gettext('Communication error with the job manager (last changes have not been taken into consideration)') +
-                               '</span>'
-                              );
+    trigger: function(event, data) {
+        this._events.trigger(event, data, this);
+        return this;
+    },
+
+    _updateErrorState: function(errorMessage) {
+        var label = this.element().find('.global-error');
+
+        label.toggleClass('hidden', Object.isEmpty(errorMessage))
+             .text(errorMessage);
+    },
+
+    _updateJobState: function(jobId, jobState) {
+        jobState = jobState || {};
+
+        var needReload = false;
+        var jobs = this.jobItems(jobId);
+        var progress = jobState.progress || {};
+
+        if (jobState.ack_errors) {
+            needReload = true;
+
+            jobs.each(function() {
+                var item = $(this);
+
+                if (item.find('.ack-errors').length === 0) {
+                    item.append(
+                        '<span class="ack-errors">${message}</span>'.template({
+                            message: gettext('Communication error with the job manager (last changes have not been taken into consideration)')
+                        })
+                    );
                 }
             });
         } else {
-            element.find('[data-job-ack-errors][data-job-id=' + job_id + '] .ack-errors').remove();
+            jobs.find('.ack-errors').remove();
         }
 
-        switch (status) {
-          case 1: // STATUS_WAIT
-            must_reload = true;
+        jobs.attr('data-job-status', jobState.status);
+        jobs.data('job-status', jobState.status);
 
-            if (progress) {
-                element.find('[data-job-status][data-job-id=' + job_id + ']').each(function(i, e) {
-                    var elt = $(e);
-                    var label = progress.label;
-                    var percentage = progress.percentage;
+        switch (jobState.status) {
+            case __JOB_STATUS.WAIT:
+                needReload = true;
 
-                    if (label) {
-                        elt.find('.job-progress-bar-label').text(label);
-                    } else if (percentage !== null) {
-                        elt.find('.job-progress-percentage-value').text(percentage);
-                    }
+                if (progress) {
+                    jobs.each(function() {
+                        var item = $(this);
 
-                    if (percentage !== null) {
-                        elt.find('progress.job-progress-bar').prop('value', percentage);
+                        item.find('.job-progress-bar-label').text(progress.label || '');
+                        item.find('.job-progress-percentage-value').text(progress.percentage || '');
+                        item.find('progress.job-progress-bar').prop('value', progress.percentage || 0);
+                    });
+                }
+                break;
+
+            case __JOB_STATUS.ERROR:
+                jobs.text(gettext('Error'));
+                break;
+
+            case __JOB_STATUS.OK: // STATUS_OK
+                jobs.text(gettext('Finished'));
+                break;
+        }
+
+        return needReload;
+    },
+
+    element: function() {
+        throw Error('Not implemented !');
+    },
+
+    jobItems: function(jobId) {
+        return this.element().find('[data-job-id="' + jobId + '"]');
+    },
+
+    url: function(url) {
+        return Object.property(this, '_url', url);
+    },
+
+    fetchDelay: function(state) {
+        return Object.property(this, '_fetchDelay', state);
+    },
+
+    _retry: function() {
+        this._cancelDeferFetch();
+        this._deferred = setTimeout(
+            this.fetch.bind(this),
+            Math.max(100, this.fetchDelay())
+        );
+    },
+
+    _cancelDeferFetch: function() {
+        if (Object.isNone(this._deferred) === false) {
+            clearTimeout(this._deferred);
+            this._deferred = null;
+        }
+    },
+
+    fetch: function() {
+        var self = this;
+        var element = this.element();
+        var jobIds = [];
+
+        this._cancelDeferFetch();
+
+        element.find('[data-job-id]').each(function() {
+            var jobId = $(this).data('job-id');
+            var needReload = self._updateJobState(jobId, {
+                status: $(this).data('job-status'),
+                ack_errors: $(this).data('job-ack-errors')
+            });
+
+            if (needReload) {
+                jobIds.push(jobId);
+            }
+        });
+
+        self.trigger('fetch', jobIds);
+
+        var query = creme.ajax.query(self.url(), {backend: {dataType: 'json'}}, {id: jobIds});
+
+        query.onFail(function() {
+            self._updateErrorState(gettext('HTTP server error'));
+        }).onDone(function(event, data) {
+            var isOk = Object.isEmpty(data.error);  // No error
+            var needReload = !isOk;  // with an error we need to relad anyway
+
+            self._updateErrorState(data.error);
+
+            if (isOk) {
+                jobIds.forEach(function(jobId, index, array) {
+                    var jobState = data[jobId];
+
+                    if (Object.isString(jobState)) {
+                        console.log('Server returned an error for job <${job}> → ${state}'.template({
+                            job: jobId, state: jobState
+                        }));
+                    } else if (Object.isNone(jobState)) {
+                        console.log('Invalid state for job <${job}>'.template({job: jobId}));
+                    } else {
+                        needReload |= self._updateJobState(jobId, jobState);
                     }
                 });
             }
 
-            break;
-
-          case 10: // STATUS_ERROR
-            element.find('[data-job-status][data-job-id=' + job_id + ']').text(gettext('Error')).attr('data-job-status', 10);
-            break;
-
-          case 20: // STATUS_OK
-            element.find('[data-job-status][data-job-id=' + job_id + ']').text(gettext('Finished')).attr('data-job-status', 20);
-            break;
-        }
-
-        return must_reload;
-    },
-
-    get_element: function() {
-        throw Error('Not implemented !');
-    },
-
-    onAllJobsFinished: function(callback) {
-        this._onAllJobsFinishedCallBack = callback;
-
-        return this;
-    },
-
-    start: function() {
-        var monitor = this;
-
-        function _process() {
-            var element = monitor.get_element();
-            var job_ids = [];
-
-            element.find('[data-job-id][data-job-status][data-job-ack-errors]').each(function(i, e) {
-                var job_id = e.getAttribute('data-job-id');
-
-                if (monitor.decorate(element, job_id,
-                                     Number(e.getAttribute('data-job-status')),
-                                     Number(e.getAttribute('data-job-ack-errors')),
-                                     null
-                                    )) {
-                    job_ids.push(job_id);
-                }
-            });
-
-            var uri = monitor._url;
-            if (job_ids.length) {
-                uri += '?' + creme.ajax.param({'id': job_ids}, true);
+            if (needReload) {
+                self._retry();
+            } else {
+                self.trigger('finished');
             }
-
-            $.ajax({url: uri,
-                    dataType: 'json',
-                    error: function(request, status, error) {
-                        var error_panel = element.find('.global-error');
-                        error_panel.css('display', '');
-                        error_panel.text(gettext('HTTP server error'));
-                    },
-                    success: function(data, status) {
-                        var alright = true;  // No error, all jobs are finished.
-
-                        var error_panel = element.find('.global-error');
-                        var error = data['error'];
-                        if (error !== undefined) {
-                            error_panel.css('display', '');
-                            error_panel.text(error);
-
-                            alright = false;
-                        } else {
-                            error_panel.css('display', 'none');
-                        }
-
-                        job_ids.forEach(function (job_id, index, array) {
-                            var job_info = data[job_id];
-
-                            if (Object.isString(job_info)) {
-                                console.log('Server returned an error for job <', job_id, '> => ', job_info);
-                                return;
-                            }
-
-                            if (Object.isNone(job_info)) {
-                                console.log('Invalid data for job <', job_id, '> => ', job_info);
-                                return;
-                            }
-
-                            if (monitor.decorate(element, job_id, job_info['status'], job_info['ack_errors'], job_info['progress'])) {
-                                alright = false;
-                            }
-                        });
-
-                        if (!alright) {
-                            setTimeout(_process, 5000);
-                        } else {
-                            monitor._onAllJobsFinishedCallBack();
-                        }
-                    }
-            });
-        }
-
-        _process();
+        }).get();
     }
 });
 
 creme.jobs.JobsMonitor = creme.jobs.BaseJobsMonitor.sub({
-    _init_: function(url, element) {
-        this._super_(creme.jobs.BaseJobsMonitor, '_init_', url);
+    _init_: function(element, options) {
+        this._super_(creme.jobs.BaseJobsMonitor, '_init_', options);
         this._element = element;
     },
 
-    get_element: function() {
+    element: function() {
         return this._element;
     }
 });
 
 creme.jobs.BrickJobsMonitor = creme.jobs.BaseJobsMonitor.sub({
-    _init_: function(url, brick_id) {
-        this._super_(creme.jobs.BaseJobsMonitor, '_init_', url);
-        this._brick_id = brick_id;
+    _init_: function(brick, options) {
+        options = options || {};
+        this._super_(creme.jobs.BaseJobsMonitor, '_init_', options);
+        this._brickId = brick.id();
     },
 
-    get_element: function() {
+    element: function() {
         // We retrieve the brick by its ID at each call, because the brick can be reloaded (& so, replaced)
-        return $('#' + this._brick_id);
+        return $('#' + this._brickId);
     }
 });
 
@@ -211,12 +250,14 @@ creme.jobs.PopupJobWaitingController = creme.widget.declare('job-waiting-ctrl', 
 
         element.addClass('widget-ready');
 
-        new creme.jobs.JobsMonitor(element.attr('data-jobs-info-url'), element)
-                      .onAllJobsFinished(function() {
-                          close_button.hide();
-                          terminate_button.show();
-                      })
-                      .start();
+        var jobs = new creme.jobs.JobsMonitor(element, {
+            url: element.attr('data-jobs-info-url')
+        });
+
+        jobs.on('finished', function() {
+            close_button.hide();
+            terminate_button.show();
+        }).fetch();
     },
 
     _destroy: function(element) {}

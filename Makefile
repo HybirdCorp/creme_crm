@@ -104,6 +104,10 @@ karma-ci:
 serve: media
 	python creme/manage.py runserver
 
+## Run the jobs
+.PHONY: serve-jobs
+serve-jobs:
+	python creme/manage.py creme_job_manager
 
 ## Run shell
 .PHONY: shell
