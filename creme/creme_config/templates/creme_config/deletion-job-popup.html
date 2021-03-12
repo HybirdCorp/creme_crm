@@ -1,7 +1,7 @@
 {% load i18n %}
 <form method="POST" action="{% url 'creme_config__finish_deletor' job.id %}"
       widget="job-waiting-ctrl" class="job-waiting-ctrl ui-creme-widget widget-auto" data-jobs-info-url="{% url 'creme_core__jobs_info' %}">
-    <div class="global-error" style="display: none;"></div>
+    <div class="global-error hidden"></div>
 
     <div class="config-deletion-job-info-tiles">
         <div class="config-deletion-job-info-tile">

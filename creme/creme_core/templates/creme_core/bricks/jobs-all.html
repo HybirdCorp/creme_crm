@@ -8,7 +8,10 @@
     {% if not request|is_ajax %}
     <script type="text/javascript">
         $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
-            new creme.jobs.BrickJobsMonitor('{% url 'creme_core__jobs_info' %}', brick._id).start();
+            var jobs = new creme.jobs.BrickJobsMonitor(brick, {
+                url: '{% url 'creme_core__jobs_info' %}'
+            });
+            jobs.fetch();
         });
     </script>
     {% endif %}
@@ -29,7 +32,7 @@
 {% endblock %}
 
 {% block brick_before_content %}
-    <div class="global-error" style="display: none;"></div>
+    <div class="global-error hidden"></div>
 
     {% if not_finished_user_jobs_count >= MAX_JOBS_PER_USER %}
     <div class="help-box">
