@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 17:25+0100\n"
+"POT-Creation-Date: 2021-03-12 10:00+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1002,7 +1002,7 @@ msgid "is used in the billing document"
 msgstr "est consommé dans le document comptable"
 
 #: populate.py:128
-msgid "used the credit note"
+msgid "uses the credit note"
 msgstr "consomme l'avoir"
 
 #: populate.py:149
