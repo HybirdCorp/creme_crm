@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # A crash in history block, when using credentials with filter, has been fixed.
     # The code for queries optimization of the Imprint brick has been fixed.
     # Apps :
         * Creme_config :
