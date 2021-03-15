@@ -431,7 +431,7 @@ class SetCredentials(models.Model):
                 if user.id == user_id or any(user_id == t.id for t in user.teams):
                     return self.value
             else:  # SetCredentials.ESET_FILTER
-                if self.efilter.accept(entity=entity, user=user):
+                if self.efilter.accept(entity=entity.get_real_entity(), user=user):
                     return self.value
 
         return EntityCredentials.NONE

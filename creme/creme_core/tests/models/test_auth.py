@@ -1096,6 +1096,11 @@ class CredentialsTestCase(CremeTestCase):
 
         self.assertFalse(user.has_perm_to_view(orga))
 
+        # Check base entity
+        base_entity = CremeEntity.objects.get(id=contact1.id)
+        self.assertTrue(user.has_perm_to_view(base_entity))
+        self.assertFalse(user.has_perm_to_change(base_entity))
+
         # Filter base entity
         qs = CremeEntity.objects.filter(id__in=[contact1.id, contact2.id])
 

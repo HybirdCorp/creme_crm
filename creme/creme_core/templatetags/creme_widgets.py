@@ -248,6 +248,8 @@ def widget_hyperlink(instance):
 @register.simple_tag
 def widget_entity_hyperlink(entity, user, ignore_deleted=False):
     "{% widget_entity_hyperlink my_entity user %}"
+    entity = entity.get_real_entity()
+
     if user.has_perm_to_view(entity):
         return format_html(
             '<a href="{url}"{deleted}>{label}</a>',
