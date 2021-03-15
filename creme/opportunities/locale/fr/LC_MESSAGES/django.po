@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-28 16:32+0100\n"
+"POT-Creation-Date: 2021-03-15 18:54+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -298,13 +298,19 @@ msgstr "est associé à l'opportunité"
 msgid "has generated the salesorder"
 msgstr "a généré le bon de commande"
 
-#: populate.py:158 populate.py:169
+#: populate.py:158
+msgctxt "opportunities-invoice"
 msgid "generated for the opportunity"
-msgstr "a été généré pour l'opportunité"
+msgstr "a été générée pour l'opportunité"
 
 #: populate.py:162
 msgid "has resulted in the invoice"
 msgstr "a donné lieu à la facture"
+
+#: populate.py:169
+msgctxt "opportunities-quote"
+msgid "generated for the opportunity"
+msgstr "a été généré pour l'opportunité"
 
 #: populate.py:173
 msgid "has resulted in the quote"
