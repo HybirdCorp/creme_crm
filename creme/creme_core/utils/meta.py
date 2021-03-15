@@ -143,7 +143,9 @@ class FieldInfo:
     # TODO: probably does not work with several ManyToManyFields in the fields chain
     def value_from(self, instance: Model):
         if not isinstance(instance, self._model):
-            raise ValueError(f'"{instance}" is not an instance of {self._model}')
+            raise ValueError(
+                f'"{instance}" (type={type(instance)}) is not an instance of {self._model}'
+            )
 
         result = instance
 
