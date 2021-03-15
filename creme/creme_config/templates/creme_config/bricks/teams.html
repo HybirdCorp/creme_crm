@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_team' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New team') enabled=admin_perm %}
+{% url 'creme_config__create_team' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New team') enabled=user.is_superuser %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -27,7 +27,7 @@ When an entity belongs to a team, each teammate has the same permissions on this
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
+{% with admin_perm=user.is_superuser %}
     {% for team in page.object_list %}
     <tr>
         <td>{{team.username}}</td>
@@ -40,6 +40,7 @@ When an entity belongs to a team, each teammate has the same permissions on this
         </td>
     </tr>
     {% endfor %}
+{% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

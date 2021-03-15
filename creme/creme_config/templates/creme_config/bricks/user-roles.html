@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_role' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New role') enabled=admin_perm %}
+{% url 'creme_config__create_role' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New role') enabled=user.is_superuser %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -30,7 +30,7 @@ It limits what the concerned users can see, edit, delete…{% endblocktrans %}
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__remove_role_credentials' as rm_creds_url %}
+{% with admin_perm=user.is_superuser %}{% url 'creme_config__remove_role_credentials' as rm_creds_url %}
     {% for role in page.object_list %}
     <tr>
         <td class="role-name">{{role.name}}</td>
@@ -67,6 +67,7 @@ It limits what the concerned users can see, edit, delete…{% endblocktrans %}
         </td>
     </tr>
     {% endfor %}
+{% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}
