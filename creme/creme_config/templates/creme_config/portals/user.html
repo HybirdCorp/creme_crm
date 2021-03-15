@@ -1,10 +1,11 @@
 {% extends 'creme_config/portal.html' %}
-{% load i18n creme_bricks %}
+{% load i18n creme_core_tags creme_bricks %}
 
 {% block page_title %}{% trans 'Configuration of users' %} - {% endblock %}
 
 {% block title %}
-    <a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% trans 'Users' %}
+    {% has_perm_to access 'creme_config' as conf_perm %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'Users' %}
 {% endblock %}
 
 {% block portal_bricks %}

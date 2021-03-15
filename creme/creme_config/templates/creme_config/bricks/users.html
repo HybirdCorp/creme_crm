@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_bricks creme_config_tags %}
+{% load i18n creme_bricks creme_config_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-users-brick{% endblock %}
 
@@ -14,8 +14,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_user' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New user') enabled=admin_perm %}
+{% url 'creme_config__create_user' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New user') enabled=user.is_superuser %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -36,7 +36,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% trans 'Superuser' as superuser_label %}
+{% with admin_perm=user.is_superuser %}{% trans 'Superuser' as superuser_label %}
     {% for user in page.object_list %}
     <tr>
         <td class="user-username" {% brick_table_data_status primary %}>{{user.username}}</td>
@@ -66,4 +66,5 @@
         </td>
     </tr>
     {% endfor %}
+{% endwith %}
 {% endblock %}
