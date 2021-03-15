@@ -156,7 +156,7 @@ class Populator(BasePopulator):
             create_rtype(
                 (
                     constants.REL_SUB_LINKED_INVOICE,
-                    _('generated for the opportunity'),
+                    pgettext('opportunities-invoice', 'generated for the opportunity'),
                     [Invoice],
                 ), (
                     constants.REL_OBJ_LINKED_INVOICE,
@@ -167,7 +167,7 @@ class Populator(BasePopulator):
             create_rtype(
                 (
                     constants.REL_SUB_LINKED_QUOTE,
-                    _('generated for the opportunity'),
+                    pgettext('opportunities-quote', 'generated for the opportunity'),
                     [Quote],
                 ), (
                     constants.REL_OBJ_LINKED_QUOTE,
