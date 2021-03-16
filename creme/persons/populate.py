@@ -38,6 +38,7 @@ from creme.creme_core.core.entity_filter import (
 )
 from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -47,13 +48,14 @@ from creme.creme_core.models import (
     CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
+    MenuConfigItem,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
 )
 from creme.creme_core.utils import create_if_needed
 
-from . import bricks, buttons, constants, custom_forms
+from . import bricks, buttons, constants, custom_forms, menu
 from .forms.address import AddressesGroup
 from .models import Civility, LegalForm, Position, Sector, StaffSize
 
@@ -332,6 +334,33 @@ class Populator(BasePopulator):
         create_sci = SearchConfigItem.objects.create_if_needed
         create_sci(Contact, ['last_name', 'first_name', 'phone', 'mobile', 'email'])
         create_sci(Organisation, ['name', 'phone', 'email', 'sector__title', 'legal_form__title'])
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='persons-').exists():
+            directory = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Directory')},
+                defaults={'order': 20},
+            )[0]
+
+            create_mitem = MenuConfigItem.objects.create
+            create_mitem(entry_id=menu.OrganisationsEntry.id, order=10, parent=directory)
+            create_mitem(entry_id=menu.ContactsEntry.id,      order=20, parent=directory)
+            create_mitem(entry_id=menu.CustomersEntry.id,     order=30, parent=directory)
+
+            creations = MenuConfigItem.objects.filter(
+                entry_id=ContainerEntry.id, entry_data={'label': _('+ Creation')},
+            ).first()
+            if creations is not None:
+                create_mitem(
+                    entry_id=menu.OrganisationCreationEntry.id,
+                    order=10, parent=creations,
+                )
+                create_mitem(
+                    entry_id=menu.ContactCreationEntry.id,
+                    order=20, parent=creations,
+                )
 
         # ---------------------------
         if not already_populated:

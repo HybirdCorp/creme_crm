@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,16 +26,19 @@ from django.utils.translation import gettext as _
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CustomFormConfigItem,
     HeaderFilter,
+    MenuConfigItem,
     SearchConfigItem,
 )
 
 from . import bricks, constants, custom_forms, get_report_model
 from .forms.report import FilteredCTypeSubCell, FilterSubCell
+from .menu import ReportsEntry
 
 logger = logging.getLogger(__name__)
 
@@ -129,6 +132,19 @@ class Populator(BasePopulator):
 
         # ---------------------------
         SearchConfigItem.objects.create_if_needed(Report, ['name'])
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='reports-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Analysis')},
+                defaults={'order': 500},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=ReportsEntry.id, parent=container, order=20,
+            )
 
         # ---------------------------
         # NB: no straightforward way to test that this populate script has not been already run

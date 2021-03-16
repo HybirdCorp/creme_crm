@@ -16,6 +16,37 @@ from creme.creme_core.models import (
 from ..base import CremeTestCase
 
 
+class MenuDisplayTestCase(CremeTestCase):
+    def test_menu_display(self):
+        user = self.login()
+
+        with self.assertNoException():
+            template = Template(
+                r'{% load creme_menu %}'
+                r'{% menu_display %}'
+            )
+            render = template.render(Context({
+                'request': self.build_request(user=user),
+                'user': user,
+                'TIME_ZONE': 'Groland/Mufflin',
+            }))
+
+        tree = self.get_html_tree(render)
+        # import xml.etree.ElementTree as ET
+        # ET.dump(tree)
+        class_prefix = 'ui-creme-navigation-item'
+        creme_li_node = tree.find(
+            f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-creme']"
+        )
+        self.assertIsNotNone(creme_li_node)
+        self.assertEqual('Creme', creme_li_node.text)
+
+        home_li_node = creme_li_node.find(
+            f".//li[@class='{class_prefix}-level1 {class_prefix}-id_creme_core-home']"
+        )
+        self.assertIsNotNone(home_li_node)
+
+
 class _TestButton(Button):
     action_id = 'creme_core-tests-dosomethingawesome1'
 
@@ -50,8 +81,7 @@ class TestButton05(_TestButton):
     action_id = 'creme_core-tests-dosomethingawesome05'
 
 
-# TODO: test menu_display()
-class CremeMenuTagsTestCase(CremeTestCase):
+class MenuButtonsDisplayTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

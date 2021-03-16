@@ -10,7 +10,13 @@
   ------------
     # The version of Django has been upgraded to "3.1".
     # Many blocks got descriptions, which are displayed as tool-tips.
-
+    # Apps :
+        * Creme_config :
+            - The main menu can now be customised ; containers can be created,
+              re-ordered, removed, & their entries can be chosen too.
+              All apps have been reworked to use the new system to provide a menu identical to the old one.
+        * Persons :
+            - The setting PERSONS_MENU_CUSTOMERS_ENABLED has been removed (you can add/remove the entry menu in 'creme_config').
 
   Developers side :
   -----------------
@@ -19,7 +25,6 @@
         - https://docs.djangoproject.com/en/3.2/releases/3.0/
         - https://docs.djangoproject.com/en/3.2/releases/3.1/
     - The version of jQuery is now "2.2.4"
-
 
     Non breaking changes :
     ----------------------

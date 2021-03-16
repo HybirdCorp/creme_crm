@@ -113,6 +113,21 @@ class ReportsConfig(CremeAppConfig):
             'reports-create_report', Report, priority=20,
         )
 
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.ReportsEntry,
+            menu.ReportCreationEntry,
+        )
+
+    def register_creation_menu(self, creation_menu_registry):
+        creation_menu_registry.get_or_create_group(
+            group_id='analysis', label=_('Analysis'), priority=500,
+        ).add_link(
+            'reports-create_report', self.Report, priority=20,
+        )
+
     def register_reports_aggregations(self):
         from django.db.models import aggregates
 

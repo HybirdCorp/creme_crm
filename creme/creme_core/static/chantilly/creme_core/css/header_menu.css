@@ -11,9 +11,9 @@
     background: #fcffff;
     top: 0;
 
-    -webkit-box-shadow: 0 1px 12px -3px rgba(0,0,0,0.3);
-       -moz-box-shadow: 0 1px 12px -3px rgba(0,0,0,0.3);
-            box-shadow: 0 1px 12px -3px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+       -moz-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
 
     border-bottom: 1px #ddd;
     position: fixed;
@@ -135,9 +135,9 @@
     background: #2a414b;
     padding: 0 0 3px 0;
 
-    -webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.5);
-       -moz-box-shadow: 0 1px 4px rgba(0,0,0,0.5);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+       -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
     /* todo: investigate shadow techniques - this one shows up over the dark menu item. Using one for each of the 3 sides make the corners unshadowed instead, etc. */
     z-index: 1; /* so it shows up over the search results */
 }
@@ -147,7 +147,9 @@
     float: none;
     text-transform: none;
 }
-.ui-creme-navigation a, .ui-creme-navigation .ui-creme-navigation-text-entry, .ui-creme-navigation-title {
+.ui-creme-navigation a,
+.ui-creme-navigation .ui-creme-navigation-text-entry,
+.ui-creme-navigation-title {
     display: block;
     text-decoration: none;
     text-shadow: none;
@@ -164,7 +166,10 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     text-transform: uppercase;
 }
 
-.ui-creme-navigation li.ui-creme-navigation-activated, .ui-creme-navigation li:hover { cursor: default; background: #2a414b; } /* hover on menus and their entries */
+.ui-creme-navigation li.ui-creme-navigation-activated,
+.ui-creme-navigation li:hover {
+    cursor: default; background: #2a414b;
+} /* hover on menus and their entries */
 .ui-creme-navigation li.ui-creme-navigation-activated > ul { /*display: block;*/ visibility: visible; opacity: 1; font-weight: 600;} /* menu entries root when hovering over menus */
 
 .ui-creme-navigation li.ui-creme-navigation-activated {color: white;} /* hover on menus */
@@ -173,8 +178,12 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 .ui-creme-navigation li.ui-creme-navigation-activated li:hover {background: #446978;} /* hover on menu entries */
 .ui-creme-navigation li.ui-creme-navigation-activated ul a:hover {color: white;} /* hover on menu entries */
 
-.ui-creme-navigation > li:hover, .ui-creme-navigation li:hover > ul, .ui-creme-navigation li:hover li:hover {transition: none;} /* animated transitions into the hover state */
-.ui-creme-navigation li, .ui-creme-navigation ul {
+.ui-creme-navigation > li:hover, .ui-creme-navigation li:hover > ul,
+.ui-creme-navigation li:hover li:hover {
+    transition: none;
+} /* animated transitions into the hover state */
+.ui-creme-navigation li,
+.ui-creme-navigation ul {
     transition: all 150ms ease-in;
 
     webkit-border-radius: 3px;
@@ -183,6 +192,7 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 } /* animated transitions out of the hover state */
 
 /* Menu separators */
+/*
 .ui-creme-navigation-separated-menu {
     position: relative;
 }
@@ -198,16 +208,30 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     background: #bbb;
     pointer-events: none;
 }
+*/
+
+.ui-creme-navigation li.ui-creme-navigation-item-id_creme_core-separator0 {
+    height: 22px;
+
+    margin-right: 2px;
+    margin-left: 2px;
+    padding: 0px;
+
+    border-left: 1px solid #bbb;
+
+    pointer-events: none;
+}
 
 /* Menu separators [END] */
 
 /* Menu entries separators */
+
+/* TODO: remove */
 .ui-creme-navigation .ui-creme-navigation-separator {
     display: block;
     height: 1px;
     border: 0;
 
-    /*   margin: 1em 0;*/
     margin: 5px 0;
     padding: 0;
 
@@ -223,9 +247,18 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 /*  word-spacing: 1px; */ /* possible tweak to test everywhere (with 1px or 2px) */
 }
 
+.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_core-separator1,
+.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_core-user_separator {
+    border-top: 1px solid #757e82;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+
+/*
 .ui-creme-navigation-space-separated {
     margin-bottom: 7px;
 }
+*/
 
 .ui-creme-navigation-punctuation {
     font-weight: 400;
@@ -246,30 +279,27 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 }
 */
 
-/*
-.ui-creme-navigation .horizontal-ruler {
-   border-top: 1px solid #a29d9d;
-}
-*/
-
-/* .ui-creme-navigation-right-separated-menu */
+/* TODO: remove */
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme {
     margin-right: 11px;
 }
 
-/* .ui-creme-navigation-left-separated-menu */
+/* TODO: remove */
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation {
     margin-left: 11px;
 }
 
+/* TODO: remove */
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme:before {
     right: -6px;
 }
 
+/* TODO: remove */
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation::before {
     left: -6px;
 }
 
+/* TODO: remove */
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme:before,
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation:before {
     content: "";

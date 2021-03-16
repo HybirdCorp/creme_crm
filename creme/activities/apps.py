@@ -214,6 +214,61 @@ class ActivitiesConfig(CremeAppConfig):
             priority=25,
         )
 
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.CalendarEntry,
+
+            menu.ActivitiesEntry,
+            menu.PhoneCallsEntry,
+            menu.MeetingsEntry,
+
+            menu.ActivityCreationEntry,
+            menu.PhoneCallCreationEntry,
+            menu.MeetingCreationEntry,
+        )
+
+    def register_creation_menu(self, creation_menu_registry):
+        from django.urls import reverse_lazy as reverse
+
+        from creme.creme_core.auth import build_creation_perm
+
+        creation_perm = build_creation_perm(self.Activity)
+        creation_menu_registry.get_or_create_group(
+            'activities-main', _('Activities'), priority=5,
+        ).add_link(
+            'activities-create_phonecall',
+            label=_('Phone call'),
+            url=reverse('activities__create_activity', args=('phonecall',)),
+            perm=creation_perm,
+            priority=5,
+        ).add_link(
+            'activities-create_meeting',
+            label=_('Meeting'),
+            url=reverse('activities__create_activity', args=('meeting',)),
+            perm=creation_perm,
+            priority=10,
+        ).add_link(
+            'activities-create_activity',
+            label=_('Activity'),
+            url=reverse('activities__create_activity'),
+            perm=creation_perm,
+            priority=15,
+        ).add_link(
+            'activities-create_task',
+            label=_('Task'),
+            url=reverse('activities__create_activity', args=('task',)),
+            perm=creation_perm,
+            priority=20,
+        ).add_link(
+            'activities-create_unavailability',
+            label=_('Unavailability'),
+            url=reverse('activities__create_indispo'),
+            perm=creation_perm,
+            priority=25,
+        )
+
     def register_smart_columns(self, smart_columns_registry):
         smart_columns_registry.register_model(self.Activity) \
                               .register_field('title') \

@@ -4,12 +4,16 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
-from creme.creme_core.models import EntityFilter, HeaderFilter
+from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.menu import CremeEntry
+from creme.creme_core.models import EntityFilter, HeaderFilter, SetCredentials
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from .. import bricks, constants, workflow
+from ..menu import UserContactEntry
 from .base import Contact, Organisation
 
 
@@ -51,9 +55,10 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         efilter = self.get_object_or_fail(EntityFilter, pk=constants.FILTER_MANAGED_ORGA)
         self.assertFalse(efilter.is_custom)
         self.assertEqual(Organisation, efilter.entity_type.model_class())
-        self.assertQuerysetSQLEqual(Organisation.objects.filter(is_managed=True),
-                                    efilter.filter(Organisation.objects.all())
-                                   )
+        self.assertQuerysetSQLEqual(
+            Organisation.objects.filter(is_managed=True),
+            efilter.filter(Organisation.objects.all())
+        )
 
     def test_config_portal(self):
         self.login()
@@ -88,3 +93,42 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         # Do not create duplicate
         workflow.transform_target_into_prospect(source, target, user)
         self.assertRelationCount(1, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
+
+    def test_user_contact_menu_entry01(self):
+        user = self.login(is_superuser=False, allowed_apps=['persons'])
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        entry = UserContactEntry()
+        self.assertEqual('persons-user_contact', entry.id)
+        self.assertEqual(_("*User's contact*"), entry.label)
+        self.assertHTMLEqual(
+            f'<a href="{user.linked_contact.get_absolute_url()}">{user}</a>',
+            entry.render({
+                # 'request': self.build_request(user=user),
+                'user': user,
+            }),
+        )
+
+        # ---
+        creme_children = [*CremeEntry().children]
+
+        for child in creme_children:
+            if isinstance(child, UserContactEntry):
+                break
+        else:
+            self.fail(f'No user entry found in {creme_children}.')
+
+    def test_user_contact_menu_entry02(self):
+        user = self.login(is_superuser=False)
+
+        self.assertHTMLEqual(
+            f'<span class="ui-creme-navigation-text-entry forbidden">{user}</span>',
+            UserContactEntry().render({
+                # 'request': self.build_request(user=user),
+                'user': user,
+            }),
+        )

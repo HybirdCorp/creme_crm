@@ -1,3 +1,5 @@
+/* Button-menu editor */
+
 .buttonmenu-edit-widget {
     display: flex;
     margin-top: 10px;
@@ -50,7 +52,7 @@
     margin-right: 13px;
 }
 
-.buttons-list .buttons-list-header {
+.buttonmenu-edit-widget .buttons-list .buttons-list-header {
     padding-bottom: 5px;
     border-bottom: 1px solid #dedede;
     text-transform: uppercase;
@@ -59,3 +61,67 @@
     font-weight: 600;
     flex: 0;
 }
+
+/* Button-menu editor - end */
+
+/* Menu editor - end */
+
+.menu-edit-widget {
+    display: flex;
+}
+
+.menu-edit-widget .menu-edit-entries {
+/*    max-width: 300px; */
+    margin-left: 10px;
+}
+
+.menu-edit-widget .menu-edit-entry {
+    margin-bottom: 3px;
+    padding: 3px;
+    min-height: 18px;
+    min-width: 280px;
+
+    background: #414141;
+
+    color: #ebebeb;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.menu-edit-widget .menu-edit-entry-creme_core-separator1 {
+    border-top: solid 2px black;
+
+    color: #fafafa;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.menu-edit-entry button {
+    float: right;
+
+    border: none;
+    background: none;
+
+    color: #8e8e8e;
+    font-style: italic;
+
+    cursor: pointer;
+}
+
+.menu-edit-entry button:hover {
+    text-decoration: underline;
+}
+
+.menu-edit-widget .menu-edit-widget-creations {
+    margin-top: 10px;
+    margin-left: 20px;
+}
+
+.menu-edit-widget .menu-edit-widget-creations .new-entries {
+    position: relative;
+    display: block;
+
+    margin-top: 10px;
+}
+
+/* Menu editor - end */

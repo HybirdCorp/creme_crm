@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from functools import partial
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -29,12 +30,14 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
+    MenuConfigItem,
     RelationType,
     SearchConfigItem,
 )
@@ -47,6 +50,7 @@ from . import (
     folder_model_is_custom,
     get_document_model,
     get_folder_model,
+    menu,
 )
 from .models import DocumentCategory, FolderCategory
 
@@ -278,6 +282,19 @@ class Populator(BasePopulator):
         create_sci = SearchConfigItem.objects.create_if_needed
         create_sci(Document, ['title', 'description', 'linked_folder__title', 'categories__name'])
         create_sci(Folder,   ['title', 'description', 'category__name'])
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='documents-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Tools')},
+                defaults={'order': 100},
+            )[0]
+
+            create_mitem = partial(MenuConfigItem.objects.create, parent=container)
+            create_mitem(entry_id=menu.DocumentsEntry.id, order=10)
+            create_mitem(entry_id=menu.FoldersEntry.id,   order=20)
 
         # ---------------------------
         if not already_populated:

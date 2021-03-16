@@ -209,6 +209,35 @@ class EmailsConfig(CremeAppConfig):
                 priority=100,
             )
 
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.EmailCampaignsEntry,
+            menu.MailingListsEntry,
+            menu.EmailTemplatesEntry,
+            menu.EntityEmailsEntry,
+
+            menu.EmailCampaignCreationEntry,
+            menu.MailingListCreationEntry,
+            menu.EmailTemplateCreationEntry,
+        )
+
+        EmailSyncEntry = menu.EmailSyncEntry
+        if EmailSyncEntry.id:
+            menu_registry.register(EmailSyncEntry)
+
+    def register_creation_menu(self, creation_menu_registry):
+        creation_menu_registry.get_or_create_group(
+            'marketing', _('Marketing'), priority=200,
+        ).add_link(
+            'emails-create_campaign', self.EmailCampaign, priority=10,
+        ).add_link(
+            'emails-create_mlist',    self.MailingList,   priority=15,
+        ).add_link(
+            'emails-create_template', self.EmailTemplate, priority=20,
+        )
+
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 

@@ -1,4 +1,5 @@
-li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
+li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2),  /* TODO: remove with new custom menu */
+li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     fill: currentColor;
     width: 11px;
     height: 11px;
@@ -295,6 +296,74 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 .creme_config-customforms-brick .customform-config-block-container:hover .customform-config-block-header .brick-action,
 .creme_config-customforms-brick .customform-config-block-container .customform-config-block-content tr:hover .brick-action {
     visibility: visible;
+}
+
+/* Menu brick */
+
+/* TODO: factorise ?? */
+.creme_config-menu-brick .brick-content .help-instructions {
+    margin-bottom: 15px;
+    font-size: 12px;
+    color: rgb(119, 119, 119);
+}
+
+.creme_config-menu-brick .menu-config-container {
+    display: flex;
+}
+
+.creme_config-menu-brick .menu-config-entry0 {
+    width: 200px;
+    margin-right: 2px;
+}
+
+.menu-config-entry0-header {
+    display: flex;
+    align-items: center;
+
+    height: 30px;
+}
+
+.creme_config-menu-brick .menu-config-entry0-header-title {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #646464;
+}
+
+.creme_config-menu-brick .menu-config-entry0-content {
+    padding: 3px;
+
+    background: #414141;
+
+    color: #ebebeb;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.creme_config-menu-brick .menu-config-entry0-content ul {
+    margin: 0px;
+    padding: 0px;
+
+    list-style: none;
+}
+
+.creme_config-menu-brick .menu-config-entry0-content li {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.creme_config-menu-brick li.menu-config-entry0-creme_core-separator1,
+.creme_config-menu-brick li.menu-config-entry0-creme_core-user_separator {
+    text-transform: uppercase;
+    color: #fafafa;
+    font-weight: 400;
+}
+
+.creme_config-menu-brick li + li.menu-config-entry0-creme_core-separator1,
+.creme_config-menu-brick li + li.menu-config-entry0-creme_core-user_separator {
+    border-top: 1px solid #a29d9d;
+    margin-top: 5px;
+    padding-top: 5px;
 }
 
 /* Buttons brick */

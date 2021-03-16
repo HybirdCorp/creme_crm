@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-11 14:38+0100\n"
+"POT-Creation-Date: 2021-04-23 16:47+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1259,6 +1259,12 @@ msgstr "Colonne {index} - {name}"
 msgid "Column {}"
 msgstr "Colonne {}"
 
+msgid "Label"
+msgstr "Label"
+
+msgid "URL"
+msgstr "URL"
+
 msgid "Merged entity"
 msgstr "Fiche fusionnée"
 
@@ -1458,6 +1464,19 @@ msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
+msgid "Add an URL entry"
+msgstr "Ajouter une entrée URL"
+
+#, python-brace-format
+msgid "{label} (broken configuration)"
+msgstr "{label} (configuration cassée)"
+
+msgid "Separator"
+msgstr "Séparateur"
+
+msgid "Add a separator"
+msgstr "Ajouter un séparateur"
+
 #, python-brace-format
 msgid "{count} entity"
 msgid_plural "{count} entities"
@@ -1493,6 +1512,9 @@ msgstr "À la première page"
 
 msgid "Next page"
 msgstr "Page suivante"
+
+msgid "*Quick forms*"
+msgstr "*Formulaires rapides*"
 
 msgid "Name"
 msgstr "Nom"
@@ -3469,9 +3491,6 @@ msgstr "Recherche vide…"
 #~ msgid "%s «{model}» has been selected."
 #~ msgstr "%s «{model}» a été sélectionné(e)."
 
-#~ msgid "Label"
-#~ msgstr "Label"
-
 #~ msgid "Url"
 #~ msgstr "Url"
 
@@ -3531,9 +3550,6 @@ msgstr "Recherche vide…"
 #~ msgid "You can't view this value, so you can't set it."
 #~ msgstr ""
 #~ "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
-
-#~ msgid "Add an entity"
-#~ msgstr "Ajouter une fiche"
 
 #~ msgid "Add a filter"
 #~ msgstr "Ajouter un filtre"

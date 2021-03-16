@@ -29,6 +29,7 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -37,6 +38,7 @@ from creme.creme_core.models import (
     CustomFormConfigItem,
     HeaderFilter,
     Job,
+    MenuConfigItem,
     RelationType,
     SearchConfigItem,
     SettingValue,
@@ -51,6 +53,7 @@ from . import (
     constants,
     creme_jobs,
     custom_forms,
+    menu,
     setting_keys,
 )
 from .models import ActType, MarketSegment
@@ -258,6 +261,35 @@ class Populator(BasePopulator):
                 'enabled': False,
             },
         )
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='commercial-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Commercial')},
+                defaults={'order': 30},
+            )[0]
+
+            create_mitem = MenuConfigItem.objects.create
+            create_mitem(entry_id=menu.ActsEntry.id,       order=50, parent=container)
+            create_mitem(entry_id=menu.StrategiesEntry.id, order=55, parent=container)
+            create_mitem(entry_id=menu.SegmentsEntry.id,   order=60, parent=container)
+            create_mitem(entry_id=menu.PatternsEntry.id,   order=70, parent=container)
+
+            directory = MenuConfigItem.objects.filter(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Directory')},
+            ).first()
+            if directory is not None:
+                create_mitem(entry_id=menu.SalesmenEntry.id, order=100, parent=directory)
+
+            creations = MenuConfigItem.objects.filter(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('+ Creation')},
+            ).first()
+            if creations is not None:
+                create_mitem(entry_id=menu.ActCreationEntry.id, order=40, parent=creations)
 
         # ---------------------------
         if not already_populated:

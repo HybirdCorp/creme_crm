@@ -27,11 +27,13 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CustomFormConfigItem,
     HeaderFilter,
+    MenuConfigItem,
     RelationType,
     SearchConfigItem,
 )
@@ -40,6 +42,7 @@ from creme.opportunities import get_opportunity_model
 from creme.persons import get_contact_model
 
 from . import bricks, constants, custom_forms, get_event_model
+from .menu import EventsEntry
 from .models import EventType
 
 logger = logging.getLogger(__name__)
@@ -190,6 +193,19 @@ class Populator(BasePopulator):
         SearchConfigItem.objects.create_if_needed(
             Event, ['name', 'description', 'type__name'],
         )
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='events-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Tools')},
+                defaults={'order': 100},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=EventsEntry.id, parent=container, order=200,
+            )
 
         # ---------------------------
         if not already_populated:

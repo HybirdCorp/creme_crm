@@ -1,0 +1,29 @@
+{% load i18n creme_core_tags %}
+
+<div class="menu-edit-widget" id="{{widget.attrs.id}}">
+    {% jsondata widget.value class='menu-edit-initial-data' %}
+    {% jsondata widget.regular_entry_choices class='menu-edit-regular-choices' %}
+
+    <div class="menu-edit-entries-container">
+        <div class="help-text">{% translate 'Drag and drop the entries to order them' %}</div>
+        <div class="menu-edit-entries"></div>
+    </div>
+    <div class="menu-edit-widget-creations">
+        <button class="ui-creme-actionbutton new-entries new-regular-entries" type="button">{% translate 'Add regular entries' %}</button>
+        {% for creator in widget.extra_creators %}
+            <button class="ui-creme-actionbutton new-entries new-extra-entry" type="button" data-url="{{creator.url}}" >{{creator.label}}</button>
+        {% endfor %}
+     </div>
+</div>
+
+<script type="text/javascript">
+{% block script %}
+    $(document).ready(function() {
+        return new creme.MenuEditor($("#{{widget.attrs.id}}").first(), {
+            name: '{{widget.name}}',
+            initialSelector: '.menu-edit-initial-data',
+            regularChoicesSelector: '.menu-edit-regular-choices'
+        });
+    });
+{% endblock %}
+</script>

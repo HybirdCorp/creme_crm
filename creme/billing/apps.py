@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -300,6 +300,36 @@ class BillingConfig(CremeAppConfig):
             'billing-create_cnote',   CreditNote, priority=50,
         ).add_link(
             'billing-create_order',   SalesOrder, priority=55,
+        )
+
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.CreditNotesEntry,
+            menu.InvoicesEntry,
+            menu.QuotesEntry,
+            menu.SalesOrdersEntry,
+            menu.ProductLinesEntry,
+            menu.ServiceLinesEntry,
+
+            menu.CreditNoteCreationEntry,
+            menu.InvoiceCreationEntry,
+            menu.QuoteCreationEntry,
+            menu.SalesOrderCreationEntry,
+        )
+
+    def register_creation_menu(self, creation_menu_registry):
+        creation_menu_registry.get_or_create_group(
+            'management', _('Management'), priority=50,
+        ).add_link(
+            'billing-create_quote',   self.Quote,      priority=10,
+        ).add_link(
+            'billing-create_invoice', self.Invoice,    priority=15,
+        ).add_link(
+            'billing-create_cnote',   self.CreditNote, priority=50,
+        ).add_link(
+            'billing-create_order',   self.SalesOrder, priority=55,
         )
 
     def register_setting_keys(self, setting_key_registry):

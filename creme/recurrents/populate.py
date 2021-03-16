@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,17 +23,20 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     CustomFormConfigItem,
     HeaderFilter,
     Job,
+    MenuConfigItem,
     SearchConfigItem,
 )
 
 from . import constants, custom_forms, get_rgenerator_model
 from .creme_jobs import recurrents_gendocs_type
 from .forms.recurrentgenerator import GeneratorCTypeSubCell
+from .menu import RecurrentGeneratorsEntry
 
 
 class Populator(BasePopulator):
@@ -135,3 +138,16 @@ class Populator(BasePopulator):
                 'status':   Job.STATUS_OK,
             },
         )
+
+        # ---------------------------
+        # TODO: move to a "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='recurrents-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Management')},
+                defaults={'order': 50},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=RecurrentGeneratorsEntry.id, parent=container,  order=100,
+            )

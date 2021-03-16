@@ -238,7 +238,7 @@ QUnit.test('creme.dialog.FormDialog (default button, empty form)', function(asse
     deepEqual([], this.mockListenerCalls('frame-activated'));
 });
 
-QUnit.test('creme.dialog.FormDialog (default button, unamed submit input)', function(assert) {
+QUnit.test('creme.dialog.FormDialog (default button, unnamed submit input)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit', backend: this.backend});
 
     dialog.open();
@@ -250,7 +250,7 @@ QUnit.test('creme.dialog.FormDialog (default button, unamed submit input)', func
     dialog.close();
 });
 
-QUnit.test('creme.dialog.FormDialog (default button, unamed submit input + click cancel)', function(assert) {
+QUnit.test('creme.dialog.FormDialog (default button, unnamed submit input + click cancel)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit', backend: this.backend});
 
     dialog.open();
@@ -263,7 +263,7 @@ QUnit.test('creme.dialog.FormDialog (default button, unamed submit input + click
     equal(false, dialog.isOpened());
 });
 
-QUnit.test('creme.dialog.FormDialog (default button, unamed submit button)', function(assert) {
+QUnit.test('creme.dialog.FormDialog (default button, unnamed submit button)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
 
     dialog.open();
@@ -275,7 +275,7 @@ QUnit.test('creme.dialog.FormDialog (default button, unamed submit button)', fun
     dialog.close();
 });
 
-QUnit.test('creme.dialog.FormDialog (default button, multiple unamed submit)', function(assert) {
+QUnit.test('creme.dialog.FormDialog (default button, multiple unnamed submit)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/multi/unnamed', backend: this.backend});
 
     dialog.open();

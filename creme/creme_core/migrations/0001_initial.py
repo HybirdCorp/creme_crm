@@ -281,6 +281,8 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True, verbose_name='Description')),
             ],
             options={
+                'verbose_name': 'Entity',
+                'verbose_name_plural': 'Entities',
                 'ordering': ('header_filter_search_field',),
                 'index_together': {('entity_type', 'is_deleted')},
             },

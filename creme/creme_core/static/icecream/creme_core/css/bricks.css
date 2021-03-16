@@ -492,8 +492,11 @@ Those templates need to be cleaned up
     padding-top: 6px;
 }
 
+/*
 .brick-table .brick-table-content .brick-table-action .brick-table-action-icon,
-.brick-list .brick-content .brick-action .brick-action-icon {
+.brick-list .brick-content .brick-action .brick-action-icon { */
+/* NB: more generic rule for menu-edition in creme_config (April 2021) */
+.brick .brick-content .brick-action .brick-action-icon {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 4px;
 
