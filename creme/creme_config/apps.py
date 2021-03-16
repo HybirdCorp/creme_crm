@@ -72,6 +72,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.ExportButtonBrick,
             bricks.FieldsConfigsBrick,
             bricks.CustomBricksConfigBrick,
+            bricks.MenuBrick,
             bricks.ButtonMenuBrick,
             bricks.UsersBrick,
             bricks.TeamsBrick,
@@ -194,4 +195,22 @@ class CremeConfigConfig(CremeAppConfig):
                 priority=20
             ),
             priority=10000,
+        )
+
+    def register_menu_entries(self, menu_registry):
+        from creme.creme_core import menu as core_menu
+
+        from . import menu
+
+        menu_registry.register(menu.CremeConfigEntry)
+
+        # Hook CremeEntry
+        children = core_menu.CremeEntry.child_classes
+        children.insert(
+            children.index(core_menu.MyPageEntry),
+            menu.TimezoneEntry,
+        )
+        children.insert(
+            children.index(core_menu.MyJobsEntry) + 1,
+            menu.MySettingsEntry,
         )

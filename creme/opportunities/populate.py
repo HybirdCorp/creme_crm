@@ -34,6 +34,7 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -43,6 +44,7 @@ from creme.creme_core.models import (
     CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
+    MenuConfigItem,
     RelationType,
     SearchConfigItem,
     SettingValue,
@@ -53,6 +55,7 @@ from . import (
     constants,
     custom_forms,
     get_opportunity_model,
+    menu,
     setting_keys,
 )
 from .buttons import LinkedOpportunityButton
@@ -356,6 +359,29 @@ class Populator(BasePopulator):
             Opportunity,
             ['name', 'made_sales', 'sales_phase__name', 'origin__name'],
         )
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='opportunities-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Commercial')},
+                defaults={'order': 30},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=menu.OpportunitiesEntry.id, order=10, parent=container,
+            )
+
+            creations = MenuConfigItem.objects.filter(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('+ Creation')},
+            ).first()
+            if creations is not None:
+                MenuConfigItem.objects.create(
+                    entry_id=menu.OpportunityCreationEntry.id,
+                    order=30, parent=creations,
+                )
 
         # ---------------------------
         if not already_populated:

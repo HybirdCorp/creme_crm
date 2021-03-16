@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from functools import partial
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -27,15 +28,17 @@ from creme import sms
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CustomFormConfigItem,
     HeaderFilter,
+    MenuConfigItem,
     SearchConfigItem,
 )
 
-from . import bricks, constants, custom_forms
+from . import bricks, constants, custom_forms, menu
 
 logger = logging.getLogger(__name__)
 
@@ -179,6 +182,25 @@ class Populator(BasePopulator):
         create_searchconf(SMSCampaign, ['name'])
         create_searchconf(MessagingList, ['name'])
         create_searchconf(MessageTemplate, ['name', 'subject', 'body'])
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='sms-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Marketing')},
+                defaults={'order': 200},
+            )[0]
+
+            create_mitem = partial(MenuConfigItem.objects.create, parent=container)
+            create_mitem(
+                entry_id=Separator1Entry.id,
+                entry_data={'label': _('SMS')},
+                order=200,
+            )
+            create_mitem(entry_id=menu.SMSCampaignsEntry.id,     order=210)
+            create_mitem(entry_id=menu.MessagingListsEntry.id,   order=215)
+            create_mitem(entry_id=menu.MessageTemplatesEntry.id, order=220)
 
         # ---------------------------
         # NB: no straightforward way to test that this populate script has not been already run

@@ -125,3 +125,27 @@ class SMSConfig(CremeAppConfig):
         ).add_link(
             'sms-create_template', MTemplate,   priority=220,
         )
+
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.SMSCampaignsEntry,
+            menu.MessagingListsEntry,
+            menu.MessageTemplatesEntry,
+
+            menu.SMSCampaignCreationEntry,
+            menu.MessagingListCreationEntry,
+            menu.MessageTemplateCreationEntry,
+        )
+
+    def register_creation_menu(self, creation_menu_registry):
+        creation_menu_registry.get_or_create_group(
+            group_id='marketing', label=_('Marketing'), priority=200,
+        ).add_link(
+            'sms-create_campaign', self.SMSCampaign,     priority=200,
+        ).add_link(
+            'sms-create_mlist',    self.MessagingList,   priority=210,
+        ).add_link(
+            'sms-create_template', self.MessageTemplate, priority=220,
+        )

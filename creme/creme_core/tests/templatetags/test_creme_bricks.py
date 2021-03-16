@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.sessions.backends.base import SessionBase
 from django.template import Context, RequestContext, Template
-from django.test.client import RequestFactory
 from django.utils.translation import gettext as _
 
 from creme.creme_core.bricks import HistoryBrick
@@ -22,17 +20,6 @@ from ..views.base import BrickTestCaseMixin
 
 
 class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
-    def setUp(self):
-        super().setUp()
-        self.factory = RequestFactory()
-
-    def _build_request(self, url='/'):  # TODO: in CremeTestCase ??
-        request = self.factory.get(url)
-        request.session = SessionBase()
-        request.user = self.user
-
-        return request
-
     def test_brick_import_n_display01(self):
         "Named Brick."
         self.login()
@@ -55,7 +42,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                 f"{{% brick_import app='creme_core' name='{name}' as my_brick %}}"
                 f"{{% brick_display my_brick %}}"
             )
-            render = template.render(RequestContext(self._build_request()))
+            render = template.render(RequestContext(self.build_request()))
 
         self.assertEqual(brick_str, render.strip())
 
@@ -72,7 +59,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                 '{% brick_import object=object as my_brick %}'
                 '{% brick_display my_brick %}'
             )
-            render = template.render(RequestContext(self._build_request(), {'object': motoko}))
+            render = template.render(RequestContext(self.build_request(), {'object': motoko}))
 
         document = self.get_html_tree(render)
         brick_node = self.get_brick_node(document, MODELBRICK_ID)
@@ -112,7 +99,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             brick_str = '<div>FOOBARBAZ #3</div>'
 
         context = RequestContext(
-            self._build_request(),
+            self.build_request(),
             {
                 'my_brick1': FooBrick1(),
                 'my_bricks': [FooBrick2(), FooBrick3()],
@@ -150,7 +137,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             )
             verbose_name = 'Testing purpose'
 
-        context = RequestContext(self._build_request(), {'my_brick': InvalidBrick()})
+        context = RequestContext(self.build_request(), {'my_brick': InvalidBrick()})
 
         with self.assertNoException():
             render = Template(
@@ -172,7 +159,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             def detailview_display(self, context):
                 return self.brick_str
 
-        context = RequestContext(self._build_request(), {'my_brick': FooBrick()})
+        context = RequestContext(self.build_request(), {'my_brick': FooBrick()})
 
         with self.assertNoException():
             render = Template(
@@ -203,7 +190,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             render = Template(
                 '{% load creme_bricks %}'
                 '{% brick_table_data_status foo bar %}'
-            ).render(RequestContext(self._build_request()))
+            ).render(RequestContext(self.build_request()))
 
         self.assertEqual(
             'data-table-foo-column data-table-bar-column',
@@ -221,7 +208,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                 '{% brick_get_by_ids brick_id1 brick_id2 as bricks %}'
                 '{{bricks.0.verbose_name}}##{{bricks.1.config_item.brick_id}}'
             ).render(RequestContext(
-                self._build_request(),
+                self.build_request(),
                 {
                     'brick_id1': HistoryBrick.id_,
                     'brick_id2': rbi.brick_id,
@@ -246,7 +233,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                 '{% brick_get_by_ids brick_id1 brick_id2 entity=motoko as bricks %}'
                 '{{bricks.0.verbose_name}}##{{bricks.1.verbose_name}}'
             ).render(RequestContext(
-                self._build_request(),
+                self.build_request(),
                 {
                     'brick_id1': HistoryBrick.id_,
                     'brick_id2': MODELBRICK_ID,
@@ -268,15 +255,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def setUp(self):
         super().setUp()
-        self.factory = RequestFactory()
         self.maxDiff = None
-
-    def _build_request(self, url='/'):
-        request = self.factory.get(url)
-        request.session = SessionBase()
-        request.user = self.user
-
-        return request
 
     # def _get_icon(self, name, size, label=''):
     #     theme = get_current_theme()

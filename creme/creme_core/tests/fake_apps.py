@@ -20,6 +20,7 @@ def ready():
     from ..gui.custom_form import customform_descriptor_registry
     from ..gui.listview import smart_columns_registry
     from ..gui.mass_import import import_form_registry
+    from ..gui.menu import menu_registry
     from ..gui.merge import merge_form_registry
     from ..gui.quick_forms import quickforms_registry
     from ..models import CremeEntity
@@ -28,6 +29,7 @@ def ready():
         fake_custom_forms,
         fake_forms,
         fake_function_fields,
+        fake_menu,
         fake_models,
     )
     from .fake_bricks import FakeAppPortalBrick
@@ -54,6 +56,13 @@ def ready():
         fake_models.FakeOrganisation, hours=2,
     ).register(
         fake_models.FakeContact, minutes=60,
+    )
+
+    menu_registry.register(
+        fake_menu.FakeContactsEntry,
+        fake_menu.FakeContactCreationEntry,
+        fake_menu.FakeOrganisationsEntry,
+        fake_menu.FakeOrganisationCreationEntry,
     )
 
     brick_registry.register(

@@ -1,11 +1,25 @@
 # -*- coding: utf-8 -*-
 
+from copy import copy, deepcopy
 from functools import partial
+from json import dumps as json_dump
 
+from django import forms
 from django.contrib.auth import get_user_model
+from django.forms.fields import CallableChoiceIterator, InvalidJSONInput
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core.forms import CremeForm
+from creme.creme_core.forms.menu import MenuEntryForm
+from creme.creme_core.gui.menu import (
+    ContainerEntry,
+    CustomURLEntry,
+    MenuEntry,
+    MenuRegistry,
+    Separator1Entry,
+    menu_registry,
+)
 from creme.creme_core.models import (
     CustomField,
     CustomFieldEnumValue,
@@ -15,12 +29,20 @@ from creme.creme_core.models import (
     UserRole,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_menu import (
+    FakeContactCreationEntry,
+    FakeContactsEntry,
+    FakeOrganisationCreationEntry,
+    FakeOrganisationsEntry,
+)
+from creme.creme_core.tests.forms.base import FieldTestCase
 
 from ..forms.fields import (
     CreatorModelChoiceField,
     CreatorModelMultipleChoiceField,
     CustomEnumChoiceField,
     CustomMultiEnumChoiceField,
+    MenuEntriesField,
 )
 from ..forms.widgets import CreatorModelChoiceWidget
 
@@ -749,4 +771,447 @@ class CustomMultiEnumChoiceFieldTestCase(CremeTestCase):
         self.assertTupleEqual(
             (reverse('creme_config__add_custom_enum', args=(cfield.id,)), True),
             field.creation_url_n_allowed,
+        )
+
+
+class MenuEntriesFieldTestCase(FieldTestCase):
+    def test_creators(self):
+        label = 'Create a separator'
+        creator1 = MenuEntriesField.EntryCreator(
+            label=label, entry_class=Separator1Entry,
+        )
+        self.assertEqual(label, creator1.label)
+        self.assertEqual(Separator1Entry, creator1.entry_class)
+        self.assertEqual(
+            reverse('creme_config__add_menu_special_level1', args=(Separator1Entry.id,)),
+            creator1.url,
+        )
+
+        # ---
+        copied = copy(creator1)
+        self.assertIsInstance(copied, MenuEntriesField.EntryCreator)
+        self.assertEqual(label, copied.label)
+        self.assertEqual(Separator1Entry, copied.entry_class)
+
+        self.assertEqual(creator1, copied)
+        self.assertNotEqual(
+            creator1,
+            MenuEntriesField.EntryCreator(
+                label=f'not {label}', entry_class=Separator1Entry,
+            )
+        )
+        self.assertNotEqual(
+            creator1,
+            MenuEntriesField.EntryCreator(
+                label=label, entry_class=CustomURLEntry,
+            )
+        )
+
+        # ---
+        self.assertEqual(
+            _('Add a separator'),
+            MenuEntriesField.EntryCreator(Separator1Entry).label,
+        )
+
+    def test_attributes01(self):
+        field = MenuEntriesField()
+        self.assertIs(menu_registry, field.menu_registry)
+        self.assertEqual(1, field.entry_level)
+        self.assertListEqual([], [*field.excluded_entry_ids])
+
+        creators = [
+            MenuEntriesField.EntryCreator(entry_class=Separator1Entry),
+            MenuEntriesField.EntryCreator(entry_class=CustomURLEntry),
+        ]
+        self.assertListEqual(creators, [*field.extra_entry_creators])
+
+        widget = field.widget
+        self.assertListEqual(creators, widget.extra_entry_creators)
+
+        my_registry = MenuRegistry().register(
+            ContainerEntry,
+            FakeContactsEntry, FakeContactCreationEntry,
+            FakeOrganisationsEntry, FakeOrganisationCreationEntry,
+        )
+        field.menu_registry = my_registry
+        self.assertIs(my_registry, field.menu_registry)
+
+        excluded_entry_ids = (FakeContactsEntry.id, FakeContactCreationEntry.id)
+        field.excluded_entry_ids = excluded_entry_ids
+        self.assertListEqual([*excluded_entry_ids], [*field.excluded_entry_ids])
+
+        choices = widget.regular_entry_choices
+        self.assertIsInstance(choices, CallableChoiceIterator)
+
+        choices_list = [*choices]
+        self.assertInChoices(
+            value=FakeOrganisationsEntry.id,
+            label=FakeOrganisationsEntry().label,
+            choices=choices_list,
+        )
+        self.assertInChoices(
+            value=FakeOrganisationCreationEntry.id,
+            label=FakeOrganisationCreationEntry().label,
+            choices=choices_list,
+        )
+        self.assertNotInChoices(value=FakeContactsEntry.id, choices=choices_list)
+        self.assertNotInChoices(value=ContainerEntry.id,    choices=choices_list)
+
+    def test_attributes02(self):
+        my_registry = MenuRegistry().register(
+            ContainerEntry, Separator1Entry,
+            FakeContactsEntry, FakeContactCreationEntry,
+            FakeOrganisationsEntry, FakeOrganisationCreationEntry,
+        )
+        creator = MenuEntriesField.EntryCreator(
+            label='Add an entry separator',
+            entry_class=Separator1Entry,
+        )
+        excluded_entry_ids = (FakeContactsEntry.id, FakeContactCreationEntry.id)
+        field = MenuEntriesField(
+            menu_registry=my_registry,
+            entry_level=2,
+            excluded_entry_ids=excluded_entry_ids,
+            extra_entry_creators=[creator],
+        )
+        self.assertIs(my_registry, field.menu_registry)
+        self.assertEqual(2, field.entry_level)
+        self.assertListEqual([*excluded_entry_ids], [*field.excluded_entry_ids])
+        self.assertListEqual([creator], [*field.extra_entry_creators])
+
+    def test_regular_entry_choices(self):
+        "Exclude creators."
+        my_registry = MenuRegistry().register(
+            ContainerEntry, Separator1Entry,
+            FakeContactsEntry, FakeContactCreationEntry,
+        )
+        creator = MenuEntriesField.EntryCreator(
+            label='Add an entry separator',
+            entry_class=Separator1Entry,
+        )
+        field = MenuEntriesField(
+            menu_registry=my_registry,
+            excluded_entry_ids=[FakeContactCreationEntry.id],
+            extra_entry_creators=[creator],
+        )
+
+        choices = [*field.widget.regular_entry_choices]
+        self.assertInChoices(
+            value=FakeContactsEntry.id,
+            label=FakeContactsEntry().label,
+            choices=choices,
+        )
+        self.assertNotInChoices(value=FakeContactCreationEntry.id, choices=choices)
+        self.assertNotInChoices(value=FakeOrganisationsEntry.id,   choices=choices)
+        self.assertNotInChoices(value=Separator1Entry.id,          choices=choices)
+
+    def test_prepare_value(self):
+        field = MenuEntriesField()
+        self.assertJSONEqual('[]', field.prepare_value([]))
+
+        invalid_data = InvalidJSONInput('[')
+        self.assertEqual(invalid_data, field.prepare_value(invalid_data))
+
+        label2 = 'Creation'
+        entry_as_dicts = [
+            {
+                'label': str(FakeContactsEntry().label),
+                'value': {'id': FakeContactsEntry.id},
+            }, {
+                'label': label2,
+                'value': {'id': Separator1Entry.id, 'data': {'label': label2}},
+            }, {
+                'label': str(FakeContactCreationEntry().label),
+                'value': {'id': FakeContactCreationEntry.id},
+            },
+        ]
+        expected_json = json_dump(entry_as_dicts)
+        self.assertJSONEqual(
+            expected_json,
+            field.prepare_value([d['value'] for d in entry_as_dicts]),
+        )
+        self.assertJSONEqual(
+            expected_json,
+            field.prepare_value([
+                FakeContactsEntry(),
+                Separator1Entry(data={'label': label2}),
+                FakeContactCreationEntry(),
+            ]),
+        )
+
+        self.assertJSONEqual(
+            json_dump([
+                {'no_id_key': 'whatever'},
+                {'id': 'invalid_id'},
+                {'id': [12]},
+                [f'id="{Separator1Entry.id}"'],
+                {'id': Separator1Entry.id, 'data': [1, 2]},
+                {
+                    'label': label2,
+                    'value': {'id': Separator1Entry.id, 'data': {'label': label2}},
+                },
+            ]),
+            field.prepare_value([
+                {'no_id_key': 'whatever'},
+                {'id': 'invalid_id'},
+                {'id': [12]},
+                [f'id="{Separator1Entry.id}"'],
+                {'id': Separator1Entry.id, 'data': [1, 2]},
+                {'id': Separator1Entry.id, 'data': {'label': label2}},
+            ]),
+        )
+
+    def test_deepcopy(self):
+        field1 = MenuEntriesField()
+        field2 = deepcopy(field1)
+
+        self.assertIsNot(
+            field1.widget.regular_entry_choices,
+            field2.widget.regular_entry_choices,
+        )
+
+    def test_ok01(self):
+        field = MenuEntriesField(
+            menu_registry=MenuRegistry().register(
+                FakeContactsEntry, FakeContactCreationEntry,
+            ),
+        )
+        cleaned = field.clean(json_dump([
+            {'id': FakeContactCreationEntry.id},
+            {'id': FakeContactsEntry.id},
+        ]))
+        self.assertIsInstance(cleaned, list)
+        self.assertEqual(2, len(cleaned))
+        self.assertIsInstance(cleaned[0], FakeContactCreationEntry)
+        self.assertIsInstance(cleaned[1], FakeContactsEntry)
+
+    def test_ok02(self):
+        "Special Entry with label."
+        field = MenuEntriesField()
+        label = 'My group'
+        cleaned = field.clean(json_dump([
+            {'id': Separator1Entry.id, 'data': {'label': label}},
+        ]))
+        self.assertIsInstance(cleaned, list)
+        self.assertEqual(1, len(cleaned))
+
+        entry = cleaned[0]
+        self.assertIsInstance(entry, Separator1Entry)
+        self.assertEqual(label, entry.label)
+
+    def test_ok03(self):
+        "Entry with extra-data."
+        field = MenuEntriesField()
+        label = 'Wikipedia'
+        url = 'http://www.wikipedia.org'
+        cleaned = field.clean(json_dump([
+            {'id': CustomURLEntry.id, 'data': {'label': label, 'url': url}},
+        ]))
+        self.assertIsInstance(cleaned, list)
+        self.assertEqual(1, len(cleaned))
+
+        entry = cleaned[0]
+        self.assertIsInstance(entry, CustomURLEntry)
+        self.assertEqual(label, entry.label)
+        self.assertEqual(url,   entry.url)
+
+    def test_ok04(self):
+        "Entry with extra-data (custom entry)."
+        class TestEntryForm(MenuEntryForm):
+            count = forms.IntegerField(label='Count')
+
+        class TestEntry(MenuEntry):
+            id = 'creme_core-test'
+            form_class = TestEntryForm
+
+            def __init__(this, **kwargs):
+                super().__init__(**kwargs)
+                this.count = this.data.get('count', 0)
+
+        field = MenuEntriesField(
+            menu_registry=MenuRegistry().register(TestEntry),
+            excluded_entry_ids=[TestEntry.id],  # <== ignored
+            extra_entry_creators=[
+                MenuEntriesField.EntryCreator(
+                    label='Add a test entry', entry_class=TestEntry,
+                ),
+            ],
+        )
+        count = 12
+        label = f'Are Contacts more than {count}?'
+        cleaned = field.clean(json_dump([
+            {'id': TestEntry.id, 'data': {'label': label, 'count': count}},
+        ]))
+        self.assertIsInstance(cleaned, list)
+        self.assertEqual(1, len(cleaned))
+
+        entry = cleaned[0]
+        self.assertIsInstance(entry, TestEntry)
+        self.assertEqual(label, entry.label)
+        self.assertEqual(count, entry.count)
+
+    def test_empty_not_required(self):
+        field = MenuEntriesField(required=False)
+        self.assertListEqual([], field.clean(''))
+        self.assertListEqual([], field.clean('[]'))
+
+    def test_empty_required(self):
+        field = MenuEntriesField(required=True)
+        self.assertFieldValidationError(MenuEntriesField, 'required', field.clean, '')
+
+    def test_invalid_JSON(self):
+        field = MenuEntriesField()
+        self.assertFieldValidationError(MenuEntriesField, 'invalid', field.clean, '[')
+
+    def test_invalid_type(self):
+        clean = MenuEntriesField().clean
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_type', clean, json_dump({'data': 'foobar'})
+        )
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_type', clean, json_dump(['foo', 'bar'])
+        )
+        # TODO: complete ??
+
+    def test_invalid_data01(self):
+        "Missing Id."
+        clean = MenuEntriesField().clean
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', clean,
+            json_dump([{'notid': 'foobar'}]),
+            message_args={'error': _('no entry ID')},
+        )
+
+    def test_invalid_data02(self):
+        "Invalid label/extra-data."
+        clean = MenuEntriesField().clean
+        label = 'Wikipedia'
+        url = 'http://www.wikipedia.org'
+
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', clean,
+            json_dump([{'id': CustomURLEntry.id, 'data': 12}]),
+            message_args={'error': '"12" is not a dictionary'},
+        )
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', clean,
+            json_dump([{'id': CustomURLEntry.id, 'data': {'label': label}}]),
+            message_args={
+                'error': _('an entry is invalid ({error})').format(
+                    error='{} -> {}'.format(_('URL'), _('This field is required.')),
+                )
+            },
+        )
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', clean,
+            json_dump([{'id': CustomURLEntry.id, 'data': {'label': label, 'url': 123}}]),
+            message_args={
+                'error': _('an entry is invalid ({error})').format(
+                    error='{} -> {}'.format(_('URL'), _('Enter a valid URL.')),
+                )
+            },
+        )
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', clean,
+            json_dump([{'id': CustomURLEntry.id, 'data': {'url': url}}]),
+            message_args={
+                'error': _('an entry is invalid ({error})').format(
+                    error='{} -> {}'.format(_('Label'), _('This field is required.')),
+                )
+            },
+        )
+
+    def test_invalid_data03(self):
+        "Invalid extra-data (custom entry)."
+        class TestDataForm(CremeForm):
+            count = forms.IntegerField(label='Count')
+
+        class TestEntry(MenuEntry):
+            id = 'creme_core-test'
+            form_class = TestDataForm
+
+            def __init__(this, data=None, **kwargs):
+                super().__init__(**kwargs)
+                this.count = 0 if not data else data.get('count', 0)
+
+        field = MenuEntriesField(menu_registry=MenuRegistry().register(TestEntry))
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', field.clean,
+            json_dump([{
+                'id': TestEntry.id,
+                'label': 'Are Contacts more than 12?',
+                'data': {'count': 'abc'},
+            }]),
+            message_args={
+                'error': _('an entry is invalid ({error})').format(
+                    error='{} -> {}'.format('Count', _('Enter a whole number.')),
+                ),
+            },
+        )
+
+    def test_invalid_entry_id01(self):
+        "Not registered class."
+        field = MenuEntriesField(
+            menu_registry=MenuRegistry().register(FakeContactsEntry),
+        )
+
+        entry_id = FakeContactCreationEntry.id
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', field.clean,
+            json_dump([{'id': entry_id}]),
+            message_args={
+                'error': _('the entry ID "{}" is invalid.').format(entry_id),
+            },
+        )
+
+    def test_invalid_entry_id02(self):
+        "Excluded class."
+        field = MenuEntriesField(
+            menu_registry=MenuRegistry().register(
+                FakeContactsEntry, FakeContactCreationEntry,
+            ),
+            excluded_entry_ids=[FakeContactCreationEntry.id],
+        )
+
+        entry_id = FakeContactCreationEntry.id
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', field.clean,
+            json_dump([{'id': entry_id}]),
+            message_args={
+                'error': _('the entry ID "{}" is invalid.').format(entry_id),
+            },
+        )
+
+    def test_invalid_entry_id03(self):
+        "Not registered extra class."
+        field = MenuEntriesField(
+            menu_registry=MenuRegistry().register(FakeContactsEntry),
+        )
+
+        entry_id = CustomURLEntry.id
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', field.clean,
+            json_dump([
+                {
+                    'id': entry_id,
+                    'label': 'My label', 'data': {'url': 'https://whateve.r'}
+                },
+            ]),
+            message_args={
+                'error': _('the entry ID "{}" is invalid.').format(entry_id),
+            },
+        )
+
+    def test_invalid_entry_id04(self):
+        "Invalid level."
+        field = MenuEntriesField()
+
+        entry_id = ContainerEntry.id
+        self.assertIsNotNone(field.menu_registry.get_class(entry_id))
+        self.assertFieldValidationError(
+            MenuEntriesField, 'invalid_data', field.clean,
+            json_dump([{'id': entry_id}]),
+            message_args={
+                'error': _('the entry ID "{}" is invalid.').format(entry_id),
+            },
         )

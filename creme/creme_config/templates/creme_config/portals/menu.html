@@ -1,0 +1,16 @@
+{% extends 'creme_config/portal.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block page_title %}{% translate 'Configuration of menu' %} - {% endblock %}
+
+{% block title %}
+    {% has_perm_to access 'creme_config' as conf_perm %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% translate 'Configuration' %} > </a>{% endif %}{% translate 'Menu' %}
+{% endblock %}
+
+{% block portal_bricks %}
+    {% widget_help_sign message=_('Here you can configure the main menu, placed on top of this page for example.') %}
+
+    {% brick_import app='creme_config' name='menu' as menu_brick %}
+    {% brick_display menu_brick %}
+{% endblock %}

@@ -28,11 +28,13 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CustomFormConfigItem,
     HeaderFilter,
+    MenuConfigItem,
     RelationType,
     SearchConfigItem,
 )
@@ -48,6 +50,7 @@ from . import (
 )
 from .forms.project import ProjectLeadersSubCell
 from .forms.task import ParentTasksSubCell
+from .menu import ProjectsEntry
 from .models import ProjectStatus, TaskStatus
 
 logger = logging.getLogger(__name__)
@@ -267,6 +270,19 @@ class Populator(BasePopulator):
             ProjectTask,
             ['linked_project__name', 'duration', 'tstatus__name'],
         )
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='projects-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Tools')},
+                defaults={'order': 100},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=ProjectsEntry.id, parent=container, order=50,
+            )
 
         # ---------------------------
         if not already_populated:

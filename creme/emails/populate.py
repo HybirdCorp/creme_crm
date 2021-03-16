@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from functools import partial
 
 from django.apps import apps
 from django.conf import settings
@@ -28,6 +29,7 @@ from creme import emails, persons
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -36,12 +38,13 @@ from creme.creme_core.models import (
     CustomFormConfigItem,
     HeaderFilter,
     Job,
+    MenuConfigItem,
     RelationType,
     SearchConfigItem,
     SettingValue,
 )
 
-from . import bricks, buttons, constants, custom_forms
+from . import bricks, buttons, constants, custom_forms, menu
 from .creme_jobs import campaign_emails_send_type, entity_emails_send_type
 from .setting_keys import emailcampaign_sender
 
@@ -276,6 +279,25 @@ class Populator(BasePopulator):
                 'status':   Job.STATUS_OK,
             },
         )
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='emails-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Marketing')},
+                defaults={'order': 200},
+            )[0]
+
+            create_mitem = partial(MenuConfigItem.objects.create, parent=container)
+            create_mitem(entry_id=menu.EmailCampaignsEntry.id, order=10)
+            create_mitem(entry_id=menu.MailingListsEntry.id,   order=15)
+            create_mitem(entry_id=menu.EmailTemplatesEntry.id, order=20)
+            create_mitem(entry_id=menu.EntityEmailsEntry.id,   order=25)
+
+            sync_entry_id = menu.EmailSyncEntry.id
+            if sync_entry_id:
+                create_mitem(entry_id=sync_entry_id, order=30)
 
         # ---------------------------
         if not already_populated:

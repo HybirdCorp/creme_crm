@@ -191,8 +191,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 model.objects.bulk_create(backup)
             except Exception:
                 print(
-                    'CremeBlockTagsTestCase: '
-                    'test-data backup problem with model={}'.format(model)
+                    f'{cls.__name__}: test-data backup problem with model={model}'
                 )
 
         gui_bricks.brick_registry = cls._original_brick_registry

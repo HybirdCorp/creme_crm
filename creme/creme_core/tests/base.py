@@ -15,10 +15,11 @@ from bleach._vendor import html5lib
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sessions.backends.base import SessionBase
 from django.core.management import call_command
 from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
-from django.test import TestCase, TransactionTestCase
+from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils.timezone import get_current_timezone, make_aware, utc
 
@@ -95,6 +96,7 @@ class _CremeTestCase:
             'error', r"(.)* received a naive datetime (.)*",
             RuntimeWarning, r'django\.db\.models\.fields',
         )
+        cls.request_factory = RequestFactory()
 
     def setUp(self):
         clear_global_info()
@@ -557,16 +559,23 @@ class _CremeTestCase:
     def build_merge_url(self, entity1, entity2):
         return reverse('creme_core__merge_entities') + f'?id1={entity1.id}&id2={entity2.id}'
 
+    def build_request(self, url='/', user=None):
+        request = self.request_factory.get(url)
+        request.session = SessionBase()
+        request.user = user or self.user
+
+        return request
+
     @staticmethod
     def create_datetime(*args, **kwargs):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)
 
-    def create_uploaded_file(self, *,
+    @staticmethod
+    def create_uploaded_file(*,
                              file_name: str,
                              dir_name: str,
-                             content: Union[str, List[str]] = 'I am the content',
-                            ):
+                             content: Union[str, List[str]] = 'I am the content'):
         from os import path as os_path
         from shutil import copy
 

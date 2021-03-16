@@ -50,8 +50,9 @@
                                                         {% brick_action id='update' url=layout_url __layout='regular' icon='previous' label=_('Display this group on the whole width') enabled=admin_perm %}
                                                     {% endif %}
                                                    <span class="customform-config-block-header-title">{{group.name}}</span>
-                                                    {% url 'creme_config__edit_custom_form_group' descriptor.id form_group_id as edit_url %}
-                                                    {% if not group.extra_group_id %}{% brick_action id='edit' url=edit_url label=_('Edit this group') enabled=admin_perm %}{% endif %}
+                                                    {% if not group.extra_group_id %}{% url 'creme_config__edit_custom_form_group' descriptor.id form_group_id as edit_url %}
+                                                        {% brick_action id='edit' url=edit_url label=_('Edit this group') enabled=admin_perm %}
+                                                    {% endif %}
                                                     {% brick_action id='delete' url=delete_group_url __group_id=form_group_id label=_('Delete this group') enabled=admin_perm %}
                                                     {% if layout == LAYOUT_REGULAR %}
                                                         {% brick_action id='update' url=layout_url __layout='dual_first' icon='previous' label=_('Display this group on the first half only') enabled=admin_perm %}

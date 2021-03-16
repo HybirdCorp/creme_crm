@@ -196,6 +196,36 @@ class PersonsConfig(CremeAppConfig):
             'create_organisation', Organisation, priority=5,
         )
 
+    def register_menu_entries(self, menu_registry):
+        from creme.creme_core import menu as core_menu
+
+        from . import menu
+
+        menu_registry.register(
+            menu.ContactsEntry,
+            menu.OrganisationsEntry,
+            menu.CustomersEntry,
+
+            menu.ContactCreationEntry,
+            menu.OrganisationCreationEntry,
+        )
+
+        # Hook CremeEntry
+        children = core_menu.CremeEntry.child_classes
+        children.insert(
+            children.index(core_menu.CremeEntry.UserSeparatorEntry) + 1,
+            menu.UserContactEntry,
+        )
+
+    def register_creation_menu(self, creation_menu_registry):
+        creation_menu_registry.get_or_create_group(
+            group_id='persons-directory', label=_('Directory'), priority=10,
+        ).add_link(
+            'create_contact', self.Contact, priority=3,
+        ).add_link(
+            'create_organisation', self.Organisation, priority=5,
+        )
+
     def register_merge_forms(self, merge_form_registry):
         from .forms.merge import get_merge_form_builder as form_builder
 

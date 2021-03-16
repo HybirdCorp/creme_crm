@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,18 +17,22 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from copy import deepcopy
 from typing import Tuple
 
+from django.core.exceptions import ValidationError
 from django.forms import fields
 from django.forms import models as modelforms
+from django.forms.fields import CallableChoiceIterator
 from django.urls import reverse
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.gui import menu
 
 from ..registry import config_registry
-from .widgets import CreatorModelChoiceWidget
+from . import widgets
 
 
 class CreatorChoiceMixin:
@@ -101,7 +105,7 @@ class CreatorModelChoiceMixin(CreatorChoiceMixin):
 
 class CreatorModelChoiceField(modelforms.ModelChoiceField,
                               CreatorModelChoiceMixin):
-    widget = CreatorModelChoiceWidget
+    widget = widgets.CreatorModelChoiceWidget
 
     def __init__(self, *, queryset, create_action_url='', user=None, **kwargs):
         super().__init__(queryset, **kwargs)
@@ -151,7 +155,7 @@ class CreatorCustomEnumChoiceMixin(CreatorChoiceMixin):
 
 class CustomEnumChoiceField(CreatorCustomEnumChoiceMixin,
                             fields.TypedChoiceField):
-    widget = CreatorModelChoiceWidget
+    widget = widgets.CreatorModelChoiceWidget
 
     def __init__(self, *, custom_field=None, user=None, **kwargs):
         super().__init__(coerce=int, **kwargs)
@@ -167,3 +171,180 @@ class CustomMultiEnumChoiceField(CreatorCustomEnumChoiceMixin,
         super().__init__(coerce=int, **kwargs)
         self.custom_field = custom_field
         self.user = user
+
+
+class MenuEntriesField(fields.JSONField):
+    default_error_messages = {
+        'invalid_type': 'Enter a valid JSON list of dictionaries.',
+        'invalid_data': _('Enter a valid list of entries: %(error)s.'),
+    }
+    widget = widgets.MenuEditionWidget
+
+    class EntryCreator:
+        def __init__(self, entry_class, label=None):
+            self.label = entry_class.creation_label if label is None else label
+            self.entry_class = entry_class
+
+        def __eq__(self, other):
+            return self.label == other.label and self.entry_class == other.entry_class
+
+        @property
+        def url(self):
+            return reverse(
+                'creme_config__add_menu_special_level1',
+                args=(self.entry_class.id,),
+            )
+
+    default_extra_entry_creators = [
+        EntryCreator(entry_class=menu.Separator1Entry),
+        EntryCreator(entry_class=menu.CustomURLEntry),
+    ]
+
+    def __init__(self, *,
+                 menu_registry=None,
+                 entry_level=1,
+                 excluded_entry_ids=(),
+                 extra_entry_creators=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.menu_registry = menu_registry or menu.menu_registry
+        self.entry_level = entry_level
+        self.excluded_entry_ids = excluded_entry_ids
+        self.extra_entry_creators = (
+            deepcopy(self.default_extra_entry_creators)
+            if extra_entry_creators is None else
+            extra_entry_creators  # TODO: copy too ?
+        )
+
+        self._refresh_widget()
+
+    def __deepcopy__(self, memo):
+        result = super().__deepcopy__(memo)
+        result._refresh_widget()
+
+        return result
+
+    def _get_regular_entries_options(self):
+        excluded = {
+            *self.excluded_entry_ids,
+            *(creator.entry_class.id for creator in self._extra_entry_creators),
+        }
+        level = self.entry_level
+
+        for cls in self.menu_registry.entry_classes:
+            entry_id = cls.id
+            if entry_id not in excluded and cls.level == level:
+                yield entry_id, cls().label
+
+    def _refresh_widget(self):
+        self.widget.regular_entry_choices = CallableChoiceIterator(
+            self._get_regular_entries_options
+        )
+
+    def prepare_value(self, value):
+        if isinstance(value, list) and value:
+            def entry_choice(sub_value):
+                if isinstance(sub_value, menu.MenuEntry):
+                    e_value = {'id': sub_value.id}
+
+                    data = sub_value.data
+                    if data:
+                        e_value['data'] = data
+
+                    return {'label': str(sub_value.label), 'value': e_value}
+                elif isinstance(sub_value, dict):
+                    entry_id = sub_value.get('id')
+                    if not isinstance(entry_id, str):
+                        return sub_value
+
+                    entry_class = self.menu_registry.get_class(entry_id)
+                    if entry_class is None:
+                        return sub_value
+
+                    entry_data = sub_value.get('data')
+                    if entry_data is not None and not isinstance(entry_data, dict):
+                        return sub_value
+
+                    # TODO: entry_class.validate(entry_data) ??
+                    return {
+                        'label': str(entry_class(data=entry_data).label),
+                        'value': sub_value,
+                    }
+                else:
+                    return sub_value
+
+            value = [entry_choice(v) for v in value]
+
+        return super().prepare_value(value)
+
+    @property
+    def extra_entry_creators(self):
+        yield from self._extra_entry_creators
+
+    @extra_entry_creators.setter
+    def extra_entry_creators(self, creators):
+        self._extra_entry_creators = self.widget.extra_entry_creators = creators
+
+    def _raise_invalid_data(self, error):
+        raise ValidationError(
+            self.error_messages['invalid_data'],
+            code='invalid_data',
+            params={'error': error},
+        )
+
+    def to_python(self, value):
+        decoded_value = super().to_python(value)
+        entries = []
+        # user = self.user
+
+        if decoded_value:
+            if not isinstance(decoded_value, list):
+                raise ValidationError(
+                    self.error_messages['invalid_type'],
+                    code='invalid_type',
+                )
+
+            registry = self.menu_registry
+
+            excluded_entry_ids = {*self.excluded_entry_ids}
+            for creator in self._extra_entry_creators:
+                excluded_entry_ids.discard(creator.entry_class.id)
+
+            for order, entry_dict in enumerate(decoded_value):
+                if not isinstance(entry_dict, dict):
+                    raise ValidationError(
+                        self.error_messages['invalid_type'],
+                        code='invalid_type',
+                    )
+
+                try:
+                    entry_id = entry_dict['id']
+                except KeyError:
+                    self._raise_invalid_data(gettext('no entry ID'))
+
+                data = entry_dict.get('data', None) or {}
+                if not isinstance(data, dict):
+                    self._raise_invalid_data('"{}" is not a dictionary'.format(data))
+
+                entry_class = registry.get_class(entry_id)
+                if (
+                    entry_class is None or
+                    entry_id in excluded_entry_ids or
+                    entry_class.level != self.entry_level
+                ):
+                    self._raise_invalid_data(
+                        gettext('the entry ID "{}" is invalid.').format(entry_id),
+                    )
+
+                try:
+                    validated_data = entry_class.validate(data)
+                except ValidationError as e:
+                    self._raise_invalid_data(
+                        gettext('an entry is invalid ({error})').format(
+                            error=', '.join(e.messages),
+                        )
+                    )
+
+                entries.append(entry_class(data=validated_data))
+
+        return entries

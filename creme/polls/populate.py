@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from functools import partial
 
 from django.apps import apps
 from django.utils.translation import gettext as _
@@ -27,16 +28,18 @@ from creme import persons, polls
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CustomFormConfigItem,
     HeaderFilter,
+    MenuConfigItem,
     SearchConfigItem,
 )
 from creme.creme_core.utils import create_if_needed
 
-from . import bricks, constants, custom_forms
+from . import bricks, constants, custom_forms, menu
 from .models import PollType
 
 logger = logging.getLogger(__name__)
@@ -168,6 +171,25 @@ class Populator(BasePopulator):
             create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
             create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
             create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='polls-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Tools')},
+                defaults={'order': 100},
+            )[0]
+
+            create_mitem = partial(MenuConfigItem.objects.create, parent=container)
+            create_mitem(
+                entry_id=Separator1Entry.id,
+                entry_data={'label': _('Polls')},
+                order=300,
+            )
+            create_mitem(entry_id=menu.PollFormsEntry.id,     order=305)
+            create_mitem(entry_id=menu.PollRepliesEntry.id,   order=310)
+            create_mitem(entry_id=menu.PollCampaignsEntry.id, order=315)
 
         # ---------------------------
         # NB: no straightforward way to test that this populate script has not been already run

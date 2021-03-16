@@ -78,3 +78,18 @@ class GraphsConfig(CremeAppConfig):
         ).add_link(
             'graphs-create_graph', Graph, priority=50,
         )
+
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.GraphsEntry,
+            menu.GraphCreationEntry,
+        )
+
+    def register_creation_menu(self, creation_menu_registry):
+        creation_menu_registry.get_or_create_group(
+            'analysis', _('Analysis'), priority=500,
+        ).add_link(
+            'graphs-create_graph', self.Graph, priority=50,
+        )

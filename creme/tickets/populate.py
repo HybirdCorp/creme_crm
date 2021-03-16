@@ -27,12 +27,14 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
     CustomFormConfigItem,
     HeaderFilter,
+    MenuConfigItem,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
@@ -45,6 +47,7 @@ from . import (
     get_ticket_model,
     get_tickettemplate_model,
 )
+from .menu import TicketsEntry
 from .models import Criticity, Priority, Status
 from .models.status import BASE_STATUS
 
@@ -241,6 +244,19 @@ class Populator(BasePopulator):
                 'criticity__name',
             ],
         )
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='tickets-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Tools')},
+                defaults={'order': 100},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=TicketsEntry.id, parent=container, order=100,
+            )
 
         # ---------------------------
         if not already_populated:

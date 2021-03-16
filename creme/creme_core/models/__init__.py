@@ -33,6 +33,7 @@ from .i18n import Language  # NOQA
 from .imprint import Imprint  # NOQA
 from .job import EntityJobResult, Job, JobResult, MassImportJobResult  # NOQA
 from .lock import Mutex, MutexAutoLock  # NOQA
+from .menu import MenuConfigItem  # NOQA
 from .relation import Relation, RelationType, SemiFixedRelationType  # NOQA
 from .reminder import DateReminder  # NOQA
 from .search import SearchConfigItem  # NOQA

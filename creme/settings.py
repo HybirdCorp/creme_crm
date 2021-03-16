@@ -776,6 +776,8 @@ CREME_OPTLIB_JS = [
 CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.creme_config',  'creme_config/js/creme_config.js'),
     ('creme.creme_config',  'creme_config/js/button-menu-editor.js'),
+    ('creme.creme_config',  'creme_config/js/menu-brick.js'),
+    ('creme.creme_config',  'creme_config/js/menu-editor.js'),
     ('creme.creme_config',  'creme_config/js/settings-menu.js'),
 
     ('creme.persons',       'persons/js/persons.js'),
@@ -1011,8 +1013,7 @@ PERSONS_ADDRESS_FORCE_NOT_CUSTOM      = False
 PERSONS_CONTACT_FORCE_NOT_CUSTOM      = False
 PERSONS_ORGANISATION_FORCE_NOT_CUSTOM = False
 
-# Display the entry "My customers / prospects / suspects" in the main menu
-PERSONS_MENU_CUSTOMERS_ENABLED = True
+# PERSONS_MENU_CUSTOMERS_ENABLED = True
 
 # ASSISTANTS -------------------------------------------------------------------
 DEFAULT_TIME_ALERT_REMIND = 10

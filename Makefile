@@ -261,6 +261,7 @@ gettext-collect:
 			popd; \
 		pushd ./creme/creme_config && \
 			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} -i "static/creme_config/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/vcfs && \
 			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \

@@ -171,6 +171,43 @@ class CommercialConfig(CremeAppConfig):
             'commercial-create_pattern', Pattern,  priority=60,
         )
 
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.ActsEntry,
+            menu.StrategiesEntry,
+            menu.PatternsEntry,
+            menu.SegmentsEntry,
+
+            menu.SalesmenEntry,
+
+            menu.ActCreationEntry,
+            menu.StrategyCreationEntry,
+            menu.PatternCreationEntry,
+        )
+
+    def register_creation_menu(self, creation_menu_registry):
+        from django.urls import reverse_lazy as reverse
+
+        from creme.persons import get_contact_model
+
+        creation_menu_registry.get_or_create_group(
+            'persons-directory', _('Directory'), priority=10,
+        ).add_link(
+            'create_salesman', model=get_contact_model(), label=_('Salesman'),
+            url=reverse('commercial__create_salesman'), priority=10,
+        )
+        creation_menu_registry.get_or_create_group(
+            'opportunities-commercial', _('Commercial'), priority=15,
+        ).add_link(
+            'commercial-create_act',      self.Act,      priority=50,
+        ).add_link(
+            'commercial-create_strategy', self.Strategy, priority=55,
+        ).add_link(
+            'commercial-create_pattern',  self.Pattern,  priority=60,
+        )
+
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 

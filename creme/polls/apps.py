@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -130,4 +130,28 @@ class PollsConfig(CremeAppConfig):
         ).add_link(
             'polls-create_campaign', PCampaign,
             priority=304,
+        )
+
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.PollFormsEntry,
+            menu.PollRepliesEntry,
+            menu.PollCampaignsEntry,
+
+            menu.PollFormCreationEntry,
+            menu.PollReplyCreationEntry,
+            menu.PollCampaignCreationEntry,
+        )
+
+    def register_creation_menu(self, creation_menu_registry):
+        creation_menu_registry.get_or_create_group(
+            group_id='tools', label=_('Tools'), priority=100,
+        ).add_link(
+            'polls-create_pform',    self.PollForm,     priority=300,
+        ).add_link(
+            'polls-create_preply',   self.PollReply,    priority=302,
+        ).add_link(
+            'polls-create_campaign', self.PollCampaign, priority=304,
         )

@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     from .gui.listview.search import ListViewSearchFieldRegistry
     from .gui.listview.smart_columns import SmartColumnsRegistry
     from .gui.mass_import import FormRegistry  # TODO: rename ?
-    from .gui.menu import Menu
+    from .gui.menu import CreationMenuRegistry, Menu, MenuRegistry
     from .gui.merge import _MergeFormRegistry
     from .gui.quick_forms import QuickFormsRegistry
     from .gui.statistics import _StatisticsRegistry
@@ -281,6 +281,8 @@ class CremeAppConfig(AppConfig):
             self.register_imprints(imprint.imprint_manager)
             self.register_mass_import(mass_import.import_form_registry)
             self.register_menu(menu.creme_menu)
+            self.register_menu_entries(menu.menu_registry)
+            self.register_creation_menu(menu.creation_menu_registry)
             self.register_merge_forms(merge.merge_form_registry)
             self.register_quickforms(quick_forms.quickforms_registry)
             self.register_reminders(reminder.reminder_registry)
@@ -345,6 +347,12 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_menu(self, creme_menu: 'Menu') -> None:
+        pass
+
+    def register_menu_entries(self, menu_registry: 'MenuRegistry') -> None:
+        pass
+
+    def register_creation_menu(self, creation_menu_registry: 'CreationMenuRegistry') -> None:
         pass
 
     def register_merge_forms(self, merge_form_registry: '_MergeFormRegistry') -> None:
@@ -481,6 +489,17 @@ class CremeCoreConfig(CremeAppConfig):
         ).add(
             LastViewedEntitiesItem('recent_entities', label=_('Recent entities')),
             priority=40,
+        )
+
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.CremeEntry,
+            menu.RecentEntitiesEntry,
+            menu.JobsEntry,
+            menu.QuickFormsEntries,
+            menu.EntitiesCreationEntry,
         )
 
     def register_actions(self, actions_registry):

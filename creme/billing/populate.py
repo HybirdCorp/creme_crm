@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from functools import partial
 
 from django.apps import apps
 from django.conf import settings
@@ -36,6 +37,7 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -45,13 +47,14 @@ from creme.creme_core.models import (
     CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
+    MenuConfigItem,
     RelationType,
     SearchConfigItem,
     SettingValue,
 )
 from creme.creme_core.utils import create_if_needed
 
-from . import bricks, buttons, constants, custom_forms, setting_keys
+from . import bricks, buttons, constants, custom_forms, menu, setting_keys
 from .core import BILLING_MODELS
 from .forms.base import BillingSourceSubCell, BillingTargetSubCell
 from .forms.templatebase import BillingTemplateStatusSubCell
@@ -547,6 +550,23 @@ class Populator(BasePopulator):
         create_svalue = SettingValue.objects.get_or_create
         create_svalue(key_id=setting_keys.payment_info_key.id,       defaults={'value': True})
         create_svalue(key_id=setting_keys.button_redirection_key.id, defaults={'value': True})
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='billing-').exists():
+            container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Management')},
+                defaults={'order': 50},
+            )[0]
+
+            create_mitem = partial(MenuConfigItem.objects.create, parent=container)
+            create_mitem(entry_id=menu.QuotesEntry.id,       order=10)
+            create_mitem(entry_id=menu.InvoicesEntry.id,     order=15)
+            create_mitem(entry_id=menu.CreditNotesEntry.id,  order=50)
+            create_mitem(entry_id=menu.SalesOrdersEntry.id,  order=55)
+            create_mitem(entry_id=menu.ProductLinesEntry.id, order=200)
+            create_mitem(entry_id=menu.ServiceLinesEntry.id, order=210)
 
         # ---------------------------
         if not already_populated:

@@ -35,6 +35,7 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -43,6 +44,7 @@ from creme.creme_core.models import (
     CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
+    MenuConfigItem,
     RelationType,
     SearchConfigItem,
     SettingValue,
@@ -56,6 +58,7 @@ from . import (
     constants,
     custom_forms,
     get_activity_model,
+    menu,
     setting_keys,
 )
 # from .models import Calendar
@@ -423,6 +426,20 @@ class Populator(BasePopulator):
         create_svalue(key_id=setting_keys.review_key.id,        defaults={'value': True})
         create_svalue(key_id=setting_keys.auto_subjects_key.id, defaults={'value': True})
         # create_svalue(key_id=setting_keys.form_user_messages_key.id, defaults={'value': False})
+
+        # ---------------------------
+        # TODO: move to "not already_populated" section in creme2.4
+        if not MenuConfigItem.objects.filter(entry_id__startswith='activities-').exists():
+            create_mitem = MenuConfigItem.objects.create
+            container = create_mitem(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Activities')},
+                order=10,
+            )
+            create_mitem(entry_id=menu.CalendarEntry.id,   order=10, parent=container)
+            create_mitem(entry_id=menu.ActivitiesEntry.id, order=20, parent=container)
+            create_mitem(entry_id=menu.PhoneCallsEntry.id, order=30, parent=container)
+            create_mitem(entry_id=menu.MeetingsEntry.id,   order=40, parent=container)
 
         # ---------------------------
         if not already_populated:

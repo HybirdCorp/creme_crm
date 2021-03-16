@@ -23,6 +23,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms.widgets import ActionButtonList, DynamicSelect
+from creme.creme_core.utils.unicode_collation import collator
 
 
 # TODO: remove the 'Model' in name ?
@@ -109,4 +110,32 @@ class ButtonMenuEditionWidget(Widget):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         context['widget']['choices'] = self.create_options(name, context['widget']['value'])
+        return context
+
+
+class MenuEditionWidget(Widget):
+    template_name = 'creme_config/forms/widgets/menu-editor.html'
+
+    def __init__(self, attrs=None,
+                 extra_entry_creators=(),
+                 regular_entry_choices=()):
+        super().__init__(attrs=attrs)
+        self.extra_entry_creators = [*extra_entry_creators]
+        self.regular_entry_choices = regular_entry_choices
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+
+        widget = context['widget']
+        widget['extra_creators'] = self.extra_entry_creators
+
+        sort_key = collator.sort_key
+        widget['regular_entry_choices'] = sorted(
+            (
+                (entry_id, str(entry_label))
+                for entry_id, entry_label in self.regular_entry_choices
+            ),
+            key=lambda c: sort_key(c[1])
+        )
+
         return context

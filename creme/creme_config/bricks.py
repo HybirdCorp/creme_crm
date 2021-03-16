@@ -43,6 +43,7 @@ from creme.creme_core.gui.custom_form import (
     FieldGroupList,
     customform_descriptor_registry,
 )
+from creme.creme_core.gui.menu import ContainerEntry, menu_registry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -58,6 +59,7 @@ from creme.creme_core.models import (
     FieldsConfig,
     HistoryConfigItem,
     InstanceBrickConfigItem,
+    MenuConfigItem,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
@@ -723,6 +725,23 @@ class CustomBricksConfigBrick(PaginatedBrick):
         )  # NB: regroup/prefetch queries on FieldsConfig (we bet that regular fields will be used)
 
         return self._render(btc)
+
+
+class MenuBrick(Brick):
+    id_ = Brick.generate_id('creme_config', 'menu')
+    verbose_name = _('Menu configuration')
+    dependencies = (MenuConfigItem,)
+    template_name = 'creme_config/bricks/menu-config.html'
+    configurable = False
+
+    menu_registry = menu_registry
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            entries=self.menu_registry.get_entries(MenuConfigItem.objects.all()),
+            container_id=ContainerEntry.id,
+        ))
 
 
 class ButtonMenuBrick(Brick):

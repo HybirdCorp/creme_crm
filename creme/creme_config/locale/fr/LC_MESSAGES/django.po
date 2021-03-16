@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-10 17:40+0100\n"
+"POT-Creation-Date: 2021-04-23 16:17+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -90,6 +90,9 @@ msgstr "Bloc d'instance"
 
 msgid "Custom blocks"
 msgstr "Blocs personnalisés"
+
+msgid "Menu configuration"
+msgstr "Configuration du menu"
 
 msgid "Roles"
 msgstr "Rôles"
@@ -427,6 +430,20 @@ msgstr "Désolé il n'y a plus aucun groupe spécial de disponible."
 msgid "Create a choice"
 msgstr "Créer un choix"
 
+#, python-format
+msgid "Enter a valid list of entries: %(error)s."
+msgstr "Entrez une liste d'entrées valide : %(error)s."
+
+msgid "no entry ID"
+msgstr "pas d'ID d'entrée"
+
+msgid "the entry ID \"{}\" is invalid."
+msgstr "l'entrée d'ID \"{}\" est invalid."
+
+#, python-brace-format
+msgid "an entry is invalid ({error})"
+msgstr "une entrée est invalide (%(error)s)."
+
 msgid ""
 "The proposed types of resource have at least a field which can be hidden."
 msgstr ""
@@ -554,6 +571,15 @@ msgstr ""
 "Si une fiche est liée à d'autres fiches par une Relation de ce type, les "
 "lignes d'historique à propos des modifications de cette fiche apparaitront "
 "dans l'historique des autres fiches."
+
+msgid "Label"
+msgstr "Label"
+
+msgid "Entries"
+msgstr "Entrées"
+
+msgid "Type of container"
+msgstr "Type de conteneur"
 
 msgid "Type constraint"
 msgstr "Contrainte sur le type"
@@ -827,6 +853,15 @@ msgstr "Fuseau horaire : {}"
 #, python-brace-format
 msgid "Configuration of «{app}»"
 msgstr "Configuration de «{app}»"
+
+msgid "*User's timezone*"
+msgstr "*Fuseau horaire de l'utilisateur*"
+
+msgid "*Current app's settings*"
+msgstr "*Gestion d'app courante*"
+
+msgid "Menu"
+msgstr "Menu"
 
 msgid "Action"
 msgstr "Action"
@@ -1148,6 +1183,21 @@ msgstr "Tous les types de fiche"
 
 msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
+
+msgid "Drag and drop the containers (columns) to order them."
+msgstr "Glissez-déposez les conteneurs (colonnes) pour les réordonner."
+
+msgid "Edit this container"
+msgstr "Modifier ce conteneur"
+
+msgid "Delete this container"
+msgstr "Supprimer ce conteneur"
+
+msgid "Add a container"
+msgstr "Ajouter un conteneur"
+
+msgid "Add a special root entry"
+msgstr "Ajouter un entrée racine spéciale"
 
 #, python-brace-format
 msgid "{count} Type of property"
@@ -1561,6 +1611,12 @@ msgstr "Champs spéciaux"
 msgid "No available special field."
 msgstr "Pas de champ spécial disponible."
 
+msgid "Drag and drop the entries to order them"
+msgstr "Glissez-déposez les entrées pour les réordonner."
+
+msgid "Add regular entries"
+msgstr "Ajouter des entrées normales"
+
 msgid "Application"
 msgstr "Application"
 
@@ -1612,6 +1668,12 @@ msgid ""
 msgstr ""
 "Personnaliser l'emplacement des blocs pour les vues détaillées, les accueils "
 "et «Ma page» par défaut."
+
+msgid "Menu settings"
+msgstr "Gestion du menu"
+
+msgid "Customise the entries of the main menu"
+msgstr "Personnaliser les entrées du menu principal"
 
 msgid "Button menu settings"
 msgstr "Gestion du menu bouton"
@@ -1696,6 +1758,15 @@ msgstr ""
 "Quand une fiche est modifiée, si elle a des relations (la fiche étant sujet) "
 "avec un des types configurés, alors les fiches reliées reçoivent une ligne "
 "d'historique qui indique la modification."
+
+msgid "Configuration of menu"
+msgstr "Configuration du menu"
+
+msgid ""
+"Here you can configure the main menu, placed on top of this page for example."
+msgstr ""
+"Ici vous pouvez configurer le menu principal, placé en haut de cette page "
+"par exemple."
 
 msgid "Configuration of properties"
 msgstr "Configuration des propriétés"
@@ -1913,6 +1984,16 @@ msgstr "Erreur. Veuillez contacter votre administrateur."
 msgid "New relation types"
 msgstr "Nouveaux types de relation"
 
+msgid "Add a container of entries"
+msgstr "Ajouter un contenur d'entrées"
+
+msgid "Add this entry"
+msgstr "Ajouter cette entrée"
+
+#, python-brace-format
+msgid "Edit the container «{object}»"
+msgstr "Modifier le conteneur «{object}»"
+
 #, python-brace-format
 msgctxt "creme_config-relationship"
 msgid "Edit the type «{object}»"
@@ -2023,9 +2104,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "Related application"
 #~ msgstr "Application associée"
-
-#~ msgid "Menu entries"
-#~ msgstr "Entrées du menu"
 
 #~ msgid "Configured portals"
 #~ msgstr "Portails configurés"
@@ -2182,9 +2260,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "Semi-fixed relation types"
 #~ msgstr "Types de relation semi-semi-fixés"
-
-#~ msgid "Model configuration"
-#~ msgstr "Configuration de modèle"
 
 #~ msgid "Relation blocks configuration"
 #~ msgstr "Configuration des blocs de relation"

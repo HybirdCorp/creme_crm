@@ -1,0 +1,5 @@
+<ul class="ui-creme-navigation">
+{% for entry, rendered_entry in entries %}
+    <li class="ui-creme-navigation-item-level0 ui-creme-navigation-item-id_{{entry.id}}">{{rendered_entry}}</li>
+{% endfor %}
+</ul>

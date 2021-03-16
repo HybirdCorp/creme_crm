@@ -98,14 +98,27 @@ class TicketsConfig(CremeAppConfig):
             'tickets-create_ticket', Ticket, priority=100,
         )
 
+    def register_menu_entries(self, menu_registry):
+        from . import menu
+
+        menu_registry.register(
+            menu.TicketsEntry,
+            menu.TicketCreationEntry,
+        )
+
+    def register_creation_menu(self, creation_menu_registry):
+        creation_menu_registry.get_or_create_group(
+            'tools', _('Tools'), priority=100,
+        ).add_link(
+            'tickets-create_ticket', self.Ticket, priority=100,
+        )
+
     def register_smart_columns(self, smart_columns_registry):
         smart_columns_registry.register_model(
             self.Ticket
         ).register_field('title').register_field('status')
 
     def register_statistics(self, statistics_registry):
-        # from .models.status import CLOSED_PK
-
         statistics_registry.register(
             id='tickets-not_closed',
             label=_('Tickets not closed'),
