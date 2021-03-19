@@ -119,9 +119,9 @@ jobs:
       - run: python creme/manage.py generatemedia
       - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
       - run: coverage combine
-      - run: coverage html
-      - store_artifacts:
-          path: artifacts/coverage_html
+      - run: coverage xml
+      - store_test_results:
+          path: artifacts/coverage
 
 
   python36-tests-pgsql:
@@ -152,9 +152,9 @@ jobs:
       - run: python creme/manage.py generatemedia
       - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
       - run: coverage combine
-      - run: coverage html
-      - store_artifacts:
-          path: artifacts/coverage_html
+      - run: coverage xml
+      - store_test_results:
+          path: artifacts/coverage
 
   python36-tests-sqlite3:
     docker:
@@ -176,9 +176,9 @@ jobs:
       - run: python creme/manage.py generatemedia
       - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
       - run: coverage combine
-      - run: coverage html
-      - store_artifacts:
-          path: artifacts/coverage_html
+      - run: coverage xml
+      - store_test_results:
+          path: artifacts/coverage
 
 
   python37-tests-sqlite3:
@@ -201,9 +201,9 @@ jobs:
       - run: python creme/manage.py generatemedia
       - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
       - run: coverage combine
-      - run: coverage html
-      - store_artifacts:
-          path: artifacts/coverage_html
+      - run: coverage xml
+      - store_test_results:
+          path: artifacts/coverage
 
 
   lint-js:
