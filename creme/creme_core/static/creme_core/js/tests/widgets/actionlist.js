@@ -81,8 +81,9 @@ QUnit.module("creme.widget.actionlist.js", new QUnitMixin(QUnitAjaxMixin,
         };
 
         return (
-            '<button type="button" name="${name}" title="${label}" class="ui-creme-actionbutton" ${disabled} ${attrs}>' +
-                '${label}' +
+            '<button type="button" name="${name}" title="${label}" class="ui-creme-actionbutton with-icon" ${disabled} ${attrs}>' +
+                '<img width="16px"></img>' +
+                '<span>${label}</span>' +
             '</button>'
         ).template({
             name: options.name,
@@ -123,7 +124,12 @@ QUnit.test('creme.widgets.actionlist.create (no delegate)', function(assert) {
     deepEqual(widget.dependencies(), []);
 });
 
-QUnit.test('creme.widgets.actionlist.create', function(assert) {
+QUnit.parametrize('creme.widgets.actionlist.create (initial state)', [
+    [{}, {disabled: true, label: gettext('Add')}],
+    [{popupTitle: 'Create It !'}, {disabled: true, label: 'Create It !'}],
+    [{popupUrl: 'mock/create/popup'}, {disabled: false, label: gettext('Add')}],
+    [{popupUrl: 'mock/create/popup', popupTitle: 'Create It !'}, {disabled: false, label: 'Create It !'}]
+], function(buttonAttrs, expected, assert) {
     var delegate = this.createDynamicSelectTag();
     this.appendOptionTag(delegate, 'a', 1);
     this.appendOptionTag(delegate, 'b', 5);
@@ -132,7 +138,7 @@ QUnit.test('creme.widgets.actionlist.create', function(assert) {
     var element = this.createActionListTag({
         delegate: delegate,
         buttons: [
-            {name: 'create', attrs: {popupUrl: 'mock/create/popup'}}
+            {name: 'create', label: 'Create', attrs: buttonAttrs}
         ]
     });
 
@@ -151,6 +157,16 @@ QUnit.test('creme.widgets.actionlist.create', function(assert) {
 
     equal(delegate.creme().widget().val(), 1);
     deepEqual(delegate.creme().widget().dependencies(), []);
+
+    equal(widget.actionButton('create').find('img').length, 1);
+    equal(widget.actionButton('create').is('[disabled]'), false);
+    equal(widget.actionButton('create').find('span').text(), 'Create');
+
+    widget.reload();
+
+    equal(widget.actionButton('create').find('img').length, 1);
+    equal(widget.actionButton('create').is('[disabled]'), expected.disabled);
+    equal(widget.actionButton('create').find('span').text(), expected.label);
 });
 
 QUnit.test('creme.widgets.actionlist.create (disabled actionlist, html)', function(assert) {
@@ -182,7 +198,11 @@ QUnit.test('creme.widgets.actionlist.create (disabled actionlist, html)', functi
 
     equal(2, widget.actionButtons().length);
     equal(widget.actionButton('create').is('[disabled]'), true);
+    equal(widget.actionButton('create').find('img').length, 1);
+    equal(widget.actionButton('create').find('span').text(), 'create');
+
     equal(widget.actionButton('reset').is('[disabled]'), true);
+    equal(widget.actionButton('reset').find('img').length, 1);
 });
 
 QUnit.test('creme.widgets.actionlist.create (disabled actionlist, option)', function(assert) {
