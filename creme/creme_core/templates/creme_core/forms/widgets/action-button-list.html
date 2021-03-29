@@ -7,7 +7,7 @@
     <li>
         <button class="ui-creme-actionbutton{% if widget.icon %} with-icon{% endif %}" name="{{widget.name}}" title="{{widget.title}}" type="button" {% include 'django/forms/widgets/attrs.html' %}>
             {% if widget.icon %}{% widget_icon name=widget.icon size='form-widget' label=widget.label %}{% endif %}
-            {{widget.label}}
+            <span>{{widget.label}}</span>
         </button>
     </li>
     {% endfor %}
