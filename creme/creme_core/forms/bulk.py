@@ -26,7 +26,6 @@ from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db.models import FileField, ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
-from django.forms.widgets import Select
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -37,13 +36,6 @@ from .base import CremeForm
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
 _CUSTOMFIELD_FORMAT = 'customfield-{}'  # TODO: remove & use base._CUSTOM_NAME instead
-
-
-class BulkFieldSelectWidget(Select):
-    def build_attrs(self, base_attrs, extra_attrs=None):
-        attrs = super().build_attrs(base_attrs=base_attrs, extra_attrs=extra_attrs)
-        attrs['onchange'] = 'creme.dialog.redirect($(this).val(), $(this));'
-        return attrs
 
 
 class BulkForm(CremeForm):
@@ -91,7 +83,6 @@ class BulkForm(CremeForm):
                 choices=self._bulk_model_choices(model, entities),
                 label=_('Field to update'),
                 initial=self._bulk_field_url(model, fieldname, entities),
-                widget=BulkFieldSelectWidget,
                 required=False,
             )
 

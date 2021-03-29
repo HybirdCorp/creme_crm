@@ -167,12 +167,17 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
                           })
                          .open();
         } else {
-            var dialog = creme.dialogs.form(options.url, {submitData: {entities: selection}});
+            var dialog = new creme.dialog.FormDialog({
+                url: options.url,
+                submitData: {entities: selection}
+            });
 
             dialog.onFormSuccess(function(event, data) {
                        list.reload();
                        self.done();
                    })
+                   /*
+                    * Old behaviour for dialogs in "innerpopup" mode.
                    .onFormError(function(event, data) {
                        if ($('form', this.content()).length === 0) {
                            this._removeButton('send');
@@ -180,21 +185,26 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
                            this._bulk_edit_done = true;
                        }
                    })
+                   */
                    .onClose(function() {
+                       self.cancel();
+                       /*
                        if (this._bulk_edit_done) {
                            list.reload();
                            self.done();
                        } else {
                            self.cancel();
                        }
+                       */
                    })
                    .on('frame-update', function(event, frame) {
-                       var summary = $('.bulk-selection-summary', frame.delegate());
+                       var content = frame.delegate();
+                       var summary = content.find('.bulk-selection-summary');
 
                        if (summary.length) {
                            var count = selection.length;
-                           var message = summary.attr('data-msg') || '';
-                           var plural = summary.attr('data-msg-plural');
+                           var message = summary.data('msg') || '';
+                           var plural = summary.data('msg-plural') || message;
 
                            if (pluralidx(count)) {
                                message = plural || message;
@@ -204,8 +214,16 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
                            // var content = ngettext(summary.attr('data-msg'), summary.attr('data-msg-plural'), count);
                            summary.text(message.format(selection.length));
                        }
-                   })
-                   .open({width: 800});
+
+                       content.on('change', '[name="_bulk_fieldname"]', function() {
+                           var next = $(this).val();
+                           if (!Object.isNone(next) && next !== dialog.frame().lastFetchUrl()) {
+                               dialog.fetch(next);
+                           }
+                       });
+                   });
+
+             dialog.open({width: 800});
         }
     }
 });
