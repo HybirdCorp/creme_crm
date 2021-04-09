@@ -108,3 +108,26 @@
 .leaflet-container .leaflet-hidden {
     display: none;
 }
+
+/*
+ * Change leaflet 1.6.0 default z-index
+ * (see https://github.com/HybirdCorp/creme_crm/issues/179)
+*/
+
+.brick-geoaddress-canvas .leaflet-zoom-box     { z-index: 80; }
+.brick-geoaddress-canvas .leaflet-pane         { z-index: 40; }
+
+.brick-geoaddress-canvas .leaflet-tile-pane    { z-index: 20; }
+.brick-geoaddress-canvas .leaflet-overlay-pane { z-index: 40; }
+.brick-geoaddress-canvas .leaflet-shadow-pane  { z-index: 50; }
+.brick-geoaddress-canvas .leaflet-marker-pane  { z-index: 60; }
+.brick-geoaddress-canvas .leaflet-tooltip-pane { z-index: 65; }
+.brick-geoaddress-canvas .leaflet-popup-pane   { z-index: 70; }
+
+.brick-geoaddress-canvas .leaflet-map-pane canvas { z-index: 10; }
+.brick-geoaddress-canvas .leaflet-map-pane svg    { z-index: 20; }
+
+.brick-geoaddress-canvas .leaflet-control { z-index: 80; }
+
+.brick-geoaddress-canvas .leaflet-bottom { z-index: 99; }
+.brick-geoaddress-canvas .leaflet-top    { z-index: 99; }
