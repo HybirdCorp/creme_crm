@@ -3,6 +3,12 @@
   UPGRADE NOTE :
     - You should upgrade the minor version of Django 2.2 (2.2.20 or more).
 
+  Users side :
+  ------------
+    # Apps :
+        * Geolocation :
+            - Fix a z-index issue between leaflet and our dialogs (#179)
+
 
 == Version 2.2.1 ==
 
