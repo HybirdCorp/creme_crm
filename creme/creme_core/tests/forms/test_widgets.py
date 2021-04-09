@@ -691,11 +691,11 @@ class ActionButtonListTestCase(CremeTestCase):
     </li>
     <li>
         <button class="ui-creme-actionbutton" name="action_a"
-                title="Do the action A" type="button">Action A</button>
+                title="Do the action A" type="button"><span>Action A</span></button>
     </li>
     <li>
         <button class="ui-creme-actionbutton" name="action_b" title="Action B"
-                type="button" disabled>Action B</button>
+                type="button" disabled><span>Action B</span></button>
     </li>
 </ul>'''
         self.assertHTMLEqual(html, widget.render('field', 1))
@@ -1044,7 +1044,7 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
 </ul>'''
         self.assertHTMLEqual(html, widget.render('field', ''))
 
-    def test_render01(self):
+    def test_render_empty_value(self):
         "Empty."
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         creation_url = reverse('creme_core__quick_form', args=(ct_id,))
@@ -1069,13 +1069,13 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
     <li>
         <button class="ui-creme-actionbutton with-icon" action="reset" name="reset"
                 title="{reset_label}" type="button" value="">
-            {reset_icon}{reset_label}
+            {reset_icon}<span>{reset_label}</span>
         </button>
     </li>
     <li>
         <button class="ui-creme-actionbutton with-icon" name="create"
                 title="{create_title}" type="button" disabled popupUrl="{create_url}">
-            {create_icon}{create_label}
+            {create_icon}<span>{create_label}</span>
         </button>
     </li>
 </ul>'''.format(
@@ -1093,7 +1093,7 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(html, widget.render('field', ''))
 
-    def test_render02(self):
+    def test_render_initial(self):
         "Initialized, creation_label."
         user = self.login()
         contact = FakeContact.objects.create(last_name='Doe', first_name='John', user=user)
@@ -1126,13 +1126,13 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
     <li>
         <button class="ui-creme-actionbutton with-icon" action="reset" name="reset"
                 title="{reset_label}" type="button" value="">
-            {reset_icon}{reset_label}
+            {reset_icon}<span>{reset_label}</span>
         </button>
     </li>
     <li>
         <button class="ui-creme-actionbutton with-icon" name="create"
                 title="{create_title}" type="button" disabled popupUrl="{create_url}">
-            {create_icon}{create_label}
+            {create_icon}<span>{create_label}</span>
         </button>
     </li>
 </ul>'''.format(

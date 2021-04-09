@@ -142,7 +142,7 @@ class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
     <li>
         <button class="ui-creme-actionbutton with-icon"
                 name="create" title="{create_title}" type="button" popupUrl="{create_url}">
-            {create_icon}{create_label}
+            {create_icon}<span>{create_label}</span>
         </button>
     </li>
 </ul>'''.format(
