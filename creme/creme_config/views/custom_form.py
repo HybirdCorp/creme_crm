@@ -22,6 +22,7 @@ import logging
 from abc import ABC
 
 from django.db import IntegrityError
+from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -172,6 +173,7 @@ class CustomFormGroupLayoutSetting(CustomFormMixin, generic.CheckedView):
         super().__init__(*arg, **kwargs)
         self.object = None
 
+    @atomic
     def post(self, request, *args, **kwargs):
         layout = get_from_POST_or_404(request.POST, self.layout_arg)
         if layout not in LAYOUTS:
@@ -205,6 +207,7 @@ class BaseCustomFormDeletion(CustomFormMixin, ABC, base.ConfigDeletion):
 class CustomFormGroupDeletion(BaseCustomFormDeletion):
     group_id_arg = 'group_id'
 
+    @atomic
     def perform_deletion(self, request):
         group_id = get_from_POST_or_404(request.POST, self.group_id_arg, cast=int)
         self.object = cfci = self.get_cfci_for_update()
@@ -225,6 +228,7 @@ class CustomFormGroupDeletion(BaseCustomFormDeletion):
 class CustomFormCellDeletion(BaseCustomFormDeletion):
     cell_key_arg = 'cell_key'
 
+    @atomic
     def perform_deletion(self, request):
         cell_key = get_from_POST_or_404(request.POST, self.cell_key_arg)
         self.object = cfci = self.get_cfci_for_update()
@@ -264,6 +268,7 @@ class CustomFormGroupReordering(CustomFormMixin, generic.CheckedView):
         super().__init__(*arg, **kwargs)
         self.object = None
 
+    @atomic
     def post(self, request, *args, **kwargs):
         target = get_from_POST_or_404(request.POST, self.target_order_arg, cast=int)
 
