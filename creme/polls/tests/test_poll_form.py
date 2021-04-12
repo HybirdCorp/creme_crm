@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.encoding import smart_text
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from parameterized import parameterized
 
 from creme.creme_core.auth import EntityCredentials
@@ -273,6 +274,20 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(body, section.body)
         self.assertEqual(1,    section.order)
 
+        # ---
+        response = self.assertGET200(pform.get_absolute_url())
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, PollFormLinesBrick.id_)
+        self.assertEqual(
+            ngettext(
+                '{count} Section',
+                '{count} Sections',
+                1,
+            ).format(count=1),
+            self.get_brick_title(brick_node),
+        )
+
     def test_add_section02(self):
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -507,6 +522,20 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         desc = _('String')
         self.assertEqual(desc, plt.verbose_name)
         self.assertEqual(desc, plt.description)
+
+        # ---
+        response = self.assertGET200(pform.get_absolute_url())
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, PollFormLinesBrick.id_)
+        self.assertEqual(
+            ngettext(
+                '{count} Question',
+                '{count} Questions',
+                1,
+            ).format(count=1),
+            self.get_brick_title(brick_node),
+        )
 
     def test_add_line_text01(self):
         user = self.login()
