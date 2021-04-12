@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block poll_replies_extra_rows %}
-    {% with count=page.object_list.count expected=object.expected_count %}
+    {% with count=page.paginator.count expected=object.expected_count %}
     <tr>
         <td colspan="2" class="{% if count >= expected %}brick-table-data-valid{% else %}brick-table-data-error{% endif %}"><strong>{% trans 'Goal' %} :</strong> {{count}} / {{expected}} </td>
     </tr>
