@@ -14,8 +14,9 @@
         * Geolocation :
             - Fix a z-index issue between leaflet and our dialogs (#179)
         * Polls :
-            - A crash when adding a section to a PollForm has been fixed (#175)
+            - A crash when adding a section to a PollForm has been fixed (#175).
             - The deleted replies are now ignored in bricks (#177).
+            - The count of replies if the Campaign's brick is now correct (it counted only replies on the current page) (#177).
 
 
 == Version 2.2.1 ==
