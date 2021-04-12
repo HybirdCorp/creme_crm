@@ -852,14 +852,14 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         "Extra group has no cells => no error when computing ignored cells."
         self.login()
 
-        # desc = FAKEORGANISATION_CREATION_CFORM
-        cform_id = FAKEORGANISATION_CREATION_CFORM.id
+        desc = FAKEORGANISATION_CREATION_CFORM
+        cform_id = desc.id
         cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
         cfci.store_groups(
             FieldGroupList(
                 model=FakeActivity,
-                cell_registry=FAKEACTIVITY_CREATION_CFORM.build_cell_registry(),
+                cell_registry=desc.build_cell_registry(),
                 groups=[
                     FieldGroup(
                         name='General',
@@ -1189,7 +1189,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             status_code=409,
         )
 
-    def test_delete_cell(self):
+    def test_delete_cell01(self):
         self.login()
         desc = FAKEACTIVITY_CREATION_CFORM
         cform_id = desc.id
@@ -1221,6 +1221,38 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertPOST404(url, data=data)  # Cell is not used anymore
 
+    def test_delete_cell02(self):
+        "Extra group has no cells => no error when searching ignored cells."
+        self.login()
+
+        desc = FAKEORGANISATION_CREATION_CFORM
+        cform_id = desc.id
+        cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
+        build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
+        cell_to_dell = build_cell(name='sector')
+        cfci.store_groups(
+            FieldGroupList(
+                model=FakeActivity,
+                cell_registry=desc.build_cell_registry(),
+                groups=[
+                    FieldGroup(
+                        name='General',
+                        cells=[
+                            build_cell(name='user'), build_cell(name='name'),
+                            cell_to_dell,
+                        ],
+                    ),
+                    FakeAddressGroup(model=FakeOrganisation),
+                ],
+            )
+        )
+        cfci.save()
+
+        self.assertPOST200(
+            reverse('creme_config__delete_custom_form_cell', args=(cform_id,)),
+            data={'cell_key': cell_to_dell.key},
+        )
+
     @parameterized.expand([
         (0, LAYOUT_DUAL_FIRST),
         (1, LAYOUT_DUAL_SECOND),
@@ -1232,6 +1264,38 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         url = reverse('creme_config__setlayout_custom_form_group', args=(cform_id, group_id))
         self.assertGET405(url)
         self.assertPOST200(url, data={'layout': layout})
+
+        cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
+        self.assertEqual(layout, cfci.groups_as_dicts()[group_id]['layout'])
+
+    def test_group_set_layout_extra_group(self):
+        self.login()
+
+        desc = FAKEORGANISATION_CREATION_CFORM
+        cform_id = desc.id
+        cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
+        build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
+        cfci.store_groups(
+            FieldGroupList(
+                model=FakeActivity,
+                cell_registry=desc.build_cell_registry(),
+                groups=[
+                    FieldGroup(
+                        name='General',
+                        cells=[build_cell(name='user'), build_cell(name='name')],
+                    ),
+                    FakeAddressGroup(model=FakeOrganisation),
+                ],
+            )
+        )
+        cfci.save()
+
+        group_id = 1
+        layout = LAYOUT_DUAL_FIRST
+        self.assertPOST200(
+            reverse('creme_config__setlayout_custom_form_group', args=(cform_id, group_id)),
+            data={'layout': layout},
+        )
 
         cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         self.assertEqual(layout, cfci.groups_as_dicts()[group_id]['layout'])
