@@ -18,7 +18,9 @@
       You should probably read the following releases notes for Django versions :
         - https://docs.djangoproject.com/en/3.2/releases/3.0/
         - https://docs.djangoproject.com/en/3.2/releases/3.1/
-    - The version of jQuery is now "2.2.4"
+    - The version of jQuery is now "3.6.0" (jQuery-migrate 3.3.2).
+        - The version of fullcalendar is now "3.10.2"
+        - The version of floatthead is now "2.2.1"
 
 
     Non breaking changes :
@@ -94,7 +96,9 @@
               creme_entity_content_types(), get_ct_or_404(), build_ct_choices(), entities2unicode(), related2unicode()
             - These templatetags of 'creme_core_tags' have been removed: {% creme_media_url %}, {% hg_info %}
             - The template file "creme/creme_core/templates/creme_core/generics/blockform/content.html" have been removed
-            - In JavaScript, the module 'creme.color' has been removed.
+            - In JavaScript :
+                * The module 'creme.color' has been removed.
+                * 'creme.dialog.ConfirmAction' has been removed (never used).
             - Apps :
                 * Creme_config :
                     - In 'forms' :

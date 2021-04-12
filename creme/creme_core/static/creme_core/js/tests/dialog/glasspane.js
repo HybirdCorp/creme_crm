@@ -93,6 +93,22 @@ QUnit.test('creme.dialog.GlassPane (close)', function(assert) {
     deepEqual([['glasspane-closed', [glasspane]]], this.mockListenerJQueryCalls('glasspane-closed'));
 });
 
+QUnit.test('creme.dialog.GlassPane (toggle)', function(assert) {
+    var glasspane = new creme.dialog.GlassPane();
+    glasspane.on(this.glassPaneListeners);
+    glasspane.pane().on(this.glassPaneJqueryListeners);
+
+    equal(false, glasspane.isOpened());
+
+    glasspane.toggle(this.qunitFixture());
+
+    equal(true, glasspane.isOpened());
+
+    glasspane.toggle(this.qunitFixture());
+
+    equal(false, glasspane.isOpened());
+});
+
 QUnit.skipIf(QUnit.browsers.isChrome('<85'), 'creme.dialog.GlassPane (anchor z-index) - firefox', function(assert) {
     var glasspane = new creme.dialog.GlassPane();
 
