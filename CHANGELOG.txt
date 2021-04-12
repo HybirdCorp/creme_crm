@@ -15,6 +15,7 @@
             - Fix a z-index issue between leaflet and our dialogs (#179)
         * Polls :
             - A crash when adding a section to a PollForm has been fixed (#175)
+            - The deleted replies are now ignored in bricks (#177).
 
 
 == Version 2.2.1 ==

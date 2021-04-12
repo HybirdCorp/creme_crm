@@ -136,7 +136,7 @@ class PollRepliesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
             context,
-            PollReply.objects.filter(pform=pform),
+            PollReply.objects.filter(pform=pform, is_deleted=False),
             # TODO: reuse nodes (PollFormLinesBlock) to avoid a query
             propose_creation=pform.lines.exists(),
         ))
@@ -154,7 +154,7 @@ class _RelatedRepliesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
             context,
-            self._get_replies(pk),
+            self._get_replies(pk).filter(is_deleted=False),
             propose_creation=True,
         ))
 
