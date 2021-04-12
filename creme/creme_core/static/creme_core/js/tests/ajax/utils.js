@@ -309,6 +309,48 @@ QUnit.parameterize('creme.ajax.json.send (deprecated alias)', [
     ]);
 });
 
+QUnit.parameterize('creme.ajax.json.get (deprecated alias)', [
+    [false, {}, {sync: false, method: 'GET'}],
+    [false, {sync: true}, {sync: true, method: 'GET'}],
+    [false, {dataType: 'text'}, {sync: false, method: 'GET', dataType: 'text'}]
+], function(isSync, options, expected, assert) {
+    var successCb = function() {};
+    var errorCb = function() {};
+
+    var faker = new FunctionFaker({
+        method: 'creme.ajax.jqueryAjaxSend'
+    });
+
+    faker.with(function() {
+        creme.ajax.json.get('mock/a', {a: 12}, successCb, errorCb, isSync, options);
+    });
+
+    deepEqual(faker.calls(), [
+        ['mock/a', {a: 12}, successCb, errorCb, expected]
+    ]);
+});
+
+QUnit.parameterize('creme.ajax.json.post (deprecated alias)', [
+    [false, {}, {sync: false, method: 'POST'}],
+    [false, {sync: true}, {sync: true, method: 'POST'}],
+    [false, {dataType: 'text'}, {sync: false, method: 'POST', dataType: 'text'}]
+], function(isSync, options, expected, assert) {
+    var successCb = function() {};
+    var errorCb = function() {};
+
+    var faker = new FunctionFaker({
+        method: 'creme.ajax.jqueryAjaxSend'
+    });
+
+    faker.with(function() {
+        creme.ajax.json.post('mock/a', {a: 12}, successCb, errorCb, isSync, options);
+    });
+
+    deepEqual(faker.calls(), [
+        ['mock/a', {a: 12}, successCb, errorCb, expected]
+    ]);
+});
+
 QUnit.parameterize('creme.ajax.jqueryFormSubmit (url)', [
     ['', {}, {
         action: undefined
