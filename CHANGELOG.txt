@@ -6,6 +6,8 @@
   Users side :
   ------------
     # Apps :
+        * Creme_config :
+            - Several configuration views for CustomForms were crashing on MySQL/PGSQL due to missing transactions.
         * Geolocation :
             - Fix a z-index issue between leaflet and our dialogs (#179)
 
