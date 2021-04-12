@@ -72,9 +72,10 @@ class PollFormLinesBrick(Brick):
                 '{count} Section',
                 '{count} Sections',
                 section_count,
-            ).format(section_count)
+            ).format(count=section_count)
 
         if section_count and question_count:
+            # TODO: unit test
             return gettext('{questions} and {sections}').format(
                 questions=question_label(),
                 sections=section_label(),
