@@ -7,7 +7,10 @@
   ------------
     # Apps :
         * Creme_config :
-            - Several configuration views for CustomForms were crashing on MySQL/PGSQL due to missing transactions.
+            - In CustomForms configuration :
+                - Several configuration views were crashing on MySQL/PGSQL due to missing transactions.
+                - 2 views were crashing  with addresses group (cell deletion, layout setting).
+                - The view to set layout corrupted the configuration for addresses group too.
         * Geolocation :
             - Fix a z-index issue between leaflet and our dialogs (#179)
 

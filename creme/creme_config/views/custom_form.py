@@ -183,12 +183,14 @@ class CustomFormGroupLayoutSetting(CustomFormMixin, generic.CheckedView):
         desc = self.get_customform_descriptor()
         group_id = self.get_group_id()
 
-        groups = [
-            FieldGroup(name=group.name, cells=group.cells, layout=layout)
-            if i == group_id else
-            group
-            for i, group in enumerate(self.get_groups())
-        ]
+        # groups = [
+        #     FieldGroup(name=group.name, cells=group.cells, layout=layout)
+        #     if i == group_id else
+        #     group
+        #     for i, group in enumerate(self.get_groups())
+        # ]
+        groups = [*self.get_groups()]
+        groups[group_id]._layout = layout
 
         cfci.store_groups(FieldGroupList(
             model=desc.model, groups=groups, cell_registry=desc.build_cell_registry(),
@@ -239,7 +241,8 @@ class CustomFormCellDeletion(BaseCustomFormDeletion):
         for group in self.get_groups():
             cells = []
 
-            for cell in group.cells:
+            # TODO: better API for group.cells ?
+            for cell in getattr(group, 'cells', ()):
                 if cell.key != cell_key:
                     cells.append(cell)
                 else:
