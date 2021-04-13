@@ -29,7 +29,7 @@ data-type-global-discount="{{object.discount}}"
                     <a class="bline-button bline-button-delete" onclick="creme.billing.markDelete('{{form.prefix}}', '{{form.instance.id}}');">
                         {% widget_icon name='delete' size='brick-action' label=_('Flag for delete') %}
                     </a>
-                    <a class="bline-button bline-button-refresh" onclick="creme.billing.restoreInitialValues({{form.instance.id}}, '{{form.prefix}}', '{{ct_id}}');">
+                    <a class="bline-button bline-button-refresh" onclick="creme.billing.restoreInitialValues({{form.instance.id}}, '{{form.prefix}}');">
                         {% widget_icon name='refresh' size='brick-action' label=reset_label %}
                     </a>
                 </div>
