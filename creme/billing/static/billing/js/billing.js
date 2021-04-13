@@ -105,12 +105,16 @@ creme.billing.formsHaveErrors = function() {
     return Boolean($('.bline-form > :not(.hidden-form) .bline-input-error').first().length);
 };
 
-creme.billing.serializeInput = function(input, for_initial) {
+creme.billing.serializeInput = function(input, forInitial) {
     var key = input.attr('name');
-    var value = input.attr('type') === 'checkbox' ? (input.is(':checked') ? input.val() : undefined) : input.val();
+    var value;
 
     // TODO: hack to retrieve creme widget (new attribute will surely be less dirty)
-    if (input.attr('o2m') && for_initial) value = input.attr('initial');
+    if (forInitial) {
+        value = input.attr('initial');
+    } else {
+        value = input.attr('type') === 'checkbox' ? (input.prop('checked') ? input.val() : undefined) : input.val();
+    }
 
     if (key !== undefined && value !== undefined) {
         return {key: key, value: value};
@@ -224,7 +228,7 @@ creme.billing.restoreValue = function(input) {
     var initial_value = input.attr('initial');
 
     if (input.attr('type') === 'checkbox') {
-        input.get().checked = !Object.isNone(initial_value);
+        input.prop('checked', !Object.isNone(initial_value));
     } else {
         input.val(initial_value);
     }
@@ -232,7 +236,7 @@ creme.billing.restoreValue = function(input) {
     input.trigger('change');
 };
 
-creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
+creme.billing.restoreInitialValues = function (line_id, form_prefix) {
     creme.dialogs.confirm(gettext('Do you really want to restore initial values of this line ?'))
                  .onOk(function() {
                       $('input,select,textarea', $('.restorable_' + line_id)).each(function() {
@@ -241,10 +245,11 @@ creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
 
                       var delete_checkbox = $('#id_' + form_prefix + '-DELETE');
                       var line_td = $('#line_content_' + line_id);
-                      var to_delete = !delete_checkbox.is(':checked');
+                      var to_delete = delete_checkbox.prop('checked');
 
-                      if (!to_delete) {
-                          delete_checkbox.uncheck();
+                      if (to_delete) {
+                          delete_checkbox.prop('checked', false);
+                          line_td.removeClass('bline-deletion-mark');
                           line_td.removeClass('bline-input-error');
                           line_td.addClass('block_header_line_dark');
                       }
