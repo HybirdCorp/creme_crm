@@ -11,12 +11,16 @@
   </div>
 </div>
 
-{{ widget.choices|json_script:"buttons-widget-choices" }}
+{# {{ widget.choices|json_script:"buttons-widget-choices" }} #}
+{% with data_id=widget.attrs.id|add:'-choices' %}
+{{ widget.choices|json_script:data_id }}
 
 <script type="text/javascript">
     $(document).ready(function() {
         creme.initButtonMenuWidget($("#{{widget.attrs.id}}"), {
-            optionsId: 'buttons-widget-choices'
+{#            optionsId: 'buttons-widget-choices' #}
+            optionsId: '{{data_id|escapejs}}'
         });
     });
 </script>
+{% endwith %}
