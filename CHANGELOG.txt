@@ -10,6 +10,7 @@
         * Creme_config :
             - In Buttons configuration :
                 - The initial state of the edition widget has been fixed (#187).
+                - The widget edition can now be instanced twice correctly (no ID collision for its initial data).
             - In CustomForms configuration :
                 - Several configuration views were crashing on MySQL/PGSQL due to missing transactions.
                 - 2 views were crashing  with addresses group (cell deletion, layout setting).
