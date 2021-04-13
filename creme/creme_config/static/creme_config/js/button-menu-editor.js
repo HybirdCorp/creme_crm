@@ -20,11 +20,15 @@
     "use strict";
 
 function __buildButtonChoice(choice) {
-    return $((
-        '<span class="menu_button" title="${description}">' +
-            '${label}<input type="hidden" name="${name}" value="${value}"/>' +
-        '</span>'
-    ).template(choice)).prop("disabled", !choice.selected);
+    return $('<span>').attr('class', 'menu_button')
+                      .attr('title', choice.description)
+                      .text(choice.label)
+                      .append(
+                          $('<input>').attr('type', 'hidden')
+                                      .attr('name', choice.name)
+                                      .val(choice.value)
+                                      .prop('disabled', !choice.selected)
+                      );
 }
 
 function __buildWidget(widget, choices) {
