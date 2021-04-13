@@ -16,7 +16,7 @@
              };
 
              var initial = {
-                 chart: '{{graph.chart}}' || Object.keys(properties.charts)[0],
+                 chart: '{{graph.chart|default:""}}' || Object.keys(properties.charts)[0],
                  sort:  '{{graph.asc|yesno:"ASC,DESC"}}'
              };
 
