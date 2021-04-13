@@ -2,11 +2,14 @@
 
   UPGRADE NOTE :
     - You should upgrade the minor version of Django 2.2 (2.2.20 or more).
+    - You must re-generate the media files (python creme/manage.py generatemedia).
 
   Users side :
   ------------
     # Apps :
         * Creme_config :
+            - In Buttons configuration :
+                - The initial state of the edition widget has been fixed (#187).
             - In CustomForms configuration :
                 - Several configuration views were crashing on MySQL/PGSQL due to missing transactions.
                 - 2 views were crashing  with addresses group (cell deletion, layout setting).
