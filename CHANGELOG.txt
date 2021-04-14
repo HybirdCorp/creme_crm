@@ -6,6 +6,7 @@
 
   Users side :
   ------------
+    # The documentation of the the settings for (internal) emails has been improved (#190).
     # Apps :
         * Creme_config :
             - In Buttons configuration :
