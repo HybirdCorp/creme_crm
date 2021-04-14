@@ -348,18 +348,34 @@ EXPORT_BACKENDS = [
 
 # Emails sent to the users of Creme
 # (reminders, assistants.user_message, commercial.commercial_approach...)
+
 # This is a Creme parameter which specifies from_email (sender) when sending email.
-EMAIL_SENDER        = 'sender@domain.org'
-EMAIL_HOST          = 'localhost'
-EMAIL_HOST_USER     = ''
+EMAIL_SENDER = 'sender@domain.org'
+
+# Following values are from Django :
+#  See https://docs.djangoproject.com/en/3.1/ref/settings/#email-host
+#  or the file "django/conf/global_settings.py"
+#  for a complete documentation.
+#  BEWARE: the Django's names for secure parameters may be misleading.
+#    EMAIL_USE_TLS is for startTLS (often with port 587) ; for communication
+#    with TLS use EMAIL_USE_SSL. See :
+#     - https://docs.djangoproject.com/fr/3.1/ref/settings/#email-use-tls
+#     - https://docs.djangoproject.com/fr/3.1/ref/settings/#email-use-ssl
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
-EMAIL_USE_TLS       = False
-# EMAIL_PORT         = 1025 # Default value in django/conf/global_settings.py
+EMAIL_USE_TLS = False
+# EMAIL_PORT = 25
+# EMAIL_SSL_CERTFILE = None
+# EMAIL_SSL_KEYFILE = None
+# EMAIL_TIMEOUT = None
+# ...
 
 # Tip: _development_ SMTP server
 # => python -m smtpd -n -c DebuggingServer localhost:1025
 
-DEFAULT_USER_EMAIL = ''  # Email address used in case the user doesn't have filled his one.
+# Email address used in case the user doesn't have filled his one.
+DEFAULT_USER_EMAIL = ''
 
 
 # EMAILS [END] #################################################################
