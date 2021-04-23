@@ -33,24 +33,24 @@ class CrudityConfig(CremeAppConfig):
 
         from . import signals  # NOQA
 
-    def register_menu(self, creme_menu):
-        from django.urls import reverse_lazy as reverse
-
-        URLItem = creme_menu.URLItem
-        creme_menu.get('features', 'tools') \
-                  .get_or_create(creme_menu.ItemGroup, 'crudity', priority=250,
-                                 defaults={'label': _('External data')},
-                                ) \
-                  .add(URLItem('crudity-waiting_actions', url=reverse('crudity__actions'),
-                               label=_('Waiting actions'), perm='crudity',
-                              ),
-                       priority=10,
-                      ) \
-                  .add(URLItem('crudity-history', reverse('crudity__history'),
-                               label=_('History'), perm='crudity',
-                              ),
-                       priority=20,
-                      )
+    # def register_menu(self, creme_menu):
+    #     from django.urls import reverse_lazy as reverse
+    #
+    #     URLItem = creme_menu.URLItem
+    #     creme_menu.get('features', 'tools') \
+    #               .get_or_create(creme_menu.ItemGroup, 'crudity', priority=250,
+    #                              defaults={'label': _('External data')},
+    #                             ) \
+    #               .add(URLItem('crudity-waiting_actions', url=reverse('crudity__actions'),
+    #                            label=_('Waiting actions'), perm='crudity',
+    #                           ),
+    #                    priority=10,
+    #                   ) \
+    #               .add(URLItem('crudity-history', reverse('crudity__history'),
+    #                            label=_('History'), perm='crudity',
+    #                           ),
+    #                    priority=20,
+    #                   )
 
     def register_menu_entries(self, menu_registry):
         from . import menu

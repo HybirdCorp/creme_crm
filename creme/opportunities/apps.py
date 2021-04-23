@@ -101,39 +101,39 @@ class OpportunitiesConfig(CremeAppConfig):
 
         import_form_registry.register(self.Opportunity, mass_import.get_mass_form_builder)
 
-    def register_menu(self, creme_menu):
-        Opportunity = self.Opportunity
-        URLItem = creme_menu.URLItem
-        container = creme_menu.get(
-            'features',
-        ).get_or_create(
-            creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
-            defaults={'label': _('Commercial')},
-        ).add(
-            URLItem.list_view('opportunities-opportunities', model=Opportunity),
-            priority=10,
-        )
-        creme_menu.get(
-            'creation', 'main_entities',
-        ).add(
-            URLItem.creation_view('opportunities-create_opportunity', model=Opportunity),
-            priority=50
-        )
-
-        create_any = creme_menu.get(
-            'creation', 'any_forms',
-        ).get_or_create_group(
-            'opportunities-commercial', _('Commercial'), priority=20
-        ).add_link('opportunities-create_opportunity', Opportunity, priority=3)
-
-        if self.billing_installed:
-            from creme.billing import get_quote_model
-            Quote = get_quote_model()
-
-            container.add(
-                URLItem.list_view('opportunities-quotes', model=Quote), priority=20,
-            )
-            create_any.add_link('create_quote', Quote, priority=20)
+    # def register_menu(self, creme_menu):
+    #     Opportunity = self.Opportunity
+    #     URLItem = creme_menu.URLItem
+    #     container = creme_menu.get(
+    #         'features',
+    #     ).get_or_create(
+    #         creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
+    #         defaults={'label': _('Commercial')},
+    #     ).add(
+    #         URLItem.list_view('opportunities-opportunities', model=Opportunity),
+    #         priority=10,
+    #     )
+    #     creme_menu.get(
+    #         'creation', 'main_entities',
+    #     ).add(
+    #         URLItem.creation_view('opportunities-create_opportunity', model=Opportunity),
+    #         priority=50
+    #     )
+    #
+    #     create_any = creme_menu.get(
+    #         'creation', 'any_forms',
+    #     ).get_or_create_group(
+    #         'opportunities-commercial', _('Commercial'), priority=20
+    #     ).add_link('opportunities-create_opportunity', Opportunity, priority=3)
+    #
+    #     if self.billing_installed:
+    #         from creme.billing import get_quote_model
+    #         Quote = get_quote_model()
+    #
+    #         container.add(
+    #             URLItem.list_view('opportunities-quotes', model=Quote), priority=20,
+    #         )
+    #         create_any.add_link('create_quote', Quote, priority=20)
 
     def register_menu_entries(self, menu_registry):
         from . import menu

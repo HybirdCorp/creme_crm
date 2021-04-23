@@ -230,7 +230,7 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 
 /* Menu entries separators */
 
-/* TODO: remove */
+/*
 .ui-creme-navigation .ui-creme-navigation-separator {
     display: block;
     height: 1px;
@@ -241,6 +241,7 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 
     border-top: 1px solid #a29d9d;
 }
+*/
 
 .ui-creme-navigation .ui-creme-navigation-title-separator {
     text-transform: uppercase;
@@ -283,27 +284,24 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 }
 */
 
-/* TODO: remove */
+/*
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme {
     margin-right: 11px;
 }
 
-/* TODO: remove */
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation {
     margin-left: 11px;
 }
 
-/* TODO: remove */
+
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme:before {
     right: -6px;
 }
 
-/* TODO: remove */
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation::before {
     left: -6px;
 }
 
-/* TODO: remove */
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme:before,
 .ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation:before {
     content: "";
@@ -316,6 +314,7 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     background: #bbb;
     pointer-events: none;
 }
+*/
 
 /* menu [END] */
 

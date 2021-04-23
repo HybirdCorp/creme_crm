@@ -105,32 +105,32 @@ class ProductsConfig(CremeAppConfig):
             self.Service, get_massimport_form_builder,
         )
 
-    def register_menu(self, creme_menu):
-        Product = self.Product
-        Service = self.Service
-        LvURLItem = creme_menu.URLItem.list_view
-        creme_menu.get(
-            'features',
-        ).get_or_create(
-            creme_menu.ContainerItem, 'management',
-            priority=50,
-            defaults={'label': _('Management')},
-        ).add(
-            LvURLItem('products-products', model=Product),
-            priority=20,
-        ).add(
-            LvURLItem('products-services', model=Service),
-            priority=25,
-        )
-        creme_menu.get(
-            'creation', 'any_forms',
-        ).get_or_create_group(
-            'management', label=_('Management'), priority=50,
-        ).add_link(
-            'products-create_product', Product, priority=20,
-        ).add_link(
-            'products-create_service', Service, priority=25,
-        )
+    # def register_menu(self, creme_menu):
+    #     Product = self.Product
+    #     Service = self.Service
+    #     LvURLItem = creme_menu.URLItem.list_view
+    #     creme_menu.get(
+    #         'features',
+    #     ).get_or_create(
+    #         creme_menu.ContainerItem, 'management',
+    #         priority=50,
+    #         defaults={'label': _('Management')},
+    #     ).add(
+    #         LvURLItem('products-products', model=Product),
+    #         priority=20,
+    #     ).add(
+    #         LvURLItem('products-services', model=Service),
+    #         priority=25,
+    #     )
+    #     creme_menu.get(
+    #         'creation', 'any_forms',
+    #     ).get_or_create_group(
+    #         'management', label=_('Management'), priority=50,
+    #     ).add_link(
+    #         'products-create_product', Product, priority=20,
+    #     ).add_link(
+    #         'products-create_service', Service, priority=25,
+    #     )
 
     def register_menu_entries(self, menu_registry):
         from . import menu
