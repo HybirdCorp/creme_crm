@@ -262,45 +262,45 @@ class BillingConfig(CremeAppConfig):
             self.SalesOrder, get_import_form_builder,
         )
 
-    def register_menu(self, creme_menu):
-        CreditNote = self.CreditNote
-        Invoice    = self.Invoice
-        Quote      = self.Quote
-        SalesOrder = self.SalesOrder
-
-        LvURLItem = creme_menu.URLItem.list_view
-        creme_menu.get(
-            'features',
-        ).get_or_create(
-            creme_menu.ContainerItem, 'management',
-            priority=50,
-            defaults={'label': _('Management')},
-        ).add(
-            LvURLItem('billing-quotes',        model=Quote),            priority=10,
-        ).add(
-            LvURLItem('billing-invoices',      model=Invoice),          priority=15,
-        ).add(
-            LvURLItem('billing-credit_notes',  model=CreditNote),       priority=50,
-        ).add(
-            LvURLItem('billing-sales_orders',  model=SalesOrder),       priority=55,
-        ).add(
-            LvURLItem('billing-product_lines', model=self.ProductLine), priority=200,
-        ).add(
-            LvURLItem('billing-service_lines', model=self.ServiceLine), priority=210,
-        )
-        creme_menu.get(
-            'creation', 'any_forms',
-        ).get_or_create_group(
-            'management', _('Management'), priority=50,
-        ).add_link(
-            'billing-create_quote',   Quote,      priority=10,
-        ).add_link(
-            'billing-create_invoice', Invoice,    priority=15,
-        ).add_link(
-            'billing-create_cnote',   CreditNote, priority=50,
-        ).add_link(
-            'billing-create_order',   SalesOrder, priority=55,
-        )
+    # def register_menu(self, creme_menu):
+    #     CreditNote = self.CreditNote
+    #     Invoice    = self.Invoice
+    #     Quote      = self.Quote
+    #     SalesOrder = self.SalesOrder
+    #
+    #     LvURLItem = creme_menu.URLItem.list_view
+    #     creme_menu.get(
+    #         'features',
+    #     ).get_or_create(
+    #         creme_menu.ContainerItem, 'management',
+    #         priority=50,
+    #         defaults={'label': _('Management')},
+    #     ).add(
+    #         LvURLItem('billing-quotes',        model=Quote),            priority=10,
+    #     ).add(
+    #         LvURLItem('billing-invoices',      model=Invoice),          priority=15,
+    #     ).add(
+    #         LvURLItem('billing-credit_notes',  model=CreditNote),       priority=50,
+    #     ).add(
+    #         LvURLItem('billing-sales_orders',  model=SalesOrder),       priority=55,
+    #     ).add(
+    #         LvURLItem('billing-product_lines', model=self.ProductLine), priority=200,
+    #     ).add(
+    #         LvURLItem('billing-service_lines', model=self.ServiceLine), priority=210,
+    #     )
+    #     creme_menu.get(
+    #         'creation', 'any_forms',
+    #     ).get_or_create_group(
+    #         'management', _('Management'), priority=50,
+    #     ).add_link(
+    #         'billing-create_quote',   Quote,      priority=10,
+    #     ).add_link(
+    #         'billing-create_invoice', Invoice,    priority=15,
+    #     ).add_link(
+    #         'billing-create_cnote',   CreditNote, priority=50,
+    #     ).add_link(
+    #         'billing-create_order',   SalesOrder, priority=55,
+    #     )
 
     def register_menu_entries(self, menu_registry):
         from . import menu

@@ -59,14 +59,14 @@ class EventsConfig(CremeAppConfig):
     def register_icons(self, icon_registry):
         icon_registry.register(self.Event, 'images/event_%(size)s.png')
 
-    def register_menu(self, creme_menu):
-        Event = self.Event
-
-        creme_menu.get('features', 'tools') \
-                  .add(creme_menu.URLItem.list_view('events-events', model=Event), priority=200)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('tools', _('Tools'), priority=100) \
-                  .add_link('events-create_event', Event, priority=200)
+    # def register_menu(self, creme_menu):
+    #     Event = self.Event
+    #
+    #     creme_menu.get('features', 'tools') \
+    #               .add(creme_menu.URLItem.list_view('events-events', model=Event), priority=200)
+    #     creme_menu.get('creation', 'any_forms') \
+    #               .get_or_create_group('tools', _('Tools'), priority=100) \
+    #               .add_link('events-create_event', Event, priority=200)
 
     def register_menu_entries(self, menu_registry):
         from . import menu

@@ -82,21 +82,21 @@ class TicketsConfig(CremeAppConfig):
     def register_mass_import(self, import_form_registry):
         import_form_registry.register(self.Ticket)
 
-    def register_menu(self, creme_menu):
-        Ticket = self.Ticket
-        creme_menu.get(
-            'features', 'tools',
-        ).add(
-            creme_menu.URLItem.list_view('tickets-tickets', model=Ticket),
-            priority=100,
-        )
-        creme_menu.get(
-            'creation', 'any_forms',
-        ).get_or_create_group(
-            'tools', _('Tools'), priority=100,
-        ).add_link(
-            'tickets-create_ticket', Ticket, priority=100,
-        )
+    # def register_menu(self, creme_menu):
+    #     Ticket = self.Ticket
+    #     creme_menu.get(
+    #         'features', 'tools',
+    #     ).add(
+    #         creme_menu.URLItem.list_view('tickets-tickets', model=Ticket),
+    #         priority=100,
+    #     )
+    #     creme_menu.get(
+    #         'creation', 'any_forms',
+    #     ).get_or_create_group(
+    #         'tools', _('Tools'), priority=100,
+    #     ).add_link(
+    #         'tickets-create_ticket', Ticket, priority=100,
+    #     )
 
     def register_menu_entries(self, menu_registry):
         from . import menu

@@ -21,7 +21,7 @@
 from functools import partial
 
 from django.apps import apps
-from django.conf import settings
+# from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -143,58 +143,58 @@ class PersonsConfig(CremeAppConfig):
             Organisation, partial(form_builder, model=Organisation),
         )
 
-    def register_menu(self, creme_menu):
-        from django.urls import reverse_lazy as reverse
-
-        from .gui import UserContactURLItem
-
-        Contact = self.Contact
-        Organisation = self.Organisation
-        URLItem = creme_menu.URLItem
-        creme_menu.get(
-            'creme', 'user',
-        ).add(UserContactURLItem('persons-user_contact'), priority=2)
-        directory = creme_menu.get(
-            'features',
-        ).get_or_create(
-            creme_menu.ContainerItem, 'persons-directory', priority=20,
-            defaults={'label': _('Directory')},
-        ).add(
-            URLItem.list_view('persons-organisations', model=Organisation),
-            priority=10
-        ).add(
-            URLItem.list_view('persons-contacts', model=Contact),
-            priority=20
-        )
-
-        if settings.PERSONS_MENU_CUSTOMERS_ENABLED:
-            directory.add(
-                URLItem(
-                    'persons-lead_customers',
-                    url=reverse('persons__leads_customers'),
-                    label=_('My customers / prospects / suspects'), perm='persons',
-                ),
-                priority=30,
-            )
-
-        creme_menu.get(
-            'creation', 'main_entities'
-        ).add(
-            URLItem.creation_view('persons-create_organisation', model=Organisation),
-            priority=10,
-        ).add(
-            URLItem.creation_view('persons-create_contact', model=Contact),
-            priority=20,
-        )
-        creme_menu.get(
-            'creation', 'any_forms'
-        ).get_or_create_group(
-            'persons-directory', _('Directory'), priority=10
-        ).add_link(
-            'create_contact', Contact, priority=3,
-        ).add_link(
-            'create_organisation', Organisation, priority=5,
-        )
+    # def register_menu(self, creme_menu):
+    #     from django.urls import reverse_lazy as reverse
+    #
+    #     from .gui import UserContactURLItem
+    #
+    #     Contact = self.Contact
+    #     Organisation = self.Organisation
+    #     URLItem = creme_menu.URLItem
+    #     creme_menu.get(
+    #         'creme', 'user',
+    #     ).add(UserContactURLItem('persons-user_contact'), priority=2)
+    #     directory = creme_menu.get(
+    #         'features',
+    #     ).get_or_create(
+    #         creme_menu.ContainerItem, 'persons-directory', priority=20,
+    #         defaults={'label': _('Directory')},
+    #     ).add(
+    #         URLItem.list_view('persons-organisations', model=Organisation),
+    #         priority=10
+    #     ).add(
+    #         URLItem.list_view('persons-contacts', model=Contact),
+    #         priority=20
+    #     )
+    #
+    #     if settings.PERSONS_MENU_CUSTOMERS_ENABLED:
+    #         directory.add(
+    #             URLItem(
+    #                 'persons-lead_customers',
+    #                 url=reverse('persons__leads_customers'),
+    #                 label=_('My customers / prospects / suspects'), perm='persons',
+    #             ),
+    #             priority=30,
+    #         )
+    #
+    #     creme_menu.get(
+    #         'creation', 'main_entities'
+    #     ).add(
+    #         URLItem.creation_view('persons-create_organisation', model=Organisation),
+    #         priority=10,
+    #     ).add(
+    #         URLItem.creation_view('persons-create_contact', model=Contact),
+    #         priority=20,
+    #     )
+    #     creme_menu.get(
+    #         'creation', 'any_forms'
+    #     ).get_or_create_group(
+    #         'persons-directory', _('Directory'), priority=10
+    #     ).add_link(
+    #         'create_contact', Contact, priority=3,
+    #     ).add_link(
+    #         'create_organisation', Organisation, priority=5,
+    #     )
 
     def register_menu_entries(self, menu_registry):
         from creme.creme_core import menu as core_menu

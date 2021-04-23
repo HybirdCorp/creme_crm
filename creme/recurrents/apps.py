@@ -57,22 +57,22 @@ class RecurrentsConfig(CremeAppConfig):
             self.RecurrentGenerator, 'images/recurrent_doc_%(size)s.png',
         )
 
-    def register_menu(self, creme_menu):
-        RGenerator = self.RecurrentGenerator
-        creme_menu.get(
-            'features'
-        ).get_or_create(
-            creme_menu.ContainerItem, 'management', priority=50,
-            defaults={'label': _('Management')},
-        ).add(
-            creme_menu.URLItem.list_view('recurrents-generators', model=RGenerator),
-            priority=100,
-        )
-        creme_menu.get(
-            'creation', 'any_forms'
-        ).get_or_create_group(
-            'management', _('Management'), priority=50,
-        ).add_link('recurrents-create_rgenerator', RGenerator, priority=100)
+    # def register_menu(self, creme_menu):
+    #     RGenerator = self.RecurrentGenerator
+    #     creme_menu.get(
+    #         'features'
+    #     ).get_or_create(
+    #         creme_menu.ContainerItem, 'management', priority=50,
+    #         defaults={'label': _('Management')},
+    #     ).add(
+    #         creme_menu.URLItem.list_view('recurrents-generators', model=RGenerator),
+    #         priority=100,
+    #     )
+    #     creme_menu.get(
+    #         'creation', 'any_forms'
+    #     ).get_or_create_group(
+    #         'management', _('Management'), priority=50,
+    #     ).add_link('recurrents-create_rgenerator', RGenerator, priority=100)
 
     def register_menu_entries(self, menu_registry):
         from . import menu

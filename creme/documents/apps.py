@@ -113,17 +113,17 @@ class DocumentsConfig(CremeAppConfig):
             self.Folder,   'images/document_%(size)s.png',
         )
 
-    def register_menu(self, creme_menu):
-        Document = self.Document
-        Folder   = self.Folder
-        LvURLItem = creme_menu.URLItem.list_view
-        creme_menu.get('features', 'tools') \
-                  .add(LvURLItem('documents-documents', model=Document), priority=10) \
-                  .add(LvURLItem('documents-folders',   model=Folder),   priority=20)
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('tools', _('Tools'), priority=100) \
-                  .add_link('documents-create_document', Document, priority=10) \
-                  .add_link('documents-create_folder',   Folder,   priority=20)
+    # def register_menu(self, creme_menu):
+    #     Document = self.Document
+    #     Folder   = self.Folder
+    #     LvURLItem = creme_menu.URLItem.list_view
+    #     creme_menu.get('features', 'tools') \
+    #               .add(LvURLItem('documents-documents', model=Document), priority=10) \
+    #               .add(LvURLItem('documents-folders',   model=Folder),   priority=20)
+    #     creme_menu.get('creation', 'any_forms') \
+    #               .get_or_create_group('tools', _('Tools'), priority=100) \
+    #               .add_link('documents-create_document', Document, priority=10) \
+    #               .add_link('documents-create_folder',   Folder,   priority=20)
 
     def register_menu_entries(self, menu_registry):
         from . import menu
