@@ -774,7 +774,7 @@ CREME_OPTLIB_JS = [
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
-    ('creme.creme_config',  'creme_config/js/creme_config.js'),
+    ('creme.creme_config',  'creme_config/js/custom-forms-brick.js'),
     ('creme.creme_config',  'creme_config/js/button-menu-editor.js'),
     ('creme.creme_config',  'creme_config/js/menu-brick.js'),
     ('creme.creme_config',  'creme_config/js/menu-editor.js'),
