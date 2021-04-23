@@ -47,6 +47,7 @@ from creme.creme_core.models import (
     HistoryLine,
     InstanceBrickConfigItem,
     Job,
+    MenuConfigItem,
     RelationBrickItem,
     RelationType,
     SettingValue,
@@ -82,6 +83,12 @@ def uninstall_handler(msg):
 
 
 @receiver(pre_uninstall_flush)
+@uninstall_handler('Deleting menu entries...')
+def _uninstall_menu_entries(sender, **kwargs):
+    MenuConfigItem.objects.filter(entry_id__startswith=f'{sender.label}-').delete()
+
+
+@receiver(pre_uninstall_flush)
 @uninstall_handler('Deleting buttons...')
 def _uninstall_buttons(sender, **kwargs):
     # Remove the button of the app (ie the classes of the buttons are defined in the app)
@@ -107,7 +114,6 @@ def _uninstall_bricks(sender, **kwargs):
 
     # InstanceBrickConfigItem --------------------------------------------------
     ibc_items = InstanceBrickConfigItem.objects.filter(
-        # brick_id__startswith=InstanceBrickConfigItem.generate_base_id(
         brick_class_id__startswith=InstanceBrickConfigItem.generate_base_id(
             app_name=app_label, name='',
         ),
