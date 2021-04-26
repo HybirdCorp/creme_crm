@@ -59,7 +59,6 @@ window.FunctionFaker = function(options) {
     var property = null;
     var follow = options.follow || false;
 
-
     if (Object.isFunc(method)) {
         origin = method;
     } else if (Object.isString(method)) {
@@ -77,6 +76,7 @@ window.FunctionFaker = function(options) {
     this._origin = origin;
     this._property = property;
     this._follow = follow;
+    this.callable = options.callable;
     this.result = options.result;
 };
 
@@ -112,6 +112,8 @@ FunctionFaker.prototype = {
 
             if (faker._follow) {
                 return faker._origin.call(faker._instance, Array.copy(arguments));
+            } else if (Object.isFunc(faker.callable)) {
+                return faker.callable.call(faker._instance, Array.copy(arguments));
             } else {
                 return faker.result;
             }

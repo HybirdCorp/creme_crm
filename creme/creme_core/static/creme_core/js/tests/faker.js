@@ -148,7 +148,7 @@ QUnit.test('FunctionFaker.wrap (method)', function(assert) {
     equal(faker.count(), 1);
 });
 
-QUnit.test('FunctionFaker.wrap (call)', function(assert) {
+QUnit.test('FunctionFaker.wrap (bound function)', function(assert) {
     var instance = new MockA();
     var other = function() {
         this.real += 1;
@@ -177,7 +177,12 @@ QUnit.test('FunctionFaker.wrap (call)', function(assert) {
     equal(faker.count(), 1);
 });
 
-QUnit.test('FunctionFaker.wrap (follow)', function(assert) {
+QUnit.parametrize('FunctionFaker.wrap (follow)', [
+    {},
+    {result: 'Fake!'},
+    {callable: function() { return 'FakeCallable!'; }},
+    {result: 'Fake!', callable: function() { return 'FakeCallable!'; }}
+], function(options, assert) {
     var instance = new MockA();
     var faker = new FunctionFaker({
         instance: instance, method: 'func', result: 'Fake!', follow: true
@@ -192,10 +197,38 @@ QUnit.test('FunctionFaker.wrap (follow)', function(assert) {
 
     faker.wrap();
 
-    // When "follow" is enabled, the faked result is ignored and the original
+    // When "follow" is enabled, both faked result & callable are ignored and the original
     // method is called.
     equal(instance.func('arg1', 'arg2'), 'MockA!');
     equal(instance.real, 2);
+
+    deepEqual(faker.calls(), [['arg1', 'arg2']]);
+    equal(faker.called(), true);
+    equal(faker.count(), 1);
+});
+
+QUnit.test('FunctionFaker.wrap (callable)', function(assert) {
+    function _callable() {
+        return 'FakeCallable!';
+    }
+
+    var instance = new MockA();
+    var faker = new FunctionFaker({
+        instance: instance, method: 'func', result: 'Fake!', callable: _callable
+    });
+
+    equal(instance.func('arg1', 'arg2'), 'MockA!');
+    equal(instance.real, 1);
+
+    deepEqual(faker.calls(), []);
+    equal(faker.called(), false);
+    equal(faker.count(), 0);
+
+    faker.wrap();
+
+    // faker.result is ignored if faker.callable exists
+    equal(instance.func('arg1', 'arg2'), 'FakeCallable!');
+    equal(instance.real, 1);
 
     deepEqual(faker.calls(), [['arg1', 'arg2']]);
     equal(faker.called(), true);
