@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 03-02-2021 for Creme 2.3
+:Version: 26-04-2021 for Creme 2.3
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -562,9 +562,31 @@ And the method ``get_edit_absolute_url`` : ::
 Add entries in the menu
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-In our ``apps.py``, we add the mrthod ``BeaversConfig.register_menu()`` and we
-create first a new level 2 entry in the level 1 entry "Directory", which
-redirects to our beavers list : ::
+We declare 2 menu entries (one for the list view, one for the creation view),
+in a new file ``beavers/menu.py`` : ::
+
+    # -*- coding: utf-8 -*-
+
+    from creme.creme_core.gui import menu
+
+    from .models import Beaver
+
+
+    class BeaversEntry(menu.ListviewEntry):
+        id = 'beavers-beavers'
+        model = Beaver
+
+
+    class BeaverCreationEntry(menu.CreationEntry):
+        id = 'beavers-create_beaver'
+        model = Beaver
+
+**Note** : we have prefixed the attributes ``id`` with pour app's name ; it's
+a technic which will be regularly used, in order to avoid identifiers collisions
+between the different apps.
+
+In our file ``apps.py``, we add the method ``BeaversConfig.register_menu_entries()``
+pour register our 2 new classes : ::
 
 
     [...]
@@ -572,38 +594,44 @@ redirects to our beavers list : ::
     class BeaversConfig(CremeAppConfig):
         [...]
 
-        def register_menu(self, creme_menu):
-            from .models import Beaver
+        def register_menu_entries(self, menu_registry):
+            from . import menu
 
-            creme_menu.get('features', 'persons-directory') \
-                      .add(creme_menu.URLItem.list_view('beavers-beavers', model=Beaver))
-
-
-La méthode ``get()`` can retrieve elements in the menu tree. Here we fetch the
-group with identifier 'features', then in this group we fetch thr container
-with identifier 'persons-directory'.
-If you want to know the menu structure, you can do ``print(str(creme_menu))``.
-
-**Note** : the method ``add()`` can take e parameter ``priority`` to manage
-entries orders (a lower priority means "before").
-
-``creme_menu`` provides shortcuts to the most common menu Items,
-like URLItem which corresponds to an entry redirecting to an URL.
-And URLItem get a static method ``list_view()`` made specifically for
-list-views (it will automatically use the right URL and the right label).
-
-We add now an entry in the "window" which propose the creation for all types
-of entities : ::
-
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('persons-directory', _('Directory'), priority=10) \
-                  .add_link('create_beaver', Beaver)  # <- you can use a parameter 'priority'
+            menu_registry.register(
+                menu.BeaversEntry,
+                menu.BeaverCreationEntry,
+            )
 
 
-In this example, we want to insert our entry in the group "Directory", so
-we retrieve this group with ``get_or_create_group()``. To display the structure
-of the groups in this window, you can do
-``print(creme_menu.get('creation', 'any_forms').verbose_str)``.
+
+Currently the menu does not display our new entries ; Creme knows only that they
+are valid entries. You have to go the configuration UI for the menu (in the menu
+"gear" > Menu ), and use our new entries.
+For example, we can modify the container "Directory" ; the entry for list of
+beavers is now proposed when we click on the button
+«Add regular entries». In the next chapter, we'll see how to add our entries
+during the DB setup, to avoid doing it manually.
+
+**Going further** : we add then an entry in the window which can create all
+types of entity (in the menu "+ Creation" > Other type of entity).
+In our file ``apps.py``, we add a method once again : ::
+
+    [...]
+
+    def register_creation_menu(self, creation_menu_registry):
+        from .models import Beaver
+
+        creation_menu_registry.get_or_create_group(
+            'persons-directory', _('Directory'), priority=10,
+        ).add_link(
+            'beavers-create_beaver', Beaver, priority=20,
+        )
+
+
+In this example, we insert our entry in the group "Directory" (used by the app
+``persons`` too) ; we retrieve it with ``get_or_create_group()``.
+To display the groups' structure of this window, you write
+``print(creation_menu_registry.verbose_str)``.
 
 
 Module initialisation
@@ -612,8 +640,9 @@ Module initialisation
 The majority of the modules expect some data exist in the data base, in order
 to work correctly, or just to be more user friendly. For example, the first
 time we displayed the beavers list-view, we had to create a view-of-list
-(i.e. : columns to display in the list), named HeaderFilter in Creme's code.
-We're going to write some code run at deployment, which create this view of list.
+(named HeaderFilter in Creme's code, and containing columns to display in the list) ;
+we had to configure the menu too. We're going to write some code run at deployment,
+which create this view of list, and the menu entries.
 
 Let's create the file ``beavers/constants.py``, which contains some constants
 of course : ::
@@ -633,15 +662,21 @@ Then we create a file : ``beavers/populate.py``. ::
     from django.utils.translation import gettext as _
 
     from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.gui.menu import ContainerEntry
     from creme.creme_core.management.commands.creme_populate import BasePopulator
-    from creme.creme_core.models import HeaderFilter, SearchConfigItem
+    from creme.creme_core.models import (
+        HeaderFilter,
+        MenuConfigItem,
+        SearchConfigItem,
+    )
 
     from .constants import DEFAULT_HFILTER_BEAVER
+    from .menu import BeaversEntry
     from .models import Beaver
 
 
     class Populator(BasePopulator):
-        dependencies = ['creme_core']
+        dependencies = ['creme_core', 'persons']
 
         def populate(self):
             HeaderFilter.create(
@@ -654,6 +689,16 @@ Then we create a file : ``beavers/populate.py``. ::
 
             SearchConfigItem.create_if_needed(Beaver, ['name'])
 
+            if not MenuConfigItem.objects.filter(entry_id__startswith='beavers-').exists():
+                directory = MenuConfigItem.objects.filter(
+                    entry_id=ContainerEntry.id,
+                    entry_data={'label': _('Directory')},
+                ).first()
+                if directory is not None:
+                    MenuConfigItem.objects.create(
+                        entry_id=BeaversEntry.id, order=50, parent=directory,
+                    )
+
 Explanations :
 
 - we create a ``HeaderFilter`` with 2 columns, simply corresponding
@@ -662,6 +707,11 @@ Explanations :
   model (there are other classes, like ``EntityCellRelation`` for example).
 - The line with ``SearchConfigItem`` is for the global search configuration :
   this one will use the field 'name' for beavers.
+- We add a menu entry in the section "Directory", normally created by the app
+  ``persons`` (that's why we add this app as dependency, with the attribute
+  ``dependencies``). We create this entry only if no entry corresponding to our
+  app already exists in data base (it's a perfectible way to try not to modify the
+  menu after the first run of the command…).
 
 The code is run by the command ``creme_populate``. It 'populates' the data base
 for our app. In ``creme/``, run : ::

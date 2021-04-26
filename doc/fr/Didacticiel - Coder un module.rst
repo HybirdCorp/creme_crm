@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 03-02-2021 pour la version 2.3 de Creme
+:Version: 26-04-2021 pour la version 2.3 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -581,49 +581,75 @@ Ainsi que la méthode ``get_edit_absolute_url`` : ::
 Faire apparaître les entrées dans le menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Dans notre fichier ``apps.py``, nous ajoutons la méthode ``BeaversConfig.register_menu()``
-et nous créons tout d'abord une nouvelle entrée de niveau 2 dans l'entrée de niveau 1
-"Annuaire", et qui redirige vers notre liste des castors : ::
+Nous déclarons 2 entrées de menu (une pour la vue en liste, une pour la vue de
+création), dans un nouveau fichier ``beavers/menu.py`` : ::
 
+    # -*- coding: utf-8 -*-
+
+    from creme.creme_core.gui import menu
+
+    from .models import Beaver
+
+
+    class BeaversEntry(menu.ListviewEntry):
+        id = 'beavers-beavers'
+        model = Beaver
+
+
+    class BeaverCreationEntry(menu.CreationEntry):
+        id = 'beavers-create_beaver'
+        model = Beaver
+
+**Note** : nous avons préfixé les attributs ``id`` avec le nom de notre app ;
+c'est une technique qui sera employée régulièrement, afin d'éviter les collisions
+d'identifiants entre les différentes apps.
+
+Dans notre fichier ``apps.py``, nous ajoutons la méthode
+``BeaversConfig.register_menu_entries()`` pour enregistrer nos 2 classes
+nouvellement créées : ::
 
     [...]
 
     class BeaversConfig(CremeAppConfig):
         [...]
 
-        def register_menu(self, creme_menu):
-            from .models import Beaver
+        def register_menu_entries(self, menu_registry):
+            from . import menu
 
-            creme_menu.get('features', 'persons-directory') \
-                      .add(creme_menu.URLItem.list_view('beavers-beavers', model=Beaver))
-
-
-La méthode ``get()`` permet de récupérer des éléments dans l'arborescence du menu.
-Ici nous allons chercher le groupe avec l'identifiant 'features', puis dans ce
-dernier nous récupérons le conteneur avec l'identifiant 'persons-directory'.
-Si vous voulez connaître la structure du menu, il suffit de faire un
-``print(str(creme_menu))``.
-
-**Note** : la méthode ``add()`` peut prendre un paramètre ``priority`` qui permet
-de gérer l'ordre des entrées (une priorité plus petite signifiant "avant").
-
-``creme_menu`` propose des raccourci vers les Items de menu les plus courants,
-comme URLItem qui permet évidemment de faire une entrée redirigeant vers une URL.
-Et URLItem dispose d'une méthode statique ``list_view()`` spécialisée dans les
-vues de liste (et qui va donc utiliser la bonne URL et le bon label).
-
-Nous ajoutons ensuite une entrée dans la fenêtre permettant de créer tout type
-d'entité : ::
-
-        creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('persons-directory', _('Directory'), priority=10) \
-                  .add_link('create_beaver', Beaver)  # <- vous pouvez utiliser un paramètre 'priority'
+            menu_registry.register(
+                menu.BeaversEntry,
+                menu.BeaverCreationEntry,
+            )
 
 
-Puisque dans notre exemple, nous souhaitons insérer notre entrée dans le groupe "Annuaire",
-nous récupérons ce dernier grâce à ``get_or_create_group()``. Pour afficher la structure
-des groupes de cette fenêtre, vous pouvez faire
-``print(creme_menu.get('creation', 'any_forms').verbose_str)``.
+Pour le moment notre menu n'affiche pas nos nouvelles entrées ; Creme sait juste
+que ce sont des entrées valides. Il faut aller dans la l'interface de configuration
+du menu (dans le menu "rouage" > Menu ), et utiliser nos nouvelles entrées.
+Par exemple, on peut modifier le conteneur "Annuaire" ; l'entrée de la liste des
+castors est maintenant proposée lorsque on appuie sur le bouton
+«Ajouter des entrées normales». Dans le chapitre suivant, nous verrons comment
+ajouter notre entrées de menu lors que l'installation, sans avoir à le faire à la main.
+
+**Un peu plus loin** : nous ajoutons ensuite une entrée dans la fenêtre permettant
+de créer tout type d'entité (dans le menu "+ Création" > Autre type de fiche).
+Dans notre fichier ``apps.py``, nous ajoutons encore une méthode : ::
+
+    [...]
+
+    def register_creation_menu(self, creation_menu_registry):
+        from .models import Beaver
+
+        creation_menu_registry.get_or_create_group(
+            'persons-directory', _('Directory'), priority=10,
+        ).add_link(
+            'beavers-create_beaver', Beaver, priority=20,
+        )
+
+
+Dans notre exemple, nous insérons notre entrée dans le groupe "Annuaire" (utilisé
+aussi par l'app ``persons``) ; nous récupérons ce dernier grâce à ``get_or_create_group()``.
+Pour afficher la structure des groupes de cette fenêtre, vous pouvez faire
+``print(creation_menu_registry.verbose_str)``.
 
 
 Initialisation du module
@@ -633,8 +659,8 @@ La plupart des modules partent du principe que certaines données existent en ba
 que ce soit pour leur bon fonctionnement ou pour rendre l'utilisation de ce module
 plus agréable. Par exemple, quand nous avons voulu aller sur notre liste de castor
 la première fois, nous avons du créer une vue (i.e. : les colonnes à afficher dans
-la liste). Nous allons écrire du code qui sera exécuté au déploiement, et créera
-la vue de liste.
+la liste) ; nous avons aussi du configurer le menu. Nous allons écrire du code qui
+sera exécuté au déploiement, et créera la vue de liste et les entrées de menu.
 
 Créez le fichier ``beavers/constants.py``, qui contiendra comme son nom l'indique
 des constantes : ::
@@ -654,15 +680,21 @@ Puis créons un fichier : ``beavers/populate.py``. ::
     from django.utils.translation import gettext as _
 
     from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.gui.menu import ContainerEntry
     from creme.creme_core.management.commands.creme_populate import BasePopulator
-    from creme.creme_core.models import HeaderFilter, SearchConfigItem
+    from creme.creme_core.models import (
+        HeaderFilter,
+        MenuConfigItem,
+        SearchConfigItem,
+    )
 
     from .constants import DEFAULT_HFILTER_BEAVER
+    from .menu import BeaversEntry
     from .models import Beaver
 
 
     class Populator(BasePopulator):
-        dependencies = ['creme_core']
+        dependencies = ['creme_core', 'persons']
 
         def populate(self):
             HeaderFilter.create(
@@ -675,6 +707,16 @@ Puis créons un fichier : ``beavers/populate.py``. ::
 
             SearchConfigItem.create_if_needed(Beaver, ['name'])
 
+            if not MenuConfigItem.objects.filter(entry_id__startswith='beavers-').exists():
+                directory = MenuConfigItem.objects.filter(
+                    entry_id=ContainerEntry.id,
+                    entry_data={'label': _('Directory')},
+                ).first()
+                if directory is not None:
+                    MenuConfigItem.objects.create(
+                        entry_id=BeaversEntry.id, order=50, parent=directory,
+                    )
+
 Explications :
 
 - Nous créons une vue de liste (``HeaderFilter``) avec 2 colonnes, correspondant
@@ -684,6 +726,12 @@ Explications :
   par exemple).
 - La ligne avec ``SearchConfigItem`` sert à configurer la recherche globale :
   elle se fera sur le champ 'name' pour les castors.
+- Nous ajoutons une entrée de menu dans la section "Annuaire", normalement créée
+  par l'app ``persons`` (nous avons donc mis cette app en tant que dépendance,
+  avec l'attribut ``dependencies``). Nous ne créons cette entrée que si aucune
+  entrée correspondant à notre app existe en base de donnée (ce qui est une
+  méthode perfectible pour essayer de ne pas modifier le menu après la première
+  exécution de la commande…).
 
 Le code est exécuté par la commande ``creme_populate``. La commande permet de ne
 'peupler' que notre app. Dans ``creme/``, exécutez : ::
@@ -880,7 +928,6 @@ relancez le serveur Web, les différents labels apparaissent en français, pour 
 que votre navigateur et votre utilisateur soient configurés pour, et que que le
 *middleware* 'django.middleware.locale.LocaleMiddleware' soit bien dans votre
 ``settings.py`` (ce qui est le cas par défaut).
-
 
 
 3. Principes avancés
