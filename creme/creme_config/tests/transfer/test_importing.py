@@ -39,6 +39,8 @@ from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.function_fields import PropertiesField
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
+from creme.creme_core.menu import CremeEntry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -55,6 +57,7 @@ from creme.creme_core.models import (
     FakeDocument,
     FakeOrganisation,
     HeaderFilter,
+    MenuConfigItem,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
@@ -65,6 +68,7 @@ from creme.creme_core.tests import fake_custom_forms
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_constants import DEFAULT_HFILTER_FAKE_CONTACT
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
+from creme.creme_core.tests.fake_menu import FakeContactsEntry
 
 
 class ImportingTestCase(CremeTestCase):
@@ -554,10 +558,68 @@ class ImportingTestCase(CremeTestCase):
             _('This filter PK is invalid: «{}».').format(efilter_id),
         )
 
+    def test_menu(self):
+        self.login(is_staff=True)
+
+        container_label = 'My entries'
+        sep_label = 'Misc'
+        menu_data = [
+            {
+                'order': 1,
+                'id': ContainerEntry.id,
+                'data': {'label': container_label},
+                'children': [
+                    {
+                        'order': 1,
+                        'id': FakeContactsEntry.id,
+                    },
+                    {
+                        'order': 20,
+                        'id': Separator1Entry.id,
+                        'data': {'label': sep_label},
+                    },
+                ],
+            }, {
+                'order': 3,
+                'id': CremeEntry.id,
+            },
+        ]
+
+        json_file = StringIO(json_dump({'version': '1.0', 'menu': menu_data}))
+        json_file.name = 'config-26-04-2021.csv'
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        items = MenuConfigItem.objects.filter(parent=None)
+        self.assertEqual(2, len(items))
+
+        item1 = items[0]
+        self.assertEqual(ContainerEntry.id, item1.entry_id)
+        self.assertEqual(1,                 item1.order)
+        self.assertDictEqual({'label': container_label}, item1.entry_data)
+
+        children = item1.children.all()
+        self.assertEqual(2, len(children))
+
+        child1 = children[0]
+        self.assertEqual(FakeContactsEntry.id, child1.entry_id)
+        self.assertEqual(1,                    child1.order)
+        self.assertDictEqual({}, child1.entry_data)
+
+        child2 = children[1]
+        self.assertEqual(Separator1Entry.id, child2.entry_id)
+        self.assertEqual(20,                 child2.order)
+        self.assertDictEqual({'label': sep_label}, child2.entry_data)
+
+        item2 = items[1]
+        self.assertEqual(CremeEntry.id, item2.entry_id)
+        self.assertEqual(3,             item2.order)
+        self.assertDictEqual({}, item2.entry_data)
+
     def test_buttons(self):
         self.login(is_staff=True)
 
-        # get_ct = ContentType.objects.get_for_model
         contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=contact_ct))
 
@@ -565,28 +627,19 @@ class ImportingTestCase(CremeTestCase):
             return Button.generate_id('creme_config_export', f'test_import_buttons{i}')
 
         create_bmi = partial(ButtonMenuItem.objects.create, content_type=contact_ct)
-        # id_fmt = 'creme_config-test_import_buttons-{}'.format
-        # create_bmi(id=id_fmt(1), order=1, button_id=gen_bid(1))
-        # create_bmi(id=id_fmt(2), order=2, button_id=gen_bid(2))
         create_bmi(order=1, button_id=gen_bid(1))
         create_bmi(order=2, button_id=gen_bid(2))
 
-        # orga_bmi = create_bmi(id=id_fmt(10), order=1, button_id=gen_bid(3),
-        #                       content_type=get_ct(FakeOrganisation))
         orga_bmi = create_bmi(
             order=1, button_id=gen_bid(3), content_type=FakeOrganisation,
         )
 
         ct_str = 'creme_core.fakecontact'
         buttons_data = [
-            # {'id': id_fmt(3), 'order': 1, 'button_id': gen_bid(3)},
             {'order': 1, 'button_id': gen_bid(3)},
-            # {'id': id_fmt(4), 'order': 2, 'button_id': gen_bid(4)},
             {'order': 2, 'button_id': gen_bid(4)},
 
-            # {'id': id_fmt(5), 'order': 1, 'button_id': gen_bid(5), 'ctype': ct_str},
             {'order': 1, 'button_id': gen_bid(5), 'ctype': ct_str},
-            # {'id': id_fmt(6), 'order': 2, 'button_id': gen_bid(6), 'ctype': ct_str},
             {'order': 2, 'button_id': gen_bid(6), 'ctype': ct_str},
         ]
 
@@ -598,18 +651,16 @@ class ImportingTestCase(CremeTestCase):
         self.assertListEqual(
             [buttons_data[0], buttons_data[1]],
             [
-                # {'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id}
                 {'order': bmi.order, 'button_id': bmi.button_id}
                 for bmi in ButtonMenuItem.objects.filter(content_type=None)
-            ]
+            ],
         )
         self.assertListEqual(
             [buttons_data[2], buttons_data[3]],
             [
-                # {'id': bmi.id, 'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
                 {'order': bmi.order, 'button_id': bmi.button_id, 'ctype': ct_str}
                 for bmi in ButtonMenuItem.objects.filter(content_type=contact_ct)
-            ]
+            ],
         )
         self.assertDoesNotExist(orga_bmi)
 

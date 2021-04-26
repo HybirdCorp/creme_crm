@@ -43,6 +43,8 @@ from creme.creme_core.gui.bricks import (
 )
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
+from creme.creme_core.menu import CremeEntry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -59,6 +61,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     HeaderFilter,
     InstanceBrickConfigItem,
+    MenuConfigItem,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
@@ -67,6 +70,7 @@ from creme.creme_core.models import (
 from creme.creme_core.tests import fake_custom_forms
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
+from creme.creme_core.tests.fake_menu import FakeContactsEntry
 
 
 class ExportingInstanceBrick(InstanceBrick):
@@ -911,6 +915,55 @@ class ExportingTestCase(CremeTestCase):
                 )
             ),
             status_code=409,
+        )
+
+    def test_menu(self):
+        self.login(is_staff=True)
+
+        creme_item = MenuConfigItem.objects.get(entry_id=CremeEntry.id)
+
+        create_item = MenuConfigItem.objects.create
+        container_label = 'Fake Directory'
+        directory = create_item(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': container_label},
+            order=8000,
+        )
+        create_item(entry_id=FakeContactsEntry.id, order=1, parent=directory)
+        sep_label = 'Other'
+        create_item(
+            entry_id=Separator1Entry.id, order=2, parent=directory,
+            entry_data={'label': sep_label},
+        )
+
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        loaded_items = content.get('menu')
+        self.assertListEqual(
+            [{'id': CremeEntry.id, 'order': creme_item.order}],
+            [i for i in loaded_items if CremeEntry.id == i.get('id')],
+        )
+        self.assertFalse([i for i in loaded_items if FakeContactsEntry.id == i.get('id')])
+        self.assertListEqual(
+            [
+                {
+                    'id': ContainerEntry.id,
+                    'order': 8000,
+                    'data': {'label': container_label},
+                    'children': [
+                        {
+                            'id': FakeContactsEntry.id,
+                            'order': 1,
+                        }, {
+                            'id': Separator1Entry.id,
+                            'order': 2,
+                            'data': {'label': sep_label},
+                        },
+                    ],
+                },
+            ],
+            [i for i in loaded_items if 8000 == i.get('order')],
         )
 
     def test_buttons(self):

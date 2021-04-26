@@ -63,6 +63,7 @@ from creme.creme_core.models import (
     EntityFilter,
     EntityFilterCondition,
     HeaderFilter,
+    MenuConfigItem,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
@@ -325,6 +326,40 @@ class UserRolesImporter(Importer):
 
             for creds_info in role_data['credentials']:
                 SetCredentials.objects.create(role=role, **creds_info)
+
+
+@IMPORTERS.register(data_id=constants.ID_MENU)
+class MenuConfigImporter(Importer):
+    def load_mci(self, mci_info: dict) -> dict:
+        def info_as_kwargs(info):
+            return {
+                'entry_id': info['id'],
+                'order': int(info['order']),
+                'entry_data': info.get('data') or {},
+            }
+
+        data = info_as_kwargs(mci_info)
+        data['children'] = [
+            info_as_kwargs(child_info)
+            for child_info in mci_info.get('children', ())
+        ]
+
+        return data
+
+    def _validate_section(self, deserialized_section, validated_data):
+        self._data = [*map(self.load_mci, deserialized_section)]
+
+    def save(self):
+        MenuConfigItem.objects.all().delete()  # TODO: recycle instances
+
+        create_item = MenuConfigItem.objects.create
+
+        for data in self._data:
+            children = data.pop('children')
+            parent = create_item(**data)
+
+            for child_data in children:
+                create_item(parent=parent, **child_data)
 
 
 @IMPORTERS.register(data_id=constants.ID_BUTTONS)
