@@ -272,7 +272,7 @@ class BrickExporterMixin:
 class BrickDetailviewLocationExporter(BrickExporterMixin, Exporter):
     model = models.BrickDetailviewLocation
 
-    def get_queryset(self) -> QuerySet:
+    def get_queryset(self):
         qs = self.model._default_manager.all()
         cursed_items = self.filter_non_exportable_items(qs)
 
@@ -330,7 +330,7 @@ class BrickDetailviewLocationExporter(BrickExporterMixin, Exporter):
 class BrickHomeLocationExporter(BrickExporterMixin, Exporter):
     model = models.BrickHomeLocation
 
-    def get_queryset(self) -> QuerySet:
+    def get_queryset(self):
         qs = self.model._default_manager.all()
         cursed_items = self.filter_non_exportable_items(qs)
 
@@ -367,7 +367,7 @@ class BrickHomeLocationExporter(BrickExporterMixin, Exporter):
 class BrickMypageLocationExporter(BrickExporterMixin, Exporter):
     model = models.BrickMypageLocation
 
-    def get_queryset(self) -> QuerySet:
+    def get_queryset(self):
         qs = self.model._default_manager.filter(user=None)
         cursed_items = self.filter_non_exportable_items(qs)
 
@@ -386,6 +386,40 @@ class BrickMypageLocationExporter(BrickExporterMixin, Exporter):
         assert isinstance(instance, models.BrickMypageLocation)
 
         return {'id': instance.brick_id, 'order': instance.order}
+
+
+@EXPORTERS.register(data_id=constants.ID_MENU)
+class MenuItemExporter(Exporter):
+    model = models.MenuConfigItem
+
+    def get_queryset(self):
+        # TODO: prefetch children
+        return super().get_queryset().filter(parent=None)
+
+    @staticmethod
+    def dump_instance_simple(instance):
+        data = {
+            'id':    instance.entry_id,
+            'order': instance.order,
+        }
+
+        entry_data = instance.entry_data
+        if entry_data:
+            data['data'] = entry_data
+
+        return data
+
+    def dump_instance(self, instance):
+        assert isinstance(instance, models.MenuConfigItem)
+
+        dump_simple = self.dump_instance_simple
+        data = dump_simple(instance)
+
+        children = [*instance.children.all()]
+        if children:
+            data['children'] = [dump_simple(child) for child in children]
+
+        return data
 
 
 @EXPORTERS.register(data_id=constants.ID_BUTTONS)

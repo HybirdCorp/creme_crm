@@ -6,6 +6,7 @@ BRICK_STATE_SHOW_CFORMS_DETAILS  = 'creme_config-show_customforms_details'
 ID_VERSION = 'version'
 
 ID_ROLES          = 'roles'
+ID_MENU           = 'menu'
 ID_BUTTONS        = 'buttons'
 ID_SEARCH         = 'search'
 ID_PROPERTY_TYPES = 'property_types'
