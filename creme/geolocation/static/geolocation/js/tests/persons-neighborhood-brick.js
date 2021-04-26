@@ -876,8 +876,17 @@ QUnit.parametrize('creme.geolocation.brick.NeighborhoodBrick (google, collapse s
         neighboursUrl: 'mock/neighbours'
     });
 
-    this.autoResizeFaker = this.fakeMethod(this.controller.mapController(), 'autoResize', true);
-    this.adjustMapToShapeFaker = this.fakeMethod(this.controller.mapController(), 'adjustMapToShape', true);
+    this.autoResizeFaker = this.fakeMethod({
+        instance: this.controller.mapController(),
+        method: 'autoResize',
+        follow: true
+    });
+
+    this.adjustMapToShapeFaker = this.fakeMethod({
+        instance: this.controller.mapController(),
+        method: 'adjustMapToShape',
+        follow: true
+    });
 
     stop(1);
 });

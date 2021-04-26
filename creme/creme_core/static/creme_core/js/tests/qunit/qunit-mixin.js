@@ -246,23 +246,14 @@
             QUnit.assert.equal($('<div>').append(expected).html(), $('<div>').append($(element).clone()).html(), message);
         },
 
-        fakeMethod: function(instance, method, follow) {
-            var faker = new FunctionFaker({
-                instance: instance,
-                method: method,
-                follow: follow
-            });
-
+        fakeMethod: function(options) {
+            var faker = new FunctionFaker(options);
             faker.wrap();
             return faker;
         },
 
-        withFakeMethod: function(instance, property, follow, block) {
-            return new FunctionFaker({
-                instance: instance,
-                method: method,
-                follow: follow
-            }).with(block.bind(this));
+        withFakeMethod: function(options, block) {
+            return new FunctionFaker(options).with(block.bind(this));
         },
 
         withFrozenTime: function(date, block) {

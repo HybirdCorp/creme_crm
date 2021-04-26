@@ -1079,8 +1079,17 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (collapse state)', [
         addresses: addresses
     });
 
-    this.autoResizeFaker = this.fakeMethod(this.controller.mapController(), 'autoResize', true);
-    this.adjustMapFaker = this.fakeMethod(this.controller.mapController(), 'adjustMap', true);
+    this.autoResizeFaker = this.fakeMethod({
+        instance: this.controller.mapController(),
+        method: 'autoResize',
+        follow: true
+    });
+
+    this.adjustMapFaker = this.fakeMethod({
+        instance: this.controller.mapController(),
+        method: 'adjustMap',
+        follow: true
+    });
 
     stop(1);
 });
