@@ -598,7 +598,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             response = self.assertGET200(self.build_ops_url(self.contact_ct_id, fieldname))
 
             json_data = response.json()
-            self.assertIsInstance(json_data, list)
+            self.assertIsList(json_data)
             self.assertTrue(json_data)
             self.assertIn(['upper', _('To upper case')], json_data)
             self.assertIn(['lower', _('To lower case')], json_data)

@@ -49,7 +49,7 @@ class DeletionTestCase(CremeTestCase):
                 field=_('Civility'),
                 new=civ.title,
             ),
-            str(replacer1)
+            str(replacer1),
         )
 
     def test_replacer_by_fixed_value02(self):
@@ -73,7 +73,7 @@ class DeletionTestCase(CremeTestCase):
                 model='Test Organisation',
                 field=_('Sector'),
             ),
-            str(replacer1)
+            str(replacer1),
         )
 
     def test_replacer_by_fixed_value03(self):
@@ -83,7 +83,9 @@ class DeletionTestCase(CremeTestCase):
                 model='Test Contact',
                 field=_('Civility'),
             ),
-            str(FixedValueReplacer(model_field=FakeContact._meta.get_field('civility')))
+            str(FixedValueReplacer(
+                model_field=FakeContact._meta.get_field('civility')
+            )),
         )
 
         sector = FakeSector.objects.create(title='Ninja')
@@ -110,7 +112,7 @@ class DeletionTestCase(CremeTestCase):
                 field=_('Categories'),
                 new=cat.name,
             ),
-            str(FixedValueReplacer(model_field=m2m, value=cat))
+            str(FixedValueReplacer(model_field=m2m, value=cat)),
         )
 
         self.assertEqual(
@@ -118,7 +120,7 @@ class DeletionTestCase(CremeTestCase):
                 model='Test Document',
                 field=_('Categories'),
             ),
-            str(FixedValueReplacer(model_field=m2m))
+            str(FixedValueReplacer(model_field=m2m)),
         )
 
     def test_replacer_for_SET(self):
@@ -148,7 +150,7 @@ class DeletionTestCase(CremeTestCase):
                 model='Test Ticket',
                 field=_('Priority'),
             ),
-            str(replacer1)
+            str(replacer1),
         )
 
     def test_registry01(self):
@@ -162,25 +164,28 @@ class DeletionTestCase(CremeTestCase):
 
         get_ct = ContentType.objects.get_for_model
         serialized = [
-            ['fixed_value',
-             {'ctype': get_ct(FakeOrganisation).natural_key(),
-              'field': 'sector',
-             },
-            ],
-            ['fixed_value',
-             {'ctype': get_ct(FakeContact).natural_key(),
-              'field': 'sector',
-              'pk': sector.pk,
-             },
+            [
+                'fixed_value',
+                {
+                    'ctype': get_ct(FakeOrganisation).natural_key(),
+                    'field': 'sector',
+                },
+            ], [
+                'fixed_value',
+                {
+                    'ctype': get_ct(FakeContact).natural_key(),
+                    'field': 'sector',
+                    'pk': sector.pk,
+                },
             ],
         ]
-        self.assertEqual(serialized,
-                         REPLACERS_MAP.serialize([replacer1, replacer2])
-                        )
+        self.assertEqual(
+            serialized,
+            REPLACERS_MAP.serialize([replacer1, replacer2])
+        )
 
         replacers = REPLACERS_MAP.deserialize(serialized)
-        self.assertIsInstance(replacers, list)
-        self.assertEqual(2, len(replacers))
+        self.assertIsList(replacers, length=2)
 
         d_replacer1 = replacers[0]
         self.assertIsInstance(d_replacer1, FixedValueReplacer)
@@ -198,17 +203,18 @@ class DeletionTestCase(CremeTestCase):
         replacer = SETReplacer(model_field=field)
 
         serialized = [
-            ['SET',
-             {'ctype': ContentType.objects.get_for_model(FakeTicket).natural_key(),
-              'field': 'priority',
-             },
+            [
+                'SET',
+                {
+                    'ctype': ContentType.objects.get_for_model(FakeTicket).natural_key(),
+                    'field': 'priority',
+                },
             ],
         ]
         self.assertEqual(serialized, REPLACERS_MAP.serialize([replacer]))
 
         replacers = REPLACERS_MAP.deserialize(serialized)
-        self.assertIsInstance(replacers, list)
-        self.assertEqual(1, len(replacers))
+        self.assertIsList(replacers, length=1)
 
         d_replacer = replacers[0]
         self.assertIsInstance(d_replacer, SETReplacer)

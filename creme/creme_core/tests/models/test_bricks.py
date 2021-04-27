@@ -85,7 +85,7 @@ class BrickTestCase(CremeTestCase):
                 'modelblock', CustomFieldsBrick.id_, RelationsBrick.id_,
                 PropertiesBrick.id_, HistoryBrick.id_,
             },
-            {loc.brick_id for loc in self._bdl_backup}
+            {loc.brick_id for loc in self._bdl_backup},
         )
         brick_id = HistoryBrick.id_
         self.assertIn(brick_id, {bpl.brick_id for bpl in self._bpl_backup})
@@ -127,7 +127,7 @@ class BrickTestCase(CremeTestCase):
 
         self.assertListEqual(
             [loc],
-            [*BrickDetailviewLocation.objects.filter_for_model(FakeContact)]
+            [*BrickDetailviewLocation.objects.filter_for_model(FakeContact)],
         )
 
     def test_detail_manager_create_if_needed03(self):
@@ -136,9 +136,10 @@ class BrickTestCase(CremeTestCase):
         order = 5
         zone = BrickDetailviewLocation.RIGHT
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
-                             brick=brick_id, model=FakeContact,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            brick=brick_id, model=FakeContact,
+        )
         create_bdl(order=order, zone=zone)
         create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
 
@@ -280,9 +281,7 @@ class BrickTestCase(CremeTestCase):
                 {'order': order3, 'zone': zone3},
             ],
         )
-
-        self.assertIsInstance(locs, list)
-        self.assertEqual(3, len(locs))
+        self.assertIsList(locs, length=3)
 
         loc1 = locs[0]
         self.assertIsInstance(loc1, BrickDetailviewLocation)
@@ -323,9 +322,7 @@ class BrickTestCase(CremeTestCase):
                 {'order': order2, 'zone': zone2},
             ],
         )
-
-        self.assertIsInstance(locs, list)
-        self.assertEqual(2, len(locs))
+        self.assertIsList(locs, length=2)
 
         loc1 = locs[0]
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -356,9 +353,7 @@ class BrickTestCase(CremeTestCase):
                 {'model': FakeOrganisation, 'order': order2},
             ],
         )
-
-        self.assertIsInstance(locs, list)
-        self.assertEqual(2, len(locs))
+        self.assertIsList(locs, length=2)
 
     def test_detail_str(self):
         TOP = BrickDetailviewLocation.TOP
@@ -371,7 +366,7 @@ class BrickTestCase(CremeTestCase):
             _('Default block configuration for detail-views uses «{block}»').format(
                 block=RelationsBrick.verbose_name,
             ),
-            str(loc1)
+            str(loc1),
         )
 
         # For a model
@@ -383,7 +378,7 @@ class BrickTestCase(CremeTestCase):
                 model='Test Contact',
                 block=RelationsBrick.verbose_name,
             ),
-            str(loc2)
+            str(loc2),
         )
 
         # For a role
@@ -401,7 +396,7 @@ class BrickTestCase(CremeTestCase):
                 role=role,
                 block=RelationsBrick.verbose_name,
             ),
-            str(loc3)
+            str(loc3),
         )
 
         # For superusers
@@ -417,7 +412,7 @@ class BrickTestCase(CremeTestCase):
                 model='Test Organisation',
                 block=PropertiesBrick.verbose_name,
             ),
-            str(loc4)
+            str(loc4),
         )
 
         # Unknown brick
@@ -428,7 +423,7 @@ class BrickTestCase(CremeTestCase):
             _('Default block configuration for detail-views uses «{block}»').format(
                 block='BLOCK',
             ),
-            str(loc5)
+            str(loc5),
         )
 
     def test_home_str(self):
@@ -439,7 +434,7 @@ class BrickTestCase(CremeTestCase):
             _('Block configuration of Home uses «{block}»').format(
                 block=HistoryBrick.verbose_name,
             ),
-            str(loc1)
+            str(loc1),
         )
 
         # For role
@@ -452,7 +447,7 @@ class BrickTestCase(CremeTestCase):
                 role=role,
                 block=HistoryBrick.verbose_name,
             ),
-            str(loc2)
+            str(loc2),
         )
 
         # For superusers
@@ -464,7 +459,7 @@ class BrickTestCase(CremeTestCase):
                 role=role,
                 block=HistoryBrick.verbose_name,
             ),
-            str(loc3)
+            str(loc3),
         )
 
     def test_mypage_str(self):
@@ -475,7 +470,7 @@ class BrickTestCase(CremeTestCase):
             _('Default block configuration of "My page" uses «{block}»').format(
                 block=HistoryBrick.verbose_name,
             ),
-            str(loc1)
+            str(loc1),
         )
 
         # For user
@@ -488,7 +483,7 @@ class BrickTestCase(CremeTestCase):
                 user=user,
                 block=HistoryBrick.verbose_name,
             ),
-            str(loc2)
+            str(loc2),
         )
 
     def test_mypage_new_user(self):
@@ -507,7 +502,7 @@ class BrickTestCase(CremeTestCase):
     def test_relation_brick01(self):
         rtype = RelationType.create(
             ('test-subject_loves', 'loves'),
-            ('test-object_loved',  'is loved by')
+            ('test-object_loved',  'is loved by'),
         )[0]
 
         rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
@@ -617,7 +612,7 @@ class BrickTestCase(CremeTestCase):
 
         self.assertDictEqual(
             {str(ct_contact.id): [{'type': 'regular_field', 'value': 'last_name'}]},
-            deserialized
+            deserialized,
         )
 
     def test_relationbrick_delete01(self):
@@ -687,9 +682,9 @@ class BrickTestCase(CremeTestCase):
         # ---
         loc3 = create_dbl(model=FakeContact)
         try_delete(
-            _('This block is used in the detail-view configuration of «{model}»').format(
-                model='Test Contact',
-            ),
+            _(
+                'This block is used in the detail-view configuration of «{model}»'
+            ).format(model='Test Contact'),
             [loc1, loc2, loc3],
         )
         self.assertStillExists(loc3)
@@ -739,7 +734,7 @@ class BrickTestCase(CremeTestCase):
 
         self.assertListEqual(
             [{'type': 'regular_field', 'value': 'name'}],
-            deserialized
+            deserialized,
         )
 
     def test_custom_brick_errors02(self):
@@ -859,7 +854,7 @@ class BrickTestCase(CremeTestCase):
                 'key1': 'value1',
                 'key2': 'value2',
             },
-            dict(ibi.extra_data_items)
+            dict(ibi.extra_data_items),
         )
 
     def test_instance_brick_delete01(self):
@@ -944,7 +939,9 @@ class BrickTestCase(CremeTestCase):
         )
         loc1 = create_bhl(role=self.role)
         try_delete(
-            _('This block is used in the Home configuration of role «{}»').format(self.role),
+            _(
+                'This block is used in the Home configuration of role «{}»'
+            ).format(self.role),
             [loc1],
         )
         self.assertStillExists(loc1)
@@ -993,7 +990,9 @@ class BrickTestCase(CremeTestCase):
         )
         loc1 = create_bml(user=user)
         try_delete(
-            _('This block is used in the configuration of «{}» for "My page"').format(user),
+            _(
+                'This block is used in the configuration of «{}» for "My page"'
+            ).format(user),
             [loc1],
         )
         self.assertStillExists(loc1)

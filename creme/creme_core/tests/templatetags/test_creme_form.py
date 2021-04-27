@@ -19,7 +19,7 @@ from ..base import CremeTestCase
 
 class CremeFormTagsTestCase(CremeTestCase):
     def assertGatheredEqual(self, expected, gathered):
-        self.assertIsInstance(gathered, list)
+        self.assertIsList(gathered)
         BFB = BoundFieldBlocks.BoundFieldBlock
 
         def build_gathered_ids(fblocks):

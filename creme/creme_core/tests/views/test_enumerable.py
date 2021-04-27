@@ -15,9 +15,10 @@ from .base import ViewsTestCase
 
 class EnumerableViewsTestCase(ViewsTestCase):
     def _build_choices_url(self, model, field_name):
-        return reverse('creme_core__enumerable_choices',
-                       args=(ContentType.objects.get_for_model(model).id, field_name),
-                      )
+        return reverse(
+            'creme_core__enumerable_choices',
+            args=(ContentType.objects.get_for_model(model).id, field_name),
+        )
 
     def test_choices_success_fk(self):
         self.login()
@@ -31,7 +32,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
                 {'value': id, 'label': title}
                 for id, title in models.FakeCivility.objects.values_list('id', 'title')
             ],
-            choices
+            choices,
         )
 
     def test_choices_success_m2m(self):
@@ -42,7 +43,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
                 {'value': id, 'label': name}
                 for id, name in models.FakeImageCategory.objects.values_list('id', 'name')
             ],
-            response.json()
+            response.json(),
         )
 
     def test_choices_success_limited_choices_to(self):
@@ -52,7 +53,9 @@ class EnumerableViewsTestCase(ViewsTestCase):
         lang1 = create_lang(name='Klingon [deprecated]')
         lang2 = create_lang(name='Namek')
 
-        response = self.assertGET200(self._build_choices_url(models.FakeContact, 'languages'))
+        response = self.assertGET200(
+            self._build_choices_url(models.FakeContact, 'languages')
+        )
 
         ids = {t['value'] for t in response.json()}
         self.assertIn(lang2.id, ids)
@@ -93,13 +96,14 @@ class EnumerableViewsTestCase(ViewsTestCase):
             ],
         )
 
-        response = self.assertGET200(self._build_choices_url(models.FakeReport, 'efilter'))
+        response = self.assertGET200(
+            self._build_choices_url(models.FakeReport, 'efilter')
+        )
 
         with self.assertNoException():
             choices = response.json()
 
-        self.assertIsInstance(choices, list)
-        self.assertGreaterEqual(len(choices), 2)
+        self.assertIsList(choices, min_length=2)
 
         first_choice = choices[0]
         self.assertIsInstance(first_choice, dict)
@@ -110,20 +114,24 @@ class EnumerableViewsTestCase(ViewsTestCase):
             self.assertEqual(1, len(efilter_as_dicts))
             return efilter_as_dicts[0]
 
-        self.assertEqual({'value': efilter1.pk,
-                          'label': efilter1.name,
-                          'help': '',
-                          'group': 'Test Contact',
-                         },
-                         find_efilter_dict(efilter1)
-                        )
-        self.assertEqual({'value': efilter2.pk,
-                          'label': efilter2.name,
-                          'help': _('Private ({})').format(user),
-                          'group': 'Test Organisation',
-                         },
-                         find_efilter_dict(efilter2)
-                        )
+        self.assertDictEqual(
+            {
+                'value': efilter1.pk,
+                'label': efilter1.name,
+                'help': '',
+                'group': 'Test Contact',
+            },
+            find_efilter_dict(efilter1)
+        )
+        self.assertDictEqual(
+            {
+                'value': efilter2.pk,
+                'label': efilter2.name,
+                'help': _('Private ({})').format(user),
+                'group': 'Test Organisation',
+            },
+            find_efilter_dict(efilter2)
+        )
 
     def test_choices_success_specific_printer02(self):
         "Field is a EntityCTypeForeignKey."
@@ -156,7 +164,9 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
     def test_choices_not_entity_model(self):
         self.login()
-        response = self.assertGET409(self._build_choices_url(models.FakeAddress, 'entity'))
+        response = self.assertGET409(
+            self._build_choices_url(models.FakeAddress, 'entity')
+        )
         self.assertIn(
             'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
             response.content.decode()
@@ -164,12 +174,14 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
     def test_choices_no_app_credentials(self):
         self.login(is_superuser=False, allowed_apps=['creme_config'])
-        response = self.assertGET403(self._build_choices_url(models.FakeContact, 'civility'),
-                                     HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-                                    )
-        self.assertIn(_('You are not allowed to access to the app: {}').format(_('Core')),
-                      response.content.decode()
-                     )
+        response = self.assertGET403(
+            self._build_choices_url(models.FakeContact, 'civility'),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertIn(
+            _('You are not allowed to access to the app: {}').format(_('Core')),
+            response.content.decode(),
+        )
 
     def test_choices_field_does_not_exist(self):
         self.login()
@@ -196,10 +208,14 @@ class EnumerableViewsTestCase(ViewsTestCase):
         eva01 = create_evalue(custom_field=custom_field, value='Eva-01')
         eva02 = create_evalue(custom_field=custom_field, value='Eva-02')
 
-        response = self.assertGET200(reverse('creme_core__cfield_enums', args=(custom_field.id,)))
-        self.assertEqual([[eva00.id, eva00.value],
-                          [eva01.id, eva01.value],
-                          [eva02.id, eva02.value]
-                         ],
-                         response.json()
-                        )
+        response = self.assertGET200(
+            reverse('creme_core__cfield_enums', args=(custom_field.id,))
+        )
+        self.assertEqual(
+            [
+                [eva00.id, eva00.value],
+                [eva01.id, eva01.value],
+                [eva02.id, eva02.value],
+            ],
+            response.json(),
+        )

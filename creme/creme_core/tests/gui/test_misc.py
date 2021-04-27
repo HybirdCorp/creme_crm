@@ -80,7 +80,7 @@ class GuiTestCase(CremeTestCase):
         self.assertGET200(contact02.get_absolute_url())
         self.assertListEqual(
             [contact02.pk, contact04.pk, contact03.pk, contact01.pk],
-            [i.pk for i in get_items()]
+            [i.pk for i in get_items()],
         )
 
         contact03.delete()
@@ -89,14 +89,14 @@ class GuiTestCase(CremeTestCase):
         items = get_items()
         self.assertListEqual(
             [contact02.pk, contact04.pk, contact01.pk],
-            [i.pk for i in items]
+            [i.pk for i in items],
         )
 
         contact04.trash()
         self.assertGET200(FakeContact.get_lv_absolute_url())
         self.assertListEqual(
             [contact02.pk, contact01.pk],
-            [i.pk for i in get_items()]
+            [i.pk for i in get_items()],
         )
 
         settings.MAX_LAST_ITEMS = 1
@@ -324,8 +324,7 @@ class GuiTestCase(CremeTestCase):
                 entity=c,
             ),
         ]
-        self.assertIsInstance(buttons, list)
-        self.assertEqual(2, len(buttons))
+        self.assertIsList(buttons, length=2)
         self.assertIsInstance(buttons[0], TestButton3)
         self.assertIsInstance(buttons[1], TestButton1)
 
@@ -444,14 +443,14 @@ class GuiTestCase(CremeTestCase):
                 .register_needed_fields('persons', Document, 'categories')
         self.assertListEqual(
             [apps.get_app_config('documents')],
-            [*registry.get_needing_apps(Contact, 'phone')]
+            [*registry.get_needing_apps(Contact, 'phone')],
         )
         self.assertListEqual(
             [apps.get_app_config('documents')],
-            [*registry.get_needing_apps(Contact, 'mobile')]
+            [*registry.get_needing_apps(Contact, 'mobile')],
         )
         self.assertFalse([*registry.get_needing_apps(Contact, 'fax')])
         self.assertListEqual(
             [apps.get_app_config('persons')],
-            [*registry.get_needing_apps(Document, 'categories')]
+            [*registry.get_needing_apps(Document, 'categories')],
         )

@@ -229,14 +229,12 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         response = self.assertGET200(reload_url, data={'brick_id': brick_id})
 
         with self.assertNoException():
-            result = response.json()
+            results = response.json()
 
-        self.assertIsInstance(result, list)
-        self.assertEqual(1, len(result))
+        self.assertIsList(results, length=1)
 
-        result = result[0]
-        self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
+        result = results[0]
+        self.assertIsList(result, length=2)
         self.assertEqual(brick_id, result[0])
 
         tree = self.get_html_tree(result[1])
@@ -650,14 +648,14 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
-        cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
+        cf_enum1 = create_cf(name='Attack',  field_type=CustomField.ENUM)
         cf_enum2 = create_cf(name='Drink',   field_type=CustomField.ENUM)
         cf_menum = create_cf(name='Weapons', field_type=CustomField.MULTI_ENUM)
 
         create_evalue = CustomFieldEnumValue.objects.create
-        punch = create_evalue(custom_field=cf_enum, value='Punch')
-        create_evalue(custom_field=cf_enum, value='Kick')
-        create_evalue(custom_field=cf_enum, value='Hold')
+        punch = create_evalue(custom_field=cf_enum1, value='Punch')
+        create_evalue(custom_field=cf_enum1, value='Kick')
+        create_evalue(custom_field=cf_enum1, value='Hold')
 
         create_evalue(custom_field=cf_enum2, value='Punch')  # Try to annoy the search on 'punch'
 
@@ -680,7 +678,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                 'has_header': True,
                 'user': user.id,
 
-                f'custom_field-{cf_enum.id}_colselect':  3,
+                f'custom_field-{cf_enum1.id}_colselect': 3,
                 f'custom_field-{cf_enum2.id}_colselect': 0,
                 f'custom_field-{cf_menum.id}_colselect': 4,
             },
@@ -699,10 +697,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         get_cf_values = self._get_cf_values
         sonsaku = get_contact(1)
-        self.assertEqual(punch, get_cf_values(cf_enum, sonsaku).value)
+        self.assertEqual(punch, get_cf_values(cf_enum1, sonsaku).value)
 
         kanu = get_contact(2)
-        self.assertFalse(cf_enum.value_class.objects.filter(entity=kanu))
+        self.assertFalse(cf_enum1.value_class.objects.filter(entity=kanu))
         self.assertListEqual([spear], [*get_cf_values(cf_menum, kanu).value.all()])
 
         results = self._get_job_results(job)
@@ -725,7 +723,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                     value='strangulation',
                 ),
             ],
-            jr_error.messages
+            jr_error.messages,
         )
         self.assertEqual(kanu, jr_error.entity.get_real_entity())
 
@@ -948,9 +946,10 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         "Validate default value"
         self.login()
 
-        lines = [('Name', 'Capital'),
-                 ('Nerv', '1000'),
-                ]
+        lines = [
+            ('Name', 'Capital'),
+            ('Nerv', '1000'),
+        ]
 
         doc = self._build_csv_doc(lines, separator=';')
         url = self._build_import_url(FakeOrganisation)
@@ -1111,7 +1110,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         loves = RelationType.create(
             ('test-subject_loving', 'is loving'),
-            ('test-object_loving',  'is loved by')
+            ('test-object_loving',  'is loved by'),
         )[0]
 
         create_ptype = CremePropertyType.create
@@ -1269,8 +1268,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertEqual([last_name, first_name], jr_error.line)
         self.assertListEqual(
             [
-                _('Several entities corresponding to the search have been found. '
-                  'So a new entity have been created to avoid errors.'
+                _(
+                    'Several entities corresponding to the search have been found. '
+                    'So a new entity have been created to avoid errors.'
                 )
             ],
             jr_error.messages
@@ -1398,7 +1398,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         # Final POST
         response = self.client.post(
-            url, follow=True,
+            url,
+            follow=True,
             data={
                 **self.lv_import_data,
                 'document': doc.id,
@@ -1427,7 +1428,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         doc = self._build_csv_doc([('Rei', 'Ayanami', 'Pilot')])
         response = self.assertPOST200(
-            self._build_import_url(FakeContact), follow=True,
+            self._build_import_url(FakeContact),
+            follow=True,
             data={
                 **self.lv_import_data,
                 'document': doc.id,
@@ -1484,7 +1486,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         self.assertNotIn(hidden_fname1, fields)
 
         response = self.client.post(
-            url, follow=True,
+            url,
+            follow=True,
             data={
                 **self.lv_import_data,
                 'document': doc.id,
@@ -1498,7 +1501,8 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
 
         self._execute_job(response)
         rei = self.get_object_or_fail(
-            FakeContact, last_name=rei_info['last_name'], first_name=rei_info['first_name'],
+            FakeContact,
+            last_name=rei_info['last_name'], first_name=rei_info['first_name'],
         )
         self.assertEqual(rei_info['email'], rei.email)
         self.assertIsNone(getattr(rei, hidden_fname1))
@@ -1511,7 +1515,9 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         ]
 
         rei_line = lines[0]
-        rei = FakeContact.objects.create(user=user, first_name=rei_line[0], last_name=rei_line[1])
+        rei = FakeContact.objects.create(
+            user=user, first_name=rei_line[0], last_name=rei_line[1],
+        )
 
         count = FakeContact.objects.count()
         doc = self._build_csv_doc(lines)

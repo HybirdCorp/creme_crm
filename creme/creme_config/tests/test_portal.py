@@ -16,11 +16,11 @@ class PortalTestCase(CremeTestCase):
         self.assertEqual(reverse('creme_core__reload_bricks'), get('bricks_reload_url'))
 
         app_configs = get('app_configs')
-        self.assertIsInstance(app_configs, list)
+        self.assertIsList(app_configs)
         self.assertIsInstance(app_configs[0], _AppConfigRegistry)
         self.assertIn('creme_core', (r.name for r in app_configs))
 
-        self.assertIsInstance(get('app_bricks'), list)  # TODO: test better
+        self.assertIsList(get('app_bricks'))  # TODO: test better
 
     def test_portal02(self):
         self.login(is_superuser=False)  # allowed_apps=['creme_config']

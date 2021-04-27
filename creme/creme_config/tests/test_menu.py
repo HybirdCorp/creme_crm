@@ -718,8 +718,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn(FakeContactsEntry.id, excluded_entry_ids)
 
         initial_entries = entries_f.initial
-        self.assertIsInstance(initial_entries, list)
-        self.assertEqual(1, len(initial_entries))
+        self.assertIsList(initial_entries, length=1)
 
         initial_entry1 = initial_entries[0]
         self.assertIsInstance(initial_entry1, FakeContactsEntry)

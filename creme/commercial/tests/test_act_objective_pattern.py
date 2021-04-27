@@ -364,8 +364,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         # TODO: test that no additional queries are done ???
         comptree = pattern.get_components_tree()
-        self.assertIsInstance(comptree, list)
-        self.assertEqual(2, len(comptree))
+        self.assertIsList(comptree, length=2)
 
         rootcomp01 = comptree[0]
         self.assertIsInstance(rootcomp01, ActObjectivePatternComponent)

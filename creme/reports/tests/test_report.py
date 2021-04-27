@@ -173,8 +173,7 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNumQueries(1):
             columns = report.columns
 
-        self.assertIsInstance(columns, list)
-        self.assertEqual(2, len(columns))
+        self.assertIsList(columns, length=2)
 
         field = columns[0]
         self.assertIsInstance(field, Field)
@@ -877,8 +876,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertIsInstance(context.get('form'), ReportExportPreviewFilterForm)
 
         columns = context.get('flat_columns')
-        self.assertIsInstance(columns, list)
-        self.assertEqual(4, len(columns))
+        self.assertIsList(columns, length=4)
         self.assertIsInstance(columns[0], Field)
         self.assertListEqual(
             ['last_name', 'user', 'creme_core-subject_has', 'get_pretty_properties'],

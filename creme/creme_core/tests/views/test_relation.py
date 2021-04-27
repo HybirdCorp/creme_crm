@@ -50,11 +50,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
         json_data = response.json()
         get_ct = ContentType.objects.get_for_model
-        self.assertIsInstance(json_data, list)
-        self.assertEqual(2, len(json_data))
+        self.assertIsList(json_data, length=2)
         self.assertIn(
             [get_ct(FakeContact).id, str(FakeContact._meta.verbose_name)],
-            json_data
+            json_data,
         )
         self.assertIn(
             [get_ct(FakeOrganisation).id, str(FakeOrganisation._meta.verbose_name)],
@@ -76,9 +75,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
         json_data = response.json()
         get_ct = ContentType.objects.get_for_model
-        self.assertIn([get_ct(FakeContact).id], json_data)
+        self.assertIn([get_ct(FakeContact).id],      json_data)
         self.assertIn([get_ct(FakeOrganisation).id], json_data)
-        self.assertIn([get_ct(FakeActivity).id], json_data)
+        self.assertIn([get_ct(FakeActivity).id],     json_data)
 
     def test_get_ctypes_of_relation03(self):
         "'sort' argument."
@@ -102,9 +101,10 @@ class RelationViewsTestCase(ViewsTestCase):
         get_ct = ContentType.objects.get_for_model
 
         expected = [[get_ct(FakeContact).id, c_vname]]
-        expected.insert(0 if i_vname < c_vname else 1,
-                        [get_ct(FakeImage).id,  i_vname]
-                       )
+        expected.insert(
+            0 if i_vname < c_vname else 1,
+            [get_ct(FakeImage).id,  i_vname]
+        )
         self.assertEqual(response.json(), expected)
 
     def _aux_test_add_relations(self, is_superuser=True):

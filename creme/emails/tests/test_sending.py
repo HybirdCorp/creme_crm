@@ -732,8 +732,7 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
-        self.assertIsInstance(content, list)
-        self.assertEqual(1, len(content))
+        self.assertIsList(content, length=1)
 
         brick_data = content[0]
         self.assertEqual(2, len(brick_data))

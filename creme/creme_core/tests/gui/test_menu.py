@@ -1363,8 +1363,7 @@ class MenuTestCase(CremeTestCase):
         self.assertSetEqual({FakeContactsEntry, CremeEntry}, {*registry.entry_classes})
 
         entries = registry.get_entries(items)
-        self.assertIsInstance(entries, list)
-        self.assertEqual(1, len(entries))
+        self.assertIsList(entries, length=1)
 
         entry1 = entries[0]
         self.assertIsInstance(entry1, CremeEntry)
@@ -1428,8 +1427,7 @@ class MenuTestCase(CremeTestCase):
         # -------------
         registry.register(FakeContactsEntry, CremeEntry)
         entries = registry.get_entries([container_item, *sub_items])
-        self.assertIsInstance(entries, list)
-        self.assertEqual(1, len(entries))
+        self.assertIsList(entries, length=1)
 
         entry = entries[0]
         self.assertIsInstance(entry, ContainerEntry)

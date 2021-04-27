@@ -152,7 +152,9 @@ class ListViewTestCase(ViewsTestCase):
     def _get_lv_node(self, response):
         page_tree = self.get_html_tree(response.content)
 
-        node = page_tree.find(".//form[@widget='ui-creme-listview']//table[@data-total-count]")
+        node = page_tree.find(
+            ".//form[@widget='ui-creme-listview']//table[@data-total-count]"
+        )
         self.assertIsNotNone(node, 'The table listview is not found.')
 
         return node
@@ -325,18 +327,16 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertIn(rtype.predicate, titles)
         rtype_cell_content = content[5]
-        self.assertIsInstance(rtype_cell_content, list)
-        self.assertEqual(1, len(rtype_cell_content))
+        self.assertIsList(rtype_cell_content, length=1)
         self.assertEqual(
             f'<a href="/tests/contact/{spike.id}">{spike}</a>'.encode(),
-            html_tostring(rtype_cell_content[0]).strip()
+            html_tostring(rtype_cell_content[0]).strip(),
         )
 
         self.assertNotIn(faye.last_name, content)
 
         ptype_cell_content = content[6]
-        self.assertIsInstance(ptype_cell_content, list)
-        self.assertEqual(1, len(ptype_cell_content))
+        self.assertIsList(ptype_cell_content, length=1)
         self.assertEqual(
             f'<ul><li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li></ul>'.encode(),
             html_tostring(ptype_cell_content[0]).strip()
@@ -433,7 +433,6 @@ class ListViewTestCase(ViewsTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                # force_text(response.content),
                 force_str(response.content),
             )
 
@@ -455,7 +454,6 @@ class ListViewTestCase(ViewsTestCase):
             self.assertInHTML(
                 f'<input class="lv-state-field" value="{selection}" '
                 f'name="selection" type="hidden" />',
-                # force_text(response.content),
                 force_str(response.content),
             )
 
@@ -612,7 +610,7 @@ class ListViewTestCase(ViewsTestCase):
         ]
         self.assertListEqual(
             [*entries],
-            [line[1] for line in sorted(lines, key=lambda e: e[0])]
+            [line[1] for line in sorted(lines, key=lambda e: e[0])],
         )
 
     def test_ordering_regularfield_fk(self):
@@ -1174,7 +1172,10 @@ class ListViewTestCase(ViewsTestCase):
         buttons_node = page_tree.find(".//div[@class='list-header-buttons clearfix']")
         self.assertIsNotNone(buttons_node)
 
-        hrefs = [button_node.attrib.get('href') for button_node in buttons_node.findall('a')]
+        hrefs = [
+            button_node.attrib.get('href')
+            for button_node in buttons_node.findall('a')
+        ]
         self.assertEqual(FakeOrganisation.get_create_absolute_url(), hrefs[0])
 
         data_hrefs = [
@@ -2175,7 +2176,7 @@ class ListViewTestCase(ViewsTestCase):
             self.url,
             data={
                 'hfilter': hf.id,
-                'search-' + cell.key: 'NULL',
+                f'search-{cell.key}': 'NULL',
             },
         )
         orgas_set = self._get_entities_set(response)

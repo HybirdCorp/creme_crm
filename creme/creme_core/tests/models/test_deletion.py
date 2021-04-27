@@ -115,14 +115,14 @@ class DeletionCommandTestCase(CremeTestCase):
         dcom = DeletionCommand.objects.create(
             job=job,
             instance_to_delete=sector2del,
-            replacers=[FixedValueReplacer(model_field=field1, value=sector),
-                       FixedValueReplacer(model_field=field2, value=sector),
-                      ],
+            replacers=[
+                FixedValueReplacer(model_field=field1, value=sector),
+                FixedValueReplacer(model_field=field2, value=sector),
+            ],
         )
 
         replacers = self.refresh(dcom).replacers
-        self.assertIsInstance(replacers, list)
-        self.assertEqual(2, len(replacers))
+        self.assertIsList(replacers, length=2)
 
         replacer1 = replacers[0]
         self.assertIsInstance(replacer1, FixedValueReplacer)
@@ -155,8 +155,7 @@ class DeletionCommandTestCase(CremeTestCase):
         )
 
         replacers = self.refresh(dcom).replacers
-        self.assertIsInstance(replacers, list)
-        self.assertEqual(1, len(replacers))
+        self.assertIsList(replacers, length=1)
 
         replacer = replacers[0]
         self.assertIsInstance(replacer, SETReplacer)
@@ -312,12 +311,14 @@ class DeletionCommandTestCase(CremeTestCase):
 
         job = self.refresh(job)
         self.assertListEqual(
-            [ngettext('{count} entity updated.',
-                      '{count} entities updated.',
-                      2
-                     ).format(count=2),
+            [
+                ngettext(
+                    '{count} entity updated.',
+                    '{count} entities updated.',
+                    2
+                ).format(count=2),
             ],
-            deletor_type.get_stats(job)
+            deletor_type.get_stats(job),
         )
 
     def test_deletor_job04(self):
@@ -356,5 +357,5 @@ class DeletionCommandTestCase(CremeTestCase):
                     ),
                 ),
             ],
-            jresult.messages
+            jresult.messages,
         )

@@ -38,7 +38,7 @@ class EnumerableTestCase(CremeTestCase):
             {'value': id, 'label': title}
             for id, title in FakeCivility.objects.values_list('id', 'title')
         ]
-        self.assertEqual(expected, enum1.choices(user))
+        self.assertListEqual(expected, enum1.choices(user))
 
         # --
         field = FakeContact._meta.get_field('civility')
@@ -54,12 +54,12 @@ class EnumerableTestCase(CremeTestCase):
             {'value': id, 'label': name}
             for id, name in FakeImageCategory.objects.values_list('id', 'name')
         ]
-        self.assertEqual(expected, enum1.choices(user))
+        self.assertListEqual(expected, enum1.choices(user))
 
         # --
         field = FakeImage._meta.get_field('categories')
         enum2 = registry.enumerator_by_field(field)
-        self.assertEqual(expected, enum2.choices(user))
+        self.assertListEqual(expected, enum2.choices(user))
 
     def test_basic_choices_limited_choices_to(self):
         user = self.login()
@@ -88,7 +88,7 @@ class EnumerableTestCase(CremeTestCase):
 
         self.assertEqual(
             'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
-            str(error_ctxt1.exception)
+            str(error_ctxt1.exception),
         )
 
         # --
@@ -99,7 +99,7 @@ class EnumerableTestCase(CremeTestCase):
 
         self.assertEqual(
             'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
-            str(error_ctxt2.exception)
+            str(error_ctxt2.exception),
         )
 
     def test_choices_field_does_not_exist(self):
@@ -114,9 +114,10 @@ class EnumerableTestCase(CremeTestCase):
         with self.assertRaises(ValueError) as error_ctxt1:
             registry.enumerator_by_fieldname(model=FakeContact, field_name='address')
 
-        self.assertEqual('This field is not enumerable: creme_core.FakeContact.address',
-                         str(error_ctxt1.exception)
-                        )
+        self.assertEqual(
+            'This field is not enumerable: creme_core.FakeContact.address',
+            str(error_ctxt1.exception),
+        )
 
         # --
         field = FakeContact._meta.get_field('address')
@@ -125,7 +126,7 @@ class EnumerableTestCase(CremeTestCase):
 
         self.assertEqual(
             'This field is not enumerable: creme_core.FakeContact.address',
-            str(error_ctxt2.exception)
+            str(error_ctxt2.exception),
         )
 
     def test_register_related_model(self):
@@ -136,12 +137,12 @@ class EnumerableTestCase(CremeTestCase):
         registry.register_related_model(FakeCivility, FakeCivilityEnumerator1)
 
         enumerator = partial(registry.enumerator_by_fieldname, model=FakeContact)
-        self.assertIsInstance(enumerator(field_name='civility'),
-                              FakeCivilityEnumerator1
-                             )
-        self.assertNotIsInstance(enumerator(field_name='sector'),
-                                 FakeCivilityEnumerator1
-                                )
+        self.assertIsInstance(
+            enumerator(field_name='civility'), FakeCivilityEnumerator1,
+        )
+        self.assertNotIsInstance(
+            enumerator(field_name='sector'), FakeCivilityEnumerator1,
+        )
 
         # Model already registered
         class FakeCivilityEnumerator2(Enumerator):
@@ -155,45 +156,52 @@ class EnumerableTestCase(CremeTestCase):
             pass
 
         registry = _EnumerableRegistry()
-        registry.register_field(FakeContact, field_name='sector',
-                                enumerator_class=FakeContactSectorEnumerator1,
-                               )
+        registry.register_field(
+            FakeContact,
+            field_name='sector', enumerator_class=FakeContactSectorEnumerator1,
+        )
 
         enumerator1 = registry.enumerator_by_fieldname
-        self.assertIsInstance(enumerator1(model=FakeContact, field_name='sector'),
-                              FakeContactSectorEnumerator1
-                             )
-        self.assertNotIsInstance(enumerator1(model=FakeOrganisation, field_name='sector'),
-                                 FakeContactSectorEnumerator1
-                                )
+        self.assertIsInstance(
+            enumerator1(model=FakeContact, field_name='sector'),
+            FakeContactSectorEnumerator1,
+        )
+        self.assertNotIsInstance(
+            enumerator1(model=FakeOrganisation, field_name='sector'),
+            FakeContactSectorEnumerator1,
+        )
 
         # --
         field = FakeContact._meta.get_field('sector')
-        self.assertIsInstance(registry.enumerator_by_field(field),
-                              FakeContactSectorEnumerator1
-                             )
+        self.assertIsInstance(
+            registry.enumerator_by_field(field),
+            FakeContactSectorEnumerator1,
+        )
 
         # Field registered
         class FakeContactSectorEnumerator2(Enumerator):
             pass
 
         with self.assertRaises(registry.RegistrationError):
-            registry.register_field(FakeContact, field_name='sector',
-                                    enumerator_class=FakeContactSectorEnumerator2,
-                                   )
+            registry.register_field(
+                FakeContact,
+                field_name='sector',
+                enumerator_class=FakeContactSectorEnumerator2,
+            )
 
     def test_register_field_type01(self):
         class EntityCTypeForeignKeyEnumerator(Enumerator):
             pass
 
         registry = _EnumerableRegistry()
-        registry.register_field_type(EntityCTypeForeignKey,
-                                     enumerator_class=EntityCTypeForeignKeyEnumerator,
-                                    )
+        registry.register_field_type(
+            EntityCTypeForeignKey,
+            enumerator_class=EntityCTypeForeignKeyEnumerator,
+        )
 
         self.assertIsInstance(
             registry.enumerator_by_fieldname(model=FakeReport, field_name='ctype'),
-            EntityCTypeForeignKeyEnumerator
+            EntityCTypeForeignKeyEnumerator,
         )
 
     def test_register_field_type02(self):
@@ -202,49 +210,55 @@ class EnumerableTestCase(CremeTestCase):
             pass
 
         registry = _EnumerableRegistry()
-        registry.register_field_type(CTypeForeignKey,
-                                     enumerator_class=CTypeForeignKeyEnumerator,
-                                    )
+        registry.register_field_type(
+            CTypeForeignKey, enumerator_class=CTypeForeignKeyEnumerator,
+        )
 
         self.assertIsInstance(
             registry.enumerator_by_fieldname(model=FakeReport, field_name='ctype'),
-            CTypeForeignKeyEnumerator
+            CTypeForeignKeyEnumerator,
         )
 
     def test_convert_choices(self):
         self.assertEqual(
-            [{'value': 1, 'label': 'Bad'},
-             {'value': 2, 'label': 'Not bad'},
-             {'value': 3, 'label': 'Great'},
+            [
+                {'value': 1, 'label': 'Bad'},
+                {'value': 2, 'label': 'Not bad'},
+                {'value': 3, 'label': 'Great'},
             ],
             [*Enumerator.convert_choices(
                 [(1, 'Bad'), (2, 'Not bad'), (3, 'Great')]
-            )]
+            )],
         )
 
     def test_convert_choices_with_group(self):
         self.assertEqual(
-            [{'value': 'vinyl',   'label': 'Vinyl',    'group': 'Audio'},
-             {'value': 'cd',      'label': 'CD',       'group': 'Audio'},
-             {'value': 'vhs',     'label': 'VHS Tape', 'group': 'Video'},
-             {'value': 'dvd',     'label': 'DVD',      'group': 'Video'},
-             {'value': 'unknown', 'label': 'Unknown'},
-
+            [
+                {'value': 'vinyl',   'label': 'Vinyl',    'group': 'Audio'},
+                {'value': 'cd',      'label': 'CD',       'group': 'Audio'},
+                {'value': 'vhs',     'label': 'VHS Tape', 'group': 'Video'},
+                {'value': 'dvd',     'label': 'DVD',      'group': 'Video'},
+                {'value': 'unknown', 'label': 'Unknown'},
             ],
-            [*Enumerator.convert_choices(
-                [('Audio',
-                    (('vinyl', 'Vinyl'),
-                     ('cd',    'CD'),
-                    )
-                 ),
-                 ('Video',
-                    (('vhs', 'VHS Tape'),
-                     ('dvd', 'DVD'),
-                    )
-                 ),
-                 ('unknown', 'Unknown'),
-                ]
-            )]
+            [
+                *Enumerator.convert_choices([
+                    (
+                        'Audio',
+                        (
+                            ('vinyl', 'Vinyl'),
+                            ('cd',    'CD'),
+                        ),
+                    ),
+                    (
+                        'Video',
+                        (
+                            ('vhs', 'VHS Tape'),
+                            ('dvd', 'DVD'),
+                        ),
+                    ),
+                    ('unknown', 'Unknown'),
+                ])
+            ],
         )
 
     def test_user_enumerator(self):
@@ -267,54 +281,52 @@ class EnumerableTestCase(CremeTestCase):
 
         e = enumerators.UserEnumerator(FakeContact._meta.get_field('user'))
         choices = e.choices(user)
-
-        self.assertIsInstance(choices, list)
+        self.assertIsList(choices)
 
         first_choice = choices[0]
         self.assertIsInstance(first_choice, dict)
         self.assertIn('value', first_choice)
 
         def find_user_dict(u):
-            user_as_dicts = [(i, c) for i, c in enumerate(choices) if c['value'] == u.id]
+            user_as_dicts = [
+                (i, c) for i, c in enumerate(choices) if c['value'] == u.id
+            ]
             self.assertEqual(1, len(user_as_dicts))
             return user_as_dicts[0]
 
         user_index, user_dict = find_user_dict(user)
-        self.assertEqual({'value': user.pk,
-                          'label': str(user),
-                         },
-                         user_dict
-                        )
+        self.assertDictEqual(
+            {'value': user.pk, 'label': str(user)},
+            user_dict,
+        )
 
         other_index, other_dict = find_user_dict(other_user)
-        self.assertEqual({'value': other_user.pk,
-                          'label': str(other_user),
-                         },
-                         other_dict
-                        )
+        self.assertEqual(
+            {'value': other_user.pk, 'label': str(other_user)},
+            other_dict,
+        )
 
         first_index, first_dict = find_user_dict(first_user)
-        self.assertEqual({'value': first_user.pk,
-                          'label': str(first_user),
-                         },
-                         first_dict
-                        )
+        self.assertDictEqual(
+            {'value': first_user.pk, 'label': str(first_user)},
+            first_dict,
+        )
 
         self.assertGreater(other_index, user_index)
         self.assertGreater(user_index,  first_index)
 
-        self.assertEqual({'value': team.pk,
-                          'label': team_name,
-                          'group': _('Teams'),
-                         },
-                         find_user_dict(team)[1]
-                        )
-        self.assertEqual({'value': inactive.pk,
-                          'label': str(inactive),
-                          'group': _('Inactive users'),
-                         },
-                         find_user_dict(inactive)[1]
-                        )
+        self.assertDictEqual(
+            {'value': team.pk, 'label': team_name, 'group': _('Teams')},
+            find_user_dict(team)[1]
+        )
+        self.assertEqual(
+            {
+                'value': inactive.pk,
+                'label': str(inactive),
+                'group': _('Inactive users'),
+            },
+            find_user_dict(inactive)[1]
+        )
 
     def test_efilter_enumerator(self):
         user = CremeUser.objects.create_user(
@@ -345,8 +357,7 @@ class EnumerableTestCase(CremeTestCase):
 
         e = enumerators.EntityFilterEnumerator(FakeReport._meta.get_field('efilter'))
         choices = e.choices(user)
-
-        self.assertIsInstance(choices, list)
+        self.assertIsList(choices)
 
         first_choice = choices[0]
         self.assertIsInstance(first_choice, dict)
@@ -357,20 +368,24 @@ class EnumerableTestCase(CremeTestCase):
             self.assertEqual(1, len(efilter_as_dicts))
             return efilter_as_dicts[0]
 
-        self.assertEqual({'value': efilter1.pk,
-                          'label': efilter1.name,
-                          'help': '',
-                          'group': 'Test Contact',
-                         },
-                         find_efilter_dict(efilter1)
-                        )
-        self.assertEqual({'value': efilter2.pk,
-                          'label': efilter2.name,
-                          'help': _('Private ({})').format(user),
-                          'group': 'Test Organisation',
-                         },
-                         find_efilter_dict(efilter2)
-                        )
+        self.assertDictEqual(
+            {
+                'value': efilter1.pk,
+                'label': efilter1.name,
+                'help': '',
+                'group': 'Test Contact',
+            },
+            find_efilter_dict(efilter1)
+        )
+        self.assertDictEqual(
+            {
+                'value': efilter2.pk,
+                'label': efilter2.name,
+                'help': _('Private ({})').format(user),
+                'group': 'Test Organisation',
+            },
+            find_efilter_dict(efilter2)
+        )
         self.assertFalse(
             [c for c in choices if c['value'] == efilter3.id]
         )

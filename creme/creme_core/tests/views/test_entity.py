@@ -144,7 +144,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                 'id':   entity.id,
                 'text': f'Creme entity: {entity.id}',
             }],
-            response.json()
+            response.json(),
         )
 
     def test_get_creme_entities_repr02(self):
@@ -183,10 +183,14 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login()
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        self.assertGET409(reverse('creme_core__sanitized_html_field', args=(entity.id, 'unknown')))
+        self.assertGET409(
+            reverse('creme_core__sanitized_html_field', args=(entity.id, 'unknown'))
+        )
 
         # Not an UnsafeHTMLField
-        self.assertGET409(reverse('creme_core__sanitized_html_field', args=(entity.id, 'name')))
+        self.assertGET409(
+            reverse('creme_core__sanitized_html_field', args=(entity.id, 'name'))
+        )
 
         # NB: test with valid field in 'emails' app.
 
@@ -225,7 +229,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
         self.assertEqual(
             f'{entity01_msg}, {entity02_msg}',
-            dep_2_str(dependencies=[entity01, entity02], user=user)
+            dep_2_str(dependencies=[entity01, entity02], user=user),
         )
 
         entity03 = create_orga(user=self.other_user, name='Acme#1')
@@ -397,7 +401,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                 *HistoryLine.objects
                             .exclude(id__in=hlines_ids)
                             .values_list('type', flat=True),
-            }
+            },
         )
 
     def test_delete_entity_dependencies02(self):  # TODO: detect dependencies when trashing ??
@@ -920,7 +924,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self._build_test_get_info_fields_url(FakeContact))
         json_data = response.json()
-        self.assertIsInstance(json_data, list)
+        self.assertIsList(json_data)
         self.assertTrue(all(isinstance(elt, list) for elt in json_data))
         self.assertTrue(all(len(elt) == 2 for elt in json_data))
 
@@ -1064,7 +1068,9 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login()
 
         first_name = 'Mario'
-        mario = FakeContact.objects.create(user=user, first_name=first_name, last_name='Bros')
+        mario = FakeContact.objects.create(
+            user=user, first_name=first_name, last_name='Bros',
+        )
         count = FakeContact.objects.count()
 
         response = self.assertPOST200(
@@ -1075,7 +1081,9 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(count + 1, FakeContact.objects.count())
 
         with self.assertNoException():
-            mario, oiram = FakeContact.objects.filter(first_name=first_name).order_by('created')
+            mario, oiram = FakeContact.objects.filter(
+                first_name=first_name,
+            ).order_by('created')
 
         self.assertEqual(mario.last_name, oiram.last_name)
         self.assertEqual(oiram.get_absolute_url(), response.content.decode())
@@ -1225,7 +1233,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             content_type=FakeContact,
             descriptions=[('phone',  {FieldsConfig.HIDDEN: True})],
         )
-
         self.assertGET409(
             self.SEARCHNVIEW_URL,
             data={
@@ -2156,11 +2163,15 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         mario = self.refresh(mario)
         luigi = self.refresh(luigi)
 
-        values_set = {*get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True)}
+        values_set = {
+            *get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True),
+        }
         self.assertIn(m_enum1.id, values_set)
         self.assertIn(m_enum3.id, values_set)
 
-        values_set = {*get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True)}
+        values_set = {
+            *get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True),
+        }
         self.assertIn(m_enum1.id, values_set)
         self.assertIn(m_enum3.id, values_set)
 
@@ -2407,7 +2418,9 @@ class InnerEditTestCase(_BulkEditTestCase):
         user = self.login()
 
         folder = FakeFolder.objects.create(user=user, title='Earth maps')
-        doc = FakeDocument.objects.create(user=user, title='Japan map', linked_folder=folder)
+        doc = FakeDocument.objects.create(
+            user=user, title='Japan map', linked_folder=folder,
+        )
 
         url = self.build_inneredit_url(doc, 'filedata')
         self.assertGET200(url)
@@ -2424,7 +2437,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertNoFormError(response)
 
         filedata = self.refresh(doc).filedata
-        self.assertEqual('upload/creme_core-tests/' + file_obj.base_name, filedata.name)
+        self.assertEqual(f'upload/creme_core-tests/{file_obj.base_name}', filedata.name)
 
         with filedata.open('r') as f:
             self.assertEqual([content], f.readlines())
