@@ -983,8 +983,7 @@ class MenuEntriesFieldTestCase(FieldTestCase):
             {'id': FakeContactCreationEntry.id},
             {'id': FakeContactsEntry.id},
         ]))
-        self.assertIsInstance(cleaned, list)
-        self.assertEqual(2, len(cleaned))
+        self.assertIsList(cleaned, length=2)
         self.assertIsInstance(cleaned[0], FakeContactCreationEntry)
         self.assertIsInstance(cleaned[1], FakeContactsEntry)
 
@@ -995,8 +994,7 @@ class MenuEntriesFieldTestCase(FieldTestCase):
         cleaned = field.clean(json_dump([
             {'id': Separator1Entry.id, 'data': {'label': label}},
         ]))
-        self.assertIsInstance(cleaned, list)
-        self.assertEqual(1, len(cleaned))
+        self.assertIsList(cleaned, length=1)
 
         entry = cleaned[0]
         self.assertIsInstance(entry, Separator1Entry)
@@ -1010,8 +1008,7 @@ class MenuEntriesFieldTestCase(FieldTestCase):
         cleaned = field.clean(json_dump([
             {'id': CustomURLEntry.id, 'data': {'label': label, 'url': url}},
         ]))
-        self.assertIsInstance(cleaned, list)
-        self.assertEqual(1, len(cleaned))
+        self.assertIsList(cleaned, length=1)
 
         entry = cleaned[0]
         self.assertIsInstance(entry, CustomURLEntry)
@@ -1045,8 +1042,7 @@ class MenuEntriesFieldTestCase(FieldTestCase):
         cleaned = field.clean(json_dump([
             {'id': TestEntry.id, 'data': {'label': label, 'count': count}},
         ]))
-        self.assertIsInstance(cleaned, list)
-        self.assertEqual(1, len(cleaned))
+        self.assertIsList(cleaned, length=1)
 
         entry = cleaned[0]
         self.assertIsInstance(entry, TestEntry)

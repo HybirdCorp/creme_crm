@@ -450,7 +450,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response, 'form', field=None,
-            errors=_('The filter must have at least one condition.')
+            errors=_('The filter must have at least one condition.'),
         )
 
     def test_create06(self):
@@ -936,7 +936,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response, 'form', 'regularfieldcondition',
-            _('This field is invalid with this model.')
+            _('This field is invalid with this model.'),
         )
 
     def test_edit01(self):
@@ -1236,7 +1236,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         rtype, srtype = RelationType.create(
             ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
+            ('test-object_love',  'Is loved by'),
         )
 
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -1700,7 +1700,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         rtype, srtype = RelationType.create(
             ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
+            ('test-object_love',  'Is loved by'),
         )
 
         response = self.assertGET200(self._build_get_ct_url(rtype))
@@ -1869,12 +1869,11 @@ class UserChoicesTestCase(ViewsTestCase):
 
         url = self.URL
         choices1 = self.assertGET200(url).json()
-        self.assertIsInstance(choices1, list)
-        self.assertGreaterEqual(len(choices1), 3, choices1)
+        self.assertIsList(choices1, min_length=3)
 
         self.assertListEqual(
             ['__currentuser__', _('Current user')],
-            choices1[0]
+            choices1[0],
         )
 
         def find_user(u):

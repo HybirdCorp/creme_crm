@@ -503,7 +503,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         get = response.context.get
         self.assertEqual(reverse('crudity__reload_actions_bricks'), get('bricks_reload_url'))
-        self.assertIsInstance(get('bricks'), list)  # TODO: improve
+        self.assertIsList(get('bricks'))  # TODO: improve
 
         self.assertFalse(FakePOP3.instances)
 

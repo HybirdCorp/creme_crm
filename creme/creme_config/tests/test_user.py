@@ -1090,7 +1090,7 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsInstance(tz_form, str)
         self.assertIn('<span><label for="id_time_zone">', tz_form)
 
-        self.assertIsInstance(get('apps_usersettings_bricks'), list)  # TODO: improve
+        self.assertIsList(get('apps_usersettings_bricks'))  # TODO: improve
 
         doc = self.get_html_tree(response.content)
         self.get_brick_node(doc, BrickMypageLocationsBrick.id_)

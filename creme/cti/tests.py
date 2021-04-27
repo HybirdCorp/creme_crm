@@ -161,12 +161,10 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         # Reload
         response = self.assertGET200(reverse('cti__reload_callers_brick', args=(phone,)))
         content = response.json()
-        self.assertIsInstance(content, list)
-        self.assertEqual(1, len(content))
+        self.assertIsList(content, length=1)
 
         sub_content = content[0]
-        self.assertIsInstance(sub_content, list)
-        self.assertEqual(2, len(sub_content))
+        self.assertIsList(sub_content, length=2)
         self.assertEqual(brick_id, sub_content[0])
 
         l_brick_node = self.get_brick_node(self.get_html_tree(sub_content[1]), brick_id)

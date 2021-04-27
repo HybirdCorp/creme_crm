@@ -34,7 +34,7 @@ from .base import (
 
 
 @skipIfCustomStrategy
-class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
+class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     def _build_link_segment_url(self, strategy):
         return reverse('commercial__link_segment', args=(strategy.id,))
 
@@ -42,22 +42,26 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         return reverse('commercial__edit_segment_desc', args=(segment_desc.id,))
 
     def _set_asset_score(self, strategy, orga, asset, segment_desc, score):
-        self.assertPOST200(reverse('commercial__set_asset_score', args=(strategy.id,)),
-                           data={'model_id':        asset.id,
-                                 'segment_desc_id': segment_desc.id,
-                                 'orga_id':         orga.id,
-                                 'score':           score,
-                                },
-                          )
+        self.assertPOST200(
+            reverse('commercial__set_asset_score', args=(strategy.id,)),
+            data={
+                'model_id':        asset.id,
+                'segment_desc_id': segment_desc.id,
+                'orga_id':         orga.id,
+                'score':           score,
+            },
+        )
 
     def _set_charm_score(self, strategy, orga, charm, segment_desc, score):
-        self.assertPOST200(reverse('commercial__set_charm_score', args=(strategy.id,)),
-                           data={'model_id':        charm.id,
-                                 'segment_desc_id': segment_desc.id,
-                                 'orga_id':         orga.id,
-                                 'score':           score,
-                                },
-                          )
+        self.assertPOST200(
+            reverse('commercial__set_charm_score', args=(strategy.id,)),
+            data={
+                'model_id':        charm.id,
+                'segment_desc_id': segment_desc.id,
+                'orga_id':         orga.id,
+                'score':           score,
+            },
+        )
 
     def test_strategy_create(self):
         user = self.login()
@@ -65,11 +69,11 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         name = 'Strat#1'
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.pk,
-                                          'name': name,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={'user': user.pk, 'name': name},
+        )
         self.assertNoFormError(response)
 
         strategies = Strategy.objects.all()
@@ -88,11 +92,11 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         name += '_edited'
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.pk,
-                                          'name': name,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={'user': user.pk, 'name': name},
+        )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(strategy).name)
 
@@ -114,9 +118,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         url = reverse('commercial__create_segment_desc', args=(strategy.id,))
 
         context = self.assertGET200(url).context
-        self.assertEqual(_('New market segment for «{entity}»').format(entity=strategy),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New market segment for «{entity}»').format(entity=strategy),
+            context.get('title'),
+        )
         self.assertEqual(MarketSegmentDescription.save_label, context.get('submit_label'))
 
         name = 'Industry'
@@ -124,13 +129,16 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         place = 'Description about place'
         price = 'Description about price'
         promotion = 'Description about promotion'
-        self.assertPOST200(url, data={'name':      name,
-                                      'product':   product,
-                                      'place':     place,
-                                      'price':     price,
-                                      'promotion': promotion,
-                                     }
-                          )
+        self.assertPOST200(
+            url,
+            data={
+                'name':      name,
+                'product':   product,
+                'place':     place,
+                'price':     price,
+                'promotion': promotion,
+            },
+        )
 
         segment_info = strategy.segment_info.all()
         self.assertEqual(1, len(segment_info))
@@ -166,17 +174,19 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(name, industry.name)
 
         # Collision with segment name
-        response = self.assertPOST200(url,
-                                      data={'name': name,
-                                            'product':   'Another' + product,
-                                            'place':     'Another' + place,
-                                            'price':     'Another' + price,
-                                            'promotion': 'Another' + promotion,
-                                           }
-                                     )
-        self.assertFormError(response, 'form', 'name',
-                             _('A segment with this name already exists')
-                            )
+        response = self.assertPOST200(
+            url,
+            data={
+                'name': name,
+                'product':   'Another' + product,
+                'place':     'Another' + place,
+                'price':     'Another' + price,
+                'promotion': 'Another' + promotion,
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'name', _('A segment with this name already exists'),
+        )
 
     def test_segment_create02(self):
         "Collision with property type name"
@@ -187,12 +197,12 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         pname = _('is in the segment «{}»').format(name)
         CremePropertyType.create('commercial-test_segment_create02', pname)
 
-        response = self.assertPOST200(self._build_add_segmentdesc_url(strategy),
-                                      data={'name': name},
-                                     )
+        response = self.assertPOST200(
+            self._build_add_segmentdesc_url(strategy), data={'name': name},
+        )
         self.assertFormError(
             response, 'form', 'name',
-            _('A property with the name «%(name)s» already exists') % {'name': pname}
+            _('A property with the name «%(name)s» already exists') % {'name': pname},
         )
 
     def test_segment_link(self):
@@ -207,23 +217,29 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = self._build_link_segment_url(strategy02)
         context = self.assertGET200(url).context
-        self.assertEqual(_('New market segment for «{entity}»').format(entity=strategy02),
-                         context.get('title')
-                        )
-        self.assertEqual(MarketSegmentDescription.save_label, context.get('submit_label'))
+        self.assertEqual(
+            _('New market segment for «{entity}»').format(entity=strategy02),
+            context.get('title'),
+        )
+        self.assertEqual(
+            MarketSegmentDescription.save_label, context.get('submit_label'),
+        )
 
         # ---
         product = 'Description about product'
         place = 'Description about place'
         price = 'Description about price'
         promotion = 'Description about promotion'
-        response = self.client.post(url, data={'segment':   industry.id,
-                                               'product':   product,
-                                               'place':     place,
-                                               'price':     price,
-                                               'promotion': promotion,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'segment':   industry.id,
+                'product':   product,
+                'place':     place,
+                'price':     price,
+                'promotion': promotion,
+            },
+        )
         self.assertNoFormError(response)
 
         seginfo = strategy02.segment_info.all()
@@ -245,22 +261,26 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         url = self._build_edit_segmentdesc_url(segment_desc)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Segment for «{entity}»').format(entity=strategy),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Segment for «{entity}»').format(entity=strategy),
+            response.context.get('title'),
+        )
 
         name += ' of Cheese'
         product = 'Description about product'
         place = 'Description about place'
         price = 'Description about price'
         promotion = 'Description about promotion'
-        response = self.client.post(url, data={'name':      name,
-                                               'product':   product,
-                                               'place':     place,
-                                               'price':     price,
-                                               'promotion': promotion,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name':      name,
+                'product':   product,
+                'place':     place,
+                'price':     price,
+                'promotion': promotion,
+            },
+        )
         self.assertNoFormError(response)
 
         descriptions = strategy.segment_info.all()
@@ -283,11 +303,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         segment_desc = self._create_segment_desc(strategy, name, product=product)
 
         product = product.title()
-        response = self.client.post(self._build_edit_segmentdesc_url(segment_desc),
-                                    data={'name':    name,
-                                          'product': product,
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_edit_segmentdesc_url(segment_desc),
+            data={'name': name, 'product': product},
+        )
         self.assertNoFormError(response)
 
         segment_desc = self.refresh(segment_desc)
@@ -302,9 +321,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         user = self.login()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         segment = MarketSegment.objects.filter(property_type=None)[0]
-        response = self.client.post(self._build_link_segment_url(strategy),
-                                    data={'segment': segment.id},
-                                   )
+        response = self.client.post(
+            self._build_link_segment_url(strategy),
+            data={'segment': segment.id},
+        )
         self.assertNoFormError(response)
 
         seginfo = strategy.segment_info.all()
@@ -315,11 +335,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertFalse(segment_desc.product)
 
         product = 'Description about product'
-        response = self.client.post(self._build_edit_segmentdesc_url(segment_desc),
-                                    data={'name':    segment.name,
-                                          'product': product,
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_edit_segmentdesc_url(segment_desc),
+            data={'name': segment.name, 'product': product},
+        )
         self.assertNoFormError(response)
         self.assertEqual(product, self.refresh(segment_desc).product)
 
@@ -329,9 +348,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = reverse('commercial__create_asset', args=(strategy.id,))
         context = self.assertGET200(url).context
-        self.assertEqual(_('New commercial asset for «{entity}»').format(entity=strategy),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New commercial asset for «{entity}»').format(entity=strategy),
+            context.get('title'),
+        )
         self.assertEqual(CommercialAsset.save_label, context.get('submit_label'))
 
         # ---
@@ -347,9 +367,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         url = asset.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Asset for «{entity}»').format(entity=strategy),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Asset for «{entity}»').format(entity=strategy),
+            response.context.get('title'),
+        )
 
         # ---
         name += '_edited'
@@ -366,9 +387,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(1, strategy.assets.count())
 
         ct = ContentType.objects.get_for_model(CommercialAsset)
-        self.assertPOST200(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-                           data={'id': asset.id}, follow=True
-                          )
+        self.assertPOST200(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': asset.id}, follow=True,
+        )
         self.assertFalse(strategy.assets.exists())
 
     def test_charms_add(self):
@@ -377,9 +399,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = reverse('commercial__create_charm', args=(strategy.id,))
         context = self.assertGET200(url).context
-        self.assertEqual(_('New segment charm for «{entity}»').format(entity=strategy),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New segment charm for «{entity}»').format(entity=strategy),
+            context.get('title'),
+        )
         self.assertEqual(MarketSegmentCharm.save_label, context.get('submit_label'))
 
         name = 'Size'
@@ -395,9 +418,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         url = charm.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Charm for «{entity}»').format(entity=strategy),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Charm for «{entity}»').format(entity=strategy),
+            response.context.get('title'),
+        )
 
         # ---
         name += '_edited'
@@ -414,9 +438,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(1, strategy.charms.count())
 
         ct = ContentType.objects.get_for_model(MarketSegmentCharm)
-        self.assertPOST200(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-                           data={'id': charm.id}, follow=True
-                          )
+        self.assertPOST200(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': charm.id}, follow=True,
+        )
         self.assertFalse(strategy.charms.exists())
 
     @skipIfCustomOrganisation
@@ -434,9 +459,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('New organisation(s) for «{entity}»').format(entity=strategy),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New organisation(s) for «{entity}»').format(entity=strategy),
+            context.get('title'),
+        )
         self.assertEqual(_('Link the organisation(s)'), context.get('submit_label'))
 
         # ---
@@ -456,7 +482,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(strategy, get('strategy'))
         self.assertEqual(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-            get('bricks_reload_url')
+            get('bricks_reload_url'),
         )
 
         self.assertContains(
@@ -492,7 +518,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(strategy, get('strategy'))
         self.assertEqual(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-            get('bricks_reload_url')
+            get('bricks_reload_url'),
         )
 
     @skipIfCustomOrganisation
@@ -500,7 +526,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         "Unrelated organisation"
         user = self.login()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
-        orga     = Organisation.objects.create(user=user, name='Nerv')
+        orga = Organisation.objects.create(user=user, name='Nerv')
         self.assertGET404(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))
 
     @skipIfCustomOrganisation
@@ -508,26 +534,30 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         "Not super-user"
         user = self.login(is_superuser=False, allowed_apps=['commercial', 'persons'])
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_ALL,
+        )
 
         strategy = Strategy.objects.create(user=user, name='Strat#1')
-        orga     = Organisation.objects.create(user=user, name='Nerv')
+        orga = Organisation.objects.create(user=user, name='Nerv')
         strategy.evaluated_orgas.add(orga)
 
-        self.assertGET200(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))
+        self.assertGET200(
+            reverse('commercial__orga_evaluation', args=(strategy.id, orga.id))
+        )
 
     @skipIfCustomOrganisation
     def test_view_evaluated_orga03(self):
         "Must see the Strategy"
         user = self.login(is_superuser=False, allowed_apps=['commercial', 'persons'])
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         strategy = Strategy.objects.create(user=self.other_user, name='Strat#1')
         self.assertFalse(user.has_perm_to_view(strategy))
@@ -537,17 +567,20 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         strategy.evaluated_orgas.add(orga)
 
-        self.assertGET403(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))
+        self.assertGET403(
+            reverse('commercial__orga_evaluation', args=(strategy.id, orga.id))
+        )
 
     @skipIfCustomOrganisation
     def test_view_evaluated_orga04(self):
         "Must see the Organisation"
         user = self.login(is_superuser=False, allowed_apps=['commercial', 'persons'])
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         self.assertTrue(user.has_perm_to_view(strategy))
@@ -557,7 +590,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         strategy.evaluated_orgas.add(orga)
 
-        self.assertGET403(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))
+        self.assertGET403(
+            reverse('commercial__orga_evaluation', args=(strategy.id, orga.id))
+        )
 
     @skipIfCustomOrganisation
     def test_delete_evaluated_orga(self):
@@ -687,34 +722,35 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(score21, strategy.get_asset_score(orga, asset02, segment_desc01))
         self.assertEqual(score22, strategy.get_asset_score(orga, asset02, segment_desc02))
 
-        self.assertEqual([(score11 + score21, 1), (score12 + score22, 3)],
-                         strategy.get_assets_totals(orga)
-                        )
+        self.assertListEqual(
+            [(score11 + score21, 1), (score12 + score22, 3)],
+            strategy.get_assets_totals(orga),
+        )
 
     @skipIfCustomOrganisation
     def test_set_charm_score01(self):
         user = self.login()
-        strategy     = Strategy.objects.create(user=user, name='Strat#1')
+        strategy = Strategy.objects.create(user=user, name='Strat#1')
         segment_desc = self._create_segment_desc(strategy, 'Industry')
-        charm        = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
+        charm = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
 
         orga = Organisation.objects.create(user=user, name='Nerv')
         strategy.evaluated_orgas.add(orga)
 
         self.assertEqual(1, strategy.get_charm_score(orga, charm, segment_desc))
-        self.assertEqual([(1, 3)], strategy.get_charms_totals(orga))
+        self.assertListEqual([(1, 3)], strategy.get_charms_totals(orga))
 
         score = 3
         self._set_charm_score(strategy, orga, charm, segment_desc, score)
 
         strategy = self.refresh(strategy)  # Cache...
         self.assertEqual(score, strategy.get_charm_score(orga, charm, segment_desc))
-        self.assertEqual([(score, 3)], strategy.get_charms_totals(orga))
+        self.assertListEqual([(score, 3)], strategy.get_charms_totals(orga))
 
     @skipIfCustomOrganisation
     def test_set_charm_score02(self):
         user = self.login()
-        strategy  = Strategy.objects.create(user=user, name='Strat#1')
+        strategy = Strategy.objects.create(user=user, name='Strat#1')
         segment_desc01 = self._create_segment_desc(strategy, 'Industry')
         segment_desc02 = self._create_segment_desc(strategy, 'People')
 
@@ -744,17 +780,20 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(score21, strategy.get_charm_score(orga, charm02, segment_desc01))
         self.assertEqual(score22, strategy.get_charm_score(orga, charm02, segment_desc02))
 
-        self.assertEqual([(score11 + score21, 1), (score12 + score22, 3)],
-                         strategy.get_charms_totals(orga)
-                        )
+        self.assertListEqual(
+            [(score11 + score21, 1), (score12 + score22, 3)],
+            strategy.get_charms_totals(orga),
+        )
 
     def _set_segment_category(self, strategy, segment_desc, orga, category):
-        self.assertPOST200(reverse('commercial__set_segment_category', args=(strategy.id,)),
-                           data={'segment_desc_id': segment_desc.id,
-                                 'orga_id':         orga.id,
-                                 'category':        category,
-                                },
-                          )
+        self.assertPOST200(
+            reverse('commercial__set_segment_category', args=(strategy.id,)),
+            data={
+                'segment_desc_id': segment_desc.id,
+                'orga_id':         orga.id,
+                'category':        category,
+            },
+        )
 
     @skipIfCustomOrganisation
     def test_segments_categories(self):
@@ -804,9 +843,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         strategy = self.refresh(strategy)
         self.assertListEqual([], [*segment_ids(strategy, orga, 3)])
-        self.assertSetEqual({association.id, individual.id},
-                            {*segment_ids(strategy, orga, 4)}
-                           )
+        self.assertSetEqual(
+            {association.id, individual.id},
+            {*segment_ids(strategy, orga, 4)},
+        )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 
         self._set_segment_category(strategy, individual, orga, 2)
@@ -815,9 +855,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertListEqual([association.id], [*segment_ids(strategy, orga, 4)])
         self.assertListEqual([],               [*segment_ids(strategy, orga, 3)])
         self.assertListEqual([industry.id],    [*segment_ids(strategy, orga, 1)])
-        self.assertSetEqual({community.id, individual.id},
-                            {*segment_ids(strategy, orga, 2)}
-                           )
+        self.assertSetEqual(
+            {community.id, individual.id},
+            {*segment_ids(strategy, orga, 2)}
+        )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 
         self.assertEqual(1, strategy.get_segment_category(orga, industry))
@@ -876,9 +917,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(2, MarketSegment.objects.count())  # 1 + 'All the organisations'
 
         ct = ContentType.objects.get_for_model(MarketSegmentDescription)
-        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-                         data={'id': segment_desc.id}
-                        )
+        self.client.post(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': segment_desc.id},
+        )
         self.assertEqual(0, strategy.segment_info.count())
         self.assertEqual(2, MarketSegment.objects.count())
 
@@ -920,28 +962,24 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(2, MarketSegmentCategory.objects.count())
 
         ct = ContentType.objects.get_for_model(MarketSegmentDescription)
-        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-                         data={'id': industry.id}
-                        )
+        self.assertPOST200(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': industry.id}, follow=True,
+        )
         self.assertEqual(1, MarketSegmentDescription.objects.count())
 
-        asset_scores = CommercialAssetScore.objects.all()
-        self.assertEqual(2, len(asset_scores))
-        self.assertEqual({individual.id},
-                         {ascore.segment_desc_id for ascore in asset_scores}
-                        )
-
-        charm_scores = MarketSegmentCharmScore.objects.all()
-        self.assertEqual(2, len(charm_scores))
-        self.assertEqual({individual.id},
-                         {cscore.segment_desc_id for cscore in charm_scores}
-                        )
-
-        cats = MarketSegmentCategory.objects.all()
-        self.assertEqual(1, len(cats))
-        self.assertEqual({individual.id},
-                         {cat.segment_desc_id for cat in cats}
-                        )
+        self.assertCountEqual(
+            [individual.id] * 2,
+            CommercialAssetScore.objects.values_list('segment_desc_id', flat=True),
+        )
+        self.assertCountEqual(
+            [individual.id] * 2,
+            MarketSegmentCharmScore.objects.values_list('segment_desc_id', flat=True),
+        )
+        self.assertCountEqual(
+            [individual.id],
+            MarketSegmentCategory.objects.values_list('segment_desc_id', flat=True),
+        )
 
     def test_inneredit_segmentdesc(self):
         user = self.login()
@@ -953,10 +991,13 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         product = segment_desc.product.title()
-        response = self.client.post(url, data={'entities_lbl': [str(segment_desc)],
-                                               'field_value':  product,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'entities_lbl': [str(segment_desc)],
+                'field_value':  product,
+            },
+        )
         self.assertNoFormError(response)
         self.assertEqual(product, self.refresh(segment_desc).product)
 
@@ -981,12 +1022,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         )
 
         result = response.json()
-        self.assertIsInstance(result, list)
-        self.assertEqual(1, len(result))
+        self.assertIsList(result, length=1)
 
         result = result[0]
-        self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
+        self.assertIsList(result, length=2)
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 

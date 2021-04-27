@@ -63,23 +63,25 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         return reverse('creme_core__disable_job', args=(job.id,))
 
     def _create_batchprocess_job(self, user=None, status=Job.STATUS_WAIT):
-        return Job.objects.create(user=user or self.user,
-                                  type_id=batch_process_type.id,
-                                  language='en',
-                                  status=status,
-                                  raw_data=json_dump({'ctype': self.ct_orga_id,
-                                                      'actions': [],
-                                                     }
-                                                    ),
-                                 )
+        return Job.objects.create(
+            user=user or self.user,
+            type_id=batch_process_type.id,
+            language='en',
+            status=status,
+            raw_data=json_dump({
+                'ctype': self.ct_orga_id,
+                'actions': [],
+            }),
+        )
 
     def _create_invalid_job(self, user=None, status=Job.STATUS_WAIT):
-        return Job.objects.create(user=user or self.user,
-                                  type_id=JobType.generate_id('creme_core', 'invalid'),
-                                  language='en',
-                                  status=status,
-                                  raw_data='[]',
-                                 )
+        return Job.objects.create(
+            user=user or self.user,
+            type_id=JobType.generate_id('creme_core', 'invalid'),
+            language='en',
+            status=status,
+            raw_data='[]',
+        )
 
     def test_detailview01(self):
         self.login()
@@ -106,7 +108,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         job = self._create_batchprocess_job()
-        response = self.assertGET200(job.get_absolute_url(), data={'list_url': self.LIST_URL})
+        response = self.assertGET200(
+            job.get_absolute_url(), data={'list_url': self.LIST_URL},
+        )
 
         with self.assertNoException():
             cxt_url = response.context['list_url']
@@ -114,13 +118,13 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(self.LIST_URL, cxt_url)
 
         # Invalid URL
-        response = self.assertGET200(job.get_absolute_url(),
-                                     data={'list_url': 'http://insecure.com'}
-                                    )
+        response = self.assertGET200(
+            job.get_absolute_url(), data={'list_url': 'http://insecure.com'},
+        )
         self.assertEqual(self.MINE_URL, response.context.get('list_url'))
 
     def test_detailview03(self):
-        "Credentials"
+        "Credentials."
         self.login(is_superuser=False)
 
         job = self._create_batchprocess_job()
@@ -130,7 +134,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET403(job.get_absolute_url())
 
     def test_detailview04(self):
-        "Invalid type"
+        "Invalid type."
         self.login()
 
         job = self._create_invalid_job()
@@ -140,7 +144,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual([], job.stats)
 
     def test_editview01(self):
-        "Not periodic"
+        "Not periodic."
         self.login()
 
         job = self._create_batchprocess_job()
@@ -160,9 +164,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(JobType.PSEUDO_PERIODIC, job.type.periodic)
         self.assertIsNone(job.user)
         self.assertIsNone(job.periodicity)
-        self.assertEqual({'type': 'hours', 'value': 2},
-                         job.real_periodicity.as_dict()
-                        )
+        self.assertDictEqual(
+            {'type': 'hours', 'value': 2}, job.real_periodicity.as_dict(),
+        )
 
         # Tests of "next_wakeup()" are deeper in the 'assistants' app
         with self.assertNoException():
@@ -176,7 +180,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         queue.clear()
 
         self.login()
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertListEqual([], queue.refreshed_jobs)
 
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
         self.assertEqual(JobType.PERIODIC, job.type.periodic)
@@ -185,8 +189,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         old_reference_run = job.reference_run
 
         pdict = {'type': 'days', 'value': 1}
-        self.assertEqual(pdict, job.periodicity.as_dict())
-        self.assertEqual(pdict, job.real_periodicity.as_dict())
+        self.assertDictEqual(pdict, job.periodicity.as_dict())
+        self.assertDictEqual(pdict, job.real_periodicity.as_dict())
 
         with self.assertNoException():
             jdata = job.data
@@ -199,19 +203,20 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         context = response.context
         self.assertEqual(
-            _('Edit the job «{object}»').format(object=job.type), context.get('title')
+            _('Edit the job «{object}»').format(object=job.type),
+            context.get('title'),
         )
         self.assertEqual(
-            _('Save the modifications'), context.get('submit_label')
+            _('Save the modifications'), context.get('submit_label'),
         )
 
         # ---
         response = self.client.post(
             url,
             data={
-                'reference_run': date_format(localtime(job.reference_run),
-                                             'DATETIME_FORMAT',
-                                            ),
+                'reference_run': date_format(
+                    localtime(job.reference_run), 'DATETIME_FORMAT',
+                ),
                 'periodicity_0': 'minutes',
                 'periodicity_1': '180',
 
@@ -226,15 +231,19 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(periodicity_dict, job.periodicity.as_dict())
         self.assertEqual(old_reference_run, job.reference_run)
         self.assertEqual({'delay': {'type': 'weeks', 'value': 2}}, job.data)
-        self.assertEqual([(job,
-                           {'enabled':       True,
-                            'reference_run': dt_to_ISO8601(job.reference_run),
-                            'periodicity':   periodicity_dict,
-                           },
-                          ),
-                         ],
-                         queue.refreshed_jobs
-                        )
+        self.assertListEqual(
+            [
+                (
+                    job,
+                    {
+                        'enabled':       True,
+                        'reference_run': dt_to_ISO8601(job.reference_run),
+                        'periodicity':   periodicity_dict,
+                    },
+                ),
+            ],
+            queue.refreshed_jobs
+        )
 
     def test_editview04(self):
         "Periodic: edit reference_run"
@@ -249,23 +258,26 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         pdict = {'type': 'days', 'value': 1}
         self.assertEqual(pdict, job.periodicity.as_dict())
 
-        response = self.client.post(job.get_edit_absolute_url(),
-                                    data={'reference_run': '26-08-2014 14:00:00',
-                                          'periodicity_0': pdict['type'],
-                                          'periodicity_1': str(pdict['value']),
+        response = self.client.post(
+            job.get_edit_absolute_url(),
+            data={
+                'reference_run': '26-08-2014 14:00:00',
+                'periodicity_0': pdict['type'],
+                'periodicity_1': str(pdict['value']),
 
-                                          'delay_0': 'days',
-                                          'delay_1': 2,
-                                         },
-                                   )
+                'delay_0': 'days',
+                'delay_1': 2,
+            },
+        )
         self.assertNoFormError(response)
 
         job = self.refresh(job)
         self.assertEqual(pdict, job.periodicity.as_dict())
-        self.assertEqual(self.create_datetime(year=2014, month=8, day=26, hour=14),
-                         job.reference_run
-                        )
-        self.assertEqual({'delay': {'type': 'days', 'value': 2}}, job.data)
+        self.assertEqual(
+            self.create_datetime(year=2014, month=8, day=26, hour=14),
+            job.reference_run,
+        )
+        self.assertDictEqual({'delay': {'type': 'days', 'value': 2}}, job.data)
 
         self.assertTrue(queue.refreshed_jobs)
 
@@ -303,10 +315,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(old_reference_run, job.reference_run)
         self.assertEqual({'delay': {'type': 'weeks', 'value': 1}}, job.data)
 
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertListEqual([], queue.refreshed_jobs)
 
     def test_editview06(self):
-        "Periodic: credentials errors"
+        "Periodic: credentials errors."
         self.login(is_superuser=False)
 
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
@@ -320,15 +332,15 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self.LIST_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-all.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url'),
+        )
 
         self._assertCount(response, str(batch_process_type.verbose_name), job_count)
 
     def test_jobs_all02(self):
-        "Not super-user: forbidden"
-        # "Credentials"
+        "Not super-user: forbidden."
         self.login(is_superuser=False)
         self.assertGET403(self.LIST_URL)
 
@@ -364,7 +376,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self.LIST_URL)
         self.assertContains(
             response,
-            _('You must wait that one of your jobs is finished in order to create a new one.')
+            _(
+                'You must wait that one of your jobs is finished in order to '
+                'create a new one.'
+            ),
         )
 
     def test_jobs_all05(self):
@@ -382,9 +397,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self.MINE_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-mine.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url'),
+        )
 
         self._assertCount(response, str(batch_process_type.verbose_name), job_count)
 
@@ -464,7 +480,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         jresult = EntityJobResult.objects.create(job=job, entity=orga)
 
         response = self.assertPOST200(
-            self._build_delete_url(job), data={'back_url': self.LIST_URL}, follow=True,
+            self._build_delete_url(job),
+            data={'back_url': self.LIST_URL}, follow=True,
         )
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(jresult)
@@ -475,9 +492,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
         job = self._create_batchprocess_job(status=Job.STATUS_ERROR)
 
-        self.assertPOST200(self._build_delete_url(job),
-                           HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-                          )
+        self.assertPOST200(
+            self._build_delete_url(job), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
         self.assertDoesNotExist(job)
 
     def test_clear04(self):
@@ -490,7 +507,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Credentials."
         self.login(is_superuser=False)
 
-        job = self._create_batchprocess_job(user=self.other_user, status=Job.STATUS_OK)
+        job = self._create_batchprocess_job(
+            user=self.other_user, status=Job.STATUS_OK,
+        )
         self.assertPOST403(self._build_delete_url(job), follow=True)
 
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
@@ -501,7 +520,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         # No user -> system job
-        job = Job.objects.create(type_id=batch_process_type.id, status=Job.STATUS_OK)
+        job = Job.objects.create(
+            type_id=batch_process_type.id, status=Job.STATUS_OK,
+        )
         self.assertPOST409(self._build_delete_url(job), follow=True)
 
     def test_disable01(self):
@@ -626,36 +647,44 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job1 = self._create_batchprocess_job()
         job2 = self._create_batchprocess_job(status=Job.STATUS_OK)
         job3 = self._create_batchprocess_job(user=self.other_user)
-        response = self.assertGET200(self.INFO_URL, data={'id': [job1.id, job3.id, job2.id]})
+        response = self.assertGET200(
+            self.INFO_URL, data={'id': [job1.id, job3.id, job2.id]},
+        )
 
         content = response.json()
         self.assertEqual(3, len(content))
 
-        label = ngettext('{count} entity has been processed.',
-                         '{count} entities have been processed.',
-                         0).format(count=0)
-        self.assertEqual({'status': Job.STATUS_WAIT,
-                          'ack_errors': 0,
-                          'progress': {
-                              'label': label,
-                              'percentage': None,
-                          },
-                         },
-                         content[str(job1.id)]
-                        )
-        self.assertEqual({'status': Job.STATUS_OK,
-                          'ack_errors': 0,
-                          'progress': {
-                              'label': label,
-                              'percentage': None,
-                          },
-                         },
-                         content[str(job2.id)]
-                        )
+        label = ngettext(
+            '{count} entity has been processed.',
+            '{count} entities have been processed.',
+            0
+        ).format(count=0)
+        self.assertDictEqual(
+            {
+                'status': Job.STATUS_WAIT,
+                'ack_errors': 0,
+                'progress': {
+                    'label': label,
+                    'percentage': None,
+                },
+            },
+            content[str(job1.id)]
+        )
+        self.assertDictEqual(
+            {
+                'status': Job.STATUS_OK,
+                'ack_errors': 0,
+                'progress': {
+                    'label': label,
+                    'percentage': None,
+                },
+            },
+            content[str(job2.id)]
+        )
         self.assertEqual('Job is not allowed', content[str(job3.id)])
 
     def test_status03(self):
-        "Queue error"
+        "Queue error."
         error = 'Arggggg'
         self.queue.ping = lambda: error
 
@@ -692,18 +721,16 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
 
     def _aux_test_reload(self, job, brick_id):
-        response = self.assertGET200(reverse('creme_core__reload_job_bricks', args=(job.id,)),
-                                     data={'brick_id': brick_id},
-                                    )
+        response = self.assertGET200(
+            reverse('creme_core__reload_job_bricks', args=(job.id,)),
+            data={'brick_id': brick_id},
+        )
 
-        result = response.json()
+        results = response.json()
+        self.assertIsList(results, length=1)
 
-        self.assertIsInstance(result, list)
-        self.assertEqual(1, len(result))
-
-        result = result[0]
-        self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
+        result = results[0]
+        self.assertIsList(result, length=2)
         self.assertEqual(brick_id, result[0])
 
         doc = self.get_html_tree(result[1])
@@ -726,6 +753,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_reload03(self):
         self.login(is_superuser=False)
         job = self._create_batchprocess_job(user=self.other_user)
-        self.assertGET403(reverse('creme_core__reload_job_bricks', args=(job.id,)),
-                          data={'brick_id': JobBrick.id_},
-                         )
+        self.assertGET403(
+            reverse('creme_core__reload_job_bricks', args=(job.id,)),
+            data={'brick_id': JobBrick.id_},
+        )

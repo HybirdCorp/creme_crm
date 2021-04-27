@@ -61,8 +61,7 @@ class CremeFormTestCase(CremeTestCase):
         self.assertEqual(_('General information'), general_group.label)
 
         bound_fields = general_group.bound_fields
-        self.assertIsInstance(bound_fields, list)
-        self.assertEqual(2, len(bound_fields))
+        self.assertIsList(bound_fields, length=2)
 
         # --
         bound_field1 = bound_fields[0]

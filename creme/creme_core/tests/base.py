@@ -285,6 +285,23 @@ class _CremeTestCase:
 
             self.fail(msg)
 
+    def assertIsList(self, o, **kwargs):
+        self.assertIsInstance(o, list)
+
+        length = len(o)
+        for k, v in kwargs.items():
+            if k == 'length':
+                if length != v:
+                    self.fail(f'This list has not the expected length of {v}: {o}')
+            elif k == 'min_length':
+                if length < v:
+                    self.fail(f'This list is not longer than {v}: {o}')
+            elif k == 'max_length':
+                if length > v:
+                    self.fail(f'This list is not shorter than {v}: {o}')
+            else:
+                raise ValueError(f'assertIsList: unknown argument "{k}"')
+
     def assertNoException(self, function=None, *args, **kwargs):
         if function is None:
             return _AssertNoExceptionContext(self)

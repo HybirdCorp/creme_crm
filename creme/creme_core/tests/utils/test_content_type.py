@@ -71,8 +71,7 @@ class ContentTypeTestCase(CremeTestCase):
         ctype2 = get_ct(FakeContact)
 
         choices = ctype_choices([ctype1, ctype2])
-        self.assertIsInstance(choices, list)
-        self.assertEqual(2, len(choices))
+        self.assertIsList(choices, length=2)
         self.assertInChoices(
             value=ctype1.id,
             label=FakeOrganisation._meta.verbose_name,

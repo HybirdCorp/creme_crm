@@ -298,8 +298,7 @@ class ExportingTestCase(CremeTestCase):
         self.assertEqual('1.1', content.get('version'))
 
         roles_info = content.get('roles')
-        self.assertIsInstance(roles_info, list)
-        self.assertEqual(1, len(roles_info))
+        self.assertIsList(roles_info, length=1)
 
         role_info = roles_info[0]
         self.assertIsInstance(role_info, dict)
@@ -342,7 +341,7 @@ class ExportingTestCase(CremeTestCase):
         )
 
         efilters_info = content.get('entity_filters')
-        self.assertIsInstance(efilters_info, list)
+        self.assertIsList(efilters_info)
         for efilter_info in efilters_info:
             self.assertIsInstance(efilter_info, dict)
             if efilter_info.get('id') == efilter.id:
@@ -386,8 +385,7 @@ class ExportingTestCase(CremeTestCase):
         content = response.json()
 
         rtype_bricks_info = content.get('rtype_bricks')
-        self.assertIsInstance(rtype_bricks_info, list)
-        self.assertGreaterEqual(len(rtype_bricks_info), 2)
+        self.assertIsList(rtype_bricks_info, min_length=2)
 
         # ----
         with self.assertNoException():
@@ -417,13 +415,11 @@ class ExportingTestCase(CremeTestCase):
         self.assertEqual(rtype_brick_id02, rbi_info02.get('brick_id'))
 
         cells_info = rbi_info02.get('cells')
-        self.assertIsInstance(cells_info, list)
-        self.assertEqual(2, len(cells_info))
+        self.assertIsList(cells_info, length=2)
 
         def find_cells_for_naturalkey(key):
             for ctype_info in cells_info:
-                self.assertIsInstance(ctype_info, list)
-                self.assertEqual(2, len(ctype_info))
+                self.assertIsList(ctype_info, length=2)
 
                 if ctype_info[0] == key:
                     return ctype_info[1]
@@ -465,7 +461,7 @@ class ExportingTestCase(CremeTestCase):
         content = response.json()
 
         custom_bricks_info = content.get('custom_bricks')
-        self.assertIsInstance(custom_bricks_info, list)
+        self.assertIsList(custom_bricks_info)
 
         with self.assertNoException():
             all_cbci_info01 = [
@@ -509,7 +505,7 @@ class ExportingTestCase(CremeTestCase):
         content = response.json()
 
         bricks_info = content.get('detail_bricks')
-        self.assertIsInstance(bricks_info, list)
+        self.assertIsList(bricks_info)
 
         with self.assertNoException():
             default_bricks_info = [

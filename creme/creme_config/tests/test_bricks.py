@@ -90,7 +90,7 @@ class CompleteBrick4(_BaseCompleteBrick):
 
 
 class HomeOnlyBrick1(Brick):
-    id_          = Brick.generate_id('creme_config', 'testbrickconfig_home_only_1')
+    id_ = Brick.generate_id('creme_config', 'testbrickconfig_home_only_1')
     verbose_name = 'Home only brick #1'
 
     # def detailview_display(self, context): NO
@@ -100,7 +100,7 @@ class HomeOnlyBrick1(Brick):
 
 
 class HomeOnlyBrick2(Brick):
-    id_          = Brick.generate_id('creme_config', 'testbrickconfig_home_only_2')
+    id_ = Brick.generate_id('creme_config', 'testbrickconfig_home_only_2')
     verbose_name = 'Home only brick #2'
     configurable = False  # <----
 
@@ -122,7 +122,7 @@ class DetailviewInstanceBrick(InstanceBrick):
 
 
 class HomeInstanceBrick(InstanceBrick):
-    id_          = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_home_instance')
+    id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_home_instance')
     verbose_name = 'Testing purpose'
 
     def __init__(self, *args, **kwargs):
@@ -1731,8 +1731,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(rb_item.get_cells(ct_activity))
 
         cells = rb_item.get_cells(ct_contact)
-        self.assertIsInstance(cells, list)
-        self.assertEqual(3, len(cells))
+        self.assertIsList(cells, length=3)
 
         cell = cells[0]
         self.assertIsInstance(cell, EntityCellRegularField)
@@ -1755,7 +1754,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn(ct_contact, choices)  # Used
 
     def test_add_relationbrick_ctypes_wizard02(self):
-        "ContentType constraint"
+        "ContentType constraint."
         self.login()
         rtype = RelationType.create(
             ('test-subfoo', 'subject_predicate', [FakeContact]),
@@ -1851,7 +1850,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         context = response.context
         self.assertEqual(
             _('Edit «{model}» configuration').format(model=ct),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
@@ -1870,8 +1869,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         rb_item = self.refresh(rb_item)
         cells = rb_item.get_cells(ct)
-        self.assertIsInstance(cells, list)
-        self.assertEqual(3, len(cells))
+        self.assertIsList(cells, length=3)
 
         cell = cells[0]
         self.assertIsInstance(cell, EntityCellRegularField)
@@ -1906,7 +1904,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             if error:
                 self.assertFormError(
                     response, 'form', 'cells',
-                    _('This type of field can not be the first column.')
+                    _('This type of field can not be the first column.'),
                 )
             else:
                 self.assertNoFormError(response)
@@ -1936,11 +1934,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         def post(field_name):
             response = self.assertPOST200(
                 url,
-                data={'cells': f'regular_field-{field_name},regular_field-name'}
+                data={'cells': f'regular_field-{field_name},regular_field-name'},
             )
             self.assertFormError(
                 response, 'form', 'cells',
-                _('This type of field can not be the first column.')
+                _('This type of field can not be the first column.'),
             )
 
         post('mailing_lists')
@@ -1972,7 +1970,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFormError(
             response, 'form', 'cells',
-            _('This type of field can not be the first column.')
+            _('This type of field can not be the first column.'),
         )
 
     def test_edit_relationbrick_ctypes05(self):
@@ -2119,7 +2117,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertPOST200(
             reverse('creme_config__delete_instance_brick'),
-            data={'id': ibi.id}
+            data={'id': ibi.id},
         )
         self.assertDoesNotExist(ibi)
         self.assertDoesNotExist(state1)
@@ -2146,22 +2144,24 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'id': ibi.id},
         )
         self.assertContains(
-            response, status_code=409,
+            response,
+            status_code=409,
             text=escape(
                 _(
                     'This block is used in the detail-view configuration '
                     'of «{model}»'
                 ).format(model='Test Contact')
-            )
+            ),
         )
 
     def test_edit_custombrick01(self):
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
 
-        loves = RelationType.create(('test-subject_love', 'Is loving'),
-                                    ('test-object_love',  'Is loved by')
-                                   )[0]
+        loves = RelationType.create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by'),
+        )[0]
         customfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -2179,7 +2179,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Edit the block «{object}»').format(object=cbc_item),
-            response.context.get('title')
+            response.context.get('title'),
         )
 
         # ---
@@ -2202,8 +2202,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(name, cbc_item.name)
 
         cells = cbc_item.cells
-        self.assertIsInstance(cells, list)
-        self.assertEqual(5, len(cells))
+        self.assertIsList(cells, length=5)
 
         cell = cells[0]
         self.assertIsInstance(cell, EntityCellRegularField)
@@ -2365,7 +2364,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 build_cell(FakeContact, addr_prefix + hidden_subfname1),
                 build_cell(FakeContact, hidden_fkname),
             ],
-            self.refresh(cbc_item).cells
+            self.refresh(cbc_item).cells,
         )
 
     def test_delete_custombrick01(self):
@@ -2394,13 +2393,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'id': cbci.id},
         )
         self.assertContains(
-            response, status_code=409,
+            response,
+            status_code=409,
             text=escape(
                 _(
                     'This block is used in the detail-view '
                     'configuration of «{model}»'
                 ).format(model='Test Contact')
-            )
+            ),
         )
         self.assertStillExists(cbci)
         self.assertStillExists(loc)

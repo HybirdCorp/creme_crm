@@ -284,7 +284,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertFalse(floating_acts)
         self.assertListEqual([def_cal], [*my_cals])
 
-        self.assertIsInstance(others_calendars, list)
+        self.assertIsList(others_calendars)
         self.assertIsNone(dict(others_calendars).get(self.other_user))
 
         self.assertIs(enable_calendars_search, False)

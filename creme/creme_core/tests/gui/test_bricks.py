@@ -648,8 +648,7 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry.register(QuuxBrick1, QuuxBrick2, QuuxBrick3)
 
         def assertBricks(brick_classes, bricks):
-            self.assertIsInstance(bricks, list)
-            self.assertEqual(len(brick_classes), len(bricks))
+            self.assertIsList(bricks, length=len(brick_classes))
 
             for brick_cls, brick in zip(brick_classes, bricks):
                 self.assertIsInstance(brick, brick_cls)
@@ -967,7 +966,7 @@ class BricksManagerTestCase(CremeTestCase):
         mngr.add_group('gname1', brick1, brick2, brick3)
         mngr.add_group('gname2', brick4)
         remaining_groups = mngr.get_remaining_groups()
-        self.assertIsInstance(remaining_groups, list)
+        self.assertIsList(remaining_groups)
         self.assertCountEqual(['gname1', 'gname2'], mngr.get_remaining_groups())
 
         # group =

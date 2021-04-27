@@ -119,15 +119,14 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
             reload_url
         )
 
-        self.assertIsInstance(bricks, list)
-        self.assertEqual(1, len(bricks))
+        self.assertIsList(bricks, length=1)
 
         block = bricks[0]
         self.assertIsInstance(block, QuerysetBrick)
         self.assertIn(self.CONTACT_BRICKID, block.id_)
-        self.assertEqual('creme_core/bricks/found-entities.html',
-                         block.template_name
-                        )
+        self.assertEqual(
+            'creme_core/bricks/found-entities.html', block.template_name
+        )
 
         self.assertNotContains(response, self.linus.get_absolute_url())
 
@@ -173,9 +172,10 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._setup_contacts()
         self._setup_orgas()
 
-        self.assertEqual(_('Please enter at least {count} characters').format(count=3),
-                         self._search('ox').context['error_message']
-                        )
+        self.assertEqual(
+            _('Please enter at least {count} characters').format(count=3),
+            self._search('ox').context['error_message'],
+        )
         self.assertEqual(404, self._search('linus', self.UNUSED_PK).status_code)
 
     def test_search_regular_fields04(self):
@@ -226,7 +226,9 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Use Role's config if it exists"
         self.login(is_superuser=False, allowed_apps=['creme_core'])
 
-        SearchConfigItem.objects.create_if_needed(FakeContact, ['description'], role=self.role)
+        SearchConfigItem.objects.create_if_needed(
+            FakeContact, ['description'], role=self.role,
+        )
         self._setup_contacts()
 
         response = self._search('bear', self.contact_ct_id)
@@ -240,7 +242,9 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Use Role's config if it exists (super-user)"
         self.login()
 
-        SearchConfigItem.objects.create_if_needed(FakeContact, ['description'], role='superuser')
+        SearchConfigItem.objects.create_if_needed(
+            FakeContact, ['description'], role='superuser',
+        )
         self._setup_contacts()
 
         response = self._search('bear', self.contact_ct_id)
@@ -255,12 +259,14 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         hidden_fname1 = 'description'
         hidden_fname2 = 'sector'
-        SearchConfigItem.objects.create_if_needed(FakeContact,
-                                                  ['first_name', 'last_name',
-                                                   hidden_fname1,
-                                                   hidden_fname2 + '__title',
-                                                  ],
-                                                 )
+        SearchConfigItem.objects.create_if_needed(
+            FakeContact,
+            [
+                'first_name', 'last_name',
+                hidden_fname1,
+                hidden_fname2 + '__title',
+            ],
+        )
 
         sector = FakeSector.objects.create(title='Linux dev')
 
@@ -277,9 +283,10 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         FieldsConfig.objects.create(
             content_type=FakeContact,
-            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
-                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
-                         ],
+            descriptions=[
+                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
         response = self._search('Linu', self.contact_ct_id)
@@ -360,9 +367,10 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         orga2 = create_orga(name='Foobar Mega Foundation')
         orga3 = create_orga(name='Mega Foobar Foundation')
 
-        response = self._search('"Foobar Foundation"',
-                                ct_id=ContentType.objects.get_for_model(FakeOrganisation).id,
-                               )
+        response = self._search(
+            '"Foobar Foundation"',
+            ct_id=ContentType.objects.get_for_model(FakeOrganisation).id,
+        )
         self.assertEqual(200, response.status_code)
 
         self.assertContains(response, orga1.get_absolute_url())
@@ -489,12 +497,10 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url, data={'brick_id': brick_id, 'search': 'linu'})
 
         results = response.json()
-        self.assertIsInstance(results, list)
-        self.assertEqual(1, len(results))
+        self.assertIsList(results, length=1)
 
         result = results[0]
-        self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
+        self.assertIsList(result, length=2)
 
         self.assertEqual(brick_id, result[0])
 
@@ -517,50 +523,59 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         coxco = self.coxco
 
         self.maxDiff = None
-        self.assertEqual(
-            {'best':    {'label': str(coxco),
-                         # 'score': 102,
-                         'url':   coxco.get_absolute_url(),
-                        },
-             # 'query':   {'content': 'cox',
-             #             'limit': 5,
-             #             'ctype': None,
-             #            },
-             'results': [{'count':   2,
-                          'id':      alan.entity_type_id,
-                          'label':   'Test Contact',
-                          'results': [{'label': str(alan),
-                                       # 'score': 101,
-                                       'url':   alan.get_absolute_url(),
-                                      },
-                                      {'label': str(coxi),
-                                       # 'score': 101,
-                                       'url':   coxi.get_absolute_url(),
-                                      },
-                                     ],
-                         },
-                         {'count':   1,
-                          'id':      coxco.entity_type_id,
-                          'label':   'Test Organisation',
-                          'results': [{'label': str(coxco),
-                                       # 'score': 102,
-                                       'url':   coxco.get_absolute_url(),
-                                      },
-                                     ],
-                         }
+        self.assertDictEqual(
+            {
+                'best': {
+                    'label': str(coxco),
+                    # 'score': 102,
+                    'url':   coxco.get_absolute_url(),
+                },
+                # 'query':   {'content': 'cox',
+                #             'limit': 5,
+                #             'ctype': None,
+                #            },
+                'results': [
+                    {
+                        'count':   2,
+                        'id':      alan.entity_type_id,
+                        'label':   'Test Contact',
+                        'results': [
+                            {
+                                'label': str(alan),
+                                # 'score': 101,
+                                'url':   alan.get_absolute_url(),
+                            }, {
+                                'label': str(coxi),
+                                # 'score': 101,
+                                'url':   coxi.get_absolute_url(),
+                            },
                         ],
+                    }, {
+                        'count':   1,
+                        'id':      coxco.entity_type_id,
+                        'label':   'Test Organisation',
+                        'results': [
+                            {
+                                'label': str(coxco),
+                                # 'score': 102,
+                                'url':   coxco.get_absolute_url(),
+                            },
+                        ],
+                    },
+                ],
             },
-            results
+            results,
         )
 
     def test_light_search02(self):
         "Credentials"
         user = self.login(is_superuser=False, allowed_apps=['creme_core'])
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN
+        )
 
         self._setup_contacts(user=self.other_user)
         coxi = FakeContact.objects.create(user=user, first_name='Coxi', last_name='Nail')
@@ -568,27 +583,33 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self.LIGHT_URL, data={'value': 'cox'})
 
         self.maxDiff = None
-        self.assertEqual(
-            {'best':    {'label': str(coxi),
-                         # 'score': 101,
-                         'url':   coxi.get_absolute_url(),
-                        },
-             # 'query':   {'content': 'cox',
-             #             'limit': 5,
-             #             'ctype': None,
-             #            },
-             'results': [{'count':   1,
-                          'id':      coxi.entity_type_id,
-                          'label':   'Test Contact',
-                          'results': [{'label': str(coxi),
-                                       # 'score': 101,
-                                       'url':   coxi.get_absolute_url(),
-                                      },
-                                     ],
-                         },
+        self.assertDictEqual(
+            {
+                'best': {
+                    'label': str(coxi),
+                    # 'score': 101,
+                    'url':   coxi.get_absolute_url(),
+                },
+                # 'query':   {'content': 'cox',
+                #             'limit': 5,
+                #             'ctype': None,
+                #            },
+                'results': [
+                    {
+                        'count':   1,
+                        'id':      coxi.entity_type_id,
+                        'label':   'Test Contact',
+                        'results': [
+                            {
+                                'label': str(coxi),
+                                # 'score': 101,
+                                'url':   coxi.get_absolute_url(),
+                            },
                         ],
+                    },
+                ],
             },
-            response.json()
+            response.json(),
         )
 
     def test_light_search03(self):
@@ -605,7 +626,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
                 #          },
                 'error': _('Empty search…'),
             },
-            response.json()
+            response.json(),
         )
 
         response = self.assertGET200(url, data={'value': 'co'})
@@ -617,5 +638,5 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
                 #          },
                 'error': _('Please enter at least {count} characters').format(count=3),
             },
-            response.json()
+            response.json(),
         )

@@ -52,14 +52,16 @@ class CommercialBaseTestCase(CremeTestCase):
         return self.get_object_or_fail(MarketSegment, name=name)
 
     def _create_segment_desc(self, strategy, name, product='', place='', price='', promotion=''):
-        response = self.client.post(self._build_add_segmentdesc_url(strategy),
-                                    data={'name': name,
-                                          'product': product,
-                                          'place': place,
-                                          'price': price,
-                                          'promotion': promotion,
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_segmentdesc_url(strategy),
+            data={
+                'name': name,
+                'product': product,
+                'place': place,
+                'price': price,
+                'promotion': promotion,
+            },
+        )
         self.assertNoFormError(response)
 
         return strategy.segment_info.get(segment__name=name)

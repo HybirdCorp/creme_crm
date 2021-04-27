@@ -330,8 +330,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual([s.title for s in sectors], x_asc)
 
         y_asc = data.get('y')
-        self.assertIsInstance(y_asc, list)
-        self.assertEqual(len(x_asc), len(y_asc))
+        self.assertIsList(y_asc, length=len(x_asc))
         self.assertListEqual(
             [
                 0,
@@ -1155,8 +1154,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         self.assertListEqual([*FakePosition.objects.values_list('title', flat=True)], x_asc)
 
-        self.assertIsInstance(y_asc, list)
-        self.assertEqual(len(x_asc), len(y_asc))
+        self.assertIsList(y_asc, length=len(x_asc))
 
         def fmt(pk):
             return '/tests/contacts?q_filter={q_filter}&filter={efilter_id}'.format(

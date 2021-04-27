@@ -34,7 +34,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response, 'creme_config/custom_field/portal.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
-            response.context.get('bricks_reload_url')
+            response.context.get('bricks_reload_url'),
         )
 
     def test_add_ct01(self):
@@ -133,7 +133,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFormError(
             response, 'form', None,
-            _('The choices list must not be empty if you choose the type "Choice list".')
+            _('The choices list must not be empty if you choose the type "Choice list".'),
         )
 
     def test_add_ct_error02(self):
@@ -150,7 +150,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFormError(
             response, 'form', 'enum_values',
-            _('The choice «{}» is duplicated.').format('Eva01')
+            _('The choice «{}» is duplicated.').format('Eva01'),
         )
 
     def test_add_ct_error03(self):
@@ -197,11 +197,12 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(field_type, cfield2.field_type)
         self.assertEqual(
             ['Eva01', 'Eva02', 'Eva03'],
-            [cfev.value
-             for cfev in CustomFieldEnumValue.objects
-                                             .filter(custom_field=cfield2)
-                                             .order_by('id')
-            ]
+            [
+                cfev.value
+                for cfev in CustomFieldEnumValue.objects
+                                                .filter(custom_field=cfield2)
+                                                .order_by('id')
+            ],
         )
 
     def test_add02(self):
@@ -222,7 +223,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFormError(
             response, 'form', 'name',
-            _('There is already a custom field with this name.')
+            _('There is already a custom field with this name.'),
         )
 
     def test_add03(self):
@@ -240,7 +241,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFormError(
             response, 'form', None,
-            _('The choices list must not be empty if you choose the type "Choice list".')
+            _('The choices list must not be empty if you choose the type "Choice list".'),
         )
 
     def test_add04(self):
@@ -258,7 +259,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFormError(
             response, 'form', 'enum_values',
-            _('The choice «{}» is duplicated.').format('Eva01')
+            _('The choice «{}» is duplicated.').format('Eva01'),
         )
 
     def test_edit01(self):
@@ -286,7 +287,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 'name': name,
                 'is_required': 'on',
-            }
+            },
         ))
 
         cfield = self.refresh(cfield)
@@ -298,10 +299,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         name = 'Nickname'
-        create_cfield = partial(CustomField.objects.create,
-                                content_type=FakeContact,
-                                field_type=CustomField.STR
-                               )
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=FakeContact, field_type=CustomField.STR,
+        )
         create_cfield(name=name)
         cfield2 = create_cfield(name='Label')
 
@@ -311,7 +312,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFormError(
             response, 'form', 'name',
-            _('There is already a custom field with this name.')
+            _('There is already a custom field with this name.'),
         )
 
     def test_edit03(self):
@@ -330,7 +331,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertIn(
             escape(_('This custom field is deleted.')),
-            response.content.decode()
+            response.content.decode(),
         )
 
     def test_delete01(self):
@@ -407,7 +408,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'This custom field is still used by {count} entities, so it cannot be deleted.',
                 1
             ).format(count=1)),
-            response.content.decode()
+            response.content.decode(),
         )
 
         self.assertStillExists(cfield1)
@@ -467,9 +468,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         ct = ContentType.objects.get_for_model(FakeContact)
         create_cfield = partial(CustomField.objects.create, content_type=ct)
-        cfield1 = create_cfield(name='Countries',
-                                field_type=CustomField.ENUM,
-                               )
+        cfield1 = create_cfield(name='Countries', field_type=CustomField.ENUM)
 
         response = self.assertGET200(
             reverse('creme_config__custom_enums', args=(cfield1.id,))
@@ -482,7 +481,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(cfield1, context.get('custom_field'))
         self.assertEqual(
             reverse('creme_config__reload_custom_enum_brick', args=(cfield1.id,)),
-            context.get('bricks_reload_url')
+            context.get('bricks_reload_url'),
         )
 
         self.get_brick_node(
@@ -490,9 +489,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             bricks.CustomEnumsBrick.id_
         )
 
-        cfield2 = create_cfield(name='Programming languages',
-                                field_type=CustomField.MULTI_ENUM,
-                               )
+        cfield2 = create_cfield(
+            name='Programming languages', field_type=CustomField.MULTI_ENUM,
+        )
         self.assertGET200(
             reverse('creme_config__custom_enums', args=(cfield2.id,))
         )
@@ -506,10 +505,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login(is_superuser=False, admin_4_apps=('creme_core',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
-        create_cfield = partial(CustomField.objects.create,
-                                content_type=ct,
-                                field_type=CustomField.ENUM,
-                               )
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=ct, field_type=CustomField.ENUM,
+        )
         cfield1 = create_cfield(name='Programming languages')
         cfield2 = create_cfield(name='Countries')
 
@@ -522,21 +521,17 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         url = reverse('creme_config__add_custom_enums', args=(cfield1.id,))
         self.assertGET200(url)
 
-        response = self.client.post(
-            url,
-            data={
-                'choices': 'C++\nHaskell',
-            },
-        )
+        response = self.client.post(url, data={'choices': 'C++\nHaskell'})
         self.assertNoFormError(response)
 
         self.assertEqual(
             ['C', 'ABC', 'Java', 'C++', 'Haskell'],
-            [cfev.value
-             for cfev in CustomFieldEnumValue.objects
-                                             .filter(custom_field=cfield1)
-                                             .order_by('id')
-            ]
+            [
+                cfev.value
+                for cfev in CustomFieldEnumValue.objects
+                                                .filter(custom_field=cfield1)
+                                                .order_by('id')
+            ],
         )
 
     def test_add_enum_values02(self):
@@ -561,7 +556,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
             response1, 'form', 'choices',
-            _('The choice «{}» is duplicated.').format(eval01.value)
+            _('The choice «{}» is duplicated.').format(eval01.value),
         )
 
         response2 = self.assertPOST200(
@@ -573,7 +568,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertFormError(
             response2, 'form', 'choices',
-            _('The choice «{}» is duplicated.').format('Ocaml')
+            _('The choice «{}» is duplicated.').format('Ocaml'),
         )
 
     def test_add_enum_values03(self):
@@ -639,27 +634,23 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(url)
         self.assertEqual(
             _('Add this new choice'),
-            response.context.get('submit_label')
+            response.context.get('submit_label'),
         )
 
-        response = self.client.post(
-            url,
-            data={
-                'choice': 'Haskell',
-            },
-        )
+        response = self.client.post(url, data={'choice': 'Haskell'})
         self.assertNoFormError(response)
 
         evalues = CustomFieldEnumValue.objects.filter(custom_field=cfield1).order_by('id')
-        self.assertEqual(
+        self.assertListEqual(
             ['C', 'ABC', 'Java', 'Haskell'],
-            [cfev.value for cfev in evalues]
+            [cfev.value for cfev in evalues],
         )
         # self.assertWidgetResponse(response, evalues[3]) TODO ?
         created_evalue = evalues[3]
         self.assertDictEqual(
-            {'added': [[created_evalue.id, str(created_evalue)]],
-             'value': created_evalue.id,
+            {
+                'added': [[created_evalue.id, str(created_evalue)]],
+                'value': created_evalue.id,
             },
             response.json()
         )
@@ -680,13 +671,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertPOST200(
             reverse('creme_config__add_custom_enum', args=(cfield.id,)),
-            data={
-                'choice': eval01.value,
-            },
+            data={'choice': eval01.value},
         )
         self.assertFormError(
             response, 'form', 'choice',
-            _('The choice «{}» is duplicated.').format(eval01.value)
+            _('The choice «{}» is duplicated.').format(eval01.value),
         )
 
     def test_add_enum_value03(self):
@@ -731,7 +720,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertIn(
             escape(_('This custom field is deleted.')),
-            response.content.decode()
+            response.content.decode(),
         )
 
     def test_edit_enum_value01(self):
@@ -752,21 +741,17 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET200(url)
 
         value = 'Python'
-        response = self.client.post(
-            url,
-            data={
-                'value': value,
-            },
-        )
+        response = self.client.post(url, data={'value': value})
         self.assertNoFormError(response)
 
         self.assertListEqual(
             [eval01.value, value, eval03.value],
-            [cfev.value
-             for cfev in CustomFieldEnumValue.objects
-                                             .filter(custom_field=cfield)
-                                             .order_by('id')
-            ]
+            [
+                cfev.value
+                for cfev in CustomFieldEnumValue.objects
+                                                .filter(custom_field=cfield)
+                                                .order_by('id')
+            ],
         )
 
     def test_edit_enum_value02(self):
@@ -799,7 +784,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertIn(
             escape(_('This custom field is deleted.')),
-            response.content.decode()
+            response.content.decode(),
         )
 
     def test_delete_enum_value01(self):
@@ -829,7 +814,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         context = response.context
         self.assertEqual(
             _('Replace & delete «{object}»').format(object=eval02.value),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(_('Delete the choice'), context.get('submit_label'))
 
@@ -847,9 +832,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         dcom = self.get_deletion_command_or_fail(CustomFieldEnumValue)
         self.assertEqual(eval02,       dcom.instance_to_delete)
         self.assertEqual(eval02.value, dcom.deleted_repr)
-        self.assertFalse(
-            dcom.replacers
-        )
+        self.assertFalse(dcom.replacers)
         self.assertEqual(0, dcom.total_count)
         self.assertEqual(0, dcom.updated_count)
 
@@ -908,9 +891,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(eval1_02, dcom.instance_to_delete)
         self.assertListEqual(
             [('fixed_value', CustomFieldEnum, 'value', eval1_01)],
-            [(r.type_id, r.model_field.model, r.model_field.name, r.get_value())
-             for r in dcom.replacers
-            ]
+            [
+                (r.type_id, r.model_field.model, r.model_field.name, r.get_value())
+                for r in dcom.replacers
+            ],
         )
         self.assertEqual(1, dcom.total_count)
         self.assertEqual(0, dcom.updated_count)
@@ -1128,9 +1112,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(eval1_02, dcom.instance_to_delete)
         self.assertListEqual(
             [('fixed_value', CustomFieldMultiEnum, 'value', eval1_01)],
-            [(r.type_id, r.model_field.model, r.model_field.name, r.get_value())
-             for r in dcom.replacers
-            ]
+            [
+                (r.type_id, r.model_field.model, r.model_field.name, r.get_value())
+                for r in dcom.replacers
+            ],
         )
         self.assertEqual(2, dcom.total_count)
 
@@ -1169,12 +1154,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         results = response.json()
-        self.assertIsInstance(results, list)
-        self.assertEqual(1, len(results))
+        self.assertIsList(results, length=1)
 
         result = results[0]
-        self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
+        self.assertIsList(result, length=2)
 
         brick_id = bricks.CustomEnumsBrick.id_
         self.assertEqual(brick_id, result[0])

@@ -32,7 +32,7 @@ class DynamicSelectTestCase(CremeTestCase):
     def test_options_list(self):
         select = DynamicSelect(options=[(1, 'A'), (2, 'B')])
 
-        self.assertIsInstance(select.options, list)
+        self.assertIsList(select.options)
         self.assertListEqual([(1, 'A'), (2, 'B')], select.choices)
 
     def test_options_queryset(self):
@@ -58,7 +58,7 @@ class DynamicSelectTestCase(CremeTestCase):
     def test_options_generator(self):
         select = DynamicSelect(options=((id_, str(id_)) for id_ in range(10)))
 
-        self.assertIsInstance(select.options, list)
+        self.assertIsList(select.options)
         self.assertListEqual(
             [(id_, str(id_)) for id_ in range(10)],
             select.choices,

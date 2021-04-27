@@ -172,8 +172,7 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         )
 
         bricks = get('bricks')
-        self.assertIsInstance(bricks, list)
-        self.assertTrue(bricks)
+        self.assertIsList(bricks, min_length=1)
         # TODO: complete
 
     def test_create01(self):

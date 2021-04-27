@@ -51,13 +51,13 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertTemplateUsed(response, 'creme_core/home.html')
 
         context = response.context
-        self.assertEqual(reverse('creme_core__reload_home_bricks'),
-                         context.get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('creme_core__reload_home_bricks'),
+            context.get('bricks_reload_url'),
+        )
 
         bricks = context.get('bricks')
-        self.assertIsInstance(bricks, list)
-        self.assertGreaterEqual(len(bricks), 2)
+        self.assertIsList(bricks, min_length=2)
         self.assertIsInstance(bricks[0], Brick)
 
         brick_ids = [b.id_ for b in bricks]
@@ -89,11 +89,12 @@ class MiscViewsTestCase(ViewsTestCase):
         role2 = UserRole.objects.create(name='Viewer')
 
         brick_id = StatisticsBrick.id_
-        BrickHomeLocation.objects.create(brick_id=brick_id, role=self.role, order=1)
+        create_hbl = BrickHomeLocation.objects.create
+        create_hbl(brick_id=brick_id, role=self.role, order=1)
 
         # Should not be used
-        BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, superuser=True, order=1)
-        BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, role=role2,     order=1)
+        create_hbl(brick_id=HistoryBrick.id_, superuser=True, order=1)
+        create_hbl(brick_id=HistoryBrick.id_, role=role2,     order=1)
 
         response = self.assertGET200(reverse('creme_core__home'))
         bricks = response.context.get('bricks')
@@ -109,12 +110,13 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertTemplateUsed(response, 'creme_core/my_page.html')
 
         context = response.context
-        self.assertEqual(reverse('creme_core__reload_home_bricks'),
-                         context.get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('creme_core__reload_home_bricks'),
+            context.get('bricks_reload_url'),
+        )
 
         bricks = context.get('bricks')
-        self.assertIsInstance(bricks, list)
+        self.assertIsList(bricks)
         self.assertIn(HistoryBrick, {b.__class__ for b in bricks})
 
     def test_about(self):
@@ -203,45 +205,51 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertEqual(response.content, b'Tests: server internal error')
 
     def test_auth_decorators01(self):
-        self.login(is_superuser=False,
-                   allowed_apps=['documents'],  # Not 'creme_core'
-                   creatable_models=[FakeContact],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['documents'],  # Not 'creme_core'
+            creatable_models=[FakeContact],
+        )
         self.assertGET403('/tests/contact/add')
 
     def test_auth_decorators02(self):
-        self.login(is_superuser=False,
-                   allowed_apps=['creme_core'],
-                   creatable_models=[FakeImage],  # Not FakeContact
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core'],
+            creatable_models=[FakeImage],  # Not FakeContact
+        )
         self.assertGET403('/tests/contact/add')
 
     def test_auth_decorators03(self):
-        self.login(is_superuser=False,
-                   allowed_apps=['creme_core'],
-                   creatable_models=[FakeContact],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core'],
+            creatable_models=[FakeContact],
+        )
         self.assertGET200('/tests/contact/add')
 
     def test_auth_decorators_multiperm01(self):
-        self.login(is_superuser=False,
-                   allowed_apps=['documents'],  # Not 'creme_core'
-                   creatable_models=[FakeOrganisation],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['documents'],  # Not 'creme_core'
+            creatable_models=[FakeOrganisation],
+        )
         self.assertGET403('/tests/organisation/add')
 
     def test_auth_decorators_multiperm02(self):
-        self.login(is_superuser=False,
-                   allowed_apps=['creme_core'],
-                   creatable_models=[FakeImage],  # Not FakeOrganisation
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core'],
+            creatable_models=[FakeImage],  # Not FakeOrganisation
+        )
         self.assertGET403('/tests/organisation/add')
 
     def test_auth_decorators_multiperm03(self):
-        self.login(is_superuser=False,
-                   allowed_apps=['creme_core'],
-                   creatable_models=[FakeOrganisation],
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core'],
+            creatable_models=[FakeOrganisation],
+        )
         self.assertGET200('/tests/organisation/add')
 
     def test_utils_build_cancel_path(self):
@@ -287,7 +295,9 @@ class LanguageTestCase(ViewsTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200(reverse('creme_config__model_portal', args=('creme_core', 'language')))
+        self.assertGET200(
+            reverse('creme_config__model_portal', args=('creme_core', 'language'))
+        )
 
     def test_create(self):
         url = reverse('creme_config__create_instance', args=('creme_core', 'language'))
@@ -305,7 +315,10 @@ class LanguageTestCase(ViewsTestCase):
         code = 'KLGN'
         language = Language.objects.create(name=name, code=code)
 
-        url = reverse('creme_config__edit_instance', args=('creme_core', 'language', language.id))
+        url = reverse(
+            'creme_config__edit_instance',
+            args=('creme_core', 'language', language.id),
+        )
         self.assertGET200(url)
 
         name = name.title()
@@ -320,10 +333,12 @@ class LanguageTestCase(ViewsTestCase):
     def test_delete(self):
         language = Language.objects.create(name='Klingon', code='KLN')
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('creme_core', 'language', language.id)
-                                           ),
-                                   )
+        response = self.client.post(
+            reverse(
+                'creme_config__delete_instance',
+                args=('creme_core', 'language', language.id),
+            ),
+        )
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(Language).job
@@ -337,7 +352,9 @@ class CurrencyTestCase(ViewsTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertGET200(reverse('creme_config__model_portal', args=('creme_core', 'currency')))
+        self.assertGET200(
+            reverse('creme_config__model_portal', args=('creme_core', 'currency'))
+        )
 
     def test_create(self):
         url = reverse('creme_config__create_instance', args=('creme_core', 'currency'))
@@ -346,37 +363,48 @@ class CurrencyTestCase(ViewsTestCase):
         name = 'Berry'
         local_symbol = 'B'
         international_symbol = 'BRY'
-        response = self.client.post(url,
-                                    data={'name':                 name,
-                                          'local_symbol':         local_symbol,
-                                          'international_symbol': international_symbol,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name':                 name,
+                'local_symbol':         local_symbol,
+                'international_symbol': international_symbol,
+            },
+        )
         self.assertNoFormError(response)
-        self.get_object_or_fail(Currency, name=name, local_symbol=local_symbol,
-                                international_symbol=international_symbol
-                               )
+        self.get_object_or_fail(
+            Currency,
+            name=name,
+            local_symbol=local_symbol,
+            international_symbol=international_symbol,
+        )
 
     def test_edit(self):
         name = 'berry'
         local_symbol = 'b'
         international_symbol = 'bry'
-        currency = Currency.objects.create(name=name, local_symbol=local_symbol,
-                                           international_symbol=international_symbol
-                                          )
+        currency = Currency.objects.create(
+            name=name, local_symbol=local_symbol,
+            international_symbol=international_symbol,
+        )
 
-        url = reverse('creme_config__edit_instance', args=('creme_core', 'currency', currency.id))
+        url = reverse(
+            'creme_config__edit_instance',
+            args=('creme_core', 'currency', currency.id),
+        )
         self.assertGET200(url)
 
         name = name.title()
         local_symbol = local_symbol.upper()
         international_symbol = international_symbol.upper()
-        response = self.client.post(url,
-                                    data={'name':                 name,
-                                          'local_symbol':         local_symbol,
-                                          'international_symbol': international_symbol,
-                                         },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name':                 name,
+                'local_symbol':         local_symbol,
+                'international_symbol': international_symbol,
+            },
+        )
         self.assertNoFormError(response)
 
         currency = self.refresh(currency)
@@ -385,13 +413,15 @@ class CurrencyTestCase(ViewsTestCase):
         self.assertEqual(international_symbol, currency.international_symbol)
 
     def test_delete(self):
-        currency = Currency.objects.create(name='Berry', local_symbol='B',
-                                           international_symbol='BRY',
-                                          )
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('creme_core', 'currency', currency.id)
-                                           ),
-                                   )
+        currency = Currency.objects.create(
+            name='Berry', local_symbol='B', international_symbol='BRY',
+        )
+        response = self.client.post(
+            reverse(
+                'creme_config__delete_instance',
+                args=('creme_core', 'currency', currency.id),
+            ),
+        )
         self.assertNoFormError(response)
 
         job = self.get_deletion_command_or_fail(Currency).job

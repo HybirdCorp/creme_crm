@@ -1415,8 +1415,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             user=user,
             expanded_ctype_id=get_ct(FakeActivity).id,
         )
-        self.assertIsInstance(desc_data, list)
-        self.assertEqual(2, len(desc_data))
+        self.assertIsList(desc_data, length=2)
 
         def get_ct_wrapper(model):
             ct = get_ct(model)
