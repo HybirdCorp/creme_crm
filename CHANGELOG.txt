@@ -25,6 +25,11 @@
         - https://docs.djangoproject.com/en/3.2/releases/3.0/
         - https://docs.djangoproject.com/en/3.2/releases/3.1/
     - The version of jQuery is now "3.6.0" (jQuery-migrate 3.3.2).
+      Migration warning are enabled and documented here https://github.com/jquery/jquery-migrate/blob/main/warnings.md,
+      and you should read the migration guides:
+        - https://jquery.com/upgrade-guide/3.0/
+        - https://jquery.com/upgrade-guide/3.5/
+    - jQuery 3.6.0 needed the update the following dependencies:
         - The version of fullcalendar is now "3.10.2"
         - The version of floatthead is now "2.2.1"
 
@@ -53,6 +58,25 @@
                     - creme.layout.CSSColumnLayout
                     - creme.layout.SortLayout
                 * The jquery extension '$.browserVersion' is now deprecated but kept as gccolor dependency
+                * jQuery 3.x :
+                    - $.bind() is deprecated; Use $.on() instead
+                    - $.unbind() is deprecated; Use $.off() instead
+                    - $.trim() is deprecated; Use String.prototype.trim() instead
+                    - $.isArray() is deprecated; Use Array.isArray() instead
+                    - Use properties instead of attributes for disabled state :
+                        - $.removeAttr('disabled') => $.prop('disabled', false)
+                        - $.attr('disabled', 'disabled') => $.prop('disabled', true)
+                    - 'click' trigger & handler shortcuts are deprecated :
+                        - $.click() => $.trigger('click')
+                        - $.click(handler) => $.trigger('click', handler)
+                    - 'submit' trigger & handler shortcuts are deprecated :
+                        - $.submit() => $.submit('click')
+                        - $.submit(handler) => $.submit('click', handler)
+                    - 'change' trigger & handler shortcuts are deprecated :
+                        - $.change() => $.trigger('change')
+                        - $.change(handler) => $.trigger('change', handler)
+                    - 'hover' event is deprecated; Use 'mouseenter' & 'mouseleave' instead :
+                        - $.hover(onenter, onleave) => $.on('mouseenter', onenter).on('mouseleave', onleave)
             - Apps :
                 * Persons :
                     - The function 'forms.base._get_address_field_names()' is deprecated.
@@ -104,6 +128,9 @@
             - In JavaScript :
                 * The module 'creme.color' has been removed.
                 * 'creme.dialog.ConfirmAction' has been removed (never used).
+                * jQuery 3.x :
+                    - $.param() do not use jQuery.ajaxSettings.traditional flag anymore. Use creme.ajax.param() to keep the old behavior
+                    - $.val() returns an empty array instead of null when a multi-select is empty.
             - Apps :
                 * Creme_config :
                     - In 'forms' :
