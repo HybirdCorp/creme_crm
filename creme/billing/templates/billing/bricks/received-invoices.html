@@ -8,9 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object %}
-        {% has_perm_to change object as has_perm %}{% url 'billing__create_related_invoice' object.id as creation_url %}
-        {% brick_header_action id='add' url=creation_url label=_('Create an invoice') enabled=has_perm %}
+    {% if object %}{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='billing__create_related_invoice'|url:object.id label=_('Create an invoice') enabled=has_perm %}
     {% endif %}
 {% endblock %}
 

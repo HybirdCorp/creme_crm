@@ -84,7 +84,7 @@
                 {% endwith %}
             {% else %}
                 —
-                {% url 'persons__create_billing_address' object.id as create_baddr_url %}{% brick_card_action url=create_baddr_url enabled=edition_perm %}
+                {% brick_card_action url='persons__create_billing_address'|url:object.id enabled=edition_perm %}
             {% endif %}
             {% endwith %}
         </span>

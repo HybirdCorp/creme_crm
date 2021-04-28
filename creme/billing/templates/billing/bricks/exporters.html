@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n media creme_bricks %}
+{% load i18n media creme_core_tags creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} billing-exporters-brick{% endblock %}
 
@@ -32,8 +32,8 @@
             {% endwith %}
         </td>
 
-        <td {% brick_table_data_status action %}>{% url 'billing__edit_exporter_config' config_item.content_type_id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this configuration') %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='billing__edit_exporter_config'|url:config_item.content_type_id label=_('Edit this configuration') %}
         </td>
     </tr>
     {% endfor %}

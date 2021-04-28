@@ -47,14 +47,14 @@
     {% if edit_perm %}
         <td class="bline-item" colspan="3">
         {% if line.pk %}
-            {% with line.related_item as related_item %}
+            {% with related_item=line.related_item %}
             {% if related_item %}
                 {% widget_entity_hyperlink related_item user %}
             {% else %}
-                <div>{% has_perm_to create related_item_ct as item_create_perm %}{% url 'billing__add_to_catalog' line.id as catalog_add_url %}
+                <div>{% has_perm_to create related_item_ct as item_create_perm %}
                 {{form.on_the_fly_item}}
 {#                brick_table_action ?? (beware to is-disabled class  => need .brick-table .brick-table-content) #}
-                {% brick_action id='edit' url=catalog_add_url label=_('[add to catalog]') display='text' enabled=item_create_perm %}
+                {% brick_action id='edit' url='billing__add_to_catalog'|url:line.id label=_('[add to catalog]') display='text' enabled=item_create_perm %}
                 </div>
             {% endif %}
             {% endwith %}
@@ -65,16 +65,18 @@
         <td class="bline-comment" colspan="5">{{form.comment}}</td>
     {% else %}{# READONLY VERSION #}
         <td class="bline-item" colspan="3">
-        {% with line.related_item as related_item %}
+        {% if line.pk %}
+            {% with related_item=line.related_item %}
             {% if related_item %}
                 {% widget_entity_hyperlink related_item user %}
             {% else %}
-                <div>{% has_perm_to create related_item_ct as item_create_perm %}{% url 'billing__add_to_catalog' line.id as catalog_add_url %}
+                <div>{% has_perm_to create related_item_ct as item_create_perm %}
                 {{line.on_the_fly_item}}
-                {% brick_action id='edit' url=catalog_add_url label=_('[add to catalog]') display='text' enabled=item_create_perm %}
+                {% brick_action id='edit' url='billing__add_to_catalog'|url:line.id label=_('[add to catalog]') display='text' enabled=item_create_perm %}
                 </div>
             {% endif %}
-        {% endwith %}
+            {% endwith %}
+        {% endif %}
         </td>
         <td class="bline-comment" colspan="5">{{line.comment|linebreaks}}</td>
     {% endif %}

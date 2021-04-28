@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}{% url 'commercial__add_evaluated_orgas' object.id as add_orgas_url %}
-    {% brick_header_action id='link' url=add_orgas_url label=_('Add some organisations') enabled=has_perm %}
+{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='link' url='commercial__add_evaluated_orgas'|url:object.id label=_('Add some organisations') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -30,8 +30,8 @@
         <td {% brick_table_data_status action %}>{% url 'commercial__orga_synthesis' object.id orga.id as synthesis_url %}
             {% brick_table_action id='redirect' url=synthesis_url icon='view' enabled=orga_view_perm %}
         </td>
-        <td {% brick_table_data_status action %}>{% url 'commercial__remove_evaluated_orga' object.id as remove_orga_url %}
-            {% brick_table_action id='delete' url=remove_orga_url __id=orga.id label=_('Remove this organisation') icon='unlink' enabled=has_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url='commercial__remove_evaluated_orga'|url:object.id __id=orga.id label=_('Remove this organisation') icon='unlink' enabled=has_perm %}
         </td>
     </tr>
     {% endfor %}

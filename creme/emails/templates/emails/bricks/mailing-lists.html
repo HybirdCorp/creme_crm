@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}{% url 'emails__add_mlists_to_campaign' object.id as add_mlists_url %}
-    {% brick_header_action id='link' url=add_mlists_url label=_('Add existing mailing lists') enabled=has_perm %}
+{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='link' url='emails__add_mlists_to_campaign'|url:object.id label=_('Add existing mailing lists') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

@@ -14,8 +14,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if not current_user_fav %}{% url 'mobile__mark_as_favorite' object.id as mark_url %}
-        {% brick_header_action id='update' url=mark_url type='link' label=_('Mark as favorite') %}
+    {% if not current_user_fav %}
+        {% brick_header_action id='update' url='mobile__mark_as_favorite'|url:object.id type='link' label=_('Mark as favorite') %}
     {% endif %}
 {% endblock %}
 
@@ -24,8 +24,8 @@
     <div class="brick-list-item mobile-item">
         <div class="mobile-favorite mobile-favorite-name">{{fav_user}}</div>
         {% if user == fav_user %}
-        <div class="mobile-favorite mobile-favorite-actions">{% url 'mobile__unmark_favorite' object.id as unmark_url %}
-            {% brick_action id='delete' url=unmark_url label=_('Remove from your favorite contacts') icon='unlink' %}
+        <div class="mobile-favorite mobile-favorite-actions">
+            {% brick_action id='delete' url='mobile__unmark_favorite'|url:object.id label=_('Remove from your favorite contacts') icon='unlink' %}
         </div>
         {% endif %}
     </div>

@@ -9,8 +9,8 @@ data-type-global-discount="{{object.discount}}"
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as change_perm %}{% url 'billing__multi_save_lines' object.id as save_url %}
-    {% brick_header_action id='billing-line-saveall' url=save_url label=_('Save all lines') icon='ok' enabled=change_perm loading=_('Saving…') %}
+{% has_perm_to change object as change_perm %}
+    {% brick_header_action id='billing-line-saveall' url='billing__multi_save_lines'|url:object.id label=_('Save all lines') icon='ok' enabled=change_perm loading=_('Saving…') %}
     {% brick_header_action id='billing-line-addonfly' __ctype_id=ct_id __prefix=formset.prefix __count=item_count label=_('Add a line on the fly') type='add' enabled=change_perm %}
     {% block brick_line_header_actions %}{% endblock %}
 {% endblock %}

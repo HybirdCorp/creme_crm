@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__add_buttons_to_ctype' as add_url %}
-    {% brick_header_action id='add' url=add_url label=_('New buttons configuration') enabled=admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% brick_header_action id='add' url='creme_config__add_buttons_to_ctype'|url label=_('New buttons configuration') enabled=admin_perm %}
 {% endblock %}
 
 {% block brick_content %}
@@ -17,8 +17,8 @@
     <div class="brick-list-item buttonmenu-config-item">
         <div class="buttonmenu-config-group buttonmenu-config-summary-group">
             <div class="buttonmenu-config-group-title">{% translate 'Default configuration' %}</div>
-            <div class="buttonmenu-config-group-action">{% url 'creme_config__edit_ctype_buttons' 0 as edit_def_url %}
-                {% brick_action id='edit' url=edit_def_url label=_('Edit the default configuration') enabled=admin_perm %}
+            <div class="buttonmenu-config-group-action">
+                {% brick_action id='edit' url='creme_config__edit_ctype_buttons'|url:0 label=_('Edit the default configuration') enabled=admin_perm %}
             </div>
         </div>
         <div class="buttonmenu-config-group">
@@ -29,9 +29,9 @@
     <div class="brick-list-item buttonmenu-config-item">
         <div class="buttonmenu-config-group buttonmenu-config-summary-group">
             <div class="buttonmenu-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='buttonmenu-config-type-icon' %} {{ctype}}</div>
-            <div class="buttonmenu-config-group-action">{% url 'creme_config__edit_ctype_buttons' ctype.id as edit_url %}
-                {% brick_action id='edit'   url=edit_url                 label=_('Edit this configuration')   enabled=admin_perm %}
-                {% brick_action id='delete' url=delete_url __id=ctype.id label=_('Delete this configuration') enabled=admin_perm %}
+            <div class="buttonmenu-config-group-action">
+                {% brick_action id='edit'   url='creme_config__edit_ctype_buttons'|url:ctype.id label=_('Edit this configuration')   enabled=admin_perm %}
+                {% brick_action id='delete' url=delete_url __id=ctype.id                        label=_('Delete this configuration') enabled=admin_perm %}
             </div>
         </div>
         <div class="buttonmenu-config-group">

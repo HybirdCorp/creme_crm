@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_history_configs' as add_url %}
-    {% brick_header_action id='add' url=add_url label=_('Add some relationship types') enabled=admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% brick_header_action id='add' url='creme_config__create_history_configs'|url label=_('Add some relationship types') enabled=admin_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

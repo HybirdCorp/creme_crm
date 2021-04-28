@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}{% url 'persons__create_address' object.id as creation_url %}
-    {% brick_header_action id='add' url=creation_url label=_('Create an address') enabled=has_perm %}
+{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='persons__create_address'|url:object.id label=_('Create an address') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_content_extra_class %}{{block.super}} brick-scrollable-container{% endblock %}

@@ -9,8 +9,7 @@
 
 {% block brick_header_actions %}
 {% has_perm_to create folder_model as creation_perm %}{% has_perm_to link object as link_perm %}
-{% url 'documents__create_child_folder' object.id as creation_url %}
-    {% brick_header_action id='add' url=creation_url label=_('Create a child folder') enabled=creation_perm|and_op:link_perm %}
+    {% brick_header_action id='add' url='documents__create_child_folder'|url:object.id label=_('Create a child folder') enabled=creation_perm|and_op:link_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

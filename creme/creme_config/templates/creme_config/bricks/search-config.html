@@ -15,8 +15,8 @@
         <div class="search-config-group search-config-summary-group">
             <div class="search-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='search-config-type-icon' %} {{ctype}}</div>
             <div class="search-config-group-action">
-            {% if ctw.sc_items|length < max_conf_count %}{% url 'creme_config__create_search_config' ctw.ctype.id as create_url %}
-                {% brick_action id='add' url=create_url label=_('Create for a role') enabled=admin_perm %}
+            {% if ctw.sc_items|length < max_conf_count %}
+                {% brick_action id='add' url='creme_config__create_search_config'|url:ctw.ctype.id label=_('Create for a role') enabled=admin_perm %}
             {% endif %}
             </div>
         </div>
@@ -42,8 +42,8 @@
                             {{sc_item.cells|join:' / '}}
                             {% endif %}
                         </td>
-                         <td {% brick_table_data_status action %}>{% url 'creme_config__edit_search_config' sc_item.id as edit_url %}
-                            {% brick_table_action id='edit' url=edit_url enabled=admin_perm %}
+                         <td {% brick_table_data_status action %}>
+                            {% brick_table_action id='edit' url='creme_config__edit_search_config'|url:sc_item.id enabled=admin_perm %}
                         </td>
                         <td {% brick_table_data_status action %}>
                             {% if not sc_item.is_default %}

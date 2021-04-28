@@ -1,10 +1,10 @@
 {% extends 'creme_core/bricks/generic/hat-bar.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block buttons %}
     {% if download_button %}
-    <div class='bar-action'>{% url 'billing__export' object.id as export_url %}
-        {% brick_action id='redirect' url=export_url label=_('Download as file (PDF/XLS…)') class='bar-button' icon_size='brick-hat-bar-button' icon='download' display='icon' %}
+    <div class='bar-action'>
+        {% brick_action id='redirect' url='billing__export'|url:object.id label=_('Download as file (PDF/XLS…)') class='bar-button' icon_size='brick-hat-bar-button' icon='download' display='icon' %}
     </div>
     {% endif %}
     {{block.super}}

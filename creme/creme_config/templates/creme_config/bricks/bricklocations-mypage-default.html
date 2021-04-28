@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__edit_default_mypage_bricks' as edit_def_url %}
-    {% brick_header_action id='edit' url=edit_def_url label=_('Edit blocks configuration') enabled=admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% brick_header_action id='edit' url='creme_config__edit_default_mypage_bricks'|url label=_('Edit blocks configuration') enabled=admin_perm %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -19,8 +19,8 @@
 {% endblock %}
 
 {% block brick_mypage_location_row_action %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_default_mypage_bricks' as delete_url %}
-    {% brick_table_action id='delete' url=delete_url __id=location.id label=_('Remove this block') enabled=admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% brick_table_action id='delete' url='creme_config__delete_default_mypage_bricks'|url __id=location.id label=_('Remove this block') enabled=admin_perm %}
 {% endblock %}
 
 {% block brick_table_empty %}

@@ -74,10 +74,10 @@
         </td>
         <td {% brick_table_data_status action %} >
         {% if not job.user %}
-            {% if job.enabled %}{% url 'creme_core__disable_job' job.id as disable_url %}
-                {% brick_table_action id='update' url=disable_url label=_('Disable') display='text' enabled=user.is_superuser %}
-            {% else %}{% url 'creme_core__enable_job' job.id as enable_url %}
-                {% brick_table_action id='update' url=enable_url label=_('Enable') display='text' enabled=user.is_superuser %}
+            {% if job.enabled %}
+                {% brick_table_action id='update' url='creme_core__disable_job'|url:job.id label=_('Disable') display='text' enabled=user.is_superuser %}
+            {% else %}
+                {% brick_table_action id='update' url='creme_core__enable_job'|url:job.id  label=_('Enable')  display='text' enabled=user.is_superuser %}
             {% endif %}
         {% endif %}
         </td>

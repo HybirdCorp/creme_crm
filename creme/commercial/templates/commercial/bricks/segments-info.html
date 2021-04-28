@@ -9,8 +9,8 @@
 
 {% block brick_header_actions %}
 {% has_perm_to change object as has_perm %}
-    {% url 'commercial__create_segment_desc' object.id as create_url %}{% brick_header_action id='add'  url=create_url label=_('New segment')           enabled=has_perm %}
-    {% url 'commercial__link_segment'        object.id as link_url   %}{% brick_header_action id='link' url=link_url   label=_('Add existing segments') enabled=has_perm %}
+    {% brick_header_action id='add'  url='commercial__create_segment_desc'|url:object.id label=_('New segment')           enabled=has_perm %}
+    {% brick_header_action id='link' url='commercial__link_segment'|url:object.id        label=_('Add existing segments') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

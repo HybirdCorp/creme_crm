@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}{% url 'commercial__create_component' object.id as create_comp_url %}
-    {% brick_header_action id='add' url=create_comp_url label=_('New objective') enabled=has_perm %}
+{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='commercial__create_component'|url:object.id label=_('New objective') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_content %}
@@ -32,11 +32,11 @@
                     <span>({{component.ctype}}{% if component.filter %} / {{component.filter}}{% endif %})</span>
                     {% endif %}
                 </td>
-                <td {% brick_table_data_status textaction %}>{% url 'commercial__create_child_component' component.id as create_child_url %}
-                    {% brick_table_action id='add' url=create_child_url label=_('New sub-objective') enabled=has_perm %}
+                <td {% brick_table_data_status textaction %}>
+                    {% brick_table_action id='add' url='commercial__create_child_component'|url:component.id label=_('New sub-objective') enabled=has_perm %}
                 </td>
-                <td {% brick_table_data_status textaction %}>{% url 'commercial__create_parent_component' component.id as create_parent_url %}
-                    {% brick_table_action id='add' url=create_parent_url label=_('New parent objective') enabled=has_perm %}
+                <td {% brick_table_data_status textaction %}>
+                    {% brick_table_action id='add' url='commercial__create_parent_component'|url:component.id label=_('New parent objective') enabled=has_perm %}
                 </td>
                 <td {% brick_table_data_status action %}>
                     {% brick_table_action id='delete' url=delete_url __id=component.id enabled=has_perm %}

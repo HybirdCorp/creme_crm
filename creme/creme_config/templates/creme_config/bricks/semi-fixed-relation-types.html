@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_semifixed_rtype' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New semi-fixed type') enabled=admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% brick_header_action id='add' url='creme_config__create_semifixed_rtype'|url label=_('New semi-fixed type') enabled=admin_perm %}
 {% endblock %}
 
 {% block brick_before_content %}

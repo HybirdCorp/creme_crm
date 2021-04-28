@@ -21,8 +21,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as edit_perm %}{% url 'sms__create_sending' object.id as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New sending') enabled=edit_perm %}
+{% has_perm_to change object as edit_perm %}
+    {% brick_header_action id='add' url='sms__create_sending'|url:object.id label=_('New sending') enabled=edit_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -41,8 +41,8 @@
         <td {% brick_table_data_status primary %} data-type='date'>{{sending.date}}</td>
         <td>{{sending.messages.count}}</td>
         <td>{{sending.formatstatus}}</td>
-        <td {# {% brick_table_data_status action %} #}>{% url 'sms__view_sending' sending.id as view_url %}
-            {% brick_table_action id='view' url=view_url label=_('Details') %}{# __title=sending #}
+        <td {# {% brick_table_data_status action %} #}>
+            {% brick_table_action id='view' url='sms__view_sending'|url:sending.id label=_('Details') %}{# __title=sending #}
         </td>
         <td {% brick_table_data_status action %}>
 {% comment %} FIX

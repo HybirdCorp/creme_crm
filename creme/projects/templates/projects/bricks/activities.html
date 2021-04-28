@@ -9,8 +9,8 @@
 
 {% block brick_header_actions %}
     {% if object.is_alive %}
-        {% has_perm_to change object as has_perm %}{% url 'projects__create_activity' object.id as creation_url %}
-        {% brick_header_action id='add' url=creation_url label=_('New activity') enabled=has_perm %}
+        {% has_perm_to change object as has_perm %}
+        {% brick_header_action id='add' url='projects__create_activity'|url:object.id label=_('New activity') enabled=has_perm %}
     {% endif %}
 {% endblock %}
 
@@ -50,8 +50,8 @@
         </td>
         <td class="task-activities-duration">{{activity.duration}} h</td>
         <td class="task-activities-resource">{% widget_entity_hyperlink activity.projects_resource.linked_contact user %}</td>
-        <td {% brick_table_data_status action %}>{% url 'projects__edit_activity' activity.id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this activity') enabled=has_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='projects__edit_activity'|url:activity.id label=_('Edit this activity') enabled=has_perm %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_url __id=activity.id label=_('Delete this activity') enabled=has_perm|and_op:object.is_alive %}

@@ -20,8 +20,8 @@
         <td data-type="date">{{mail.sending_date}}</td>
         <td>{{mail.sending.subject}}</td>
         <td>{% print_field object=mail field='status' %}</td>
-        <td {% brick_table_data_status action %}>{% url 'emails__view_lw_mail' mail.pk as view_url %}
-            {% brick_table_action id='view' url=view_url label=_('Details') %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='view' url='emails__view_lw_mail'|url:mail.pk label=_('Details') %}
         </td>
     </tr>
     {% endfor %}

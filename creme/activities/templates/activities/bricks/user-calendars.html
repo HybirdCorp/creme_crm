@@ -7,8 +7,8 @@
     {% brick_header_title title=_('{count} Calendar') plural=_('{count} Calendars') empty=_('Calendars') icon='calendar' %}
 {% endblock %}
 
-{% block brick_header_actions %}{% url 'activities__create_calendar' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New calendar') %}
+{% block brick_header_actions %}
+    {% brick_header_action id='add' url='activities__create_calendar'|url label=_('New calendar') %}
 {% endblock %}
 
 {% block brick_table_columns %}

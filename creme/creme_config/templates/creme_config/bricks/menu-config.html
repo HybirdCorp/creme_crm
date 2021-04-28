@@ -25,8 +25,8 @@
         <div class="menu-config-entry0" data-reorderable-menu-container-url="{% url 'creme_config__reorder_menu_level0' entry.config_item_id %}" >
             <div class="menu-config-entry0-header">
                 <span class="menu-config-entry0-header-title">{{entry.label}}</span>
-                {% if entry.id == container_id %}{% url 'creme_config__edit_menu_container' entry.config_item_id as edit_url %}
-                    {% brick_action id='edit' url=edit_url label=_('Edit this container') enabled=admin_perm %}
+                {% if entry.id == container_id %}
+                    {% brick_action id='edit' url='creme_config__edit_menu_container'|url:entry.config_item_id label=_('Edit this container') enabled=admin_perm %}
                 {% endif %}
                 {% if not entry.is_required %}
                     {% brick_action id='delete' url=delete_url __id=entry.config_item_id label=_('Delete this container') enabled=admin_perm %}
@@ -39,8 +39,8 @@
         {% endfor %}
     </div>
 
-    <div class="menu-config-actions">{% url 'creme_config__add_menu_container' as add_url %}{% url 'creme_config__add_menu_special_level0' as add_special_url %}
-        {% brick_action id='add' url=add_url label=_('Add a container') display='both' enabled=admin_perm %}
-        {% brick_action id='add' url=add_special_url label=_('Add a special root entry') display='both' enabled=admin_perm %}
+    <div class="menu-config-actions">
+        {% brick_action id='add' url='creme_config__add_menu_container'|url      label=_('Add a container')          display='both' enabled=admin_perm %}
+        {% brick_action id='add' url='creme_config__add_menu_special_level0'|url label=_('Add a special root entry') display='both' enabled=admin_perm %}
     </div>
 {% endblock %}

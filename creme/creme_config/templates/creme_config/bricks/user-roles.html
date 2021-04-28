@@ -8,8 +8,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% url 'creme_config__create_role' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New role') enabled=user.is_superuser %}
+    {% brick_header_action id='add' url='creme_config__create_role'|url label=_('New role') enabled=user.is_superuser %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -33,11 +32,11 @@
         <td class="role-export-creds">{% widget_select_or_msg role.exportable_ctypes.all|uca_sort  _('No export credential') %}</td>
         <td class="role-creds">
             <ul>
-            {% for sc in role.credentials.all %}{% url 'creme_config__edit_role_credentials' sc.id as edit_creds_url %}
+            {% for sc in role.credentials.all %}
                 <li class="{% if sc.forbidden %}role-creds-forbidden{% else %}role-creds-allowed{% endif %}">
                     {{sc}}
-                    {% brick_action id='edit'   url=edit_creds_url          label=_('Edit these credentials')   enabled=admin_perm %}
-                    {% brick_action id='delete' url=rm_creds_url __id=sc.id label=_('Delete these credentials') enabled=admin_perm %}
+                    {% brick_action id='edit'   url='creme_config__edit_role_credentials'|url:sc.id label=_('Edit these credentials')   enabled=admin_perm %}
+                    {% brick_action id='delete' url=rm_creds_url __id=sc.id                         label=_('Delete these credentials') enabled=admin_perm %}
                     {% with efilter=sc.efilter %}
                         {% if efilter %}
                             <br>&nbsp;{% blocktranslate %}Filter «{{efilter}}»{% endblocktranslate %}
@@ -50,13 +49,13 @@
                 </li>
             {% endfor %}
             </ul>
-            {% url 'creme_config__add_credentials_to_role' role.id as add_creds_url %}{% brick_action id='edit' url=add_creds_url icon='add' label=_('New credentials') display='both' enabled=admin_perm %}
+            {% brick_action id='edit' url='creme_config__add_credentials_to_role'|url:role.id icon='add' label=_('New credentials') display='both' enabled=admin_perm %}
         </td>
-        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_role' role.id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this role') enabled=admin_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='creme_config__edit_role'|url:role.id label=_('Edit this role') enabled=admin_perm %}
         </td>
-        <td {% brick_table_data_status action %}>{% url 'creme_config__delete_role' role.id as delete_url %}
-            {% brick_table_action id='edit' url=delete_url label=_('Delete') icon='delete' enabled=admin_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='creme_config__delete_role'|url:role.id label=_('Delete') icon='delete' enabled=admin_perm %}
         </td>
     </tr>
     {% endfor %}

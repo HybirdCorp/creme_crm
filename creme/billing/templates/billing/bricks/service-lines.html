@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_line_header_actions %}
-{% has_perm_to change object as has_perm %}{% url 'billing__create_service_lines' object.id as creation_url %}
-    {% brick_header_action id='add' url=creation_url label=_('Add some services') enabled=has_perm %}
+{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='billing__create_service_lines'|url:object.id label=_('Add some services') enabled=has_perm %}
 {% endblock %}
 
 {% block empty_msg %}{% translate 'No service in this document' %}{% endblock %}

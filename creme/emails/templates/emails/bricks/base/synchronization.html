@@ -6,8 +6,7 @@
 {% block brick_extra_attributes %}data-crudity-backend="{{backend.get_id}}"{% endblock %}
 
 {% block brick_header_actions %}
-{% url 'creme_core__delete_entities' as del_multi_url %}
-    {% brick_header_action id='emailsync-delete' url=del_multi_url type='delete' icon='cancel' %}
+    {% brick_header_action id='emailsync-delete' url='creme_core__delete_entities'|url type='delete' icon='cancel' %}
 {% endblock %}
 
 {% block brick_table_columns %}

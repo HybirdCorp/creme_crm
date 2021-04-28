@@ -10,8 +10,7 @@
 {% block brick_header_actions %}
     {% if propose_creation %}
         {% has_perm_to change object as link_perm %}{% has_perm_to create objects_ctype as creation_perm %}
-        {% url 'polls__create_reply_from_pform' object.id as creation_url %}
-        {% brick_header_action id='add' url=creation_url label=_('Create replies') enabled=link_perm|and_op:creation_perm %}
+        {% brick_header_action id='add' url='polls__create_reply_from_pform'|url:object.id label=_('Create replies') enabled=link_perm|and_op:creation_perm %}
     {% endif %}
 {% endblock %}
 
@@ -26,8 +25,8 @@
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink preply user %}</td>
         <td {% brick_table_data_status action %}>
-        {% if not preply.is_complete %}{% has_perm_to change preply as has_perm %}{% url 'polls__fill_reply' preply.id as fill_url %}
-            {% brick_table_action id='redirect' url=fill_url label=_('Fill') icon='edit' enabled=has_perm %}
+        {% if not preply.is_complete %}{% has_perm_to change preply as has_perm %}
+            {% brick_table_action id='redirect' url='polls__fill_reply'|url:preply.id label=_('Fill') icon='edit' enabled=has_perm %}
         {% endif %}
         </td>
     </tr>

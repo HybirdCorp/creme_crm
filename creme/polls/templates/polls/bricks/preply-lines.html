@@ -9,10 +9,10 @@
 
 {% block brick_header_actions %}
 {% has_perm_to change object as has_perm %}
-    {% if not object.is_complete %}{% url 'polls__fill_reply' object.id as fill_url %}
-        {% brick_header_action id='redirect' url=fill_url label=_('Fill') icon='edit' enabled=has_perm %}
-    {% else %}{% url 'polls__clean_reply' as clean_url %}
-        {% brick_header_action id='delete' url=clean_url __id=object.id label=_('Clean') icon='cancel' enabled=has_perm %}
+    {% if not object.is_complete %}
+        {% brick_header_action id='redirect' url='polls__fill_reply'|url:object.id label=_('Fill') icon='edit' enabled=has_perm %}
+    {% else %}
+        {% brick_header_action id='delete' url='polls__clean_reply'|url __id=object.id label=_('Clean') icon='cancel' enabled=has_perm %}
     {% endif %}
 {% endblock %}
 

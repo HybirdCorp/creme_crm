@@ -53,8 +53,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object.report as has_perm %}{% url 'reports__create_graph' object.id as creation_url %}
-    {% brick_header_action id='add' url=creation_url label=_('Create a new graph') enabled=has_perm %}
+{% has_perm_to change object.report as has_perm %}
+    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new graph') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -87,13 +87,11 @@
         <td {% if ordinate.error != None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
         <td {% if ordinate.error != None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
         {% endwith %}
-        <td {% brick_table_data_status action %}>
-            {% has_perm_to change graph as graph_edit_perm %}{% url 'reports__edit_graph' graph.id as edition_url %}
-            {% brick_table_action id='edit' url=edition_url enabled=graph_edit_perm %}
+        <td {% brick_table_data_status action %}>{% has_perm_to change graph as graph_edit_perm %}
+            {% brick_table_action id='edit' url='reports__edit_graph'|url:graph.id enabled=graph_edit_perm %}
         </td>
-        <td {% brick_table_data_status action %}>
-            {% has_perm_to delete graph as graph_delete_perm %}{% url 'creme_core__delete_entity' graph.id as delete_url %}
-            {% brick_table_action id='delete' url=delete_url label=_('Delete this graph') enabled=graph_delete_perm %}
+        <td {% brick_table_data_status action %}>{% has_perm_to delete graph as graph_delete_perm %}
+            {% brick_table_action id='delete' url='creme_core__delete_entity'|url:graph.id label=_('Delete this graph') enabled=graph_delete_perm %}
         </td>
     </tr>
     <tr data-graph-chart="{{graph.chart|default:''}}" data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed">
@@ -121,14 +119,14 @@
                     </div>
                     {% endif %}
                     {% with bricks_count=graph.instance_bricks_count %}{% blocktranslate count count=bricks_count asvar popup_label %}{{count}} configured block{% plural %}{{count}} configured blocks{% endblocktranslate %}
-                    {% if bricks_count %}{% url 'reports__instance_bricks_info' graph.id as view_bricks_url %}
+                    {% if bricks_count %}
                     <div class="graph-action">
-                        {% brick_table_action id='view' url=view_bricks_url label=popup_label display='text' %}
+                        {% brick_table_action id='view' url='reports__instance_bricks_info'|url:graph.id label=popup_label display='text' %}
                     </div>
                     {% endif  %}
                     {% endwith %}
-                    <div class="graph-action">{% url 'reports__create_instance_brick' graph.id as create_brick_url %}
-                        {% brick_table_action id='add' url=create_brick_url label=_('Create a block for this graph') display='text' enabled=admin_perm %}
+                    <div class="graph-action">
+                        {% brick_table_action id='add' url='reports__create_instance_brick'|url:graph.id label=_('Create a block for this graph') display='text' enabled=admin_perm %}
                     </div>
                 </div>
             </div>

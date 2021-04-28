@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if show_add_button %}{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_home_bricks' as add_url %}
-        {% brick_header_action id='add' url=add_url label=_('Add a home configuration for a role') enabled=admin_perm %}
+    {% if show_add_button %}{% has_perm_to admin 'creme_core' as admin_perm %}
+        {% brick_header_action id='add' url='creme_config__create_home_bricks'|url label=_('Add a home configuration for a role') enabled=admin_perm %}
     {% endif %}
 {% endblock %}
 
@@ -31,8 +31,8 @@
                     {% blocktranslate count count=get_default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
                 {% endif %}
             </td>
-            <td {% brick_table_data_status action %}>{% url 'creme_config__edit_home_bricks' 'default' as edit_url %}
-                {% brick_table_action id='edit' url=edit_url label=_('Edit this configuration') enabled=admin_perm %}
+            <td {% brick_table_data_status action %}>
+                {% brick_table_action id='edit' url='creme_config__edit_home_bricks'|url:'default' label=_('Edit this configuration') enabled=admin_perm %}
             </td>
             <td {% brick_table_data_status action %}></td>
         </tr>
@@ -47,8 +47,8 @@
                     {% blocktranslate count count=superuser_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
                 {% endif %}
             </td>
-            <td {% brick_table_data_status action %}>{% url 'creme_config__edit_home_bricks' 'superuser' as edit_url %}
-                {% brick_table_action id='edit' url=edit_url label=_('Edit this configuration') enabled=admin_perm %}
+            <td {% brick_table_data_status action %}>
+                {% brick_table_action id='edit' url='creme_config__edit_home_bricks'|url:'superuser' label=_('Edit this configuration') enabled=admin_perm %}
             </td>
             <td {% brick_table_data_status action %}>
                 {% brick_table_action id='delete' url=delete_url __role='superuser' label=_('Delete this configuration') enabled=admin_perm %}
@@ -67,8 +67,8 @@
                     {% blocktranslate count count=role.bricks_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
                 {% endif %}
             </td>
-            <td {% brick_table_data_status action %}>{% url 'creme_config__edit_home_bricks' role.id as edit_url %}
-                {% brick_table_action id='edit' url=edit_url label=_('Edit this configuration') enabled=admin_perm %}
+            <td {% brick_table_data_status action %}>
+                {% brick_table_action id='edit' url='creme_config__edit_home_bricks'|url:role.id label=_('Edit this configuration') enabled=admin_perm %}
             </td>
             <td {% brick_table_data_status action %}>
                 {% brick_table_action id='delete' url=delete_url __role=role.id label=_('Delete this configuration') enabled=admin_perm %}

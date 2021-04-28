@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_ptype' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New custom type of property') enabled=admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% brick_header_action id='add' url='creme_config__create_ptype'|url label=_('New custom type of property') enabled=admin_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -33,8 +33,8 @@
             {% blocktranslate count count=prop_type.stats %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %}
         </td>
         {% with action_enabled=admin_perm|and_op:prop_type.is_custom %}
-        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_ptype' prop_type.id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this property type') enabled=action_enabled %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='creme_config__edit_ptype'|url:prop_type.id label=_('Edit this property type') enabled=action_enabled %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=prop_type.get_delete_absolute_url label=_('Delete this property type') enabled=action_enabled %}

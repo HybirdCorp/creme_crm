@@ -7,6 +7,7 @@ from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
+from django.urls import reverse
 from django.utils.translation import gettext, gettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -566,6 +567,41 @@ class CremeCoreTagsTestCase(CremeTestCase):
                 {'value': orga2.id, 'label': str(orga2)},
             ],
             deserialized
+        )
+
+    def test_url01(self):
+        "No parameter."
+        url_name = 'creme_core__delete_entities'
+
+        with self.assertNoException():
+            template = Template(
+                '{% load creme_core_tags %}'
+                '<a href="{{url_name|url}}">Link</a>'
+            )
+            render = template.render(Context({'url_name': url_name}))
+
+        self.assertEqual(
+            '<a href="{}">Link</a>'.format(reverse(url_name)),
+            render.strip(),
+        )
+
+    def test_url02(self):
+        "One parameter."
+        url_name = 'creme_core__delete_entity'
+        entity_id = 12
+
+        with self.assertNoException():
+            template = Template(
+                '{% load creme_core_tags %}'
+                '<a href="{{url_name|url:entity_id}}">Link</a>'
+            )
+            render = template.render(
+                Context({'url_name': url_name, 'entity_id': entity_id})
+            )
+
+        self.assertEqual(
+            '<a href="{}">Link</a>'.format(reverse(url_name, args=(entity_id,))),
+            render.strip(),
         )
 
     def test_url_join1(self):
