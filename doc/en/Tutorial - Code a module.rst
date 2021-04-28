@@ -562,7 +562,7 @@ And the method ``get_edit_absolute_url`` : ::
 Add entries in the menu
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-In our ``apps.py``, we add the mrthod ``BeaversConfig.register_menu()`` and we
+In our ``apps.py``, we add the method ``BeaversConfig.register_menu()`` and we
 create first a new level 2 entry in the level 1 entry "Directory", which
 redirects to our beavers list : ::
 
