@@ -126,6 +126,16 @@
                 * jQuery 3.x :
                     - $.param() do not use jQuery.ajaxSettings.traditional flag anymore. Use creme.ajax.param() to keep the old behavior
                     - $.val() returns an empty array instead of null when a multi-select is empty.
+                * Complete refactor of progress controller of jobs
+                    - creme.jobs.BaseJobsMonitor:
+                        - BaseJobsMonitor(url) is replaced by BaseJobsMonitor({url: '...', fetchDelay: ...})
+                        - start() is renamed as fetch()
+                        - onAllJobsFinished(handler) is replaced by on('finished', handler)
+                    - creme.jobs.JobsMonitor:
+                        - JobsMonitor(url, element) is replaced by JobsMonitor(element, {url: '...', fetchDelay: ...})
+                    - creme.jobs.BrickJobsMonitor:
+                        - BrickJobsMonitor(url, brick_id) is replaced by BrickJobsMonitor(brick, {url: '...', fetchDelay: ...}) wher
+                          'brick' is a creme.bricks.Brick instance.
             - Apps :
                 * Creme_config :
                     - In 'forms' :
