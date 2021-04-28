@@ -9,8 +9,8 @@
 
 {% block card_title %}
     {{object|persons_pretty_contact}}
-    {% if not object.is_deleted and not object.sandbox %}{% has_perm_to change object as edition_perm %}{% url 'persons__edit_contact_names' object.id as names_edition_url %}
-    {% brick_card_action url=names_edition_url enabled=edition_perm %}
+    {% if not object.is_deleted and not object.sandbox %}{% has_perm_to change object as edition_perm %}
+    {% brick_card_action url='persons__edit_contact_names'|url:object.id enabled=edition_perm %}
     {% endif %}
 {% endblock %}
 

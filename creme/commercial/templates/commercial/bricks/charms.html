@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% has_perm_to change object as has_perm %}{% url 'commercial__create_charm' object.id as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New segment charm') enabled=has_perm %}
+    {% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='commercial__create_charm'|url:object.id label=_('New segment charm') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

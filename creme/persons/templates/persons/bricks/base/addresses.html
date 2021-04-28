@@ -9,11 +9,11 @@
 
 {% block brick_header_actions %}
 {% has_perm_to change object as has_perm %}
-    {% if b_address.display_button %}{% url 'persons__create_billing_address' object.id as create_baddr_url %}
-        {% brick_header_action id='add' url=create_baddr_url label=_('Create a billing address') enabled=has_perm %}
+    {% if b_address.display_button %}
+        {% brick_header_action id='add' url='persons__create_billing_address'|url:object.id label=_('Create a billing address') enabled=has_perm %}
     {% endif %}
-    {% if s_address.display_button %}{% url 'persons__create_shipping_address' object.id as create_saddr_url %}
-        {% brick_header_action id='add' url=create_saddr_url label=_('Create a shipping address') enabled=has_perm %}
+    {% if s_address.display_button %}
+        {% brick_header_action id='add' url='persons__create_shipping_address'|url:object.id label=_('Create a shipping address') enabled=has_perm %}
     {% endif %}
 {% endblock %}
 

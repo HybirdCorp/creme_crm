@@ -8,9 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object.is_alive %}
-        {% has_perm_to change object as has_perm %}{% url 'projects__create_resource' object.id as create_url %}
-        {% brick_header_action id='add' url=create_url label=_('Create a resource') enabled=has_perm %}
+    {% if object.is_alive %}{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='projects__create_resource'|url:object.id label=_('Create a resource') enabled=has_perm %}
     {% endif %}
 {% endblock %}
 

@@ -9,9 +9,8 @@
 
 {% block brick_header_actions %}
 {% has_perm_to change object as has_perm %}
-{% url 'emails__add_orgas_to_mlist_from_filter' object.id as add_orga_filter_url %}{% url 'emails__add_orgas_to_mlist' object.id as add_orgas_url %}
-    {% brick_header_action id='link' url=add_orga_filter_url label=_('Add from a filter') enabled=has_perm %}
-    {% brick_header_action id='link' url=add_orgas_url       label=_('Add organisations') enabled=has_perm %}
+    {% brick_header_action id='link' url='emails__add_orgas_to_mlist_from_filter'|url:object.id label=_('Add from a filter') enabled=has_perm %}
+    {% brick_header_action id='link' url='emails__add_orgas_to_mlist'|url:object.id             label=_('Add organisations') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -27,14 +26,14 @@
         <td class="brick-table-data-error">{% translate 'The field «Email address» of Organisation is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator).' %}</td>
     </tr>
 {% else %}{% has_perm_to change object as has_perm %}
-    {% for orga in page.object_list %}{% has_perm_to view orga as view_perm %}{% url 'emails__remove_orga_from_mlist' object.id as rm_orga_url %}
+    {% for orga in page.object_list %}{% has_perm_to view orga as view_perm %}
     <tr>
         <td {% brick_table_data_status primary %}>
             {% widget_entity_hyperlink orga user %}
             {% if view_perm %}&nbsp;:&nbsp;{{orga.email|default:_('no email address')}}{% endif %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=rm_orga_url __id=orga.pk label=_('Remove this organisation') icon='unlink' enabled=has_perm %}
+            {% brick_table_action id='delete' url='emails__remove_orga_from_mlist'|url:object.id __id=orga.pk label=_('Remove this organisation') icon='unlink' enabled=has_perm %}
         </td>
     </tr>
     {% endfor %}

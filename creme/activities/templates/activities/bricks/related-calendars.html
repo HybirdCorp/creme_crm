@@ -9,8 +9,8 @@
 
 {% block brick_header_actions %}
 {# TODO: solve the problem of multi-calendar (which calendar changes ?) #}
-    {% if page.paginator.count == 1 %}{% url 'activities__link_calendar' object.id as link_url %}
-        {% brick_header_action id='edit' url=link_url label=_('Change calendar') %}
+    {% if page.paginator.count == 1 %}
+        {% brick_header_action id='edit' url='activities__link_calendar'|url:object.id label=_('Change calendar') %}
     {% endif %}
 {% endblock %}
 

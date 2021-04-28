@@ -31,6 +31,7 @@ from django.template import Node as TemplateNode
 from django.template import Template, TemplateSyntaxError
 from django.template.defaulttags import TemplateLiteral
 from django.template.library import token_kwargs
+from django.urls import reverse
 from django.utils.encoding import force_str  # force_text
 from django.utils.html import escape, format_html_join
 from django.utils.safestring import mark_safe
@@ -365,6 +366,11 @@ def get_entity_html_attrs(context, entity):
 def grouper(value, n):
     args = [iter(value)] * n
     return zip_longest(fillvalue=None, *args)
+
+
+@register.filter
+def url(url_name, arg=None):
+    return reverse(url_name, args=None if arg is None else (arg,))
 
 
 @register.simple_tag

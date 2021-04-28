@@ -7,8 +7,8 @@
     {% brick_header_title title=_('{count} Market segment') plural=_('{count} Market segments') empty=verbose_name %}
 {% endblock %}
 
-{% block brick_header_actions %}{% url 'commercial__create_segment' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New segment') %}
+{% block brick_header_actions %}
+    {% brick_header_action id='add' url='commercial__create_segment'|url label=_('New segment') %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -30,8 +30,8 @@
         </td>
         {% if page.paginator.count > 1 %}
         <td {% brick_table_data_status action %}>
-            {% if segment.property_type_id %}{% url 'commercial__delete_segment' segment.id as delete_url %}
-                {% brick_table_action id='edit' url=delete_url label=_('Delete this segment') icon='delete' %}
+            {% if segment.property_type_id %}
+                {% brick_table_action id='edit' url='commercial__delete_segment'|url:segment.id label=_('Delete this segment') icon='delete' %}
             {% endif %}
         </td>
         {% endif %}

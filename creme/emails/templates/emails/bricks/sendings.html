@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as edit_perm %}{% url 'emails__create_sending' object.id as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New sending') enabled=edit_perm %}
+{% has_perm_to change object as edit_perm %}
+    {% brick_header_action id='add' url='emails__create_sending'|url:object.id label=_('New sending') enabled=edit_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -28,7 +28,7 @@
         <td>{{sending.get_type_display}}</td>
         <td>{{sending.get_state_display}}</td>
         <td>{{sending.mails_set.count}}{% with unsent_count=sending.unsent_mails.count %}{% if unsent_count %} / <span class="errorlist">{% blocktranslate count count=unsent_count %}{{count}} not sent{% plural %}{{count}} not sent{% endblocktranslate %}</span>{% endif %}{% endwith %}</td>
-        <td {% brick_table_data_status action %}>{% url 'emails__view_sending' sending.id as mails_url %}
+        <td {% brick_table_data_status action %}>
             {% brick_table_action id='redirect' url=sending.get_absolute_url icon='view' label=_('Details') %}
         </td>
         <td {% brick_table_data_status action %}>

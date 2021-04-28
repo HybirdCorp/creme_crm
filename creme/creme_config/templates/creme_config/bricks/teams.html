@@ -8,8 +8,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% url 'creme_config__create_team' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New team') enabled=user.is_superuser %}
+    {% brick_header_action id='add' url='creme_config__create_team'|url label=_('New team') enabled=user.is_superuser %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -32,11 +31,11 @@ When an entity belongs to a team, each teammate has the same permissions on this
     <tr>
         <td>{{team.username}}</td>
         <td>{% widget_enumerator team.teammates.values|uca_sort threshold=10 empty=_('No teammate') %}</td>
-        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_team' team.id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this team') enabled=admin_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='creme_config__edit_team'|url:team.id label=_('Edit this team') enabled=admin_perm %}
         </td>
-        <td {% brick_table_data_status action %}>{% url 'creme_config__delete_user' team.id as delete_url %}
-            {% brick_table_action id='edit' url=delete_url label=_('Delete this team') icon='delete' enabled=admin_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='creme_config__delete_user'|url:team.id label=_('Delete this team') icon='delete' enabled=admin_perm %}
         </td>
     </tr>
     {% endfor %}

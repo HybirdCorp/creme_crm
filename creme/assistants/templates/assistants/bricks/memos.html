@@ -8,9 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object %}
-        {% has_perm_to change object as has_perm %}{% url 'assistants__create_memo' object.id as create_url %}
-        {% brick_header_action id='add' url=create_url label=_('New memo') enabled=has_perm %}
+    {% if object %}{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='assistants__create_memo'|url:object.id label=_('New memo') enabled=has_perm %}
     {% endif %}
 {% endblock %}
 

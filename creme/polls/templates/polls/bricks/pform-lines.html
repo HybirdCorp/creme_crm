@@ -9,9 +9,8 @@
 
 {% block brick_header_actions %}
 {% has_perm_to change object as has_perm %}
-{% url 'polls__create_form_line' object.id as create_line_url %}{% url 'polls__create_form_section' object.id as create_section_url %}
-    {% brick_header_action id='add' url=create_line_url    label=_('New question') enabled=has_perm %}
-    {% brick_header_action id='add' url=create_section_url label=_('New section')  enabled=has_perm %}
+    {% brick_header_action id='add' url='polls__create_form_line'|url:object.id    label=_('New question') enabled=has_perm %}
+    {% brick_header_action id='add' url='polls__create_form_section'|url:object.id label=_('New section')  enabled=has_perm %}
 {% endblock %}
 
 {% block brick_content %}
@@ -30,12 +29,11 @@
                 </div>
             </div>
             {% brick_action id='edit' url=node.get_edit_absolute_url label=_('Edit this section') class='poll-action' enabled=has_perm %}
-            {% if not node.has_line %}{% url 'creme_core__delete_related_to_entity' section_ct.id as delete_section_url %}
-                {% brick_action id='delete' url=delete_section_url __id=node.id label=_('Delete this section') class='poll-action' enabled=has_perm %}
+            {% if not node.has_line %}
+                {% brick_action id='delete' url='creme_core__delete_related_to_entity'|url:section_ct.id __id=node.id label=_('Delete this section') class='poll-action' enabled=has_perm %}
             {% endif %}
-            {% url 'polls__create_form_line_in_section' node.id as create_sub_line_url %}{% url 'polls__create_child_form_section' node.id as create_sub_section_url %}
-            {% brick_action id='add' url=create_sub_line_url label=_('New question') class='poll-action' enabled=has_perm %}
-            {% brick_action id='add' url=create_sub_section_url label=_('New sub-section') class='poll-action' enabled=has_perm %}
+            {% brick_action id='add' url='polls__create_form_line_in_section'|url:node.id label=_('New question')    class='poll-action' enabled=has_perm %}
+            {% brick_action id='add' url='polls__create_child_form_section'|url:node.id   label=_('New sub-section') class='poll-action' enabled=has_perm %}
         </div>
         {% elif node.disabled %}
         {% with no_deps=node.get_reversed_conditions|length_is:"0" %}
@@ -47,8 +45,7 @@
                     <div class="poll-title-sub">{{node.poll_line_type.description}}</div>
                 </div>
             </div>
-            {% url 'creme_core__delete_related_to_entity' line_ct.id as delete_line_url %}
-            {% brick_action id='delete' url=delete_line_url __id=node.id label=_('Delete this question') class='poll-action' enabled=has_perm|and_op:no_deps %}
+            {% brick_action id='delete' url='creme_core__delete_related_to_entity'|url:line_ct.id __id=node.id label=_('Delete this question') class='poll-action' enabled=has_perm|and_op:no_deps %}
         </div>
         {% endwith %}
         {% else %}
@@ -84,9 +81,8 @@
             </div>
             {% endif %}
             {% brick_action id='edit' url=node.get_edit_absolute_url class='poll-action' enabled=has_perm %}
-            {% url 'polls__disable_form_line' node.id as disable_url %}{% url 'creme_core__delete_related_to_entity' line_ct.id as delete_line_url %}
-            {% brick_action id='update' url=disable_url label=_('Disable this question') icon='cancel' confirm=_('Are you sure?') class='poll-action' enabled=has_perm|and_op:no_deps %}
-            {% brick_action id='delete' url=delete_line_url __id=node.id label=_('Delete this question') class='poll-action' enabled=has_perm|and_op:no_deps %}
+            {% brick_action id='update' url='polls__disable_form_line'|url:node.id label=_('Disable this question') icon='cancel' confirm=_('Are you sure?') class='poll-action' enabled=has_perm|and_op:no_deps %}
+            {% brick_action id='delete' url='creme_core__delete_related_to_entity'|url:line_ct.id __id=node.id label=_('Delete this question') class='poll-action' enabled=has_perm|and_op:no_deps %}
         </div>
         {% endwith %}
         {% endif %}

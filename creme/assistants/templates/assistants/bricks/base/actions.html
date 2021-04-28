@@ -38,8 +38,8 @@
         <td {% brick_table_data_status action %}>
             {% if action.is_validated %}
                 {% widget_icon name='ok' label=_('Validated') size='brick-table' class='brick-table-icon' %}
-            {% else %}{% url 'assistants__validate_action' action.id as validate_url %}
-                {% brick_table_action id='update' url=validate_url confirm=_('Check the box if you consider as treated') display='text' label=_('Validate') enabled=has_perm %}
+            {% else %}
+                {% brick_table_action id='update' url='assistants__validate_action'|url:action.id confirm=_('Check the box if you consider as treated') display='text' label=_('Validate') enabled=has_perm %}
             {% endif %}
         </td>
         <td {% brick_table_data_status action %}>

@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/list.html' %}
-{% load i18n creme_bricks %}
+{% load i18n creme_core_tags creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-user-settings-brick{% if not values_per_app %} is-empty{% endif %}{% endblock %}
 
@@ -25,8 +25,8 @@
                     <tr>
                         <td>{{sv_info.description}}</td>
                         <td>{% if sv_info.not_set %}<em>{% translate 'N/A' %}</em>{% else %}{{sv_info.value}}{% endif %}</td>
-                        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_user_setting' sv_info.key_id as edit_url %}
-                            {% brick_table_action id='edit' url=edit_url label=_('Edit this value') %}
+                        <td {% brick_table_data_status action %}>
+                            {% brick_table_action id='edit' url='creme_config__edit_user_setting'|url:sv_info.key_id label=_('Edit this value') %}
                         </td>
                     </tr>
                     {% endfor %}

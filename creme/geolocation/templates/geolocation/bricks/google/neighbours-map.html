@@ -18,6 +18,6 @@
 {% endblock %}
 
 {% block brick_geomap_error %}
-    {% has_perm_to admin 'geolocation' as admin_perm %}{% url 'creme_config__app_portal' 'geolocation' as config_url %}
-    {% brick_action id='redirect' display='text' url=config_url label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
+    {% has_perm_to admin 'geolocation' as admin_perm %}
+    {% brick_action id='redirect' display='text' url='creme_config__app_portal'|url:'geolocation' label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
 {% endblock %}

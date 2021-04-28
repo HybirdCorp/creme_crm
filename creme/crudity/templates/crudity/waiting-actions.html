@@ -1,5 +1,5 @@
 {% extends 'creme_core/base.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block page_title %}{% translate 'Waiting actions' %} - {% endblock %}
 
@@ -19,8 +19,7 @@
             <div class="bar-title"><h1>{{title}}</h1></div>
             <div class="bar-actions">
                <div class='bar-action'>
-                    {% url 'crudity__refresh_actions' as refresh_actions_url %}
-                    {% brick_bar_button action='crudity-hatbar-refresh' label=_('Refresh') url=refresh_actions_url icon='refresh' %}
+                    {% brick_bar_button action='crudity-hatbar-refresh' label=_('Refresh') url='crudity__refresh_actions'|url icon='refresh' %}
                </div>
             </div>
         </div>

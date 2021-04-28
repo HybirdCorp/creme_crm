@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}{% url 'projects__add_parent_task' object.id as add_url %}
-    {% brick_header_action id='add' url=add_url label=_('Add parent tasks') enabled=has_perm %}
+{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='projects__add_parent_task'|url:object.id label=_('Add parent tasks') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% has_perm_to change object as has_perm %}{% url 'creme_core__add_properties' object.id as add_url %}
-    {% brick_header_action id='add' url=add_url label=_('New properties') enabled=has_perm %}
+    {% has_perm_to change object as has_perm %}
+    {% brick_header_action id='add' url='creme_core__add_properties'|url:object.id label=_('New properties') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_head %}{% endblock %}

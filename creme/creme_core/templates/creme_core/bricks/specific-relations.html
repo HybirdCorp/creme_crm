@@ -11,8 +11,8 @@
         {% brick_menu_action id='edit' url=edit_cells_url icon='config' label=edit_label enabled=config_perm %}
     {% endfor %}
 
-    {% if not config_item.all_ctypes_configured %}{% url 'creme_config__add_cells_to_rtype_brick' config_item.id as add_cells_url %}
-        {% brick_menu_action id='edit' url=add_cells_url label=_('Configure the fields of a new type') enabled=config_perm %}
+    {% if not config_item.all_ctypes_configured %}
+        {% brick_menu_action id='edit' url='creme_config__add_cells_to_rtype_brick'|url:config_item.id label=_('Configure the fields of a new type') enabled=config_perm %}
     {% endif %}
 {% endblock %}
 

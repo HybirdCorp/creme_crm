@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}{% url 'emails__add_attachments_to_template' object.id as add_attachments_url %}
-    {% brick_header_action id='link' url=add_attachments_url label=_('Add documents') enabled=has_perm %}
+{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='link' url='emails__add_attachments_to_template'|url:object.id label=_('Add documents') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

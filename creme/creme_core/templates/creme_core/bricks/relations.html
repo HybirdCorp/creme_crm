@@ -9,7 +9,7 @@
 
 {% block brick_header_actions %}
 {% has_perm_to link object as subject_link_perm %}
-{% url 'creme_core__create_relations' object.id as create_url %}{% url_join create_url exclude=excluded_rtype_ids as create_uri %}
+{% url_join 'creme_core__create_relations'|url:object.id exclude=excluded_rtype_ids as create_uri %}
     {% brick_header_action id='link' url=create_uri label=_('New relationships') enabled=subject_link_perm %}
 {% endblock %}
 

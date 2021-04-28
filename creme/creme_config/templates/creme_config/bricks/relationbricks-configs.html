@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_rtype_brick' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New type of block') enabled=admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% brick_header_action id='add' url='creme_config__create_rtype_brick'|url label=_('New type of block') enabled=admin_perm %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -27,8 +27,8 @@
             <div class="rtypebrick-config-group-action">
             {% if brick_type.all_ctypes_configured %}
                 {% translate 'All types are configured' %}
-            {% else %}{% url 'creme_config__add_cells_to_rtype_brick' brick_type.id as add_cells_url %}
-                {% brick_action id='add' url=add_cells_url label=_('New customised type') enabled=admin_perm display='text' %}
+            {% else %}
+                {% brick_action id='add' url='creme_config__add_cells_to_rtype_brick'|url:brick_type.id label=_('New customised type') enabled=admin_perm display='text' %}
             {% endif %}
             </div>
             <div class="rtypebrick-config-group-action">
@@ -49,8 +49,8 @@
                         <td {% brick_table_data_status action %}>{% url 'creme_config__edit_cells_of_rtype_brick' brick_type.id ctype.id as edit_cells_url %}{% blocktranslate asvar edit_label %}Edit the configuration for «{{ctype}}»{% endblocktranslate %}
                             {% brick_table_action id='edit' url=edit_cells_url label=edit_label enabled=admin_perm %}
                         </td>
-                        <td {% brick_table_data_status action %}>{% url 'creme_config__delete_cells_of_rtype_brick' brick_type.id as delete_cells_url %}{% blocktranslate asvar delete_label %}Delete the configuration for «{{ctype}}»{% endblocktranslate %}
-                            {% brick_table_action id='delete' url=delete_cells_url __id=ctype.id label=delete_label enabled=admin_perm %}
+                        <td {% brick_table_data_status action %}>{% blocktranslate asvar delete_label %}Delete the configuration for «{{ctype}}»{% endblocktranslate %}
+                            {% brick_table_action id='delete' url='creme_config__delete_cells_of_rtype_brick'|url:brick_type.id __id=ctype.id label=delete_label enabled=admin_perm %}
                         </td>
                     </tr>
                     {% endfor %}

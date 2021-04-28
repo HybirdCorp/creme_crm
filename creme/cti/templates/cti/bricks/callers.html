@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block brick_extra_class %}{{block.super}} cti-callers-brick{% endblock %}
 
@@ -9,9 +9,8 @@
 
 {% block brick_header_actions %}
     {% if not page.paginator.count %}
-        {% url 'cti__create_contact' number as create_contact_url %}{% url 'cti__create_organisation' number as create_orga_url %}
-        {% brick_header_action id='redirect' url=create_contact_url label=contact_creation_label type='add' enabled=can_create_contact %}
-        {% brick_header_action id='redirect' url=create_orga_url    label=orga_creation_label    type='add' enabled=can_create_orga %}
+        {% brick_header_action id='redirect' url='cti__create_contact'|url:number      label=contact_creation_label type='add' enabled=can_create_contact %}
+        {% brick_header_action id='redirect' url='cti__create_organisation'|url:number label=orga_creation_label    type='add' enabled=can_create_orga %}
     {% endif %}
 {% endblock %}
 
@@ -25,8 +24,8 @@
     {% for caller in page.object_list %}
     <tr>
         <td class="caller-entity">{% widget_entity_hyperlink caller user %}</td>
-        <td {% brick_table_data_status action %}>{% url 'cti__create_phonecall' caller.id as create_url %}
-            {% brick_table_action id='redirect' url=create_url label=creation_label enabled=can_create_activity display='text' %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='redirect' url='cti__create_phonecall'|url:caller.id label=creation_label enabled=can_create_activity display='text' %}
         </td>
     </tr>
     {% endfor %}

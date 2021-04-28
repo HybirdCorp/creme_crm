@@ -29,8 +29,8 @@
             {{HIDDEN_VALUE}}
             {% endif %}
         </span>
-        <span class="brick-tile-name">{% url 'products__remove_image' object.id as remove_url %}
-            {{image}}{% if edit_perm %}{% brick_tile_action id='delete' url=remove_url __id=image.id type='unlink' label=_('Remove this image') %}{% endif %}
+        <span class="brick-tile-name">
+            {{image}}{% if edit_perm %}{% brick_tile_action id='delete' url='products__remove_image'|url:object.id __id=image.id type='unlink' label=_('Remove this image') %}{% endif %}
         </span>
     </div>
     {% empty %}

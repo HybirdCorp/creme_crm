@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/base.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block brick_extra_class %}
 {{block.super}} creme_config_export-buttons-brick{% if not user.is_staff %} is-empty{% endif %}
@@ -30,6 +30,5 @@
         {% widget_icon name='download' size='brick-action' label=_('Export') %}
         {% translate 'Export the configuration' %}
     </a>
-    {% url 'creme_config__transfer_import' as import_url %}
-    {% brick_action id='add' url=import_url label=_('Import a configuration') display='both' %}
+    {% brick_action id='add' url='creme_config__transfer_import'|url label=_('Import a configuration') display='both' %}
 {% endblock %}

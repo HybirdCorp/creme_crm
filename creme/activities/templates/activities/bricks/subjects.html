@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% has_perm_to link object as activity_link_perm %}{% url 'activities__add_subjects' object.id as add_url %}
-    {% brick_header_action id='link' url=add_url label=_('Add entities') enabled=activity_link_perm %}
+    {% has_perm_to link object as activity_link_perm %}
+    {% brick_header_action id='link' url='activities__add_subjects'|url:object.id label=_('Add entities') enabled=activity_link_perm %}
 {% endblock %}
 
 {% block brick_table_head %}{% endblock %}

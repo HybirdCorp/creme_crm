@@ -26,8 +26,8 @@
         <div class="brickloc-config-group brickloc-config-summary-group">
             <div class="brickloc-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='brickloc-config-type-icon' %} {{ctype}}</div>
             <div class="brickloc-config-group-action">
-            {% if ctw.locations_info|length < max_conf_count %}{% url 'creme_config__create_detailviews_bricks' ctype.id as create_url %}
-                {% brick_action id='add' url=create_url label=_('Create for a role') enabled=admin_perm display='text' %}
+            {% if ctw.locations_info|length < max_conf_count %}
+                {% brick_action id='add' url='creme_config__create_detailviews_bricks'|url:ctype.id label=_('Create for a role') enabled=admin_perm display='text' %}
             {% endif %}
             </div>
         </div>

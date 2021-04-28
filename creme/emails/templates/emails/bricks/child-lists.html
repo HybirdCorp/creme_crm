@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}{% url 'emails__add_child_mlists' object.id as add_children_url %}
-    {% brick_header_action id='link' url=add_children_url label=_('Add a child list') enabled=has_perm %}
+{% has_perm_to change object as has_perm %}
+    {% brick_header_action id='link' url='emails__add_child_mlists'|url:object.id label=_('Add a child list') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

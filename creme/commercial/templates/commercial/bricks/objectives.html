@@ -9,9 +9,8 @@
 
 {% block brick_header_actions %}
 {% has_perm_to change object as edition_perm %}
-{% url 'commercial__create_objective' object.id as create_url %}{% url 'commercial__create_objective_from_pattern' object.id as create_from_pattern_url %}
-    {% brick_header_action id='add' url=create_url              label=_('New objective')         enabled=edition_perm %}
-    {% brick_header_action id='add' url=create_from_pattern_url label=_('Create with a pattern') enabled=edition_perm %}
+    {% brick_header_action id='add' url='commercial__create_objective'|url:object.id              label=_('New objective')         enabled=edition_perm %}
+    {% brick_header_action id='add' url='commercial__create_objective_from_pattern'|url:object.id label=_('Create with a pattern') enabled=edition_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -43,8 +42,7 @@
 
                     {% if not efilter and ctype|ctype_has_quickform %}
                         {% has_perm_to create ctype as creation_perm %}{% has_perm_to link ctype.model_class as link_perm2 %}
-                        {% url 'commercial__create_entity_from_objective' objective.id as create_entity_url %}
-                        {% brick_table_action id='add' url=create_entity_url label=ctype.model_class.creation_label display='both' enabled=link_perm|and_op:creation_perm|and_op:link_perm2 %}
+                        {% brick_table_action id='add' url='commercial__create_entity_from_objective'|url:objective.id label=ctype.model_class.creation_label display='both' enabled=link_perm|and_op:creation_perm|and_op:link_perm2 %}
                     {% endif %}
                 {% endwith %}
             {% endif %}

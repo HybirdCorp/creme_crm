@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/entity-job-errors.html' %}
-{% load i18n creme_widgets creme_bricks %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} creme_core-massimport-errors-brick{% endblock %}
 
@@ -12,8 +12,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if job.is_finished and page.paginator.count %}{% url 'creme_core__dl_mass_import_errors' job.id as dl_url %}
-    {% brick_header_action id='redirect' url=dl_url label=_('Download the errors file') icon='download' %}
+    {% if job.is_finished and page.paginator.count %}
+    {% brick_header_action id='redirect' url='creme_core__dl_mass_import_errors'|url:job.id label=_('Download the errors file') icon='download' %}
     {% endif %}
 {% endblock %}
 

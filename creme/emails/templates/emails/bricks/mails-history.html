@@ -10,14 +10,9 @@
 {% block brick_header_actions %}
     {% has_perm_to link object as link_perm %}
     {% with create_linked_perm=creation_perm|and_op:link_perm %}
-        {% url 'emails__create_email' object.id as creation_url %}
-        {% brick_header_action id='add' url=creation_url label=_('Send a new related email') enabled=create_linked_perm %}
-
-        {% url 'emails__create_email_from_template' object.id as creation_from_tpl_url %}
-        {% brick_header_action id='add' url=creation_from_tpl_url label=_('Send a email (with a template)') enabled=create_linked_perm %}
-
-        {% url 'emails__link_emails' object.id as link_url %}
-        {% brick_header_action id='link' url=link_url label=_('Link to emails') enabled=link_perm %}
+        {% brick_header_action id='add'  url='emails__create_email'|url:object.id               label=_('Send a new related email')       enabled=create_linked_perm %}
+        {% brick_header_action id='add'  url='emails__create_email_from_template'|url:object.id label=_('Send a email (with a template)') enabled=create_linked_perm %}
+        {% brick_header_action id='link' url='emails__link_emails'|url:object.id                label=_('Link to emails')                 enabled=link_perm %}
     {% endwith %}
 {% endblock %}
 
@@ -38,8 +33,8 @@
         <td class="email-subject">{{mail.subject}}</td>
         <td class="email-status">{{mail.get_status_display}}</td>
         <td class="email-sending-date" data-type="date">{% print_field object=mail field='sending_date' %}</td>
-        <td {% brick_table_data_status action %}>{% url 'emails__view_email_popup' mail.id as email_view_url %}
-            {% brick_table_action id='view' url=email_view_url label=_('Details') %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='view' url='emails__view_email_popup'|url:mail.id label=_('Details') %}
         </td>
         <td {% brick_table_data_status action %}>
             {% if not mail.sent %}{% url 'emails__resend_emails' as resend_url %}

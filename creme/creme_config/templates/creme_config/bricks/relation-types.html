@@ -13,8 +13,8 @@
 
 {% block brick_header_actions %}
 {% if custom %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_rtype' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New custom type') enabled=admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+    {% brick_header_action id='add' url='creme_config__create_rtype'|url label=_('New custom type') enabled=admin_perm %}
 {% endif %}
 {% endblock %}
 
@@ -42,8 +42,8 @@
         <td class="relation-object-copiable">{% if not sym_type.is_copiable %}<span title="{% translate 'The relationships are not copied when the object entity is cloned' %}">{% translate 'No copy' %}</span>{% endif %}</td>
         <td class="relation-subject-display">{% if sym_type.minimal_display %}<span title="{% translate 'The relationships are not displayed in the «Relationships» block (detail-view of object) when they are already displayed by another block.' %}">{% translate 'Display once' %}</span>{% endif %}</td>
         {% if custom %}
-        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_rtype' relation_type.id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this relation type') enabled=admin_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='creme_config__edit_rtype'|url:relation_type.id label=_('Edit this relation type') enabled=admin_perm %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_url __id=relation_type.id label=_('Delete this relation type') enabled=admin_perm %}

@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_widgets creme_bricks %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} brick-selectable crudity-actions-brick{% endblock %}
 
@@ -21,9 +21,8 @@
 {% block brick_header_actions %}
     {% for action in extra_header_actions %}{{action}}{% endfor %}
 
-    {% url 'crudity__validate_actions' as validated_url %}{%  url 'crudity__delete_actions' as delete_url %}
-    {% brick_header_action id='crudity-validate' url=validated_url type='add'    label=_('Validate') icon='ok' %}
-    {% brick_header_action id='crudity-delete'   url=delete_url    type='delete' label=_('Delete')   icon='cancel' %}
+    {% brick_header_action id='crudity-validate' url='crudity__validate_actions'|url type='add'    label=_('Validate') icon='ok' %}
+    {% brick_header_action id='crudity-delete'   url='crudity__delete_actions'|url   type='delete' label=_('Delete')   icon='cancel' %}
 {% endblock %}
 
 {% block brick_table_columns %}

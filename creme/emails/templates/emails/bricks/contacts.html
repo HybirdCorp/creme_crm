@@ -9,9 +9,8 @@
 
 {% block brick_header_actions %}
 {% has_perm_to change object as has_perm %}
-{% url 'emails__add_contacts_to_mlist_from_filter' object.id as add_contact_filter_url %}{% url 'emails__add_contacts_to_mlist' object.id as add_contacts_url %}
-    {% brick_header_action id='link' url=add_contact_filter_url label=_('Add from a filter') enabled=has_perm %}
-    {% brick_header_action id='link' url=add_contacts_url       label=_('Add contacts')      enabled=has_perm %}
+    {% brick_header_action id='link' url='emails__add_contacts_to_mlist_from_filter'|url:object.id label=_('Add from a filter') enabled=has_perm %}
+    {% brick_header_action id='link' url='emails__add_contacts_to_mlist'|url:object.id             label=_('Add contacts')      enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

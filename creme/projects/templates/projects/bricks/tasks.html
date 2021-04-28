@@ -8,8 +8,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% url 'projects__create_task' object.id as creation_url %}
-    {% brick_header_action id='add' url=creation_url label=_('New task') enabled=creation_perm %}
+    {% brick_header_action id='add' url='projects__create_task'|url:object.id label=_('New task') enabled=creation_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -58,8 +57,8 @@
             <td>{{HIDDEN_VALUE}}</td>
             <td data-type="money">{{HIDDEN_VALUE}}</td>
         {% endif %}
-        <td {% brick_table_data_status action %}>{% url 'projects__edit_task_popup' task.id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this task') enabled=change_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='projects__edit_task_popup'|url:task.id label=_('Edit this task') enabled=change_perm %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=task.get_delete_absolute_url label=_('Delete this task') enabled=delete_perm %}

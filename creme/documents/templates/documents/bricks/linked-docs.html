@@ -13,8 +13,7 @@
         {% has_perm_to create ct_doc as creation_perm %}
         {% has_perm_to link object as link_perm %}
         {% has_perm_to link ct_doc.model_class as doc_link_perm %}
-        {% url 'documents__create_related_document' object.id as create_url %}
-        {% brick_header_action id='add' url=create_url label=_('Create a document') enabled=creation_perm|and_op:link_perm|and_op:doc_link_perm %}
+        {% brick_header_action id='add' url='documents__create_related_document'|url:object.id label=_('Create a document') enabled=creation_perm|and_op:link_perm|and_op:doc_link_perm %}
         {% brick_header_action id='add-relationships' label=_('Link to an existing document') icon='link' enabled=link_perm|and_op:doc_link_perm __subject_id=object.id __rtype_id=predicate_id __ctype_id=ct_doc.id __multiple=True %}
     {% endif %}
 {% endblock %}

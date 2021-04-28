@@ -1,12 +1,12 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_config_tags %}
+{% load i18n creme_core_tags creme_bricks creme_config_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-users-brick{% endblock %}
 
 {% block brick_menu_actions %}
     {{block.super}}
-    <hr/>{% url 'creme_config__users_brick_hide_inactive' as hide_url %}
-    {% config_brick_menu_hide_inactive_users_action url=hide_url hidden=hide_inactive %}
+    <hr/>
+    {% config_brick_menu_hide_inactive_users_action url='creme_config__users_brick_hide_inactive'|url hidden=hide_inactive %}
 {% endblock %}
 
 {% block brick_header_title %}
@@ -14,8 +14,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% url 'creme_config__create_user' as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New user') enabled=user.is_superuser %}
+    {% brick_header_action id='add' url='creme_config__create_user'|url label=_('New user') enabled=user.is_superuser %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -49,20 +48,20 @@
         <td class="user-joined" data-type='datetime'>{{user.date_joined}}</td>
         {% if display_tz %}<td class="user-timezone">{{user.time_zone}}</td>{% endif %}
         <td {% brick_table_data_status action %} class="user-activate">
-            {% if user.is_active %}{% url 'creme_config__deactivate_user' user.id as deactivate_url %}
-                {% brick_table_action id='update' url=deactivate_url label=_('Deactivate') display='text' enabled=admin_perm %}
-            {% else %}{% url 'creme_config__activate_user' user.id as activate_url %}
-                {% brick_table_action id='update' url=activate_url label=_('Activate') display='text' enabled=admin_perm %}
+            {% if user.is_active %}
+                {% brick_table_action id='update' url='creme_config__deactivate_user'|url:user.id label=_('Deactivate') display='text' enabled=admin_perm %}
+            {% else %}
+                {% brick_table_action id='update' url='creme_config__activate_user'|url:user.id   label=_('Activate')   display='text' enabled=admin_perm %}
             {% endif %}
         </td>
-        <td {% brick_table_data_status action %} class="user-password">{% url 'creme_config__change_user_password' user.id as change_pw_url %}
-            {% brick_table_action id='edit' url=change_pw_url label=_('Change the password') icon='security' enabled=admin_perm %}
+        <td {% brick_table_data_status action %} class="user-password">
+            {% brick_table_action id='edit' url='creme_config__change_user_password'|url:user.id label=_('Change the password') icon='security' enabled=admin_perm %}
         </td>
-        <td {% brick_table_data_status action %} class="user-edit">{% url 'creme_config__edit_user' user.id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this user') enabled=admin_perm %}
+        <td {% brick_table_data_status action %} class="user-edit">
+            {% brick_table_action id='edit' url='creme_config__edit_user'|url:user.id label=_('Edit this user') enabled=admin_perm %}
         </td>
-        <td {% brick_table_data_status action %} class="user-delete">{% url 'creme_config__delete_user' user.id as delete_url %}
-            {% brick_table_action id='edit' url=delete_url label=_('Delete this user') icon='delete' enabled=admin_perm %}
+        <td {% brick_table_data_status action %} class="user-delete">
+            {% brick_table_action id='edit' url='creme_config__delete_user'|url:user.id label=_('Delete this user') icon='delete' enabled=admin_perm %}
         </td>
     </tr>
     {% endfor %}

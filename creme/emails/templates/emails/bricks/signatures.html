@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks %}
+{% load i18n creme_core_tags creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} emails-signatures-brick{% endblock %}
 
@@ -8,9 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% url 'emails__create_signature' as create_url %}
 {% translate 'New signature' context 'emails' as new_label %}
-    {% brick_header_action id='add' url=create_url label=new_label enabled=has_app_perm %}
+    {% brick_header_action id='add' url='emails__create_signature'|url label=new_label enabled=has_app_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}
