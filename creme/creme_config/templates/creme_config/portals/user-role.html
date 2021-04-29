@@ -1,11 +1,10 @@
-{% extends 'creme_config/portal.html' %}
-{% load i18n creme_core_tags creme_bricks creme_widgets %}
+{% extends 'creme_config/portals/base.html' %}
+{% load i18n creme_bricks creme_widgets %}
 
 {% block page_title %}{% translate 'Configuration of roles' %} - {% endblock %}
 
 {% block title %}
-    {% has_perm_to access 'creme_config' as conf_perm %}
-    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% translate 'Configuration' %} > </a>{% endif %}{% translate 'Roles' %}
+    {{block.super}}{% translate 'Roles' %}
 {% endblock %}
 
 {% block portal_bricks %}
