@@ -309,31 +309,31 @@ QUnit.test('creme.form.Field (value, multiple)', function(assert) {
     deepEqual([], this.mockListenerJQueryCalls('field-change'));
 
     field.value(null);
-    deepEqual(field.value(), null);
+    deepEqual(field.value(), []);
     deepEqual([
-        ['field-change', [field, null, ['b', 'c']]]
+        ['field-change', [field, [], ['b', 'c']]]
     ], this.mockListenerJQueryCalls('field-change'));
 
     field.value(['a', 'c']);
     deepEqual(field.value(), ['a', 'c']);
     deepEqual([
-        ['field-change', [field, null, ['b', 'c']]],
-        ['field-change', [field, ['a', 'c'], null]]
+        ['field-change', [field, [], ['b', 'c']]],
+        ['field-change', [field, ['a', 'c'], []]]
     ], this.mockListenerJQueryCalls('field-change'));
 
     // nothing change, no event
     field.value(['a', 'c']);
     deepEqual(field.value(), ['a', 'c']);
     deepEqual([
-        ['field-change', [field, null, ['b', 'c']]],
-        ['field-change', [field, ['a', 'c'], null]]
+        ['field-change', [field, [], ['b', 'c']]],
+        ['field-change', [field, ['a', 'c'], []]]
     ], this.mockListenerJQueryCalls('field-change'));
 
     field.value('b');
     deepEqual(field.value(), ['b']);
     deepEqual([
-        ['field-change', [field, null, ['b', 'c']]],
-        ['field-change', [field, ['a', 'c'], null]],
+        ['field-change', [field, [], ['b', 'c']]],
+        ['field-change', [field, ['a', 'c'], []]],
         ['field-change', [field, ['b'], ['a', 'c']]]
     ], this.mockListenerJQueryCalls('field-change'));
 });
@@ -388,18 +388,18 @@ QUnit.test('creme.form.Field (value, multiple, datatype=date)', function(assert)
     ], this.mockListenerJQueryCalls('field-change'));
 
     field.value(null);
-    deepEqual(field.value(), null);
+    deepEqual(field.value(), []);
     deepEqual([
         ['field-change', [field, ['2018-10-01'], ['2018-11-01', '2018-12-01']]],
-        ['field-change', [field, null,  ['2018-10-01']]]
+        ['field-change', [field, [],  ['2018-10-01']]]
     ], this.mockListenerJQueryCalls('field-change'));
 
     field.value(['2018-12-01']);
     deepEqual(field.value(), ['2018-12-01']);
     deepEqual([
         ['field-change', [field, ['2018-10-01'], ['2018-11-01', '2018-12-01']]],
-        ['field-change', [field, null,  ['2018-10-01']]],
-        ['field-change', [field, ['2018-12-01'], null]]
+        ['field-change', [field, [],  ['2018-10-01']]],
+        ['field-change', [field, ['2018-12-01'], []]]
     ], this.mockListenerJQueryCalls('field-change'));
 
     // nothing change, no event
@@ -407,16 +407,16 @@ QUnit.test('creme.form.Field (value, multiple, datatype=date)', function(assert)
     deepEqual(field.value(), ['2018-12-01']);
     deepEqual([
         ['field-change', [field, ['2018-10-01'], ['2018-11-01', '2018-12-01']]],
-        ['field-change', [field, null,  ['2018-10-01']]],
-        ['field-change', [field, ['2018-12-01'], null]]
+        ['field-change', [field, [],  ['2018-10-01']]],
+        ['field-change', [field, ['2018-12-01'], []]]
     ], this.mockListenerJQueryCalls('field-change'));
 
     field.value(moment([2018, 10, 1]));
     deepEqual(field.value(), ['2018-11-01']);
     deepEqual([
         ['field-change', [field, ['2018-10-01'], ['2018-11-01', '2018-12-01']]],
-        ['field-change', [field, null,  ['2018-10-01']]],
-        ['field-change', [field, ['2018-12-01'], null]],
+        ['field-change', [field, [],  ['2018-10-01']]],
+        ['field-change', [field, ['2018-12-01'], []]],
         ['field-change', [field, ['2018-11-01'], ['2018-12-01']]]
     ], this.mockListenerJQueryCalls('field-change'));
 });
