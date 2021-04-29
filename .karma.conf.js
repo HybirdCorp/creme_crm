@@ -91,7 +91,6 @@ module.exports = function(config) {
             // 'karma-phantomjs-launcher',
             'karma-jsdom-launcher',
             'karma-qunit',
-            'karma-jquery-new',
             'karma-coverage'
         ],
         basePath: '',
