@@ -4,8 +4,8 @@ from functools import partial
 from time import sleep
 
 from django.apps import apps
-from django.conf import settings
 from django.contrib.sessions.models import Session
+from django.test.utils import override_settings
 
 from creme.creme_core.forms import CremeEntityQuickForm, CremeModelForm
 from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
@@ -28,8 +28,8 @@ from ..fake_models import (
 
 
 class GuiTestCase(CremeTestCase):
+    @override_settings(MAX_LAST_ITEMS=5)
     def test_last_viewed_items(self):
-        settings.MAX_LAST_ITEMS = 5
         user = self.login()
 
         class FakeRequest:
@@ -99,8 +99,10 @@ class GuiTestCase(CremeTestCase):
             [i.pk for i in get_items()],
         )
 
-        settings.MAX_LAST_ITEMS = 1
-        self.assertGET200(FakeContact.get_lv_absolute_url())
+        # ---
+        with override_settings(MAX_LAST_ITEMS=1):
+            self.assertGET200(FakeContact.get_lv_absolute_url())
+
         self.assertEqual([contact02.pk], [i.pk for i in get_items()])
 
     def test_statistics01(self):
