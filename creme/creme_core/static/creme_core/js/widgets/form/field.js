@@ -465,7 +465,7 @@ creme.form.Field = creme.component.Component.sub({
         }
 
         if (hasChanged) {
-            this._element.val(value).change();
+            this._element.val(value).trigger('change');
             this.trigger('change', this._element.val(), previous);
         }
 
