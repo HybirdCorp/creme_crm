@@ -248,7 +248,8 @@ class CustomEnumBrickReloading(BricksReloading):
     def get_bricks_context(self):
         context = super().get_bricks_context()
         # Not useful to check if it's an enum field, because not a security issue.
-        context['custom_field'] = get_object_or_404(
+        # context['custom_field'] = get_object_or_404(
+        context[CustomEnumsDetail.context_object_name] = get_object_or_404(
             CustomField,
             pk=self.kwargs[self.pk_url_kwarg],
         )
