@@ -1180,6 +1180,13 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(brick_id, result[0])
         brick_node = self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
+        buttons_node = self.get_brick_header_buttons(brick_node)
+        self.assertBrickHeaderHasButton(
+            buttons_node=buttons_node,
+            url=reverse('creme_config__add_custom_enums', args=(cfield.id,)),
+            label=_('New choices'),
+        )
+
         values = {node.text for node in brick_node.findall('.//td')}
         self.assertIn(eval01.value, values)
         self.assertIn(eval02.value, values)
