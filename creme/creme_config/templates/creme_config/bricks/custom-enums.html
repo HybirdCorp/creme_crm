@@ -9,7 +9,7 @@
 
 {% block brick_header_actions %}
     {% if not custom_field.is_deleted %}
-    {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__add_custom_enums' object.id as create_url %}
+    {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__add_custom_enums' custom_field.id as create_url %}
     {% brick_header_action id='add' url=create_url label=_('New choices') enabled=admin_perm %}
     {% endif%}
 {% endblock %}
