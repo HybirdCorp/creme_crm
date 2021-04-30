@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class VCFsConfig(CremeAppConfig):
+    default = True
     name = 'creme.vcfs'
     verbose_name = _('Vcfs')
     dependencies = ['creme.persons']

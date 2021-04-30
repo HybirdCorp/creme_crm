@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class CTIConfig(CremeAppConfig):
+    default = True
     name = 'creme.cti'
     verbose_name = _('Computer Telephony Integration')
     dependencies = ['creme.persons', 'creme.activities']

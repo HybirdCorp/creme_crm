@@ -1,1 +1,1 @@
-default_app_config = 'creme.vcfs.apps.VCFsConfig'
+# default_app_config = 'creme.vcfs.apps.VCFsConfig'

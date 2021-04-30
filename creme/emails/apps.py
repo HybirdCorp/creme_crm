@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class EmailsConfig(CremeAppConfig):
+    default = True
     name = 'creme.emails'
     verbose_name = _('Emails')
     dependencies = ['creme.persons', 'creme.documents']

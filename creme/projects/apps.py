@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class ProjectsConfig(CremeAppConfig):
+    default = True
     name = 'creme.projects'
     verbose_name = _('Projects')
     dependencies = ['creme.persons', 'creme.activities']

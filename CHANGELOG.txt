@@ -20,10 +20,11 @@
 
   Developers side :
   -----------------
-    - The version of Django is now "3.1".
+    - The version of Django is now "3.2".
       You should probably read the following releases notes for Django versions :
         - https://docs.djangoproject.com/en/3.2/releases/3.0/
         - https://docs.djangoproject.com/en/3.2/releases/3.1/
+        - https://docs.djangoproject.com/en/3.2/releases/3.2/
     - The version of jQuery is now "3.6.0" (jQuery-migrate 3.3.2).
       Migration warning are enabled and documented here https://github.com/jquery/jquery-migrate/blob/main/warnings.md,
       and you should read the migration guides:
@@ -200,6 +201,8 @@
                     - In JavaScript, the component 'creme.reports.ReportFormController' has been removed.
                 * Projects :
                     - The property 'models.AbstractProjectTask.safe_duration' has been removed.
+        # The variables 'default_app_config' present in the file '__init__.py' of all apps have been removed ;
+          the classes inheriting 'AppConfig' got an attribute 'default = True' instead (see https://docs.djangoproject.com/en/3.2/releases/3.2/#automatic-appconfig-discovery).
         # The method 'creme_core.apps.CremeAppConfig.register_menu()' has been removed ;
           all apps have been reworked to use the new API (registration of entry classes in 'apps.py', base configuration of menu in 'populate.py')
         # In 'creme_core.forms' :

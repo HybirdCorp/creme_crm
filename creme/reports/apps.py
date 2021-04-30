@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class ReportsConfig(CremeAppConfig):
+    default = True
     name = 'creme.reports'
     verbose_name = _('Reports')
     dependencies = ['creme.creme_core']

@@ -1,1 +1,1 @@
-default_app_config = 'creme.cti.apps.CTIConfig'
+# default_app_config = 'creme.cti.apps.CTIConfig'

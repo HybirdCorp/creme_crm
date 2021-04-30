@@ -1,1 +1,1 @@
-default_app_config = 'creme.geolocation.apps.GeolocationConfig'
+# default_app_config = 'creme.geolocation.apps.GeolocationConfig'

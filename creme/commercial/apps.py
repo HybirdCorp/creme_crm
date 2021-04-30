@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class CommercialConfig(CremeAppConfig):
+    default = True
     name = 'creme.commercial'
     verbose_name = _('Commercial strategy')
     dependencies = ['creme.persons', 'creme.opportunities']

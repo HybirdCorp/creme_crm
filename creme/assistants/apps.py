@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class AssistantsConfig(CremeAppConfig):
+    default = True
     name = 'creme.assistants'
     verbose_name = _('Assistants (Todos, Memos, ...)')
     dependencies = ['creme.creme_core']

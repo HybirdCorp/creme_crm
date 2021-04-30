@@ -37,8 +37,8 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     help = 'Generates a new SECRET_KEY which can be used in your settings file.'
-
-    requires_system_checks = False
+    # requires_system_checks = False
+    requires_system_checks = []
 
     def handle(self, **options):
         # Code based on django/utils/crypto.py
@@ -60,7 +60,7 @@ class Command(BaseCommand):
                 kb_seed = getpass('At least 16 chars:').strip()
 
                 if len(kb_seed) < 16:
-                    self.stderr.write('The (stripped) strings msut conatins at least 16 chars.')
+                    self.stderr.write('The (stripped) strings must contain at least 16 chars.')
                 else:
                     break
 

@@ -30,6 +30,7 @@ from . import constants
 
 
 class PersonsConfig(CremeAppConfig):
+    default = True
     name = 'creme.persons'
     verbose_name = _('Accounts and Contacts')
     dependencies = ['creme.creme_core']

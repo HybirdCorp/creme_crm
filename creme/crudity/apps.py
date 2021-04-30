@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class CrudityConfig(CremeAppConfig):
+    default = True
     name = 'creme.crudity'
     verbose_name = _('External data management')
     dependencies = ['creme.creme_core']

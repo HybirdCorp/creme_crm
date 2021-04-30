@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 26-04-2021 pour la version 2.3 de Creme
+:Version: 30-04-2021 pour la version 2.3 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -30,8 +30,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/3.1/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/3.1/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/3.2/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/3.2/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque JavaScript (JS) jQuery_ ; il se peut que pour
@@ -302,6 +302,7 @@ Tout d'abord, créons un nouveau fichier ``beavers/apps.py`` qui contient : ::
 
 
     class BeaversConfig(CremeAppConfig):
+        default = True
         name = 'creme.beavers'
         verbose_name = _('Beavers management')
         dependencies = ['creme.creme_core']
@@ -318,14 +319,6 @@ Le singleton ``creme_registry`` permet d'enregistrer les modèles dérivants de
 l'on veut disposer sur eux des services tels que la recherche globale, la
 configuration des boutons et des blocs par exemple. C'est le cas la plupart du
 temps où l'on dérive de ``CremeEntity``.
-
-
-Nous venons de définir la configuration de notre app pour Django ; mais afin qu'il
-vienne chercher notre classe, il reste un petite chose à faire. Éditez le fichier
-``beavers/__init__.py`` pour y mettre la ligne suivante : ::
-
-    default_app_config = 'creme.beavers.apps.BeaversConfig'
-
 
 Si nous lançons Creme avec le serveur de développement de Django, et que nous y
 connectons avec notre navigateur Web (à l'adresse définie par SITE_DOMAIN dans

@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class CremeConfigConfig(CremeAppConfig):
+    default = True
     name = 'creme.creme_config'
     verbose_name = _('General configuration')
     dependencies = ['creme.creme_core']
