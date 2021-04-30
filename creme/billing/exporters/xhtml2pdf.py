@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,9 +48,13 @@ class Xhtml2pdfExporter(ContextMixin, base.BillingExporter):
         with override(language=self.flavour.language):
             html = template.render(self.get_context_data(object=entity))
 
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = \
-            f'attachment; filename="{entity._meta.verbose_name}.pdf"'
+        # response = HttpResponse(content_type='application/pdf')
+        # response['Content-Disposition'] = \
+        #     f'attachment; filename="{entity._meta.verbose_name}.pdf"'
+        response = HttpResponse(headers={
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': f'attachment; filename="{entity._meta.verbose_name}.pdf"',
+        })
 
         pisa_status = pisa.CreatePDF(
             html, dest=response,

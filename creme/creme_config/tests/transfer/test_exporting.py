@@ -285,8 +285,10 @@ class ExportingTestCase(CremeTestCase):
             cd = response['Content-Disposition']
 
         # TODO: better test for name (regex ?)
-        self.assertStartsWith(cd, 'attachment; filename=config-')
-        self.assertEndsWith(cd, '.json')
+        # self.assertStartsWith(cd, 'attachment; filename=config-')
+        self.assertStartsWith(cd, 'attachment; filename="config-')
+        # self.assertEndsWith(cd, '.json')
+        self.assertEndsWith(cd, '.json"')
 
         with self.assertNoException():
             content = response.json()

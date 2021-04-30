@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ Contact = get_contact_model()
 def abstract_vcf_import(request, file_form=VcfForm, import_form=VcfImportForm,
                         template='creme_core/generics/blockform/add.html',
                         title=_('Import contact from VCF file'),
-                       ):
+                        ):
     user = request.user
     submit_label = Contact.save_label
 
@@ -98,11 +98,18 @@ def vcf_export(request, contact_id):
     person = get_object_or_404(Contact, pk=contact_id)
     request.user.has_perm_to_view_or_die(person)
 
-    vc = VcfGenerator(person).serialize()
-
-    response = HttpResponse(vc, content_type='text/vcard')
-    response['Content-Disposition'] = 'attachment; filename="{}.vcf"'.format(
-        smart_str(person.last_name),
+    # vc = VcfGenerator(person).serialize()
+    #
+    # response = HttpResponse(vc, content_type='text/vcard')
+    # response['Content-Disposition'] = 'attachment; filename="{}.vcf"'.format(
+    #     smart_str(person.last_name),
+    # )
+    #
+    # return response
+    return HttpResponse(
+        VcfGenerator(person).serialize(),
+        headers={
+            'Content-Type': 'text/vcard',
+            'Content-Disposition': f'attachment; filename="{smart_str(person.last_name)}.vcf"',
+        },
     )
-
-    return response

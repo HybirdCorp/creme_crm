@@ -309,7 +309,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         response = self.assertGET200(url)
         self.assertEqual(
-            'attachment; filename=CREATE_CONTACT.eml',
+            # 'attachment; filename=CREATE_CONTACT.eml',
+            'attachment; filename="CREATE_CONTACT.eml"',
             response['Content-Disposition']
         )
         self.assertEqual('application/vnd.sealed.eml', response['Content-Type'])
@@ -352,7 +353,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
         self.assertEqual(
-            f'attachment; filename={subject}.ini',
+            # f'attachment; filename={subject}.ini',
+            f'attachment; filename="{subject}.ini"',
             response['Content-Disposition']
         )
         self.assertEqual('text/plain', response['Content-Type'])
