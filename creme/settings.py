@@ -66,6 +66,8 @@ DATABASES = {
 
 # MIGRATION_MODULES = {}
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # When this number of Entities is reached (in some views), Creme switches to a fast-mode.
 # Currently, this fast-mode involves the following optimisations in list-views:
 # - the main SQL query uses less complex ORDER BY instructions.

@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 26-04-2021 for Creme 2.3
+:Version: 30-04-2021 for Creme 2.3
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -29,8 +29,8 @@ Requirements
 
 Creme is developed with a Python framework for websites et Web apps : Django_.
 If you really want to code some modules for Creme, you should know Django.
-Its documentation is complete & quite good ; see here : https://docs.djangoproject.com/en/3.1/.
-To begin, reading the `tutorial <https://docs.djangoproject.com/en/3.1/intro/overview/>`_
+Its documentation is complete & quite good ; see here : https://docs.djangoproject.com/en/3.2/.
+To begin, reading the `tutorial <https://docs.djangoproject.com/en/3.2/intro/overview/>`_
 should be enough.
 
 Creme uses the JavaScript (JS) library jQuery_ too ; to implement some features
@@ -290,6 +290,7 @@ First, we create a new file ``beavers/apps.py`` containing : ::
 
 
     class BeaversConfig(CremeAppConfig):
+        default = True
         name = 'creme.beavers'
         verbose_name = _('Beavers management')
         dependencies = ['creme.creme_core']
@@ -305,13 +306,6 @@ The singleton ``creme_registry`` stores the models inheriting ``CremeEntity``
 (call to ``creme_registry.register_entity_models()``) if we want they dispose
 of global search, configuration for buttons and blocs... It's generally the case
 when we inherit ``CremeEntity``.
-
-We wrote the configuration of our app ; in order Django uses our class, we must
-do a small other thing. Edit the file ``beavers/__init__.py`` and add the
-following line : ::
-
-    default_app_config = 'creme.beavers.apps.BeaversConfig'
-
 
 If we launch Creme with the Django's development server, and we log in
 with our Web browser (to the address defined by SITE_DOMAIN in the

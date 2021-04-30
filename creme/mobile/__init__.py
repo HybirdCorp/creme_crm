@@ -1,1 +1,1 @@
-default_app_config = 'creme.mobile.apps.MobileConfig'
+# default_app_config = 'creme.mobile.apps.MobileConfig'

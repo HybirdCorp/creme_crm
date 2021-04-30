@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -75,4 +75,4 @@ def get_concrete_model(model_setting: str) -> Type[Model]:
 
 # ------------------------------------------------------------------------------
 
-default_app_config = 'creme.creme_core.apps.CremeCoreConfig'
+# default_app_config = 'creme.creme_core.apps.CremeCoreConfig'

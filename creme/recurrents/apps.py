@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class RecurrentsConfig(CremeAppConfig):
+    default = True
     name = 'creme.recurrents'
     verbose_name = _('Recurrent documents')
     dependencies = ['creme.creme_core']

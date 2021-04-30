@@ -25,6 +25,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class GraphsConfig(CremeAppConfig):
+    default = True
     name = 'creme.graphs'
     verbose_name = pgettext_lazy('graphs', 'Graphs')
     dependencies = ['creme.creme_core']

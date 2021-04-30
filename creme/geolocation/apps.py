@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class GeolocationConfig(CremeAppConfig):
+    default = True
     name = 'creme.geolocation'
     verbose_name = _('Geolocation')
     dependencies = ['creme.persons']

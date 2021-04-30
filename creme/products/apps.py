@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class ProductsConfig(CremeAppConfig):
+    default = True
     name = 'creme.products'
     verbose_name = _('Products and services')
     dependencies = ['creme.documents']

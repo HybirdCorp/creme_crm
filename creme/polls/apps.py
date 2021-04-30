@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class PollsConfig(CremeAppConfig):
+    default = True
     name = 'creme.polls'
     verbose_name = _('Polls')
     dependencies = ['creme.persons', 'creme.commercial']

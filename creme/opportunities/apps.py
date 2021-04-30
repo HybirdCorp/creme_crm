@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class OpportunitiesConfig(CremeAppConfig):
+    default = True
     name = 'creme.opportunities'
     verbose_name = _('Opportunities')
     dependencies = ['creme.persons', 'creme.products']

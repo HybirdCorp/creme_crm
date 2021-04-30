@@ -105,7 +105,7 @@ class CremeModelCreation(base.CustomFormMixin,
 
     def post(self, *args, **kwargs):
         if self.atomic_POST:
-            with atomic():
+            with atomic():  # TODO: durable=True ? (+ other generic views)
                 return super().post(*args, **kwargs)
         else:
             return super().post(*args, **kwargs)

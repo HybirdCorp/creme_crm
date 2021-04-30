@@ -27,6 +27,7 @@ from creme.creme_core.checks import Tags
 
 
 class BillingConfig(CremeAppConfig):
+    default = True
     name = 'creme.billing'
     verbose_name = _('Billing')
     dependencies = ['creme.persons', 'creme.products']

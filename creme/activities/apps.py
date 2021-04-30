@@ -26,6 +26,7 @@ from . import constants
 
 
 class ActivitiesConfig(CremeAppConfig):
+    default = True
     name = 'creme.activities'
     verbose_name = _('Activities')
     dependencies = ['creme.persons']  # 'creme.assistants' is optional

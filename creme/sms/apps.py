@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class SMSConfig(CremeAppConfig):
+    default = True
     name = 'creme.sms'
     verbose_name = _('SMS')
     dependencies = ['creme.persons']

@@ -385,6 +385,7 @@ class CremeAppConfig(AppConfig):
 
 
 class CremeCoreConfig(CremeAppConfig):
+    default = True
     name = 'creme.creme_core'
     verbose_name = _('Core')
 

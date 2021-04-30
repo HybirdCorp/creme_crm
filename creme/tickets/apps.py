@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class TicketsConfig(CremeAppConfig):
+    default = True
     name = 'creme.tickets'
     verbose_name = _('Tickets')
     dependencies = ['creme.creme_core']

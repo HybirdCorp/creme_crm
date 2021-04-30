@@ -24,6 +24,7 @@ from creme.creme_core.apps import CremeAppConfig
 
 
 class EventsConfig(CremeAppConfig):
+    default = True
     name = 'creme.events'
     verbose_name = _('Events')
     dependencies = ['creme.persons', 'creme.opportunities']
