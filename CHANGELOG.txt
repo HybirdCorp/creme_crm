@@ -244,13 +244,13 @@
                 - The inner-constants in 'models.GeoAddress' have been replaced by an 'IntegerChoices' class :
                   UNDEFINED, MANUAL, PARTIAL, COMPLETE, STATUS_LABELS
         # Javascript :
-            * The function 'creme.ajax.json.ajaxFormSubmit' has been removed.
-            * The jQuery package 'extensions/utils.js' is refactored as 'extensions/jquery.toggle-attr.js'
+            - The function 'creme.ajax.json.ajaxFormSubmit' has been removed.
+            - The jQuery package 'extensions/utils.js' is refactored as 'extensions/jquery.toggle-attr.js'
                 - The extensions '$.fn.check()', '$.fn.uncheck()' & '$.fn.toggleCheck' are removed.
                 - Add the extension '$.fn.toggleProp'
-            * Remove the jQuery extension '$.fn.wait()' which is not useful.
-            * Remove the jQuery extension '$.toJSON()'; use JSON.stringify() instead
-            * Remove unused dependencies
+            - Remove the jQuery extension '$.fn.wait()' which is not useful.
+            - Remove the jQuery extension '$.toJSON()'; use 'JSON.stringify()' instead.
+            - Remove unused dependencies :
                 - jquery.cookie.js
                 - jquery.highlight.js
                 - jquery.bind-first.js
@@ -260,6 +260,7 @@
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
         # The method 'creme_core.apps.CremeCoreConfig.tag_ctype()' has been removed.
+        # The function 'creme_core.checks.check_secret_key()' has been removed.
         # Apps :
             * Recurrents :
                 - In 'registry' :
