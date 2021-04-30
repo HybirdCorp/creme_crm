@@ -297,10 +297,17 @@ def download_ical(request):
     activities = EntityCredentials.filter(
         queryset=Activity.objects.filter(pk__in=act_ids), user=request.user,
     )
-    response = HttpResponse(get_ical(activities), content_type='text/calendar')
-    response['Content-Disposition'] = 'attachment; filename=Calendar.ics'
-
-    return response
+    # response = HttpResponse(get_ical(activities), content_type='text/calendar')
+    # response['Content-Disposition'] = 'attachment; filename=Calendar.ics'
+    #
+    # return response
+    return HttpResponse(
+        get_ical(activities),
+        headers={
+            'Content-Type': 'text/calendar',
+            'Content-Disposition': 'attachment; filename="Calendar.ics"',
+        },
+    )
 
 
 class TypeChoices(base.CheckedView):

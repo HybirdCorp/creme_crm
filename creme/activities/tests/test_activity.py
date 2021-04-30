@@ -2323,7 +2323,8 @@ class ActivityTestCase(_ActivitiesTestCase):
             reverse('activities__dl_ical'), data={'id': [act1.id, act2.id]},
         )
         self.assertEqual('text/calendar', response['Content-Type'])
-        self.assertEqual('attachment; filename=Calendar.ics', response['Content-Disposition'])
+        # self.assertEqual('attachment; filename=Calendar.ics', response['Content-Disposition'])
+        self.assertEqual('attachment; filename="Calendar.ics"', response['Content-Disposition'])
 
         # content = force_text(response.content)
         content = force_str(response.content)

@@ -402,12 +402,19 @@ class InfopathFormBuilder:
         file_name = '{}.xsn'.format(
             secure_filename(CrudityBackend.normalize_subject(self.backend.subject))
         )
-        response = HttpResponse(
-            self._render(file_name), content_type='application/vnd.ms-infopath',
+        # response = HttpResponse(
+        #     self._render(file_name), content_type='application/vnd.ms-infopath',
+        # )
+        # response['Content-Disposition'] = f'attachment; filename={file_name}'
+        #
+        # return response
+        return HttpResponse(
+            self._render(file_name),
+            headers={
+                'Content-Type': 'application/vnd.ms-infopath',
+                'Content-Disposition': f'attachment; filename="{file_name}"',
+            },
         )
-        response['Content-Disposition'] = f'attachment; filename={file_name}'
-
-        return response
 
     def _render_manifest_xsf(self, request) -> str:
         return render_to_string(
