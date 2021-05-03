@@ -38,7 +38,8 @@
                             {% elif sc_item.all_fields %}
                             <em>{% translate 'All fields' %}</em>
                             {% else %}
-                            {{sc_item.searchfields|join:' / '}}
+{#                            {{sc_item.searchfields|join:' / '}} #}
+                            {{sc_item.cells|join:' / '}}
                             {% endif %}
                         </td>
                          <td {% brick_table_data_status action %}>{% url 'creme_config__edit_search_config' sc_item.id as edit_url %}

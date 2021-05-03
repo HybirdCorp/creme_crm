@@ -44,7 +44,9 @@ class ConfigExport(generic.CheckedView):
         #     (it seems better to be sure that 'version is at the beginning,
         #     like a in a file header).
         info: Dict[str, Any] = OrderedDict()
-        info[ID_VERSION] = '1.0'
+        # 2.2: 1.0
+        # 2.3: the model for search has changed
+        info[ID_VERSION] = '1.1'
         info.update((e_id, exporter()) for e_id, exporter in self.registry)
 
         return info

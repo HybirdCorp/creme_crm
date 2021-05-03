@@ -443,7 +443,7 @@ class ButtonMenuItemExporter(Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_SEARCH)
-class SearchConfigItemExporter(Exporter):
+class SearchConfigItemExporter(CellsExporterMixin, Exporter):
     model = models.SearchConfigItem
 
     def dump_instance(self, instance):
@@ -451,7 +451,8 @@ class SearchConfigItemExporter(Exporter):
 
         data = {
             'ctype': dump_ct(instance.content_type),
-            'fields': instance.field_names,
+            # 'fields': instance.field_names,
+            'cells': [*map(self.dump_cell, instance.cells)],
         }
 
         role = instance.role

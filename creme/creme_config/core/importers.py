@@ -96,6 +96,172 @@ def load_model(model_str: str) -> Model:
     return load_ct(model_str).model_class()
 
 
+# ------------------------------------------------------------------------------
+
+# TODO: factorise these classes with EntityCells build() methods ?
+class CellProxy:
+    """ Abstract class.
+
+    CellProxies allows to validate data (deserialized JSON) describing an
+    EntityCell, and then to build an instance.
+
+    This is done in 2 steps, because some required instance (RelationType...)
+    can be validated before being stored in DB (there are described in the
+    importation data).
+    """
+    # Override this in child classes
+    cell_cls: Type[entity_cell.EntityCell] = entity_cell.EntityCell
+
+    def __init__(
+            self,
+            container_label: str,
+            model: Type[CremeEntity],
+            value: str,
+            validated_data: ValidatedData):
+        """Constructor.
+
+        @param container_label: String used by error messages to identify related
+               objects containing the cells (like HeaderFilter instance)
+        @param model: model related to the HeaderFilter.
+        @param value: deserialized data.
+        @param validated_data: IDs of validated (future) instances ;
+               dictionary <key=model ; values=set of IDs>
+        """
+        self.container_label = container_label
+        self.model = model
+        self.value = value
+
+        self._validate(validated_data)
+
+    def _validate(self, validated_data: ValidatedData) -> None:
+        """Extracts & validates information from self.value.
+
+        Raises exceptions to indicate errors.
+        ValidationErrors contain friendlier error messages.
+        """
+        raise NotImplementedError
+
+    def build_cell(self) -> entity_cell.EntityCell:
+        """
+        @return: an EntityCell instance.
+        """
+        return self.cell_cls.build(self.model, self.value)
+
+
+class CellProxiesRegistry:
+    """Registry for CellProxy classes.
+
+    Can be used as a decorator (see __call__() ).
+    """
+    def __init__(self):
+        self._proxies_classes: Dict[str, Type[CellProxy]] = {}
+
+    def __call__(self, proxy_cls: Type[CellProxy]) -> Type[CellProxy]:
+        self._proxies_classes[proxy_cls.cell_cls.type_id] = proxy_cls
+        return proxy_cls
+
+    def get(self, type_id: str) -> Optional[Type[CellProxy]]:
+        "@param type_id: see EntityCell.type_id."
+        return self._proxies_classes.get(type_id)
+
+    def build_proxies_from_dicts(self, *, model, container_label, cell_dicts, validated_data):
+        cells_proxies = []
+
+        for cell_dict in cell_dicts:  # TODO: check is a dict
+            cell_type  = cell_dict['type']
+            cell_value = cell_dict['value']
+
+            cell_proxy_cls = self.get(cell_type)
+
+            if cell_proxy_cls is None:
+                raise ValidationError(
+                    _(
+                        'The column with type="{type}" is invalid in «{container}».'
+                    ).format(type=cell_type, container=container_label)
+                )
+
+            cells_proxies.append(cell_proxy_cls(
+                container_label=container_label,
+                model=model,
+                value=cell_value,
+                validated_data=validated_data,
+            ))
+
+        return cells_proxies
+
+
+CELL_PROXIES = CellProxiesRegistry()
+
+
+@CELL_PROXIES
+class CellProxyRegularField(CellProxy):
+    cell_cls = entity_cell.EntityCellRegularField
+
+    def _validate(self, validated_data):
+        try:
+            FieldInfo(self.model, self.value)
+        except FieldDoesNotExist:
+            raise ValidationError(
+                _('The column with field="{field}" is invalid in «{container}».').format(
+                    field=self.value, container=self.container_label,
+                )
+            )
+
+
+@CELL_PROXIES
+class CellProxyCustomField(CellProxy):
+    cell_cls = entity_cell.EntityCellCustomField
+
+    def _validate(self, validated_data):
+        value = self.value
+
+        if value not in validated_data[CustomField] and \
+           not CustomField.objects.filter(uuid=value).exists():
+            raise ValidationError(
+                _(
+                    'The column with custom-field="{uuid}" is invalid in «{container}».'
+                ).format(uuid=value, container=self.container_label)
+            )
+
+    def build_cell(self):
+        return self.cell_cls(CustomField.objects.get(uuid=self.value))
+
+
+@CELL_PROXIES
+class CellProxyFunctionField(CellProxy):
+    cell_cls = entity_cell.EntityCellFunctionField
+
+    registry = function_field_registry
+
+    def _validate(self, validated_data):
+        func_field = self.registry.get(self.model, self.value)
+
+        if func_field is None:
+            raise ValidationError(
+                _(
+                    'The column with function-field="{ffield}" is invalid in «{container}».'
+                ).format(ffield=self.value, container=self.container_label)
+            )
+
+
+@CELL_PROXIES
+class CellProxyRelation(CellProxy):
+    cell_cls = entity_cell.EntityCellRelation
+
+    def _validate(self, validated_data):
+        value = self.value
+
+        if value not in validated_data[RelationType] and \
+           not RelationType.objects.filter(pk=value).exists():
+            raise ValidationError(
+                _(
+                    'The column with relation-type="{rtype}" is invalid in «{container}».'
+                ).format(rtype=value, container=self.container_label)
+            )
+
+
+# ------------------------------------------------------------------------------
+
 class Importer:
     """A base class for object which import model-instances from another
     deployment of Creme.
@@ -389,13 +555,29 @@ class ButtonsConfigImporter(Importer):
 
 @IMPORTERS.register(data_id=constants.ID_SEARCH)
 class SearchConfigImporter(Importer):
-    dependencies = [constants.ID_ROLES]
+    dependencies = [constants.ID_ROLES, constants.ID_CUSTOM_FIELDS]
+
+    # TODO: registry with only regular & custom fields ??
+    cells_proxies_registry = CELL_PROXIES
 
     def _validate_section(self, deserialized_section, validated_data):
         def load_sci(sci_info):
+            ct = load_ct(sci_info['ctype'])
+            model = ct.model_class()
+
             data = {
-                'content_type': load_ct(sci_info['ctype']),
-                'field_names':  str(sci_info['fields']),
+                'content_type': ct,
+                # 'field_names':  str(sci_info['fields']),
+
+                # 'json_cells':  sci_info['cells'],
+                'cells': self.cells_proxies_registry.build_proxies_from_dicts(
+                    model=model,
+                    container_label=_('search configuration of model="{model}"').format(
+                        model=model,
+                    ),
+                    cell_dicts=sci_info['cells'],
+                    validated_data=validated_data,
+                ),
             }
 
             role_name = sci_info.get('role')
@@ -419,6 +601,10 @@ class SearchConfigImporter(Importer):
             role_name = data.pop('role_name', None)
             if role_name:
                 data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+
+            data['cells'] = [
+                cell_proxy.build_cell() for cell_proxy in data['cells']
+            ]
 
             SearchConfigItem.objects.create(**data)
 
@@ -617,168 +803,6 @@ class CustomFieldsImporter(Importer):
 
 
 # Header Filters ---------------------------------------------------------------
-
-# TODO: factorise these classes with EntityCells build() methods ?
-class CellProxy:
-    """ Abstract class.
-
-    CellProxies allows to validate data (deserialized JSON) describing an
-    EntityCell, and then to build an instance.
-
-    This is done in 2 steps, because some required instance (RelationType...)
-    can be validated before being stored in DB (there are described in the
-    importation data).
-    """
-    # Override this in child classes
-    cell_cls: Type[entity_cell.EntityCell] = entity_cell.EntityCell
-
-    def __init__(
-            self,
-            container_label: str,
-            model: Type[CremeEntity],
-            value: str,
-            validated_data: ValidatedData):
-        """Constructor.
-
-        @param container_label: String used by error messages to identify related
-               objects containing the cells (like HeaderFilter instance)
-        @param model: model related to the HeaderFilter.
-        @param value: deserialized data.
-        @param validated_data: IDs of validated (future) instances ;
-               dictionary <key=model ; values=set of IDs>
-        """
-        self.container_label = container_label
-        self.model = model
-        self.value = value
-
-        self._validate(validated_data)
-
-    def _validate(self, validated_data: ValidatedData) -> None:
-        """Extracts & validates information from self.value.
-
-        Raises exceptions to indicate errors.
-        ValidationErrors contain friendlier error messages.
-        """
-        raise NotImplementedError
-
-    def build_cell(self) -> entity_cell.EntityCell:
-        """
-        @return: an EntityCell instance.
-        """
-        return self.cell_cls.build(self.model, self.value)
-
-
-class CellProxiesRegistry:
-    """Registry for CellProxy classes.
-
-    Can be used as a decorator (see __call__() ).
-    """
-    def __init__(self):
-        self._proxies_classes: Dict[str, Type[CellProxy]] = {}
-
-    def __call__(self, proxy_cls: Type[CellProxy]) -> Type[CellProxy]:
-        self._proxies_classes[proxy_cls.cell_cls.type_id] = proxy_cls
-        return proxy_cls
-
-    def get(self, type_id: str) -> Optional[Type[CellProxy]]:
-        "@param type_id: see EntityCell.type_id."
-        return self._proxies_classes.get(type_id)
-
-    def build_proxies_from_dicts(self, *, model, container_label, cell_dicts, validated_data):
-        cells_proxies = []
-
-        for cell_dict in cell_dicts:  # TODO: check is a dict
-            cell_type  = cell_dict['type']
-            cell_value = cell_dict['value']
-
-            cell_proxy_cls = self.get(cell_type)
-
-            if cell_proxy_cls is None:
-                raise ValidationError(
-                    _(
-                        'The column with type="{type}" is invalid in «{container}».'
-                    ).format(type=cell_type, container=container_label)
-                )
-
-            cells_proxies.append(cell_proxy_cls(
-                container_label=container_label,
-                model=model,
-                value=cell_value,
-                validated_data=validated_data,
-            ))
-
-        return cells_proxies
-
-
-CELL_PROXIES = CellProxiesRegistry()
-
-
-@CELL_PROXIES
-class CellProxyRegularField(CellProxy):
-    cell_cls = entity_cell.EntityCellRegularField
-
-    def _validate(self, validated_data):
-        try:
-            FieldInfo(self.model, self.value)
-        except FieldDoesNotExist:
-            raise ValidationError(
-                _('The column with field="{field}" is invalid in «{container}».').format(
-                    field=self.value, container=self.container_label,
-                )
-            )
-
-
-@CELL_PROXIES
-class CellProxyCustomField(CellProxy):
-    cell_cls = entity_cell.EntityCellCustomField
-
-    def _validate(self, validated_data):
-        value = self.value
-
-        if value not in validated_data[CustomField] and \
-           not CustomField.objects.filter(uuid=value).exists():
-            raise ValidationError(
-                _(
-                    'The column with custom-field="{uuid}" is invalid in «{container}».'
-                ).format(uuid=value, container=self.container_label)
-            )
-
-    def build_cell(self):
-        return self.cell_cls(CustomField.objects.get(uuid=self.value))
-
-
-@CELL_PROXIES
-class CellProxyFunctionField(CellProxy):
-    cell_cls = entity_cell.EntityCellFunctionField
-
-    registry = function_field_registry
-
-    def _validate(self, validated_data):
-        func_field = self.registry.get(self.model, self.value)
-
-        if func_field is None:
-            raise ValidationError(
-                _(
-                    'The column with function-field="{ffield}" is invalid in «{container}».'
-                ).format(ffield=self.value, container=self.container_label)
-            )
-
-
-@CELL_PROXIES
-class CellProxyRelation(CellProxy):
-    cell_cls = entity_cell.EntityCellRelation
-
-    def _validate(self, validated_data):
-        value = self.value
-
-        if value not in validated_data[RelationType] and \
-           not RelationType.objects.filter(pk=value).exists():
-            raise ValidationError(
-                _(
-                    'The column with relation-type="{rtype}" is invalid in «{container}».'
-                ).format(rtype=value, container=self.container_label)
-            )
-
 
 @IMPORTERS.register(data_id=constants.ID_HEADER_FILTERS)
 class HeaderFiltersImporter(Importer):

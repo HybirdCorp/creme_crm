@@ -369,6 +369,34 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         self.assertCellInChoices('regular_field-address__country', choices=choices)
         self.assertCellInChoices(f'regular_field-address__{hidden_fname2}', choices=choices)
 
+    def test_regularfields_only_leaves(self):
+        class OnlyLeavesRegularFields(EntityCellRegularFieldsField):
+            only_leaves = True
+
+        class OnlyLeavesEntityCellsField(EntityCellsField):
+            field_classes = {OnlyLeavesRegularFields}
+
+        field = OnlyLeavesEntityCellsField(model=FakeContact)
+
+        fname1 = 'first_name'
+        self.assertListEqual(
+            [EntityCellRegularField.build(FakeContact, fname1)],
+            field.clean(f'regular_field-{fname1}'),
+        )
+
+        fname2 = 'sector__title'
+        self.assertListEqual(
+            [EntityCellRegularField.build(FakeContact, fname2)],
+            field.clean(f'regular_field-{fname2}'),
+        )
+
+        fname3 = 'sector'
+        self.assertFieldValidationError(
+            EntityCellRegularFieldsField, 'not_leaf', field.clean,
+            f'regular_field-{fname3}',
+            message_args={'value': fname3},
+        )
+
     def test_customfields01(self):
         create_cf = partial(
             CustomField.objects.create, content_type=FakeContact,

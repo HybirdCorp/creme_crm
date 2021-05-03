@@ -21,19 +21,20 @@
 import logging
 # import warnings
 from collections import defaultdict
+# from typing import Tuple
 from typing import (
+    TYPE_CHECKING,
     DefaultDict,
     Iterable,
     Iterator,
     List,
     Optional,
-    Tuple,
     Type,
     Union,
 )
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist
+# from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext
@@ -41,33 +42,36 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from ..utils import find_first
-from ..utils.meta import FieldInfo, ModelFieldEnumerator
+# from ..utils.meta import FieldInfo
+from ..utils.meta import ModelFieldEnumerator
 from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
 from .fields import DatePeriodField, EntityCTypeForeignKey
 
+if TYPE_CHECKING:
+    from ..core.entity_cell import EntityCell
+
 logger = logging.getLogger(__name__)
 
 
-# TODO: store FieldInfo too/instead (see Searcher + creme_config form)
-class SearchField:
-    __slots__ = ('__name', '__verbose_name')
-
-    def __init__(self, field_name: str, field_verbose_name: str):
-        self.__name = field_name
-        self.__verbose_name = field_verbose_name
-
-    def __str__(self):
-        return self.__verbose_name
-
-    @property
-    def name(self) -> str:
-        return self.__name
-
-    @property
-    def verbose_name(self) -> str:
-        return self.__verbose_name
+# class SearchField:
+#     __slots__ = ('__name', '__verbose_name')
+#
+#     def __init__(self, field_name: str, field_verbose_name: str):
+#         self.__name = field_name
+#         self.__verbose_name = field_verbose_name
+#
+#     def __str__(self):
+#         return self.__verbose_name
+#
+#     @property
+#     def name(self) -> str:
+#         return self.__name
+#
+#     @property
+#     def verbose_name(self) -> str:
+#         return self.__verbose_name
 
 
 class SearchConfigItemManager(models.Manager):
@@ -78,10 +82,12 @@ class SearchConfigItemManager(models.Manager):
             role: Union[UserRole, str, None] = None,
             disabled: bool = False) -> 'SearchConfigItem':
         """Create a config item & its fields if one does not already exists.
-        @param fields: Sequence of strings representing field names.
+        @param fields: Sequence of strings representing regular field names.
         @param role: UserRole instance; or 'superuser'; or None, for default configuration.
         @param disabled: Boolean.
         """
+        from ..core.entity_cell import EntityCellRegularField
+
         ct = ContentType.objects.get_for_model(model)  # TODO: accept ContentType instance ?
         superuser = False
 
@@ -95,11 +101,17 @@ class SearchConfigItemManager(models.Manager):
             content_type=ct,
             role=role,
             superuser=superuser,
-            defaults={'disabled': disabled},
+            defaults={
+                'disabled': disabled,
+                'cells': [
+                    EntityCellRegularField.build(model, field_name)
+                    for field_name in fields
+                ],
+            },
         )
 
-        if created:
-            sci._build_searchfields(model, fields)
+        # if created:
+        #     sci._build_searchfields(model, fields)
 
         return sci
 
@@ -169,16 +181,19 @@ class SearchConfigItem(CremeModel):
         pgettext_lazy('creme_core-search_conf', 'Disabled?'), default=False,
     )
 
-    # Do not this field directly; use 'searchfields' property
-    field_names = models.TextField(null=True)
+    # # Do not this field directly; use 'searchfields' property
+    # field_names = models.TextField(null=True)
+    # Do not this field directly; use 'cells' property instead
+    json_cells = models.JSONField(editable=False, default=list)  # TODO: CellsField ?
 
     objects = SearchConfigItemManager()
 
     creation_label = _('Create a search configuration')
     save_label     = _('Save the configuration')
 
-    _searchfields: Optional[Tuple[SearchField, ...]] = None
-    _all_fields: bool
+    # _searchfields: Optional[Tuple[SearchField, ...]] = None
+    _cells: Optional[List['EntityCell']] = None
+    # _all_fields: bool
 
     EXCLUDED_FIELDS_TYPES: List[Type[models.Field]] = [
         models.DateTimeField, models.DateField,
@@ -211,85 +226,144 @@ class SearchConfigItem(CremeModel):
 
     @property
     def all_fields(self) -> bool:
-        "@return True means that all fields are used."
-        self.searchfields  # NOQA  # Computes self._all_fields
-        return self._all_fields
+        """@return True means that all fields are used to search
+                   (no specific configuration).
+        """
+        # self.searchfields  # NOQA  # Computes self._all_fields
+        # return self._all_fields
+        return next(self.cells, None) is None
 
     @property
     def is_default(self) -> bool:
-        "Is default configuration ?"
+        "Is default configuration?"
         return self.role_id is None and not self.superuser
 
-    @classmethod
-    def _get_modelfields_choices(cls, model: Type[CremeEntity]) -> List[Tuple[str, str]]:
-        excluded = tuple(cls.EXCLUDED_FIELDS_TYPES)
-        return ModelFieldEnumerator(
-            # model, deep=1
-            model, depth=1,
-        ).filter(
-            viewable=True,
-        ).exclude(
-            # lambda f, depth: isinstance(f, excluded) or f.choices
-            lambda model, field, depth: isinstance(field, excluded) or field.choices
-        ).choices()
+    # @classmethod
+    # def _get_modelfields_choices(cls, model: Type[CremeEntity]) -> List[Tuple[str, str]]:
+    #     excluded = tuple(cls.EXCLUDED_FIELDS_TYPES)
+    #     return ModelFieldEnumerator(
+    #         model, deep=1
+    #     ).filter(
+    #         viewable=True,
+    #     ).exclude(
+    #         lambda f, depth: isinstance(f, excluded) or f.choices
+    #     ).choices()
 
-    def _build_searchfields(self,
-                            model: Type[CremeEntity],
-                            fields: Iterable[str],
-                            save: bool = True) -> None:
-        sfields: List[SearchField] = []
-        old_field_names = self.field_names
-
-        for field_name in fields:
-            try:
-                field_info = FieldInfo(model, field_name)
-            except FieldDoesNotExist as e:
-                logger.warning('%s => SearchField removed', e)
-            else:
-                sfields.append(
-                    SearchField(field_name=field_name,
-                                field_verbose_name=field_info.verbose_name,
-                               )
-                )
-
-        self.field_names = ','.join(sf.name for sf in sfields) or None
-
-        if not sfields:  # field_names is empty => use all compatible fields
-            sfields.extend(
-                SearchField(field_name=field_name, field_verbose_name=verbose_name)
-                for field_name, verbose_name in self._get_modelfields_choices(model)
-            )
-            self._all_fields = True
-        else:
-            self._all_fields = False
-
-        # We can pass the reference to this immutable collections
-        # (and SearchFields are hardly mutable).
-        self._searchfields = tuple(sfields)
-
-        if save and old_field_names != self.field_names:
-            self.save()
+    # def _build_searchfields(self,
+    #                         model: Type[CremeEntity],
+    #                         fields: Iterable[str],
+    #                         save: bool = True) -> None:
+    #     sfields: List[SearchField] = []
+    #     old_field_names = self.field_names
+    #
+    #     for field_name in fields:
+    #         try:
+    #             field_info = FieldInfo(model, field_name)
+    #         except FieldDoesNotExist as e:
+    #             logger.warning('%s => SearchField removed', e)
+    #         else:
+    #             sfields.append(
+    #                 SearchField(field_name=field_name,
+    #                             field_verbose_name=field_info.verbose_name,
+    #                            )
+    #             )
+    #
+    #     self.field_names = ','.join(sf.name for sf in sfields) or None
+    #
+    #     if not sfields:  # field_names is empty => use all compatible fields
+    #         sfields.extend(
+    #             SearchField(field_name=field_name, field_verbose_name=verbose_name)
+    #             for field_name, verbose_name in self._get_modelfields_choices(model)
+    #         )
+    #         self._all_fields = True
+    #     else:
+    #         self._all_fields = False
+    #
+    #     # We can pass the reference to this immutable collections
+    #     # (and SearchFields are hardly mutable).
+    #     self._searchfields = tuple(sfields)
+    #
+    #     if save and old_field_names != self.field_names:
+    #         self.save()
+    #
+    # @property
+    # def searchfields(self) -> Tuple[SearchField, ...]:
+    #     if self._searchfields is None:
+    #         names = self.field_names
+    #         self._build_searchfields(
+    #             self.content_type.model_class(), names.split(',') if names else ()
+    #         )
+    #
+    #     return self._searchfields
+    #
+    # @searchfields.setter
+    # def searchfields(self, fields: Iterable[str]) -> None:
+    #     "@param fields: Iterable of strings representing field names."
+    #     self._build_searchfields(self.content_type.model_class(), fields, save=False)
+    #
+    # def get_modelfields_choices(self) -> List[Tuple[str, str]]:
+    #     """Return a list of tuples (useful for Select.choices) representing
+    #     Fields that can be chosen by the user.
+    #     """
+    #     return self._get_modelfields_choices(self.content_type.model_class())
 
     @property
-    def searchfields(self) -> Tuple[SearchField, ...]:
-        if self._searchfields is None:
-            names = self.field_names
-            self._build_searchfields(
-                self.content_type.model_class(), names.split(',') if names else ()
+    def cells(self) -> Iterator['EntityCell']:
+        "Return the stored EntityCell instance."
+        cells = self._cells
+
+        if cells is None:
+            from ..core.entity_cell import CELLS_MAP
+
+            cells, errors = CELLS_MAP.build_cells_from_dicts(
+                model=self.content_type.model_class(),
+                dicts=self.json_cells,
             )
 
-        return self._searchfields
+            # TODO ??
+            # if errors:
+            #     logger.warning('SearchConfigItem(id="%s") is saved with valid cells.', self.id)
+            #     self._dump_cells(cells)
+            #     self.save()
 
-    @searchfields.setter
-    def searchfields(self, fields: Iterable[str]) -> None:
-        "@param fields: Iterable of strings representing field names."
-        self._build_searchfields(self.content_type.model_class(), fields, save=False)
+            self._cells = cells
 
-    def get_modelfields_choices(self) -> List[Tuple[str, str]]:
-        """Return a list of tuples (useful for Select.choices) representing
-        Fields that can be chosen by the user.
+        yield from cells
+
+    @cells.setter
+    def cells(self, cells: Iterable['EntityCell']) -> None:
+        self._cells = cells = [cell for cell in cells if cell]
+        self.json_cells = [cell.to_dict() for cell in cells]
+
+    @property
+    def refined_cells(self) -> Iterator['EntityCell']:
+        """Yield the EntityCell instances which should be used to search.
+        It avoids fields hidden with FieldsConfig & deleted CustomFields.
+        It builds the cells to use when no specific cell have been configured.
         """
-        return self._get_modelfields_choices(self.content_type.model_class())
+        if self.all_fields:
+            from ..core.entity_cell import EntityCellRegularField
+
+            model = self.content_type.model_class()
+            excluded = tuple(self.EXCLUDED_FIELDS_TYPES)
+            enumerator = ModelFieldEnumerator(
+                model=model, depth=1,
+            ).filter(
+                viewable=True,
+            ).exclude(
+                lambda model, field, depth: isinstance(field, excluded) or field.choices
+            )
+
+            for field_parts in enumerator:
+                # TODO: constructor for FieldInfo from fields sequence
+                #       (to avoid useless '__' join then split)
+                yield EntityCellRegularField.build(
+                    model, '__'.join(field.name for field in field_parts),
+                )
+        else:
+            for cell in self._cells:
+                if not cell.is_excluded:
+                    yield cell
 
     # @classmethod
     # def create_if_needed(cls, model, fields, role=None, disabled=False):

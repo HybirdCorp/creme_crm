@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-23 16:47+0200\n"
+"POT-Creation-Date: 2021-05-10 18:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -49,39 +49,6 @@ msgstr "Fusionner 2 fiches"
 
 msgid "Core"
 msgstr "Cœur"
-
-msgid "Home"
-msgstr "Accueil"
-
-msgid "User"
-msgstr "Utilisateur"
-
-msgid "My page"
-msgstr "Ma page"
-
-msgid "My jobs"
-msgstr "Mes jobs"
-
-msgid "Log out"
-msgstr "Se déconnecter"
-
-msgid "Tools"
-msgstr "Outils"
-
-msgid "Jobs"
-msgstr "Jobs"
-
-msgid "+ Creation"
-msgstr "+ Création"
-
-msgid "Main entities"
-msgstr "Fiches principales"
-
-msgid "Other type of entity"
-msgstr "Autre type de fiche"
-
-msgid "Recent entities"
-msgstr "Fiches récentes"
 
 msgid "You are not super-user."
 msgstr "Vous n'êtes pas super-utilisateur"
@@ -202,6 +169,12 @@ msgstr "Résultats"
 
 msgid "Errors"
 msgstr "Erreurs"
+
+msgid "Jobs"
+msgstr "Jobs"
+
+msgid "My jobs"
+msgstr "Mes jobs"
 
 msgid "Restrict to superusers"
 msgstr "Réserver aux super-utilisateurs"
@@ -997,6 +970,10 @@ msgid "This value is invalid: %(value)s"
 msgstr "Cette valeur est invalide : %(value)s"
 
 #, python-format
+msgid "This field has sub-field & cannot be selected: %(value)s"
+msgstr "Ce champ a des sous-champs & ne peut pas être sélectionné: %(value)s"
+
+#, python-format
 msgid "This type of relationship is not compatible with «%(model)s»."
 msgstr "Ce type de relation n'est pas compatible avec «%(model)s»."
 
@@ -1477,24 +1454,6 @@ msgstr "Séparateur"
 msgid "Add a separator"
 msgstr "Ajouter un séparateur"
 
-#, python-brace-format
-msgid "{count} entity"
-msgid_plural "{count} entities"
-msgstr[0] "{count} Fiche"
-msgstr[1] "{count} Fiches"
-
-msgid "Quick creation"
-msgstr "Création rapide"
-
-msgid "No type available"
-msgstr "Aucun type disponible."
-
-msgid "Create an entity of any type"
-msgstr "Créer une fiche de n'importe quel type"
-
-msgid "No recently visited entity"
-msgstr "Aucune fiche récemment visitée"
-
 msgid "To page {}"
 msgstr "À la page {}"
 
@@ -1513,8 +1472,41 @@ msgstr "À la première page"
 msgid "Next page"
 msgstr "Page suivante"
 
+msgid "Home"
+msgstr "Accueil"
+
+msgid "My page"
+msgstr "Ma page"
+
+msgid "Log out"
+msgstr "Se déconnecter"
+
+#, python-brace-format
+msgid "{count} entity"
+msgid_plural "{count} entities"
+msgstr[0] "{count} Fiche"
+msgstr[1] "{count} Fiches"
+
+msgid "User"
+msgstr "Utilisateur"
+
 msgid "*Quick forms*"
 msgstr "*Formulaires rapides*"
+
+msgid "No type available"
+msgstr "Aucun type disponible."
+
+msgid "Other type of entity"
+msgstr "Autre type de fiche"
+
+msgid "Create an entity of any type"
+msgstr "Créer une fiche de n'importe quel type"
+
+msgid "Recent entities"
+msgstr "Fiches récentes"
+
+msgid "No recently visited entity"
+msgstr "Aucune fiche récemment visitée"
 
 msgid "Name"
 msgstr "Nom"
@@ -2354,6 +2346,18 @@ msgstr "€"
 
 msgid "EUR"
 msgstr "EUR"
+
+msgid "Tools"
+msgstr "Outils"
+
+msgid "+ Creation"
+msgstr "+ Création"
+
+msgid "Main entities"
+msgstr "Fiches principales"
+
+msgid "Quick creation"
+msgstr "Création rapide"
 
 msgid "replaceMe@byYourAddress.com"
 msgstr "remplacezMoi@parVotreAdresse.fr"

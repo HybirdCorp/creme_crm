@@ -294,7 +294,8 @@ class ExportingTestCase(CremeTestCase):
             content = response.json()
 
         self.assertIsInstance(content, dict)
-        self.assertEqual('1.0', content.get('version'))
+        # self.assertEqual('1.0', content.get('version'))
+        self.assertEqual('1.1', content.get('version'))
 
         roles_info = content.get('roles')
         self.assertIsInstance(roles_info, list)
@@ -1016,36 +1017,81 @@ class ExportingTestCase(CremeTestCase):
         self.login(is_staff=True)
         role = self.role
 
-        create = SearchConfigItem.objects.create_if_needed
-        create(model=FakeContact, fields=['first_name', 'last_name'])
-        create(model=FakeContact, fields=['last_name'], role=role)
-        create(model=FakeOrganisation, fields=['name'], role='superuser')
-        create(model=FakeDocument, fields=['title'], disabled=True)
+        ct = ContentType.objects.get_for_model(FakeContact)
+        cfield = CustomField.objects.create(
+            name='Nickname', content_type=ct, field_type=CustomField.STR,
+        )
+
+        SearchConfigItem.objects.create(
+            content_type=ct,
+            cells=[
+                EntityCellRegularField.build(FakeContact, 'first_name'),
+                EntityCellRegularField.build(FakeContact, 'last_name'),
+                EntityCellCustomField(cfield),
+            ],
+        )
+
+        create_sci = SearchConfigItem.objects.create_if_needed
+        # create_sci(model=FakeContact, fields=['first_name', 'last_name'])
+        create_sci(model=FakeContact, fields=['last_name'], role=role)
+        create_sci(model=FakeOrganisation, fields=['name'], role='superuser')
+        create_sci(model=FakeDocument, fields=['title'], disabled=True)
 
         response = self.assertGET200(self.URL)
         content = response.json()
 
         loaded_search = content.get('search')
         self.assertListEqual(
-            [{'ctype': 'creme_core.fakecontact', 'fields': 'first_name,last_name'}],
+            [
+                {
+                    'ctype': 'creme_core.fakecontact',
+                    # 'fields': 'first_name,last_name',
+                    'cells': [
+                        {'type': 'regular_field', 'value': 'first_name'},
+                        {'type': 'regular_field', 'value': 'last_name'},
+                        {'type': 'custom_field', 'value':  str(cfield.uuid)},
+                    ],
+                },
+            ],
             [
                 d for d in loaded_search
                 if d.get('ctype') == 'creme_core.fakecontact' and 'role' not in d
             ],
         )
         self.assertListEqual(
-            [{'ctype': 'creme_core.fakecontact', 'fields': 'last_name', 'role': role.name}],
+            [
+                {
+                    'ctype': 'creme_core.fakecontact',
+                    'role': role.name,
+                    # 'fields': 'last_name',
+                    'cells': [{'type': 'regular_field', 'value': 'last_name'}],
+                },
+            ],
             [
                 d for d in loaded_search
                 if d.get('ctype') == 'creme_core.fakecontact' and 'role' in d
             ],
         )
         self.assertListEqual(
-            [{'ctype': 'creme_core.fakeorganisation', 'fields': 'name', 'superuser': True}],
+            [
+                {
+                    'ctype': 'creme_core.fakeorganisation',
+                    'superuser': True,
+                    # 'fields': 'name',
+                    'cells': [{'type': 'regular_field', 'value': 'name'}],
+                },
+            ],
             [d for d in loaded_search if d.get('ctype') == 'creme_core.fakeorganisation']
         )
         self.assertListEqual(
-            [{'ctype': 'creme_core.fakedocument', 'fields': 'title', 'disabled': True}],
+            [
+                {
+                    'ctype': 'creme_core.fakedocument',
+                    'disabled': True,
+                    # 'fields': 'title',
+                    'cells': [{'type': 'regular_field', 'value': 'title'}],
+                },
+            ],
             [d for d in loaded_search if d.get('ctype') == 'creme_core.fakedocument'],
         )
 

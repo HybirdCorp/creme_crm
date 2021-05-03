@@ -104,6 +104,21 @@ class EntityCellRegularFieldsWidget(UniformEntityCellsWidget):
     template_name = 'creme_core/forms/widgets/entity-cells/regular-fields.html'
     type_id = EntityCellRegularField.type_id
 
+    # <True> means: when a FK/M2M has only one sub-field, hide it
+    hide_alone_subfield = True
+
+    # <True> means: hide the checkbox of fields with displayed sub-fields
+    only_leaves = False
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name=name, value=value, attrs=attrs)
+
+        widget_ctxt = context['widget']
+        widget_ctxt['hide_alone_subfield'] = self.hide_alone_subfield
+        widget_ctxt['only_leaves'] = self.only_leaves
+
+        return context
+
     def _refine_choices(self, choices):
         main_choices = {}
         sub_choices = defaultdict(list)
@@ -298,6 +313,11 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
     widget = EntityCellRegularFieldsWidget
     cell_class = EntityCellRegularField
     fields_depth = 1
+    only_leaves = False
+
+    default_error_messages = {
+        'not_leaf': _('This field has sub-field & cannot be selected: %(value)s'),
+    }
 
     # This separated method makes overriding easier
     def _regular_fields_enum(self, model: Type[CremeEntity]) -> ModelFieldEnumerator:
@@ -368,6 +388,17 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
             cell = build(model, '__'.join(field.name for field in fields_chain))
 
             yield cell.key, cell
+
+    def validate(self, value, **kwargs):
+        super().validate(value, **kwargs)
+
+        if self.only_leaves and value:
+            if value.field_info[-1].is_relation:
+                raise ValidationError(
+                    self.error_messages['not_leaf'],
+                    code='not_leaf',
+                    params={'value': value.value},
+                )
 
 
 class EntityCellCustomFieldsField(UniformEntityCellsField):

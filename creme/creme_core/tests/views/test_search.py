@@ -7,8 +7,16 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellFunctionField,
+)
 from creme.creme_core.gui.bricks import QuerysetBrick
 from creme.creme_core.models import (
+    CustomField,
+    CustomFieldEnum,
+    CustomFieldEnumValue,
+    CustomFieldMultiEnum,
     FieldsConfig,
     SearchConfigItem,
     SetCredentials,
@@ -87,7 +95,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         return self.client.get(reverse('creme_core__search'), data=data)
 
-    def test_search01(self):
+    def test_search(self):
         self.login()
         self._setup_contacts()
 
@@ -123,7 +131,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertNotContains(response, self.linus.get_absolute_url())
 
-    def test_search02(self):
+    def test_search_regular_fields01(self):
         "Find result in field & sub-field ; deleted entities are found too"
         self.login()
         self._setup_contacts()
@@ -136,7 +144,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertContains(response, self.andrew.get_absolute_url())  # In sector__title
         self.assertNotContains(response, self.alan.get_absolute_url())
 
-    def test_search03(self):
+    def test_search_regular_fields02(self):
         self.login()
         self._setup_contacts()
         self._setup_orgas()
@@ -159,7 +167,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIn(_('Contact'), vnames)
         self.assertIn(_('Organisation'), vnames)
 
-    def test_search04(self):
+    def test_search_regular_fields03(self):
         "Error"
         self.login()
         self._setup_contacts()
@@ -170,7 +178,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual(404, self._search('linus', self.UNUSED_PK).status_code)
 
-    def test_search05(self):
+    def test_search_regular_fields04(self):
         "No config for Contact"
         self.login()
         self._build_contacts()
@@ -182,7 +190,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, self.linus2.get_absolute_url())
         self.assertNotContains(response, self.alan.get_absolute_url())
 
-    def test_search06(self):
+    def test_search_regular_fields05(self):
         "Search only in configured fields if the config exists"
         self.login()
         self._setup_contacts()
@@ -195,8 +203,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self._search('very smart', self.contact_ct_id)
         self.assertNotContains(response, linus.get_absolute_url())
 
-    def test_search07(self):
-        "Disabled"
+    def test_search_disabled(self):
         self.login()
         self._setup_contacts(disabled=True)
         self._setup_orgas()
@@ -215,7 +222,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIn(FakeOrganisation._meta.verbose_name, vnames)
         self.assertNotIn(FakeContact._meta.verbose_name, vnames)
 
-    def test_search08(self):
+    def test_search_for_role(self):
         "Use Role's config if it exists"
         self.login(is_superuser=False, allowed_apps=['creme_core'])
 
@@ -229,7 +236,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, self.linus2.get_absolute_url())
         self.assertContains(response, self.alan.get_absolute_url())
 
-    def test_search09(self):
+    def test_search_super_user(self):
         "Use Role's config if it exists (super-user)"
         self.login()
 
@@ -243,8 +250,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, self.linus2.get_absolute_url())
         self.assertContains(response, self.alan.get_absolute_url())
 
-    def test_search10(self):
-        "With FieldsConfig"
+    def test_search_fields_config01(self):
         user = self.login()
 
         hidden_fname1 = 'description'
@@ -288,7 +294,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, _('Description'))
         self.assertNotContains(response, _('Sector'))
 
-    def test_search11(self):
+    def test_search_fields_config02(self):
         "With FieldsConfig: all fields are hidden."
         self.login()
 
@@ -315,14 +321,14 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
             )
         )
 
-    def test_search12(self):
+    def test_search_error01(self):
         "Model is not a CremeEntity."
         self.login()
 
         response = self._search('john', ContentType.objects.get_for_model(ContentType).id)
         self.assertEqual(409, response.status_code)
 
-    def test_search13(self):
+    def test_search_empty(self):
         "Empty page"
         self.login()
 
@@ -330,7 +336,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, 'creme_core/search_results.html')
 
-    def test_search14(self):
+    def test_search_words01(self):
         "String is split"
         self.login()
         self._setup_contacts()
@@ -343,13 +349,13 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, self.andrew.get_absolute_url())
         self.assertNotContains(response, self.alan.get_absolute_url())
 
-    def test_search15(self):
+    def test_search_words02(self):
         "Grouped words."
-        self.login()
+        user = self.login()
 
         SearchConfigItem.objects.create_if_needed(FakeOrganisation, ['name'])
 
-        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Foobar Foundation')
         orga2 = create_orga(name='Foobar Mega Foundation')
         orga3 = create_orga(name='Mega Foobar Foundation')
@@ -362,6 +368,115 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertContains(response, orga1.get_absolute_url())
         self.assertContains(response, orga3.get_absolute_url())
         self.assertNotContains(response, orga2.get_absolute_url())
+
+    def test_search_custom_field01(self):
+        "Type <CustomField.STR>."
+        user = self.login()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        cfield = CustomField.objects.create(
+            name='ID number', content_type=ct, field_type=CustomField.STR,
+        )
+
+        SearchConfigItem.objects.create(
+            content_type=ct, cells=[EntityCellCustomField(cfield)],
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga1 = create_orga(name='Foobar Foundation')
+        orga2 = create_orga(name='Foobar Mega Foundation')
+        orga3 = create_orga(name='Mega Foobar Foundation')
+
+        cfield.value_class(custom_field=cfield, entity=orga1).set_value_n_save('ABCD123')
+        cfield.value_class(custom_field=cfield, entity=orga2).set_value_n_save('HIJK789')
+
+        response = self._search('BCD1', ct.id)
+        self.assertEqual(200, response.status_code)
+
+        self.assertContains(response, orga1.get_absolute_url())
+        self.assertNotContains(response, orga2.get_absolute_url())
+        self.assertNotContains(response, orga3.get_absolute_url())
+
+    def test_search_custom_field02(self):
+        "Type <CustomField.ENUM>."
+        user = self.login()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        cfield = CustomField.objects.create(
+            name='Type', content_type=ct, field_type=CustomField.ENUM,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
+        eval_small = create_evalue(value='Small')
+        eval_medium = create_evalue(value='Medium')
+        create_evalue(value='Big')
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga1 = create_orga(name='Foobar Foundation')
+        orga2 = create_orga(name='Foobar Mega Foundation')
+        orga3 = create_orga(name='Mega Foobar Foundation')
+
+        create_enum = partial(CustomFieldEnum.objects.create, custom_field=cfield)
+        create_enum(entity=orga1, value=eval_small)
+        create_enum(entity=orga2, value=eval_medium)
+
+        SearchConfigItem.objects.create(
+            content_type=ct, cells=[EntityCellCustomField(cfield)],
+        )
+
+        response = self._search('Smal', ct.id)
+        self.assertEqual(200, response.status_code)
+
+        self.assertContains(response, orga1.get_absolute_url())
+        self.assertNotContains(response, orga2.get_absolute_url())
+        self.assertNotContains(response, orga3.get_absolute_url())
+
+    def test_search_custom_field03(self):
+        "Type <CustomField.MULTI_ENUM>."
+        user = self.login()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        cfield = CustomField.objects.create(
+            name='Countries', content_type=ct, field_type=CustomField.MULTI_ENUM,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
+        eval_fr = create_evalue(value='France')
+        eval_ger = create_evalue(value='Germany')
+        create_evalue(value='Italy')
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga1 = create_orga(name='Foobar Foundation')
+        orga2 = create_orga(name='Foobar Mega Foundation')
+        orga3 = create_orga(name='Mega Foobar Foundation')
+
+        cf_memum = partial(CustomFieldMultiEnum, custom_field=cfield)
+        cf_memum(entity=orga1).set_value_n_save([eval_fr])
+        cf_memum(entity=orga2).set_value_n_save([eval_ger, eval_fr])
+
+        SearchConfigItem.objects.create(
+            content_type=ct, cells=[EntityCellCustomField(cfield)],
+        )
+
+        response = self._search('fran', ct.id)
+        self.assertEqual(200, response.status_code)
+
+        self.assertContains(response, orga1.get_absolute_url())
+        self.assertContains(response, orga2.get_absolute_url())
+        self.assertNotContains(response, orga3.get_absolute_url())
+
+    def test_search_invalid_cell_type(self):
+        "No error."
+        self.login()
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        cell = EntityCellFunctionField.build(FakeOrganisation, 'get_pretty_properties')
+        self.assertIsNotNone(cell)
+
+        SearchConfigItem.objects.create(content_type=ct, cells=[cell])
+
+        response = self._search('cool', ct.id)
+        self.assertEqual(200, response.status_code)
 
     def test_reload_brick(self):
         self.login()
