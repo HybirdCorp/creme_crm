@@ -281,7 +281,10 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('modified',                   _('Last modification')),
             ('uuid',                       'uuid'),
         ]
-        choices = meta.ModelFieldEnumerator(CremeEntity).choices()
+        enum1 = meta.ModelFieldEnumerator(CremeEntity)
+        self.assertEqual(CremeEntity, enum1.model)
+
+        choices = enum1.choices()
         self.assertEqual(expected, choices, choices)
 
         # choices = meta.ModelFieldEnumerator(CremeEntity, only_leafs=True).choices()
@@ -448,10 +451,14 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('languages',    _('Spoken language(s)')),
             ('url_site',     _('Web Site')),
         ]
-        choices1 = meta.ModelFieldEnumerator(
+
+        enum1 = meta.ModelFieldEnumerator(
             # FakeContact, only_leafs=False,
             FakeContact, only_leaves=False,
-        ).filter(editable=True, viewable=True).choices()
+        ).filter(editable=True, viewable=True)
+        self.assertEqual(FakeContact, enum1.model)
+
+        choices1 = enum1.choices()
         self.assertEqual(expected, choices1, choices1)
 
         choices2 = meta.ModelFieldEnumerator(

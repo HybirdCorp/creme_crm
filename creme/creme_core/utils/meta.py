@@ -338,6 +338,10 @@ class ModelFieldEnumerator:
 
         return [c[1] for c in sortable_choices]  # Extract choices
 
+    @property
+    def model(self):
+        return self._model
+
 
 # OrderedField -----------------------------------------------------------------
 
