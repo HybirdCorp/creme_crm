@@ -5,8 +5,9 @@
     <ul class="selector_list">
         {% for choice_id, field_vname, sub_choices in widget.choices %}
             <li class="selector" data-column="{{choice_id}}">
-                {% if sub_choices and sub_choices|length > 1 %}
-                    <input type="checkbox"><a href="" class="sub_selector_toggle" title="{% translate 'Click to select the sub-fields' %}">{{field_vname}}</a>
+                {% if sub_choices and not widget.hide_alone_subfield or sub_choices|length > 1 %}
+                    {% if not widget.only_leaves %}<input type="checkbox">{% endif %}
+                    <a href="" class="sub_selector_toggle" title="{% translate 'Click to select the sub-fields' %}">{{field_vname}}</a>
                     <div class="underlay-container">
                         <div class="underlay_wrapper">
                             <div class="arrow">

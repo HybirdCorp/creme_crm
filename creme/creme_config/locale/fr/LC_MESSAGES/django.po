@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-07 18:59+0200\n"
+"POT-Creation-Date: 2021-05-11 10:45+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -108,30 +108,6 @@ msgstr ""
 "contient des références à des blocs d'instance ({blocks}), qui ne sont pas "
 "gérés."
 
-msgid "This filter PK is invalid: «{}»."
-msgstr "Cette clé primaire de filtre est invalide : «{}»."
-
-msgid "This property type cannot be overridden: «{}»."
-msgstr "Ce type de propriété ne peut pas être écrasé : «{}»."
-
-msgid "This property type PKs are invalid: {}."
-msgstr "Ces clés primaires de type de propriété sont invalides : {}."
-
-msgid "This relation type PK is invalid: «{}»."
-msgstr "Cette clé primaire de type de relation est invalide : «{}»."
-
-msgid "This relation type cannot be overridden: «{}»."
-msgstr "Ce type de relation ne peut pas être écrasé : «{}»."
-
-msgid "This custom-field type is invalid: {}."
-msgstr "Ce type de champ personnalisé est invalide: {}."
-
-msgid "There is already a custom-field with the same UUID: {}."
-msgstr "Il y a déjà un champ personnalisé avec le même UUID : {}."
-
-msgid "There is already a custom-field with the same name: {}."
-msgstr "Il y a déjà un champ personnalisé avec le même nom : {}."
-
 #, python-brace-format
 msgid "The column with type=\"{type}\" is invalid in «{container}»."
 msgstr "La colonne avec le type=\"{type}\" est invalide dans «{container}»."
@@ -156,6 +132,34 @@ msgid "The column with relation-type=\"{rtype}\" is invalid in «{container}»."
 msgstr ""
 "La colonne avec le type de relation=\"{rtype}\" est invalide dans "
 "«{container}»."
+
+msgid "This filter PK is invalid: «{}»."
+msgstr "Cette clé primaire de filtre est invalide : «{}»."
+
+#, python-brace-format
+msgid "search configuration of model=\"{model}\""
+msgstr "configuration de recherche du modèle=\"{model}\""
+
+msgid "This property type cannot be overridden: «{}»."
+msgstr "Ce type de propriété ne peut pas être écrasé : «{}»."
+
+msgid "This property type PKs are invalid: {}."
+msgstr "Ces clés primaires de type de propriété sont invalides : {}."
+
+msgid "This relation type PK is invalid: «{}»."
+msgstr "Cette clé primaire de type de relation est invalide : «{}»."
+
+msgid "This relation type cannot be overridden: «{}»."
+msgstr "Ce type de relation ne peut pas être écrasé : «{}»."
+
+msgid "This custom-field type is invalid: {}."
+msgstr "Ce type de champ personnalisé est invalide: {}."
+
+msgid "There is already a custom-field with the same UUID: {}."
+msgstr "Il y a déjà un champ personnalisé avec le même UUID : {}."
+
+msgid "There is already a custom-field with the same name: {}."
+msgstr "Il y a déjà un champ personnalisé avec le même nom : {}."
 
 msgid "This view of list cannot be overridden: «{}»."
 msgstr "Cette vue de liste ne peut pas être écrasé: «{}»."

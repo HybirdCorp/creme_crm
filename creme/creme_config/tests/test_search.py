@@ -1,10 +1,21 @@
 # -*- coding: utf-8 -*-
 
+from functools import partial
+
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import FieldsConfig, SearchConfigItem, UserRole
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellRegularField,
+)
+from creme.creme_core.models import (
+    CustomField,
+    FieldsConfig,
+    SearchConfigItem,
+    UserRole,
+)
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_models import (
     FakeContact,
@@ -75,7 +86,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(sci.all_fields)
 
     def test_portal02(self):
-        "Missing default configurations are built, even when configs for users exist"
+        "Missing default configurations are built, even when configs for users exist."
         ctype = self._get_first_entity_ctype()
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ctype))
 
@@ -102,30 +113,40 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         with self.assertNoException():
-            fields = context['form'].fields['fields']
-            choices = fields.choices
+            # fields = context['form'].fields['fields']
+            cells_f = context['form'].fields['cells']
+            # choices = fields.choices
 
-        self.assertFalse(fields.initial)
+        # self.assertFalse(fields.initial)
+        self.assertFalse(cells_f.initial)
 
-        fname = 'last_name'
-        index = self.assertInChoices(value=fname, label=_('Last name'), choices=choices)
+        # fname = 'last_name'
+        fname1 = 'last_name'
+        # index = self.assertInChoices(value=fname, label=_('Last name'), choices=choices)
 
-        self.assertInChoices(value='first_name', label=_('First name'), choices=choices)
-        self.assertInChoices(
-            value='civility__title',
-            label=f"[{_('Civility')}] - {_('Title')}",
-            choices=choices,
-        )
-        self.assertNotInChoices(value='birthday', choices=choices)
+        fname2 = 'civility__title'
+        # self.assertInChoices(value='first_name', label=_('First name'), choices=choices)
+        # self.assertInChoices(
+        #     value='civility__title',
+        #     label=f"[{_('Civility')}] - {_('Title')}",
+        #     choices=choices,
+        # )
+        # self.assertNotInChoices(value='birthday', choices=choices)
 
+        fname3 = 'sector__title'
+        fname4 = 'languages__name'
         self.assertNoFormError(self.client.post(
             url,
             data={
                 'role': role.id,
 
-                f'fields_check_{index}': 'on',
-                f'fields_value_{index}': fname,
-                f'fields_order_{index}': 1,
+                # f'fields_check_{index}': 'on',
+                # f'fields_value_{index}': fname,
+                # f'fields_order_{index}': 1,
+                'cells': f'regular_field-{fname1},'
+                         f'regular_field-{fname2},'
+                         f'regular_field-{fname3},'
+                         f'regular_field-{fname4}'
             },
         ))
 
@@ -136,7 +157,14 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(role, sc_item.role)
         self.assertFalse(sc_item.superuser)
         self.assertFalse(sc_item.disabled)
-        self.assertEqual([fname], [sf.name for sf in sc_item.searchfields])
+        # self.assertEqual([fname], [sf.name for sf in sc_item.searchfields])
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(FakeContact, name)
+                for name in (fname1, fname2, fname3, fname4)
+            ],
+            [*sc_item.cells],
+        )
 
     def test_add02(self):
         "Other CT, super users."
@@ -185,22 +213,135 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertIsNone(role_f.empty_label)
 
-    def _edit_config(self, url, sci, names_indexes, disabled=''):
-        data = {'disabled': disabled}
-        names = []
+    def test_add_regular_fields_errors01(self):
+        "Forbidden fields."
+        url = self._build_add_url(self.ct_contact)
 
-        for order, (name, index) in enumerate(names_indexes, start=1):
-            data[f'fields_check_{index}'] = 'on'
-            data[f'fields_value_{index}'] = name
-            data[f'fields_order_{index}'] = order
+        def post(field_name, msg_fmt=None):
+            response = self.assertPOST200(
+                url, data={'cells': f'regular_field-{field_name}'}
+            )
+            if not msg_fmt:
+                msg_fmt = _('This value is invalid: %(value)s')
+            self.assertFormError(
+                response, 'form', 'cells',
+                # _('This value is invalid: %(value)s') % {'value': field_name},
+                msg_fmt % {'value': field_name},
+            )
 
-            names.append(name)
+        post('birthday')
+        post('is_a_nerd')
+        leaf_msg_fmt = _('This field has sub-field & cannot be selected: %(value)s')
+        post('sector', msg_fmt=leaf_msg_fmt)  # FK
+        post('languages', msg_fmt=leaf_msg_fmt)  # M2M
+        post('image__user')
+        post('image__user__username')
 
-        response = self.client.post(url, data=data)
+    def test_add_regular_fields_errors02(self):
+        "Fields with 'choices' are not valid."
+        field_name = 'discount_unit'
+        model_field = FakeInvoiceLine._meta.get_field(field_name)
+        self.assertTrue(model_field.choices)
+
+        response = self.assertPOST200(
+            self._build_add_url(ContentType.objects.get_for_model(FakeInvoiceLine)),
+            data={'cells': f'regular_field-{field_name}'}
+        )
+        self.assertFormError(
+            response, 'form', 'cells',
+            _('This value is invalid: %(value)s') % {'value': field_name},
+        )
+
+    def test_add_regular_fields_errors03(self):
+        "Exclude DatePeriodField."
+        field_name = 'periodicity'
+        response = self.assertPOST200(
+            self._build_add_url(ContentType.objects.get_for_model(FakeInvoice)),
+            data={'cells': f'regular_field-{field_name}'}
+        )
+        self.assertFormError(
+            response, 'form', 'cells',
+            _('This value is invalid: %(value)s') % {'value': field_name},
+        )
+
+    def test_add_custom_fields(self):
+        ct = self.ct_orga
+        create_cfield = partial(CustomField.objects.create, content_type=ct)
+        cfield1 = create_cfield(name='ID number', field_type=CustomField.STR)
+        cfield2 = create_cfield(name='2nd site',  field_type=CustomField.URL)
+        cfield3 = create_cfield(name='Degree',    field_type=CustomField.ENUM)
+        cfield4 = create_cfield(name='Hobbies',   field_type=CustomField.MULTI_ENUM)
+
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(ct),
+            data={
+                'cells': f'custom_field-{cfield1.id},'
+                         f'custom_field-{cfield2.id},'
+                         f'custom_field-{cfield3.id},'
+                         f'custom_field-{cfield4.id}'
+            },
+        ))
+
+        sc_items = SearchConfigItem.objects.filter(content_type=ct)
+        self.assertEqual(1, len(sc_items))
+        self.assertListEqual(
+            [
+                EntityCellCustomField(cf)
+                for cf in (cfield1, cfield2, cfield3, cfield4)
+            ],
+            [*sc_items[0].cells],
+        )
+
+    def test_add_custom_fields_errors(self):
+        "Forbidden types."
+        ct = self.ct_orga
+
+        def post(cfield):
+            response = self.assertPOST200(
+                self._build_add_url(ct),
+                data={'cells': f'custom_field-{cfield.id}'}
+            )
+            self.assertFormError(
+                response, 'form', 'cells',
+                _('This value is invalid: %(value)s') % {'value': cfield.id},
+            )
+
+        create_cfield = partial(CustomField.objects.create, content_type=ct)
+        post(create_cfield(name='To be sold?',  field_type=CustomField.BOOL))
+        post(create_cfield(name='Inauguration', field_type=CustomField.DATE))
+        post(create_cfield(name='Next fiesta',  field_type=CustomField.DATETIME))
+
+    # def _edit_config(self, url, sci, names_indexes, disabled=''):
+    #     data = {'disabled': disabled}
+    #     names = []
+    #
+    #     for order, (name, index) in enumerate(names_indexes, start=1):
+    #         data[f'fields_check_{index}'] = 'on'
+    #         data[f'fields_value_{index}'] = name
+    #         data[f'fields_order_{index}'] = order
+    #
+    #         names.append(name)
+    #
+    #     response = self.client.post(url, data=data)
+    #     self.assertNoFormError(response)
+    #
+    #     sci = self.refresh(sci)
+    #     self.assertEqual(names, [sf.name for sf in sci.searchfields])
+    #
+    #     return sci
+    def _edit_config(self, url, sci, *field_ids, disabled=''):
+        cell_keys = [
+            f'regular_field-{field_id}'
+            for field_id in field_ids
+        ]
+
+        response = self.client.post(
+            url, data={'disabled': disabled, 'cells': ','.join(cell_keys)},
+        )
         self.assertNoFormError(response)
 
         sci = self.refresh(sci)
-        self.assertEqual(names, [sf.name for sf in sci.searchfields])
+        self.assertListEqual(cell_keys, [c.key for c in sci.cells])
 
         return sci
 
@@ -216,91 +357,101 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Edit «{object}»').format(object=sci), context.get('title'))
 
         with self.assertNoException():
-            fields = context['form'].fields['fields']
-            choices = fields.choices
+            # fields = context['form'].fields['fields']
+            # choices = fields.choices
+            cells_f = context['form'].fields['cells']
 
-        self.assertEqual(['last_name'], fields.initial)
+        # self.assertEqual(['last_name'], fields.initial)
+        self.assertListEqual(
+            [EntityCellRegularField.build(FakeContact, 'last_name')],
+            cells_f.initial,
+        )
 
         fname1 = 'last_name'
-        index1 = self.assertInChoices(value=fname1, label=_('Last name'), choices=choices)
+        # index1 = self.assertInChoices(value=fname1, label=_('Last name'), choices=choices)
 
         fname2 = 'first_name'
-        index2 = self.assertInChoices(value=fname2, label=_('First name'), choices=choices)
+        # index2 = self.assertInChoices(value=fname2, label=_('First name'), choices=choices)
+        #
+        # self.assertInChoices(
+        #     value='civility__title',
+        #     label='[{}] - {}'.format(_('Civility'), _('Title')),
+        #     choices=choices,
+        # )
+        # self.assertNotInChoices(value='birthday', choices=choices)
 
-        self.assertInChoices(
-            value='civility__title',
-            label='[{}] - {}'.format(_('Civility'), _('Title')),
-            choices=choices,
-        )
-        self.assertNotInChoices(value='birthday', choices=choices)
-
-        sci = self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
+        # sci = self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
+        sci = self._edit_config(url, sci, fname1, fname2)
         self.assertFalse(sci.disabled)
 
     def test_edit02(self):
         "Other CT + role + exclude BooleanField."
         sci = SearchConfigItem.objects.create(content_type=self.ct_orga, role=self.role)
         url = self._build_edit_url(sci)
-        response = self.assertGET200(url)
+        # response = self.assertGET200(url)
 
-        with self.assertNoException():
-            choices = response.context['form'].fields['fields'].choices
+        # with self.assertNoException():
+        #     choices = response.context['form'].fields['fields'].choices
 
         fname1 = 'name'
-        index1 = self.assertInChoices(value=fname1, label=_('Name'), choices=choices)
+        # index1 = self.assertInChoices(value=fname1, label=_('Name'), choices=choices)
 
         fname2 = 'description'
-        index2 = self.assertInChoices(value=fname2, label=_('Description'), choices=choices)
+        # index2 = self.assertInChoices(value=fname2, label=_('Description'), choices=choices)
 
-        self.assertNotInChoices(value='subject_to_vat', choices=choices)
+        # self.assertNotInChoices(value='subject_to_vat', choices=choices)
 
-        self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
+        # self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
+        self._edit_config(url, sci, fname1, fname2)
 
-    def test_edit03(self):
-        "Disabled."
+    # def test_edit03(self):
+    def test_edit_disabled(self):
         sci = SearchConfigItem.objects.create(content_type=self.ct_contact)
         url = self._build_edit_url(sci)
-        response = self.assertGET200(url)
+        # response = self.assertGET200(url)
 
-        with self.assertNoException():
-            choices = response.context['form'].fields['fields'].choices
+        # with self.assertNoException():
+        #     choices = response.context['form'].fields['fields'].choices
 
-        fname = 'last_name'
-        index = self.assertInChoices(value=fname, label=_('Last name'), choices=choices)
-        sci = self._edit_config(url, sci, [(fname, index)], disabled='on')
+        # fname = 'last_name'
+        # index = self.assertInChoices(value=fname, label=_('Last name'), choices=choices)
+        # sci = self._edit_config(url, sci, [(fname, index)], disabled='on')
+        sci = self._edit_config(url, sci, 'last_name', disabled='on')
         self.assertTrue(sci.disabled)
 
-    def test_edit04(self):
-        "Fields with 'choices' are not valid."
-        fname = 'discount_unit'
-        mfield = FakeInvoiceLine._meta.get_field(fname)
-        self.assertTrue(mfield.choices)
+    # def test_edit04(self):
+    #     "Fields with 'choices' are not valid."
+    #     fname = 'discount_unit'
+    #     mfield = FakeInvoiceLine._meta.get_field(fname)
+    #     self.assertTrue(mfield.choices)
+    #
+    #     sci = SearchConfigItem.objects.create(content_type=FakeInvoiceLine)
+    #     response = self.assertGET200(self._build_edit_url(sci))
+    #
+    #     with self.assertNoException():
+    #         choices = response.context['form'].fields['fields'].choices
+    #
+    #     self.assertInChoices(value='item', label='Item', choices=choices)
+    #     self.assertNotInChoices(value=fname, choices=choices)
 
-        sci = SearchConfigItem.objects.create(content_type=FakeInvoiceLine)
-        response = self.assertGET200(self._build_edit_url(sci))
+    # def test_edit05(self):
+    #     "Exclude DatePeriodField."
+    #     sci =SearchConfigItem.objects.create(content_type=FakeInvoice)
+    #
+    #     response = self.assertGET200(self._build_edit_url(sci))
+    #
+    #     with self.assertNoException():
+    #         choices = response.context['form'].fields['fields'].choices
+    #
+    #     self.assertInChoices(value='name', label=_('Name'), choices=choices)
+    #     self.assertNotInChoices(value='periodicity', choices=choices)
 
-        with self.assertNoException():
-            choices = response.context['form'].fields['fields'].choices
-
-        self.assertInChoices(value='item', label='Item', choices=choices)
-        self.assertNotInChoices(value=fname, choices=choices)
-
-    def test_edit05(self):
-        "Exclude DatePeriodField."
-        sci = SearchConfigItem.objects.create(content_type=FakeInvoice)
-        response = self.assertGET200(self._build_edit_url(sci))
-
-        with self.assertNoException():
-            choices = response.context['form'].fields['fields'].choices
-
-        self.assertInChoices(value='name', label=_('Name'), choices=choices)
-        self.assertNotInChoices(value='periodicity', choices=choices)
-
-    def test_edit06(self):
+    # def test_edit06(self):
+    def test_edit_fields_config01(self):
         "With FieldsConfig."
         model = FakeContact
-        hidden_fname1 = 'description'
-        hidden_fname2 = 'position'
+        hidden_fname1 = 'position'
+        hidden_fname2 = 'description'  # NB: in CremeEntity
         FieldsConfig.objects.create(
             content_type=model,
             descriptions=[
@@ -310,25 +461,49 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         sci = SearchConfigItem.objects.create_if_needed(model, fields=['first_name'])
 
-        response = self.assertGET200(self._build_edit_url(sci))
+        # response = self.assertGET200(self._build_edit_url(sci))
+        #
+        # with self.assertNoException():
+        #     fields_f = response.context['form'].fields['fields']
+        #     choices = fields_f.choices
+        #
+        # self.assertListEqual(['first_name'], fields_f.initial)
+        #
+        # self.assertInChoices(value='first_name', label=_('First name'), choices=choices)
+        # self.assertInChoices(
+        #     value='civility__title',
+        #     label=f"[{_('Civility')}] - {_('Title')}",
+        #     choices=choices,
+        # )
+        #
+        # self.assertNotInChoices(value=hidden_fname1,     choices=choices)
+        # self.assertNotInChoices(value='position__title', choices=choices)
 
-        with self.assertNoException():
-            fields_f = response.context['form'].fields['fields']
-            choices = fields_f.choices
+        url = self._build_edit_url(sci)
 
-        self.assertListEqual(['first_name'], fields_f.initial)
+        def post(hidden_name):
+            response = self.assertPOST200(
+                url,
+                data={'cells': f'regular_field-{hidden_name}'}
+            )
+            self.assertFormError(
+                response, 'form', 'cells',
+                _('This value is invalid: %(value)s') % {'value': hidden_name},
+            )
 
-        self.assertInChoices(value='first_name', label=_('First name'), choices=choices)
-        self.assertInChoices(
-            value='civility__title',
-            label=f"[{_('Civility')}] - {_('Title')}",
-            choices=choices,
+        post(hidden_fname1)
+        post(hidden_fname2)
+
+        # ---
+        field_name = 'last_name'
+        sci = self._edit_config(url, sci, field_name)
+        self.assertListEqual(
+            [f'regular_field-{field_name}'],
+            [c.key for c in self.refresh(sci).cells],
         )
 
-        self.assertNotInChoices(value=hidden_fname1,     choices=choices)
-        self.assertNotInChoices(value='position__title', choices=choices)
-
-    def test_edit07(self):
+    # def test_edit07(self):
+    def test_edit_fields_config02(self):
         "With FieldsConfig + selected hidden fields."
         model = FakeContact
         hidden_fname1 = 'description'
@@ -347,23 +522,31 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             ],
         )
 
-        response = self.assertGET200(self._build_edit_url(sci))
-
-        with self.assertNoException():
-            fields_f = response.context['form'].fields['fields']
-            choices = fields_f.choices
-
-        self.assertListEqual(
-            ['first_name', hidden_fname1, hidden_sub_fname2],
-            fields_f.initial,
+        # response = self.assertGET200(self._build_edit_url(sci))
+        #
+        # with self.assertNoException():
+        #     fields_f = response.context['form'].fields['fields']
+        #     choices = fields_f.choices
+        #
+        # self.assertListEqual(
+        #     ['first_name', hidden_fname1, hidden_sub_fname2],
+        #     fields_f.initial,
+        # )
+        #
+        # self.assertInChoices(value='first_name',  label=_('First name'),  choices=choices)
+        # self.assertInChoices(value=hidden_fname1, label=_('Description'), choices=choices)
+        # self.assertInChoices(
+        #     value=hidden_sub_fname2,
+        #     label=f"[{_('Position')}] - {_('Title')}",
+        #     choices=choices,
+        # )
+        field_name = 'last_name'
+        sci = self._edit_config(
+            self._build_edit_url(sci), sci, field_name, hidden_sub_fname2,
         )
-
-        self.assertInChoices(value='first_name',  label=_('First name'),  choices=choices)
-        self.assertInChoices(value=hidden_fname1, label=_('Description'), choices=choices)
-        self.assertInChoices(
-            value=hidden_sub_fname2,
-            label=f"[{_('Position')}] - {_('Title')}",
-            choices=choices,
+        self.assertListEqual(
+            [f'regular_field-{field_name}', f'regular_field-{hidden_sub_fname2}'],
+            [c.key for c in self.refresh(sci).cells],
         )
 
     def test_delete01(self):

@@ -37,9 +37,10 @@ class Portal(BricksView):
 
 class SearchConfigCreation(EntityCTypeRelatedMixin,
                            base.ConfigModelCreation,
-                          ):
+                           ):
     model = SearchConfigItem
-    form_class = search_forms.SearchAddForm
+    # form_class = search_forms.SearchAddForm
+    form_class = search_forms.SearchConfigCreationForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -55,7 +56,8 @@ class SearchConfigCreation(EntityCTypeRelatedMixin,
 
 class SearchConfigEdition(base.ConfigModelEdition):
     model = SearchConfigItem
-    form_class = search_forms.SearchEditForm
+    # form_class = search_forms.SearchEditForm
+    form_class = search_forms.SearchConfigEditionForm
     pk_url_kwarg = 'search_config_id'
 
 
