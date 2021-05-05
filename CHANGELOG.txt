@@ -7,6 +7,8 @@
         * Creme_config :
             - In CustomFields configuration, in the portal for choices, the button
               "New choices" was broken after a reloading (#204).
+        * Billing :
+            - An issue with locale during export on Windows (with french language) has been fixed (#210).
 
 
 == Version 2.2.2 ==
