@@ -168,9 +168,14 @@ class FieldsInformation(generic.base.EntityCTypeRelatedMixin,
 
         is_hidden = FieldsConfig.objects.get_for_model(model).is_field_hidden
 
-        return ModelFieldEnumerator(model).filter(viewable=True) \
-                                          .exclude(lambda f, deep: is_hidden(f)) \
-                                          .choices(**kwargs)
+        # return ModelFieldEnumerator(model).filter(viewable=True) \
+        #                                   .exclude(lambda f, deep: is_hidden(f)) \
+        #                                   .choices(**kwargs)
+        return ModelFieldEnumerator(model).filter(
+            viewable=True,
+        ).exclude(
+            lambda model, field, depth: is_hidden(field)
+        ).choices(**kwargs)
 
     def get(self, *args, **kwargs):
         return self.response_class(

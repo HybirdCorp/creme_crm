@@ -436,7 +436,8 @@ class ReportEntityCellRegularFieldsField(hf_form.EntityCellRegularFieldsField):
     def _regular_fields_enum(self, model):
         fields = super()._regular_fields_enum(model)
         fields.filter(
-            lambda field, depth: not (
+            # lambda field, depth: not (
+            lambda model, field, depth: not (
                 depth
                 and
                 field.is_relation
@@ -496,7 +497,11 @@ class ReportEntityCellRegularAggregatesField(hf_form.UniformEntityCellsField):
         enumerator = ModelFieldEnumerator(
             model, deep=0,
         ).filter(
-            (lambda f, deep: isinstance(f, aggregation_registry.authorized_fields)),
+            # (lambda f, deep: isinstance(f, aggregation_registry.authorized_fields)),
+            (
+                lambda model, field, depth:
+                isinstance(field, aggregation_registry.authorized_fields)
+            ),
             viewable=True,   # TODO: test
         )
 

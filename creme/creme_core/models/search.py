@@ -228,7 +228,8 @@ class SearchConfigItem(CremeModel):
         ).filter(
             viewable=True,
         ).exclude(
-            lambda f, depth: isinstance(f, excluded) or f.choices
+            # lambda f, depth: isinstance(f, excluded) or f.choices
+            lambda model, field, depth: isinstance(field, excluded) or field.choices
         ).choices()
 
     def _build_searchfields(self,

@@ -213,6 +213,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         if not field.get_tag('viewable'):
             return 'the field is not viewable'  # TODO: test
 
+        # TODO: take model as parameter because field.model could refer the
+        #       parent class if the field is inherited (currently only "description")
         if fields_configs.get_4_model(field.model).is_field_hidden(field):
             return _('The field is hidden.')
 
@@ -236,7 +238,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         yield from ModelFieldEnumerator(
             model, deep=0, only_leafs=False,
         ).filter(
-            lambda f, deep: check_field(field=f) is None,
+            # lambda f, deep: check_field(field=f) is None,
+            lambda model, field, depth: check_field(field=field) is None,
         ).choices()
 
     @property

@@ -172,9 +172,16 @@ def is_date_field(field: Field) -> bool:
 # ModelFieldEnumerator ---------------------------------------------------------
 
 # Note
-#  - int argument is the depth in field chain (fk1__fk2__...)
-#  - returning <True> means "the field is accepted".
-FieldFilterFunctionType = Callable[[Field, int], bool]
+# #  - int argument is the depth in field chain (fk1__fk2__...)
+# #  - returning <True> means "the field is accepted".
+# FieldFilterFunctionType = Callable[[Field, int], bool]
+# Notes:
+#  - Arguments: they are passed with keywords only (Callable is not made to indicate that...)
+#    - "model": the 'django.db.models.Model' class owning the field
+#    - "field": instance of 'django.db.models.Field' wre are filtering.
+#    - "depth": int indicating the depth in field chain (fk1__fk2__...)
+#  - Return value: <True> means "the field is accepted".
+FieldFilterFunctionType = Callable[[Type[Model], Field, int], bool]
 
 
 class _FilterModelFieldQuery:
@@ -189,22 +196,40 @@ class _FilterModelFieldQuery:
 
         for attr_name, value in kwargs.items():
             fun = (
-                (lambda field, deep, attr_name, value: field.get_tag(attr_name) == value)
+                # (lambda field, deep, attr_name, value: field.get_tag(attr_name) == value)
+                (
+                    lambda *, model, field, depth, attr_name, value:
+                    field.get_tag(attr_name) == value
+                )
                 if attr_name in self._TAGS else
-                (lambda field, deep, attr_name, value: getattr(field, attr_name) == value)
+                # (lambda field, deep, attr_name, value: getattr(field, attr_name) == value)
+                (
+                    lambda *, model, field, depth, attr_name, value:
+                    getattr(field, attr_name) == value
+                )
             )
 
             conditions.append(partial(fun, attr_name=attr_name, value=value))
 
         self._conditions = conditions
 
-    def __call__(self, field, deep):
-        return all(cond(field, deep) for cond in self._conditions)
+    # def __call__(self, field, deep):
+    def __call__(self, *, model, field, depth):
+        # return all(cond(field, deep) for cond in self._conditions)
+        # NB: the argument "model" is important because with inheritance it can
+        #     be differant than "field.model"
+        return all(
+            cond(model=model, field=field, depth=depth) for cond in self._conditions
+        )
 
 
 class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
-    def __call__(self, field, deep):
-        return not any(cond(field, deep) for cond in self._conditions)
+    # def __call__(self, field, deep):
+    def __call__(self, *, model, field, depth):
+        # return not any(cond(field, deep) for cond in self._conditions)
+        return not any(
+            cond(model=model, field=field, depth=depth) for cond in self._conditions
+        )
 
 
 class ModelFieldEnumerator:
@@ -239,7 +264,8 @@ class ModelFieldEnumerator:
         meta = model._meta
 
         for field in chain(meta.fields, meta.many_to_many):
-            if all(ffilter(field, depth) for ffilter in ffilters):
+            # if all(ffilter(field, depth) for ffilter in ffilters):
+            if all(ffilter(model=model, field=field, depth=depth) for ffilter in ffilters):
                 field_info = (*parents_fields, field)
 
                 if field.is_relation:  # TODO: and field.related_model ? not auto_created ?
@@ -260,8 +286,9 @@ class ModelFieldEnumerator:
 
     def filter(self, function: Optional[FieldFilterFunctionType] = None, **kwargs):
         """Filter the field sequence.
-        @param function: (optional) Callable which takes 2 arguments (field instance, deep),
-               and returns a boolean ('True' means 'the field is accepted').
+        @param function: (optional) Callable which takes 3 keyword arguments
+               ("model", "field" & "depth"), and returns a boolean
+               ('True' means 'the field is accepted').
         @param kwargs: Keywords can be a true field attribute name, or a creme tag.
                Eg: ModelFieldEnumerator(Contact).filter(editable=True, viewable=True)
         """
@@ -289,10 +316,11 @@ class ModelFieldEnumerator:
 
             # The sort key (list.sort() will compare tuples, so the first elements,
             # then eventually the second ones etc...)
-            key = (len(fields_info),  # NB: ensure that fields are first, then sub-fields...
-                   *(sort_key(vname) for vname in fk_vnames),
-                   sort_key(terminal_vname),
-                  )
+            key = (
+                len(fields_info),  # NB: ensure that fields are first, then sub-fields...
+                *(sort_key(vname) for vname in fk_vnames),
+                sort_key(terminal_vname),
+            )
             # A classical django choice. Eg: ('user__email', '[Owner user] - Email address')
             choice = (
                 '__'.join(field.name for field in fields_info),

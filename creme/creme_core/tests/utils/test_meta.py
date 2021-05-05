@@ -305,7 +305,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         )
 
     def test_field_enumerator02(self):
-        "Filter, exclude (simple)"
+        "Filter, exclude (simple)."
         self._deactivate_translation()
 
         expected = [
@@ -336,7 +336,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self.assertEqual(expected, choices, choices)
 
     def test_field_enumerator03(self):
-        "deep = 1"
+        "depth = 1."
         self._deactivate_translation()
 
         fs = partial('[{user}] - {field}'.format, user=_('Owner user'))
@@ -380,14 +380,18 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
         self.assertListEqual(
             [('modified', _('Last modification'))],
+            # meta.ModelFieldEnumerator(CremeEntity, deep=1)
+            #     .filter(lambda f, depth: f.name.endswith('ied'), viewable=True)
             meta.ModelFieldEnumerator(CremeEntity, deep=1)
-                .filter(lambda f, depth: f.name.endswith('ied'), viewable=True)
+                .filter(lambda model, field, depth: field.name.endswith('ied'), viewable=True)
                 .choices(),
         )
         self.assertListEqual(
             [('description', _('Description'))],
+            # meta.ModelFieldEnumerator(CremeEntity, deep=0)
+            #     .exclude(lambda f, depth: f.name.endswith('ed'), viewable=False)
             meta.ModelFieldEnumerator(CremeEntity, deep=0)
-                .exclude(lambda f, depth: f.name.endswith('ed'), viewable=False)
+                .exclude(lambda model, field, depth: field.name.endswith('ed'), viewable=False)
                 .choices(),
         )
 
@@ -407,7 +411,8 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         choices = meta.ModelFieldEnumerator(
             FakeEmailCampaign, only_leafs=False
         ).filter(
-            (lambda f, depth: f.get_internal_type() != 'ForeignKey'),
+            # (lambda f, depth: f.get_internal_type() != 'ForeignKey'),
+            (lambda model, field, depth: field.get_internal_type() != 'ForeignKey'),
             viewable=True,
         ).choices()
         expected.append(('mailing_lists', _('Related mailing lists')))
@@ -484,7 +489,8 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         choices = meta.ModelFieldEnumerator(
             FakeActivity, deep=1, only_leafs=False,
         ).filter(
-            (lambda f, depth: not depth or f.name == 'name'),
+            # (lambda f, depth: not depth or f.name == 'name'),
+            (lambda model, field, depth: not depth or field.name == 'name'),
             viewable=True,
         ).choices()
 
