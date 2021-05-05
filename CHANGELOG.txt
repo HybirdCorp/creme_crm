@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # 'git' now ignores some setup directories which were annoying on Windows installations.
     # Apps :
         * Creme_config :
             - In CustomFields configuration, in the portal for choices, the button
