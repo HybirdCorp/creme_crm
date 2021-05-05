@@ -26,6 +26,7 @@ from creme.creme_core.models import (
     CustomField,
     FakeAddress,
     FakeContact,
+    FakeImage,
     FakeOrganisation,
     FieldsConfig,
     RelationType,
@@ -203,26 +204,50 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
     def test_regularfields04(self):
         "Hidden fields."
         hidden_fname1 = 'first_name'
-        hidden_fname2 = 'city'
+        hidden_fname2 = 'description'  # NB: in CremeEntity
+        hidden_addr_fname = 'city'
+        hidden_img_fname1 = 'exif_date'
+        hidden_img_fname2 = 'description'  # NB: in CremeEntity
 
         create_fconf = FieldsConfig.objects.create
         create_fconf(
             content_type=FakeContact,
-            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True})],
+            descriptions=[
+                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+            ],
         )
         create_fconf(
             content_type=FakeAddress,
-            descriptions=[(hidden_fname2, {FieldsConfig.HIDDEN: True})],
+            descriptions=[(hidden_addr_fname, {FieldsConfig.HIDDEN: True})],
+        )
+        create_fconf(
+            content_type=FakeImage,
+            descriptions=[
+                (hidden_img_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_img_fname2, {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
         field = EntityCellsField(model=FakeContact)
         choices = self._find_sub_widget(field, 'regular_field').choices
         self.assertCellInChoices('regular_field-last_name', choices=choices)
         self.assertCellNotInChoices(f'regular_field-{hidden_fname1}', choices=choices)
+        self.assertCellNotInChoices(f'regular_field-{hidden_fname2}', choices=choices)
 
         self.assertCellInChoices('regular_field-address__country', choices=choices)
         self.assertCellNotInChoices(
-            f'regular_field-address__{hidden_fname2}',
+            f'regular_field-address__{hidden_addr_fname}',
+            choices=choices,
+        )
+
+        self.assertCellInChoices('regular_field-image__categories', choices=choices)
+        self.assertCellNotInChoices(
+            f'regular_field-image__{hidden_img_fname1}',
+            choices=choices,
+        )
+        self.assertCellNotInChoices(
+            f'regular_field-image__{hidden_img_fname2}',
             choices=choices,
         )
 
@@ -237,27 +262,45 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         )
         self.assertFieldValidationError(
             UniformEntityCellsField, 'invalid_value', field.clean,
-            f'regular_field-address__{hidden_fname2}',
-            message_args={'value': f'address__{hidden_fname2}'},
+            f'regular_field-address__{hidden_addr_fname}',
+            message_args={'value': f'address__{hidden_addr_fname}'},
         )
 
     def test_regularfields05(self):
         "Hidden fields + selected cells."
         hidden_fname1 = 'first_name'
-        hidden_fname2 = 'city'
-        FieldsConfig.objects.create(
+        hidden_fname2 = 'description'  # Nb: in CremeEntity
+        hidden_addr_fname = 'city'
+        hidden_img_fname1 = 'exif_date'
+        hidden_img_fname2 = 'description'  # NB: in CremeEntity
+
+        create_fconf = FieldsConfig.objects.create
+        create_fconf(
             content_type=FakeContact,
-            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True})],
+            descriptions=[
+                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+            ],
         )
-        FieldsConfig.objects.create(
+        create_fconf(
             content_type=FakeAddress,
-            descriptions=[(hidden_fname2, {FieldsConfig.HIDDEN: True})],
+            descriptions=[(hidden_addr_fname, {FieldsConfig.HIDDEN: True})],
+        )
+        create_fconf(
+            content_type=FakeImage,
+            descriptions=[
+                (hidden_img_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_img_fname2, {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
         field = EntityCellsField()
         cells = [
             EntityCellRegularField.build(FakeContact, hidden_fname1),
-            EntityCellRegularField.build(FakeContact, f'address__{hidden_fname2}'),
+            EntityCellRegularField.build(FakeContact, hidden_fname2),
+            EntityCellRegularField.build(FakeContact, f'address__{hidden_addr_fname}'),
+            EntityCellRegularField.build(FakeContact, f'image__{hidden_img_fname1}'),
+            EntityCellRegularField.build(FakeContact, f'image__{hidden_img_fname2}'),
         ]
         field.non_hiddable_cells = cells
         field.model = FakeContact
@@ -266,10 +309,20 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         choices = self._find_sub_widget(field, 'regular_field').choices
         self.assertCellInChoices('regular_field-last_name', choices=choices)
         self.assertCellInChoices(f'regular_field-{hidden_fname1}', choices=choices)
+        self.assertCellInChoices(f'regular_field-{hidden_fname2}', choices=choices)
 
         self.assertCellInChoices('regular_field-address__country', choices=choices)
         self.assertCellInChoices(
-            f'regular_field-address__{hidden_fname2}',
+            f'regular_field-address__{hidden_addr_fname}',
+            choices=choices,
+        )
+
+        self.assertCellInChoices(
+            f'regular_field-image__{hidden_img_fname1}',
+            choices=choices,
+        )
+        self.assertCellInChoices(
+            f'regular_field-image__{hidden_img_fname2}',
             choices=choices,
         )
 
@@ -277,12 +330,12 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             [
                 EntityCellRegularField.build(FakeContact, 'last_name'),
                 EntityCellRegularField.build(FakeContact, hidden_fname1),
-                EntityCellRegularField.build(FakeContact, f'address__{hidden_fname2}'),
+                EntityCellRegularField.build(FakeContact, f'address__{hidden_addr_fname}'),
             ],
             field.clean(
                 'regular_field-last_name,'
                 f'regular_field-{hidden_fname1},'
-                f'regular_field-address__{hidden_fname2}'
+                f'regular_field-address__{hidden_addr_fname}'
             )
         )
 

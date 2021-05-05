@@ -113,7 +113,8 @@ class GHCCRegularField(GraphHandCellConstraint):
             deep=0,
             only_leafs=False,
         ).filter(
-            lambda field, depth: self._accept_field(field, not_hiddable_cell_keys),
+            # lambda field, depth: self._accept_field(field, not_hiddable_cell_keys),
+            lambda model, field, depth: self._accept_field(field, not_hiddable_cell_keys),
         ):
             yield EntityCellRegularField.build(
                 model=model,
@@ -402,6 +403,8 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         return True
 
     def _accept_rfield(self, field, not_hiddable_cell_keys):
+        # TODO: take model as parameter because field.model could refer the
+        #       parent class if the field is inherited (currently only "description")
         model = field.model
 
         if not isinstance(field, self.model_field_classes):
@@ -432,7 +435,8 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         for field_chain in ModelFieldEnumerator(
             self.model, deep=0,
         ).filter(
-            lambda field, depth: self._accept_rfield(field, not_hiddable_cell_keys)
+            # lambda field, depth: self._accept_rfield(field, not_hiddable_cell_keys)
+            lambda model, field, depth: self._accept_rfield(field, not_hiddable_cell_keys)
         ):
             yield EntityCellRegularField.build(
                 model=model,

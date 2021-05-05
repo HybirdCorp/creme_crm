@@ -317,16 +317,35 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
         for cell in self._non_hiddable_cells:
             if isinstance(cell, cell_class):
                 field_info = cell.field_info
-                field = field_info[-1]
-                non_hiddable_fnames[field.model].add(field.name)
+                # field = field_info[-1]
+                # non_hiddable_fnames[field.model].add(field.name)
+                #
+                # # BEWARE: if a sub-field (eg: 'image__name') cannot be hidden,
+                # # the related field (eg: 'image') cannot be hidden.
+                # if len(field_info) == 2:
+                #     non_hiddable_fnames[model].add(field_info[0].name)
+                length = len(field_info)
 
-                # BEWARE: if a sub-field (eg: 'image__name') cannot be hidden,
-                # the related field (eg: 'image') cannot be hidden.
-                if len(field_info) == 2:
+                if length == 1:
                     non_hiddable_fnames[model].add(field_info[0].name)
+                else:
+                    assert length == 2  # TODO: manage greater length ?
 
-        def field_excluder(field, deep):
-            model = field.model
+                    root = field_info[0]
+
+                    # NB: not 'field.model' because of inheritance
+                    #     eg: ('image' is a FK to 'documents.models.Document')
+                    #         the field 'image__description' must reference
+                    #         Document, not CremeEntity.
+                    non_hiddable_fnames[root.related_model].add(field_info[1].name)
+
+                    # NB: if a sub-field (eg: 'image__name') cannot be hidden,
+                    #     the related field (eg: 'image') cannot be hidden.
+                    non_hiddable_fnames[model].add(root.name)
+
+        # def field_excluder(field, deep):
+        def field_excluder(*, model, field, depth):
+            # model = field.model
 
             return (
                 get_fconf(model).is_field_hidden(field)

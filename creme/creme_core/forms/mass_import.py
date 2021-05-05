@@ -404,7 +404,8 @@ class RegularFieldExtractorField(Field):
             ).filter(
                 viewable=True,
             ).exclude(
-                lambda field, deep: isinstance(field, ModelBooleanField),
+                # lambda field, deep: isinstance(field, ModelBooleanField),
+                lambda model, field, depth: isinstance(field, ModelBooleanField),
             ).choices()
 
             widget = self.widget
@@ -1198,8 +1199,10 @@ class ImportForm(CremeModelForm):
         self.import_errors = []
         get_fconf = FieldsConfig.LocalCache().get_4_model
 
-        def field_excluder(field, deep):
-            if get_fconf(field.model).is_field_hidden(field):
+        # def field_excluder(field, deep):
+        def field_excluder(model, field, depth):
+            # if get_fconf(field.model).is_field_hidden(field):
+            if get_fconf(model).is_field_hidden(field):
                 return True
 
             if field.is_relation:
@@ -1211,10 +1214,10 @@ class ImportForm(CremeModelForm):
         self.fields['key_fields'].choices = ModelFieldEnumerator(
             self._meta.model, deep=0, only_leafs=False,
         ).filter(
-            viewable=True
+            viewable=True,
         ).exclude(
             field_excluder,
-        ) .choices()
+        ).choices()
 
     def append_error(self, err_msg: Optional[str]) -> None:
         if err_msg:

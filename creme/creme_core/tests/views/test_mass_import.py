@@ -1448,19 +1448,24 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
     def test_fields_config(self):
         user = self.login()
 
-        hidden_fname = 'phone'
+        hidden_fname1 = 'phone'
+        hidden_fname2 = 'description'
         FieldsConfig.objects.create(
             content_type=FakeContact,
-            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+            descriptions=[
+                (hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+            ],
         )
 
         rei_info = {
             'first_name': 'Rei', 'last_name': 'Ayanami',
-            hidden_fname: '111111', 'email': 'rei.ayanami@nerv.jp',
+            hidden_fname1: '111111', 'email': 'rei.ayanami@nerv.jp',
         }
         doc = self._build_csv_doc([
-            (rei_info['first_name'], rei_info['last_name'],
-             rei_info['phone'], rei_info['email'],
+            (
+                rei_info['first_name'], rei_info['last_name'],
+                rei_info['phone'], rei_info['email'],
             ),
         ])
         url = self._build_import_url(FakeContact)
@@ -1472,10 +1477,11 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
             key_choices = fields['key_fields'].choices
 
         self.assertInChoices(value='last_name', label=_('Last name'), choices=key_choices)
-        self.assertNotInChoices(value=hidden_fname, choices=key_choices)
+        self.assertNotInChoices(value=hidden_fname1, choices=key_choices)
+        self.assertNotInChoices(value=hidden_fname2, choices=key_choices)
 
         self.assertIn('last_name', fields)
-        self.assertNotIn(hidden_fname, fields)
+        self.assertNotIn(hidden_fname1, fields)
 
         response = self.client.post(
             url, follow=True,
@@ -1495,7 +1501,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
             FakeContact, last_name=rei_info['last_name'], first_name=rei_info['first_name'],
         )
         self.assertEqual(rei_info['email'], rei.email)
-        self.assertIsNone(getattr(rei, hidden_fname))
+        self.assertIsNone(getattr(rei, hidden_fname1))
 
     def test_resume(self):
         user = self.login()

@@ -69,7 +69,8 @@ class CFormCellRegularFieldsField(FieldIgnoringBase,
         }
 
         return super()._regular_fields_enum(model=model).exclude(
-            lambda field, deep: field.name in ignored_fnames
+            # lambda field, deep: field.name in ignored_fnames
+            lambda model, field, depth: field.name in ignored_fnames
         ).exclude(
             editable=False,
         )
