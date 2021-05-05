@@ -50,5 +50,9 @@ node_modules/
 .coverage-karma/
 .eslint.*
 
+# setup (eg: Windows)
+build/*
+dist/*
+
 #syntax: regexp
 #^creme/billing/templates/billing/templates/hyinvoice\.tex$
