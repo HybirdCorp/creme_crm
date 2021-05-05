@@ -6,7 +6,7 @@
 #   The function has been modified to take the id of the wanted currency.
 #
 #    Copyright (c) 2001-2018  Python Software Foundation.
-#                  2009-2020  Hybird
+#                  2009-2021  Hybird
 #
 #    This file is released under the Python License
 #    (http://www.opensource.org/licenses/Python-2.0)
@@ -30,6 +30,7 @@ if os.name == WINDOWS:
     LOCALE_MAP = {
         'en': 'english',
         'fr': 'fra',
+        'fr-fr': 'fra',
     }
 
     def standardized_locale_code(django_code):
