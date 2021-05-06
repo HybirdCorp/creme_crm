@@ -841,7 +841,8 @@ description3=[[<br>]]
 class InfopathInputEmailTestCase(InputsBaseTestCase):
     def _build_attachment(
             self,
-            filename='',
+            # filename='',
+            filename='Attached.xsn',
             content_type='application/x-microsoft-infopathform',
             content=b''):
         return filename, SimpleUploadedFile(filename, content, content_type=content_type)
