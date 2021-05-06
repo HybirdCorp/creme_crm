@@ -109,9 +109,8 @@ class GHCCRegularField(GraphHandCellConstraint):
         model = self.model
 
         for field_chain in ModelFieldEnumerator(
-            model,
-            deep=0,
-            only_leafs=False,
+            # model, deep=0, only_leafs=False,
+            model, depth=0, only_leaves=False,
         ).filter(
             # lambda field, depth: self._accept_field(field, not_hiddable_cell_keys),
             lambda model, field, depth: self._accept_field(field, not_hiddable_cell_keys),
@@ -433,7 +432,8 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         model = self.model
 
         for field_chain in ModelFieldEnumerator(
-            self.model, deep=0,
+            # self.model, deep=0,
+            self.model, depth=0,
         ).filter(
             # lambda field, depth: self._accept_rfield(field, not_hiddable_cell_keys)
             lambda model, field, depth: self._accept_rfield(field, not_hiddable_cell_keys)

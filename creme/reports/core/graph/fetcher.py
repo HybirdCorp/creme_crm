@@ -236,7 +236,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         check_field = partial(cls._check_field, fields_configs=fconf)
 
         yield from ModelFieldEnumerator(
-            model, deep=0, only_leafs=False,
+            # model, deep=0, only_leafs=False,
+            model, depth=0, only_leaves=False,
         ).filter(
             # lambda f, deep: check_field(field=f) is None,
             lambda model, field, depth: check_field(field=field) is None,

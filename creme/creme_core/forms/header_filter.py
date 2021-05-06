@@ -354,7 +354,8 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
             )
 
         return ModelFieldEnumerator(
-            model, deep=self.fields_depth, only_leafs=False,
+            # model, deep=self.fields_depth, only_leafs=False,
+            model, depth=self.fields_depth, only_leaves=False,
         ).filter(
             viewable=True,
         ).exclude(field_excluder)

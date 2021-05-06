@@ -495,7 +495,8 @@ class ReportEntityCellRegularAggregatesField(hf_form.UniformEntityCellsField):
         non_hiddable_cells = self._non_hiddable_cells
         aggregation_registry = cell_class.aggregation_registry
         enumerator = ModelFieldEnumerator(
-            model, deep=0,
+            # model, deep=0,
+            model, depth=0,
         ).filter(
             # (lambda f, deep: isinstance(f, aggregation_registry.authorized_fields)),
             (
