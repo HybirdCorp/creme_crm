@@ -60,7 +60,8 @@ class FieldsConfigManager(models.Manager):
         from ..utils.meta import ModelFieldEnumerator
 
         return ModelFieldEnumerator(
-            model, deep=0, only_leafs=False,
+            # model, deep=0, only_leafs=False,
+            model, depth=0, only_leaves=False,
         ).filter(viewable=True, optional=True)
 
     def get_for_model(self, model: Type['Model']) -> 'FieldsConfig':

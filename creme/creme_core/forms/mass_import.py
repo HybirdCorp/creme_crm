@@ -1212,7 +1212,8 @@ class ImportForm(CremeModelForm):
 
         # TODO: exclude not extractor fields ?
         self.fields['key_fields'].choices = ModelFieldEnumerator(
-            self._meta.model, deep=0, only_leafs=False,
+            # self._meta.model, deep=0, only_leafs=False,
+            self._meta.model, depth=0, only_leaves=False,
         ).filter(
             viewable=True,
         ).exclude(

@@ -235,31 +235,36 @@ class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
 class ModelFieldEnumerator:
     def __init__(self,
                  model: Type[Model],
-                 deep: int = 0,
-                 only_leafs: bool = True):
+                 # deep: int = 0,
+                 depth: int = 0,
+                 # only_leafs: bool = True):
+                 only_leaves: bool = True,
+                 ):
         """Constructor.
         @param model: DjangoModel class.
-        @param deep: Deep of the returned fields (0=fields of the class, 1=also
-                     the fields of directly related classes, etc...).
-        @param only_leafs: If True, FK/M2M fields are not returned (but eventually,
-                           their sub-fields, depending of the 'deep' parameter of course).
+        @param depth: Depth of the returned fields (0=fields of the class, 1=also
+               the fields of directly related classes, etc...).
+        @param only_leaves: If True, FK/M2M fields are not returned (but eventually,
+               their sub-fields, depending of the 'depth' parameter of course).
         """
         self._model = model
-        self._deep = deep
-        self._only_leafs = only_leafs
+        # self._deep = deep
+        self._depth = depth
+        # self._only_leafs = only_leafs
+        self._only_leaves = only_leaves
         self._fields = None
         self._ffilters: List[FieldFilterFunctionType] = []
 
     def __iter__(self):
         if self._fields is None:
-            self._fields = self._build_fields([], self._model, (), self._deep, 0)
+            self._fields = self._build_fields([], self._model, (), self._depth, 0)
 
         return iter(self._fields)
 
     def _build_fields(self, fields_info, model, parents_fields, rem_depth, depth):
         "@param rem_depth: Remaining depth to look into."
         ffilters = self._ffilters
-        include_fk = not self._only_leafs
+        include_fk = not self._only_leaves
         deeper_fields_args = []
         meta = model._meta
 
