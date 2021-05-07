@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-23 16:17+0200\n"
+"POT-Creation-Date: 2021-05-07 18:59+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,33 +18,6 @@ msgstr ""
 
 msgid "General configuration"
 msgstr "Configuration générale"
-
-msgid "My settings"
-msgstr "Ma configuration"
-
-msgid "Blocks"
-msgstr "Blocs"
-
-msgid "Fields"
-msgstr "Champs"
-
-msgid "Custom forms"
-msgstr "Formulaires personnalisés"
-
-msgid "History"
-msgstr "Historique"
-
-msgid "Button menu"
-msgstr "Menu bouton"
-
-msgid "Search"
-msgstr "Recherche"
-
-msgid "Roles and credentials"
-msgstr "Rôles et droits"
-
-msgid "Users"
-msgstr "Utilisateurs"
 
 msgid "Export & import configuration"
 msgstr "Exporter & importer la configuration"
@@ -69,6 +42,9 @@ msgstr "Champ personnalisé obligatoire manquant : {}"
 
 msgid "Missing required special field: {}"
 msgstr "Champ spécial obligatoire manquant : {}"
+
+msgid "Users"
+msgstr "Utilisateurs"
 
 msgid "Teams"
 msgstr "Équipes"
@@ -278,12 +254,8 @@ msgstr "La zone de bloc «{}» n'est pas valide."
 msgid "Header block"
 msgstr "Bloc entête"
 
-#, python-format
-msgid "The following block should be displayed only once: «%(block)s»"
-msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s»"
-
-msgid "Your configuration is empty !"
-msgstr "Votre configuration est vide !"
+msgid "Blocks"
+msgstr "Blocs"
 
 msgid "Role"
 msgstr "Rôle"
@@ -409,6 +381,9 @@ msgstr ""
 msgid "Name"
 msgstr "Nom"
 
+msgid "Fields"
+msgstr "Champs"
+
 msgid "Group"
 msgstr "Groupe"
 
@@ -434,6 +409,13 @@ msgstr "une entrée est invalide (%(error)s)."
 
 msgid "The value doesn't match the expected format."
 msgstr "La valeur ne correspond pas au format attendu."
+
+#, python-format
+msgid "The following block should be displayed only once: «%(block)s»"
+msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s»"
+
+msgid "Your configuration is empty !"
+msgstr "Votre configuration est vide !"
 
 msgid ""
 "The proposed types of resource have at least a field which can be hidden."
@@ -838,21 +820,39 @@ msgstr "Créer"
 msgid "Cannot create"
 msgstr "Création interdite"
 
+msgid "*User's timezone*"
+msgstr "*Fuseau horaire de l'utilisateur*"
+
 msgid "Time zone: {}"
 msgstr "Fuseau horaire : {}"
+
+msgid "My settings"
+msgstr "Ma configuration"
+
+msgid "*Current app's settings*"
+msgstr "*Gestion d'app courante*"
 
 #, python-brace-format
 msgid "Configuration of «{app}»"
 msgstr "Configuration de «{app}»"
 
-msgid "*User's timezone*"
-msgstr "*Fuseau horaire de l'utilisateur*"
+msgid "Custom forms"
+msgstr "Formulaires personnalisés"
 
-msgid "*Current app's settings*"
-msgstr "*Gestion d'app courante*"
+msgid "History"
+msgstr "Historique"
 
 msgid "Menu"
 msgstr "Menu"
+
+msgid "Button menu"
+msgstr "Menu bouton"
+
+msgid "Search"
+msgstr "Recherche"
+
+msgid "Roles and credentials"
+msgstr "Rôles et droits"
 
 msgid "Action"
 msgstr "Action"
@@ -1865,6 +1865,10 @@ msgctxt "creme_config-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
+#, python-brace-format
+msgid "New custom block for «{model}»"
+msgstr "Nouveau bloc personnalisé pour «{model}»"
+
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
@@ -1906,6 +1910,10 @@ msgstr "Modifier la configuration de «{model}»"
 #, python-brace-format
 msgid "Edit the block «{object}»"
 msgstr "Modifier le bloc «{object}»"
+
+#, python-brace-format
+msgid "New buttons configuration for «{model}»"
+msgstr "Nouvelle configuration de boutons pour «{model}»"
 
 #, python-brace-format
 msgid "Edit configuration for «{model}»"
@@ -1962,6 +1970,10 @@ msgstr "Ajouter un groupe spécial à «{form}»"
 #, python-brace-format
 msgid "Edit the group «{group}»"
 msgstr "Modifier le groupe «{group}»"
+
+#, python-brace-format
+msgid "Create a fields configuration for «{model}»"
+msgstr "Créer une configuration de champs pour «{model}»"
 
 # Already in creme_core
 msgid "Save"

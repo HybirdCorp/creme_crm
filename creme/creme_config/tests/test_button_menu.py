@@ -53,15 +53,17 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         ct = self.contact_ct
         url = self.WIZARD_URL
-        response = self.assertGET200(url)
+        ctxt1 = self.assertGET200(url).context
+        self.assertEqual(_('New buttons configuration'), ctxt1.get('title'))
 
         with self.assertNoException():
-            ctypes = response.context['form'].fields['ctype'].ctypes
+            ctypes = ctxt1['form'].fields['ctype'].ctypes
 
         self.assertIn(ct, ctypes)
 
+        # ---
         step_key = 'button_menu_wizard-current_step'
-        response = self.assertPOST200(
+        response2 = self.assertPOST200(
             url,
             data={
                 step_key: '0',
@@ -69,8 +71,14 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             },
         )
 
+        ctxt2 = response2.context
+        self.assertEqual(
+            _('New buttons configuration for «{model}»').format(model=ct),
+            ctxt2.get('title'),
+        )
+
         with self.assertNoException():
-            choices = response.context['form'].fields['button_ids'].choices
+            choices = ctxt2['form'].fields['button_ids'].choices
 
         self.assertInChoices(
             value=TestButton.id_,
@@ -78,14 +86,15 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             choices=choices,
         )
 
-        response = self.client.post(
+        # --
+        response3 = self.client.post(
             url,
             data={
                 step_key: '1',
                 '1-button_ids': [TestButton.id_],
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
         self.assertListEqual(
             [(TestButton.id_, 1000)],
             [

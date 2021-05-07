@@ -43,9 +43,15 @@ class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
         def save(self, commit=False):
             return super().save(commit=commit)
 
+    class _ButtonsStep(button_forms.ButtonMenuEditForm):
+        @property
+        def step_title(self):
+            return gettext('New buttons configuration for «{model}»').format(model=self.ct)
+
     form_list = [
         _ResourceStep,
-        button_forms.ButtonMenuEditForm,
+        # button_forms.ButtonMenuEditForm,
+        _ButtonsStep,
     ]
     title = _('New buttons configuration')
     submit_label = _('Save the configuration')
