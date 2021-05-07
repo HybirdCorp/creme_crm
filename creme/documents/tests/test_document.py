@@ -139,6 +139,9 @@ class DocumentTestCase(_DocumentsTestCase):
             response['Content-Disposition'],
         )
 
+        # Avoid <ResourceWarning: unclosed file...>
+        b''.join(response.streaming_content)
+
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview02(self):
         "Forbidden extension."
@@ -163,6 +166,9 @@ class DocumentTestCase(_DocumentsTestCase):
             response['Content-Disposition'],
         )
 
+        # Avoid <ResourceWarning: unclosed file...>
+        b''.join(response.streaming_content)
+
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview03(self):
         "Double extension (bugfix)."
@@ -186,6 +192,9 @@ class DocumentTestCase(_DocumentsTestCase):
             response['Content-Disposition'],
         )
 
+        # Avoid <ResourceWarning: unclosed file...>
+        b''.join(response.streaming_content)
+
     def test_createview04(self):
         "No extension."
         self.login()
@@ -204,6 +213,9 @@ class DocumentTestCase(_DocumentsTestCase):
             f'attachment; filename="{file_obj.base_name}.txt"',
             response['Content-Disposition'],
         )
+
+        # Avoid <ResourceWarning: unclosed file...>
+        b''.join(response.streaming_content)
 
     def test_createview05(self):
         "No title."
