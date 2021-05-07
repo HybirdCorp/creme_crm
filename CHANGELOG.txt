@@ -165,6 +165,7 @@
                     - In 'forms.activity', these classes have been removed :
                       _ActivityForm, ActivityEditForm, _ActivityCreateForm, ActivityCreateForm, RelatedActivityCreateForm, CalendarActivityCreateForm, IndisponibilityCreateForm.
                     - The SettingKey 'setting_keys.form_user_messages_key', and the related constant 'SETTING_FORM_USERS_MSG' have been removed.
+                    - In the class 'views.calendar.ActivitiesData', the method '_activity_2_dict' is not static anymore.
                     - These template files have been removed in "creme/activities/templates/activities/" :
                         - add_activity_form.html
                         - forms/add-activity-popup.html

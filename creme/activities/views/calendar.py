@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -202,6 +202,9 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
     start_arg = 'start'
     end_arg = 'end'
 
+    # Example of possible format (NB: "activity" is passed in the context)
+    # label = '[{activity.status}] {activity.title}'
+    label = '{activity.title}'
     calendar_ids_session_key = CalendarView.calendar_ids_session_key
 
     def get(self, request, *args, **kwargs):
@@ -210,8 +213,12 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
             safe=False,  # Result is not a dictionary
         )
 
-    @staticmethod
-    def _activity_2_dict(activity, user):
+    def get_activity_label(self, activity):
+        return self.label.format(activity=activity)
+
+    # @staticmethod
+    # def _activity_2_dict(activity, user):
+    def _activity_2_dict(self, activity, user):
         "Returns a 'jsonifiable' dictionary."
         tz = get_current_timezone()
         start = make_naive(activity.start, tz)
@@ -225,7 +232,8 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
         return {
             'id':    activity.id,
-            'title': activity.title,
+            # 'title': activity.title,
+            'title': self.get_activity_label(activity),
 
             'start':  start.isoformat(),
             'end':    end.isoformat(),
