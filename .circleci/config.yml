@@ -10,37 +10,33 @@ commands:
     steps:
       - run: dockerize -wait tcp://localhost:<< parameters.port >> -timeout 1m
 
-  create-virtualenv:
-    description: "Create python virtualenv"
-    steps:
-      - run: python3 -m venv ~/venv
-      # Require setuptools v46.4.0 at least
-      - run: ~/venv/bin/pip install -U pip setuptools
-      - run: echo "source ~/venv/bin/activate" >> $BASH_ENV
-
   install-creme-system-packages:
     description: "Install creme dependencies"
     steps:
       - run: sudo apt update
       - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config lcab
 
-  install-py-dev-env-no-cache:
-    steps:
-      - create-virtualenv
-      - run: pip install -U -e .[dev,mysql,pgsql,graphs]
-      - run: pip list --outdated
-
   install-py-dev-env:
+    parameters:
+      python:
+        type: string
     steps:
       - restore_cache:
           keys:
-            - creme_crm-{{ checksum "setup.cfg" }}
-            - creme_crm
+            - <<parameters.python>>-creme_crm-{{ checksum "setup.cfg" }}
+            - <<parameters.python>>-creme_crm
 
-      - install-py-dev-env-no-cache
+      - run: <<parameters.python>> -m venv ~/venv
+      # Require setuptools v46.4.0 at least
+      - run: ~/venv/bin/pip install -U pip setuptools
+      - run: echo "source ~/venv/bin/activate" >> $BASH_ENV
+      - run: pip install -U -e .[dev,mysql,pgsql,graphs]
+      - run: python --version
+      - run: pip freeze
+      - run: pip list --outdated
 
       - save_cache:
-          key: creme_crm-{{ checksum "setup.cfg" }}
+          key: <<parameters.python>>-creme_crm-{{ checksum "setup.cfg" }}
           paths: "~/venv"
 
   install-node-env:
@@ -82,7 +78,8 @@ jobs:
     steps:
       - checkout
       - install-creme-system-packages
-      - install-py-dev-env
+      - install-py-dev-env:
+          python: "python3.6"
       - run: make isort-check
 
 
@@ -92,7 +89,8 @@ jobs:
     steps:
       - checkout
       - install-creme-system-packages
-      - install-py-dev-env
+      - install-py-dev-env:
+          python: "python3.6"
       - run: flake8 creme/
 
 
@@ -116,7 +114,8 @@ jobs:
 
       - install-creme-system-packages
       - run: sudo apt install -y mariadb-client
-      - install-py-dev-env
+      - install-py-dev-env:
+          python: "python3.6"
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/mysql_settings.py creme/local_settings.py
       - run: python creme/manage.py migrate
@@ -149,7 +148,8 @@ jobs:
           port: 5432
 
       - install-creme-system-packages
-      - install-py-dev-env
+      - install-py-dev-env:
+          python: "python3.6"
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/pgsql_settings.py creme/local_settings.py
       - run: python creme/manage.py migrate
@@ -173,7 +173,8 @@ jobs:
           encoding: UTF-8
 
       - install-creme-system-packages
-      - install-py-dev-env
+      - install-py-dev-env:
+          python: "python3.6"
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/sqlite3_settings.py creme/local_settings.py
       - run: python creme/manage.py migrate
@@ -198,7 +199,8 @@ jobs:
           encoding: UTF-8
 
       - install-creme-system-packages
-      - install-py-dev-env-no-cache
+      - install-py-dev-env:
+          python: "python3.7"
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/sqlite3_settings.py creme/local_settings.py
       - run: python creme/manage.py migrate
@@ -223,7 +225,8 @@ jobs:
           encoding: UTF-8
 
       - install-creme-system-packages
-      - install-py-dev-env-no-cache
+      - install-py-dev-env:
+          python: "python3.8"
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/sqlite3_settings.py creme/local_settings.py
       - run: python creme/manage.py migrate
@@ -248,7 +251,8 @@ jobs:
           encoding: UTF-8
 
       - install-creme-system-packages
-      - install-py-dev-env-no-cache
+      - install-py-dev-env:
+          python: "python3.9"
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: cp ~/project/.circleci/sqlite3_settings.py creme/local_settings.py
       - run: python creme/manage.py migrate
@@ -261,45 +265,60 @@ jobs:
           path: artifacts/coverage_html
 
 
-  lint-js:
+  javascript-lint:
     docker:
      - image: circleci/python:3.6-node-browsers
     steps:
       - checkout
       - install-node-env
-      - run:
-          name: Run linter
-          command: |
-            make eslint
+      - run: make eslint
 
 
-  tests-js:
+  javascript-tests:
     docker:
      - image: circleci/python:3.6-node-browsers
     steps:
       - checkout
       - install-creme-system-packages
-      - install-py-dev-env
+      - install-py-dev-env:
+          python: "python3.6"
       - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
       - run: python creme/manage.py generatemedia
       - install-node-env
-      - run:
-          name: Run javascript tests
-          command: |
-            make karma-ci
+      - run: make karma-ci
 
 
 workflows:
   version: 2
   build:
     jobs:
-      - lint-js
-      - tests-js
+      - javascript-lint
+      - javascript-tests:
+          requires:
+            - javascript-lint
       - python36-lint-isort
       - python36-lint-flake8
-      - python36-tests-sqlite3
-      - python36-tests-mysql
-      - python36-tests-pgsql
-      - python37-tests-sqlite3
-      - python38-tests-sqlite3
-      - python39-tests-sqlite3
+      - python36-tests-sqlite3:
+          requires:
+            - python36-lint-isort
+            - python36-lint-flake8
+      - python36-tests-mysql:
+          requires:
+            - python36-lint-isort
+            - python36-lint-flake8
+      - python36-tests-pgsql:
+          requires:
+            - python36-lint-isort
+            - python36-lint-flake8
+      - python37-tests-sqlite3:
+          requires:
+            - python36-lint-isort
+            - python36-lint-flake8
+      - python38-tests-sqlite3:
+          requires:
+            - python36-lint-isort
+            - python36-lint-flake8
+      - python39-tests-sqlite3:
+          requires:
+            - python36-lint-isort
+            - python36-lint-flake8
