@@ -2410,10 +2410,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
-        response = self.assertGET200(self.CUSTOM_WIZARD_URL)
-        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
+        ctxt1 = self.assertGET200(self.CUSTOM_WIZARD_URL).context
+        self.assertEqual(_('New custom block'), ctxt1.get('title'))
 
-        response = self.assertPOST200(
+        with self.assertNoException():
+            ctypes = ctxt1['form'].fields['ctype'].ctypes
+        self.assertIn(contact_ct, ctypes)
+
+        response2 = self.assertPOST200(
             self.CUSTOM_WIZARD_URL,
             data={
                 'custom_brick_wizard-current_step': '0',
@@ -2422,7 +2426,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
 
-        self.assertIn('cells', response.context['form'].fields)
+        ctxt2 = response2.context
+        self.assertIn('cells', ctxt2['form'].fields)
 
         # last step is not submitted so nothing yet in database
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
@@ -2432,10 +2437,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
-        response = self.assertGET200(self.CUSTOM_WIZARD_URL)
-        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
+        response1 = self.assertGET200(self.CUSTOM_WIZARD_URL)
+        self.assertIn(contact_ct, response1.context['form'].fields['ctype'].ctypes)
 
-        response = self.assertPOST200(
+        response2 = self.assertPOST200(
             self.CUSTOM_WIZARD_URL,
             data={
                 'custom_brick_wizard-current_step': '0',
@@ -2445,7 +2450,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         self.assertFormError(
-            response, 'form', 'ctype',
+            response2, 'form', 'ctype',
             _('Select a valid choice. That choice is not one of the available choices.'),
         )
 
@@ -2462,9 +2467,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
-        response = self.assertGET200(self.CUSTOM_WIZARD_URL)
-        self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
-        self.assertPOST200(
+        response1 = self.assertGET200(self.CUSTOM_WIZARD_URL)
+        self.assertIn(contact_ct, response1.context['form'].fields['ctype'].ctypes)
+
+        response2 = self.assertPOST200(
             self.CUSTOM_WIZARD_URL,
             data={
                 'custom_brick_wizard-current_step': '0',
@@ -2472,8 +2478,12 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 '0-name': 'foobar',
             },
         )
+        self.assertEqual(
+            _('New custom block for «{model}»').format(model=contact_ct),
+            response2.context.get('title'),
+        )
 
-        response = self.assertPOST200(
+        response3 = self.assertPOST200(
             self.CUSTOM_WIZARD_URL,
             data={
                 'custom_brick_wizard-current_step': '1',
@@ -2481,7 +2491,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                            f'custom_field-{contact_customfield.id}',
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
         cbci = self.get_object_or_fail(CustomBrickConfigItem, content_type=contact_ct)
         self.assertListEqual(
@@ -2489,7 +2499,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 EntityCellRegularField.build(FakeContact, 'first_name'),
                 EntityCellCustomField(contact_customfield),
             ],
-            cbci.cells
+            cbci.cells,
         )
 
     def test_custombrick_wizard_go_back(self):

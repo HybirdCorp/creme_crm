@@ -62,9 +62,17 @@ class FieldsConfigWizard(base.ConfigModelCreationWizard):
                     _('All configurable types of resource are already configured.')
                 )
 
+    class _FieldsStep(fconf_forms.FieldsConfigEditForm):
+        @property
+        def step_title(self):
+            return _('Create a fields configuration for «{model}»').format(
+                model=self.instance.content_type,
+            )
+
     form_list = [
         _ModelStep,
-        fconf_forms.FieldsConfigEditForm,
+        # fconf_forms.FieldsConfigEditForm,
+        _FieldsStep,
     ]
     model = FieldsConfig
 

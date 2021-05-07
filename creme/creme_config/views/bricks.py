@@ -90,6 +90,12 @@ class CustomBrickWizard(base.ConfigModelCreationWizard):
         class Meta(bricks_forms.CustomBrickConfigItemEditForm.Meta):
             exclude = ('name',)
 
+        @property
+        def step_title(self):
+            return gettext('New custom block for «{model}»').format(
+                model=self.instance.content_type,
+            )
+
     form_list = [
         _ResourceStep,
         _ConfigStep,
