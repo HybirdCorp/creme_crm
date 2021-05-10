@@ -533,7 +533,7 @@ search_patterns = [
     ),
     re_path(
         r'^delete[/]?$',
-        search.SearchItemEdition.as_view(),
+        search.SearchConfigDeletion.as_view(),
         name='creme_config__delete_search_config',
     ),
 ]
