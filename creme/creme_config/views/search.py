@@ -61,7 +61,8 @@ class SearchConfigEdition(base.ConfigModelEdition):
     pk_url_kwarg = 'search_config_id'
 
 
-class SearchItemEdition(base.ConfigDeletion):
+# class SearchItemEdition(base.ConfigDeletion):
+class SearchConfigDeletion(base.ConfigDeletion):
     id_arg = 'id'
 
     def perform_deletion(self, request):

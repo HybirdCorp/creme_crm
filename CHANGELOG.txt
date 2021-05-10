@@ -151,6 +151,7 @@
                         - In 'custom_fields', these classes have been removed :
                           CustomFieldsBaseForm, CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm.
                         - The function 'user._password_validators_help_text_html()' has been removed.
+                    - The class 'views.search.SearchItemEdition' has been renamed "SearchConfigDeletion".
                 * Persons :
                     - The module 'views.crud_relations' has been removed.
                     - In 'forms.base', these constants have ben removed : _BILLING_ADDRESS_FIELD & _SHIPPING_ADDRESS_FIELD
