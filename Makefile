@@ -2,6 +2,7 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 MAKE_NPROCS ?= $(shell nproc)
 CREME_LANGUAGE ?= fr
+PORT ?= 8000
 
 
 ## clean - Basic cleanup, mostly temporary files.
@@ -102,7 +103,8 @@ karma-ci:
 ## Run the application
 .PHONY: serve
 serve: media
-	python creme/manage.py runserver
+	python creme/manage.py runserver ${PORT}
+
 
 ## Run the jobs
 .PHONY: serve-jobs
