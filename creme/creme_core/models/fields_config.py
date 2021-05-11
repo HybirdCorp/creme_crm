@@ -40,6 +40,7 @@ from django.db import models
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from ..core.field_tags import FieldTag
 from ..global_info import get_per_request_cache
 from ..utils.meta import FieldInfo
 from ..utils.serializers import json_encode
@@ -169,7 +170,8 @@ class FieldsConfig(CremeModel):
             fields_n_models = []
             related_model = field_info.model
             for field in field_info:
-                if field.get_tag('optional'):
+                # if field.get_tag('optional'):
+                if field.get_tag(FieldTag.OPTIONAL):
                     fields_n_models.append((field, related_model))
 
                 if field.is_relation:
@@ -202,7 +204,8 @@ class FieldsConfig(CremeModel):
                 errors = True
                 continue
 
-            if not field.get_tag('optional'):
+            # if not field.get_tag('optional'):
+            if not field.get_tag(FieldTag.OPTIONAL):
                 logger.warning('FieldsConfig: the field "%s" is not optional', field_name)
                 errors = True
                 continue

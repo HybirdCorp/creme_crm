@@ -32,6 +32,7 @@ from django.utils.html import escape
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from ..core.field_tags import FieldTag
 from .base import CremeModel
 from .fields import (
     CreationDateTimeField,
@@ -434,7 +435,8 @@ class CremeEntity(CremeModel):
         fields_kv = {}
 
         for field in self._meta.fields:
-            if field.get_tag('clonable'):
+            # if field.get_tag('clonable'):
+            if field.get_tag(FieldTag.CLONABLE):
                 fname = field.name
                 fields_kv[fname] = getattr(self, fname)
 

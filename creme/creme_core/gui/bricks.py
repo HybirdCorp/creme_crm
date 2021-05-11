@@ -45,6 +45,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..constants import MODELBRICK_ID
 from ..core.entity_cell import EntityCell, EntityCellRegularField
+from ..core.field_tags import FieldTag
 from ..core.sorter import cell_sorter_registry
 from ..models import (
     BrickState,
@@ -466,7 +467,8 @@ class EntityBrick(Brick):
         return [
             build_cell(field.name)
             for field in model._meta.fields
-            if field.get_tag('viewable') and not is_hidden(field)
+            # if field.get_tag('viewable') and not is_hidden(field)
+            if field.get_tag(FieldTag.VIEWABLE) and not is_hidden(field)
         ]
 
     def _get_title(self, entity: CremeEntity, context) -> str:

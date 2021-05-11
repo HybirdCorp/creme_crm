@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 from django.core.management.base import BaseCommand
 
 from creme.creme_core import get_concrete_model
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.management.commands import entity_factory
 from creme.crudity.models import WaitingAction
 
@@ -32,7 +33,8 @@ def _entity_2_dict(entity):
         if not field.editable:
             continue
 
-        if not field.get_tag('viewable'):
+        # if not field.get_tag('viewable'):
+        if not field.get_tag(FieldTag.VIEWABLE):
             continue
 
         fname = field.name

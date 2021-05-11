@@ -42,6 +42,7 @@ from creme.creme_core.core.entity_filter import (
     condition_handler,
     operators,
 )
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import (
     CremeEntity,
     CremePropertyType,
@@ -133,18 +134,28 @@ class RegularFieldsConditionsField(_ConditionsField):
         excluded = self.excluded_fields
         non_hiddable_fnames = self._non_hiddable_fnames
 
-        if field.get_tag('enumerable') and (not field_hidden or fname in non_hiddable_fnames):
+        # if field.get_tag('enumerable') and (not field_hidden or fname in non_hiddable_fnames):
+        if (
+            field.get_tag(FieldTag.ENUMERABLE)
+            and (not field_hidden or fname in non_hiddable_fnames)
+        ):
             fields[field.name] = [field]
 
         is_sfield_hidden = fconfigs.get_4_model(related_model).is_field_hidden
 
         for subfield in related_model._meta.fields:
-            if subfield.get_tag('viewable') and not is_date_field(subfield) \
-               and not isinstance(subfield, excluded):
+            if (
+                # subfield.get_tag('viewable')
+                subfield.get_tag(FieldTag.VIEWABLE)
+                and not is_date_field(subfield)
+                and not isinstance(subfield, excluded)
+            ):
                 full_name = f'{fname}__{subfield.name}'
 
-                if not (field_hidden or is_sfield_hidden(subfield)) or \
-                   full_name in non_hiddable_fnames:
+                if (
+                    not (field_hidden or is_sfield_hidden(subfield))
+                    or full_name in non_hiddable_fnames
+                ):
                     fields[full_name] = [field, subfield]
 
     @_ConditionsField.model.setter
@@ -176,7 +187,8 @@ class RegularFieldsConditionsField(_ConditionsField):
                         fields[field.name] = [field]
 
             for field in model._meta.many_to_many:
-                if field.get_tag('viewable'):  # TODO: test not viewable
+                # if field.get_tag('viewable'):
+                if field.get_tag(FieldTag.VIEWABLE):  # TODO: test not viewable
                     self._build_related_fields(field, fields, fconfigs)
 
         return self._fields
@@ -327,11 +339,14 @@ class DateFieldsConditionsField(_ConditionsField):
         non_hiddable_fnames = self._non_hiddable_fnames
 
         for subfield in related_model._meta.fields:
-            if subfield.get_tag('viewable') and is_date_field(subfield):
+            # if subfield.get_tag('viewable') and is_date_field(subfield):
+            if subfield.get_tag(FieldTag.VIEWABLE) and is_date_field(subfield):
                 full_name = f'{fname}__{subfield.name}'
 
-                if not (field_hidden or is_sfield_hidden(subfield)) or \
-                   full_name in non_hiddable_fnames:
+                if (
+                    not (field_hidden or is_sfield_hidden(subfield))
+                    or full_name in non_hiddable_fnames
+                ):
                     fields[full_name] = [field, subfield]
 
     # TODO: factorise with RegularFieldsConditionsField
@@ -355,12 +370,13 @@ class DateFieldsConditionsField(_ConditionsField):
 
             # TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
             for field in model._meta.fields:
-                if field.get_tag('viewable'):
+                # if field.get_tag('viewable'):
+                if field.get_tag(FieldTag.VIEWABLE):
                     if isinstance(field, ModelForeignKey):
                         self._build_related_fields(field, fields, fconfigs)
                     elif (
-                            is_date_field(field) and
-                            (not is_field_hidden(field) or field.name in non_hiddable_fnames)
+                        is_date_field(field)
+                        and (not is_field_hidden(field) or field.name in non_hiddable_fnames)
                     ):
                         fields[field.name] = [field]
 

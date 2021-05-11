@@ -29,6 +29,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext
 
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import (
     CremeEntity,
     FieldsConfig,
@@ -210,7 +211,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         if not issubclass(field.remote_field.model, CremeEntity):
             return _('The field is invalid (not a foreign key to CremeEntity).')
 
-        if not field.get_tag('viewable'):
+        # if not field.get_tag('viewable'):
+        if not field.get_tag(FieldTag.VIEWABLE):
             return 'the field is not viewable'  # TODO: test
 
         # TODO: take model as parameter because field.model could refer the

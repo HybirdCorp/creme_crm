@@ -26,6 +26,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RelationSubFilterConditionHandler,
     SubFilterConditionHandler,
 )
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.forms.entity_filter.fields import (
     CustomFieldsConditionsField,
     DateCustomFieldsConditionsField,
@@ -94,9 +95,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     @staticmethod
     def build_data(*conditions):
         return json_dump([
-            {'field':    {'name': condition['name']},
-             'operator': {'id': str(condition['operator'])},
-             'value':    condition['value'],
+            {
+                'field':    {'name': condition['name']},
+                'operator': {'id': str(condition['operator'])},
+                'value':    condition['value'],
             } for condition in conditions
         ])
 
@@ -138,9 +140,9 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_incomplete_data_required(self):
-        clean = RegularFieldsConditionsField(model=FakeContact,
-                                             efilter_registry=efilter_registry,
-                                            ).clean
+        clean = RegularFieldsConditionsField(
+            model=FakeContact, efilter_registry=efilter_registry,
+        ).clean
         EQUALS = operators.EQUALS
         self.assertFieldValidationError(
             RegularFieldsConditionsField, 'invalidvalue', clean,
@@ -156,9 +158,9 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_invalid_field(self):
-        clean = RegularFieldsConditionsField(model=FakeContact,
-                                             efilter_registry=efilter_registry,
-                                            ).clean
+        clean = RegularFieldsConditionsField(
+            model=FakeContact, efilter_registry=efilter_registry,
+        ).clean
 
         build_data = self.build_data
         self.assertFieldValidationError(
@@ -533,9 +535,9 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_many2many(self):
         "ManyToMany field"
-        clean = RegularFieldsConditionsField(model=FakeContact,
-                                             efilter_registry=efilter_registry,
-                                            ).clean
+        clean = RegularFieldsConditionsField(
+            model=FakeContact, efilter_registry=efilter_registry,
+        ).clean
         operator = operators.EQUALS
         name = 'languages'
         value = Language.objects.all()[0].pk
@@ -556,9 +558,9 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_multiple_many2many_as_list(self):
         "ManyToMany field"
-        clean = RegularFieldsConditionsField(model=FakeContact,
-                                             efilter_registry=efilter_registry,
-                                            ).clean
+        clean = RegularFieldsConditionsField(
+            model=FakeContact, efilter_registry=efilter_registry,
+        ).clean
         operator = operators.EQUALS
         name = 'languages'
         values = [str(v) for v in Language.objects.all().values_list('pk', flat=True)]
@@ -611,6 +613,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         civility_field = get_field('civility')
         self.assertTrue(civility_field.get_tag('enumerable'))
+        self.assertTrue(civility_field.get_tag(FieldTag.ENUMERABLE))
         self.assertFalse(issubclass(civility_field.remote_field.model, CremeEntity))
         self.assertEqual(field_choicetype(civility_field), 'enum__null')
 
@@ -623,7 +626,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(field_choicetype(get_field('is_user')),  'user__null')
 
         image_field = get_field('image')
-        self.assertTrue(image_field.get_tag('enumerable'))
+        self.assertTrue(image_field.get_tag(FieldTag.ENUMERABLE))
         self.assertIsSubclass(image_field.remote_field.model, CremeEntity)
         self.assertEqual(field_choicetype(image_field), 'fk__null')
 
@@ -787,7 +790,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         )[0]
         self.assertEqual(
             _('This field is invalid with this model.'),
-            err.messages[0]
+            err.messages[0],
         )
 
     def test_fields_config03(self):
@@ -1023,8 +1026,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
             {
                 'field': {'name': name01, 'type': 'date'},
                 'range': {'type': '', 'start': '2011-5-12'},
-            },
-            {
+            }, {
                 'field': {'name': name02, 'type': 'date__null'},
                 'range': {'type': '', 'end': '2012-6-13'},
             },
@@ -1053,11 +1055,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         "Start + end."
         clean = DateFieldsConditionsField(model=FakeContact).clean
         name = 'modified'
-        conditions = clean(json_dump([
-            {'field': {'name': name, 'type': 'date'},
-             'range': {'type': '', 'start': '2010-3-24', 'end': '2011-7-25'},
-            },
-        ]))
+        conditions = clean(json_dump([{
+            'field': {'name': name, 'type': 'date'},
+            'range': {'type': '', 'start': '2010-3-24', 'end': '2011-7-25'},
+        }]))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -1077,8 +1078,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
             {
                 'field': {'name': 'birthday', 'type': 'date__null'},
                 'range': {'type': 'empty',     'start': '', 'end': ''},
-            },
-            {
+            }, {
                 'field': {'name': 'modified', 'type': 'date__null'},
                 'range': {'type': 'not_empty', 'start': '', 'end': ''},
             },
@@ -1124,7 +1124,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         err = self.assertFieldRaises(ValidationError, field.clean, build_data(hidden_fname))[0]
         self.assertEqual(
             _('This field is not a date field for this model.'),
-            err.messages[0]
+            err.messages[0],
         )
 
     def test_fields_config02(self):
@@ -1158,7 +1158,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         )[0]
         self.assertEqual(
             _('This field is not a date field for this model.'),
-            err.messages[0]
+            err.messages[0],
         )
 
     def test_fields_config03(self):
@@ -1280,9 +1280,9 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     @staticmethod
     def build_data(field, operator, value):
-        return json_dump(
-            [{'field': {'id': str(field)}, 'operator': {'id': str(operator)}, 'value': value}]
-        )
+        return json_dump([
+            {'field': {'id': str(field)}, 'operator': {'id': str(operator)}, 'value': value}
+        ])
 
     def setUp(self):
         super().setUp()
@@ -1336,7 +1336,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                 },
                 'value': '150',
             }],
-            data
+            data,
         )
 
     def test_frompython_custom_string(self):
@@ -1359,7 +1359,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                 },
                 'value': 'abc',
             }],
-            data
+            data,
         )
 
     def test_frompython_custom_bool(self):
@@ -1382,7 +1382,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                 },
                 'value': 'false',
             }],
-            data
+            data,
         )
 
         # Old format
@@ -1399,14 +1399,14 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                 },
                 'value': 'false',
             }],
-            data
+            data,
         )
 
     def test_frompython_custom_enum(self):
         EQUALS = operators.EQUALS
-        field = CustomFieldsConditionsField(model=FakeContact,
-                                            efilter_registry=efilter_registry,
-                                           )
+        field = CustomFieldsConditionsField(
+            model=FakeContact, efilter_registry=efilter_registry,
+        )
         condition = CustomFieldConditionHandler.build_condition(
             custom_field=self.cfield_enum, operator=EQUALS, values=[self.cfield_enum_A.id],
         )
@@ -1420,13 +1420,12 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                 },
                 'value': str(self.cfield_enum_A.id),
             }],
-            data
+            data,
         )
 
     def test_clean_invalid_data_format(self):
         field = CustomFieldsConditionsField(
-            model=FakeContact,
-            efilter_registry=efilter_registry,
+            model=FakeContact, efilter_registry=efilter_registry,
         )
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidformat', field.clean,
@@ -1439,8 +1438,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_field(self):
         field = CustomFieldsConditionsField(
-            model=FakeContact,
-            efilter_registry=efilter_registry,
+            model=FakeContact, efilter_registry=efilter_registry,
         )
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
@@ -1489,9 +1487,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_integer01(self):
         with self.assertNumQueries(0):
-            field = CustomFieldsConditionsField(model=FakeContact,
-                                                efilter_registry=efilter_registry,
-                                               )
+            field = CustomFieldsConditionsField(
+                model=FakeContact, efilter_registry=efilter_registry,
+            )
 
         operator = operators.EQUALS
         value = 180
@@ -1569,7 +1567,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                 'rname': 'customfieldenum',
                 'values': [value],
             },
-            condition.value
+            condition.value,
         )
 
     def test_clean_enum_as_string(self):
@@ -1632,9 +1630,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_multienum(self):
-        clean = CustomFieldsConditionsField(model=FakeContact,
-                                            efilter_registry=efilter_registry,
-                                           ).clean
+        clean = CustomFieldsConditionsField(
+            model=FakeContact, efilter_registry=efilter_registry,
+        ).clean
         operator = operators.EQUALS
         value = str(self.cfield_multienum_F.pk)
         conditions = clean(self.build_data(
@@ -1657,9 +1655,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_multienum_as_string(self):
-        clean = CustomFieldsConditionsField(model=FakeContact,
-                                            efilter_registry=efilter_registry,
-                                           ).clean
+        clean = CustomFieldsConditionsField(
+            model=FakeContact, efilter_registry=efilter_registry,
+        ).clean
         operator = operators.EQUALS
         conditions = clean(self.build_data(
             field=self.cfield_multienum.id,
@@ -1687,9 +1685,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_multienum_as_list(self):
-        clean = CustomFieldsConditionsField(model=FakeContact,
-                                            efilter_registry=efilter_registry,
-                                           ).clean
+        clean = CustomFieldsConditionsField(
+            model=FakeContact, efilter_registry=efilter_registry,
+        ).clean
         operator = operators.EQUALS
         conditions = clean(self.build_data(
             field=self.cfield_multienum.id,
@@ -1718,8 +1716,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_empty_string(self):
         clean = CustomFieldsConditionsField(
-            model=FakeContact,
-            efilter_registry=efilter_registry,
+            model=FakeContact, efilter_registry=efilter_registry,
         ).clean
         operator = operators.EQUALS
         conditions = clean(self.build_data(
@@ -1739,8 +1736,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_equals_boolean_condition(self):
         clean = CustomFieldsConditionsField(
-            model=FakeContact,
-            efilter_registry=efilter_registry,
+            model=FakeContact, efilter_registry=efilter_registry,
         ).clean
         operator = operators.EQUALS
         conditions = clean(self.build_data(
@@ -1774,9 +1770,9 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertHTMLEqual(
             '<input type="text" name="test" style="display:none;">'
             '<span>{no_customfield_label}</span>'.format(
-                no_customfield_label=_('No custom field at present.')
+                no_customfield_label=_('No custom field at present.'),
             ),
-            widget.render('test', '')
+            widget.render('test', ''),
         )
 
     def test_deleted01(self):
@@ -1837,7 +1833,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                 'rname': 'customfieldstring',
                 'values': [str(value)],
             },
-            condition.value
+            condition.value,
         )
 
 
@@ -1866,11 +1862,14 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
         self.assertFieldValidationError(
             DateCustomFieldsConditionsField, 'invaliddaterange', clean,
-            json_dump([{'field': str(self.cfield01.id), 'range': {'type': 'unknown_range'}}])
+            json_dump([{
+                'field': str(self.cfield01.id),
+                'range': {'type': 'unknown_range'}},
+            ]),
         )
         self.assertFieldValidationError(
             DateCustomFieldsConditionsField, 'emptydates', clean,
-            json_dump([{'field': str(self.cfield01.id), 'range': {'type': ''}}])
+            json_dump([{'field': str(self.cfield01.id), 'range': {'type': ''}}]),
         )
         self.assertFieldValidationError(
             DateCustomFieldsConditionsField, 'emptydates', clean,
@@ -1989,7 +1988,6 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         cfield.save()
 
         field = DateCustomFieldsConditionsField(model=FakeContact)
-
         self.assertFieldValidationError(
             DateCustomFieldsConditionsField, 'invalidcustomfield', field.clean,
             json_dump([
@@ -2051,14 +2049,14 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
     def test_clean_invalid_data_type(self):
         clean = PropertiesConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(
-            PropertiesConditionsField, 'invalidtype', clean, '"this is a string"'
+            PropertiesConditionsField, 'invalidtype', clean, '"this is a string"',
         )
         self.assertFieldValidationError(
-            PropertiesConditionsField, 'invalidtype', clean, '"{}"'
+            PropertiesConditionsField, 'invalidtype', clean, '"{}"',
         )
         self.assertFieldValidationError(
             PropertiesConditionsField, 'invalidtype', clean,
-            '{"foobar":{"ptype": "test-foobar", "has": true}}'
+            '{"foobar":{"ptype": "test-foobar", "has": true}}',
         )
 
     def test_clean_incomplete_data_required(self):
@@ -2122,12 +2120,12 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
         create = RelationType.create
         self.rtype01, self.rtype02 = create(
-            ('test-subject_love', 'Is loving', (FakeContact,)),
-            ('test-object_love',  'Is loved by')
+            ('test-subject_love', 'Is loving', [FakeContact]),
+            ('test-object_love',  'Is loved by'),
         )
         self.rtype03, self.srtype04 = create(
-            ('test-subject_belong', '(orga) belongs to (orga)', (FakeOrganisation,)),
-            ('test-object_belong',  '(orga) has (orga)',        (FakeOrganisation,))
+            ('test-subject_belong', '(orga) belongs to (orga)', [FakeOrganisation]),
+            ('test-object_belong',  '(orga) has (orga)',        [FakeOrganisation]),
         )
 
     def test_clean_empty_required(self):
@@ -2143,14 +2141,14 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
     def test_clean_invalid_data_type(self):
         clean = RelationsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(
-            RelationsConditionsField, 'invalidtype', clean, '"this is a string"'
+            RelationsConditionsField, 'invalidtype', clean, '"this is a string"',
         )
         self.assertFieldValidationError(
-            RelationsConditionsField, 'invalidtype', clean, '"{}"'
+            RelationsConditionsField, 'invalidtype', clean, '"{}"',
         )
         self.assertFieldValidationError(
             RelationsConditionsField, 'invalidtype', clean,
-            '{"foobar": {"rtype": "test-foobar", "has": true}}'
+            '{"foobar": {"rtype": "test-foobar", "has": true}}',
         )
 
     def test_clean_invalid_data(self):
@@ -2198,7 +2196,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             RelationsConditionsField, 'invalidentity', clean,
             json_dump([
                 {'rtype': self.rtype01.id, 'has': True, 'ctype': ct.id, 'entity': 2121545},
-            ])
+            ]),
         )
 
     def test_ok01(self):
@@ -2314,7 +2312,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         }
         self.assertListEqual(
             [jsondict],
-            json_load(field.from_python([*efilter.conditions.all()]))
+            json_load(field.from_python([*efilter.conditions.all()])),
         )
 
         try:
@@ -2326,7 +2324,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         jsondict['ctype'] = 0
         self.assertEqual(
             [jsondict],
-            json_load(field.from_python([*efilter.conditions.all()]))
+            json_load(field.from_python([*efilter.conditions.all()])),
         )
 
     def test_ok06(self):
@@ -2336,9 +2334,9 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             field.model = FakeContact
 
         rt_id = self.rtype01.id
-        conditions = field.clean(json_dump(
-            [{'rtype': rt_id, 'has': True,  'ctype': 0, 'entity': None}]
-        ))
+        conditions = field.clean(json_dump([
+            {'rtype': rt_id, 'has': True,  'ctype': 0, 'entity': None},
+        ]))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -2352,9 +2350,9 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertHTMLEqual(
             '<input type="text" name="test" style="display:none;">'
             '<span>{no_customfield_label}</span>'.format(
-                no_customfield_label=_('No choice available.')
+                no_customfield_label=_('No choice available.'),
             ),
-            widget.render('test', '')
+            widget.render('test', ''),
         )
 
 
@@ -2364,12 +2362,12 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
 
         create = RelationType.create
         self.rtype01, self.rtype02 = create(
-            ('test-subject_love', 'Is loving', (FakeContact,)),
-            ('test-object_love',  'Is loved by')
+            ('test-subject_love', 'Is loving', [FakeContact]),
+            ('test-object_love',  'Is loved by'),
         )
         self.rtype03, self.srtype04 = create(
-            ('test-subject_belong', '(orga) belongs to (orga)', (FakeOrganisation,)),
-            ('test-object_belong',  '(orga) has (orga)',        (FakeOrganisation,))
+            ('test-subject_belong', '(orga) belongs to (orga)', [FakeOrganisation]),
+            ('test-object_belong',  '(orga) has (orga)',        [FakeOrganisation])
         )
 
         create_efilter = partial(
@@ -2435,8 +2433,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
                 'has': True,
                 'ctype': get_ct(FakeContact).id,
                 'filter': filter_id1,
-            },
-            {
+            }, {
                 'rtype': self.rtype02.id,
                 'has': False,
                 'ctype': get_ct(FakeOrganisation).id,
@@ -2475,9 +2472,10 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         filter_id = self.sub_efilter01.id
         rt_id = self.rtype01.id
         conditions = field.clean(json_dump([
-            {'rtype': rt_id, 'has': True,
-             'ctype': ContentType.objects.get_for_model(FakeContact).id,
-             'filter': filter_id,
+            {
+                'rtype': rt_id, 'has': True,
+                'ctype': ContentType.objects.get_for_model(FakeContact).id,
+                'filter': filter_id,
             },
         ]))
         self.assertEqual(1, len(conditions))
@@ -2500,7 +2498,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
             '<span>{no_customfield_label}</span>'.format(
                 no_customfield_label=_('No relation type at present.')
             ),
-            widget.render('test', '')
+            widget.render('test', ''),
         )
 
 
