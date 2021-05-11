@@ -8,7 +8,7 @@ from django.db.models.deletion import ProtectedError
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-from creme.creme_core.core.field_tags import InvalidFieldTag
+from creme.creme_core.core.field_tags import FieldTag, InvalidFieldTag
 from creme.creme_core.core.function_field import (
     FunctionField,
     FunctionFieldResultsList,
@@ -66,12 +66,12 @@ class EntityTestCase(CremeTestCase):
 
         qs = FakeContact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
         expected = [c2, c3, c4, c1]
-        self.assertListEqual(expected,
-                             [*qs.order_by('email', 'last_name')]
-                            )
-        self.assertListEqual([*reversed(expected)],
-                             [*qs.order_by('-email', 'last_name')]
-                            )
+        self.assertListEqual(
+            expected, [*qs.order_by('email', 'last_name')],
+        )
+        self.assertListEqual(
+            [*reversed(expected)], [*qs.order_by('-email', 'last_name')],
+        )
 
     def test_manager02(self):
         "Ordering NULL values as 'low' (FK)"
@@ -87,22 +87,24 @@ class EntityTestCase(CremeTestCase):
 
         qs = FakeContact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
         expected = [c3, c2, c4, c1]
-        self.assertListEqual(expected,
-                             [*qs.order_by('sector', 'last_name')]
-                            )
-        self.assertListEqual([*reversed(expected)],
-                             [*qs.order_by('-sector', '-last_name')]
-                            )
+        self.assertListEqual(
+            expected, [*qs.order_by('sector', 'last_name')]
+        )
+        self.assertListEqual(
+            [*reversed(expected)], [*qs.order_by('-sector', '-last_name')]
+        )
 
     def _build_rtypes_n_ptypes(self):
         create_rtype = RelationType.create
-        self.rtype1, self.rtype2 = create_rtype(('test-subject_loving', 'is loving'),
-                                                ('test-object_loving',  'is loved by'),
-                                               )
-        self.rtype3, self.rtype4 = create_rtype(('test-subject_hating', 'is hating'),
-                                                ('test-object_hating',  'is hated by'),
-                                                is_internal=True,
-                                               )
+        self.rtype1, self.rtype2 = create_rtype(
+            ('test-subject_loving', 'is loving'),
+            ('test-object_loving',  'is loved by'),
+        )
+        self.rtype3, self.rtype4 = create_rtype(
+            ('test-subject_hating', 'is hating'),
+            ('test-object_hating',  'is hated by'),
+            is_internal=True,
+        )
 
         create_ptype = CremePropertyType.create
         self.ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
@@ -115,14 +117,15 @@ class EntityTestCase(CremeTestCase):
         get_field = naruto._meta.get_field
 
         self.assertFalse(get_field('created').get_tag('clonable'))
-        self.assertFalse(get_field('modified').get_tag('clonable'))
+        self.assertFalse(get_field('created').get_tag(FieldTag.CLONABLE))
+        self.assertFalse(get_field('modified').get_tag(FieldTag.CLONABLE))
 
         field = get_field('first_name')
-        self.assertTrue(field.get_tag('clonable'))
+        self.assertTrue(field.get_tag(FieldTag.CLONABLE))
         self.assertRaises(InvalidFieldTag, field.get_tag, 'stuff')
 
-        self.assertFalse(get_field('id').get_tag('clonable'))
-        self.assertFalse(get_field('cremeentity_ptr').get_tag('clonable'))
+        self.assertFalse(get_field('id').get_tag(FieldTag.CLONABLE))
+        self.assertFalse(get_field('cremeentity_ptr').get_tag(FieldTag.CLONABLE))
 
         self.assertRaises(InvalidFieldTag, field.set_tags, stuff=True)
 
@@ -133,10 +136,12 @@ class EntityTestCase(CremeTestCase):
         get_field = naruto._meta.get_field
 
         self.assertTrue(get_field('modified').get_tag('viewable'))
-        self.assertTrue(get_field('first_name').get_tag('viewable'))
+        self.assertTrue(get_field('modified').get_tag(FieldTag.VIEWABLE))
+        self.assertTrue(get_field('first_name').get_tag(FieldTag.VIEWABLE))
 
         self.assertFalse(get_field('id').get_tag('viewable'))
-        self.assertFalse(get_field('cremeentity_ptr').get_tag('viewable'))
+        self.assertFalse(get_field('id').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('cremeentity_ptr').get_tag(FieldTag.VIEWABLE))
 
     def test_fieldtags_optional(self):
         naruto = FakeContact.objects.create(
@@ -145,20 +150,21 @@ class EntityTestCase(CremeTestCase):
         get_field = naruto._meta.get_field
 
         self.assertFalse(get_field('modified').get_tag('optional'))
-        self.assertFalse(get_field('last_name').get_tag('optional'))
+        self.assertFalse(get_field('modified').get_tag(FieldTag.OPTIONAL))
+        self.assertFalse(get_field('last_name').get_tag(FieldTag.OPTIONAL))
 
     def test_fieldtags_user(self):
         get_field = self.user._meta.get_field
 
-        self.assertTrue(get_field('username').get_tag('viewable'))
-        self.assertFalse(get_field('id').get_tag('viewable'))
-        self.assertFalse(get_field('password').get_tag('viewable'))
-        self.assertFalse(get_field('is_active').get_tag('viewable'))
-        self.assertFalse(get_field('is_superuser').get_tag('viewable'))
-        self.assertFalse(get_field('is_staff').get_tag('viewable'))
-        self.assertFalse(get_field('last_login').get_tag('viewable'))
-        self.assertFalse(get_field('date_joined').get_tag('viewable'))
-        self.assertFalse(get_field('role').get_tag('viewable'))
+        self.assertTrue(get_field('username').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('id').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('password').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('is_active').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('is_superuser').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('is_staff').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('last_login').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('date_joined').get_tag(FieldTag.VIEWABLE))
+        self.assertFalse(get_field('role').get_tag(FieldTag.VIEWABLE))
 
     def test_clone01(self):
         user = self.user
@@ -211,13 +217,14 @@ class EntityTestCase(CremeTestCase):
 
         image = FakeImage.objects.create(user=user, name='Naruto selfie')
 
-        naruto = FakeContact.objects.create(user=user, civility=civility,
-                                            first_name='Naruto', last_name='Uzumaki',
-                                            description='Ninja', birthday=now(),
-                                            phone='123456', mobile='+81 0 0 0 00 01',
-                                            email='naruto.uzumaki@konoha.jp',
-                                            image=image,
-                                           )
+        naruto = FakeContact.objects.create(
+            user=user, civility=civility,
+            first_name='Naruto', last_name='Uzumaki',
+            description='Ninja', birthday=now(),
+            phone='123456', mobile='+81 0 0 0 00 01',
+            email='naruto.uzumaki@konoha.jp',
+            image=image,
+        )
         naruto.language = [language]
 
         CremeProperty.objects.create(type=self.ptype01, creme_entity=naruto)
@@ -240,9 +247,10 @@ class EntityTestCase(CremeTestCase):
         self.assertSetEqual({*naruto.languages.all()}, {*kage_bunshin.languages.all()})
 
     def test_clone03(self):
-        create_cf = partial(CustomField.objects.create,
-                            content_type=ContentType.objects.get_for_model(FakeOrganisation),
-                           )
+        create_cf = partial(
+            CustomField.objects.create,
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+        )
         cf_int        = create_cf(name='int',        field_type=CustomField.INT)
         cf_float      = create_cf(name='float',      field_type=CustomField.FLOAT)
         cf_bool       = create_cf(name='bool',       field_type=CustomField.BOOL)
@@ -284,7 +292,7 @@ class EntityTestCase(CremeTestCase):
         self.assertTrue(get_cf_values(cf_multi_enum, orga).value.exists())
         self.assertSetEqual(
             {*get_cf_values(cf_multi_enum, orga).value.values_list('pk', flat=True)},
-            {*get_cf_values(cf_multi_enum, clone).value.values_list('pk', flat=True)}
+            {*get_cf_values(cf_multi_enum, clone).value.values_list('pk', flat=True)},
         )
 
     def test_clone04(self):
@@ -300,9 +308,10 @@ class EntityTestCase(CremeTestCase):
         for attr in ('user', 'name'):
             self.assertEqual(getattr(image1, attr), getattr(image2, attr))
 
-        self.assertSetEqual({*image1.categories.values_list('pk', flat=True)},
-                            {*image2.categories.values_list('pk', flat=True)}
-                           )
+        self.assertSetEqual(
+            {*image1.categories.values_list('pk', flat=True)},
+            {*image2.categories.values_list('pk', flat=True)}
+        )
 
     def test_delete01(self):
         "Simple delete"
@@ -332,7 +341,9 @@ class EntityTestCase(CremeTestCase):
         ce1 = CremeEntity.objects.create(user=user)
         ce2 = CremeEntity.objects.create(user=user)
 
-        Relation.objects.create(user=user, type=self.rtype3, subject_entity=ce1, object_entity=ce2)
+        Relation.objects.create(
+            user=user, type=self.rtype3, subject_entity=ce1, object_entity=ce2,
+        )
 
         self.assertRaises(ProtectedError, ce1.delete)
         self.assertRaises(ProtectedError, ce2.delete)
@@ -363,7 +374,7 @@ class EntityTestCase(CremeTestCase):
             f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>'
             f'</li><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f'</ul>',
-            result.for_html()
+            result.for_html(),
         )
         self.assertEqual('Awesome/Wonderful', result.for_csv())
 
@@ -394,11 +405,11 @@ class EntityTestCase(CremeTestCase):
             f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
             f'<li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f'</ul>',
-            result1.for_html()
+            result1.for_html(),
         )
         self.assertHTMLEqual(
             f'<ul><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li></ul>',
-            result2.for_html()
+            result2.for_html(),
         )
 
     def test_customfield_value(self):

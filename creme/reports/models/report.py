@@ -40,6 +40,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import EF_USER
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import (
     CremeEntity,
     CremeModel,
@@ -294,7 +295,8 @@ class Field(CremeModel):
         fields_kv = {}
 
         for field in self._meta.fields:
-            if field.get_tag('clonable'):
+            # if field.get_tag('clonable'):
+            if field.get_tag(FieldTag.CLONABLE):
                 fname = field.name
                 fields_kv[fname] = getattr(self, fname)
 

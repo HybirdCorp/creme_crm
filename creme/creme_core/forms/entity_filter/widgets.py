@@ -37,6 +37,7 @@ from creme.creme_core.core.entity_filter import (
     _EntityFilterRegistry,
     operators,
 )
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity, CustomField
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.utils.url import TemplateURLBuilder
@@ -196,7 +197,8 @@ class FieldConditionSelector(ChainedInput):
 
             if (
                 not issubclass(field.remote_field.model, CremeEntity)
-                and field.get_tag('enumerable')
+                # and field.get_tag('enumerable')
+                and field.get_tag(FieldTag.ENUMERABLE)
             ):
                 return 'enum' + isnull
 

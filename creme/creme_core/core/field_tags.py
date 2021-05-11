@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,27 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from enum import Enum
+
+
+class FieldTag(Enum):
+    CLONABLE = 'clonable'
+    VIEWABLE = 'viewable'
+    ENUMERABLE = 'enumerable'
+    OPTIONAL = 'optional'
+
+    @classmethod
+    def is_valid(cls, value):
+        try:
+            cls(value)
+        except ValueError:
+            return False
+
+        return True
+
+    def __str__(self):
+        return self.value
 
 
 class InvalidFieldTag(Exception):
@@ -37,7 +58,9 @@ def _add_tags_to_fields():
     )
 
     def _set_tags(self, **kwargs):
-        for tag_name in ('clonable', 'viewable', 'enumerable', 'optional'):
+        # for tag_name in ('clonable', 'viewable', 'enumerable', 'optional'):
+        for tag in FieldTag:
+            tag_name = tag.value
             value = kwargs.pop(tag_name, None)
             if value is not None:
                 setattr(self, f'_cremetag_{tag_name}', value)
@@ -47,7 +70,9 @@ def _add_tags_to_fields():
 
         return self
 
-    def _get_tag(self, tag_name):
+    # def _get_tag(self, tag_name):
+    def _get_tag(self, tag):
+        tag_name = tag.value if isinstance(tag, FieldTag) else tag
         try:
             return getattr(self, f'_cremetag_{tag_name}')
         except AttributeError as e:
@@ -56,22 +81,22 @@ def _add_tags_to_fields():
     Field.set_tags = _set_tags
     Field.get_tag  = _get_tag
 
-    # 'viewable'
+    # FieldTag.VIEWABLE
     Field._cremetag_viewable = True
     AutoField._cremetag_viewable = False
     OneToOneField._cremetag_viewable = False
 
-    # 'clonable'
+    # FieldTag.CLONABLE
     Field._cremetag_clonable = True
     AutoField._cremetag_clonable = False
     OneToOneField._cremetag_clonable = False
     UUIDField._cremetag_clonable = False
 
-    # 'enumerable'
+    # FieldTag.ENUMERABLE
     Field._cremetag_enumerable = False
     ForeignKey._cremetag_enumerable = True
     ManyToManyField._cremetag_enumerable = True
     OneToOneField._cremetag_enumerable = False
 
-    # 'optional'
+    # FieldTag.OPTIONAL
     Field._cremetag_optional = False

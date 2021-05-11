@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import (
     CremeEntity,
     FakeContact,
@@ -62,9 +63,11 @@ class FieldsConfigTestCase(CremeTestCase):
 
         get_field = FakeContact._meta.get_field
         self.assertTrue(get_field('phone').get_tag('optional'))
-        self.assertTrue(get_field('birthday').get_tag('optional'))
+        self.assertTrue(get_field('phone').get_tag(FieldTag.OPTIONAL))
+        self.assertTrue(get_field('birthday').get_tag(FieldTag.OPTIONAL))
         self.assertFalse(get_field('last_name').get_tag('optional'))
-        self.assertTrue(get_field('image').get_tag('optional'))
+        self.assertFalse(get_field('last_name').get_tag(FieldTag.OPTIONAL))
+        self.assertTrue(get_field('image').get_tag(FieldTag.OPTIONAL))
 
         # --------
         fconf = self._create_fconf()

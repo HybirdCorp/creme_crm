@@ -52,6 +52,7 @@ from creme.creme_config.registry import NotRegisteredInConfig, config_registry
 from creme.documents import get_document_model
 
 from ..backends import import_backend_registry
+from ..core.field_tags import FieldTag
 from ..gui.mass_import import import_form_registry
 from ..models import (
     CremeEntity,
@@ -1206,7 +1207,8 @@ class ImportForm(CremeModelForm):
                 return True
 
             if field.is_relation:
-                return not field.get_tag('enumerable') if field.many_to_one else True
+                # return not field.get_tag('enumerable') if field.many_to_one else True
+                return not field.get_tag(FieldTag.ENUMERABLE) if field.many_to_one else True
 
             return False
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from typing import List, Type
 
 from django.db.models import Field
 
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import ClassKeyedMap
 
@@ -163,13 +164,15 @@ class _EnumerableRegistry:
 
     @staticmethod
     def _check_field(field):
-        if not field.get_tag('viewable'):  # TODO: unit test (needs new field)
+        # if not field.get_tag('viewable'):
+        if not field.get_tag(FieldTag.VIEWABLE):  # TODO: unit test (needs new field)
             raise ValueError(f'This field is not viewable: {field}')
 
         # TODO: we probably should manage fields with is_relation==False but with
         #       a 'choices' attribute. Wait to add the feature in EntityFilterForm too.
 
-        if not field.get_tag('enumerable'):
+        # if not field.get_tag('enumerable'):
+        if not field.get_tag(FieldTag.ENUMERABLE):
             raise ValueError(f'This field is not enumerable: {field}')
 
     def _get_field(self, model, field_name):

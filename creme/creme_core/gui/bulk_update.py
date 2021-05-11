@@ -44,6 +44,7 @@ from ..core.entity_cell import (
     EntityCellCustomField,
     EntityCellRegularField,
 )
+from ..core.field_tags import FieldTag
 from ..models import CremeEntity, CremeModel, CustomField, FieldsConfig
 from ..utils.unicode_collation import collator
 
@@ -88,7 +89,8 @@ class _BulkUpdateRegistry:
             self._regularfields = {}
 
         def is_expandable(self, field: Field) -> bool:
-            if not isinstance(field, ForeignKey) or field.get_tag('enumerable'):
+            # if not isinstance(field, ForeignKey) or field.get_tag('enumerable'):
+            if not isinstance(field, ForeignKey) or field.get_tag(FieldTag.ENUMERABLE):
                 return False
 
             return (

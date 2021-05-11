@@ -41,6 +41,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import (
     CremeEntity,
     CustomField,
@@ -96,7 +97,8 @@ class GHCCRegularField(GraphHandCellConstraint):
     def _accept_field(self, field, not_hiddable_cell_keys):
         model = field.model
 
-        if not field.get_tag('viewable'):  # TODO: test
+        # if not field.get_tag('viewable'):
+        if not field.get_tag(FieldTag.VIEWABLE):  # TODO: test
             return False
 
         if self.fields_configs.get_4_model(model).is_field_hidden(field):
@@ -131,10 +133,13 @@ class GHCCRegularFK(GHCCRegularField):
     def _accept_field(self, field, not_hiddable_cell_keys):
         # TODO: field.is_relation ??
         # TODO: set the ForeignKeys to entities as not enumerable automatically ?
-        if super()._accept_field(field, not_hiddable_cell_keys) and \
-           isinstance(field, ForeignKey) and \
-           not issubclass(field.remote_field.model, CremeEntity):
-            return field.get_tag('enumerable')
+        if (
+            super()._accept_field(field, not_hiddable_cell_keys)
+            and isinstance(field, ForeignKey)
+            and not issubclass(field.remote_field.model, CremeEntity)
+        ):
+            # return field.get_tag('enumerable')
+            return field.get_tag(FieldTag.ENUMERABLE)
 
         return False
 
@@ -409,7 +414,8 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         if not isinstance(field, self.model_field_classes):
             return False
 
-        if not field.get_tag('viewable'):  # TODO: test
+        # if not field.get_tag('viewable'):
+        if not field.get_tag(FieldTag.VIEWABLE):  # TODO: test
             return False
 
         if self.fields_configs.get_4_model(model).is_field_hidden(field):

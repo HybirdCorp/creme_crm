@@ -61,6 +61,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext
 
+from ..core.field_tags import FieldTag
 from ..global_info import get_global_info, set_global_info
 from ..signals import pre_merge_related
 from ..utils.dates import (
@@ -267,7 +268,8 @@ class _HistoryLineType:
             for field in instance._meta.fields:
                 fname = field.name
 
-                if fname in excluded_fields or not field.get_tag('viewable'):
+                # if fname in excluded_fields or not field.get_tag('viewable'):
+                if fname in excluded_fields or not field.get_tag(FieldTag.VIEWABLE):
                     continue
 
                 old_value = getattr(old_instance, fname)

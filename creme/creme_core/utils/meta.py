@@ -31,6 +31,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.core.validators import EMPTY_VALUES
 from django.db.models import DateField, Field, Model
 
+from ..core.field_tags import FieldTag
 from .unicode_collation import collator
 
 
@@ -185,8 +186,7 @@ FieldFilterFunctionType = Callable[[Type[Model], Field, int], bool]
 
 
 class _FilterModelFieldQuery:
-    # TODO: use a constants in fields_tags ?? set() ?
-    _TAGS = ('viewable', 'clonable', 'enumerable', 'optional')
+    # _TAGS = ('viewable', 'clonable', 'enumerable', 'optional')
 
     def __init__(self, function: Optional[FieldFilterFunctionType] = None, **kwargs):
         conditions: List[FieldFilterFunctionType] = []
@@ -201,7 +201,8 @@ class _FilterModelFieldQuery:
                     lambda *, model, field, depth, attr_name, value:
                     field.get_tag(attr_name) == value
                 )
-                if attr_name in self._TAGS else
+                # if attr_name in self._TAGS else
+                if FieldTag.is_valid(attr_name) else
                 # (lambda field, deep, attr_name, value: getattr(field, attr_name) == value)
                 (
                     lambda *, model, field, depth, attr_name, value:
