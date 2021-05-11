@@ -137,8 +137,9 @@ class Migration(migrations.Migration):
                         default='', blank=True,
                         choices=[
                             ('', 'Language of your browser'),
-                            ('en', 'English'),
-                            ('fr', 'Français'),
+                            # ('en', 'English'),
+                            # ('fr', 'Français'),
+                            *settings.LANGUAGES,
                         ],
                     )
                 ),
