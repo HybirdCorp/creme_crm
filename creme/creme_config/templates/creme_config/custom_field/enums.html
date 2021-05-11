@@ -5,7 +5,7 @@
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
-    {{block.super}}{% if conf_perm %}<a href="{% url 'creme_config__custom_fields' %}">{% translate 'Custom fields' %} > </a>{% endif %}<span class="creme_config-custom-enum{% if object.is_deleted %} creme_config-custom-enum-deleted{% endif %}">{{object}}<span>
+    {{block.super}}{% if conf_perm %}<a href="{% url 'creme_config__custom_fields' %}">{% translate 'Custom fields' %} > </a>{% endif %}{{object.content_type}} > <span class="creme_config-custom-enum{% if object.is_deleted %} creme_config-custom-enum-deleted{% endif %}">{{object}}<span>
 {% endblock %}
 
 {% block portal_bricks %}
