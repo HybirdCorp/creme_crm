@@ -282,6 +282,130 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertTrue(cf2_f.required)
 
     @skipIfCustomContact
+    def test_createview_empty_body01(self):
+        "HTML body is empty => automatically filled from body."
+        user = self.login()
+
+        recipient = 'vincent.law@immigrates.rmd'
+        contact = Contact.objects.create(
+            user=user,
+            first_name='Vincent', last_name='Law',
+            email=recipient,
+        )
+        url = self._build_create_entitymail_url(contact)
+        response1 = self.assertGET200(url)
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            subject_f = fields['subject']
+            body_f = fields['body']
+            html_f = fields['body_html']
+
+        self.assertTrue(subject_f.required)
+        self.assertFalse(body_f.required)
+        self.assertFalse(html_f.required)
+
+        sender = user.linked_contact.email
+        body = 'Freeze !'
+        response2 = self.client.post(
+            url,
+            data={
+                'user':         user.id,
+                'sender':       sender,
+                'c_recipients': self.formfield_value_multi_creator_entity(contact),
+                'subject':      'Under arrest',
+                'body':         body,
+                'body_html':    '    ',  # Considered as empty once stripped
+            },
+        )
+        self.assertNoFormError(response2)
+
+        email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
+        self.assertEqual(body, email.body)
+        self.assertEqual(
+            f'<html><body><code>{body}</code></body></html>',
+            email.body_html,
+        )
+
+    @skipIfCustomContact
+    def test_createview_empty_body02(self):
+        "Body is empty => automatically filled from HTML body."
+        user = self.login()
+
+        recipient = 'vincent.law@immigrates.rmd'
+        contact = Contact.objects.create(
+            user=user,
+            first_name='Vincent', last_name='Law',
+            email=recipient,
+        )
+        sender = user.linked_contact.email
+        response = self.client.post(
+            self._build_create_entitymail_url(contact),
+            data={
+                'user':         user.id,
+                'sender':       sender,
+                'c_recipients': self.formfield_value_multi_creator_entity(contact),
+                'subject':      'New slurm',
+                'body':         '    ',  # Considered as empty once stripped
+                'body_html': '''
+<html>
+<head></head>
+<body style="margin:0px; padding:0px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0">
+<tbody>
+<tr>
+<td valign="top" align="center"></td>
+<td width="320"><p style="text-align: justify;">
+Taste our <span style="text-decoration:underline;">new recipe</span> which is 72%
+better &amp; lighter than the previous one.
+</p></td>
+<td valign="top" align="center">Visit our <a href="https://slurm.com">site</a> !</td>
+</body>
+</html>
+'''
+            },
+        )
+        self.assertNoFormError(response)
+
+        email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
+        self.assertEqual(
+            'Taste our new recipe which is 72%\n'
+            'better & lighter than the previous one.\n'
+            '\n'
+            'Visit our site !',
+            # 'Visit our site (https://slurm.com) !',  TODO ??
+            email.body,
+        )
+
+    @skipIfCustomContact
+    def test_createview_empty_body03(self):
+        "Both bodies are empty => error."
+        user = self.login()
+
+        recipient = 'vincent.law@immigrates.rmd'
+        contact = Contact.objects.create(
+            user=user,
+            first_name='Vincent', last_name='Law',
+            email=recipient,
+        )
+        response = self.assertPOST200(
+            self._build_create_entitymail_url(contact),
+            data={
+                'user':         user.id,
+                'sender':       user.linked_contact.email,
+                'c_recipients': self.formfield_value_multi_creator_entity(contact),
+
+                'subject': 'New slurm',
+
+                'body':      '  ',
+                'body_html': '    ',
+            },
+        )
+        self.assertFormError(
+            response, 'form', None,
+            _('Both bodies cannot be empty at the same time.'),
+        )
+
+    @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_createview_error_invalid_address(self):
         "Invalid email address."

@@ -49,7 +49,7 @@ from creme.creme_core.utils.dependence_sort import (
     DependenciesLoopError,
     dependence_sort,
 )
-from creme.creme_core.utils.html import escapejson
+from creme.creme_core.utils.html import escapejson, strip_html
 from creme.creme_core.utils.log import log_exceptions
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.utils.url import TemplateURLBuilder, parse_path
@@ -313,6 +313,38 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(
             escapejson('{"a": 12, "b": "-->alert();<script/>"}'),
             '{"a": 12, "b": "--\\u003Ealert();\\u003Cscript/\\u003E"}',
+        )
+
+    def test_strip_html(self):
+        self.assertEqual('foobar',     strip_html('foobar'))
+        self.assertEqual('foobar',     strip_html('<b>foobar</b>'))
+        self.assertEqual('97%',        strip_html('97&#x0025;'))
+        self.assertEqual('97%',        strip_html('97&#37;'))
+        self.assertEqual('97&#abc;',   strip_html('97&#abc;'))
+        self.assertEqual('foo bar', strip_html('foo&nbsp;bar'))
+
+        self.assertEqual(
+            'Taste our new recipe which is 72%\n'
+            'better & lighter than the previous one.\n'
+            '\n'
+            'Visit our site !',
+            # 'Visit our site (https://slurm.com) !',  TODO ??,
+            strip_html('''
+<html>
+<head></head>
+<body style="margin:0px; padding:0px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0">
+<tbody>
+<tr>
+<td valign="top" align="center"></td>
+<td width="320"><p style="text-align: justify;">
+Taste our <span style="text-decoration:underline;">new recipe</span> which is 72%
+better &amp; lighter than the previous one.
+</p></td>
+<td valign="top" align="center">Visit our <a href="https://slurm.com">site</a> !</td>
+</body>
+</html>
+''').strip()
         )
 
     def test_string_smart_split(self):

@@ -19,6 +19,9 @@
             - The detail view bricks configuration form has been redesigned.
         * Persons :
             - The setting PERSONS_MENU_CUSTOMERS_ENABLED has been removed (you can add/remove the entry menu in 'creme_config').
+        * Emails :
+            - When you create an e-mail from a detailed view, only one of the 2 bodies needs to be filled
+              (the other one is automatically filled from it).
 
   Developers side :
   -----------------
@@ -91,6 +94,9 @@
                         - The method 'RecurrentRegistry.get_form_of_template()' is deprecated ;
                           use 'get_template_form_class()' instead.
                         - The property "RecurrentRegistry.ctypes" is deprecated ; use "models" instead.
+                * Crudity :
+                    - The function 'crudity.utils.strip_html()' is deprecated ;
+                      use 'creme_core.utils.html.strip_html()' instead.
 
     Breaking changes :
     ------------------
@@ -264,6 +270,7 @@
                 - In 'constants' :
                     - 'MAIL_STATUS*' have been replaced by a 'django.db.models.IntegerChoices' : 'model._Email.Status'.
                     - 'MAIL_SYNC_STATUSES' has been replaced 'model._Email.SYNCHRONIZATION_STATUSES'.
+                - In the form-class, 'forms.mail.EntityEmailForm', the field "subject" is now required.
                 - In 'models.sending', some constants have been replaced by 'django.db.models.IntegerChoices' :
                     - 'SENDING_TYPE*' by 'EmailSending.Type'.
                     - 'SENDING_STATE*' by 'EmailSending.State'.

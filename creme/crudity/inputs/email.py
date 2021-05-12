@@ -28,13 +28,14 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db.models import FileField, ForeignKey
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.utils.html import strip_html
 from creme.documents import get_document_model
 
 from ..backends.models import CrudityBackend
 from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from ..fetchers.pop import PopEmail
 from ..models import WaitingAction
-from ..utils import decode_b64binary, is_sandbox_by_user, strip_html
+from ..utils import decode_b64binary, is_sandbox_by_user
 from .base import CrudityInput
 
 Document = get_document_model()
