@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import re
+from html.entities import entitydefs as html_entities
 from typing import Callable, Dict, Sequence, Union
 
 import bleach
@@ -116,3 +118,43 @@ JSON_ESCAPES = {
 def escapejson(value: str) -> str:
     # return mark_safe(force_text(value).translate(JSON_ESCAPES))
     return mark_safe(force_str(value).translate(JSON_ESCAPES))
+
+
+def strip_html(text: str) -> str:
+    """ Removes HTML markups from a string, & replaces HTML entities by unicode.
+
+    THX to:
+    http://effbot.org/zone/re-sub.htm#strip-html
+    """
+    def fix_up(m):
+        sub_text = m.group(0)
+        startswith = sub_text.startswith
+
+        if startswith('<'):
+            return ''  # ignore tags
+
+        if startswith('&'):
+            if startswith('&#'):
+                try:
+                    if startswith('&#x'):
+                        return chr(int(sub_text[3:-1], 16))
+                    else:
+                        return chr(int(sub_text[2:-1]))
+                except ValueError:
+                    pass
+            else:
+                entity = html_entities.get(sub_text[1:-1])
+
+                if entity:
+                    # if entity.startswith('&#'):
+                    #     try:
+                    #         return chr(int(entity[2:-1]))
+                    #     except ValueError:
+                    #         pass
+                    # else:
+                    #     return entity
+                    return entity  # TODO: encode ?
+
+        return sub_text  # Leave as is
+
+    return re.sub(r'(?s)<[^>]*>|&#?\w+;', fix_up, text)

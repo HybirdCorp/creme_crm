@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,9 @@
 ################################################################################
 
 import base64
-import re
 import struct
 import uuid
-from html.entities import entitydefs as htmlentitydefs
+import warnings
 from typing import Tuple, Type
 
 from django.db.models import Model
@@ -37,51 +36,23 @@ def is_sandbox_by_user() -> bool:
 
 
 def strip_html(text: str) -> str:
-    """ Removes HTML markups from a string.
+    warnings.warn(
+        'crudity.utils.strip_html() is deprecated ; '
+        'use creme_core.utils.html.strip_html() instead.',
+        DeprecationWarning,
+    )
 
-    THX to:
-    http://effbot.org/zone/re-sub.htm#strip-html
-    """
-    def fixup(m):
-        text = m.group(0)
-        startswith = text.startswith
-
-        if startswith('<'):
-            return ''  # ignore tags
-
-        if startswith('&'):
-            if startswith('&#'):
-                try:
-                    if startswith('&#x'):
-                        return chr(int(text[3:-1], 16))
-                    else:
-                        return chr(int(text[2:-1]))
-                except ValueError:
-                    pass
-            else:
-                entity = htmlentitydefs.get(text[1:-1])
-
-                if entity:
-                    if entity.startswith('&#'):  # TODO: test this case
-                        try:
-                            return chr(int(entity[2:-1]))
-                        except ValueError:
-                            pass
-                    else:
-                        return entity  # TODO: encode ?
-
-        return text  # Leave as is
-
-    return re.sub(r'(?s)<[^>]*>|&#?\w+;', fixup, text)
+    from creme.creme_core.utils.html import strip_html
+    return strip_html(text)
 
 
 def generate_guid_for_field(urn: str,
                             model: Type[Model],
                             field_name: str) -> str:
-    return '{%s}' % str(uuid.uuid5(uuid.NAMESPACE_X500,
-                                   f'{urn}.{model._meta.object_name}.{field_name}'
-                                  )
-                       ).upper()
+    return '{%s}' % str(uuid.uuid5(
+        uuid.NAMESPACE_X500,
+        f'{urn}.{model._meta.object_name}.{field_name}'
+    )).upper()
 
 
 def decode_b64binary(blob_b64: bytes) -> Tuple[str, bytes]:

@@ -22,10 +22,10 @@ import logging
 from functools import partial
 from itertools import chain
 
+from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.transaction import atomic
-from django.forms import fields
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -36,6 +36,7 @@ from creme.creme_core.forms import base as base_forms
 from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms.widgets import CremeTextarea
 from creme.creme_core.models import FieldsConfig, Relation
+from creme.creme_core.utils.html import strip_html
 from creme.documents import get_document_model
 
 from ..constants import (  # MAIL_STATUS_SENDINGERROR
@@ -56,7 +57,7 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
     """
-    sender = fields.EmailField(label=_('Sender'))
+    sender = forms.EmailField(label=_('Sender'))
 
     c_recipients = core_fields.MultiCreatorEntityField(
         label=_('Contacts'), required=False, model=Contact, q_filter={'email__gt': ''},
@@ -65,10 +66,11 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
         label=_('Organisations'), required=False, model=Organisation, q_filter={'email__gt': ''},
     )
 
-    send_me = fields.BooleanField(label=_('Send me a copy of this mail'), required=False)
+    send_me = forms.BooleanField(label=_('Send me a copy of this mail'), required=False)
 
     error_messages = {
         'no_person': _('Select at least a Contact or an Organisation'),
+        'empty_bodies': _('Both bodies cannot be empty at the same time.'),
     }
 
     blocks = base_forms.FieldBlockManager(
@@ -93,7 +95,9 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
 
     class Meta:
         model = EntityEmail
-        fields = ('user', 'sender', 'subject', 'body', 'body_html', 'signature', 'attachments')
+        fields = (
+            'user', 'sender', 'subject', 'body', 'body_html', 'signature', 'attachments',
+        )
         widgets = {
             'body': CremeTextarea(attrs={'rows': 8}),
             'body_html': CremeTextarea(attrs={'rows': 8}),
@@ -102,6 +106,22 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.entity = entity
+        fields = self.fields
+        fields['subject'].required = True
+
+        body_f = fields['body']
+        body_f.required = False
+        body_f.help_text = _(
+            'If you let the body empty, it will be filled from the HTML body '
+            '(HTML markups are removed).'
+        )
+
+        html_f = fields['body_html']
+        html_f.required = False
+        html_f.help_text = _(
+            'If you let the HTML body empty, it will be filled from the regular body '
+            '(without fancy layout of course).'
+        )
 
         if isinstance(entity, (Contact, Organisation)):
             fn, msg = (
@@ -109,7 +129,7 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
                 if isinstance(entity, Contact) else
                 ('o_recipients', _('Beware: the organisation «{}» has no email address!'))
             )
-            field = self.fields[fn]
+            field = fields[fn]
 
             if entity.email:
                 field.initial = [entity.pk]
@@ -119,11 +139,11 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
         self.user_contact = contact = self.user.linked_contact
 
         if contact.email:
-            self.fields['sender'].initial = contact.email
+            fields['sender'].initial = contact.email
 
         def finalize_recipient_field(name, model):
             if FieldsConfig.objects.get_for_model(model).is_fieldname_hidden('email'):
-                self.fields[name] = core_fields.ReadonlyMessageField(
+                fields[name] = core_fields.ReadonlyMessageField(
                     label=self.fields[name].label,
                     initial=gettext(
                         'Beware: the field «Email address» is hidden ;'
@@ -162,22 +182,31 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
     def clean(self):
         cdata = super().clean()
 
-        if not self._errors and not cdata['c_recipients'] and not cdata['o_recipients']:
-            raise ValidationError(self.error_messages['no_person'], code='no_person')
+        if not self._errors:
+            if not cdata['c_recipients'] and not cdata['o_recipients']:
+                raise ValidationError(self.error_messages['no_person'], code='no_person')
+
+            if not cdata.get('body') and not cdata.get('body_html'):
+                raise ValidationError(self.error_messages['empty_bodies'], code='empty_bodies')
 
         return cdata
 
     def save(self):
-        cdata    = self.cleaned_data
+        cdata = self.cleaned_data
         get_data = cdata.get
 
-        sender      = get_data('sender')
-        subject     = get_data('subject')
-        body        = get_data('body')
-        body_html   = get_data('body_html')
-        signature   = get_data('signature')
+        sender = get_data('sender')
+        subject = get_data('subject')
+        # body = get_data('body')
+        body = get_data('body') or strip_html(get_data('body_html')).strip()
+        # body_html = get_data('body_html')
+        body_html = (
+            get_data('body_html')
+            or f'<html><body><code>{body}</code></body></html>'
+        )
+        signature = get_data('signature')
         attachments = get_data('attachments')
-        user        = get_data('user')
+        user = get_data('user')
 
         sending_error = False
 

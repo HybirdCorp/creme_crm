@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-10 10:24+0100\n"
+"POT-Creation-Date: 2021-05-12 18:37+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,9 +26,6 @@ msgstr "E-mails"
 
 msgid "Marketing"
 msgstr "Marketing"
-
-msgid "Synchronization of incoming emails"
-msgstr "Synchronisation des e-mails externes"
 
 msgid "HTML body"
 msgstr "Corps HTML"
@@ -183,6 +180,9 @@ msgstr "Envoyez moi une copie de cet e-mail"
 msgid "Select at least a Contact or an Organisation"
 msgstr "Sélectionnez au moins un Contact ou une Société"
 
+msgid "Both bodies cannot be empty at the same time."
+msgstr "Les 2 corps ne peuvent pas être vides en même temps."
+
 msgid "Who"
 msgstr "Qui"
 
@@ -194,6 +194,20 @@ msgstr "Avec"
 
 msgid "Required custom fields"
 msgstr "Champs personnalisés obligatoires"
+
+msgid ""
+"If you let the body empty, it will be filled from the HTML body (HTML "
+"markups are removed)."
+msgstr ""
+"Si vous laissez le corps vide, il sera rempli depuis le corps HTML (les "
+"balises HTML sont enlevées)."
+
+msgid ""
+"If you let the HTML body empty, it will be filled from the regular body "
+"(without fancy layout of course)."
+msgstr ""
+"Si vous laissez le corps HTML vide, il sera rempli depuis le corps normal "
+"(sans jolie mise en page évidemment)."
 
 msgid "Beware: the contact «{}» has no email address!"
 msgstr "Attention : le contact «{}» n'a pas d'adresse e-mail !"
@@ -297,6 +311,9 @@ msgstr "Date d'envoi obligatoire pour un envoi différé"
 
 msgid "Sending date must be is the future"
 msgstr "La date d'envoi doit être dans le futur"
+
+msgid "Synchronization of incoming emails"
+msgstr "Synchronisation des e-mails externes"
 
 msgid "Name of the campaign"
 msgstr "Nom de la campagne"
