@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 from json import dumps as jsondumps
 from json import loads as jsonloads
 
@@ -39,6 +40,11 @@ from .entity import CremeEntity
 from .fields import CremeUserForeignKey, DatePeriodField
 
 logger = logging.getLogger(__name__)
+
+
+class JobManager(models.Manager):
+    def not_finished(self, user):
+        return self.filter(user=user, status=self.model.STATUS_WAIT)
 
 
 class Job(models.Model):
@@ -81,15 +87,15 @@ class Job(models.Model):
     STATUS_ERROR = 10
     STATUS_OK    = 20
 
-    type_id  = models.CharField(_('Type of job'), max_length=48, editable=False)
-    user     = CremeUserForeignKey(verbose_name=_('User'), null=True, editable=False)
-    enabled  = models.BooleanField(_('Enabled'), default=True, editable=False)
+    type_id = models.CharField(_('Type of job'), max_length=48, editable=False)
+    user = CremeUserForeignKey(verbose_name=_('User'), null=True, editable=False)
+    enabled = models.BooleanField(_('Enabled'), default=True, editable=False)
     language = models.CharField(_('Language'), max_length=10, editable=False)
     # created = CreationDateTimeField(_('Creation date'))
 
     reference_run = models.DateTimeField(_('Reference run'))
-    periodicity   = DatePeriodField(_('Periodicity'), null=True)
-    last_run      = models.DateTimeField(_('Last run'), null=True, editable=False)
+    periodicity = DatePeriodField(_('Periodicity'), null=True)
+    last_run = models.DateTimeField(_('Last run'), null=True, editable=False)
 
     # Number of errors of communication with the queue.
     ack_errors = models.PositiveIntegerField(default=0, editable=False)
@@ -108,6 +114,8 @@ class Job(models.Model):
     # It stores the Job's parameters
     # TODO: use a JSONField ?
     raw_data = models.TextField(editable=False)
+
+    objects = JobManager()
 
     class Meta:
         app_label = 'creme_core'
@@ -174,6 +182,12 @@ class Job(models.Model):
 
     @classmethod
     def not_finished_jobs(cls, user):
+        warnings.warn(
+            'Job.not_finished_jobs() is deprecated ; '
+            'use Job.objects.not_finished() instead.',
+            DeprecationWarning,
+        )
+
         return cls.objects.filter(user=user, status=cls.STATUS_WAIT)
 
     @property
@@ -312,7 +326,7 @@ class Job(models.Model):
 
 
 class BaseJobResult(models.Model):
-    job          = models.ForeignKey(Job, on_delete=models.CASCADE)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
     raw_messages = models.TextField(null=True)  # TODO: use a JSONField ?
 
     class Meta:
@@ -352,7 +366,7 @@ class EntityJobResult(BaseJobResult):
 
 
 class MassImportJobResult(BaseJobResult):
-    entity   = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
+    entity = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
     raw_line = models.TextField()  # TODO: use a JSONField ?
 
     # False: entity created / True: entity updated

@@ -460,7 +460,8 @@ class JobsBrick(QuerysetBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context, self._jobs_qs(context),
-            not_finished_user_jobs_count=Job.not_finished_jobs(context['user']).count(),
+            # not_finished_user_jobs_count=Job.not_finished_jobs(context['user']).count(),
+            not_finished_user_jobs_count=Job.objects.not_finished(context['user']).count(),
             MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
             NOT_PERIODIC=JobType.NOT_PERIODIC,
             PSEUDO_PERIODIC=JobType.PSEUDO_PERIODIC,

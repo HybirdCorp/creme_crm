@@ -58,7 +58,8 @@ def mass_import(request, ct_id):
 
     user = request.user
 
-    if Job.not_finished_jobs(user).count() >= settings.MAX_JOBS_PER_USER:
+    # if Job.not_finished_jobs(user).count() >= settings.MAX_JOBS_PER_USER:
+    if Job.objects.not_finished(user).count() >= settings.MAX_JOBS_PER_USER:
         return HttpResponseRedirect(reverse('creme_core__my_jobs'))
 
     model = ct.model_class()
