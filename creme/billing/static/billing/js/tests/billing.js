@@ -141,6 +141,34 @@ QUnit.test('creme.billing.checkValue', function(assert) {
     equal(true, creme.billing.checkValue($('<input type="text">').val("-123")));
 });
 
+QUnit.test('creme.billing.validateInput', function(assert) {
+    equal(true, creme.billing.validateInput($('<input type="text" />')));
+    equal(true, creme.billing.validateInput($('<input validator="unknown" />')));
+
+    equal(false, creme.billing.validateInput($('<input validator="PositiveDecimal" />')));
+    equal(false, creme.billing.validateInput($('<input validator="PositiveDecimal" value="-1.5" />')));
+    equal(true, creme.billing.validateInput($('<input validator="PositiveDecimal" value="1.5" />')));
+    equal(true, creme.billing.validateInput($('<input validator="PositiveDecimal" value="0" />')));
+
+    equal(false, creme.billing.validateInput($('<input validator="Decimal" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Decimal" value="-1.5" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Decimal" value="1.5" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Decimal" value="0" />')));
+
+    equal(false, creme.billing.validateInput($('<input validator="Percent" />')));
+    equal(false, creme.billing.validateInput($('<input validator="Percent" value="-1.5" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Percent" value="1.5" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Percent" value="0" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Percent" value="100" />')));
+    equal(false, creme.billing.validateInput($('<input validator="Percent" value="100.5" />')));
+
+    equal(false, creme.billing.validateInput($('<input validator="Value" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Value" value="-1.5" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Value" value="text" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Value" value="false" />')));
+    equal(true, creme.billing.validateInput($('<input validator="Value" value="100" />')));
+});
+
 QUnit.test('creme.billing.markDelete', function(assert) {
     $(
         '<form>' +
@@ -320,26 +348,14 @@ QUnit.test('creme.billing.restoreInitialValues', function(assert) {
 });
 
 QUnit.parametrize('creme.billing.serializeInput', [
-    ['<input />', false, undefined],
-    ['<input value="12" />', true, undefined],
-    ['<input initial="3"/>', true, undefined],
-    ['<input value="12" initial="3"/>', true, undefined],
-
-    ['<input name="a" type="checkbox"/>', false, undefined],
-    ['<input name="a" type="checkbox"/>', true, undefined],
-    ['<input name="a" type="checkbox" initial="3"/>', false, undefined],
-    ['<input name="a" type="checkbox" initial="3"/>', true, {key: 'a', value: '3'}],
-
-    ['<input name="a"/>', true, undefined],
-    ['<input name="a" initial="3"/>', false, {key: 'a', value: ''}],
-    ['<input name="a" initial="3"/>', true, {key: 'a', value: '3'}],
-
-    ['<input name="a" type="checkbox" checked="checked" value="12"/>', false, {key: 'a', value: '12'}],
-    ['<input name="a" type="checkbox" checked="checked" value="12"/>', true, undefined],
-    ['<input name="a" type="checkbox" checked="checked" value="12" initial="3"/>', false, {key: 'a', value: '12'}],
-    ['<input name="a" type="checkbox" checked="checked" value="12" initial="3"/>', true, {key: 'a', value: '3'}]
-], function(input, for_initial, expected, assert) {
-    deepEqual(creme.billing.serializeInput($(input), for_initial), expected);
+    ['<input />', undefined],
+    ['<input value="12" />', undefined],
+    ['<input initial="3"/>', undefined],
+    ['<input value="12" initial="3"/>', undefined],
+    ['<input name="a" type="checkbox" checked="checked" value="12"/>', {key: 'a', value: '12'}],
+    ['<input name="a" type="checkbox" checked="checked" value="12" initial="3"/>', {key: 'a', value: '12'}]
+], function(input, expected, assert) {
+    deepEqual(creme.billing.serializeInput($(input)), expected);
 });
 
 QUnit.parametrize('creme.billing.initBoundedFields', [
@@ -431,6 +447,50 @@ QUnit.parametrize('creme.billing.initBoundedFields', [
         totalDiscounted: formatAmount(expected.totalDiscounted),
         total: formatAmount(expected.total)
     });
+});
+
+QUnit.test('creme.billing.initializeForm (initial)', function() {
+    var element = $(
+        '<form>' +
+            '<div class="bline-form">' +
+                '<div class="bline-container">' +
+                    '<div class="bline-buttons"></div>' +
+                    '<div class="bline-hidden-fields"></div>' +
+                    '<div class="bline-fields">' +
+                        '<table class="linetable"><tbody><tr class="content" data-row-index="0">' +
+                             '<td>' +
+                                 '<input name="form-0-quantity" class="bound" validator="PositiveDecimal" value="30.00"/>' +
+                                 '<input name="form-0-unit_price" class="bound" validator="Decimal" value="15.45"/>' +
+                                 '<select name="form-0-discount_unit" class="bound">' +
+                                     '<option value="1" selected="selected">percent</option>' +
+                                     '<option value="2">line amount</option>' +
+                                     '<option value="3">item amount</option>' +
+                                     '<option value="invalid">invalid</option>' +
+                                 '</select>' +
+                                 '<input name="form-0-discount" class="bound" value="2" />' +
+                                 '<select name="form-0-vat_value" class="bound">' +
+                                     '<option value="">---</option>' +
+                                     '<option value="6" selected="selected">20.00</option>' +
+                                     '<option value="5">21.20</option>' +
+                                 '</select>' +
+                             '</td>' +
+                             '<td class="bline-total-no-tax" name="exclusive_of_tax">463,50 €</td>' +
+                             '<td class="bline-total-discounted" name="discounted" data-value="454.23">454,23 €</td>' +
+                             '<td class="bline-total" name="inclusive_of_tax" data-value="545.08">545,08 €</td>' +
+                         '</tr></tbody></table>' +
+                     '</div>' +
+                 '</div>' +
+             '</div>' +
+        '</form>'
+    ).appendTo(this.qunitFixture());
+
+    creme.billing.initializeForm(element);
+
+    equal('30.00', element.find('[name="form-0-quantity"]').attr('initial'));
+    equal('15.45', element.find('[name="form-0-unit_price"]').attr('initial'));
+    equal('1', element.find('[name="form-0-discount_unit"]').attr('initial'));
+    equal('2', element.find('[name="form-0-discount"]').attr('initial'));
+    equal('6', element.find('[name="form-0-vat_value"]').attr('initial'));
 });
 
 }(jQuery));

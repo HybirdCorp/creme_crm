@@ -105,16 +105,9 @@ creme.billing.formsHaveErrors = function() {
     return Boolean($('.bline-form > :not(.hidden-form) .bline-input-error').first().length);
 };
 
-creme.billing.serializeInput = function(input, forInitial) {
+creme.billing.serializeInput = function(input) {
     var key = input.attr('name');
-    var value;
-
-    // TODO: hack to retrieve creme widget (new attribute will surely be less dirty)
-    if (forInitial) {
-        value = input.attr('initial');
-    } else {
-        value = input.attr('type') === 'checkbox' ? (input.prop('checked') ? input.val() : undefined) : input.val();
-    }
+    var value = input.attr('type') === 'checkbox' ? (input.prop('checked') ? input.val() : undefined) : input.val();
 
     if (key !== undefined && value !== undefined) {
         return {key: key, value: value};
@@ -140,7 +133,7 @@ creme.billing.validateInput = function(input) {
 creme.billing.initializeForm = function(element) {
     creme.billing.inputs(element).each(function() {
         var input = $(this);
-        var item = creme.billing.serializeInput(input, true);
+        var item = creme.billing.serializeInput(input);
         input.attr('initial', item !== undefined ? item.value : undefined);
         creme.billing.validateInput(input);
     });
@@ -148,7 +141,7 @@ creme.billing.initializeForm = function(element) {
     // Bind twice because of double init of blocks, seems to not cause a problem
     creme.billing.inputs(element).on('propertychange input change paste', function() {
         var input = $(this);
-        var item = creme.billing.serializeInput(input, false);
+        var item = creme.billing.serializeInput(input);
         var changed = (item !== undefined && ('' + item.value !== input.attr('initial')));
 
         if (input.attr('type') === 'checkbox' && item === undefined && input.attr('initial')) {
@@ -351,7 +344,7 @@ creme.billing.serializeForm = function(form) {
     var data = {};
 
     creme.billing.inputs($(form)).each(function() {
-        var item = creme.billing.serializeInput($(this), false);
+        var item = creme.billing.serializeInput($(this));
 
         if (item !== undefined) {
             data[item.key] = item.value;
