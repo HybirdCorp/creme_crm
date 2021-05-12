@@ -43,7 +43,8 @@ def batch_process(request, ct_id):
 
     user.has_perm_to_access_or_die(ct.app_label)
 
-    if Job.not_finished_jobs(user).count() >= settings.MAX_JOBS_PER_USER:
+    # if Job.not_finished_jobs(user).count() >= settings.MAX_JOBS_PER_USER:
+    if Job.objects.not_finished(user).count() >= settings.MAX_JOBS_PER_USER:
         return HttpResponseRedirect(reverse('creme_core__my_jobs'))
 
     if request.method == 'POST':

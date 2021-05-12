@@ -40,8 +40,10 @@
     ----------------------
         # Deprecations :
             - The class 'creme_core.forms.fields.AjaxModelChoiceField' is deprecated.
+            - The method 'creme_core.models.Job.not_finished_jobs()' is deprecated ;
+              use 'Job.objects.not_finished()' instead.
             - In Javascript:
-                * Some creme.ajax.* functions are now deprecated; use creme.ajax.Query instead:
+                * Some creme.ajax.* functions are now deprecated; use 'creme.ajax.Query' instead:
                     - creme.ajax.ajax()
                     - creme.ajax.get()
                     - creme.ajax.post()
