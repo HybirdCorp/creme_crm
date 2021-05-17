@@ -8,6 +8,7 @@ from .views import (
     creme_property_type,
     custom_field,
     custom_form,
+    entity_filter,
     fields_config,
     generics_views,
     history,
@@ -564,6 +565,24 @@ setting_patterns = [
     ),
 ]
 
+entity_filters_patterns = [
+    re_path(
+        r'^portal[/]?$',
+        entity_filter.Portal.as_view(),
+        name='creme_config__efilters',
+    ),
+    re_path(
+        r'^add/(?P<ct_id>\d+)[/]?$',
+        entity_filter.EntityFilterCreation.as_view(),
+        name='creme_config__create_efilter',
+    ),
+    re_path(
+        r'^edit/(?P<efilter_id>.+)[/]?$',
+        entity_filter.EntityFilterEdition.as_view(),
+        name='creme_config__edit_efilter',
+    ),
+]
+
 transfer_patterns = [
     re_path(
         r'^export[/]?$', transfer.ConfigExport.as_view(), name='creme_config__transfer_export',
@@ -574,22 +593,29 @@ transfer_patterns = [
 ]
 
 urlpatterns = [
-    re_path(r'^$',              portal.Portal.as_view(), name='creme_config__portal'),
-    re_path(r'^user/',          include(user_patterns)),
-    re_path(r'^team/',          include(team_patterns)),
-    re_path(r'^my_settings/',   include(user_settings_patterns)),
-    re_path(r'^role/',          include(role_patterns)),
-    re_path(r'^relation_type/', include(relation_type_patterns)),
-    re_path(r'^property_type/', include(property_type_patterns)),
-    re_path(r'^fields/',        include(fields_config_patterns)),
+    re_path(r'^$', portal.Portal.as_view(), name='creme_config__portal'),
+
+    # General
+    re_path(r'^bricks/',        include(bricks_patterns)),
+    re_path(r'^button_menu/',   include(button_menu_patterns)),
     re_path(r'^custom_fields/', include(custom_fields_patterns)),
     re_path(r'^custom_forms/',  include(custom_forms_patterns)),
-    re_path(r'^bricks/',        include(bricks_patterns)),
-    re_path(r'^menu/',          include(menu_patterns)),
-    re_path(r'^button_menu/',   include(button_menu_patterns)),
-    re_path(r'^search/',        include(search_patterns)),
+    re_path(r'^fields/',        include(fields_config_patterns)),
     re_path(r'^history/',       include(history_patterns)),
+    re_path(r'^menu/',          include(menu_patterns)),
+    re_path(r'^my_settings/',   include(user_settings_patterns)),
+    re_path(r'^property_type/', include(property_type_patterns)),
+    re_path(r'^relation_type/', include(relation_type_patterns)),
+    re_path(r'^search/',        include(search_patterns)),
     re_path(r'^settings/',      include(setting_patterns)),
+
+    # Credentials
+    re_path(r'^role/', include(role_patterns)),
+    re_path(r'^team/', include(team_patterns)),
+    re_path(r'^user/', include(user_patterns)),
+
+    # List-views
+    re_path(r'^entity_filters/', include(entity_filters_patterns)),
 
     re_path(r'^transfer/', include(transfer_patterns)),
 

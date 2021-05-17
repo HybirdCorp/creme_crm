@@ -1,13 +1,21 @@
-li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2),  /* TODO: remove with new custom menu */
+/* li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2), */
 li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     fill: currentColor;
     width: 14px;
     height: 14px;
 }
 
+.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_config-credentials_separator,
+.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_config-listviews_separator {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid rgb(117, 126, 130);
+}
+
 /* Portal */
 
-.creme_config-portal-general .help-text {
+.creme_config-portal-general .help-text,
+.creme_config-portal-listviews .help-text {
     display: table-cell;
 
     padding-left: 20px;
@@ -127,7 +135,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-search-brick .search-config-item + .search-config-item {
     margin-top: 0px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #bdd3dc;
 }
 
 .creme_config-search-brick .search-config-group {
@@ -234,7 +242,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-customforms-brick .brick-table-content .customform-config-block {
-    border: 1px solid #ccc;
+    border: 1px solid #bdd3dc;
 }
 
 .creme_config-customforms-brick .brick-table-content .customform-config-block-header {
@@ -386,7 +394,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-buttonmenu-brick .buttonmenu-config-item + .buttonmenu-config-item {
     margin-top: 0px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #bdd3dc;
 }
 
 .creme_config-buttonmenu-brick .buttonmenu-config-group {
@@ -496,7 +504,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-brickloc-detail-brick .brickloc-config-item + .brickloc-config-item {
     margin-top: 0px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #bdd3dc;
 }
 
 .creme_config-brickloc-detail-brick .brickloc-config-group {
@@ -566,7 +574,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .brick-table.creme_config-brickloc-home-brick .brick-table-content .home-bricks-default,
 .brick-table.creme_config-brickloc-home-brick .brick-table-content .home-bricks-superuser {
-    color: hsla(197,42%,20%,1);
+    color: hsla(197, 42%, 20%, 1);
     font-style: italic;
 }
 
@@ -596,7 +604,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-rtypebricks-brick .rtypebrick-config-item + .rtypebrick-config-item {
     margin-top: 0px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #bdd3dc;
 }
 
 .creme_config-rtypebricks-brick .rtypebrick-config-group {
@@ -709,7 +717,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-customfields-brick .cfields-config-item + .cfields-config-item {
     margin-top: 0px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #bdd3dc;
 }
 
 .creme_config-customfields-brick .cfields-config-group {
@@ -790,6 +798,84 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     text-decoration: line-through;
 }
 
+/* EntityFilters brick */
+
+.creme_config-entityfilters-brick .entityfilter-config-item {
+    padding: 5px;
+    padding-left: 10px;
+
+    font-size: 11px;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-item + .entityfilter-config-item {
+    margin-top: 0;
+    border-top: 1px solid #bdd3dc;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-summary-group {
+    display: flex;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-group-title {
+    flex-grow: 1;
+
+    text-transform: uppercase;
+    font-weight: 600;
+    align-self: center;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-content-group {
+    display: flex;
+    padding-left: 15px;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-all,
+.creme_config-entityfilters-brick .entityfilter-config-owned {
+    width: fit-content;
+
+    margin: 3px;
+    padding: 5px;
+
+    border-radius: 6px;
+    background: #f3fafd;
+
+    color: #2b4058;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-user-title {
+    text-transform: uppercase;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-content-group ul {
+    padding-left: 20px;
+    font-size: 12px;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-content-group li {
+    height: 20px;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-private {
+    opacity: 0.55;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-group li .brick-action {
+    visibility: hidden;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-group li:hover .brick-action {
+    visibility: visible;
+}
+
+.creme_config-entityfilters-brick .empty-message {
+    padding-top: 3px;
+    padding-left: 20px;
+
+    font-size: 12px;
+    font-style: italic;
+    color: #777;
+}
+
 /* UserSettingValues brick */
 
 .creme_config-user-settings-brick .brick-content {
@@ -811,7 +897,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-user-settings-brick .setting-values-config-item + .setting-values-config-item {
     margin-top: 0px;
-    border-top: 2px solid #ccc;
+    border-top: 2px solid #bdd3dc;
 }
 
 /* Deletion popup */

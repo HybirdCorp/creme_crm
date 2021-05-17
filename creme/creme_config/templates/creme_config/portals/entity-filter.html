@@ -1,0 +1,15 @@
+{% extends 'creme_config/portals/base.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block page_title %}{% translate 'Configuration of filters' %} - {% endblock %}
+
+{% block title %}
+    {{block.super}}{% translate 'Filters' %}
+{% endblock %}
+
+{% block portal_bricks %}
+    {% widget_help_sign message=_('Filters allow to chose which entities to show in list-views (and so which entities are hidden). You can create/edit/delete them directly from list-views. This portal displays all of them at once, and is useful to fix a broken filter.') %}
+
+    {% brick_import app='creme_config' name='entity_filters' as filters_brick %}
+    {% brick_display filters_brick %}
+{% endblock %}

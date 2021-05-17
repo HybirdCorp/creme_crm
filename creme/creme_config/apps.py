@@ -81,6 +81,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.HistoryConfigBrick,
             bricks.UserRolesBrick,
             bricks.UserSettingValuesBrick,
+            bricks.EntityFiltersBrick,
         )
 
     # def register_menu(self, creme_menu):

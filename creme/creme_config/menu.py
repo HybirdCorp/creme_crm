@@ -186,6 +186,12 @@ class UsersConfigEntry(_ConfigURLEntry):
     url_name = 'creme_config__users'
 
 
+class EntityFiltersConfigEntry(_ConfigURLEntry):
+    id = 'creme_config-entity_filters'
+    label = _('Filters')
+    url_name = 'creme_config__efilters'
+
+
 class CremeConfigEntry(menu.ContainerEntry):
     id = 'creme_config-main'
     label = _('Configuration')
@@ -203,6 +209,14 @@ class CremeConfigEntry(menu.ContainerEntry):
   </defs>
 </svg>"""  # NOQA
 
+    class CredentialsSeparatorEntry(menu.Separator1Entry):
+        id = 'creme_config-credentials_separator'
+        label = _('Credentials management')
+
+    class ListviewsSeparatorEntry(menu.Separator1Entry):
+        id = 'creme_config-listviews_separator'
+        label = _('List-views management')
+
     children_classes = [
         ConfigPortalEntry,
         CurrentAppConfigEntry,
@@ -217,10 +231,15 @@ class CremeConfigEntry(menu.ContainerEntry):
         MenuConfigEntry,
         ButtonsConfigEntry,
         SearchConfigEntry,
-        RolesConfigEntry,
         PropertyTypesConfigEntry,
         RelationTypesConfigEntry,
+
+        CredentialsSeparatorEntry,
         UsersConfigEntry,
+        RolesConfigEntry,
+
+        ListviewsSeparatorEntry,
+        EntityFiltersConfigEntry,
     ]
 
     def __init__(self, **kwargs):
