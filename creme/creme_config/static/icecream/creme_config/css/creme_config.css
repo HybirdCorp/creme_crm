@@ -1,4 +1,4 @@
-li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2),  /* TODO: remove with new custom menu */
+/* li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2), */
 li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     fill: currentColor;
     width: 11px;
@@ -6,9 +6,18 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-top: 1px;
 }
 
+.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_config-credentials_separator,
+.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_config-listviews_separator {
+    margin-top: 5px;
+    padding-top: 5px;
+
+    border-top: 1px solid #a29d9d;
+}
+
 /* Portal */
 
-.creme_config-portal-general .help-text {
+.creme_config-portal-general .help-text,
+.creme_config-portal-listviews .help-text {
     display: table-cell;
     padding-left: 20px;
 }
@@ -783,6 +792,77 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 .creme_config-customfields-brick .cfields-config-deleted .cfields-config-name,
 .creme_config-custom-enum.creme_config-custom-enum-deleted {
     text-decoration: line-through;
+}
+
+/* EntityFilters brick */
+
+.creme_config-entityfilters-brick .entityfilter-config-item {
+    padding: 5px;
+    padding-left: 10px;
+
+    font-size: 11px;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-item + .entityfilter-config-item {
+    margin-top: 0;
+    border-top: 1px solid #ccc;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-summary-group {
+    display: flex;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-group-title {
+    flex-grow: 1;
+
+    text-transform: uppercase;
+    font-weight: 600;
+    align-self: center;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-content-group {
+    display: flex;
+    padding-left: 15px;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-all,
+.creme_config-entityfilters-brick .entityfilter-config-owned {
+    width: fit-content;
+
+    margin: 3px;
+    padding: 5px;
+
+    border-radius: 6px;
+    background: #f7f6f6;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-user-title {
+    text-transform: uppercase;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-content-group ul {
+    padding-left: 20px;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-private {
+    opacity: 0.55;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-group li .brick-action {
+    visibility: hidden;
+}
+
+.creme_config-entityfilters-brick .entityfilter-config-group li:hover .brick-action {
+    visibility: visible;
+}
+
+.creme_config-entityfilters-brick .empty-message {
+    padding-top: 3px;
+    padding-left: 20px;
+
+    font-size: 12px;
+    font-style: italic;
+    color: #666666;
 }
 
 /* UserSettingValues brick */

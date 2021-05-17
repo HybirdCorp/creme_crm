@@ -69,7 +69,7 @@
             </table>
         </div>
     </div>
-    <div class="brick brick-table">
+    <div class="brick brick-table creme_config-portal-credentials">
         <div class="brick-header">
             <div class="brick-title-container">
                 {% brick_header_title title=_('Credentials management') icon='config' %}
@@ -80,6 +80,23 @@
                 <tbody>
                     <tr><td><a href="{% url 'creme_config__users' %}">{% translate 'Users settings' %}</a></td></tr>
                     <tr><td><a href="{% url 'creme_config__roles' %}">{% translate 'Roles and credentials settings' %}</a></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="brick brick-table creme_config-portal-listviews">
+        <div class="brick-header">
+            <div class="brick-title-container">
+                {% brick_header_title title=_('List-views management') icon='config' %}
+            </div>
+        </div>
+        <div class="brick-content">
+            <table class="brick-table-content">
+                <tbody>
+                    <tr><td>
+                        <a href="{% url 'creme_config__efilters' %}">{% translate 'Filters settings' %}</a>
+                        <span class="help-text">{% translate 'Customise the filters which control the entities displayed in the list-views' %}</span>
+                    </td></tr>
                 </tbody>
             </table>
         </div>

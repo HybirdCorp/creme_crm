@@ -30,6 +30,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core import setting_key
+from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.forms import base as base_forms
 from creme.creme_core.gui.bricks import (
     Brick,
@@ -56,6 +57,7 @@ from creme.creme_core.models import (
     CustomField,
     CustomFieldEnumValue,
     CustomFormConfigItem,
+    EntityFilter,
     FieldsConfig,
     HistoryConfigItem,
     InstanceBrickConfigItem,
@@ -521,7 +523,7 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
                 # with <role_arg == role.id> or 'superuser'
                 this.locations_info = ()
 
-        # TODO: factorise with SearchConfigBlock ?
+        # TODO: factorise with SearchConfigBrick ?
         # TODO: factorise with CustomBrickConfigItemCreateForm , add a method in brick_registry ?
         get_ct = ContentType.objects.get_for_model
         is_invalid = self.brick_registry.is_model_invalid
@@ -907,3 +909,80 @@ class UserSettingValuesBrick(Brick):
             ],
             count=count,
         ))
+
+
+class EntityFiltersBrick(PaginatedBrick):
+    id_ = PaginatedBrick.generate_id('creme_config', 'entity_filters')
+    verbose_name = 'All entity filters'
+    dependencies = (EntityFilter,)
+    page_size = _PAGE_SIZE
+    template_name = 'creme_config/bricks/entity-filters.html'
+    permission = ''  # NB: used by the view creme_core.views.blocks.reload_basic
+    configurable = False
+
+    def detailview_display(self, context):
+        # NB: we wrap the ContentType instances instead of store extra data in
+        #     them because the instances are stored in a global cache, so we do
+        #     not want to mutate them.
+        class _ContentTypeWrapper:
+            __slots__ = ('ctype', 'all_users_filters', 'owned_filters')
+
+            def __init__(this, ctype):
+                this.ctype = ctype
+                this.all_users_filters = ()
+                this.owned_filters = ()
+
+        # TODO: factorise with SearchConfigBrick ?
+        get_ct = ContentType.objects.get_for_model
+        user = context['user']
+        has_perm = user.has_perm_to_access
+        ctypes = [
+            _ContentTypeWrapper(get_ct(model))
+            for model in creme_registry.iter_entity_models()
+            if has_perm(model._meta.app_label)
+        ]
+
+        sort_key = collator.sort_key
+        ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
+
+        btc = self.get_template_context(context, ctypes)
+
+        ctypes_wrappers = btc['page'].object_list
+
+        # NB: efilters[content_type.id][user.id] -> List[EntityFilter]
+        efilters = defaultdict(lambda: defaultdict(list))
+        user_ids = set()
+
+        for efilter in EntityFilter.objects.filter(
+            filter_type=EF_USER,
+            entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
+        ):
+            # TODO: templatetags instead ?
+            efilter.edition_perm = efilter.can_edit(user)[0]
+            efilter.deletion_perm = efilter.can_delete(user)[0]
+
+            user_id = efilter.user_id
+            efilters[efilter.entity_type_id][user_id].append(efilter)
+            user_ids.add(user_id)
+
+        users = get_user_model().objects.in_bulk(user_ids)
+
+        def efilter_key(efilter):
+            return sort_key(efilter.name)
+
+        for ctw in ctypes_wrappers:
+            ctype_efilters_per_users = efilters[ctw.ctype.id]
+
+            all_users_filters = ctype_efilters_per_users.pop(None, None) or []
+            all_users_filters.sort(key=efilter_key)
+
+            ctw.all_users_filters = all_users_filters
+
+            ctw.owned_filters = [
+                (
+                    str(users[user_id]),
+                    sorted(user_efilters, key=efilter_key),
+                ) for user_id, user_efilters in ctype_efilters_per_users.items()
+            ]
+
+        return self._render(btc)

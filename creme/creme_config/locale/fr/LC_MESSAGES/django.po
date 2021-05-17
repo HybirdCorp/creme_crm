@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-11 10:45+0200\n"
+"POT-Creation-Date: 2021-05-18 17:05+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -858,6 +858,15 @@ msgstr "Recherche"
 msgid "Roles and credentials"
 msgstr "Rôles et droits"
 
+msgid "Filters"
+msgstr "Filtres"
+
+msgid "Credentials management"
+msgstr "Gestion des droits"
+
+msgid "List-views management"
+msgstr "Gestion des vues en liste"
+
 msgid "Action"
 msgstr "Action"
 
@@ -1119,6 +1128,33 @@ msgstr "Supprimer ce type de bloc"
 
 msgid "No custom block for the moment"
 msgstr "Aucun bloc personnalisé pour le moment"
+
+#, python-brace-format
+msgid "{count} Configurable type of resource"
+msgstr "{count} Type de ressource configurable"
+
+#, python-brace-format
+msgid "{count} Configurable types of resource"
+msgstr "{count} Types de ressource configurables"
+
+msgid "Create a filter"
+msgstr "Créer un filtre"
+
+msgid "Filters belonging to all users"
+msgstr "Filtres de tous les utilisateurs"
+
+#, python-format
+msgid "Filters belonging to %(user)s"
+msgstr "Filtres appartenant à %(user)s"
+
+msgid "(private)"
+msgstr "(privé)"
+
+msgid "No filter for this type of resource"
+msgstr "Pas de filtre pour ce type de ressource"
+
+msgid "No filter"
+msgstr "Pas de filtre"
 
 msgid "New fields configuration"
 msgstr "Nouvelle configuration de champs"
@@ -1705,14 +1741,20 @@ msgstr ""
 "Configurer les types de Relation utilisés pour générer des lignes "
 "d'historique relatives"
 
-msgid "Credentials management"
-msgstr "Gestion des droits"
-
 msgid "Users settings"
 msgstr "Gestion des utilisateurs"
 
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
+
+msgid "Filters settings"
+msgstr "Gestion des filtres"
+
+msgid ""
+"Customise the filters which control the entities displayed in the list-views"
+msgstr ""
+"Personnaliser les filtres qui contrôlent les fiches affichées dans les vues "
+"en liste"
 
 msgid "Applications portals"
 msgstr "Portails des applications"
@@ -1739,6 +1781,20 @@ msgstr ""
 
 msgid "Configuration of custom forms"
 msgstr "Configuration des formulaires personnalisés"
+
+msgid "Configuration of filters"
+msgstr "Configuration des filtres"
+
+msgid ""
+"Filters allow to chose which entities to show in list-views (and so which "
+"entities are hidden). You can create/edit/delete them directly from list-"
+"views. This portal displays all of them at once, and is useful to fix a "
+"broken filter."
+msgstr ""
+"Les filters permettent de choisir quelles fiches montrer dans les vues en "
+"liste (et donc quelles fiches sont cachées). Vous pouvez les créer/modifier/"
+"supprimer directement depuis les vues en liste. Ce portail les affiche tous "
+"en une fois, et il est utile pour réparer un filtre cassé."
 
 msgid "Configuration of fields"
 msgstr "Configuration des champs"
@@ -1974,6 +2030,13 @@ msgstr "Ajouter un groupe spécial à «{form}»"
 #, python-brace-format
 msgid "Edit the group «{group}»"
 msgstr "Modifier le groupe «{group}»"
+
+#, python-brace-format
+msgid "Create a filter for «{model}»"
+msgstr "Créer un filtre pour «{model}»"
+
+msgid "Save the filter"
+msgstr "Enregistrer le filtre"
 
 #, python-brace-format
 msgid "Create a fields configuration for «{model}»"
