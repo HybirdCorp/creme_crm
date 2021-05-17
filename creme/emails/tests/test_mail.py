@@ -305,14 +305,14 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertFalse(html_f.required)
 
         sender = user.linked_contact.email
-        body = 'Freeze !'
+        body = 'Fresh & tasty !'
         response2 = self.client.post(
             url,
             data={
                 'user':         user.id,
                 'sender':       sender,
                 'c_recipients': self.formfield_value_multi_creator_entity(contact),
-                'subject':      'Under arrest',
+                'subject':      'New product',
                 'body':         body,
                 'body_html':    '    ',  # Considered as empty once stripped
             },
@@ -322,7 +322,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(body, email.body)
         self.assertEqual(
-            f'<html><body><code>{body}</code></body></html>',
+            '<html><body><code>Fresh &amp; tasty !</code></body></html>',
             email.body_html,
         )
 
