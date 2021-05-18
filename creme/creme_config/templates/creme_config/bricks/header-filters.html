@@ -1,0 +1,63 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-headerfilters-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configurable type of resource') plural=_('{count} Configurable types of resource') icon='config' %}
+{% endblock %}
+
+{% block brick_content %}
+{% url 'creme_core__delete_hfilter' as deletion_url %}
+    {% for ctw in page.object_list %}
+    {% with ctype=ctw.ctype %}
+    <div class="brick-list-item headerfilter-config-item">
+        <div class="headerfilter-config-group headerfilter-config-summary-group">
+            <div class="headerfilter-config-group-title">
+                {% widget_icon ctype=ctype size='brick-list' class='headerfilter-config-type-icon' %} {{ctype}}
+            </div>
+            <div class="headerfilter-config-group-action">
+                {% brick_action id='add' url='creme_config__create_hfilter'|url:ctype.id label=_('Create a view') enabled=1 %}
+            </div>
+        </div>
+        <div class="headerfilter-config-group headerfilter-config-content-group">
+            {% if ctw.all_users_hfilters %}
+            <div class="headerfilter-config-all">
+                <span class="headerfilter-config-user-title">{% translate 'Views belonging to all users' %}</span>
+                <ul>
+                {% for hfilter in ctw.all_users_hfilters %}
+                    <li>
+                        {{hfilter}}
+                        {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id enabled=hfilter.edition_perm %}
+                        {% brick_action id='delete' url=deletion_url __id=hfilter.id enabled=hfilter.deletion_perm %}
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% for user, hfilters in ctw.owned_hfilters %}
+            <div class="headerfilter-config-owned">
+                <span class="headerfilter-config-user-title">{% blocktranslate %}Views belonging to {{user}}{% endblocktranslate %}</span>
+                <ul>
+                {% for hfilter in hfilters %}
+                    <li>
+                        {{hfilter}}{% if hfilter.is_private %}&nbsp;<span class="headerfilter-config-private">{% translate '(private)' %}</span>{% endif %}
+                         {% brick_action id='edit' url='creme_config__edit_hfilter'|url:hfilter.id enabled=hfilter.edition_perm %}
+                         {% brick_action id='delete' url=deletion_url __id=hfilter.id enabled=hfilter.deletion_perm %}
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+            {% if not ctw.all_users_hfilters and not ctw.owned_hfilters %}
+            <span class="empty-message">{% translate 'No view for this type of resource' %}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% translate 'No view' %}
+{% endblock %}

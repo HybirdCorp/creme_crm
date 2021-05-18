@@ -1,0 +1,15 @@
+{% extends 'creme_config/portals/base.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block page_title %}{% translate 'Configuration of views' %} - {% endblock %}
+
+{% block title %}
+    {{block.super}}{% translate 'Views' %}
+{% endblock %}
+
+{% block portal_bricks %}
+    {% widget_help_sign message=_('Views allow to chose which columns to show in list-views. You can create/edit/delete them directly from list-views. This portal displays all of them at once.') %}
+
+    {% brick_import app='creme_config' name='header_filters' as hfilters_brick %}
+    {% brick_display hfilters_brick %}
+{% endblock %}

@@ -335,6 +335,7 @@ class MenuEntriesTestCase(CremeTestCase):
                 (reverse('creme_config__users'),          _('Users')),
                 (reverse('creme_config__roles'),          _('Roles and credentials')),
                 (reverse('creme_config__efilters'),       _('Filters')),
+                (reverse('creme_config__hfilters'),       _('Views')),
             ],
             links,
         )

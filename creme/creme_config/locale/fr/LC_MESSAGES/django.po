@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-18 17:05+0200\n"
+"POT-Creation-Date: 2021-05-19 14:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -861,6 +861,9 @@ msgstr "Rôles et droits"
 msgid "Filters"
 msgstr "Filtres"
 
+msgid "Views"
+msgstr "Vues"
+
 msgid "Credentials management"
 msgstr "Gestion des droits"
 
@@ -1161,6 +1164,22 @@ msgstr "Nouvelle configuration de champs"
 
 msgid "No fields configuration for the moment"
 msgstr "Aucune configuration de champs pour le moment"
+
+msgid "Create a view"
+msgstr "Créer une vue"
+
+msgid "Views belonging to all users"
+msgstr "Vues de tous les utilisateurs"
+
+#, python-format
+msgid "Views belonging to %(user)s"
+msgstr "Vues appartenant à %(user)s"
+
+msgid "No view for this type of resource"
+msgstr "Pas de vue pour ce type de ressource"
+
+msgid "No view"
+msgstr "Pas de vue"
 
 #, python-brace-format
 msgid "{count} Used relation type"
@@ -1756,6 +1775,15 @@ msgstr ""
 "Personnaliser les filtres qui contrôlent les fiches affichées dans les vues "
 "en liste"
 
+msgid "Views settings"
+msgstr "Gestion des vues"
+
+msgid ""
+"Customise the views which indicate the columns displayed in the list-views"
+msgstr ""
+"Personnaliser les vues qui indiquent les colonnes affichées dans les vues en "
+"liste"
+
 msgid "Applications portals"
 msgstr "Portails des applications"
 
@@ -1812,6 +1840,18 @@ msgstr ""
 "Remarque : si vous voulez juste les cacher à certains endroits mais pas "
 "tous, vous devriez utiliser une autre méthode (ex: bloc personnalisé, "
 "formulaire personnalisé, vue de liste…)."
+
+msgid "Configuration of views"
+msgstr "Configuration des vues"
+
+msgid ""
+"Views allow to chose which columns to show in list-views. You can create/"
+"edit/delete them directly from list-views. This portal displays all of them "
+"at once."
+msgstr ""
+"Les vues permettent de choisir quelles colonnes montrer dans les vues en "
+"liste. Vous pouvez les créer/modifier/supprimer directement depuis les vues "
+"en liste. Ce portail les affiche toutes en une fois."
 
 msgid "Configuration of history"
 msgstr "Configuration de l'historique"
@@ -2066,6 +2106,13 @@ msgstr ""
 msgid "Error. Please contact your administrator."
 msgstr "Erreur. Veuillez contacter votre administrateur."
 
+#, python-brace-format
+msgid "Create a view for «{model}»"
+msgstr "Créer une vue pour «{model}»"
+
+msgid "Save the view"
+msgstr "Enregistrer la vue"
+
 msgid "New relation types"
 msgstr "Nouveaux types de relation"
 
@@ -2181,9 +2228,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "{} can not be deleted because of its dependencies."
 #~ msgstr "{} ne peut pas être effacé à cause de ses dépendances."
 
-#~ msgid "Can view"
-#~ msgstr "Peut voir"
-
 #~ msgid "Can delete"
 #~ msgstr "Peut supprimer"
 
@@ -2217,20 +2261,8 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "Order"
 #~ msgstr "Ordre"
 
-#~ msgid "You have no preferred menu for the moment"
-#~ msgstr "Vous n'avez aucun menu préféré pour le moment"
-
 #~ msgid "Edit default portal configuration"
 #~ msgstr "Modifier la configuration de portail par défaut"
-
-#~ msgid "Edit portal configuration for «%s»"
-#~ msgstr "Modifier la configuration de portail pour «%s»"
-
-#~ msgid "Edit the default preferred menu"
-#~ msgstr "Modifier le menu rapide par défaut"
-
-#~ msgid "Passwords are different"
-#~ msgstr "Les mots de passe sont différents"
 
 #~ msgid "Resource"
 #~ msgstr "Ressource"
@@ -2265,15 +2297,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "Can't delete"
 #~ msgstr "Suppression interdite"
 
-#~ msgid "User name"
-#~ msgstr "Nom d'utilisateur"
-
-#~ msgid "Last name"
-#~ msgstr "Nom"
-
-#~ msgid "First name"
-#~ msgstr "Prénom"
-
 #~ msgid "Email address"
 #~ msgstr "Adresse e-mail"
 
@@ -2283,20 +2306,8 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "Last login"
 #~ msgstr "Dernière connexion"
 
-#~ msgid "Date joined"
-#~ msgstr "Date d'inscription"
-
-#~ msgid "Time zone"
-#~ msgstr "Fuseau horaire"
-
 #~ msgid "No"
 #~ msgstr "Non"
-
-#~ msgid "Username"
-#~ msgstr "Nom d'utilisateur"
-
-#~ msgid "Add"
-#~ msgstr "Ajouter"
 
 #~ msgid "Can't add"
 #~ msgstr "Création interdite"
@@ -2309,15 +2320,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "New semi-fixed type of relationship"
 #~ msgstr "Nouveau type de relation semi-fixé"
-
-#~ msgid "Save the user"
-#~ msgstr "Enregistrer l'utilisateur"
-
-#~ msgid "Save the role"
-#~ msgstr "Enregistrer le rôle"
-
-#~ msgid "User"
-#~ msgstr "Utilisateur"
 
 #~ msgid "All users"
 #~ msgstr "Tous les utilisateurs"

@@ -59,6 +59,7 @@ from creme.creme_core.models import (
     CustomFormConfigItem,
     EntityFilter,
     FieldsConfig,
+    HeaderFilter,
     HistoryConfigItem,
     InstanceBrickConfigItem,
     MenuConfigItem,
@@ -983,6 +984,84 @@ class EntityFiltersBrick(PaginatedBrick):
                     str(users[user_id]),
                     sorted(user_efilters, key=efilter_key),
                 ) for user_id, user_efilters in ctype_efilters_per_users.items()
+            ]
+
+        return self._render(btc)
+
+
+# TODO: factorise
+class HeaderFiltersBrick(PaginatedBrick):
+    id_ = PaginatedBrick.generate_id('creme_config', 'header_filters')
+    verbose_name = 'All views of list'
+    dependencies = (HeaderFilter,)
+    page_size = _PAGE_SIZE
+    template_name = 'creme_config/bricks/header-filters.html'
+    permission = ''  # NB: used by the view creme_core.views.blocks.reload_basic
+    configurable = False
+
+    def detailview_display(self, context):
+        # NB: we wrap the ContentType instances instead of store extra data in
+        #     them because the instances are stored in a global cache, so we do
+        #     not want to mutate them.
+        class _ContentTypeWrapper:
+            __slots__ = ('ctype', 'all_users_hfilters', 'owned_hfilters')
+
+            def __init__(this, ctype):
+                this.ctype = ctype
+                this.all_users_hfilters = ()
+                this.owned_hfilters = ()
+
+        # # TODO: factorise with SearchConfigBrick ?
+        get_ct = ContentType.objects.get_for_model
+        user = context['user']
+        has_perm = user.has_perm_to_access
+        ctypes = [
+            _ContentTypeWrapper(get_ct(model))
+            for model in creme_registry.iter_entity_models()
+            if has_perm(model._meta.app_label)
+        ]
+
+        sort_key = collator.sort_key
+        ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
+
+        btc = self.get_template_context(context, ctypes)
+
+        ctypes_wrappers = btc['page'].object_list
+
+        # NB: hfilters[content_type.id][user.id] -> List[HeaderFilter]
+        hfilters = defaultdict(lambda: defaultdict(list))
+        user_ids = set()
+
+        for hfilter in HeaderFilter.objects.filter(
+            # filter_type=EF_USER,
+            entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
+        ):
+            # TODO: templatetags instead ?
+            hfilter.edition_perm = hfilter.can_edit(user)[0]
+            hfilter.deletion_perm = hfilter.can_delete(user)[0]
+
+            user_id = hfilter.user_id
+            hfilters[hfilter.entity_type_id][user_id].append(hfilter)
+            user_ids.add(user_id)
+
+        users = get_user_model().objects.in_bulk(user_ids)
+
+        def hfilter_key(efilter):
+            return sort_key(efilter.name)
+
+        for ctw in ctypes_wrappers:
+            ctype_hfilters_per_users = hfilters[ctw.ctype.id]
+
+            all_users_filters = ctype_hfilters_per_users.pop(None, None) or []
+            all_users_filters.sort(key=hfilter_key)
+
+            ctw.all_users_hfilters = all_users_filters
+
+            ctw.owned_hfilters = [
+                (
+                    str(users[user_id]),
+                    sorted(user_hfilters, key=hfilter_key),
+                ) for user_id, user_hfilters in ctype_hfilters_per_users.items()
             ]
 
         return self._render(btc)
