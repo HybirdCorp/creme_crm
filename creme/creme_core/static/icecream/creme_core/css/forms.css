@@ -306,6 +306,7 @@ ul.radio_select,
 ul.multi-select {
     list-style-type: none;
     padding: 0;
+    margin: 0;
 }
 
 .form-block-field-value textarea {
