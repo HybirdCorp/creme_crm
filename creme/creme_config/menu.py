@@ -192,6 +192,12 @@ class EntityFiltersConfigEntry(_ConfigURLEntry):
     url_name = 'creme_config__efilters'
 
 
+class HeaderFiltersConfigEntry(_ConfigURLEntry):
+    id = 'creme_config-header_filters'
+    label = _('Views')
+    url_name = 'creme_config__hfilters'
+
+
 class CremeConfigEntry(menu.ContainerEntry):
     id = 'creme_config-main'
     label = _('Configuration')
@@ -240,6 +246,7 @@ class CremeConfigEntry(menu.ContainerEntry):
 
         ListviewsSeparatorEntry,
         EntityFiltersConfigEntry,
+        HeaderFiltersConfigEntry,
     ]
 
     def __init__(self, **kwargs):

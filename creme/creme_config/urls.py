@@ -11,6 +11,7 @@ from .views import (
     entity_filter,
     fields_config,
     generics_views,
+    header_filter,
     history,
     menu,
     portal,
@@ -583,6 +584,24 @@ entity_filters_patterns = [
     ),
 ]
 
+header_filters_patterns = [
+    re_path(
+        r'^portal[/]?$',
+        header_filter.Portal.as_view(),
+        name='creme_config__hfilters',
+    ),
+    re_path(
+        r'^add/(?P<ct_id>\d+)[/]?$',
+        header_filter.HeaderFilterCreation.as_view(),
+        name='creme_config__create_hfilter',
+    ),
+    re_path(
+        r'^edit/(?P<hfilter_id>.+)[/]?$',
+        header_filter.HeaderFilterEdition.as_view(),
+        name='creme_config__edit_hfilter',
+    ),
+]
+
 transfer_patterns = [
     re_path(
         r'^export[/]?$', transfer.ConfigExport.as_view(), name='creme_config__transfer_export',
@@ -616,6 +635,7 @@ urlpatterns = [
 
     # List-views
     re_path(r'^entity_filters/', include(entity_filters_patterns)),
+    re_path(r'^header_filters/', include(header_filters_patterns)),
 
     re_path(r'^transfer/', include(transfer_patterns)),
 

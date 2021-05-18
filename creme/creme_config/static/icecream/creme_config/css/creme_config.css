@@ -794,25 +794,29 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     text-decoration: line-through;
 }
 
-/* EntityFilters brick */
+/* EntityFilters & HeaderFilters bricks */
 
-.creme_config-entityfilters-brick .entityfilter-config-item {
+.creme_config-entityfilters-brick .entityfilter-config-item,
+.creme_config-headerfilters-brick .headerfilter-config-item {
     padding: 5px;
     padding-left: 10px;
 
     font-size: 11px;
 }
 
-.creme_config-entityfilters-brick .entityfilter-config-item + .entityfilter-config-item {
+.creme_config-entityfilters-brick .entityfilter-config-item + .entityfilter-config-item,
+.creme_config-headerfilters-brick .headerfilter-config-item + .headerfilter-config-item {
     margin-top: 0;
     border-top: 1px solid #ccc;
 }
 
-.creme_config-entityfilters-brick .entityfilter-config-summary-group {
+.creme_config-entityfilters-brick .entityfilter-config-summary-group,
+.creme_config-headerfilters-brick .headerfilter-config-summary-group {
     display: flex;
 }
 
-.creme_config-entityfilters-brick .entityfilter-config-group-title {
+.creme_config-entityfilters-brick .entityfilter-config-group-title,
+.creme_config-headerfilters-brick .headerfilter-config-group-title {
     flex-grow: 1;
 
     text-transform: uppercase;
@@ -820,13 +824,16 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     align-self: center;
 }
 
-.creme_config-entityfilters-brick .entityfilter-config-content-group {
+.creme_config-entityfilters-brick .entityfilter-config-content-group,
+.creme_config-headerfilters-brick .headerfilter-config-content-group {
     display: flex;
     padding-left: 15px;
 }
 
 .creme_config-entityfilters-brick .entityfilter-config-all,
-.creme_config-entityfilters-brick .entityfilter-config-owned {
+.creme_config-headerfilters-brick .headerfilter-config-all,
+.creme_config-entityfilters-brick .entityfilter-config-owned,
+.creme_config-headerfilters-brick .headerfilter-config-owned {
     width: fit-content;
 
     margin: 3px;
@@ -836,27 +843,33 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     background: #f7f6f6;
 }
 
-.creme_config-entityfilters-brick .entityfilter-config-user-title {
+.creme_config-entityfilters-brick .entityfilter-config-user-title,
+.creme_config-headerfilters-brick .headerfilter-config-user-title {
     text-transform: uppercase;
 }
 
-.creme_config-entityfilters-brick .entityfilter-config-content-group ul {
+.creme_config-entityfilters-brick .entityfilter-config-content-group ul,
+.creme_config-headerfilters-brick .headerfilter-config-content-group ul {
     padding-left: 20px;
 }
 
-.creme_config-entityfilters-brick .entityfilter-config-private {
+.creme_config-entityfilters-brick .entityfilter-config-private,
+.creme_config-headerfilters-brick .headerfilter-config-private {
     opacity: 0.55;
 }
 
-.creme_config-entityfilters-brick .entityfilter-config-group li .brick-action {
+.creme_config-entityfilters-brick .entityfilter-config-group li .brick-action,
+.creme_config-headerfilters-brick .headerfilter-config-group li .brick-action {
     visibility: hidden;
 }
 
-.creme_config-entityfilters-brick .entityfilter-config-group li:hover .brick-action {
+.creme_config-entityfilters-brick .entityfilter-config-group li:hover .brick-action,
+.creme_config-headerfilters-brick .headerfilter-config-group li:hover .brick-action {
     visibility: visible;
 }
 
-.creme_config-entityfilters-brick .empty-message {
+.creme_config-entityfilters-brick .empty-message,
+.creme_config-headerfilters-brick .empty-message {
     padding-top: 3px;
     padding-left: 20px;
 
