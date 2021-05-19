@@ -7,6 +7,8 @@
     {% brick_header_title title=_('{count} Neglected organisation') plural=_('{count} Neglected organisations') empty=verbose_name icon='organisation' %}
 {% endblock %}
 
+{% block brick_table_head %}{% endblock %}
+
 {% block brick_table_rows %}
     {% for orga in page.object_list %}
         <tr>
