@@ -72,16 +72,17 @@ class BrickRegistryTestCase(CremeTestCase):
         # 2 bricks
         brick_registry.register(FoobarBrick2)
         self.assertCountEqual(
-            [(FoobarBrick1.id_, FoobarBrick1),
-             (FoobarBrick2.id_, FoobarBrick2),
+            [
+                (FoobarBrick1.id_, FoobarBrick1),
+                (FoobarBrick2.id_, FoobarBrick2),
             ],
-            [*brick_registry]
+            [*brick_registry],
         )
         self.assertEqual(FoobarBrick1, brick_registry[FoobarBrick1.id_])
         self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id_])
 
     def test_register02(self):
-        "2 classes at once"
+        "2 classes at once."
         class FoobarBrick(Brick):
             verbose_name = 'Testing purpose'
 
@@ -116,9 +117,9 @@ class BrickRegistryTestCase(CremeTestCase):
         with self.assertRaises(_BrickRegistry.RegistrationError) as cm:
             brick_registry.register(FoobarBrick1, FoobarBrick2)
 
-        self.assertEqual(f"Duplicated brick's id: {FoobarBrick2.id_}",
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            f"Duplicated brick's id: {FoobarBrick2.id_}", str(cm.exception),
+        )
 
     def test_register04(self):
         "Empty ID."
@@ -134,9 +135,27 @@ class BrickRegistryTestCase(CremeTestCase):
         with self.assertRaises(_BrickRegistry.RegistrationError) as cm:
             brick_registry.register(FoobarBrick)
 
-        self.assertEqual(f"Brick class with empty id_: {FoobarBrick}",
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            f"Brick class with empty id_: {FoobarBrick}", str(cm.exception),
+        )
+
+    def test_register05(self):
+        "Old <permission> attribute."
+        class FoobarBrick1(Brick):
+            id_ = Brick.generate_id('creme_core', 'foobar_brick_1')
+            verbose_name = 'Testing purpose'
+            permission = 'creme_core'  # <== Old attribute
+
+        brick_registry = _BrickRegistry()
+
+        with self.assertRaises(_BrickRegistry.RegistrationError) as cm:
+            brick_registry.register(FoobarBrick1)
+
+        self.assertEqual(
+            f'Brick class with old attribute "permission" '
+            f'(use "permissions" instead): {FoobarBrick1}',
+            str(cm.exception),
+        )
 
     def test_register_4_instance01(self):
         user = self.create_user()
@@ -170,7 +189,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual('??', ibrick1.verbose_name)
         self.assertListEqual(
             [_('Unknown type of block (bad uninstall ?)')],
-            ibrick1.errors
+            ibrick1.errors,
         )
 
         # 1 brick
@@ -298,7 +317,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
         class FoobarBrick2(SimpleBrick):
             id_ = Brick.generate_id('creme_core', 'foobar_brick_2')
-            verbose_name  = 'Testing purpose'
+            verbose_name = 'Testing purpose'
             target_ctypes = (FakeContact, FakeOrganisation)
 
         class FoobarBrick3(SimpleBrick):
@@ -428,12 +447,14 @@ class BrickRegistryTestCase(CremeTestCase):
     def test_get_compatible_bricks02(self):
         "SpecificRelationsBrick."
         create_rtype = RelationType.create
-        rtype1 = create_rtype(('test-subject_loves', 'loves'),
-                              ('test-object_loved', 'is loved by')
-                             )[0]
-        rtype2 = create_rtype(('test-subject_hires', 'hires', [FakeOrganisation]),
-                              ('test-object_hires', 'is hired by')
-                             )[0]
+        rtype1 = create_rtype(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loved', 'is loved by'),
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_hires', 'hires', [FakeOrganisation]),
+            ('test-object_hires', 'is hired by'),
+        )[0]
 
         create_rbi = RelationBrickItem.objects.create_if_needed
         create_rbi(rtype1)
@@ -543,9 +564,10 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual(3, len(bricks))
 
         self.assertIsInstance(bricks[0], SimpleBrick)
-        self.assertSetEqual({FakeContactHatBrick01, FakeContactHatBrick02},
-                            {brick.__class__ for brick in bricks[1:]}
-                           )
+        self.assertSetEqual(
+            {FakeContactHatBrick01, FakeContactHatBrick02},
+            {brick.__class__ for brick in bricks[1:]},
+        )
 
     def test_get_compatible_hat_bricks03_error(self):
         class BaseFakeContactHatBrick(SimpleBrick):
@@ -940,7 +962,7 @@ class BricksManagerTestCase(CremeTestCase):
 
     def test_manage02(self):
         class TestBrick(SimpleBrick):
-            verbose_name  = 'Testing purpose'
+            verbose_name = 'Testing purpose'
 
         class FoobarBrick1(TestBrick):
             id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage02_1')
@@ -1120,7 +1142,7 @@ class BrickTestCase(CremeTestCase):
         ids = {c.id for c in ordered_instances}
         self.assertListEqual(
             ordered_instances,
-            [c for c in page.object_list if c.id in ids]
+            [c for c in page.object_list if c.id in ids],
         )
 
     def _build_request(self, url='/'):  # TODO: factorise (see CremeBricksTagsTestCase)
@@ -1149,16 +1171,18 @@ class BrickTestCase(CremeTestCase):
         self.assertFalse(cbrick.relation_type_deps)
 
     def test_custom_brick02(self):
-        "Relation + dependencies"
-        rtype = RelationType.create(('test-subject_employs', 'employs'),
-                                    ('test-object_employs', 'is employed by')
-                                   )[0]
+        "Relation + dependencies."
+        rtype = RelationType.create(
+            ('test-subject_employs', 'employs'),
+            ('test-object_employs', 'is employed by'),
+        )[0]
 
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
-            cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
-                   EntityCellRelation(model=FakeOrganisation, rtype=rtype),
-                  ],
+            cells=[
+                EntityCellRegularField.build(FakeOrganisation, 'name'),
+                EntityCellRelation(model=FakeOrganisation, rtype=rtype),
+            ],
         )
 
         cbrick = CustomBrick(cbci.brick_id, cbci)
@@ -1274,7 +1298,7 @@ class BrickTestCase(CremeTestCase):
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
     def test_queryset_brick_order02(self):
-        "No order in request: invalid field in Brick class"
+        "No order in request: invalid field in Brick class."
         user = self.login()
 
         class ProblematicBrick(QuerysetBrick):
@@ -1325,7 +1349,7 @@ class BrickTestCase(CremeTestCase):
         self._assertPageOrderedLike(template_context['page'], [welf, lili, bell, aiz])
 
     def test_queryset_brick_order04(self):
-        "Order in request: invalid field"
+        "Order in request: invalid field."
         user = self.login()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1372,7 +1396,7 @@ class BrickTestCase(CremeTestCase):
         predicate = 'loves'
         rtype = RelationType.create(
             ('test-subject_loves', predicate),
-            ('test-object_loved', 'is loved by')
+            ('test-object_loved', 'is loved by'),
         )[0]
         rbi = RelationBrickItem.objects.create_if_needed(rtype)
 

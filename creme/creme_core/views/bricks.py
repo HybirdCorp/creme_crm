@@ -187,10 +187,12 @@ logger = logging.getLogger(__name__)
 
 
 class BricksReloading(generic.CheckedView):
-    """Bricks that uses this reloading view must have an attribute 'permission',
-    which contains the string corresponding to the permission to view this brick,
-    eg: permission = "creme_config.can_admin"
-    'permission = None' means 'no permission required' ; use with caution :)
+    """This reloading view uses the attribute 'permissions' of the bricks,
+    which contains the string(s) corresponding to the permissions to view a brick,
+    eg: permissions = "creme_config.can_admin"
+
+    Recall: the default value <permissions = ''> means 'no permission required' ;
+            use with caution :)
     """
     response_class: Type[HttpResponseBase] = CremeJsonResponse
     brick_registry: _BrickRegistry = global_brick_registry
@@ -225,12 +227,24 @@ class BricksReloading(generic.CheckedView):
         bricks_manager = BricksManager.get(context)
 
         if self.check_bricks_permission:
-            has_perm = request.user.has_perm
+            # has_perm = request.user.has_perm
+            user = request.user
 
             for brick in bricks:
-                permission = brick.permission
+                # permission = brick.permission
+                #
+                # if permission and not has_perm(permission):
+                #     raise PermissionDenied(
+                #         f'Error: you are not allowed to view this brick: {brick.id_}'
+                #     )
+                permissions = brick.permissions
 
-                if permission and not has_perm(permission):
+                # TODO: factorise ? (see creme_core.views.generic.base.PermissionsMixin)
+                if permissions and not (
+                    user.has_perm(permissions)
+                    if isinstance(permissions, str) else
+                    user.has_perms(permissions)
+                ):
                     raise PermissionDenied(
                         f'Error: you are not allowed to view this brick: {brick.id_}'
                     )

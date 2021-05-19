@@ -338,7 +338,7 @@ class MySignaturesBrick(QuerysetBrick):
     #     None means "No special permission required".
     #     The brick must be visible by all users ; we check permissions in the
     #     render to disabled only forbidden things.
-    permission = None
+    # permission = None
 
     def detailview_display(self, context):
         user = context['user']

@@ -233,6 +233,7 @@
             - The inner-class 'SelectorList.Action' has been replaced by the new class 'WidgetAction' (they are globally identical, but the new constructor takes only keyword arguments).
             - Remove the 'BulkFieldSelectWidget' that is no longer useful and move its role to 'creme.lv_widget.EditSelectedAction' (JS).
         # In 'creme_core.gui' :
+            - In 'bricks', the attribute 'Brick.permission' has been replaced by 'permissions' (which accepts strings sequence too).
             - In 'button_menu', the attribute 'Button.permission' has been replaced by 'permissions' (which accepts strings sequence too).
             - In 'menu', the old API has been removed :
                 - These classes have been removed :
