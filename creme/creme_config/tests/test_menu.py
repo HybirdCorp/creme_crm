@@ -89,7 +89,8 @@ class MenuEntriesTestCase(CremeTestCase):
         self.assertEqual('creme_config-my_settings',    entry.id)
         self.assertEqual(_('My settings'),              entry.label)
         self.assertEqual('creme_config__user_settings', entry.url_name)
-        self.assertIsNone(entry.permissions)
+        # self.assertIsNone(entry.permissions)
+        self.assertEqual('', entry.permissions)
 
         # ---
         creme_children = [*CremeEntry().children]

@@ -86,7 +86,7 @@ class MenuEntry:
 
     # Classical permissions strings used by the method render(), to avoid
     # redirecting to a forbidden view for example.
-    permissions: Union[str, Sequence[str], None] = None
+    permissions: Union[str, Sequence[str]] = ''
 
     # These attribute is used by 'creme_config', mainly for special level-1
     # entries which need extra data.
@@ -113,7 +113,6 @@ class MenuEntry:
                by the method 'MenuRegistry.get_entries()'.
         @param data: persistent data which are stored in the related instance
                of MenuConfigItem (see attribute 'entry_data').
-        @param children: child entries ; used by 'Container'.
         """
         self.config_item_id = config_item_id  # Used by creme_config
         self.data = data = {} if data is None else data  # Used by creme_config
@@ -159,10 +158,7 @@ class MenuEntry:
             raise ValidationError(
                 errors[0]
                 if field_name == '__all__' else
-                '{} -> {}'.format(
-                    form.fields[field_name].label,
-                    errors[0]
-                )
+                f'{form.fields[field_name].label} -> {errors[0]}'
             )
 
         return form.cleaned_data
