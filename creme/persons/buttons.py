@@ -34,7 +34,7 @@ Organisation = persons.get_organisation_model()
 class CrmButton(Button):
     __managed_orga = False
     relation_type_id = 'OVERRIDE'
-    template_name    = 'persons/buttons/become.html'
+    template_name = 'persons/buttons/become.html'
 
     def ok_4_display(self, entity):
         # TODO: only one query ??
@@ -48,7 +48,7 @@ class CrmButton(Button):
         return bool(self.__managed_orga)
 
     def get_ctypes(self):
-        return (Contact, Organisation)
+        return Contact, Organisation
 
     def render(self, context):
         context['managed_orga'] = self.__managed_orga
@@ -124,7 +124,8 @@ class AddLinkedContactButton(Button):
         'App: Accounts and Contacts'
     )
     template_name = 'persons/buttons/add-linked-contact.html'
-    permission = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
+    # permission = cperm(Contact)
+    permissions = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
 
     def get_ctypes(self):
         return (Organisation,)

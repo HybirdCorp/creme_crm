@@ -232,12 +232,14 @@
             - The method 'ActionButtonList._get_button_context()' has been removed.
             - The inner-class 'SelectorList.Action' has been replaced by the new class 'WidgetAction' (they are globally identical, but the new constructor takes only keyword arguments).
             - Remove the 'BulkFieldSelectWidget' that is no longer useful and move its role to 'creme.lv_widget.EditSelectedAction' (JS).
-        # In 'creme_core.gui.menu', the old API for menu has been removed :
-            - These classes have been removed :
-              Item, ViewableItem, ItemList, ItemGroup, ItemSeparator, ContainerItem, LabelItem, GroupLabelItem,
-              URLItem, TrashItem, QuickCreationItemGroup, CreationFormsItem, LastViewedEntitiesItem, Menu
-            - The global instance 'creme_menu' has been removed.
-            - The function '_validate_id()' has been removed.
+        # In 'creme_core.gui' :
+            - In 'button_menu', the attribute 'Button.permission' has been replaced by 'permissions' (which accepts strings sequence too).
+            - In 'menu', the old API has been removed :
+                - These classes have been removed :
+                  Item, ViewableItem, ItemList, ItemGroup, ItemSeparator, ContainerItem, LabelItem, GroupLabelItem,
+                  URLItem, TrashItem, QuickCreationItemGroup, CreationFormsItem, LastViewedEntitiesItem, Menu
+                - The global instance 'creme_menu' has been removed.
+                - The function '_validate_id()' has been removed.
         # In 'creme_core.models.search' :
             - The class 'SearchField' has been removed.
             - In the model 'SearchConfigItem' :

@@ -19,7 +19,16 @@
 ################################################################################
 
 import logging
-from typing import Dict, Iterable, Iterator, Optional, Sequence, Tuple, Type
+from typing import (
+    Dict,
+    Iterable,
+    Iterator,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 from django.template.loader import get_template
 
@@ -46,10 +55,12 @@ class Button:
     # Name/path of the template used to render the button.
     template_name: str = 'creme_core/buttons/place-holder.html'
 
-    # Permission string ; None means not permission needed.
-    #  eg :'myapp.add_mymodel'
-    # BEWARE: you have to use the template context variable 'has_perm' yourself !!
-    permission: Optional[str] = None  # TODO: <permission: str = ''> ??
+    # permission: Optional[str] = None
+    # Permission string(s) ; an empty value means no permission is needed.
+    #  eg: 'myapp.add_mymodel'
+    # BEWARE: you have to use the template context variable "has_perm"
+    #         (computed from 'permissions' -- see 'has_perm()' ) yourself !!
+    permissions: Union[str, Sequence[str]] = ''
 
     def __eq__(self, other):
         return other.id_ == self.id_
@@ -67,8 +78,17 @@ class Button:
         return ()
 
     def has_perm(self, context) -> bool:
-        permission = self.permission
-        return context['user'].has_perm(permission) if permission else True
+        # permission = self.permission
+        # return context['user'].has_perm(permission) if permission else True
+        permissions = self.permissions
+        if not permissions:
+            return False
+
+        return (
+            context['user'].has_perm(permissions)
+            if isinstance(permissions, str) else
+            context['user'].has_perms(permissions)
+        )
 
     def ok_4_display(self, entity: CremeEntity) -> bool:
         """Can this button be displayed on this entity's detail-view ?
@@ -91,7 +111,7 @@ class ButtonsRegistry:
     def __init__(self):
         self._button_classes: Dict[str, Type[Button]] = {}
 
-    def register(self, *button_classes: Type[Button]) -> None:
+    def register(self, *button_classes: Type[Button]) -> 'ButtonsRegistry':
         """
         @type button_classes: creme_core.gui.menu_buttons.Button child classes.
         """
@@ -105,10 +125,18 @@ class ButtonsRegistry:
                     f'Button class with empty id_: {button_cls}'
                 )
 
+            if hasattr(button_cls, 'permission'):
+                raise self.RegistrationError(
+                    f'Button class with old attribute "permission" '
+                    f'(use "permissions" instead): {button_cls}',
+                )
+
             if setdefault(button_id, button_cls) is not button_cls:
                 raise self.RegistrationError(
                     f"Duplicated button's ID (or button registered twice) : {button_id}"
                 )
+
+        return self
 
     def get_button(self, button_id: str) -> Optional[Button]:
         cls = self._button_classes.get(button_id)
