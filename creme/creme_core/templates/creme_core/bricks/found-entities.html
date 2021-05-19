@@ -31,8 +31,8 @@ search-count="{{page.paginator.count}}"
     <tr>
     {% if cells %}
         <td>
-            <a href="{{entity.get_absolute_url}}" class="brick-table-action{% if entity.is_deleted %} is_deleted{% endif %}">
-                {% widget_icon name='view' size='brick-table-action' class='brick-table-action-icon' %}
+            <a href="{{entity.get_absolute_url}}" class="brick-action brick-table-action{% if entity.is_deleted %} is_deleted{% endif %}">
+                {% widget_icon name='view' size='brick-table-action' class='brick-action-icon brick-table-action-icon' %}
             </a>
         </td>
     {% endif %}
