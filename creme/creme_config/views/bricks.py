@@ -230,7 +230,8 @@ class DefaultMyPageEdition(BaseMyPageEdition):
 
 
 class MyPageEdition(BaseMyPageEdition):
-    permissions = None  # Every user can edit its own configuration
+    # permissions = None  # Every user can edit its own configuration
+    permissions = ''  # Every user can edit its own configuration
     title = _('Edit "My page"')
 
     def get_form_kwargs(self):
