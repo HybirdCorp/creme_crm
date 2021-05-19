@@ -1,10 +1,10 @@
 {% load creme_core_tags creme_widgets %}
-<a href="{{url}}" title="{{help_text}}" class="brick-table-action action-type-{{action_type}} {{properties}} {{class}}" data-action="{{action_id}}">
+<a href="{{url}}" title="{{help_text}}" class="brick-action brick-table-action action-type-{{action_type}} {{properties}} {{class}}" data-action="{{action_id}}">
     {% jsondata data class='brick-action-data' %}
     {% if display == 'icon' %}
-        {% if icon %}{% widget_render_icon icon class='brick-table-action-icon' %}{% else %}{{label}}{% endif %}
+        {% if icon %}{% widget_render_icon icon class='brick-action-icon brick-table-action-icon' %}{% else %}{{label}}{% endif %}
     {% elif display == 'both' %}
-        {% if icon %}{% widget_render_icon icon class='brick-table-action-icon' %}{% endif %}
+        {% if icon %}{% widget_render_icon icon class='brick-action-icon brick-table-action-icon' %}{% endif %}
         {% if label %}<span class="brick-table-action-title brick-action-title">{{label}}</span>{% endif %}
     {% elif label %}
         <span class="brick-table-action-title">{{label}}</span>

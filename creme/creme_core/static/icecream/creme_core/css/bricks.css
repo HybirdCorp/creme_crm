@@ -495,7 +495,7 @@ Those templates need to be cleaned up
 /*
 .brick-table .brick-table-content .brick-table-action .brick-table-action-icon,
 .brick-list .brick-content .brick-action .brick-action-icon { */
-/* NB: more generic rule for menu-edition in creme_config (April 2021) */
+/* NB: more generic rule for menu-edition in creme_config + classes brick-action/brick-action-icon added in HTML (April/May 2021) */
 .brick .brick-content .brick-action .brick-action-icon {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 4px;
