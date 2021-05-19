@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -94,7 +94,8 @@ class AddInvoiceButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created invoice.\n'
         'App: Billing'
     )
-    permission = cperm(Invoice)
+    # permission = cperm(Invoice)
+    permissions = cperm(Invoice)
     url_name = 'billing__create_related_invoice'
 
 
@@ -107,7 +108,8 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created order.\n'
         'App: Billing'
     )
-    permission = cperm(SalesOrder)
+    # permission = cperm(SalesOrder)
+    permissions = cperm(SalesOrder)
     url_name = 'billing__create_related_order'
 
 
@@ -120,7 +122,8 @@ class AddQuoteButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created quote.\n'
         'App: Billing'
     )
-    permission = cperm(Quote)
+    # permission = cperm(Quote)
+    permissions = cperm(Quote)
     url_name = 'billing__create_related_quote'
 
 
@@ -155,7 +158,7 @@ class ConvertToInvoiceButton(_ConvertToButton):
         'Notice that the current entity is kept unchanged, a new invoice is created.\n'
         'App: Billing'
     )
-    target_model     = Invoice
+    target_model = Invoice
     target_modelname = 'invoice'
 
 
@@ -167,7 +170,7 @@ class ConvertToSalesOrderButton(_ConvertToButton):
         'Notice that the current entity is kept unchanged, a new order is created.\n'
         'App: Billing'
     )
-    target_model     = SalesOrder
+    target_model = SalesOrder
     target_modelname = 'sales_order'
 
 
@@ -179,5 +182,5 @@ class ConvertToQuoteButton(_ConvertToButton):
         'Notice that the current entity is kept unchanged, a new quote is created.\n'
         'App: Billing'
     )
-    target_model     = Quote
+    target_model = Quote
     target_modelname = 'quote'

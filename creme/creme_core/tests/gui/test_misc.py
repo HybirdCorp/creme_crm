@@ -372,6 +372,76 @@ class GuiTestCase(CremeTestCase):
             str(cm.exception)
         )
 
+    def test_button_registry04(self):
+        "Permissions."
+        basic_user = self.login(
+            is_superuser=False,
+            allowed_apps=['creme_core', 'persons'],
+            creatable_models=[FakeContact],
+        )
+        basic_ctxt = {'user': basic_user}
+        super_ctxt = {'user': self.other_user}
+
+        class TestButton01(Button):
+            id_ = Button.generate_id('creme_core', 'test_button_registry04_01')
+            permissions = 'creme_core'
+
+        has_perm1 = TestButton01().has_perm
+        self.assertIs(has_perm1(super_ctxt),  True)
+        self.assertIs(has_perm1(basic_ctxt), True)
+
+        # Other app ---
+        class TestButton02(Button):
+            id_ = Button.generate_id('creme_core', 'test_button_registry04_02')
+            permissions = 'documents'
+
+        has_perm2 = TestButton02().has_perm
+        self.assertIs(has_perm2(super_ctxt),  True)
+        self.assertIs(has_perm2(basic_ctxt), False)
+
+        # Creation permission ---
+        class TestButton03(Button):
+            id_ = Button.generate_id('creme_core', 'test_button_registry04_03')
+            permissions = 'creme_core.add_fakecontact'
+
+        class TestButton04(Button):
+            id_ = Button.generate_id('creme_core', 'test_button_registry04_04')
+            permissions = 'creme_core.add_fakeorganisation'
+
+        self.assertTrue(TestButton03().has_perm(basic_ctxt))
+        self.assertFalse(TestButton04().has_perm(basic_ctxt))
+
+        # Several permissions ---
+        class TestButton05(Button):
+            id_ = Button.generate_id('creme_core', 'test_button_registry04_05')
+            permissions = ['persons', 'creme_core.add_fakecontact']
+
+        class TestButton06(Button):
+            id_ = Button.generate_id('creme_core', 'test_button_registry04_06')
+            permissions = ['persons', 'creme_core.add_fakeorganisation']
+
+        self.assertTrue(TestButton05().has_perm(basic_ctxt))
+        self.assertFalse(TestButton06().has_perm(basic_ctxt))
+
+        # Check by registry ---
+        with self.assertNoException():
+            registry = ButtonsRegistry().register(
+                TestButton01, TestButton03, TestButton05,
+            )
+
+        class TestButton07(Button):
+            id_ = Button.generate_id('creme_core', 'test_button_registry04_07')
+            permission = 'persons'  # <== Old attribute
+
+        with self.assertRaises(ButtonsRegistry.RegistrationError) as cm:
+            registry.register(TestButton07)
+
+        self.assertEqual(
+            f'Button class with old attribute "permission" '
+            f'(use "permissions" instead): {TestButton07}',
+            str(cm.exception)
+        )
+
     def test_quickforms_registry01(self):
         "Registration."
         registry = QuickFormsRegistry()
