@@ -251,7 +251,7 @@ class FieldsConfigsBrick(PaginatedBrick):
     dependencies = (FieldsConfig,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/fields-configs.html'
-    permission = None  # NB: used by the view creme_core.views.bricks.reload_basic()
+    # permission = None  # NB: used by the view creme_core.views.bricks.reload_basic()
     configurable = False
 
     def detailview_display(self, context):
@@ -284,7 +284,7 @@ class CustomFieldsBrick(Brick):
     verbose_name = 'Configuration of custom fields'
     dependencies = (CustomField,)
     template_name = 'creme_config/bricks/custom-fields.html'
-    permission = None  # NB: used by the view creme_core.views.bricks.reload_basic
+    # permission = None  # NB: used by the view creme_core.views.bricks.reload_basic
     configurable = False
 
     def detailview_display(self, context):
@@ -505,7 +505,7 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
     # '-1' because there is always the line for default config on each page
     page_size = _PAGE_SIZE - 1
     template_name = 'creme_config/bricks/bricklocations-detailviews.html'
-    permission = None  # NB: used by the view creme_core.views.blocks.reload_basic
+    # permission = None  # NB: used by the view creme_core.views.blocks.reload_basic
     configurable = False
 
     brick_registry = brick_registry
@@ -918,7 +918,6 @@ class EntityFiltersBrick(PaginatedBrick):
     dependencies = (EntityFilter,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/entity-filters.html'
-    permission = ''  # NB: used by the view creme_core.views.blocks.reload_basic
     configurable = False
 
     def detailview_display(self, context):
@@ -996,7 +995,6 @@ class HeaderFiltersBrick(PaginatedBrick):
     dependencies = (HeaderFilter,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/header-filters.html'
-    permission = ''  # NB: used by the view creme_core.views.blocks.reload_basic
     configurable = False
 
     def detailview_display(self, context):

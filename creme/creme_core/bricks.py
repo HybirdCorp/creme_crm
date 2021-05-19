@@ -314,7 +314,7 @@ class TrashBrick(QuerysetBrick):
     order_by = '-modified'
     template_name = 'creme_core/bricks/trash.html'
     page_size = 50
-    permission = None  # NB: the template uses credentials
+    # permission = None  # NB: the template uses credentials
     configurable = False  # TODO: allows on home page ?
 
     def detailview_display(self, context):
@@ -452,7 +452,7 @@ class JobsBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/jobs-all.html'
     configurable = False
     page_size = 50
-    permission = None
+    # permission = None
 
     def _jobs_qs(self, context):
         return Job.objects.all()

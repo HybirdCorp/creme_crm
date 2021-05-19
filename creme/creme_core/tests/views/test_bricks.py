@@ -157,15 +157,15 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_reload_basic01(self):
-        self.login()
+        self.login(is_superuser=False, creatable_models=[FakeContact])
 
         class FoobarBrick1(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_basic01_1')
-            permission = 'persons'
+            permissions = 'creme_core'
 
         class FoobarBrick2(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_basic01_2')
-            permission = 'persons'
+            permissions = ['creme_core', 'creme_core.add_fakecontact']
 
         brick_registry.register(FoobarBrick1, FoobarBrick2)
 
@@ -181,16 +181,16 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                 [FoobarBrick1.id_, fmt(FoobarBrick1.id_)],
                 [FoobarBrick2.id_, fmt(FoobarBrick2.id_)],
             ],
-            response.json()
+            response.json(),
         )
 
     def test_reload_basic02(self):
-        "Do not have the credentials"
+        "Do not have the credentials."
         self.login(is_superuser=False)
 
         class FoobarBrick1(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_basic02')
-            permission = 'persons'
+            permissions = 'persons'
 
         brick_registry.register(FoobarBrick1)
 
@@ -199,27 +199,27 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_reload_basic03(self):
-        "Not superuser"
+        "Other app."
         app_name = 'persons'
         self.login(is_superuser=False, allowed_apps=[app_name])
 
         class FoobarBrick1(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_basic03')
-            permission = app_name
+            permissions = app_name
 
         brick_registry.register(FoobarBrick1)
 
         response = self.assertGET200(
             reverse('creme_core__reload_bricks'),
-            data={'brick_id': FoobarBrick1.id_}
+            data={'brick_id': FoobarBrick1.id_},
         )
         self.assertListEqual(
             [[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)]],
-            response.json()
+            response.json(),
         )
 
     def test_reload_basic04(self):
-        "Extra data"
+        "Extra data."
         self.login()
         extra_data = [1, 2]
 
@@ -246,13 +246,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             [
                 [FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)],
             ],
-            response.json()
+            response.json(),
         )
 
         self.assertEqual(extra_data, received_extra_data)
 
     def test_reload_basic05(self):
-        "Invalid extra data"
+        "Invalid extra data."
         self.login()
 
         error = None
@@ -305,12 +305,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual('application/json', response['Content-Type'])
         self.assertListEqual(
             [[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
-            response.json()
+            response.json(),
         )
         self.assertEqual(atom, FoobarBrick.contact)
 
     def test_reload_detailview02(self):
-        "With dependencies"
+        "With dependencies."
         user = self.login()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
@@ -352,7 +352,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                 [FoobarBrick2.id_, fmt(FoobarBrick2.id_)],
                 [FoobarBrick3.id_, fmt(FoobarBrick3.id_)],
             ],
-            response.json()
+            response.json(),
         )
         self.assertEqual(atom, FoobarBrick1.contact)
         self.assertEqual(atom, FoobarBrick2.contact)
@@ -377,7 +377,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_reload_detailview04(self):
-        "Not superuser"
+        "Not superuser."
         self.login(is_superuser=False)
         SetCredentials.objects.create(
             role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
@@ -401,11 +401,11 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             [
                 [FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)],
             ],
-            response.json()
+            response.json(),
         )
 
     def test_reload_detailview05(self):
-        "Invalid block_id"
+        "Invalid brick_id."
         user = self.login()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
@@ -417,18 +417,19 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual([], response.json())
 
     def test_reload_detailview06(self):
-        "Extra data"
+        "Extra data."
         user = self.login()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
         extra_data = [1, 2]
-        received_extra_data = []  # TODO: nonlocal in Py3K
+        received_extra_data = None
 
         class FoobarBrick(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_detailview06')
 
             @self.TestBrick.reloading_info.setter
             def reloading_info(self, info):
-                received_extra_data.append(info)
+                nonlocal received_extra_data
+                received_extra_data = info
 
         brick_registry.register(FoobarBrick)
 
@@ -443,11 +444,11 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             [
                 [FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)],
             ],
-            response.json()
+            response.json(),
         )
 
         self.assertTrue(received_extra_data)
-        self.assertEqual(extra_data, received_extra_data[0])
+        self.assertEqual(extra_data, received_extra_data)
 
     def test_reload_home(self):
         self.login()
@@ -470,7 +471,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                 [FoobarBrick1.id_, self.TestBrick.string_format_home(FoobarBrick1.id_)],
                 [FoobarBrick2.id_, self.TestBrick.string_format_home(FoobarBrick2.id_)],
             ],
-            response.json()
+            response.json(),
         )
 
     def test_relations_brick01(self):
@@ -483,7 +484,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         rtype1 = RelationType.create(
             ('test-subject_son',   'is the son of'),
-            ('test-object_father', 'is the father of')
+            ('test-object_father', 'is the father of'),
         )[0]
         Relation.objects.create(
             subject_entity=atom, type=rtype1, object_entity=tenma, user=user,
@@ -491,7 +492,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         rtype2 = RelationType.create(
             ('test-subject_brother', 'is the brother of'),
-            ('test-object_sister',   'is the sister of')
+            ('test-object_sister',   'is the sister of'),
         )[0]
         Relation.objects.create(
             subject_entity=atom, type=rtype2, object_entity=uran, user=user,
@@ -508,18 +509,18 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_relations_brick02(self):
         """With A SpecificRelationBrick ; but the concerned relationship is minimal_display=False
-        (so there is no RelationType to exclude)
+        (so there is no RelationType to exclude).
         """
         user = self.login()
         rbrick_id = RelationsBrick.id_
 
         rtype1 = RelationType.create(
             ('test-subject_son',   'is the son of'),
-            ('test-object_father', 'is the father of')
+            ('test-object_father', 'is the father of'),
         )[0]
         rtype2 = RelationType.create(
             ('test-subject_brother', 'is the brother of'),
-            ('test-object_sister',   'is the sister of')
+            ('test-object_sister',   'is the sister of'),
         )[0]
         rbi = RelationBrickItem.objects.create_if_needed(rtype1)
 
@@ -553,7 +554,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         reloading_info = {'include': [rtype1.id]}
         self.assertEqual(
             json_dump(reloading_info, separators=(',', ':')),
-            rel_brick_node.attrib.get('data-brick-reloading-info')
+            rel_brick_node.attrib.get('data-brick-reloading-info'),
         )
         self.assertInstanceLink(rel_brick_node, tenma)
         self.assertInstanceLink(rel_brick_node, uran)
@@ -594,7 +595,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )[0]
         rtype2 = RelationType.create(
             ('test-subject_brother', 'is the brother of'),
-            ('test-object_sister',   'is the sister of')
+            ('test-object_sister',   'is the sister of'),
         )[0]
         rbi = RelationBrickItem.objects.create_if_needed(rtype1)
 
@@ -631,7 +632,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         reloading_info = {'exclude': [rtype1.id]}
         self.assertEqual(
             json_dump(reloading_info, separators=(',', ':')),
-            rel_brick_node.attrib.get('data-brick-reloading-info')
+            rel_brick_node.attrib.get('data-brick-reloading-info'),
         )
 
         # Reloading
@@ -693,11 +694,11 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertIn(
             naru.phone,
-            self.get_brick_tile(content_node, 'regular_field-phone').text
+            self.get_brick_tile(content_node, 'regular_field-phone').text,
         )
 
     def test_display_objectbrick02(self):
-        "With FieldsConfig"
+        "With FieldsConfig."
         user = self.login()
 
         FieldsConfig.objects.create(
@@ -712,7 +713,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         content_node = self._get_contact_brick_content(naru, brick_id=MODELBRICK_ID)
         self.assertEqual(
             naru.last_name,
-            self.get_brick_tile(content_node, 'regular_field-last_name').text
+            self.get_brick_tile(content_node, 'regular_field-last_name').text,
         )
         self._assertNoBrickTile(content_node, 'regular_field-phone')
 
@@ -743,11 +744,11 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         content_node = self._get_contact_brick_content(naru, brick_id=bdl.brick_id)
         self.assertEqual(
             naru.last_name,
-            self.get_brick_tile(content_node, 'regular_field-last_name').text
+            self.get_brick_tile(content_node, 'regular_field-last_name').text,
         )
         self.assertIn(
             naru.phone,
-            self.get_brick_tile(content_node, 'regular_field-phone').text
+            self.get_brick_tile(content_node, 'regular_field-phone').text,
         )
 
     def test_display_custombrick02(self):
