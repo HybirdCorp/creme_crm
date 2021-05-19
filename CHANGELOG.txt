@@ -252,6 +252,7 @@
                 - The functions passed to the methods 'filter()' & 'exclude()'
                   take now 3 arguments by keywords (notice: "model" is new, "deep" is now "depth")
             - The method '_FilterModelFieldQuery.__call__()' takes now 3 arguments by keywords (same remark).
+        # The default value of the attribute 'creme_core.views.generic.base.PermissionsMixin.permissions' is now an empty string (instead of 'None').
         # The HTML/CSS for forms have been heavily reworked :
             - The HTML for 'django.forms.widgets.Select' is now wrapped in a tag "<div>".
             - "<div>" tags are used instead of "<table>" in the blocks.

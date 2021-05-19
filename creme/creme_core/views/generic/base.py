@@ -76,11 +76,12 @@ class PermissionsMixin:
           permissions = 'my_app'
       - a sequence of strings. Eg:
           permissions = ['my_app1', 'my_app2.can_admin']
-      - <None> (default value) means no permission is checked.
+      - an empty value (like '', the default value) means no permission is checked.
     """
     login_url_name: Optional[str] = None
     login_redirect_arg_name: str = REDIRECT_FIELD_NAME
-    permissions: Union[str, Sequence[str], None] = None
+    # permissions: Union[str, Sequence[str], None] = None
+    permissions: Union[str, Sequence[str]] = ''
 
     # NB: for linters only
     request: HttpRequest
