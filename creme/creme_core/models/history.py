@@ -86,6 +86,7 @@ _EXCLUDED_FIELDS = ('modified',)
 # TODO: ClassKeyedMap ??
 _SERIALISABLE_FIELDS = frozenset((
     'CharField',
+    'TextField',
 
     'IntegerField', 'BigIntegerField', 'PositiveIntegerField',
     'PositiveSmallIntegerField', 'SmallIntegerField',
@@ -110,7 +111,6 @@ _SERIALISABLE_FIELDS = frozenset((
 
     # Excluded:
     #   'FilePathField' => not useful
-    #   'TextField' => too long
     #   'FileField' => not serializable
 ))
 
@@ -248,8 +248,8 @@ TYPE_EXPORT       = 20
 
 class _HistoryLineType:
     type_id: int  # = None  # Overload with TYPE_*
-    verbose_name            = 'OVERLOAD ME'
-    has_related_line: bool  = False
+    verbose_name = 'OVERRIDE ME'
+    has_related_line: bool = False
     is_about_relation: bool = False
 
     @classmethod
@@ -509,7 +509,8 @@ class _HLTRelation(_HistoryLineType):
             related_line_id=hline.id,
         )
         hline.value = HistoryLine._encode_attrs(
-            hline.entity, modifs=[relation.type_id], related_line_id=hline_sym.id
+            hline.entity,
+            modifs=[relation.type_id], related_line_id=hline_sym.id,
         )
         hline.save()
 
@@ -834,7 +835,7 @@ class HistoryLine(Model):
 
         return self._modifications
 
-    def get_verbose_modifications(self, user):
+    def get_verbose_modifications(self, user) -> List[str]:
         try:
             return [
                 *self.line_type.verbose_modifications(

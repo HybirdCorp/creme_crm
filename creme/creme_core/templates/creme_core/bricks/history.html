@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_history creme_widgets creme_bricks %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}{# creme_history #}
 
 {% block brick_extra_class %}{{block.super}} creme_core-history-brick{% endblock %}
 
@@ -42,6 +42,7 @@
         {% endif %}
         <td>{{line.get_type_str}}</td>
         <td data-type="list">
+{% comment %}
             {% with modifications=line|history_modifications:user %}
                 {% if modifications|length == 1 %}
                     {{modifications.0}}
@@ -68,6 +69,8 @@
                     {% endif %}
                 {% endwith %}
              {% endif %}
+{% endcomment %}
+            {{line.explainer.render}}
         </td>
         <td>{% if line.user is not None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}</td>
     </tr>

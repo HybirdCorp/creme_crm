@@ -1,0 +1,15 @@
+{% extends 'creme_core/history/html/base.html' %}
+{% load i18n creme_widgets %}
+{% block content %}
+    <span class="history-line-title">
+    {% with entity=hline.related_line.entity %}
+        {% if entity is None %}{# TODO: improve credentials here !! #}
+            {% blocktranslate with entity=hline.related_line.entity_repr %}“{{entity}}“ edited{% endblocktranslate %}
+        {% else %}
+            {% widget_entity_hyperlink entity user as entity_link %}
+            {% blocktranslate %}{{entity_link}} edited{% endblocktranslate %}
+        {% endif %}
+    {% endwith %}
+    </span>
+    <ul>{% for modif in modifications %}<li>{{modif}}</li>{% endfor %}</ul>
+{% endblock %}

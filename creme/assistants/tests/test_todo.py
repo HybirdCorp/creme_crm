@@ -57,14 +57,16 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
     def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
         entity = entity or self.entity
-        user   = user or self.user
+        user = user or self.user
 
-        response = self.client.post(self._build_add_url(entity),
-                                    data={'user':        user.pk,
-                                          'title':       title,
-                                          'description': description,
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(entity),
+            data={
+                'user':        user.pk,
+                'title':       title,
+                'description': description,
+            },
+        )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(ToDo, title=title, description=description)
@@ -77,11 +79,9 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         )
         self._create_todo('Todo02', 'Description02', entity=entity02)
 
-        user02 = get_user_model().objects.create_user(username='ryoga',
-                                                      first_name='Ryoga',
-                                                      last_name='Hibiki',
-                                                      email='user@creme.org',
-                                                     )
+        user02 = get_user_model().objects.create_user(
+            username='ryoga', first_name='Ryoga', last_name='Hibiki', email='user@creme.org',
+        )
         self._create_todo('Todo03', 'Description03', user=user02)
 
     def test_populate(self):
@@ -97,9 +97,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
-        self.assertEqual(_('New todo for «{entity}»').format(entity=entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New todo for «{entity}»').format(entity=entity),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the todo'), context.get('submit_label'))
 
         with self.assertNoException():
@@ -130,26 +131,29 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         url = self._build_add_url(self.entity)
         title = 'my Todo'
-        data = {'user':        self.user.pk,
-                'title':       title,
-                'description': '',
-                'deadline':    '2013-6-7',
-               }
+        data = {
+            'user':        self.user.pk,
+            'title':       title,
+            'description': '',
+            'deadline':    '2013-6-7',
+        }
         response = self.assertPOST200(url, data=data)
-        self.assertFormError(response, 'form', 'deadline_hour',
-                             _('The hour is required if you set a date.')
-                            )
+        self.assertFormError(
+            response, 'form', 'deadline_hour',
+            _('The hour is required if you set a date.'),
+        )
 
         self.assertNoFormError(self.client.post(url, data={**data, 'deadline_hour': 9}))
 
         todo = self.get_object_or_fail(ToDo, title=title)
-        self.assertEqual(self.create_datetime(year=2013, month=6, day=7, hour=9),
-                         todo.deadline
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2013, month=6, day=7, hour=9),
+            todo.deadline,
+        )
         self.assertTrue(queue.refreshed_jobs)
 
     def test_edit01(self):
-        title       = 'Title'
+        title = 'Title'
         description = 'Description'
         todo = self._create_todo(title, description)
 
@@ -158,19 +162,23 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
-        self.assertEqual(_('Todo for «{entity}»').format(entity=self.entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Todo for «{entity}»').format(entity=self.entity),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         # ---
         title       += '_edited'
         description += '_edited'
-        response = self.client.post(url, data={'user':        self.user.pk,
-                                               'title':       title,
-                                               'description': description,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'user':        self.user.pk,
+                'title':       title,
+                'description': description,
+            },
+        )
         self.assertNoFormError(response)
 
         todo = self.refresh(todo)
@@ -178,7 +186,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(description, todo.description)
 
     def test_edit02(self):
-        "Entity is deleted"
+        "Entity is deleted."
         todo = self._create_todo()
 
         entity = self.entity
@@ -228,9 +236,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         todos = ToDo.objects.filter(entity=self.entity.id)
         self.assertEqual(3, len(todos))
-        self.assertSetEqual({*ToDo.objects.values_list('id', flat=True)},
-                            {t.id for t in todos}
-                           )
+        self.assertSetEqual(
+            {*ToDo.objects.values_list('id', flat=True)},
+            {t.id for t in todos},
+        )
 
         self.assertGreaterEqual(TodosBrick.page_size, 2)
 
@@ -302,9 +311,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(Q(), to_python(value=''))
 
         value = 'foobar'
-        self.assertEqual(Q(assistants_todos__title__icontains=value),
-                         to_python(value=value)
-                        )
+        self.assertEqual(
+            Q(assistants_todos__title__icontains=value),
+            to_python(value=value),
+        )
 
     def test_function_field02(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
@@ -411,7 +421,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
             _('Reminder concerning a Creme CRM todo related to {entity}').format(
                 entity=self.entity,
             ),
-            message.subject
+            message.subject,
         )
         self.assertIn(todo1.title, message.body)
 
@@ -435,16 +445,17 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
-        ToDo.objects.create(creme_entity=self.entity, user=self.user,
-                            title='Todo#1', deadline=now_value,
-                           )
+        ToDo.objects.create(
+            creme_entity=self.entity, user=self.user,
+            title='Todo#1', deadline=now_value,
+        )
 
         job = self.get_reminder_job()
         wakeup = job.type.next_wakeup(job, now_value)
         self.assertIsInstance(wakeup, datetime)
-        self.assertDatetimesAlmostEqual(localtime(now()).replace(hour=next_hour),
-                                        wakeup
-                                       )
+        self.assertDatetimesAlmostEqual(
+            localtime(now()).replace(hour=next_hour), wakeup,
+        )
 
         self.execute_reminder_job(job)
         self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
@@ -460,9 +471,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
         def create_todo(title):
-            ToDo.objects.create(title=title, deadline=now_value,
-                                creme_entity=self.entity, user=self.user,
-                               )
+            ToDo.objects.create(
+                title=title, deadline=now_value,
+                creme_entity=self.entity, user=self.user,
+            )
 
         create_todo('Todo#1')
 
@@ -487,12 +499,12 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         jresult = jresults[0]
         self.assertListEqual(
             [
-                _('An error occurred while sending emails related to «{model}»').format(
-                    model=ToDo._meta.verbose_name,
-                ),
+                _(
+                    'An error occurred while sending emails related to «{model}»'
+                ).format(model=ToDo._meta.verbose_name),
                 _('Original error: {}').format(err_msg),
             ],
-            jresult.messages
+            jresult.messages,
         )
 
         EmailBackend.send_messages = self.original_send_messages
@@ -509,10 +521,11 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         now_value = now()
 
         create_user = get_user_model().objects.create
-        teammate = create_user(username='luffy',
-                               email='luffy@sunny.org', role=self.role,
-                               first_name='Luffy', last_name='Monkey D.',
-                              )
+        teammate = create_user(
+            username='luffy',
+            email='luffy@sunny.org', role=self.role,
+            first_name='Luffy', last_name='Monkey D.',
+        )
         team = create_user(username='Team #1', is_team=True)
         team.teammates = [teammate, user]
 
@@ -528,9 +541,9 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         messages = mail.outbox
         self.assertEqual(2, len(messages))
-        self.assertEqual({(teammate.email,), (user.email,)},
-                         {tuple(m.to) for m in messages}
-                        )
+        self.assertSetEqual(
+            {(teammate.email,), (user.email,)}, {tuple(m.to) for m in messages}
+        )
 
     def test_next_wakeup01(self):
         "Next wake is one day later + minimum hour"
@@ -546,9 +559,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         sv.save()
 
         def create_todo(title, deadline, **kwargs):
-            ToDo.objects.create(creme_entity=self.entity, user=self.user,
-                                title=title, deadline=deadline, **kwargs
-                               )
+            ToDo.objects.create(
+                creme_entity=self.entity, user=self.user,
+                title=title, deadline=deadline, **kwargs
+            )
 
         create_todo('Todo#2', now_value, is_ok=True)
         create_todo('Todo#4', now_value, reminded=True)
@@ -560,9 +574,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         job = self.get_reminder_job()
 
-        self.assertEqual((localtime(now_value + timedelta(days=1))).replace(hour=next_hour),
-                         job.type.next_wakeup(job, now_value)
-                        )
+        self.assertEqual(
+            (localtime(now_value + timedelta(days=1))).replace(hour=next_hour),
+            job.type.next_wakeup(job, now_value),
+        )
 
     def test_next_wakeup02(self):
         "Next wake is one day later (but minimum hour has passed)"
@@ -577,10 +592,11 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         sv.value = previous_hour
         sv.save()
 
-        ToDo.objects.create(creme_entity=self.entity, user=self.user,
-                            title='Todo#1',
-                            deadline=now_value + timedelta(days=2),
-                           )
+        ToDo.objects.create(
+            creme_entity=self.entity, user=self.user,
+            title='Todo#1',
+            deadline=now_value + timedelta(days=2),
+        )
 
         job = self.get_reminder_job()
         self.assertEqual(now_value + timedelta(days=1), job.type.next_wakeup(job, now_value))
@@ -600,12 +616,14 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         sv.value = previous_hour
         sv.save()
 
-        ToDo.objects.create(creme_entity=self.entity, user=self.user, title='Todo#1',
-                            deadline=now_value + timedelta(days=2),
-                           )
-        alert = Alert.objects.create(creme_entity=self.entity, user=self.user, title='Alert#1',
-                                     trigger_date=now_value + timedelta(days=3),
-                                    )
+        ToDo.objects.create(
+            creme_entity=self.entity, user=self.user, title='Todo#1',
+            deadline=now_value + timedelta(days=2),
+        )
+        alert = Alert.objects.create(
+            creme_entity=self.entity, user=self.user, title='Alert#1',
+            trigger_date=now_value + timedelta(days=3),
+        )
 
         job = self.get_reminder_job()
         self.assertEqual(now_value + timedelta(days=1), job.type.next_wakeup(job, now_value))
@@ -619,7 +637,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         return [*HistoryLine.objects.order_by('id')]
 
     def test_history01(self):
-        "Creation"
+        "Creation."
         user = self.user
         akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
         old_count = HistoryLine.objects.count()
@@ -635,13 +653,13 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(TYPE_AUX_CREATION, hline.type)
 
     def test_history02(self):
-        "Edition"
+        "Edition."
         user = self.user
         akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
         todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
-        todo.description = 'Conquier the world'
+        todo.description = description = 'Conquer the world'
         todo.save()
 
         hlines = self._get_hlines()
@@ -656,15 +674,19 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         self.assertEqual(
             _('Edit <{type}>: “{value}”').format(type=_('Todo'), value=todo),
-            vmodifs[0]
+            vmodifs[0],
         )
         self.assertEqual(
-            _('Set field “{field}”').format(field=_('Description')),
-            vmodifs[1]
+            # _('Set field “{field}”').format(field=_('Description')),
+            _('Set field “{field}” to “{value}”').format(
+                field=_('Description'),
+                value=description,
+            ),
+            vmodifs[1],
         )
 
     def test_history03(self):
-        "Deletion"
+        "Deletion."
         user = self.user
         akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
         todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
@@ -683,21 +705,23 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         self.assertEqual(
             _('Delete <{type}>: “{value}”').format(type=_('Todo'), value=todo),
-            vmodifs[0]
+            vmodifs[0],
         )
 
     def test_manager_filter_by_user(self):
         user = self.user
 
         create_user = get_user_model().objects.create
-        teammate1 = create_user(username='luffy',
-                                email='luffy@sunny.org', role=self.role,
-                                first_name='Luffy', last_name='Monkey D.',
-                               )
-        teammate2 = create_user(username='zorro',
-                                email='zorro@sunny.org', role=self.role,
-                                first_name='Zorro', last_name='Roronoa',
-                               )
+        teammate1 = create_user(
+            username='luffy',
+            email='luffy@sunny.org', role=self.role,
+            first_name='Luffy', last_name='Monkey D.',
+        )
+        teammate2 = create_user(
+            username='zorro',
+            email='zorro@sunny.org', role=self.role,
+            first_name='Zorro', last_name='Roronoa',
+        )
 
         team1 = create_user(username='Team #1', is_team=True)
         team1.teammates = [teammate1, user]

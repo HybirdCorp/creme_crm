@@ -1254,6 +1254,64 @@ svg.icon {
     vertical-align: middle;
 }
 
+.creme_core-history-brick ul {
+    font-size: 12.5px;
+}
+
+.creme_core-history-brick .field-change-field_name {
+    font-weight: 600;
+}
+
+.creme_core-history-brick .field-change-old_value {
+    color: #613232;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.creme_core-history-brick .field-change-new_value {
+    color: #437149;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.creme_core-history-brick .field-change-old_value a,
+.creme_core-history-brick .field-change-new_value a {
+    font-weight: 500;
+    font-style: initial;
+}
+
+.creme_core-history-brick .field-change-text_details {
+    color: #7d8790;
+    padding-left: 10px;
+}
+
+.creme_core-history-brick .history-line.history-line-auxiliary_edition ul {
+    margin-left: 10px;
+    margin-top: 5px;
+
+    color: #5f5e5e;
+}
+
+.creme_core-history-brick .history-line.history-line-auxiliary_edition .field-change-old_value,
+.creme_core-history-brick .history-line.history-line-auxiliary_edition .field-change-new_value {
+    font-weight: 600;
+}
+
+.popover-content .history-line-field-change-text-old_value {
+    padding: 5px;
+    background: #ffd4d4;
+}
+
+.popover-content .history-line-field-change-text-new_value {
+    padding: 5px;
+    background: #d4fdd9;
+}
+
+.popover-content .history-line-field-change-text-old_value h4,
+.popover-content .history-line-field-change-text-new_value h4 {
+    margin: 0px;
+}
+
 /* Specific relation brick */
 
 .creme_core-specific-relations-brick .brick-content {

@@ -29,6 +29,7 @@ from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
 from .gui import statistics
 from .gui.bricks import Brick, BricksManager, QuerysetBrick
+from .gui.history import html_history_registry
 from .models import (
     CremeEntity,
     CremeProperty,
@@ -203,6 +204,8 @@ class HistoryBrick(QuerysetBrick):
     order_by = '-id'  # faster than '-date'
     template_name = 'creme_core/bricks/history.html'
 
+    history_registry = html_history_registry
+
     # TODO: factorise (see assistants.bricks) ??
     # TODO: remove 'user' argument
     @staticmethod
@@ -225,6 +228,10 @@ class HistoryBrick(QuerysetBrick):
             # Should not happen (means that entity does not exist anymore) but...
             hline.entity = entities_map.get(hline.entity_id)
 
+    def _populate_explainers(self, hlines, user):
+        for hline, explainer in zip(hlines, self.history_registry.line_explainers(hlines, user)):
+            hline.explainer = explainer
+
     @staticmethod
     def _populate_perms(hlines, user):
         for hline in hlines:
@@ -238,8 +245,10 @@ class HistoryBrick(QuerysetBrick):
         pk = context['object'].pk
         btc = self.get_template_context(context, HistoryLine.objects.filter(entity=pk))
         hlines = btc['page'].object_list
+        user = context['user']
 
-        HistoryLine.populate_users(hlines, context['user'])
+        HistoryLine.populate_users(hlines, user)
+        self._populate_explainers(hlines, user)
 
         for hline in hlines:
             # All lines are referencing context['object'], which can be viewed.
@@ -259,6 +268,7 @@ class HistoryBrick(QuerysetBrick):
         self._populate_related_real_entities(hlines, user)
         HistoryLine.populate_users(hlines, user)
         self._populate_perms(hlines, user)
+        self._populate_explainers(hlines, user)
 
         return self._render(btc)
 

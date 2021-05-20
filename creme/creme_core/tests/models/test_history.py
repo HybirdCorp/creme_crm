@@ -79,9 +79,10 @@ class HistoryTestCase(CremeTestCase):
         if extra_args:
             data.update(extra_args)
 
-        self.assertNoFormError(
-            self.client.post('/tests/organisation/add', follow=True, data=data)
-        )
+        self.assertNoFormError(self.client.post(
+            FakeOrganisation.get_create_absolute_url(),
+            follow=True, data=data,
+        ))
 
         return self.get_object_or_fail(FakeOrganisation, name=name)
 
@@ -89,9 +90,10 @@ class HistoryTestCase(CremeTestCase):
         data = {'first_name': first_name, 'last_name': last_name}
         data.update(kwargs)
 
-        self.assertNoFormError(
-            self.client.post('/tests/contact/add', follow=True, data=data)
-        )
+        self.assertNoFormError(self.client.post(
+            FakeContact.get_create_absolute_url(),
+            follow=True, data=data,
+        ))
 
         return self.get_object_or_fail(
             FakeContact, first_name=first_name, last_name=last_name,
@@ -121,7 +123,7 @@ class HistoryTestCase(CremeTestCase):
         self.assertEqual(self.other_user,    hline.entity_owner)
         self.assertEqual(self.user.username, hline.username)
         self.assertEqual(TYPE_CREATION,      hline.type)
-        self.assertEqual([],                 hline.modifications)
+        self.assertListEqual([], hline.modifications)
         self.assertBetweenDates(hline)
 
     def test_creation_n_aux(self):
@@ -140,7 +142,7 @@ class HistoryTestCase(CremeTestCase):
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
         self.assertEqual(self.other_user,    hline.entity_owner)
         self.assertEqual(TYPE_CREATION,      hline.type)
-        self.assertEqual([],                 hline.modifications)
+        self.assertListEqual([], hline.modifications)
         self.assertBetweenDates(hline)
 
         hline = hlines[-1]
@@ -151,7 +153,7 @@ class HistoryTestCase(CremeTestCase):
         self.assertBetweenDates(hline)
         self.assertListEqual(
             [ContentType.objects.get_for_model(address).id, address.id, str(address)],
-            hline.modifications
+            hline.modifications,
         )
         self.assertListEqual(
             [_('Add <{type}>: “{value}”').format(type='Test address', value=address)],
@@ -186,10 +188,11 @@ class HistoryTestCase(CremeTestCase):
         hline = hlines[-1]
         self.assertEqual(gainax.id,    hline.entity.id)
         self.assertEqual(TYPE_EDITION, hline.type)
-        self.assertEqual([['capital', old_capital, capital]], hline.modifications)
+        self.assertListEqual([['capital', old_capital, capital]], hline.modifications)
 
     # TODO: change 'name' but keep the old unicode() ???
     def test_edition02(self):
+        user = self.user
         old_count = HistoryLine.objects.count()
 
         create_sector = FakeSector.objects.create
@@ -200,12 +203,13 @@ class HistoryTestCase(CremeTestCase):
 
         name = 'Gainax'
         old_phone = '7070707'
-        description = """Oh this is an long description
+        old_description = """Oh this is an long description
 text that takes several lines
 about this fantastic animation studio."""
         gainax = self._build_organisation(
-            user=self.user.id, name=name, phone=old_phone,
-            description=description, sector=sector01.id,
+            user=user.id, name=name, phone=old_phone,
+            description=old_description,
+            sector=sector01.id,
             subject_to_vat=False, legal_form=lform.id,
         )
 
@@ -213,14 +217,17 @@ about this fantastic animation studio."""
 
         phone = old_phone + '07'
         email = 'contact@gainax.jp'
-        description += 'In this studio were created lots of excellent animes ' \
-                       'like "Evangelion" or "Fushigi no umi no Nadia".'
+        description = (
+            f'{old_description}\n'
+            f'In this studio were created lots of excellent animes '
+            f'like "Evangelion" or "Fushigi no umi no Nadia".'
+        )
         creation_date = date(year=1984, month=12, day=24)
         response = self.client.post(
             gainax.get_edit_absolute_url(),
             follow=True,
             data={
-                'user':           self.user.id,
+                'user':           user.id,
                 'name':           name,
                 'phone':          phone,
                 'email':          email,
@@ -237,13 +244,14 @@ about this fantastic animation studio."""
         self.assertIsList(modifs, length=7)
         self.assertIn(['phone', old_phone, phone], modifs)
         self.assertIn(['email', email], modifs)
-        self.assertIn(['description'], modifs)
+        # self.assertIn(['description'], modifs)
+        self.assertIn(['description', old_description, description], modifs)
         self.assertIn(['sector', sector01.id, sector02.id], modifs)
         self.assertIn(['creation_date', '1984-12-24'], modifs)
         self.assertIn(['subject_to_vat', True], modifs, modifs)
         self.assertIn(['legal_form', lform.id, None], modifs, modifs)
 
-        vmodifs = hline.get_verbose_modifications(self.user)
+        vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(7, len(vmodifs))
 
         self.assertIn(
@@ -256,7 +264,13 @@ about this fantastic animation studio."""
             self.FMT_2_VALUES(field=_('Email address'), value=email),
             vmodifs,
         )
-        self.assertIn(self.FMT_1_VALUE(field=_('Description')), vmodifs)
+        # self.assertIn(self.FMT_1_VALUE(field=_('Description')), vmodifs)
+        self.assertIn(
+            self.FMT_3_VALUES(
+                field=_('Description'), oldvalue=old_description, value=description,
+            ),
+            vmodifs,
+        )
         self.assertIn(
             self.FMT_3_VALUES(
                 field=_('Sector'), oldvalue=sector01, value=sector02,
@@ -279,8 +293,8 @@ about this fantastic animation studio."""
             vmodifs,
         )
 
-    def test_edition03(self):
-        "No change"
+    def test_edition_no_change(self):
+        "No change."
         name = 'gainax'
         capital = 12000
         gainax = self._build_organisation(user=self.user.id, name=name, capital=capital)
@@ -298,7 +312,7 @@ about this fantastic animation studio."""
         self.assertNoFormError(response)
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-    def test_edition04(self):
+    def test_edition_ignored_changed(self):
         "Ignore the changes : None -> ''."
         name = 'gainax'
         old_capital = 12000
@@ -320,9 +334,9 @@ about this fantastic animation studio."""
         hline = HistoryLine.objects.order_by('-id')[0]
         self.assertEqual(gainax.id,    hline.entity.id)
         self.assertEqual(TYPE_EDITION, hline.type)
-        self.assertEqual([['capital', old_capital, capital]], hline.modifications)
+        self.assertListEqual([['capital', old_capital, capital]], hline.modifications)
 
-    def test_edition05(self):
+    def test_edition_type(self):
         "Type coercion."
         capital = 12000
         gainax = FakeOrganisation.objects.create(user=self.user, name='Gainax', capital=capital)
@@ -337,7 +351,7 @@ about this fantastic animation studio."""
 
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-    def test_edition06(self):
+    def test_edition_fk(self):
         "FK to CremeEntity."
         user = self.user
         hayao = self._build_contact(user=user.id, first_name='Hayao', last_name='Miyazaki')
@@ -357,7 +371,7 @@ about this fantastic animation studio."""
             vmodifs[0],
         )
 
-    def test_edition07(self):
+    def test_edition_none(self):
         "New value is None: verbose prints ''."
         old_capital = 1000
         old_date = date(year=1928, month=5, day=3)
@@ -384,7 +398,7 @@ about this fantastic animation studio."""
                 ['capital',        old_capital, None],
                 ['creation_date', '1928-05-03', None],
             ],
-            hline.modifications
+            hline.modifications,
         )
 
         vmodifs = hline.get_verbose_modifications(self.user)
@@ -408,7 +422,7 @@ about this fantastic animation studio."""
             vmodifs[1],
         )
 
-    def test_edition08(self):
+    def test_edition_datetime_field(self):
         "DateTimeField."
         create_dt = self.create_datetime
         old_start = create_dt(year=2016, month=11, day=22, hour=16, minute=10)
@@ -464,7 +478,7 @@ about this fantastic animation studio."""
             hlines[-1].get_verbose_modifications(self.user)[0],
         )
 
-    def test_edition09(self):
+    def test_edition_other_fields(self):
         "Other fields: TimeField, SlugField, FloatField, NullBooleanField."
         # TODO: use true fields in a fake model
 
@@ -556,7 +570,7 @@ about this fantastic animation studio."""
         self.assertListEqual([True],       hline.modifications)
         self.assertBetweenDates(hline)
         self.assertListEqual(
-            [_('Sent to the trash')], hline.get_verbose_modifications(user)
+            [_('Sent to the trash')], hline.get_verbose_modifications(user),
         )
 
     def test_restoration(self):
@@ -574,7 +588,7 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_TRASH, hline.type)
         self.assertListEqual([False], hline.modifications)
         self.assertListEqual(
-            [_('Restored')], hline.get_verbose_modifications(user)
+            [_('Restored')], hline.get_verbose_modifications(user),
         )
 
     def test_related_edition01(self):
@@ -664,8 +678,8 @@ about this fantastic animation studio."""
         self.assertEqual(user,               hline.entity_owner)
         self.assertEqual(TYPE_RELATED,       hline.type)
         self.assertEqual(str(ghibli),        hline.entity_repr)
-        self.assertEqual([],                 hline.modifications)
         self.assertEqual(edition_hline.id,   hline.related_line.id)
+        self.assertListEqual([], hline.modifications)
         self.assertBetweenDates(hline)
         self.assertEqual(self.refresh(hayao).modified, hline.date)
 
@@ -688,8 +702,8 @@ about this fantastic animation studio."""
         self.assertEqual(gainax.id,     hline.entity.id)
         self.assertEqual(str(gainax),   hline.entity_repr)
         self.assertEqual(TYPE_PROP_ADD, hline.type)
-        self.assertEqual([ptype.id],    hline.modifications)
-        self.assertEqual(False,         hline.line_type.is_about_relation)
+        self.assertListEqual([ptype.id], hline.modifications)
+        self.assertIs(hline.line_type.is_about_relation, False)
         self.assertGreater(hline.date, gainax.modified)
 
         msg = _('Add property “{}”').format
@@ -721,8 +735,8 @@ about this fantastic animation studio."""
         self.assertEqual(gainax.id,       hline.entity.id)
         self.assertEqual(str(gainax), hline.entity_repr)
         self.assertEqual(TYPE_PROP_DEL,   hline.type)
-        self.assertEqual([ptype.id],      hline.modifications)
-        self.assertEqual(False,           hline.line_type.is_about_relation)
+        self.assertListEqual([ptype.id],      hline.modifications)
+        self.assertIs(hline.line_type.is_about_relation, False)
         self.assertGreater(hline.date, gainax.modified)
 
         ptype.text = ptype.text.title()
@@ -756,34 +770,35 @@ about this fantastic animation studio."""
         self.assertEqual(rei.id,            hline.entity.id)
         self.assertEqual(str(rei),          hline.entity_repr)
         self.assertEqual(TYPE_RELATION,     hline.type)
-        self.assertEqual([rtype.id],        hline.modifications)
         self.assertEqual(relation.created,  hline.date)
-        self.assertEqual(True,              hline.line_type.is_about_relation)
+        self.assertListEqual([rtype.id], hline.modifications)
+        self.assertIs(hline.line_type.is_about_relation, True)
 
         hline_sym = hlines[-1]
         self.assertEqual(nerv.id,           hline_sym.entity.id)
         self.assertEqual(str(nerv),         hline_sym.entity_repr)
         self.assertEqual(TYPE_SYM_RELATION, hline_sym.type)
-        self.assertEqual([srtype.id],       hline_sym.modifications)
         self.assertEqual(relation.created,  hline_sym.date)
-        self.assertIs(True,                 hline.line_type.is_about_relation)
+        self.assertListEqual([srtype.id], hline_sym.modifications)
+        self.assertIs(hline.line_type.is_about_relation, True)
 
         self.assertEqual(hline_sym.id, hline.related_line.id)
         self.assertEqual(hline.id,     hline_sym.related_line.id)
 
         msg = _('Add a relationship “{}”').format
-        self.assertEqual([msg(rtype.predicate)],  hline.get_verbose_modifications(user))
-        self.assertEqual([msg(srtype.predicate)], hline_sym.get_verbose_modifications(user))
+        self.assertListEqual([msg(rtype.predicate)],  hline.get_verbose_modifications(user))
+        self.assertListEqual([msg(srtype.predicate)], hline_sym.get_verbose_modifications(user))
 
         rtype_id = rtype.id
-        relation.delete(); rtype.delete()
+        relation.delete()
+        rtype.delete()
         self.assertDoesNotExist(rtype)
         self.assertListEqual(
             [msg(rtype_id)], self.refresh(hline).get_verbose_modifications(user),
         )
 
     def test_add_relation02(self):
-        "Create the relation using the 'object' relation type"
+        "Create the relation using the 'object' relation type."
         user = self.user
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei  = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
@@ -837,16 +852,16 @@ about this fantastic animation studio."""
         self.assertEqual(rei,               hline.entity.get_real_entity())
         self.assertEqual(str(rei),          hline.entity_repr)
         self.assertEqual(TYPE_RELATION_DEL, hline.type)
-        self.assertEqual([rtype.id],        hline.modifications)
-        self.assertEqual(True,              hline.line_type.is_about_relation)
+        self.assertListEqual([rtype.id], hline.modifications)
+        self.assertIs(hline.line_type.is_about_relation, True)
         self.assertDatetimesAlmostEqual(now(), hline.date)
 
         hline_sym = hlines[-1]
         self.assertEqual(nerv,             hline_sym.entity.get_real_entity())
         self.assertEqual(str(nerv),        hline_sym.entity_repr)
         self.assertEqual(TYPE_SYM_REL_DEL, hline_sym.type)
-        self.assertEqual([srtype.id],      hline_sym.modifications)
-        self.assertEqual(True,             hline_sym.line_type.is_about_relation)
+        self.assertListEqual([srtype.id], hline_sym.modifications)
+        self.assertIs(hline_sym.line_type.is_about_relation, True)
 
         rtype.predicate = rtype.predicate.title()
         rtype.save()
@@ -911,7 +926,7 @@ about this fantastic animation studio."""
         self.assertEqual(self.other_user,    hline.entity_owner)
         self.assertEqual(TYPE_AUX_EDITION,   hline.type)
         self.assertBetweenDates(hline)
-        self.assertEqual(
+        self.assertListEqual(
             [
                 [
                     ContentType.objects.get_for_model(address).id,
@@ -973,7 +988,7 @@ about this fantastic animation studio."""
         self.assertEqual(old_count + 1, len(hlines))
 
         hline = hlines[-1]
-        self.assertEqual(TYPE_AUX_EDITION,   hline.type)
+        self.assertEqual(TYPE_AUX_EDITION, hline.type)
 
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(3, len(vmodifs))
@@ -1029,8 +1044,11 @@ about this fantastic animation studio."""
 
     def test_multi_save02(self):
         "Beware internal backup must be recreated after the save()."
-        old_last_name  = 'Ayami'; new_last_name  = 'Ayanami'
-        old_first_name = 'Rey';   new_first_name = 'Rei'
+        old_last_name = 'Ayami'
+        new_last_name = 'Ayanami'
+
+        old_first_name = 'Rey'
+        new_first_name = 'Rei'
 
         rei = FakeContact.objects.create(
             user=self.user, first_name=old_first_name, last_name=old_last_name,
@@ -1087,7 +1105,7 @@ about this fantastic animation studio."""
                     field=_('Name'), oldvalue='Nerv', value='NERV',
                 ),
             ],
-            hline.get_verbose_modifications(user)
+            hline.get_verbose_modifications(user),
         )
 
         fname = 'invalid'
@@ -1098,7 +1116,7 @@ about this fantastic animation studio."""
         with self.assertNoException():
             vmodifs = hline.get_verbose_modifications(user)
 
-        self.assertEqual([self.FMT_1_VALUE(field=fname)], vmodifs)
+        self.assertListEqual([self.FMT_1_VALUE(field=fname)], vmodifs)
 
     def test_disable01(self):
         "CremeEntity creation, edition & deletion."
@@ -1125,7 +1143,7 @@ about this fantastic animation studio."""
         self.assertEqual(old_count, HistoryLine.objects.count())
 
     def test_disable02(self):
-        "Relationship creation & deletion"
+        "Relationship creation & deletion."
         user = self.user
         hayao = FakeContact.objects.create(
             user=user, first_name='Hayao', last_name='Miyazaki',
