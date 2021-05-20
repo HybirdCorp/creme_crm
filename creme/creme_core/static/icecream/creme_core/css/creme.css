@@ -38,9 +38,11 @@ html {
     color: black;
 
     /* bg gradient where possible */
-    background:                     #fcfcfc;
-    background:     -webkit-gradient(linear, 0% 0%, 0% 15%, from(#fff), to(#fcfcfc));
-    background: -moz-linear-gradient(top, #fff 0%, #fcfcfc 15%);
+    background: #fcfcfc;
+    background: -webkit-linear-gradient(top, #fff 0%, #fcfcfc 15%);
+    background:    -moz-linear-gradient(top, #fff 0%, #fcfcfc 15%);
+    background:         linear-gradient(to bottom, #fff 0%, #fcfcfc 15%);
+
     background-repeat: repeat-x;
 }
 
@@ -57,8 +59,10 @@ html.is_deleted {
 
 body.is_deleted {
     background:                     #eee;
-    background:     -webkit-gradient(linear, 0% 0%, 0% 15%, from(#eee), to(#fcfcfc));
-    background: -moz-linear-gradient(top, #eee 0%, #fcfcfc 15%);
+/*    background:     -webkit-gradient(linear, 0% 0%, 0% 15%, from(#eee), to(#fcfcfc)); */
+    background: -webkit-linear-gradient(top, #eee 0%, #fcfcfc 15%);
+    background:     -moz-linear-gradient(top, #eee 0%, #fcfcfc 15%);
+    background:          linear-gradient(to bottom, #eee 0%, #fcfcfc 15%);
 }
 
 /* Base [END] */
