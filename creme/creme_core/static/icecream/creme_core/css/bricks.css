@@ -228,12 +228,14 @@ Those templates need to be cleaned up
 
 .brick .brick-header-button:before {
     content: "";
+
     position: absolute;
     bottom: 0px;
     left: 0px;
-
     top: -1px;
+
     width: 1px;
+
     background: -webkit-linear-gradient(transparent, #aaa);
     background:    -moz-linear-gradient(transparent, #aaa);
     background:      -o-linear-gradient(transparent, #aaa);
