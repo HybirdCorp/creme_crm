@@ -1,0 +1,5 @@
+{% extends 'creme_core/history/html/base.html' %}
+{% load i18n %}
+{% block content %}
+{% if hline.modifications.0 %}{% translate 'Sent to the trash' %}{% else %}{% translate 'Restored' %}{% endif %}
+{% endblock %}

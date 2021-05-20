@@ -12,6 +12,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.formats import date_format
+from django.utils.html import format_html
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -25,6 +26,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
 from creme.creme_core.core.entity_filter.operators import ISTARTSWITH
+from creme.creme_core.gui.history import html_history_registry
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -277,6 +279,20 @@ class MassExportViewsTestCase(ViewsTestCase):
             ],
             hline.get_verbose_modifications(user),
         )
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-mass_export">{}<div>',
+                _('Export of «%(counted_instances)s» (view «%(view)s» & filter «%(filter)s»)') % {
+                    'counted_instances': _('{count} {model}').format(
+                        count=count,
+                        model='Test Contacts',
+                    ),
+                    'view': hf.name,
+                    'filter': pgettext('creme_core-filter', 'All'),
+                },
+            ),
+            html_history_registry.line_explainers([hline], user)[0].render(),
+        )
 
     def test_list_view_export02(self):
         "scsv."
@@ -520,6 +536,20 @@ class MassExportViewsTestCase(ViewsTestCase):
             ],
             hline.get_verbose_modifications(user),
         )
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-mass_export">{}<div>',
+                _('Export of «%(counted_instances)s» (view «%(view)s» & filter «%(filter)s»)') % {
+                    'counted_instances': _('{count} {model}').format(
+                        count=1,
+                        model='Test Contact',
+                    ),
+                    'view': hf.name,
+                    'filter': efilter.name,
+                },
+            ),
+            html_history_registry.line_explainers([hline], user)[0].render(),
+        )
 
     def test_xls_export01(self):
         user = self.login()
@@ -565,7 +595,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'xls'), dirname(fullpath))
 
     def test_xls_export02(self):
-        "Other CT, other type of fields"
+        "Other CT, other type of fields."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -598,17 +628,17 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         it = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
-        self.assertEqual(next(it), [hfi.title for hfi in cells])
-        self.assertEqual(next(it), [orga01.name, _('Yes'), ''])
-        self.assertEqual(
+        self.assertListEqual(next(it), [hfi.title for hfi in cells])
+        self.assertListEqual(next(it), [orga01.name, _('Yes'), ''])
+        self.assertListEqual(
             next(it),
-            [orga02.name, _('No'),  date_format(orga02.creation_date, 'DATE_FORMAT')]
+            [orga02.name, _('No'), date_format(orga02.creation_date, 'DATE_FORMAT')],
         )
         with self.assertRaises(StopIteration):
             next(it)
 
     def test_print_integer01(self):
-        "No choices"
+        "No choices."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -634,7 +664,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertIn('"Redtail",""', lines)
 
     def test_print_integer02(self):
-        "Field with choices"
+        "Field with choices."
         user = self.login()
 
         invoice = FakeInvoice.objects.create(
@@ -725,7 +755,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                 '"123233","Spiegel","Spike"',
             ],
             # NB: slice to remove the header
-            [force_str(line) for line in response.content.splitlines()[1:]]
+            [force_str(line) for line in response.content.splitlines()[1:]],
         )
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
@@ -760,7 +790,7 @@ class MassExportViewsTestCase(ViewsTestCase):
                 '"123455","Black","Jet"',
             ],
             # NB: slice to remove the header
-            [force_str(line) for line in response.content.splitlines()[1:]]
+            [force_str(line) for line in response.content.splitlines()[1:]],
         )
 
     def test_distinct(self):

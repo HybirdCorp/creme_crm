@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-27 15:29+0200\n"
+"POT-Creation-Date: 2021-06-02 12:56+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1441,6 +1441,61 @@ msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
+#, python-brace-format
+msgid "{field} set"
+msgstr "{field} modifié"
+
+#, python-brace-format
+msgid "{field} set to {value}"
+msgstr "{field} mis à {value}"
+
+#, python-brace-format
+msgid "{field} emptied (it was {oldvalue})"
+msgstr "{field} vidé (c'était {oldvalue})"
+
+#, python-brace-format
+msgid "{field} changed from {oldvalue} to {value}"
+msgstr "{field} passe de {oldvalue} à {value}"
+
+#, python-brace-format
+msgid "“{field}”"
+msgstr "“{field}”"
+
+#, python-brace-format
+msgid "“{value}”"
+msgstr "“{value}”"
+
+msgid "N/A"
+msgstr "NC"
+
+#, python-brace-format
+msgid "{field} emptied {details_link}"
+msgstr "{field} vidé {details_link}"
+
+#, python-brace-format
+msgid "{field} set {details_link}"
+msgstr "{field}» modifié {details_link}"
+
+msgid "(see details)"
+msgstr "(voir détails)"
+
+msgid "Details of modifications"
+msgstr "Détails des modifications"
+
+msgid "Old value"
+msgstr "Vieille valeur"
+
+msgid "New value"
+msgstr "Nouvelle valeur"
+
+#, python-brace-format
+msgid "{pk} (deleted)"
+msgstr "{pk} (supprimé)"
+
+#, python-brace-format
+msgid "“{field}” set"
+msgstr "“{field}” modifié"
+
 msgid "Add an URL entry"
 msgstr "Ajouter une entrée URL"
 
@@ -2143,9 +2198,6 @@ msgstr "Cette vue ne peut être supprimée"
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
-msgid "N/A"
-msgstr "NC"
-
 #, python-brace-format
 msgid "Set field “{field}”"
 msgstr "Champ “{field}” modifié"
@@ -2481,13 +2533,6 @@ msgstr "Modifications"
 
 msgid "By"
 msgstr "Par"
-
-msgid "Edition of :"
-msgstr "Modification de :"
-
-#, python-format
-msgid "Edit \"%(entity)s\""
-msgstr "Modifier \"%(entity)s\""
 
 msgid "No history for the moment"
 msgstr "Aucun historique pour le moment"
@@ -2908,6 +2953,55 @@ msgstr "Chargement…"
 
 msgid "Advanced search"
 msgstr "Recherche avancée"
+
+#, python-format
+msgid "“%(auxiliary_ctype)s“ added: %(auxiliary_value)s"
+msgstr "“%(auxiliary_ctype)s“ ajouté(e) : %(auxiliary_value)s"
+
+#, python-format
+msgid "“%(auxiliary_ctype)s“ deleted: “%(auxiliary_value)s”"
+msgstr "“%(auxiliary_ctype)s“ supprimé(e) : “%(auxiliary_value)s”"
+
+#, python-format
+msgid "“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s"
+msgstr "“%(auxiliary_ctype)s“ modifié(e) : %(auxiliary_value)s"
+
+#, python-format
+msgid ""
+"Export of «%(counted_instances)s» (view «%(view)s» & filter «%(filter)s»)"
+msgstr "Export de «%(counted_instances)s» (vue «%(view)s» & filtre «%(filter)s»)"
+
+#, python-format
+msgid "“%(property_text)s” added"
+msgstr "“%(property_text)s” ajoutée"
+
+#, python-format
+msgid "“%(property_text)s” removed"
+msgstr "“%(property_text)s” enlevée"
+
+#, python-format
+msgid "“%(entity)s“ edited"
+msgstr "“%(entity)s“ modifié(e)"
+
+#, python-format
+msgid "%(entity_link)s edited"
+msgstr "%(entity_link)s modifié(e)"
+
+#, python-format
+msgid "“%(predicate)s” added to “%(entity)s“"
+msgstr "“%(predicate)s” ajouté vers “%(entity)s“"
+
+#, python-format
+msgid "“%(predicate)s” added to %(entity_link)s"
+msgstr "“%(predicate)s” ajouté vers %(entity_link)s"
+
+#, python-format
+msgid "“%(predicate)s” to “%(entity)s“ removed"
+msgstr "“%(predicate)s” vers “%(entity)s“ enlevée"
+
+#, python-format
+msgid "“%(predicate)s” to %(entity_link)s removed"
+msgstr "“%(predicate)s” vers %(entity_link)s enlevée"
 
 msgid "List of jobs"
 msgstr "Liste des jobs"
@@ -3420,6 +3514,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "Edition of :"
+#~ msgstr "Modification de :"
 
 #~ msgid "Your search : "
 #~ msgstr "Votre recherche : "

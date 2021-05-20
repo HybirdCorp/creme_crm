@@ -14,17 +14,17 @@ from creme.creme_core.gui.icons import Icon, IconRegistry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.quick_forms import QuickFormsRegistry
 from creme.creme_core.gui.statistics import _StatisticsRegistry
-from creme.creme_core.models import CremeEntity
-
-from ..base import CremeTestCase, skipIfNotInstalled
-from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
-from ..fake_models import (
+from creme.creme_core.models import (
+    CremeEntity,
     FakeContact,
     FakeEmailCampaign,
     FakeImage,
     FakeInvoice,
     FakeOrganisation,
 )
+
+from ..base import CremeTestCase, skipIfNotInstalled
+from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
 
 
 class GuiTestCase(CremeTestCase):

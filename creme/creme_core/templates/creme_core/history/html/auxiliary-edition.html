@@ -1,0 +1,6 @@
+{% extends 'creme_core/history/html/base.html' %}
+{% load i18n %}
+{% block content %}
+    <span class="history-line-title">{% blocktranslate %}“{{auxiliary_ctype}}“ edited: {{auxiliary_value}}{% endblocktranslate %}</span>
+    <ul>{% for modif in modifications %}<li>{{modif}}</li>{% endfor %}</ul>
+{% endblock %}

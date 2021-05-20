@@ -1,0 +1,12 @@
+{% extends 'creme_core/history/html/base.html' %}
+{% load i18n creme_widgets %}
+{% block content %}
+{% with entity=hline.related_line.entity %}
+    {% if entity is None %}{# TODO: improve credentials here !! #}
+        {% blocktranslate with entity=hline.related_line.entity_repr %}“{{predicate}}” to “{{entity}}“ removed{% endblocktranslate %}
+    {% else %}
+        {% widget_entity_hyperlink entity user as entity_link %}
+        {% blocktranslate %}“{{predicate}}” to {{entity_link}} removed{% endblocktranslate %}
+    {% endif %}
+{% endwith %}
+{% endblock %}
