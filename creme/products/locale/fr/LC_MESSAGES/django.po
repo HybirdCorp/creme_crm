@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-28 16:32+0100\n"
+"POT-Creation-Date: 2021-05-27 16:04+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -93,7 +93,7 @@ msgstr "La sous-catégorie «{}» n'existe pas."
 #, python-brace-format
 msgid "The category «{cat}» and the sub-category «{sub_cat}» are not matching."
 msgstr ""
-"La catégorie «{cat}» et la ssous-catégorie «{sub_cat}» ne correspondent pas."
+"La catégorie «{cat}» et la sous-catégorie «{sub_cat}» ne correspondent pas."
 
 #: forms/mass_import.py:236
 msgid "Select a valid sub-category."
