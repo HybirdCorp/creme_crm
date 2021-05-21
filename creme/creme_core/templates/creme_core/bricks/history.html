@@ -61,7 +61,7 @@
                         {% if related_entity %}
                             {% translate "Edition of :" %}&nbsp;{% widget_entity_hyperlink related_entity user %}
                         {% else %}
-                            {% blocktranslate with related_line.entity_repr as entity %}Edit "{{entity}}"{% endblocktranslate %}{# TODO: improve credentials here !! #}
+                            {% blocktranslate with entity=related_line.entity_repr %}Edit "{{entity}}"{% endblocktranslate %}{# TODO: improve credentials here !! #}
                         {% endif %}
                         <br/>
                         {% for modif in related_line|history_modifications:user %} - {{modif}}<br/>{% endfor %}
