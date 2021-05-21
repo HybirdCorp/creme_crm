@@ -319,7 +319,7 @@ msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
 msgstr ""
-"Si vous choisisser un Champ date et sélectionnez «Personnalisé» vous devez "
+"Si vous choisissez un Champ date et sélectionnez «Personnalisé» vous devez "
 "spécifier une date de début et/ou une date de fin."
 
 msgctxt "reports-date_filter"
