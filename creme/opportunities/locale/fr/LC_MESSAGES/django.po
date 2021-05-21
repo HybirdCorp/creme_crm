@@ -113,7 +113,7 @@ msgid ""
 "is pre-selected to be the target of the created opportunity.\n"
 "App: Opportunities"
 msgstr ""
-"Ce bouton affiche le formulaire de crétaion des opportunités. La fiche "
+"Ce bouton affiche le formulaire de création des opportunités. La fiche "
 "courante est pré-sélectionnée pour être la cible de l'opportunité créé.\n"
 "App: Opportunités"
 

@@ -60,14 +60,14 @@ if enchant_loaded:
             return False
 
     class HTMLFilter(Filter):
-        exclude = {"&nbsp", "&ndash"}
+        exclude = {"&nbsp", "&ndash", "&nbsp;", "&ndash;"}
 
         def _skip(self, word):
             if word in self.exclude:
                 return True
             return False
 
-    enchant_filters = [PythonFormatFilter, HTMLFilter]
+    enchant_filters = [HTMLFilter, PythonFormatFilter]
     enchant_chunkers = [HTMLChunker]
 
 
@@ -110,17 +110,20 @@ class Command(BaseCommand):
             target_language_checker = None
 
         for entry in pofile:
-            if entry.msgid:
-                source_language_checker.set_text(entry.msgid)
-                for err in source_language_checker:
-                    success_status = False
-                    self.stderr.write(f"{rel}:{entry.linenum} {self.source_language} {err.word}")
+            if entry.obsolete:
+                continue
 
-            if entry.msgid_plural:
-                source_language_checker.set_text(entry.msgid_plural)
-                for err in source_language_checker:
-                    success_status = False
-                    self.stderr.write(f"{rel}:{entry.linenum} {self.source_language} {err.word}")
+            # if entry.msgid:
+            #     source_language_checker.set_text(entry.msgid)
+            #     for err in source_language_checker:
+            #         success_status = False
+            #         self.stderr.write(f"{rel}:{entry.linenum} {self.source_language} {err.word}")
+            #
+            # if entry.msgid_plural:
+            #     source_language_checker.set_text(entry.msgid_plural)
+            #     for err in source_language_checker:
+            #         success_status = False
+            #         self.stderr.write(f"{rel}:{entry.linenum} {self.source_language} {err.word}")
 
             if target_language_checker is not None:
                 if entry.msgstr:

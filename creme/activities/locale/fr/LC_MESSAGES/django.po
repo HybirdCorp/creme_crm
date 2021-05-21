@@ -89,7 +89,7 @@ msgstr ""
 "sujet» or «relié à l'activité» (si la fiche courante est une Société, les "
 "activités reliées aux responsables & salariés sont affichées aussi)\n"
 "- se sont terminé\n"
-"Astuce : c'est un bloc complementaire du bloc «Activités futures»."
+"Astuce : c'est un bloc complémentaire du bloc «Activités futures»."
 
 msgid "On my calendars"
 msgstr "Sur mes calendriers"
@@ -1113,7 +1113,7 @@ msgstr "Changer le calendrier de «{object}»"
 #~ msgid "Tuesday"
 #~ msgstr "Mardi"
 
-#~ msgid "Wesnesday"
+#~ msgid "Wednesday"
 #~ msgstr "Mercredi"
 
 #~ msgid "Thursday"
