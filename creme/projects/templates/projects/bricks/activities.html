@@ -60,14 +60,14 @@
     {% endfor %}
     {% if not object.is_alive %}
     <tr class="task-activities-subtitle">
-        <td colspan="6">{% blocktranslate with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktranslate %}</td>
+        <td colspan="6">{% blocktranslate with status=object.tstatus.name %}You can't add a working period because this task is {{status}}{% endblocktranslate %}</td>
     </tr>
     {% endif %}
 {% endblock %}
 
 {% block brick_table_empty %}
     {% if not object.is_alive %}
-        {% blocktranslate with object.tstatus.name as status %}You can't add a working period because this task is {{status}}{% endblocktranslate %}
+        {% blocktranslate with status=object.tstatus.name %}You can't add a working period because this task is {{status}}{% endblocktranslate %}
     {% else %}
         {% translate 'No related activity for this task' %}
     {% endif %}
