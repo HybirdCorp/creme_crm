@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-12 10:00+0100\n"
+"POT-Creation-Date: 2021-05-27 16:04+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -190,7 +190,7 @@ msgid ""
 "App: Billing"
 msgstr ""
 "Ce bouton affiche le formulaire de création des factures. La fiche courante "
-"estpré-sélectionnée pour être la cible de la facture créée.App: Facturation"
+"est pré-sélectionnée pour être la cible de la facture créée.App: Facturation"
 
 #: buttons.py:104
 msgid "Create a related salesorder"
@@ -203,7 +203,7 @@ msgid ""
 "App: Billing"
 msgstr ""
 "Ce bouton affiche le formulaire de création des bons de commande. La fiche "
-"courante estpré-sélectionnée pour être la cible du bon créé.App: Facturation"
+"courante est pré-sélectionnée pour être la cible du bon créé.App: Facturation"
 
 #: buttons.py:117
 msgid "Create a related quote"
@@ -216,7 +216,7 @@ msgid ""
 "App: Billing"
 msgstr ""
 "Ce bouton affiche le formulaire de création des devis. La fiche courante "
-"estpré-sélectionnée pour être la cible du devis créé.App: Facturation"
+"est pré-sélectionnée pour être la cible du devis créé.App: Facturation"
 
 #: buttons.py:152
 msgid "Convert to Invoice"
@@ -422,7 +422,7 @@ msgstr "Choix du ou des produits"
 #: forms/line.py:93
 msgid "Optional global information applied to your selected products"
 msgstr ""
-"Informations complémentaires appliquables à votre sélection de produits"
+"Informations complémentaires applicables à votre sélection de produits"
 
 #: forms/line.py:103 templates/billing/bricks/service-lines.html:7
 msgid "Services"
@@ -435,7 +435,7 @@ msgstr "Choix du ou des services"
 #: forms/line.py:109
 msgid "Optional global information applied to your selected services"
 msgstr ""
-"Informations complémentaires appliquables à votre sélection de services"
+"Informations complémentaires applicables à votre sélection de services"
 
 #: forms/line.py:209
 msgid "Sub-category"

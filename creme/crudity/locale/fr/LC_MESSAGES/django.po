@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Crudity 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-18 17:04+0100\n"
+"POT-Creation-Date: 2021-05-27 16:04+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -238,7 +238,7 @@ msgid "No waiting action for «%(ctype)s» from «%(backend)s»"
 msgstr "Aucune action en attente pour «%(ctype)s» venant de «%(backend)s»"
 
 #: templates/crudity/history.html:10
-msgid "History of automatised creations"
+msgid "History of automated creations"
 msgstr "Historique des créations automatisées"
 
 #: templates/crudity/infopath/create_template/frags/validation/email_field.xml:3
