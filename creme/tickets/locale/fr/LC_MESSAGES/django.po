@@ -131,8 +131,8 @@ msgid ""
 "If you set as closed, existing tickets which use this status will not be "
 "updated automatically (ie: closing dates will not be set)."
 msgstr ""
-"Si vous marquez comme fermé, les tickets existants qui utilisent ce status "
-"ne seront pasautomatiquement mis à jour (c-à-d: les date de clôture ne "
+"Si vous marquez comme fermé, les tickets existants qui utilisent ce statut "
+"ne seront pas automatiquement mis à jour (c-à-d: les date de clôture ne "
 "seront pas renseignées)."
 
 #: models/status.py:64
