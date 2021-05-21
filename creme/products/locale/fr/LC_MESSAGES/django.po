@@ -72,7 +72,7 @@ msgstr "La sous-catégorie «{}» n'existe pas."
 #, python-brace-format
 msgid "The category «{cat}» and the sub-category «{sub_cat}» are not matching."
 msgstr ""
-"La catégorie «{cat}» et la ssous-catégorie «{sub_cat}» ne correspondent pas."
+"La catégorie «{cat}» et la sous-catégorie «{sub_cat}» ne correspondent pas."
 
 msgid "Select a valid sub-category."
 msgstr "Sélectionnez une sous-catégorie valide."

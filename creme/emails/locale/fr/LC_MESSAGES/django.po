@@ -946,7 +946,7 @@ msgid "Refresh"
 msgstr "Rafraîchir"
 
 msgid ""
-"The synchronisation of external emails is not configured ; contact your "
+"The synchronization of external emails is not configured ; contact your "
 "administrator if you want this feature to be enabled."
 msgstr ""
 "La configuration des e-mails externes n'est pas configurée ; contactez votre "

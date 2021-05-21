@@ -76,7 +76,7 @@ msgstr "Lundi"
 msgid "Tuesday"
 msgstr "Mardi"
 
-msgid "Wesnesday"
+msgid "Wednesday"
 msgstr "Mercredi"
 
 msgid "Thursday"

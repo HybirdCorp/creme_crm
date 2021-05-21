@@ -185,7 +185,7 @@ msgstr "Sélectionner cette ligne"
 msgid "No waiting action for «%(ctype)s» from «%(backend)s»"
 msgstr "Aucune action en attente pour «%(ctype)s» venant de «%(backend)s»"
 
-msgid "History of automatised creations"
+msgid "History of automated creations"
 msgstr "Historique des créations automatisées"
 
 msgid "Invalid email"

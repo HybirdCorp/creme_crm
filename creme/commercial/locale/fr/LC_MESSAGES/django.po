@@ -76,7 +76,7 @@ msgid ""
 "using the relationship type «completes a goal of the commercial action».\n"
 "App: Commercial"
 msgstr ""
-"Ce bouton relie la fiche courante avec une action ommerciale sélectionnée, "
+"Ce bouton relie la fiche courante avec une action commerciale sélectionnée, "
 "en utilisant le type de relation «remplit un but de l'action commerciale».\n"
 "App: Commercial"
 

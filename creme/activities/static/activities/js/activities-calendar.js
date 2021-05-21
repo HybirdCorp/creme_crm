@@ -101,7 +101,7 @@ var FULLCALENDAR_SETTINGS = {
         gettext("Sunday"),
         gettext("Monday"),
         gettext("Tuesday"),
-        gettext("Wesnesday"),
+        gettext("Wednesday"),
         gettext("Thursday"),
         gettext("Friday"),
         gettext("Saturday")
