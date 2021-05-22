@@ -21,7 +21,7 @@
 
 creme.BricksConfigEditor = creme.component.Component.sub({
     _init_: function(element, options) {
-        this.options = options || {};
+        options = this.options = options || {};
         this.element = element;
         this.groups = {
             available: element.find('.widget-choices.widget-available-choices'),
@@ -33,7 +33,7 @@ creme.BricksConfigEditor = creme.component.Component.sub({
 
         if (options.choices) {
             this._populateChoices(JSON.parse(
-                options.choices.text() || '[]'
+                $(options.choices).text() || '[]'
             ));
         }
 
@@ -43,18 +43,23 @@ creme.BricksConfigEditor = creme.component.Component.sub({
             onSort: this._onSort.bind(this)
         });
     },
+
     _onSort: function (event) {
         if (this.options.targetInput) {
             this.options.targetInput.val(this._serializeWidget());
         }
     },
+
     _buildButtonChoice: function (choice) {
         return $((
             '<div class="widget-choice" data-choice-id="${value}" title="${description}">' +
                 '${name}' +
             '</div>'
-        ).template(choice));
+        ).template($.extend({
+            description: ''
+        }, choice)));
     },
+
     _populateChoices: function(choices) {
         choices.forEach(
             function (choice) {
@@ -63,6 +68,7 @@ creme.BricksConfigEditor = creme.component.Component.sub({
             }.bind(this)
         );
     },
+
     _serializeWidget: function () {
         return JSON.stringify({
             top: this.widgets.top.toArray(),
@@ -71,6 +77,7 @@ creme.BricksConfigEditor = creme.component.Component.sub({
             bottom: this.widgets.bottom.toArray()
         });
     },
+
     _initializeWidget: function (options) {
         this.widgets = {
             available: new Sortable(this.groups.available[0], $.extend({sort: false}, options)),
