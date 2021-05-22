@@ -43,14 +43,6 @@ QUnit.test('creme.ButtonMenuEditor (empty)', function(assert) {
 
 QUnit.test('creme.ButtonMenuEditor (invalid data)', function(assert) {
     var element = $(this.createButtonEditorHtml()).appendTo(this.qunitFixture());
-    var controller = new creme.ButtonMenuEditor(element); /* eslint-disable-line */
-
-    equal(element.find('.widget-available .widget-container .menu_button').length, 0);
-    equal(element.find('.widget-selected .widget-container .menu_button').length, 0);
-});
-
-QUnit.test('creme.ButtonMenuEditor (default)', function(assert) {
-    var element = $(this.createButtonEditorHtml()).appendTo(this.qunitFixture());
     this.qunitFixture().append($('<script type="application/json" id="buttons-widget-choices">invalid !</script>'));
 
     this.assertRaises(function() {
