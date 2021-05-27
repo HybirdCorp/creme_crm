@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-10 10:24+0100\n"
+"POT-Creation-Date: 2021-05-27 15:29+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,9 +20,6 @@ msgstr "Comptes et Contacts"
 
 msgid "Directory"
 msgstr "Annuaire"
-
-msgid "My customers / prospects / suspects"
-msgstr "Mes clients / prospects / suspects"
 
 msgid "Customers"
 msgstr "Clients"
@@ -165,10 +162,10 @@ msgid ""
 "employees block too).\n"
 "App: Accounts and Contacts"
 msgstr ""
-"Ce bouton affiche le formulaire de création des contacts. La société courante "
-"est pré-sélectionnée pour être liée au contact créé.\n"
-"C'est utile pour créer des salariés par exemple (cela peut aussi être fait depuis le "
-"bloc des salariés)\n"
+"Ce bouton affiche le formulaire de création des contacts. La société "
+"courante est pré-sélectionnée pour être liée au contact créé.\n"
+"C'est utile pour créer des salariés par exemple (cela peut aussi être fait "
+"depuis le bloc des salariés)\n"
 "App: Comptes et Contacts"
 
 msgid "Creation form for contact"
@@ -221,6 +218,12 @@ msgstr "Vous n'êtes pas autorisé à lier avec une Société"
 
 msgid "Enter the name of an existing Organisation."
 msgstr "Entrez le nom d'une société existante"
+
+msgid "*User's contact*"
+msgstr "*Contact de l'utilisateur*"
+
+msgid "My customers / prospects / suspects"
+msgstr "Mes clients / prospects / suspects"
 
 msgid "Name"
 msgstr "Nom"
@@ -542,6 +545,9 @@ msgstr ""
 
 msgid "Contact details"
 msgstr "Coordonnées du contact"
+
+msgid "+ Creation"
+msgstr ""
 
 msgid "Madam"
 msgstr "Madame"
@@ -939,9 +945,6 @@ msgstr "Vous devez avoir au moins une société gérée."
 
 #~ msgid "Image"
 #~ msgstr "Image"
-
-#~ msgid "Creation date"
-#~ msgstr "Date de création"
 
 #~ msgid "Add a contact"
 #~ msgstr "Ajouter un contact"
