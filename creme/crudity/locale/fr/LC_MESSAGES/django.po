@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Crudity 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-10 10:24+0100\n"
+"POT-Creation-Date: 2021-05-27 15:29+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -22,12 +22,6 @@ msgstr "Gestion des données externes"
 msgid "External data"
 msgstr "Données externes"
 
-msgid "Waiting actions"
-msgstr "Actions en attente"
-
-msgid "History"
-msgstr "Historique"
-
 msgid "Imported from external data."
 msgstr "Importé depuis des données externes."
 
@@ -37,6 +31,12 @@ msgstr "Création de {entity}"
 
 msgid "Error: you are not allowed to view this block: {}"
 msgstr "Erreur: vous n'êtes pas autorisé à voir ce bloc : {}"
+
+msgid "Waiting actions"
+msgstr "Actions en attente"
+
+msgid "History"
+msgstr "Historique"
 
 msgid "Create"
 msgstr "Créer"
@@ -109,6 +109,9 @@ msgstr "Date de création"
 
 msgid "Description"
 msgstr "Description"
+
+msgid "Tools"
+msgstr ""
 
 msgid "Are waiting actions are by user?"
 msgstr "Est-ce que les actions en attente sont par utilisateur ?"

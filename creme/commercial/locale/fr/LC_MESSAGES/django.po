@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-10 10:24+0100\n"
+"POT-Creation-Date: 2021-05-27 15:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -19,17 +19,14 @@ msgstr ""
 msgid "Commercial strategy"
 msgstr "Plan commercial"
 
-msgid "Salesmen"
-msgstr "Commerciaux"
-
-msgid "Commercial"
-msgstr "Commercial"
-
 # Already translated in 'persons'
 msgid "Directory"
 msgstr ""
 
 msgid "Salesman"
+msgstr "Commercial"
+
+msgid "Commercial"
 msgstr "Commercial"
 
 msgid "Commercial approaches"
@@ -204,6 +201,9 @@ msgstr "Sociétés"
 
 msgid "Create a salesman"
 msgstr "Créer un commercial"
+
+msgid "Salesmen"
+msgstr "Commerciaux"
 
 msgid "Title"
 msgstr "Titre"
@@ -415,6 +415,9 @@ msgstr ""
 
 # Already in creme_core
 msgid "Relationships"
+msgstr ""
+
+msgid "+ Creation"
 msgstr ""
 
 msgid ""
