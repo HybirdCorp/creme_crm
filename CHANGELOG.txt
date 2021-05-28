@@ -1,10 +1,11 @@
-== Version 2.2.3 Work in progress (not released -- this is a draft) ==
+== Version 2.2.3 ==
 
   UPGRADE NOTE :
-    - You should upgrade the minor version of Django 2.2 (2.2.22 or more).
+    - You should upgrade the minor version of Django 2.2 (2.2.23 or more).
 
   Users side :
   ------------
+    # Several typo were fixed.
     # 'git' now ignores some setup directories which were annoying on Windows installations.
     # Apps :
         * Creme_config :
