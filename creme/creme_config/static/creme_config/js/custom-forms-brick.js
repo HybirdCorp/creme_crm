@@ -24,83 +24,87 @@ creme.creme_config = creme.creme_config || {};
 // TODO: unit test
 creme.creme_config.FormGroupsController = creme.component.Component.sub({
     _init_: function(options) {
-        this._options = options || {};
+        options = options || {};
 
-        if (!this._options.expandUrl) {
-            throw new Error('FormGroupsController: expandUrl is not set');
+        Assert.not(Object.isEmpty(options.expandUrl), 'FormGroupsController expandUrl is not set');
+
+        this.expandUrl(options.expandUrl);
+    },
+
+    expandUrl: function(url) {
+        return Object.property(this, '_expandUrl', url);
+    },
+
+    _saveState: function(state) {
+        // Save state
+        var query = new creme.ajax.Query();
+        query.url(this.expandUrl())
+             .post(state);
+    },
+
+    _toggleItem: function(item, state) {
+        if (state === undefined) {
+            state = !item.is('.customform-config-collapsed');
+        }
+
+        // collapse all other items
+        this.items().addClass('customform-config-collapsed');
+
+        // toggle item state
+        item.toggleClass('customform-config-collapsed', !state);
+
+        // scroll to item if opened
+        if (state) {
+            creme.utils.scrollTo(item, 200);
         }
     },
 
+    items: function() {
+        Assert.that(this.isBound(), 'FormGroupsController is not bound');
+        return this._brick.element().find('.customform-config-item');
+    },
+
+    item: function(id) {
+        Assert.that(this.isBound(), 'FormGroupsController is not bound');
+        return this._brick.element()
+                          .find('.customform-config-show-details[data-ct-id="${id}"]:first'.template({id: id}))
+                          .parents('.customform-config-item:first');
+    },
+
     bind: function(brick) {
-        if (this.isBound()) {
-            throw new Error('FormGroupsController is already bound');
-        }
+        Assert.not(this.isBound(), 'FormGroupsController is already bound');
 
-        var brickElement = brick.element();
+        this._brick = brick;
 
-        brickElement.find('.customform-config-blocks').sortable({
+        var toggleItem = this._toggleItem.bind(this);
+        var saveState = this._saveState.bind(this);
+        var element = brick.element();
+
+        element.find('.customform-config-blocks').sortable({
             update: function (e, ui) {
-                var url = ui.item.attr('data-reorderable-form-group-url');
+                var url = ui.item.data('reorderable-form-group-url');
 
-                // TODO: do not reload on success ?
-                //    .on({
-                //        done: function() { ... },
-                //        fail: function() { brick.refresh(); }
-                //     })
-                brick.action('update', url, {}, {target: ui.item.index()})
-                     .start();
+                var query = new creme.ajax.Query();
+                query.url(url)
+                     .onFail(function() { brick.refresh(); })
+                     .post({
+                         target: ui.item.index()
+                      });
             }
         });
 
-        var expandUrl = this._options.expandUrl;
-
-        // TODO: real actions instead ?
-        brickElement.find('.customform-config-show-details').on('click', function(event) {
-            var aTag = $(this);
-            var parent = aTag.parents('.customform-config-item').first();
-            var oldTop = parent.position().top;
-
-            // Collapses the current expended CType, expands the clicked CType.
-            brickElement.find('.customform-config-item.customform-config-expanded')
-                        .removeClass('customform-config-expanded')
-                        .addClass('customform-config-collapsed');
-            aTag.parents('.customform-config-item')
-                .removeClass('customform-config-collapsed')
-                .addClass('customform-config-expanded');
-
-            // Save state
-            creme.ajax.post({
-                url: expandUrl,
-                data: {ct_id: aTag.attr('data-ct-id')}
-            });
-
-            // As we potentially collapse another CType which ban be before and higher, the newly
-            // expanded CType can be badly positioned ; we compute the offset between the old and
-            // the new positions of the expanded CType, and scroll by this offset.
-            window.scrollTo(window.scrollX, window.scrollY + parent.position().top - oldTop);
-
-            event.stopImmediatePropagation();
-            return false;
+        element.on('click', '.customform-config-show-details', function(e) {
+            e.preventDefault();
+            toggleItem($(this).parents('.customform-config-item:first'), true);
+            saveState({ct_id: $(this).data('ct-id')});
         });
 
-        brickElement.find('.customform-config-hide-details').on('click', function(event) {
-            // Collapses the current expended CType
-            // TODO: factorise ?
-            brickElement.find('.customform-config-item.customform-config-expanded')
-                        .removeClass('customform-config-expanded')
-                        .addClass('customform-config-collapsed');
-
-            // Save state
-            creme.ajax.post({
-                url: expandUrl,
-                data: {ct_id: '0'}
-            });
-
-            event.stopImmediatePropagation();
-            return false;
+        element.on('click', '.customform-config-hide-details', function(e) {
+            e.preventDefault();
+            toggleItem($(this).parents('.customform-config-item:first'), false);
+            saveState({ct_id: '0'});
         });
 
-        this._brick = brick;
         return this;
     },
 

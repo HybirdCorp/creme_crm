@@ -95,7 +95,7 @@ creme.utils.scrollTo = function(element) {
         var outer_height = $('.header-menu').outerHeight();
         var position = $.extend({left: 0, top: 0}, $(element).position());
 
-        window.scrollTo(position.left, position.top + outer_height);
+        window.scrollTo(position.left, position.top - outer_height);
     }
 };
 
