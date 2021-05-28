@@ -21,7 +21,7 @@
 {% has_perm_to admin 'creme_core' as admin_perm %}
     {% for ctw in page.object_list %}
     {% with ctype=ctw.ctype %}
-    <div class="brick-list-item customform-config-item {% if ctw.collapsed %}customform-config-collapsed{% else %}customform-config-expanded{% endif %}">
+    <div class="brick-list-item customform-config-item {% if ctw.collapsed %}customform-config-collapsed{% endif %}">
         <div class="customform-config-group-title">
             {% widget_icon ctype=ctype size='brick-list' class='customform-config-type-icon' %} {{ctype}}
 
