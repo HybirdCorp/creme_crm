@@ -31,11 +31,13 @@
                  controllers[$(this).attr('data-graph-id')] = controller;
              });
 
-             $('.graph-row-toggle-icon').on('click', function(e) {
+{#             $('.graph-row-toggle-icon').on('click', function(e) { #}
+             $('.graph-row-header .toggle-icon-container').on('click', function(e) {
                  e.stopPropagation();
 
                  var graphid = $(this).parents('.graph-row-header:first').attr('data-graph-id');
-                 var expand = $(this).is('.graph-row-expand');
+{#                 var expand = $(this).is('.graph-row-expand'); #}
+                 var expand = $(this).is('.toggle-icon-expand');
 
                  $('[data-graph-id="' + graphid + '"]', element).toggleClass('graph-row-collapsed', !expand);
 
@@ -77,8 +79,8 @@
     <tr class="graph-row-header graph-row-collapsed" data-graph-id="{{graph.id}}">
 {#        <td>{{expand_icon.render}}{{collapse_icon.render}}</td> #}
         <td>
-            <div class="graph-row-toggle-icon graph-row-expand" title="{% translate 'Expand' %}"><div class="toggle-icon"></div></div>
-            <div class="graph-row-toggle-icon graph-row-collapse" title="{% translate 'Close' %}"><div class="toggle-icon"></div></div>
+            <div class="toggle-icon-container toggle-icon-expand" title="{% translate 'Expand' %}"><div class="toggle-icon"></div></div>
+            <div class="toggle-icon-container toggle-icon-collapse" title="{% translate 'Close' %}"><div class="toggle-icon"></div></div>
         </td>
         <td {% brick_table_data_status primary %}><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
         <td {% if hand.abscissa_error is not None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>

@@ -1,15 +1,23 @@
 {% extends 'creme_core/history/html/base.html' %}
 {% load i18n creme_widgets %}
+
+{% block extra_classes %} history-line-collapsable history-line-collapsed{% endblock %}
+
 {% block content %}
-    <span class="history-line-title">
-    {% with entity=hline.related_line.entity %}
-        {% if entity is None %}{# TODO: improve credentials here !! #}
-            {% blocktranslate with entity=hline.related_line.entity_repr %}“{{entity}}“ edited{% endblocktranslate %}
-        {% else %}
-            {% widget_entity_hyperlink entity user as entity_link %}
-            {% blocktranslate %}{{entity_link}} edited{% endblocktranslate %}
-        {% endif %}
-    {% endwith %}
-    </span>
-    <ul>{% for modif in modifications %}<li>{{modif}}</li>{% endfor %}</ul>
+    <div class="history-line-main">
+        <div class="toggle-icon-container toggle-icon-expand" title="{% translate 'Expand' %}"><div class="toggle-icon"></div></div>
+        <div class="toggle-icon-container toggle-icon-collapse" title="{% translate 'Close' %}"><div class="toggle-icon"></div></div>
+
+        <span class="history-line-title">
+        {% with entity=hline.related_line.entity %}
+            {% if entity is None %}{# TODO: improve credentials here !! #}
+                {% blocktranslate with entity=hline.related_line.entity_repr %}“{{entity}}“ edited{% endblocktranslate %}
+            {% else %}
+                {% widget_entity_hyperlink entity user as entity_link %}
+                {% blocktranslate %}{{entity_link}} edited{% endblocktranslate %}
+            {% endif %}
+        {% endwith %}
+        </span>
+    </div>
+    <ul class="history-line-details">{% for modif in modifications %}<li>{{modif}}</li>{% endfor %}</ul>
 {% endblock %}
