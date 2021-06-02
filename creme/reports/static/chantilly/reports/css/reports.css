@@ -147,14 +147,18 @@
 
 /* graphs inside tables */
 
-.graph-row-header.graph-row-collapsed .graph-row-collapse {
+/* .graph-row-header.graph-row-collapsed .graph-row-collapse { */
+.reports-graphs-brick .graph-row-header.graph-row-collapsed .toggle-icon-collapse {
+
     display: none;
 }
 
-.graph-row-header:not(.graph-row-collapsed) .graph-row-expand {
+/* .graph-row-header:not(.graph-row-collapsed) .graph-row-expand { */
+.reports-graphs-brick .graph-row-header:not(.graph-row-collapsed) .toggle-icon-expand {
     display: none;
 }
 
+/*
 .graph-row-header .graph-row-toggle-icon {
     height: 16px;
     width: 16px;
@@ -178,6 +182,7 @@
     border-right: 7px solid transparent;
     border-top: 7px solid #40687e9c;
 }
+*/
 
 .graph-row.graph-row-collapsed {
     display: none;

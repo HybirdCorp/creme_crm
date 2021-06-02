@@ -528,15 +528,27 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertEqual(history.TYPE_RELATED, hline.type)
         self.assertHTMLEqual(
             format_html(
-                '<div class="history-line history-line-related_edition">'
-                ' <span class="history-line-title">{title}</span>'
-                ' <ul>'
+                '<div class="history-line history-line-related_edition'
+                ' history-line-collapsable history-line-collapsed">'
+                ' <div class="history-line-main">'
+                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <div class="toggle-icon-container toggle-icon-collapse"'
+                '       title="{collapse_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <span class="history-line-title">{title}</span>'
+                ' </div>'
+                ' <ul class="history-line-details">'
                 '  <li>{mod}</li>'
                 ' </ul>'
                 '<div>',
                 title=mark_safe(_('%(entity_link)s edited') % {
                     'entity_link': f'<a href="{hayao.get_absolute_url()}">{hayao}</a>',
                 }),
+                expand_title=_('Expand'),
+                collapse_title=_('Close'),
                 mod=mark_safe(self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("First name")}</span>',
                     value=f'<span class="field-change-new_value">{hayao.first_name}</span>',
@@ -550,13 +562,25 @@ class HistoryRenderTestCase(CremeTestCase):
         hayao.delete()
         self.assertHTMLEqual(
             format_html(
-                '<div class="history-line history-line-related_edition">'
-                ' <span class="history-line-title">{title}</span>'
-                ' <ul>'
+                '<div class="history-line history-line-related_edition'
+                ' history-line-collapsable history-line-collapsed">'
+                ' <div class="history-line-main">'
+                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <div class="toggle-icon-container toggle-icon-collapse"'
+                '       title="{collapse_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <span class="history-line-title">{title}</span>'
+                ' </div>'
+                ' <ul class="history-line-details">'
                 '  <li>{mod}</li>'
                 ' </ul>'
                 '<div>',
                 title=_('“{entity}“ edited').format(entity=hayao_repr),
+                expand_title=_('Expand'),
+                collapse_title=_('Close'),
                 mod=mark_safe(self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("First name")}</span>',
                     value=f'<span class="field-change-new_value">{hayao.first_name}</span>',
@@ -819,16 +843,29 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertEqual(history.TYPE_AUX_EDITION, hline.type)
         self.assertHTMLEqual(
             format_html(
-                '<div class="history-line history-line-auxiliary_edition">'
-                ' <span class="history-line-title">{title}</span>'
-                ' <ul>'
+                '<div class="history-line history-line-auxiliary_edition'
+                ' history-line-collapsable history-line-collapsed">'
+                ' <div class="history-line-main">'
+                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <div class="toggle-icon-container toggle-icon-collapse"'
+                '       title="{collapse_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <span class="history-line-title">{title}</span>'
+                ' </div>'
+                ' <ul class="history-line-details">'
                 '  <li>{mod1}</li>'
                 '  <li>{mod2}</li>'
                 ' </ul>'
                 '<div>',
-                title=_('“{auxiliary_ctype}“ edited: {auxiliary_value}').format(
-                    auxiliary_ctype='Test address', auxiliary_value=address,
-                ),
+                title=_('“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s') % {
+                    'auxiliary_ctype': 'Test address',
+                    'auxiliary_value': address,
+                },
+                expand_title=_('Expand'),
+                collapse_title=_('Close'),
                 mod1=mark_safe(self.FMT_3_VALUES(
                     field=f'<span class="field-change-field_name">{_("City")}</span>',
                     oldvalue=f'<span class="field-change-old_value">{old_city}</span>',
@@ -867,9 +904,19 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertEqual(history.TYPE_AUX_EDITION, hline.type)
         self.assertHTMLEqual(
             format_html(
-                '<div class="history-line history-line-auxiliary_edition">'
-                ' <span class="history-line-title">{title}</span>'
-                ' <ul>'
+                '<div class="history-line history-line-auxiliary_edition'
+                ' history-line-collapsable history-line-collapsed">'
+                ' <div class="history-line-main">'
+                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <div class="toggle-icon-container toggle-icon-collapse"'
+                '       title="{collapse_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <span class="history-line-title">{title}</span>'
+                ' </div>'
+                ' <ul class="history-line-details">'
                 '  <li>{mod1}</li>'
                 '  <li>{mod2}</li>'
                 ' </ul>'
@@ -877,6 +924,8 @@ class HistoryRenderTestCase(CremeTestCase):
                 title=_('“{auxiliary_ctype}“ edited: {auxiliary_value}').format(
                     auxiliary_ctype='Test Invoice Line', auxiliary_value=pline,
                 ),
+                expand_title=_('Expand'),
+                collapse_title=_('Close'),
                 mod1=mark_safe(self.FMT_3_VALUES(
                     field=f'<span class="field-change-field_name">'
                           f'{_("Quantity")}'

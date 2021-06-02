@@ -150,14 +150,17 @@
 
 /* graphs inside tables */
 
-.graph-row-header.graph-row-collapsed .graph-row-collapse {
+/* .graph-row-header.graph-row-collapsed .graph-row-collapse { */
+.reports-graphs-brick .graph-row-header.graph-row-collapsed .toggle-icon-collapse {
     display: none;
 }
 
-.graph-row-header:not(.graph-row-collapsed) .graph-row-expand {
+/* .graph-row-header:not(.graph-row-collapsed) .graph-row-expand { */
+.reports-graphs-brick .graph-row-header:not(.graph-row-collapsed) .toggle-icon-expand {
     display: none;
 }
 
+/*
 .graph-row-header .graph-row-toggle-icon {
     height: 12px;
     width: 12px;
@@ -181,6 +184,7 @@
     border-right: 5px solid transparent;
     border-top: 5px solid #00000063;
 }
+*/
 
 .graph-row.graph-row-collapsed {
     display: none;
@@ -217,9 +221,9 @@ button.reports-chart-selectors-refresh {
     border-bottom: 1px solid #d9d9d9;
     border-right: 1px solid #d9d9d9;
 
-    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.10);
-       -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.10);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
 }
 
 .form-block .form-block-fields .report-preview-errors-label {

@@ -1348,7 +1348,28 @@ svg.icon {
     padding-left: 10px;
 }
 
-.creme_core-history-brick .history-line.history-line-auxiliary_edition ul {
+.creme_core-history-brick .history-line-collapsable.history-line-collapsed .toggle-icon-collapse {
+    display: none;
+}
+
+.creme_core-history-brick .history-line-collapsable:not(.history-line-collapsed) .toggle-icon-expand {
+    display: none;
+}
+
+.creme_core-history-brick .history-line-collapsable.history-line-collapsed .history-line-details {
+    display: none;
+}
+
+.creme_core-history-brick .history-line-main {
+    display: flex;
+}
+
+.creme_core-history-brick .toggle-icon-container {
+    align-self: center;
+}
+
+.creme_core-history-brick .history-line.history-line-auxiliary_edition ul,
+.creme_core-history-brick .history-line.history-line-related_edition ul {
     margin-left: 10px;
     margin-top: 3px;
 

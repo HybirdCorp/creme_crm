@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-02 12:56+0200\n"
+"POT-Creation-Date: 2021-06-03 14:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2962,6 +2962,9 @@ msgstr "“%(auxiliary_ctype)s“ ajouté(e) : %(auxiliary_value)s"
 msgid "“%(auxiliary_ctype)s“ deleted: “%(auxiliary_value)s”"
 msgstr "“%(auxiliary_ctype)s“ supprimé(e) : “%(auxiliary_value)s”"
 
+msgid "Expand"
+msgstr "Agrandir"
+
 #, python-format
 msgid "“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s"
 msgstr "“%(auxiliary_ctype)s“ modifié(e) : %(auxiliary_value)s"
@@ -2969,7 +2972,8 @@ msgstr "“%(auxiliary_ctype)s“ modifié(e) : %(auxiliary_value)s"
 #, python-format
 msgid ""
 "Export of «%(counted_instances)s» (view «%(view)s» & filter «%(filter)s»)"
-msgstr "Export de «%(counted_instances)s» (vue «%(view)s» & filtre «%(filter)s»)"
+msgstr ""
+"Export de «%(counted_instances)s» (vue «%(view)s» & filtre «%(filter)s»)"
 
 #, python-format
 msgid "“%(property_text)s” added"
