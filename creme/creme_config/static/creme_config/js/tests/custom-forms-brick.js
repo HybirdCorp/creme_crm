@@ -118,13 +118,13 @@ QUnit.module("creme.FormGroupsController", new QUnitMixin(QUnitEventMixin,
 
 QUnit.test('creme.FormGroupsController (invalid expand url)', function(assert) {
     this.assertRaises(function() {
-        return new creme.creme_config.FormGroupsController({});
+        return new creme.FormGroupsController({});
     }, Error, 'Error: FormGroupsController expandUrl is not set');
 });
 
 QUnit.test('creme.FormGroupsController (bind)', function(assert) {
     var brick = this.createFormGroupsBrick({}).brick();
-    var controller = new creme.creme_config.FormGroupsController({
+    var controller = new creme.FormGroupsController({
         expandUrl: 'mock/group/expand'
     });
 
@@ -160,7 +160,7 @@ QUnit.test('creme.FormGroupsController (items)', function(assert) {
             }]
         }]
     }).brick();
-    var controller = new creme.creme_config.FormGroupsController({
+    var controller = new creme.FormGroupsController({
         expandUrl: 'mock/group/expand'
     });
 
@@ -186,7 +186,7 @@ QUnit.test('creme.FormGroupsController (toggle)', function(assert) {
             collapsed: false
         }]
     }).brick();
-    var controller = new creme.creme_config.FormGroupsController({
+    var controller = new creme.FormGroupsController({
         expandUrl: 'mock/group/expand'
     });
 
@@ -242,7 +242,7 @@ QUnit.test('creme.FormGroupsController (reorder groups)', function(assert) {
             }]
         }]
     }).brick();
-    var controller = new creme.creme_config.FormGroupsController({
+    var controller = new creme.FormGroupsController({
         expandUrl: 'mock/group/expand'
     });
 
@@ -289,7 +289,7 @@ QUnit.test('creme.FormGroupsController (reorder groups, failure)', function(asse
             }]
         }]
     }).brick();
-    var controller = new creme.creme_config.FormGroupsController({
+    var controller = new creme.FormGroupsController({
         expandUrl: 'mock/group/expand'
     });
 

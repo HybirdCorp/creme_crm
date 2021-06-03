@@ -1,3 +1,5 @@
+creme.creme_config = creme.creme_config || {};
+
 creme.creme_config.MenuContainersController = creme.component.Component.sub({
 //    _init_: function(options) {
 //        this._options = options || {};
