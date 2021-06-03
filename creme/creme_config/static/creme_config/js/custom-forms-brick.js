@@ -19,10 +19,7 @@
 (function($) {
 "use strict";
 
-creme.creme_config = creme.creme_config || {};
-
-// TODO: unit test
-creme.creme_config.FormGroupsController = creme.component.Component.sub({
+creme.FormGroupsController = creme.component.Component.sub({
     _init_: function(options) {
         options = options || {};
 
