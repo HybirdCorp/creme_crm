@@ -1,0 +1,8 @@
+{% extends 'creme_core/history/html/base.html' %}
+{% block content %}
+    {% if modifications|length == 1 %}
+        {{modifications.0}}
+    {% else %}
+        <ul>{% for modif in modifications %}<li>{{modif}}</li>{% endfor %}</ul>
+    {% endif %}
+{% endblock %}

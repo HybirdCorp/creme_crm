@@ -558,7 +558,7 @@ class CustomFieldsMixin:
             instance = self.instance
             build_name = self._build_customfield_name
 
-            for cfield, cvalue in cfields_n_values:
+            for cfield, __cvalue in cfields_n_values:
                 value = cleaned_data[build_name(cfield)]
                 CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 

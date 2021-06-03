@@ -19,7 +19,8 @@
 ################################################################################
 
 import logging
-from typing import Iterable, Iterator, List, Sequence, Tuple, Type
+from functools import partial
+from typing import Iterable, Iterator, List, Sequence, Tuple, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
@@ -33,10 +34,13 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy
 
 from creme.creme_core.models import (
     CremeEntity,
     CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
     HistoryLine,
     RelationType,
     history,
@@ -64,8 +68,10 @@ class FieldChangeExplainer:
     field_decorator = _('“{field}”')
     old_value_decorator = new_value_decorator = _('“{value}”')
 
-    def decorate_field(self, field: str) -> str:
-        return self.field_decorator.format(field=field)
+    def decorate_field(self, field: Union[Field, CustomField]) -> str:
+        return self.field_decorator.format(
+            field=field if isinstance(field, CustomField) else field.verbose_name,
+        )
 
     def decorate_new_value(self, value: str) -> str:
         return self.new_value_decorator.format(value=value)
@@ -77,15 +83,15 @@ class FieldChangeExplainer:
     def is_empty_value(value) -> bool:
         return value in EMPTY_VALUES
 
-    def render_choice(self, *, field: models.Field, user, value):
+    def render_choice(self, *, field: Field, user, value):
         # NB: django way for '_get_FIELD_display()' methods
         #       => would a linear search be faster ?
         return dict(field.flatchoices).get(value, value)
 
-    def render_value(self, *, field: models.Field, user, value) -> str:
+    def render_value(self, *, field: Union[Field, CustomField], user, value) -> str:
         return str(value)
 
-    def render(self, *, field: models.Field, user, values: Sequence) -> str:
+    def render(self, *, field: Union[Field, CustomField], user, values: Sequence) -> str:
         """Build a string explain a modification about an instance's field.
         @param field: The field the modification is about.
         @param user: Instance of auth.get_user_model() ; used for VIEW credentials.
@@ -95,7 +101,7 @@ class FieldChangeExplainer:
                2 elements => (old value, new value)
         @return: a description string.
         """
-        decorated_field = self.decorate_field(field.verbose_name)
+        decorated_field = self.decorate_field(field)
         length = len(values)
 
         if length == 0:
@@ -108,7 +114,11 @@ class FieldChangeExplainer:
                 ),
             )
         else:  # length == 2
-            render_value = self.render_choice if field.choices else self.render_value
+            render_value = (
+                self.render_choice
+                if isinstance(field, Field) and field.choices else
+                self.render_value
+            )
             new_value = values[1]
             old_rendered_value = self.decorate_old_value(
                 render_value(field=field, user=user, value=values[0])
@@ -177,7 +187,7 @@ class HTMLTextFieldChangeExplainer(HTMLFieldChangeExplainer):
     changed_value_sentence = _('{field} set {details_link}')
 
     def render(self, *, field, user, values):
-        decorated_field = self.decorate_field(field.verbose_name)
+        decorated_field = self.decorate_field(field)
         length = len(values)
 
         if not length:  # NB: old HistoryLine
@@ -234,7 +244,7 @@ class ForeignKeyExplainerMixin:
         return str(instance)
 
     def render_fk(self, *, field, user, value):
-        model = field.remote_field.model
+        model = field.remote_field.model if isinstance(field, Field) else CustomFieldEnumValue
 
         try:
             instance = model.objects.get(pk=value)
@@ -261,6 +271,94 @@ class HTMLForeignKeyFieldChangeExplainer(ForeignKeyExplainerMixin,
         return mark_safe(super().render(field=field, user=user, values=values))
 
 
+class ManyToManyFieldChangeExplainer(FieldChangeExplainer):
+    sentence = _('{field} changed: {changes}')
+    added_part   = ngettext_lazy('{} was added',   '[{}] were added')
+    removed_part = ngettext_lazy('{} was removed', '[{}] were removed')
+
+    added_value_decorator = removed_value_decorator = '{value}'
+
+    def decorate_added_value(self, value: str) -> str:
+        return self.added_value_decorator.format(value=value)
+
+    def decorate_removed_value(self, value: str) -> str:
+        return self.removed_value_decorator.format(value=value)
+
+    # TODO: test
+    def render_instance(self, instance, user):
+        if isinstance(instance, CremeEntity):
+            return instance.allowed_str(user)
+
+        return str(instance)
+
+    def render(self, *, field, user, values) -> str:
+        """
+        @param values: PKs removed, PKs added.
+        """
+        assert len(values) == 2
+
+        removed_pks = set(values[0])
+        added_pks = set(values[1])
+
+        # TODO: factorise
+        # NB: not in_bulk() to preserve natural ordering
+        linked_model = (
+            field.remote_field.model if isinstance(field, Field) else CustomFieldEnumValue
+        )
+        linked_instances = linked_model._default_manager.filter(pk__in=removed_pks | added_pks)
+
+        render = partial(self.render_instance, user=user)
+        decorate_added = self.decorate_added_value
+        decorate_removed = self.decorate_removed_value
+        added_instances = [
+            decorate_added(render(o))
+            for o in linked_instances if o.pk in added_pks
+        ]
+        removed_instances = [
+            decorate_removed(render(o))
+            for o in linked_instances if o.pk in removed_pks
+        ]
+
+        # TODO: what about deleted instances ??
+        # TODO: decorate_instances() for better enumerations ?
+        changes = []
+        if added_instances:
+            changes.append(
+                (self.added_part % len(added_instances)).format(
+                    ', '.join(added_instances)
+                )
+            )
+        if removed_instances:
+            changes.append(
+                (self.removed_part % len(removed_instances)).format(
+                    ', '.join(removed_instances)
+                )
+            )
+
+        return self.sentence.format(
+            field=self.decorate_field(field),
+            changes=', '.join(changes)
+        )
+
+
+class HTMLManyToManyFieldChangeExplainer(ManyToManyFieldChangeExplainer):
+    field_decorator = '<span class="field-change-field_name">{field}</span>'
+    added_part   = ngettext_lazy('{} was added',   '{} were added')
+    removed_part = ngettext_lazy('{} was removed', '{} were removed')
+
+    added_value_decorator   = '<span class="field-change-m2m_added">{value}</span>'
+    removed_value_decorator = '<span class="field-change-m2m_removed">{value}</span>'
+
+    def render(self, *, field, user, values):
+        return mark_safe(super().render(field=field, user=user, values=values))
+
+    def render_instance(self, instance, user):
+        if isinstance(instance, CremeEntity):
+            return widget_entity_hyperlink(entity=instance, user=user)
+
+        return escape(instance)
+
+
 # ------------------------------------------------------------------------------
 class HistoryLineExplainer:
     """Render a string which explains an history line.
@@ -285,10 +383,38 @@ class HistoryLineExplainer:
             'user': self.user,
         }
 
+    def _modifications_for_custom_fields(self,
+                                         modifications: List[tuple],
+                                         user,
+                                         ) -> Iterator[str]:
+        get_cfield = CustomField.objects.in_bulk(m[0] for m in modifications).get
+
+        field_explainers = self._field_explainers
+
+        for modif in modifications:
+            cfield_id = modif[0]
+            cfield = get_cfield(cfield_id)
+
+            if cfield is None:
+                vmodif = gettext('Deleted field (with id={id}) set').format(id=cfield_id)
+            else:
+                value_field = cfield.value_class._meta.get_field('value')
+
+                try:
+                    vmodif = field_explainers[type(value_field)]().render(
+                        field=cfield, user=user, values=modif[1:],
+                    )
+                except Exception:
+                    logger.exception('Error when render history for custom field')
+                    vmodif = '??'
+
+            yield vmodif
+
     def _modifications_for_fields(self,
                                   model_class: Type[models.Model],
                                   modifications: List[tuple],
-                                  user) -> Iterator[str]:
+                                  user,
+                                  ) -> Iterator[str]:
         get_field = model_class._meta.get_field
 
         field_explainers = self._field_explainers
@@ -319,10 +445,7 @@ class HTMLCreationExplainer(HistoryLineExplainer):
     template_name = 'creme_core/history/html/creation.html'
 
 
-class HTMLEditionExplainer(HistoryLineExplainer):
-    type_id = 'edition'
-    template_name = 'creme_core/history/html/edition.html'
-
+class _EditionExplainer(HistoryLineExplainer):
     def get_context(self):
         context = super().get_context()
 
@@ -333,6 +456,29 @@ class HTMLEditionExplainer(HistoryLineExplainer):
                 modifications=hline.modifications,
                 user=self.user,
             )
+        ]
+
+        return context
+
+
+class HTMLEditionExplainer(_EditionExplainer):
+    type_id = 'edition'
+    template_name = 'creme_core/history/html/edition.html'
+
+
+class HTMLCustomEditionExplainer(HistoryLineExplainer):
+    type_id = 'custom_edition'
+    template_name = 'creme_core/history/html/custom-edition.html'
+
+    def get_context(self):
+        context = super().get_context()
+
+        hline = self.hline
+        context['modifications'] = [
+            *self._modifications_for_custom_fields(
+                modifications=hline.modifications,
+                user=self.user,
+            ),
         ]
 
         return context
@@ -431,10 +577,7 @@ class HTMLAuxCreationExplainer(HistoryLineExplainer):
         return context
 
 
-class HTMLAuxiliaryEditionExplainer(HistoryLineExplainer):
-    type_id = 'auxiliary_edition'
-    template_name = 'creme_core/history/html/auxiliary-edition.html'
-
+class _AuxiliaryEditionExplainer(HistoryLineExplainer):
     def get_context(self):
         context = super().get_context()
 
@@ -456,6 +599,11 @@ class HTMLAuxiliaryEditionExplainer(HistoryLineExplainer):
         ]
 
         return context
+
+
+class HTMLAuxiliaryEditionExplainer(_AuxiliaryEditionExplainer):
+    type_id = 'auxiliary_edition'
+    template_name = 'creme_core/history/html/auxiliary-edition.html'
 
 
 class HTMLAuxDeletionExplainer(HistoryLineExplainer):
@@ -502,7 +650,7 @@ class HistoryRegistry:
     # TODO: unit test
     def register_field_explainers(
         self,
-        *explainer_classes: Tuple[Type[models.Field], Type[FieldChangeExplainer]],
+        *explainer_classes: Tuple[Type[Field], Type[FieldChangeExplainer]],
     ):
         existing_classes = self._field_explainer_classes
         for field_cls, explainer_cls in explainer_classes:
@@ -541,6 +689,8 @@ html_history_registry = HistoryRegistry(
 
     (models.ForeignKey, HTMLForeignKeyFieldChangeExplainer),
 
+    (models.ManyToManyField, HTMLManyToManyFieldChangeExplainer),
+
     (models.DateField,     HTMLDateFieldChangeExplainer),
     (models.DateTimeField, HTMLDateTimeFieldChangeExplainer),
 
@@ -555,6 +705,9 @@ html_history_registry = HistoryRegistry(
 ).register_line_explainer(
     htype=history.TYPE_EDITION,
     explainer_class=HTMLEditionExplainer,
+).register_line_explainer(
+    htype=history.TYPE_CUSTOM_EDITION,
+    explainer_class=HTMLCustomEditionExplainer,
 ).register_line_explainer(
     htype=history.TYPE_DELETION,
     explainer_class=HTMLDeletionExplainer,

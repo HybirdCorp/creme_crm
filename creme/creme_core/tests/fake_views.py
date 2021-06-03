@@ -112,3 +112,8 @@ class FakeInvoiceLinesList(generic.EntitiesList):
 
 class FakeMailingListsList(generic.EntitiesList):
     model = fake_models.FakeMailingList
+
+
+class FakeMailingListDetail(generic.EntityDetail):
+    model = fake_models.FakeMailingList
+    pk_url_kwarg = 'ml_id'

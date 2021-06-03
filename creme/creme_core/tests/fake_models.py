@@ -44,7 +44,7 @@ else:
         'FakeReport',
         'FakeTicketStatus', 'FakeTicketPriority', 'FakeTicket',
         'FakeIngredient', 'FakeRecipe',
-        'FakeTodo',
+        'FakeTodoCategory', 'FakeTodo',
     )
 
     class FakeFolderCategory(CremeModel):
@@ -543,8 +543,8 @@ else:
         def __str__(self):
             return self.name
 
-        # def get_absolute_url(self):
-        # def get_edit_absolute_url(self):
+        def get_absolute_url(self):
+            return reverse('creme_core__view_fake_mlist', args=(self.id,))
 
         @staticmethod
         def get_lv_absolute_url():
@@ -794,14 +794,27 @@ else:
         def __str__(self):
             return self.name
 
+    class FakeTodoCategory(CremeModel):
+        name = models.CharField(_('Name'), max_length=100, unique=True)
+        # is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+
+        def __str__(self):
+            return self.name
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test ToDo category'
+            verbose_name_plural = 'Test ToDo categories'
+            ordering = ('name',)
+
     class FakeTodo(CremeModel):
         title = models.CharField(_('Title'), max_length=200)
         # is_ok = models.BooleanField(_('Done?'), editable=False, default=False)
         # reminded = models.BooleanField(_('Notification sent'), editable=False, default=False)
         description = models.TextField(_('Description'), blank=True)
-        # creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
-        # deadline = models.DateTimeField(_('Deadline'), blank=True, null=True)
-        # user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+        categories = models.ManyToManyField(
+            FakeTodoCategory, verbose_name=_('Categories'), related_name='+', blank=True,
+        )
 
         entity_content_type = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
         entity = models.ForeignKey(
@@ -823,12 +836,5 @@ else:
         def __str__(self):
             return self.title
 
-        # def get_edit_absolute_url(self):
-        #     return reverse('assistants__edit_todo', args=(self.id,))
-        #
-        # def get_related_entity(self):  # For generic views
-        #     return self.creme_entity
-        #
-        # @property
-        # def to_be_reminded(self):
-        #     return self.deadline and not self.is_ok and not self.reminded
+        def get_related_entity(self):  # To be recognised as an auxiliary
+            return self.creme_entity

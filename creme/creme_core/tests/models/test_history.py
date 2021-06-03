@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date, time
+from datetime import date, time, timedelta
 from decimal import Decimal
-from time import sleep
+from functools import partial
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -11,9 +11,26 @@ from django.utils.formats import date_format, number_format
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
+from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    CustomFieldValue,
+    FakeActivity,
+    FakeActivityType,
+    FakeAddress,
+    FakeContact,
+    FakeImage,
+    FakeImageCategory,
+    FakeInvoice,
+    FakeInvoiceLine,
+    FakeLegalForm,
+    FakeOrganisation,
+    FakeSector,
+    FakeTodo,
+    FakeTodoCategory,
     HistoryConfigItem,
     HistoryLine,
     Relation,
@@ -24,6 +41,7 @@ from creme.creme_core.models.history import (
     TYPE_AUX_DELETION,
     TYPE_AUX_EDITION,
     TYPE_CREATION,
+    TYPE_CUSTOM_EDITION,
     TYPE_DELETION,
     TYPE_EDITION,
     TYPE_PROP_ADD,
@@ -37,20 +55,9 @@ from creme.creme_core.models.history import (
 )
 from creme.creme_core.utils.dates import dt_to_ISO8601
 
-from ..base import CremeTestCase
 # from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
-from ..fake_models import (
-    FakeActivity,
-    FakeActivityType,
-    FakeAddress,
-    FakeContact,
-    FakeImage,
-    FakeInvoice,
-    FakeInvoiceLine,
-    FakeLegalForm,
-    FakeOrganisation,
-    FakeSector,
-)
+from ..base import CremeTestCase
+from ..fake_constants import FAKE_REL_SUB_EMPLOYED_BY
 
 
 class HistoryTestCase(CremeTestCase):
@@ -108,7 +115,17 @@ class HistoryTestCase(CremeTestCase):
             f'old_time={old_time} ; hline.date={hdate} ; now={now_value}'
         )
 
-    def _get_hlines(self):
+    @staticmethod
+    def create_old(entity_model, **kwargs):
+        # Ensure that 'modified' fields is not now()
+        instance = entity_model(**kwargs)
+        instance.modified -= timedelta(hours=1)  # Ensure that 'modified' fields are different
+        instance.save()
+
+        return instance
+
+    @staticmethod
+    def _get_hlines():
         return [*HistoryLine.objects.order_by('id')]
 
     def test_creation01(self):
@@ -464,6 +481,7 @@ about this fantastic animation studio."""
         )
 
         # Set None -------------------------
+        meeting = self.refresh(meeting)  # Reset cache
         meeting.end = None
         meeting.save()
 
@@ -509,6 +527,457 @@ about this fantastic animation studio."""
         self.assertEqual(_('No'),   nbool_printer(field=None, user=self.user, val=False))
         self.assertEqual(_('N/A'),  nbool_printer(field=None, user=self.user, val=None))
 
+    def test_edition_m2m01(self):
+        "set() to add or remove (not at the same time)."
+        user = self.user
+        cat1, cat2, cat3 = FakeImageCategory.objects.order_by('id')[:3]
+
+        img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
+
+        img.categories.set([cat1, cat2])
+
+        hline1 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_EDITION, hline1.type)
+        self.assertEqual(img.id, hline1.entity.id)
+        self.assertListEqual(
+            [['categories', [], [cat1.id, cat2.id]]],
+            hline1.modifications,
+        )
+
+        vmodifs1 = hline1.get_verbose_modifications(user)
+        self.assertEqual(1, len(vmodifs1))
+        self.assertIn(
+            vmodifs1[0],
+            (
+                f'Field “{_("Categories")}” changed: [{cat1}, {cat2}] added.',
+                f'Field “{_("Categories")}” changed: [{cat2}, {cat1}] added.',
+            ),
+        )
+
+        # ---
+        clear_global_info()  # Current line is stored in global cache
+        img = self.refresh(img)
+        img.categories.set([cat1])
+
+        hline2 = HistoryLine.objects.order_by('-id').first()
+        self.assertNotEqual(hline1, hline2)
+        self.assertEqual(TYPE_EDITION, hline2.type)
+        self.assertEqual(img.id, hline1.entity.id)
+        self.assertListEqual(
+            [['categories', [cat2.id], []]],
+            hline2.modifications,
+        )
+        self.assertListEqual(
+            [f'Field “{_("Categories")}” changed: [{cat2}] removed.'],
+            hline2.get_verbose_modifications(user),
+        )
+
+    def test_edition_m2m02(self):
+        "add()/remove() (not at the same time)."
+        user = self.user
+        cat = FakeImageCategory.objects.first()
+        img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
+
+        img.categories.add(cat)
+
+        hline1 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_EDITION, hline1.type)
+        self.assertEqual(img.id, hline1.entity.id)
+        self.assertListEqual(
+            [['categories', [], [cat.id]]],
+            hline1.modifications,
+        )
+
+        # ---
+        clear_global_info()  # Current line is stored in global cache
+        img = self.refresh(img)
+        img.categories.remove(cat)
+
+        hline2 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_EDITION, hline2.type)
+        self.assertEqual(img.id, hline2.entity.id)
+        self.assertListEqual(
+            [['categories', [cat.id], []]],
+            hline2.modifications,
+        )
+
+    def test_edition_m2m03(self):
+        "Set() which adds & removes at the same time (1 line, not 2)."
+        user = self.user
+        cat1, cat2, cat3 = FakeImageCategory.objects.order_by('id')[:3]
+
+        img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
+        img.categories.set([cat2, cat3])
+        old_count = HistoryLine.objects.count()
+
+        img = self.refresh(img)
+        img.categories.set([cat1, cat3])
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_EDITION, hline.type)
+        self.assertEqual(img.id, hline.entity.id)
+        self.assertListEqual(
+            [['categories', [cat2.id], [cat1.id]]],
+            hline.modifications,
+        )
+        self.assertListEqual(
+            [f'Field “{_("Categories")}” changed: [{cat2}] removed, [{cat1}] added.'],
+            hline.get_verbose_modifications(user),
+        )
+
+        # We re-add an element (don't do that...)
+        img.categories.add(cat2)
+        self.assertListEqual(
+            [['categories', [], [cat1.id]]],
+            self.refresh(hline).modifications,
+        )
+
+        # We re-remove an element (don't do that...)
+        img.categories.remove(cat1)
+        self.assertListEqual(
+            # NB: if your code produces this kind of empty line, change your code
+            [['categories', [], []]],
+            self.refresh(hline).modifications,
+        )
+
+    def test_edition_m2m04(self):
+        "clear()."
+        user = self.user
+        cat = FakeImageCategory.objects.first()
+
+        img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
+        img.categories.set([cat])
+        old_count = HistoryLine.objects.count()
+
+        img = self.refresh(img)
+        img.categories.clear()
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_EDITION, hline.type)
+        self.assertEqual(img.id, hline.entity.id)
+        self.assertListEqual(
+            [['categories', [cat.id], []]],
+            hline.modifications,
+        )
+
+    def test_edition_regular_n_m2m(self):
+        user = self.user
+        cat = FakeImageCategory.objects.first()
+
+        old_name = 'Hayao'
+        img = FakeImage.objects.create(user=user, name=old_name)
+        old_count = HistoryLine.objects.count()
+
+        clear_global_info()  # Current line is stored in global cache
+        img = self.refresh(img)
+
+        new_name = 'Grumpy Hayao'
+        img.name = new_name
+        img.save()
+        img.categories.set([cat])
+
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_EDITION, hline.type)
+        self.assertListEqual(
+            [
+                ['name', old_name, new_name],
+                ['categories', [], [cat.id]],
+            ],
+            hline.modifications,
+        )
+
+    def test_edition_customfield01(self):
+        "One custom field at once."
+        user = self.user
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        cfield = CustomField.objects.create(
+            name='ID number', content_type=ct, field_type=CustomField.STR,
+        )
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        old_count = HistoryLine.objects.count()
+
+        value1 = 'ABCD123'
+        CustomFieldValue.save_values_for_entities(cfield, [gainax], value1)
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline1 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(gainax.id, hline1.entity.id)
+        self.assertEqual(FakeOrganisation, hline1.entity_ctype.model_class())
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline1.type)
+        self.assertEqual(user, hline1.entity_owner)
+        self.assertListEqual(
+            [[cfield.id, value1]],
+            hline1.modifications,
+        )
+
+        vmodifs1 = hline1.get_verbose_modifications(user)
+        self.assertEqual(1, len(vmodifs1))
+        self.assertEqual(
+            self.FMT_2_VALUES(field=cfield.name, value=value1),
+            vmodifs1[0],
+        )
+
+        # Old & new values ---
+        clear_global_info()  # Current line is stored in global cache
+        value2 = 'ABCD12345'
+        CustomFieldValue.save_values_for_entities(cfield, [gainax], value2)
+        self.assertEqual(old_count + 2, HistoryLine.objects.count())
+
+        hline2 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline2.type)
+        self.assertListEqual(
+            [[cfield.id, value1, value2]],
+            hline2.modifications,
+        )
+
+        vmodifs2 = hline2.get_verbose_modifications(user)
+        self.assertEqual(1, len(vmodifs2))
+        self.assertEqual(
+            self.FMT_3_VALUES(field=cfield.name, oldvalue=value1, value=value2),
+            vmodifs2[0],
+        )
+
+    def test_edition_customfield02(self):
+        "Several modifications at once => only one lines."
+        user = self.user
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        create_cfield = partial(CustomField.objects.create, content_type=ct)
+        cfield1 = create_cfield(name='ID number',      field_type=CustomField.STR)
+        cfield2 = create_cfield(name='Holidays start', field_type=CustomField.DATE)
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        CustomFieldValue.save_values_for_entities(
+            cfield2, [gainax], date(year=2021, month=7, day=10),
+        )
+        old_count = HistoryLine.objects.count()
+
+        clear_global_info()  # Current line is stored in global cache
+
+        value1 = 'ABCD123'
+        CustomFieldValue.save_values_for_entities(cfield1, [gainax], value1)
+        CustomFieldValue.save_values_for_entities(
+            cfield2, [gainax], date(year=2021, month=7, day=14),
+        )
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(gainax.id, hline.entity.id)
+        self.assertEqual(FakeOrganisation, hline.entity_ctype.model_class())
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline.type)
+        self.assertEqual(user, hline.entity_owner)
+        self.assertListEqual(
+            [
+                [cfield1.id, value1],
+                [cfield2.id, '2021-07-10', '2021-07-14'],
+            ],
+            hline.modifications,
+        )
+
+    def test_edition_customfield03(self):
+        "Set value to empty => cf_value deleted (see save_values_for_entities())."
+        user = self.user
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        cfield = CustomField.objects.create(
+            name='ID number', content_type=ct, field_type=CustomField.STR,
+        )
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+
+        old_value = 'To be removed'
+        CustomFieldValue.save_values_for_entities(cfield, [gainax], old_value)
+        old_count = HistoryLine.objects.count()
+
+        clear_global_info()  # Current line is stored in global cache
+
+        CustomFieldValue.save_values_for_entities(cfield, [gainax], '')
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(gainax.id, hline.entity.id)
+        self.assertEqual(FakeOrganisation, hline.entity_ctype.model_class())
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline.type)
+        self.assertEqual(user, hline.entity_owner)
+        self.assertListEqual(
+            [[cfield.id, old_value, None]],
+            hline.modifications,
+        )
+        self.assertEqual(
+            self.FMT_3_VALUES(field=cfield.name, oldvalue=old_value, value=None),
+            hline.get_verbose_modifications(user)[0],
+        )
+
+    def test_edition_customfield_enum(self):
+        user = self.user
+
+        cfield = CustomField.objects.create(
+            name='Category',
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+            field_type=CustomField.ENUM,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
+        create_evalue(value='Plant')
+        choice2 = create_evalue(value='Shop')
+        choice3 = create_evalue(value='Studio')
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        old_count = HistoryLine.objects.count()
+
+        CustomFieldValue.save_values_for_entities(cfield, [gainax], choice2.id)
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline1 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(gainax.id, hline1.entity.id)
+        self.assertEqual(FakeOrganisation, hline1.entity_ctype.model_class())
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline1.type)
+        self.assertEqual(user, hline1.entity_owner)
+        self.assertListEqual([[cfield.id, choice2.id]], hline1.modifications)
+        self.assertEqual(
+            self.FMT_2_VALUES(field=cfield.name, value=choice2.id),
+            hline1.get_verbose_modifications(user)[0],
+        )
+
+        # Old & new values ---
+        clear_global_info()  # Current line is stored in global cache
+        CustomFieldValue.save_values_for_entities(cfield, [gainax], choice3.id)
+        self.assertEqual(old_count + 2, HistoryLine.objects.count())
+
+        hline2 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline2.type)
+        self.assertListEqual(
+            [[cfield.id, choice2.id, choice3.id]],
+            hline2.modifications,
+        )
+        self.assertEqual(
+            self.FMT_3_VALUES(field=cfield.name, oldvalue=choice2.id, value=choice3.id),
+            hline2.get_verbose_modifications(user)[0],
+        )
+
+    def test_edition_customfield_multienum01(self):
+        user = self.user
+
+        cfield = CustomField.objects.create(
+            name='Categories',
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+            field_type=CustomField.MULTI_ENUM,
+        )
+
+        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
+        choice1 = create_evalue(value='Studio')
+        choice2 = create_evalue(value='Animation')
+        create_evalue(value='Food')
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        old_count = HistoryLine.objects.count()
+
+        CustomFieldValue.save_values_for_entities(
+            cfield, [gainax], [choice1.id, choice2.id],
+        )
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline1 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(gainax.id, hline1.entity.id)
+        self.assertEqual(FakeOrganisation, hline1.entity_ctype.model_class())
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline1.type)
+        self.assertEqual(user, hline1.entity_owner)
+        self.assertListEqual(
+            [[cfield.id, [], [choice1.id, choice2.id]]],
+            hline1.modifications,
+        )
+
+        vmodifs1 = hline1.get_verbose_modifications(user)
+        self.assertEqual(1, len(vmodifs1))
+        self.assertEqual(
+            f'Field “{cfield.name}” changed: [{choice1.id}, {choice2.id}] added.',
+            vmodifs1[0],
+        )
+
+        # Remove values ---
+        clear_global_info()  # Current line is stored in global cache
+        CustomFieldValue.save_values_for_entities(
+            cfield, [gainax], [choice2.id],  # Choice1 removed
+        )
+        self.assertEqual(old_count + 2, HistoryLine.objects.count())
+
+        hline2 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline2.type)
+        self.assertListEqual(
+            [[cfield.id, [choice1.id], []]],
+            hline2.modifications,
+        )
+        self.assertEqual(
+            f'Field “{cfield.name}” changed: [{choice1.id}] removed.',
+            hline2.get_verbose_modifications(user)[0],
+        )
+
+        # Add & remove at the same time ----
+        clear_global_info()  # Current line is stored in global cache
+        CustomFieldValue.save_values_for_entities(
+            cfield, [gainax], [choice1.id],  # Choice1 added, choice2 removed
+        )
+        self.assertEqual(old_count + 3, HistoryLine.objects.count())
+
+        hline3 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline3.type)
+        self.assertListEqual(
+            [[cfield.id, [choice2.id], [choice1.id]]],
+            hline3.modifications,
+        )
+        self.assertEqual(
+            f'Field “{cfield.name}” changed: [{choice2.id}] removed, [{choice1.id}] added.',
+            hline3.get_verbose_modifications(user)[0],
+        )
+
+    def test_edition_customfield_multienum02(self):
+        "Merge several lines with 2 CustomFields."
+        user = self.user
+
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=ct, field_type=CustomField.MULTI_ENUM,
+        )
+        cfield1 = create_cfield(name='Categories')
+        cfield2 = create_cfield(name='Theme')
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        choice1 = create_evalue(value='Studio', custom_field=cfield1)
+        create_evalue(value='Animation', custom_field=cfield1)
+        choice2 = create_evalue(value='Planes', custom_field=cfield2)
+        create_evalue(value='Nature', custom_field=cfield2)
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        old_count = HistoryLine.objects.count()
+
+        save_values = CustomFieldValue.save_values_for_entities
+        save_values(cfield1, [gainax], [choice1.id])
+        save_values(cfield2, [gainax], [choice2.id])
+
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(gainax.id, hline.entity.id)
+        self.assertEqual(FakeOrganisation, hline.entity_ctype.model_class())
+        self.assertEqual(TYPE_CUSTOM_EDITION, hline.type)
+        self.assertEqual(user, hline.entity_owner)
+        self.assertListEqual(
+            [
+                [cfield1.id, [], [choice1.id]],
+                [cfield2.id, [], [choice2.id]],
+            ],
+            hline.modifications,
+        )
+
+    # TODO: other CustomField types ?
+
     def test_deletion01(self):
         old_count = HistoryLine.objects.count()
         gainax = FakeOrganisation.objects.create(user=self.other_user, name='Gainax')
@@ -518,7 +987,6 @@ about this fantastic animation studio."""
 
         creation_line = HistoryLine.objects.get(entity=gainax)
 
-        # TODO: log trashing ??
         gainax.trash()
 
         self.assertPOST200(gainax.get_delete_absolute_url(), follow=True)
@@ -592,6 +1060,7 @@ about this fantastic animation studio."""
         )
 
     def test_related_edition01(self):
+        "No HistoryConfigItem => no related line."
         user = self.user
         ghibli = self._build_organisation(user=user.id, name='Ghibli')
 
@@ -633,8 +1102,7 @@ about this fantastic animation studio."""
 
     def test_related_edition02(self):
         user = self.user
-        ghibli = self._build_organisation(user=user.id, name='Ghibli')
-        sleep(1)  # Ensure that 'modified' fields are different
+        ghibli = self.create_old(FakeOrganisation, user=user, name='Ghibli')
 
         first_name = 'Hayao'
         last_name  = 'Miyazaki'
@@ -683,15 +1151,122 @@ about this fantastic animation studio."""
         self.assertBetweenDates(hline)
         self.assertEqual(self.refresh(hayao).modified, hline.date)
 
-    def test_add_property01(self):
+    def test_related_edition_m2m(self):
         user = self.user
-        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        ghibli = self.create_old(FakeOrganisation, user=user, name='Ghibli')
+        img = FakeImage.objects.create(user=user, name='Museum image')
+
+        rtype = RelationType.create(
+            ('test-subject_related_img', '(image) is used by'),
+            ('test-object_related_img',  'has related image'),
+        )[0]
+        Relation.objects.create(
+            user=user, subject_entity=img, object_entity=ghibli, type=rtype,
+        )
+
+        HistoryConfigItem.objects.create(relation_type=rtype)
         old_count = HistoryLine.objects.count()
 
-        sleep(1)  # Ensure that 'modified' field is not 'now()'
+        cat = FakeImageCategory.objects.first()
+        img.categories.add(cat)
+
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 2, len(hlines))
+
+        edition_hline = hlines[-2]
+        self.assertEqual(TYPE_EDITION, edition_hline.type)
+
+        hline = hlines[-1]
+        self.assertEqual(ghibli.id,          hline.entity.id)
+        self.assertEqual(ghibli.entity_type, hline.entity_ctype)
+        self.assertEqual(user,               hline.entity_owner)
+        self.assertEqual(TYPE_RELATED,       hline.type)
+        self.assertEqual(str(ghibli),        hline.entity_repr)
+        self.assertEqual(edition_hline.id,   hline.related_line.id)
+        self.assertListEqual([], hline.modifications)
+
+    def test_related_edition_customfield(self):
+        user = self.user
+
+        ct = ContentType.objects.get_for_model(FakeContact)
+        cfield = CustomField.objects.create(
+            name='Hobbies', content_type=ct, field_type=CustomField.STR,
+        )
+
+        ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
+        hayao = FakeContact.objects.create(user=user, last_name='Miyazaki')
+
+        rtype = self.get_object_or_fail(RelationType, pk=FAKE_REL_SUB_EMPLOYED_BY)
+        Relation.objects.create(
+            user=user, subject_entity=hayao, object_entity=ghibli, type=rtype,
+        )
+
+        HistoryConfigItem.objects.create(relation_type=rtype)
+        old_count = HistoryLine.objects.count()
+
+        CustomFieldValue.save_values_for_entities(cfield, [hayao], 'Planes')
+
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 2, len(hlines))
+
+        edition_hline = hlines[-2]
+        self.assertEqual(TYPE_CUSTOM_EDITION, edition_hline.type)
+
+        hline = hlines[-1]
+        self.assertEqual(ghibli.id,          hline.entity.id)
+        self.assertEqual(ghibli.entity_type, hline.entity_ctype)
+        self.assertEqual(user,               hline.entity_owner)
+        self.assertEqual(TYPE_RELATED,       hline.type)
+        self.assertEqual(str(ghibli),        hline.entity_repr)
+        self.assertEqual(edition_hline.id,   hline.related_line.id)
+        self.assertListEqual([], hline.modifications)
+
+    def test_related_edition_customfield_multienum(self):
+        user = self.user
+
+        cfield = CustomField.objects.create(
+            name='Categories',
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+            field_type=CustomField.MULTI_ENUM,
+        )
+        choice1 = CustomFieldEnumValue.objects.create(custom_field=cfield, value='Studio')
+
+        ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
+        hayao = FakeContact.objects.create(user=user, last_name='Miyazaki')
+
+        rtype = self.get_object_or_fail(RelationType, pk=FAKE_REL_SUB_EMPLOYED_BY)
+        Relation.objects.create(
+            user=user, subject_entity=hayao, object_entity=ghibli, type=rtype,
+        )
+
+        HistoryConfigItem.objects.create(relation_type=rtype)
+        old_count = HistoryLine.objects.count()
+
+        CustomFieldValue.save_values_for_entities(cfield, [hayao], [choice1.id])
+
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 2, len(hlines))
+
+        edition_hline = hlines[-2]
+        self.assertEqual(TYPE_CUSTOM_EDITION, edition_hline.type)
+
+        hline = hlines[-1]
+        self.assertEqual(ghibli.id,          hline.entity.id)
+        self.assertEqual(ghibli.entity_type, hline.entity_ctype)
+        self.assertEqual(user,               hline.entity_owner)
+        self.assertEqual(TYPE_RELATED,       hline.type)
+        self.assertEqual(str(ghibli),        hline.entity_repr)
+        self.assertEqual(edition_hline.id,   hline.related_line.id)
+        self.assertListEqual([], hline.modifications)
+
+    def test_add_property01(self):
+        user = self.user
+
+        gainax = self.create_old(FakeOrganisation, user=user, name='Gainax')
+        old_count = HistoryLine.objects.count()
 
         ptype = CremePropertyType.create(
-            str_pk='test-prop_make_animes', text='Make animes',
+            str_pk='test-prop_make_animes', text='Make anime series',
         )
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
@@ -716,9 +1291,8 @@ about this fantastic animation studio."""
 
     def test_delete_property01(self):
         user = self.user
-        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        gainax = self.create_old(FakeOrganisation, user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
-        sleep(1)  # Ensure that 'modified' field is not 'now()'
 
         ptype = CremePropertyType.create(str_pk='test-prop_make_animes', text='make animes')
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
@@ -748,11 +1322,12 @@ about this fantastic animation studio."""
 
     def test_add_relation01(self):
         user = self.user
-        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        old_count = HistoryLine.objects.count()
 
-        sleep(1)  # Ensure than relation is younger than entities
+        # Ensure than relation is younger than entities
+        nerv = self.create_old(FakeOrganisation, user=user, name='Nerv')
+        rei = self.create_old(FakeContact, user=user, first_name='Rei', last_name='Ayanami')
+
+        old_count = HistoryLine.objects.count()
 
         rtype, srtype = RelationType.create(
             ('test-subject_works4', 'is employed'),
@@ -1003,6 +1578,229 @@ about this fantastic animation studio."""
             vmodifs[2],
         )
 
+    def test_edition_auxiliary_m2m01(self):
+        cat1, cat2 = FakeTodoCategory.objects.order_by('id')[:2]
+
+        gainax = FakeOrganisation.objects.create(user=self.other_user, name='Gainax')
+        todo = FakeTodo.objects.create(title='New logo', creme_entity=gainax)
+        old_count = HistoryLine.objects.count()
+
+        gainax = self.refresh(gainax)
+        todo.categories.set([cat1, cat2])
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline1 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_AUX_EDITION, hline1.type)
+
+        self.assertEqual(gainax.id,          hline1.entity.id)
+        self.assertEqual(gainax.entity_type, hline1.entity_ctype)
+        self.assertEqual(self.other_user,    hline1.entity_owner)
+        self.assertListEqual(
+            [
+                [
+                    ContentType.objects.get_for_model(todo).id,
+                    todo.id,
+                    str(todo),
+                ],
+                ['categories', [], [cat1.id, cat2.id]],
+            ],
+            hline1.modifications,
+        )
+
+        vmodifs1 = hline1.get_verbose_modifications(self.user)
+        self.assertEqual(2, len(vmodifs1))
+        self.assertEqual(
+            _('Edit <{type}>: “{value}”').format(type='Test Todo', value=todo),
+            vmodifs1[0],
+        )
+        self.assertIn(
+            vmodifs1[1],
+            (
+                f'Field “{_("Categories")}” changed: [{cat1}, {cat2}] added.',
+                f'Field “{_("Categories")}” changed: [{cat2}, {cat1}] added.',
+            ),
+        )
+
+        # ---
+        todo = self.refresh(todo)  # Reset cache
+        todo.categories.set([cat1])
+
+        hline2 = HistoryLine.objects.order_by('-id').first()
+        self.assertNotEqual(hline1, hline2)
+        self.assertEqual(TYPE_AUX_EDITION, hline2.type)
+        self.assertListEqual(
+            ['categories', [cat2.id], []],
+            hline2.modifications[1],
+        )
+        self.assertListEqual(
+            [
+                _('Edit <{type}>: “{value}”').format(type='Test Todo', value=todo),
+                f'Field “{_("Categories")}” changed: [{cat2}] removed.'
+            ],
+            hline2.get_verbose_modifications(self.user),
+        )
+
+    def test_edition_auxiliary_m2m02(self):
+        "add()/remove() (not at the same time)."
+        user = self.user
+        cat = FakeTodoCategory.objects.first()
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        todo = FakeTodo.objects.create(title='New logo', creme_entity=gainax)
+
+        # todo = self.refresh(todo)
+        todo.categories.add(cat)
+
+        hline1 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_AUX_EDITION, hline1.type)
+        self.assertEqual(gainax.id, hline1.entity.id)
+        self.assertListEqual(
+            ['categories', [], [cat.id]],
+            hline1.modifications[1],
+        )
+
+        # ---
+        todo = self.refresh(todo)
+        todo.categories.remove(cat)
+
+        hline2 = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_AUX_EDITION, hline2.type)
+        self.assertEqual(gainax.id, hline2.entity.id)
+        self.assertListEqual(
+            ['categories', [cat.id], []],
+            hline2.modifications[1],
+        )
+
+    def test_edition_auxiliary_m2m03(self):
+        "Set() which adds & removes at the same time (1 line, not 2)."
+        user = self.user
+        cat1, cat2, cat3 = FakeTodoCategory.objects.order_by('id')[:3]
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        todo = FakeTodo.objects.create(title='New logo', creme_entity=gainax)
+        todo.categories.set([cat2, cat3])
+        old_count = HistoryLine.objects.count()
+
+        todo = self.refresh(todo)
+        todo.categories.set([cat1, cat3])
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_AUX_EDITION, hline.type)
+        self.assertEqual(gainax.id, hline.entity.id)
+        self.assertListEqual(
+            [
+                [
+                    ContentType.objects.get_for_model(todo).id,
+                    todo.id,
+                    str(todo),
+                ],
+                ['categories', [cat2.id], [cat1.id]],
+            ],
+            hline.modifications,
+        )
+        self.assertEqual(
+            f'Field “{_("Categories")}” changed: [{cat2}] removed, [{cat1}] added.',
+            hline.get_verbose_modifications(user)[1],
+        )
+
+        # We re-add an element (don't do that...)
+        todo.categories.add(cat2)
+        self.assertListEqual(
+            ['categories', [], [cat1.id]],
+            self.refresh(hline).modifications[1],
+        )
+
+        # We re-remove an element (don't do that...)
+        todo.categories.remove(cat1)
+        self.assertListEqual(
+            # NB: if your code produces this kind of empty line, change your code
+            ['categories', [], []],
+            self.refresh(hline).modifications[1],
+        )
+
+    def test_edition_auxiliary_m2m04(self):
+        "clear()."
+        user = self.user
+        cat = FakeTodoCategory.objects.first()
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        todo = FakeTodo.objects.create(title='New logo', creme_entity=gainax)
+        todo.categories.set([cat])
+        old_count = HistoryLine.objects.count()
+
+        todo = self.refresh(todo)
+        todo.categories.clear()
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_AUX_EDITION, hline.type)
+        self.assertEqual(gainax.id, hline.entity.id)
+        self.assertListEqual(
+            ['categories', [cat.id], []],
+            hline.modifications[1],
+        )
+
+    def test_edition_auxiliary_regular_n_m2m(self):
+        user = self.user
+        cat = FakeTodoCategory.objects.first()
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+
+        old_title = 'new logo'
+        todo = FakeTodo.objects.create(title=old_title, creme_entity=gainax)
+        old_count = HistoryLine.objects.count()
+
+        todo = self.refresh(todo)  # Reset cache
+        todo.title = new_title = old_title.upper()
+        todo.save()
+        todo.categories.set([cat])
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_AUX_EDITION, hline.type)
+        self.assertEqual(gainax.id, hline.entity.id)
+        self.assertListEqual(
+            [
+                ['title', old_title, new_title],
+                ['categories', [], [cat.id]],
+            ],
+            hline.modifications[1:],
+        )
+
+    def test_edition_auxiliary_multi_save(self):
+        user = self.user
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+
+        old_title = 'new logo'
+        todo = FakeTodo.objects.create(title=old_title, creme_entity=gainax)
+        old_count = HistoryLine.objects.count()
+
+        todo = self.refresh(todo)  # Reset cache
+        todo.title = new_title = old_title.title()
+        todo.save()
+
+        todo.description = description = 'We should design a new logo'
+        todo.save()
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())  # Not 2
+
+        hline = HistoryLine.objects.order_by('-id').first()
+        self.assertEqual(TYPE_AUX_EDITION, hline.type)
+        self.assertEqual(gainax.id, hline.entity.id)
+        self.assertListEqual(
+            [
+                [
+                    ContentType.objects.get_for_model(todo).id,
+                    todo.id,
+                    str(todo),
+                ],
+                ['title', old_title, new_title],
+                ['description', description],
+            ],
+            hline.modifications,
+        )
+
     def test_delete_auxiliary(self):
         "Auxiliary: Address."
         user = self.user
@@ -1077,14 +1875,21 @@ about this fantastic animation studio."""
         rei.save()
 
         hlines = [*HistoryLine.objects.filter(entity=rei.id).order_by('id')]
-        self.assertEqual(3, len(hlines))
+        # self.assertEqual(3, len(hlines))
+        self.assertEqual(2, len(hlines))
         self.assertEqual(creation_hline,  hlines[0])
-        self.assertEqual(edition_hline01, hlines[1])
+        # self.assertEqual(edition_hline01, hlines[1])
 
-        edition_hline02 = hlines[2]
-        self.assertEqual(TYPE_EDITION, edition_hline02.type)
+        # edition_hline02 = hlines[2]
+        edition_hline02 = hlines[1]
+        self.assertEqual(TYPE_EDITION,       edition_hline02.type)
+        self.assertEqual(edition_hline01.id, edition_hline02.id)
         self.assertListEqual(
-            [['first_name', old_first_name, new_first_name]],
+            # [['first_name', old_first_name, new_first_name]],
+            [
+                ['last_name', old_last_name, new_last_name],
+                ['first_name', old_first_name, new_first_name],
+            ],
             edition_hline02.modifications,
         )
 
@@ -1121,25 +1926,29 @@ about this fantastic animation studio."""
     def test_disable01(self):
         "CremeEntity creation, edition & deletion."
         old_count = HistoryLine.objects.count()
-        nerv = FakeOrganisation(user=self.user, name='nerv')
+        logo = FakeImage(user=self.user, name="nerv's logo")
 
-        HistoryLine.disable(nerv)
-        nerv.save()
+        HistoryLine.disable(logo)
+        logo.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        # -----------------------
-        nerv = self.refresh(nerv)
-        HistoryLine.disable(nerv)
+        # Edition ---
+        logo = self.refresh(logo)
+        HistoryLine.disable(logo)
 
-        nerv.name = nerv.name.title()
-        nerv.save()
+        logo.name = logo.name.title()
+        logo.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-        # -----------------------
-        nerv = self.refresh(nerv)
-        HistoryLine.disable(nerv)
+        # Edition (M2M) ---
+        logo.categories.add(FakeImageCategory.objects.first())
+        self.assertEqual(old_count, HistoryLine.objects.count())
 
-        nerv.delete()
+        # Deletion ---
+        logo = self.refresh(logo)
+        HistoryLine.disable(logo)
+
+        logo.delete()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
     def test_disable02(self):
