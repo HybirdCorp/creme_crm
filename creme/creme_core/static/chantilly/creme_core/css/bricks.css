@@ -1262,20 +1262,24 @@ svg.icon {
     font-weight: 600;
 }
 
-.creme_core-history-brick .field-change-old_value {
+.creme_core-history-brick .field-change-old_value,
+.creme_core-history-brick .field-change-m2m_removed {
     color: #613232;
     font-weight: 700;
     font-style: italic;
 }
 
-.creme_core-history-brick .field-change-new_value {
+.creme_core-history-brick .field-change-new_value,
+.creme_core-history-brick .field-change-m2m_added {
     color: #437149;
     font-weight: 700;
     font-style: italic;
 }
 
 .creme_core-history-brick .field-change-old_value a,
-.creme_core-history-brick .field-change-new_value a {
+.creme_core-history-brick .field-change-new_value a,
+.creme_core-history-brick .field-change-m2m_added a,
+.creme_core-history-brick .field-change-m2m_removed a {
     font-weight: 500;
     font-style: initial;
 }

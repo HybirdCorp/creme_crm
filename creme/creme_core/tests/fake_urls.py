@@ -114,10 +114,16 @@ urlpatterns = [
         fake_views.FakeInvoiceLinesList.as_view(),
         name='creme_core__list_fake_invoicelines',
     ),
+
     re_path(
         r'^tests/mailing_lists[/]?$',
         fake_views.FakeMailingListsList.as_view(),
         name='creme_core__list_fake_mlists',
+    ),
+    re_path(
+        r'^tests/mailing_list/(?P<ml_id>\d+)[/]?$',
+        fake_views.FakeMailingListDetail.as_view(),
+        name='creme_core__view_fake_mlist',
     ),
 
     re_path(

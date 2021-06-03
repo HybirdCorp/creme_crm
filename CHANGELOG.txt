@@ -8,10 +8,12 @@
 
   Users side :
   ------------
-    # The version of Django has been upgraded to "3.1".
+    # The version of Django has been upgraded to "3.2".
     # The history has been improved :
         - The messages in the the history block are prettier.
         - Old & new values are stored now for TextFields (eg: description) ; they are shown in a popover dialog.
+        - Elements which are added & removed for ManyToManyFields are now stored.
+        - CustomFields are now historized too.
     # The global search can now search in Custom-Fields.
     # Many blocks got descriptions, which are displayed as tool-tips.
     # Apps :

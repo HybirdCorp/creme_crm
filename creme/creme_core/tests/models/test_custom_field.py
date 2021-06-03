@@ -15,6 +15,7 @@ from creme.creme_config.forms.fields import (
     CustomMultiEnumChoiceField,
 )
 from creme.creme_core.models import (
+    CremeEntity,
     CustomField,
     CustomFieldBoolean,
     CustomFieldDate,
@@ -29,6 +30,7 @@ from creme.creme_core.models import (
     CustomFieldURL,
     FakeContact,
     FakeOrganisation,
+    HistoryLine,
 )
 
 from ..base import CremeTestCase
@@ -77,7 +79,7 @@ class CustomFieldManagerTestCase(CremeTestCase):
 
         self.assertDictEqual(
             {cfield1.id: cfield1, cfield2.id: cfield2},
-            cfields1
+            cfields1,
         )
 
         # Cache ---
@@ -133,7 +135,7 @@ class CustomFieldsTestCase(CremeTestCase):
 
         self.assertEqual(
             'customfieldinteger',
-            CustomFieldInteger.get_related_name()
+            CustomFieldInteger.get_related_name(),
         )
 
         orga = self._create_orga()
@@ -171,6 +173,8 @@ class CustomFieldsTestCase(CremeTestCase):
         )
 
         value = cf_value.value + 1
+
+        HistoryLine.disable(cf_value)
 
         with self.assertNumQueries(1):
             cf_value.set_value_n_save(value)
@@ -374,6 +378,8 @@ by a man named Tochiro.
             value=False,
         )
 
+        HistoryLine.disable(cf_value)
+
         with self.assertNumQueries(1):
             cf_value.set_value_n_save(True)
 
@@ -445,6 +451,8 @@ by a man named Tochiro.
             value=enum_value1,
         )
 
+        HistoryLine.disable(cf_value)
+
         with self.assertNumQueries(1):
             cf_value.set_value_n_save(str(enum_value2.id))
 
@@ -493,7 +501,7 @@ by a man named Tochiro.
                 (enum_value1.id, enum_value1.value),
                 (enum_value2.id, enum_value2.value),
             ],
-            formfield.choices
+            formfield.choices,
         )
 
     def test_multi_enum02(self):
@@ -517,8 +525,9 @@ by a man named Tochiro.
             entity=orga,
         )
 
-        # with self.assertNumQueries(3):
-        with self.assertNumQueries(2):
+        HistoryLine.disable(cf_value)
+
+        with self.assertNumQueries(3):
             cf_value.set_value_n_save([enum_value1, enum_value2])
 
         self.assertSetEqual(
@@ -597,7 +606,9 @@ by a man named Tochiro.
         orga2 = create_orga(name='Queen Emeraldas')
 
         value = 456
-        with self.assertNumQueries(3):
+        # with self.assertNumQueries(3):
+        # NB: 2x2 queries for history (create lines, get config) TODO: get config once
+        with self.assertNumQueries(7):
             CustomFieldInteger.save_values_for_entities(
                 custom_field=cfield,
                 entities=[orga1, orga2],
@@ -613,7 +624,9 @@ by a man named Tochiro.
         # Do not save entities with existing same value ---
         orga3 = create_orga(name='Yamato')
 
-        with self.assertNumQueries(2):
+        # with self.assertNumQueries(2):
+        # NB: 2 queries for history
+        with self.assertNumQueries(4):
             CustomFieldInteger.save_values_for_entities(
                 custom_field=cfield,
                 entities=[orga1, orga3],
@@ -623,10 +636,13 @@ by a man named Tochiro.
         cf_value3 = self.get_object_or_fail(CustomFieldInteger, custom_field=cfield, entity=orga3)
         self.assertEqual(value, cf_value3.value)
 
+        ContentType.objects.get_for_model(CremeEntity)  # Fill cache
+
         # Empty value => deletion ---
-        with self.assertNumQueries(2):
-            # NB: Django makes a query to retrieve the IDs, then performs a
-            #     second query...
+        # NB1: Django makes a query to retrieve the IDs, then performs a second query...
+        # NB2: 2x3 queries for history (get entity, get real entity, update line)
+        # with self.assertNumQueries(2):
+        with self.assertNumQueries(8):
             CustomFieldInteger.save_values_for_entities(
                 custom_field=cfield,
                 entities=[orga1, orga2],
@@ -678,7 +694,7 @@ by a man named Tochiro.
                 },
                 # orga3.id: {}, NOPE
             },
-            values_map
+            values_map,
         )
 
     def test_get_custom_values_map02(self):
@@ -720,5 +736,5 @@ by a man named Tochiro.
                 },
                 # orga3.id: {}, NOPE
             },
-            values_map
+            values_map,
         )

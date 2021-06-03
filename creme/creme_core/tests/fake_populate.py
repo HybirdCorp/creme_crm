@@ -62,10 +62,10 @@ def populate():
     create_sector(title='Industry')
     create_sector(title='Software')
 
-    create_cat = fake_models.FakeImageCategory.objects.get_or_create
-    create_cat(name='Product image')
-    create_cat(name='Organisation logo')
-    create_cat(name='Contact photograph')
+    create_img_cat = fake_models.FakeImageCategory.objects.get_or_create
+    create_img_cat(name='Product image')
+    create_img_cat(name='Organisation logo')
+    create_img_cat(name='Contact photograph')
 
     create_actype = fake_models.FakeActivityType.objects.get_or_create
     create_actype(name='Phone call')
@@ -80,6 +80,11 @@ def populate():
     create_priority(id=1, defaults={'name': 'High',   'is_custom': False})
     create_priority(id=2, defaults={'name': 'Medium', 'is_custom': False})
     create_priority(id=3, defaults={'name': 'Low',    'is_custom': False})
+
+    create_todo_cat = fake_models.FakeTodoCategory.objects.get_or_create
+    create_todo_cat(name='Enhancement')
+    create_todo_cat(name='Fix')
+    create_todo_cat(name='Help wanted')
 
     create_hf = HeaderFilter.objects.create_if_needed
     create_hf(

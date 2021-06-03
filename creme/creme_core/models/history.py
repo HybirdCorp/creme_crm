@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+from builtins import getattr
 from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
@@ -29,6 +30,7 @@ from typing import (
     Callable,
     Container,
     Dict,
+    Iterable,
     Iterator,
     List,
     Optional,
@@ -40,19 +42,9 @@ from typing import (
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
-from django.db.models import (
-    CASCADE,
-    SET_NULL,
-    CharField,
-    Field,
-    ForeignKey,
-    Model,
-    OneToOneField,
-    PositiveSmallIntegerField,
-    TextField,
-)
+from django.db import models
+from django.db.models import Field, ForeignKey, Model, signals
 from django.db.models.base import ModelState
-from django.db.models.signals import post_init, post_save, pre_delete
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.formats import date_format, number_format
@@ -62,7 +54,11 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext
 
 from ..core.field_tags import FieldTag
-from ..global_info import get_global_info, set_global_info
+from ..global_info import (
+    get_global_info,
+    get_per_request_cache,
+    set_global_info,
+)
 from ..signals import pre_merge_related
 from ..utils.dates import (
     date_from_ISO8601,
@@ -72,6 +68,12 @@ from ..utils.dates import (
 )
 from ..utils.translation import get_model_verbose_name
 from .creme_property import CremeProperty, CremePropertyType
+from .custom_field import (
+    CustomField,
+    CustomFieldEnum,
+    CustomFieldMultiEnum,
+    CustomFieldValue,
+)
 from .entity import CremeEntity
 from .entity_filter import EntityFilter
 from .fields import CreationDateTimeField, CremeUserForeignKey, CTypeForeignKey
@@ -229,21 +231,22 @@ class _HistoryLineTypeRegistry:
 
 TYPES_MAP = _HistoryLineTypeRegistry()
 
-TYPE_CREATION     = 1
-TYPE_EDITION      = 2
-TYPE_DELETION     = 3
-TYPE_RELATED      = 4
-TYPE_PROP_ADD     = 5
-TYPE_RELATION     = 6
-TYPE_SYM_RELATION = 7
-TYPE_RELATION_DEL = 8
-TYPE_SYM_REL_DEL  = 9
-TYPE_AUX_CREATION = 10
-TYPE_AUX_EDITION  = 11
-TYPE_AUX_DELETION = 12
-TYPE_PROP_DEL     = 13
-TYPE_TRASH        = 14
-TYPE_EXPORT       = 20
+TYPE_CREATION        =  1
+TYPE_EDITION         =  2
+TYPE_DELETION        =  3
+TYPE_RELATED         =  4
+TYPE_PROP_ADD        =  5
+TYPE_RELATION        =  6
+TYPE_SYM_RELATION    =  7
+TYPE_RELATION_DEL    =  8
+TYPE_SYM_REL_DEL     =  9
+TYPE_AUX_CREATION    = 10
+TYPE_AUX_EDITION     = 11
+TYPE_AUX_DELETION    = 12
+TYPE_PROP_DEL        = 13
+TYPE_TRASH           = 14
+TYPE_CUSTOM_EDITION  = 15
+TYPE_EXPORT          = 20
 
 
 class _HistoryLineType:
@@ -332,22 +335,49 @@ class _HistoryLineType:
                 vmodif = gettext('Set field “{field}”').format(field=field_name)
             else:
                 field_vname = field.verbose_name
-                length = len(modif)
 
-                if length == 1:
-                    vmodif = gettext('Set field “{field}”').format(field=field_vname)
-                elif length == 2:
-                    vmodif = gettext('Set field “{field}” to “{value}”').format(
-                        field=field_vname,
-                        value=self._get_printer(field)(field, modif[1], user),
+                if isinstance(field, models.ManyToManyField):
+                    removed_pks = modif[1]
+                    added_pks = modif[2]
+
+                    linked_instances = (
+                        field.remote_field.model._default_manager.in_bulk(removed_pks + added_pks)
                     )
-                else:  # length == 3
-                    printer = self._get_printer(field)
-                    vmodif = gettext('Set field “{field}” from “{oldvalue}” to “{value}”').format(
+                    pk_details = []
+
+                    def append_details(pks, format_str):
+                        if pks:
+                            # TODO: allowed_str() if entity...
+                            pk_details.append(format_str.format(
+                                ', '.join(str(linked_instances.get(pk, '?')) for pk in pks)
+                            ))
+
+                    append_details(removed_pks, '[{}] removed')
+                    append_details(added_pks, '[{}] added')
+
+                    vmodif = 'Field “{field}” changed: {details}.'.format(
                         field=field_vname,
-                        oldvalue=printer(field, modif[1], user),
-                        value=printer(field, modif[2], user),
+                        details=', '.join(pk_details),
                     )
+                else:
+                    length = len(modif)
+
+                    if length == 1:
+                        vmodif = gettext('Set field “{field}”').format(field=field_vname)
+                    elif length == 2:
+                        vmodif = gettext('Set field “{field}” to “{value}”').format(
+                            field=field_vname,
+                            value=self._get_printer(field)(field, modif[1], user),
+                        )
+                    else:  # length == 3
+                        printer = self._get_printer(field)
+                        vmodif = gettext(
+                            'Set field “{field}” from “{oldvalue}” to “{value}”'
+                        ).format(
+                            field=field_vname,
+                            oldvalue=printer(field, modif[1], user),
+                            value=printer(field, modif[2], user),
+                        )
 
             yield vmodif
 
@@ -361,6 +391,68 @@ class _HistoryLineType:
             yield m
 
 
+class _HLTCacheMixin:
+    @classmethod
+    def _get_cache_key(cls, instance):
+        raise NotImplementedError
+
+    @classmethod
+    def _get_cached_line(cls, instance):
+        raise NotImplementedError
+
+    @classmethod
+    def _set_cached_line(cls, instance, hline):
+        raise NotImplementedError
+
+
+class _HLTInstanceCacheMixin(_HLTCacheMixin):
+    @classmethod
+    def _get_cached_line(cls, instance):
+        return getattr(instance, cls._get_cache_key(instance), None)
+
+    @classmethod
+    def _set_cached_line(cls, instance, hline):
+        setattr(instance, cls._get_cache_key(instance), hline)
+
+
+class _HLTRequestCacheMixin(_HLTCacheMixin):
+    @classmethod
+    def _get_cached_line(cls, instance):
+        cache = get_per_request_cache()
+        cache_key = cls._get_cache_key(instance)
+        return cache.get(cache_key)
+
+    @classmethod
+    def _set_cached_line(cls, instance, hline):
+        get_per_request_cache()[cls._get_cache_key(instance)] = hline
+
+
+class _HLTManyToManyMixin:
+    @staticmethod
+    def _initial_m2m_modification(field_id, removed_pk_set, added_pk_set):
+        yield field_id, sorted(removed_pk_set), sorted(added_pk_set)
+
+    @staticmethod
+    def _updated_m2m_modifications(existing_modifications,
+                                   field_id,
+                                   removed_pk_set, added_pk_set):
+        accumulated_added = {*added_pk_set}
+        accumulated_removed = {*removed_pk_set}
+
+        for info in existing_modifications:
+            if info[0] != field_id:
+                yield info
+            else:
+                accumulated_removed.update(info[1])
+                accumulated_added.update(info[2])
+
+        yield (
+            field_id,
+            sorted(accumulated_removed - accumulated_added),
+            sorted(accumulated_added - accumulated_removed),
+        )
+
+
 @TYPES_MAP(TYPE_CREATION)
 class _HLTEntityCreation(_HistoryLineType):
     verbose_name = _('Creation')
@@ -368,26 +460,230 @@ class _HLTEntityCreation(_HistoryLineType):
     @classmethod
     def create_line(cls, entity: CremeEntity) -> None:
         HistoryLine._create_line_4_instance(entity, cls.type_id, date=entity.created)
-        # We do not backup here, in order to keep a kind of 'creation session'.
-        # So when you create a CremeEntity, while you still use the same
-        # python object, multiple save() will not generate several
-        # HistoryLine objects.
+        # We do not backup here (and the handler _prepare_log() only creates if
+        # PK exists), in order to keep a kind of 'creation session'.
+        # So when you create a CremeEntity, while you still use the same python
+        # object, multiple save() will not generate several HistoryLine objects.
 
 
 @TYPES_MAP(TYPE_EDITION)
-class _HLTEntityEdition(_HistoryLineType):
+class _HLTEntityEdition(_HLTManyToManyMixin,
+                        _HLTInstanceCacheMixin,
+                        _HistoryLineType):
     verbose_name = _('Edition')
+
+    @classmethod
+    def _get_cache_key(cls, instance):
+        return '_historyline_edition'
 
     @classmethod
     def create_lines(cls, entity: CremeEntity) -> None:
         modifs = _HistoryLineType._build_fields_modifs(entity)
 
         if modifs:
+            hline = cls._get_cached_line(entity)
+
+            if hline is None:
+                hline = HistoryLine._create_line_4_instance(
+                    entity, cls.type_id, date=entity.modified, modifs=modifs,
+                )
+                _HLTRelatedEntity.create_lines(entity, hline)
+                cls._create_entity_backup(entity)
+                cls._set_cached_line(entity, hline)
+            else:
+                # NB: to build attribute "_modifications"  TODO: improve HistoryLine API...
+                hline._read_attrs()
+
+                # NB: we could merge modifications of the same field, but one
+                #     should avoiding multiple save() (& so HistoryLine can help
+                #     detecting these cases).
+                modifications = [*hline._modifications, *modifs]
+
+                # hline._modifications = modifications  # TODO
+                hline.value = hline._encode_attrs(entity, modifs=modifications)
+                hline.save()
+
+    @classmethod
+    def create_lines_for_m2m(cls,
+                             entity: CremeEntity,
+                             m2m_name: str,
+                             removed_pk_set: Iterable = (),
+                             added_pk_set: Iterable = (),
+                             ) -> None:
+        hline = cls._get_cached_line(entity)
+
+        if hline is None:
             hline = HistoryLine._create_line_4_instance(
-                entity, cls.type_id, date=entity.modified, modifs=modifs,
+                entity, cls.type_id,
+                modifs=[*cls._initial_m2m_modification(m2m_name, removed_pk_set, added_pk_set)],
             )
+            cls._set_cached_line(entity, hline)
+
             _HLTRelatedEntity.create_lines(entity, hline)
-            cls._create_entity_backup(entity)
+        else:
+            # NB: to build attribute "_modifications"  TODO: improve HistoryLine API...
+            hline._read_attrs()
+
+            modifications = [
+                *cls._updated_m2m_modifications(
+                    existing_modifications=hline._modifications,
+                    field_id=m2m_name,
+                    removed_pk_set=removed_pk_set, added_pk_set=added_pk_set,
+                ),
+            ]
+
+            # hline._modifications = modifications  # TODO
+            hline.value = hline._encode_attrs(entity, modifs=modifications)
+            hline.save()
+
+
+@TYPES_MAP(TYPE_CUSTOM_EDITION)
+class _HLTCustomFieldsEdition(_HLTManyToManyMixin,
+                              _HLTRequestCacheMixin,
+                              _HistoryLineType):
+    verbose_name = _('Edition (custom fields)')
+
+    backup_attname = '_history_value_backup'
+
+    @classmethod
+    def _create_cvalue_backup(cls, custom_value: CustomFieldValue):
+        if not isinstance(custom_value, CustomFieldMultiEnum):
+            storable_value = (
+                custom_value.value_id
+                if isinstance(custom_value, CustomFieldEnum) else
+                custom_value.value
+            )
+            setattr(custom_value, cls.backup_attname, storable_value)
+
+    @classmethod
+    def _get_cache_key(cls, instance):
+        return f'creme_core-history_lines-custom-{instance.id}'
+
+    @classmethod
+    def create_lines(cls, custom_value: CustomFieldValue, emptied=False) -> None:
+        if isinstance(custom_value, CustomFieldMultiEnum):
+            return
+
+        entity = custom_value.entity
+
+        old_value = getattr(custom_value, cls.backup_attname, None)
+        new_value = (
+            None if emptied else (
+                custom_value.value_id
+                if isinstance(custom_value, CustomFieldEnum) else
+                custom_value.value
+            )
+        )
+        new_modif = (
+            (custom_value.custom_field_id, new_value)
+            if custom_value.is_empty_value(old_value) else
+            (custom_value.custom_field_id, old_value, new_value)
+        )
+        hline = cls._get_cached_line(entity)
+
+        if hline is None:
+            hline = HistoryLine._create_line_4_instance(
+                entity, cls.type_id, modifs=[new_modif],
+            )
+            cls._set_cached_line(entity, hline)
+            _HLTRelatedEntity.create_lines(entity, hline)
+        else:
+            # NB: to build attribute "_modifications"  TODO: improve HistoryLine API...
+            hline._read_attrs()
+
+            # NB: we could merge modifications of the same custom field, but one
+            #     should avoiding multiple save() (& so HistoryLine can help
+            #     detecting these cases).
+            modifications = [*hline._modifications, new_modif]
+
+            # hline._modifications = modifications TODO
+            hline.value = hline._encode_attrs(entity, modifs=modifications)
+            hline.save()
+
+    # TODO: factorise
+    @classmethod
+    def create_lines_for_multienum(cls,
+                                   custom_value,
+                                   removed_pk_set: Iterable = (),
+                                   added_pk_set: Iterable = (),
+                                   **kwargs
+                                   ) -> None:
+        entity = custom_value.entity
+        cfield_id = custom_value.custom_field_id
+        hline = cls._get_cached_line(entity)
+
+        if hline is None:
+            hline = HistoryLine._create_line_4_instance(
+                entity, cls.type_id,
+                modifs=[*cls._initial_m2m_modification(cfield_id, removed_pk_set, added_pk_set)],
+            )
+            cls._set_cached_line(entity, hline)
+            _HLTRelatedEntity.create_lines(entity, hline)
+        else:
+            # NB: to build attribute "_modifications"  TODO: improve HistoryLine API...
+            hline._read_attrs()
+
+            modifications = [
+                *cls._updated_m2m_modifications(
+                    existing_modifications=hline._modifications,
+                    field_id=cfield_id,
+                    removed_pk_set=removed_pk_set, added_pk_set=added_pk_set,
+                ),
+            ]
+
+            # hline._modifications = modifications  # TODO
+            hline.value = hline._encode_attrs(entity, modifs=modifications)
+            hline.save()
+
+    def verbose_modifications(self,
+                              modifications: List[tuple],
+                              entity_ctype: ContentType,
+                              user) -> Iterator[str]:
+        get_cfield = CustomField.objects.get
+
+        for modif in modifications:
+            field_id = modif[0]
+            try:
+                cfield: CustomField = get_cfield(id=field_id)
+            except CustomField.DoesNotExist:  # TODO: test
+                vmodif = 'Set field id={field} (seems removed)'.format(field=field_id)
+            else:
+                if cfield.field_type == CustomField.MULTI_ENUM:
+                    # NB: we should retrieve the labels of choices instead of PK,
+                    #     but HistoryLineExplainer is the good way now;
+                    #     this method exists only for compatibility.
+                    pk_details = []
+
+                    def append_details(pks, format_str):
+                        if pks:
+                            pk_details.append(format_str.format(
+                                ', '.join(str(pk) for pk in pks)
+                            ))
+
+                    append_details(modif[1], '[{}] removed')
+                    append_details(modif[2], '[{}] added')
+
+                    vmodif = 'Field “{field}” changed: {details}.'.format(
+                        field=cfield.name,
+                        details=', '.join(pk_details),
+                    )
+                else:
+                    # NB: same remark than above but with _PRINTERS.
+                    length = len(modif)
+
+                    if length == 1:
+                        vmodif = gettext('Set field “{field}”').format(field=cfield.name)
+                    elif length == 2:
+                        vmodif = gettext('Set field “{field}” to “{value}”').format(
+                            field=cfield.name, value=modif[1],
+                        )
+                    else:  # length == 3
+                        pass
+                        vmodif = gettext(
+                            'Set field “{field}” from “{oldvalue}” to “{value}”'
+                        ).format(field=cfield.name, oldvalue=modif[1], value=modif[2])
+
+            yield vmodif
 
 
 @TYPES_MAP(TYPE_DELETION)
@@ -585,8 +881,14 @@ class _HLTAuxCreation(_HistoryLineType):
 
 
 @TYPES_MAP(TYPE_AUX_EDITION)
-class _HLTAuxEdition(_HLTAuxCreation):
+class _HLTAuxEdition(_HLTManyToManyMixin,
+                     _HLTInstanceCacheMixin,
+                     _HLTAuxCreation):
     verbose_name = _('Auxiliary (edition)')
+
+    @classmethod
+    def _get_cache_key(cls, instance):
+        return '_historyline_aux_edition'
 
     @classmethod
     def create_line(cls, related: Model) -> None:
@@ -594,13 +896,69 @@ class _HLTAuxEdition(_HLTAuxCreation):
         fields_modifs = cls._build_fields_modifs(related)
 
         if fields_modifs:
-            HistoryLine._create_line_4_instance(
-                related.get_related_entity(),
-                cls.type_id,
-                modifs=[cls._build_modifs(related), *fields_modifs],
-            )
+            hline = cls._get_cached_line(related)
+
+            if hline is None:
+                hline = HistoryLine._create_line_4_instance(
+                    related.get_related_entity(),
+                    cls.type_id,
+                    modifs=[cls._build_modifs(related), *fields_modifs],
+                )
+                cls._create_entity_backup(related)
+                cls._set_cached_line(related, hline)
+            else:
+                # NB: to build attribute "_modifications"  TODO: improve HistoryLine API...
+                hline._read_attrs()
+
+                # NB: we could merge modification of the same field, but one
+                #     should avoiding multiple save() (& so HistoryLine can help
+                #     detecting these cases).
+                modifications = [*hline._modifications, *fields_modifs]
+
+                # hline._modifications = modifications  # TODO
+                hline.value = hline._encode_attrs(
+                    cls._build_modifs(related), modifs=modifications,
+                )
+                hline.save()
         elif getattr(related, '_hline_reassigned', False):
             _HLTAuxCreation.create_line(related)
+
+    @classmethod
+    def create_line_for_m2m(cls,
+                            related: Model,
+                            m2m_name: str,
+                            removed_pk_set: Iterable = (),
+                            added_pk_set: Iterable = (),
+                            ) -> None:
+        hline = cls._get_cached_line(related)
+        entity = related.get_related_entity()
+
+        if hline is None:
+            hline = HistoryLine._create_line_4_instance(
+                entity, cls.type_id,
+                modifs=[
+                    cls._build_modifs(related),
+                    *cls._initial_m2m_modification(m2m_name, removed_pk_set, added_pk_set),
+                ],
+            )
+            cls._set_cached_line(related, hline)
+        else:
+            # NB: to build attribute "_modifications"  TODO: improve HistoryLine API...
+            hline._read_attrs()
+
+            existing = hline._modifications
+            modifications = [
+                existing[0],
+                *cls._updated_m2m_modifications(
+                    existing_modifications=existing[1:],
+                    field_id=m2m_name,
+                    removed_pk_set=removed_pk_set, added_pk_set=added_pk_set,
+                ),
+            ]
+
+            # hline._modifications = modifications  # TODO
+            hline.value = hline._encode_attrs(entity, modifs=modifications)
+            hline.save()
 
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, aux_id, str_obj = modifications[0]  # TODO: idem (see _HLTAuxCreation)
@@ -675,7 +1033,7 @@ class _HLTEntityExport(_HistoryLineType):
 
 
 class HistoryLine(Model):
-    entity = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
+    entity = models.ForeignKey(CremeEntity, null=True, on_delete=models.SET_NULL)
 
     # We do not use entity.entity_type because we keep history of the deleted entities.
     entity_ctype = CTypeForeignKey()
@@ -685,12 +1043,12 @@ class HistoryLine(Model):
 
     # Not a FK to a User object because we want to keep the same line after the
     # deletion of a User.
-    username = CharField(max_length=30)
+    username = models.CharField(max_length=30)
 
     date = CreationDateTimeField(_('Date'))
 
-    type  = PositiveSmallIntegerField(_('Type'))  # See TYPE_*
-    value = TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
+    type  = models.PositiveSmallIntegerField(_('Type'))  # See TYPE_*
+    value = models.TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
 
     ENABLED: bool = True  # False means that no new HistoryLines are created.
 
@@ -955,12 +1313,14 @@ def _final_entity(entity) -> bool:
     return entity.entity_type_id == _get_ct(entity).id
 
 
-@receiver(post_init)
+@receiver(signals.post_init)
 def _prepare_log(sender, instance, **kwargs):
     if hasattr(instance, 'get_related_entity'):
         _HistoryLineType._create_entity_backup(instance)
     elif isinstance(instance, CremeEntity) and instance.id and _final_entity(instance):
         _HistoryLineType._create_entity_backup(instance)
+    elif isinstance(instance, CustomFieldValue):
+        _HLTCustomFieldsEdition._create_cvalue_backup(instance)
     # XXX: following billing lines problem should not exist anymore
     #      (several inheritance levels are avoided).
     # TODO: replace with this code
@@ -977,7 +1337,7 @@ def _prepare_log(sender, instance, **kwargs):
     # _HistoryLineType._create_entity_backup(instance)
 
 
-@receiver(post_save)
+@receiver(signals.post_save)
 def _log_creation_edition(sender, instance, created, **kwargs):
     if getattr(instance, '_hline_disabled', False):  # see HistoryLine.disable
         return
@@ -998,10 +1358,55 @@ def _log_creation_edition(sender, instance, created, **kwargs):
             else:
                 _HLTEntityEdition.create_lines(instance)
                 _HLTEntityTrash.create_line(instance)
+        elif isinstance(instance, CustomFieldValue):
+            _HLTCustomFieldsEdition.create_lines(instance)
     except Exception:
         logger.exception(
             'Error in _log_creation_edition() ; HistoryLine may not be created.'
         )
+
+
+@receiver(signals.m2m_changed)
+def _log_m2m_edition(sender, instance, action, pk_set, **kwargs):
+    if getattr(instance, '_hline_disabled', False):  # see HistoryLine.disable
+        return
+
+    if hasattr(instance, 'get_related_entity'):
+        create = partial(_HLTAuxEdition.create_line_for_m2m, related=instance)
+    elif isinstance(instance, CremeEntity):
+        create = partial(_HLTEntityEdition.create_lines_for_m2m, entity=instance)
+    elif isinstance(instance, CustomFieldMultiEnum):
+        create = partial(
+            _HLTCustomFieldsEdition.create_lines_for_multienum,
+            custom_value=instance,
+        )
+    else:
+        return
+
+    for field in type(instance)._meta.many_to_many:
+        if sender is field.remote_field.through:
+            m2m_field = field
+            break
+    else:
+        logger.warning('_log_m2m_edition: ManyToManyField not found: %s', sender)
+        return
+
+    kwargs = {}
+
+    if action == 'post_add':
+        kwargs['added_pk_set'] = pk_set
+    elif action == 'post_remove':
+        kwargs['removed_pk_set'] = pk_set
+    elif action == 'pre_clear':
+        # NB: this case is not very optimized (extra query),
+        #     but it should not be a problem in real life.
+        kwargs['removed_pk_set'] = {
+            *getattr(instance, m2m_field.name).values_list('pk', flat=True),
+        }
+    else:
+        return
+
+    create(m2m_name=m2m_field.name, **kwargs)
 
 
 def _get_deleted_entity_ids() -> set:
@@ -1014,7 +1419,7 @@ def _get_deleted_entity_ids() -> set:
     return del_ids
 
 
-@receiver(pre_delete)
+@receiver(signals.pre_delete)
 def _log_deletion(sender, instance, **kwargs):
     if getattr(instance, '_hline_disabled', False):  # See HistoryLine.disable
         return
@@ -1044,12 +1449,14 @@ def _log_deletion(sender, instance, **kwargs):
         elif isinstance(instance, CremeEntity) and _final_entity(instance):
             _get_deleted_entity_ids().add(instance.id)
             _HLTEntityDeletion.create_line(instance)
+        elif isinstance(instance, CustomFieldValue):
+            _HLTCustomFieldsEdition.create_lines(instance, emptied=True)
     except Exception:
         logger.exception('Error in _log_deletion() ; HistoryLine may not be created.')
 
 
 class HistoryConfigItem(Model):
-    relation_type = OneToOneField(RelationType, on_delete=CASCADE)
+    relation_type = models.OneToOneField(RelationType, on_delete=models.CASCADE)
 
     class Meta:
         app_label = 'creme_core'

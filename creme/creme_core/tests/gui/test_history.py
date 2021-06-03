@@ -3,14 +3,18 @@
 import json
 from datetime import date
 from decimal import Decimal
+from functools import partial
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.utils.formats import date_format, number_format
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.gui.history import (
     HistoryLineExplainer,
     HistoryRegistry,
@@ -19,15 +23,23 @@ from creme.creme_core.gui.history import (
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
+    CustomField,
+    CustomFieldEnumValue,
+    CustomFieldValue,
     FakeActivity,
     FakeActivityType,
     FakeAddress,
     FakeContact,
+    FakeEmailCampaign,
     FakeImage,
+    FakeImageCategory,
     FakeInvoice,
     FakeInvoiceLine,
+    FakeMailingList,
     FakeOrganisation,
     FakePosition,
+    FakeTodo,
+    FakeTodoCategory,
     HistoryConfigItem,
     HistoryLine,
     Relation,
@@ -490,6 +502,355 @@ class HistoryRenderTestCase(CremeTestCase):
             self.render_line(hline, user),
         )
 
+    def test_render_edition_m2m01(self):
+        user = self.create_user()
+        cat1, cat2, cat3 = FakeImageCategory.objects.order_by('id')[:3]
+
+        img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
+
+        # One addition ---
+        img.categories.add(cat1)
+        hline1 = self.get_hline()
+        self.assertEqual(history.TYPE_EDITION, hline1.type)
+
+        field_msg = f'<span class="field-change-field_name">{_("Categories")}</span>'
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-edition">{}<div>',
+                mark_safe(_('{field} changed: {changes}').format(
+                    field=field_msg,
+                    changes=ngettext('{} was added', '{} were added', 1).format(
+                        f'<span class="field-change-m2m_added">{cat1}</span>'
+                    ),
+                )),
+            ),
+            self.render_line(hline1, user),
+        )
+
+        # Several addition ---
+        self.refresh(img).categories.set([cat1, cat2, cat3])
+
+        first_cat1, second_cat1 = sorted([cat2.name, cat3.name])
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-edition">{}<div>',
+                mark_safe(_('{field} changed: {changes}').format(
+                    field=field_msg,
+                    changes=ngettext('{} was added', '{} were added', 2).format(
+                        f'<span class="field-change-m2m_added">{first_cat1}</span>, '
+                        f'<span class="field-change-m2m_added">{second_cat1}</span>'
+                    ),
+                )),
+            ),
+            self.render_line(self.get_hline(), user),
+        )
+
+        # One removing ---
+        self.refresh(img).categories.remove(cat2)
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-edition">{}<div>',
+                mark_safe(_('{field} changed: {changes}').format(
+                    field=field_msg,
+                    changes=ngettext('{} was removed', '{} were removed', 1).format(
+                        f'<span class="field-change-m2m_removed">{cat2}</span>'
+                    ),
+                )),
+            ),
+            self.render_line(self.get_hline(), user),
+        )
+
+        # Several removing
+        first_cat2, second_cat2 = sorted([cat1.name, cat3.name])
+        self.refresh(img).categories.clear()
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-edition">{}<div>',
+                mark_safe(_('{field} changed: {changes}').format(
+                    field=field_msg,
+                    changes=ngettext('{} was removed', '{} were removed', 2).format(
+                        f'<span class="field-change-m2m_removed">{first_cat2}</span>, '
+                        f'<span class="field-change-m2m_removed">{second_cat2}</span>'
+                    ),
+                )),
+            ),
+            self.render_line(self.get_hline(), user),
+        )
+
+    def test_render_edition_m2m02(self):
+        "Adding & removing at the same time."
+        user = self.create_user()
+        cat1, cat2, cat3 = FakeImageCategory.objects.order_by('id')[:3]
+
+        img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
+        img.categories.add(cat2)
+
+        self.refresh(img).categories.set([cat1, cat3])
+
+        first_cat, second_cat = sorted([cat1.name, cat3.name])
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-edition">{}<div>',
+                mark_safe(_('{field} changed: {changes}').format(
+                    field=f'<span class="field-change-field_name">{_("Categories")}</span>',
+                    changes='{}, {}'.format(
+                        ngettext('{} was added', '{} were added', 2).format(
+                            f'<span class="field-change-m2m_added">{first_cat}</span>, '
+                            f'<span class="field-change-m2m_added">{second_cat}</span>'
+                        ),
+                        ngettext('{} was removed', '{} were removed', 1).format(
+                            f'<span class="field-change-m2m_removed">{cat2}</span>'
+                        ),
+                    ),
+                )),
+            ),
+            self.render_line(self.get_hline(), user),
+        )
+
+    def test_render_edition_m2m03(self):
+        "M2M to entities."
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        ml = FakeMailingList.objects.create(user=user, name='Nerds')
+        campaign = FakeEmailCampaign.objects.create(user=user, name='Camp #1')
+
+        campaign.mailing_lists.add(ml)
+        change_fmt = _('{field} changed: {changes}').format
+        field_msg = (
+            f'<span class="field-change-field_name">'
+            f'{_("Related mailing lists")}'
+            f'</span>'
+        )
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-edition">{}<div>',
+                mark_safe(change_fmt(
+                    field=field_msg,
+                    changes=ngettext('{} was added', '{} were added', 1).format(
+                        f'<span class="field-change-m2m_added">'
+                        f'<a href="{ml.get_absolute_url()}">{ml}</a>'
+                        f'</span>'
+                    ),
+                )),
+            ),
+            self.render_line(self.get_hline(), user),
+        )
+
+        # Removing ----
+        self.refresh(campaign).mailing_lists.remove(ml)
+        hline2 = self.get_hline()
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-edition">{}<div>',
+                mark_safe(change_fmt(
+                    field=field_msg,
+                    changes=ngettext('{} was removed', '{} were removed', 1).format(
+                        f'<span class="field-change-m2m_removed">'
+                        f'<a href="{ml.get_absolute_url()}">{ml}</a>'
+                        f'</span>'
+                    ),
+                )),
+            ),
+            self.render_line(hline2, user),
+        )
+
+        # Credentials ---
+        ml.user = self.other_user
+        ml.save()
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-edition">{}<div>',
+                mark_safe(change_fmt(
+                    field=field_msg,
+                    changes=ngettext('{} was removed', '{} were removed', 1).format(
+                        f'<span class="field-change-m2m_removed">'
+                        f'{settings.HIDDEN_VALUE}'
+                        f'</span>'
+                    ),
+                )),
+            ),
+            self.render_line(hline2, user),
+        )
+
+    def test_render_custom_edition01(self):
+        "String, date, integer."
+        user = self.create_user()
+
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+        )
+        cfield1 = create_cfield(name='Punch line',   field_type=CustomField.STR)
+        cfield2 = create_cfield(name='First attack', field_type=CustomField.DATE)
+        cfield3 = create_cfield(name='Power',        field_type=CustomField.INT)
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        value_str1 = 'Future proof'
+        value_date = date(year=2021, month=7, day=16)
+        value_int = 9654
+
+        save_cvalues = CustomFieldValue.save_values_for_entities
+        save_cvalues(cfield1, [nerv], value_str1)
+        save_cvalues(cfield2, [nerv], value_date)
+        save_cvalues(cfield3, [nerv], value_int)
+
+        hline1 = self.get_hline()
+        self.assertEqual(history.TYPE_CUSTOM_EDITION, hline1.type)
+
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-custom_edition">'
+                ' <ul>'
+                '  <li>{mod1}</li>'
+                '  <li>{mod2}</li>'
+                '  <li>{mod3}</li>'
+                ' </ul>'
+                '<div>',
+                mod1=mark_safe(self.FMT_2_VALUES(
+                    field=f'<span class="field-change-field_name">{cfield1.name}</span>',
+                    value=f'<span class="field-change-new_value">{value_str1}</span>',
+                )),
+                mod2=mark_safe(self.FMT_2_VALUES(
+                    field=f'<span class="field-change-field_name">{cfield2.name}</span>',
+                    value=f'<span class="field-change-new_value">'
+                          f'{date_format(value_date, "DATE_FORMAT")}'
+                          f'</span>',
+                )),
+                mod3=mark_safe(self.FMT_2_VALUES(
+                    field=f'<span class="field-change-field_name">{cfield3.name}</span>',
+                    value=f'<span class="field-change-new_value">'
+                          f'{number_format(value_int, use_l10n=True, force_grouping=True)}'
+                          f'</span>',
+                )),
+            ),
+            self.render_line(hline1, user),
+        )
+
+        # Old & new value ---
+        clear_global_info()  # Current line is stored in global cache
+
+        value_str2 = 'We fight angels'
+        save_cvalues(cfield1, [nerv], value_str2)
+
+        hline2 = self.get_hline()
+        self.assertEqual(history.TYPE_CUSTOM_EDITION, hline2.type)
+        self.assertNotEqual(hline1, hline2)
+
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-custom_edition">{}<div>',
+                mark_safe(self.FMT_3_VALUES(
+                    field=f'<span class="field-change-field_name">{cfield1.name}</span>',
+                    oldvalue=f'<span class="field-change-old_value">{value_str1}</span>',
+                    value=f'<span class="field-change-new_value">{value_str2}</span>',
+                )),
+            ),
+            self.render_line(hline2, user),
+        )
+
+    def test_render_custom_edition02(self):
+        "Enum & multi-enum."
+        user = self.create_user()
+
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+        )
+        cfield1 = create_cfield(name='Type', field_type=CustomField.ENUM)
+        cfield2 = create_cfield(name='EVA',  field_type=CustomField.MULTI_ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        choice1 = create_evalue(value='Attack', custom_field=cfield1)
+        choice2 = create_evalue(value='EVA01',  custom_field=cfield2)
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        save_cvalues = CustomFieldValue.save_values_for_entities
+        save_cvalues(cfield1, [nerv], choice1.id)
+        save_cvalues(cfield2, [nerv], [choice2.id])
+
+        hline1 = self.get_hline()
+        self.assertEqual(history.TYPE_CUSTOM_EDITION, hline1.type)
+
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-custom_edition">'
+                ' <ul>'
+                '  <li>{mod1}</li>'
+                '  <li>{mod2}</li>'
+                ' </ul>'
+                '<div>',
+                mod1=mark_safe(self.FMT_2_VALUES(
+                    field=f'<span class="field-change-field_name">{cfield1.name}</span>',
+                    value=f'<span class="field-change-new_value">{choice1}</span>',
+                )),
+                mod2=mark_safe(_('{field} changed: {changes}').format(
+                    field=f'<span class="field-change-field_name">{cfield2.name}</span>',
+                    changes=ngettext('{} was added', '{} were added', 1).format(
+                        f'<span class="field-change-m2m_added">{choice2}</span>'
+                    ),
+                )),
+
+            ),
+            self.render_line(hline1, user),
+        )
+
+    def test_render_custom_edition03(self):
+        "Deleted CustomField."
+        user = self.create_user()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeOrganisation, name='Punch line', field_type=CustomField.STR,
+        )
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        CustomFieldValue.save_values_for_entities(cfield, [nerv], 'Future proof')
+
+        clear_global_info()  # Current line is stored in global cache
+        cfield_id = cfield.id
+        cfield.delete()
+
+        hline = self.get_hline()
+        self.assertEqual(history.TYPE_CUSTOM_EDITION, hline.type)
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-custom_edition">{}<div>',
+                _('Deleted field (with id={id}) set').format(id=cfield_id),
+            ),
+            self.render_line(hline, user),
+        )
+
+    def test_render_custom_edition04(self):
+        "Invalid value (does not match CustomField type)."
+        user = self.create_user()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeOrganisation, name='Power', field_type=CustomField.DATE,
+        )
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        CustomFieldValue.save_values_for_entities(
+            cfield, [nerv], date(year=2021, month=6, day=21),
+        )
+
+        hline = self.get_hline()
+        self.assertListEqual(
+            [nerv.name, [cfield.id, '2021-06-21']],
+            json.loads(hline.value),
+        )
+
+        hline.value = json.dumps([nerv.name, [cfield.id, 'not an int']])
+        hline.save()
+
+        self.assertHTMLEqual(
+            '<div class="history-line history-line-custom_edition">??<div>',
+            self.render_line(self.refresh(hline), user),
+        )
+
     def test_render_deletion(self):
         user = self.create_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
@@ -947,6 +1308,56 @@ class HistoryRenderTestCase(CremeTestCase):
                     value=f'<span class="field-change-new_value">'
                           f'{_("Percent")}'
                           f'</span>',
+                )),
+            ),
+            self.render_line(hline, user),
+        )
+
+    def test_render_auxiliary_edition_m2m(self):
+        user = self.create_user()
+        cat = FakeTodoCategory.objects.first()
+
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        todo = FakeTodo.objects.create(title='New logo', creme_entity=gainax)
+
+        todo.categories.add(cat)
+
+        hline = self.get_hline()
+        self.assertEqual(history.TYPE_AUX_EDITION, hline.type)
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-auxiliary_edition'
+                ' history-line-collapsable history-line-collapsed">'
+                ' <div class="history-line-main">'
+                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <div class="toggle-icon-container toggle-icon-collapse"'
+                '       title="{collapse_title}">'
+                '   <div class="toggle-icon"></div>'
+                '  </div>'
+                '  <span class="history-line-title">{title}</span>'
+                ' </div>'
+                ' <ul class="history-line-details">'
+                '  <li>{mod}</li>'
+                ' </ul>'
+                '<div>',
+                title=_('“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s') % {
+                    'auxiliary_ctype': 'Test Todo',
+                    'auxiliary_value': todo,
+                },
+                expand_title=_('Expand'),
+                collapse_title=_('Close'),
+                mod=mark_safe(_('{field} changed: {changes}').format(
+                    field=(
+                        f'<span class="field-change-field_name">'
+                        f'{_("Categories")}'
+                        f'</span>'
+                    ),
+                    changes=ngettext('{} was added', '{} were added', 1).format(
+                        f'<span class="field-change-m2m_added">{cat}</span>'
+                    ),
                 )),
             ),
             self.render_line(hline, user),

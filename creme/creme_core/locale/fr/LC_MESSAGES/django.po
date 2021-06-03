@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-03 14:06+0200\n"
+"POT-Creation-Date: 2021-06-17 15:17+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1493,6 +1493,24 @@ msgid "{pk} (deleted)"
 msgstr "{pk} (supprimé)"
 
 #, python-brace-format
+msgid "{field} changed: {changes}"
+msgstr "{field} a changé : {changes}"
+
+msgid "{} was added"
+msgid_plural "[{}] were added"
+msgstr[0] "{} a été ajouté(e)"
+msgstr[1] "[{}] ont été ajouté(e)s"
+
+msgid "{} was removed"
+msgid_plural "[{}] were removed"
+msgstr[0] "{} a été enlevé(e)"
+msgstr[1] "[{}] ont été enlevé(e)s"
+
+#, python-brace-format
+msgid "Deleted field (with id={id}) set"
+msgstr "Champ supprimé (avec id={id}) changé"
+
+#, python-brace-format
 msgid "“{field}” set"
 msgstr "“{field}” modifié"
 
@@ -2215,6 +2233,9 @@ msgstr "Création"
 
 msgid "Edition"
 msgstr "Modification"
+
+msgid "Edition (custom fields)"
+msgstr "Modification (champs personnalisés)"
 
 msgid "Deletion"
 msgstr "Suppression"
@@ -3777,9 +3798,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "Test"
 #~ msgstr "Test"
-
-#~ msgid "Values"
-#~ msgstr "Valeurs"
 
 #~ msgid "No match"
 #~ msgstr "Aucune correspondance"

@@ -1218,7 +1218,8 @@ class Migration(migrations.Migration):
                     (
                         'categories',
                         models.ManyToManyField(
-                            related_name='+', verbose_name='Categories', to='creme_core.FakeImageCategory', blank=True,
+                            related_name='+', verbose_name='Categories',
+                            to='creme_core.FakeImageCategory', blank=True,
                         )
                     ),
                     ('exif_date', models.DateField(null=True, verbose_name='Exif date', blank=True)),
@@ -1712,11 +1713,31 @@ class Migration(migrations.Migration):
                 bases=('creme_core.cremeentity',),
             ),
             migrations.CreateModel(
+                name='FakeTodoCategory',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test ToDo category',
+                    'verbose_name_plural': 'Test ToDo categories',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
                 name='FakeTodo',
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('title', models.CharField(max_length=200, verbose_name='Title')),
                     ('description', models.TextField(verbose_name='Description', blank=True)),
+                    (
+                        'categories',
+                        models.ManyToManyField(
+                            related_name='+', verbose_name='Categories',
+                            to='creme_core.FakeTodoCategory', blank=True,
+                        )
+                    ),
                     (
                         'entity',
                         models.ForeignKey(
