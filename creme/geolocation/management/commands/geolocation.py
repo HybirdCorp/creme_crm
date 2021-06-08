@@ -299,8 +299,8 @@ class Command(BaseCommand):
             self.sysout(url, verbosity > 1)
             self.import_town_database(url, defaults)
 
-    def print_stats(self):
-        self.sysout(f'{Town.objects.count()} town(s) in database.')
+    def print_stats(self, verbosity=0):
+        self.sysout(f'{Town.objects.count()} town(s) in database.', verbosity > 0)
 
     def handle(self, *args, **options):
         populate = options.get('populate')
@@ -309,7 +309,7 @@ class Command(BaseCommand):
         verbosity = options.get('verbosity')
 
         if stats:
-            self.print_stats()
+            self.print_stats(verbosity)
 
         if imports:
             self.import_town_all(verbosity)
