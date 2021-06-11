@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2021-2022  Hybird
+    Copyright (C) 2021-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,53 +16,43 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-creme.creme_config = creme.creme_config || {};
+(function($) {
+"use strict";
 
-/* TODO: unit tests */
-creme.creme_config.MenuContainersController = creme.component.Component.sub({
-    bind: function(brick) {
-        if (this.isBound()) {
-            throw new Error('MenuContainersController is already bound');
-        }
+creme.MenuContainersController = creme.component.Component.sub({
+    _init_: function(brick) {
+        this._brick = brick;
 
-        var brickElement = brick.element();
+        var brickID = brick.element().attr('id');
+        var _onSort = this._onSort.bind(this);
 
-        function onSortEventHandler(event) {
-            var url = event.item.getAttribute('data-reorderable-menu-container-url');
-            if (!url) {
-                throw new Error('MenuContainersController: no drag & drop URL found.');
-            }
-
-            brick.action('update', url, {}, {target: event.newIndex + 1})
-                 .on({
-                     fail: function() {
-                        console.log('MenuContainersController: error when trying to re-order.');
-                        brick.refresh();
-                     }
-                  })
-                 .start();
-        };
-
-        var brickID = brickElement.attr('id');
         this._containers = $.map(
-            brickElement.find('.menu-config-container'),
+            brick.element().find('.menu-config-container'),
             function(element, index) {
                 return new Sortable(
-                    element,
-                    {
+                    element, {
                         group: brickID + '-' + index,
                         animation: 150,
-                        onSort: onSortEventHandler
+                        onSort: _onSort
                     }
                 );
             }
         );
 
-        this._brick = brick;
         return this;
     },
 
-    isBound: function() {
-        return Object.isNone(this._brick) === false;
+    _onSort: function(event) {
+        var url = $(event.item).data('reorderable-menu-container-url');
+        var brick = this._brick;
+
+        brick.action('update', url, {}, {target: event.newIndex + 1})
+             .on('fail', function() {
+                  console.log('MenuContainersController: error when trying to re-order.');
+                  brick.refresh();
+              })
+             .start();
     }
 });
+
+}(jQuery));
