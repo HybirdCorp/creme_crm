@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2021  Hybird
+    Copyright (C) 2021-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -17,116 +17,106 @@
 *******************************************************************************/
 
 (function($) {
-    "use strict";
+"use strict";
 
-/* TODO: unit test */
 creme.MenuEditor = creme.component.Component.sub({
     _init_: function(element, options) {
+        options = options || {};
+
         var self = this;
         var name = options.name || 'MISSING';
 
         this._element = element;
         this._input = $('<input type="hidden" name="${name}">'.template({name: name}));
 
-        options = options || {};
         element.append(this._input);
 
-        // TODO: error if not initial data ?
-        if (options.initialSelector) {
-            self._appendEntries(
-                JSON.parse(creme.utils.JSON.readScriptText(element.find(options.initialSelector)))
-            );
-        }
+        Assert.not(Object.isEmpty(options.initialSelector), 'MenuEditor missing options.initialSelector');
 
-        function onSortEventHandler(event) {
-            self._updateValue();
-        };
+        this._appendEntries(
+            JSON.parse(creme.utils.JSON.readScriptText(element.find(options.initialSelector)))
+        );
 
-        this._entries = new Sortable(
-            element.find('.menu-edit-entries').get(0),
-            {
+        this._sortable = new Sortable(
+            element.find('.menu-edit-entries').get(0), {
                 group: element.attr('id'),
                 animation: 150,
-                onSort: onSortEventHandler
+                onSort: this._onSort.bind(this)
             }
         );
 
         // ----
         var regularChoices = [];
-        if (options.regularChoicesSelector) {
+        if (Object.isNotEmpty(options.regularChoicesSelector)) {
             regularChoices = JSON.parse(
                 creme.utils.JSON.readScriptText(element.find(options.regularChoicesSelector))
             );
         }
 
-        var regularButton = element.find('.new-regular-entries');
-        if (regularChoices) {
-            regularButton.on('click', function(event) {
+        if (Object.isNotEmpty(regularChoices)) {
+            element.on('click', '.new-regular-entries', function(event) {
                 self._regularEntriesDialog(regularChoices).open();
             });
         } else {
-            regularButton.remove();
+            element.find('.new-regular-entries').remove();
         }
 
-        // --
-        element.find('.new-extra-entry').each(function(i, node) {
-            var button = $(node);
+        element.on('click', '.new-extra-entry', function(event) {
+            self._specialEntriesDialog($(this)).open();
+        });
 
-            button.on('click', function(event) {
-                self._specialEntriesDialog(button).open();
-            });
+        element.on('click', '.menu-edit-entry button', function(e) {
+            e.preventDefault();
+            $(this).parent('.menu-edit-entry:first').remove();
+            self._onSort();
         });
     },
 
-    _appendEntries: function(entriesInfo) {
-        var self = this;
+    _appendEntries: function(entries) {
         var divs = this._element.find('.menu-edit-entries');
+        var html = entries.map(function(entry) {
+            var res = (
+                '<div class="menu-edit-entry menu-edit-entry-${id}" data-value="${value}">' +
+                    '<span>${label}</span>' +
+                    '<button type="button">${delete_label}</button>' +
+                '</div>'
+            ).template({
+                id: entry.value.id,
+                value: JSON.stringify(entry.value).escapeHTML(),
+                label: entry.label.escapeHTML(),
+                delete_label: gettext('Delete')
+            });
+            return res;
+        }).join('');
 
-        entriesInfo.forEach(function(entryInfo) {
-            // NB: text() performs an escaping so we're protected against malicious labels
-            var entryDiv = $('<div>').attr('class', 'menu-edit-entry menu-edit-entry-' + entryInfo.value.id)
-                                     .attr('data-value', JSON.stringify(entryInfo.value))
-                                     .text(entryInfo.label);
-
-            entryDiv.append(
-                $(
-                    '<button type="button">${label}</button>'.template({label: gettext('Delete')})
-                ).on('click', function(e) {
-                    e.preventDefault();
-                    entryDiv.remove();
-                    self._updateValue();
-                })
-            );
-            divs.append(entryDiv);
-        });
-
-        this._updateValue();
+        divs.append(html);
+        this._onSort();
     },
 
-    _updateValue: function() {
-        var values = $.map(this._element.find('.menu-edit-entry'), function(e) {
-            return JSON.parse($(e).attr('data-value'));
-        });
+    _onSort: function(event) {
+        this._input.val(JSON.stringify(this.entries()));
+    },
 
-        this._input.val(JSON.stringify(values));
+    value: function() {
+        return JSON.parse(this._input.val());
+    },
+
+    entries: function() {
+        return this._element.find('.menu-edit-entry').map(function() {
+            return $(this).data('value');
+        }).get();
     },
 
     _regularEntriesDialog: function(choices) {
         var self = this;
 
         // TODO: var excluded = new Set( ... );
-        // TODO: factorise ?
-        var excluded = $.map(this._element.find('.menu-edit-entry'), function(e) {
-            return JSON.parse($(e).attr('data-value')).id;
-        });
+        var excluded = this.entries().map(function(e) { return e.id; });
+
         var options = choices.filter(function(c) {
-            // return !excluded.has(c[0]);
             return excluded.indexOf(c[0]) === -1;
         }).map(function(c) {
-            return '<option value="${value}">${label}</option>'.template({
-                value: c[0],
-                label: c[1]
-            });
+            return '<option value="${0}">${1}</option>'.template(c);
         });
 
         if (options.length === 0) {
@@ -180,7 +170,7 @@ creme.MenuEditor = creme.component.Component.sub({
     _specialEntriesDialog: function(button) {
         var self = this;
         return new creme.dialog.FormDialog({
-            url: button.attr('data-url')
+            url: button.data('url')
         }).onFormSuccess(function(event, data) {
             if (data.isJSONOrObject()) {
                 self._appendEntries(data.data());
