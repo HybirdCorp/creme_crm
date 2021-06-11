@@ -142,6 +142,7 @@
             - In JavaScript :
                 - The module 'creme.color' has been removed.
                 - 'creme.dialog.ConfirmAction' has been removed (never used).
+                - 'creme.creme_config.FormGroupsController' is renamed as 'creme.FormGroupsController'
                 - jQuery 3.x :
                     - '$.param()' does not use 'jQuery.ajaxSettings.traditional' flag anymore. Use 'creme.ajax.param()' to keep the old behavior.
                     - '$.val()' returns an empty array instead of 'null' when a multi-select is empty.
