@@ -70,6 +70,12 @@ class MenuEntry:
     # Hint: use the classical pattern 'my_app-my_entry'.
     id: str = ''
 
+    # [Optional] Used to generate an extra CSS class (see ContainerEntry) which
+    # can be shared by several Entry classes (it's used by Separator1Entry
+    # class family).
+    # Hint: use the classical pattern 'my_app-my_entry' if you set it.
+    type: str = ''
+
     # The label is a human readable string (generally a gettext_lazy object).
     # The label of the class is used by 'creme_config' to provide its UI.
     # An instance of entry can override the label using the data given by the
@@ -328,10 +334,15 @@ class ContainerEntry(MenuEntry):
             li_tags=mark_safe(''.join(
                 format_html(
                     '<li class="ui-creme-navigation-item-level1 '
+                    '{type_class}'
                     'ui-creme-navigation-item-id_{id}">'
                     '{item}'
                     '</li>',
                     id=entry.id,
+                    type_class=(
+                        f'ui-creme-navigation-item-type_{entry.type} '
+                        if entry.type else ''
+                    ),
                     item=entry.render(context),
                 )
                 for entry in expanded_children()
@@ -356,6 +367,7 @@ class Separator1Entry(MenuEntry):
     level-1 entries).
     """
     id = 'creme_core-separator1'
+    type = 'creme_core-separator1'
     # label = '----'
 
     creation_label = _('Add a separator')

@@ -151,11 +151,14 @@ div.search-box input[type="text"] {
     float: none;
     text-transform: none;
 }
-.ui-creme-navigation a, .ui-creme-navigation .ui-creme-navigation-text-entry, .ui-creme-navigation-title {
+.ui-creme-navigation a,
+.ui-creme-navigation .ui-creme-navigation-text-entry,
+.ui-creme-navigation-title {
     display: block;
+    padding: 5px 10px;
+
     text-decoration: none;
     text-shadow: none;
-    padding: 5px 10px;
     color: #ebebeb;
 }
 span.ui-creme-navigation-text-entry {  /* Non-active entries */
@@ -170,8 +173,9 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 
 .ui-creme-navigation li.ui-creme-navigation-activated,
 .ui-creme-navigation li:hover {
-    cursor: default; background: #414141;
- } /* hover on menus and their entries */
+    cursor: default;
+    background: #414141;
+} /* hover on menus and their entries */
 .ui-creme-navigation li.ui-creme-navigation-activated > ul {
     visibility: visible;
     opacity: 1;
@@ -252,8 +256,7 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 /*  word-spacing: 1px; */ /* possible tweak to test everywhere (with 1px or 2px) */
 }
 
-.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_core-separator1,
-.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_core-user_separator {
+.ui-creme-navigation li + .ui-creme-navigation-item-type_creme_core-separator1 {
     border-top: 1px solid #a29d9d;
     margin-top: 5px;
     padding-top: 5px;

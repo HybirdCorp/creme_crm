@@ -33,7 +33,7 @@
                 {% endif %}
             </div>
             <div class="menu-config-entry0-content">
-                <ul>{% for child in entry.children %}<li class="menu-config-entry0-{{child.id}}">{{child.label}}</li>{% empty %}<li>…</li>{% endfor %}</ul>
+                <ul>{% for child in entry.children %}<li class="menu-config-entry0-id_{{child.id}}{% if child.type %} menu-config-entry0-type_{{child.type}}{% endif %}">{{child.label}}</li>{% empty %}<li>…</li>{% endfor %}</ul>
             </div>
         </div>
         {% endfor %}
