@@ -289,6 +289,8 @@
             * Geolocation :
                 - The inner-constants in 'models.GeoAddress' have been replaced by an 'IntegerChoices' class :
                   UNDEFINED, MANUAL, PARTIAL, COMPLETE, STATUS_LABELS
+            * Events :
+                - The name of the class 'bricks.ResutsBrick' has been fixed to be 'ResultsBrick'.
         # Javascript :
             - The function 'creme.ajax.json.ajaxFormSubmit' has been removed.
             - The jQuery package 'extensions/utils.js' is refactored as 'extensions/jquery.toggle-attr.js'
