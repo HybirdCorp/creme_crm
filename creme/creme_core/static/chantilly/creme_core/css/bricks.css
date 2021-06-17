@@ -717,6 +717,7 @@
 
 .brick-tiles .brick-tile-value ul {
     padding-left: 0px;
+    list-style-position: inside;
 }
 
 .brick-tiles .brick-tile-action {
