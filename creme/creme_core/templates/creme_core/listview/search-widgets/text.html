@@ -1,5 +1,5 @@
 <input class="lv-state-field" data-lv-search-widget="text" name="{{widget.name}}" {# title="{{cell.title}}" #} type="text"  {# {{widget.type}} #}
-{# TODO ?       {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %} #}
-       {% if widget.value != None %} value="{{widget.value}}"{% endif %}
+{# TODO ?       {% if widget.value is not None %} value="{{ widget.value|stringformat:'s' }}"{% endif %} #}
+       {% if widget.value is not None %} value="{{widget.value}}"{% endif %}
        {% include 'django/forms/widgets/attrs.html' %}
 />
