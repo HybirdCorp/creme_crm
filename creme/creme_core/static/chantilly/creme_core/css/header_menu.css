@@ -248,8 +248,7 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 /*  word-spacing: 1px; */ /* possible tweak to test everywhere (with 1px or 2px) */
 }
 
-.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_core-separator1,
-.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_core-user_separator {
+.ui-creme-navigation li + .ui-creme-navigation-item-type_creme_core-separator1 {
     border-top: 1px solid #757e82;
     margin-top: 5px;
     padding-top: 5px;

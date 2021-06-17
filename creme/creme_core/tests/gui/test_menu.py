@@ -424,7 +424,7 @@ class MenuTestCase(CremeTestCase):
             f'  <li class="ui-creme-navigation-item-id_{FakeContactCreationEntry.id} '
             f'ui-creme-navigation-item-level1">'
             f'    <a href="{reverse("creme_core__create_fake_contact")}">'
-            f'          {escape(_("Create a contact"))}'
+            f'      {escape(_("Create a contact"))}'
             f'    </a>'
             f'  </li>'
             f'</ul>',
@@ -441,6 +441,7 @@ class MenuTestCase(CremeTestCase):
 
         class SubEntry2(MenuEntry):
             id = 'creme_core-test2'
+            type = 'creme_core-test'
             label = 'Bar'
 
         class MyEntrySequence(MenuEntrySequence):
@@ -467,6 +468,7 @@ class MenuTestCase(CremeTestCase):
             f'    <span class="ui-creme-navigation-text-entry">{SubEntry1.label}</span>'
             f'  </li>'
             f'  <li class="ui-creme-navigation-item-id_{SubEntry2.id} '
+            f'ui-creme-navigation-item-type_{SubEntry2.type} '
             f'ui-creme-navigation-item-level1">'
             f'    <span class="ui-creme-navigation-text-entry">{SubEntry2.label}</span>'
             f'  </li>'
@@ -493,6 +495,7 @@ class MenuTestCase(CremeTestCase):
 
         entry = Separator1Entry()
         self.assertEqual('creme_core-separator1', entry.id)
+        self.assertEqual('creme_core-separator1', entry.type)
         # self.assertEqual('----', entry.label)
         self.assertEqual('', entry.label)
         self.assertEqual(1,  entry.level)

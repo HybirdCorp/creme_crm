@@ -6,14 +6,6 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-top: 1px;
 }
 
-.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_config-credentials_separator,
-.ui-creme-navigation li + .ui-creme-navigation-item-id_creme_config-listviews_separator {
-    margin-top: 5px;
-    padding-top: 5px;
-
-    border-top: 1px solid #a29d9d;
-}
-
 /* Portal */
 
 .creme_config-portal-general .help-text,
@@ -361,15 +353,13 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     padding-bottom: 2px;
 }
 
-.creme_config-menu-brick li.menu-config-entry0-creme_core-separator1,
-.creme_config-menu-brick li.menu-config-entry0-creme_core-user_separator {
+.creme_config-menu-brick li.menu-config-entry0-type_creme_core-separator1 {
     text-transform: uppercase;
     color: #fafafa;
     font-weight: 400;
 }
 
-.creme_config-menu-brick li + li.menu-config-entry0-creme_core-separator1,
-.creme_config-menu-brick li + li.menu-config-entry0-creme_core-user_separator {
+.creme_config-menu-brick li + li.menu-config-entry0-type_creme_core-separator1 {
     border-top: 1px solid #a29d9d;
     margin-top: 5px;
     padding-top: 5px;
