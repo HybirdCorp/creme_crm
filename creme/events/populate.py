@@ -225,7 +225,7 @@ class Populator(BasePopulator):
                     {'brick': core_bricks.PropertiesBrick,   'order': 450},
                     {'brick': core_bricks.RelationsBrick,    'order': 500},
 
-                    {'brick': bricks.ResutsBrick,       'order':  2, 'zone': RIGHT},
+                    {'brick': bricks.ResultsBrick, 'order':  2, 'zone': RIGHT},
                     {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
                 ],
             )
