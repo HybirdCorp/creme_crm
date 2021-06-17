@@ -81,11 +81,11 @@
             <div class="graph-row-toggle-icon graph-row-collapse" title="{% translate 'Close' %}"><div class="toggle-icon"></div></div>
         </td>
         <td {% brick_table_data_status primary %}><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
-        <td {% if hand.abscissa_error != None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>
-        <td {% if hand.abscissa_error != None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
+        <td {% if hand.abscissa_error is not None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>
+        <td {% if hand.abscissa_error is not None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
         {% with ordinate=hand.ordinate %}
-        <td {% if ordinate.error != None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
-        <td {% if ordinate.error != None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
+        <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
+        <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
         {% endwith %}
         <td {% brick_table_data_status action %}>{% has_perm_to change graph as graph_edit_perm %}
             {% brick_table_action id='edit' url='reports__edit_graph'|url:graph.id enabled=graph_edit_perm %}

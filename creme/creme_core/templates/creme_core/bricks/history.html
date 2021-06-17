@@ -69,7 +69,7 @@
                 {% endwith %}
              {% endif %}
         </td>
-        <td>{% if line.user != None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}</td>
+        <td>{% if line.user is not None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}</td>
     </tr>
     {% endfor %}
 {% endblock %}

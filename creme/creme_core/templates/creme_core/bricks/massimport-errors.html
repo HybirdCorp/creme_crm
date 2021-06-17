@@ -27,7 +27,7 @@
     <tr>
         <td>{{result.line}}</td>
         <td>
-            {% if result.entity != None %}
+            {% if result.entity is not None %}
             {% widget_entity_hyperlink result.entity user %} [{% if result.updated %}{% translate "updated" %}{% else %}{% translate "created" %}{% endif %}]
             {% else %}
             {% translate 'None (because error is critical)' %}

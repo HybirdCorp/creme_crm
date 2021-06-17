@@ -17,7 +17,7 @@
             {% with exporter=config_item.exporter %}
                 {% if not config_item.engine_id %}
                     <span class="billing-exporter-empty">{% translate 'Not configured' %}</span>
-                {% elif exporter == None %}
+                {% elif exporter is None %}
                     <span class="billing-exporter-error">{% translate 'Invalid configuration' %}</span>
                 {% else %}
                     <span class="billing-exporter-name">{{exporter.verbose_name}}</span>
