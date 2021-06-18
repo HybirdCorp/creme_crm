@@ -91,6 +91,10 @@ Those templates need to be cleaned up
     text-overflow: ellipsis;
 }
 
+.brick .brick-header[title] .brick-title-container {
+    cursor: help;
+}
+
 .brick .brick-header-menu:not(.is-disabled):hover {
     cursor: pointer;
 }
