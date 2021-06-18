@@ -93,6 +93,7 @@
 .brick .brick-action.is-disabled {
     opacity: 0.6;
     cursor: default;
+    cursor: not-allowed;
 }
 
 .brick .brick-content .brick-error {
@@ -129,6 +130,7 @@
 .brick-menu-buttons .brick-menu-action.is-disabled {
     color: #aaa;
     cursor: default;
+    cursor: not-allowed;
 }
 
 .brick-menu-buttons .brick-menu-action + hr:not(last-child) {
@@ -208,6 +210,7 @@
 
 .brick .brick-header-button.is-disabled {
     cursor: default;
+    cursor: not-allowed;
     opacity: 0.5;
 }
 
@@ -482,6 +485,7 @@
 .brick-table .brick-table-content .brick-table-action.is-disabled {
     opacity: 0.6;
     cursor: default;
+    cursor: not-allowed;
 }
 
 .brick-table .brick-table-content .brick-table-icon {
@@ -598,7 +602,10 @@
 .brick .brick-pagination .pager-link-next.is-disabled {
     color: #ccc;
     background: #f8fdff;
+
     cursor: default;
+    cursor: not-allowed;
+
     border: 1px solid #cce0e8;
 }
 
@@ -982,9 +989,11 @@
 .brick-list .brick-list-empty {
     padding: 5px 10px;
 
+    cursor: default;
+    cursor: not-allowed;
+
     text-align: left;
     font-weight: 600;
-    cursor: default;
     color: #5e6b71;
 }
 

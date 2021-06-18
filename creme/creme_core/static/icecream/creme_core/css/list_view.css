@@ -104,7 +104,9 @@
 
 .list-control-group a.is-disabled {
     opacity: 0.6;
+
     cursor: default;
+    cursor: not-allowed;
 }
 
 .list-control-group select + a {
@@ -227,7 +229,9 @@
 .list-header-buttons a:disabled,
 .list-header-buttons button:disabled {
     opacity: 0.5;
+
     cursor: default;
+    cursor: not-allowed;
 }
 
 /* Listview page header buttons - [end] */
@@ -703,7 +707,9 @@
 
 .listview-action a.is-disabled {
     opacity: 0.6;
+
     cursor: default;
+    cursor: not-allowed;
 }
 
 .listview .default-row-action a {

@@ -215,6 +215,7 @@ button {
 .menu_button.forbidden,
 .card-button.forbidden {
     cursor: default;
+    cursor: not-allowed;
 }
 
 .menu_button:not(.forbidden):hover,

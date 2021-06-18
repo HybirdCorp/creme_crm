@@ -168,7 +168,8 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 
 .ui-creme-navigation li.ui-creme-navigation-activated,
 .ui-creme-navigation li:hover {
-    cursor: default; background: #2a414b;
+    cursor: default;
+    background: #2a414b;
 } /* hover on menus and their entries */
 .ui-creme-navigation li.ui-creme-navigation-activated > ul {
     /*display: block;*/

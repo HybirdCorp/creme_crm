@@ -466,8 +466,8 @@
 }
 
 .activities-list-brick .activity-warning {
-    color: #FF4136; /* red */
-    color: #FF851B; /* orange */
+    color: #ff4136; /* red */
+    color: #ff851b; /* orange */
     cursor: default;
 }
 

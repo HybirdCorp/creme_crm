@@ -165,11 +165,14 @@ ul.ui-creme-widget[readonly] li {
 .ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton {
     opacity: .50;
     filter: Alpha(Opacity=50);
+
     cursor: default;
+    cursor: not-allowed;
 }
 
 .ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton:hover {
     cursor: default;
+    cursor: not-allowed;
 }
 
 /*
@@ -449,6 +452,7 @@ button[type="button"].ui-creme-actionbutton[disabled],
             box-shadow: none;
 
     cursor: default;
+    cursor: not-allowed;
 }
 
 button[type="button"].ui-creme-actionbutton[disabled]:hover {
@@ -597,7 +601,9 @@ input:disabled + .ui-datepicker-trigger {
 .checklist-header a[disabled] {
     opacity: 0.5;
     text-decoration: none;
+
     cursor: default;
+    cursor: not-allowed;
 }
 
 .checklist-header a.hidden {

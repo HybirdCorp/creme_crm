@@ -413,6 +413,7 @@ ul.multi-select {
             box-shadow: none;
 
     cursor: default;
+    cursor: not-allowed;
 }
 
 /*
