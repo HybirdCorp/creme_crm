@@ -170,12 +170,19 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 .ui-creme-navigation li:hover {
     cursor: default; background: #2a414b;
 } /* hover on menus and their entries */
-.ui-creme-navigation li.ui-creme-navigation-activated > ul { /*display: block;*/ visibility: visible; opacity: 1; font-weight: 600;} /* menu entries root when hovering over menus */
+.ui-creme-navigation li.ui-creme-navigation-activated > ul {
+    /*display: block;*/
+    visibility: visible;
+    opacity: 1;
+    font-weight: 600;
+} /* menu entries root when hovering over menus */
 
 .ui-creme-navigation li.ui-creme-navigation-activated {color: white;} /* hover on menus */
 .ui-creme-navigation li.ui-creme-navigation-icon-menu.ui-creme-navigation-activated {color: #bfbfbf;} /* hover on icon menus */
 
-.ui-creme-navigation li.ui-creme-navigation-activated li:hover {background: #446978;} /* hover on menu entries */
+.ui-creme-navigation li.ui-creme-navigation-activated li:not(.ui-creme-navigation-item-type_creme_core-separator1):hover {
+    background: #446978;
+} /* hover on menu entries */
 .ui-creme-navigation li.ui-creme-navigation-activated ul a:hover {color: white;} /* hover on menu entries */
 
 .ui-creme-navigation > li:hover, .ui-creme-navigation li:hover > ul,

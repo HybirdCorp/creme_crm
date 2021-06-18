@@ -185,7 +185,9 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 .ui-creme-navigation li.ui-creme-navigation-activated {color: white;} /* hover on menus */
 .ui-creme-navigation li.ui-creme-navigation-icon-menu.ui-creme-navigation-activated {color: #bfbfbf;} /* hover on icon menus */
 
-.ui-creme-navigation li.ui-creme-navigation-activated li:hover {background: #595959;} /* hover on menu entries */
+.ui-creme-navigation li.ui-creme-navigation-activated li:not(.ui-creme-navigation-item-type_creme_core-separator1):hover {
+    background: #595959;
+} /* hover on menu entries */
 .ui-creme-navigation li.ui-creme-navigation-activated ul a:hover {color: white;} /* hover on menu entries */
 
 .ui-creme-navigation > li:hover,
