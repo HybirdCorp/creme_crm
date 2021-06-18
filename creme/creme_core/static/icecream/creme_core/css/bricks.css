@@ -97,7 +97,9 @@ Those templates need to be cleaned up
 
 .brick .brick-action.is-disabled {
     opacity: 0.6;
+
     cursor: default;
+    cursor: not-allowed;
 }
 
 .brick .brick-content .brick-error {
@@ -131,7 +133,9 @@ Those templates need to be cleaned up
 
 .brick-menu-buttons .brick-menu-action.is-disabled {
     color: #aaa;
+
     cursor: default;
+    cursor: not-allowed;
 }
 
 .brick-menu-buttons .brick-menu-action + hr:not(last-child) {
@@ -214,8 +218,10 @@ Those templates need to be cleaned up
 }
 
 .brick .brick-header-button.is-disabled {
-    cursor: default;
     opacity: 0.5;
+
+    cursor: default;
+    cursor: not-allowed;
 }
 
 .brick .brick-header-button:first-child {
@@ -487,7 +493,9 @@ Those templates need to be cleaned up
 
 .brick-table .brick-table-content .brick-table-action.is-disabled {
     opacity: 0.6;
+
     cursor: default;
+    cursor: not-allowed;
 }
 
 .brick-table .brick-table-content .brick-table-icon {
