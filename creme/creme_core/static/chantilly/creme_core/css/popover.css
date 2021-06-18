@@ -14,13 +14,17 @@
   text-align: left;
   background-color: #ffffff;
   background-clip: padding-box;
+
   border: 1px solid #cccccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 4px;
-  -webkit-box-shadow: 0 2px 4px rgba(0,0,0,0.10);
-     -moz-box-shadow: 0 2px 4px rgba(0,0,0,0.10);
-          box-shadow: 0 2px 4px rgba(0,0,0,0.10);
+
+  -webkit-box-shadow: 0 2px 4px rgba(40, 75, 88, 0.33);
+     -moz-box-shadow: 0 2px 4px rgba(40, 75, 88, 0.33);
+          box-shadow: 0 2px 4px rgba(40, 75, 88, 0.33);
+
   white-space: normal;
+
   max-width: calc(100vw - 10px);
   max-height: calc(100vh - 10px);
 }
@@ -59,12 +63,16 @@
 .popover-title {
   margin: 0;
   padding: 4px 9px;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 18px;
-  background-color: #f7f7f7;
-  border-bottom: 1px solid #ebebeb;
+
+  background-color: #b6e6f9;
+
+  border-bottom: 1px solid #cce0e8;
   border-radius: 5px 5px 0 0;
+
+  line-height: 18px;
+  font-size: 14px;
+  font-weight: 550;
+  color: #333434;
 }
 
 .popover-content {
@@ -111,6 +119,7 @@
   top: 18px;
   left: -9px;
   margin-top: -9px;
+
   border-left-width: 0;
   border-right-color: #999999;
   border-right-color: rgba(0, 0, 0, 0.25);
