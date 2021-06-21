@@ -1,5 +1,7 @@
 {% extends 'creme_core/history/html/base.html' %}
-{% load i18n %}
+{% load i18n creme_core_tags %}
+
 {% block content %}
-{% blocktranslate %}“{{property_text}}” removed{% endblocktranslate %}
+{% templatize '<span class="property-text">{{property_text}}</span>' as property_text %}
+{% blocktranslate %}{{property_text}} removed{% endblocktranslate %}
 {% endblock %}

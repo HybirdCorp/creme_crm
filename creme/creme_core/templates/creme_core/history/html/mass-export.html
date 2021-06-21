@@ -1,5 +1,6 @@
 {% extends 'creme_core/history/html/base.html' %}
 {% load i18n creme_core_tags creme_ctype %}
+
 {% block content %}
 {% with modifications=hline.modifications %}
     {% ctype_counted_instances_label ctype=hline.entity_ctype count=modifications.0 as counted_instances %}
