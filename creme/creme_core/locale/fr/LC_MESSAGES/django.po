@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-17 15:17+0200\n"
+"POT-Creation-Date: 2021-06-22 09:50+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2997,12 +2997,12 @@ msgstr ""
 "Export de «%(counted_instances)s» (vue «%(view)s» & filtre «%(filter)s»)"
 
 #, python-format
-msgid "“%(property_text)s” added"
-msgstr "“%(property_text)s” ajoutée"
+msgid "%(property_text)s added"
+msgstr "%(property_text)s ajoutée"
 
 #, python-format
-msgid "“%(property_text)s” removed"
-msgstr "“%(property_text)s” enlevée"
+msgid "%(property_text)s removed"
+msgstr "%(property_text)s enlevée"
 
 #, python-format
 msgid "“%(entity)s“ edited"
@@ -3013,20 +3013,20 @@ msgid "%(entity_link)s edited"
 msgstr "%(entity_link)s modifié(e)"
 
 #, python-format
-msgid "“%(predicate)s” added to “%(entity)s“"
-msgstr "“%(predicate)s” ajouté vers “%(entity)s“"
+msgid "%(predicate)s added to “%(entity)s“"
+msgstr "%(predicate)s ajouté vers “%(entity)s“"
 
 #, python-format
-msgid "“%(predicate)s” added to %(entity_link)s"
-msgstr "“%(predicate)s” ajouté vers %(entity_link)s"
+msgid "%(predicate)s added to %(entity_link)s"
+msgstr "%(predicate)s ajouté vers %(entity_link)s"
 
 #, python-format
-msgid "“%(predicate)s” to “%(entity)s“ removed"
-msgstr "“%(predicate)s” vers “%(entity)s“ enlevée"
+msgid "%(predicate)s to “%(entity)s“ removed"
+msgstr "%(predicate)s vers “%(entity)s“ enlevée"
 
 #, python-format
-msgid "“%(predicate)s” to %(entity_link)s removed"
-msgstr "“%(predicate)s” vers %(entity_link)s enlevée"
+msgid "%(predicate)s to %(entity_link)s removed"
+msgstr "%(predicate)s vers %(entity_link)s enlevée"
 
 msgid "List of jobs"
 msgstr "Liste des jobs"

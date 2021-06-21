@@ -961,11 +961,14 @@ class HistoryRenderTestCase(CremeTestCase):
 
         hline = self.get_hline()
         self.assertEqual(history.TYPE_PROP_ADD, hline.type)
-        html_format_str = '<div class="history-line history-line-property_addition">{content}<div>'
+        html_format_str = '<div class="history-line history-line-property_addition">{}<div>'
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=_('“%(property_text)s” added') % {'property_text': text},
+                # _('“%(property_text)s” added') % {'property_text': text},
+                mark_safe(_('%(property_text)s added') % {
+                    'property_text': f'<span class="property-text">{text}</span>',
+                }),
             ),
             self.render_line(hline, user),
         )
@@ -976,7 +979,10 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=_('“%(property_text)s” added') % {'property_text': ptype_id},
+                # _('“%(property_text)s” added') % {'property_text': ptype_id},
+                mark_safe(_('%(property_text)s added') % {
+                    'property_text': f'<span class="property-text">{ptype_id}</span>',
+                }),
             ),
             self.render_line(hline, user),
         )
@@ -999,7 +1005,10 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                _('“%(property_text)s” removed') % {'property_text': text}
+                # _('“%(property_text)s” removed') % {'property_text': text}
+                mark_safe(_('%(property_text)s removed') % {
+                    'property_text': f'<span class="property-text">{text}</span>',
+                }),
             ),
             self.render_line(hline, user),
         )
@@ -1009,7 +1018,10 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                _('“%(property_text)s” removed') % {'property_text': ptype_id},
+                # _('“%(property_text)s” removed') % {'property_text': ptype_id},
+                mark_safe(_('%(property_text)s removed') % {
+                    'property_text': f'<span class="property-text">{ptype_id}</span>',
+                }),
             ),
             self.render_line(hline, user),
         )
@@ -1030,13 +1042,19 @@ class HistoryRenderTestCase(CremeTestCase):
 
         self.assertEqual(history.TYPE_RELATION, hline.type)
         html_format_str = (
-            '<div class="history-line history-line-relationship_addition">{content}<div>'
+            '<div class="history-line history-line-relationship_addition">{}<div>'
         )
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=mark_safe(_('“%(predicate)s” added to %(entity_link)s') % {
-                    'predicate': rtype.predicate,  # <==
+                # mark_safe(_('“%(predicate)s” added to %(entity_link)s') % {
+                #     'predicate': rtype.predicate,  # <==
+                #     'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                # }),
+                mark_safe(_('%(predicate)s added to %(entity_link)s') % {
+                    'predicate': f'<span class="relationship-predicate">'
+                                 f'{rtype.predicate}'
+                                 f'</span>',  # <==
                     'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
                 }),
             ),
@@ -1047,8 +1065,14 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=mark_safe(_('“%(predicate)s” added to %(entity_link)s') % {
-                    'predicate': srtype.predicate,  # <==
+                # mark_safe(_('“%(predicate)s” added to %(entity_link)s') % {
+                #     'predicate': srtype.predicate,  # <==
+                #     'entity_link': f'<a href="{rei.get_absolute_url()}">{rei}</a>',
+                # }),
+                mark_safe(_('%(predicate)s added to %(entity_link)s') % {
+                    'predicate': f'<span class="relationship-predicate">'
+                                 f'{srtype.predicate}'
+                                 f'</span>',  # <==
                     'entity_link': f'<a href="{rei.get_absolute_url()}">{rei}</a>',
                 }),
             ),
@@ -1064,8 +1088,14 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=mark_safe(_('“%(predicate)s” added to %(entity_link)s') % {
-                    'predicate': rtype_id,  # <==
+                # mark_safe(_('“%(predicate)s” added to %(entity_link)s') % {
+                #     'predicate': rtype_id,  # <==
+                #     'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                # }),
+                mark_safe(_('%(predicate)s added to %(entity_link)s') % {
+                    'predicate': f'<span class="relationship-predicate">'
+                                 f'{rtype_id}'
+                                 f'</span>',  # <==
                     'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
                 }),
             ),
@@ -1078,10 +1108,16 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=_('“%(predicate)s” added to “%(entity)s“') % {
-                    'predicate': rtype_id,
+                # _('“%(predicate)s” added to “%(entity)s“') % {
+                #     'predicate': rtype_id,
+                #     'entity': nerv_repr,
+                # },
+                mark_safe(_('%(predicate)s added to “%(entity)s“') % {
+                    'predicate': f'<span class="relationship-predicate">'
+                                 f'{rtype_id}'
+                                 f'</span>',  # <==
                     'entity': nerv_repr,
-                },
+                }),
             ),
             self.render_line(self.refresh(hline), user),
         )
@@ -1103,17 +1139,23 @@ class HistoryRenderTestCase(CremeTestCase):
 
         self.assertEqual(history.TYPE_RELATION_DEL, hline.type)
         html_format_str = (
-            '<div class="history-line history-line-relationship_deletion">{content}<div>'
+            '<div class="history-line history-line-relationship_deletion">{}<div>'
         )
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=mark_safe(
-                    _('“%(predicate)s” to %(entity_link)s removed') % {
-                        'predicate': rtype.predicate,
-                        'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
-                    }
-                ),
+                # mark_safe(
+                #     _('“%(predicate)s” to %(entity_link)s removed') % {
+                #         'predicate': rtype.predicate,
+                #         'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                #     }
+                # ),
+                mark_safe(_('%(predicate)s to %(entity_link)s removed') % {
+                    'predicate': f'<span class="relationship-predicate">'
+                                 f'{rtype.predicate}'
+                                 f'</span>',  # <==
+                    'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                }),
             ),
             self.render_line(hline, user),
         )
@@ -1122,12 +1164,18 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=mark_safe(
-                    _('“%(predicate)s” to %(entity_link)s removed') % {
-                        'predicate': srtype.predicate,
-                        'entity_link': f'<a href="{rei.get_absolute_url()}">{rei}</a>',
-                    }
-                ),
+                # mark_safe(
+                #     _('“%(predicate)s” to %(entity_link)s removed') % {
+                #         'predicate': srtype.predicate,
+                #         'entity_link': f'<a href="{rei.get_absolute_url()}">{rei}</a>',
+                #     }
+                # ),
+                mark_safe(_('%(predicate)s to %(entity_link)s removed') % {
+                    'predicate': f'<span class="relationship-predicate">'
+                                 f'{srtype.predicate}'
+                                 f'</span>',  # <==
+                    'entity_link': f'<a href="{rei.get_absolute_url()}">{rei}</a>',
+                }),
             ),
             self.render_line(hline_sym, user),
         )
@@ -1139,12 +1187,18 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=mark_safe(
-                    _('“%(predicate)s” to %(entity_link)s removed') % {
-                        'predicate': rtype_id,  # <==
-                        'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
-                    }
-                ),
+                # mark_safe(
+                #     _('“%(predicate)s” to %(entity_link)s removed') % {
+                #         'predicate': rtype_id,  # <==
+                #         'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                #     }
+                # ),
+                mark_safe(_('%(predicate)s to %(entity_link)s removed') % {
+                    'predicate': f'<span class="relationship-predicate">'
+                                 f'{rtype_id}'
+                                 f'</span>',  # <==
+                    'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                }),
             ),
             self.render_line(self.refresh(hline), user),
         )
@@ -1155,10 +1209,16 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             format_html(
                 html_format_str,
-                content=_('“%(predicate)s” to “%(entity)s“ removed') % {
-                    'predicate': rtype_id,  # <==
+                # _('“%(predicate)s” to “%(entity)s“ removed') % {
+                #     'predicate': rtype_id,  # <==
+                #     'entity': nerv_repr,  # <==
+                # },
+                mark_safe(_('%(predicate)s to “%(entity)s“ removed') % {
+                    'predicate': f'<span class="relationship-predicate">'
+                                 f'{rtype_id}'
+                                 f'</span>',
                     'entity': nerv_repr,  # <==
-                },
+                }),
             ),
             self.render_line(self.refresh(hline), user),
         )

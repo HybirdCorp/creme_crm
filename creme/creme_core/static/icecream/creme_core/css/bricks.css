@@ -1347,6 +1347,13 @@ svg.icon {
     font-style: initial;
 }
 
+.creme_core-history-brick .property-text,
+.creme_core-history-brick .relationship-predicate {
+    color: #545454;
+    font-weight: 700;
+    font-style: italic;
+}
+
 .creme_core-history-brick .field-change-text_details {
     color: #7d8790;
     padding-left: 10px;
