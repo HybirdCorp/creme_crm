@@ -48,6 +48,7 @@ from creme.creme_core.models import (
 from creme.creme_core.templatetags.creme_widgets import widget_entity_hyperlink
 from creme.creme_core.utils.collections import ClassKeyedMap
 from creme.creme_core.utils.dates import date_from_ISO8601, dt_from_ISO8601
+from creme.creme_core.utils.db import PreFetcher
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,23 @@ class FieldChangeExplainer:
     field_decorator = _('“{field}”')
     old_value_decorator = new_value_decorator = _('“{value}”')
 
+    def __init__(self, *,
+                 field: Union[Field, CustomField],
+                 values: Sequence,
+                 prefetcher: PreFetcher,
+                 ):
+        """Build a string explain a modification about an instance's field.
+        @param field: The field the modification is about.
+        @param values: Sequence representing changes (generally stored in HistoryLine).
+               0 element => the field changed.
+               1 element => the field received a new value.
+               2 elements => (old value, new value) generally
+                             (ManyToManyFields interprets (PKs removed, PK added).
+        """
+        self._field = field
+        self._values = values
+        self._prefetcher = prefetcher
+
     def decorate_field(self, field: Union[Field, CustomField]) -> str:
         return self.field_decorator.format(
             field=field if isinstance(field, CustomField) else field.verbose_name,
@@ -83,24 +101,21 @@ class FieldChangeExplainer:
     def is_empty_value(value) -> bool:
         return value in EMPTY_VALUES
 
-    def render_choice(self, *, field: Field, user, value):
+    def render_choice(self, *, user, value):
         # NB: django way for '_get_FIELD_display()' methods
         #       => would a linear search be faster ?
-        return dict(field.flatchoices).get(value, value)
+        return dict(self._field.flatchoices).get(value, value)
 
-    def render_value(self, *, field: Union[Field, CustomField], user, value) -> str:
+    def render_value(self, *, user, value) -> str:
         return str(value)
 
-    def render(self, *, field: Union[Field, CustomField], user, values: Sequence) -> str:
+    def render(self, user) -> str:
         """Build a string explain a modification about an instance's field.
-        @param field: The field the modification is about.
         @param user: Instance of auth.get_user_model() ; used for VIEW credentials.
-        @param values: Sequence representing changes (generally stored in HistoryLine).
-               0 element => the field changed.
-               1 element => the field received a new value.
-               2 elements => (old value, new value)
         @return: a description string.
         """
+        field = self._field
+        values = self._values
         decorated_field = self.decorate_field(field)
         length = len(values)
 
@@ -110,7 +125,7 @@ class FieldChangeExplainer:
             sentence = self.new_value_sentence.format(
                 field=decorated_field,
                 value=self.decorate_new_value(
-                    self.render_value(field=field, user=user, value=values[0])
+                    self.render_value(user=user, value=values[0])
                 ),
             )
         else:  # length == 2
@@ -121,7 +136,7 @@ class FieldChangeExplainer:
             )
             new_value = values[1]
             old_rendered_value = self.decorate_old_value(
-                render_value(field=field, user=user, value=values[0])
+                render_value(user=user, value=values[0])
             )
 
             if self.is_empty_value(new_value):
@@ -134,7 +149,7 @@ class FieldChangeExplainer:
                     field=decorated_field,
                     oldvalue=old_rendered_value,
                     value=self.decorate_new_value(
-                        render_value(field=field, user=user, value=new_value)
+                        render_value(user=user, value=new_value)
                     ),
                 )
 
@@ -149,8 +164,8 @@ class HTMLFieldChangeExplainer(FieldChangeExplainer):
     old_value_decorator = '<span class="field-change-old_value">{value}</span>'
     new_value_decorator = '<span class="field-change-new_value">{value}</span>'
 
-    def render(self, *, field, user, values):
-        return mark_safe(super().render(field=field, user=user, values=values))
+    def render(self, user):
+        return mark_safe(super().render(user=user))
 
 
 class HTMLBooleanFieldChangeExplainer(HTMLFieldChangeExplainer):
@@ -158,7 +173,7 @@ class HTMLBooleanFieldChangeExplainer(HTMLFieldChangeExplainer):
     def is_empty_value(value):
         return False
 
-    def render_value(self, *, field, user, value):
+    def render_value(self, *, user, value):
         return (
             gettext('Yes') if value else
             gettext('No') if value is False else
@@ -167,17 +182,17 @@ class HTMLBooleanFieldChangeExplainer(HTMLFieldChangeExplainer):
 
 
 class HTMLDateFieldChangeExplainer(HTMLFieldChangeExplainer):
-    def render_value(self, *, field, user, value):
+    def render_value(self, *, user, value):
         return date_format(date_from_ISO8601(value), 'DATE_FORMAT')
 
 
 class HTMLDateTimeFieldChangeExplainer(HTMLFieldChangeExplainer):
-    def render_value(self, *, field, user, value):
+    def render_value(self, *, user, value):
         return date_format(localtime(dt_from_ISO8601(value)), 'DATETIME_FORMAT')
 
 
 class HTMLNumberFieldChangeExplainer(HTMLFieldChangeExplainer):
-    def render_value(self, *, field, user, value):
+    def render_value(self, *, user, value):
         # TODO: remove 'use_l10n' when settings.USE_L10N == True
         return number_format(value, use_l10n=True, force_grouping=True)
 
@@ -186,8 +201,9 @@ class HTMLTextFieldChangeExplainer(HTMLFieldChangeExplainer):
     emptied_value_sentence = _('{field} emptied {details_link}')
     changed_value_sentence = _('{field} set {details_link}')
 
-    def render(self, *, field, user, values):
-        decorated_field = self.decorate_field(field)
+    def render(self, user):
+        decorated_field = self.decorate_field(self._field)
+        values = self._values
         length = len(values)
 
         if not length:  # NB: old HistoryLine
@@ -237,40 +253,52 @@ class HTMLTextFieldChangeExplainer(HTMLFieldChangeExplainer):
 class ForeignKeyExplainerMixin:
     deleted_value = _('{pk} (deleted)')
 
+    def __init__(self, *,
+                 field: Union[Field, CustomField],
+                 values,
+                 prefetcher: PreFetcher,
+                 ):
+        self._model = model = (
+            field.remote_field.model if isinstance(field, Field) else CustomFieldEnumValue
+        )
+        prefetcher.order(model=model, pks=values)
+
     def render_instance(self, instance, user):
         if isinstance(instance, CremeEntity):
             return instance.allowed_str(user)  # TODO: test
 
         return str(instance)
 
-    def render_fk(self, *, field, user, value):
-        model = field.remote_field.model if isinstance(field, Field) else CustomFieldEnumValue
+    def render_fk(self, *, user, value):
+        instance = self._prefetcher.get(model=self._model, pk=value)
 
-        try:
-            instance = model.objects.get(pk=value)
-        except model.DoesNotExist as e:
-            logger.info(str(e))
-
-            return self.deleted_value.format(pk=value)
-
-        return self.render_instance(instance=instance, user=user)
+        return (
+            self.deleted_value.format(pk=value)
+            if instance is None else
+            self.render_instance(instance=instance, user=user)
+        )
 
 
 class HTMLForeignKeyFieldChangeExplainer(ForeignKeyExplainerMixin,
                                          HTMLFieldChangeExplainer):
+    def __init__(self, **kwargs):
+        ForeignKeyExplainerMixin.__init__(self, **kwargs)
+        HTMLFieldChangeExplainer.__init__(self, **kwargs)
+
     def render_instance(self, instance, user):
         if isinstance(instance, CremeEntity):
             return widget_entity_hyperlink(entity=instance, user=user)
 
         return escape(instance)
 
-    def render_value(self, *, field, user, value):
-        return self.render_fk(field=field, user=user, value=value)
+    def render_value(self, *, user, value):
+        return self.render_fk(user=user, value=value)
 
-    def render(self, *, field, user, values):
-        return mark_safe(super().render(field=field, user=user, values=values))
+    def render(self, user):
+        return mark_safe(super().render(user=user))
 
 
+# TODO: prefetcher.order(model=model, pks=values)
 class ManyToManyFieldChangeExplainer(FieldChangeExplainer):
     sentence = _('{field} changed: {changes}')
     added_part   = ngettext_lazy('{} was added',   '[{}] were added')
@@ -291,11 +319,12 @@ class ManyToManyFieldChangeExplainer(FieldChangeExplainer):
 
         return str(instance)
 
-    def render(self, *, field, user, values) -> str:
-        """
-        @param values: PKs removed, PKs added.
-        """
+    def render(self, user) -> str:
+        # NB: [PKs removed, PKs added].
+        values = self._values
         assert len(values) == 2
+
+        field = self._field
 
         removed_pks = set(values[0])
         added_pks = set(values[1])
@@ -349,8 +378,8 @@ class HTMLManyToManyFieldChangeExplainer(ManyToManyFieldChangeExplainer):
     added_value_decorator   = '<span class="field-change-m2m_added">{value}</span>'
     removed_value_decorator = '<span class="field-change-m2m_removed">{value}</span>'
 
-    def render(self, *, field, user, values):
-        return mark_safe(super().render(field=field, user=user, values=values))
+    def render(self, user):
+        return mark_safe(super().render(user=user))
 
     def render_instance(self, instance, user):
         if isinstance(instance, CremeEntity):
@@ -370,10 +399,16 @@ class HistoryLineExplainer:
     type_id: str = ''  # Used in CSS class for example
     template_name: str = 'OVERRIDE_ME'
 
-    def __init__(self, *, hline: HistoryLine, user, field_explainers: ClassKeyedMap):
+    def __init__(self, *,
+                 hline: HistoryLine,
+                 user,
+                 field_explainers: ClassKeyedMap,
+                 prefetcher: PreFetcher,
+                 ):
         self.hline = hline
         self.user = user
         self._field_explainers = field_explainers
+        self._prefetcher = prefetcher
 
     def get_context(self) -> dict:
         """Builds the context of the template."""
@@ -383,58 +418,79 @@ class HistoryLineExplainer:
             'user': self.user,
         }
 
-    def _modifications_for_custom_fields(self,
-                                         modifications: List[tuple],
-                                         user,
-                                         ) -> Iterator[str]:
-        get_cfield = CustomField.objects.in_bulk(m[0] for m in modifications).get
+    def _explainers_for_custom_fields(self,
+                                      model_class: Type[models.Model],
+                                      modifications: List[tuple],
+                                      ) -> Iterator[FieldChangeExplainer]:
+        # get_cfield = CustomField.objects.in_bulk(m[0] for m in modifications).get
+        get_cfield = CustomField.objects.get_for_model(model_class).get
 
         field_explainers = self._field_explainers
+
+        class InvalidCustomFieldChangeExplainer(FieldChangeExplainer):
+            def __init__(this, cfield_id):
+                this._cfield_id = cfield_id
+
+            def render(this, user):
+                return gettext(
+                    'Deleted field (with id={id}) set'
+                ).format(id=this._cfield_id)
 
         for modif in modifications:
             cfield_id = modif[0]
             cfield = get_cfield(cfield_id)
 
             if cfield is None:
-                vmodif = gettext('Deleted field (with id={id}) set').format(id=cfield_id)
+                explainer = InvalidCustomFieldChangeExplainer(cfield_id=cfield_id)
             else:
                 value_field = cfield.value_class._meta.get_field('value')
+                explainer = field_explainers[type(value_field)](
+                    field=cfield,
+                    values=modif[1:],
+                    prefetcher=self._prefetcher,
+                )
 
-                try:
-                    vmodif = field_explainers[type(value_field)]().render(
-                        field=cfield, user=user, values=modif[1:],
-                    )
-                except Exception:
-                    logger.exception('Error when render history for custom field')
-                    vmodif = '??'
+            yield explainer
 
-            yield vmodif
-
-    def _modifications_for_fields(self,
-                                  model_class: Type[models.Model],
-                                  modifications: List[tuple],
-                                  user,
-                                  ) -> Iterator[str]:
+    def _explainers_for_fields(self,
+                               model_class: Type[models.Model],
+                               modifications: List[tuple],
+                               ) -> Iterator[FieldChangeExplainer]:
         get_field = model_class._meta.get_field
-
         field_explainers = self._field_explainers
+
+        class InvalidFieldChangeExplainer(FieldChangeExplainer):
+            def __init__(this, field_name):
+                this._field_name = field_name
+
+            def render(this, user):
+                return gettext('“{field}” set').format(field=this._field_name)
 
         for modif in modifications:
             field_name = modif[0]
             try:
                 field: Field = get_field(field_name)
             except FieldDoesNotExist:
-                vmodif = gettext('“{field}” set').format(field=field_name)
+                explainer = InvalidFieldChangeExplainer(field_name=field_name)
             else:
-                try:
-                    vmodif = field_explainers[type(field)]().render(
-                        field=field, user=user, values=modif[1:],
-                    )
-                except Exception:
-                    logger.exception('Error when render history for field')
-                    vmodif = '??'
+                explainer = field_explainers[type(field)](
+                    field=field,
+                    values=modif[1:],
+                    prefetcher=self._prefetcher,
+                )
 
-            yield vmodif
+            yield explainer
+
+    @staticmethod
+    def _render_field_explainers(field_explainers: Iterable[FieldChangeExplainer],
+                                 user,
+                                 ) -> Iterator[str]:
+        for explainer in field_explainers:
+            try:
+                yield explainer.render(user)
+            except Exception:
+                logger.exception('Error when render history for field')
+                yield '??'
 
     def render(self) -> str:
         return get_template(self.template_name).render(self.get_context())
@@ -446,16 +502,19 @@ class HTMLCreationExplainer(HistoryLineExplainer):
 
 
 class _EditionExplainer(HistoryLineExplainer):
-    def get_context(self):
-        context = super().get_context()
-
-        hline = self.hline
-        context['modifications'] = [
-            *self._modifications_for_fields(
+    def __init__(self, *, hline, **kwargs):
+        super().__init__(hline=hline, **kwargs)
+        self._field_explainers = [
+            *self._explainers_for_fields(
                 model_class=hline.entity_ctype.model_class(),
                 modifications=hline.modifications,
-                user=self.user,
-            )
+            ),
+        ]
+
+    def get_context(self):
+        context = super().get_context()
+        context['modifications'] = [
+            *self._render_field_explainers(self._field_explainers, self.user),
         ]
 
         return context
@@ -470,15 +529,19 @@ class HTMLCustomEditionExplainer(HistoryLineExplainer):
     type_id = 'custom_edition'
     template_name = 'creme_core/history/html/custom-edition.html'
 
+    def __init__(self, *, hline, **kwargs):
+        super().__init__(hline=hline, **kwargs)
+        self._field_explainers = [
+            *self._explainers_for_custom_fields(
+                model_class=hline.entity_ctype.model_class(),
+                modifications=hline.modifications,
+            ),
+        ]
+
     def get_context(self):
         context = super().get_context()
-
-        hline = self.hline
         context['modifications'] = [
-            *self._modifications_for_custom_fields(
-                modifications=hline.modifications,
-                user=self.user,
-            ),
+            *self._render_field_explainers(self._field_explainers, self.user),
         ]
 
         return context
@@ -493,34 +556,39 @@ class HTMLRelatedEditionExplainer(HistoryLineExplainer):
     type_id = 'related_edition'
     template_name = 'creme_core/history/html/related-edition.html'
 
+    def __init__(self, *, hline, **kwargs):
+        super().__init__(hline=hline, **kwargs)
+        related_line = self.hline.related_line
+        self._field_explainers = [
+            *self._explainers_for_fields(
+                model_class=related_line.entity_ctype.model_class(),
+                modifications=related_line.modifications,
+            ),
+        ]
+
     def get_context(self):
         context = super().get_context()
 
         # TODO: render related line in template ?
-        related_line = self.hline.related_line
         context['modifications'] = [
-            *self._modifications_for_fields(
-                model_class=related_line.entity_ctype.model_class(),
-                modifications=related_line.modifications,
-                user=self.user,
-            )
+            *self._render_field_explainers(self._field_explainers, self.user),
         ]
 
         return context
 
 
 class _PropertyExplainer(HistoryLineExplainer):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._ptype_id = ptype_id = self.hline.modifications[0]
+        self._prefetcher.order(CremePropertyType, [ptype_id])
+
     def get_context(self):
         context = super().get_context()
-        ptype_id = self.hline.modifications[0]
 
-        try:
-            # TODO: use cache ?
-            ptype_text = CremePropertyType.objects.get(pk=ptype_id).text
-        except CremePropertyType.DoesNotExist:
-            ptype_text = ptype_id
-
-        context['property_text'] = ptype_text
+        ptype_id = self._ptype_id
+        ptype = self._prefetcher.get(CremePropertyType, ptype_id)
+        context['property_text'] = ptype_id if ptype is None else ptype.text
 
         return context
 
@@ -536,18 +604,17 @@ class HTMLPropertyDeletionExplainer(_PropertyExplainer):
 
 
 class _RelationExplainer(HistoryLineExplainer):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._rtype_id = rtype_id = self.hline.modifications[0]
+        self._prefetcher.order(RelationType, [rtype_id])
+
     def get_context(self):
         context = super().get_context()
 
-        rtype_id = self.hline.modifications[0]
-
-        try:
-            # TODO: use a cache ?
-            predicate = RelationType.objects.get(pk=rtype_id).predicate
-        except RelationType.DoesNotExist:
-            predicate = rtype_id
-
-        context['predicate'] = predicate
+        rtype_id = self._rtype_id
+        rtype = self._prefetcher.get(RelationType, rtype_id)
+        context['predicate'] = rtype_id if rtype is None else rtype.predicate
 
         return context
 
@@ -578,24 +645,31 @@ class HTMLAuxCreationExplainer(HistoryLineExplainer):
 
 
 class _AuxiliaryEditionExplainer(HistoryLineExplainer):
+    def __init__(self, *, hline, **kwargs):
+        super().__init__(hline=hline, **kwargs)
+
+        modifications = hline.modifications
+
+        # TODO: use aux_id to display an up-to-date value ??
+        ct_id, __aux_id, str_obj = modifications[0]
+        ctype = ContentType.objects.get_for_id(ct_id)
+
+        self._aux_ctype = ctype
+        self._aux_value = str_obj
+        self._field_explainers = [
+            *self._explainers_for_fields(
+                model_class=ctype.model_class(),
+                modifications=modifications[1:],
+            ),
+        ]
+
     def get_context(self):
         context = super().get_context()
 
-        modifications = self.hline.modifications
-
-        # TODO: use aux_id to display an up-to-date value ??
-        ct_id, aux_id, str_obj = modifications[0]
-        ctype = ContentType.objects.get_for_id(ct_id)
-
-        context['auxiliary_ctype'] = ctype
-        context['auxiliary_value'] = str_obj
-
+        context['auxiliary_ctype'] = self._aux_ctype
+        context['auxiliary_value'] = self._aux_value
         context['modifications'] = [
-            *self._modifications_for_fields(
-                model_class=ctype.model_class(),
-                modifications=modifications[1:],
-                user=self.user,
-            )
+            *self._render_field_explainers(self._field_explainers, self.user),
         ]
 
         return context
@@ -674,12 +748,19 @@ class HistoryRegistry:
 
         get_cls = self._line_explainer_classes.get
         field_explainers = self._field_explainer_classes
-
-        return [
+        fetcher = PreFetcher()
+        explainers = [
             get_cls(hline.type, EmptyExplainer)(
-                hline=hline, user=user, field_explainers=field_explainers,
+                hline=hline, user=user,
+                field_explainers=field_explainers,
+                prefetcher=fetcher,
             ) for hline in hlines
         ]
+
+        fetcher.proceed()
+        # TODO: populate real entities in 'fetcher'
+
+        return explainers
 
 
 html_history_registry = HistoryRegistry(

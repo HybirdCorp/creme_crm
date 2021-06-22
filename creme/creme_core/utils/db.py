@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016-2020 Hybird
+# Copyright (c) 2016-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -293,3 +293,40 @@ def is_db_like_case_sensitive() -> bool:  # TODO: idem
     """
     # NB: see is_db_equal_case_sensitive()
     return not CaseSensitivity.objects.filter(text__contains='case').exists()
+
+
+# TODO: accept multiple/iterative order()/proceed() calls ?
+class PreFetcher:
+    """Regroup queries on same model (to retrieve instances by their PK)
+    Accumulate calls to order(), & then build the pre-fetched cache with
+    proceed().
+    """
+    def __init__(self):
+        self._orders = defaultdict(set)
+        self._prefetched: Optional[Dict[Type[Model], Dict[Any, Model]]] = None
+
+    def get(self, model: Type[Model], pk) -> Optional[Model]:
+        prefetched = self._prefetched
+        if prefetched is None:
+            raise RuntimeError('PreFetcher not filled (hint: call proceed())')
+
+        return prefetched[model].get(pk)
+
+    def order(self, model: Type[Model], pks: Iterable) -> 'PreFetcher':
+        if self._prefetched is not None:
+            raise RuntimeError('PreFetcher already (hint: call order() before proceed() only)')
+
+        self._orders[model].update(pks)
+
+        return self
+
+    def proceed(self) -> 'PreFetcher':
+        if self._prefetched is not None:
+            raise RuntimeError('PreFetcher already (hint: call proceed() only once)')
+
+        self._prefetched = {
+            model: model._default_manager.in_bulk(pks)
+            for model, pks in self._orders.items()
+        }
+
+        return self
