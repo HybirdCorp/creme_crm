@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.bricks import HistoryBrick
 from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.gui.history import (
     HistoryLineExplainer,
@@ -21,6 +22,7 @@ from creme.creme_core.gui.history import (
     html_history_registry,
 )
 from creme.creme_core.models import (
+    CremeEntity,
     CremeProperty,
     CremePropertyType,
     CustomField,
@@ -58,6 +60,10 @@ class HistoryRenderTestCase(CremeTestCase):
     @staticmethod
     def get_hline():
         return HistoryLine.objects.order_by('-id').first()
+
+    @staticmethod
+    def get_hlines(entity, number):
+        return HistoryLine.objects.filter(entity=entity.id).order_by('-id')[:number]
 
     @staticmethod
     def render_line(hline, user):
@@ -677,6 +683,36 @@ class HistoryRenderTestCase(CremeTestCase):
             self.render_line(hline2, user),
         )
 
+    def test_render_edition_prefetching(self):
+        user = self.create_user()
+
+        position1, position2, position3 = FakePosition.objects.all()[:3]
+        hayao = FakeContact.objects.create(
+            user=user, first_name='Hayao', last_name='Miyazaki',
+            position=position1,
+        )
+
+        hayao = self.refresh(hayao)
+        hayao.position = position2
+        hayao.save()
+
+        hayao = self.refresh(hayao)
+        hayao.position = position3
+        hayao.save()
+
+        hlines = [*self.get_hlines(entity=hayao, number=2)]
+        self.assertCountEqual(
+            [history.TYPE_EDITION] * 2,
+            [hline.type for hline in hlines],
+        )
+
+        with self.assertNumQueries(1):
+            explainers = html_history_registry.line_explainers(hlines, user)
+
+        with self.assertNumQueries(0):
+            for explainer in explainers:
+                explainer.render()
+
     def test_render_custom_edition01(self):
         "String, date, integer."
         user = self.create_user()
@@ -850,6 +886,41 @@ class HistoryRenderTestCase(CremeTestCase):
             '<div class="history-line history-line-custom_edition">??<div>',
             self.render_line(self.refresh(hline), user),
         )
+
+    def test_render_custom_edition_prefetching(self):
+        user = self.create_user()
+
+        create_cfield = partial(
+            CustomField.objects.create,
+            content_type=ContentType.objects.get_for_model(FakeOrganisation),
+        )
+        cfield1 = create_cfield(name='Type', field_type=CustomField.ENUM)
+        cfield2 = create_cfield(name='EVA',  field_type=CustomField.ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        choice1 = create_evalue(value='Attack', custom_field=cfield1)
+        choice2 = create_evalue(value='EVA01',  custom_field=cfield2)
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        save_cvalues = CustomFieldValue.save_values_for_entities
+        save_cvalues(cfield1, [nerv], choice1.id)
+
+        clear_global_info()
+        save_cvalues(cfield2, [nerv], choice2.id)
+
+        hlines = [*self.get_hlines(entity=nerv, number=2)]
+        self.assertCountEqual(
+            [history.TYPE_CUSTOM_EDITION] * 2,
+            [hline.type for hline in hlines],
+        )
+
+        with self.assertNumQueries(2):  # CustomField & CustomFieldEnumValue
+            explainers = html_history_registry.line_explainers(hlines, user)
+
+        with self.assertNumQueries(0):
+            for explainer in explainers:
+                explainer.render()
 
     def test_render_deletion(self):
         user = self.create_user()
@@ -1025,6 +1096,33 @@ class HistoryRenderTestCase(CremeTestCase):
             ),
             self.render_line(hline, user),
         )
+
+    def test_render_property_prefetching(self):
+        user = self.create_user()
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_make_anime', text='Makes anime series')
+        ptype2 = create_ptype(str_pk='test-prop_make_film', text='Makes film')
+
+        create_prop = partial(CremeProperty.objects.create, creme_entity=gainax)
+        prop1 = create_prop(type=ptype1)
+        create_prop(type=ptype2)
+
+        prop1.delete()
+
+        hlines = [*self.get_hlines(entity=gainax, number=3)]
+        self.assertCountEqual(
+            [history.TYPE_PROP_ADD, history.TYPE_PROP_ADD, history.TYPE_PROP_DEL],
+            [hline.type for hline in hlines],
+        )
+
+        with self.assertNumQueries(1):
+            explainers = html_history_registry.line_explainers(hlines, user)
+
+        with self.assertNumQueries(0):
+            for explainer in explainers:
+                explainer.render()
 
     def test_render_relation_addition(self):
         user = self.create_user()
@@ -1222,6 +1320,50 @@ class HistoryRenderTestCase(CremeTestCase):
             ),
             self.render_line(self.refresh(hline), user),
         )
+
+    def test_render_relation_prefetching(self):
+        user = self.create_user()
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+
+        rtype1 = RelationType.create(
+            ('test-subject_works', 'is employed'), ('test-object_works', 'employs'),
+        )[0]
+        rtype2 = RelationType.create(
+            ('test-subject_pilot', 'is pilot for'), ('test-object_pilot', 'has pilot'),
+        )[0]
+
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, subject_entity=rei, object_entity=nerv,
+        )
+        relation1 = create_rel(type=rtype1)
+        create_rel(type=rtype2)
+
+        relation1.delete()
+
+        hlines = [*self.get_hlines(entity=rei, number=3)]
+        self.assertCountEqual(
+            [history.TYPE_RELATION, history.TYPE_RELATION, history.TYPE_RELATION_DEL],
+            [hline.type for hline in hlines],
+        )
+
+        # Populate
+        HistoryLine.populate_related_lines(hlines)
+
+        related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
+        HistoryBrick._populate_related_real_entities([*hlines, *related_hlines])
+
+        ContentType.objects.get_for_model(CremeEntity)
+        # Populate [end]
+
+        with self.assertNumQueries(1):
+            explainers = html_history_registry.line_explainers(hlines, user)
+
+        with self.assertNumQueries(0):
+            for explainer in explainers:
+                explainer.render()
 
     def test_render_auxiliary_creation(self):
         user = self.create_user()

@@ -667,7 +667,6 @@ class EntityCellRelation(EntityCell):
         super().__init__(
             model=model,
             value=str(rtype.id),
-            # title=rtype.predicate,
             is_hidden=is_hidden,
         )
 

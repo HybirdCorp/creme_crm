@@ -7,8 +7,19 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, connections
 
 from creme.creme_core.constants import REL_SUB_HAS
-from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.models import (
+    CremeEntity,
+    FakeCivility,
+    FakeContact,
+    FakeDocument,
+    FakeFolder,
+    FakeOrganisation,
+    FakePosition,
+    FakeSector,
+    Relation,
+)
 from creme.creme_core.utils.db import (
+    PreFetcher,
     build_columns_key,
     get_indexed_ordering,
     get_indexes_columns,
@@ -16,14 +27,6 @@ from creme.creme_core.utils.db import (
 )
 
 from ..base import CremeTestCase
-from ..fake_models import (
-    FakeCivility,
-    FakeContact,
-    FakeDocument,
-    FakeFolder,
-    FakeOrganisation,
-    FakeSector,
-)
 
 
 class DBTestCase(CremeTestCase):
@@ -494,3 +497,80 @@ class DBTestCase(CremeTestCase):
 
         with self.assertNumQueries(2):
             populate_related(contacts, ['user__role__name'])
+
+    def test_prefetcher01(self):
+        sector1, sector2, sector3 = FakeSector.objects.all()[:3]
+
+        fetcher = PreFetcher()
+
+        with self.assertRaises(RuntimeError):
+            fetcher.get(FakeSector, sector1.id)
+
+        fetcher.order(FakeSector, [sector1.id, sector2.id])
+
+        with self.assertNumQueries(1):
+            fetcher.proceed()
+
+        with self.assertNumQueries(0):
+            retrieved_sector1 = fetcher.get(FakeSector, sector1.id)
+        self.assertEqual(sector1, retrieved_sector1)
+
+        with self.assertNumQueries(0):
+            retrieved_sector2 = fetcher.get(FakeSector, sector2.id)
+        self.assertEqual(sector2, retrieved_sector2)
+
+        self.assertIsNone(fetcher.get(FakeSector, sector3.id))
+
+        with self.assertRaises(KeyError):
+            fetcher.get(FakePosition, 123)
+
+        with self.assertRaises(RuntimeError):
+            fetcher.order(FakePosition, [123])
+
+        with self.assertRaises(RuntimeError):
+            fetcher.proceed()
+
+    def test_prefetcher02(self):
+        "Several calls to order() with the same model."
+        sector1, sector2, sector3 = FakeSector.objects.all()[:3]
+
+        fetcher = PreFetcher().order(
+            FakeSector, [sector1.id],
+        ).order(
+            FakeSector, [sector3.id],
+        )
+
+        with self.assertNumQueries(1):
+            fetcher.proceed()
+
+        with self.assertNumQueries(0):
+            retrieved_sector1 = fetcher.get(FakeSector, sector1.id)
+        self.assertEqual(sector1, retrieved_sector1)
+
+        with self.assertNumQueries(0):
+            retrieved_sector3 = fetcher.get(FakeSector, sector3.id)
+        self.assertEqual(sector3, retrieved_sector3)
+
+        self.assertIsNone(fetcher.get(FakeSector, sector2.id))
+
+    def test_prefetcher03(self):
+        "Several calls to order() with different models."
+        sector1, sector2 = FakeSector.objects.all()[:2]
+        position1, position2 = FakePosition.objects.all()[:2]
+
+        fetcher = PreFetcher().order(
+            FakeSector, [sector1.id, sector2.id],
+        ).order(
+            FakePosition, [position2.id, position1.id],
+        )
+
+        with self.assertNumQueries(2):
+            fetcher.proceed()
+
+        with self.assertNumQueries(0):
+            retrieved_sector1 = fetcher.get(FakeSector, sector1.id)
+        self.assertEqual(sector1, retrieved_sector1)
+
+        with self.assertNumQueries(0):
+            retrieved_position1 = fetcher.get(FakePosition, position1.id)
+        self.assertEqual(position1, retrieved_position1)
