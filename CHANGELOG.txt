@@ -229,6 +229,7 @@
           all apps have been reworked to use the new API (registration of entry classes in 'apps.py', base configuration of menu in 'populate.py')
         # The method 'get_tag()' injected in all model-fields takes now an argument named "tag" (it was named "tag_name") ;
           notice that it's better to pass an enumeration value (eg: 'FieldTag.VIEWABLE').
+        # In the method 'creme_core.bricks.HistoryBrick._populate_related_real_entities()', the argument "user" has been removed.
         # In the class 'creme_core.core.search.Searcher' :
             - The attribute '_search_map' stores now 'EntityCell' instances as values.
             - The method '_build_query()' takes a parameter "cells" instead of "fields".
