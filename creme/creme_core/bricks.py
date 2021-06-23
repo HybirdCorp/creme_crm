@@ -207,9 +207,9 @@ class HistoryBrick(QuerysetBrick):
     history_registry = html_history_registry
 
     # TODO: factorise (see assistants.bricks) ??
-    # TODO: remove 'user' argument
     @staticmethod
-    def _populate_related_real_entities(hlines, user):
+    # def _populate_related_real_entities(hlines, user):
+    def _populate_related_real_entities(hlines):
         hlines = [hline for hline in hlines if hline.entity_id]
         entities_ids_by_ct = defaultdict(set)
         get_ct = ContentType.objects.get_for_id
@@ -249,7 +249,7 @@ class HistoryBrick(QuerysetBrick):
 
         HistoryLine.populate_related_lines(hlines)
         related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
-        self._populate_related_real_entities(related_hlines, user)
+        self._populate_related_real_entities(related_hlines)
 
         HistoryLine.populate_users(hlines, user)
         self._populate_explainers([*hlines, *related_hlines], user)
@@ -273,7 +273,7 @@ class HistoryBrick(QuerysetBrick):
         related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
         extended_hlines = [*hlines, *related_hlines]
 
-        self._populate_related_real_entities(extended_hlines, user)
+        self._populate_related_real_entities(extended_hlines)
         HistoryLine.populate_users(hlines, user)
         self._populate_perms(hlines, user)
         self._populate_explainers(extended_hlines, user)
