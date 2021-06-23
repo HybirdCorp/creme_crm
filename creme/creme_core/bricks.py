@@ -247,8 +247,12 @@ class HistoryBrick(QuerysetBrick):
         hlines = btc['page'].object_list
         user = context['user']
 
+        HistoryLine.populate_related_lines(hlines)
+        related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
+        self._populate_related_real_entities(related_hlines, user)
+
         HistoryLine.populate_users(hlines, user)
-        self._populate_explainers(hlines, user)
+        self._populate_explainers([*hlines, *related_hlines], user)
 
         for hline in hlines:
             # All lines are referencing context['object'], which can be viewed.
@@ -265,10 +269,14 @@ class HistoryBrick(QuerysetBrick):
         hlines = btc['page'].object_list
         user = context['user']
 
-        self._populate_related_real_entities(hlines, user)
+        HistoryLine.populate_related_lines(hlines)
+        related_hlines = [*filter(None, (hline.related_line for hline in hlines))]
+        extended_hlines = [*hlines, *related_hlines]
+
+        self._populate_related_real_entities(extended_hlines, user)
         HistoryLine.populate_users(hlines, user)
         self._populate_perms(hlines, user)
-        self._populate_explainers(hlines, user)
+        self._populate_explainers(extended_hlines, user)
 
         return self._render(btc)
 

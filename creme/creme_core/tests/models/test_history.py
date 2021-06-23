@@ -2133,4 +2133,78 @@ about this fantastic animation studio."""
             h_user1 = hline1.user
         self.assertEqual(admin, h_user1)
 
-    # TODO: test populate related lines + query counter ??
+    def test_populate_related_lines01(self):
+        user = self.user
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        rei   = create_contact(first_name='Rei',   last_name='Ayanami')
+        asuka = create_contact(first_name='Asuka', last_name='Langley')
+
+        rtype = RelationType.create(
+            ('test-subject_employs', 'employs'),
+            ('test-object_employs',  'is employed'),
+        )[0]
+        create_rel = partial(Relation.objects.create, user=user, subject_entity=nerv, type=rtype)
+        create_rel(object_entity=rei)
+        create_rel(object_entity=asuka)
+
+        hlines = [*HistoryLine.objects.filter(entity=nerv.id).order_by('id')]
+        self.assertListEqual(
+            [TYPE_CREATION, TYPE_RELATION, TYPE_RELATION],
+            [hline.type for hline in hlines],
+        )
+
+        with self.assertNumQueries(1):
+            HistoryLine.populate_related_lines(hlines)
+
+        with self.assertNumQueries(0):
+            rline1 = hlines[0].related_line
+            rline2 = hlines[1].related_line
+            rline3 = hlines[2].related_line
+
+        self.assertIsNone(rline1)
+
+        self.assertIsNotNone(rline2)
+        self.assertEqual(TYPE_SYM_RELATION, rline2.type)
+        self.assertEqual(rei.id,            rline2.entity_id)
+
+        self.assertIsNotNone(rline3)
+        self.assertEqual(TYPE_SYM_RELATION, rline3.type)
+        self.assertEqual(asuka.id,          rline3.entity_id)
+
+        # Avoid fetching lines when it's useless
+        with self.assertNumQueries(0):
+            HistoryLine.populate_related_lines(hlines)
+
+    def test_populate_related_lines02(self):
+        "Use lines passed as pool too."
+        user = self.user
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+
+        rtype = RelationType.create(
+            ('test-subject_employs', 'employs'),
+            ('test-object_employs',  'is employed'),
+        )[0]
+        Relation.objects.create(
+            user=user, subject_entity=nerv, type=rtype, object_entity=rei,
+        )
+
+        hlines = [*reversed(HistoryLine.objects.order_by('-id')[:3])]
+        self.assertListEqual(
+            [TYPE_CREATION, TYPE_RELATION, TYPE_SYM_RELATION],
+            [hline.type for hline in hlines],
+        )
+
+        with self.assertNumQueries(0):
+            HistoryLine.populate_related_lines(hlines)
+
+        with self.assertNumQueries(0):
+            rline1 = hlines[0].related_line
+            rline2 = hlines[1].related_line
+            rline3 = hlines[2].related_line
+
+        self.assertIsNone(rline1)
+        self.assertEqual(hlines[2], rline2)
+        self.assertEqual(hlines[1], rline3)
