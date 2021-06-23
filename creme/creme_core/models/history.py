@@ -1096,9 +1096,10 @@ class HistoryLine(Model):
                 deleted_ids.add(hline.id)
                 hline.delete()
 
-        related_types = [type_cls.type_id for type_cls in TYPES_MAP if type_cls.has_related_line]
+        related_types = [
+            type_cls.type_id for type_cls in TYPES_MAP if type_cls.has_related_line
+        ]
 
-        # TODO: a 'populate_related_lines()' method would be cool
         while True:
             progress = False
             qs = HistoryLine.objects.filter(type__in=related_types)
@@ -1235,6 +1236,23 @@ class HistoryLine(Model):
 
         for hline in hlines:
             hline.user = users.get(hline.username)
+
+    @classmethod
+    def populate_related_lines(cls, hlines: Sequence['HistoryLine']):
+        pool = {hline.id: hline for hline in hlines}
+        unpopulated = [hline for hline in hlines if hline._related_line is False]
+
+        missing_line_ids = []
+        for hline in unpopulated:
+            related_id = hline._get_related_line_id()
+            if related_id and related_id not in pool:
+                missing_line_ids.append(related_id)
+
+        # NB: in_bulk() avoid query if missing_line_ids is empty
+        pool.update(cls._default_manager.in_bulk(missing_line_ids))
+
+        for hline in unpopulated:
+            hline._related_line = pool.get(hline._get_related_line_id())
 
     @property
     def related_line(self) -> Optional['HistoryLine']:
