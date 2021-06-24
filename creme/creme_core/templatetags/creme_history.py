@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #############################################################################
 
+import warnings
 from datetime import timedelta
 
 from django import template
@@ -64,4 +65,10 @@ def history_summary(*, entity, user):
 
 @register.filter
 def history_modifications(history_line, user):
+    warnings.warn(
+        'The template filter "|history_modifications" is deprecated. '
+        'Hint: see creme_core.bricks.HistoryBrick.',
+        DeprecationWarning
+    )
+
     return history_line.get_verbose_modifications(user)
