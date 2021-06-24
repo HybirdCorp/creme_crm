@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 from builtins import getattr
 from datetime import date, datetime, time
 from decimal import Decimal
@@ -138,11 +139,17 @@ class _JSONEncoder(JSONEncoder):
         return JSONEncoder.default(self, o)
 
 
+# DEPRECATED
 Printer = Callable[[Field, Any, Any], str]
 
 
-# TODO: factorise with gui.field_printers ?? (html and text mode ??)
 def _basic_printer(field: Field, val, user) -> str:
+    warnings.warn(
+        'creme_core.models.history._basic_printer() is deprecated ; '
+        'use creme_core.gui.history instead.',
+        DeprecationWarning
+    )
+
     if field.choices:
         # NB: django way for '_get_FIELD_display()' methods => would a linear search be faster ?
         val = dict(field.flatchoices).get(val, val)
@@ -154,6 +161,12 @@ def _basic_printer(field: Field, val, user) -> str:
 
 
 def _fk_printer(field: Field, val, user) -> str:
+    warnings.warn(
+        'creme_core.models.history._fk_printer() is deprecated ; '
+        'use creme_core.gui.history instead.',
+        DeprecationWarning
+    )
+
     if val is None:
         return ''
 
@@ -172,6 +185,12 @@ def _fk_printer(field: Field, val, user) -> str:
 
 
 def _boolean_printer(field: Field, val, user) -> str:
+    warnings.warn(
+        'creme_core.models.history._boolean_printer() is deprecated ; '
+        'use creme_core.gui.history instead.',
+        DeprecationWarning
+    )
+
     return (
         gettext('Yes') if val else
         gettext('No') if val is False else
@@ -180,19 +199,36 @@ def _boolean_printer(field: Field, val, user) -> str:
 
 
 def _date_printer(field: Field, val, user) -> str:
+    warnings.warn(
+        'creme_core.models.history._date_printer() is deprecated ; '
+        'use creme_core.gui.history instead.',
+        DeprecationWarning
+    )
+
     return date_format(date_from_ISO8601(val), 'DATE_FORMAT') if val else ''
 
 
 def _datetime_printer(field: Field, val, user) -> str:
+    warnings.warn(
+        'creme_core.models.history._datetime_printer() is deprecated ; '
+        'use creme_core.gui.history instead.',
+        DeprecationWarning
+    )
+
     return date_format(localtime(dt_from_ISO8601(val)), 'DATETIME_FORMAT') if val else ''
 
 
 def _float_printer(field: Field, val, user):
-    # TODO remove 'use_l10n' when settings.USE_L10N == True
+    warnings.warn(
+        'creme_core.models.history._float_printer() is deprecated ; '
+        'use creme_core.gui.history instead.',
+        DeprecationWarning
+    )
+
     return number_format(val, use_l10n=True) if val is not None else ''
 
 
-# TODO: ClassKeyedMap ?
+# DEPRECATED
 _PRINTERS: Dict[str, Printer] = {
     'BooleanField': _boolean_printer,
     'NullBooleanField': _boolean_printer,
@@ -319,12 +355,24 @@ class _HistoryLineType:
         del backup['_state']
 
     def _get_printer(self, field: Field) -> Printer:
+        warnings.warn(
+            '_HistoryLineType._get_printer() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         return _PRINTERS.get(field.get_internal_type(), _basic_printer)
 
     def _verbose_modifications_4_fields(self,
                                         model_class: Type[Model],
                                         modifications: List[tuple],
                                         user) -> Iterator[str]:
+        warnings.warn(
+            '_HistoryLineType._verbose_modifications_4_fields() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         get_field = model_class._meta.get_field
 
         for modif in modifications:
@@ -385,6 +433,12 @@ class _HistoryLineType:
                               modifications: List[tuple],
                               entity_ctype: ContentType,
                               user) -> Iterator[str]:
+        warnings.warn(
+            '_HistoryLineType.verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         for m in self._verbose_modifications_4_fields(
             entity_ctype.model_class(), modifications, user,
         ):
@@ -639,6 +693,12 @@ class _HLTCustomFieldsEdition(_HLTManyToManyMixin,
                               modifications: List[tuple],
                               entity_ctype: ContentType,
                               user) -> Iterator[str]:
+        warnings.warn(
+            '_HLTCustomFieldsEdition.verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         get_cfield = CustomField.objects.get
 
         for modif in modifications:
@@ -720,6 +780,12 @@ class _HLTEntityTrash(_HistoryLineType):
             )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
+        warnings.warn(
+            '_HLTEntityTrash.verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         if modifications[0]:
             yield gettext('Sent to the trash')
         else:
@@ -763,10 +829,16 @@ class _HLTPropertyCreation(_HistoryLineType):
         )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
+        warnings.warn(
+            '_HLTPropertyCreation.verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         ptype_id = modifications[0]
 
         try:
-            ptype_text = CremePropertyType.objects.get(pk=ptype_id).text  # TODO: use cache ?
+            ptype_text = CremePropertyType.objects.get(pk=ptype_id).text
         except CremePropertyType.DoesNotExist:
             ptype_text = ptype_id
 
@@ -819,10 +891,15 @@ class _HLTRelation(_HistoryLineType):
             )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
+        warnings.warn(
+            '_HLTRelation.verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         rtype_id = modifications[0]
 
         try:
-            # TODO: use a cache ?
             predicate = RelationType.objects.get(pk=rtype_id).predicate
         except RelationType.DoesNotExist:
             predicate = rtype_id
@@ -872,7 +949,12 @@ class _HLTAuxCreation(_HistoryLineType):
         )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
-        # TODO: use aux_id to display an up-to-date value ??
+        warnings.warn(
+            '_HLTAuxCreation.verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         ct_id, aux_id, str_obj = modifications
 
         yield gettext('Add <{type}>: “{value}”').format(
@@ -961,7 +1043,13 @@ class _HLTAuxEdition(_HLTManyToManyMixin,
             hline.save()
 
     def verbose_modifications(self, modifications, entity_ctype, user):
-        ct_id, aux_id, str_obj = modifications[0]  # TODO: idem (see _HLTAuxCreation)
+        warnings.warn(
+            '_HLTAuxEdition.verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
+        ct_id, aux_id, str_obj = modifications[0]
         model_class, verbose_name = self._model_info(ct_id)
 
         yield gettext('Edit <{type}>: “{value}”').format(
@@ -981,6 +1069,12 @@ class _HLTAuxDeletion(_HLTAuxCreation):
         return [_get_ct(related).id, str(related)]
 
     def verbose_modifications(self, modifications, entity_ctype, user):
+        warnings.warn(
+            '_HLTAuxDeletion.verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         ct_id, str_obj = modifications
 
         yield gettext('Delete <{type}>: “{value}”').format(
@@ -1019,9 +1113,17 @@ class _HLTEntityExport(_HistoryLineType):
         )
 
     def verbose_modifications(self, modifications, entity_ctype, user):
+        warnings.warn(
+            '_HLTEntityExport.verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         count = modifications[0]
 
-        yield gettext('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+        yield gettext(
+            'Export of {count} «{model}» (view «{view}» & filter «{filter}»)'
+        ).format(
             count=count,
             model=get_model_verbose_name(entity_ctype.model_class(), count),
             view=modifications[1],
@@ -1195,6 +1297,12 @@ class HistoryLine(Model):
         return self._modifications
 
     def get_verbose_modifications(self, user) -> List[str]:
+        warnings.warn(
+            'creme_core.models.HistoryLine.get_verbose_modifications() is deprecated ; '
+            'use creme_core.gui.history instead.',
+            DeprecationWarning
+        )
+
         try:
             return [
                 *self.line_type.verbose_modifications(

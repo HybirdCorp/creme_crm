@@ -248,13 +248,17 @@
                   URLItem, TrashItem, QuickCreationItemGroup, CreationFormsItem, LastViewedEntitiesItem, Menu
                 - The global instance 'creme_menu' has been removed.
                 - The function '_validate_id()' has been removed.
-        # In 'creme_core.models.search' :
-            - The class 'SearchField' has been removed.
-            - In the model 'SearchConfigItem' :
-                - The field 'field_names' has been replaced by 'json_cells', which stores 'EntityCells' as dictionaries.
-                - The class attributes '_searchfields' & '_all_fields' have been removed.
-                - These methods have been removed: _build_searchfields(), _get_modelfields_choices(), get_modelfields_choices().
-                - The property 'searchfields' has been removed ; use 'cells' & 'refined_cells' instead.
+        # In 'creme_core.models' :
+            - In 'history', all code related to history line rendering is deprecated ;
+              use the new rendering system 'creme_core.gui.history' instead.
+            - In 'search' :
+                - The class 'SearchField' has been removed.
+                - In the model 'SearchConfigItem' :
+                    - The field 'field_names' has been replaced by 'json_cells', which stores 'EntityCells' as dictionaries.
+                    - The class attributes '_searchfields' & '_all_fields' have been removed.
+                    - These methods have been removed: _build_searchfields(), _get_modelfields_choices(), get_modelfields_choices().
+                    - The property 'searchfields' has been removed ; use 'cells' & 'refined_cells' instead.
+        # In 'creme_core.templatetags.history', the template filter "|history_modifications" is deprecated.
         # In 'creme_core.utils.meta' :
             - In 'ModelFieldEnumerator' :
                 - Two parameters of the constructor have been renamed: "deep" became "depth", "only_leafs" has been fixed to "only_leaves".
