@@ -44,6 +44,7 @@ from creme.creme_core.gui.custom_form import (
     FieldGroupList,
     customform_descriptor_registry,
 )
+from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.gui.menu import ContainerEntry, menu_registry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -254,6 +255,8 @@ class FieldsConfigsBrick(PaginatedBrick):
     # permission = None  # NB: used by the view creme_core.views.bricks.reload_basic()
     configurable = False
 
+    fields_config_registry = fields_config_registry
+
     def detailview_display(self, context):
         # TODO: exclude CTs that user cannot see ?
         #       (should probably be done everywhere in creme_config...)
@@ -262,19 +265,33 @@ class FieldsConfigsBrick(PaginatedBrick):
         fconfigs.sort(key=lambda fconf: sort_key(str(fconf.content_type)))
 
         used_models = {fconf.content_type.model_class() for fconf in fconfigs}
+        is_model_valid = FieldsConfig.objects.is_model_valid
+        registry = self.fields_config_registry
         btc = self.get_template_context(
             context, fconfigs,
             display_add_button=any(
                 model not in used_models
-                for model in filter(FieldsConfig.objects.is_model_valid, apps.get_models())
+                # for model in filter(FieldsConfig.objects.is_model_valid, apps.get_models())
+                for model in filter(is_model_valid, registry.models)
             ),
         )
 
         for fconf in btc['page'].object_list:
-            vnames = [str(f.verbose_name) for f in fconf.hidden_fields]
-            vnames.sort(key=sort_key)
+            # vnames = [str(f.verbose_name) for f in fconf.hidden_fields]
+            # vnames.sort(key=sort_key)
+            #
+            # fconf.fields_vnames = vnames
+            hidden_vnames = [str(f.verbose_name) for f in fconf.hidden_fields]
+            hidden_vnames.sort(key=sort_key)
+            fconf.hidden_fields_vnames = hidden_vnames
 
-            fconf.fields_vnames = vnames
+            required_vnames = [str(f.verbose_name) for f in fconf.required_fields]
+            required_vnames.sort(key=sort_key)
+            fconf.required_fields_vnames = required_vnames
+
+            # TODO: method ?
+            model = fconf.content_type.model_class()
+            fconf.is_valid = registry.is_model_registered(model) and is_model_valid(model)
 
         return self._render(btc)
 

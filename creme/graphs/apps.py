@@ -58,6 +58,9 @@ class GraphsConfig(CremeAppConfig):
             custom_forms.GRAPH_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(self.Graph)
+
     def register_icons(self, icon_registry):
         icon_registry.register(self.Graph, 'images/graph_%(size)s.png')
 

@@ -87,6 +87,13 @@ class PollsConfig(CremeAppConfig):
             custom_forms.PFORM_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(
+            self.PollForm,
+            self.PollReply,
+            self.PollCampaign,
+        )
+
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.PollForm,     'images/poll_%(size)s.png',

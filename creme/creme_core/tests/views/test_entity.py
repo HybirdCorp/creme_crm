@@ -176,7 +176,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                 {'id': nerv.id,  'text': str(nerv)},
                 {'id': asuka.id, 'text': str(asuka)},
             ],
-            response.json()
+            response.json(),
         )
 
     def test_get_sanitized_html_field(self):
@@ -184,12 +184,12 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         self.assertGET409(
-            reverse('creme_core__sanitized_html_field', args=(entity.id, 'unknown'))
+            reverse('creme_core__sanitized_html_field', args=(entity.id, 'unknown')),
         )
 
         # Not an UnsafeHTMLField
         self.assertGET409(
-            reverse('creme_core__sanitized_html_field', args=(entity.id, 'name'))
+            reverse('creme_core__sanitized_html_field', args=(entity.id, 'name')),
         )
 
         # NB: test with valid field in 'emails' app.
@@ -219,7 +219,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
         self.assertEqual(
             entity01_msg,
-            dep_2_str(dependencies=[entity01], user=user)
+            dep_2_str(dependencies=[entity01], user=user),
         )
 
         entity02 = create_orga(name='Seele')
@@ -342,7 +342,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login(is_superuser=False)
 
         entity = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
-
         self.assertPOST403(self._build_delete_url(entity))
         self.assertStillExists(entity)
 
@@ -1023,7 +1022,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
 
     def test_clone03(self):
-        "Not super user with right credentials"
+        "Not super user with right credentials."
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
         self._set_all_creds_except_one(None)
 
@@ -1031,7 +1030,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
 
     def test_clone04(self):
-        "Not super user without creation credentials => error"
+        "Not super user without creation credentials => error."
         self.login(is_superuser=False)
         self._set_all_creds_except_one(None)
 
@@ -1043,7 +1042,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(count, FakeContact.objects.count())
 
     def test_clone05(self):
-        "Not super user without VIEW credentials => error"
+        "Not super user without VIEW credentials => error."
         self.login(is_superuser=False, creatable_models=[FakeContact])
         self._set_all_creds_except_one(EntityCredentials.VIEW)
 
@@ -1055,7 +1054,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(count, FakeContact.objects.count())
 
     def test_clone06(self):
-        """Not clonable entity type"""
+        """Not clonable entity type."""
         user = self.login()
 
         image = FakeImage.objects.create(user=user, name='Img1')
@@ -1064,7 +1063,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(count, FakeImage.objects.count())
 
     def test_clone07(self):
-        "Ajax query"
+        "Ajax query."
         user = self.login()
 
         first_name = 'Mario'
@@ -1299,7 +1298,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIsNone(self.refresh(contact).sandbox)
 
     def test_restrict_entity_2_superusers02(self):
-        "Entity already in a sandbox"
+        "Entity already in a sandbox."
         user = self.login()
         sandbox = Sandbox.objects.create(type_id='creme_core-dont_care', user=user)
         contact = FakeContact.objects.create(
@@ -1314,7 +1313,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(sandbox, self.refresh(contact).sandbox)
 
     def test_restrict_entity_2_superusers03(self):
-        "Unset entity with no sandbox"
+        "Unset entity with no sandbox."
         user = self.login()
         contact = FakeContact.objects.create(
             user=user, first_name='Eikichi', last_name='Onizuka',
@@ -1760,7 +1759,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_regular_field_user(self):
         """Fix a bug with the field list when bulk editing user
-        (ie: a field of the parent class CremeEntity)
+        (ie: a field of the parent class CremeEntity).
         """
         self.login()
 
@@ -2278,7 +2277,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertFormError(response, 'form', 'field_value', _('Enter a valid date.'))
 
     def test_regular_field_03(self):
-        "No permission"
+        "No permission."
         self.login(
             is_superuser=False, creatable_models=[FakeContact],
             allowed_apps=['documents'],
@@ -2287,8 +2286,22 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         mario = self.create_contact()
         self.assertFalse(self.user.has_perm_to_change(mario))
-
         self.assertGET403(self.build_inneredit_url(mario, 'first_name'))
+
+    def test_regular_field_required(self):
+        self.login()
+
+        mario = self.create_contact()
+        response = self.assertPOST200(
+            self.build_inneredit_url(mario, 'last_name'),
+            data={
+                'entities_lbl': [str(mario)],
+                'field_value': '',
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'field_value', _('This field is required.'),
+        )
 
     def test_regular_field_not_editable(self):
         self.login()
@@ -2300,7 +2313,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET(400, url)
         self.assertPOST(400, url, data={'field_value': self.other_user.id})
 
-    def test_regular_field_fields_config(self):
+    def test_regular_field_fields_config_hidden(self):
         self.login()
 
         hidden_fname = 'phone'
@@ -2326,6 +2339,27 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET(400, build_url(hidden_fname))
         self.assertGET(400, build_url(hidden_fkname))
         self.assertGET(400, build_url('address__' + hidden_subfname))
+
+    def test_regular_field_fields_config_required(self):
+        self.login()
+
+        fname = 'phone'
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        mario = self.create_contact()
+        response = self.assertPOST200(
+            self.build_inneredit_url(mario, fname),
+            data={
+                'entities_lbl': [str(mario)],
+                'field_value': '',
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'field_value', _('This field is required.'),
+        )
 
     def test_regular_field_many2many(self):
         user = self.login()

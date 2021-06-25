@@ -98,6 +98,11 @@ class CommercialConfig(CremeAppConfig):
             custom_forms.STRATEGY_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(
+            self.Act, self.Pattern, self.Strategy,
+        )
+
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Act,      'images/commercial_%(size)s.png',

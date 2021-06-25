@@ -1227,7 +1227,7 @@ class ExportingTestCase(CremeTestCase):
             content_type=FakeContact,
             descriptions=[
                 (fname1, {FieldsConfig.HIDDEN: True}),
-                (fname2, {FieldsConfig.HIDDEN: True}),
+                (fname2, {FieldsConfig.REQUIRED: True}),
             ],
         )
 
@@ -1243,7 +1243,7 @@ class ExportingTestCase(CremeTestCase):
                     'ctype': 'creme_core.fakecontact',
                     'descriptions': [
                         [fname1, {'hidden': True}],
-                        [fname2, {'hidden': True}],
+                        [fname2, {'required': True}],
                     ],
                 },
             ],

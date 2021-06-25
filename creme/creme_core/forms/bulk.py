@@ -20,6 +20,7 @@
 
 import re
 from functools import partial
+from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
@@ -31,7 +32,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..gui import bulk_update
-from ..models import custom_field
+from ..models import FieldsConfig, custom_field
 from .base import CremeForm
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
@@ -75,9 +76,11 @@ class BulkForm(CremeForm):
             model = self.model
             entities = self.entities
             # TODO: factorise
-            fieldname = f'{self.parent_field.name}__{self.field_name}' \
-                        if self.is_subfield else \
-                        self.field_name
+            fieldname = (
+                f'{self.parent_field.name}__{self.field_name}'
+                if self.is_subfield else
+                self.field_name
+            )
 
             self.fields['_bulk_fieldname'] = ChoiceField(
                 choices=self._bulk_model_choices(model, entities),
@@ -104,7 +107,7 @@ class BulkForm(CremeForm):
     def _bulk_model_choices(self, model, entities):
         registry = self.bulk_update_registry
         regular_fields = registry.regular_fields(model, expand=True)
-        custom_fields  = registry.custom_fields(model)
+        custom_fields = registry.custom_fields(model)
 
         build_url = partial(self._bulk_field_url, model=model, entities=entities)
 
@@ -151,6 +154,9 @@ class BulkForm(CremeForm):
 
     def _bulk_updatable_formfield(self, model_field, user, instance=None):
         form_field = model_field.formfield()
+
+        if FieldsConfig.objects.get_for_model(model_field.model).is_field_required(model_field):
+            form_field.required = True
 
         if hasattr(form_field, 'get_limit_choices_to'):
             q_filter = form_field.get_limit_choices_to()
@@ -231,9 +237,11 @@ class BulkForm(CremeForm):
         if not hasattr(error, 'message_dict'):
             return {NON_FIELD_ERRORS: error.messages}
 
+        meta = entity._meta
         fields = {
             field.name: field
-            for field in (entity._meta.fields + entity._meta.many_to_many)
+            # for field in (entity._meta.fields + entity._meta.many_to_many)
+            for field in chain(meta.fields, meta.many_to_many)
         }
         messages = []
 

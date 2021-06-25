@@ -74,6 +74,12 @@ class ProjectsConfig(CremeAppConfig):
             custom_forms.TASK_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(
+            self.Project,
+            # TODO: self.ProjectTask ?
+        )
+
     def register_icons(self, icon_registry):
         from .models import Resource
 

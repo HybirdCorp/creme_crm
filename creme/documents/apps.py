@@ -86,6 +86,9 @@ class DocumentsConfig(CremeAppConfig):
             custom_forms.DOCUMENT_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(self.Document, self.Folder)
+
     def register_field_printers(self, field_printers_registry):
         from creme.creme_core.gui import field_printers
 

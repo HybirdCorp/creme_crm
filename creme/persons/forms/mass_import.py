@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.mass_import import (
@@ -64,14 +65,24 @@ class _PersonMassImportForm(ImportForm4CremeEntity):
             address_dict['name'] = name
             address = getattr(person, attr_name, None)
 
-            if address is not None:  # Update
-                for fname, fvalue in address_dict.items():
-                    setattr(address, fname, fvalue)
+            try:
+                if address is not None:  # Update
+                    for fname, fvalue in address_dict.items():
+                        setattr(address, fname, fvalue)
 
-                address.save()
-            else:
-                setattr(person, attr_name, Address.objects.create(**address_dict))
-                save = True
+                    address.full_clean()
+                    address.save()
+                else:
+                    address = Address(**address_dict)
+                    address.full_clean()
+                    address.save()
+
+                    setattr(person, attr_name, address)
+                    save = True
+            except ValidationError as e:
+                # TODO: improve append_error() ?
+                for err_msg in e.messages:
+                    self.append_error(err_msg)
 
         return save
 
@@ -93,6 +104,7 @@ class _PersonMassImportForm(ImportForm4CremeEntity):
 def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMassImportForm):
     address_field_names = [*Address.info_field_names()]  # TODO: remove not-editable fields ??
     try:
+        # TODO: what if name is required by configuration ?
         address_field_names.remove('name')
     except ValueError:
         pass
@@ -111,9 +123,23 @@ def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMa
         if not hidden:
             for field in fields:
                 form_fieldname = prefix + field.name
-                attrs[form_fieldname] = extractorfield_factory(field, header_dict, choices)
+                # attrs[form_fieldname] = form_field = extractorfield_factory(
+                attrs[form_fieldname] = extractorfield_factory(
+                    field, header_dict, choices,
+                )
+
+                # NB: we do not force the field to be required, in order to let
+                #     user do not fill the address at all. Contacts/Organisations
+                #     can be created without Address even if an Address'field is
+                #     required (by using quick forms, by removing the Addresses
+                #     form-block...), so it would be annoying that mass import
+                #     forces the creation of the 2 Addresses.
+                # if FieldsConfig.objects.get_for_model(Address).is_field_required(field):
+                #     form_field.required = True
+
                 fnames.append(form_fieldname)
 
+        # NB: see _PersonMassImportForm._save_address()
         attrs[f'_{attr_name}_hidden'] = hidden
 
         return fnames
@@ -123,7 +149,7 @@ def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMa
 
     attrs['blocks'] = ImportForm4CremeEntity.blocks.new(
         ('billing_address',  _('Billing address'),  billing_address_fnames),
-        ('shipping_address', _('Shipping address'), shipping_address_fnames)
+        ('shipping_address', _('Shipping address'), shipping_address_fnames),
     )
 
     return type('PersonMassImportForm', (base_form,), attrs)

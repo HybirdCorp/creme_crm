@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-22 09:50+0200\n"
+"POT-Creation-Date: 2021-07-02 15:28+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1781,6 +1781,9 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
 
 msgid "Save"
 msgstr "Enregistrer"
+
+msgid "The field «{}» has been configured as required."
+msgstr "Le champ «{}» a été configuré comme obligatoire."
 
 msgid "Related type"
 msgstr "Type associé"
@@ -3610,9 +3613,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "Edit «{}»"
 #~ msgstr "Modifier «{}»"
-
-#~ msgid "The field «{}» does not exist or cannot be edited"
-#~ msgstr "Le champ «{}» n'existe pas ou ne peut être modifié."
 
 #~ msgid "%s «{model}» has been selected."
 #~ msgstr "%s «{model}» a été sélectionné(e)."

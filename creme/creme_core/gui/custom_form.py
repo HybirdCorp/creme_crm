@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,12 @@ from ..forms.base import (
     FieldBlockManager,
     LayoutType,
 )
-from ..models import CremeEntity, CustomField, CustomFormConfigItem
+from ..models import (
+    CremeEntity,
+    CustomField,
+    CustomFormConfigItem,
+    FieldsConfig,
+)
 from ..utils.collections import OrderedSet
 
 logger = logging.getLogger(__name__)
@@ -495,7 +500,7 @@ class FieldGroupList:
         """Main method of the custom-form system: it generate our final form class."""
         model = self.model
 
-        cells_groups: List[FieldGroup]      = []
+        cells_groups: List[FieldGroup] = []
         extra_groups: List[ExtraFieldGroup] = []
         for group in self._groups:
             if isinstance(group, ExtraFieldGroup):
@@ -541,6 +546,8 @@ class FieldGroupList:
             ]
             forced_field_names = []
         else:
+            is_field_required = FieldsConfig.objects.get_for_model(model).is_field_required
+
             remaining_field_names = []
             forced_field_names = [
                 field.name
@@ -548,7 +555,8 @@ class FieldGroupList:
                 if (
                     field.editable
                     and not field.auto_created
-                    and not field.blank
+                    # and not field.blank
+                    and is_field_required(field)
                     and field.name not in field_names
                     and field.name not in exclude_fields
                 )

@@ -79,6 +79,12 @@ class SMSConfig(CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 
+        # TODO ?
+        # fields_config_registry.register_models(
+        #     self.SMSCampaign,
+        #     self.MessagingList,
+        #     self.MessageTemplate,
+        # )
         fields_config_registry.register_needed_fields(
             'sms',
             persons.get_contact_model(),

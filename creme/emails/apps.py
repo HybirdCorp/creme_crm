@@ -129,7 +129,12 @@ class EmailsConfig(CremeAppConfig):
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 
-        fields_config_registry.register_needed_fields(
+        fields_config_registry.register_models(
+            self.EmailCampaign,
+            self.MailingList,
+            self.EmailTemplate,
+            self.EntityEmail,
+        ).register_needed_fields(
             'emails', persons.get_contact_model(), 'email',
         ).register_needed_fields(
             'emails', persons.get_organisation_model(), 'email',

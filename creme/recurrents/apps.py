@@ -53,6 +53,9 @@ class RecurrentsConfig(CremeAppConfig):
             custom_forms.GENERATOR_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(self.RecurrentGenerator)
+
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.RecurrentGenerator, 'images/recurrent_doc_%(size)s.png',

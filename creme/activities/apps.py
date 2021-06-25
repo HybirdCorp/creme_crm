@@ -127,6 +127,9 @@ class ActivitiesConfig(CremeAppConfig):
             custom_forms.ACTIVITY_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(self.Activity)
+
     def register_icons(self, icon_registry):
         Activity = self.Activity
         get_icon = constants.ICONS.get

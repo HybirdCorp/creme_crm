@@ -49,7 +49,9 @@ from .base import (
 
 @skipIfCustomDocument
 @skipIfCustomFolder
-class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickTestCaseMixin):
+class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
+                              BrickTestCaseMixin,
+                              ViewsTestCase):
     lv_import_data = {
         'step': 1,
         # 'document':   doc.id,
@@ -1273,7 +1275,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
                     'So a new entity have been created to avoid errors.'
                 )
             ],
-            jr_error.messages
+            jr_error.messages,
         )
 
         self.assertEqual(rei, jr_error.entity.get_real_entity())
@@ -1447,7 +1449,7 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
               ' available sub-field.').format(value='invalid')
         )
 
-    def test_fields_config(self):
+    def test_fields_config_hidden(self):
         user = self.login()
 
         hidden_fname1 = 'phone'
@@ -1506,6 +1508,64 @@ class MassImportViewsTestCase(ViewsTestCase, MassImportBaseTestCaseMixin, BrickT
         )
         self.assertEqual(rei_info['email'], rei.email)
         self.assertIsNone(getattr(rei, hidden_fname1))
+
+    def test_fields_config_required(self):
+        user = self.login()
+
+        required_fname = 'phone'
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(required_fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        info = [
+            {'first_name': 'Rei',   'last_name': 'Ayanami', required_fname: '111111'},
+            {'first_name': 'Asuka', 'last_name': 'Langley', required_fname: ''},
+        ]
+        doc = self._build_csv_doc([
+            (c_info['first_name'], c_info['last_name'], c_info[required_fname])
+            for c_info in info
+        ])
+
+        url = self._build_import_url(FakeContact)
+        data = {
+            **self.lv_import_data,
+            'document': doc.id,
+            'user': user.id,
+        }
+        response1 = self.client.post(url, follow=True, data=data)
+        self.assertFormError(
+            response1, 'form', required_fname, _('This field is required.'),
+        )
+
+        # ---
+        data[f'{required_fname}_colselect'] = 3
+        response2 = self.client.post(url, follow=True, data=data)
+        self.assertNoFormError(response2)
+
+        job = self._get_job(response2)
+        mass_import_type.execute(job)
+
+        rei_info = info[0]
+        self.get_object_or_fail(
+            FakeContact,
+            last_name=rei_info['last_name'],
+            first_name=rei_info['first_name'],
+            **{required_fname: rei_info[required_fname]}
+        )
+
+        jresults = MassImportJobResult.objects.filter(job=job)
+        self.assertEqual(2, len(jresults))
+
+        jr_errors = [r for r in jresults if r.messages]
+        self.assertEqual(1, len(jr_errors))
+
+        jr_error = jr_errors[0]
+        self.assertIsNone(jr_error.entity)
+        self.assertListEqual(
+            [_('The field «{}» has been configured as required.').format(_('Phone number'))],
+            jr_error.messages,
+        )
 
     def test_resume(self):
         user = self.login()

@@ -11,8 +11,10 @@ from creme.creme_core.models import (
     FakeContact,
     FakeInvoice,
     FakeOrganisation,
+    FieldsConfig,
 )
 
+from ..fake_forms import FakeContactQuickForm
 from .base import CremeTestCase
 
 
@@ -140,5 +142,29 @@ class QuickFormTestCase(CremeTestCase):
             ).value
 
         self.assertEqual(3, cf_value)
+
+    def test_fields_config_required(self):
+        user = self.login()
+
+        not_required = 'url_site'
+        required = 'mobile'
+
+        vanilla_fields = FakeContactQuickForm(user=user).fields
+        self.assertNotIn(not_required, vanilla_fields)
+        self.assertNotIn(required, vanilla_fields)
+
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(required, {FieldsConfig.REQUIRED: True})],
+        )
+
+        url = self._build_quickform_url(FakeContact)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertNotIn(not_required, fields)
+        self.assertIn(required, fields)
 
     # TODO: test_quickform_with_custom_sync_data
