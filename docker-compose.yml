@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  creme-demo:
+    image: creme-demo
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: creme-demo
+      args:
+        CREME_INSTALL_MODS: uwsgi,pgsql
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - "etc/docker/creme.env"
+    volumes:
+      - 'creme_demo_media_root:/home/creme/media'
+    ports:
+      - "8000:80"
+    entrypoint: ["entrypoint.sh"]
+    command: ["wait-for-it", "postgres:5432", "-t", "15", "--", "uwsgi", "--ini", "/home/creme/uwsgi.ini"]
+
+  creme-demo-jobs-worker:
+    image: creme-demo
+    depends_on:
+      - creme-demo
+    env_file:
+      - "etc/docker/creme.env"
+    volumes:
+      - 'creme_demo_media_root:/home/creme/media'
+    command: ["wait-for-it", "creme-demo:80", "-t", "300", "--", "creme", "creme_job_manager"]
+
+  postgres:
+    image: postgres:12
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+    env_file:
+      - "etc/docker/postgres.env"
+
+  redis:
+    image: redis:latest
+
+volumes:
+  postgres_volume:
+  creme_demo_media_root:
