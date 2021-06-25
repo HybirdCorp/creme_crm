@@ -135,6 +135,7 @@ commands:
             echo "export LANGUAGE=<< parameters.language >>" >> $BASH_ENV
             echo "export LC_ALL=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
 
+
 jobs:
   python36-lint-isort:
     docker:
@@ -232,6 +233,7 @@ jobs:
 #      - store_artifacts:
 #          path: artifacts/coverage_html
       - run-creme-unit-tests
+
 
   python36-tests-sqlite3:
     docker:
@@ -402,10 +404,24 @@ jobs:
           path: artifacts/karma_coverage
 
 
+  build-creme-demo:
+    machine:
+      image: ubuntu-2004:202107-02
+      docker_layer_caching: true
+    environment:
+      DOCKER_BUILDKIT: 1
+    steps:
+      - checkout
+      - run: docker build --target creme-demo --tag creme-demo:$CIRCLE_BRANCH .
+      - run: docker run -d --rm --publish 8001:80 --volume creme_data:/srv/creme/data creme-demo:$CIRCLE_BRANCH
+      - run: wget -c --retry-connrefused --waitretry 1 --tries 60 -O /dev/null http://127.0.0.1:8001
+
+
 workflows:
   version: 2
   build:
     jobs:
+      - build-creme-demo
       - javascript-lint
       - javascript-tests:
           requires:
