@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 class _BatchProcessType(JobType):
-    id           = JobType.generate_id('creme_core', 'batch_process')
+    id = JobType.generate_id('creme_core', 'batch_process')
     verbose_name = _('Batch process')
 
     def _get_actions(self, model, job_data):
@@ -87,16 +87,18 @@ class _BatchProcessType(JobType):
         if efilter is not None:
             entities = efilter.filter(entities)
 
-        already_processed = frozenset(EntityJobResult.objects.filter(job=job)
-                                                     .values_list('entity_id', flat=True)
-                                     )
+        already_processed = frozenset(
+            EntityJobResult.objects
+                           .filter(job=job)
+                           .values_list('entity_id', flat=True)
+        )
         if already_processed:
             logger.info('BatchProcess: resuming job %s', job.id)
 
         entities = EntityCredentials.filter(job.user, entities, EntityCredentials.CHANGE)
-        paginator = FlowPaginator(queryset=entities.order_by('id'),
-                                  key='id', per_page=1024,
-                                 )
+        paginator = FlowPaginator(
+            queryset=entities.order_by('id'), key='id', per_page=1024,
+        )
         actions = [*self._get_actions(model, job_data)]
         create_result = partial(EntityJobResult.objects.create, job=job)
 
@@ -133,10 +135,11 @@ class _BatchProcessType(JobType):
         count = EntityJobResult.objects.filter(job=job).count()
         return JobProgress(
             percentage=None,
-            label=ngettext('{count} entity has been processed.',
-                           '{count} entities have been processed.',
-                           count
-                          ).format(count=count),
+            label=ngettext(
+                '{count} entity has been processed.',
+                '{count} entities have been processed.',
+                count
+            ).format(count=count),
         )
 
     @property
@@ -164,11 +167,13 @@ class _BatchProcessType(JobType):
     def get_stats(self, job):
         count = EntityJobResult.objects.filter(job=job, raw_messages__isnull=True).count()
 
-        return [ngettext('{count} entity has been successfully modified.',
-                         '{count} entities have been successfully modified.',
-                         count
-                        ).format(count=count),
-               ]
+        return [
+            ngettext(
+                '{count} entity has been successfully modified.',
+                '{count} entities have been successfully modified.',
+                count
+            ).format(count=count),
+        ]
 
 
 batch_process_type = _BatchProcessType()

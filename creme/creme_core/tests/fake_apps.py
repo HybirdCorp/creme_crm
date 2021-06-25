@@ -18,6 +18,7 @@ def ready():
     from ..core.imprint import imprint_manager
     from ..gui.bricks import brick_registry
     from ..gui.custom_form import customform_descriptor_registry
+    from ..gui.fields_config import fields_config_registry
     from ..gui.listview import smart_columns_registry
     from ..gui.mass_import import import_form_registry
     from ..gui.menu import menu_registry
@@ -51,6 +52,23 @@ def ready():
     )
 
     function_field_registry.register(CremeEntity, fake_function_fields.FakeTodosField)
+
+    fields_config_registry.register_models(
+        fake_models.FakeContact,
+        fake_models.FakeOrganisation,
+        fake_models.FakeDocument,
+        # TODO ?
+        # fake_models.FakeImage,
+        # fake_models.FakeEmailCampaign,
+        # fake_models.FakeMailingList,
+        # fake_models.FakeInvoice,
+        # fake_models.FakeInvoiceLine,
+        # fake_models.FakeTicket,
+        # fake_models.FakeRecipe,
+
+        # No (see creme_config.tests.test_fields_config.FieldsConfigTestCase.test_edit03)
+        # fake_models.FakeActivity,
+    )
 
     imprint_manager.register(
         fake_models.FakeOrganisation, hours=2,

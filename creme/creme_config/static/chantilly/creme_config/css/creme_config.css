@@ -459,8 +459,16 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     white-space: nowrap;
 }
 
-.creme_config-fields-brick td.fieldconf-hidden-fields {
+/* .creme_config-fields-brick td.fieldconf-hidden-fields { */
+.creme_config-fields-brick td.fieldconf-fields {
     width: 100%;
+}
+
+.creme_config-fields-brick .fieldconf-fields-flags {
+    padding: 0px;
+    margin: 0px;
+
+    list-style: none;
 }
 
 /* BricksDetailViewConfig brick */

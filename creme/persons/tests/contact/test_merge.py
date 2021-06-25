@@ -4,6 +4,8 @@ from functools import partial
 
 from django.utils.translation import gettext as _
 
+from creme.creme_core.models import FieldsConfig
+
 from ..base import (
     Address,
     Contact,
@@ -16,8 +18,7 @@ from ..base import (
 @skipIfCustomContact
 class ContactMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
-    def test_merge01(self):
-        "Merging addresses"
+    def test_merge_addresses01(self):
         user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -174,7 +175,7 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertEqual('Merged department 2', shipping_address.department)
 
     @skipIfCustomAddress
-    def test_merge02(self):
+    def test_merge_addresses02(self):
         "Merging addresses -> empty addresses."
         user = self.login()
 
@@ -291,8 +292,86 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertFalse(merged_ship_addr.address)
         self.assertFalse(merged_ship_addr.city)
 
-    def test_merge03(self):
-        "Merge 1 Contact which represents a user with another Contact"
+    @skipIfCustomAddress
+    def test_merge_addresses03(self):
+        "FieldsConfig.REQUIRED => validation on not empty addresses only."
+        user = self.login()
+
+        r_field = 'city'
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[
+                (r_field, {FieldsConfig.REQUIRED: True}),
+            ],
+        )
+
+        create_contact = partial(Contact.objects.create, user=user)
+        contact01 = create_contact(first_name='Faye', last_name='Valentine')
+        contact02 = create_contact(first_name='FAYE', last_name='VALENTINE')
+
+        url = self.build_merge_url(contact01, contact02)
+
+        # ---
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            last_name_f = fields['last_name']
+            baddr_city_f = fields['billaddr_city']
+
+        self.assertTrue(last_name_f.required)
+        self.assertFalse(baddr_city_f.required)
+
+        # ---
+        addr_value = '6 BlackJack street'
+        data = {
+            'user_1':      user.id,
+            'user_2':      user.id,
+            'user_merged': user.id,
+
+            'first_name_1':      contact01.first_name,
+            'first_name_2':      contact02.first_name,
+            'first_name_merged': contact01.first_name,
+
+            'last_name_1':      contact01.last_name,
+            'last_name_2':      contact02.last_name,
+            'last_name_merged': contact01.last_name,
+
+            # Billing address
+            'billaddr_address_1':      '',
+            'billaddr_address_2':      '',
+            'billaddr_address_merged': addr_value,
+
+            'billaddr_city_1':      '',
+            'billaddr_city_2':      '',
+            'billaddr_city_merged': '',
+        }
+
+        response2 = self.assertPOST200(url, follow=True, data=data)
+        self.assertFormError(
+            response2, 'form', f'billaddr_{r_field}',
+            _('The field «{}» has been configured as required.').format(_('City')),
+        )
+
+        city = 'Big blue'
+        response3 = self.client.post(
+            url,
+            follow=True,
+            data={
+                **data,
+                'billaddr_city_merged': city,
+            }
+        )
+        self.assertNoFormError(response3)
+
+        with self.assertNoException():
+            merged_bill_addr = self.refresh(contact01).billing_address
+
+        self.assertEqual(addr_value, merged_bill_addr.address)
+        self.assertEqual(city,       merged_bill_addr.city)
+
+    def test_merge_user_contact01(self):
+        "Merge 1 Contact which represents a user with another Contact."
         user = self.login()
 
         contact01 = user.linked_contact
@@ -323,7 +402,7 @@ class ContactMergeTestCase(_BaseTestCase):
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
             response, 'form', None,
-            _('This Contact is related to a user and must have an e-mail address.')
+            _('This Contact is related to a user and must have an e-mail address.'),
         )
 
         response = self.client.post(
@@ -341,8 +420,8 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertEqual(first_name1, user.first_name)
         self.assertEqual(last_name2,  user.last_name)
 
-    def test_merge04(self):
-        "Merge 1 Contact with another one which represents a user (entity swap)"
+    def test_merge_user_contact02(self):
+        "Merge 1 Contact with another one which represents a user (entity swap)."
         user = self.login()
 
         first_name1 = 'FAYE'
@@ -406,7 +485,7 @@ class ContactMergeTestCase(_BaseTestCase):
         self.assertEqual(user,        contact02.is_user)
         self.assertEqual(first_name1, contact02.first_name)
 
-    def test_merge05(self):
+    def test_merge_user_contact03(self):
         "Cannot merge 2 Contacts that represent 2 users."
         user = self.login()
 

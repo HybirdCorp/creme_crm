@@ -108,6 +108,13 @@ class PersonsConfig(CremeAppConfig):
             custom_forms.ORGANISATION_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(
+            self.Contact,
+            self.Organisation,
+            self.Address,
+        )
+
     def register_field_printers(self, field_printers_registry):
         from django.contrib.auth import get_user_model
 

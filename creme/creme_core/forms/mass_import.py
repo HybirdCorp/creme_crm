@@ -24,22 +24,14 @@ from itertools import zip_longest
 from os.path import splitext
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type
 
+from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core import validators
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.validators import EMPTY_VALUES
 from django.db.models import BooleanField as ModelBooleanField
 from django.db.models import ManyToManyField
 from django.db.transaction import atomic
-from django.forms import (
-    BooleanField,
-    Field,
-    IntegerField,
-    ModelChoiceField,
-    ModelMultipleChoiceField,
-    MultipleChoiceField,
-    ValidationError,
-)
 from django.forms.models import modelform_factory
 from django.forms.widgets import HiddenInput, Select, Widget
 from django.template.defaultfilters import slugify
@@ -117,14 +109,14 @@ def get_header(filedata, has_header):
 
 
 class UploadForm(CremeForm):
-    step = IntegerField(widget=HiddenInput)
+    step = forms.IntegerField(widget=HiddenInput)
     document = CreatorEntityField(
         label=_('File to import'),
         model=Document,
         create_action_url=reverse('documents__create_document_from_widget'),
         credentials=EntityCredentials.VIEW,
     )
-    has_header = BooleanField(
+    has_header = forms.BooleanField(
         label=_('Header present ?'), required=False,
         help_text=_(
             'Does the first line of the line contain '
@@ -345,7 +337,7 @@ class RegularFieldExtractorWidget(BaseExtractorWidget):
         }
 
 
-class RegularFieldExtractorField(Field):
+class RegularFieldExtractorField(forms.Field):
     widget = RegularFieldExtractorWidget
     default_error_messages = {
         'invalid': _('Enter a valid value.'),
@@ -433,7 +425,7 @@ class RegularFieldExtractorField(Field):
                 code='invalid',
             ) from e
 
-        if self.required and def_value in validators.EMPTY_VALUES and not col_index:
+        if self.required and def_value in EMPTY_VALUES and not col_index:
             raise ValidationError(self.error_messages['required'], code='required')
 
         try:
@@ -638,7 +630,7 @@ class EntityExtractorWidget(BaseExtractorWidget):
         return value
 
 
-class EntityExtractorField(Field):
+class EntityExtractorField(forms.Field):
     widget = EntityExtractorWidget
     default_error_messages = {
         'invalid': _('Enter a valid value.'),
@@ -1069,7 +1061,7 @@ class CustomFieldExtractorWidget(RegularFieldExtractorWidget):
 
 
 # TODO: factorise
-class CustomfieldExtractorField(Field):
+class CustomfieldExtractorField(forms.Field):
     default_error_messages = {
         'invalid': _('Enter a valid value.'),
     }
@@ -1156,10 +1148,10 @@ class CustomfieldExtractorField(Field):
 # TODO: merge with ImportForm4CremeEntity ?
 #  (no model that is not an entity is imported with csv...)
 class ImportForm(CremeModelForm):
-    step       = IntegerField(widget=HiddenInput)
-    document   = IntegerField(widget=HiddenInput)
-    has_header = BooleanField(widget=HiddenInput, required=False)
-    key_fields = MultipleChoiceField(
+    step = forms.IntegerField(widget=HiddenInput)
+    document = forms.IntegerField(widget=HiddenInput)
+    has_header = forms.BooleanField(widget=HiddenInput, required=False)
+    key_fields = forms.MultipleChoiceField(
         label=_('Key fields'), required=False,
         choices=(),
         widget=UnorderedMultipleChoiceWidget(columntype='wide'),
@@ -1379,7 +1371,8 @@ class ImportForm(CremeModelForm):
 
                         self._post_instance_creation(instance, line, updated)
 
-                        for m2m in self._meta.model._meta.many_to_many:
+                        # for m2m in self._meta.model._meta.many_to_many:
+                        for m2m in model_class._meta.many_to_many:
                             extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
                             if extractor:
                                 # TODO: factorise
@@ -1408,11 +1401,11 @@ class ImportForm(CremeModelForm):
 
 
 class ImportForm4CremeEntity(ImportForm):
-    user = ModelChoiceField(
+    user = forms.ModelChoiceField(
         label=_('Owner user'), empty_label=None,
         queryset=get_user_model().objects.filter(is_staff=False),
     )
-    property_types = ModelMultipleChoiceField(
+    property_types = forms.ModelMultipleChoiceField(
         label=_('Properties'), required=False,
         queryset=CremePropertyType.objects.none(),
     )
@@ -1432,15 +1425,14 @@ class ImportForm4CremeEntity(ImportForm):
             'id': 'fields',
             'label': _('Field values'),
             'fields': '*',
-        },
-        {
+        }, {
             'id': 'properties',
             'label': _('Related properties'),
             'fields': ('property_types',),
         }, {
             'id': 'relations',
             'label': _('Associated relationships'),
-            'fields': ('fixed_relations', 'dyn_relations')
+            'fields': ('fixed_relations', 'dyn_relations'),
         },
     )
 

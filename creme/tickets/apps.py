@@ -73,6 +73,12 @@ class TicketsConfig(CremeAppConfig):
 
         function_field_registry.register(self.Ticket, ResolvingDurationField)
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(
+            self.Ticket,
+            self.TicketTemplate,
+        )
+
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Ticket,         'images/ticket_%(size)s.png',

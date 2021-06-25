@@ -1100,7 +1100,7 @@ class ImportingTestCase(CremeTestCase):
                 'ctype': 'creme_core.fakecontact',
                 'descriptions': [
                     [fname1, {'hidden': True}],
-                    [fname2, {'hidden': True}],
+                    [fname2, {'required': True}],
                 ],
             },
         ]
@@ -1121,9 +1121,8 @@ class ImportingTestCase(CremeTestCase):
         )
         self.assertEqual(2, len(fconf.descriptions))
 
-        is_hidden = fconf.is_fieldname_hidden
-        self.assertTrue(is_hidden(fname1))
-        self.assertTrue(is_hidden(fname2))
+        self.assertTrue(fconf.is_fieldname_hidden(fname1))
+        self.assertTrue(fconf.is_fieldname_required(fname2))
 
     def test_fields_config02(self):
         "A configuration already exists for this ContentType."

@@ -89,6 +89,9 @@ class OpportunitiesConfig(CremeAppConfig):
             custom_forms.OPPORTUNITY_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(self.Opportunity)
+
     def register_function_fields(self, function_field_registry):
         from .function_fields import TurnoverField
 

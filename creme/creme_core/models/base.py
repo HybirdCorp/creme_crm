@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,8 +21,11 @@
 import logging
 from itertools import chain
 
+from django.core.exceptions import ValidationError
+from django.core.validators import EMPTY_VALUES
 from django.db.models import FileField, Model
 from django.db.transaction import atomic
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from .file_ref import FileRef
@@ -72,3 +75,22 @@ class CremeModel(Model):
         except Exception:
             logger.exception('Error in CremeModel.delete()')
             raise
+
+    def full_clean(self, *args, **kwargs):
+        super(CremeModel, self).full_clean(*args, **kwargs)
+
+        from .fields_config import FieldsConfig
+
+        model = type(self)
+        errors = {
+            fname: gettext(
+                'The field «{}» has been configured as required.'
+            ).format(
+                model._meta.get_field(fname).verbose_name
+            )
+            for fname in FieldsConfig.objects.get_for_model(model).required_field_names
+            if getattr(self, fname) in EMPTY_VALUES
+        }
+
+        if errors:
+            raise ValidationError(errors)

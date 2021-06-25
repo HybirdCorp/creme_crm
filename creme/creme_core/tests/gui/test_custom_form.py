@@ -871,6 +871,44 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertIn(mfields[1], fields)
         self.assertNotIn(hidden, fields)
 
+    def test_form_regular_fields_required_fields(self):
+        user = self.create_user()
+
+        required1 = 'email'
+        required2 = 'phone'
+        FieldsConfig.objects.create(
+            content_type=FakeOrganisation,
+            descriptions=[
+                (required1, {FieldsConfig.REQUIRED: True}),
+                (required2, {FieldsConfig.REQUIRED: True}),
+            ],
+        )
+
+        mfields = ['user', 'name', required1]
+        fields_groups = FieldGroupList.from_cells(
+            model=FakeOrganisation,
+            cell_registry=base_cell_registry,
+            data=[{
+                'name': 'Regular fields',
+                'cells': [
+                    (EntityCellRegularField, {'name': name}) for name in mfields
+                ],
+            }],
+        )
+
+        fields = fields_groups.form_class()(user=user).fields
+        self.assertIn(mfields[0], fields)
+        self.assertIn(mfields[1], fields)
+
+        required_field1 = fields.get(required1)
+        self.assertIsNotNone(required_field1)
+        self.assertTrue(required_field1.required)
+
+        # This field is present because it is required
+        required_field2 = fields.get(required2)
+        self.assertIsNotNone(required_field2)
+        self.assertTrue(required_field2.required)
+
     def test_form_custom_fields01(self):
         user = self.create_user()
 

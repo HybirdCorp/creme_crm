@@ -87,6 +87,12 @@ class ReportsConfig(CremeAppConfig):
             custom_forms.REPORT_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(
+            self.Report,
+            # TODO: self.ReportGraph ?
+        )
+
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Report, 'images/report_%(size)s.png',

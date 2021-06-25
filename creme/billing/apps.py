@@ -212,6 +212,20 @@ class BillingConfig(CremeAppConfig):
             custom_forms.BTEMPLATE_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(
+            self.Invoice,
+            self.Quote,
+            self.SalesOrder,
+            self.CreditNote,
+            # TODO ?
+            # self.ServiceLine,
+            # self.ProductLine,
+            # models.AdditionalInformation,
+            # models.PaymentTerms,
+            # models.PaymentInformation,
+        )
+
     def register_field_printers(self, field_printers_registry):
         from .models.fields import BillingDiscountField
         from .utils import print_discount

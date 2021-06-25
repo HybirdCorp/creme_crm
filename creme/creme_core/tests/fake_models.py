@@ -342,7 +342,7 @@ else:
         )
         address = models.ForeignKey(
             FakeAddress, verbose_name=_('Billing address'),
-            blank=True, null=True,  editable=False,
+            blank=True, null=True, editable=False,
             related_name='+', on_delete=models.SET_NULL,
         ).set_tags(enumerable=False)  # clonable=False useless
 

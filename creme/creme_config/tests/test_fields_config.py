@@ -2,12 +2,13 @@
 
 from json import loads as json_load
 
-from django.apps import apps
+# from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.field_tags import FieldTag
+from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import (
     CremeEntity,
     FakeContact,
@@ -15,6 +16,7 @@ from creme.creme_core.models import (
     FieldsConfig,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.fake_models import FakeActivity
 
 
 class FieldsConfigTestCase(CremeTestCase):
@@ -38,7 +40,8 @@ class FieldsConfigTestCase(CremeTestCase):
             FieldsConfig(content_type=ct, descriptions=())
             for ct in map(
                 ContentType.objects.get_for_model,
-                filter(FieldsConfig.objects.is_model_valid, apps.get_models())
+                # filter(FieldsConfig.objects.is_model_valid, apps.get_models())
+                fields_config_registry.models
             )
             if ct.id not in used_ct_ids
         ])
@@ -62,49 +65,96 @@ class FieldsConfigTestCase(CremeTestCase):
         self.login()
 
         get_field = FakeContact._meta.get_field
-        self.assertTrue(get_field('phone').get_tag('optional'))
-        self.assertTrue(get_field('phone').get_tag(FieldTag.OPTIONAL))
+        model_phone_field = get_field('phone')
+        self.assertTrue(model_phone_field.get_tag('optional'))
+        self.assertTrue(model_phone_field.get_tag(FieldTag.OPTIONAL))
+        self.assertTrue(model_phone_field.blank)
+
         self.assertTrue(get_field('birthday').get_tag(FieldTag.OPTIONAL))
-        self.assertFalse(get_field('last_name').get_tag('optional'))
-        self.assertFalse(get_field('last_name').get_tag(FieldTag.OPTIONAL))
+
+        model_last_name_field = get_field('last_name')
+        self.assertFalse(model_last_name_field.get_tag('optional'))
+        self.assertFalse(model_last_name_field.get_tag(FieldTag.OPTIONAL))
+        self.assertFalse(model_last_name_field.blank)
+
+        model_email_field = get_field('email')
+        self.assertFalse(model_email_field.get_tag(FieldTag.OPTIONAL))
+        self.assertTrue(model_email_field.blank)
+
         self.assertTrue(get_field('image').get_tag(FieldTag.OPTIONAL))
 
         # --------
         fconf = self._create_fconf()
 
         url = self._build_edit_url(fconf)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(_('Edit «{object}»').format(object=fconf), context.get('title'))
 
         with self.assertNoException():
-            choices = context['form'].fields['hidden'].choices
+            # choices = context['form'].fields['hidden'].choices
+            fields1 = context['form'].fields
 
-        self.assertInChoices(value='phone', label=_('Phone number'), choices=choices)
-        self.assertInChoices(value='birthday', label=_('Birthday'), choices=choices)
-        self.assertNotInChoices(value='last_name', choices=choices)
-        self.assertInChoices(value='image', label=_('Photograph'), choices=choices)
-        self.assertNotInChoices(value='image__description', choices=choices)
+            phone_f1 = fields1['phone']
+            phone_f_choices = phone_f1.choices
+
+            email_f = fields1['email']
+            email_f_choices = email_f.choices
+
+        # self.assertInChoices(value='phone', label=_('Phone number'), choices=choices)
+        # self.assertInChoices(value='birthday', label=_('Birthday'), choices=choices)
+        # self.assertNotInChoices(value='last_name', choices=choices)
+        # self.assertInChoices(value='image', label=_('Photograph'), choices=choices)
+        # self.assertNotInChoices(value='image__description', choices=choices)
+
+        self.assertEqual(_('Phone number'), phone_f1.label)
+        self.assertInChoices(value='',         label='---',         choices=phone_f_choices)
+        self.assertInChoices(value='hidden',   label=_('Hidden'),   choices=phone_f_choices)
+        self.assertInChoices(value='required', label=_('Required'), choices=phone_f_choices)
+
+        self.assertEqual(_('Email address'), email_f.label)
+        self.assertInChoices(value='',         label='---',         choices=email_f_choices)
+        self.assertInChoices(value='required', label=_('Required'), choices=email_f_choices)
+        self.assertNotInChoices(value='hidden', choices=email_f_choices)
+
+        self.assertNotIn('last_name', fields1)
+        self.assertNotIn('cremeentity_ptr', fields1)
+        self.assertNotIn('id', fields1)
 
         # ---
-        response = self.client.post(url, data={'hidden': ['phone', 'birthday']})
-        self.assertNoFormError(response)
+        # response2 = self.client.post(url, data={'hidden': ['phone', 'birthday']})
+        response2 = self.client.post(
+            url,
+            data={
+                'phone': 'required',
+                'birthday': 'hidden',
+            },
+        )
+        self.assertNoFormError(response2)
 
         fconf = self.refresh(fconf)
         self.assertListEqual(
-            [['phone', {'hidden': True}], ['birthday', {'hidden': True}]],
+            # [['phone', {'hidden': True}], ['birthday', {'hidden': True}]],
+            [['phone', {'required': True}], ['birthday', {'hidden': True}]],
             json_load(fconf.raw_descriptions),
         )  # TODO: meh
 
         # test initial ------
-        response = self.assertGET200(url)
+        response3 = self.assertGET200(url)
 
         with self.assertNoException():
-            hidden_f = response.context['form'].fields['hidden']
+            # hidden_f = response3.context['form'].fields['hidden']
+            fields3 = response3.context['form'].fields
+            email_f3 = fields3['email']
+            phone_f3 = fields3['phone']
+            birthday_f3 = fields3['birthday']
 
-        self.assertCountEqual(['phone', 'birthday'], hidden_f.initial)
+        # self.assertCountEqual(['phone', 'birthday'], hidden_f.initial)
+        self.assertEqual('',         email_f3.initial)
+        self.assertEqual('required', phone_f3.initial)
+        self.assertEqual('hidden',   birthday_f3.initial)
 
     def test_edit02(self):
         "Not super-user."
@@ -119,6 +169,15 @@ class FieldsConfigTestCase(CremeTestCase):
         role.admin_4_apps = ['creme_core']
         role.save()
         self.assertGET200(url)
+
+    def test_edit03(self):
+        "Model not registered."
+        self.login()
+
+        self.assertFalse(fields_config_registry.is_model_registered(FakeActivity))
+
+        fconf = FieldsConfig.objects.create(content_type=FakeActivity, descriptions=())
+        self.assertGET409(self._build_edit_url(fconf))
 
     def test_delete(self):
         self.login()
@@ -203,10 +262,13 @@ class FieldsConfigTestCase(CremeTestCase):
         )
 
         with self.assertNoException():
-            choices = ctxt2['form'].fields['hidden'].choices
+            # choices = ctxt2['form'].fields['hidden'].choices
+            choices = ctxt2['form'].fields['phone'].choices
 
-        self.assertInChoices(value='phone',    label=_('Phone number'), choices=choices)
-        self.assertInChoices(value='birthday', label=_('Birthday'),     choices=choices)
+        # self.assertInChoices(value='phone',    label=_('Phone number'), choices=choices)
+        # self.assertInChoices(value='birthday', label=_('Birthday'),     choices=choices)
+        self.assertInChoices(value='hidden',   label=_('Hidden'),   choices=choices)
+        self.assertInChoices(value='required', label=_('Required'), choices=choices)
 
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype))
 
@@ -214,7 +276,9 @@ class FieldsConfigTestCase(CremeTestCase):
             self.WIZARD_URL,
             data={
                 'fields_config_wizard-current_step': '1',
-                '1-hidden': ['phone', 'birthday'],
+                # '1-hidden': ['phone', 'birthday'],
+                '1-phone': 'required',
+                '1-birthday': 'hidden',
             },
         )
         self.assertNoFormError(response3)
@@ -222,7 +286,8 @@ class FieldsConfigTestCase(CremeTestCase):
         config = FieldsConfig.objects.get(content_type=ctype)
         self.assertListEqual(
             [
-                ('phone', {'hidden': True}),
+                # ('phone', {'hidden': True}),
+                ('phone', {'required': True}),
                 ('birthday', {'hidden': True}),
             ],
             config.descriptions,

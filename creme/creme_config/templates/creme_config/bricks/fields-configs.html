@@ -15,7 +15,8 @@
 
 {% block brick_table_columns %}
     {% brick_table_column title=_('Type')          status='primary' class='fieldconf-label' %}
-    {% brick_table_column title=_('Hidden fields')                  class='fieldconf-hidden-fields' %}
+{#    {% brick_table_column title=_('Hidden fields')                  class='fieldconf-hidden-fields' %} #}
+    {% brick_table_column title=_('Configuration')                  class='fieldconf-fields' %}
     {% brick_table_column title=_('Actions')       status='action'  colspan=2 %}
 {% endblock %}
 
@@ -24,6 +25,7 @@
     {% for field_conf in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %} class="fieldconf-label">{{field_conf.content_type}}</td>
+{% comment %}
         <td class="fieldconf-hidden-fields">
             {% widget_enumerator field_conf.fields_vnames|uca_sort %}
             {% with errors=field_conf.errors_on_hidden %}
@@ -32,8 +34,27 @@
                 {% endif %}
             {% endwith %}
         </td>
+{% endcomment %}
+        <td class="fieldconf-fields">
+            <ul class="fieldconf-fields-flags">
+            {% if field_conf.hidden_fields_vnames %}
+                <li class="fieldconf-fields-flag-hidden">{% translate 'Hidden fields:' %}&nbsp;{% widget_enumerator field_conf.hidden_fields_vnames|uca_sort %}</li>
+            {% endif %}
+            {% if field_conf.required_fields_vnames %}
+                <li class="fieldconf-fields-flag-required">{% translate 'Required fields:' %}&nbsp;{% widget_enumerator field_conf.required_fields_vnames|uca_sort %}</li>
+            {% endif %}
+            </ul>
+            {% with errors=field_conf.errors_on_hidden %}
+                {% if errors %}<ul class="warninglist">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>{% endif %}
+            {% endwith %}
+            {% if not field_conf.is_valid %}
+                <ul class="errorlist"><li>{% translate 'This type of resource cannot be configured ; please contact your administrator.' %}</li></ul>
+            {% endif %}
+        </td>
         <td {% brick_table_data_status action %}>
+            {% if field_conf.is_valid %}
             {% brick_table_action id='edit' url='creme_config__edit_fields_config'|url:field_conf.pk enabled=admin_perm %}
+            {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_url __id=field_conf.pk enabled=admin_perm %}

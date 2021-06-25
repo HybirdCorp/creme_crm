@@ -23,6 +23,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.gui import fields_config
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import BricksView
@@ -39,6 +40,16 @@ class FieldsConfigEdition(base.ConfigModelEdition):
     model = FieldsConfig
     form_class = fconf_forms.FieldsConfigEditForm
     pk_url_kwarg = 'fconf_id'
+
+    fconfig_registry = fields_config.fields_config_registry
+
+    def check_instance_permissions(self, instance, user):
+        if not self.fconfig_registry.is_model_registered(
+            instance.content_type.model_class()
+        ):
+            raise ConflictError(
+                'This model is not registered for fields configuration.'
+            )
 
 
 class FieldsConfigDeletion(base.ConfigDeletion):

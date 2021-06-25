@@ -46,6 +46,16 @@ class AssistantsConfig(CremeAppConfig):
             bricks.UserMessagesBrick,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        from . import models
+
+        fields_config_registry.register_models(
+            models.ToDo,
+            models.Alert,
+            # models.Action, TODO ?
+            models.Memo,
+        )
+
     def register_function_fields(self, function_field_registry):
         from creme.creme_core.models import CremeEntity
 

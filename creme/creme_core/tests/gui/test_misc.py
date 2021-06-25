@@ -502,9 +502,23 @@ class GuiTestCase(CremeTestCase):
         # self.assertIsNone(registry.get_form(FakeContact))
         self.assertIsNone(registry.get_form_class(FakeContact))
 
+    def test_fields_config_registry01(self):
+        registry = FieldsConfigRegistry()
+        self.assertIs(registry.is_model_registered(FakeContact), False)
+
+        registry.register_models(
+            FakeContact, FakeOrganisation,
+        ).register_models(FakeImage)
+
+        self.assertSetEqual(
+            {FakeContact, FakeOrganisation, FakeImage},
+            set(registry.models),
+        )
+        self.assertIs(registry.is_model_registered(FakeContact), True)
+
     @skipIfNotInstalled('creme.persons')
     @skipIfNotInstalled('creme.documents')
-    def test_fields_config_registry(self):
+    def test_fields_config_registry02(self):
         from creme.documents.models import Document
         from creme.persons.models import Contact
 

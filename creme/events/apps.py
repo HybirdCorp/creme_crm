@@ -57,6 +57,9 @@ class EventsConfig(CremeAppConfig):
 
         config_registry.register_model(models.EventType, 'event_type')
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(self.Event)
+
     def register_icons(self, icon_registry):
         icon_registry.register(self.Event, 'images/event_%(size)s.png')
 

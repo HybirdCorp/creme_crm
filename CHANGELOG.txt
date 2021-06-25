@@ -21,6 +21,7 @@
             - The main menu can now be customised ; containers can be created,
               re-ordered, removed, & their entries can be chosen too.
               All apps have been reworked to use the new system to provide a menu identical to the old one.
+            - The fields can now be marked as required in fields' configuration (not ManyToManyFields for now).
             - The configuration form for blocks on detailed views has been redesigned
               (the pool of available blocks is now shared, blocks are draggable, descriptions are displayed).
             - A portal which displays all the filters (used by list-views) has been added.
@@ -229,6 +230,9 @@
           all apps have been reworked to use the new API (registration of entry classes in 'apps.py', base configuration of menu in 'populate.py')
         # The method 'get_tag()' injected in all model-fields takes now an argument named "tag" (it was named "tag_name") ;
           notice that it's better to pass an enumeration value (eg: 'FieldTag.VIEWABLE').
+        # If you used the fields configuration on your own models (ie: they have fields tagged as "optional"),
+          you must now register them in your 'apps.py' in the method 'CremeAppConfig.register_fields_config()'
+          (use the method 'fields_config_registry.register_models()').
         # In the method 'creme_core.bricks.HistoryBrick._populate_related_real_entities()', the argument "user" has been removed.
         # In the class 'creme_core.core.search.Searcher' :
             - The attribute '_search_map' stores now 'EntityCell' instances as values.
@@ -249,6 +253,7 @@
                 - The global instance 'creme_menu' has been removed.
                 - The function '_validate_id()' has been removed.
         # In 'creme_core.models' :
+            - In 'fields_config', the method 'FieldsConfigManager.field_enumerator()' has been removed.
             - In 'history', all code related to history line rendering is deprecated ;
               use the new rendering system 'creme_core.gui.history' instead.
             - In 'search' :
@@ -278,6 +283,9 @@
                 - In 'forms.search' :
                     - These classes have been removed/replaced by new ones : _SearchForm, SearchAddForm, SearchEditForm.
                       The related views have been updated.
+            * Persons :
+                - The method 'forms.merge._PersonMergeForm._handle_addresses()' has been removed ;
+                  work has been split cleanly between clean & save steps (notably by the new method '_clean_addresses()').
             * Reports :
                 - Some constants have been replaced by 'django.db.models.*Choices' :
                     - An 'IntegerChoices' class for : RGT_*, GROUP_TYPES.

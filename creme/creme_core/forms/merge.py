@@ -19,8 +19,11 @@
 ################################################################################
 
 import logging
+from functools import partial
+from typing import Optional, Type
 
 from django.core.exceptions import FieldDoesNotExist
+from django.db import models
 from django.db.transaction import atomic
 from django.forms import CheckboxInput, Field, Select, Widget
 from django.forms.models import fields_for_model, model_to_dict
@@ -257,16 +260,25 @@ class MergeEntitiesBaseForm(CremeForm):
             entity2.delete()
         except Exception as e:
             logger.error(
-                'Error when merging 2 entities : the old one "%s"(id=%s) cannot be deleted: %s',
+                'Error when merging 2 entities: the old one "%s"(id=%s) cannot be deleted: %s',
                 entity2, entity2.id, e
             )
 
 
-def mergefield_factory(modelfield):
+def mergefield_factory(modelfield: models.Field,
+                       fields_config: Optional[FieldsConfig] = None,
+                       ):
     formfield = modelfield.formfield()
 
     if not formfield:  # Happens for cremeentity_ptr (OneToOneField)
         return None
+
+    if fields_config:
+        if fields_config.is_field_hidden(modelfield):
+            return None
+
+        if fields_config.is_field_required(modelfield):
+            formfield.required = True
 
     return MergeField(
         modelform_field=formfield,
@@ -275,7 +287,9 @@ def mergefield_factory(modelfield):
     )
 
 
-def form_factory(model, merge_form_registry=merge.merge_form_registry):
+def form_factory(model: Type[models.Model],
+                 merge_form_registry=merge.merge_form_registry,
+                 ):
     # TODO: use a cache ??
     mergeform_factory = merge_form_registry.get(model)
 
@@ -285,10 +299,15 @@ def form_factory(model, merge_form_registry=merge.merge_form_registry):
         return type(
             f'Merge{model.__name__}Form', (base_form_class,),
             fields_for_model(
-                model, formfield_callback=mergefield_factory,
-                exclude=[
-                    f.name
-                    for f in FieldsConfig.objects.get_for_model(model).hidden_fields
-                ],
+                model,
+                # formfield_callback=mergefield_factory,
+                # exclude=[
+                #     f.name
+                #     for f in FieldsConfig.objects.get_for_model(model).hidden_fields
+                # ],
+                formfield_callback=partial(
+                    mergefield_factory,
+                    fields_config=FieldsConfig.objects.get_for_model(model),
+                ),
             )
         )

@@ -90,6 +90,9 @@ class ProductsConfig(CremeAppConfig):
             custom_forms.SERVICE_EDITION_CFORM,
         )
 
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register_models(self.Product, self.Service)
+
     def register_icons(self, icon_registry):
         icon_registry.register(
             self.Product, 'images/product_%(size)s.png',
