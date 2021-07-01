@@ -107,7 +107,7 @@ class AbstractActivity(CremeEntity):
 
     calendars = models.ManyToManyField(Calendar, verbose_name=_('Calendars'), editable=False)
 
-    is_all_day = models.BooleanField(_('All day?'), blank=True, default=False)
+    is_all_day = models.BooleanField(_('All day?'), default=False)
     busy = models.BooleanField(_('Busy?'), default=False)
     # TODO: use choices ?
     floating_type = models.PositiveIntegerField(
