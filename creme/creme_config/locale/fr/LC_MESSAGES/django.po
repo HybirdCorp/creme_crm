@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-27 16:04+0200\n"
+"POT-Creation-Date: 2021-07-02 14:48+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -54,7 +54,7 @@ msgid "Roles and credentials"
 msgstr "Rôles et droits"
 
 #: apps.py:255 forms/user.py:253 templates/creme_config/bricks/users.html:13
-#: templates/creme_config/portals/user.html:7
+#: templates/creme_config/portals/user.html:8
 msgid "Users"
 msgstr "Utilisateurs"
 
@@ -109,9 +109,9 @@ msgid ""
 "contains references to some instance-blocks ({blocks}), which are not "
 "managed, for the following cases: {models}."
 msgstr ""
-"La configuration des blocs pour les vues détaillées ne peut pas être exportée car elle "
-"contient des références à des bloc d'instance ({blocks}), qui ne sont pas gérés, "
-"pour les cas suivants : {models}."
+"La configuration des blocs pour les vues détaillées ne peut pas être "
+"exportée car elle contient des références à des bloc d'instance ({blocks}), "
+"qui ne sont pas gérés, pour les cas suivants : {models}."
 
 #: core/exporters.py:340
 #, python-brace-format
@@ -119,8 +119,9 @@ msgid ""
 "The configuration of blocks for Home cannot be exported because it contains "
 "references to some instance-blocks ({blocks}), which are not managed."
 msgstr ""
-"La configuration des blocs pour l'Accueil ne peut pas être exportée car elle contient des "
-"références à des blocs d'instance ({blocks}), qui ne sont pas gérés."
+"La configuration des blocs pour l'Accueil ne peut pas être exportée car elle "
+"contient des références à des blocs d'instance ({blocks}), qui ne sont pas "
+"gérés."
 
 #: core/exporters.py:377
 #, python-brace-format
@@ -129,82 +130,86 @@ msgid ""
 "contains references to some instance-blocks ({blocks}), which are not "
 "managed."
 msgstr ""
-"La configuration des blocs pour «Ma page» ne peut pas être exportée car elle contient des "
-"références à des blocs d'instance ({blocks}), qui ne sont pas gérés."
+"La configuration des blocs pour «Ma page» ne peut pas être exportée car elle "
+"contient des références à des blocs d'instance ({blocks}), qui ne sont pas "
+"gérés."
 
-#: core/importers.py:282
+#: core/importers.py:283
 msgid "This filter PK is invalid: «{}»."
 msgstr "Cette clé primaire de filtre est invalide : «{}»."
 
-#: core/importers.py:398
+#: core/importers.py:399
 msgid "This property type cannot be overridden: «{}»."
 msgstr "Ce type de propriété ne peut pas être écrasé : «{}»."
 
-#: core/importers.py:453
+#: core/importers.py:454
 msgid "This property type PKs are invalid: {}."
 msgstr "Ces clés primaires de type de propriété sont invalides : {}."
 
-#: core/importers.py:467
+#: core/importers.py:468
 msgid "This relation type PK is invalid: «{}»."
 msgstr "Cette clé primaire de type de relation est invalide : «{}»."
 
-#: core/importers.py:473
+#: core/importers.py:474
 msgid "This relation type cannot be overridden: «{}»."
 msgstr "Ce type de relation ne peut pas être écrasé : «{}»."
 
-#: core/importers.py:540
+#: core/importers.py:538
+msgid "There is already a fields configuration for the model «{}»."
+msgstr "Il y a déjà une configuration de champs pour le modèle «{}»"
+
+#: core/importers.py:566
 msgid "This custom-field type is invalid: {}."
 msgstr "Ce type de champ personnalisé est invalide: {}."
 
-#: core/importers.py:546
+#: core/importers.py:572
 msgid "There is already a custom-field with the same UUID: {}."
 msgstr "Il y a déjà un champ personnalisé avec le même UUID : {}."
 
-#: core/importers.py:553
+#: core/importers.py:579
 msgid "There is already a custom-field with the same name: {}."
 msgstr "Il y a déjà un champ personnalisé avec le même nom : {}."
 
-#: core/importers.py:663
-#, python-brace-format
-msgid "The column with type=\"{type}\" is invalid in «{container}»."
-msgstr ""
-"La colonne avec le type=\"{type}\" est invalide dans «{container}»."
-
 #: core/importers.py:689
 #, python-brace-format
-msgid "The column with field=\"{field}\" is invalid in «{container}»."
-msgstr ""
-"La colonne avec le champ=\"{field}\" est invalide dans «{container}»."
+msgid "The column with type=\"{type}\" is invalid in «{container}»."
+msgstr "La colonne avec le type=\"{type}\" est invalide dans «{container}»."
 
-#: core/importers.py:706
+#: core/importers.py:715
+#, python-brace-format
+msgid "The column with field=\"{field}\" is invalid in «{container}»."
+msgstr "La colonne avec le champ=\"{field}\" est invalide dans «{container}»."
+
+#: core/importers.py:732
 #, python-brace-format
 msgid "The column with custom-field=\"{uuid}\" is invalid in «{container}»."
-msgstr ""
-"La colonne avec le champ=\"{uuid}\" est invalide dans «{container}»."
+msgstr "La colonne avec le champ=\"{uuid}\" est invalide dans «{container}»."
 
-#: core/importers.py:726
+#: core/importers.py:752
 #, python-brace-format
 msgid ""
 "The column with function-field=\"{ffield}\" is invalid in «{container}»."
 msgstr ""
-"La colonne avec le champ calculé=\"{ffield}\" est invalide dans «{container}»."
+"La colonne avec le champ calculé=\"{ffield}\" est invalide dans "
+"«{container}»."
 
-#: core/importers.py:742
+#: core/importers.py:768
 #, python-brace-format
 msgid "The column with relation-type=\"{rtype}\" is invalid in «{container}»."
 msgstr ""
-"La colonne avec le type de relation=\"{rtype}\" est invalide dans «{container}»."
+"La colonne avec le type de relation=\"{rtype}\" est invalide dans "
+"«{container}»."
 
-#: core/importers.py:761
+#: core/importers.py:787
 msgid "This view of list cannot be overridden: «{}»."
 msgstr "Cette vue de liste ne peut pas être écrasé: «{}»."
 
-#: core/importers.py:774
+#: core/importers.py:800
 #, python-brace-format
 msgid "view of list id=\"{id}\""
 msgstr "Vue de liste id=\"{id}\""
 
-#: core/importers.py:954
+#: core/importers.py:980
 #, python-brace-format
 msgid ""
 "The condition on sub-filter=\"{subfilter}\" is invalid in the filter id="
@@ -213,7 +218,7 @@ msgstr ""
 "La condition sur le sous-filtre=\"{subfilter}\" est invalide dans le filtre "
 "avec id=\"{id}\"."
 
-#: core/importers.py:1013
+#: core/importers.py:1039
 #, python-brace-format
 msgid ""
 "The condition on relation-type is invalid in the filter id=\"{id}\" (unknown "
@@ -222,7 +227,7 @@ msgstr ""
 "La condition sur type de relation est invalide dans le filtre id="
 "\"{id}\" (uuid={uuid} inconnu)."
 
-#: core/importers.py:1030
+#: core/importers.py:1056
 #, python-brace-format
 msgid ""
 "The condition on relation-type is invalid in the filter id=\"{id}\" (unknown "
@@ -231,7 +236,7 @@ msgstr ""
 "La condition sur type de relation= est invalide dans le filtre id="
 "\"{id}\"(type-de-relation={rtype} inconnu)."
 
-#: core/importers.py:1066
+#: core/importers.py:1092
 #, python-brace-format
 msgid ""
 "The condition on related sub-filter=\"{subfilter}\" is invalid in the filter "
@@ -240,7 +245,7 @@ msgstr ""
 "La condition sur le sous-filtre relié \"{subfilter}\"  est invalide dans le "
 "filtre id=\"{id}\" (ID de type de relation inconnu)."
 
-#: core/importers.py:1098
+#: core/importers.py:1124
 #, python-brace-format
 msgid ""
 "The condition on related sub-filter=\"{subfilter}\" is invalid in the filter "
@@ -249,7 +254,7 @@ msgstr ""
 "La condition sur le sous-filtre relié \"{subfilter}\" est invalide dans le "
 "filtre id=\"{id}\" (ID de filtre inconnu)."
 
-#: core/importers.py:1121
+#: core/importers.py:1147
 #, python-brace-format
 msgid ""
 "The condition on property-type=\"{ptype}\" is invalid in the filter id="
@@ -258,7 +263,7 @@ msgstr ""
 "La condition sur le type de propriété=\"{ptype}\" est invalide dans le "
 "filtre id=\"{id}\"."
 
-#: core/importers.py:1143
+#: core/importers.py:1169
 #, python-brace-format
 msgid ""
 "The condition on custom-field=\"{cfield}\" is invalid in the filter id="
@@ -267,42 +272,42 @@ msgstr ""
 "La condition sur le champ personnalisé=\"{cfield}\" est invalide dans le "
 "filtreid=\"{id}\"."
 
-#: core/importers.py:1199
+#: core/importers.py:1225
 msgid "This filter cannot be overridden: «{}»."
 msgstr "Ce filtre ne peut pas être écrasé: «{}»."
 
-#: core/importers.py:1213
+#: core/importers.py:1239
 #, python-brace-format
 msgid ""
 "The condition with type=\"{type}\" is invalid in the filter id=\"{id}\"."
 msgstr ""
 "La condition avec le type=\"{type}\" est invalide dans le filtre id=\"{id}\"."
 
-#: core/importers.py:1229
+#: core/importers.py:1255
 #, python-brace-format
 msgid "A condition is invalid in the filter id=\"{id}\" [{error}]."
 msgstr "Une condition est invalide dans le filtre id=\"{id}\" [{error}]."
 
-#: core/importers.py:1293
+#: core/importers.py:1319
 msgid "There is a cycle between the filters [{}]."
 msgstr "Il y a un cycle entre les filtres [{}]."
 
-#: core/importers.py:1309
+#: core/importers.py:1335
 #, python-brace-format
 msgid "The filter with id=\"{id}\" already exists."
 msgstr "Le filtre avec id=\"{id}\" existe déjà."
 
-#: core/importers.py:1391
+#: core/importers.py:1417
 #, python-brace-format
 msgid "block for relation-type id=\"{id}\""
 msgstr "bloc pour le type de relation id=\"{id}\""
 
-#: core/importers.py:1445
+#: core/importers.py:1471
 #, python-brace-format
 msgid "custom block with id=\"{id}\""
 msgstr "bloc personnalisé avec id=\"{id}\""
 
-#: core/importers.py:1473
+#: core/importers.py:1499
 msgid "The brick zone «{}» is not valid."
 msgstr "La zone de bloc «{}» n'est pas valide."
 
@@ -356,8 +361,8 @@ msgstr "Rôle"
 #: templates/creme_config/portals/property-type.html:8
 #: templates/creme_config/portals/relation-type.html:8
 #: templates/creme_config/portals/search.html:8
-#: templates/creme_config/portals/user-role.html:7
-#: templates/creme_config/portals/user.html:7
+#: templates/creme_config/portals/user-role.html:8
+#: templates/creme_config/portals/user.html:8
 #: templates/creme_config/user_settings.html:9
 msgid "Configuration"
 msgstr "Configuration"
@@ -1800,7 +1805,7 @@ msgstr "Modifier cette équipe"
 msgid "Delete this team"
 msgstr "Supprimer cette équipe"
 
-#: templates/creme_config/bricks/teams.html:46
+#: templates/creme_config/bricks/teams.html:47
 msgid "No team for the moment"
 msgstr "Aucune équipe pour le moment"
 
@@ -1881,7 +1886,7 @@ msgid "{count} Roles"
 msgstr "{count} Rôles"
 
 #: templates/creme_config/bricks/user-roles.html:7
-#: templates/creme_config/portals/user-role.html:7
+#: templates/creme_config/portals/user-role.html:8
 msgid "Roles"
 msgstr "Rôles"
 
@@ -1952,7 +1957,7 @@ msgstr "Nouveaux droits"
 msgid "Edit this role"
 msgstr "Modifier ce rôle"
 
-#: templates/creme_config/bricks/user-roles.html:73
+#: templates/creme_config/bricks/user-roles.html:74
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
 
@@ -2218,7 +2223,7 @@ msgid "Show deleted custom fields"
 msgstr "Montrer les champ personnalisés supprimés"
 
 #: views/base.py:33 views/bricks.py:152 views/bricks.py:250
-#: views/button_menu.py:52 views/custom_form.py:100 views/custom_form.py:139
+#: views/button_menu.py:52 views/custom_form.py:101 views/custom_form.py:140
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
@@ -2342,17 +2347,17 @@ msgstr "Supprimer le choix"
 msgid "A deletion process for a choice already exists."
 msgstr "Il y a déjà un processus de suppression pour un choix."
 
-#: views/custom_form.py:118
+#: views/custom_form.py:119
 #, python-brace-format
 msgid "Add a group to «{form}»"
 msgstr "Ajouter un groupe à «{form}»"
 
-#: views/custom_form.py:123
+#: views/custom_form.py:124
 #, python-brace-format
 msgid "Add an extra group to «{form}»"
 msgstr "Ajouter un groupe spécial à «{form}»"
 
-#: views/custom_form.py:138
+#: views/custom_form.py:139
 #, python-brace-format
 msgid "Edit the group «{group}»"
 msgstr "Modifier le groupe «{group}»"

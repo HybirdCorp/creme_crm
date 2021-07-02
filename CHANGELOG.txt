@@ -4,6 +4,8 @@
   ------------
     # The style of ManyToManyFields in bricks has been fixed.
     # Apps :
+        * Creme_config :
+            - Export & import for fields configuration were missing.
         * Geolocation :
             - The command "geolocation --stat" crashed.
 
