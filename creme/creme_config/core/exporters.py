@@ -501,6 +501,19 @@ class RelationTypeExporter(Exporter):
         return data
 
 
+@EXPORTERS.register(data_id=constants.ID_FIELDS_CONFIG)
+class FieldsConfigExporter(Exporter):
+    model = models.FieldsConfig
+
+    def dump_instance(self, instance):
+        assert isinstance(instance, models.FieldsConfig)
+
+        return {
+            'ctype': dump_ct(instance.content_type),
+            'descriptions': instance.descriptions,
+        }
+
+
 @EXPORTERS.register(data_id=constants.ID_CUSTOM_FIELDS)
 class CustomFieldExporter(Exporter):
     model = models.CustomField
