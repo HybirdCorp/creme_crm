@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-27 15:29+0200\n"
+"POT-Creation-Date: 2021-07-02 13:45+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -151,6 +151,9 @@ msgstr "Cette clé primaire de type de relation est invalide : «{}»."
 
 msgid "This relation type cannot be overridden: «{}»."
 msgstr "Ce type de relation ne peut pas être écrasé : «{}»."
+
+msgid "There is already a fields configuration for the model «{}»."
+msgstr "Il y a déjà une configuration de champs pour le modèle «{}»"
 
 msgid "This custom-field type is invalid: {}."
 msgstr "Ce type de champ personnalisé est invalide: {}."
