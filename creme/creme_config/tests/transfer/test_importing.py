@@ -56,6 +56,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeDocument,
     FakeOrganisation,
+    FieldsConfig,
     HeaderFilter,
     MenuConfigItem,
     RelationBrickItem,
@@ -1088,6 +1089,72 @@ class ImportingTestCase(CremeTestCase):
         )
         ptype2 = self.get_object_or_fail(CremePropertyType, id=ptype2_id)
         self.assertSetEqual({ptype1, ptype2}, {*rtype.subject_properties.all()})
+
+    def test_fields_config01(self):
+        self.login(is_staff=True)
+
+        fname1 = 'description'
+        fname2 = 'phone'
+        fconfs_data = [
+            {
+                'ctype': 'creme_core.fakecontact',
+                'descriptions': [
+                    [fname1, {'hidden': True}],
+                    [fname2, {'hidden': True}],
+                ],
+            },
+        ]
+        data = {
+            'version': '1.1',
+            'fields_config': fconfs_data,
+        }
+
+        json_file = StringIO(json_dump(data))
+        json_file.name = 'config-02-07-2021.csv'
+
+        response = self.assertPOST200(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        fconf = self.get_object_or_fail(
+            FieldsConfig,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+        )
+        self.assertEqual(2, len(fconf.descriptions))
+
+        is_hidden = fconf.is_fieldname_hidden
+        self.assertTrue(is_hidden(fname1))
+        self.assertTrue(is_hidden(fname2))
+
+    def test_fields_config02(self):
+        "A configuration already exists for this ContentType."
+        self.login(is_staff=True)
+
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[('mobile', {FieldsConfig.HIDDEN: True})],
+        )
+
+        fconfs_data = [
+            {
+                'ctype': 'creme_core.fakecontact',
+                'descriptions': [['phone', {'hidden': True}]],
+            },
+        ]
+        data = {
+            'version': '1.1',
+            'fields_config': fconfs_data,
+        }
+
+        json_file = StringIO(json_dump(data))
+        json_file.name = 'config-02-07-2021.csv'
+
+        response = self.assertPOST200(self.URL, data={'config': json_file})
+        self.assertFormError(
+            response, 'form', 'config',
+            _(
+                'There is already a fields configuration for the model «{}».'
+            ).format('Test Contact'),
+        )
 
     def test_customfields01(self):
         self.login(is_staff=True)

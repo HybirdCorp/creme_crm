@@ -62,6 +62,7 @@ from creme.creme_core.models import (
     CustomFormConfigItem,
     EntityFilter,
     EntityFilterCondition,
+    FieldsConfig,
     HeaderFilter,
     MenuConfigItem,
     RelationBrickItem,
@@ -745,6 +746,31 @@ class RelationTypesImporter(Importer):
                 is_copiable=(data['is_copiable'], sym_data['is_copiable']),
                 minimal_display=(data['minimal_display'], sym_data['minimal_display']),
             )
+
+
+@IMPORTERS.register(data_id=constants.ID_FIELDS_CONFIG)
+class FieldsConfigImporter(Importer):
+    def _validate_section(self, deserialized_section, validated_data):
+        def load_fields_config(fconfig_info: dict) -> dict:
+            ctype = load_ct(fconfig_info['ctype'])
+
+            if FieldsConfig.objects.filter(content_type=ctype).exists():
+                raise ValidationError(
+                    _(
+                        'There is already a fields configuration for the model «{}».'
+                    ).format(ctype)
+                )
+
+            return {
+                'content_type': ctype,
+                'descriptions': fconfig_info['descriptions'],
+            }
+
+        self._data = [*map(load_fields_config, deserialized_section)]
+
+    def save(self):
+        for data in self._data:
+            FieldsConfig.objects.create(**data)
 
 
 @IMPORTERS.register(data_id=constants.ID_CUSTOM_FIELDS)

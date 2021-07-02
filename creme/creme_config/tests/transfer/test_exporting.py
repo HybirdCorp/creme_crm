@@ -59,6 +59,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeDocument,
     FakeOrganisation,
+    FieldsConfig,
     HeaderFilter,
     InstanceBrickConfigItem,
     MenuConfigItem,
@@ -1216,6 +1217,38 @@ class ExportingTestCase(CremeTestCase):
             subject_ctypes2a,
         )
         self.assertEqual(['creme_core.fakedocument'], object_ctypes2a)
+
+    def test_fields_config(self):
+        self.login(is_staff=True)
+
+        fname1 = 'description'
+        fname2 = 'phone'
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[
+                (fname1, {FieldsConfig.HIDDEN: True}),
+                (fname2, {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        with self.assertNoException():
+            loaded_fconfigs = content['fields_config']
+
+        self.assertListEqual(
+            [
+                {
+                    'ctype': 'creme_core.fakecontact',
+                    'descriptions': [
+                        [fname1, {'hidden': True}],
+                        [fname2, {'hidden': True}],
+                    ],
+                },
+            ],
+            loaded_fconfigs,
+        )
 
     def test_customfields(self):
         self.login(is_staff=True)
