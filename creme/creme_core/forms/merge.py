@@ -95,6 +95,7 @@ class MergeWidget(Widget):
             attrs={
                 'id': f'{id_attr}_merged',
                 'class': 'merge_result',
+                'required': attrs.get('required', False),
             },
         )['widget']
         widget_cxt['second'] = get_sub_context(
