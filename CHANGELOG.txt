@@ -3,6 +3,8 @@
   Users side :
   ------------
     # The style of ManyToManyFields in bricks has been fixed.
+    # In merge forms, the result inputs were not marked as required in HTML when they should
+      (notice that it's just an IHM issue, you got a classical validation error).
     # Apps :
         * Creme_config :
             - Export & import for fields configuration were missing.
