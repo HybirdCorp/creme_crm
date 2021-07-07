@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,14 +20,7 @@
 
 from datetime import timedelta
 
-from django.db.models import (
-    CASCADE,
-    BooleanField,
-    CharField,
-    ForeignKey,
-    IntegerField,
-    TextField,
-)
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -37,19 +30,19 @@ from creme.creme_core.models.fields import DurationField
 
 # TODO: Rename to ActivityKind ??
 class ActivityType(CremeModel):
-    id = CharField(
+    id = models.CharField(
         primary_key=True, max_length=100, editable=False,
     ).set_tags(viewable=False)
 
-    name = CharField(_('Name'), max_length=100)
+    name = models.CharField(_('Name'), max_length=100)
 
-    default_day_duration = IntegerField(_('Default day duration')).set_tags(viewable=False)
+    default_day_duration = models.IntegerField(_('Default day duration')).set_tags(viewable=False)
     default_hour_duration = DurationField(
         _('Default hour duration'), max_length=15,
     ).set_tags(viewable=False)
 
     # Used by creme_config
-    is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)
+    is_custom = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a type')
 
@@ -65,23 +58,24 @@ class ActivityType(CremeModel):
     def as_timedelta(self):
         hours, minutes, seconds = self.default_hour_duration.split(':')
 
-        return timedelta(days=self.default_day_duration,
-                         hours=int(hours), minutes=int(minutes), seconds=int(seconds)
-                        )
+        return timedelta(
+            days=self.default_day_duration,
+            hours=int(hours), minutes=int(minutes), seconds=int(seconds),
+        )
 
 
 class ActivitySubType(CremeModel):
-    id = CharField(
+    id = models.CharField(
         primary_key=True, max_length=100, editable=False,
     ).set_tags(viewable=False)
 
-    name = CharField(_('Name'), max_length=100)
-    type = ForeignKey(
-        ActivityType, verbose_name=_('Type of activity'), on_delete=CASCADE,
+    name = models.CharField(_('Name'), max_length=100)
+    type = models.ForeignKey(
+        ActivityType, verbose_name=_('Type of activity'), on_delete=models.CASCADE,
     ).set_tags(viewable=False)
 
     # Used by creme_config
-    is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)
+    is_custom = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a sub-type')
 
@@ -96,10 +90,10 @@ class ActivitySubType(CremeModel):
 
 
 class Status(CremeModel):
-    name        = CharField(_('Name'), max_length=100)
-    description = TextField(_('Description'))
+    name = models.CharField(_('Name'), max_length=100)
+    description = models.TextField(_('Description'))
     # Used by creme_config
-    is_custom   = BooleanField(default=True).set_tags(viewable=False)
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-status', 'Create a status')
 

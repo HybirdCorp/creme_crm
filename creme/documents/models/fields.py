@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,8 @@
 from copy import copy
 
 from django.conf import settings
-from django.db.models import ForeignKey, ManyToManyField, Q
+from django.db import models
+from django.db.models import Q
 
 from ..constants import MIMETYPE_PREFIX_IMG
 
@@ -63,7 +64,7 @@ def _deconstruct_limit_choices_to(limit_choices_to):
     return deconstructed or None
 
 
-class ImageEntityForeignKey(ForeignKey):
+class ImageEntityForeignKey(models.ForeignKey):
     def __init__(self, **kwargs):
         kwargs['to'] = settings.DOCUMENTS_DOCUMENT_MODEL
         kwargs['limit_choices_to'] = _build_limit_choices_to(kwargs.get('limit_choices_to'))
@@ -82,17 +83,18 @@ class ImageEntityForeignKey(ForeignKey):
     def formfield(self, **kwargs):
         from ..forms.fields import ImageEntityField
 
-        return ImageEntityField(label=self.verbose_name,
-                                required=not self.blank,
-                                q_filter=self.remote_field.limit_choices_to,
-                                help_text=self.help_text,
-                               )
+        return ImageEntityField(
+            label=self.verbose_name,
+            required=not self.blank,
+            q_filter=self.remote_field.limit_choices_to,
+            help_text=self.help_text,
+        )
 
     def get_internal_type(self):
         return 'ForeignKey'
 
 
-class ImageEntityManyToManyField(ManyToManyField):
+class ImageEntityManyToManyField(models.ManyToManyField):
     def __init__(self, **kwargs):
         kwargs['to'] = settings.DOCUMENTS_DOCUMENT_MODEL
         kwargs['limit_choices_to'] = _build_limit_choices_to(kwargs.get('limit_choices_to'))
@@ -112,11 +114,12 @@ class ImageEntityManyToManyField(ManyToManyField):
     def formfield(self, **kwargs):
         from ..forms.fields import MultiImageEntityField
 
-        return MultiImageEntityField(label=self.verbose_name,
-                                     required=not self.blank,
-                                     q_filter=self.remote_field.limit_choices_to,
-                                     help_text=self.help_text,
-                                    )
+        return MultiImageEntityField(
+            label=self.verbose_name,
+            required=not self.blank,
+            q_filter=self.remote_field.limit_choices_to,
+            help_text=self.help_text,
+        )
 
     def get_internal_type(self):
         return 'ManyToManyField'

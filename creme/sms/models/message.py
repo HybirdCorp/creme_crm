@@ -19,13 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import (
-    CASCADE,
-    CharField,
-    DateField,
-    ForeignKey,
-    TextField,
-)
+from django.db import models
 from django.utils.formats import date_format
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -68,18 +62,18 @@ MESSAGE_STATUS = {
 
 
 class Sending(CremeModel):
-    date = DateField(_('Date'), editable=False)
-    campaign = ForeignKey(
-        settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE,
+    date = models.DateField(_('Date'), editable=False)
+    campaign = models.ForeignKey(
+        settings.SMS_CAMPAIGN_MODEL, on_delete=models.CASCADE,
         verbose_name=_('Related campaign'), related_name='sendings',
         editable=False,
     )
-    template = ForeignKey(
+    template = models.ForeignKey(
         settings.SMS_TEMPLATE_MODEL,
-        verbose_name=_('Message template'), on_delete=CASCADE,
+        verbose_name=_('Message template'), on_delete=models.CASCADE,
         editable=False,
     )  # TODO: PROTECT ? copy data like in 'emails' ?
-    content = TextField(_('Generated message'), max_length=160, editable=False)
+    content = models.TextField(_('Generated message'), max_length=160, editable=False)
 
     creation_label = pgettext_lazy('sms', 'Create a sending')
     save_label     = pgettext_lazy('sms', 'Save the sending')
@@ -120,12 +114,13 @@ class Sending(CremeModel):
 
 # TODO: keep the related entity (to hide the number when the entity is not viewable)
 class Message(CremeModel):
-    sending = ForeignKey(
-        Sending, verbose_name=_('Sending'), related_name='messages', on_delete=CASCADE,
+    sending = models.ForeignKey(
+        Sending,
+        verbose_name=_('Sending'), related_name='messages', on_delete=models.CASCADE,
     )
-    phone = CharField(_('Number'), max_length=100)
-    status = CharField(_('State'), max_length=10)
-    status_message = CharField(_('Full state'), max_length=100, blank=True)
+    phone = models.CharField(_('Number'), max_length=100)
+    status = models.CharField(_('State'), max_length=10)
+    status_message = models.CharField(_('Full state'), max_length=100, blank=True)
 
     def __str__(self):
         return self.phone

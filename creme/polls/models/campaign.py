@@ -18,14 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import (
-    PROTECT,
-    CharField,
-    DateField,
-    ForeignKey,
-    PositiveIntegerField,
-    TextField,
-)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -35,14 +28,18 @@ from creme.creme_core.models import CremeEntity
 
 
 class AbstractPollCampaign(CremeEntity):
-    name           = CharField(_('Name'), max_length=100)
-    goal           = TextField(_('Goal of the campaign'), blank=True)
-    start          = DateField(_('Start'), null=True, blank=True)
-    due_date       = DateField(_('Due date'), null=True, blank=True)
-    segment        = ForeignKey(MarketSegment, verbose_name=_('Related segment'),
-                                null=True, blank=True, on_delete=PROTECT,
-                               )
-    expected_count = PositiveIntegerField(_('Expected replies number'), default=1)
+    name = models.CharField(_('Name'), max_length=100)
+    goal = models.TextField(_('Goal of the campaign'), blank=True)
+
+    start = models.DateField(_('Start'), null=True, blank=True)
+    due_date = models.DateField(_('Due date'), null=True, blank=True)
+
+    segment = models.ForeignKey(
+        MarketSegment,
+        verbose_name=_('Related segment'),
+        null=True, blank=True, on_delete=models.PROTECT,
+    )
+    expected_count = models.PositiveIntegerField(_('Expected replies number'), default=1)
 
     creation_label = pgettext_lazy('polls', 'Create a campaign')
     save_label     = pgettext_lazy('polls', 'Save the campaign of polls')

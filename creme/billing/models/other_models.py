@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import (
-    CASCADE,
-    BooleanField,
-    CharField,
-    ForeignKey,
-    TextField,
-)
+from django.db import models
 from django.db.transaction import atomic
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -36,7 +30,7 @@ from creme.creme_core.models.fields import BasicAutoField
 
 
 class SettlementTerms(CremeModel):
-    name = CharField(_('Settlement terms'), max_length=100)
+    name = models.CharField(_('Settlement terms'), max_length=100)
 
     creation_label = _('Create settlement terms')
 
@@ -51,9 +45,11 @@ class SettlementTerms(CremeModel):
 
 
 class AbstractStatus(CremeModel):
-    name      = CharField(_('Name'), max_length=100)
-    is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
-    order     = BasicAutoField(_('Order'))  # Used by creme_config
+    name = models.CharField(_('Name'), max_length=100)
+
+    # Used by creme_config
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+    order = BasicAutoField(_('Order'))
 
     creation_label = pgettext_lazy('billing-status', 'Create a status')
 
@@ -67,7 +63,7 @@ class AbstractStatus(CremeModel):
 
 
 class InvoiceStatus(AbstractStatus):
-    pending_payment = BooleanField(_('Pending payment'), default=False)
+    pending_payment = models.BooleanField(_('Pending payment'), default=False)
 
     class Meta(AbstractStatus.Meta):
         abstract = False
@@ -76,7 +72,7 @@ class InvoiceStatus(AbstractStatus):
 
 
 class QuoteStatus(AbstractStatus):
-    won = BooleanField(pgettext_lazy('billing-quote_status', 'Won'), default=False)
+    won = models.BooleanField(pgettext_lazy('billing-quote_status', 'Won'), default=False)
 
     class Meta(AbstractStatus.Meta):
         abstract = False
@@ -99,9 +95,9 @@ class CreditNoteStatus(AbstractStatus):
 
 
 class AdditionalInformation(CremeModel):
-    name        = CharField(_('Name'), max_length=100)
-    description = TextField(verbose_name=_('Description'), blank=True)
-    is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    name = models.CharField(_('Name'), max_length=100)
+    description = models.TextField(verbose_name=_('Description'), blank=True)
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     creation_label = pgettext_lazy('billing-additional_info', 'Create information')
 
@@ -110,15 +106,15 @@ class AdditionalInformation(CremeModel):
 
     class Meta:
         app_label = 'billing'
-        verbose_name        = pgettext_lazy('billing-singular', 'Additional information')
+        verbose_name = pgettext_lazy('billing-singular', 'Additional information')
         verbose_name_plural = pgettext_lazy('billing-plural',   'Additional information')
         ordering = ('name',)
 
 
 class PaymentTerms(CremeModel):
-    name        = CharField(pgettext_lazy('billing-singular', 'Payment terms'), max_length=100)
-    description = TextField(verbose_name=_('Description'), blank=True)
-    is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    name = models.CharField(pgettext_lazy('billing-singular', 'Payment terms'), max_length=100)
+    description = models.TextField(verbose_name=_('Description'), blank=True)
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
     creation_label = _('Create payment terms')
 
@@ -133,23 +129,25 @@ class PaymentTerms(CremeModel):
 
 
 class PaymentInformation(CremeModel):
-    name = CharField(_('Name'), max_length=200)
+    name = models.CharField(_('Name'), max_length=200)
 
-    bank_code = CharField(_('Bank code'), max_length=12, blank=True)
-    counter_code = CharField(_('Counter code'), max_length=12, blank=True)
-    account_number = CharField(_('Account number'), max_length=12, blank=True)
-    rib_key = CharField(_('RIB key'), max_length=12, blank=True)
-    banking_domiciliation = CharField(_('Banking domiciliation'), max_length=200, blank=True)
+    bank_code = models.CharField(_('Bank code'), max_length=12, blank=True)
+    counter_code = models.CharField(_('Counter code'), max_length=12, blank=True)
+    account_number = models.CharField(_('Account number'), max_length=12, blank=True)
+    rib_key = models.CharField(_('RIB key'), max_length=12, blank=True)
+    banking_domiciliation = models.CharField(
+        _('Banking domiciliation'), max_length=200, blank=True,
+    )
 
-    iban = CharField(_('IBAN'), max_length=100, blank=True)
-    bic = CharField(_('BIC'), max_length=100, blank=True)
+    iban = models.CharField(_('IBAN'), max_length=100, blank=True)
+    bic = models.CharField(_('BIC'), max_length=100, blank=True)
 
-    is_default = BooleanField(_('Is default?'), default=False)
-    organisation = ForeignKey(
+    is_default = models.BooleanField(_('Is default?'), default=False)
+    organisation = models.ForeignKey(
         settings.PERSONS_ORGANISATION_MODEL,
         verbose_name=pgettext_lazy('billing', 'Target organisation'),
         related_name='PaymentInformationOrganisation_set',
-        on_delete=CASCADE,
+        on_delete=models.CASCADE,
     )
 
     creation_label = _('Create a payment information')

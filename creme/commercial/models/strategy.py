@@ -19,14 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import (
-    CASCADE,
-    CharField,
-    ForeignKey,
-    ManyToManyField,
-    PositiveSmallIntegerField,
-    TextField,
-)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -51,11 +44,12 @@ _CATEGORY_MAP = {
 
 
 class AbstractStrategy(CremeEntity):
-    name            = CharField(_('Name'), max_length=100)
-    evaluated_orgas = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL,
-                                      verbose_name=_('Evaluated organisation(s)'),
-                                      editable=False,
-                                     )
+    name = models.CharField(_('Name'), max_length=100)
+    evaluated_orgas = models.ManyToManyField(
+        settings.PERSONS_ORGANISATION_MODEL,
+        verbose_name=_('Evaluated organisation(s)'),
+        editable=False,
+    )
 
     creation_label = _('Create a strategy')
     save_label     = _('Save the strategy')
@@ -119,10 +113,9 @@ class AbstractStrategy(CremeEntity):
             }
 
             # Set the right scores in the matrix
-            for score in CommercialAssetScore.objects.filter(organisation=orga,
-                                                             asset__in=assets,
-                                                             segment_desc__in=segment_info,
-                                                            ):
+            for score in CommercialAssetScore.objects.filter(
+                organisation=orga, asset__in=assets, segment_desc__in=segment_info,
+            ):
                 scores[score.segment_desc_id][score.asset_id] = score
 
             self._assets_scores_map[orga.id] = scores
@@ -147,10 +140,9 @@ class AbstractStrategy(CremeEntity):
             }
 
             # Set the right scores in the matrix
-            for score in MarketSegmentCharmScore.objects.filter(organisation=orga,
-                                                                charm__in=charms,
-                                                                segment_desc__in=segment_info,
-                                                               ):
+            for score in MarketSegmentCharmScore.objects.filter(
+                organisation=orga, charm__in=charms, segment_desc__in=segment_info,
+            ):
                 scores[score.segment_desc_id][score.charm_id] = score
 
             self._charms_scores_map[orga.id] = scores
@@ -302,7 +294,7 @@ class AbstractStrategy(CremeEntity):
         if not 1 <= category <= 4:
             raise ValueError(f'Problem with "category" arg: not 1 <= {category} <= 4')
 
-        orga    = self.evaluated_orgas.get(pk=orga_id)  # Raise exception if invalid orga
+        orga = self.evaluated_orgas.get(pk=orga_id)  # Raise exception if invalid organisation
         seg_desc = self.segment_info.get(pk=segment_desc_id)  # Raise exception if invalid segment
 
         cat_obj = MarketSegmentCategory.objects.filter(
@@ -316,9 +308,10 @@ class AbstractStrategy(CremeEntity):
             cat_obj.category = category
             cat_obj.save()
         else:
-            MarketSegmentCategory.objects.create(strategy=self, segment_desc=seg_desc,
-                                                 organisation=orga, category=category,
-                                                )
+            MarketSegmentCategory.objects.create(
+                strategy=self, segment_desc=seg_desc,
+                organisation=orga, category=category,
+            )
 
         self._segments_categories.pop(orga.id, None)  # Clean cache
 
@@ -329,14 +322,16 @@ class Strategy(AbstractStrategy):
 
 
 class MarketSegmentDescription(CremeModel):
-    strategy  = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='segment_info',
-                           editable=False, on_delete=CASCADE,
-                          )
-    segment   = ForeignKey(MarketSegment, on_delete=CASCADE)  # TODO: PROTECT
-    product   = TextField(_('Product'), blank=True)
-    place     = TextField(pgettext_lazy('commercial-4p', 'Place'), blank=True)
-    price     = TextField(_('Price'), blank=True)
-    promotion = TextField(_('Promotion'), blank=True)
+    strategy = models.ForeignKey(
+        settings.COMMERCIAL_STRATEGY_MODEL,
+        related_name='segment_info', editable=False, on_delete=models.CASCADE,
+    )
+    segment = models.ForeignKey(MarketSegment, on_delete=models.CASCADE)  # TODO: PROTECT
+
+    product   = models.TextField(_('Product'), blank=True)
+    place     = models.TextField(pgettext_lazy('commercial-4p', 'Place'), blank=True)
+    price     = models.TextField(_('Price'), blank=True)
+    promotion = models.TextField(_('Promotion'), blank=True)
 
     creation_label = _('Create a market segment')
     save_label     = _('Save the market segment')
@@ -369,10 +364,10 @@ class MarketSegmentDescription(CremeModel):
 
 
 class CommercialAsset(CremeModel):
-    name = CharField(_('Name'), max_length=100)
-    strategy = ForeignKey(
-        settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets',
-        editable=False, on_delete=CASCADE,
+    name = models.CharField(_('Name'), max_length=100)
+    strategy = models.ForeignKey(
+        settings.COMMERCIAL_STRATEGY_MODEL,
+        related_name='assets', editable=False, on_delete=models.CASCADE,
     )
 
     creation_label = _('Create a commercial asset')
@@ -394,10 +389,12 @@ class CommercialAsset(CremeModel):
 
 
 class CommercialAssetScore(CremeModel):
-    score        = PositiveSmallIntegerField()
-    segment_desc = ForeignKey(MarketSegmentDescription, on_delete=CASCADE)
-    asset        = ForeignKey(CommercialAsset, on_delete=CASCADE)
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
+    score = models.PositiveSmallIntegerField()
+    segment_desc = models.ForeignKey(MarketSegmentDescription, on_delete=models.CASCADE)
+    asset = models.ForeignKey(CommercialAsset, on_delete=models.CASCADE)
+    organisation = models.ForeignKey(
+        settings.PERSONS_ORGANISATION_MODEL, on_delete=models.CASCADE,
+    )
 
     class Meta:
         app_label = 'commercial'
@@ -405,7 +402,7 @@ class CommercialAssetScore(CremeModel):
     def __str__(self):  # Debugging
         return (
             f'<AssetScore: '
-            f'orga={self.organisation} '
+            f'organisation={self.organisation} '
             f'score={self.score} '
             f'segment={self.segment_desc} '
             f'asset={self.asset}'
@@ -414,10 +411,10 @@ class CommercialAssetScore(CremeModel):
 
 
 class MarketSegmentCharm(CremeModel):
-    name     = CharField(_('Name'), max_length=100)
-    strategy = ForeignKey(
-        settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms',
-        editable=False, on_delete=CASCADE,
+    name = models.CharField(_('Name'), max_length=100)
+    strategy = models.ForeignKey(
+        settings.COMMERCIAL_STRATEGY_MODEL,
+        related_name='charms', editable=False, on_delete=models.CASCADE,
     )
 
     creation_label = _('Create a segment charm')
@@ -439,10 +436,12 @@ class MarketSegmentCharm(CremeModel):
 
 
 class MarketSegmentCharmScore(CremeModel):
-    score        = PositiveSmallIntegerField()
-    segment_desc = ForeignKey(MarketSegmentDescription, on_delete=CASCADE)
-    charm        = ForeignKey(MarketSegmentCharm, on_delete=CASCADE)
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
+    score = models.PositiveSmallIntegerField()
+    segment_desc = models.ForeignKey(MarketSegmentDescription, on_delete=models.CASCADE)
+    charm = models.ForeignKey(MarketSegmentCharm, on_delete=models.CASCADE)
+    organisation = models.ForeignKey(
+        settings.PERSONS_ORGANISATION_MODEL, on_delete=models.CASCADE,
+    )
 
     class Meta:
         app_label = 'commercial'
@@ -450,7 +449,7 @@ class MarketSegmentCharmScore(CremeModel):
     def __str__(self):  # Debugging
         return (
             f'<CharmScore: '
-            f'orga={self.organisation} '
+            f'organisation={self.organisation} '
             f'score={self.score} '
             f'segment={self.segment_desc} '
             f'charm={self.charm}'
@@ -459,10 +458,12 @@ class MarketSegmentCharmScore(CremeModel):
 
 
 class MarketSegmentCategory(CremeModel):
-    category     = PositiveSmallIntegerField()
-    strategy     = ForeignKey(Strategy, on_delete=CASCADE)
-    segment_desc = ForeignKey(MarketSegmentDescription, on_delete=CASCADE)
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
+    category = models.PositiveSmallIntegerField()
+    strategy = models.ForeignKey(Strategy, on_delete=models.CASCADE)
+    segment_desc = models.ForeignKey(MarketSegmentDescription, on_delete=models.CASCADE)
+    organisation = models.ForeignKey(
+        settings.PERSONS_ORGANISATION_MODEL, on_delete=models.CASCADE,
+    )
 
     class Meta:
         app_label = 'commercial'
@@ -470,8 +471,8 @@ class MarketSegmentCategory(CremeModel):
     def __str__(self):  # Debugging
         return (
             f'<MarketSegmentCategory: '
-            f'orga={self.organisation} '
-            f'cat={self.category} '
+            f'organisation={self.organisation} '
+            f'category={self.category} '
             f'segment={self.segment_desc}'
             f'>'
         )

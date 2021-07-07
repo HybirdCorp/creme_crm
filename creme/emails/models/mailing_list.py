@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import CharField, ManyToManyField
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -27,19 +27,19 @@ from creme.creme_core.models import CremeEntity
 
 
 class AbstractMailingList(CremeEntity):
-    name = CharField(_('Name of the mailing list'), max_length=80)
-    children = ManyToManyField(
+    name = models.CharField(_('Name of the mailing list'), max_length=80)
+    children = models.ManyToManyField(
         settings.EMAILS_MLIST_MODEL,
         verbose_name=_('Child mailing lists'),
         symmetrical=False, related_name='parents_set',
         editable=False,
     )
-    contacts = ManyToManyField(
+    contacts = models.ManyToManyField(
         settings.PERSONS_CONTACT_MODEL,
         verbose_name=_('Contacts recipients'),
         editable=False,
     )
-    organisations = ManyToManyField(
+    organisations = models.ManyToManyField(
         settings.PERSONS_ORGANISATION_MODEL,
         verbose_name=_('Organisations recipients'),
         editable=False,

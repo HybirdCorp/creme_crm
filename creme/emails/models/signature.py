@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import CASCADE, CharField, ForeignKey, TextField
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -29,9 +29,11 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 
 
 class EmailSignature(CremeModel):
-    name   = CharField(_('Name'), max_length=100)
-    user   = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('User'), on_delete=CASCADE)
-    body   = TextField(_('Body'))
+    name = models.CharField(_('Name'), max_length=100)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_('User'), on_delete=models.CASCADE,
+    )
+    body = models.TextField(_('Body'))
     images = ImageEntityManyToManyField(
         verbose_name=_('Images'), blank=True,
         help_text=_('Images embedded in emails (but not as attached).'),

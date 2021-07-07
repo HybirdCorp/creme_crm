@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 import uuid
 
-from django.db.models import BooleanField, CharField, UUIDField
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -30,8 +30,10 @@ from ..constants import MIMETYPE_PREFIX_IMG
 
 
 class FolderCategory(CremeModel):
-    name      = CharField(_('Category name'), max_length=100, unique=True)
-    is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    name = models.CharField(_('Category name'), max_length=100, unique=True)
+
+    # Used by creme_config
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('documents-folder_category', 'Create a category')
 
@@ -46,9 +48,11 @@ class FolderCategory(CremeModel):
 
 
 class DocumentCategory(CremeModel):
-    name      = CharField(_('Name'), max_length=100, unique=True)
-    uuid      = UUIDField(unique=True, default=uuid.uuid4, editable=False).set_tags(viewable=False)
-    is_custom = BooleanField(default=True).set_tags(viewable=False)
+    name = models.CharField(_('Name'), max_length=100, unique=True)
+    uuid = models.UUIDField(
+        unique=True, default=uuid.uuid4, editable=False,
+    ).set_tags(viewable=False)
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('documents-doc_category', 'Create a category')
 
@@ -63,7 +67,7 @@ class DocumentCategory(CremeModel):
 
 
 class MimeType(CremeModel):
-    name = CharField(_('Name'), max_length=100, unique=True)
+    name = models.CharField(_('Name'), max_length=100, unique=True)
 
     class Meta:
         app_label = 'documents'

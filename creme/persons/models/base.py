@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,23 +19,23 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import SET_NULL, ForeignKey, Model
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from .. import get_address_model
 
 
-class PersonWithAddressesMixin(Model):
-    billing_address = ForeignKey(
+class PersonWithAddressesMixin(models.Model):
+    billing_address = models.ForeignKey(
         settings.PERSONS_ADDRESS_MODEL,
         verbose_name=_('Billing address'),
-        null=True, on_delete=SET_NULL,
+        null=True, on_delete=models.SET_NULL,
         editable=False, related_name='+',
     ).set_tags(enumerable=False, optional=True)  # NB: "clonable=False" is useless
-    shipping_address = ForeignKey(
+    shipping_address = models.ForeignKey(
         settings.PERSONS_ADDRESS_MODEL,
         verbose_name=_('Shipping address'),
-        null=True, on_delete=SET_NULL,
+        null=True, on_delete=models.SET_NULL,
         editable=False, related_name='+',
     ).set_tags(enumerable=False, optional=True)
 
@@ -61,10 +61,11 @@ class PersonWithAddressesMixin(Model):
 
     @property
     def other_addresses(self):
-        excluded_ids = filter(None, (self.billing_address_id,
-                                     self.shipping_address_id,
-                                    ),
-                             )
+        excluded_ids = filter(
+            None,
+            (self.billing_address_id, self.shipping_address_id),
+        )
 
-        return get_address_model().objects.filter(object_id=self.id) \
-                                          .exclude(pk__in=excluded_ids)
+        return get_address_model().objects.filter(
+            object_id=self.id,
+        ).exclude(pk__in=excluded_ids)
