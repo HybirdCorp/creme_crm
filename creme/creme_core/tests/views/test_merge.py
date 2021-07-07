@@ -223,8 +223,12 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertStillExists(rel2_3)
 
         # rel2 should have been deleted (no duplicate)
-        self.assertDoesNotExist(rel1_2.symmetric_relation); self.assertDoesNotExist(rel1_2)
-        self.assertDoesNotExist(rel2_2.symmetric_relation); self.assertDoesNotExist(rel2_2)
+        self.assertDoesNotExist(rel1_2.symmetric_relation)
+        self.assertDoesNotExist(rel1_2)
+
+        self.assertDoesNotExist(rel2_2.symmetric_relation)
+        self.assertDoesNotExist(rel2_2)
+
         self.assertRelationCount(1, contact01, rtype01.id, orga01)
         self.assertRelationCount(1, orga01,    rtype02.id, contact01)
 

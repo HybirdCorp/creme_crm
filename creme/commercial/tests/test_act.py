@@ -1072,22 +1072,28 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertListEqual([opp01], [*act.get_related_opportunities()])
         self.assertEqual(0, act.get_made_sales())
 
-        opp01.made_sales = 1500; opp01.save()
-        self.assertEqual(1500, self.refresh(act).get_made_sales())
-        self.assertEqual(2000, self.refresh(act).get_estimated_sales())
+        # --
+        opp01.made_sales = 1500
+        opp01.save()
 
+        act = self.refresh(act)
+        self.assertEqual(1500, act.get_made_sales())
+        self.assertEqual(2000, act.get_estimated_sales())
+
+        # --
         opp02 = create_opp(
             name='OPP02', closing_date=date.today(), made_sales=500, estimated_sales=3000,
         )
         create_rel(subject_entity=opp02)
 
-        act  = self.refresh(act)  # Refresh cache
+        act = self.refresh(act)  # Refresh cache
         opps = act.get_related_opportunities()
         self.assertEqual(2, len(opps))
         self.assertSetEqual({opp01, opp02}, {*opps})
         self.assertEqual(2000, self.refresh(act).get_made_sales())
         self.assertEqual(5000, self.refresh(act).get_estimated_sales())
 
+        # --
         opp01.trash()
         self.assertEqual([opp02], self.refresh(act).get_related_opportunities())
 

@@ -128,15 +128,15 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_get_total_pending02(self):
-        "populate_entities()"
+        "populate_entities()."
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         target01 = create_orga(name='Target #1')
         target02 = create_orga(name='Target #2')
 
-        source01 = create_orga(name='Source#1'); self._set_managed(source01)
-        source02 = create_orga(name='Source#2'); self._set_managed(source02)
+        source01 = self._set_managed(create_orga(name='Source#1'))
+        source02 = self._set_managed(create_orga(name='Source#2'))
 
         def set_status(invoice):
             invoice.status = self.pending_payment_status

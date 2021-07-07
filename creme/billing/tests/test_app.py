@@ -158,7 +158,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
-        orga1 = create_orga(name='NERV'); self._set_managed(orga1)
+        orga1 = self._set_managed(create_orga(name='NERV'))
         orga2 = create_orga(name='Nerv')
 
         cba_filter = ConfigBillingAlgo.objects.filter
@@ -185,8 +185,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
-        orga1 = create_orga(name='NERV'); self._set_managed(orga1)
-        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+        orga1 = self._set_managed(create_orga(name='NERV'))
+        orga2 = self._set_managed(create_orga(name='Nerv'))
 
         cba_filter = ConfigBillingAlgo.objects.filter
         sba_filter = SimpleBillingAlgo.objects.filter
@@ -210,8 +210,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
-        orga1 = create_orga(name='NERV'); self._set_managed(orga1)
-        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+        orga1 = self._set_managed(create_orga(name='NERV'))
+        orga2 = self._set_managed(create_orga(name='Nerv'))
 
         self._set_managed(orga1, False)
         self._set_managed(orga2, False)
@@ -240,8 +240,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
-        orga1 = create_orga(name='NERV'); self._set_managed(orga1)
-        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+        orga1 = self._set_managed(create_orga(name='NERV'))
+        orga2 = self._set_managed(create_orga(name='Nerv'))
 
         self._set_managed(orga2, False)
 
@@ -263,12 +263,12 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomOrganisation
     def test_merge_algoconfig05(self):
-        "Second organisation has algo config (none is managed anymore)"
+        "Second organisation has algo config (none is managed anymore)."
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='NERV')
-        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+        orga2 = self._set_managed(create_orga(name='Nerv'))
 
         self._set_managed(orga2, False)
 
@@ -316,8 +316,9 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         "Managed organisation."
         self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='NERV')
-        self._set_managed(orga)
+        orga = self._set_managed(
+            Organisation.objects.create(user=self.user, name='NERV')
+        )
 
         response = self.assertGET200(orga.get_absolute_url())
         payment_info_tlpt = 'billing/bricks/orga-payment-information.html'

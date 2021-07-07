@@ -43,25 +43,29 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def _create_address(self, orga, name, address='', po_box='', city='',
                         state='', zipcode='', country='', department=''):
-        response = self.client.post(self._build_add_url(orga),
-                                    data={'name':       name,
-                                          'address':    address,
-                                          'po_box':     po_box,
-                                          'city':       city,
-                                          'state':      state,
-                                          'zipcode':    zipcode,
-                                          'country':    country,
-                                          'department': department,
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_url(orga),
+            data={
+                'name':       name,
+                'address':    address,
+                'po_box':     po_box,
+                'city':       city,
+                'state':      state,
+                'zipcode':    zipcode,
+                'country':    country,
+                'department': department,
+            },
+        )
         self.assertNoFormError(response)
 
     def test_info_names01(self):
-        self.assertSetEqual({'name', 'address', 'po_box', 'zipcode', 'city',
-                             'department', 'state', 'country',
-                            },
-                            {*Address.info_field_names()}
-                           )
+        self.assertSetEqual(
+            {
+                'name', 'address', 'po_box', 'zipcode', 'city',
+                'department', 'state', 'country',
+            },
+            {*Address.info_field_names()},
+        )
 
     def test_info_names02(self):
         FieldsConfig.objects.create(
@@ -69,11 +73,13 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
             descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
         )
 
-        self.assertSetEqual({'name', 'address', 'zipcode', 'city',
-                             'department', 'state', 'country',
-                            },
-                            {*Address.info_field_names()}
-                           )
+        self.assertSetEqual(
+            {
+                'name', 'address', 'zipcode', 'city',
+                'department', 'state', 'country',
+            },
+            {*Address.info_field_names()}
+        )
 
     def test_empty_fields(self):
         orga = self.login()
@@ -96,9 +102,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
         context = self.assertGET200(self._build_add_url(orga)).context
-        self.assertEqual(_('Adding address to «{entity}»').format(entity=orga),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Adding address to «{entity}»').format(entity=orga),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the address'), context.get('submit_label'))
 
         name = 'Address#1'
@@ -147,9 +154,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         url = reverse('persons__create_billing_address', args=(orga.id,))
         response = self.assertGET200(url)
         context = response.context
-        self.assertEqual(_('Adding billing address to «{entity}»').format(entity=orga),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Adding billing address to «{entity}»').format(entity=orga),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the address'), context.get('submit_label'))
 
         with self.assertNoException():
@@ -161,11 +169,13 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         addr_value = '21 jump street'
         city = 'Atlantis'
-        self.assertNoFormError(self.client.post(url, data={'address': addr_value,
-                                                           'city':    city,
-                                                          }
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'address': addr_value,
+                'city':    city,
+            },
+        ))
 
         addresses = Address.objects.filter(object_id=orga.id)
         self.assertEqual(1, len(addresses))
@@ -195,18 +205,21 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         url = reverse('persons__create_shipping_address', args=(orga.id,))
 
         context = self.assertGET200(url).context
-        self.assertEqual(_('Adding shipping address to «{entity}»').format(entity=orga),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Adding shipping address to «{entity}»').format(entity=orga),
+            context.get('title')
+        )
         self.assertEqual(_('Save the address'), context.get('submit_label'))
 
         addr_value = '21 jump street'
         country = 'Wonderland'
-        self.assertNoFormError(self.client.post(url, data={'address': addr_value,
-                                                           'country': country,
-                                                          }
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'address': addr_value,
+                'country': country,
+            },
+        ))
 
         addresses = Address.objects.filter(object_id=orga.id)
         self.assertEqual(1, len(addresses))
@@ -240,23 +253,27 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         url = address.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
-        self.assertEqual(_('Edit address for «{entity}»').format(entity=orga),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Edit address for «{entity}»').format(entity=orga),
+            response.context.get('title'),
+        )
 
         # ---
         city = 'Groville'
         country = 'Groland'
-        response = self.client.post(url, data={'name':       name,
-                                               'address':    address,
-                                               'po_box':     po_box,
-                                               'city':       city,
-                                               'state':      state,
-                                               'zipcode':    zipcode,
-                                               'country':    country,
-                                               'department': department,
-                                             }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name':       name,
+                'address':    address,
+                'po_box':     po_box,
+                'city':       city,
+                'state':      state,
+                'zipcode':    zipcode,
+                'country':    country,
+                'department': department,
+            },
+        )
         self.assertNoFormError(response)
 
         address = self.refresh(address)
@@ -276,20 +293,24 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self._create_address(orga, name, address_value, city=city, zipcode=zipcode)
         address = Address.objects.filter(object_id=orga.id)[0]
 
-        url = address.get_edit_absolute_url() + '?type=billing'
+        url = f'{address.get_edit_absolute_url()}?type=billing'
         response = self.assertGET200(url)
-        self.assertEqual(_('Edit billing address for «{entity}»').format(entity=orga),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Edit billing address for «{entity}»').format(entity=orga),
+            response.context.get('title'),
+        )
 
         # --
         city = 'Groville'
-        response = self.client.post(url, data={'name':       name,
-                                               'address':    address,
-                                               'city':       city,
-                                               'zipcode':    zipcode,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name':       name,
+                'address':    address,
+                'city':       city,
+                'zipcode':    zipcode,
+            },
+        )
         self.assertNoFormError(response)
 
         address = self.refresh(address)
@@ -309,20 +330,24 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self._create_address(orga, name, address_value, city=city, zipcode=zipcode)
         address = Address.objects.filter(object_id=orga.id)[0]
 
-        url = address.get_edit_absolute_url() + '?type=shipping'
+        url = f'{address.get_edit_absolute_url()}?type=shipping'
         response = self.assertGET200(url)
-        self.assertEqual(_('Edit shipping address for «{entity}»').format(entity=orga),
-                         response.context.get('title')
-                        )
+        self.assertEqual(
+            _('Edit shipping address for «{entity}»').format(entity=orga),
+            response.context.get('title'),
+        )
 
         # ---
         city = 'Groville'
-        response = self.client.post(url, data={'name':       name,
-                                               'address':    address,
-                                               'city':       city,
-                                               'zipcode':    zipcode,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name':       name,
+                'address':    address,
+                'city':       city,
+                'zipcode':    zipcode,
+            },
+        )
         self.assertNoFormError(response)
 
         address = self.refresh(address)
@@ -334,7 +359,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         orga = self.login()
 
         self._create_address(
-            orga, 'name', 'address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department'
+            orga,
+            'name', 'address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department'
         )
         address = Address.objects.filter(object_id=orga.id)[0]
         ct = ContentType.objects.get_for_model(Address)
@@ -367,18 +393,20 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         state = '??'
         country = 'wtf'
 
-        address = Address(name='Address#1',
-                          address=address_value,
-                          po_box=po_box,
-                          zipcode=zipcode,
-                          city=city,
-                          department=department,
-                          state=state,
-                          country=country,
-                         )
-        self.assertEqual(f'{address_value} {zipcode} {city} {department}',
-                         str(address)
-                        )
+        address = Address(
+            name='Address#1',
+            address=address_value,
+            po_box=po_box,
+            zipcode=zipcode,
+            city=city,
+            department=department,
+            state=state,
+            country=country,
+        )
+        self.assertEqual(
+            f'{address_value} {zipcode} {city} {department}',
+            str(address),
+        )
 
         address.zipcode = None
         self.assertEqual(f'{address_value} {city} {department}', str(address))
@@ -390,9 +418,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(state, str(Address(state=state)))
         self.assertEqual(country, str(Address(country=country)))
 
-        self.assertEqual(f'{po_box} {state} {country}',
-                         str(Address(po_box=po_box, state=state, country=country))
-                        )
+        self.assertEqual(
+            f'{po_box} {state} {country}',
+            str(Address(po_box=po_box, state=state, country=country)),
+        )
 
     def test_str02(self):
         FieldsConfig.objects.create(
@@ -408,15 +437,16 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         po_box = 'Popop'
         city = 'Atlantis'
         state = '??'
-        address = Address(name='Address#1',
-                          address=address_value,
-                          po_box=po_box,
-                          zipcode='424242',
-                          city=city,
-                          department='rucrazy',
-                          state=state,
-                          country='wtf',
-                         )
+        address = Address(
+            name='Address#1',
+            address=address_value,
+            po_box=po_box,
+            zipcode='424242',
+            city=city,
+            department='rucrazy',
+            state=state,
+            country='wtf',
+        )
         self.assertEqual(f'{address_value} {city}', str(address))
 
         self.assertEqual(po_box, str(Address(po_box=po_box, state=state)))
@@ -427,19 +457,19 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         orga = self.login()
 
         create_address = Address.objects.create
-        orga.billing_address = b_addr = create_address(name='Billing address',
-                                                       address='BA - Address',
-                                                       owner=orga,
-                                                      )
+        orga.billing_address = b_addr = create_address(
+            name='Billing address', address='BA - Address', owner=orga,
+        )
         orga.save()
 
-        orga.shipping_address = s_addr = create_address(name='Shipping address',
-                                                        address='SA - Address',
-                                                        owner=orga,
-                                                       )
+        orga.shipping_address = s_addr = create_address(
+            name='Shipping address', address='SA - Address', owner=orga,
+        )
         orga.save()
 
-        other_addr = create_address(name='Other address', address='OA - Address', owner=orga)
+        other_addr = create_address(
+            name='Other address', address='OA - Address', owner=orga,
+        )
 
         orga.delete()
         self.assertDoesNotExist(orga)
@@ -452,20 +482,16 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         contact = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
 
-        create_address = Address.objects.create
-        contact.billing_address = b_addr = create_address(name='Billing address',
-                                                          address='BA - Address',
-                                                          owner=contact,
-                                                         )
+        create_address = partial(Address.objects.create, owner=contact)
+        contact.billing_address = b_addr = create_address(
+            name='Billing address', address='BA - Address',
+        )
+        contact.shipping_address = s_addr = create_address(
+            name='Shipping address', address='SA - Address',
+        )
         contact.save()
 
-        contact.shipping_address = s_addr = create_address(name='Shipping address',
-                                                           address='SA - Address',
-                                                           owner=contact,
-                                                          )
-        contact.save()
-
-        other_addr = create_address(name='Other address', address='OA - Address', owner=contact)
+        other_addr = create_address(name='Other address', address='OA - Address')
 
         contact.delete()
         self.assertDoesNotExist(contact)
@@ -473,21 +499,21 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomContact
     def test_history(self):
-        "Address is auxiliary + double save() because of addresses caused problems"
+        "Address is auxiliary + double save() because of addresses caused problems."
         self.login(create_orga=False)
 
         old_count = HistoryLine.objects.count()
         country = 'Japan'
         name = 'Gainax'
-        self.assertNoFormError(
-            self.client.post(reverse('persons__create_organisation'),
-                             follow=True,
-                             data={'name': name,
-                                   'user':  self.other_user.id,
-                                   'billing_address-country': country,
-                                  },
-                            )
-        )
+        self.assertNoFormError(self.client.post(
+            reverse('persons__create_organisation'),
+            follow=True,
+            data={
+                'name': name,
+                'user':  self.other_user.id,
+                'billing_address-country': country,
+            },
+        ))
 
         gainax = self.get_object_or_fail(Organisation, name=name)
 
@@ -517,7 +543,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertListEqual(
             [_('Add <{type}>: “{value}”').format(type=_('Address'), value=address)],
-            hline.get_verbose_modifications(self.user)
+            hline.get_verbose_modifications(self.user),
         )
 
     # NB: keep as example
@@ -604,28 +630,27 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         orga6 = create_orga(name='Orga with named address')
         orga_ids = [orga1.id, orga2.id, orga3.id, orga4.id, orga5.id, orga6.id]
 
-        create_address = Address.objects.create
-        addr2 = create_address(address='',                owner=orga2)
-        addr3 = create_address(address='42 Towel street', owner=orga3)
-        addr4 = create_address(city='TowelCity',          owner=orga4)
-        addr5 = create_address(address='42 Fish street',  owner=orga5)
-        addr6 = create_address(name='Towel',              owner=orga6)
+        def create_billing_address(owner, **kwargs):
+            owner.billing_address = Address.objects.create(owner=owner, **kwargs)
+            owner.save()
 
-        orga2.billing_address = addr2; orga2.save()
-        orga3.billing_address = addr3; orga3.save()
-        orga4.billing_address = addr4; orga4.save()
-        orga5.billing_address = addr5; orga5.save()
-        orga6.billing_address = addr6; orga6.save()
+        create_billing_address(address='',                owner=orga2)
+        create_billing_address(address='42 Towel street', owner=orga3)
+        create_billing_address(city='TowelCity',          owner=orga4)
+        create_billing_address(address='42 Fish street',  owner=orga5)
+        create_billing_address(name='Towel',              owner=orga6)
 
         self.assertSetEqual(
             {orga3, orga4},
-            {*Organisation.objects.filter(id__in=orga_ids)
-                                  .filter(to_python(value='towel'))
-            }
+            {
+                *Organisation.objects
+                             .filter(id__in=orga_ids)
+                             .filter(to_python(value='towel')),
+            },
         )
 
     def test_search_field02(self):
-        "Ignore hidden fields"
+        "Ignore hidden fields."
         self.login(create_orga=False)
 
         FieldsConfig.objects.create(
@@ -647,22 +672,21 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         orga6 = create_orga(name='Orga with named address')
         orga_ids = [orga1.id, orga2.id, orga3.id, orga4.id, orga5.id, orga6.id]
 
-        create_address = Address.objects.create
-        addr2 = create_address(address='',                owner=orga2)
-        addr3 = create_address(address='42 Towel street', owner=orga3)
-        addr4 = create_address(city='TowelCity',          owner=orga4)
-        addr5 = create_address(address='42 Fish street',  owner=orga5)
-        addr6 = create_address(name='Towel',              owner=orga6)
+        def create_billing_address(owner, **kwargs):
+            owner.billing_address = Address.objects.create(owner=owner, **kwargs)
+            owner.save()
 
-        orga2.billing_address = addr2; orga2.save()
-        orga3.billing_address = addr3; orga3.save()
-        orga4.billing_address = addr4; orga4.save()
-        orga5.billing_address = addr5; orga5.save()
-        orga6.billing_address = addr6; orga6.save()
+        create_billing_address(address='',                owner=orga2)
+        create_billing_address(address='42 Towel street', owner=orga3)
+        create_billing_address(city='TowelCity',          owner=orga4)
+        create_billing_address(address='42 Fish street',  owner=orga5)
+        create_billing_address(name='Towel',              owner=orga6)
 
         self.assertListEqual(
             [orga3],
-            [*Organisation.objects.filter(id__in=orga_ids)
-                                  .filter(field.to_python(value='towel'))
-            ]
+            [
+                *Organisation.objects
+                             .filter(id__in=orga_ids)
+                             .filter(field.to_python(value='towel')),
+            ],
         )
