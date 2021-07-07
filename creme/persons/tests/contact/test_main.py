@@ -284,8 +284,12 @@ class ContactTestCase(_BaseTestCase):
         self.assertFormError(response, 'form', 'first_name', msg)
         self.assertFormError(response, 'form', 'email',      msg)
 
-        first_name = contact.first_name.lower(); self.assertNotEqual(first_name, user.first_name)
-        last_name  = contact.last_name.upper();  self.assertNotEqual(last_name,  user.last_name)
+        first_name = contact.first_name.lower()
+        self.assertNotEqual(first_name, user.first_name)
+
+        last_name = contact.last_name.upper()
+        self.assertNotEqual(last_name, user.last_name)
+
         email = f'{user.first_name}.{user.last_name}@noir.org'
         self.assertNotEqual(email, user.email)
 
@@ -370,10 +374,10 @@ class ContactTestCase(_BaseTestCase):
         user = self.refresh(user)  # Clean cache
 
         with self.assertNumQueries(1):
-            user.linked_contact
+            user.linked_contact  # NOQA
 
         with self.assertNumQueries(0):
-            user.linked_contact
+            user.linked_contact  # NOQA
 
         self.assertTrue(hasattr(user, 'get_absolute_url'))
         self.assertEqual(contact.get_absolute_url(), user.get_absolute_url())
@@ -482,7 +486,7 @@ class ContactTestCase(_BaseTestCase):
 
         self.assertEqual(
             _('Status in «{organisation}»').format(organisation=orga),
-            rtype_f.label
+            rtype_f.label,
         )
 
         # ---
@@ -944,7 +948,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertIsNone(contact)
 
     def test_user_delete_is_user(self):
-        "Manage Contact.is_user field : Contact is no more related to deleted user."
+        "Manage Contact.is_user field: Contact is no more related to deleted user."
         user = self.login()
         other_user = self.other_user
 

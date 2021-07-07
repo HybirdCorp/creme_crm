@@ -428,7 +428,8 @@ class QuoteTestCase(_BillingTestCase):
         quote, source, target = self.create_quote_n_orgas('My quote')
 
         source.user = target.user = self.other_user
-        source.save(); target.save()
+        source.save()
+        target.save()
         self.assertFalse(user.has_perm_to_link(source))
         self.assertFalse(user.has_perm_to_link(target))
 

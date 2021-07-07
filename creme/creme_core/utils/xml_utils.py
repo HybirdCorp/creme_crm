@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -105,9 +105,10 @@ def xml_diff(xml1, xml2):
                 except StopIteration:
                     raise
                 else:
-                    return XMLDiff('Additional sibling or child element in the second document',
-                                   previous_node1, tree1
-                                  )
+                    return XMLDiff(
+                        'Additional sibling or child element in the second document',
+                        previous_node1, tree1,
+                    )
 
             try:
                 deep_change2, node2 = next(iter2)
@@ -119,9 +120,10 @@ def xml_diff(xml1, xml2):
                 if deep_change1 > deep_change2:
                     return XMLDiff('Does not exist', node1, tree1)
 
-                return XMLDiff('Additional sibling or child element in the second document',
-                               previous_node1, tree1
-                              )
+                return XMLDiff(
+                    'Additional sibling or child element in the second document',
+                    previous_node1, tree1,
+                )
 
             # Tag comparison ---------------------------------------------------
             if node1.tag != node2.tag:
@@ -136,7 +138,7 @@ def xml_diff(xml1, xml2):
                 if attr_value1 is None:
                     return XMLDiff(
                         f'Attribute "{attr_name2}" is missing in the first document',
-                        node1, tree1
+                        node1, tree1,
                     )
 
                 if attr_value1 != attr_value2:
@@ -152,15 +154,15 @@ def xml_diff(xml1, xml2):
                 )
 
             # Text comparison --------------------------------------------------
-            text1 = node1.text or ''; text1 = text1.strip()
-            text2 = node2.text or ''; text2 = text2.strip()
+            text1 = (node1.text or '').strip()
+            text2 = (node2.text or '').strip()
 
             if text1 != text2:
                 return XMLDiff(f'Text "{text1}" != "{text2}"', node1, tree1)
 
             # Tail comparison --------------------------------------------------
-            tail1 = node1.tail or ''; tail1 = tail1.strip()
-            tail2 = node2.tail or ''; tail2 = tail2.strip()
+            tail1 = (node1.tail or '').strip()
+            tail2 = (node2.tail or '').strip()
 
             if tail1 != tail2:
                 return XMLDiff(f'Tail "{tail1}" != "{tail2}"', node1, tree1)

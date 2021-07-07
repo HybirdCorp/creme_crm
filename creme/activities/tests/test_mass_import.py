@@ -68,23 +68,32 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         url = self._build_import_url(Activity)
         self.assertGET200(url)
 
-        title1 = 'Task#1'; start1 = '';                 end1 = ''
-        title2 = 'Task#2'; start2 = '2014-05-28 15:00'; end2 = '2014-05-28 17:00'
-        # Start > end !!
-        title3 = 'Task#3'; start3 = '2014-05-28 19:00'; end3 = '2014-05-28 18:00'
-        # No end
-        title4 = 'Task#4'; start4 = '2014-05-29 12:00'; end4 = ''
-        # FLOATING_TIME
-        title5 = 'Task#5'; start5 = '2014-05-30';       end5 = ''
-        # FLOATING_TIME too
-        title6 = 'Task#6'; start6 = '2014-06-01';       end6 = '2014-06-01'
-        # Not FLOATING_TIME
-        title7 = 'Task#7'; start7 = '2014-06-02';       end7 = '2014-06-02 18:00'
+        title1 = 'Task#1'
+        title2 = 'Task#2'
+        title3 = 'Task#3'
+        title4 = 'Task#4'
+        title5 = 'Task#5'
+        title6 = 'Task#6'
+        title7 = 'Task#7'
 
         lines = [
-            (title1, start1, end1), (title2, start2, end2), (title3, start3, end3),
-            (title4, start4, end4), (title5, start5, end5), (title6, start6, end6),
-            (title7, start7, end7),
+            (title1, '', ''),
+            (title2, '2014-05-28 15:00', '2014-05-28 17:00'),
+
+            # Start > end !!
+            (title3, '2014-05-28 19:00', '2014-05-28 18:00'),
+
+            # No end
+            (title4, '2014-05-29 12:00', ''),
+
+            # FLOATING_TIME
+            (title5, '2014-05-30', ''),
+
+            # FLOATING_TIME too
+            (title6, '2014-06-01', '2014-06-01'),
+
+            # Not FLOATING_TIME
+            (title7, '2014-06-02', '2014-06-02 18:00'),
         ]
 
         doc = self._build_csv_doc(lines)
@@ -278,7 +287,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         response = self.assertPOST200(self._build_import_url(Activity), data=data)
         self.assertFormError(
             response, 'form', 'my_participation',
-            _('Enter a value if you check the box.')
+            _('Enter a value if you check the box.'),
         )
 
         response = self.assertPOST200(
@@ -714,8 +723,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         """
         user = self.login()
 
-        title1 = 'Task#1'; title2 = 'Task#2'; title3 = 'Task#3'
-        title4 = 'Task#4'; title5 = 'Task#5'; title6 = 'Task#6'
+        title1 = 'Task#1'
+        title2 = 'Task#2'
+        title3 = 'Task#3'
+        title4 = 'Task#4'
+        title5 = 'Task#5'
+        title6 = 'Task#6'
 
         create_contact = partial(Contact.objects.create, user=user)
         aoi    = create_contact(first_name='Aoi', last_name='Kunieda')
@@ -995,7 +1008,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_import_duplicated_subjects01(self):
-        "Dynamic & fixed subjects are duplicated in creation"
+        "Dynamic & fixed subjects are duplicated in creation."
         user = self.login()
 
         participant = Contact.objects.create(user=user, first_name='Tatsumi', last_name='Oga')
@@ -1097,8 +1110,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     def test_participants_multicol_extractor01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         # -----
         ext = MultiColumnsParticipantsExtractor(1, 2)
@@ -1152,9 +1164,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     def test_participants_multicol_extractor02(self):
-        "View credentials"
-        self.login(is_superuser=False)
-        user = self.user
+        "View credentials."
+        user = self.login(is_superuser=False)
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -1173,9 +1184,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     def test_participants_multicol_extractor03(self):
-        "Link credentials"
-        self.login(is_superuser=False)
-        user = self.user
+        "Link credentials."
+        user = self.login(is_superuser=False)
+
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -1235,9 +1246,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     def test_participants_singlecol_extractor01(self):
-        "SplittedColumnParticipantsExtractor"
-        self.login()
-        user = self.user
+        "SplitColumnParticipantsExtractor."
+        user = self.login()
         ext = SplitColumnParticipantsExtractor(1, '#', _pattern_FL)
 
         create_contact = partial(Contact.objects.create, user=user, last_name='Kunieda')
@@ -1281,9 +1291,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     def test_participants_singlecol_extractor02(self):
-        "SplittedColumnParticipantsExtractor + credentials"
-        self.login(is_superuser=False)
-        user = self.user
+        "SplitColumnParticipantsExtractor + credentials"
+        user = self.login(is_superuser=False)
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -1302,9 +1311,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_participants_singlecol_extractor03(self):
         "Creation if not found + civility."
-        self.login()
-        user = self.user
-
+        user = self.login()
         ext = SplitColumnParticipantsExtractor(1, '#', _pattern_CFL, create_if_unfound=True)
 
         first_name = 'Aoi'

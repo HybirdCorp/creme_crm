@@ -417,7 +417,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
-        it = (force_str(line) for line in response.content.splitlines()); next(it)
+
+        it = (force_str(line) for line in response.content.splitlines())
+        next(it)
 
         self.assertEqual(next(it), '"Black","Jet face","Jet\'s selfie"')
 

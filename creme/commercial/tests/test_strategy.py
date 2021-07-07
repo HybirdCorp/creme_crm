@@ -35,10 +35,12 @@ from .base import (
 
 @skipIfCustomStrategy
 class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
-    def _build_link_segment_url(self, strategy):
+    @staticmethod
+    def _build_link_segment_url(strategy):
         return reverse('commercial__link_segment', args=(strategy.id,))
 
-    def _build_edit_segmentdesc_url(self, segment_desc):
+    @staticmethod
+    def _build_edit_segmentdesc_url(segment_desc):
         return reverse('commercial__edit_segment_desc', args=(segment_desc.id,))
 
     def _set_asset_score(self, strategy, orga, asset, segment_desc, score):
@@ -189,7 +191,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
     def test_segment_create02(self):
-        "Collision with property type name"
+        "Collision with property type name."
         user = self.login()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
 
@@ -448,7 +450,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     def test_add_evaluated_orga(self):
         user = self.login()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
-        orga     = Organisation.objects.create(user=user, name='Nerv')
+        orga = Organisation.objects.create(user=user, name='Nerv')
 
         segment_desc = self._create_segment_desc(strategy, 'Industry')
         asset = CommercialAsset.objects.create(name='Capital', strategy=strategy)
@@ -654,7 +656,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertDoesNotExist(asset_score1)
 
-        # Not deleted (other orga)
+        # Not deleted (other organisation)
         self.get_object_or_fail(CommercialAssetScore, pk=asset_score2.pk)
 
         # Not deleted (other strategy)
@@ -662,7 +664,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertDoesNotExist(charm_score1)
 
-        # Not deleted (other orga)
+        # Not deleted (other organisation)
         self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score2.pk)
 
         # Not deleted (other strategy)
@@ -710,7 +712,10 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertEqual([(2, 3), (2, 3)], strategy.get_assets_totals(orga))
 
-        score11 = 1; score12 = 4; score21 = 3; score22 = 2
+        score11 = 1
+        score12 = 4
+        score21 = 3
+        score22 = 2
         self._set_asset_score(strategy, orga, asset01, segment_desc01, score11)
         self._set_asset_score(strategy, orga, asset01, segment_desc02, score12)
         self._set_asset_score(strategy, orga, asset02, segment_desc01, score21)
@@ -768,7 +773,10 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertEqual([(2, 3), (2, 3)], strategy.get_charms_totals(orga))
 
-        score11 = 1; score12 = 4; score21 = 3; score22 = 2
+        score11 = 1
+        score12 = 4
+        score21 = 3
+        score22 = 2
         self._set_charm_score(strategy, orga, charm01, segment_desc01, score11)
         self._set_charm_score(strategy, orga, charm01, segment_desc02, score12)
         self._set_charm_score(strategy, orga, charm02, segment_desc01, score21)

@@ -792,8 +792,12 @@ class TemplateURLBuilderTestCase(CremeTestCase):
     def test_two_place_holders01(self):
         "1 word & 1 int place holders."
         vname = 'creme_core__batch_process_ops'
-        placeholder1 = '123456'; final_value1 = '${ct}'
-        placeholder2 = 'XXXXXX'; final_value2 = '${name}'
+
+        placeholder1 = '123456'
+        final_value1 = '${ct}'
+
+        placeholder2 = 'XXXXXX'
+        final_value2 = '${name}'
 
         tub = TemplateURLBuilder(
             ct_id=(TemplateURLBuilder.Int,  final_value1),
@@ -812,9 +816,14 @@ class TemplateURLBuilderTestCase(CremeTestCase):
         "2 int & 1 word place holders."
         vname = 'creme_core__inner_edition'
 
-        placeholder1 = '123456'; final_value1 = '${id1}'
-        placeholder2 = '789456'; final_value2 = '${id2}'
-        placeholder3 = 'fobbar'; final_value3 = '${fname}'
+        placeholder1 = '123456'
+        final_value1 = '${id1}'
+
+        placeholder2 = '789456'
+        final_value2 = '${id2}'
+
+        placeholder3 = 'fobbar'
+        final_value3 = '${fname}'
 
         tub = TemplateURLBuilder(
             ct_id=(TemplateURLBuilder.Int, final_value1),

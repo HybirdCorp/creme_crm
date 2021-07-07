@@ -924,7 +924,7 @@ class BrickRegistryTestCase(CremeTestCase):
 class BricksManagerTestCase(CremeTestCase):
     def test_manage01(self):
         class TestBlock(SimpleBrick):
-            verbose_name  = 'Testing purpose'
+            verbose_name = 'Testing purpose'
 
         class FoobarBrick1(TestBlock):
             id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage01_1')
@@ -1053,8 +1053,11 @@ class BricksManagerTestCase(CremeTestCase):
 
         self.assertEqual((Relation,), FoobarBrick6.dependencies)
 
-        brick1 = FoobarBrick1(); brick2 = FoobarBrick2()
-        brick3 = FoobarBrick3(); brick4 = FoobarBrick4(); brick5 = FoobarBrick5()
+        brick1 = FoobarBrick1()
+        brick2 = FoobarBrick2()
+        brick3 = FoobarBrick3()
+        brick4 = FoobarBrick4()
+        brick5 = FoobarBrick5()
         brick6 = FoobarBrick6(RelationBrickItem.objects.create_if_needed(rtype2))
 
         mngr = BricksManager()
@@ -1093,9 +1096,12 @@ class BricksManagerTestCase(CremeTestCase):
             id_ = SimpleBrick.generate_id('creme_core', id_fmt(6))
             dependencies = (Relation,)
 
-        brick1 = FoobarBrick1(); brick2 = FoobarBrick2()
-        brick3 = FoobarBrick3(); brick4 = FoobarBrick4()
-        brick5 = FoobarBrick5(); brick6 = FoobarBrick6()
+        brick1 = FoobarBrick1()
+        brick2 = FoobarBrick2()
+        brick3 = FoobarBrick3()
+        brick4 = FoobarBrick4()
+        brick5 = FoobarBrick5()
+        brick6 = FoobarBrick6()
 
         mngr = BricksManager()
         # Notice that brick4 is before brick3, but the dependencies are still OK

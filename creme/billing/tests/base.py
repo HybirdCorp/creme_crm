@@ -304,6 +304,8 @@ class _BillingTestCaseMixin:
         orga.is_managed = managed
         orga.save()
 
+        return orga
+
 
 class _BillingTestCase(_BillingTestCaseMixin,
                        base.ButtonTestCaseMixin,

@@ -355,13 +355,16 @@ class InheritedDataChainTestCase(CremeTestCase):
                 return f'InnerClass(data={self.data})'
 
         idc = InheritedDataChain(InnerClass)
-        instance1 = idc[Klass1]; instance1.data = Klass1.__name__
-        instance2 = idc[Klass2]; instance2.data = Klass2.__name__
+        instance1 = idc[Klass1]
+        instance1.data = Klass1.__name__
+        instance2 = idc[Klass2]
+        instance2.data = Klass2.__name__
         self.assertListEqual(
             [instance1, instance2], [*idc.chain(Klass2)],
         )
 
-        instance3 = idc[Klass3]; instance3.data = Klass3.__name__
+        instance3 = idc[Klass3]
+        instance3.data = Klass3.__name__
         self.assertListEqual(
             [instance1, instance2, instance3], [*idc.chain(Klass3)],
         )

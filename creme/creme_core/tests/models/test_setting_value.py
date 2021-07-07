@@ -33,11 +33,11 @@ class SettingValueTestCase(CremeTestCase):
         self._registered_skey.append(skey)
 
     def test_type_string(self):
-        sk = SettingKey('creme_core-test_model_string',
-                        description='Page title',
-                        app_label='creme_core',
-                        type=SettingKey.STRING, hidden=False,
-                       )
+        sk = SettingKey(
+            'creme_core-test_model_string',
+            description='Page title',
+            app_label='creme_core', type=SettingKey.STRING, hidden=False,
+        )
         self._register_key(sk)
 
         title = 'May the source be with you'
@@ -48,9 +48,10 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(title, self.refresh(sv).value)
 
     def test_type_int(self):
-        sk = SettingKey(id='persons-test_model_int', description='Page size',
-                        app_label='persons', type=SettingKey.INT,
-                       )
+        sk = SettingKey(
+            id='persons-test_model_int', description='Page size',
+            app_label='persons', type=SettingKey.INT,
+        )
         self.assertFalse(sk.hidden)
         self.assertFalse(sk.blank)
 
@@ -73,9 +74,10 @@ class SettingValueTestCase(CremeTestCase):
     def test_type_bool(self):
         self.login()
 
-        sk = SettingKey(id='activities-test_model_bool', description='Display logo?',
-                        app_label='activities', type=SettingKey.BOOL,
-                       )
+        sk = SettingKey(
+            id='activities-test_model_bool', description='Display logo?',
+            app_label='activities', type=SettingKey.BOOL,
+        )
         self._register_key(sk)
 
         sv = SettingValue(key=sk)
@@ -86,7 +88,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertIs(sv.value, True)
         self.assertHTMLEqual(
             '<input type="checkbox" checked disabled/>{}'.format(_('Yes')),
-            sv.as_html
+            sv.as_html,
         )
 
         sv.value = False
@@ -96,7 +98,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertIs(sv.value, False)
         self.assertHTMLEqual(
             '<input type="checkbox" disabled/>{}'.format(_('No')),
-            sv.as_html
+            sv.as_html,
         )
 
     def test_type_hour(self):
@@ -136,12 +138,13 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(email, sv.as_html)
 
     def test_blank(self):
-        sk = SettingKey('creme_core-test_model_blank',
-                        description='API key',
-                        app_label='creme_core',
-                        type=SettingKey.STRING,
-                        blank=True,
-                       )
+        sk = SettingKey(
+            'creme_core-test_model_blank',
+            description='API key',
+            app_label='creme_core',
+            type=SettingKey.STRING,
+            blank=True,
+        )
         self._register_key(sk)
 
         sv = SettingValue(key=sk)
@@ -157,12 +160,13 @@ class SettingValueTestCase(CremeTestCase):
         self.assertIsNone(sv.value)
 
     def test_not_blank(self):
-        sk = SettingKey('creme_core-test_model_not_blank',
-                        description='API key',
-                        app_label='creme_core',
-                        type=SettingKey.STRING,
-                        blank=False,
-                       )
+        sk = SettingKey(
+            'creme_core-test_model_not_blank',
+            description='API key',
+            app_label='creme_core',
+            type=SettingKey.STRING,
+            blank=False,
+        )
         self._register_key(sk)
 
         sv = SettingValue(key=sk)
@@ -182,9 +186,10 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(value, sv.value)
 
     def test_bad_value(self):
-        sk = SettingKey(id='persons-test_bad_value', description='Page size',
-                        app_label='persons', type=SettingKey.INT,
-                       )
+        sk = SettingKey(
+            id='persons-test_bad_value', description='Page size',
+            app_label='persons', type=SettingKey.INT,
+        )
         self._register_key(sk)
 
         sv = SettingValue(key=sk)
@@ -194,9 +199,10 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_get_4_key01(self):
         "Key ID."
-        sk = SettingKey(id='activities-test_get_4_key01', description='Display logo?',
-                        app_label='activities', type=SettingKey.BOOL,
-                       )
+        sk = SettingKey(
+            id='activities-test_get_4_key01', description='Display logo?',
+            app_label='activities', type=SettingKey.BOOL,
+        )
         self._register_key(sk)
 
         sv = SettingValue(key=sk)
@@ -219,9 +225,10 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_get_4_key02(self):
         "Key instance."
-        sk = SettingKey(id='activities-test_get_4_key02', description='Display logo?',
-                        app_label='activities', type=SettingKey.BOOL,
-                       )
+        sk = SettingKey(
+            id='activities-test_get_4_key02', description='Display logo?',
+            app_label='activities', type=SettingKey.BOOL,
+        )
         self._register_key(sk)
 
         sv = SettingValue(key=sk)
@@ -238,9 +245,10 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_get_4_key03(self):
         "Exceptions."
-        sk = SettingKey(id='activities-test_get_4_key03', description='Display logo?',
-                        app_label='activities', type=SettingKey.BOOL,
-                       )
+        sk = SettingKey(
+            id='activities-test_get_4_key03', description='Display logo?',
+            app_label='activities', type=SettingKey.BOOL,
+        )
         self._register_key(sk)
 
         with self.assertRaises(KeyError):
@@ -256,9 +264,10 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_get_4_key04(self):
         "Default value."
-        sk = SettingKey(id='activities-test_get_4_key04', description='Display logo?',
-                        app_label='activities', type=SettingKey.BOOL,
-                       )
+        sk = SettingKey(
+            id='activities-test_get_4_key04', description='Display logo?',
+            app_label='activities', type=SettingKey.BOOL,
+        )
 
         with self.assertLogs(level='CRITICAL') as log_cm:
             sv = SettingValue.objects.get_4_key(sk, default=False)
@@ -271,17 +280,26 @@ class SettingValueTestCase(CremeTestCase):
         self.assertIs(False, sv.value)
 
     def test_get_4_keys01(self):
-        sk1 = SettingKey(id='activities-test_get_4_keys01_1', description='Display logo?',
-                         app_label='activities', type=SettingKey.BOOL,
-                        )
-        sk2 = SettingKey(id='activities-test_get_4_keys02_2', description='Logo size',
-                         app_label='activities', type=SettingKey.INT,
-                        )
+        sk1 = SettingKey(
+            id='activities-test_get_4_keys01_1', description='Display logo?',
+            app_label='activities', type=SettingKey.BOOL,
+        )
+        sk2 = SettingKey(
+            id='activities-test_get_4_keys02_2', description='Logo size',
+            app_label='activities', type=SettingKey.INT,
+        )
         self._register_key(sk1)
         self._register_key(sk2)
 
-        stored_sv1 = SettingValue(key=sk1); stored_sv1.value = True; stored_sv1.save()
-        stored_sv2 = SettingValue(key=sk2); stored_sv2.value = 100;  stored_sv2.save()
+        def create_svalue(skey, value):
+            sv = SettingValue(key=skey)
+            sv.value = value
+            sv.save()
+
+            return sv
+
+        stored_sv1 = create_svalue(sk1, True)
+        stored_sv2 = create_svalue(sk2, 100)
 
         pk1 = stored_sv1.pk
         pk2 = stored_sv2.pk
@@ -314,9 +332,10 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_get_4_keys02(self):
         "Exceptions."
-        sk = SettingKey(id='activities-test_get_4_key02_1', description='Display logo?',
-                        app_label='activities', type=SettingKey.BOOL,
-                       )
+        sk = SettingKey(
+            id='activities-test_get_4_key02_1', description='Display logo?',
+            app_label='activities', type=SettingKey.BOOL,
+        )
         self._register_key(sk)
 
         with self.assertRaises(KeyError):
@@ -332,9 +351,10 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_get_4_keys03(self):
         "Default value."
-        sk = SettingKey(id='activities-test_get_4_key03_1', description='Display logo?',
-                        app_label='activities', type=SettingKey.BOOL,
-                       )
+        sk = SettingKey(
+            id='activities-test_get_4_key03_1', description='Display logo?',
+            app_label='activities', type=SettingKey.BOOL,
+        )
 
         with self.assertLogs(level='CRITICAL') as log_cm:
             svalues = SettingValue.objects.get_4_keys({'key': sk, 'default': False})
@@ -523,7 +543,7 @@ class UserSettingValueTestCase(CremeTestCase):
         settings = user.settings
 
         with self.assertRaises(KeyError):
-            settings[sk]
+            settings[sk]  # NOQA
 
         with self.assertRaises(settings.ReadOnlyError):
             settings[sk] = title
@@ -624,15 +644,11 @@ class UserSettingValueTestCase(CremeTestCase):
     def test_multi_save(self):
         user = self.create_user()
 
-        build_key = partial(UserSettingKey, app_label='creme_core',
-                            type=SettingKey.INT, hidden=False,
-                           )
-        sk1 = build_key('creme_core-test_model_int1',
-                        description='Page width',
-                       )
-        sk2 = build_key('creme_core-test_model_int2',
-                        description='Page height',
-                       )
+        build_key = partial(
+            UserSettingKey, app_label='creme_core', type=SettingKey.INT, hidden=False,
+        )
+        sk1 = build_key('creme_core-test_model_int1', description='Page width')
+        sk2 = build_key('creme_core-test_model_int2', description='Page height')
         self._register_key(sk1, sk2)
 
         width = 142
@@ -656,11 +672,12 @@ class UserSettingValueTestCase(CremeTestCase):
     def _aux_test_pop(self):
         user = self.create_user()
 
-        sk = UserSettingKey('creme_core-test_model_int',
-                            description='Page size',
-                            app_label='creme_core',
-                            type=SettingKey.INT, hidden=False,
-                           )
+        sk = UserSettingKey(
+            'creme_core-test_model_int',
+            description='Page size',
+            app_label='creme_core',
+            type=SettingKey.INT, hidden=False,
+        )
         self._register_key(sk)
 
         settings = user.settings
@@ -735,11 +752,12 @@ class UserSettingValueTestCase(CremeTestCase):
     def test_cast_bool(self):
         user = self.create_user()
 
-        sk = UserSettingKey('creme_core-test_model_bool',
-                            description='Page displayed',
-                            app_label='creme_core',
-                            type=SettingKey.BOOL, hidden=False,
-                           )
+        sk = UserSettingKey(
+            'creme_core-test_model_bool',
+            description='Page displayed',
+            app_label='creme_core',
+            type=SettingKey.BOOL, hidden=False,
+        )
         self._register_key(sk)
 
         displayed = 1
@@ -769,16 +787,18 @@ class UserSettingValueTestCase(CremeTestCase):
     def test_as_html(self):
         user = self.create_user()
 
-        sk1 = UserSettingKey('creme_core-test_model_bool',
-                             description='Page displayed',
-                             app_label='creme_core',
-                             type=SettingKey.BOOL, hidden=False,
-                            )
-        sk2 = UserSettingKey('creme_core-test_model_str',
-                             description='Page size',
-                             app_label='creme_core',
-                             type=SettingKey.STRING, hidden=False,
-                            )
+        sk1 = UserSettingKey(
+            'creme_core-test_model_bool',
+            description='Page displayed',
+            app_label='creme_core',
+            type=SettingKey.BOOL, hidden=False,
+        )
+        sk2 = UserSettingKey(
+            'creme_core-test_model_str',
+            description='Page size',
+            app_label='creme_core',
+            type=SettingKey.STRING, hidden=False,
+        )
         self._register_key(sk1, sk2)
 
         with self.assertRaises(KeyError):
