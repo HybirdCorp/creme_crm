@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import CharField, ManyToManyField
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -30,9 +30,10 @@ from .recipient import Recipient
 
 
 class AbstractSMSCampaign(CremeEntity):
-    name  = CharField(_('Name of the campaign'), max_length=100)
-    lists = ManyToManyField(
-        settings.SMS_MLIST_MODEL, verbose_name=_('Related messaging lists'), blank=True,
+    name = models.CharField(_('Name of the campaign'), max_length=100)
+    lists = models.ManyToManyField(
+        settings.SMS_MLIST_MODEL,
+        verbose_name=_('Related messaging lists'), blank=True,
     )
 
     creation_label = pgettext_lazy('sms', 'Create a campaign')

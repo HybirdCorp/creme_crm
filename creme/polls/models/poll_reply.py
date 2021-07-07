@@ -192,7 +192,8 @@ class PollReplyLine(CremeModel, _PollLine):
 
 class PollReplyLineCondition(CremeModel):
     line = models.ForeignKey(
-        PollReplyLine, editable=False, related_name='conditions', on_delete=models.CASCADE,
+        PollReplyLine,
+        editable=False, related_name='conditions', on_delete=models.CASCADE,
     )
     source = models.ForeignKey(PollReplyLine, on_delete=models.CASCADE)
     operator = models.PositiveSmallIntegerField()  # See EQUALS etc...

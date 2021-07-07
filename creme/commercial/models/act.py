@@ -22,16 +22,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.models import (
-    CASCADE,
-    PROTECT,
-    BooleanField,
-    CharField,
-    DateField,
-    ForeignKey,
-    PositiveIntegerField,
-    TextField,
-)
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -53,8 +44,10 @@ _NAME_LENGTH = 100
 
 
 class ActType(CremeModel):
-    title     = CharField(_('Title'), max_length=75)
-    is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    title = models.CharField(_('Title'), max_length=75)
+
+    # Used by creme_config
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('commercial-act_type', 'Create a type')
 
@@ -69,14 +62,22 @@ class ActType(CremeModel):
 
 
 class AbstractAct(CremeEntity):
-    name = CharField(_('Name of the commercial action'), max_length=100)
-    expected_sales = PositiveIntegerField(_('Expected sales'))
-    cost = PositiveIntegerField(_('Cost of the commercial action'), blank=True, null=True)
-    goal = TextField(_('Goal of the action'), blank=True)
-    start = DateField(_('Start'))
-    due_date = DateField(_('Due date'))
-    act_type = ForeignKey(ActType, verbose_name=_('Type'), on_delete=PROTECT)
-    segment = ForeignKey(MarketSegment, verbose_name=_('Related segment'), on_delete=PROTECT)
+    name = models.CharField(_('Name of the commercial action'), max_length=100)
+    expected_sales = models.PositiveIntegerField(_('Expected sales'))
+    cost = models.PositiveIntegerField(
+        _('Cost of the commercial action'), blank=True, null=True,
+    )
+    goal = models.TextField(_('Goal of the action'), blank=True)
+
+    start = models.DateField(_('Start'))
+    due_date = models.DateField(_('Due date'))
+
+    act_type = models.ForeignKey(
+        ActType, verbose_name=_('Type'), on_delete=models.PROTECT,
+    )
+    segment = models.ForeignKey(
+        MarketSegment, verbose_name=_('Related segment'), on_delete=models.PROTECT,
+    )
 
     creation_label = _('Create a commercial action')
     save_label     = _('Save the commercial action')
@@ -100,9 +101,10 @@ class AbstractAct(CremeEntity):
         due_date = self.due_date
 
         if not due_date or not start or due_date < start:
-            raise ValidationError(gettext("Due date can't be before start."),
-                                  code='duedate_before_start',
-                                 )
+            raise ValidationError(
+                gettext("Due date can't be before start."),
+                code='duedate_before_start',
+            )
 
     def get_absolute_url(self):
         return reverse('commercial__view_act', args=(self.id,))
@@ -137,10 +139,11 @@ class AbstractAct(CremeEntity):
 
         if relopps is None:
             relopps = [
-                *get_opportunity_model().objects.filter(is_deleted=False,
-                                                        relations__type=REL_SUB_COMPLETE_GOAL,
-                                                        relations__object_entity=self.id,
-                                                       )
+                *get_opportunity_model().objects.filter(
+                    is_deleted=False,
+                    relations__type=REL_SUB_COMPLETE_GOAL,
+                    relations__object_entity=self.id,
+                ),
             ]
             self._related_opportunities = relopps
 
@@ -154,8 +157,7 @@ class AbstractAct(CremeEntity):
                 counter=objective.counter,
                 counter_goal=objective.counter_goal,
                 ctype=objective.ctype,
-            )
-            for objective in ActObjective.objects.filter(act=source).order_by('id')
+            ) for objective in ActObjective.objects.filter(act=source).order_by('id')
         ])
 
 
@@ -165,19 +167,19 @@ class Act(AbstractAct):
 
 
 class ActObjective(CremeModel):
-    name = CharField(_('Name'), max_length=_NAME_LENGTH)
-    act = ForeignKey(
+    name = models.CharField(_('Name'), max_length=_NAME_LENGTH)
+    act = models.ForeignKey(
         settings.COMMERCIAL_ACT_MODEL, related_name='objectives',
-        editable=False, on_delete=CASCADE,
+        editable=False, on_delete=models.CASCADE,
     )
-    counter = PositiveIntegerField(_('Counter'), default=0, editable=False)
-    counter_goal = PositiveIntegerField(_('Value to reach'), default=1)
+    counter = models.PositiveIntegerField(_('Counter'), default=0, editable=False)
+    counter_goal = models.PositiveIntegerField(_('Value to reach'), default=1)
     ctype = CTypeForeignKey(
         verbose_name=_('Counted type'), null=True, blank=True, editable=False,
     )
-    filter = ForeignKey(
+    filter = models.ForeignKey(
         EntityFilter, verbose_name=_('Filter on counted entities'),
-        null=True, blank=True, on_delete=PROTECT, editable=False,
+        null=True, blank=True, on_delete=models.PROTECT, editable=False,
     )
 
     creation_label = _('Create an objective')
@@ -234,9 +236,11 @@ class ActObjective(CremeModel):
 
 
 class AbstractActObjectivePattern(CremeEntity):
-    name = CharField(_('Name'), max_length=100)
-    average_sales = PositiveIntegerField(_('Average sales'))
-    segment = ForeignKey(MarketSegment, verbose_name=_('Related segment'), on_delete=CASCADE)
+    name = models.CharField(_('Name'), max_length=100)
+    average_sales = models.PositiveIntegerField(_('Average sales'))
+    segment = models.ForeignKey(
+        MarketSegment, verbose_name=_('Related segment'), on_delete=models.CASCADE,
+    )
 
     creation_label = _('Create an objective pattern')
     save_label     = _('Save the objective pattern')
@@ -305,19 +309,23 @@ class ActObjectivePattern(AbstractActObjectivePattern):
 
 
 class ActObjectivePatternComponent(CremeModel):
-    pattern = ForeignKey(
-        ActObjectivePattern, related_name='components', editable=False, on_delete=CASCADE
+    pattern = models.ForeignKey(
+        ActObjectivePattern,
+        related_name='components', editable=False, on_delete=models.CASCADE,
     )
-    parent = ForeignKey(
-        'self', null=True, related_name='children', editable=False, on_delete=CASCADE,
+    parent = models.ForeignKey(
+        'self',
+        null=True, related_name='children', editable=False, on_delete=models.CASCADE,
     )
-    name = CharField(_('Name'), max_length=_NAME_LENGTH)
-    ctype = CTypeForeignKey(verbose_name=_('Counted type'), null=True, blank=True, editable=False)
-    filter = ForeignKey(
+    name = models.CharField(_('Name'), max_length=_NAME_LENGTH)
+    ctype = CTypeForeignKey(
+        verbose_name=_('Counted type'), null=True, blank=True, editable=False,
+    )
+    filter = models.ForeignKey(
         EntityFilter, verbose_name=_('Filter on counted entities'),
-        null=True, blank=True, on_delete=PROTECT, editable=False,
+        null=True, blank=True, on_delete=models.PROTECT, editable=False,
     )
-    success_rate = PositiveIntegerField(_('Success rate'))  # TODO: smallinteger ??
+    success_rate = models.PositiveIntegerField(_('Success rate'))  # TODO: small integer ??
 
     _children_cache = None
 
@@ -365,18 +373,19 @@ class ActObjectivePatternComponent(CremeModel):
         return self.pattern
 
     def clone(self, pattern, parent=None):
-        """Clone the entire hierarchy of the node wherever is it"""
+        """Clone the entire hierarchy of the node wherever is it."""
         own_parent = None
         if self.parent and not parent:
             own_parent = self.parent.clone(pattern)
 
-        me = ActObjectivePatternComponent.objects.create(pattern=pattern,
-                                                         parent=own_parent or parent,
-                                                         name=self.name,
-                                                         ctype_id=self.ctype_id,
-                                                         filter_id=self.filter_id,
-                                                         success_rate=self.success_rate,
-                                                        )
+        me = ActObjectivePatternComponent.objects.create(
+            pattern=pattern,
+            parent=own_parent or parent,
+            name=self.name,
+            ctype_id=self.ctype_id,
+            filter_id=self.filter_id,
+            success_rate=self.success_rate,
+        )
 
         for sub_aopc in self.children.all():
             sub_aopc.clone(pattern, me)

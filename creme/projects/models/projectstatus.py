@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,19 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import CremeModel
-from creme.creme_core.models.fields import BasicAutoField, ColorField
+from creme.creme_core.models import fields as core_fields
 
 
 class ProjectStatus(CremeModel):
-    name        = CharField(_('Name'), max_length=100)
-    color_code  = ColorField(_('Color'), blank=True)
-    description = TextField(_('Description'))
-    order       = BasicAutoField(_('Order'))  # Used by creme_config
+    name = models.CharField(_('Name'), max_length=100)
+    color_code = core_fields.ColorField(_('Color'), blank=True)
+    description = models.TextField(_('Description'))
+    order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
 
     creation_label = pgettext_lazy('projects-project_status', 'Create a status')
 

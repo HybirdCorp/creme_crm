@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, IntegerField
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeModel
@@ -28,9 +28,9 @@ from ..webservice.samoussa import SamoussaBackEnd
 
 
 class SMSAccount(CremeModel):
-    name      = CharField(_('Name'), max_length=200, null=True)
-    credit    = IntegerField(_('Credit'), null=True)
-    groupname = CharField(_('Group'), max_length=200, null=True)
+    name = models.CharField(_('Name'), max_length=200, null=True)
+    credit = models.IntegerField(_('Credit'), null=True)
+    groupname = models.CharField(_('Group'), max_length=200, null=True)
 
     class Meta:
         app_label = 'sms'

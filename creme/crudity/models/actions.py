@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from pickle import dumps, loads
 from typing import Tuple
 
-from django.db.models import BinaryField, CharField
+from django.db import models
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -31,19 +31,19 @@ from creme.creme_core.models import fields as creme_fields
 
 class WaitingAction(CremeModel):
     # Action (i.e: create, update...) # TODO: int instead ??
-    action  = CharField(_('Action'), max_length=100)
+    action = models.CharField(_('Action'), max_length=100)
 
     # TODO: split into 2 CharFields 'fetcher' & 'input' ?
     # NB: - If default backend (subject="*"): fetcher_name.
     #     - If not  'fetcher_name - input_name'  (eg: email - raw, email - infopath, sms - raw...).
-    source  = CharField(_('Source'), max_length=100)
+    source = models.CharField(_('Source'), max_length=100)
 
-    raw_data = BinaryField(blank=True, null=True)  # Pickled data
+    raw_data = models.BinaryField(blank=True, null=True)  # Pickled data
 
     # Redundant, but faster bd recovery
     ct = creme_fields.CTypeForeignKey(verbose_name=_('Type of resource'))
 
-    subject = CharField(_('Subject'), max_length=100)
+    subject = models.CharField(_('Subject'), max_length=100)
 
     # If sandbox per user
     user = creme_fields.CremeUserForeignKey(

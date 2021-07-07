@@ -42,13 +42,13 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractContact(CremeEntity, PersonWithAddressesMixin):
-    civility   = models.ForeignKey(other_models.Civility,
-                                   verbose_name=_('Civility'),
-                                   blank=True, null=True,
-                                   on_delete=CREME_REPLACE_NULL,
-                                  )
+    civility = models.ForeignKey(
+        other_models.Civility,
+        verbose_name=_('Civility'),
+        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+    )
     # NB: same max_length than CremeUser.last_name
-    last_name  = models.CharField(_('Last name'), max_length=100)
+    last_name = models.CharField(_('Last name'), max_length=100)
     # NB: same max_length than CremeUser.first_name
     first_name = models.CharField(_('First name'), max_length=100, blank=True)
 
@@ -61,7 +61,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     position = models.ForeignKey(
         other_models.Position,
-        verbose_name=_('Position'), blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+        verbose_name=_('Position'),
+        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
     ).set_tags(optional=True)
     full_position = models.CharField(
         _('Detailed position'), max_length=500, blank=True,
@@ -69,12 +70,15 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     sector = models.ForeignKey(
         other_models.Sector,
-        verbose_name=_('Line of business'), blank=True, null=True, on_delete=CREME_REPLACE_NULL,
+        verbose_name=_('Line of business'),
+        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
     ).set_tags(optional=True)
 
-    language = models.ManyToManyField(Language, verbose_name=_('Spoken language(s)'),
-                                      blank=True, editable=False,
-                                     ).set_tags(viewable=False)  # TODO: remove this field
+    language = models.ManyToManyField(
+        Language,
+        verbose_name=_('Spoken language(s)'),
+        blank=True, editable=False,
+    ).set_tags(viewable=False)  # TODO: remove this field
 
     is_user = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_('Related user'),
@@ -193,10 +197,10 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         owner = user
 
         if user.is_staff:
-            superuser = type(user)._default_manager \
-                                  .filter(is_superuser=True, is_staff=False) \
-                                  .order_by('id') \
-                                  .first()
+            superuser = type(user)._default_manager.filter(
+                is_superuser=True, is_staff=False,
+            ).order_by('id').first()
+
             if superuser is None:
                 logger.critical(
                     'No existing super-user found to assign the staff Contact '
@@ -236,12 +240,18 @@ def _get_linked_contact(self):
         contacts = model.objects.filter(is_user=self)[:2]
 
         if not contacts:
-            logger.critical('User "%s" has no related Contact => we create it', self.username)
+            logger.critical(
+                'User "%s" has no related Contact => we create it',
+                self.username,
+            )
             contact = model._create_linked_contact(self)
         else:
             if len(contacts) > 1:
                 # TODO: repair ? (beware to race condition)
-                logger.critical('User "%s" has several related Contacts !', self.username)
+                logger.critical(
+                    'User "%s" has several related Contacts !',
+                    self.username,
+                )
 
             contact = contacts[0]
 

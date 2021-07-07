@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import CharField, ManyToManyField
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -27,8 +27,8 @@ from creme.creme_core.models import CremeEntity
 
 
 class AbstractMessagingList(CremeEntity):
-    name = CharField(_('Name of the messaging list'), max_length=80)
-    contacts = ManyToManyField(
+    name = models.CharField(_('Name of the messaging list'), max_length=80)
+    contacts = models.ManyToManyField(
         settings.PERSONS_CONTACT_MODEL,
         verbose_name=_('Contacts recipients'), editable=False,
     )

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import ValidationError
-from django.db.models import CharField, TextField
+from django.db import models
 from django.urls import reverse
 from django.utils.functional import lazy
 from django.utils.translation import gettext
@@ -34,9 +34,9 @@ SPECIAL_CHARS = '^ { } \\ [ ~ ] | €'  # TODO: given by the backend ?
 
 
 class AbstractMessageTemplate(CremeEntity):
-    name = CharField(_('Name'), max_length=100)
-    subject = CharField(_('Subject'), max_length=100)
-    body = TextField(
+    name = models.CharField(_('Name'), max_length=100)
+    subject = models.CharField(_('Subject'), max_length=100)
+    body = models.TextField(
         # _('Body'),
         pgettext_lazy('sms', 'Message body'),
         help_text=lazy(
