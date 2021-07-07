@@ -265,7 +265,7 @@ class FieldsConfigsBrick(PaginatedBrick):
         fconfigs.sort(key=lambda fconf: sort_key(str(fconf.content_type)))
 
         used_models = {fconf.content_type.model_class() for fconf in fconfigs}
-        is_model_valid = FieldsConfig.objects.is_model_valid
+        is_model_valid = FieldsConfig.objects.has_configurable_fields
         registry = self.fields_config_registry
         btc = self.get_template_context(
             context, fconfigs,

@@ -20,6 +20,7 @@
 
 import logging
 # import warnings
+import warnings
 from functools import partial
 from itertools import chain
 from json import loads as json_load
@@ -119,9 +120,9 @@ class FieldsConfigManager(models.Manager):
     def get_for_model(self, model: Type['Model']) -> 'FieldsConfig':
         return self.get_for_models((model,))[model]
 
-    def get_for_models(
-            self,
-            models: Sequence[Type['Model']]) -> Dict[Type['Model'], 'FieldsConfig']:
+    def get_for_models(self,
+                       models: Sequence[Type['Model']],
+                       ) -> Dict[Type['Model'], 'FieldsConfig']:
         result = {}
         get_ct = ContentType.objects.get_for_model
         cache_key_fmt = 'creme_core-fields_config-{}'.format
@@ -135,7 +136,8 @@ class FieldsConfigManager(models.Manager):
             fc = cache.get(cache_key_fmt(ct.id))
 
             if fc is None:
-                if self.is_model_valid(model):  # Avoid useless queries
+                # if self.is_model_valid(model):  # Avoid useless queries
+                if self.has_configurable_fields(model):  # Avoid useless queries
                     not_cached_ctypes.append(ct)
             else:
                 result[model] = fc
@@ -156,9 +158,18 @@ class FieldsConfigManager(models.Manager):
 
         return result
 
+    def has_configurable_fields(self, model: Type['Model']) -> bool:
+        return any(self.configurable_fields(model))
+
     def is_model_valid(self, model: Type['Model']) -> bool:
         # return any(self.field_enumerator(model))
-        return any(self.configurable_fields(model))
+        warnings.warn(
+            'FieldsConfigManager.is_model_valid() is deprecated ; '
+            'use has_configurable_fields() instead.',
+            DeprecationWarning,
+        )
+
+        return self.has_configurable_fields(model)
 
 
 class FieldsConfig(CremeModel):
