@@ -388,7 +388,7 @@ class DeletionForm(CremeModelForm):
 
                 handlers.append(handler_cls(
                     model_field=related_field,
-                    model_field_hidden=self.fields_configs.get_4_model(
+                    model_field_hidden=self.fields_configs.get_for_model(
                         related_field.model
                     ).is_field_hidden(related_field),
                     instance_to_delete=self.instance_to_delete,

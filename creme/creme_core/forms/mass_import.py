@@ -1190,7 +1190,7 @@ class ImportForm(CremeModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.import_errors = []
-        get_fconf = FieldsConfig.LocalCache().get_4_model
+        get_fconf = FieldsConfig.LocalCache().get_for_model
 
         # def field_excluder(field, deep):
         def field_excluder(model, field, depth):

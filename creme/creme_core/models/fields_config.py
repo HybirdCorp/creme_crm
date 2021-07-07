@@ -202,14 +202,33 @@ class FieldsConfig(CremeModel):
         def __init__(self):
             self._configs = {}
 
-        # TODO: rename get_for_model
         def get_4_model(self, model: Type['Model']) -> 'FieldsConfig':
-            return self.get_4_models((model,))[model]
+            # return self.get_4_models((model,))[model]
+            warnings.warn(
+                'FieldsConfig.LocalCache.get_4_model() is deprecated ; '
+                'use get_for_model() instead.',
+                DeprecationWarning,
+            )
 
-        # TODO: rename get_for_models
-        def get_4_models(
-                self,
-                models: Iterable[Type['Model']]) -> Dict[Type['Model'], 'FieldsConfig']:
+            return self.get_for_model(model)
+
+        def get_for_model(self, model: Type['Model']) -> 'FieldsConfig':
+            return self.get_for_models((model,))[model]
+
+        def get_4_models(self,
+                         models: Iterable[Type['Model']],
+                         ) -> Dict[Type['Model'], 'FieldsConfig']:
+            warnings.warn(
+                'FieldsConfig.LocalCache.get_4_models() is deprecated ; '
+                'use get_for_models() instead.',
+                DeprecationWarning,
+            )
+
+            return self.get_for_models(models)
+
+        def get_for_models(self,
+                           models: Iterable[Type['Model']],
+                           ) -> Dict[Type['Model'], 'FieldsConfig']:
             result = {}
             configs = self._configs
             missing_models = []
@@ -242,7 +261,7 @@ class FieldsConfig(CremeModel):
                 if field.is_relation:
                     related_model = field.remote_field.model
 
-            fconfigs = self.get_4_models(
+            fconfigs = self.get_for_models(
                 {field_n_model[1] for field_n_model in fields_n_models}
             )
 

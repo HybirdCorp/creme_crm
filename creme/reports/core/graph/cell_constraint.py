@@ -101,7 +101,7 @@ class GHCCRegularField(GraphHandCellConstraint):
         if not field.get_tag(FieldTag.VIEWABLE):  # TODO: test
             return False
 
-        if self.fields_configs.get_4_model(model).is_field_hidden(field):
+        if self.fields_configs.get_for_model(model).is_field_hidden(field):
             cell = EntityCellRegularField.build(model, field.name)
             return cell.key in not_hiddable_cell_keys
 
@@ -418,7 +418,7 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         if not field.get_tag(FieldTag.VIEWABLE):  # TODO: test
             return False
 
-        if self.fields_configs.get_4_model(model).is_field_hidden(field):
+        if self.fields_configs.get_for_model(model).is_field_hidden(field):
             cell = EntityCellRegularField.build(model, field.name)
             return cell.key in not_hiddable_cell_keys
 

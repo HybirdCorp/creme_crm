@@ -202,7 +202,12 @@ class _RGHRegularField(ReportGraphHand):
         else:
             field = cell.field_info[0]
 
-            if graph.linked_report._fields_configs.get_4_model(graph.model).is_field_hidden(field):
+            if (
+                graph.linked_report
+                     ._fields_configs
+                     .get_for_model(graph.model)
+                     .is_field_hidden(field)
+            ):
                 self.abscissa_error = _('this field should be hidden.')
 
         self._field = field

@@ -330,7 +330,7 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
         # during its next edition.
 
         # TODO: manage FieldsConfig in ModelFieldEnumerator ??
-        get_fconf = FieldsConfig.LocalCache().get_4_model
+        get_fconf = FieldsConfig.LocalCache().get_for_model
 
         non_hiddable_fnames: Dict[Type[CremeEntity], Set[str]] = defaultdict(set)
         cell_class = self.cell_class

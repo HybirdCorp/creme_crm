@@ -216,7 +216,7 @@ class ContactCardHatBrick(Brick):
 
     def detailview_display(self, context):
         contact = context['object']
-        is_hidden = context['fields_configs'].get_4_model(Contact).is_fieldname_hidden
+        is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
@@ -257,7 +257,7 @@ class OrganisationCardHatBrick(Brick):
         user = context['user']
         managed_orgas = Organisation.objects.filter_managed_by_creme()
 
-        get_fconfigs = context['fields_configs'].get_4_model
+        get_fconfigs = context['fields_configs'].get_for_model
         is_hidden = get_fconfigs(Organisation).is_fieldname_hidden
 
         return self._render(self.get_template_context(
@@ -303,7 +303,7 @@ class ManagersBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         orga = context['object']
-        is_hidden = context['fields_configs'].get_4_model(Contact).is_fieldname_hidden
+        is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
@@ -351,7 +351,7 @@ class _AddressesBrick(Brick):
     def get_template_context(self, context, **kwargs):
         person = context['object']
         model = type(person)
-        is_hidden = context['fields_configs'].get_4_model(model).is_field_hidden
+        is_hidden = context['fields_configs'].get_for_model(model).is_field_hidden
 
         def prepare_address(attr_name):
             display_button = display_content = False

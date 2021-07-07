@@ -130,7 +130,7 @@ class RegularFieldsConditionsField(_ConditionsField):
     def _build_related_fields(self, field, fields, fconfigs):
         fname = field.name
         related_model = field.remote_field.model
-        field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
+        field_hidden = fconfigs.get_for_model(field.model).is_field_hidden(field)
         excluded = self.excluded_fields
         non_hiddable_fnames = self._non_hiddable_fnames
 
@@ -141,7 +141,7 @@ class RegularFieldsConditionsField(_ConditionsField):
         ):
             fields[field.name] = [field]
 
-        is_sfield_hidden = fconfigs.get_4_model(related_model).is_field_hidden
+        is_sfield_hidden = fconfigs.get_for_model(related_model).is_field_hidden
 
         for subfield in related_model._meta.fields:
             if (
@@ -174,13 +174,16 @@ class RegularFieldsConditionsField(_ConditionsField):
             model = self._model
             non_hiddable_fnames = self._non_hiddable_fnames
             fconfigs = FieldsConfig.LocalCache()
-            is_field_hidden = fconfigs.get_4_model(model).is_field_hidden
+            is_field_hidden = fconfigs.get_for_model(model).is_field_hidden
             excluded = self.excluded_fields
 
             # TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
             for field in model._meta.fields:
-                if field.get_tag('viewable') and not is_date_field(field) \
-                   and not isinstance(field, excluded):
+                if (
+                    field.get_tag('viewable')
+                    and not is_date_field(field)
+                    and not isinstance(field, excluded)
+                ):
                     if isinstance(field, ModelForeignKey):
                         self._build_related_fields(field, fields, fconfigs)
                     elif not is_field_hidden(field) or field.name in non_hiddable_fnames:
@@ -334,8 +337,8 @@ class DateFieldsConditionsField(_ConditionsField):
     def _build_related_fields(self, field, fields, fconfigs):
         fname = field.name
         related_model = field.remote_field.model
-        field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
-        is_sfield_hidden = fconfigs.get_4_model(related_model).is_field_hidden
+        field_hidden = fconfigs.get_for_model(field.model).is_field_hidden(field)
+        is_sfield_hidden = fconfigs.get_for_model(related_model).is_field_hidden
         non_hiddable_fnames = self._non_hiddable_fnames
 
         for subfield in related_model._meta.fields:
@@ -366,7 +369,7 @@ class DateFieldsConditionsField(_ConditionsField):
             model = self.model
             non_hiddable_fnames = self._non_hiddable_fnames
             fconfigs = FieldsConfig.LocalCache()
-            is_field_hidden = fconfigs.get_4_model(model).is_field_hidden
+            is_field_hidden = fconfigs.get_for_model(model).is_field_hidden
 
             # TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
             for field in model._meta.fields:
