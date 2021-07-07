@@ -1235,19 +1235,21 @@ class ExportingTestCase(CremeTestCase):
         content = response.json()
 
         with self.assertNoException():
-            loaded_fconfigs = content['fields_config']
+            loaded_fconfigs = {
+                d['ctype']: d
+                for d in content['fields_config']
+            }
 
-        self.assertListEqual(
-            [
-                {
-                    'ctype': 'creme_core.fakecontact',
-                    'descriptions': [
-                        [fname1, {'hidden': True}],
-                        [fname2, {'required': True}],
-                    ],
-                },
-            ],
-            loaded_fconfigs,
+        ctype_str = 'creme_core.fakecontact'
+        self.assertDictEqual(
+            {
+                'ctype': ctype_str,
+                'descriptions': [
+                    [fname1, {'hidden': True}],
+                    [fname2, {'required': True}],
+                ],
+            },
+            loaded_fconfigs.get(ctype_str),
         )
 
     def test_customfields(self):
