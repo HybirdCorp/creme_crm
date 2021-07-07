@@ -33,6 +33,7 @@ from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
     CustomFormConfigItem,
+    FieldsConfig,
     HeaderFilter,
     MenuConfigItem,
     RelationBrickItem,
@@ -260,6 +261,12 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
+            for model in (Ticket, TicketTemplate):
+                FieldsConfig.objects.create(
+                    content_type=model,
+                    descriptions=[('description', {FieldsConfig.REQUIRED: True})],
+                )
+
             for i, name in enumerate(
                 [_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')],
                 start=1,
