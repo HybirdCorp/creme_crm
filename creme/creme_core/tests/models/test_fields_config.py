@@ -461,7 +461,15 @@ class FieldsConfigTestCase(CremeTestCase):
             FieldsConfig.objects.get_for_model(model1)
 
     def test_manager_is_model_valid(self):
-        is_valid = FieldsConfig.objects.is_model_valid
+        has_configurable_fields = FieldsConfig.objects.is_model_valid
+        self.assertTrue(has_configurable_fields(FakeContact))
+        self.assertTrue(has_configurable_fields(FakeOrganisation))
+        self.assertTrue(has_configurable_fields(FakeAddress))
+        self.assertFalse(has_configurable_fields(FakeCivility))  # No optional field
+        self.assertFalse(has_configurable_fields(FakeSector))    # Idem
+
+    def test_manager_has_configurable_fields(self):
+        is_valid = FieldsConfig.objects.has_configurable_fields
         self.assertTrue(is_valid(FakeContact))
         self.assertTrue(is_valid(FakeOrganisation))
         self.assertTrue(is_valid(FakeAddress))

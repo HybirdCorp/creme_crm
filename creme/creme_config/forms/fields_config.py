@@ -50,7 +50,10 @@ class FieldsConfigAddForm(CremeModelForm):
 
         # models = [*filter(FieldsConfig.objects.is_model_valid, apps.get_models())]
         models = [
-            *filter(FieldsConfig.objects.is_model_valid, self.fields_config_registry.models),
+            *filter(
+                FieldsConfig.objects.has_configurable_fields,
+                self.fields_config_registry.models,
+            ),
         ]
         # NB: we use <FieldsConfig.objects.get_for_models()> to take advantage of its cache ;
         #     it useful because this constructor can be called several times in a request

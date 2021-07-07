@@ -52,8 +52,9 @@
     ----------------------
         # Deprecations :
             - The class 'creme_core.forms.fields.AjaxModelChoiceField' is deprecated.
-            - The method 'creme_core.models.Job.not_finished_jobs()' is deprecated ;
-              use 'Job.objects.not_finished()' instead.
+            - In 'creme_core.models' :
+                - The method 'job.Job.not_finished_jobs()' is deprecated ; use 'Job.objects.not_finished()' instead.
+                - The method 'fields_config.FieldsConfigManager.is_model_valid()' is deprecated ; use 'has_configurable_fields()' instead.
             - In Javascript:
                 * Some creme.ajax.* functions are now deprecated; use 'creme.ajax.Query' instead:
                     - creme.ajax.ajax()
