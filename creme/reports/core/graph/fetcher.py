@@ -217,7 +217,7 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
 
         # TODO: take model as parameter because field.model could refer the
         #       parent class if the field is inherited (currently only "description")
-        if fields_configs.get_4_model(field.model).is_field_hidden(field):
+        if fields_configs.get_for_model(field.model).is_field_hidden(field):
             return _('The field is hidden.')
 
         return None

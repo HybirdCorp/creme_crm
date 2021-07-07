@@ -515,7 +515,7 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
             field.user = user  # Used by CreatorModelChoiceField for example
 
         self.fields_configs = fc = FieldsConfig.LocalCache()
-        fc.get_4_model(self.instance.__class__).update_form_fields(self.fields)
+        fc.get_for_model(self.instance.__class__).update_form_fields(self.fields)
 
         self._creme_post_init()
 

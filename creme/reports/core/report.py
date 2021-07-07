@@ -599,7 +599,7 @@ class RHAggregateRegularField(RHAggregate):
     def hidden(self):
         rfield = self._report_field
 
-        return rfield.report._fields_configs.get_4_model(
+        return rfield.report._fields_configs.get_for_model(
             rfield.model,
         ).is_fieldname_hidden(
             self._field_name,

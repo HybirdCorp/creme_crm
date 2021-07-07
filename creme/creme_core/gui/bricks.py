@@ -461,7 +461,7 @@ class EntityBrick(Brick):
     def _get_cells(self, entity, context) -> List[EntityCell]:
         model = entity.__class__
         BASE_FIELDS = self.BASE_FIELDS
-        is_hidden = context['fields_configs'].get_4_model(model).is_field_hidden
+        is_hidden = context['fields_configs'].get_for_model(model).is_field_hidden
 
         def build_cell(field_name):
             cell = EntityCellRegularField.build(model=model, name=field_name)

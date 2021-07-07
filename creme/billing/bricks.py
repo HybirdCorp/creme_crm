@@ -159,7 +159,7 @@ class CreditNotesBrick(PaginatedBrick):
 
     def detailview_display(self, context):
         billing_document = context['object']
-        is_hidden = context['fields_configs'].get_4_model(CreditNote).is_fieldname_hidden
+        is_hidden = context['fields_configs'].get_for_model(CreditNote).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
@@ -212,7 +212,7 @@ class ReceivedInvoicesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         person_id = context['object'].id
-        is_hidden = context['fields_configs'].get_4_model(Invoice).is_fieldname_hidden
+        is_hidden = context['fields_configs'].get_for_model(Invoice).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
@@ -242,7 +242,7 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
     def detailview_display(self, context):
         person_id = context['object'].id
         model = self._billing_model
-        is_hidden = context['fields_configs'].get_4_model(model).is_fieldname_hidden
+        is_hidden = context['fields_configs'].get_for_model(model).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
@@ -343,7 +343,7 @@ class BillingPaymentInformationBrick(QuerysetBrick):
     def detailview_display(self, context):
         billing = context['object']
         pi_qs = PaymentInformation.objects.none()
-        hidden = context['fields_configs'].get_4_model(
+        hidden = context['fields_configs'].get_for_model(
             billing.__class__,
         ).is_fieldname_hidden('payment_info')
         organisation = billing.source

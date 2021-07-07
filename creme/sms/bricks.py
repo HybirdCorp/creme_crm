@@ -89,7 +89,7 @@ class ContactsBrick(_RelatedEntitesBrick):
 
     def _update_context(self, context):
         # TODO: in a templatetag ??
-        context['field_hidden'] = context['fields_configs'].get_4_model(
+        context['field_hidden'] = context['fields_configs'].get_for_model(
             get_contact_model(),
         ).is_fieldname_hidden('mobile')
 

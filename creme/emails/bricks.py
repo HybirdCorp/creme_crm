@@ -151,8 +151,9 @@ class ContactsBrick(_RelatedEntitesBrick):
 
     def _update_context(self, context):
         # TODO: in a templatetag ??
-        context['field_hidden'] = context['fields_configs'].get_4_model(Contact) \
-                                                           .is_fieldname_hidden('email')
+        context['field_hidden'] = context[
+            'fields_configs'
+        ].get_for_model(Contact).is_fieldname_hidden('email')
 
 
 class OrganisationsBrick(_RelatedEntitesBrick):
@@ -166,8 +167,9 @@ class OrganisationsBrick(_RelatedEntitesBrick):
         return entity.organisations.all()
 
     def _update_context(self, context):
-        context['field_hidden'] = context['fields_configs'].get_4_model(Organisation) \
-                                                           .is_fieldname_hidden('email')
+        context['field_hidden'] = context[
+            'fields_configs'
+        ].get_for_model(Organisation).is_fieldname_hidden('email')
 
 
 class ChildListsBrick(_RelatedEntitesBrick):

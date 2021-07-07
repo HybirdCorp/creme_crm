@@ -87,7 +87,7 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
 
     def detailview_display(self, context):
         opportunity = context['object']
-        is_hidden = context['fields_configs'].get_4_model(Opportunity).is_fieldname_hidden
+        is_hidden = context['fields_configs'].get_for_model(Opportunity).is_fieldname_hidden
 
         if apps.is_installed('creme.activities'):
             from creme.activities import get_activity_model
@@ -240,7 +240,7 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
-        is_hidden = context['fields_configs'].get_4_model(Opportunity).is_fieldname_hidden
+        is_hidden = context['fields_configs'].get_for_model(Opportunity).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
