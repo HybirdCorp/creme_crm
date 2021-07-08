@@ -541,7 +541,7 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
                 ],
                 key=lambda ct: ct[1],
             ),
-            [*field.widget.choices]
+            [*field.widget.choices],
         )
 
         self.assertEqual(ct1, clean(ct1.id))
@@ -631,9 +631,9 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
 
         clean = field.clean
         self.assertEqual(ct1, clean(ct1.id))
-        self.assertFieldValidationError(EntityCTypeChoiceField,
-                                        'invalid_choice', clean, self.ct2.id,
-                                       )
+        self.assertFieldValidationError(
+            EntityCTypeChoiceField, 'invalid_choice', clean, self.ct2.id,
+        )
 
     def test_ctypes02(self):
         "Setter."
@@ -883,7 +883,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(1,       wchoice[0].value)
 
     def test_choices03(self):
-        'From dict.'
+        """From dict."""
         help_text = 'Stronger than word'
         field = EnhancedMultipleChoiceField(
             choices=[
@@ -913,13 +913,13 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(help_text, wid2.help)
 
     def test_choices04(self):
-        'Dict + callable.'
-        help = 'Stronger than word'
+        """Dict + callable."""
+        help_text = 'Stronger than word'
 
         def _choices():
             return [
                 {'value': 1, 'label': 'Sword'},
-                {'value': 2, 'label': 'Axes', 'help': help},
+                {'value': 2, 'label': 'Axes', 'help': help_text},
                 {'value': 3, 'label': 'Spear'},
             ]
 
@@ -935,15 +935,15 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
 
         choice2 = choices[1]
         id2, label2 = choice2
-        self.assertEqual('Axes', label2)
-        self.assertEqual(2,    id2.value)
-        self.assertEqual(help, id2.help)
+        self.assertEqual('Axes',    label2)
+        self.assertEqual(2,         id2.value)
+        self.assertEqual(help_text, id2.help)
 
         wchoice2 = [*field.widget.choices][1]
         self.assertEqual('Axes', wchoice2[1])
         wid2 = wchoice2[0]
         self.assertEqual(2,    wid2.value)
-        self.assertEqual(help, wid2.help)
+        self.assertEqual(help_text, wid2.help)
 
     def test_forced_values01(self):
         "Tuple choices."

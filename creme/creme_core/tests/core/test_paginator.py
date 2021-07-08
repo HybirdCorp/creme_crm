@@ -37,14 +37,15 @@ class FlowPaginatorTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        all_names = [('Rei',     'Ichido'),
-                     ('Gô',      'Reietsu'),
-                     ('Jin',     'Daima'),
-                     ('Kiyoshi', 'Shusse'),
-                     ('Dai',     'Monohoshi'),
-                     ('Yui',     'Kawa'),
-                     ('Chie',    'Uru'),
-                    ]
+        all_names = [
+            ('Rei',     'Ichido'),
+            ('Gô',      'Reietsu'),
+            ('Jin',     'Daima'),
+            ('Kiyoshi', 'Shusse'),
+            ('Dai',     'Monohoshi'),
+            ('Yui',     'Kawa'),
+            ('Chie',    'Uru'),
+        ]
 
         names_orders_map = OrderedDict((n, None) for n in all_names)
         all_names.sort(key=lambda t: t[1])
@@ -262,7 +263,9 @@ class FlowPaginatorTestCase(CremeTestCase):
         self._build_contacts()
 
         contacts = FakeContact.objects.all()
-        paginator = FlowPaginator(contacts, key='birthday', per_page=2, count=len(contacts))
+        paginator = FlowPaginator(
+            contacts, key='birthday', per_page=2, count=len(contacts),
+        )
         info = paginator.page().next_page_info()
         self.assertIn('value', info)
 
@@ -307,24 +310,28 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             info = page.next_page_info()
 
-        self.assertEqual({'type': 'forward',
-                          'key': 'last_name',
-                          'value': contacts[2].last_name,
-                         },
-                         info
-                        )
+        self.assertEqual(
+            {
+                'type': 'forward',
+                'key': 'last_name',
+                'value': contacts[2].last_name,
+            },
+            info,
+        )
 
         # Page 2
         page = paginator.page(info)
         self.assertListEqual([contacts[2], contacts[3]], [*page.object_list])
         self.assertTrue(page.has_next())
         self.assertTrue(page.has_previous())
-        self.assertEqual({'type': 'forward',
-                          'key': 'last_name',
-                          'value': contacts[4].last_name,
-                         },
-                         page.next_page_info()
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'last_name',
+                'value': contacts[4].last_name,
+            },
+            page.next_page_info(),
+        )
 
     def test_next_page02(self):
         "Other key."
@@ -334,12 +341,14 @@ class FlowPaginatorTestCase(CremeTestCase):
         contacts = FakeContact.objects.order_by(key)
         paginator = FlowPaginator(contacts.all(), key=key, per_page=2, count=len(contacts))
         page = paginator.page()
-        self.assertEqual({'type': 'forward',
-                          'key': key,
-                          'value': contacts[2].first_name,
-                         },
-                         page.next_page_info()
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': key,
+                'value': contacts[2].first_name,
+            },
+            page.next_page_info(),
+        )
 
     def test_next_page03(self):
         "OFFSET."
@@ -357,23 +366,27 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page.has_previous())
 
         info = page.next_page_info()
-        self.assertEqual({'type': 'forward',
-                          'key': 'last_name',
-                          'value': contacts[1].last_name,
-                          'offset': 2,
-                         },
-                         info
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'last_name',
+                'value': contacts[1].last_name,
+                'offset': 2,
+            },
+            info,
+        )
 
         # ------------
         page = paginator.page(info)
         self.assertListEqual(contacts[3:6], [*page.object_list])
-        self.assertEqual({'type': 'forward',
-                          'key': 'last_name',
-                          'value': contacts[6].last_name,
-                         },
-                         page.next_page_info()
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'last_name',
+                'value': contacts[6].last_name,
+            },
+            page.next_page_info(),
+        )
 
     def test_next_page04(self):
         "Cumulate OFFSET (many duplicates)."
@@ -392,24 +405,28 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             info2 = page2.next_page_info()
 
-        self.assertEqual({'type': 'forward',
-                          'key': 'last_name',
-                          'value': contacts[6].last_name,
-                          'offset': 5,  # 2 + 3
-                         },
-                         info2
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'last_name',
+                'value': contacts[6].last_name,
+                'offset': 5,  # 2 + 3
+            },
+            info2,
+        )
 
         # Page 3: no duplicates anymore => offset = 0
         page3 = paginator.page(info2)
         self.assertListEqual(contacts[6:9], [*page3.object_list])
-        self.assertEqual({'type': 'forward',
-                          'key': 'last_name',
-                          'value': contacts[9].last_name,
-                          # 'offset': 0,
-                         },
-                         page3.next_page_info()
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'last_name',
+                'value': contacts[9].last_name,
+                # 'offset': 0,
+            },
+            page3.next_page_info(),
+        )
 
     def test_last_page01(self):
         self._build_contacts()
@@ -418,11 +435,11 @@ class FlowPaginatorTestCase(CremeTestCase):
         count = len(contacts)
         paginator = FlowPaginator(contacts, key='last_name', per_page=2, count=count)
 
-        page = paginator.page({'type': 'forward',
-                               'key': 'last_name',
-                               'value': contacts[count - 2].last_name,
-                              }
-                             )
+        page = paginator.page({
+            'type': 'forward',
+            'key': 'last_name',
+            'value': contacts[count - 2].last_name,
+        })
         self.assertEqual(2, len(page))
 
         self.assertIs(page.has_next(), False)
@@ -441,19 +458,22 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page.has_next())
         self.assertTrue(page.has_previous())
         self.assertListEqual(contacts[4:], [*page.object_list])
-        self.assertDictEqual({'type': 'backward',
-                              'key': 'last_name',
-                              'value': contacts[4].last_name,
-                             },
-                             page.previous_page_info()
-                            )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': 'last_name',
+                'value': contacts[4].last_name,
+            },
+            page.previous_page_info(),
+        )
 
     def test_last_page03(self):
         "Go directly to the last page, but it is the only page."
         create_contact = partial(FakeContact.objects.create, user=self.user)
-        contacts = [create_contact(first_name='Rei', last_name='Ichido'),
-                    create_contact(first_name='Yui', last_name='Kawa'),
-                   ]
+        contacts = [
+            create_contact(first_name='Rei', last_name='Ichido'),
+            create_contact(first_name='Yui', last_name='Kawa'),
+        ]
 
         paginator = FlowPaginator(FakeContact.objects.all(), key='last_name', per_page=2, count=2)
         page = paginator.last_page()
@@ -515,39 +535,43 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         # Page 2
         page2 = paginator.page(page1.next_page_info())
-        self.assertEqual({'type': 'backward',
-                          'key': 'last_name',
-                          'value': contacts[2].last_name,
-                         },
-                         page2.previous_page_info()
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': 'last_name',
+                'value': contacts[2].last_name,
+            },
+            page2.previous_page_info(),
+        )
 
         # Page 3
         page3 = paginator.page(page2.next_page_info())
         info2a = page3.previous_page_info()
-        self.assertEqual({'type': 'backward',
-                          'key': 'last_name',
-                          'value': contacts[4].last_name,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': 'last_name',
+                'value': contacts[4].last_name,
+            },
+            info2a,
+        )
 
         # Page 2 again
         paginator = FlowPaginator(contacts.all(), key='last_name', per_page=2, count=len(contacts))
         page2a = paginator.page(info2a)
-        self.assertListEqual([contacts[2], contacts[3]],
-                             [*page2a.object_list]
-                            )
+        self.assertListEqual([contacts[2], contacts[3]], [*page2a.object_list])
         self.assertTrue(page2a.has_next())
         self.assertTrue(page2a.has_previous())
 
         info1a = page2a.previous_page_info()
-        self.assertEqual({'type': 'backward',
-                          'key': 'last_name',
-                          'value': contacts[2].last_name,
-                         },
-                         info1a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': 'last_name',
+                'value': contacts[2].last_name,
+            },
+            info1a,
+        )
 
         # Page 1 again
         with self.assertRaises(FirstPage):
@@ -566,12 +590,14 @@ class FlowPaginatorTestCase(CremeTestCase):
         page3 = paginator.page(page2.next_page_info())
 
         info = page3.previous_page_info()
-        self.assertEqual({'type': 'backward',
-                          'key': key,
-                          'value': contacts[4].first_name,
-                         },
-                         info
-                        )
+        self.assertEqual(
+            {
+                'type': 'backward',
+                'key': key,
+                'value': contacts[4].first_name,
+            },
+            info,
+        )
 
         # Page 2 again
         page2a = paginator.page(info)
@@ -594,13 +620,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             info2a = page3.previous_page_info()
 
-        self.assertEqual({'type': 'backward',
-                          'key': 'last_name',
-                          'value': contacts[5].last_name,  # == contacts[6 7].last_name
-                          'offset': 1,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': 'last_name',
+                'value': contacts[5].last_name,  # == contacts[6 7].last_name
+                'offset': 1,
+            },
+            info2a,
+        )
 
         page2a = paginator.page(info2a)
         self.assertListEqual(contacts[3:6], [*page2a.object_list])
@@ -631,13 +659,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             page3.previous_page_info()  # Cache query
 
-        self.assertEqual({'type': 'backward',
-                          'key': key,
-                          'value': contacts[5].last_name,  # == contacts[6 .. 10].last_name
-                          'offset': 4,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': key,
+                'value': contacts[5].last_name,  # == contacts[6 .. 10].last_name
+                'offset': 4,
+            },
+            info2a,
+        )
 
         page2a = paginator.page(info2a)
         self.assertListEqual(contacts[3:6], [*page2a.object_list])
@@ -665,13 +695,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertNumQueries(1):
             info3a = page4.previous_page_info()
 
-        self.assertEqual({'type': 'backward',
-                          'key': 'last_name',
-                          'value': contacts[5].last_name,  # == contacts[6 .. 12].last_name
-                          'offset': 3,
-                         },
-                         info3a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': 'last_name',
+                'value': contacts[5].last_name,  # == contacts[6 .. 12].last_name
+                'offset': 3,
+            },
+            info3a,
+        )
 
         page3a = paginator.page(info3a)
         self.assertListEqual(contacts[6:9], [*page3a.object_list])
@@ -681,13 +713,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             info2a = page3a.previous_page_info()
 
-        self.assertEqual({'type': 'backward',
-                          'key': 'last_name',
-                          'value': contacts[5].last_name,  # Idem
-                          'offset': 6,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': 'last_name',
+                'value': contacts[5].last_name,  # Idem
+                'offset': 6,
+            },
+            info2a,
+        )
 
         page2a = paginator.page(info2a)
         self.assertListEqual(contacts[3:6], [*page2a.object_list])
@@ -712,13 +746,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[6:9], [*page3a.object_list])
 
         info2a = page3a.previous_page_info()
-        self.assertEqual({'type': 'backward',
-                          'key': 'last_name',
-                          'value': contacts[6].last_name,
-                          'offset': 2,  # not 5 !
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': 'last_name',
+                'value': contacts[6].last_name,
+                'offset': 2,  # not 5 !
+            },
+            info2a,
+        )
 
         page2a = paginator.page(info2a)
         self.assertListEqual(contacts[3:6], [*page2a.object_list])
@@ -726,7 +762,9 @@ class FlowPaginatorTestCase(CremeTestCase):
     def test_previous_page07(self):
         "Duplicates at end + last_page => 0-__backward__-offset."
         last_name = 'Ichido'
-        create_contact = partial(FakeContact.objects.create, user=self.user, last_name=last_name)
+        create_contact = partial(
+            FakeContact.objects.create, user=self.user, last_name=last_name,
+        )
         for i in range(1, 8):
             create_contact(first_name=f'Rei #{i}')
 
@@ -742,7 +780,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         page3 = paginator.page(page2.next_page_info())
         self.assertListEqual(
             contacts[2:4],
-            [*paginator.page(page3.previous_page_info()).object_list]
+            [*paginator.page(page3.previous_page_info()).object_list],
         )
 
         # Going from the last page
@@ -750,13 +788,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[5:], [*last_page.object_list])
 
         info = last_page.previous_page_info()
-        self.assertEqual({'type': 'backward',
-                          'key': key,
-                          'value': last_name,
-                          'offset': 1,
-                         },
-                         info
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': key,
+                'value': last_name,
+                'offset': 1,
+            },
+            info,
+        )
 
         before_last_page = paginator.page(info)
         self.assertListEqual(contacts[3:5], [*before_last_page.object_list])
@@ -785,13 +825,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             page2a.next_page_info()  # Cache query
 
-        self.assertEqual({'type': 'forward',
-                          'key': 'last_name',
-                          'value': contacts[2].last_name,
-                          'offset': 4,
-                         },
-                         info3a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'last_name',
+                'value': contacts[2].last_name,
+                'offset': 4,
+            },
+            info3a,
+        )
 
         page3a = paginator.page(info3a)
         self.assertListEqual(contacts[6:9], [*page3a.object_list])
@@ -810,24 +852,28 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page1.has_previous())
 
         info = page1.next_page_info()
-        self.assertEqual({'type': 'forward',
-                          'key': '-last_name',
-                          'value': contacts[2].last_name,
-                         },
-                         info
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': '-last_name',
+                'value': contacts[2].last_name,
+            },
+            info,
+        )
 
         # Page 2
         page2 = paginator.page(info)
         self.assertEqual([contacts[2], contacts[3]], [*page2.object_list])
         self.assertTrue(page2.has_next())
         self.assertTrue(page2.has_previous())
-        self.assertEqual({'type': 'forward',
-                          'key': '-last_name',
-                          'value': contacts[4].last_name,
-                         },
-                         page2.next_page_info()
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': '-last_name',
+                'value': contacts[4].last_name,
+            },
+            page2.next_page_info(),
+        )
 
     def test_desc02(self):
         "Previous page."
@@ -844,24 +890,28 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertTrue(page3.has_previous())
 
         info2a = page3.previous_page_info()
-        self.assertEqual({'type': 'backward',
-                          'key': '-last_name',
-                          'value': contacts[4].last_name,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': '-last_name',
+                'value': contacts[4].last_name,
+            },
+            info2a,
+        )
 
         # Page 2
         page2a = paginator.page(info2a)
         self.assertListEqual(contacts[2:4], [*page2a.object_list])
         self.assertTrue(page2a.has_next())
         self.assertTrue(page2a.has_previous())
-        self.assertEqual({'type': 'backward',
-                          'key': '-last_name',
-                          'value': contacts[2].last_name,
-                         },
-                         page2a.previous_page_info()
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': '-last_name',
+                'value': contacts[2].last_name,
+            },
+            page2a.previous_page_info(),
+        )
 
     def test_info01(self):
         self._build_contacts()
@@ -885,23 +935,27 @@ class FlowPaginatorTestCase(CremeTestCase):
         # Page 2
         page2 = paginator.page(page1.next_page_info())
         info2 = page2.info()
-        self.assertEqual({'type': 'forward',
-                          'key': key,
-                          'value': contacts[2].last_name,
-                         },
-                         info2
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': key,
+                'value': contacts[2].last_name,
+            },
+            info2,
+        )
         self.assertListEqual(contacts[2:4], [*paginator.page(info2).object_list])
 
         # Page 3
         page3 = paginator.page(page2.next_page_info())
         info3 = page3.info()
-        self.assertEqual({'type': 'forward',
-                          'key': key,
-                          'value': contacts[4].last_name,
-                         },
-                         info3
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': key,
+                'value': contacts[4].last_name,
+            },
+            info3,
+        )
         self.assertListEqual(contacts[4:6], [*paginator.page(info3).object_list])
 
     def test_info02(self):
@@ -910,7 +964,9 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         qs = FakeContact.objects.all()
         contacts = [*qs]
-        paginator = FlowPaginator(qs.all(), key='last_name', per_page=2, count=len(contacts))
+        paginator = FlowPaginator(
+            qs.all(), key='last_name', per_page=2, count=len(contacts),
+        )
 
         info = paginator.last_page().info()
         self.assertEqual({'type': 'last', 'key': 'last_name'}, info)
@@ -928,16 +984,20 @@ class FlowPaginatorTestCase(CremeTestCase):
         qs = FakeContact.objects.order_by(key)
         contacts = [*qs]
 
-        paginator = FlowPaginator(qs.all(), key=key, per_page=2, count=len(contacts))
+        paginator = FlowPaginator(
+            qs.all(), key=key, per_page=2, count=len(contacts),
+        )
 
         page1 = paginator.page()
         page2 = paginator.page(page1.next_page_info())
-        self.assertEqual({'type': 'forward',
-                          'key': key,
-                          'value': contacts[2].first_name,
-                         },
-                         page2.info()
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': key,
+                'value': contacts[2].first_name,
+            },
+            page2.info(),
+        )
 
     def test_info04(self):
         "Backward."
@@ -954,12 +1014,14 @@ class FlowPaginatorTestCase(CremeTestCase):
         page3 = paginator.page(page2.next_page_info())
 
         info2a = paginator.page(page3.previous_page_info()).info()
-        self.assertEqual({'type': 'backward',
-                          'key': key,
-                          'value': contacts[4].last_name,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': key,
+                'value': contacts[4].last_name,
+            },
+            info2a,
+        )
 
         page2a = paginator.page(info2a)
         self.assertListEqual(contacts[2:4], [*page2a.object_list])
@@ -973,17 +1035,21 @@ class FlowPaginatorTestCase(CremeTestCase):
         qs = FakeContact.objects.order_by('last_name', 'id')
         contacts = [*qs]
 
-        paginator = FlowPaginator(qs, key='last_name', per_page=3, count=len(contacts))
+        paginator = FlowPaginator(
+            qs, key='last_name', per_page=3, count=len(contacts),
+        )
         page1 = paginator.page()
 
         info2 = paginator.page(page1.next_page_info()).info()
-        self.assertEqual({'type': 'forward',
-                          'key': 'last_name',
-                          'value': contacts[3].last_name,
-                          'offset': 2,
-                         },
-                         info2
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'last_name',
+                'value': contacts[3].last_name,
+                'offset': 2,
+            },
+            info2,
+        )
 
         page2 = paginator.page(info2)
         self.assertListEqual(contacts[3:6], [*page2.object_list])
@@ -1004,13 +1070,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         page3 = paginator.page(page2.next_page_info())
 
         info2a = paginator.page(page3.previous_page_info()).info()
-        self.assertEqual({'type': 'backward',
-                          'key': key,
-                          'value': contacts[3].last_name,
-                          'offset': 1,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': key,
+                'value': contacts[3].last_name,
+                'offset': 1,
+            },
+            info2a,
+        )
 
         page2a = paginator.page(info2a)
         self.assertListEqual(contacts[3:6], [*page2a.object_list])
@@ -1022,13 +1090,15 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         # Page 3 again
         info3a = page2a.next_page_info()
-        self.assertEqual({'type': 'forward',
-                          'key': key,
-                          'value': contacts[3].last_name,
-                          'offset': 3,
-                         },
-                         info3a
-                        )
+        self.assertEqual(
+            {
+                'type': 'forward',
+                'key': key,
+                'value': contacts[3].last_name,
+                'offset': 3,
+            },
+            info3a,
+        )
 
         self.assertListEqual(contacts[6:9], [*paginator.page(info3a).object_list])
 
@@ -1038,19 +1108,23 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         qs = FakeContact.objects.order_by('-last_name')
         contacts = [*qs]
-        paginator = FlowPaginator(qs.all(), key='-last_name', per_page=2, count=len(contacts))
+        paginator = FlowPaginator(
+            qs.all(), key='-last_name', per_page=2, count=len(contacts),
+        )
 
         page1 = paginator.page()
         self.assertEqual({'type': 'first'}, page1.info())
 
         page2 = paginator.page(page1.next_page_info())
         info2a = page2.info()
-        self.assertEqual({'type': 'forward',
-                          'key': '-last_name',
-                          'value': contacts[2].last_name,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': '-last_name',
+                'value': contacts[2].last_name,
+            },
+            info2a,
+        )
 
         # Page 2
         page2a = paginator.page(info2a)
@@ -1071,30 +1145,36 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page1.has_previous())
 
         info2 = page1.next_page_info()
-        self.assertEqual({'type': 'forward',
-                          'key': 'birthday',
-                          'value': '1981-03-12',
-                         },
-                         info2
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'birthday',
+                'value': '1981-03-12',
+            },
+            info2,
+        )
 
         # Page 2
         page2 = paginator.page(info2)
         self.assertListEqual(contacts[2:4], [*page2.object_list])
         self.assertTrue(page2.has_next())
         self.assertTrue(page2.has_previous())
-        self.assertEqual({'type': 'forward',
-                          'key': 'birthday',
-                          'value': '1981-03-12',
-                         },
-                         page2.info()
-                        )
-        self.assertEqual({'type': 'backward',
-                          'key': 'birthday',
-                          'value': '1981-03-12',
-                         },
-                         page2.previous_page_info()
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'birthday',
+                'value': '1981-03-12',
+            },
+            page2.info()
+        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': 'birthday',
+                'value': '1981-03-12',
+            },
+            page2.previous_page_info(),
+        )
 
     def test_serialize_datetime_field(self):
         self._build_contacts()
@@ -1102,9 +1182,10 @@ class FlowPaginatorTestCase(CremeTestCase):
         for minute, contact in enumerate(
             self._qs_2_shuffled_list(FakeContact.objects.all()), start=1,
         ):
-            contact.created = self.create_datetime(year=2016, month=3, day=24, hour=15,
-                                                   minute=minute, utc=True,
-                                                  )
+            contact.created = self.create_datetime(
+                utc=True,
+                year=2016, month=3, day=24, hour=15, minute=minute,
+            )
             contact.save()
 
         qs = FakeContact.objects.order_by('created')
@@ -1114,12 +1195,14 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[:2], [*page1.object_list])
 
         info2 = page1.next_page_info()
-        self.assertEqual({'type': 'forward',
-                          'key': 'created',
-                          'value': '2016-03-24T15:03:00.000000Z',
-                         },
-                         info2
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': 'created',
+                'value': '2016-03-24T15:03:00.000000Z',
+            },
+            info2,
+        )
         self.assertListEqual(contacts[2:4], [*paginator.page(info2).object_list])
 
     def test_serialize_decimal_field(self):
@@ -1139,12 +1222,14 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertEqual(lines[:2], [*page1.object_list])
 
         info2 = page1.next_page_info()
-        self.assertEqual({'type': 'forward',
-                          'key': key,
-                          'value': '12.60',
-                         },
-                         info2
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': key,
+                'value': '12.60',
+            },
+            info2,
+        )
         self.assertEqual(lines[2:4], [*paginator.page(info2).object_list])
 
     def test_none_value01(self):
@@ -1171,13 +1256,15 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         # Page 3
         info3 = page2.next_page_info()
-        self.assertEqual({'type': 'forward',
-                          'key': key,
-                          'value': None,
-                          'offset': 1,
-                         },
-                         info3
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'key': key,
+                'value': None,
+                'offset': 1,
+            },
+            info3,
+        )
 
         page3 = paginator.page(info3)
         self.assertListEqual(contacts[4:6], [*page3.object_list])
@@ -1185,13 +1272,15 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         # Page 2 again (test backward)
         info2a = page3.previous_page_info()
-        self.assertEqual({'type': 'backward',
-                          'key': key,
-                          'value': None,
-                          'offset': 2,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': key,
+                'value': None,
+                'offset': 2,
+            },
+            info2a,
+        )
 
         page2a = paginator.page(info2a)
         self.assertListEqual(contacts[2:4], [*page2a.object_list])
@@ -1245,9 +1334,10 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[-4:-2], [*page3.object_list])
 
         info2 = page3.previous_page_info()
-        self.assertEqual({'type': 'backward', 'value': None, 'key': 'birthday'},
-                         info2
-                        )
+        self.assertDictEqual(
+            {'type': 'backward', 'value': None, 'key': 'birthday'},
+            info2,
+        )
 
         page2 = paginator.page(info2)
         self.assertListEqual(contacts[-6:-4], [*page2.object_list])
@@ -1267,13 +1357,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[-2:], [*last_page.object_list])
 
         info = last_page.previous_page_info()
-        self.assertEqual({'type': 'backward',
-                          'key': key,
-                          'value': None,
-                          'offset': 1,
-                         },
-                         info
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'key': key,
+                'value': None,
+                'offset': 1,
+            },
+            info,
+        )
 
         before_last_page = paginator.page(info)
         self.assertListEqual(
@@ -1291,9 +1383,10 @@ class FlowPaginatorTestCase(CremeTestCase):
         s2 = create_sector(title='Volley ball', order=1)
         s3 = create_sector(title='Golf',        order=2)
 
-        for sector, contact in zip([s1, s2, s2, s2, s3, s3],
-                                   self._qs_2_shuffled_list(FakeContact.objects.all())
-                                  ):
+        for sector, contact in zip(
+            [s1, s2, s2, s2, s3, s3],
+            self._qs_2_shuffled_list(FakeContact.objects.all()),
+        ):
             contact.sector = sector
             contact.save()
 
@@ -1304,15 +1397,20 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         key = 'sector'
         qs = FakeContact.objects.order_by(key, 'id')
-        self.assertRegex(self._get_sql(qs),
-                         r'ORDER BY '
-                         r'.creme_core_fakesector.\..order. ASC( NULLS FIRST)?\, '
-                         r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
-                        )
+        self.assertRegex(
+            self._get_sql(qs),
+            r'ORDER BY '
+            r'.creme_core_fakesector.\..order. ASC( NULLS FIRST)?\, '
+            r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$',
+        )
 
         contacts = [*qs]
-        self.assertListEqual(contacts, [*FakeContact.objects.order_by('sector__order', 'id')])
-        self.assertNotEqual(contacts, [*FakeContact.objects.order_by('sector__pk', 'id')])
+        self.assertListEqual(
+            contacts, [*FakeContact.objects.order_by('sector__order', 'id')],
+        )
+        self.assertNotEqual(
+            contacts, [*FakeContact.objects.order_by('sector__pk', 'id')],
+        )
 
         paginator = FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
         page1 = paginator.page()
@@ -1321,13 +1419,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertNumQueries(1):
             info2 = page1.next_page_info()
 
-        self.assertEqual({'type': 'forward',
-                          'value': 1,  # == s2.order
-                          'key': key,
-                          'offset': 1,
-                         },
-                         info2
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'value': 1,  # == s2.order
+                'key': key,
+                'offset': 1,
+            },
+            info2,
+        )
 
         page2 = paginator.page(info2)
         self.assertListEqual(contacts[2:4], [*page2.object_list])
@@ -1344,23 +1444,23 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         # Previous -----------
         info2a = page3.previous_page_info()
-        self.assertEqual({'type': 'backward',
-                          'value': 2,
-                          'key': key,
-                          'offset': 1,
-                         },
-                         info2a
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'backward',
+                'value': 2,
+                'key': key,
+                'offset': 1,
+            },
+            info2a,
+        )
         self.assertListEqual(contacts[2:4], [*paginator.page(info2a).object_list])
 
         # Info() -------------
         info3a = page3.info()
-        self.assertEqual({'type': 'forward',
-                          'value': 2,
-                          'key': key,
-                         },
-                         info3a
-                        )
+        self.assertDictEqual(
+            {'type': 'forward', 'value': 2, 'key': key},
+            info3a,
+        )
         self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
 
     def test_fk02(self):
@@ -1377,13 +1477,15 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[:2], [*page1.object_list])
 
         info2 = page1.next_page_info()
-        self.assertEqual({'type': 'forward',
-                          'value': 1,  # == s2.order
-                          'key': key,
-                          'offset': 1,
-                         },
-                         info2
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'value': 1,  # == s2.order
+                'key': key,
+                'offset': 1,
+            },
+            info2,
+        )
 
         page2 = paginator.page(info2)
         self.assertListEqual(contacts[2:4], [*page2.object_list])
@@ -1505,12 +1607,14 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertEqual(docs[:2], [*page1.object_list])
 
         info2 = page1.next_page_info()
-        self.assertEqual({'type': 'forward',
-                          'value': cat2.name,
-                          'key': key,
-                         },
-                         info2
-                        )
+        self.assertDictEqual(
+            {
+                'type': 'forward',
+                'value': cat2.name,
+                'key': key,
+            },
+            info2,
+        )
 
         page2 = paginator.page(info2)
         self.assertEqual(docs[2:4], [*page2.object_list])
@@ -1581,7 +1685,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             paginator.page(page2.previous_page_info())
 
     def test_fk08(self):
-        "Populate FK for previous_info()"
+        "Populate FK for previous_info()."
         self._build_contacts()
         self._add_sectors()
 
@@ -1682,14 +1786,13 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertFalse(page.has_previous())
 
     def test_get_page04(self):
-        "Last page"
+        "Last page."
         self._build_contacts()
-        paginator = FlowPaginator(FakeContact.objects.all(), key='last_name', per_page=3, count=7)
-
-        page = paginator.get_page({'type': 'forward',
-                                   'key': 'last_name',
-                                   'value': 'ZZZZ',
-                                  })
-
+        paginator = FlowPaginator(
+            FakeContact.objects.all(), key='last_name', per_page=3, count=7,
+        )
+        page = paginator.get_page(
+            {'type': 'forward', 'key': 'last_name', 'value': 'ZZZZ'}
+        )
         self.assertFalse(page.has_next())
         self.assertTrue(page.has_previous())

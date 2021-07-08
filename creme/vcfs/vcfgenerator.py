@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,16 +62,19 @@ class VcfGenerator:
 
     def generate_address(self, address):
         fnames = self._address_field_names
-        get_field_value = (lambda fname: '' if fname not in fnames else
-                                         getattr(address, fname) or '')
+        get_field_value = (
+            lambda fname: '' if fname not in fnames else
+                          getattr(address, fname) or ''
+        )
 
-        return VcfAddress(street=get_field_value('address'),
-                          city=get_field_value('city'),
-                          region=get_field_value('department'),
-                          code=get_field_value('zipcode'),
-                          country=get_field_value('country'),
-                          box=get_field_value('po_box'),
-                         )
+        return VcfAddress(
+            street=get_field_value('address'),
+            city=get_field_value('city'),
+            region=get_field_value('department'),
+            code=get_field_value('zipcode'),
+            country=get_field_value('country'),
+            box=get_field_value('po_box'),
+        )
 
     def serialize(self):
         vc = vCard()
@@ -81,9 +84,11 @@ class VcfGenerator:
 
         vc.add('n')
         civility = self.civility
-        vc.n.value = VcfName(family=last_name, given=first_name,
-                             prefix=civility.title if civility else '',
-                            )
+        vc.n.value = VcfName(
+            family=last_name,
+            given=first_name,
+            prefix=civility.title if civility else '',
+        )
 
         vc.add('fn')
         vc.fn.value = first_name + ' ' + last_name

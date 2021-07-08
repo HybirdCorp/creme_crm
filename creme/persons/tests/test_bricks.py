@@ -70,10 +70,16 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
 
         pretty_addr_node = brick_node.findall(".//div[@class='address']")
         self.assertIsNotNone(pretty_addr_node)
-        pretty_addr = {elt.text.strip() for elt in brick_node.findall(".//div[@class='address']")}
+        pretty_addr = {
+            elt.text.strip()
+            for elt in brick_node.findall(".//div[@class='address']")
+        }
         self.assertIn(address.address, pretty_addr)
 
-        fields = {elt.text for elt in brick_node.findall(".//span[@class='address-option-value']")}
+        fields = {
+            elt.text
+            for elt in brick_node.findall(".//span[@class='address-option-value']")
+        }
 
         if country_in:
             self.assertIn(address.country, fields)
@@ -84,14 +90,21 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         pretty_addr_node = brick_node.findall(".//div[@class='address']")
         self.assertIsNotNone(pretty_addr_node)
 
-        pretty_addr = {elt.text.strip() for elt in brick_node.findall(".//div[@class='address']")}
+        pretty_addr = {
+            elt.text.strip()
+            for elt in brick_node.findall(".//div[@class='address']")
+        }
         self.assertNotIn(address.address, pretty_addr)
 
     def _get_URLs(self, brick_node):
         return {elt.get('href').split('?')[0] for elt in brick_node.findall(".//a")}
 
-    def get_address_titles(self, brick_node):
-        return {elt.text.strip() for elt in brick_node.findall(".//span[@class='address-title']")}
+    @staticmethod
+    def get_address_titles(brick_node):
+        return {
+            elt.text.strip()
+            for elt in brick_node.findall(".//span[@class='address-title']")
+        }
 
     def _assertNoAction(self, brick_node, url_name, entity):
         self.assertNotIn(reverse(url_name, args=(entity.id,)), self._get_URLs(brick_node))
@@ -105,18 +118,20 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         create_address = partial(Address.objects.create, owner=c)
 
         if billing_address:
-            c.billing_address = create_address(name='Billing address',
-                                               address='Main square',
-                                               city='Lenos',
-                                               country='North',
-                                              )
+            c.billing_address = create_address(
+                name='Billing address',
+                address='Main square',
+                city='Lenos',
+                country='North',
+            )
 
         if shipping_address:
-            c.shipping_address = create_address(name='Shipping address',
-                                                address='Market',
-                                                city='Yorentz',
-                                                country='South',
-                                               )
+            c.shipping_address = create_address(
+                name='Shipping address',
+                address='Market',
+                city='Yorentz',
+                country='South',
+            )
 
         c.save()
 
@@ -131,18 +146,20 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         emitter = create_orga(name='Lenos')
         target_orga = create_orga(name='Yorentz')
 
-        create_opp = partial(Opportunity.objects.create, user=user,
-                             sales_phase=SalesPhase.objects.first(),
-                             emitter=emitter,
-                            )
+        create_opp = partial(
+            Opportunity.objects.create,
+            user=user,
+            sales_phase=SalesPhase.objects.first(),
+            emitter=emitter,
+        )
         opp1 = create_opp(name='Opp#01', target=c)
         opp2 = create_opp(name='Opp#02', target=target_orga)
         opp3 = create_opp(name='Opp#03', target=c)
 
         response = self.assertGET200(c.get_absolute_url())
-        brick_node = self.get_brick_node(self.get_html_tree(response.content),
-                                         bricks.ContactCardHatBrick.id_,
-                                        )
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), bricks.ContactCardHatBrick.id_,
+        )
 
         self.assertInstanceLink(brick_node, opp1)
         self.assertNoInstanceLink(brick_node, opp2)
@@ -158,18 +175,18 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
 
         c = Contact.objects.create(user=user, first_name='Lawrence', last_name='?')
 
-        create_opp = partial(Opportunity.objects.create, user=user,
-                             sales_phase=SalesPhase.objects.first(),
-                             emitter=emitter,
-                            )
+        create_opp = partial(
+            Opportunity.objects.create,
+            user=user, sales_phase=SalesPhase.objects.first(), emitter=emitter,
+        )
         opp1 = create_opp(name='Opp#01', target=target_orga)
         opp2 = create_opp(name='Opp#02', target=c)
         opp3 = create_opp(name='Opp#03', target=target_orga)
 
         response = self.assertGET200(target_orga.get_absolute_url())
-        brick_node = self.get_brick_node(self.get_html_tree(response.content),
-                                         bricks.OrganisationCardHatBrick.id_,
-                                        )
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), bricks.OrganisationCardHatBrick.id_,
+        )
 
         self.assertInstanceLink(brick_node, opp1)
         self.assertNoInstanceLink(brick_node, opp2)
@@ -204,9 +221,9 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         act3 = create_act('Act #02', c)
 
         response = self.assertGET200(c.get_absolute_url())
-        brick_node = self.get_brick_node(self.get_html_tree(response.content),
-                                         bricks.ContactCardHatBrick.id_,
-                                        )
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), bricks.ContactCardHatBrick.id_,
+        )
 
         self.assertInstanceLink(brick_node, act1)
         self.assertNoInstanceLink(brick_node, act2)
@@ -241,9 +258,9 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         act3 = create_act('Act #02', orga)
 
         response = self.assertGET200(orga.get_absolute_url())
-        brick_node = self.get_brick_node(self.get_html_tree(response.content),
-                                         bricks.OrganisationCardHatBrick.id_,
-                                        )
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), bricks.OrganisationCardHatBrick.id_,
+        )
 
         self.assertInstanceLink(brick_node, act1)
         self.assertNoInstanceLink(brick_node, act2)
@@ -260,7 +277,7 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
     def test_addresses_brick02(self):
-        "No shipping address set"
+        "No shipping address set."
         c = self._create_contact_n_addresses(shipping_address=False)
 
         brick_node = self._get_address_brick_node(c)
@@ -271,7 +288,7 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertAction(brick_node, 'persons__create_shipping_address', c)
 
     def test_addresses_brick03(self):
-        "No billing address set"
+        "No billing address set."
         c = self._create_contact_n_addresses(billing_address=False)
 
         brick_node = self._get_address_brick_node(c)
@@ -282,7 +299,7 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
     def test_addresses_brick04(self):
-        "No address set"
+        "No address set."
         c = self._create_contact_n_addresses(billing_address=False, shipping_address=False)
 
         brick_node = self._get_address_brick_node(c)
@@ -291,7 +308,7 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(_('No address for the moment'), msg_node.text.strip())
 
     def test_addresses_brick05(self):
-        "With field config on sub-field"
+        "With field config on sub-field."
         FieldsConfig.objects.create(
             content_type=Address,
             descriptions=[('country', {FieldsConfig.HIDDEN: True})],
@@ -345,19 +362,24 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         self.login()
 
     def _build_customer_orga(self, mng_orga, name, **kwargs):
-        customer = Organisation.objects.create(user=self.user, name=name, **kwargs)
-        Relation.objects.create(user=self.user, subject_entity=customer,
-                                object_entity=mng_orga,
-                                type_id=constants.REL_SUB_CUSTOMER_SUPPLIER,
-                               )
+        user = self.user
+        customer = Organisation.objects.create(user=user, name=name, **kwargs)
+        Relation.objects.create(
+            user=user,
+            subject_entity=customer,
+            object_entity=mng_orga,
+            type_id=constants.REL_SUB_CUSTOMER_SUPPLIER,
+        )
 
         return customer
 
-    def _get_neglected_orgas(self):
+    @staticmethod
+    def _get_neglected_orgas():
         neglected_orgas_block = bricks.NeglectedOrganisationsBrick()
         return neglected_orgas_block._get_neglected(now())
 
     def test_neglected_brick01(self):
+        user = self.user
         bricks.NeglectedOrganisationsBrick()
 
         orgas = Organisation.objects.all()
@@ -367,21 +389,26 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         self.assertTrue(mng_orga.is_managed)
         self.assertFalse(self._get_neglected_orgas())
 
-        customer01 = Organisation.objects.create(user=self.user, name='orga02')
+        customer01 = Organisation.objects.create(user=user, name='orga02')
         self.assertFalse(self._get_neglected_orgas())
 
         rtype_customer = RelationType.objects.get(pk=constants.REL_SUB_CUSTOMER_SUPPLIER)
-        create_rel = partial(Relation.objects.create, user=self.user)
+        create_rel = partial(Relation.objects.create, user=user)
         create_rel(subject_entity=customer01, object_entity=mng_orga, type=rtype_customer)
-        self.assertEqual([customer01.id], [orga.id for orga in self._get_neglected_orgas()])
+        self.assertListEqual(
+            [customer01.id], [orga.id for orga in self._get_neglected_orgas()],
+        )
 
-        customer02 = Organisation.objects.create(user=self.user, name='orga03')
-        create_rel(subject_entity=customer02, object_entity=mng_orga,
-                   type=RelationType.objects.get(pk=constants.REL_SUB_PROSPECT),
-                  )
+        customer02 = Organisation.objects.create(user=user, name='orga03')
+        create_rel(
+            subject_entity=customer02, object_entity=mng_orga,
+            type=RelationType.objects.get(pk=constants.REL_SUB_PROSPECT),
+        )
         neglected_orgas = self._get_neglected_orgas()
         self.assertEqual(2, len(neglected_orgas))
-        self.assertEqual({customer01.id, customer02.id}, {orga.id for orga in neglected_orgas})
+        self.assertSetEqual(
+            {customer01.id, customer02.id}, {orga.id for orga in neglected_orgas},
+        )
 
         create_rel(subject_entity=customer02, object_entity=mng_orga, type=rtype_customer)
         self.assertEqual(2, len(self._get_neglected_orgas()))
@@ -397,24 +424,28 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
         tomorrow = now() + timedelta(days=1)  # So in the future
-        meeting  = Activity.objects.create(user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
-                                           title='meet01', start=tomorrow,
-                                           end=tomorrow + timedelta(hours=2),
-                                          )
+        meeting = Activity.objects.create(
+            user=user,
+            type_id=act_constants.ACTIVITYTYPE_MEETING,
+            title='meet01', start=tomorrow,
+            end=tomorrow + timedelta(hours=2),
+        )
 
         get_rtype = RelationType.objects.get
         create_rel = partial(Relation.objects.create, user=user, object_entity=meeting)
         create_rel(
-            subject_entity=customer02, type=get_rtype(pk=act_constants.REL_SUB_ACTIVITY_SUBJECT),
+            subject_entity=customer02,
+            type=get_rtype(pk=act_constants.REL_SUB_ACTIVITY_SUBJECT),
         )
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
         create_rel(
-            subject_entity=user_contact, type=get_rtype(pk=act_constants.REL_SUB_PART_2_ACTIVITY),
+            subject_entity=user_contact,
+            type=get_rtype(pk=act_constants.REL_SUB_PART_2_ACTIVITY),
         )
         self.assertListEqual(
             [customer01.id],
-            [orga.id for orga in self._get_neglected_orgas()]
+            [orga.id for orga in self._get_neglected_orgas()],
         )
 
     @skipIfCustomActivity
@@ -428,10 +459,11 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
 
         yesterday = now() - timedelta(days=1)  # So in the past
-        meeting  = Activity.objects.create(user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
-                                           title='meet01', start=yesterday,
-                                           end=yesterday + timedelta(hours=2),
-                                          )
+        meeting = Activity.objects.create(
+            user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
+            title='meet01', start=yesterday,
+            end=yesterday + timedelta(hours=2),
+        )
 
         create_rel = partial(Relation.objects.create, user=user, object_entity=meeting)
         create_rel(subject_entity=customer02,   type_id=act_constants.REL_SUB_ACTIVITY_SUBJECT)
@@ -441,7 +473,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
     @skipIfCustomContact
     @skipIfCustomActivity
     def test_neglected_brick04(self):
-        "A people linked to customer is linked to a future activity"
+        "A people linked to customer is linked to a future activity."
         user = self.user
         mng_orga = Organisation.objects.all()[0]
         user_contact = user.linked_contact
@@ -449,32 +481,39 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         customer = self._build_customer_orga(mng_orga, 'Suna')
 
         tomorrow = now() + timedelta(days=1)  # So in the future
-        meeting = Activity.objects.create(user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
-                                          title='meet01', start=tomorrow,
-                                          end=tomorrow + timedelta(hours=2),
-                                         )
+        meeting = Activity.objects.create(
+            user=user,
+            type_id=act_constants.ACTIVITYTYPE_MEETING,
+            title='meet01', start=tomorrow,
+            end=tomorrow + timedelta(hours=2),
+        )
         create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=user_contact, object_entity=meeting,
-                   type_id=act_constants.REL_SUB_PART_2_ACTIVITY,
-                  )
+        create_rel(
+            subject_entity=user_contact, object_entity=meeting,
+            type_id=act_constants.REL_SUB_PART_2_ACTIVITY,
+        )
 
-        employee = Contact.objects.create(user=user, first_name='Kankuro', last_name='???')
+        employee = Contact.objects.create(
+            user=user, first_name='Kankuro', last_name='???',
+        )
 
         get_rtype = RelationType.objects.get
-        create_rel(subject_entity=employee, object_entity=customer,
-                   type=get_rtype(pk=constants.REL_SUB_EMPLOYED_BY),
-                  )
+        create_rel(
+            subject_entity=employee, object_entity=customer,
+            type=get_rtype(pk=constants.REL_SUB_EMPLOYED_BY),
+        )
         self.assertEqual(1, len(self._get_neglected_orgas()))
 
-        create_rel(subject_entity=employee, object_entity=meeting,
-                   type=get_rtype(pk=act_constants.REL_SUB_LINKED_2_ACTIVITY),
-                  )
+        create_rel(
+            subject_entity=employee, object_entity=meeting,
+            type=get_rtype(pk=act_constants.REL_SUB_LINKED_2_ACTIVITY),
+        )
         self.assertFalse(self._get_neglected_orgas())
 
     @skipIfCustomContact
     @skipIfCustomActivity
     def test_neglected_brick05(self):
-        "2 people linked to customer are linked to a future activity"
+        "2 people linked to customer are linked to a future activity."
         user = self.user
         mng_orga = Organisation.objects.all()[0]
 
@@ -485,12 +524,16 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
         tomorrow = now() + timedelta(days=1)  # So in the future
         create_activity = partial(Activity.objects.create, user=user, start=tomorrow)
-        meeting   = create_activity(title='meet01', type_id=act_constants.ACTIVITYTYPE_MEETING,
-                                    end=tomorrow + timedelta(hours=2)
-                                   )
-        phonecall = create_activity(title='call01', type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-                                    end=tomorrow + timedelta(minutes=15),
-                                   )
+        meeting = create_activity(
+            title='meet01',
+            type_id=act_constants.ACTIVITYTYPE_MEETING,
+            end=tomorrow + timedelta(hours=2),
+        )
+        phonecall = create_activity(
+            title='call01',
+            type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+            end=tomorrow + timedelta(minutes=15),
+        )
 
         create_rel = partial(Relation.objects.create, user=user)
         create_rel(
@@ -506,7 +549,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         employee = create_contact(first_name='Temari', last_name='???')
         create_rel(
             subject_entity=manager, object_entity=customer,
-            type_id=constants.REL_SUB_MANAGES
+            type_id=constants.REL_SUB_MANAGES,
         )
         create_rel(
             subject_entity=employee, object_entity=customer,
@@ -529,14 +572,14 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
     @skipIfCustomContact
     @skipIfCustomActivity
     def test_neglected_brick06(self):
-        "Future activity, but not with managed organisation !"
+        "Future activity, but not with managed organisation!"
         user = self.user
-        mng_orga   = Organisation.objects.all()[0]
-        customer   = self._build_customer_orga(mng_orga, 'Suna')
+        mng_orga = Organisation.objects.all()[0]
+        customer = self._build_customer_orga(mng_orga, 'Suna')
         competitor = Organisation.objects.create(user=user, name='Akatsuki')
 
         tomorrow = now() + timedelta(days=1)  # So in the future
-        meeting  = Activity.objects.create(
+        meeting = Activity.objects.create(
             user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
@@ -562,12 +605,13 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
     def test_neglected_brick07(self):
         "Inactive customers are not counted"
-        mng_orga   = Organisation.objects.all()[0]
+        mng_orga = Organisation.objects.all()[0]
         customer01 = self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
-        Relation.objects.create(user=self.user, subject_entity=customer02,
-                                object_entity=mng_orga, type_id=constants.REL_SUB_INACTIVE
-                               )
+        Relation.objects.create(
+            user=self.user, subject_entity=customer02,
+            object_entity=mng_orga, type_id=constants.REL_SUB_INACTIVE,
+        )
         self.assertListEqual([customer01], [*self._get_neglected_orgas()])
 
     def test_neglected_brick08(self):
@@ -577,7 +621,8 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         self._build_customer_orga(mng_orga, 'Suna', is_deleted=True)
         self.assertListEqual([customer], [*self._get_neglected_orgas()])
 
-    def _oldify(self, entity, days_delta):
+    @staticmethod
+    def _oldify(entity, days_delta):
         entity.created -= timedelta(days=days_delta)
         return entity
 
@@ -594,24 +639,28 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         "regular label for neglected."
         user = self.user
         contact = self._oldify(
-            Contact.objects.create(user=self.user, first_name='Gaara', last_name='???'),
+            Contact.objects.create(user=user, first_name='Gaara', last_name='???'),
             days_delta=16,
         )
 
         now_value = now()
         one_month_ago = now_value - timedelta(days=30)
-        meeting = Activity.objects.create(user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
-                                          title='meet01',
-                                          start=one_month_ago,
-                                          end=one_month_ago + timedelta(hours=2),
-                                         )
+        meeting = Activity.objects.create(
+            user=user,
+            type_id=act_constants.ACTIVITYTYPE_MEETING,
+            title='meet01',
+            start=one_month_ago,
+            end=one_month_ago + timedelta(hours=2),
+        )
 
         Relation.objects.create(
             user=user, subject_entity=contact, object_entity=meeting,
             type_id=act_constants.REL_SUB_PART_2_ACTIVITY,
         )
 
-        indicator = bricks.NeglectedContactIndicator(context={'today': now_value}, contact=contact)
+        indicator = bricks.NeglectedContactIndicator(
+            context={'today': now_value}, contact=contact,
+        )
         self.assertEqual(_('Not contacted since 15 days'), indicator.label)
 
     def test_neglected_indicator03(self):
@@ -624,37 +673,45 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
         now_value = now()
         one_week_ago = now_value - timedelta(days=7)
-        meeting = Activity.objects.create(user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
-                                          title='meet01',
-                                          start=one_week_ago,
-                                          end=one_week_ago + timedelta(hours=2),
-                                         )
+        meeting = Activity.objects.create(
+            user=user,
+            type_id=act_constants.ACTIVITYTYPE_MEETING,
+            title='meet01',
+            start=one_week_ago,
+            end=one_week_ago + timedelta(hours=2),
+        )
 
         Relation.objects.create(
             user=user, subject_entity=contact, object_entity=meeting,
             type_id=act_constants.REL_SUB_PART_2_ACTIVITY,
         )
 
-        indicator = bricks.NeglectedContactIndicator(context={'today': now_value}, contact=contact)
+        indicator = bricks.NeglectedContactIndicator(
+            context={'today': now_value}, contact=contact,
+        )
         self.assertFalse(indicator.label)
 
     def test_neglected_indicator04(self):
-        "User-contacts are ignored"
+        "User-contacts are ignored."
         user = self.user
         contact = self._oldify(user.linked_contact, days_delta=16)
 
         now_value = now()
         one_month_ago = now_value - timedelta(days=30)
-        meeting = Activity.objects.create(user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
-                                          title='meet01',
-                                          start=one_month_ago,
-                                          end=one_month_ago + timedelta(hours=2),
-                                         )
+        meeting = Activity.objects.create(
+            user=user,
+            type_id=act_constants.ACTIVITYTYPE_MEETING,
+            title='meet01',
+            start=one_month_ago,
+            end=one_month_ago + timedelta(hours=2),
+        )
 
         Relation.objects.create(
             user=user, subject_entity=contact, object_entity=meeting,
             type_id=act_constants.REL_SUB_PART_2_ACTIVITY,
         )
 
-        indicator = bricks.NeglectedContactIndicator(context={'today': now_value}, contact=contact)
+        indicator = bricks.NeglectedContactIndicator(
+            context={'today': now_value}, contact=contact,
+        )
         self.assertFalse(indicator.label)

@@ -32,9 +32,10 @@ class RegistryTestCase(CremeTestCase):
         app_registry = registry.get_app_registry('creme_core', create=True)
         self.assertEqual('creme_core', app_registry.name)
         self.assertEqual(_('Core'),    app_registry.verbose_name)
-        self.assertEqual(reverse('creme_config__app_portal', args=('creme_core',)),
-                         app_registry.portal_url
-                        )
+        self.assertEqual(
+            reverse('creme_config__app_portal', args=('creme_core',)),
+            app_registry.portal_url,
+        )
 
         self.assertListEqual([app_registry], [*registry.apps()])
 
@@ -81,7 +82,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIsNone(creator.url_name)
         self.assertEqual(
             creator.get_url(user),
-            reverse('creme_config__create_instance', args=('creme_core', 'civility'))
+            reverse('creme_config__create_instance', args=('creme_core', 'civility')),
         )
 
         # Editor ---
@@ -94,7 +95,9 @@ class RegistryTestCase(CremeTestCase):
         civ = FakeCivility.objects.first()
         self.assertEqual(
             editor.get_url(civ, user),
-            reverse('creme_config__edit_instance', args=('creme_core', 'civility', civ.id))
+            reverse(
+                'creme_config__edit_instance', args=('creme_core', 'civility', civ.id),
+            ),
         )
 
         # Deletor ---
@@ -104,7 +107,9 @@ class RegistryTestCase(CremeTestCase):
         self.assertIsNone(deletor.url_name)
         self.assertEqual(
             deletor.get_url(civ, user),
-            reverse('creme_config__delete_instance', args=('creme_core', 'civility', civ.id))
+            reverse(
+                'creme_config__delete_instance', args=('creme_core', 'civility', civ.id),
+            ),
         )
 
     def test_register_model02(self):
@@ -123,24 +128,27 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertEqual(
             model_config.creator.get_url(user),
-            reverse('creme_config__create_instance',
-                    args=('documents', 'documentcategory'),
-                   )
+            reverse(
+                'creme_config__create_instance',
+                args=('documents', 'documentcategory'),
+            ),
         )
 
         sector = FakeSector.objects.first()
         self.assertEqual(
             model_config.editor.get_url(sector, user=user),
-            reverse('creme_config__edit_instance',
-                    args=('documents', 'documentcategory', sector.id),
-                   )
+            reverse(
+                'creme_config__edit_instance',
+                args=('documents', 'documentcategory', sector.id),
+            ),
         )
 
         self.assertEqual(
             model_config.deletor.get_url(sector, user=user),
-            reverse('creme_config__delete_instance',
-                    args=('documents', 'documentcategory', sector.id),
-                   )
+            reverse(
+                'creme_config__delete_instance',
+                args=('documents', 'documentcategory', sector.id),
+            ),
         )
 
     def test_register_model03(self):
@@ -157,17 +165,17 @@ class RegistryTestCase(CremeTestCase):
         self.assertEqual(new_name, model_config.model_name)
         self.assertEqual(
             model_config.creator.get_url(user=user),
-            reverse('creme_config__create_instance', args=('creme_core', new_name))
+            reverse('creme_config__create_instance', args=('creme_core', new_name)),
         )
 
         civ = FakeCivility.objects.first()
         self.assertEqual(
             model_config.editor.get_url(civ, user=user),
-            reverse('creme_config__edit_instance', args=('creme_core', new_name, civ.id))
+            reverse('creme_config__edit_instance', args=('creme_core', new_name, civ.id)),
         )
         self.assertEqual(
             model_config.deletor.get_url(civ, user=user),
-            reverse('creme_config__delete_instance', args=('creme_core', new_name, civ.id))
+            reverse('creme_config__delete_instance', args=('creme_core', new_name, civ.id)),
         )
 
         # --
@@ -207,7 +215,7 @@ class RegistryTestCase(CremeTestCase):
         registry = _ConfigRegistry()
 
         creation_url_name = 'creme_config__create_team'
-        edition_url_name  = 'creme_config__edit_team'   # NB: need an URL with an int arg
+        edition_url_name = 'creme_config__edit_team'  # NB: need an URL with an int arg
         deletion_url_name = 'creme_config__edit_user'  # idem
 
         registry.register_model(FakeCivility) \
@@ -222,30 +230,34 @@ class RegistryTestCase(CremeTestCase):
 
         civ = FakeCivility.objects.first()
         editor = model_config.editor
-        self.assertEqual(editor.get_url(civ, user=user),
-                         reverse(edition_url_name, args=(civ.id,))
-                        )
+        self.assertEqual(
+            editor.get_url(civ, user=user),
+            reverse(edition_url_name, args=(civ.id,)),
+        )
 
         deletor = model_config.deletor
-        self.assertEqual(deletor.get_url(civ, user=user),
-                         reverse(deletion_url_name, args=(civ.id,))
-                        )
+        self.assertEqual(
+            deletor.get_url(civ, user=user),
+            reverse(deletion_url_name, args=(civ.id,)),
+        )
 
         # Back to default
         creator.url_name = None
         self.assertEqual(
             creator.get_url(user),
-            reverse('creme_config__create_instance',
-                    args=('creme_core', 'fakecivility')
-                   )
+            reverse(
+                'creme_config__create_instance',
+                args=('creme_core', 'fakecivility'),
+            ),
         )
 
         editor.url_name = None
         self.assertEqual(
             editor.get_url(civ, user),
-            reverse('creme_config__edit_instance',
-                    args=('creme_core', 'fakecivility', civ.id),
-                   )
+            reverse(
+                'creme_config__edit_instance',
+                args=('creme_core', 'fakecivility', civ.id),
+            ),
         )
 
     def test_register_model06(self):
@@ -255,8 +267,9 @@ class RegistryTestCase(CremeTestCase):
         registry = _ConfigRegistry()
 
         civ1, civ2 = FakeCivility.objects.all()[:2]
-        registry.register_model(FakeCivility)\
-                .edition(enable_func=lambda instance, user: instance.id == civ1.id)
+        registry.register_model(FakeCivility).edition(
+            enable_func=lambda instance, user: instance.id == civ1.id
+        )
 
         model_config = registry.get_app_registry('creme_core').get_model_conf(FakeCivility)
         self.assertIsSubclass(model_config.creator.form_class, CremeModelForm)
@@ -264,9 +277,10 @@ class RegistryTestCase(CremeTestCase):
         editor = model_config.editor
         self.assertIsSubclass(editor.form_class, CremeModelForm)
 
-        url1 = reverse('creme_config__edit_instance',
-                       args=('creme_core', 'fakecivility', civ1.id),
-                      )
+        url1 = reverse(
+            'creme_config__edit_instance',
+            args=('creme_core', 'fakecivility', civ1.id),
+        )
         self.assertEqual(url1, editor.get_url(instance=civ1, user=user1))
         self.assertEqual(url1, editor.get_url(instance=civ1, user=user2))
         self.assertIsNone(editor.get_url(instance=civ2, user=user1))
@@ -275,11 +289,13 @@ class RegistryTestCase(CremeTestCase):
         user_name = user1.username
         editor.enable_func = lambda instance, user: user.username == user_name
         self.assertEqual(url1, editor.get_url(instance=civ1, user=user1))
-        self.assertEqual(reverse('creme_config__edit_instance',
-                                 args=('creme_core', 'fakecivility', civ2.id),
-                                ),
-                         editor.get_url(instance=civ2, user=user1)
-                        )
+        self.assertEqual(
+            reverse(
+                'creme_config__edit_instance',
+                args=('creme_core', 'fakecivility', civ2.id),
+            ),
+            editor.get_url(instance=civ2, user=user1),
+        )
         self.assertIsNone(editor.get_url(instance=civ1, user=user2))
 
     def test_register_model07(self):
@@ -289,16 +305,18 @@ class RegistryTestCase(CremeTestCase):
         registry = _ConfigRegistry()
 
         user_name = user1.username
-        registry.register_model(FakeCivility)\
-                .creation(enable_func=lambda user: user.username == user_name)
+        registry.register_model(FakeCivility).creation(
+            enable_func=lambda user: user.username == user_name
+        )
 
         model_config = registry.get_app_registry('creme_core').get_model_conf(FakeCivility)
         creator = model_config.creator
         self.assertIsSubclass(creator.form_class, CremeModelForm)
         self.assertEqual(
-            reverse('creme_config__create_instance',
-                    args=('creme_core', 'fakecivility')
-                   ),
+            reverse(
+                'creme_config__create_instance',
+                args=('creme_core', 'fakecivility')
+            ),
             creator.get_url(user=user1)
         )
         self.assertIsNone(creator.get_url(user=user2))
@@ -308,10 +326,11 @@ class RegistryTestCase(CremeTestCase):
 
         civ = FakeCivility.objects.first()
         self.assertEqual(
-            reverse('creme_config__edit_instance',
-                    args=('creme_core', 'fakecivility', civ.id),
-                   ),
-            editor.get_url(civ, user=user1)
+            reverse(
+                'creme_config__edit_instance',
+                args=('creme_core', 'fakecivility', civ.id),
+            ),
+            editor.get_url(civ, user=user1),
         )
 
     def test_register_model08(self):
@@ -321,8 +340,9 @@ class RegistryTestCase(CremeTestCase):
         registry = _ConfigRegistry()
 
         civ1, civ2 = FakeCivility.objects.all()[:2]
-        registry.register_model(FakeCivility)\
-                .deletion(enable_func=lambda instance, user: instance.id == civ1.id)
+        registry.register_model(FakeCivility).deletion(
+            enable_func=lambda instance, user: instance.id == civ1.id
+        )
 
         model_config = registry.get_app_registry('creme_core').get_model_conf(FakeCivility)
         self.assertIsSubclass(model_config.creator.form_class, CremeModelForm)
@@ -330,9 +350,10 @@ class RegistryTestCase(CremeTestCase):
         deletor = model_config.deletor
         self.assertIsSubclass(deletor.form_class, CremeModelForm)
 
-        url1 = reverse('creme_config__delete_instance',
-                       args=('creme_core', 'fakecivility', civ1.id),
-                      )
+        url1 = reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', 'fakecivility', civ1.id),
+        )
         self.assertEqual(url1, deletor.get_url(instance=civ1, user=user1))
         self.assertEqual(url1, deletor.get_url(instance=civ1, user=user2))
         self.assertIsNone(deletor.get_url(instance=civ2, user=user1))
@@ -341,11 +362,13 @@ class RegistryTestCase(CremeTestCase):
         user_name = user1.username
         deletor.enable_func = lambda instance, user: user.username == user_name
         self.assertEqual(url1, deletor.get_url(instance=civ1, user=user1))
-        self.assertEqual(reverse('creme_config__delete_instance',
-                                 args=('creme_core', 'fakecivility', civ2.id),
-                                ),
-                         deletor.get_url(instance=civ2, user=user1)
-                        )
+        self.assertEqual(
+            reverse(
+                'creme_config__delete_instance',
+                args=('creme_core', 'fakecivility', civ2.id),
+            ),
+            deletor.get_url(instance=civ2, user=user1),
+        )
         self.assertIsNone(deletor.get_url(instance=civ1, user=user2))
 
     def test_register_model09(self):
@@ -487,7 +510,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIn(TestPortalBrick2.id_, brick_ids)
 
     def test_app_registry_is_empty01(self):
-        "use models"
+        "use models."
         registry = _ConfigRegistry(
             brick_registry=_BrickRegistry(),
             setting_key_registry=_SettingKeyRegistry(),
@@ -499,7 +522,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIs(False, app_registry.is_empty)
 
     def test_app_registry_is_empty02(self):
-        "use bricks"
+        "use bricks."
         class TestBrick(SimpleBrick):
             id_ = SimpleBrick.generate_id('creme_config', 'test_app_registry_is_empty02')
 
@@ -519,24 +542,27 @@ class RegistryTestCase(CremeTestCase):
         self.assertFalse(app_registry.is_empty)
 
     def test_app_registry_is_empty03(self):
-        "Use SettingKeys"
-        sk1 = SettingKey('creme_core-test_sk_string',
-                         description='Page title',
-                         app_label='documents',  # <== not 'creme_core'
-                         type=SettingKey.STRING,
-                         blank=True,
-                        )
-        sk2 = SettingKey('creme_core-test_sk_int',
-                         description='Page size',
-                         app_label='creme_core',
-                         type=SettingKey.INT,
-                         hidden=True,  # <==
-                        )
-        sk3 = SettingKey('creme_core-test_sk_bool',
-                         description='Page hidden',
-                         app_label='creme_core',
-                         type=SettingKey.BOOL,
-                        )
+        "Use SettingKeys."
+        sk1 = SettingKey(
+            'creme_core-test_sk_string',
+            description='Page title',
+            app_label='documents',  # <== not 'creme_core'
+            type=SettingKey.STRING,
+            blank=True,
+        )
+        sk2 = SettingKey(
+            'creme_core-test_sk_int',
+            description='Page size',
+            app_label='creme_core',
+            type=SettingKey.INT,
+            hidden=True,  # <==
+        )
+        sk3 = SettingKey(
+            'creme_core-test_sk_bool',
+            description='Page hidden',
+            app_label='creme_core',
+            type=SettingKey.BOOL,
+        )
 
         skey_registry = _SettingKeyRegistry()
 
@@ -571,9 +597,10 @@ class RegistryTestCase(CremeTestCase):
 
         url, allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
         self.assertIs(True, allowed)
-        creation_url = reverse('creme_config__create_instance_from_widget',
-                               args=('creme_core', 'fakecivility')
-                              )
+        creation_url = reverse(
+            'creme_config__create_instance_from_widget',
+            args=('creme_core', 'fakecivility'),
+        )
         self.assertEqual(creation_url, url)
 
         # User than cannot admin
@@ -582,7 +609,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertEqual(creation_url, url)
 
     def test_get_model_creation_info03(self):
-        "Not super-user"
+        "Not super-user."
         user = self.login(is_superuser=False, admin_4_apps=['creme_core'])
 
         registry = _ConfigRegistry()
@@ -610,11 +637,13 @@ class RegistryTestCase(CremeTestCase):
         registry.register_model(FakeCivility).creation(enable_func=lambda user: True)
 
         url, allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
-        self.assertEqual(reverse('creme_config__create_instance_from_widget',
-                                 args=('creme_core', 'fakecivility'),
-                                ),
-                         url
-                        )
+        self.assertEqual(
+            reverse(
+                'creme_config__create_instance_from_widget',
+                args=('creme_core', 'fakecivility'),
+            ),
+            url,
+        )
 
     def test_get_model_creation_info06(self):
         "Enable function KO."

@@ -126,9 +126,10 @@ class MoveField(ReorderInstances):
     use_select_for_update = False  # We use our own select_for_update()
 
     def get_queryset(self):
-        report = get_object_or_404(Report.objects.select_for_update(),
-                                   id=self.kwargs[self.report_id_url_kwarg],
-                                  )
+        report = get_object_or_404(
+            Report.objects.select_for_update(),
+            id=self.kwargs[self.report_id_url_kwarg],
+        )
         self.request.user.has_perm_to_change_or_die(report)
 
         return report.fields

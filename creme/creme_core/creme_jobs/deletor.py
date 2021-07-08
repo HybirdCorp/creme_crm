@@ -35,7 +35,7 @@ from .base import JobProgress, JobType
 # TODO: possibility to resume the job if it failed ?
 class _DeletorType(JobType):
     """Job which updates ForeignKeys referencing an instance before deleting it."""
-    id           = JobType.generate_id('creme_core', 'deletor')
+    id = JobType.generate_id('creme_core', 'deletor')
     verbose_name = _('Replace & delete')
 
     def _execute(self, job):
@@ -55,10 +55,11 @@ class _DeletorType(JobType):
             rel_mngr   = model_field.model._default_manager
             field_name = model_field.name
 
-            pre_replace_and_delete.send_robust(sender=instance_2_del,
-                                               model_field=model_field,
-                                               replacing_instance=new_value,
-                                              )
+            pre_replace_and_delete.send_robust(
+                sender=instance_2_del,
+                model_field=model_field,
+                replacing_instance=new_value,
+            )
 
             for pk in rel_mngr.filter(
                 **{field_name: instance_2_del.pk}
@@ -92,9 +93,10 @@ class _DeletorType(JobType):
                             'dependencies: {dependencies}').format(
                         instance=instance_2_del,
                         dependencies=', '.join(
-                            fmt(count=count,
+                            fmt(
+                                count=count,
                                 model=get_model_verbose_name(model=model, count=count),
-                               ) for model, count in counter.items()
+                            ) for model, count in counter.items()
                         ),
                     ),
                 ]
@@ -148,10 +150,11 @@ class _DeletorType(JobType):
         count = DeletionCommand.objects.get(job=job).updated_count
 
         return [
-            ngettext('{count} entity updated.',
-                     '{count} entities updated.',
-                     count
-                    ).format(count=count),
+            ngettext(
+                '{count} entity updated.',
+                '{count} entities updated.',
+                count
+            ).format(count=count),
         ] if count else []
 
 

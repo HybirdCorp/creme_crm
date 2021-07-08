@@ -17,9 +17,10 @@ from ..models import Category, SubCategory
 class CategoryFieldTestCase(FieldTestCase):
     @staticmethod
     def _build_value(cat_id, subcat_id):
-        return json_dump({'category': cat_id, 'subcategory': subcat_id},
-                         separators=(',', ':'),
-                        )
+        return json_dump(
+            {'category': cat_id, 'subcategory': subcat_id},
+            separators=(',', ':'),
+        )
 
     @classmethod
     def setUpClass(cls):
@@ -29,7 +30,9 @@ class CategoryFieldTestCase(FieldTestCase):
 
     def test_void(self):
         cat1 = Category.objects.create(name='cat1', description='description')
-        cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
+        cat11 = SubCategory.objects.create(
+            name='sub11', description='description', category=cat1,
+        )
 
         with self.assertNumQueries(0):
             field = CategoryField()
@@ -127,23 +130,28 @@ class CategoryFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_json(self):
         clean = CategoryField(required=False).clean
-        self.assertFieldValidationError(CategoryField, 'invalidformat', clean,
-                                        '{"category":"12","subcategory":"1"'
-                                       )
+        self.assertFieldValidationError(
+            CategoryField, 'invalidformat', clean,
+            '{"category":"12","subcategory":"1"'
+        )
 
     def test_clean_invalid_data_type(self):
         clean = CategoryField(required=False).clean
-        self.assertFieldValidationError(CategoryField, 'invalidtype', clean, '"this is a string"')
-        self.assertFieldValidationError(CategoryField, 'invalidtype', clean, "12")
+        self.assertFieldValidationError(
+            CategoryField, 'invalidtype', clean, '"this is a string"',
+        )
+        self.assertFieldValidationError(CategoryField, 'invalidtype', clean, '12')
 
     def test_clean_invalid_data(self):
         clean = CategoryField(required=False).clean
-        self.assertFieldValidationError(CategoryField, 'invalidformat', clean,
-                                        '{"category":"notanumber","subcategory":"1"}'
-                                       )
-        self.assertFieldValidationError(CategoryField, 'invalidformat', clean,
-                                        '{"category":"12","category":"notanumber"}'
-                                       )
+        self.assertFieldValidationError(
+            CategoryField, 'invalidformat', clean,
+            '{"category":"notanumber","subcategory":"1"}'
+        )
+        self.assertFieldValidationError(
+            CategoryField, 'invalidformat', clean,
+            '{"category":"12","category":"notanumber"}'
+        )
 
     def test_clean_incomplete_data_required(self):
         clean = CategoryField().clean
@@ -170,9 +178,9 @@ class CategoryFieldTestCase(FieldTestCase):
 
         clean = CategoryField(categories=[cat1.id, 0]).clean
         # Same error than 'forbidden', cause unknown category cannot be in list
-        self.assertFieldValidationError(CategoryField, 'categorynotallowed', clean,
-                                        self._build_value(0, cat11.id)
-                                       )
+        self.assertFieldValidationError(
+            CategoryField, 'categorynotallowed', clean, self._build_value(0, cat11.id),
+        )
 
     def test_clean_unknown_subcategory(self):
         "Data injection : subcategory doesn't exist"
@@ -191,24 +199,31 @@ class CategoryFieldTestCase(FieldTestCase):
         cat1 = Category.objects.create(name='cat1', description='description')
 
         cat2 = Category.objects.create(name='cat2', description='description')
-        cat21 = SubCategory.objects.create(name='sub21', description='description', category=cat2)
+        cat21 = SubCategory.objects.create(
+            name='sub21', description='description', category=cat2,
+        )
 
         clean = CategoryField(categories=[cat1.id, cat2.id]).clean
-        self.assertFieldValidationError(CategoryField, 'subcategorynotallowed', clean,
-                                        self._build_value(cat1.id, cat21.id)
-                                       )
+        self.assertFieldValidationError(
+            CategoryField, 'subcategorynotallowed', clean,
+            self._build_value(cat1.id, cat21.id),
+        )
 
     def test_clean01(self):
         cat1 = Category.objects.create(name='cat1', description='description')
-        cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
+        cat11 = SubCategory.objects.create(
+            name='sub11', description='description', category=cat1,
+        )
 
         field = CategoryField(categories=[cat1.id])
         self.assertEqual(cat11, field.clean(self._build_value(cat1.id, cat11.id)))
 
     def test_clean02(self):
-        "Use 'categories' setter"
+        "Use 'categories' setter."
         cat1 = Category.objects.create(name='cat1', description='description')
-        cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
+        cat11 = SubCategory.objects.create(
+            name='sub11', description='description', category=cat1,
+        )
 
         field = CategoryField()
         field.categories = [cat1.id]
@@ -223,35 +238,45 @@ class CreateCategoryTestCase(CremeTestCase):
         count = SubCategory.objects.count()
 
         url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/form/add-popup.html')
 
-        context = response.context
-        self.assertEqual(pgettext('products-sub_category', 'Create a sub-category'),
-                         context.get('title')
-                        )
+        context = response1.context
+        self.assertEqual(
+            pgettext('products-sub_category', 'Create a sub-category'),
+            context.get('title'),
+        )
         self.assertEqual(_('Save'), context.get('submit_label'))
 
         # ---
-        response = self.client.post(url, data={'name': 'sub12',
-                                               'description': 'sub12',
-                                               'category': cat1.id,
-                                              },
-                                   )
-        self.assertNoFormError(response)
+        response2 = self.client.post(
+            url,
+            data={
+                'name': 'sub12',
+                'description': 'sub12',
+                'category': cat1.id,
+            },
+        )
+        self.assertNoFormError(response2)
         self.assertEqual(count + 1, SubCategory.objects.count())
 
         cat12 = self.get_object_or_fail(SubCategory, name='sub12')
 
-        self.assertEqual({'added': [{'category': [str(cat1.id), str(cat1)],
-                                     'subcategory': [str(cat12.id), str(cat12)],
-                                    }],
-                          'value': {'category': str(cat1.id),
-                                    'subcategory': str(cat12.id),
-                                   },
-                         },
-                         response.json()
-                        )
+        self.assertDictEqual(
+            {
+                'added': [
+                    {
+                        'category': [str(cat1.id), str(cat1)],
+                        'subcategory': [str(cat12.id), str(cat12)],
+                    },
+                ],
+                'value': {
+                    'category': str(cat1.id),
+                    'subcategory': str(cat12.id),
+                },
+            },
+            response2.json(),
+        )
 
     def test_create_subcategory_from_widget__unknown_category(self):
         user = self.login()
@@ -261,7 +286,9 @@ class CreateCategoryTestCase(CremeTestCase):
 
         count = SubCategory.objects.count()
 
-        self.client.post(url, data={'name': 'sub12', 'description': 'sub12', 'category': 99999})
+        self.client.post(
+            url, data={'name': 'sub12', 'description': 'sub12', 'category': 99999},
+        )
         self.assertEqual(count, SubCategory.objects.count())
 
     def test_create_category_from_widget(self):
@@ -270,16 +297,21 @@ class CreateCategoryTestCase(CremeTestCase):
         url, _allowed = config_registry.get_model_creation_info(Category, user)
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'name': 'cat1',
-                                               'description': 'cat1',
-                                               'category': 'unknown',
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name': 'cat1',
+                'description': 'cat1',
+                'category': 'unknown',
+            },
+        )
         self.assertNoFormError(response)
-        cat1 = self.get_object_or_fail(Category, name='cat1')
 
-        self.assertEqual({'added': [[cat1.id, str(cat1)]],
-                          'value': cat1.id
-                         },
-                         response.json()
-                        )
+        cat1 = self.get_object_or_fail(Category, name='cat1')
+        self.assertDictEqual(
+            {
+                'added': [[cat1.id, str(cat1)]],
+                'value': cat1.id,
+            },
+            response.json(),
+        )

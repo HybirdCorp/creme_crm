@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020 Hybird
+#    Copyright (C) 2019-2021 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,16 +70,16 @@ class DeletionCommand(CremeModel):
     # NB: using <content_type> as PK assures us that we cannot delete several
     #     instances of the same model concurrently, with potential issues like
     #    dependency loops (eg: replace A with B, B with C, C with A arg).
-    content_type   = CTypeOneToOneField(editable=False, primary_key=True)
-    job            = models.ForeignKey(Job, on_delete=models.CASCADE, editable=False)
-    pk_to_delete   = models.TextField(editable=False)
+    content_type = CTypeOneToOneField(editable=False, primary_key=True)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, editable=False)
+    pk_to_delete = models.TextField(editable=False)
 
     # NB: representation of the deleted instance (for UI)
-    deleted_repr   = models.TextField(editable=False)
+    deleted_repr = models.TextField(editable=False)
 
     json_replacers = models.TextField(editable=False, default='[]')  # TODO: JSONField ?
-    total_count    = models.PositiveIntegerField(default=0, editable=False)  # NB: for statistics
-    updated_count  = models.PositiveIntegerField(default=0, editable=False)  # NB: for statistics
+    total_count = models.PositiveIntegerField(default=0, editable=False)  # NB: for statistics
+    updated_count = models.PositiveIntegerField(default=0, editable=False)  # NB: for statistics
 
     class Meta:
         app_label = 'creme_core'
@@ -117,9 +117,10 @@ class TrashCleaningCommand(CremeModel):
     """Useful to warranty that one user does not try to flush the trash several
     times in the same time.
     """
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True,
-                                editable=False, on_delete=models.CASCADE,
-                               )
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        primary_key=True, editable=False, on_delete=models.CASCADE,
+    )
     job = models.ForeignKey(Job, on_delete=models.CASCADE, editable=False)
     deleted_count = models.PositiveIntegerField(default=0, editable=False)  # NB: for statistics
 

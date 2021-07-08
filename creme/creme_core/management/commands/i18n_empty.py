@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2017-2020 Hybird
+# Copyright (c) 2017-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -59,21 +59,25 @@ class _EntryInfo:
 
 
 class Command(BaseCommand):
-    help = "Find msgstr which are empty in all .po files of your project. " \
-           "It's useful to keep a msgid translated only once in your project." \
-           "without forgetting to translate any message."
+    help = (
+        "Find msgstr which are empty in all .po files of your project. "
+        "It's useful to keep a msgid translated only once in your project."
+        "without forgetting to translate any message."
+    )
 
     def add_arguments(self, parser):
         add_arg = parser.add_argument
-        add_arg('-l', '--language',
-                action='store', dest='language', default='en',
-                help='Search empty message in LANGUAGE files. [default: %(default)s]',
-               )
-        add_arg('--js',
-                action='store_true', dest='javascript', default=False,
-                help='Work with po file for javascript (ie: djangojs.po instead of djangojs.po) '
-                     '[default: %(default)s]',
-               )
+        add_arg(
+            '-l', '--language',
+            action='store', dest='language', default='en',
+            help='Search empty message in LANGUAGE files. [default: %(default)s]',
+        )
+        add_arg(
+            '--js',
+            action='store_true', dest='javascript', default=False,
+            help='Work with po file for javascript (ie: djangojs.po instead of djangojs.po) '
+                 '[default: %(default)s]',
+        )
 
     def _iter_locale_base_paths(self):
         django_package = importlib.import_module('django.conf')
@@ -103,7 +107,9 @@ class Command(BaseCommand):
             import polib
         except ImportError as e:
             self.stderr.write(str(e))
-            self.stderr.write('The required "polib" library seems not installed ; aborting.')
+            self.stderr.write(
+                'The required "polib" library seems not installed; aborting.'
+            )
             return
 
         get_opt = options.get
@@ -120,10 +126,11 @@ class Command(BaseCommand):
         for app_pofinfo in self._iter_pofiles(language, polib, file_name):
             for entry in app_pofinfo.pofile.untranslated_entries():
                 untranslated_entries[(entry.msgctxt, entry.msgid)].append(
-                    _EntryInfo(app_label=app_pofinfo.app_label,
-                               file_path=app_pofinfo.file_path,
-                               linenum=entry.linenum,
-                              )
+                    _EntryInfo(
+                        app_label=app_pofinfo.app_label,
+                        file_path=app_pofinfo.file_path,
+                        linenum=entry.linenum,
+                    )
                 )
 
         for app_pofinfo in self._iter_pofiles(language, polib, file_name):

@@ -39,39 +39,47 @@ APP_NAME = 'locale_overload'  # TODO: can configure it with command options ??
 
 # TODO: factorise with i18n_duplicates ?
 class Command(BaseCommand):
-    help = 'Find some terms in .po files of your project and create/update a ' \
-           'translation file with the messages containing one of these terms.\n' \
-           'The purpose is to overload some terms for a specific instance of your project.'
+    help = (
+        'Find some terms in .po files of your project and create/update a '
+        'translation file with the messages containing one of these terms.\n'
+        'The purpose is to overload some terms for a specific instance of your project.'
+    )
     args = 'term1 term2 ... termN'
 
     def add_arguments(self, parser):
         add_arg = parser.add_argument
-        add_arg('-l', '--language',
-                action='store', dest='language', default='en',
-                help='Search terms in LANGUAGE files. [default: %(default)s]',
-               )
-        add_arg('-u', '--comment_useless',
-                action='store_true', dest='comment_useless', default=False,
-                help='Search messages which are useless in the overloading file '
-                     '(ie: these messages are not found in overloaded files) '
-                     'and mark them as obsolete (ie: start with "#~" in the po file).'
-                     '[default: %(default)s]',
-               )
-        add_arg('--js',
-                action='store_true', dest='javascript', default=False,
-                help='Work with po file for javascript (ie: djangojs.po instead of django.po) '
-                     '[default: %(default)s]',
-               )
-        add_arg('args', metavar='terms', nargs='+',
-                help='The terms to find in existing messages.',
-               )
+        add_arg(
+            '-l', '--language',
+            action='store', dest='language', default='en',
+            help='Search terms in LANGUAGE files. [default: %(default)s]',
+        )
+        add_arg(
+            '-u', '--comment_useless',
+            action='store_true', dest='comment_useless', default=False,
+            help='Search messages which are useless in the overloading file '
+                 '(ie: these messages are not found in overloaded files) '
+                 'and mark them as obsolete (ie: start with "#~" in the po file).'
+                 '[default: %(default)s]',
+        )
+        add_arg(
+            '--js',
+            action='store_true', dest='javascript', default=False,
+            help='Work with po file for javascript (ie: djangojs.po instead of django.po) '
+                 '[default: %(default)s]',
+        )
+        add_arg(
+            'args', metavar='terms', nargs='+',
+            help='The terms to find in existing messages.',
+        )
 
     def handle(self, *terms, **options):
         try:
             import polib
         except ImportError as e:
             self.stderr.write(str(e))
-            self.stderr.write('The required "polib" library seems not installed ; aborting.')
+            self.stderr.write(
+                'The required "polib" library seems not installed; aborting.'
+            )
             return
 
         get_opt = options.get
@@ -89,7 +97,9 @@ class Command(BaseCommand):
             self._overload_terms(language, verbosity, polib, file_name, *terms)
 
     def _get_catalog_paths(self, language, file_name):
-        catalog_dirpath = join(settings.CREME_ROOT, APP_NAME, 'locale', language, 'LC_MESSAGES')
+        catalog_dirpath = join(
+            settings.CREME_ROOT, APP_NAME, 'locale', language, 'LC_MESSAGES',
+        )
         catalog_path = join(catalog_dirpath, file_name)
 
         return catalog_dirpath, catalog_path
@@ -162,7 +172,7 @@ class Command(BaseCommand):
             if not exists(catalog_dirpath):
                 makedirs(catalog_dirpath)
             elif not isdir(catalog_dirpath):
-                self.stderr.write('"{}" exists and is not a directory.'.format(catalog_dirpath))
+                self.stderr.write(f'"{catalog_dirpath}" exists and is not a directory.')
                 return
 
             catalog = polib.POFile()
@@ -177,9 +187,9 @@ class Command(BaseCommand):
                 'Content-Transfer-Encoding': '8bit',
             }
 
-        catalog.metadata['POT-Creation-Date'] = pytz.timezone(settings.TIME_ZONE) \
-                                                    .localize(datetime.now()) \
-                                                    .strftime('%Y-%m-%d %H:%M%z')
+        catalog.metadata['POT-Creation-Date'] = pytz.timezone(
+            settings.TIME_ZONE
+        ).localize(datetime.now()).strftime('%Y-%m-%d %H:%M%z')
 
         terms = [smart_str(arg) for arg in args]
         entry_count = 0

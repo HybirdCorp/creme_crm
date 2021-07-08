@@ -40,9 +40,7 @@ def skipIfCustomGraph(test_func):
 @skipIfCustomGraph
 class GraphsTestCase(CremeTestCase):
     def login(self, allowed_apps=('graphs',), *args, **kwargs):
-        return super().login(allowed_apps=allowed_apps,
-                             *args, **kwargs
-                            )
+        return super().login(allowed_apps=allowed_apps, *args, **kwargs)
 
     def test_graph_create(self):
         user = self.login()
@@ -51,11 +49,9 @@ class GraphsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         name = 'Graph01'
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.id,
-                                          'name': name,
-                                         },
-                                   )
+        response = self.client.post(
+            url, follow=True, data={'user': user.id, 'name': name},
+        )
         self.assertNoFormError(response)
 
         graphs = Graph.objects.all()
@@ -72,11 +68,9 @@ class GraphsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         name += '_edited'
-        response = self.client.post(url, follow=True,
-                                    data={'user': user.id,
-                                          'name': name,
-                                         },
-                                   )
+        response = self.client.post(
+            url, follow=True, data={'user': user.id, 'name': name},
+        )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(graph).name)
 
@@ -108,18 +102,20 @@ class GraphsTestCase(CremeTestCase):
         context = response.context
         self.assertEqual(
             _('Add relation types to «{entity}»').format(entity=graph),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(_('Save'), context.get('submit_label'))
 
         # ---
         rtype_create = RelationType.create
-        rtype01 = rtype_create(('test-subject_love', 'loves'),
-                               ('test-object_love',  'is loved to')
-                              )[0]
-        rtype02 = rtype_create(('test-subject_hate', 'hates'),
-                               ('test-object_hate',  'is hated to')
-                              )[0]
+        rtype01 = rtype_create(
+            ('test-subject_love', 'loves'),
+            ('test-object_love',  'is loved to'),
+        )[0]
+        rtype02 = rtype_create(
+            ('test-subject_hate', 'hates'),
+            ('test-object_hate',  'is hated to'),
+        )[0]
         rtypes_ids = [rtype01.id, rtype02.id]
 
         self.assertNoFormError(self.client.post(url, data={'relation_types': rtypes_ids}))
@@ -146,7 +142,7 @@ class GraphsTestCase(CremeTestCase):
 
         rtype = RelationType.create(
             ('test-subject_love', 'loves'),
-            ('test-object_love', 'is loved to')
+            ('test-object_love', 'is loved to'),
         )[0]
         graph.orbital_relation_types.add(rtype)
         self.assertPOST403(
@@ -163,14 +159,16 @@ class GraphsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # Tests an encoding error, pygraphviz supports unicode...
-        rtype = RelationType.create(('test-subject_hate', 'déteste'),
-                                    ('test-object_hate',  'est détesté par')
-                                   )[0]
-        Relation.objects.create(user=user,
-                                subject_entity=contact,
-                                type=rtype,
-                                object_entity=orga,
-                               )
+        rtype = RelationType.create(
+            ('test-subject_hate', 'déteste'),
+            ('test-object_hate',  'est détesté par'),
+        )[0]
+        Relation.objects.create(
+            user=user,
+            subject_entity=contact,
+            type=rtype,
+            object_entity=orga,
+        )
 
         graph = Graph.objects.create(user=user, name='Graph01')
         url = reverse('graphs__add_roots', args=(graph.id,))
@@ -212,9 +210,10 @@ class GraphsTestCase(CremeTestCase):
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
         self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'graphs'), dirname(fullpath))
-        self.assertEqual(f'attachment; filename="{basename(fullpath)}"',
-                         response['Content-Disposition']
-                        )
+        self.assertEqual(
+            f'attachment; filename="{basename(fullpath)}"',
+            response['Content-Disposition'],
+        )
 
         # Consume stream to avoid error message "ResourceWarning: unclosed file..."
         _ = [*response.streaming_content]
@@ -227,12 +226,14 @@ class GraphsTestCase(CremeTestCase):
 
         # TODO: factorise
         rtype_create = RelationType.create
-        rtype01 = rtype_create(('test-subject_love', 'loves'),
-                               ('test-object_love',  'is loved to')
-                              )[0]
-        rtype02 = rtype_create(('test-subject_hate', 'hates'),
-                               ('test-object_hate',  'is hated to')
-                              )[0]
+        rtype01 = rtype_create(
+            ('test-subject_love', 'loves'),
+            ('test-object_love',  'is loved to')
+        )[0]
+        rtype02 = rtype_create(
+            ('test-subject_hate', 'hates'),
+            ('test-object_hate',  'is hated to'),
+        )[0]
 
         graph = Graph.objects.create(user=user, name='Graph01')
         url = reverse('graphs__add_roots', args=(graph.id,))
@@ -241,9 +242,10 @@ class GraphsTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
         context = response.context
-        self.assertEqual(_('Add root nodes to «{entity}»').format(entity=graph),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Add root nodes to «{entity}»').format(entity=graph),
+            context.get('title'),
+        )
         self.assertEqual(_('Save'), context.get('submit_label'))
 
         # ----
@@ -267,7 +269,7 @@ class GraphsTestCase(CremeTestCase):
         )
         self.assertSetEqual(
             {rtype01, rtype02},
-            {*rnodes[0].relation_types.all()}
+            {*rnodes[0].relation_types.all()},
         )
 
         # Delete
@@ -285,12 +287,14 @@ class GraphsTestCase(CremeTestCase):
 
         # TODO: factorise
         rtype_create = RelationType.create
-        rtype01 = rtype_create(('test-subject_love', 'loves'),
-                               ('test-object_love',  'is loved to')
-                              )[0]
-        rtype02 = rtype_create(('test-subject_hate', 'hates'),
-                               ('test-object_hate',  'is hated to')
-                              )[0]
+        rtype01 = rtype_create(
+            ('test-subject_love', 'loves'),
+            ('test-object_love',  'is loved to'),
+        )[0]
+        rtype02 = rtype_create(
+            ('test-subject_hate', 'hates'),
+            ('test-object_hate',  'is hated to'),
+        )[0]
 
         graph = Graph.objects.create(user=user, name='Graph01')
         rnode = RootNode.objects.create(graph=graph, entity=orga)
@@ -301,7 +305,7 @@ class GraphsTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Edit root node for «{entity}»').format(entity=graph),
-            response.context.get('title')
+            response.context.get('title'),
         )
 
         self.assertNoFormError(

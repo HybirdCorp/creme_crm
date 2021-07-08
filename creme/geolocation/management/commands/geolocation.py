@@ -215,9 +215,10 @@ class CSVPopulator:
 
 class CSVTownPopulator(CSVPopulator):
     def __init__(self, defaults=None, chunksize=100):
-        super().__init__(['title', 'zipcode', 'latitude', 'longitude', 'country'],
-                         defaults=defaults, chunksize=chunksize,
-                        )
+        super().__init__(
+            ['title', 'zipcode', 'latitude', 'longitude', 'country'],
+            defaults=defaults, chunksize=chunksize,
+        )
 
     def line_error(self, e, row, context):
         logger.error('    invalid data (line %d) : %s', context.line, e)
@@ -237,13 +238,15 @@ class CSVTownPopulator(CSVPopulator):
 
         build_town = partial(Town, country=country)
 
-        return [build_town(name=name,
-                           slug=slug,
-                           zipcode=zipcode,
-                           latitude=latitude,
-                           longitude=longitude,
-                          ) for zipcode in zipcodes
-               ]
+        return [
+            build_town(
+                name=name,
+                slug=slug,
+                zipcode=zipcode,
+                latitude=latitude,
+                longitude=longitude,
+            ) for zipcode in zipcodes
+        ]
 
     def save(self, entries, context):
         get_existing_pk_by_zipcode = dict(
@@ -284,7 +287,9 @@ class Command(BaseCommand):
 
     def populate_addresses(self, verbosity=0):
         self.sysout('Populate geolocation information of addresses...', verbosity > 0)
-        GeoAddress.populate_geoaddresses(get_address_model().objects.exclude(zipcode='', city=''))
+        GeoAddress.populate_geoaddresses(
+            get_address_model().objects.exclude(zipcode='', city='')
+        )
 
     def import_town_database(self, url, defaults):
         try:

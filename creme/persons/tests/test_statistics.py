@@ -26,28 +26,28 @@ class PersonsStatisticsTestCase(CremeTestCase):
         customer1 = create_orga(name='Customer#1')
         customer2 = create_orga(name='Customer#2')
         customer3 = create_orga(name='Customer#3')
-        customer4 = Contact.objects.create(user=user,
-                                           first_name='Customer#4',
-                                           last_name='Customer#4',
-                                          )
+        customer4 = Contact.objects.create(
+            user=user, first_name='Customer#4', last_name='Customer#4',
+        )
 
         create_rel = partial(Relation.objects.create, user=user, type_id=rtype_id)
         create_rel(subject_entity=customer1, object_entity=managed1)
         create_rel(subject_entity=customer2, object_entity=managed1)
         create_rel(subject_entity=customer3, object_entity=managed1)
-        create_rel(subject_entity=customer3, object_entity=managed1,
-                   type_id=constants.REL_SUB_PARTNER,
-                  )
+        create_rel(
+            subject_entity=customer3, object_entity=managed1,
+            type_id=constants.REL_SUB_PARTNER,
+        )
         create_rel(subject_entity=customer1, object_entity=managed2)
         create_rel(subject_entity=customer4, object_entity=managed2)
 
-        format = _('For {name}: {related_count}').format
+        fmt = _('For {name}: {related_count}').format
         self.assertListEqual(
             [
-                format(name=managed1.name, related_count=3),
-                format(name=managed2.name, related_count=2),
+                fmt(name=managed1.name, related_count=3),
+                fmt(name=managed2.name, related_count=2),
             ],
-            stat()
+            stat(),
         )
 
     def test_customers(self):

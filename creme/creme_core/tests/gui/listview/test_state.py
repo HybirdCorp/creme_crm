@@ -13,9 +13,10 @@ class ListViewStateTestCase(CremeTestCase):
         super().setUpClass()
 
         cls.factory = RequestFactory()
-        cls.user = CremeUser(username='yui', email='kawa.yui@kimengumi.jp',
-                             first_name='Yui', last_name='Kawa',
-                            )
+        cls.user = CremeUser(
+            username='yui', email='kawa.yui@kimengumi.jp',
+            first_name='Yui', last_name='Kawa',
+        )
         cls.url = FakeContact.get_lv_absolute_url()
 
     def _assertLVSEmpty(self, lvs):

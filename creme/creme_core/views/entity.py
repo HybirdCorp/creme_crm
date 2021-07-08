@@ -305,7 +305,8 @@ def _bulk_has_perm(entity, user):  # NB: indeed 'entity' can be a simple model..
     return user.has_perm_to_change(owner) if isinstance(owner, CremeEntity) else False
 
 
-class InnerEdition(base.ContentTypeRelatedMixin, generic.CremeModelEditionPopup):
+class InnerEdition(base.ContentTypeRelatedMixin,
+                   generic.CremeModelEditionPopup):
     # model = ...
     # form_class = ...
     pk_url_kwarg = 'id'
@@ -981,8 +982,7 @@ class EntityDeletion(EntityDeletionMixin,
 
 
 class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,
-                              generic.CremeModelDeletion,
-                             ):
+                              generic.CremeModelDeletion):
     def check_instance_permissions(self, instance, user):
         try:
             entity = instance.get_related_entity()

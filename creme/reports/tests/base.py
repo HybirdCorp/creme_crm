@@ -195,9 +195,11 @@ class BaseReportsTestCase(CremeTestCase):
             object_entity=nerv,
         )
 
-    def _create_invoice(self, source, target, name='Invoice#01',
-                        total_vat=Decimal('0'), issuing_date=None,
-                       ):
+    def _create_invoice(self, source, target,
+                        name='Invoice#01',
+                        total_vat=Decimal('0'),
+                        issuing_date=None,
+                        ):
         user = self.user
         invoice = FakeInvoice.objects.create(
             user=user,
@@ -224,10 +226,12 @@ class BaseReportsTestCase(CremeTestCase):
         user = user or self.user
         report = self._create_simple_documents_report(user)
         return ReportGraph.objects.create(
-            user=user, linked_report=report,
+            user=user,
+            linked_report=report,
             name='Number of created documents / year',
             # abscissa_cell_value='created', abscissa_type=constants.RGT_YEAR,
-            abscissa_cell_value='created', abscissa_type=ReportGraph.Group.YEAR,
+            abscissa_cell_value='created',
+            abscissa_type=ReportGraph.Group.YEAR,
             # ordinate_type=constants.RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )

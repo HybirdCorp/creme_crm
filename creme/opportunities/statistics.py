@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,9 +32,10 @@ from .constants import REL_OBJ_EMIT_ORGA
 class CurrentYearStatistics:
     label = _('Opportunities (current year)')
     relation_type_id = REL_OBJ_EMIT_ORGA
-    invalid_message = _('The field «Actual closing date» is hidden ; '
-                        'these statistics are not available.'
-                       )
+    invalid_message = _(
+        'The field «Actual closing date» is hidden ; '
+        'these statistics are not available.'
+    )
     message_format = _('For {organisation}: {won_stats} / {lost_stats}')
 
     def __init__(self, opp_model, orga_model):
@@ -88,15 +89,17 @@ class CurrentYearStatistics:
             for orga_id in mngd_orga_ids:
                 agg_kwargs[f'won_{orga_id}'] = Count(
                     'relations_w_orga__object_entity_id',
-                    filter=Q(relations_w_orga__object_entity=orga_id,
-                             sales_phase__won=True,
-                            ),
+                    filter=Q(
+                        relations_w_orga__object_entity=orga_id,
+                        sales_phase__won=True,
+                    ),
                 )
                 agg_kwargs[f'lost_{orga_id}'] = Count(
                     'relations_w_orga__object_entity_id',
-                    filter=Q(relations_w_orga__object_entity=orga_id,
-                             sales_phase__lost=True,
-                            ),
+                    filter=Q(
+                        relations_w_orga__object_entity=orga_id,
+                        sales_phase__lost=True,
+                    ),
                 )
 
             agg = opp_model.objects.annotate(

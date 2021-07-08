@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -111,13 +111,13 @@ class ListViewState:
                          header_filters: HeaderFilterList,
                          # id=-1,
                          id: str = '',
-                         default_id: str = '') -> HeaderFilter:
+                         default_id: str = '',
+                         ) -> HeaderFilter:
         # Try first to get the posted header filter which is the most recent.
         # Then try to retrieve the header filter from session, then fallback
-        hf = header_filters.select_by_id(id,
-                                         self.header_filter_id,
-                                         default_id,
-                                        )
+        hf = header_filters.select_by_id(
+            id, self.header_filter_id, default_id,
+        )
 
         if hf is None:
             raise NoHeaderFilterAvailable()
@@ -129,7 +129,8 @@ class ListViewState:
     def set_entityfilter(self,
                          entity_filters: EntityFilterList,
                          filter_id: str,
-                         default_id: str = '') -> Optional[EntityFilter]:
+                         default_id: str = '',
+                         ) -> Optional[EntityFilter]:
         """Select an EntityFilter & store it.
 
         @param entity_filters: EntityFilterList instance

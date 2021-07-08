@@ -21,9 +21,8 @@
 # import warnings
 from itertools import chain, zip_longest
 
+from django import forms
 from django.core.exceptions import ValidationError
-from django.forms.fields import CharField, IntegerField, TypedChoiceField
-from django.forms.widgets import Textarea
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -104,20 +103,31 @@ class _PollFormLineForm(CremeModelForm):
 
 # TODO: get the fields from PollLineTypes objects ???
 class PollFormLineCreateForm(_PollFormLineForm):
-    type        = TypedChoiceField(label=_('Type'), choices=PollLineType.choices(),
-                                   coerce=int, initial=PollLineType.STRING,
-                                  )
-    lower_bound = IntegerField(label=_('Lower bound'), required=False,
-                               help_text=_('For integer type only.'),
-                              )
-    upper_bound = IntegerField(label=_('Upper bound'), required=False,
-                               help_text=_('For integer type only.'),
-                              )
-    choices     = CharField(widget=Textarea(), label=_('Available choices'), required=False,
-                            help_text=_('Give the possible choices (one per line) '
-                                        'if you choose the type "Choice list".'
-                                       ),
-                           )
+    type = forms.TypedChoiceField(
+        label=_('Type'),
+        choices=PollLineType.choices(),
+        coerce=int,
+        initial=PollLineType.STRING,
+    )
+    lower_bound = forms.IntegerField(
+        label=_('Lower bound'),
+        required=False,
+        help_text=_('For integer type only.'),
+    )
+    upper_bound = forms.IntegerField(
+        label=_('Upper bound'),
+        required=False,
+        help_text=_('For integer type only.'),
+    )
+    choices = forms.CharField(
+        widget=forms.Textarea,
+        label=_('Available choices'),
+        required=False,
+        help_text=_(
+            'Give the possible choices (one per line) '
+            'if you choose the type "Choice list".'
+        ),
+    )
 
     def __init__(self, section=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -171,9 +181,11 @@ class PollFormLineCreateForm(_PollFormLineForm):
                 (len(section_lines), gettext('End of section')),
             ]
 
-            self.fields['index'] = TypedChoiceField(
-                label=gettext('Order'), coerce=int,
-                choices=choices, initial=len(choices) - 1,
+            self.fields['index'] = forms.TypedChoiceField(
+                label=gettext('Order'),
+                coerce=int,
+                choices=choices,
+                initial=len(choices) - 1,
             )
 
     def clean(self):
@@ -233,9 +245,10 @@ class PollFormLineEditForm(_PollFormLineForm):
 
     error_messages = {
         'empty_choices': _('Choices can not be empty.'),
-        'used_choice': _('You can not delete the choice "%(choice)s" because it '
-                         'is used in a condition by the question "%(question)s".'
-                        ),
+        'used_choice': _(
+            'You can not delete the choice "%(choice)s" because it '
+            'is used in a condition by the question "%(question)s".'
+        ),
     }
 
     def __init__(self, *args, **kwargs):
@@ -251,8 +264,9 @@ class PollFormLineEditForm(_PollFormLineForm):
                 label=gettext('Existing choices'),
                 help_text=gettext('Uncheck the choices you want to delete.'),
             )
-            fields['new_choices'] = CharField(
-                widget=Textarea(), required=False,
+            fields['new_choices'] = forms.CharField(
+                widget=forms.Textarea,
+                required=False,
                 label=gettext('New choices of the list'),
                 help_text=gettext('Give the new possible choices (one per line).')
             )
@@ -269,9 +283,10 @@ class PollFormLineEditForm(_PollFormLineForm):
                 choice = choice.strip()
 
                 if not choice:
-                    raise ValidationError(self.error_messages['empty_choices'],
-                                          code='empty_choices',
-                                         )  # TODO: move this validation to the field ??
+                    raise ValidationError(
+                        self.error_messages['empty_choices'],
+                        code='empty_choices',
+                    )  # TODO: move this validation to the field ??
 
                 choices_2_keep.append((existing_choice[0], choice))
 
@@ -324,10 +339,11 @@ class PollFormLineEditForm(_PollFormLineForm):
                 )
             )
 
-            self.type_args = PollLineType.build_serialized_args(ptype=self.instance.type,
-                                                                choices=choices_2_keep,
-                                                                del_choices=choices_2_del,
-                                                               )  # Can raise Validation errors
+            self.type_args = PollLineType.build_serialized_args(
+                ptype=self.instance.type,
+                choices=choices_2_keep,
+                del_choices=choices_2_del,
+            )  # Can raise Validation errors
 
         return cleaned_data
 
@@ -339,11 +355,12 @@ class PollFormLineEditForm(_PollFormLineForm):
 
 
 class PollFormLineConditionsForm(CremeForm):
-    use_or     = TypedChoiceField(label=_('Use OR or AND between conditions'),
-                                  choices=[(0, _('AND')), (1, _('OR'))],
-                                  coerce=(lambda x: bool(int(x))),
-                                  widget=CremeRadioSelect,
-                                 )
+    use_or = forms.TypedChoiceField(
+        label=_('Use OR or AND between conditions'),
+        choices=[(0, _('AND')), (1, _('OR'))],
+        coerce=(lambda x: bool(int(x))),
+        widget=CremeRadioSelect,
+    )
     conditions = PollFormLineConditionsField(label=_('Conditions'), required=False)
 
     def __init__(self, entity, line, *args, **kwargs):
@@ -360,7 +377,7 @@ class PollFormLineConditionsForm(CremeForm):
         conditions_f.initial = conditions
 
     def save(self, *args, **kwargs):
-        line  = self.line
+        line = self.line
         cdata = self.cleaned_data
 
         update_model_instance(line, conds_use_or=cdata['use_or'])

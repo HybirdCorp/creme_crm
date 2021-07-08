@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -95,7 +95,7 @@ class ActivityUnlinking(generic.CremeDeletion):
         request = self.request
         POST = request.POST
         activity_id = get_from_POST_or_404(POST, self.activity_pk_arg, cast=int)
-        subject_id   = get_from_POST_or_404(POST, self.entity_pk_arg, cast=int)
+        subject_id = get_from_POST_or_404(POST, self.entity_pk_arg, cast=int)
         entities_per_id = CremeEntity.objects.in_bulk([activity_id, subject_id])
 
         if len(entities_per_id) != 2:
@@ -113,8 +113,9 @@ class ActivityUnlinking(generic.CremeDeletion):
     def perform_deletion(self, request):
         entities = self.get_entities()
 
-        for relation in Relation.objects.filter(subject_entity=entities['entity'].id,
-                                                type__in=self.relation_types,
-                                                object_entity=entities['activity'].id,
-                                               ):
+        for relation in Relation.objects.filter(
+            subject_entity=entities['entity'].id,
+            type__in=self.relation_types,
+            object_entity=entities['activity'].id,
+        ):
             relation.delete()

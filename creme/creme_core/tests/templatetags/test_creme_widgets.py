@@ -14,8 +14,9 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         s = FakeSector(title='<i>Yello</i>')
 
         with self.assertNoException():
-            tpl = Template(r'{% load creme_widgets %}{% widget_hyperlink object %}')
-            render = tpl.render(Context({'object': s}))
+            render = Template(
+                r'{% load creme_widgets %}{% widget_hyperlink object %}'
+            ).render(Context({'object': s}))
 
         self.assertEqual(render, '&lt;i&gt;Yello&lt;/i&gt;')
 
@@ -25,21 +26,23 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         s.get_absolute_url = lambda: '/creme_core/sectors'
 
         with self.assertNoException():
-            tpl = Template(r'{% load creme_widgets %}{% widget_hyperlink object %}')
-            render = tpl.render(Context({'object': s}))
+            render = Template(
+                r'{% load creme_widgets %}{% widget_hyperlink object %}'
+            ).render(Context({'object': s}))
 
         self.assertEqual(render, '<a href="/creme_core/sectors">Yello&lt;br&gt;</a>')
 
     def test_widget_entity_hyperlink01(self):
-        "Escaping"
+        "Escaping."
         user = self.login()
 
         name = 'NERV'
         orga = FakeOrganisation.objects.create(user=user, name=name + '<br/>')  # escaping OK ??
 
         with self.assertNoException():
-            tpl = Template(r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}')
-            render = tpl.render(Context({'user': user, 'my_entity': orga}))
+            render = Template(
+                r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}'
+            ).render(Context({'user': user, 'my_entity': orga}))
 
         self.assertEqual(
             render,
@@ -68,36 +71,42 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='Seele', is_deleted=True)
 
         with self.assertNoException():
-            tpl = Template(r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}')
-            render = tpl.render(Context({'user': user, 'my_entity': orga}))
-
-        self.assertEqual(render,
-                         f'<a href="/tests/organisation/{orga.id}" class="is_deleted">{orga}</a>'
-                        )
-
-    @override_settings(URLIZE_TARGET_BLANK=False)
-    def test_widget_urlize01(self):
-        "No target"
-        with self.assertNoException():
-            tpl = Template(r'{% load creme_widgets %}{{text|widget_urlize}}')
-            render = tpl.render(Context({'text': 'Do not forget to visit www.cremecrm.com'}))
+            render = Template(
+                r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}'
+            ).render(Context({'user': user, 'my_entity': orga}))
 
         self.assertEqual(
             render,
-            'Do not forget to visit <a href="http://www.cremecrm.com">www.cremecrm.com</a>'
+            f'<a href="/tests/organisation/{orga.id}" class="is_deleted">{orga}</a>'
+        )
+
+    @override_settings(URLIZE_TARGET_BLANK=False)
+    def test_widget_urlize01(self):
+        "No target."
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}{{text|widget_urlize}}'
+            ).render(Context({'text': 'Do not forget to visit www.cremecrm.com'}))
+
+        self.assertEqual(
+            render,
+            'Do not forget to visit <a href="http://www.cremecrm.com">www.cremecrm.com</a>',
         )
 
     @override_settings(URLIZE_TARGET_BLANK=True)
     def test_widget_urlize02(self):
-        "Target"
+        "Target."
         with self.assertNoException():
-            tpl = Template(r'{% load creme_widgets %}{{text|widget_urlize}}')
-            render = tpl.render(Context({'text': 'Do not forget to visit www.cremecrm.com'}))
+            render = Template(
+                r'{% load creme_widgets %}{{text|widget_urlize}}'
+            ).render(
+                Context({'text': 'Do not forget to visit www.cremecrm.com'}),
+            )
 
         self.assertEqual(
             render,
             'Do not forget to visit <a target="_blank" rel="noopener noreferrer" '
-            'href="http://www.cremecrm.com">www.cremecrm.com</a>'
+            'href="http://www.cremecrm.com">www.cremecrm.com</a>',
         )
 
     # TODO: complete

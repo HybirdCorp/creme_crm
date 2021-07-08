@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,10 @@ from .base import ImportBackend
 class XLSImportBackend(XlrdReader, ImportBackend):
     id = 'xls'
     verbose_name = _('XLS File')
-    help_text = _('XLS is a file extension for a spreadsheet file format created by '
-                  'Microsoft for use with Microsoft Excel (Excel 97-2003 Workbook).'
-                 )
+    help_text = _(
+        'XLS is a file extension for a spreadsheet file format created by '
+        'Microsoft for use with Microsoft Excel (Excel 97-2003 Workbook).'
+    )
 
 
 class XLSXImportBackend(XlrdReader, ImportBackend):

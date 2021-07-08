@@ -198,7 +198,9 @@ class GraphFetchingBase(base.CheckedView):
 
         rgraph, x, y = self.get_graph_data(request=request, order=str(order))
 
-        self.save_settings(rgraph=rgraph, chart=chart, asc=order.asc, save_settings=save)
+        self.save_settings(
+            rgraph=rgraph, chart=chart, asc=order.asc, save_settings=save,
+        )
 
         # TODO: send error too ?
         return self.response_class({'x': x, 'y': y})
@@ -242,10 +244,11 @@ class GraphFetchingBase(base.CheckedView):
                 if (chart and chart != rgraph.chart) or asc != rgraph.asc:
                     type(rgraph).objects.filter(id=rgraph.id).update(**update_kw)
             else:
-                logger.warning('The ReportGraph id="%s" cannot be edited, '
-                               'so the settings are not saved.',
-                               rgraph.id
-                              )
+                logger.warning(
+                    'The ReportGraph id="%s" cannot be edited, '
+                    'so the settings are not saved.',
+                    rgraph.id
+                )
 
 
 class GraphFetching(base.EntityRelatedMixin, GraphFetchingBase):

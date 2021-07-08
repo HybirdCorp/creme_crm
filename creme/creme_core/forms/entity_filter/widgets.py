@@ -89,9 +89,12 @@ class FieldConditionSelector(ChainedInput):
         self.autocomplete = autocomplete
 
     def _build_valueinput(self, field_attrs):
-        pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
+        pinput = PolymorphicInput(
+            key='${field.type}.${operator.id}',
+            attrs={'auto': False},
+        )
 
-        EQUALS_OPS = '{}|{}'.format(operators.EQUALS, operators.EQUALS_NOT)
+        EQUALS_OPS = f'{operators.EQUALS}|{operators.EQUALS_NOT}'
         add_input = pinput.add_input
         add_input(
             '^enum(__null)?.({})$'.format(EQUALS_OPS),
@@ -141,8 +144,12 @@ class FieldConditionSelector(ChainedInput):
 
     def _build_operatorchoices(self, operators):
         return [
-            (json_dump({'id': op.type_id, 'types': ' '.join(op.allowed_fieldtypes)}),
-             op.verbose_name,
+            (
+                json_dump({
+                    'id': op.type_id,
+                    'types': ' '.join(op.allowed_fieldtypes),
+                }),
+                op.verbose_name,
             ) for op in operators
         ]
 
@@ -207,7 +214,10 @@ class FieldConditionSelector(ChainedInput):
         if isinstance(field, ModelDateField):
             return 'date' + isnull
 
-        if isinstance(field, (ModelIntegerField, ModelFloatField, ModelDecimalField)):
+        if isinstance(
+            field,
+            (ModelIntegerField, ModelFloatField, ModelDecimalField),
+        ):
             return 'number' + isnull
 
         if isinstance(field, ModelBooleanField):
@@ -264,8 +274,13 @@ class ConditionListWidget(SelectorList):
 
 
 class RegularFieldsConditionsWidget(ConditionListWidget):
-    def __init__(self, model=CremeEntity, fields=(), efilter_registry=None,
-                 attrs=None, enabled=True):  # TODO: use 'enabled'
+    def __init__(self,
+                 model=CremeEntity,
+                 fields=(),
+                 efilter_registry=None,
+                 attrs=None,
+                 enabled=True,  # TODO: use
+                 ):
         super().__init__(None, attrs)
         self.model = model
         self.fields = fields
@@ -412,7 +427,12 @@ class CustomFieldConditionSelector(FieldConditionSelector):
 class CustomFieldsConditionsWidget(ConditionListWidget):
     empty_selector_label = _('No custom field at present.')
 
-    def __init__(self, fields=(), efilter_registry=None, attrs=None, enabled=True):
+    def __init__(self,
+                 fields=(),
+                 efilter_registry=None,
+                 attrs=None,
+                 enabled=True,
+                 ):
         super().__init__(None, attrs)
         self.fields = fields
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
@@ -493,9 +513,11 @@ class RelationsConditionsWidget(ConditionListWidget):
         add_dselect(rtype_name, options=rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect('ctype', options=ctype_url, attrs={**attrs_json, 'autocomplete': True})
 
-        chained_input.add_input('entity', widget=RelationTargetInput,
-                                attrs={'auto': False}, key='${ctype}', multiple=True,
-                               )
+        chained_input.add_input(
+            'entity',
+            widget=RelationTargetInput,
+            attrs={'auto': False}, key='${ctype}', multiple=True,
+        )
 
         return chained_input
 
@@ -531,7 +553,11 @@ class RelationSubfiltersConditionsWidget(ConditionListWidget):
         add_dselect(
             'filter',
             options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
-            attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _('(no filter)')},
+            attrs={
+                'auto': False,
+                'autocomplete': True,
+                'data-placeholder': _('(no filter)'),
+            },
         )
 
         return chained_input
@@ -551,9 +577,11 @@ class PropertiesConditionsWidget(ConditionListWidget):
         chained_input = ChainedInput(attrs)
 
         add_dselect = chained_input.add_dselect
-        add_dselect('has', options=_HAS_PROPERTY_OPTIONS.items(),
-                    attrs={'auto': False, 'datatype': 'json'},
-                   )
+        add_dselect(
+            'has',
+            options=_HAS_PROPERTY_OPTIONS.items(),
+            attrs={'auto': False, 'datatype': 'json'},
+        )
         add_dselect('ptype', options=ptypes, attrs={'auto': False})
 
         return chained_input

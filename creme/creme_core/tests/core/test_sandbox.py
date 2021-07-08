@@ -44,9 +44,10 @@ class SandboxTestCase(CremeTestCase):
         with self.assertRaises(_SandboxTypeRegistry.Error) as cm:
             registry.register(TestSandboxType2_3)
 
-        self.assertEqual(f'Duplicated sandbox type id: {TestSandboxType2_3.id}',
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            f'Duplicated sandbox type id: {TestSandboxType2_3.id}',
+            str(cm.exception),
+        )
 
         sandbox1 = Sandbox(type_id=TestSandboxType2_2.id)
         self.assertIsInstance(registry.get(sandbox1), TestSandboxType2_2)
@@ -65,7 +66,7 @@ class SandboxTestCase(CremeTestCase):
             logs_manager.output,
             [
                 f'CRITICAL:creme.creme_core.core.sandbox:Unknown SandboxType: '
-                f'{TestSandboxType2_4.id}'
+                f'{TestSandboxType2_4.id}',
             ],
         )
 
@@ -80,22 +81,23 @@ class SandboxTestCase(CremeTestCase):
         with self.assertRaises(_SandboxTypeRegistry.Error) as cm:
             registry.register(TestSandboxType)
 
-        self.assertEqual(f'SandBox class with empty id: {TestSandboxType}',
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            f'SandBox class with empty id: {TestSandboxType}',
+            str(cm.exception),
+        )
 
     def test_sandbox_data(self):
         user = self.create_user()
-        fmt = 'Restricted to "{}"'
+        fmt = 'Restricted to "{}"'.format
 
         class TestSandboxType3(SandboxType):
             id = SandboxType.generate_id('creme_core', 'test3')
 
             @property
             def verbose_name(self):
-                return fmt.format(self.sandbox.user)
+                return fmt(self.sandbox.user)
 
         sandbox_type_registry.register(TestSandboxType3)  # TODO: unregister in tearDown ?
 
         sandbox = Sandbox(type_id=TestSandboxType3.id, user=user)
-        self.assertEqual(fmt.format(user), sandbox.type.verbose_name)
+        self.assertEqual(fmt(user), sandbox.type.verbose_name)

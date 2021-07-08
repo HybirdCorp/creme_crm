@@ -240,9 +240,7 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
     def test_set_none02(self):
         "Set None after not None on virtual field (cache invalidation)."
         entity = self.entity.get_real_entity()
-        todo = FakeTodo(title='My todo',
-                        creme_entity=entity,
-                       )
+        todo = FakeTodo(title='My todo', creme_entity=entity)
 
         todo.creme_entity = None
         self.assertIsNone(todo.entity_id)

@@ -133,24 +133,17 @@ class AbstractActivity(CremeEntity):
             Example : BEGIN:VEVENT\nUID:http://cremecrm.com
         """
         from ..utils import get_ical_date
-        return """BEGIN:VEVENT
+        return f"""BEGIN:VEVENT
 UID:http://cremecrm.com
-DTSTAMP:{dtstamp}
-SUMMARY:{summary}
-DTSTART:{dtstart}
-DTEND:{dtend}
-LOCATION:{location}
-CATEGORIES:{categories}
-STATUS:{status}
+DTSTAMP:{get_ical_date(now())}
+SUMMARY:{self.title}
+DTSTART:{get_ical_date(self.start)}
+DTEND:{get_ical_date(self.end)}
+LOCATION:
+CATEGORIES:{self.type.name}
+STATUS:
 END:VEVENT
-""".format(dtstamp=get_ical_date(now()),
-           summary=self.title,
-           dtstart=get_ical_date(self.start),
-           dtend=get_ical_date(self.end),
-           location='',
-           categories=self.type.name,
-           status='',
-          )
+"""
 
     @classmethod
     def get_creation_title(cls, type_id):

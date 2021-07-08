@@ -45,13 +45,16 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     ROLE_CREATION_URL = reverse('creme_config__create_role')
     DEL_CREDS_URL = reverse('creme_config__remove_role_credentials')
 
-    def _build_add_creds_url(self, role):
+    @staticmethod
+    def _build_add_creds_url(role):
         return reverse('creme_config__add_credentials_to_role', args=(role.id,))
 
-    def _build_wizard_edit_url(self, role):
+    @staticmethod
+    def _build_wizard_edit_url(role):
         return reverse('creme_config__edit_role', args=(role.id,))
 
-    def _build_del_role_url(self, role):
+    @staticmethod
+    def _build_del_role_url(role):
         return reverse('creme_config__delete_role', args=(role.id,))
 
     def login_not_as_superuser(self):
@@ -309,7 +312,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 (False, _('All the conditions are met')),
                 (True,  _('Any condition is met')),
             ],
-            use_or_choices
+            use_or_choices,
         )
 
         self.assertIn('customfieldcondition', fields6)
@@ -351,7 +354,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(set_type, creds.set_type)
         self.assertEqual(ct_contact, creds.ctype)
         self.assertTrue(creds.forbidden)
-        self.assertEqual(EntityCredentials.VIEW | EntityCredentials.LINK, creds.value)
+        self.assertEqual(
+            EntityCredentials.VIEW | EntityCredentials.LINK,
+            creds.value,
+        )
 
         efilter = creds.efilter
         self.assertIsNotNone(efilter)
@@ -362,16 +368,17 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        self.assertEqual(condition_handler.RegularFieldConditionHandler.type_id,
-                         condition.type
-                        )
+        self.assertEqual(
+            condition_handler.RegularFieldConditionHandler.type_id,
+            condition.type,
+        )
         self.assertEqual(filter_field_name, condition.name)
         self.assertDictEqual(
             {
                 'operator': filter_operator_id,
                 'values': [filter_field_value],
             },
-            condition.value
+            condition.value,
         )
 
     def test_creation_wizard03(self):
@@ -468,7 +475,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         condition = conditions[0]
         self.assertEqual(
             condition_handler.RegularFieldConditionHandler.type_id,
-            condition.type
+            condition.type,
         )
         self.assertEqual(filter_field_name, condition.name)
         self.assertDictEqual(
@@ -476,7 +483,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 'operator': filter_operator_id,
                 'values': [filter_field_value],
             },
-            condition.value
+            condition.value,
         )
 
     def test_creation_wizard04(self):
@@ -492,29 +499,33 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role.save()
 
         other_user = User.objects.create(username='chloe', role=role)
-        contact = FakeContact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
+        contact = FakeContact.objects.create(
+            user=user, first_name='Yuki', last_name='Kajiura',
+        )
         self.assertFalse(other_user.has_perm_to_view(contact))
 
         self.assertEqual(0, role.credentials.count())
 
         # GET (Step 1) ---
         url = self._build_add_creds_url(role)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-wizard-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(
+            response1, 'creme_core/generics/blockform/edit-wizard-popup.html',
+        )
 
-        context = response.context
+        get_ctxt = response1.context.get
         self.assertEqual(
             _('Add credentials to «{object}»').format(object=role),
-            context.get('title'),
+            get_ctxt('title'),
         )
-        self.assertFalse(context.get('help_message'))
+        self.assertFalse(get_ctxt('help_message'))
 
-        self.assertEqual(_('Next step'), context.get('submit_label'))
+        self.assertEqual(_('Next step'), get_ctxt('submit_label'))
 
         # POST (Step 1) ---
         set_type = SetCredentials.ESET_ALL
         step_key = 'credentials_adding_wizard-current_step'
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             data={
                 step_key: '0',
@@ -530,12 +541,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 '0-can_unlink': False,
             },
         )
-        self.assertNoFormError(response)
-        self.assertEqual(_('Add the credentials'), response.context.get('submit_label'))
+        self.assertNoFormError(response2)
+        self.assertEqual(_('Add the credentials'), response2.context.get('submit_label'))
 
         # GET (Step 2) ---
         with self.assertNoException():
-            fields2 = response.context['form'].fields
+            fields2 = response2.context['form'].fields
             label_field = fields2['no_filter_label']
 
         self.assertEqual(1, len(fields2))
@@ -545,18 +556,17 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Conditions'), label_field.label)
         self.assertEqual(
             _('No filter, no condition.'),
-            label_field.initial
+            label_field.initial,
         )
 
         # POST (Step 2) ---
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 step_key: '1',
                 # '1-use_or': 0,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         setcreds = role.credentials.all()
         self.assertEqual(1, len(setcreds))
@@ -737,7 +747,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response, 'form', None, _('No action has been selected.')
+            response, 'form', None, _('No action has been selected.'),
         )
 
     def test_add_credentials_with_filter01(self):
@@ -780,7 +790,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             fconds_f = fields['regularfieldcondition']
 
         self.assertEqual(
-            _('Beware to performances with conditions on custom fields or relationships.'),
+            _(
+                'Beware to performances with conditions on custom fields or relationships.'
+            ),
             help_message,
         )
 
@@ -860,7 +872,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         rtype = RelationType.create(
             ('test-subject_recruited', 'Has recruited'),
-            ('test-object_recruited',  'Has been recruited by')
+            ('test-object_recruited',  'Has been recruited by'),
         )[0]
         ptype = CremePropertyType.create(str_pk='test-prop_is_secret', text='Is secret')
         custom_field = CustomField.objects.create(
@@ -907,10 +919,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                     'operator': {'id': str(cfield_operator)},
                     'value':    cfield_value,
                 }]),
-                '1-relationcondition': json_dump(
-                    [{'has': True, 'rtype': rtype.id, 'ctype': 0, 'entity': None}]
-                ),
-                '1-propertycondition': json_dump([{'has': True, 'ptype': ptype.id}]),
+                '1-relationcondition': json_dump([
+                    {'has': True, 'rtype': rtype.id, 'ctype': 0, 'entity': None},
+                ]),
+                '1-propertycondition': json_dump([
+                    {'has': True, 'ptype': ptype.id},
+                ]),
             },
         )
         self.assertNoFormError(response)
@@ -1043,7 +1057,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         condition = conditions[0]
         self.assertEqual(
             condition_handler.RegularFieldConditionHandler.type_id,
-            condition.type
+            condition.type,
         )
         self.assertEqual(field_name, condition.name)
         self.assertDictEqual(
@@ -1111,7 +1125,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         context = response.context
         self.assertEqual(
             _('Edit credentials for «{role}»').format(role=role),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(_('Next step'), context.get('submit_label'))
 
@@ -1299,7 +1313,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         rtype = RelationType.create(
             ('test-subject_recruited', 'Has been recruited by'),
-            ('test-object_recruited',  'Has recruited')
+            ('test-object_recruited',  'Has recruited'),
         )[0]
         ptype = CremePropertyType.create(str_pk='test-prop_is_nice', text='Is nice')
         custom_field = CustomField.objects.create(
@@ -1390,12 +1404,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                     'operator': {'id': str(cfield_operator)},
                     'value':    cfield_value,
                 }]),
-                '1-relationcondition': json_dump(
-                    [{'has': True, 'rtype': rtype.id, 'ctype': 0, 'entity': None}],
-                ),
-                '1-propertycondition': json_dump(
-                    [{'has': True, 'ptype': ptype.id}],
-                ),
+                '1-relationcondition': json_dump([
+                    {'has': True, 'rtype': rtype.id, 'ctype': 0, 'entity': None},
+                ]),
+                '1-propertycondition': json_dump([
+                    {'has': True, 'ptype': ptype.id},
+                ]),
             },
         )
         self.assertNoFormError(response)
@@ -1429,13 +1443,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 'rname':    'customfieldinteger',
                 'values':   [str(cfield_value)],
             },
-            condition1.value
+            condition1.value,
         )
 
         condition2 = conditions[1]
         self.assertEqual(
             condition_handler.RelationConditionHandler.type_id,
-            condition2.type
+            condition2.type,
         )
         self.assertEqual(rtype.id,      condition2.name)
         self.assertEqual({'has': True}, condition2.value)
@@ -1443,7 +1457,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         condition3 = conditions[2]
         self.assertEqual(
             condition_handler.PropertyConditionHandler.type_id,
-            condition3.type
+            condition3.type,
         )
         self.assertEqual(ptype.id, condition3.name)
         self.assertIs(condition3.value, True)
@@ -1524,9 +1538,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 step_key: '1',
                 '1-name': name,
                 '1-use_or': 'True',
-                '1-propertycondition': json_dump(
-                    [{'has': True, 'ptype': ptype.id}]
-                ),
+                '1-propertycondition': json_dump([
+                    {'has': True, 'ptype': ptype.id},
+                ]),
             },
         )
         self.assertNoFormError(response)
@@ -1693,7 +1707,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # Step 2 (POST form) ---
         name = 'My secret entities'
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 step_key: '1',
@@ -1701,8 +1715,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 '1-use_or': 'True',
                 '1-propertycondition': json_dump([{'has': True, 'ptype': ptype.id}]),
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         setcreds = role.credentials.all()
         self.assertEqual(1, len(setcreds))
@@ -1873,7 +1886,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role.save()
 
         create_creds = partial(
-            SetCredentials.objects.create, role=role, set_type=SetCredentials.ESET_ALL,
+            SetCredentials.objects.create,
+            role=role, set_type=SetCredentials.ESET_ALL,
         )
         sc1 = create_creds(value=EntityCredentials.VIEW)
         sc2 = create_creds(value=EntityCredentials.CHANGE)
@@ -1912,12 +1926,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         url = self._build_wizard_edit_url(role)
 
         # Step 1 ---
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
         self.assertTemplateUsed(
-            response, 'creme_core/generics/blockform/edit-wizard-popup.html',
+            response1, 'creme_core/generics/blockform/edit-wizard-popup.html',
         )
 
-        context1 = response.context
+        context1 = response1.context
         self.assertEqual(_('Next step'), context1.get('submit_label'))
 
         with self.assertNoException():
@@ -1934,7 +1948,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         step_key = 'role_edition_wizard-current_step'
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             data={
                 step_key: '0',
@@ -1942,11 +1956,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 '0-allowed_apps': apps,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         # Step 2 ---
         with self.assertNoException():
-            adm_app_labels = response.context['form'].fields['admin_4_apps'].choices
+            adm_app_labels = response2.context['form'].fields['admin_4_apps'].choices
 
         self.assertInChoices(
             value=apps[0], label=_('Accounts and Contacts'), choices=adm_app_labels,
@@ -1956,18 +1970,18 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNotInChoices(value='activities', choices=adm_app_labels)
 
-        response = self.client.post(
+        response3 = self.client.post(
             url,
             data={
                 step_key: '1',
                 '1-admin_4_apps': adm_apps,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
         # Step 3 ---
         with self.assertNoException():
-            creatable_ctypes = {*response.context['form'].fields['creatable_ctypes'].ctypes}
+            creatable_ctypes = {*response3.context['form'].fields['creatable_ctypes'].ctypes}
 
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(Contact)
@@ -1979,17 +1993,17 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(ct_doc, creatable_ctypes)
         self.assertNotIn(get_ct(Activity), creatable_ctypes)  # App not allowed
 
-        response = self.client.post(
+        response4 = self.client.post(
             url,
             data={
                 step_key: '2',
                 '2-creatable_ctypes': [ct_contact.id, ct_doc.id],
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response4)
 
         # Step 4 ---
-        context4 = response.context
+        context4 = response4.context
         self.assertEqual(_('Save the modifications'), context4.get('submit_label'))
 
         with self.assertNoException():
@@ -2001,14 +2015,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(ct_doc, exp_ctypes)
         self.assertNotIn(get_ct(Activity), exp_ctypes)  # App not allowed
 
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 step_key: '3',
                 '3-exportable_ctypes': [ct_contact.id],
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         role = self.refresh(role)
         self.assertEqual(name, role.name)

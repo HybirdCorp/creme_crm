@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,11 +63,13 @@ class ToDoForm(CremeModelForm):
                 deadline_hour = get_data('deadline_hour')
 
                 if deadline_hour is None:
-                    self.add_error('deadline_hour', _('The hour is required if you set a date.'))
+                    self.add_error(
+                        'deadline_hour',
+                        _('The hour is required if you set a date.'),
+                    )
                 else:
-                    cdata['deadline'] = make_aware_dt(datetime.combine(deadline,
-                                                                       time(deadline_hour)
-                                                                      )
-                                                     )
+                    cdata['deadline'] = make_aware_dt(
+                        datetime.combine(deadline, time(deadline_hour))
+                    )
 
         return cdata

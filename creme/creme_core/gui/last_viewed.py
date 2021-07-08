@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,11 +44,12 @@ class LastViewedItem:
         return self.pk == other.pk
 
     def as_dict(self) -> dict:
-        return {'pk':       self.pk,
-                'url':      self.url,
-                'name':     self.name,
-                'modified': dt_to_ISO8601(self.modified),
-               }
+        return {
+            'pk':       self.pk,
+            'url':      self.url,
+            'name':     self.name,
+            'modified': dt_to_ISO8601(self.modified),
+        }
 
     @classmethod
     def from_dict(cls, data: dict):
@@ -104,7 +105,9 @@ class LastViewedItem:
             updated = False
 
             if len(old_items) > MAX_LAST_ITEMS:
-                updated = True  # The settings has change since the list has been stored
+                # The settings has change since the list has been stored
+                updated = True
+
                 del old_items[MAX_LAST_ITEMS:]
 
             entities = CremeEntity.objects.filter(

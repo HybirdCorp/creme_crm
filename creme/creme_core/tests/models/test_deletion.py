@@ -189,16 +189,17 @@ class DeletionCommandTestCase(CremeTestCase):
                     object=civ.title, model='Test civility',
                 ),
             ],
-            deletor_type.get_description(job)
+            deletor_type.get_description(job),
         )
         progress = deletor_type.progress(job)
         self.assertIsNone(progress.percentage)
         self.assertEqual(
-            ngettext('{count} entity updated.',
-                     '{count} entities updated.',
-                     0
-                    ).format(count=0),
-            progress.label
+            ngettext(
+                '{count} entity updated.',
+                '{count} entities updated.',
+                0
+            ).format(count=0),
+            progress.label,
         )
 
         deletor_type.execute(job)
@@ -250,12 +251,14 @@ class DeletionCommandTestCase(CremeTestCase):
 
         job = self.refresh(job)
         self.assertListEqual(
-            [ngettext('{count} entity updated.',
-                      '{count} entities updated.',
-                      1
-                     ).format(count=1),
+            [
+                ngettext(
+                    '{count} entity updated.',
+                    '{count} entities updated.',
+                    1
+                ).format(count=1),
             ],
-            deletor_type.get_stats(job)
+            deletor_type.get_stats(job),
         )
         progress = deletor_type.progress(job)
         self.assertEqual(100, progress.percentage)
@@ -273,7 +276,7 @@ class DeletionCommandTestCase(CremeTestCase):
                     new=civ.title,
                 ),
             ],
-            deletor_type.get_description(job)
+            deletor_type.get_description(job),
         )
 
     def test_deletor_job03(self):

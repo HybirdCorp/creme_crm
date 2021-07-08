@@ -58,8 +58,7 @@ class FirstCTypeCustomFieldCreation(base.ConfigModelCreation):
 
 
 class CustomFieldCreation(EntityCTypeRelatedMixin,
-                          base.ConfigModelCreation,
-                         ):
+                          base.ConfigModelCreation):
     model = CustomField
     form_class = cf_forms.CustomFieldCreationForm
 

@@ -140,6 +140,7 @@ class Command(BaseCommand):
                                 action_count += 1
 
         if verbosity:
-            self.stdout.write(f'Number of backend used: {backend_count}\n'
-                              f'Number of actions created: {action_count}'
-                             )
+            self.stdout.write(
+                f'Number of backend used: {backend_count}\n'
+                f'Number of actions created: {action_count}'
+            )

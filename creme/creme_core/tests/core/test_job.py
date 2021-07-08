@@ -68,9 +68,10 @@ class JobTypeRegistryTestCase(CremeTestCase):
         with self.assertRaises(_JobTypeRegistry.Error) as cm:
             registry.register(TestJobType2)
 
-        self.assertEqual(f'Duplicated job type id: {TestJobType1.id}',
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            f'Duplicated job type id: {TestJobType1.id}',
+            str(cm.exception),
+        )
 
     def test_register04(self):
         "Empty ID."
@@ -83,9 +84,10 @@ class JobTypeRegistryTestCase(CremeTestCase):
         with self.assertRaises(_JobTypeRegistry.Error) as cm:
             registry.register(TestJobType)
 
-        self.assertEqual(f'Empty JobType id: {TestJobType}',
-                         str(cm.exception)
-                        )
+        self.assertEqual(
+            f'Empty JobType id: {TestJobType}',
+            str(cm.exception),
+        )
 
 
 class JobSchedulerTestCase(CremeTestCase):
@@ -159,6 +161,7 @@ class JobSchedulerTestCase(CremeTestCase):
 
         self._register_reminder(TestReminder)
 
-        self.assertEqual(rounded_hour + timedelta(hours=1),
-                         JobScheduler()._next_wakeup(job)
-                        )
+        self.assertEqual(
+            rounded_hour + timedelta(hours=1),
+            JobScheduler()._next_wakeup(job),
+        )

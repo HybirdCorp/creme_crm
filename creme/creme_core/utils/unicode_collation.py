@@ -5,7 +5,7 @@
 # found at: https://github.com/jtauber/pyuca
 
 # Copyright (c) 2006-2013 James Tauber and contributors
-# Copyright (c) 2013-2019 Hybird
+# Copyright (c) 2013-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -77,10 +77,11 @@ class _Collator:
             filename = join(dirname(__file__), 'allkeys.txt')
 
         # weights = {} #cache of (int, int, int, int) elements
-        match = compile_re(r'^(?P<charList>[0-9A-F]{4,6}(?:[\s]+[0-9A-F]{4,6})*)[\s]*;[\s]*'
-                           r'(?P<collElement>(?:[\s]*\[(?:[\*|\.][0-9A-F]{4,6}){3,4}\])+)[\s]*'
-                           r'(?:#.*$|$)'
-                          ).match
+        match = compile_re(
+            r'^(?P<charList>[0-9A-F]{4,6}(?:[\s]+[0-9A-F]{4,6})*)[\s]*;[\s]*'
+            r'(?P<collElement>(?:[\s]*\[(?:[\*|\.][0-9A-F]{4,6}){3,4}\])+)[\s]*'
+            r'(?:#.*$|$)'
+        ).match
         findall_ce = compile_re(r'\[.([^\]]+)\]?').findall  # 'ce' means 'collation element'
         add = self._add
 
@@ -90,11 +91,13 @@ class _Collator:
 
                 if re_result is not None:
                     group = re_result.group
-                    add([int(ch, 16) for ch in group('charList').split()],
-                        [tuple(int(weight, 16) for weight in coll_element.split('.'))
+                    add(
+                        [int(ch, 16) for ch in group('charList').split()],
+                        [
+                            tuple(int(weight, 16) for weight in coll_element.split('.'))
                             for coll_element in findall_ce(group('collElement'))
-                        ]
-                       )
+                        ],
+                    )
                 elif not line.startswith(('#', '@')) and line.split():
                     info('ERROR in line %s:', line)
 
@@ -119,7 +122,7 @@ class _Collator:
             curr_node = next_node
             step += 1
 
-        return (curr_node.value, key[step:])
+        return curr_node.value, key[step:]
 
     def sort_key(self, string):
         find_prefix = self._find_prefix
@@ -134,9 +137,10 @@ class _Collator:
                 # contributed by David Schneider 2009-07-27
                 # http://www.unicode.org/reports/tr10/#Implicit_Weights
                 key = lookup_key[0]
-                value = [(0xFB40 + (key >> 15), 0x0020, 0x0002, 0x0001),
-                         ((key & 0x7FFF) | 0x8000, 0x0000, 0x0000, 0x0000),
-                        ]
+                value = [
+                    (0xFB40 + (key >> 15), 0x0020, 0x0002, 0x0001),
+                    ((key & 0x7FFF) | 0x8000, 0x0000, 0x0000, 0x0000),
+                ]
                 lookup_key = lookup_key[1:]
             extend(value)
 

@@ -42,9 +42,10 @@ class OperatorTestCase(CremeTestCase):
 
         self.assertQEqual(
             Q(name__contains='Acme'),
-            ContainsOp().get_q(model=FakeOrganisation,
-                               field_name='name', values=['Acme'],
-                              )
+            ContainsOp().get_q(
+                model=FakeOrganisation,
+                field_name='name', values=['Acme'],
+            ),
         )
 
     def test_get_q2(self):
@@ -54,9 +55,10 @@ class OperatorTestCase(CremeTestCase):
 
         self.assertQEqual(
             Q(last_name__endswith='foo') | Q(last_name__endswith='bar'),
-            EndsOp().get_q(model=FakeContact,
-                           field_name='last_name', values=['foo', 'bar'],
-                          )
+            EndsOp().get_q(
+                model=FakeContact,
+                field_name='last_name', values=['foo', 'bar'],
+            ),
         )
 
     def test_validate_field_values01(self):
@@ -67,7 +69,7 @@ class OperatorTestCase(CremeTestCase):
         values = ['Acme']
         self.assertEqual(
             values,
-            op.validate_field_values(field=field, values=[*values])
+            op.validate_field_values(field=field, values=[*values]),
         )
 
     def test_validate_field_values02(self):
@@ -78,7 +80,7 @@ class OperatorTestCase(CremeTestCase):
         values = ['1000', '3000']
         self.assertEqual(
             values,
-            op.validate_field_values(field=field, values=[*values])
+            op.validate_field_values(field=field, values=[*values]),
         )
 
         with self.assertRaises(ValidationError):
@@ -92,7 +94,7 @@ class OperatorTestCase(CremeTestCase):
         values = ['toto@']
         self.assertEqual(
             values,
-            op1.validate_field_values(field=field, values=[*values])
+            op1.validate_field_values(field=field, values=[*values]),
         )
 
         class DoNotAcceptSubPartOperator(operators.ConditionOperator):
@@ -150,7 +152,7 @@ class OperatorTestCase(CremeTestCase):
         values = [str(lang1.id), str(lang2.id)]
         self.assertEqual(
             values,
-            op.validate_field_values(field=field, values=[*values])
+            op.validate_field_values(field=field, values=[*values]),
         )
 
         with self.assertRaises(ValidationError):
@@ -182,59 +184,63 @@ class OperatorTestCase(CremeTestCase):
         fmt = _('«{field}» is {values}').format
         fmt_value = _('«{enum_value}»').format
         self.assertEqual(
-            fmt(field=field,
+            fmt(
+                field=field,
                 values=fmt_value(enum_value=value1),
-               ),
-            op.description(field_vname=field, values=[value1])
+            ),
+            op.description(field_vname=field, values=[value1]),
         )
 
         value2 = 28
         self.assertEqual(
-            fmt(field=field,
+            fmt(
+                field=field,
                 values=_('{first} or {last}').format(
                     first=fmt_value(enum_value=value1),
                     last=fmt_value(enum_value=value2),
                 ),
-               ),
+            ),
             op.description(field_vname=field, values=[value1, value2])
         )
 
         value3 = 42
         self.assertEqual(
-            fmt(field=field,
+            fmt(
+                field=field,
                 values=_('{first} or {last}').format(
-                    first='{}, {}'.format(
-                        fmt_value(enum_value=value1),
-                        fmt_value(enum_value=value2),
-                    ),
+                    first=f'{fmt_value(enum_value=value1)}, '
+                          f'{fmt_value(enum_value=value2)}',
                     last=fmt_value(enum_value=value3),
                 ),
-               ),
-            op.description(field_vname=field, values=[value1, value2, value3])
+            ),
+            op.description(field_vname=field, values=[value1, value2, value3]),
         )
 
     def test_equals_get_q(self):
         op = operators.EqualsOperator()
         self.assertQEqual(
             Q(name__exact='Acme'),
-            op.get_q(model=FakeOrganisation,
-                     field_name='name',
-                     values=['Acme'],
-                    )
+            op.get_q(
+                model=FakeOrganisation,
+                field_name='name',
+                values=['Acme'],
+            ),
         )
         self.assertQEqual(
             Q(last_name__in=['Spiegel', 'Black']),
-            op.get_q(model=FakeContact,
-                     field_name='last_name',
-                     values=['Spiegel', 'Black'],
-                    )
+            op.get_q(
+                model=FakeContact,
+                field_name='last_name',
+                values=['Spiegel', 'Black'],
+            ),
         )
         self.assertQEqual(
             Q(),
-            op.get_q(model=FakeContact,
-                     field_name='last_name',
-                     values=[],  # Should not happen...
-                    )
+            op.get_q(
+                model=FakeContact,
+                field_name='last_name',
+                values=[],  # Should not happen...
+            ),
         )
 
     def test_equals_accept(self):
@@ -366,43 +372,46 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('??', op.description(field_vname=field, values=[]))
         self.assertEqual(
             _('«{field}» is empty').format(field=field),
-            op.description(field_vname=field, values=[True])
+            op.description(field_vname=field, values=[True]),
         )
         self.assertEqual(
             _('«{field}» is not empty').format(field=field),
-            op.description(field_vname=field, values=[False])
+            op.description(field_vname=field, values=[False]),
         )
 
         self.assertEqual(
             _('«{field}» is empty').format(field=field),
-            op.description(field_vname=field, values=['True'])  # not Bool
+            op.description(field_vname=field, values=['True']),  # not Bool
         )
 
     def test_is_empty_get_q(self):
         op = operators.IsEmptyOperator()
         self.assertQEqual(
             Q(sector__isnull=True),
-            op.get_q(model=FakeOrganisation,
-                     field_name='sector',
-                     values=[True],
-                    )
+            op.get_q(
+                model=FakeOrganisation,
+                field_name='sector',
+                values=[True],
+            ),
         )
         self.assertQEqual(
             Q(last_name__isnull=True) | Q(last_name=''),
-            op.get_q(model=FakeContact,
-                     field_name='last_name',
-                     values=[True],
-                    )
+            op.get_q(
+                model=FakeContact,
+                field_name='last_name',
+                values=[True],
+            ),
         )
 
         q3 = Q(last_name__isnull=True) | Q(last_name='')
         q3.negate()
         self.assertQEqual(
             q3,
-            op.get_q(model=FakeContact,
-                     field_name='last_name',
-                     values=[False],
-                    )
+            op.get_q(
+                model=FakeContact,
+                field_name='last_name',
+                values=[False],
+            ),
         )
 
     def test_is_empty_accept(self):
@@ -450,7 +459,7 @@ class OperatorTestCase(CremeTestCase):
         values1 = [1000, 2000]
         self.assertEqual(
             [values1],
-            op.validate_field_values(field=field, values=[*values1])
+            op.validate_field_values(field=field, values=[*values1]),
         )
 
         with self.assertRaises(ValidationError):
@@ -466,10 +475,11 @@ class OperatorTestCase(CremeTestCase):
         op = operators.RangeOperator()
         self.assertQEqual(
             Q(capital__range=[1000, 10000]),
-            op.get_q(model=FakeOrganisation,
-                     field_name='capital',
-                     values=[[1000, 10000]],
-                    )
+            op.get_q(
+                model=FakeOrganisation,
+                field_name='capital',
+                values=[[1000, 10000]],
+            ),
         )
 
     def test_range_accept(self):
@@ -488,9 +498,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__gt', op.key_pattern)
         self.assertIs(op.accept_subpart, True)
-        self.assertEqual(operators.FIELDTYPES_ORDERABLE,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_ORDERABLE, op.allowed_fieldtypes)
 
         field = 'capital'
         self.assertEqual('??', op.description(field_vname=field, values=[]))
@@ -514,7 +522,7 @@ class OperatorTestCase(CremeTestCase):
                     last=fmt_value(enum_value=value2),
                 ),
             ),
-            op.description(field_vname=field, values=[value1, value2])
+            op.description(field_vname=field, values=[value1, value2]),
         )
 
     def test_gt_accept(self):
@@ -542,7 +550,7 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value1),
             ),
-            op.description(field_vname=field, values=[value1])
+            op.description(field_vname=field, values=[value1]),
         )
 
     def test_gte_accept(self):
@@ -561,9 +569,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertIs(op.exclude, False)
         self.assertEqual('{}__lt', op.key_pattern)
         self.assertIs(op.accept_subpart, True)
-        self.assertEqual(operators.FIELDTYPES_ORDERABLE,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_ORDERABLE, op.allowed_fieldtypes)
 
         field = 'order'
         value = 8
@@ -600,7 +606,7 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_lte_accept(self):
@@ -619,9 +625,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__iexact',                   op.key_pattern)
         self.assertFalse(op.accept_subpart)
         self.assertFalse(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'name'
         self.assertEqual('??', op.description(field_vname=field, values=[]))
@@ -632,7 +636,7 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_iequals_accept(self):
@@ -651,9 +655,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__iexact',                           op.key_pattern)
         self.assertFalse(op.accept_subpart)
         self.assertTrue(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'first_name'
         value = 'Spike'
@@ -680,9 +682,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__contains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'info'
         value = 'important'
@@ -691,7 +691,7 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_contains_accept(self):
@@ -729,9 +729,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__contains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Info'
         value = 'ignore'
@@ -740,18 +738,18 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_contains_not_accept(self):
-        op = operators.ContainsNotOperator()
-        self.assertIs(op.accept(field_value='Evil corp',        values=['inc']), True)
-        self.assertIs(op.accept(field_value='Acme corporation', values=['inc']), True)
-        self.assertIs(op.accept(field_value='Nerv inc.',        values=['inc']), False)
+        accept = operators.ContainsNotOperator().accept
+        self.assertIs(accept(field_value='Evil corp',        values=['inc']), True)
+        self.assertIs(accept(field_value='Acme corporation', values=['inc']), True)
+        self.assertIs(accept(field_value='Nerv inc.',        values=['inc']), False)
 
-        self.assertIs(op.accept(field_value='Evil corp', values=['cme', 'erv']),  True)
-        self.assertIs(op.accept(field_value='Evil corp', values=['cor', 'erv']),  False)
-        self.assertIs(op.accept(field_value='Evil corp', values=['cme', 'vil']), False)
+        self.assertIs(accept(field_value='Evil corp', values=['cme', 'erv']),  True)
+        self.assertIs(accept(field_value='Evil corp', values=['cor', 'erv']),  False)
+        self.assertIs(accept(field_value='Evil corp', values=['cme', 'vil']), False)
 
     def test_icontains(self):
         op = self.get_operator(operators.ICONTAINS)
@@ -760,9 +758,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__icontains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Information'
         value = 'IMPORTANT'
@@ -771,7 +767,7 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_icontains_accept(self):
@@ -790,9 +786,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__icontains', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Information'
         value = 'IgNoRe'
@@ -801,7 +795,7 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_icontains_not_accept(self):
@@ -819,9 +813,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__startswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Last_name'
         value = 'sire'
@@ -830,34 +822,34 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_startswith_accept(self):
-        op = operators.StartsWithOperator()
-        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
-        self.assertIs(op.accept(field_value='Evil company', values=['Evil']), True)
+        accept = operators.StartsWithOperator().accept
+        self.assertIs(accept(field_value='Evil corp',    values=['Evil']), True)
+        self.assertIs(accept(field_value='Evil company', values=['Evil']), True)
 
-        self.assertIs(op.accept(field_value='We are not Evil', values=['Evil']), False)
-        self.assertIs(op.accept(field_value='We are not Evil', values=['Evil', 'We']), True)
-        self.assertIs(op.accept(field_value='We are not Evil', values=['We']),   True)
+        self.assertIs(accept(field_value='We are not Evil', values=['Evil']),       False)
+        self.assertIs(accept(field_value='We are not Evil', values=['Evil', 'We']), True)
+        self.assertIs(accept(field_value='We are not Evil', values=['We']),         True)
 
         # Case sensitivity ---
         with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=True) as mock_sensitive:
-            accepted_sensitive = op.accept(field_value='Evil corp', values=['EVIL'])
+            accepted_sensitive = accept(field_value='Evil corp', values=['EVIL'])
 
         mock_sensitive.assert_called_once_with()
         self.assertIs(accepted_sensitive, False)
 
         with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=False) as mock_no_sensitive:
-            accepted_no_sensitive = op.accept(field_value='Evil corp', values=['EVIL'])
+            accepted_no_sensitive = accept(field_value='Evil corp', values=['EVIL'])
 
         mock_no_sensitive.assert_called_once_with()
         self.assertIs(accepted_no_sensitive, True)
 
-        self.assertIs(op.accept(field_value=None, values=['evil']), False)
+        self.assertIs(accept(field_value=None, values=['evil']), False)
 
     def test_startswith_not(self):
         op = self.get_operator(operators.STARTSWITH_NOT)
@@ -866,9 +858,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__startswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Last_name'
         value = 'sire'
@@ -877,16 +867,16 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_startswith_not_accept(self):
-        op = operators.StartswithNotOperator()
-        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), False)
-        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
+        accept = operators.StartswithNotOperator().accept
+        self.assertIs(accept(field_value='Evil corp', values=['Evil']), False)
+        self.assertIs(accept(field_value='Evil corp', values=['corp']), True)
 
-        self.assertIs(op.accept(field_value='Evil company', values=['Evil']), False)
-        self.assertIs(op.accept(field_value='Evil company', values=['comp']), True)
+        self.assertIs(accept(field_value='Evil company', values=['Evil']), False)
+        self.assertIs(accept(field_value='Evil company', values=['comp']), True)
 
     def test_istartswith(self):
         op = self.get_operator(operators.ISTARTSWITH)
@@ -895,9 +885,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__istartswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Last_name'
         value = 'sire'
@@ -906,17 +894,17 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_istartswith_accept(self):
-        op = operators.IStartsWithOperator()
-        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
-        self.assertIs(op.accept(field_value='Evil corp', values=['evil']), True)
-        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), False)
+        accept = operators.IStartsWithOperator().accept
+        self.assertIs(accept(field_value='Evil corp', values=['Evil']), True)
+        self.assertIs(accept(field_value='Evil corp', values=['evil']), True)
+        self.assertIs(accept(field_value='Evil corp', values=['corp']), False)
 
-        self.assertIs(op.accept(field_value='We are not Evil', values=['Evil']), False)
-        self.assertIs(op.accept(field_value=None, values=['evil']), False)
+        self.assertIs(accept(field_value='We are not Evil', values=['Evil']), False)
+        self.assertIs(accept(field_value=None, values=['evil']), False)
 
     def test_istartswith_not(self):
         op = self.get_operator(operators.ISTARTSWITH_NOT)
@@ -925,9 +913,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__istartswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Last_name'
         value = 'sire'
@@ -936,16 +922,16 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_istartswith_not_accept(self):
-        op = operators.IStartswithNotOperator()
-        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), False)
-        self.assertIs(op.accept(field_value='Evil corp', values=['evil']), False)
-        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), True)
+        accept = operators.IStartswithNotOperator().accept
+        self.assertIs(accept(field_value='Evil corp', values=['Evil']), False)
+        self.assertIs(accept(field_value='Evil corp', values=['evil']), False)
+        self.assertIs(accept(field_value='Evil corp', values=['corp']), True)
 
-        self.assertIs(op.accept(field_value='Evil inc.', values=['Evil']), False)
+        self.assertIs(accept(field_value='Evil inc.', values=['Evil']), False)
 
     def test_endswith(self):
         op = self.get_operator(operators.ENDSWITH)
@@ -954,9 +940,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__endswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Last_name'
         value = 'sson'
@@ -965,31 +949,31 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_endswith_accept(self):
-        op = operators.EndsWithOperator()
-        self.assertIs(op.accept(field_value='Evil corp',    values=['corp']), True)
-        self.assertIs(op.accept(field_value='Evil corp',    values=['Evil']), False)
-        self.assertIs(op.accept(field_value='Evil company', values=['corp']), False)
+        accept = operators.EndsWithOperator().accept
+        self.assertIs(accept(field_value='Evil corp',    values=['corp']), True)
+        self.assertIs(accept(field_value='Evil corp',    values=['Evil']), False)
+        self.assertIs(accept(field_value='Evil company', values=['corp']), False)
 
         # Case sensitivity ---
         with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=True) as mock_sensitive:
-            accepted_sensitive = op.accept(field_value='Evil corp', values=['CORP'])
+            accepted_sensitive = accept(field_value='Evil corp', values=['CORP'])
 
         mock_sensitive.assert_called_once_with()
         self.assertIs(accepted_sensitive, False)
 
         with patch('creme.creme_core.core.entity_filter.operators.is_db_like_case_sensitive',
                    return_value=False) as mock_no_sensitive:
-            accepted_no_sensitive = op.accept(field_value='Evil corp', values=['CORP'])
+            accepted_no_sensitive = accept(field_value='Evil corp', values=['CORP'])
 
         mock_no_sensitive.assert_called_once_with()
         self.assertIs(accepted_no_sensitive, True)
 
-        self.assertIs(op.accept(field_value=None, values=['@corp']), False)
+        self.assertIs(accept(field_value=None, values=['@corp']), False)
 
     def test_endswith_not(self):
         op = self.get_operator(operators.ENDSWITH_NOT)
@@ -998,9 +982,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__endswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Last_name'
         value = 'sson'
@@ -1013,10 +995,10 @@ class OperatorTestCase(CremeTestCase):
         )
 
     def test_endswith_not_accept(self):
-        op = self.get_operator(operators.ENDSWITH_NOT)
-        self.assertIs(op.accept(field_value='Evil corp',    values=['corp']), False)
-        self.assertIs(op.accept(field_value='Evil corp',    values=['Evil']), True)
-        self.assertIs(op.accept(field_value='Evil company', values=['corp']), True)
+        accept = self.get_operator(operators.ENDSWITH_NOT).accept
+        self.assertIs(accept(field_value='Evil corp',    values=['corp']), False)
+        self.assertIs(accept(field_value='Evil corp',    values=['Evil']), True)
+        self.assertIs(accept(field_value='Evil company', values=['corp']), True)
 
     def test_iendswith(self):
         op = self.get_operator(operators.IENDSWITH)
@@ -1025,9 +1007,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__iendswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertFalse(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Last_name'
         value = 'sSoN'
@@ -1036,7 +1016,7 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_iendswith_accept(self):
@@ -1056,9 +1036,7 @@ class OperatorTestCase(CremeTestCase):
         self.assertEqual('{}__iendswith', op.key_pattern)
         self.assertTrue(op.accept_subpart)
         self.assertTrue(op.exclude)
-        self.assertEqual(operators.FIELDTYPES_STRING,
-                         op.allowed_fieldtypes
-                        )
+        self.assertEqual(operators.FIELDTYPES_STRING, op.allowed_fieldtypes)
 
         field = 'Last_name'
         value = 'sSoN'
@@ -1067,13 +1045,13 @@ class OperatorTestCase(CremeTestCase):
                 field=field,
                 values=_('«{enum_value}»').format(enum_value=value),
             ),
-            op.description(field_vname=field, values=[value])
+            op.description(field_vname=field, values=[value]),
         )
 
     def test_iendswith_not_accept(self):
-        op = operators.IEndsWithNotOperator()
-        self.assertIs(op.accept(field_value='Evil corp', values=['corp']), False)
-        self.assertIs(op.accept(field_value='Evil corp', values=['CORP']), False)
-        self.assertIs(op.accept(field_value='Evil corp', values=['Evil']), True)
-        self.assertIs(op.accept(field_value='Evil INC',  values=['inc']),  False)
-        self.assertIs(op.accept(field_value='Evil INC',  values=['corp']), True)
+        accept = operators.IEndsWithNotOperator().accept
+        self.assertIs(accept(field_value='Evil corp', values=['corp']), False)
+        self.assertIs(accept(field_value='Evil corp', values=['CORP']), False)
+        self.assertIs(accept(field_value='Evil corp', values=['Evil']), True)
+        self.assertIs(accept(field_value='Evil INC',  values=['inc']),  False)
+        self.assertIs(accept(field_value='Evil INC',  values=['corp']), True)

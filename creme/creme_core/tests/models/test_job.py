@@ -14,24 +14,28 @@ from ..base import CremeTestCase
 
 class JobViewsTestCase(CremeTestCase):
     def test_refresh01(self):
-        "No refresh needed"
+        "No refresh needed."
         queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
         self.assertIs(job.refresh(), False)
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertListEqual([], queue.refreshed_jobs)
 
         # ---
         job.refresh(force=True)
-        self.assertEqual([(job,
-                           {'enabled':       job.enabled,
-                            'reference_run': dt_to_ISO8601(job.reference_run),
-                           },
-                          ),
-                         ],
-                         queue.refreshed_jobs
-                        )
+        self.assertListEqual(
+            [
+                (
+                    job,
+                    {
+                        'enabled':       job.enabled,
+                        'reference_run': dt_to_ISO8601(job.reference_run),
+                    },
+                ),
+            ],
+            queue.refreshed_jobs,
+        )
 
     def test_refresh02(self):
         "Enabled is changed"
@@ -41,56 +45,68 @@ class JobViewsTestCase(CremeTestCase):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
         job.enabled = not job.enabled
         self.assertIs(job.refresh(), False)
-        self.assertEqual([(job,
-                           {'enabled':       job.enabled,
-                            'reference_run': dt_to_ISO8601(job.reference_run),
-                           },
-                          ),
-                         ],
-                         queue.refreshed_jobs
-                        )
+        self.assertListEqual(
+            [
+                (
+                    job,
+                    {
+                        'enabled':       job.enabled,
+                        'reference_run': dt_to_ISO8601(job.reference_run),
+                    },
+                ),
+            ],
+            queue.refreshed_jobs,
+        )
 
     def test_refresh03(self):
-        "Reference_run is changed"
+        "Reference_run is changed."
         queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
         job.reference_run = now()
         self.assertIs(job.refresh(), False)
-        self.assertEqual([(job,
-                           {'enabled':       job.enabled,
-                            'reference_run': dt_to_ISO8601(job.reference_run),
-                           },
-                          ),
-                         ],
-                         queue.refreshed_jobs
-                        )
+        self.assertEqual(
+            [
+                (
+                    job,
+                    {
+                        'enabled':       job.enabled,
+                        'reference_run': dt_to_ISO8601(job.reference_run),
+                    },
+                ),
+            ],
+            queue.refreshed_jobs,
+        )
 
     def test_refresh04(self):
-        "Periodicity is changed"
+        "Periodicity is changed."
         queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
         job.periodicity = MinutesPeriod(1)
         self.assertIs(job.refresh(), False)
-        self.assertEqual([(job,
-                           {'enabled':       job.enabled,
-                            'reference_run': dt_to_ISO8601(job.reference_run),
-                            'periodicity':   {'type': 'minutes', 'value': 1},
-                           },
-                          ),
-                         ],
-                         queue.refreshed_jobs
-                        )
+        self.assertEqual(
+            [
+                (
+                    job,
+                    {
+                        'enabled':       job.enabled,
+                        'reference_run': dt_to_ISO8601(job.reference_run),
+                        'periodicity':   {'type': 'minutes', 'value': 1},
+                    },
+                ),
+            ],
+            queue.refreshed_jobs,
+        )
 
     def test_update01(self):
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
         self.assertIs(False, job.update({}))
 
     def test_update02(self):
-        "Enabled + change"
+        "Enabled + change."
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         new_enabled = not job.enabled
@@ -98,7 +114,7 @@ class JobViewsTestCase(CremeTestCase):
         self.assertEqual(new_enabled, job.enabled)
 
     def test_update03(self):
-        "Enabled + no change"
+        "Enabled + no change."
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         new_enabled = job.enabled
@@ -106,17 +122,18 @@ class JobViewsTestCase(CremeTestCase):
         self.assertEqual(new_enabled, job.enabled)
 
     def test_update04(self):
-        "Reference run + change"
+        "Reference run + change."
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         new_ref_run = '2017-12-25T14:00:00.000000Z'
         self.assertTrue(job.update({'reference_run': new_ref_run}))
-        self.assertEqual(self.create_datetime(year=2017, month=12, day=25, hour=14, utc=True),
-                         job.reference_run
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2017, month=12, day=25, hour=14, utc=True),
+            job.reference_run,
+        )
 
     def test_update05(self):
-        "Reference run + no change"
+        "Reference run + no change."
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         ref_run = job.reference_run
@@ -124,15 +141,15 @@ class JobViewsTestCase(CremeTestCase):
         self.assertEqual(ref_run, job.reference_run)
 
     def test_update06(self):
-        "Periodicity + change"
+        "Periodicity + change."
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         periodicity_dict = {'type': 'minutes', 'value': 3}
         self.assertTrue(job.update({'periodicity': periodicity_dict}))
-        self.assertEqual(periodicity_dict, job.periodicity.as_dict())
+        self.assertDictEqual(periodicity_dict, job.periodicity.as_dict())
 
     def test_update07(self):
-        "Periodicity + no change"
+        "Periodicity + no change."
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
         periodicity = job.periodicity = MinutesPeriod(1)
@@ -145,14 +162,15 @@ class JobViewsTestCase(CremeTestCase):
 
         new_enabled = not job.enabled
         new_ref_run = '2017-12-26T15:00:00.000000Z'
-        self.assertTrue(job.update({'enabled':       new_enabled,
-                                    'reference_run': new_ref_run,
-                                   })
-                       )
+        self.assertTrue(job.update({
+            'enabled':       new_enabled,
+            'reference_run': new_ref_run,
+        }))
         self.assertEqual(new_enabled, job.enabled)
-        self.assertEqual(self.create_datetime(year=2017, month=12, day=26, hour=15, utc=True),
-                         job.reference_run
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2017, month=12, day=26, hour=15, utc=True),
+            job.reference_run,
+        )
 
     # TODO: test sent data (beware to several changes)
     # TODO: test queue error + refresh

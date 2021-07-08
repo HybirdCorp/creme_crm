@@ -23,10 +23,12 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         super().setUp()
         self.login()
 
-    def _build_addcomp_url(self, pattern):
+    @staticmethod
+    def _build_addcomp_url(pattern):
         return reverse('commercial__create_component', args=(pattern.id,))
 
-    def _build_parent_url(self, component):
+    @staticmethod
+    def _build_parent_url(component):
         return reverse('commercial__create_parent_component', args=(component.id,))
 
     def test_create(self):
@@ -36,13 +38,16 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         segment = self._create_segment()
         name = 'ObjPattern#1'
         average_sales = 5000
-        response = self.client.post(url, follow=True,
-                                    data={'user':          self.user.pk,
-                                          'name':          name,
-                                          'average_sales': average_sales,
-                                          'segment':       segment.id,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':          self.user.pk,
+                'name':          name,
+                'average_sales': average_sales,
+                'segment':       segment.id,
+            },
+        )
         self.assertNoFormError(response)
 
         patterns = ActObjectivePattern.objects.all()
@@ -56,10 +61,12 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertRedirects(response, pattern.get_absolute_url())
 
     def _create_pattern(self, name='ObjPattern', average_sales=1000):
-        return ActObjectivePattern.objects.create(user=self.user, name=name,
-                                                  average_sales=average_sales,
-                                                  segment=self._create_segment(),
-                                                 )
+        return ActObjectivePattern.objects.create(
+            user=self.user,
+            name=name,
+            average_sales=average_sales,
+            segment=self._create_segment(),
+        )
 
     def test_edit(self):
         name = 'ObjPattern'
@@ -72,13 +79,16 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         name += '_edited'
         average_sales *= 2
         segment = self._create_segment('Segment#2')
-        response = self.client.post(url, follow=True,
-                                    data={'user':          self.user.pk,
-                                          'name':          name,
-                                          'average_sales': average_sales,
-                                          'segment':       segment.id,
-                                         }
-                                   )
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':          self.user.pk,
+                'name':          name,
+                'average_sales': average_sales,
+                'segment':       segment.id,
+            },
+        )
         self.assertNoFormError(response)
 
         pattern = self.refresh(pattern)
@@ -88,11 +98,13 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_listview(self):
         create_patterns = partial(ActObjectivePattern.objects.create, user=self.user)
-        patterns = [create_patterns(name=f'ObjPattern#{i}',
-                                    average_sales=1000 * i,
-                                    segment=self._create_segment(f'Segment #{i}'),
-                                   ) for i in range(1, 4)
-                   ]
+        patterns = [
+            create_patterns(
+                name=f'ObjPattern#{i}',
+                average_sales=1000 * i,
+                segment=self._create_segment(f'Segment #{i}'),
+            ) for i in range(1, 4)
+        ]
 
         response = self.assertGET200(ActObjectivePattern.get_lv_absolute_url())
 
@@ -104,15 +116,16 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertSetEqual({*patterns}, {*patterns_page.object_list})
 
     def test_add_root_pattern_component01(self):
-        "No parent component, no counted relation"
-        pattern  = self._create_pattern()
+        "No parent component, no counted relation."
+        pattern = self._create_pattern()
 
         url = self._build_addcomp_url(pattern)
-        context = self.assertGET200(url).context
-        self.assertEqual(_('New objective for «{entity}»').format(entity=pattern),
-                         context.get('title')
-                        )
-        self.assertEqual(_('Save the objective'), context.get('submit_label'))
+        get_ctxt = self.assertGET200(url).context.get
+        self.assertEqual(
+            _('New objective for «{entity}»').format(entity=pattern),
+            get_ctxt('title'),
+        )
+        self.assertEqual(_('Save the objective'), get_ctxt('submit_label'))
 
         # ---
         name = 'Signed opportunities'
@@ -135,7 +148,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertIsNone(component.ctype)
 
     def test_add_root_pattern_component02(self):
-        "Counted relation (no parent component)"
+        "Counted relation (no parent component)."
         pattern = self._create_pattern()
         name = 'Called contacts'
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -158,7 +171,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertIsNone(component.filter)
 
     def test_add_root_pattern_component03(self):
-        "Counted relation with filter (no parent component)"
+        "Counted relation with filter (no parent component)."
         pattern = self._create_pattern()
         name = 'Called contacts'
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -182,21 +195,23 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(efilter, component.filter)
 
     def test_add_child_pattern_component01(self):
-        "Parent component"
+        "Parent component."
         pattern = self._create_pattern()
-        comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities',
-                                                             pattern=pattern,
-                                                             success_rate=50,
-                                                            )
+        comp01 = ActObjectivePatternComponent.objects.create(
+            name='Signed opportunities',
+            pattern=pattern,
+            success_rate=50,
+        )
 
         url = reverse('commercial__create_child_component', args=(comp01.id,))
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        self.assertEqual(_('New child objective for «{component}»').format(component=comp01),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New child objective for «{component}»').format(component=comp01),
+            context.get('title')
+        )
         self.assertEqual(_('Save the objective'), context.get('submit_label'))
 
         # ---
@@ -219,7 +234,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertIsNone(comp02.ctype)
 
         name = 'Called contacts'
-        ct   = ContentType.objects.get_for_model(FakeContact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         response = self.client.post(
             url,
             data={
@@ -238,21 +253,20 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_add_parent_pattern_component01(self):
         pattern = self._create_pattern()
-        comp01 = ActObjectivePatternComponent.objects.create(name='Sent mails',
-                                                             pattern=pattern,
-                                                             success_rate=5,
-                                                            )
+        comp01 = ActObjectivePatternComponent.objects.create(
+            name='Sent mails', pattern=pattern, success_rate=5,
+        )
 
         url = self._build_parent_url(comp01)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
-        context = response.context
+        get_ctxt = response.context.get
         self.assertEqual(
             _('New parent objective for «{component}»').format(component=comp01),
-            context.get('title')
+            get_ctxt('title'),
         )
-        self.assertEqual(_('Save the objective'), context.get('submit_label'))
+        self.assertEqual(_('Save the objective'), get_ctxt('submit_label'))
 
         # ---
         name = 'Signed opportunities'
@@ -287,7 +301,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         comp02 = create_comp(name='Spread Vcards',        success_rate=1, parent=comp01)
 
         name = 'Called contacts'
-        ct   = ContentType.objects.get_for_model(FakeContact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         response = self.client.post(
             self._build_parent_url(comp02),
             data={
@@ -319,10 +333,13 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         pattern = self._create_pattern()
         url = self._build_addcomp_url(pattern)
 
-        response = self.client.post(url, data={'name':         'Signed opportunities',
-                                               'success_rate': 0,  # Minimum is 1
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'name':         'Signed opportunities',
+                'success_rate': 0,  # Minimum is 1
+            },
+        )
         self.assertFormError(
             response, 'form', 'success_rate',
             _('Ensure this value is greater than or equal to %(limit_value)s.') % {
@@ -386,13 +403,13 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         return self.client.post(
             reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-            data={'id': comp.id}
+            data={'id': comp.id},
         )
 
     def test_delete_pattern_component01(self):
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(
-            name='Signed opportunities', pattern=pattern, success_rate=20
+            name='Signed opportunities', pattern=pattern, success_rate=20,
         )
 
         self.assertNoFormError(self._delete_comp(comp01), status=302)
@@ -429,8 +446,10 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
     def test_actobjectivepattern_clone01(self):
         pattern = self._create_pattern()
 
-        ct_contact = ContentType.objects.get_for_model(FakeContact)
-        ct_orga    = ContentType.objects.get_for_model(FakeOrganisation)
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(FakeContact)
+        ct_orga    = get_ct(FakeOrganisation)
+
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Ninja', FakeContact, is_custom=True,
         )
@@ -484,7 +503,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         self.assertCompNamesEqual(
             filter_comp(parent__name__in=['1.1', '1.2']),
-            '1.1.1', '1.1.2', '1.2.1', '1.2.2'
+            '1.1.1', '1.1.2', '1.2.1', '1.2.2',
         )
 
         cloned_comp2 = self.get_object_or_fail(
@@ -499,7 +518,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         self.assertCompNamesEqual(
             filter_comp(parent__name__in=['2.1', '2.2']),
-            '2.1.1', '2.1.2', '2.2.1', '2.2.2'
+            '2.1.1', '2.1.2', '2.2.1', '2.2.2',
         )
 
     def test_inneredit(self):

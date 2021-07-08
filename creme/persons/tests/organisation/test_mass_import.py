@@ -18,7 +18,8 @@ from ..base import (
 
 
 @skipIfCustomOrganisation
-class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
+class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
+                                     _BaseTestCase):
     IMPORT_DATA = {
         'step':     1,
         # 'document': doc.id, 'user': self.user.id,
@@ -67,19 +68,20 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         response = self.client.post(
             self._build_import_url(Organisation),
             follow=True,
-            data={**self.IMPORT_DATA,
-                  'document': doc.id,
-                  'user': user.id,
-                  'billaddr_city_colselect': 2,
-                  'shipaddr_city_colselect': 3,
-                 },
+            data={
+                **self.IMPORT_DATA,
+                'document': doc.id,
+                'user': user.id,
+                'billaddr_city_colselect': 2,
+                'shipaddr_city_colselect': 3,
+            },
         )
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
         self.assertListEqual(
             [_('Import «{model}» from {doc}').format(model=_('Organisation'), doc=doc)],
-            job.description
+            job.description,
         )
 
         results = self._get_job_results(job)
@@ -110,7 +112,7 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
                     lines_count
                 ).format(count=lines_count),
             ],
-            job.stats
+            job.stats,
         )
 
     @skipIfCustomAddress
@@ -125,10 +127,10 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         bebop = Organisation.objects.create(user=user, name=name)
 
         country = 'Mars'
-        create_address = partial(Address.objects.create,
-                                 address='XXX', country=country,
-                                 owner=bebop,
-                                )
+        create_address = partial(
+            Address.objects.create,
+            address='XXX', country=country, owner=bebop,
+        )
         bebop.billing_address  = addr1 = create_address(name='Hideout #1', city=city1)
         bebop.shipping_address = addr2 = create_address(name='Hideout #2', city=city2)
         bebop.save()
@@ -142,14 +144,15 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         response = self.client.post(
             self._build_import_url(Organisation),
             follow=True,
-            data={**self.IMPORT_DATA,
-                  'document': doc.id,
-                  'user': user.id,
-                  'key_fields': ['name'],
-                  'email_colselect': 4,
-                  'billaddr_address_colselect': 2,
-                  'shipaddr_address_colselect': 3,
-                 },
+            data={
+                **self.IMPORT_DATA,
+                'document': doc.id,
+                'user': user.id,
+                'key_fields': ['name'],
+                'email_colselect': 4,
+                'billaddr_address_colselect': 2,
+                'shipaddr_address_colselect': 3,
+            },
         )
         self.assertNoFormError(response)
 
@@ -183,13 +186,14 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         doc = self._build_csv_doc([(name, city, po_box)])
         response = self.client.post(
             self._build_import_url(Organisation), follow=True,
-            data={**self.IMPORT_DATA,
-                  'document': doc.id,
-                  'user': user.id,
+            data={
+                **self.IMPORT_DATA,
+                'document': doc.id,
+                'user': user.id,
 
-                  'billaddr_city_colselect':   2,
-                  'billaddr_po_box_colselect': 3,  # Should not be used
-                 },
+                'billaddr_city_colselect':   2,
+                'billaddr_po_box_colselect': 3,  # Should not be used
+            },
         )
         self.assertNoFormError(response)
 
@@ -213,13 +217,14 @@ class OrganisationMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin)
         doc = self._build_csv_doc([(name, 'Tokyo', 'ABC123')])
         response = self.client.post(
             self._build_import_url(Organisation), follow=True,
-            data={**self.IMPORT_DATA,
-                  'document': doc.id,
-                  'user': user.id,
+            data={
+                **self.IMPORT_DATA,
+                'document': doc.id,
+                'user': user.id,
 
-                  'billaddr_city_colselect': 2,  # Should not be used
-                  'billaddr_po_box_colselect': 3,  # Should not be used
-                 },
+                'billaddr_city_colselect': 2,  # Should not be used
+                'billaddr_po_box_colselect': 3,  # Should not be used
+            },
         )
         self.assertNoFormError(response)
 

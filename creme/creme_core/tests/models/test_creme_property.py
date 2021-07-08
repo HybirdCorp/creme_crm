@@ -46,30 +46,33 @@ class CremePropertyTypeTestCase(CremeTestCase):
 
         self.assertTrue(ptype.is_custom)
         self.assertFalse(ptype.is_copiable)
-        self.assertSetEqual({get_ct(FakeContact), orga_ct},
-                            {*ptype.subject_ctypes.all()}
-                           )
+        self.assertSetEqual(
+            {get_ct(FakeContact), orga_ct}, {*ptype.subject_ctypes.all()},
+        )
 
     def test_create03(self):
         "Update existing."
         pk = 'test-prop_foobar'
-        CremePropertyType.create(str_pk=pk, text='is delicious',
-                                 subject_ctypes=[FakeOrganisation],
-                                )
+        CremePropertyType.create(
+            str_pk=pk, text='is delicious', subject_ctypes=[FakeOrganisation],
+        )
 
         text = 'is very delicious'
-        ptype = CremePropertyType.create(str_pk=pk, text=text,
-                                         is_copiable=False,
-                                         is_custom=True,
-                                         subject_ctypes=[FakeContact],
-                                        )
+        ptype = CremePropertyType.create(
+            str_pk=pk,
+            text=text,
+            is_copiable=False,
+            is_custom=True,
+            subject_ctypes=[FakeContact],
+        )
 
         self.assertEqual(text, ptype.text)
         self.assertTrue(ptype.is_custom)
         self.assertFalse(ptype.is_copiable)
-        self.assertListEqual([FakeContact],
-                             [ct.model_class() for ct in ptype.subject_ctypes.all()]
-                            )
+        self.assertListEqual(
+            [FakeContact],
+            [ct.model_class() for ct in ptype.subject_ctypes.all()],
+        )
 
     def test_create04(self):
         "Generate pk."
@@ -85,9 +88,10 @@ class CremePropertyTypeTestCase(CremeTestCase):
         create_ptype = CremePropertyType.create
         ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
         ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
-        ptype3 = create_ptype(str_pk='test-prop_wonderful', text='is wonderful',
-                              subject_ctypes=[FakeContact],
-                             )
+        ptype3 = create_ptype(
+            str_pk='test-prop_wonderful', text='is wonderful',
+            subject_ctypes=[FakeContact],
+        )
 
         # ---
         ptypes1 = CremePropertyType.objects.compatible(FakeContact)
@@ -123,7 +127,7 @@ class CremePropertyTestCase(CremeTestCase):
         text = 'is delicious'
 
         with self.assertNoException():
-            ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text=text)
+            ptype = CremePropertyType.create(str_pk='test-prop_foobar', text=text)
             entity = CremeEntity.objects.create(user=self.user)
             CremeProperty.objects.create(type=ptype, creme_entity=entity)
 
@@ -136,7 +140,7 @@ class CremePropertyTestCase(CremeTestCase):
     def test_manager_safe_create(self):
         text = 'is happy'
 
-        ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text=text)
+        ptype = CremePropertyType.create(str_pk='test-prop_foobar', text=text)
         entity = CremeEntity.objects.create(user=self.user)
 
         CremeProperty.objects.safe_create(type=ptype, creme_entity=entity)

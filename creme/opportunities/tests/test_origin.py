@@ -29,11 +29,10 @@ class OriginTestCase(CremeTestCase):
             target=create_orga(name='Target renegade'),
         )
 
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('opportunities', 'origin', origin.id)
-                                           ),
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('opportunities', 'origin', origin.id),
+        )))
 
         job = self.get_deletion_command_or_fail(Origin).job
         job.type.execute(job)
@@ -57,13 +56,13 @@ class OriginTestCase(CremeTestCase):
             target=create_orga(name='Target renegade'),
         )
 
-        response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('opportunities', 'origin', origin1.id)
-                   ),
+        self.assertNoFormError(self.client.post(
+            reverse(
+                'creme_config__delete_instance',
+                args=('opportunities', 'origin', origin1.id)
+            ),
             data={'replace_opportunities__opportunity_origin': origin2.id},
-        )
-        self.assertNoFormError(response)
+        ))
 
         job = self.get_deletion_command_or_fail(Origin).job
         job.type.execute(job)

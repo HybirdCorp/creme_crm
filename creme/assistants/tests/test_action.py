@@ -23,22 +23,25 @@ class ActionTestCase(AssistantsTestCase):
 
         cls.get_ct = ContentType.objects.get_for_model
 
-    def _build_add_url(self, entity):
+    @staticmethod
+    def _build_add_url(entity):
         return reverse('assistants__create_action', args=(entity.id,))
 
     def _create_action(self, deadline, title='TITLE', descr='DESCRIPTION',
                        reaction='REACTION', entity=None, user=None,
-                      ):
+                       ):
         entity = entity or self.entity
-        user   = user or self.user
-        response = self.client.post(self._build_add_url(entity),
-                                    data={'user':              user.pk,
-                                          'title':             title,
-                                          'description':       descr,
-                                          'expected_reaction': reaction,
-                                          'deadline':          deadline,
-                                         },
-                                   )
+        user = user or self.user
+        response = self.client.post(
+            self._build_add_url(entity),
+            data={
+                'user':              user.pk,
+                'title':             title,
+                'description':       descr,
+                'expected_reaction': reaction,
+                'deadline':          deadline,
+            },
+        )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Action, title=title, description=descr)
@@ -48,13 +51,14 @@ class ActionTestCase(AssistantsTestCase):
 
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
-        self.assertEqual(_('New action for «{entity}»').format(entity=entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New action for «{entity}»').format(entity=entity),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the action'), context.get('submit_label'))
 
-        title    = 'TITLE'
-        descr    = 'DESCRIPTION'
+        title = 'TITLE'
+        descr = 'DESCRIPTION'
         reaction = 'REACTION'
         deadline = '2010-12-24'
         action = self._create_action(deadline, title, descr, reaction)
@@ -69,16 +73,17 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(entity.id,             action.creme_entity.id)
 
         self.assertDatetimesAlmostEqual(now(), action.creation_date)
-        self.assertEqual(self.create_datetime(year=2010, month=12, day=24),
-                         action.deadline
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2010, month=12, day=24),
+            action.deadline,
+        )
 
         self.assertEqual(title, str(action))
 
-        create_bdl = partial(BrickDetailviewLocation.objects.create_if_needed,
-                             model=FakeContact,
-                             zone=BrickDetailviewLocation.RIGHT,
-                            )
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            model=FakeContact, zone=BrickDetailviewLocation.RIGHT,
+        )
         create_bdl(brick=ActionsOnTimeBrick,    order=500)
         create_bdl(brick=ActionsNotOnTimeBrick, order=501)
 
@@ -87,16 +92,17 @@ class ActionTestCase(AssistantsTestCase):
         self.assertTemplateUsed(response, 'assistants/bricks/actions-not-on-time.html')
 
     def test_edit(self):
-        title    = 'TITLE'
-        descr    = 'DESCRIPTION'
+        title = 'TITLE'
+        descr = 'DESCRIPTION'
         reaction = 'REACTION'
         action = self._create_action('2010-12-24', title, descr, reaction)
 
         url = action.get_edit_absolute_url()
         context = self.assertGET200(url).context
-        self.assertEqual(_('Action for «{entity}»').format(entity=self.entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Action for «{entity}»').format(entity=self.entity),
+            context.get('title'),
+        )
 
         # ---
         title    += '_edited'
@@ -122,7 +128,7 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(reaction, action.expected_reaction)
         self.assertEqual(
             self.create_datetime(year=2011, month=11, day=25, hour=17, minute=37),
-            action.deadline
+            action.deadline,
         )
 
     def test_delete_entity01(self):
@@ -158,7 +164,6 @@ class ActionTestCase(AssistantsTestCase):
         self.assertIsNone(action.validation_date)
 
         url = reverse('assistants__validate_action', args=(action.id,))
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
@@ -199,14 +204,16 @@ class ActionTestCase(AssistantsTestCase):
         now_value = now()
 
         create_user = get_user_model().objects.create
-        teammate1 = create_user(username='luffy',
-                                email='luffy@sunny.org', role=self.role,
-                                first_name='Luffy', last_name='Monkey D.',
-                               )
-        teammate2 = create_user(username='zorro',
-                                email='zorro@sunny.org', role=self.role,
-                                first_name='Zorro', last_name='Roronoa',
-                               )
+        teammate1 = create_user(
+            username='luffy',
+            email='luffy@sunny.org', role=self.role,
+            first_name='Luffy', last_name='Monkey D.',
+        )
+        teammate2 = create_user(
+            username='zorro',
+            email='zorro@sunny.org', role=self.role,
+            first_name='Zorro', last_name='Roronoa',
+        )
 
         team1 = create_user(username='Team #1', is_team=True)
         team1.teammates = [teammate1, user]
@@ -214,14 +221,17 @@ class ActionTestCase(AssistantsTestCase):
         team2 = create_user(username='Team #2', is_team=True)
         team2.teammates = [self.other_user, teammate2]
 
-        create_action = partial(Action.objects.create, creme_entity=self.entity,
-                                user=user, deadline=now_value + timedelta(days=1),
-                               )
+        create_action = partial(
+            Action.objects.create,
+            creme_entity=self.entity, user=user,
+            deadline=now_value + timedelta(days=1),
+        )
 
         action1 = create_action(title='Action#1')
         create_action(title='Action#2', user=team2)  # No (other team)
         action3 = create_action(title='Action#3', user=team1)
 
-        self.assertCountEqual([action1, action3],
-                              Action.objects.filter_by_user(user)
-                             )
+        self.assertCountEqual(
+            [action1, action3],
+            Action.objects.filter_by_user(user),
+        )

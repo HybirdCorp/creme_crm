@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,22 +48,24 @@ class MarketSegmentForm(CremeModelForm):
 
         instance = self.instance
         segments = MarketSegment.objects.filter(name=name)
-        ptypes   = CremePropertyType.objects.filter(text=ptype_text)
+        ptypes = CremePropertyType.objects.filter(text=ptype_text)
 
         if instance.pk:
             segments = segments.exclude(pk=instance.pk)
-            ptypes   = ptypes.exclude(pk=instance.property_type_id)
+            ptypes = ptypes.exclude(pk=instance.property_type_id)
 
         if segments.exists():
-            raise ValidationError(self.error_messages['duplicated_name'],
-                                  code='duplicated_name',
-                                 )
+            raise ValidationError(
+                self.error_messages['duplicated_name'],
+                code='duplicated_name',
+            )
 
         if ptypes.exists():
-            raise ValidationError(self.error_messages['duplicated_property'],
-                                  params={'name': ptype_text},
-                                  code='duplicated_property',
-                                 )
+            raise ValidationError(
+                self.error_messages['duplicated_property'],
+                params={'name': ptype_text},
+                code='duplicated_property',
+            )
 
         self.ptype_text = ptype_text
 
@@ -81,20 +83,20 @@ class MarketSegmentForm(CremeModelForm):
                 ptype.save()
         else:
             # is_custom=False ==> CremePropertyType won't be deletable
-            instance.property_type = CremePropertyType.create('commercial-segment',
-                                                              self.ptype_text,
-                                                              generate_pk=True,
-                                                              is_custom=False,
-                                                             )
+            instance.property_type = CremePropertyType.create(
+                'commercial-segment', self.ptype_text,
+                generate_pk=True, is_custom=False,
+            )
 
         return super().save(*args, **kwargs)
 
 
 class SegmentReplacementForm(CremeForm):
-    to_segment = ModelChoiceField(label=_('Choose a segment to replace by'),
-                                  empty_label=None,
-                                  queryset=MarketSegment.objects.none(),
-                                 )
+    to_segment = ModelChoiceField(
+        label=_('Choose a segment to replace by'),
+        empty_label=None,
+        queryset=MarketSegment.objects.none(),
+    )
 
     def __init__(self, instance, *args, **kwargs):
         super().__init__(*args, **kwargs)

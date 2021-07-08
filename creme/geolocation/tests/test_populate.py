@@ -83,25 +83,30 @@ class CSVPopulatorTestCase(CremeTestCase):
 
         populator = InvalidChunkCSVPopulator(['name', 'code'])
 
-        data = (['name', 'code', 'value'],
-                ['A', 11200, 15],
-                ['B', 45400, 23],
-                ['C', 23000, 25],
-               )
+        data = (
+            ['name', 'code', 'value'],
+            ['A', 11200, 15],
+            ['B', 45400, 23],
+            ['C', 23000, 25],
+        )
 
         populator.populate(data)
 
         self.assertListEqual(populator.mock_saved, [])
         self.assertListEqual(populator.mock_line_errors, [])
-        self.assertListEqual(populator.mock_chunk_errors,
-                             [[str(Exception('invalid chunk !')),
-                               [{'name': 'A', 'code': 11200},
-                                {'name': 'B', 'code': 45400},
-                                {'name': 'C', 'code': 23000},
-                               ]
-                              ]
-                             ]
-                            )
+        self.assertListEqual(
+            populator.mock_chunk_errors,
+            [
+                [
+                    str(Exception('invalid chunk !')),
+                    [
+                        {'name': 'A', 'code': 11200},
+                        {'name': 'B', 'code': 45400},
+                        {'name': 'C', 'code': 23000},
+                    ],
+                ],
+            ],
+        )
 
     def test_line_error(self):
         class InvalidLineCSVPopulator(MockCSVPopulator):
@@ -113,25 +118,30 @@ class CSVPopulatorTestCase(CremeTestCase):
 
         populator = InvalidLineCSVPopulator(['name', 'code'])
 
-        chunk = (['name', 'code', 'value'],
-                 ['A', 11200, 15],
-                 ['B', 45400, 23],
-                 ['C', 23000, 25],
-                 ['D', 75880, 41],
-                )
+        chunk = (
+            ['name', 'code', 'value'],
+            ['A', 11200, 15],
+            ['B', 45400, 23],
+            ['C', 23000, 25],
+            ['D', 75880, 41],
+        )
 
         populator.populate(chunk)
 
-        self.assertListEqual([{'name': 'A', 'code': 11200},
-                              {'name': 'C', 'code': 23000},
-                             ],
-                             populator.mock_saved
-                            )
-        self.assertListEqual([[str(Exception('invalid line !')), {'name': 'B', 'code': 45400}, 2],
-                              [str(Exception('invalid line !')), {'name': 'D', 'code': 75880}, 4],
-                             ],
-                             populator.mock_line_errors
-                            )
+        self.assertListEqual(
+            [
+                {'name': 'A', 'code': 11200},
+                {'name': 'C', 'code': 23000},
+            ],
+            populator.mock_saved,
+        )
+        self.assertListEqual(
+            [
+                [str(Exception('invalid line !')), {'name': 'B', 'code': 45400}, 2],
+                [str(Exception('invalid line !')), {'name': 'D', 'code': 75880}, 4],
+            ],
+            populator.mock_line_errors,
+        )
         self.assertListEqual(populator.mock_chunk_errors, [])
 
     def test_populate_from_missing_file(self):
@@ -152,7 +162,7 @@ class CSVPopulatorTestCase(CremeTestCase):
 
         self.assertEqual(
             str(error.exception),
-            f"Following columns are missing and haven't got any default value : {columns}"
+            f"Following columns are missing and haven't got any default value : {columns}",
         )
 
     def test_populate_from_invalid_protocol(self):
@@ -171,11 +181,14 @@ class CSVPopulatorTestCase(CremeTestCase):
         populator = MockCSVPopulator(['name', 'code'])
         populator.populate('creme/geolocation/tests/data/valid.csv')
 
-        self.assertListEqual(populator.mock_saved, [{'name': 'A', 'code': '44556'},
-                                                    {'name': 'B', 'code': '54122'},
-                                                    {'name': 'C', 'code': '75001'},
-                                                   ]
-                            )
+        self.assertListEqual(
+            populator.mock_saved,
+            [
+                {'name': 'A', 'code': '44556'},
+                {'name': 'B', 'code': '54122'},
+                {'name': 'C', 'code': '75001'},
+            ],
+        )
 
     def test_populate_from_invalid_zip_file(self):
         populator = MockCSVPopulator(['name', 'code'])
@@ -193,11 +206,14 @@ class CSVPopulatorTestCase(CremeTestCase):
         populator = MockCSVPopulator(['name', 'code'])
         populator.populate('creme/geolocation/tests/data/valid.csv.zip')
 
-        self.assertListEqual(populator.mock_saved, [{'name': 'A', 'code': '44555'},
-                                                    {'name': 'B', 'code': '54122'},
-                                                    {'name': 'C', 'code': '75001'},
-                                                   ]
-                            )
+        self.assertListEqual(
+            populator.mock_saved,
+            [
+                {'name': 'A', 'code': '44555'},
+                {'name': 'B', 'code': '54122'},
+                {'name': 'C', 'code': '75001'},
+            ],
+        )
 
     def test_populate_from_http(self):
         populator = MockCSVPopulator(['name', 'code'])
@@ -205,11 +221,14 @@ class CSVPopulatorTestCase(CremeTestCase):
         with self.assertNoException():
             populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv'))
 
-        self.assertListEqual(populator.mock_saved, [{'name': 'A', 'code': '44556'},
-                                                    {'name': 'B', 'code': '54122'},
-                                                    {'name': 'C', 'code': '75001'},
-                                                   ]
-                            )
+        self.assertListEqual(
+            populator.mock_saved,
+            [
+                {'name': 'A', 'code': '44556'},
+                {'name': 'B', 'code': '54122'},
+                {'name': 'C', 'code': '75001'},
+            ],
+        )
 
     def test_populate_from_http_zip(self):
         populator = MockCSVPopulator(['name', 'code'])
@@ -217,11 +236,14 @@ class CSVPopulatorTestCase(CremeTestCase):
         with self.assertNoException():
             populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv.zip'))
 
-        self.assertListEqual(populator.mock_saved, [{'name': 'A', 'code': '44555'},
-                                                    {'name': 'B', 'code': '54122'},
-                                                    {'name': 'C', 'code': '75001'},
-                                                   ]
-                            )
+        self.assertListEqual(
+            populator.mock_saved,
+            [
+                {'name': 'A', 'code': '44555'},
+                {'name': 'B', 'code': '54122'},
+                {'name': 'C', 'code': '75001'},
+            ],
+        )
 
     def test_http_error(self):
         populator = MockCSVPopulator(['name', 'code'])
@@ -358,10 +380,12 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
 
         address = self.refresh(address)
         self.assertEqual(address.geoaddress, geo_addresses[0])
-        self.assertGeoAddress(address.geoaddress, address=address,
-                              latitude=None, longitude=None,
-                              draggable=True, geocoded=False,
-                             )
+        self.assertGeoAddress(
+            address.geoaddress,
+            address=address,
+            latitude=None, longitude=None,
+            draggable=True, geocoded=False,
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -373,16 +397,17 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         )
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
-        address = Address.objects.create(name='Addresse',
-                                         address='13 rue du yahourt',
-                                         po_box='',
-                                         zipcode='01630',
-                                         city='Péron',
-                                         department='01',
-                                         state='',
-                                         country='FRANCE',
-                                         owner=orga,
-                                        )
+        address = Address.objects.create(
+            name='Addresse',
+            address='13 rue du yahourt',
+            po_box='',
+            zipcode='01630',
+            city='Péron',
+            department='01',
+            state='',
+            country='FRANCE',
+            owner=orga,
+        )
 
         GeoAddress.objects.all().delete()
 
@@ -396,10 +421,12 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
 
         address = self.refresh(address)
         self.assertEqual(address.geoaddress, geo_addresses[0])
-        self.assertGeoAddress(address.geoaddress, address=address,
-                              longitude=5.93333, latitude=46.2,
-                              draggable=True, geocoded=False,
-                             )
+        self.assertGeoAddress(
+            address.geoaddress,
+            address=address,
+            longitude=5.93333, latitude=46.2,
+            draggable=True, geocoded=False,
+        )
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -412,16 +439,17 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         )
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
-        address = Address.objects.create(name='Addresse',
-                                         address='13 rue du yahourt',
-                                         po_box='',
-                                         zipcode='',
-                                         city='',
-                                         department='01',
-                                         state='',
-                                         country='FRANCE',
-                                         owner=orga,
-                                        )
+        address = Address.objects.create(
+            name='Addresse',
+            address='13 rue du yahourt',
+            po_box='',
+            zipcode='',
+            city='',
+            department='01',
+            state='',
+            country='FRANCE',
+            owner=orga,
+        )
 
         GeoAddress.objects.all().delete()
 

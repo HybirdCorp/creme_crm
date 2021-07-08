@@ -33,22 +33,21 @@ class CremeListViewTagsTestCase(CremeTestCase):
         paginator = Paginator(FakeOrganisation.objects.all(), 5)
 
         with self.assertNoException():
-            template = Template(r'{% load creme_listview %}'
-                                r'{% listview_pager page %}'
-                               )
+            template = Template(
+                r'{% load creme_listview %}'
+                r'{% listview_pager page %}'
+            )
             rendered = template.render(Context({'page': paginator.page(1)}))
 
         self.assertInHTML(
-            '<a class="pager-link is-disabled pager-link-previous" href="" '
-            'title="" >{label}</a>'.format(
-                label=_('Previous page'),
-            ),
-            rendered
+            f'<a class="pager-link is-disabled pager-link-previous" href="" '
+            f'title="" >{_("Previous page")}</a>',
+            rendered,
         )
 
         self.assertInHTML(
             '<span class="pager-link is-disabled pager-link-current">1</span>',
-            rendered
+            rendered,
         )
 
         self.assertInHTML(
@@ -57,7 +56,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
                 help=_('To page {}').format(2),
                 label=_('Next page'),
             ),
-            rendered
+            rendered,
         )
 
     def test_listview_pager_fast(self):
@@ -66,14 +65,16 @@ class CremeListViewTagsTestCase(CremeTestCase):
         for i in range(1, 20):
             FakeOrganisation.objects.create(user=user, name=f'A{i}')
 
-        paginator = FlowPaginator(queryset=FakeOrganisation.objects.all(),
-                                  key='name', per_page=5, count=20,
-                                 )
+        paginator = FlowPaginator(
+            queryset=FakeOrganisation.objects.all(),
+            key='name', per_page=5, count=20,
+        )
 
         with self.assertNoException():
-            template = Template(r'{% load creme_listview %}'
-                                r'{% listview_pager page %}'
-                               )
+            template = Template(
+                r'{% load creme_listview %}'
+                r'{% listview_pager page %}'
+            )
             rendered = template.render(Context({
                 'page': paginator.page({
                     'type': 'first',
@@ -91,9 +92,9 @@ class CremeListViewTagsTestCase(CremeTestCase):
         self.assertInHTML(
             '<a class="pager-link is-disabled pager-link-previous" href="" '
             'title="{label}" >{label}</a>'.format(
-                label=_('Previous page')
+                label=_('Previous page'),
             ),
-            rendered
+            rendered,
         )
 
     def test_listview_header_filters01(self):

@@ -34,15 +34,16 @@ class QueriesTestCase(CremeTestCase):
         FakeCivility.objects.bulk_create(cls._civ_backup)
 
     def _assertQEqual(self, model, q1, q2):
-        self.assertListEqual([*model.objects.filter(q1)],
-                             [*model.objects.filter(q2)],
-                            )
+        self.assertListEqual(
+            [*model.objects.filter(q1)],
+            [*model.objects.filter(q2)],
+        )
 
     def _assertQIsOK(self, q, entities, model=None):
         model = model or entities[0].__class__
-        self.assertQuerysetEqual(model.objects.filter(q),
-                                 entities, transform=lambda e: e,
-                                )
+        self.assertQuerysetEqual(
+            model.objects.filter(q), entities, transform=lambda e: e,
+        )
 
     def _create_activity_type(self):
         return FakeActivityType.objects.create(name='Tournament')
@@ -54,17 +55,20 @@ class QueriesTestCase(CremeTestCase):
         self.fighter = create_pos(title='Fighter')
 
         create_contact = partial(FakeContact.objects.create, user=self.user)
-        self.adrian   = create_contact(first_name='Adrian', last_name='Velba',
-                                       birthday=date(year=2003, month=3, day=5),
-                                       position=self.fighter,
-                                      )
-        self.marianne = create_contact(first_name='Marianne', last_name='Velba',
-                                       birthday=date(year=1994, month=6, day=17),
-                                       position=self.baker,
-                                      )
-        self.richard  = create_contact(first_name='Richard',  last_name='Aldana',
-                                       position=self.boxer,
-                                      )
+        self.adrian = create_contact(
+            first_name='Adrian', last_name='Velba',
+            birthday=date(year=2003, month=3, day=5),
+            position=self.fighter,
+        )
+        self.marianne = create_contact(
+            first_name='Marianne', last_name='Velba',
+            birthday=date(year=1994, month=6, day=17),
+            position=self.baker,
+        )
+        self.richard = create_contact(
+            first_name='Richard',  last_name='Aldana',
+            position=self.boxer,
+        )
 
     def test_q_serializer_01(self):
         self.login()

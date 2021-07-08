@@ -28,12 +28,15 @@ class RelationsTestCase(CremeTestCase):
         self.user = get_user_model().objects.create(username='name')
 
     def test_relation01(self):
+        user = self.user
         subject_pred = 'is loving'
         object_pred  = 'is loved by'
 
         with self.assertNoException():
-            rtype1, rtype2 = RelationType.create(('test-subject_foobar', subject_pred),
-                                                 ('test-object_foobar',  object_pred))
+            rtype1, rtype2 = RelationType.create(
+                ('test-subject_foobar', subject_pred),
+                ('test-object_foobar',  object_pred),
+            )
 
         self.assertEqual(rtype1.symmetric_type, rtype2)
         self.assertEqual(rtype2.symmetric_type, rtype1)
@@ -41,12 +44,12 @@ class RelationsTestCase(CremeTestCase):
         self.assertEqual(rtype2.predicate,      object_pred)
 
         with self.assertNoException():
-            entity1  = CremeEntity.objects.create(user=self.user)
-            entity2  = CremeEntity.objects.create(user=self.user)
-            relation = Relation.objects.create(user=self.user, type=rtype1,
-                                               subject_entity=entity1,
-                                               object_entity=entity2,
-                                              )
+            entity1 = CremeEntity.objects.create(user=user)
+            entity2 = CremeEntity.objects.create(user=user)
+
+            relation = Relation.objects.create(
+                user=user, type=rtype1, subject_entity=entity1, object_entity=entity2,
+            )
 
         sym = relation.symmetric_relation
         self.assertEqual(sym.type,           rtype2)
@@ -87,24 +90,29 @@ class RelationsTestCase(CremeTestCase):
 
         self.assertEqual(
             logs_manager.output,
-            [f'WARNING:creme.creme_core.models.relation:'
-             f'Relation.save(): '
-             f'try to update instance pk={relation.id} (should only be created).',
+            [
+                f'WARNING:creme.creme_core.models.relation:'
+                f'Relation.save(): '
+                f'try to update instance pk={relation.id} (should only be created).',
             ],
         )
 
     def test_delete_rtype(self):
-        rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
-                                             ('test-object_foobar',  'is loved by'))
+        rtype1, rtype2 = RelationType.create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by'),
+        )
         rtype1.delete()
-        self.assertRaises(RelationType.DoesNotExist, RelationType.objects.get, id=rtype1.id)
-        self.assertRaises(RelationType.DoesNotExist, RelationType.objects.get, id=rtype2.id)
+
+        get_rtype = RelationType.objects.get
+        self.assertRaises(RelationType.DoesNotExist, get_rtype, id=rtype1.id)
+        self.assertRaises(RelationType.DoesNotExist, get_rtype, id=rtype2.id)
 
     def build_compatible_set(self, ct_or_model=None, **kwargs):
         return {
             *RelationType.objects
                          .compatible(ct_or_model or self.contact_ct, **kwargs)
-                         .values_list('id', flat=True)
+                         .values_list('id', flat=True),
         }
 
     def test_manager_compatible01(self):
@@ -114,7 +122,7 @@ class RelationsTestCase(CremeTestCase):
         create_rtype = RelationType.create
         rtype = create_rtype(
             ('test-subject_foobar', 'manages',       [FakeContact]),
-            ('test-object_foobar',  'is managed by', [FakeOrganisation])
+            ('test-object_foobar',  'is managed by', [FakeOrganisation]),
         )[0]
         internal_rtype = create_rtype(
             ('test-subject_foobar_2', 'manages internal',       [FakeContact]),
@@ -181,7 +189,7 @@ class RelationsTestCase(CremeTestCase):
         create_rtype = RelationType.create
         rtype, sym_rtype = create_rtype(
             ('test-subject_foobar', 'manages'),
-            ('test-object_foobar',  'is managed by')
+            ('test-object_foobar',  'is managed by'),
         )
         internal_rtype, internal_sym_rtype = create_rtype(
             ('test-subject_foobar_2', 'manages internal'),
@@ -206,7 +214,7 @@ class RelationsTestCase(CremeTestCase):
     def test_manager_safe_create(self):
         rtype, srtype = RelationType.create(
             ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by')
+            ('test-object_challenge',  'is challenged by'),
         )
 
         user = self.user
@@ -235,7 +243,7 @@ class RelationsTestCase(CremeTestCase):
     def test_manager_safe_get_or_create01(self):
         rtype, srtype = RelationType.create(
             ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by')
+            ('test-object_challenge',  'is challenged by'),
         )
 
         user = self.user
@@ -266,7 +274,7 @@ class RelationsTestCase(CremeTestCase):
         "Give user ID (not user instance)"
         rtype, srtype = RelationType.create(
             ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by')
+            ('test-object_challenge',  'is challenged by'),
         )
 
         user = self.user
@@ -297,11 +305,11 @@ class RelationsTestCase(CremeTestCase):
         "Create several relation."
         rtype1, srtype1 = RelationType.create(
             ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by')
+            ('test-object_challenge',  'is challenged by'),
         )
         rtype2, srtype2 = RelationType.create(
             ('test-subject_foobar', 'loves'),
-            ('test-object_foobar',  'is loved by')
+            ('test-object_foobar',  'is loved by'),
         )
 
         user = self.user
@@ -330,9 +338,10 @@ class RelationsTestCase(CremeTestCase):
 
     def test_manager_safe_multi_save02(self):
         "De-duplicates arguments."
-        rtype = RelationType.create(('test-subject_foobar', 'challenges'),
-                                    ('test-object_foobar',  'is challenged by')
-                                   )[0]
+        rtype = RelationType.create(
+            ('test-subject_foobar', 'challenges'),
+            ('test-object_foobar',  'is challenged by'),
+        )[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -340,7 +349,9 @@ class RelationsTestCase(CremeTestCase):
         satsuki = create_contact(first_name='Satsuki', last_name='Kiryuin')
 
         def build_rel():
-            return Relation(user=user, subject_entity=ryuko, type=rtype, object_entity=satsuki)
+            return Relation(
+                user=user, subject_entity=ryuko, type=rtype, object_entity=satsuki,
+            )
 
         with self.assertNoException():
             count = Relation.objects.safe_multi_save([build_rel(), build_rel()])
@@ -356,11 +367,11 @@ class RelationsTestCase(CremeTestCase):
         "Avoid creating existing relations."
         rtype1 = RelationType.create(
             ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by')
+            ('test-object_challenge',  'is challenged by'),
         )[0]
         rtype2 = RelationType.create(
             ('test-subject_foobar', 'loves'),
-            ('test-object_foobar',  'is loved by')
+            ('test-object_foobar',  'is loved by'),
         )[0]
 
         user = self.user
@@ -369,7 +380,9 @@ class RelationsTestCase(CremeTestCase):
         satsuki = create_contact(first_name='Satsuki', last_name='Kiryuin')
 
         def build_rel1():
-            return Relation(user=user, subject_entity=ryuko, type=rtype1, object_entity=satsuki)
+            return Relation(
+                user=user, subject_entity=ryuko, type=rtype1, object_entity=satsuki,
+            )
 
         rel1 = build_rel1()
         rel1.save()
@@ -377,7 +390,9 @@ class RelationsTestCase(CremeTestCase):
         with self.assertNoException():
             Relation.objects.safe_multi_save([
                 build_rel1(),
-                Relation(user=user, subject_entity=ryuko, type=rtype2, object_entity=satsuki),
+                Relation(
+                    user=user, subject_entity=ryuko, type=rtype2, object_entity=satsuki,
+                ),
                 build_rel1(),
             ])
 
@@ -399,11 +414,11 @@ class RelationsTestCase(CremeTestCase):
         "Argument <check_existing>."
         rtype1, srtype1 = RelationType.create(
             ('test-subject_challenge', 'challenges'),
-            ('test-object_challenge',  'is challenged by')
+            ('test-object_challenge',  'is challenged by'),
         )
         rtype2, srtype2 = RelationType.create(
             ('test-subject_foobar', 'loves'),
-            ('test-object_foobar',  'is loved by')
+            ('test-object_foobar',  'is loved by'),
         )
 
         user = self.user
@@ -414,14 +429,14 @@ class RelationsTestCase(CremeTestCase):
         build_rel = partial(Relation, user=user, subject_entity=ryuko, object_entity=satsuki)
 
         with CaptureQueriesContext() as ctxt1:
-            Relation.objects.safe_multi_save([build_rel(type=rtype1)],
-                                             check_existing=True,
-                                            )
+            Relation.objects.safe_multi_save(
+                [build_rel(type=rtype1)], check_existing=True,
+            )
 
         with CaptureQueriesContext() as ctxt2:
-            Relation.objects.safe_multi_save([build_rel(type=rtype2)],
-                                             check_existing=False,
-                                            )
+            Relation.objects.safe_multi_save(
+                [build_rel(type=rtype2)], check_existing=False,
+            )
 
         self.assertRelationCount(1, subject_entity=ryuko, type_id=rtype1.id, object_entity=satsuki)
         self.assertRelationCount(1, subject_entity=ryuko, type_id=rtype2.id, object_entity=satsuki)

@@ -53,11 +53,9 @@ def get_indexes_columns(model: Type[Model]) -> Iterator[List[str]]:
     """
     connection = connections[DEFAULT_DB_ALIAS]
 
-    for constr_info in connection.introspection \
-                                 .get_constraints(connection.cursor(),
-                                                  model._meta.db_table,
-                                                 ) \
-                                 .values():
+    for constr_info in connection.introspection.get_constraints(
+        connection.cursor(), model._meta.db_table,
+    ).values():
         if constr_info['index']:
             yield constr_info['columns']
 
@@ -97,7 +95,8 @@ def get_keyed_indexes_columns(model: Type[Model]) -> Tuple[Tuple[str, Tuple[str,
 
 
 def get_indexed_ordering(model: Type[Model],
-                         fields_pattern: Iterable[str]) -> Optional[Tuple[str, ...]]:
+                         fields_pattern: Iterable[str],
+                         ) -> Optional[Tuple[str, ...]]:
     """Search in the model's DB-indexes an ordering corresponding to a pattern,
     in order to have an efficient ordering.
 
@@ -177,7 +176,8 @@ def get_indexed_ordering(model: Type[Model],
 
 # TODO: ManyToManyField too ?
 def populate_related(instances: Sequence[Model],
-                     field_names: Iterable[str]) -> None:
+                     field_names: Iterable[str],
+                     ) -> None:
     """Retrieve the given ForeignKeys values for some instances, in order to
     reduce the number of DB queries.
 

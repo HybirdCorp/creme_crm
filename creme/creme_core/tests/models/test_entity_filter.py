@@ -3228,9 +3228,10 @@ class EntityFiltersTestCase(CremeTestCase):
                 ),
             ],
         )
-        self.assertExpectedFiltered(efilter, FakeContact,
-                                    self._list_contact_ids('rei', 'asuka', exclude=True),
-                                   )
+        self.assertExpectedFiltered(
+            efilter, FakeContact,
+            self._list_contact_ids('rei', 'asuka', exclude=True),
+        )
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter02', name='not empty', model=FakeContact,
@@ -3460,7 +3461,9 @@ class EntityFiltersTestCase(CremeTestCase):
         with self.assertNoException():
             filtered = [*efilter.filter(FakeContact.objects.all())]
 
-        self.assertSetEqual({*self._get_ikari_case_sensitive()}, {c.id for c in filtered})
+        self.assertSetEqual(
+            {*self._get_ikari_case_sensitive()}, {c.id for c in filtered},
+        )
         self.assertEqual(1, len(efilter.get_conditions()))
 
     def test_invalid_datefield(self):

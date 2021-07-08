@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,9 +31,7 @@ from ..global_info import clear_global_info, set_global_info
 
 class GlobalInfoMiddleware(MiddlewareMixin):
     def process_request(self, request):
-        set_global_info(user=request.user,
-                        per_request_cache={},
-                       )
+        set_global_info(user=request.user, per_request_cache={})
 
     def process_response(self, request, response):
         clear_global_info()

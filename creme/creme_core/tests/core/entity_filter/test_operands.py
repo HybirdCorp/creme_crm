@@ -41,9 +41,10 @@ class OperandTestCase(CremeTestCase):
     def test_current_user04(self):
         "Resolve with team."
         create_user = CremeUser.objects.create
-        user = create_user(username='kirika', email='kirika@noir.jp',
-                           first_name='Kirika', last_name='Yumura',
-                          )
+        user = create_user(
+            username='kirika', email='kirika@noir.jp',
+            first_name='Kirika', last_name='Yumura',
+        )
         team = create_user(username='Noir', is_team=True)
         team.teammates = [user]
 
@@ -63,4 +64,6 @@ class OperandTestCase(CremeTestCase):
         with self.assertRaises(ValidationError):
             operand.validate(field=get_field('sector'), value=operand.type_id)
 
-        self.assertIsNone(operand.validate(field=get_field('user'), value=operand.type_id))
+        self.assertIsNone(
+            operand.validate(field=get_field('user'), value=operand.type_id),
+        )

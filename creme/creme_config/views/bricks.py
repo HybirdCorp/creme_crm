@@ -51,8 +51,7 @@ class Portal(BricksView):
 
 
 class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
-                                       base.ConfigCreation,
-                                      ):
+                                       base.ConfigCreation):
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsAddForm
 
@@ -150,8 +149,7 @@ class RoleRelatedMixin:
 
 class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
                                       RoleRelatedMixin,
-                                      base.ConfigEdition,
-                                     ):
+                                      base.ConfigEdition):
     # model = BrickDetailviewLocation
     form_class = bricks_forms.BrickDetailviewLocationsEditForm
     submit_label = _('Save the configuration')
@@ -188,10 +186,7 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
             elif role is not None:
                 title = gettext(
                     'Edit configuration of «{role}» for «{model}»'
-                ).format(
-                    role=role,
-                    model=ct,
-                )
+                ).format(role=role, model=ct)
             else:
                 title = gettext(
                     'Edit default configuration for «{model}»'

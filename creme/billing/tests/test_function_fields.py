@@ -190,16 +190,18 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_get_total_pending03(self):
-        "Credentials"
-        user = self.login(is_superuser=False,
-                          allowed_apps=['persons', 'billing'],
-                          creatable_models=[Invoice],
-                         )
+        "Credentials."
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice],
+        )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         create_orga = partial(Organisation.objects.create, user=user)
         target = create_orga(name='Target')
@@ -233,16 +235,18 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_get_total_pending04(self):
-        "Credentials + populate()"
-        user = self.login(is_superuser=False,
-                          allowed_apps=['persons', 'billing'],
-                          creatable_models=[Invoice],
-                         )
+        "Credentials + populate()."
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice],
+        )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
-                                      set_type=SetCredentials.ESET_OWN,
-                                     )
+        SetCredentials.objects.create(
+            role=self.role,
+            value=EntityCredentials.VIEW | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
 
         create_orga = partial(Organisation.objects.create, user=user)
         target = create_orga(name='Target')
@@ -279,7 +283,7 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_get_total_pending05(self):
-        "Per-user cache"
+        "Per-user cache."
         user = self.login()
         invoice, source, target = self.create_invoice_n_orgas('Invoice #1', user=user)
 
@@ -313,7 +317,7 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_get_total_pending06(self):
-        "Per-user cache + populate()"
+        "Per-user cache + populate()."
         user = self.login()
         invoice, source, target = self.create_invoice_n_orgas('Invoice #1', user=user)
 
@@ -395,19 +399,19 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         self.assertEqual(
             number_format('5300.00', use_l10n=True, force_grouping=True),
-            funf(target, user).for_html()
+            funf(target, user).for_html(),
         )
         self.assertEqual(
             number_format('5300.00', use_l10n=True),
-            funf(target, user).for_csv()
+            funf(target, user).for_csv(),
         )
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year02(self):
-        "'acceptation_date' is hidden"
+        "'acceptation_date' is hidden."
         user = self.login()
-        quote, source, target = self.create_quote_n_orgas("YOLO")
+        quote, source, target = self.create_quote_n_orgas('YOLO')
 
         FieldsConfig.objects.create(
             content_type=Quote,
@@ -427,7 +431,7 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year03(self):
-        "'populate_entities()"
+        "'populate_entities()."
         user = self.login()
         previous_year = self.today_date - timedelta(days=365)
 
@@ -548,23 +552,23 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         self.assertEqual(
             number_format('6000.00', use_l10n=True, force_grouping=True),
-            funf(target, user).for_html()
+            funf(target, user).for_html(),
         )
         self.assertEqual(
             number_format('6000.00', use_l10n=True),
-            funf(target, user).for_csv()
+            funf(target, user).for_csv(),
         )
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year02(self):
-        "'acceptation_date' is hidden"
+        "'acceptation_date' is hidden."
         user = self.login()
 
         quote, source, target = self.create_quote_n_orgas('Quote #1')
         FieldsConfig.objects.create(
             content_type=Quote,
-            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})]
+            descriptions=[('acceptation_date', {FieldsConfig.HIDDEN: True})],
         )
 
         funf = function_field_registry.get(Organisation, 'total_won_quote_this_year')
@@ -579,15 +583,16 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year03(self):
-        "'populate_entities()"
+        "'populate_entities()."
         user = self.login()
 
         def set_date(quote):
             quote.acceptation_date = self.today_date
             quote.save()
 
-        quote01, source01, target01 = self.create_quote_n_orgas('Quote #1', status=self.won_status)
-        quote02, source02, target02 = self.create_quote_n_orgas('Quote #2', status=self.won_status)
+        create_quote_n_orgas = self.create_quote_n_orgas
+        quote01, source01, target01 = create_quote_n_orgas('Quote #1', status=self.won_status)
+        quote02, source02, target02 = create_quote_n_orgas('Quote #2', status=self.won_status)
 
         # Not won status => not used
         quote03 = self.create_quote('Quote #3', source01, target01)
@@ -629,7 +634,7 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year04(self):
-        "'acceptation_date' is hidden + populate_entities()"
+        "'acceptation_date' is hidden + populate_entities()."
         user = self.login()
         quote1, source1, target1 = self.create_quote_n_orgas('Quote1')
         quote2, source2, target2 = self.create_quote_n_orgas('Quote2')
@@ -660,10 +665,11 @@ class FunctionFieldTestCase(_BillingTestCase):
         quote, source, target = self.create_quote_n_orgas('YOLO')
 
         for model in (Organisation, Contact):
-            for name in ('total_pending_payment',
-                         'total_won_quote_this_year',
-                         'total_won_quote_last_year',
-                        ):
+            for name in (
+                'total_pending_payment',
+                'total_won_quote_this_year',
+                'total_won_quote_last_year',
+            ):
                 funf = function_field_registry.get(model, name)
                 self.assertIsNotNone(funf, f'Function field {model}/{name} is None?!')
                 self.assertEqual('0', funf(target, user).for_html())

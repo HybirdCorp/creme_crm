@@ -42,40 +42,44 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         filter_phase = SalesPhase.objects.filter
         won_sp     = filter_phase(won=True).first()
 
-        create_opp = partial(Opportunity.objects.create, user=user,
-                             sales_phase=won_sp,
-                             closing_date=now(),
-                            )
+        create_opp = partial(
+            Opportunity.objects.create,
+            user=user, sales_phase=won_sp, closing_date=now(),
+        )
         create_opp(name='Opp #1', emitter=emitter1, target=target)
         fmt = _('For {organisation}: {won_stats} / {lost_stats}').format
-        self.assertEqual(
+        self.assertListEqual(
             [
                 fmt(
                     organisation=emitter1,
-                    won_stats=ngettext('{count} won opportunity',
-                                       '{count} won opportunities',
-                                       1
-                                      ).format(count=1),
-                    lost_stats=ngettext('{count} lost opportunity',
-                                        '{count} lost opportunities',
-                                        0
-                                       ).format(count=0),
+                    won_stats=ngettext(
+                        '{count} won opportunity',
+                        '{count} won opportunities',
+                        1
+                    ).format(count=1),
+                    lost_stats=ngettext(
+                        '{count} lost opportunity',
+                        '{count} lost opportunities',
+                        0
+                    ).format(count=0),
                 ),
             ],
-            statf()
+            statf(),
         )
 
         create_opp(name='Opp #2', emitter=emitter1, target=target)
         msg_emitter1 = fmt(
             organisation=emitter1,
-            won_stats=ngettext('{count} won opportunity',
-                               '{count} won opportunities',
-                               2
-                              ).format(count=2),
-            lost_stats=ngettext('{count} lost opportunity',
-                                '{count} lost opportunities',
-                                0
-                               ).format(count=0),
+            won_stats=ngettext(
+                '{count} won opportunity',
+                '{count} won opportunities',
+                2
+            ).format(count=2),
+            lost_stats=ngettext(
+                '{count} lost opportunity',
+                '{count} lost opportunities',
+                0
+            ).format(count=0),
         )
         self.assertEqual([msg_emitter1], statf())
 
@@ -97,7 +101,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
                     ).format(count=0),
                 )
             ],
-            statf()
+            statf(),
         )
 
     def test_current_year03(self):
@@ -113,10 +117,10 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         lost_sp    = filter_phase(lost=True).first()
         neutral_sp = filter_phase(won=False, lost=False).first()
 
-        create_opp = partial(Opportunity.objects.create, user=user,
-                             closing_date=now(),
-                             emitter=emitter, target=target
-                            )
+        create_opp = partial(
+            Opportunity.objects.create,
+            user=user, closing_date=now(), emitter=emitter, target=target,
+        )
         create_opp(name='Opp #1', sales_phase=lost_sp)
         create_opp(name='Opp #2', sales_phase=lost_sp)
         create_opp(name='Opp #3', sales_phase=lost_sp)
@@ -140,7 +144,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
                     ).format(count=3),
                 ),
             ],
-            CurrentYearStatistics(opp_model=Opportunity, orga_model=Organisation)()
+            CurrentYearStatistics(opp_model=Opportunity, orga_model=Organisation)(),
         )
 
     def test_current_year04(self):
@@ -158,10 +162,10 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         now_value = now()
         last_year = now_value - relativedelta(years=1)
 
-        create_opp = partial(Opportunity.objects.create, user=user,
-                             closing_date=now_value,
-                             emitter=emitter, target=target
-                            )
+        create_opp = partial(
+            Opportunity.objects.create,
+            user=user, closing_date=now_value, emitter=emitter, target=target,
+        )
         create_opp(name='Opp #1', sales_phase=lost_sp)
         create_opp(name='Opp #2', sales_phase=lost_sp, closing_date=last_year)
         create_opp(name='Opp #3', sales_phase=lost_sp)
@@ -184,7 +188,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
                     ).format(count=2),
                 ),
             ],
-            CurrentYearStatistics(Opportunity, Organisation)()
+            CurrentYearStatistics(Opportunity, Organisation)(),
         )
 
     def test_current_year05(self):
@@ -202,13 +206,14 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
 
         won_sp = SalesPhase.objects.filter(won=True).first()
 
-        Opportunity.objects.create(user=user, name='Opp',
-                                   closing_date=now(),
-                                   sales_phase=won_sp,
-                                   emitter=emitter, target=target,
-                                  )
+        Opportunity.objects.create(
+            user=user, name='Opp',
+            closing_date=now(),
+            sales_phase=won_sp,
+            emitter=emitter, target=target,
+        )
 
         self.assertListEqual(
             [_('The field «Actual closing date» is hidden ; these statistics are not available.')],
-            CurrentYearStatistics(Opportunity, Organisation)()
+            CurrentYearStatistics(Opportunity, Organisation)(),
         )

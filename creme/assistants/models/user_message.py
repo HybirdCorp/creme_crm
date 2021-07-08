@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,8 +35,10 @@ logger = logging.getLogger(__name__)
 
 
 class UserMessagePriority(CremeModel):
-    title     = models.CharField(_('Title'), max_length=200)
-    is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    title = models.CharField(_('Title'), max_length=200)
+
+    # Used by creme_config
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('assistants-messaqe_priority', 'Create a priority')
 
@@ -102,11 +104,15 @@ class UserMessage(CremeModel):
             else:
                 users_map[user.id] = user
 
-        build_msg = partial(cls, creation_date=now(),
-                            title=title, body=body,
-                            priority_id=priority_id,
-                            sender=sender, creme_entity=entity,
-                           )
+        build_msg = partial(
+            cls,
+            creation_date=now(),
+            title=title,
+            body=body,
+            priority_id=priority_id,
+            sender=sender,
+            creme_entity=entity,
+        )
         cls.objects.bulk_create(
             build_msg(recipient=user) for user in users_map.values()
         )
@@ -151,5 +157,6 @@ class UserMessage(CremeModel):
                 ],
             )
 
-        cls.objects.filter(pk__in=[m.id for m in usermessages]) \
-                   .update(email_sent=True)
+        cls.objects.filter(
+            pk__in=[m.id for m in usermessages],
+        ).update(email_sent=True)
