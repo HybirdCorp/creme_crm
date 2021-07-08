@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020  Hybird
+#    Copyright (C) 2019-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -125,7 +125,8 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     )
 
     def __init__(self, default=lv_form.RegularRelatedField,
-                 models_to_register=DEFAULT_MODELS):
+                 models_to_register=DEFAULT_MODELS,
+                 ):
         self._builders_4_models = ClassKeyedMap(default=None)
         self.register_default(default)
 
@@ -145,8 +146,8 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         model_field = cell.field_info[-1]
         return self._build_field(
             builder=(
-                self._builders_4_models[model_field.remote_field.model] or
-                self._default_builder
+                self._builders_4_models[model_field.remote_field.model]
+                or self._default_builder
             ),
             cell=cell, user=user,
             **kwargs
@@ -181,7 +182,8 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
     def register_related_model(self, *,
                                model: Type[models.Model],
-                               sfield_builder) -> 'RegularRelatedFieldSearchRegistry':
+                               sfield_builder,
+                               ) -> 'RegularRelatedFieldSearchRegistry':
         self._builders_4_models[model] = self._instantiate_builder(sfield_builder)
 
         # TODO ?
@@ -238,10 +240,10 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         # (models.ImageField, ),
     )
 
-    def __init__(
-            self,
-            to_register=DEFAULT_REGISTRATIONS,
-            choice_sfield_builder=lv_form.RegularChoiceField):
+    def __init__(self,
+                 to_register=DEFAULT_REGISTRATIONS,
+                 choice_sfield_builder=lv_form.RegularChoiceField,
+                 ):
         self._builders_4_modelfields = {}
         self._builders_4_modelfieldtypes = ClassKeyedMap(default=None)
         self.register_choice_builder(choice_sfield_builder)
@@ -266,9 +268,13 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         model_field = cell.field_info[-1]
 
         return self._build_field(
-            builder=self._builders_4_modelfields.get(model_field) or (
-                self._choice_builder if model_field.choices else
-                self._builders_4_modelfieldtypes[type(model_field)]
+            builder=(
+                self._builders_4_modelfields.get(model_field)
+                or (
+                    self._choice_builder
+                    if model_field.choices else
+                    self._builders_4_modelfieldtypes[type(model_field)]
+                )
             ),
             cell=cell, user=user,
             **kwargs
@@ -311,7 +317,9 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
     def register_model_field(self, *,
                              model: Type[models.Model],
-                             field_name: str, sfield_builder) -> 'RegularFieldSearchRegistry':
+                             field_name: str,
+                             sfield_builder,
+                             ) -> 'RegularFieldSearchRegistry':
         field = model._meta.get_field(field_name)
         self._builders_4_modelfields[field] = self._instantiate_builder(sfield_builder)
 
@@ -327,7 +335,8 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
     def register_model_field_type(self, *,
                                   type: Type[models.Field],
-                                  sfield_builder) -> 'RegularFieldSearchRegistry':
+                                  sfield_builder,
+                                  ) -> 'RegularFieldSearchRegistry':
         self._builders_4_modelfieldtypes[type] = self._instantiate_builder(sfield_builder)
 
         return self
@@ -420,8 +429,8 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
         return self._build_field(
             builder=(
-                self._builders.get(ffield.name) or
-                self._instantiate_builder(ffield.search_field_builder)
+                self._builders.get(ffield.name)
+                or self._instantiate_builder(ffield.search_field_builder)
             ),
             cell=cell, user=user,
             **kwargs
@@ -446,7 +455,8 @@ class FunctionFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
     def register(self, *,
                  ffield: FunctionField,
-                 sfield_builder) -> 'FunctionFieldSearchRegistry':
+                 sfield_builder,
+                 ) -> 'FunctionFieldSearchRegistry':
         self._builders[ffield.name] = self._instantiate_builder(sfield_builder)
 
         return self

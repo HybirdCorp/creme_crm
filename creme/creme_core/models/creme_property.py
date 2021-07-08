@@ -40,8 +40,8 @@ logger = logging.getLogger(__name__)
 class CremePropertyTypeManager(models.Manager):
     def compatible(self, ct_or_model: Union[ContentType, Type[CremeEntity]]):
         return self.filter(
-            Q(subject_ctypes=as_ctype(ct_or_model)) |
-            Q(subject_ctypes__isnull=True)
+            Q(subject_ctypes=as_ctype(ct_or_model))
+            | Q(subject_ctypes__isnull=True)
         )
 
 
@@ -125,8 +125,9 @@ class CremePropertyManager(models.Manager):
                         creme_entity_id=prop.creme_entity_id,
                     )
 
-                for prop_sig in self.filter(existing_q) \
-                                    .values_list('type', 'creme_entity'):
+                for prop_sig in self.filter(existing_q).values_list(
+                    'type', 'creme_entity',
+                ):
                     unique_props.pop(prop_sig, None)
 
             for prop in unique_props.values():
@@ -191,13 +192,13 @@ class CremePropertyType(CremeModel):
     #       avoid retrieving the instance again in CremePropertyTypeEditForm.save()
     #       (use a True model-form + improve CremePropertyType.save() ?) ?
     @staticmethod
-    def create(
-            str_pk,
-            text,
-            subject_ctypes=(),
-            is_custom=False,
-            generate_pk=False,
-            is_copiable=True):
+    def create(str_pk,
+               text,
+               subject_ctypes=(),
+               is_custom=False,
+               generate_pk=False,
+               is_copiable=True,
+               ):
         """Helps the creation of new CremePropertyType.
         @param subject_ctypes: Sequence of CremeEntity classes/ContentType objects.
         @param generate_pk: If True, str_pk is used as prefix to generate pk.
@@ -279,7 +280,7 @@ def _handle_replacement(sender, old_instance, new_instance, **kwargs):
 
     # IDs of entities with duplicates
     e_ids = CremeEntity.objects.filter(
-        properties__type__in=[old_instance, new_instance]
+        properties__type__in=[old_instance, new_instance],
     ).annotate(
         prop_count=Count('properties'),
     ).filter(

@@ -114,8 +114,8 @@ class CalendarView(generic.CheckedTemplateView):
         # NB: we retrieve all the user's Calendars to check the presence of the
         #     default one (& create it if needed) by avoiding an extra query.
         calendars = [*Calendar.objects.filter(
-            Q(user=user) |
-            Q(is_public=True, user__is_staff=False, user__is_active=True)
+            Q(user=user)
+            | Q(is_public=True, user__is_staff=False, user__is_active=True)
         )]
 
         if next(self._filter_default_calendars(user, calendars), None) is None:
@@ -153,8 +153,9 @@ class CalendarView(generic.CheckedTemplateView):
         context['others_calendars'] = [(u, others_calendars[u]) for u in other_users]
 
         selected_calendars_ids = set(
-            self.get_selected_calendar_ids(calendars) or
-            (calendar.id
+            self.get_selected_calendar_ids(calendars)
+            or (
+                calendar.id
                 for calendar in self._filter_default_calendars(user, calendars)
             )
         )
@@ -306,14 +307,14 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
     def get_end(self, request, start):
         return (
-            self._get_datetime(request=request, key=self.end_arg) or
-            get_last_day_of_a_month(start)
+            self._get_datetime(request=request, key=self.end_arg)
+            or get_last_day_of_a_month(start)
         )
 
     def get_start(self, request):
         return (
-            self._get_datetime(request=request, key=self.start_arg) or
-            now().replace(day=1)
+            self._get_datetime(request=request, key=self.start_arg)
+            or now().replace(day=1)
         )
 
     def save_calendar_ids(self, request, calendar_ids):
@@ -462,10 +463,11 @@ class CalendarDeletion(generic.CremeModelEditionPopup):
     def form_valid(self, form):
         self.object = form.save()
 
-        return render(request=self.request,
-                      template_name=self.job_template_name,
-                      context={'job': self.object.job},
-                     )
+        return render(
+            request=self.request,
+            template_name=self.job_template_name,
+            context={'job': self.object.job},
+        )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

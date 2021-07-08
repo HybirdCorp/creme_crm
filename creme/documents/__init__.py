@@ -25,15 +25,15 @@ from creme.creme_core import get_concrete_model
 
 def document_model_is_custom():
     return (
-        settings.DOCUMENTS_DOCUMENT_MODEL != 'documents.Document' and
-        not settings.DOCUMENTS_DOCUMENT_FORCE_NOT_CUSTOM
+        settings.DOCUMENTS_DOCUMENT_MODEL != 'documents.Document'
+        and not settings.DOCUMENTS_DOCUMENT_FORCE_NOT_CUSTOM
     )
 
 
 def folder_model_is_custom():
     return (
-        settings.DOCUMENTS_FOLDER_MODEL != 'documents.Folder' and
-        not settings.DOCUMENTS_FOLDER_FORCE_NOT_CUSTOM
+        settings.DOCUMENTS_FOLDER_MODEL != 'documents.Folder'
+        and not settings.DOCUMENTS_FOLDER_FORCE_NOT_CUSTOM
     )
 
 

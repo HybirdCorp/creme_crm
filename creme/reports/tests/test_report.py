@@ -2728,9 +2728,10 @@ class ReportTestCase(BaseReportsTestCase):
             [
                 [
                     self.camp1.name,
-                    fmt % (self.ml1.name, self.ptype1.text) +
-                    ', ' +
-                    fmt % (self.ml2.name, self.ptype2.text),
+                    '{}, {}'.format(
+                        fmt % (self.ml1.name, self.ptype1.text),
+                        fmt % (self.ml2.name, self.ptype2.text),
+                    ),
                 ],
                 [self.camp2.name, fmt % (self.ml3.name, '')],
                 [self.camp3.name, ''],

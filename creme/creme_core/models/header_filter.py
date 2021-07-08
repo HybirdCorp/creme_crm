@@ -96,8 +96,8 @@ class HeaderFilterManager(models.Manager):
             qs
             if user.is_staff else
             qs.filter(
-                Q(is_private=False) |
-                Q(is_private=True, user__in=[user, *user.teams]),
+                Q(is_private=False)
+                | Q(is_private=True, user__in=[user, *user.teams]),
             )
         )
 
@@ -166,7 +166,9 @@ class HeaderFilter(models.Model):  # CremeModel ???
     """
     id = models.CharField(primary_key=True, max_length=100, editable=False)
     name = models.CharField(_('Name of the view'), max_length=100)
-    user = core_fields.CremeUserForeignKey(verbose_name=_('Owner user'), blank=True, null=True)
+    user = core_fields.CremeUserForeignKey(
+        verbose_name=_('Owner user'), blank=True, null=True,
+    )
 
     entity_type = core_fields.CTypeForeignKey(editable=False)
 
@@ -179,7 +181,9 @@ class HeaderFilter(models.Model):  # CremeModel ???
         pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False,
     )
 
-    json_cells = models.TextField(editable=False, null=True)  # TODO: JSONField ? CellsField ?
+    # TODO: JSONField ? CellsField ?
+    # TODO: default == '[]' ?
+    json_cells = models.TextField(editable=False, null=True)
 
     objects = HeaderFilterManager()
 
@@ -229,7 +233,10 @@ class HeaderFilter(models.Model):  # CremeModel ???
 
         return False, gettext('You are not allowed to edit/delete this view')
 
-    def can_view(self, user, content_type: Optional[ContentType] = None) -> Tuple[bool, str]:
+    def can_view(self,
+                 user,
+                 content_type: Optional[ContentType] = None,
+                 ) -> Tuple[bool, str]:
         if content_type and content_type != self.entity_type:
             return False, 'Invalid entity type'
 
@@ -271,7 +278,10 @@ class HeaderFilter(models.Model):  # CremeModel ???
             )
 
             if errors:
-                logger.warning('HeaderFilter (id="%s") is saved with valid cells.', self.id)
+                logger.warning(
+                    'HeaderFilter (id="%s") is saved with valid cells.',
+                    self.id,
+                )
                 self._dump_cells(cells)
                 self.save()
 

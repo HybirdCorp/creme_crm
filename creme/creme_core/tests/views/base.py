@@ -22,8 +22,11 @@ class ViewsTestCase(CremeTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -33,9 +36,13 @@ class ViewsTestCase(CremeTestCase):
     def _set_all_creds_except_one(self, excluded):  # TODO: in CremeTestCase ?
         value = EntityCredentials.NONE
 
-        for cred in (EntityCredentials.VIEW, EntityCredentials.CHANGE,
-                     EntityCredentials.DELETE, EntityCredentials.LINK,
-                     EntityCredentials.UNLINK):
+        for cred in (
+                EntityCredentials.VIEW,
+                EntityCredentials.CHANGE,
+                EntityCredentials.DELETE,
+                EntityCredentials.LINK,
+                EntityCredentials.UNLINK,
+        ):
             if cred != excluded:
                 value |= cred
 

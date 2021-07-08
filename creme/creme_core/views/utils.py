@@ -38,9 +38,16 @@ def build_cancel_path(request) -> Optional[str]:
         parsed_url = urlparse(url)
         hostname, _sep, port = request.get_host().partition(':')
 
-        if parsed_url.hostname == hostname and (
-           (parsed_url.port or PROTOCOL_TO_PORT[parsed_url.scheme]) ==
-           (int(port) if port else PROTOCOL_TO_PORT[request.scheme])):
+        if (
+            parsed_url.hostname == hostname
+            and (
+                (
+                    parsed_url.port or PROTOCOL_TO_PORT[parsed_url.scheme]
+                ) == (
+                    int(port) if port else PROTOCOL_TO_PORT[request.scheme]
+                )
+            )
+        ):
             return parsed_url.path
 
     return None

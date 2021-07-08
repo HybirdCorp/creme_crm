@@ -25,15 +25,15 @@ from creme.creme_core import get_concrete_model
 
 def ticket_model_is_custom():
     return (
-        settings.TICKETS_TICKET_MODEL != 'tickets.Ticket' and
-        not settings.TICKETS_TICKET_FORCE_NOT_CUSTOM
+        settings.TICKETS_TICKET_MODEL != 'tickets.Ticket'
+        and not settings.TICKETS_TICKET_FORCE_NOT_CUSTOM
     )
 
 
 def tickettemplate_model_is_custom():
     return (
-        settings.TICKETS_TEMPLATE_MODEL != 'tickets.TicketTemplate' and
-        not settings.TICKETS_TEMPLATE_FORCE_NOT_CUSTOM
+        settings.TICKETS_TEMPLATE_MODEL != 'tickets.TicketTemplate'
+        and not settings.TICKETS_TEMPLATE_FORCE_NOT_CUSTOM
     )
 
 

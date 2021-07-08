@@ -172,11 +172,11 @@ class ConvertTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -198,11 +198,11 @@ class ConvertTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -229,11 +229,11 @@ class ConvertTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -254,11 +254,11 @@ class ConvertTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK |
-                EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -412,10 +412,9 @@ class ConvertTestCase(_BillingTestCase):
         self.assertTrue(rtype1.is_copiable)
         self.assertTrue(rtype2.is_copiable)
 
-        Relation.objects.create(user=user, type=rtype1,
-                                subject_entity=quote,
-                                object_entity=source,
-                               )
+        Relation.objects.create(
+            user=user, type=rtype1, subject_entity=quote, object_entity=source,
+        )
         self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
 
@@ -427,10 +426,9 @@ class ConvertTestCase(_BillingTestCase):
         self.assertFalse(rtype3.is_copiable)
         self.assertFalse(rtype4.is_copiable)
 
-        Relation.objects.create(user=user, type=rtype3,
-                                subject_entity=quote,
-                                object_entity=source,
-                               )
+        Relation.objects.create(
+            user=user, type=rtype3, subject_entity=quote, object_entity=source,
+        )
         self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
 
@@ -439,10 +437,9 @@ class ConvertTestCase(_BillingTestCase):
             ('test-object_foobar_wrong_ctype',  'is loved by', (Organisation,)),
         )
 
-        Relation.objects.create(user=user, type=rtype5,
-                                subject_entity=quote,
-                                object_entity=source,
-                               )
+        Relation.objects.create(
+            user=user, type=rtype5, subject_entity=quote, object_entity=source,
+        )
         self.assertEqual(1, Relation.objects.filter(type=rtype5).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype6).count())
 
@@ -457,7 +454,7 @@ class ConvertTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     def test_converted_relations(self):
-        self.login()
+        user = self.login()
         from ..registry import relationtype_converter
 
         self.assertEqual(0, Relation.objects.count())
@@ -472,9 +469,9 @@ class ConvertTestCase(_BillingTestCase):
         )
         relationtype_converter.register(Quote, rtype1, Invoice, rtype3)
 
-        Relation.objects.create(user=self.user, type=rtype1,
-                                subject_entity=quote,
-                                object_entity=source)
+        Relation.objects.create(
+            user=user, type=rtype1, subject_entity=quote, object_entity=source,
+        )
         self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
         self.assertEqual(0, Relation.objects.filter(type=rtype3).count())

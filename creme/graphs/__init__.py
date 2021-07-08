@@ -25,8 +25,8 @@ from creme.creme_core import get_concrete_model
 
 def graph_model_is_custom():
     return (
-        settings.GRAPHS_GRAPH_MODEL != 'graphs.Graph' and
-        not settings.GRAPHS_GRAPH_FORCE_NOT_CUSTOM
+        settings.GRAPHS_GRAPH_MODEL != 'graphs.Graph'
+        and not settings.GRAPHS_GRAPH_FORCE_NOT_CUSTOM
     )
 
 

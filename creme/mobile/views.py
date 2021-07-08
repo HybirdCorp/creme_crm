@@ -87,7 +87,10 @@ def lw_exceptions(view):
         except PermissionDenied as e:
             status = 403
             error = e
-            msg = _('You do not have access to this page, please contact your administrator.')
+            msg = _(
+                'You do not have access to this page, '
+                'please contact your administrator.'
+            )
         except Http404 as e:
             status = 404
             error = e
@@ -95,7 +98,9 @@ def lw_exceptions(view):
         except ConflictError as e:
             status = 409
             error = e
-            msg = _('You can not perform this action because of business constraints.')
+            msg = _(
+                'You can not perform this action because of business constraints.'
+            )
 
         return render(
             request, 'mobile/error.html',
@@ -178,8 +183,11 @@ def portal(request):
     #     activities which start at 0h00 will be in 'hot_activities').
     hot_activities, today_activities = split_filter(
         lambda a:
-            a.floating_type == act_constants.NARROW and
-            (a.status_id == act_constants.STATUS_IN_PROGRESS or a.start < now_val),
+            a.floating_type == act_constants.NARROW
+            and (
+                a.status_id == act_constants.STATUS_IN_PROGRESS
+                or a.start < now_val
+            ),
         activities
     )
     # TODO: populate participants (regroup queries for Relation + real entities) ??
@@ -278,9 +286,9 @@ def search_person(request):
         Contact.objects.exclude(
             is_deleted=True,
         ).filter(
-            Q(first_name__icontains=search) |
-            Q(last_name__icontains=search) |
-            Q(
+            Q(first_name__icontains=search)
+            | Q(last_name__icontains=search)
+            | Q(
                 relations__type__in=(
                     persons_constants.REL_SUB_EMPLOYED_BY,
                     persons_constants.REL_SUB_MANAGES,
@@ -346,7 +354,7 @@ def stop_activity(request, activity_id):
     now_val = now()
 
     if activity.start > now_val:
-        raise ConflictError("This activity cannot be stopped before it is started.")
+        raise ConflictError('This activity cannot be stopped before it is started.')
 
     activity.end = now_val
     activity.status_id = act_constants.STATUS_DONE
@@ -428,8 +436,8 @@ def phonecall_panel(request):
 
     GET = request.GET
     call_start = _build_date_or_404(get_from_GET_or_404(GET, 'call_start'))
-    person_id  = get_from_GET_or_404(GET, 'person_id')
-    number     = get_from_GET_or_404(GET, 'number')
+    person_id = get_from_GET_or_404(GET, 'person_id')
+    number = get_from_GET_or_404(GET, 'number')
 
     context = {
         'type_id':         act_constants.ACTIVITYTYPE_PHONECALL,
@@ -545,12 +553,16 @@ def _add_participants(activity, persons):
     # TODO: when orga can participate
     for person in persons:
         if isinstance(person, Contact):
-            create_relation(object_entity=person, type_id=act_constants.REL_OBJ_PART_2_ACTIVITY)
+            create_relation(
+                object_entity=person, type_id=act_constants.REL_OBJ_PART_2_ACTIVITY,
+            )
 
             if person.is_user:
                 users.append(person.is_user)
         else:
-            create_relation(object_entity=person, type_id=act_constants.REL_OBJ_ACTIVITY_SUBJECT)
+            create_relation(
+                object_entity=person, type_id=act_constants.REL_OBJ_ACTIVITY_SUBJECT,
+            )
 
     for calendars_chunk in iter_as_chunk(
         Calendar.objects.get_default_calendars(users).values(),

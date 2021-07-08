@@ -328,9 +328,9 @@ class MenuEntriesField(fields.JSONField):
 
                 entry_class = registry.get_class(entry_id)
                 if (
-                    entry_class is None or
-                    entry_id in excluded_entry_ids or
-                    entry_class.level != self.entry_level
+                    entry_class is None
+                    or entry_id in excluded_entry_ids
+                    or entry_class.level != self.entry_level
                 ):
                     self._raise_invalid_data(
                         gettext('the entry ID "{}" is invalid.').format(entry_id),
@@ -357,8 +357,11 @@ class BricksConfigField(fields.JSONField):
     default_error_messages = {
         'invalid_format': _("The value doesn't match the expected format."),
         'invalid_choice': (
-            fields.ChoiceField.default_error_messages['invalid_choice']),
-        'duplicated_brick': _('The following block should be displayed only once: «%(block)s»'),
+            fields.ChoiceField.default_error_messages['invalid_choice']
+        ),
+        'duplicated_brick': _(
+            'The following block should be displayed only once: «%(block)s»'
+        ),
         'required': _('Your configuration is empty !'),
     }
 

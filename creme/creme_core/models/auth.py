@@ -113,7 +113,9 @@ class UserRole(models.Model):
     def admin_4_apps(self) -> Set[str]:
         if self._admin_4_apps is None:
             self._admin_4_apps = {
-                app_name for app_name in self.raw_admin_4_apps.split('\n') if app_name
+                app_name
+                for app_name in self.raw_admin_4_apps.split('\n')
+                if app_name
             }
 
         return self._admin_4_apps
@@ -128,7 +130,9 @@ class UserRole(models.Model):
     def allowed_apps(self) -> Set[str]:
         if self._allowed_apps is None:
             self._allowed_apps = {
-                app_name for app_name in self.raw_allowed_apps.split('\n') if app_name
+                app_name
+                for app_name in self.raw_allowed_apps.split('\n')
+                if app_name
             }
 
         # TODO: FrozenSet to avoid modifications ?
@@ -251,7 +255,8 @@ class UserRole(models.Model):
     def filter(self,
                user,
                queryset: QuerySet,
-               perm: int) -> QuerySet:
+               perm: int,
+               ) -> QuerySet:
         """Filter a QuerySet of CremeEntities by the credentials related to this role.
         Beware, the model class must be a child class of CremeEntity,
         but cannot be CremeEntity itself.
@@ -277,7 +282,8 @@ class UserRole(models.Model):
                         user,
                         queryset: QuerySet,
                         perm: int,
-                        as_model: Optional[Type['CremeEntity']] = None) -> QuerySet:
+                        as_model: Optional[Type['CremeEntity']] = None,
+                        ) -> QuerySet:
         """Filter a QuerySet of CremeEntities by the credentials related to this role.
         Beware, model class must be CremeEntity ; it cannot be a child class
         of CremeEntity.
@@ -329,7 +335,8 @@ class SetCredentials(models.Model):
     ])  # TODO: inline ?
 
     role = models.ForeignKey(
-        UserRole, related_name='credentials', on_delete=models.CASCADE, editable=False,
+        UserRole,
+        related_name='credentials', on_delete=models.CASCADE, editable=False,
     )
     # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
     value = models.PositiveSmallIntegerField()
@@ -344,7 +351,8 @@ class SetCredentials(models.Model):
     )
     ctype = EntityCTypeForeignKey(
         verbose_name=_('Apply to a specific type'),
-        null=True, blank=True,  # NB: NULL means "No specific type" (ie: any kind of CremeEntity)
+        # NB: NULL means "No specific type" (ie: any kind of CremeEntity)
+        null=True, blank=True,
     )
     # entity  = models.ForeignKey(CremeEntity, null=True) ??
     forbidden = models.BooleanField(
@@ -439,7 +447,8 @@ class SetCredentials(models.Model):
     @staticmethod
     def get_perms(sc_sequence: Sequence['SetCredentials'],
                   user,
-                  entity: 'CremeEntity') -> int:
+                  entity: 'CremeEntity',
+                  ) -> int:
         """@param sc_sequence: Sequence of SetCredentials instances."""
         perms = reduce(
             or_op,
@@ -459,7 +468,8 @@ class SetCredentials(models.Model):
                 user,
                 model: Type['CremeEntity'],
                 owner=None,
-                perm: int = EntityCredentials.VIEW) -> bool:
+                perm: int = EntityCredentials.VIEW,
+                ) -> bool:
         if owner is None:
             def user_is_concerned(sc):
                 return not sc.forbidden
@@ -493,7 +503,8 @@ class SetCredentials(models.Model):
                     sc_sequence: Sequence['SetCredentials'],
                     user,
                     queryset: QuerySet,
-                    perm: int) -> QuerySet:
+                    perm: int,
+                    ) -> QuerySet:
         allowed_ctype_ids = {None, ContentType.objects.get_for_model(model).id}
         ESET_ALL = cls.ESET_ALL
         ESET_OWN = cls.ESET_OWN
@@ -551,7 +562,8 @@ class SetCredentials(models.Model):
                sc_sequence: Sequence['SetCredentials'],
                user,
                queryset: QuerySet,
-               perm: int) -> QuerySet:
+               perm: int,
+               ) -> QuerySet:
         """Filter a queryset of entities with the given credentials.
         Beware, the model class must be a child class of CremeEntity,
         but cannot be CremeEntity itself.
@@ -578,7 +590,8 @@ class SetCredentials(models.Model):
                         queryset: QuerySet,
                         perm: int,
                         models: Iterable[Type['CremeEntity']],
-                        as_model=None) -> QuerySet:
+                        as_model=None,
+                        ) -> QuerySet:
         """Filter a queryset of entities with the given credentials.
         Beware, model class must be CremeEntity ; it cannot be a child class
         of CremeEntity.
@@ -737,7 +750,8 @@ class SetCredentials(models.Model):
             model = ct.model_class()
             if model is CremeEntity:
                 raise ValueError(
-                    f'{type(self).__name__}: <ctype> cannot be <CremeEntity> (use <None> instead).'
+                    f'{type(self).__name__}: '
+                    f'<ctype> cannot be <CremeEntity> (use <None> instead).'
                 )
 
         if self.set_type == self.ESET_FILTER:
@@ -766,7 +780,8 @@ class SetCredentials(models.Model):
                   can_change: bool,
                   can_delete: bool,
                   can_link: bool,
-                  can_unlink: bool) -> None:
+                  can_unlink: bool,
+                  ) -> None:
         """Set the 'value' attribute from 5 booleans."""
         value = EntityCredentials.NONE
 
@@ -789,7 +804,13 @@ class SetCredentials(models.Model):
 
 
 class CremeUserManager(BaseUserManager):
-    def create_user(self, username, first_name, last_name, email, password=None, **extra_fields):
+    def create_user(self,
+                    username,
+                    first_name,
+                    last_name,
+                    email,
+                    password=None,
+                    **extra_fields):
         "Creates and saves a (Creme)User instance."
         if not username:
             raise ValueError('The given username must be set')
@@ -806,14 +827,13 @@ class CremeUserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(
-            self,
-            username,
-            first_name,
-            last_name,
-            email,
-            password=None,
-            **extra_fields):
+    def create_superuser(self,
+                         username,
+                         first_name,
+                         last_name,
+                         email,
+                         password=None,
+                         **extra_fields):
         "Creates and saves a superuser."
         extra_fields['is_superuser'] = True
 
@@ -831,9 +851,9 @@ class CremeUserManager(BaseUserManager):
         user_qs = self.get_queryset().order_by('id')
 
         return (
-            user_qs.filter(is_superuser=True, is_staff=False).first() or
-            user_qs.filter(is_superuser=True).first() or
-            user_qs[0]
+            user_qs.filter(is_superuser=True, is_staff=False).first()
+            or user_qs.filter(is_superuser=True).first()
+            or user_qs[0]
         )
 
 
@@ -872,9 +892,13 @@ class CremeUser(AbstractBaseUser):
     ).set_tags(viewable=False)  # NB: blank=True for teams
     email = models.EmailField(_('Email address'), blank=True)
 
-    date_joined = models.DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
+    date_joined = models.DateTimeField(
+        _('Date joined'), default=now,
+    ).set_tags(viewable=False)
 
-    is_active = models.BooleanField(_('Active?'), default=True).set_tags(viewable=False)
+    is_active = models.BooleanField(
+        _('Active?'), default=True,
+    ).set_tags(viewable=False)
 
     is_staff = models.BooleanField(
         _('Is staff?'), default=False
@@ -898,7 +922,8 @@ class CremeUser(AbstractBaseUser):
         choices=[(tz, tz) for tz in pytz.common_timezones],
     ).set_tags(viewable=False)
     theme = models.CharField(
-        _('Theme'), max_length=50, default=settings.THEMES[0][0], choices=settings.THEMES,
+        _('Theme'),
+        max_length=50, default=settings.THEMES[0][0], choices=settings.THEMES,
     ).set_tags(viewable=False)
     language = models.CharField(
         _('Language'), max_length=10,
@@ -908,7 +933,9 @@ class CremeUser(AbstractBaseUser):
 
     # NB: do not use directly ; use the property 'settings'
     # TODO: JSONField ?
-    json_settings = models.TextField(editable=False, default='{}').set_tags(viewable=False)
+    json_settings = models.TextField(
+        editable=False, default='{}'
+    ).set_tags(viewable=False)
 
     objects = CremeUserManager()
 
@@ -1158,9 +1185,9 @@ class CremeUser(AbstractBaseUser):
         meta = model_or_entity._meta
         return self.has_perm(f'{meta.app_label}.export_{meta.object_name.lower()}')
 
-    def has_perm_to_export_or_die(
-            self,
-            model_or_entity: Union[Type['CremeEntity'], 'CremeEntity']) -> None:
+    def has_perm_to_export_or_die(self,
+                                  model_or_entity: Union[Type['CremeEntity'], 'CremeEntity'],
+                                  ) -> None:
         if not self.has_perm_to_export(model_or_entity):
             raise PermissionDenied(
                 gettext('You are not allowed to export: {}').format(
@@ -1170,7 +1197,8 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_link(self,
                          entity_or_model: _EntityInstanceOrClass,
-                         owner: Optional['CremeUser'] = None) -> bool:
+                         owner: Optional['CremeUser'] = None,
+                         ) -> bool:
         """Can the user link a future entity of a given class ?
         @param entity_or_model: {Instance of} class inheriting CremeEntity.
         @param owner: (only used when 1rst param is a class) Instance of CremeUser ;
@@ -1196,7 +1224,8 @@ class CremeUser(AbstractBaseUser):
     # TODO: factorise ??
     def has_perm_to_link_or_die(self,
                                 entity_or_model: _EntityInstanceOrClass,
-                                owner: Optional['CremeUser'] = None) -> None:
+                                owner: Optional['CremeUser'] = None,
+                                ) -> None:
         if not self.has_perm_to_link(entity_or_model, owner):
             if isinstance(entity_or_model, CremeEntity):
                 msg = gettext('You are not allowed to link this entity: {}').format(

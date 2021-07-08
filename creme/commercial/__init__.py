@@ -25,22 +25,22 @@ from creme.creme_core import get_concrete_model
 
 def act_model_is_custom():
     return (
-        settings.COMMERCIAL_ACT_MODEL != 'commercial.Act' and
-        not settings.COMMERCIAL_ACT_FORCE_NOT_CUSTOM
+        settings.COMMERCIAL_ACT_MODEL != 'commercial.Act'
+        and not settings.COMMERCIAL_ACT_FORCE_NOT_CUSTOM
     )
 
 
 def pattern_model_is_custom():
     return (
-        settings.COMMERCIAL_PATTERN_MODEL != 'commercial.ActObjectivePattern' and
-        not settings.COMMERCIAL_PATTERN_FORCE_NOT_CUSTOM
+        settings.COMMERCIAL_PATTERN_MODEL != 'commercial.ActObjectivePattern'
+        and not settings.COMMERCIAL_PATTERN_FORCE_NOT_CUSTOM
     )
 
 
 def strategy_model_is_custom():
     return (
-        settings.COMMERCIAL_STRATEGY_MODEL != 'commercial.Strategy' and
-        not settings.COMMERCIAL_STRATEGY_FORCE_NOT_CUSTOM
+        settings.COMMERCIAL_STRATEGY_MODEL != 'commercial.Strategy'
+        and not settings.COMMERCIAL_STRATEGY_FORCE_NOT_CUSTOM
     )
 
 

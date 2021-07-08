@@ -30,22 +30,22 @@ if TYPE_CHECKING:
 
 def address_model_is_custom() -> bool:
     return (
-        settings.PERSONS_ADDRESS_MODEL != 'persons.Address' and
-        not settings.PERSONS_ADDRESS_FORCE_NOT_CUSTOM
+        settings.PERSONS_ADDRESS_MODEL != 'persons.Address'
+        and not settings.PERSONS_ADDRESS_FORCE_NOT_CUSTOM
     )
 
 
 def contact_model_is_custom() -> bool:
     return (
-        settings.PERSONS_CONTACT_MODEL != 'persons.Contact' and
-        not settings.PERSONS_CONTACT_FORCE_NOT_CUSTOM
+        settings.PERSONS_CONTACT_MODEL != 'persons.Contact'
+        and not settings.PERSONS_CONTACT_FORCE_NOT_CUSTOM
     )
 
 
 def organisation_model_is_custom() -> bool:
     return (
-        settings.PERSONS_ORGANISATION_MODEL != 'persons.Organisation' and
-        not settings.PERSONS_ORGANISATION_FORCE_NOT_CUSTOM
+        settings.PERSONS_ORGANISATION_MODEL != 'persons.Organisation'
+        and not settings.PERSONS_ORGANISATION_FORCE_NOT_CUSTOM
     )
 
 

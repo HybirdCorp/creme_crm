@@ -126,10 +126,8 @@ class EntityCell:
 
         return (
             self.type_id == other.type_id
-            and
-            self.model == other.model
-            and
-            self.value == other.value
+            and self.model == other.model
+            and self.value == other.value
             # TODO: compare other fields
         )
 
@@ -192,7 +190,8 @@ class EntityCell:
     @staticmethod
     def mixed_populate_entities(cells: Iterable['EntityCell'],
                                 entities: Sequence[CremeEntity],
-                                user) -> None:
+                                user,
+                                ) -> None:
         """Fill caches of CremeEntity objects with grouped SQL queries, & so
         avoid multiple queries when rendering the cells.
         The given cells are grouped by types, and then the method
@@ -212,7 +211,8 @@ class EntityCell:
     @staticmethod
     def populate_entities(cells: Iterable['EntityCell'],
                           entities: Sequence[CremeEntity],
-                          user) -> None:
+                          user,
+                          ) -> None:
         """Fill caches of CremeEntity objects with grouped SQL queries, & so
         avoid multiple queries when rendering the cells.
         The given cells MUST HAVE THE SAME TYPE (corresponding to the class
@@ -260,7 +260,8 @@ class EntityCellsRegistry:
 
     def build_cells_from_dicts(self,
                                model: Type[Model],
-                               dicts: Iterable[Dict]) -> Tuple[List[EntityCell], bool]:
+                               dicts: Iterable[Dict],
+                               ) -> Tuple[List[EntityCell], bool]:
         """Build some EntityCells instance from an iterable of dictionaries.
 
         @param model: Class inheriting <django.db.model.Model> related to the cells.
@@ -618,7 +619,8 @@ class EntityCellFunctionField(EntityCell):
     @classmethod
     def build(cls,
               model: Type[Model],
-              func_field_name: str) -> Optional['EntityCellFunctionField']:
+              func_field_name: str,
+              ) -> Optional['EntityCellFunctionField']:
         func_field = cls.field_registry.get(model, func_field_name)
 
         if func_field is None:

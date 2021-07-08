@@ -73,8 +73,8 @@ class CreditNoteRelatedForm(base.CremeForm):
         #       of date by looking to expiration date
         # TODO: Add another filter today <= expiration_date ??
         q_filter = (
-            ~Q(pk__in=[rel.object_entity_id for rel in existing]) &
-            Q(
+            ~Q(pk__in=[rel.object_entity_id for rel in existing])
+            & Q(
                 currency=entity.currency.id,
                 # TODO: workflow status
                 relations__type=constants.REL_SUB_BILL_RECEIVED,

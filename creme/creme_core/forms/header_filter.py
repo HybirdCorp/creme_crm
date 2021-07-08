@@ -369,8 +369,7 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
 
             return (
                 get_fconf(model).is_field_hidden(field)
-                and
-                field.name not in non_hiddable_fnames[model]
+                and field.name not in non_hiddable_fnames[model]
             )
 
         return ModelFieldEnumerator(
@@ -609,8 +608,12 @@ class EntityCellsField(Field):
 
 class _HeaderFilterForm(CremeModelForm):
     error_messages = {
-        'orphan_private':  _('A private view of list must be assigned to a user/team.'),
-        'foreign_private': _('A private view of list must belong to you (or one of your teams).')
+        'orphan_private':  _(
+            'A private view of list must be assigned to a user/team.'
+        ),
+        'foreign_private': _(
+            'A private view of list must belong to you (or one of your teams).'
+        ),
     }
 
     cells = EntityCellsField(label=_('Columns'))
@@ -618,7 +621,9 @@ class _HeaderFilterForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = HeaderFilter
         help_texts = {
-            'user': _('All users can see the view, but only the owner can edit or delete it'),
+            'user': _(
+                'All users can see the view, but only the owner can edit or delete it'
+            ),
             'is_private': _(
                 'A private view of list can only be used by its owner '
                 '(or the teammates if the owner is a team)'

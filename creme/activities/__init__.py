@@ -25,8 +25,8 @@ from creme.creme_core import get_concrete_model
 
 def activity_model_is_custom():
     return (
-        settings.ACTIVITIES_ACTIVITY_MODEL != 'activities.Activity' and
-        not settings.ACTIVITIES_ACTIVITY_FORCE_NOT_CUSTOM
+        settings.ACTIVITIES_ACTIVITY_MODEL != 'activities.Activity'
+        and not settings.ACTIVITIES_ACTIVITY_FORCE_NOT_CUSTOM
     )
 
 

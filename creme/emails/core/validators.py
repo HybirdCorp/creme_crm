@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2020 Hybird
+# Copyright (c) 2020-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -76,8 +76,8 @@ class TemplateVariablesValidator:
 
     def __eq__(self, other):
         return (
-            isinstance(other, TemplateVariablesValidator) and
-            self._allowed_variables == other._allowed_variables
+            isinstance(other, TemplateVariablesValidator)
+            and self._allowed_variables == other._allowed_variables
         )
 
     @property

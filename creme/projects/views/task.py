@@ -121,8 +121,8 @@ class ActivityDeletion(generic.CremeModelDeletion):
         relations = {
             r.type_id: r
             for r in Relation.objects.filter(
-                Q(type=REL_SUB_PART_AS_RESOURCE, object_entity=activity) |
-                Q(subject_entity=activity, type=REL_SUB_LINKED_2_PTASK)
+                Q(type=REL_SUB_PART_AS_RESOURCE, object_entity=activity)
+                | Q(subject_entity=activity, type=REL_SUB_LINKED_2_PTASK)
             )[:2]
         }
 
@@ -151,4 +151,6 @@ class ActivityDeletion(generic.CremeModelDeletion):
         except ProtectedError as e:
             logger.exception('Error when deleting an activity of project')
 
-            raise ConflictError('Can not be deleted because of its dependencies.') from e
+            raise ConflictError(
+                'Can not be deleted because of its dependencies.'
+            ) from e

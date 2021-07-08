@@ -25,15 +25,15 @@ from creme.creme_core import get_concrete_model
 
 def project_model_is_custom():
     return (
-        settings.PROJECTS_PROJECT_MODEL != 'projects.Project' and
-        not settings.PROJECTS_PROJECT_FORCE_NOT_CUSTOM
+        settings.PROJECTS_PROJECT_MODEL != 'projects.Project'
+        and not settings.PROJECTS_PROJECT_FORCE_NOT_CUSTOM
     )
 
 
 def task_model_is_custom():
     return (
-        settings.PROJECTS_TASK_MODEL != 'projects.ProjectTask' and
-        not settings.PROJECTS_TASK_FORCE_NOT_CUSTOM
+        settings.PROJECTS_TASK_MODEL != 'projects.ProjectTask'
+        and not settings.PROJECTS_TASK_FORCE_NOT_CUSTOM
     )
 
 

@@ -60,17 +60,21 @@ class GraphHandCellConstraint:
     def __init__(self, model: Type[CremeEntity]):
         self.model = model
 
-    def cells(self, not_hiddable_cell_keys: Container[str] = ()) -> Iterator[EntityCell]:
+    def cells(self,
+              not_hiddable_cell_keys: Container[str] = (),
+              ) -> Iterator[EntityCell]:
         raise NotImplementedError()
 
     def check_cell(self,
                    cell: EntityCell,
-                   not_hiddable_cell_keys: Container[str] = ()) -> bool:
+                   not_hiddable_cell_keys: Container[str] = (),
+                   ) -> bool:
         raise NotImplementedError()
 
     def get_cell(self,
                  cell_key: str,
-                 not_hiddable_cell_keys: Container[str] = ()) -> Optional[EntityCell]:
+                 not_hiddable_cell_keys: Container[str] = (),
+                 ) -> Optional[EntityCell]:
         try:
             cell_type_id, cell_value = cell_key.split('-', 1)
         except ValueError:
@@ -81,7 +85,9 @@ class GraphHandCellConstraint:
             if cell_type_id == cell_cls.type_id:
                 cell = cell_cls.build(self.model, cell_value)
 
-                if cell and self.check_cell(cell, not_hiddable_cell_keys=not_hiddable_cell_keys):
+                if cell and self.check_cell(
+                    cell, not_hiddable_cell_keys=not_hiddable_cell_keys,
+                ):
                     return cell
 
         return None
@@ -124,7 +130,10 @@ class GHCCRegularField(GraphHandCellConstraint):
 
     def check_cell(self, cell, not_hiddable_cell_keys=()):
         field_info = cell.field_info
-        return len(field_info) == 1 and self._accept_field(field_info[0], not_hiddable_cell_keys)
+        return (
+            len(field_info) == 1
+            and self._accept_field(field_info[0], not_hiddable_cell_keys)
+        )
 
 
 class GHCCRegularFK(GHCCRegularField):
@@ -181,8 +190,7 @@ class GHCCCustomField(GraphHandCellConstraint):
 
         return (
             (not cfield.is_deleted or cell.key in not_hiddable_cell_keys)
-            and
-            cfield.field_type == self.customfield_type
+            and cfield.field_type == self.customfield_type
         )
 
 
@@ -205,13 +213,16 @@ class GraphHandConstraintsRegistry:
         self._constraints_by_rgtype:  Dict[int, Type[GraphHandCellConstraint]] = {}
         self._param_validators: Dict[int, forms.Field] = {}
 
-    def cell_constraints(self, model: Type[CremeEntity]) -> Iterator[GraphHandCellConstraint]:
+    def cell_constraints(self,
+                         model: Type[CremeEntity],
+                         ) -> Iterator[GraphHandCellConstraint]:
         for constraint_class in self._constraints_by_type_id.values():
             yield constraint_class(model)
 
     def get_constraint_by_rgraph_type(self,
                                       model: Type[CremeEntity],
-                                      rgraph_type: int) -> Optional[GraphHandCellConstraint]:
+                                      rgraph_type: int,
+                                      ) -> Optional[GraphHandCellConstraint]:
         constraint_class = self._constraints_by_rgtype.get(rgraph_type)
         return constraint_class(model) if constraint_class else None
 
@@ -224,7 +235,8 @@ class GraphHandConstraintsRegistry:
 
     def register_cell_constraint(self, *,
                                  constraint_class: Type[GraphHandCellConstraint],
-                                 rgraph_types: Iterable[int]) -> 'GraphHandConstraintsRegistry':
+                                 rgraph_types: Iterable[int],
+                                 ) -> 'GraphHandConstraintsRegistry':
         set_constraint_by_type_id = self._constraints_by_type_id.setdefault
         set_constraint_by_rgtype = self._constraints_by_rgtype.setdefault
 
@@ -248,7 +260,8 @@ class GraphHandConstraintsRegistry:
 
     def register_parameter_validator(self, *,
                                      rgraph_types: Iterable[int],
-                                     formfield: forms.Field) -> 'GraphHandConstraintsRegistry':
+                                     formfield: forms.Field,
+                                     ) -> 'GraphHandConstraintsRegistry':
         set_validator = self._param_validators.setdefault
 
         for rgtype in rgraph_types:
@@ -323,18 +336,22 @@ class AggregatorCellConstraint:
     def __init__(self, model: Type[CremeEntity]):
         self.model = model
 
-    def cells(self, not_hiddable_cell_keys: Container[str] = ()) -> Iterator[EntityCell]:
+    def cells(self,
+              not_hiddable_cell_keys: Container[str] = (),
+              ) -> Iterator[EntityCell]:
         yield from ()
 
     def check_cell(self,
                    cell: EntityCell,
-                   not_hiddable_cell_keys: Container[str] = ()) -> bool:
+                   not_hiddable_cell_keys: Container[str] = (),
+                   ) -> bool:
         return True
 
     def get_cell(self,
                  cell_key: str,
                  not_hiddable_cell_keys: Container[str] = (),
-                 check: bool = True) -> Optional[EntityCell]:
+                 check: bool = True,
+                 ) -> Optional[EntityCell]:
         try:
             cell_type_id, cell_value = cell_key.split('-', 1)
         except ValueError:
@@ -459,8 +476,7 @@ class ACCFieldAggregation(AggregatorCellConstraint):
 
             return (
                 len(field_info) == 1
-                and
-                self._accept_rfield(field_info[0], not_hiddable_cell_keys)
+                and self._accept_rfield(field_info[0], not_hiddable_cell_keys)
             )
 
         if isinstance(cell, EntityCellCustomField):
@@ -474,13 +490,16 @@ class AggregatorConstraintsRegistry:
     def __init__(self):
         self._constraints_by_type_id: Dict[str, Type[AggregatorCellConstraint]] = {}
 
-    def cell_constraints(self, model: Type[CremeEntity]) -> Iterator[AggregatorCellConstraint]:
+    def cell_constraints(self,
+                         model: Type[CremeEntity],
+                         ) -> Iterator[AggregatorCellConstraint]:
         for constraint_class in self._constraints_by_type_id.values():
             yield constraint_class(model)
 
     def get_constraint_by_aggr_id(self,
                                   model: Type[CremeEntity],
-                                  aggr_id: str) -> Optional[AggregatorCellConstraint]:
+                                  aggr_id: str,
+                                  ) -> Optional[AggregatorCellConstraint]:
         for constraint_cls in self._constraints_by_type_id.values():
             if aggr_id in constraint_cls.aggregator_ids:
                 return constraint_cls(model)

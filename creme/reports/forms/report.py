@@ -350,7 +350,6 @@ _HAND_2_CELL_MAP = {v: k for k, v in _CELL_2_HAND_MAP.items()}
 #             build_field = partial(Field.objects.create, report=report)
 #
 #             for i, cell in enumerate(self.cleaned_data['hf'].filtered_cells, start=1):
-#                 # TODO: check in clean() that id is OK
 #                 build_field(
 #                     name=cell.value, order=i,
 #                     type=_CELL_2_HAND_MAP[cell.type_id],
@@ -439,10 +438,8 @@ class ReportEntityCellRegularFieldsField(hf_form.EntityCellRegularFieldsField):
             # lambda field, depth: not (
             lambda model, field, depth: not (
                 depth
-                and
-                field.is_relation
-                and
-                issubclass(field.remote_field.model, CremeEntity)
+                and field.is_relation
+                and issubclass(field.remote_field.model, CremeEntity)
             )
         )
 

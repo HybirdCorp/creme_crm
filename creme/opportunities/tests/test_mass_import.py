@@ -104,12 +104,14 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Opportunity)
         self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'step':     0,
-                                                           'document': doc.id,
-                                                           # has_header
-                                                          },
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'step':     0,
+                'document': doc.id,
+                # has_header
+            },
+        ))
 
         response = self.client.post(
             url, follow=True,
@@ -160,23 +162,25 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         self.assertEqual(100,  opp2.estimated_sales)
         self.assertEqual(200,  opp2.made_sales)
         self.assertEqual(sp2,  opp2.sales_phase)
-        self.assertEqual(self.get_object_or_fail(Organisation, name=target2_name),
-                         opp2.target
-                        )
+        self.assertEqual(
+            self.get_object_or_fail(Organisation, name=target2_name),
+            opp2.target,
+        )
 
         opp3 = self.get_object_or_fail(Opportunity, name='Opp03')
         self.assertEqual(target3, opp3.target)
 
         opp4 = self.get_object_or_fail(Opportunity, name='Opp04')
-        self.assertEqual(self.get_object_or_fail(Contact, last_name=target4_last_name),
-                         opp4.target
-                        )
+        self.assertEqual(
+            self.get_object_or_fail(Contact, last_name=target4_last_name),
+            opp4.target
+        )
 
         opp5 = self.get_object_or_fail(Opportunity, name='Opp05')
         self.assertEqual(sp5, opp5.sales_phase)
 
     def test_mass_import02(self):
-        "SalesPhase creation forbidden by the user"
+        "SalesPhase creation forbidden by the user."
         user = self.login()
 
         count = Opportunity.objects.count()
@@ -229,15 +233,17 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         self.assertEqual(2, len(result.messages))
 
         vname = _('Opportunity')
-        self.assertEqual(
-            [_('No «{model}» has been created.').format(model=vname),
-             _('No «{model}» has been updated.').format(model=vname),
-             ngettext('{count} line in the file.',
-                      '{count} lines in the file.',
-                      1
-                     ).format(count=1),
+        self.assertListEqual(
+            [
+                _('No «{model}» has been created.').format(model=vname),
+                _('No «{model}» has been updated.').format(model=vname),
+                ngettext(
+                    '{count} line in the file.',
+                    '{count} lines in the file.',
+                    1
+                ).format(count=1),
             ],
-            job.stats
+            job.stats,
         )
 
     def test_mass_import03(self):
@@ -272,12 +278,12 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
                 'target_persons_contact_create': '',
             },
         )
-        self.assertFormError(response, 'form', 'sales_phase',
-                             _('This field is required.')
-                            )
+        self.assertFormError(
+            response, 'form', 'sales_phase', _('This field is required.'),
+        )
 
     def test_mass_import04(self):
-        "Creation of Organisation/Contact is not wanted"
+        "Creation of Organisation/Contact is not wanted."
         user = self.login()
 
         count = Opportunity.objects.count()
@@ -285,9 +291,10 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
         orga_name = 'NERV'
         contact_name = 'Ikari'
-        lines = [('Opp01', 'SP name', '1000', '2000', orga_name, ''),
-                 ('Opp02', 'SP name', '1000', '2000', '',        contact_name),
-                ]
+        lines = [
+            ('Opp01', 'SP name', '1000', '2000', orga_name, ''),
+            ('Opp02', 'SP name', '1000', '2000', '',        contact_name),
+        ]
         doc = self._build_csv_doc(lines)
         response = self.client.post(
             self._build_import_url(Opportunity),
@@ -332,16 +339,20 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
     @override_settings(MAX_JOBS_PER_USER=2)
     def test_mass_import05(self):
         "Creation credentials for Organisation & SalesPhase are forbidden."
-        self.login(is_superuser=False,
-                   allowed_apps=['persons', 'documents', 'opportunities'],
-                   creatable_models=[Opportunity, get_document_model()],  # Not Organisation
-                  )
+        self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'documents', 'opportunities'],
+            creatable_models=[Opportunity, get_document_model()],  # Not Organisation
+        )
         role = self.role
         SetCredentials.objects.create(
             role=role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -374,7 +385,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         )
         self.assertFormError(
             response, 'form', 'target',
-            _('You are not allowed to create: %(model)s') % {'model': _('Organisation')}
+            _('You are not allowed to create: %(model)s') % {'model': _('Organisation')},
         )
         self.assertFormError(
             response, 'form', 'sales_phase', 'You can not create instances'
@@ -402,21 +413,20 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
         count = Opportunity.objects.count()
 
-        phase1 = SalesPhase.objects.create(name='Testphase - test_csv_import06 #1')
-        phase2 = SalesPhase.objects.create(name='Testphase - test_csv_import06 #2')
+        create_phase = SalesPhase.objects.create
+        phase1 = create_phase(name='Testphase - test_csv_import06 #1')
+        phase2 = create_phase(name='Testphase - test_csv_import06 #2')
 
         opp1.sales_phase = phase1
         opp1.save()
 
-        doc = self._build_csv_doc(
-            [
-                # Should be updated
-                (opp1.name, '1000', '2000', target2.name, phase1.name),
+        doc = self._build_csv_doc([
+            # Should be updated
+            (opp1.name, '1000', '2000', target2.name, phase1.name),
 
-                # Phase is different => not updated
-                (opp1.name, '1000', '2000', target2.name, phase2.name),
-            ]
-        )
+            # Phase is different => not updated
+            (opp1.name, '1000', '2000', target2.name, phase2.name),
+        ])
         response = self.client.post(
             self._build_import_url(Opportunity),
             follow=True,

@@ -72,7 +72,8 @@ class ReportHand:
     def __init__(self,
                  report_field: 'ReportField',
                  title: str = '??',
-                 support_subreport: bool = False):
+                 support_subreport: bool = False,
+                 ):
         self._report_field = report_field
         self._title = title
         self._support_subreport = support_subreport
@@ -131,7 +132,8 @@ class ReportHand:
     def _get_value_extended_subreport(self,
                                       entity: CremeEntity,
                                       user,
-                                      scope: 'QuerySet') -> List[List[str]]:
+                                      scope: 'QuerySet',
+                                      ) -> List[List[str]]:
         """Used as _get_value() method by subclasses which manage
         sub-reports (extended sub-report case).
         """
@@ -144,7 +146,8 @@ class ReportHand:
     def _get_value_flattened_subreport(self,
                                        entity: CremeEntity,
                                        user,
-                                       scope: 'QuerySet') -> str:
+                                       scope: 'QuerySet',
+                                       ) -> str:
         """Used as _get_value() method by subclasses which manage
         sub-reports (flattened sub-report case).
         """
@@ -155,7 +158,8 @@ class ReportHand:
     def _get_value_no_subreport(self,
                                 entity: CremeEntity,
                                 user,
-                                scope: 'QuerySet') -> str:
+                                scope: 'QuerySet',
+                                ) -> str:
         """Used as _get_value() method by subclasses which manage
         sub-reports (no sub-report case).
         """
@@ -170,7 +174,8 @@ class ReportHand:
     def _get_value_single(self,
                           entity: CremeEntity,
                           user,
-                          scope: 'QuerySet') -> str:
+                          scope: 'QuerySet',
+                          ) -> str:
         """Used as _get_value() method by subclasses which does not manage
         sub-reports.
         """
@@ -183,7 +188,8 @@ class ReportHand:
     def _get_value_single_on_allowed(self,
                                      entity: CremeEntity,
                                      user,
-                                     scope: 'QuerySet') -> str:
+                                     scope: 'QuerySet',
+                                     ) -> str:
         """Overload this in sub-class when you compute the hand value (entity is viewable)."""
         # return
         raise NotImplementedError()
@@ -191,7 +197,8 @@ class ReportHand:
     def _handle_report_values(self,
                               entity: Optional[CremeEntity],
                               user,
-                              scope: 'QuerySet') -> List[str]:
+                              scope: 'QuerySet',
+                              ) -> List[str]:
         """@param entity: CremeEntity instance, or None."""
         return [
             rfield.get_value(entity, user, scope)
@@ -212,7 +219,8 @@ class ReportHand:
     def get_value(self,
                   entity: Optional[CremeEntity],
                   user,
-                  scope: 'QuerySet') -> Union[str, list]:
+                  scope: 'QuerySet',
+                  ) -> Union[str, list]:
         """Extract the value from entity for a Report cell.
         @param entity: CremeEntity instance, or None.
         @param user: User instance ; used to compute credentials.
@@ -295,8 +303,10 @@ class RHRegularField(ReportHand):
 
             second_part = field_info[1]
 
-            if (isinstance(second_part, (ForeignKey, ManyToManyField)) and
-               issubclass(second_part.remote_field.model, CremeEntity)):
+            if (
+                isinstance(second_part, (ForeignKey, ManyToManyField))
+                and issubclass(second_part.remote_field.model, CremeEntity)
+            ):
                 raise ReportHand.ValueError(
                     f'Invalid field: "{report_field.name}" (no entity at depth=1)'
                 )
@@ -418,8 +428,9 @@ class RHManyToManyField(RHRegularField):
         if len(field_info) > 1:
             attr_name = self._field_info[1].name
             # TODO: move "or ''" in base class ??
-            self._related_model_value_extractor = \
+            self._related_model_value_extractor = (
                 lambda instance: getattr(instance, attr_name, None) or ''
+            )
         else:
             self._related_model_value_extractor = str
 
@@ -555,7 +566,8 @@ class RHAggregate(ReportHand):
     def _build_query_n_vname(self,
                              report_field: 'ReportField',
                              field_name: str,
-                             aggregation: FieldAggregation) -> Tuple['Aggregate', str]:
+                             aggregation: FieldAggregation,
+                             ) -> Tuple['Aggregate', str]:
         raise NotImplementedError
 
     def _get_value_single(self, entity, user, scope):
@@ -665,7 +677,8 @@ class RHRelated(ReportHand):
 
     @staticmethod
     def _get_related_field(model: Type[CremeEntity],
-                           related_field_name: str) -> Optional['Field']:
+                           related_field_name: str,
+                           ) -> Optional['Field']:
         try:
             field = model._meta.get_field(related_field_name)
         except FieldDoesNotExist as e:

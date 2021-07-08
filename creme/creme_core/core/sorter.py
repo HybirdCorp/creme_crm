@@ -167,10 +167,10 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
 
         return res
 
-    def register(
-            self, *,
-            model: Type[Model],
-            sorter_cls: Type[AbstractCellSorter]) -> 'ForeignKeySorterRegistry':
+    def register(self, *,
+                 model: Type[Model],
+                 sorter_cls: Type[AbstractCellSorter],
+                 ) -> 'ForeignKeySorterRegistry':
         self._sorters[model] = sorter_cls()
 
         return self
@@ -237,8 +237,8 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
 
         field = cell.field_info[-1]
         sorter = (
-            self._sorters_4_modelfields.get(field) or
-            self._sorters_4_modelfieldtypes[type(field)]
+            self._sorters_4_modelfields.get(field)
+            or self._sorters_4_modelfieldtypes[type(field)]
         )
 
         return None if sorter is None else sorter.get_field_name(cell=cell)
@@ -272,7 +272,8 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
     def register_model_field(self, *,
                              model: Type[Model],
                              field_name: str,
-                             sorter_cls: Type[AbstractCellSorter]):
+                             sorter_cls: Type[AbstractCellSorter],
+                             ):
         field = model._meta.get_field(field_name)
         self._sorters_4_modelfields[field] = sorter_cls()
 
@@ -288,7 +289,8 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
 
     def register_model_field_type(self, *,
                                   type: Type[Field],
-                                  sorter_cls: Type[AbstractCellSorter]):
+                                  sorter_cls: Type[AbstractCellSorter],
+                                  ):
         self._sorters_4_modelfieldtypes[type] = sorter_cls()
 
         return self
@@ -299,7 +301,9 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
         field = model._meta.get_field(field_name)
         return self._sorters_4_modelfields.get(field)
 
-    def sorter_4_model_field_type(self, model_field: Type[Field]) -> Optional[AbstractCellSorter]:
+    def sorter_4_model_field_type(self,
+                                  model_field: Type[Field],
+                                  ) -> Optional[AbstractCellSorter]:
         return self._sorters_4_modelfieldtypes[model_field]
 
 
@@ -309,7 +313,9 @@ class FunctionFieldSorterRegistry(AbstractCellSorter):
     By default it performs no sort, but sub-sorters can be registered to
     customise the behaviour for specific FunctionFields.
     """
-    def __init__(self, to_register: Iterable[Tuple[FunctionField, Type[AbstractCellSorter]]] = ()):
+    def __init__(self,
+                 to_register: Iterable[Tuple[FunctionField, Type[AbstractCellSorter]]] = (),
+                 ):
         self._sorters: Dict[str, AbstractCellSorter] = {}
 
         for ffield, sorter_cls in to_register:
@@ -411,7 +417,8 @@ class QuerySorter:
 
     def _get_field_name(self,
                         cells_dict: Dict[str, EntityCell],
-                        cell_key: Optional[str]) -> Optional[str]:
+                        cell_key: Optional[str],
+                        ) -> Optional[str]:
         if cell_key is None:
             return None
 
@@ -426,7 +433,8 @@ class QuerySorter:
     @classmethod
     def _default_key_n_order(cls,
                              model: Type[Model],
-                             ordering: List[str]) -> Tuple[Optional[str], Order]:
+                             ordering: List[str],
+                             ) -> Tuple[Optional[str], Order]:
         if not ordering:
             return None, Order()
 
@@ -458,7 +466,8 @@ class QuerySorter:
             cells: Iterable[EntityCell],
             cell_key: str,
             order: Optional[Order] = None,
-            fast_mode: bool = False) -> QuerySortInfo:
+            fast_mode: bool = False,
+            ) -> QuerySortInfo:
         """Get a QuerySortInfo instance for a model & a main ordering cell,
         using the natural ordering of this model & the DB-indices.
 

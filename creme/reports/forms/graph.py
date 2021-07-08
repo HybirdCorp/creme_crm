@@ -77,7 +77,8 @@ class AbscissaWidget(ChainedInput):
     def __init__(self,
                  attrs=None,
                  model=CremeEntity,
-                 constraint_registry: Optional[GraphHandConstraintsRegistry] = None):
+                 constraint_registry: Optional[GraphHandConstraintsRegistry] = None,
+                 ):
         super().__init__(attrs=attrs)
         self.model: Type[CremeEntity] = model
         self.constraint_registry: GraphHandConstraintsRegistry = \
@@ -399,7 +400,8 @@ class OrdinateWidget(ChainedInput):
     def __init__(self,
                  attrs=None,
                  model=CremeEntity,
-                 constraint_registry: Optional[AggregatorConstraintsRegistry] = None):
+                 constraint_registry: Optional[AggregatorConstraintsRegistry] = None,
+                 ):
         super().__init__(attrs=attrs)
         self.model: Type[CremeEntity] = model
         self.constraint_registry: AggregatorConstraintsRegistry = (
@@ -698,8 +700,8 @@ class ReportGraphForm(CremeModelForm):
             for cell_constraint in instance.ordinate_constraints.cell_constraints(model)
             for cell in cell_constraint.cells(ordinate_f.not_hiddable_cell_keys)
             if (
-                isinstance(cell, EntityCellRegularField) and
-                isinstance(cell.field_info[-1], MoneyField)
+                isinstance(cell, EntityCellRegularField)
+                and isinstance(cell.field_info[-1], MoneyField)
             )
         ]
         if money_fields:

@@ -47,8 +47,8 @@ class RelationTypeManager(models.Manager):
                    ct_or_model: Union[ContentType, Type[CremeEntity]],
                    include_internals: bool = False):
         types = self.filter(
-            Q(subject_ctypes=as_ctype(ct_or_model)) |
-            Q(subject_ctypes__isnull=True)
+            Q(subject_ctypes=as_ctype(ct_or_model))
+            | Q(subject_ctypes__isnull=True)
         )
 
         if not include_internals:
@@ -109,7 +109,8 @@ class RelationManager(models.Manager):
 
     def safe_multi_save(self,
                         relations: Iterable['Relation'],
-                        check_existing: bool = True) -> int:
+                        check_existing: bool = True,
+                        ) -> int:
         """Save several instances of Relation by taking care of the UNIQUE
         constraint on ('type', 'subject_entity', 'object_entity').
 
@@ -133,23 +134,26 @@ class RelationManager(models.Manager):
 
         for relation in relations:
             # NB: we could use a string '{type_is}#{sub_id}#{obj_id}' => what is the best ?
-            unique_relations[(relation.type_id,
-                              relation.subject_entity_id,
-                              relation.object_entity_id,
-                             )] = relation
+            unique_relations[(
+                relation.type_id,
+                relation.subject_entity_id,
+                relation.object_entity_id,
+            )] = relation
 
         if unique_relations:
             if check_existing:
                 # Remove all existing relations in the list of relation to be created.
                 existing_q = Q()
                 for relation in unique_relations.values():
-                    existing_q |= Q(type_id=relation.type_id,
-                                    subject_entity_id=relation.subject_entity_id,
-                                    object_entity_id=relation.object_entity_id,
-                                   )
+                    existing_q |= Q(
+                        type_id=relation.type_id,
+                        subject_entity_id=relation.subject_entity_id,
+                        object_entity_id=relation.object_entity_id,
+                    )
 
-                for rel_sig in self.filter(existing_q) \
-                                   .values_list('type', 'subject_entity', 'object_entity'):
+                for rel_sig in self.filter(existing_q).values_list(
+                    'type', 'subject_entity', 'object_entity',
+                ):
                     unique_relations.pop(rel_sig, None)
 
             # Creation (we take the first of each group to guaranty uniqueness)
@@ -210,8 +214,10 @@ class RelationType(CremeModel):
     #     brick manages this type.
     minimal_display = models.BooleanField(default=False)
 
-    predicate      = models.CharField(_('Predicate'), max_length=100)
-    symmetric_type = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
+    predicate = models.CharField(_('Predicate'), max_length=100)
+    symmetric_type = models.ForeignKey(
+        'self', blank=True, null=True, on_delete=models.CASCADE,
+    )
 
     objects = RelationTypeManager()
 
@@ -226,7 +232,12 @@ class RelationType(CremeModel):
 
     def __str__(self):
         sym_type = self.symmetric_type
-        symmetric_pred = gettext('No relationship') if sym_type is None else sym_type.predicate
+        symmetric_pred = (
+            gettext('No relationship')
+            if sym_type is None else
+            sym_type.predicate
+        )
+
         return f'{self.predicate} — {symmetric_pred}'  # NB: — == "\xE2\x80\x94" == &mdash;
 
     def add_subject_ctypes(self, *models: Type[CremeEntity]) -> None:
@@ -484,11 +495,13 @@ class Relation(CremeModel):
         Tips: better if object_entity attribute is already populated
         -> (eg: use select_related('object_entity') on the queryset)
         """
-        CremeEntity.populate_real_entities([relation.object_entity for relation in relations])
+        CremeEntity.populate_real_entities([
+            relation.object_entity for relation in relations
+        ])
 
 
 class SemiFixedRelationType(CremeModel):
-    predicate     = models.CharField(_('Predicate'), max_length=100, unique=True)
+    predicate = models.CharField(_('Predicate'), max_length=100, unique=True)
     relation_type = models.ForeignKey(RelationType, on_delete=models.CASCADE)
     object_entity = models.ForeignKey(CremeEntity, on_delete=models.CASCADE)
 

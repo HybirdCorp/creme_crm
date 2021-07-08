@@ -115,9 +115,9 @@ class MassImportButton(ListViewButton):
 
         ct = ContentType.objects.get_for_model(lv_context['model'])
         context['show'] = (
-            self.import_form_registry.is_registered(ct) and
+            self.import_form_registry.is_registered(ct)
             # TODO: __bool__ method instead...
-            next(self.import_backend_registry.backend_classes, None) is not None
+            and next(self.import_backend_registry.backend_classes, None) is not None
         )
         context['content_type'] = ct
 
