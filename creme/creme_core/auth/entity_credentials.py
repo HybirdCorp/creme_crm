@@ -33,13 +33,13 @@ UNLINK_PERM = 'creme_core.unlink_entity'
 
 
 class EntityCredentials:
-    NONE   =  0
-    # ADD    =  1 # 0b000001   # Useless...
-    VIEW   =  2  # 0b000010
-    CHANGE =  4  # 0b000100
-    DELETE =  8  # 0b001000
-    LINK   = 16  # 0b010000
-    UNLINK = 32  # 0b100000
+    NONE   = 0
+    # ADD    = 0b000001   # Useless...
+    VIEW   = 0b000010
+    CHANGE = 0b000100
+    DELETE = 0b001000
+    LINK   = 0b010000
+    UNLINK = 0b100000
 
     _ALL_CREDS = 63
 

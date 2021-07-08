@@ -995,7 +995,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         segment_desc = self._create_segment_desc(strategy, 'Industry', product='green powder')
 
         build_url = self.build_inneredit_url
-        url =  build_url(segment_desc, 'product')
+        url = build_url(segment_desc, 'product')
         self.assertGET200(url)
 
         product = segment_desc.product.title()

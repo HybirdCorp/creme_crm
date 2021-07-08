@@ -299,7 +299,7 @@ class PollFormLine(CremeModel, _PollLine):
 
 class PollFormLineCondition(CremeModel):
     # copied fom EntityFilterCondition
-    EQUALS          =  1
+    EQUALS = 1
     # IEQUALS         =  2
     # EQUALS_NOT      =  3
     # IEQUALS_NOT     =  4
